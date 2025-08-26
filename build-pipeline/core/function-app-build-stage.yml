@@ -170,7 +170,8 @@ stages:
           sonar.typescript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
           sonar.scanner.metadataFilePath=$(Agent.TempDirectory)/sonar/$(Build.BuildNumber)/test/report-task.txt
           sonar.cpd.exclusions=**/*.test.ts,**/generated.tsx
-        
+          sonar.coverage.exclusions=**/*.config.ts,**/*.config.js,**/vitest.config.ts,**/.storybook/**,**/generated/**,**/*.stories.tsx,**/*.test.ts
+
     # SonarCloud: Analyze code and code coverage
     - task: SonarCloudAnalyze@3
       displayName: 'SonarCloud: Run analysis'
