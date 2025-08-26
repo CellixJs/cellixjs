@@ -431,40 +431,6 @@ export type AccountsUserInfoContainerEndUserFieldsFragment = {
   } | null;
 };
 
-export type LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsQueryVariables =
-  Exact<{ [key: string]: never }>;
-
-export type LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsQuery = {
-  __typename?: "Query";
-  currentEndUserAndCreateIfNotExists: {
-    __typename?: "EndUser";
-    externalId?: string | null;
-    id: any;
-    personalInformation?: {
-      __typename?: "EndUserPersonalInformation";
-      identityDetails?: {
-        __typename?: "EndUserIdentityDetails";
-        lastName: string;
-        restOfName?: string | null;
-      } | null;
-    } | null;
-  };
-};
-
-export type LoggedInUserContainerEndUserFieldsFragment = {
-  __typename?: "EndUser";
-  externalId?: string | null;
-  id: any;
-  personalInformation?: {
-    __typename?: "EndUserPersonalInformation";
-    identityDetails?: {
-      __typename?: "EndUserIdentityDetails";
-      lastName: string;
-      restOfName?: string | null;
-    } | null;
-  } | null;
-};
-
 export const AccountsCommunityCreateContainerCommunityFieldsFragmentDoc = {
   kind: "Document",
   definitions: [
@@ -700,55 +666,6 @@ export const AccountsUserInfoContainerEndUserFieldsFragmentDoc = {
   ],
 } as unknown as DocumentNode<
   AccountsUserInfoContainerEndUserFieldsFragment,
-  unknown
->;
-export const LoggedInUserContainerEndUserFieldsFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "LoggedInUserContainerEndUserFields" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "EndUser" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "externalId" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "personalInformation" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "identityDetails" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "lastName" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "restOfName" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          { kind: "Field", name: { kind: "Name", value: "id" } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  LoggedInUserContainerEndUserFieldsFragment,
   unknown
 >;
 export const AccountsCommunityCreateContainerCommunityCreateDocument = {
@@ -1101,86 +1018,4 @@ export const AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument
   } as unknown as DocumentNode<
     AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsQuery,
     AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsQueryVariables
-  >;
-export const LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument =
-  {
-    kind: "Document",
-    definitions: [
-      {
-        kind: "OperationDefinition",
-        operation: "query",
-        name: {
-          kind: "Name",
-          value: "LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExists",
-        },
-        selectionSet: {
-          kind: "SelectionSet",
-          selections: [
-            {
-              kind: "Field",
-              name: {
-                kind: "Name",
-                value: "currentEndUserAndCreateIfNotExists",
-              },
-              selectionSet: {
-                kind: "SelectionSet",
-                selections: [
-                  {
-                    kind: "FragmentSpread",
-                    name: {
-                      kind: "Name",
-                      value: "LoggedInUserContainerEndUserFields",
-                    },
-                  },
-                ],
-              },
-            },
-          ],
-        },
-      },
-      {
-        kind: "FragmentDefinition",
-        name: { kind: "Name", value: "LoggedInUserContainerEndUserFields" },
-        typeCondition: {
-          kind: "NamedType",
-          name: { kind: "Name", value: "EndUser" },
-        },
-        selectionSet: {
-          kind: "SelectionSet",
-          selections: [
-            { kind: "Field", name: { kind: "Name", value: "externalId" } },
-            {
-              kind: "Field",
-              name: { kind: "Name", value: "personalInformation" },
-              selectionSet: {
-                kind: "SelectionSet",
-                selections: [
-                  {
-                    kind: "Field",
-                    name: { kind: "Name", value: "identityDetails" },
-                    selectionSet: {
-                      kind: "SelectionSet",
-                      selections: [
-                        {
-                          kind: "Field",
-                          name: { kind: "Name", value: "lastName" },
-                        },
-                        {
-                          kind: "Field",
-                          name: { kind: "Name", value: "restOfName" },
-                        },
-                      ],
-                    },
-                  },
-                ],
-              },
-            },
-            { kind: "Field", name: { kind: "Name", value: "id" } },
-          ],
-        },
-      },
-    ],
-  } as unknown as DocumentNode<
-    LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsQuery,
-    LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsQueryVariables
   >;

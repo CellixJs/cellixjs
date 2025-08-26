@@ -3,7 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
@@ -19,7 +19,8 @@
     "dist",
     "node_modules",
     "**/*.test.ts",
-    "**/*.test.tsx"
+    "**/*.test.tsx",
+    "**/*.stories.tsx"
   ],
   "references": [
     { "path": "../cellix-ui-core" }

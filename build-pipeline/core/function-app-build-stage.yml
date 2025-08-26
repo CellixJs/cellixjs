@@ -52,7 +52,7 @@ stages:
     # Ensure the correct version of function tools are installed.
     - task: FuncToolsInstaller@0
       inputs:
-        version: '4.0.6280'
+        version: '4.2.1'
       displayName: 'Install: func tools - latest'
 
     # Cache NPM packages to speed up build process.
@@ -90,6 +90,29 @@ stages:
           npm run test:coverage
         workingDirectory: ''
 
+    # Discover all LCOV reports produced by workspace packages
+    - task: Bash@3
+      displayName: 'SonarCloud: Discover LCOV report files'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          ROOT="$(Build.SourcesDirectory)"
+          # Find all lcov.info files under packages/**/coverage (one per package)
+          list=$(find "$ROOT/packages" -type f -name lcov.info -path "*/coverage/lcov.info" | sort || true)
+          if [ -z "$list" ]; then
+            echo "No lcov.info files found under packages/**/coverage. Coverage may show as 0%."
+            echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
+          else
+            echo "Found LCOV files:"
+            printf '%s\n' "$list" | sed 's/^/ - /'
+            # Join newline-separated paths into a single comma-separated string
+            joined=$(printf '%s\n' "$list" | paste -sd, -)
+            # Expose as a pipeline variable for the prepare step
+            echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]$joined"
+          fi
+
     # Cache SonarCloud downloaded assets to speed up build process.
     - task: Cache@2
       displayName: 'SonarCloud: Restore Cache'
@@ -114,9 +137,10 @@ stages:
         cliProjectName: ${{parameters.SonarCloud_cliProjectName}}
         cliSources: '$(Build.SourcesDirectory)'
         extraProperties: |
-          sonar.javascript.lcov.reportPaths=$(System.DefaultWorkingDirectory)/**/lcov.info
+          sonar.javascript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
+          sonar.typescript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
           sonar.scanner.metadataFilePath=$(Agent.TempDirectory)/sonar/$(Build.BuildNumber)/test/report-task.txt
-          sonar.cpd.exclusions=**/*.test.ts
+          sonar.cpd.exclusions=**/*.test.ts,**/generated.tsx
         
     # SonarCloud: Analyze code and code coverage
     - task: SonarCloudAnalyze@3

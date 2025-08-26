@@ -1,26 +1,53 @@
-// import { StoryFn, Meta } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
+import { expect, userEvent, within, fn } from 'storybook/test';
+import { LoggedInUser } from './index.tsx';
 
-// import { LoggedInUser } from './';
+const meta = {
+  title: 'UI/Molecules/LoggedInUser',
+  component: LoggedInUser,
+  argTypes: {
+    onLoginClicked: { action: 'onLoginClicked' },
+    onSignupClicked: { action: 'onSignupClicked' },
+    onLogoutClicked: { action: 'onLogoutClicked' },
+  },
+} satisfies Meta<typeof LoggedInUser>;
 
-// export default {
-//   title: 'UI/Molecules/LoggedInUser',
-// } as Meta;
+export default meta;
+type Story = StoryObj<typeof LoggedInUser>;
 
-// const Template: StoryFn<typeof LoggedInUser> = (args) => <LoggedInUser {...args} />;
+export const LoggedOut: Story = {
+  args: {
+    data: {
+      isLoggedIn: false,
+    },
+    onLoginClicked: fn(),
+    onSignupClicked: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement as HTMLElement);
+    const loginBtn = await canvas.findByRole('button', { name: /login/i });
+    const signupBtn = await canvas.findByRole('button', { name: /sign up/i });
+    await userEvent.click(loginBtn);
+    await userEvent.click(signupBtn);
+    expect(args.onLoginClicked).toHaveBeenCalledTimes(1);
+    expect(args.onSignupClicked).toHaveBeenCalledTimes(1);
+  },
+};
 
-// export const LoggedOut = Template.bind({});
-// LoggedOut.args = {
-//   data: {
-//     isLoggedIn: false,
-//   }
-// };
-
-// export const LoggedIn = Template.bind({});
-// LoggedIn.args = {
-//   data: {
-//     isLoggedIn: true,
-//     firstName: 'John',
-//     lastName: 'Doe',
-//     notificationCount: 0,
-//   }
-// };
+export const LoggedIn: Story = {
+  args: {
+    data: {
+      isLoggedIn: true,
+      firstName: 'John',
+      lastName: 'Doe',
+      notificationCount: 0,
+    },
+    onLogoutClicked: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement as HTMLElement);
+    const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
+    await userEvent.click(logoutBtn);
+    expect(args.onLogoutClicked).toHaveBeenCalledTimes(1);
+  },
+};

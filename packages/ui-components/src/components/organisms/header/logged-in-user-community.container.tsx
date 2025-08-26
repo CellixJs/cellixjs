@@ -1,12 +1,8 @@
 import { useApolloClient } from '@apollo/client';
-// import {
-//   LoggedInUserCommunityContainerUserCurrentQueryDocument,
-//   LoggedInUserCommunityContainerUserCurrentQueryQuery
-// } from '../../../../generated';
+import { ComponentQueryLoader } from '@cellix/ui-core';
 import { Skeleton } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { useParams } from 'react-router-dom';
-import { ComponentQueryLoader } from '@cellix/ui-core';
 import { HandleLogout } from './handle-logout.tsx';
 import { LoggedInUserCommunity } from './logged-in-user-community.tsx';
 
@@ -18,9 +14,6 @@ export const LoggedInUserCommunityContainer: React.FC<LoggedInUserCommunityConta
   const auth = useAuth();
   const apolloClient = useApolloClient();
   const params = useParams();
-
-//   const [memberQuery] = useLazyQuery(LoggedInUserCommunityContainerUserCurrentQueryDocument);
-//   const [data, setData] = useState<LoggedInUserCommunityContainerUserCurrentQueryQuery | null>(null);
 
     const loading = false;
     let error: Error | undefined;
@@ -40,21 +33,6 @@ export const LoggedInUserCommunityContainer: React.FC<LoggedInUserCommunityConta
             }
         }
     };
-
-//   useEffect(() => {
-//     const getData = () => {
-//       try {
-//         // const { data: dataTemp, loading: loadingTemp, error: errorTemp } = await memberQuery();
-//         setData(dataTemp as LoggedInUserCommunityContainerUserCurrentQueryQuery);
-//         setError(loadingTemp);
-//         setLoading(errorTemp);
-//       } catch (e) {
-//         console.error('Error getting data in logged in user component: ', e);
-//       }
-//     };
-//     getData();
-//   }, [params]);
-
     const handleLogout = () => {
         HandleLogout(auth, apolloClient, window.location.origin);
     };
