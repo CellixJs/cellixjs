@@ -58,8 +58,9 @@ stages:
     # Playwright: Restore browsers cache
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
+      continueOnError: true
       inputs:
-        key: 'playwright | "$(Agent.OS)" | $(Build.SourcesDirectory)/pnpm-lock.yaml'
+        key: 'playwright | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
         restoreKeys: |
           playwright | "$(Agent.OS)"
         path: '$(Pipeline.Workspace)/.cache/ms-playwright'
@@ -68,6 +69,7 @@ stages:
     # Playwright: Install browsers if needed
     - task: Bash@3
       displayName: 'Playwright: Install browsers if needed'
+      condition: always()
       inputs:
         targetType: 'inline'
         script: |
@@ -205,4 +207,3 @@ stages:
       displayName: 'Artifact: Publish'
       condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: drop
-
