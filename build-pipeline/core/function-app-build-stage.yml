@@ -55,6 +55,33 @@ stages:
         version: '4.2.1'
       displayName: 'Install: func tools - latest'
 
+    # Playwright: Restore browsers cache
+    - task: Cache@2
+      displayName: 'Playwright: Restore browsers cache'
+      inputs:
+        key: 'playwright | "$(Agent.OS)" | $(Build.SourcesDirectory)/pnpm-lock.yaml'
+        restoreKeys: |
+          playwright | "$(Agent.OS)"
+        path: '$(Pipeline.Workspace)/.cache/ms-playwright'
+        cacheHitVar: PW_CACHE_HIT
+
+    # Playwright: Install browsers if needed
+    - task: Bash@3
+      displayName: 'Playwright: Install browsers if needed'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          export PLAYWRIGHT_BROWSERS_PATH="$(Pipeline.Workspace)/.cache/ms-playwright"
+          if [ "${PW_CACHE_HIT:-false}" != "true" ]; then
+            echo "Cache miss ➜ installing Chromium browsers (with deps)..."
+            npx playwright install --with-deps chromium
+          else
+            echo "Cache hit ➜ skipping browser download."
+          fi
+          # Make path available to subsequent steps
+          echo "##vso[task.setvariable variable=PLAYWRIGHT_BROWSERS_PATH]$PLAYWRIGHT_BROWSERS_PATH"
+
     # Cache NPM packages to speed up build process.
     - task: Cache@2
       displayName: 'NPM: Restore Cache'
