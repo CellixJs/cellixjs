@@ -27,7 +27,7 @@ export const LoggedInUserRootContainer: React.FC<LoggedInUserRootContainerProps>
         <LoggedInUserRoot userData={data?.currentEndUserAndCreateIfNotExists as LoggedInUserContainerEndUserFieldsFragment} handleLogout={handleLogout} />
       }
       error={error}
-      noDataComponent={<div>Nothing</div>}
+      noDataComponent={<div>No Data</div>}
     />
   );
 };

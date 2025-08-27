@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { LoggedInUserCommunity } from './logged-in-user-community.tsx';
 
 const meta = {
-    title: 'UI/Organisms/Header/LoggedInUserCommunity',
+    title: 'UI/Organisms/Header/LoggedInUserCommunity/Display',
     component: LoggedInUserCommunity,
         argTypes: {
             handleLogout: { action: 'handleLogout' },
