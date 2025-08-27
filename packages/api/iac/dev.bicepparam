@@ -21,7 +21,7 @@ param functionAppInstanceName = 'pri'
 param functionWorkerRuntime = 'node' 
 param functionExtensionVersion = '~4' 
 param maxOldSpaceSizeMB = 3072
-param linuxFxVersion = 'NODE|20'
+param linuxFxVersion = 'NODE|22'
 param allowedOrigins = [
 
 ]
