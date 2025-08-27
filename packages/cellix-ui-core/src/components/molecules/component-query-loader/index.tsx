@@ -2,13 +2,13 @@ import { message, Skeleton } from 'antd';
 import type { FC } from 'react';
 
 export interface ComponentQueryLoaderProps {
-    error?: Error | undefined;
-    errorComponent?: React.JSX.Element | undefined;
+    error: Error | undefined;
+    errorComponent?: React.JSX.Element;
     loading: boolean;
     hasData?: object | null | undefined;
     hasDataComponent: React.JSX.Element;
-    noDataComponent?: React.JSX.Element | undefined;
-    loadingRows?: number | undefined;
+    noDataComponent?: React.JSX.Element;
+    loadingRows?: number;
     loadingComponent?: React.JSX.Element; 
 }
 

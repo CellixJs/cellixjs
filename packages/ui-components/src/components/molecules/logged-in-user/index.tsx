@@ -7,7 +7,7 @@ export interface LoggedInUserProps {
     firstName?: string;
     lastName?: string;
     notificationCount?: number;
-    profileImage?: string | undefined;
+    profileImage?: string;
   };
   onLoginClicked?: () => void;
   onSignupClicked?: () => void;
