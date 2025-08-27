@@ -41,6 +41,8 @@ stages:
     displayName: Build
     pool:
       vmImage: ${{parameters.vmImageName}}
+    variables:
+      PLAYWRIGHT_BROWSERS_PATH: $(Pipeline.Workspace)/.cache/ms-playwright
     steps:
 
     # Ensure the correct version of Node is installed.
@@ -63,26 +65,22 @@ stages:
         key: 'playwright | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
         restoreKeys: |
           playwright | "$(Agent.OS)"
-        path: '$(Pipeline.Workspace)/.cache/ms-playwright'
+        path: '$(PLAYWRIGHT_BROWSERS_PATH)'
         cacheHitVar: PW_CACHE_HIT
 
     # Playwright: Install browsers if needed
     - task: Bash@3
       displayName: 'Playwright: Install browsers if needed'
-      condition: always()
+      condition: ne(variables.PW_CACHE_HIT, 'true')
       inputs:
         targetType: 'inline'
         script: |
           set -euo pipefail
-          export PLAYWRIGHT_BROWSERS_PATH="$(Pipeline.Workspace)/.cache/ms-playwright"
-          if [ "${PW_CACHE_HIT:-false}" != "true" ]; then
-            echo "Cache miss ➜ installing Chromium browsers (with deps)..."
-            npx playwright install --with-deps chromium
-          else
-            echo "Cache hit ➜ skipping browser download."
-          fi
-          # Make path available to subsequent steps
-          echo "##vso[task.setvariable variable=PLAYWRIGHT_BROWSERS_PATH]$PLAYWRIGHT_BROWSERS_PATH"
+          echo "PW_CACHE_HIT=${PW_CACHE_HIT:-unset}"
+          echo "Installing Playwright browsers into: $(PLAYWRIGHT_BROWSERS_PATH)"
+          npx playwright install --with-deps chromium
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     # Cache NPM packages to speed up build process.
     - task: Cache@2
@@ -107,7 +105,7 @@ stages:
           npm run test:coverage
         workingDirectory: ''
       env:
-        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+  PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     - task: Bash@3
       displayName: 'NPM: Prepare binaries and run tests using NPM cache'
@@ -121,7 +119,7 @@ stages:
           npm run test:coverage
         workingDirectory: ''
       env:
-        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+  PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     # Discover all LCOV reports produced by workspace packages
     - task: Bash@3
