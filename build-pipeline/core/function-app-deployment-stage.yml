@@ -55,12 +55,13 @@ stages:
         location: ${{parameters.deploymentDefaultLocation}}
         resourceGroupName: ${{parameters.resourceGroupName}}
         csmFile: packages/api/iac/main.bicep
-        overrideParameters: >
-              -environment ${{parameters.environmentNameBicep}}
+        csmParametersFile: packages/api/iac/${{parameters.environmentNameBicep}}.bicepparam
+        # overrideParameters: >
+        #       -environment ${{parameters.environmentNameBicep}}
 
   - deployment: Application_Deployment_Pri
     displayName: Application Deployment (Primary)
-    # dependsOn: Infrastructure
+    dependsOn: Infrastructure
     environment: ${{parameters.environmentNameDevOps}}
     pool:
       vmImage: ${{parameters.vmImageName}}
@@ -79,20 +80,20 @@ stages:
               deploymentMethod: 'runFromPackage'
 
 
-  # - job: Application_Settings_Pri
-  #   displayName: Application Settings (Primary)
-  #   dependsOn: Application_Deployment_Pri
-  #   pool:
-  #     vmImage: ${{parameters.vmImageName}}
-  #   steps:
-  #   - powershell: |
-  #       $output = Get-Content '$(Build.SourcesDirectory)/${{parameters.appSettingsJsonFileRelativePathPri}}'
-  #       Write-Host "##vso[task.setvariable variable=appSettingsPri]$($output)"
-  #   - task: AzureAppServiceSettings@1
-  #     inputs:
-  #       azureSubscription: ${{parameters.ServiceConnectionName}}
-  #       appName: ${{parameters.functionAppNamePri}}
-  #       appSettings: '$(appSettingsPri)'
+  - job: Application_Settings_Pri
+    displayName: Application Settings (Primary)
+    dependsOn: Application_Deployment_Pri
+    pool:
+      vmImage: ${{parameters.vmImageName}}
+    steps:
+    - powershell: |
+        $output = Get-Content '$(Build.SourcesDirectory)/${{parameters.appSettingsJsonFileRelativePathPri}}'
+        Write-Host "##vso[task.setvariable variable=appSettingsPri]$($output)"
+    - task: AzureAppServiceSettings@1
+      inputs:
+        azureSubscription: ${{parameters.ServiceConnectionName}}
+        appName: ${{parameters.functionAppNamePri}}
+        appSettings: '$(appSettingsPri)'
 
   # - deployment: Application_Deployment_Sec
   #   displayName: Application Deployment (Secondary)

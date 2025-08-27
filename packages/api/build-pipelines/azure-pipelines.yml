@@ -46,7 +46,7 @@ stages:
       ServiceConnectionName: $(ServiceConnectionName)
       deploymentDefaultLocation: $(deploymentDefaultLocation)
       resourceGroupName: 'rg-sharethrift'
-      functionAppNamePri: 'Cellix-func-app'
+      functionAppNamePri: 'cel-dev-func-pri-bd52ztvowoqqe'
       #functionAppNameSec: 'ahp-dev-func-sec-$(UniqueStringDev)'
       appSettingsJsonFileRelativePathPri: '/build-pipeline/config/dev-pri.json'
       #appSettingsJsonFileRelativePathSec: 'data-access/build-pipeline/config/dev-sec.json'

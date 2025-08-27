@@ -1,0 +1,32 @@
+[
+  {
+    "name": "APPLICATION_NAME",
+    "value": "CEL",
+    "slotSetting": false
+  },
+  {
+    "name": "AZURE_SUBSCRIPTION_ID",
+    "value": "b46b070d-1eee-4d27-943a-32728cfca0b5",
+    "slotSetting": false
+  },
+  {
+    "name": "AZURE_RESOURCE_GROUP_NAME",
+    "value": "rg-sharethrift",
+    "slotSetting": false
+  },
+  {
+    "name": "BLACK_LISTED_EMAILS",
+    "value": "[]",
+    "slotSetting": false
+  },
+  {
+    "name": "KEY_VAULT_URL",
+    "value": "https://sharethrift-keyvault.vault.azure.net/",
+    "slotSetting": false
+  },
+  {
+    "name": "NODE_ENV",
+    "value": "production",
+    "slotSetting": false
+  }
+]

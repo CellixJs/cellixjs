@@ -21,22 +21,6 @@ param storageAccountLocation string
 ])
 param storageAccountSku string
 
-@allowed([
-  'eastus2'
-])
-param cdnLocation string
-
-@description('CDN SKU Names')
-@allowed([
-  'Standard_Akamai'
-  'Standard_Microsoft'
-  'Standard_Verizon'
-  'Premium_Verizon'
-])
-param cdnSku string
-
-param googleAnalyticsSha256 string
-
 @maxLength(3)
 param instanceName string
 
@@ -99,21 +83,18 @@ module storageAccountModule './storage-account.bicep' = {
 }
 
 // cdn
-module cdnModule './cdn.bicep' = {
-  name: '${applicationPrefix}${instanceName}cdnModule'
-  dependsOn: [storageAccountModule]
-  params: {
-    applicationPrefix: applicationPrefix
-    cdnProfileName: cdnProfileName
-    location: cdnLocation
-    cdnSku: cdnSku
-    cdnRules: cdnRules
-    cdnEndpointName: '${resourceNamingConvention.outputs.prefix}${resourceNamingConvention.outputs.resourceTypes.cdnEndpoint}-${instanceName}-${uniqueId}'
-    storageAccountPrimaryHostName: replace(replace(storageAccountModule.outputs.storageAccountPrimaryEndpointWeb, 'https://', ''), '/','')
-    storageAccountSecondaryHostName: replace(replace(storageAccountModule.outputs.storageAccountSecondaryEndpointWeb, 'https://', ''), '/','')
-    googleAnalyticsSha256: googleAnalyticsSha256
-    customDomainName: customDomainName
-    tags: tags
-  }
-}
+// module cdnModule './cdn.bicep' = {
+//   name: '${applicationPrefix}${instanceName}cdnModule'
+//   dependsOn: [storageAccountModule]
+//   params: {
+//     applicationPrefix: applicationPrefix
+//     cdnProfileName: cdnProfileName
+//     cdnRules: cdnRules
+//     cdnEndpointName: '${resourceNamingConvention.outputs.prefix}${resourceNamingConvention.outputs.resourceTypes.cdnEndpoint}-${instanceName}-${uniqueId}'
+//     storageAccountPrimaryHostName: replace(replace(storageAccountModule.outputs.storageAccountPrimaryEndpointWeb, 'https://', ''), '/','')
+//     storageAccountSecondaryHostName: replace(replace(storageAccountModule.outputs.storageAccountSecondaryEndpointWeb, 'https://', ''), '/','')
+//     customDomainName: customDomainName
+//     tags: tags
+//   }
+// }
                                    
