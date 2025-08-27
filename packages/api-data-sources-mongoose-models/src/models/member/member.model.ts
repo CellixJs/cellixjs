@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/data-sources-mongoose';
-import  { type Model, type ObjectId, type PopulatedDoc, Schema, type Types } from 'mongoose';
+import  { type Model, type ObjectId, type PopulatedDoc, Schema, type SchemaDefinition, type Types } from 'mongoose';
 import { Patterns } from '../../patterns.ts';
 import * as Community from '../community/community.model.ts';
 import * as EndUserRole from '../role/end-user-role.model.ts';
@@ -96,7 +96,7 @@ const MemberSchema = new Schema<Member, Model<Member>, Member>(
       showProfile: { type: Boolean, required: false, default: false },
       showLocation: { type: Boolean, required: false, default: false },
       showProperties: { type: Boolean, required: false, default: false },
-    },
+    } as SchemaDefinition<MemberProfile>,
   },
   {
     timestamps: true,

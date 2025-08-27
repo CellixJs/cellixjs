@@ -1,4 +1,4 @@
-import { type Model, type ObjectId, type PopulatedDoc, Schema } from 'mongoose';
+import { type Model, type ObjectId, type PopulatedDoc, Schema, type SchemaDefinition } from 'mongoose';
 import {
 	type Community,
 	CommunityModelName,
@@ -86,7 +86,7 @@ export const VendorUserRoleSchema = new Schema<
 		permissions: {
 			servicePermissions: {
 				canManageServices: { type: Boolean, required: true, default: false },
-			},
+			} as SchemaDefinition<VendorUserRoleServicePermissions>,
 			serviceTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
 				canManageTickets: { type: Boolean, required: true, default: false },
@@ -97,7 +97,7 @@ export const VendorUserRoleSchema = new Schema<
 					default: false,
 					index: true,
 				},
-			},
+			} as SchemaDefinition<VendorUserRoleServiceTicketPermissions>,
 			violationTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
 				canManageTickets: { type: Boolean, required: true, default: false },
@@ -108,7 +108,7 @@ export const VendorUserRoleSchema = new Schema<
 					default: false,
 					index: true,
 				},
-			},
+			} as SchemaDefinition<VendorUserRoleViolationTicketPermissions>,
 			communityPermissions: {
 				canManageRolesAndPermissions: {
 					type: Boolean,
@@ -132,12 +132,12 @@ export const VendorUserRoleSchema = new Schema<
 					required: true,
 					default: false,
 				},
-			},
+			} as SchemaDefinition<VendorUserRoleCommunityPermissions>,
 			propertyPermissions: {
 				canManageProperties: { type: Boolean, required: true, default: false },
 				canEditOwnProperty: { type: Boolean, required: true, default: false },
-			},
-		},
+			} as SchemaDefinition<VendorUserRolePropertyPermissions>,
+		} as SchemaDefinition<VendorUserRolePermissions>,
 		schemaVersion: { type: String, default: '1.0.0' },
 		roleName: { type: String, required: true, maxlength: 50 },
 		isDefault: { type: Boolean, required: true, default: false },

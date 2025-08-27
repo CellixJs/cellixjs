@@ -1,4 +1,4 @@
-import { type Model, Schema } from 'mongoose';
+import { type Model, Schema, type SchemaDefinition } from 'mongoose';
 import { MongooseSeedwork } from '@cellix/data-sources-mongoose';
 import { type User, type UserModelType, userOptions } from './user.model.ts';
 import { Patterns } from '../../patterns.ts';
@@ -7,7 +7,7 @@ export interface EndUserContactInformation extends MongooseSeedwork.NestedPath {
 	email: string;
 }
 
-export const EndUserContactInformationType = {
+export const EndUserContactInformationType: SchemaDefinition<EndUserContactInformation> = {
 	email: {
 		type: String,
 		match: Patterns.EMAIL_PATTERN,
@@ -22,7 +22,7 @@ export interface EndUserIdentityDetails extends MongooseSeedwork.NestedPath {
 	restOfName: string | undefined;
 }
 
-export const EndUserIdentityDetailsType = {
+export const EndUserIdentityDetailsType: SchemaDefinition<EndUserIdentityDetails> = {
 	lastName: { type: String, required: true, maxlength: 50 },
 	legalNameConsistsOfOneName: { type: Boolean, required: true, default: false },
 	restOfName: { type: String, required: false, maxlength: 50 },
@@ -34,7 +34,7 @@ export interface EndUserPersonalInformation
 	contactInformation: EndUserContactInformation;
 }
 
-export const EndUserPersonalInformationType = {
+export const EndUserPersonalInformationType: SchemaDefinition<EndUserPersonalInformation> = {
 	identityDetails: {
 		type: EndUserIdentityDetailsType,
 		required: true,
