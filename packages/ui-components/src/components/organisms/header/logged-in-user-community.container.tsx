@@ -44,7 +44,7 @@ export const LoggedInUserCommunityContainer: React.FC<LoggedInUserCommunityConta
             hasDataComponent={
                 <LoggedInUserCommunity
                     data={{
-                        // biome-ignore lint:useLiteralKeys
+                        // biome-ignore lint:useLiteralKeys: noPropertyAccessFromIndexSignature: true so must use bracket notation for unknown properties
                         communityId: params['communityId'] as string,
                         userCurrent: data?.userCurrent,
                         memberForCurrentUser: data?.memberForCurrentUser,

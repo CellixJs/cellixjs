@@ -38,6 +38,20 @@ export default defineConfig({
         provider: "v8",
         reporter: ["text", "lcov"],
         reportsDirectory: "coverage",
+        exclude: [
+            "**/index.ts",
+            "**/*.config.ts",
+            "**/tsconfig.json",
+            "**/.storybook/**",
+            "**/*.stories.ts",
+            "**/*.stories.tsx",
+            "**/*.test.ts",
+            "**/*.test.tsx",
+            "**/generated.ts",
+            "**/generated.tsx",
+            "**/*.d.ts",
+            "dist/**",
+        ]
     }
   }
 });

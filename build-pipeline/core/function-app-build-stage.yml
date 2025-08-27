@@ -106,6 +106,8 @@ stages:
           npm run build
           npm run test:coverage
         workingDirectory: ''
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     - task: Bash@3
       displayName: 'NPM: Prepare binaries and run tests using NPM cache'
@@ -118,6 +120,8 @@ stages:
           npm run build
           npm run test:coverage
         workingDirectory: ''
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     # Discover all LCOV reports produced by workspace packages
     - task: Bash@3
@@ -170,7 +174,7 @@ stages:
           sonar.typescript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
           sonar.scanner.metadataFilePath=$(Agent.TempDirectory)/sonar/$(Build.BuildNumber)/test/report-task.txt
           sonar.cpd.exclusions=**/*.test.ts,**/generated.tsx
-          sonar.coverage.exclusions=**/*.config.ts,**/*.config.js,**/vitest.config.ts,**/.storybook/**,**/generated/**,**/*.stories.tsx,**/*.test.ts
+          sonar.coverage.exclusions=**/*.config.ts,**/tsconfig.json,**/.storybook/**,**/*.stories.ts,**/*.stories.tsx,**/*.test.ts,**/*.test.tsx,**/generated.ts,**/generated.tsx,**/*.d.ts,dist/**
 
     # SonarCloud: Analyze code and code coverage
     - task: SonarCloudAnalyze@3
