@@ -40,9 +40,12 @@ export default defineConfig({
         reportsDirectory: "coverage",
         exclude: [
             "**/index.ts",
+            "src/components/molecules/index.tsx",
+            "src/components/organisms/index.tsx",
             "**/*.config.ts",
             "**/tsconfig.json",
             "**/.storybook/**",
+            "**/coverage/**",
             "**/*.stories.ts",
             "**/*.stories.tsx",
             "**/*.test.ts",

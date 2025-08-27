@@ -2,6 +2,7 @@
 // Import Ant Design base styles so components render correctly
 import { MockedProvider } from '@apollo/client/testing';
 import type { Decorator, Parameters } from '@storybook/react';
+import { AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
 import 'antd/dist/reset.css';
 
@@ -9,10 +10,18 @@ import 'antd/dist/reset.css';
 export const decorators: Decorator[] = [
   (Story, context) => {
     const initialEntries = context.parameters?.memoryRouter?.initialEntries ?? ["/"];
+    const apolloParams = context.parameters?.apolloClient ?? {};
+    const mocks = apolloParams.mocks ?? [];
+    const { defaultOptions } = apolloParams;
+
     return (
-      <MemoryRouter initialEntries={initialEntries}>
-        <Story />
-      </MemoryRouter>
+      <AuthProvider>
+        <MockedProvider mocks={mocks} defaultOptions={defaultOptions}>
+          <MemoryRouter initialEntries={initialEntries}>
+            <Story />
+          </MemoryRouter>
+        </MockedProvider>
+      </AuthProvider>
     );
   },
 ];
