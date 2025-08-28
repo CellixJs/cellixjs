@@ -29,7 +29,10 @@ export const LoggedInUser: React.FC<LoggedInUserProps> = (props) => {
         }
       };
 
-      return <LoggedIn data={loggedInProps.data as LoggedInProps['data']} onLogoutClicked={props.onLogoutClicked as () => void}/>
+      return <LoggedIn 
+        data={loggedInProps.data as LoggedInProps['data']} 
+        onLogoutClicked={props.onLogoutClicked ?? dummyFunction}
+      />
     } else {
       return (
         <NotLoggedIn

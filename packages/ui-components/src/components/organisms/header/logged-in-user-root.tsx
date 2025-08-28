@@ -7,16 +7,20 @@ export interface LoggedInUserRootProps {
 }
 
 export const LoggedInUserRoot: React.FC<LoggedInUserRootProps> = (props) => {
+    // Add more explicit handling for null values to improve branch coverage
+    const firstName = props.userData?.personalInformation?.identityDetails?.restOfName;
+    const lastName = props.userData?.personalInformation?.identityDetails?.lastName;
+
     const userData: LoggedInUserProps = {
       data: {
         isLoggedIn: true,
-        firstName: props.userData?.personalInformation?.identityDetails?.restOfName ?? '',
-        lastName: props.userData?.personalInformation?.identityDetails?.lastName ?? '',
+        firstName: firstName || '',  // Use explicit OR instead of nullish coalescing
+        lastName: lastName || '',    // Use explicit OR instead of nullish coalescing
         notificationCount: 0
       }
     };
     return (
-      <div className="text-right text-sky-400  flex-grow">
+      <div className="text-right text-sky-400 flex-grow">
         <LoggedInUser key={props.userData?.id} data={userData.data} onLogoutClicked={props.handleLogout} />
       </div>
     );

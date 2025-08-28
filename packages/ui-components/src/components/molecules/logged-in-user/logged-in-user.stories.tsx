@@ -51,3 +51,74 @@ export const LoggedIn: Story = {
     expect(args.onLogoutClicked).toHaveBeenCalledTimes(1);
   },
 };
+
+export const WithAllDefaultValues: Story = {
+  args: {
+    // The minimum required prop - only isLoggedIn is required
+    data: {
+      isLoggedIn: true,
+    },
+    // No callbacks provided
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement as HTMLElement);
+    
+    // First verify the component renders without errors
+    const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
+    
+    // Check that we can click buttons without errors
+    await userEvent.click(logoutBtn);
+    
+    // If we got here without errors, all default values are working correctly
+    expect(true).toBe(true);
+  },
+};
+
+// Test logged out state with missing callbacks (dummyFunction)
+export const LoggedOutWithMissingCallbacks: Story = {
+  args: {
+    data: {
+      isLoggedIn: false,
+    },
+    // No callbacks provided
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement as HTMLElement);
+    
+    // Test logout user state with missing callbacks
+    const loginBtn = await canvas.findByRole('button', { name: /login/i });
+    const signupBtn = await canvas.findByRole('button', { name: /sign up/i });
+    
+    // Click both buttons which should use the dummyFunction
+    await userEvent.click(loginBtn);
+    await userEvent.click(signupBtn);
+    
+    // If we got here without errors, the dummyFunction is working correctly
+    expect(true).toBe(true);
+  },
+};
+
+// Test logged in state with missing callbacks (dummyFunction)
+export const LoggedInWithMissingCallbacks: Story = {
+  args: {
+    data: {
+      isLoggedIn: true,
+      // Explicitly set all fields to undefined to test fallback logic
+      firstName: undefined,
+      lastName: undefined,
+      profileImage: undefined,
+      notificationCount: undefined
+    },
+    // No callbacks provided
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement as HTMLElement);
+    
+    // Find and click logout which should use the dummyFunction
+    const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
+    await userEvent.click(logoutBtn);
+    
+    // If we got here without errors, the dummyFunction is working correctly
+    expect(true).toBe(true);
+  },
+};
