@@ -138,7 +138,7 @@ export const NotAuthenticated: Story = {
           setCalled(true);
           return Promise.resolve();
         },
-      }), [setCalled]);
+      }), []);
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
@@ -193,7 +193,7 @@ export const ForceLoginAutoSignIn: Story = {
           setSigninCalled(true);
           return Promise.resolve();
         },
-      }), [setSigninCalled]);
+      }), []);
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
@@ -255,7 +255,7 @@ export const WithAuthParams: Story = {
           setSigninCalled(true);
           return Promise.resolve();
         },
-      }), [setSigninCalled]);
+      }), []);
       
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
@@ -305,7 +305,7 @@ export const ForceLoginFalse: Story = {
           setSigninCalled(true);
           return Promise.resolve();
         },
-      }), [setSigninCalled]);
+      }), []);
       
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
@@ -351,7 +351,7 @@ export const ActiveNavigator: Story = {
           setSigninCalled(true);
           return Promise.resolve();
         },
-      }), [setSigninCalled]);
+      }), []);
       
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
