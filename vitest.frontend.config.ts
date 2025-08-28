@@ -49,6 +49,7 @@ export function createFrontendStorybookVitestConfig(pkgDirname: string, opts: Fr
           '**/*.test.tsx',
           '**/generated.ts',
           '**/generated.tsx',
+          '**/coverage/**',
           '**/*.d.ts',
           'dist/**',
           ...(opts.additionalCoverageExclude ?? []),

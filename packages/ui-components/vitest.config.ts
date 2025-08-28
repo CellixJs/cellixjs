@@ -10,8 +10,7 @@ export default defineConfig(
     additionalCoverageExclude: [
       '**/index.ts',
       'src/components/molecules/index.tsx',
-      'src/components/organisms/index.tsx',
-      '**/coverage/**',
+      'src/components/organisms/index.tsx'
     ],
   })
 );
