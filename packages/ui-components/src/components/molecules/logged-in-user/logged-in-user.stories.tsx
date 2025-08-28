@@ -24,7 +24,7 @@ export const LoggedOut: Story = {
     onSignupClicked: fn(),
   },
   play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     const loginBtn = await canvas.findByRole('button', { name: /login/i });
     const signupBtn = await canvas.findByRole('button', { name: /sign up/i });
     await userEvent.click(loginBtn);
@@ -45,7 +45,7 @@ export const LoggedIn: Story = {
     onLogoutClicked: fn(),
   },
   play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
     await userEvent.click(logoutBtn);
     expect(args.onLogoutClicked).toHaveBeenCalledTimes(1);
@@ -61,7 +61,7 @@ export const WithAllDefaultValues: Story = {
     // No callbacks provided
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     
     // First verify the component renders without errors
     const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
@@ -83,7 +83,7 @@ export const LoggedOutWithMissingCallbacks: Story = {
     // No callbacks provided
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     
     // Test logout user state with missing callbacks
     const loginBtn = await canvas.findByRole('button', { name: /login/i });
@@ -112,7 +112,7 @@ export const LoggedInWithMissingCallbacks: Story = {
     // No callbacks provided
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     
     // Find and click logout which should use the dummyFunction
     const logoutBtn = await canvas.findByRole('button', { name: /log out/i });

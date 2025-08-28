@@ -35,7 +35,7 @@ export const Default: Story = {
         handleLogout: fn(),
     },
     play: async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement as HTMLElement);
+        const canvas = within(canvasElement);
         const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
         await userEvent.click(logoutBtn);
         expect(args.handleLogout).toHaveBeenCalledTimes(1);
@@ -50,7 +50,7 @@ export const WithMissingAvatarAndName: Story = {
         handleLogout: fn(),
     },
     play: async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement as HTMLElement);
+        const canvas = within(canvasElement);
         const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
         await userEvent.click(logoutBtn);
         expect(args.handleLogout).toHaveBeenCalledTimes(1);

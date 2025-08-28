@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { AuthContext, type AuthContextProps } from 'react-oidc-context';
 import { Route, Routes } from 'react-router-dom';
 import { RequireAuth } from './index.tsx';
@@ -10,23 +10,39 @@ type AwaitedReturn<T> = T extends (...args: unknown[]) => Promise<infer R> ? R :
 // Wrapper that injects a mocked AuthContext matching react-oidc-context shape
 const Wrapper: React.FC<{ auth: Partial<AuthContextProps>; children: React.ReactNode }> = ({ auth, children }) => {
   // Provide minimal defaults and stub functions to avoid runtime errors
-  const value = {
+  const value = useMemo(() => ({
     activeNavigator: auth.activeNavigator,
     error: auth.error,
     isAuthenticated: auth.isAuthenticated ?? false,
     isLoading: auth.isLoading ?? false,
-  signinRedirect: auth.signinRedirect ?? (() => Promise.resolve()),
-  signoutRedirect: auth.signoutRedirect ?? (() => Promise.resolve()),
-  removeUser: auth.removeUser ?? (() => Promise.resolve()),
+    signinRedirect: auth.signinRedirect ?? (() => Promise.resolve()),
+    signoutRedirect: auth.signoutRedirect ?? (() => Promise.resolve()),
+    removeUser: auth.removeUser ?? (() => Promise.resolve()),
     user: auth.user,
     events: auth.events ?? ({} as unknown),
     settings: auth.settings ?? ({} as unknown),
-  signoutPopup: auth.signoutPopup ?? (() => Promise.resolve()),
-  signinSilent: auth.signinSilent ?? (() => Promise.resolve(null as AwaitedReturn<AuthContextProps['signinSilent']>)),
-  signinPopup: auth.signinPopup ?? (() => Promise.resolve(null as AwaitedReturn<AuthContextProps['signinPopup']>)),
-  clearStaleState: auth.clearStaleState ?? (() => Promise.resolve()),
-  querySessionStatus: auth.querySessionStatus ?? (() => Promise.resolve(null as AwaitedReturn<AuthContextProps['querySessionStatus']>)),
-  } as AuthContextProps;
+    signoutPopup: auth.signoutPopup ?? (() => Promise.resolve()),
+    signinSilent: auth.signinSilent ?? (() => Promise.resolve(null as AwaitedReturn<AuthContextProps['signinSilent']>)),
+    signinPopup: auth.signinPopup ?? (() => Promise.resolve(null as AwaitedReturn<AuthContextProps['signinPopup']>)),
+    clearStaleState: auth.clearStaleState ?? (() => Promise.resolve()),
+    querySessionStatus: auth.querySessionStatus ?? (() => Promise.resolve(null as AwaitedReturn<AuthContextProps['querySessionStatus']>)),
+  }) as AuthContextProps, [
+    auth.activeNavigator,
+    auth.error,
+    auth.isAuthenticated,
+    auth.isLoading,
+    auth.signinRedirect,
+    auth.signoutRedirect,
+    auth.removeUser,
+    auth.user,
+    auth.events,
+    auth.settings,
+    auth.signoutPopup,
+    auth.signinSilent,
+    auth.signinPopup,
+    auth.clearStaleState,
+    auth.querySessionStatus
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
@@ -51,7 +67,7 @@ export const Loading: Story = {
     </Wrapper>
   ),
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     expect(canvas.queryByText('Private Content')).toBeNull();
     await expect(canvas.findByText(/Please wait.../i)).resolves.toBeTruthy();
   }
@@ -66,7 +82,7 @@ export const Authenticated: Story = {
     </Wrapper>
   ),
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     await expect(canvas.findByText('Private Content')).resolves.toBeTruthy();
   }
 };
@@ -103,7 +119,7 @@ export const ErrorState: Story = {
   ),
   // Assert that Navigate to "/" occurred by verifying the Home route rendered
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     await expect(canvas.findByTestId('home')).resolves.toBeTruthy();
     expect(canvas.queryByText('Private Content')).toBeNull();
     expect(canvas.queryByText('Public Content')).toBeTruthy();
@@ -115,14 +131,14 @@ export const NotAuthenticated: Story = {
     // Local wrapper that renders a marker ONLY when signinRedirect() is actually called
     const InstrumentedProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       const [called, setCalled] = useState(false);
-      const auth: Partial<AuthContextProps> = {
+      const auth = useMemo(() => ({
         isAuthenticated: false,
         isLoading: false,
         signinRedirect: () => {
           setCalled(true);
           return Promise.resolve();
         },
-      };
+      }), [setCalled]);
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
@@ -143,7 +159,7 @@ export const NotAuthenticated: Story = {
   },
   // Assert that redirectUser() triggered signinRedirect
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     const el = await canvas.findByTestId('signinRedirect-called');
     expect(el).toBeVisible();
     expect(canvas.queryByText('Private Content')).toBeNull();
@@ -166,7 +182,7 @@ export const ForceLoginAutoSignIn: Story = {
         return originalSetItem.call(window.sessionStorage, key, value);
       };
       
-      const auth: Partial<AuthContextProps> = {
+      const auth = useMemo(() => ({
         isAuthenticated: false,
         isLoading: false,
         activeNavigator: undefined,
@@ -177,7 +193,7 @@ export const ForceLoginAutoSignIn: Story = {
           setSigninCalled(true);
           return Promise.resolve();
         },
-      };
+      }), [setSigninCalled]);
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
@@ -206,7 +222,7 @@ export const ForceLoginAutoSignIn: Story = {
   },
   // Assert that the useEffect triggered signinRedirect due to forceLogin=true
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     
     // Should find evidence that signin was called
     const signinCalled = await canvas.findByTestId('signin-called');
@@ -230,7 +246,7 @@ export const WithAuthParams: Story = {
       // We can't easily mock hasAuthParams() in Storybook, so we'll just display a message
       // In a real test environment we'd use jest.mock() to mock the function
       
-      const auth: Partial<AuthContextProps> = {
+      const auth = useMemo(() => ({
         isAuthenticated: false,
         isLoading: false,
         activeNavigator: undefined,
@@ -239,7 +255,7 @@ export const WithAuthParams: Story = {
           setSigninCalled(true);
           return Promise.resolve();
         },
-      };
+      }), [setSigninCalled]);
       
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
@@ -261,7 +277,7 @@ export const WithAuthParams: Story = {
     );
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     
     // Verify hasAuthParams is true
     expect(canvas.getByTestId('has-auth-params')).toBeVisible();
@@ -280,7 +296,7 @@ export const ForceLoginFalse: Story = {
     const Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       const [signinCalled, setSigninCalled] = useState(false);
       
-      const auth: Partial<AuthContextProps> = {
+      const auth = useMemo(() => ({
         isAuthenticated: false,
         isLoading: false,
         activeNavigator: undefined,
@@ -289,7 +305,7 @@ export const ForceLoginFalse: Story = {
           setSigninCalled(true);
           return Promise.resolve();
         },
-      };
+      }), [setSigninCalled]);
       
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
@@ -310,7 +326,7 @@ export const ForceLoginFalse: Story = {
     );
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     
     // The manual redirectUser should be called, but not auto-signin
     const signinCalled = await canvas.findByTestId('signin-called');
@@ -326,7 +342,7 @@ export const ActiveNavigator: Story = {
     const Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       const [signinCalled, setSigninCalled] = useState(false);
       
-      const auth: Partial<AuthContextProps> = {
+      const auth = useMemo(() => ({
         isAuthenticated: false,
         isLoading: false,
         activeNavigator: "signinRedirect" as const, // This should prevent auto-signin
@@ -335,7 +351,7 @@ export const ActiveNavigator: Story = {
           setSigninCalled(true);
           return Promise.resolve();
         },
-      };
+      }), [setSigninCalled]);
       
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
@@ -356,7 +372,7 @@ export const ActiveNavigator: Story = {
     );
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     
     // The loading spinner should appear because activeNavigator is true
     await expect(canvas.findByText(/Please wait.../i)).resolves.toBeTruthy();
@@ -369,7 +385,7 @@ export const ActiveNavigator: Story = {
 export const WithError: Story = {
   render: () => {
     const Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-      const auth: Partial<AuthContextProps> = {
+      const auth = useMemo(() => ({
         isAuthenticated: false,
         isLoading: false,
         activeNavigator: undefined,
@@ -382,7 +398,7 @@ export const WithError: Story = {
         signinRedirect: () => {
           return Promise.resolve();
         },
-      };
+      }), []);
       
       return (
         <AuthContext.Provider value={auth as AuthContextProps}>
@@ -405,7 +421,7 @@ export const WithError: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     
     // Error condition should cause a navigation to "/"
     await new Promise(resolve => setTimeout(resolve, 0)); // Add await to satisfy TypeScript

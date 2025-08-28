@@ -26,7 +26,7 @@ export const WithoutProfileImage: Story = {
     onLogoutClicked: fn(),
   },
   play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     // Assert full name, logout button, and My Community(s) link are present
     await canvas.findByText(/john\s+doe/i);
     const logoutButton = await canvas.findByRole('button', { name: /log out/i });
@@ -60,7 +60,7 @@ export const WithProfileImage: Story = {
     onLogoutClicked: fn(),
   },
   play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     // Assert name is present and there is at least one image rendered
     await canvas.findByText(/jane\s+smith/i);
   const images = canvas.getAllByRole('img');

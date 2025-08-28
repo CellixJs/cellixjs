@@ -20,7 +20,7 @@ export const HasDataState: Story = {
   },
   // Assert the hasDataComponent is rendered
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     await expect(canvas.findByText('Loaded data')).resolves.toBeTruthy();
   }
 };
@@ -33,9 +33,9 @@ export const LoadingStateWithoutLoadingComponent: Story = {
   },
   // Assert the hasDataComponent never renders and an Ant Design Skeleton component is rendered
   play: ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     expect(canvas.queryByText('Loaded data')).toBeNull();
-    expect((canvasElement as HTMLElement).getElementsByClassName('ant-skeleton').length).toBeGreaterThan(0);
+    expect((canvasElement).getElementsByClassName('ant-skeleton').length).toBeGreaterThan(0);
   }
 };
 
@@ -48,7 +48,7 @@ export const LoadingStateWithLoadingComponent: Story = {
   },
   // Assert the hasDataComponent never renders and the loadingComponent is rendered
   play: ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     expect(canvas.queryByText('Loaded data')).toBeNull();
     expect(canvas.queryByText('Loading...')).toBeTruthy();
   }
@@ -64,9 +64,9 @@ export const ErrorStateWithoutErrorComponent: Story = {
   // AntD message.error renders outside of the canvas via a portal; asserting it is flaky.
   // Here we assert the in-canvas fallback (Skeleton) instead.
   play: ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     expect(canvas.queryByText(/loaded/i)).toBeNull();
-    expect((canvasElement as HTMLElement).getElementsByClassName('ant-skeleton').length).toBeGreaterThan(0);
+    expect((canvasElement).getElementsByClassName('ant-skeleton').length).toBeGreaterThan(0);
   }
 };
 
@@ -80,7 +80,7 @@ export const ErrorStateWithErrorComponent: Story = {
   },
   // Assert the errorComponent is rendered
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     await expect(canvas.findByText('Error occurred')).resolves.toBeTruthy();
   }
 };
@@ -93,9 +93,9 @@ export const NoDataStateWithoutNoDataComponent: Story = {
     },
     // Assert the fallback noDataComponent is rendered (Ant Design skeleton)
     play: ({ canvasElement }) => {
-        const canvas = within(canvasElement as HTMLElement);
+        const canvas = within(canvasElement);
         expect(canvas.queryByText('Loaded data')).toBeNull();
-        expect((canvasElement as HTMLElement).getElementsByClassName('ant-skeleton').length).toBeGreaterThan(0);
+        expect((canvasElement).getElementsByClassName('ant-skeleton').length).toBeGreaterThan(0);
     }
 }
 
@@ -108,7 +108,7 @@ export const NoDataStateWithNoDataComponent: Story = {
   },
   // Assert the noDataComponent is rendered
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     await expect(canvas.findByText('No Data')).resolves.toBeTruthy();
   }
 };

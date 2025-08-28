@@ -42,7 +42,7 @@ export const NoRedirect: Story = {
   },
   render: (args) => <LogoutTestHarness {...args} />,
   play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     const btn = await canvas.findByRole('button', { name: /trigger logout/i });
     await userEvent.click(btn);
 
@@ -66,7 +66,7 @@ export const WithRedirect: Story = {
   },
   render: (args) => <LogoutTestHarness {...args} />,
   play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement as HTMLElement);
+    const canvas = within(canvasElement);
     const btn = await canvas.findByRole('button', { name: /trigger logout/i });
     await userEvent.click(btn);
 

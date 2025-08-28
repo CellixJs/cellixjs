@@ -17,7 +17,7 @@ export const Default: Story = {
     onSignupClicked: fn(),
   },
   play: async ({ canvasElement, args }) => {
-  const canvas = within(canvasElement as HTMLElement);
+  const canvas = within(canvasElement);
   const loginBtn = await canvas.findByRole('button', { name: /login/i });
   const signupBtn = await canvas.findByRole('button', { name: /sign up/i });
   await userEvent.click(loginBtn);
