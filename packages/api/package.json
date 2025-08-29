@@ -27,6 +27,7 @@
 		"@ocom/api-graphql": "^1.0.0",
 		"@ocom/api-persistence": "^1.0.0",
 		"@ocom/api-rest": "^1.0.0",
+        "@ocom/service-apollo-server": "^1.0.0",
         "@ocom/service-blob-storage": "^1.0.0",
 		"@ocom/service-mongoose": "^1.0.0",
 		"@ocom/service-otel": "^1.0.0",

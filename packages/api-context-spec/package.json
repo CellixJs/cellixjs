@@ -16,6 +16,7 @@
 	},
 	"peerDependencies": {
 		"@ocom/api-persistence": "^1.0.0",
+        "@ocom/service-apollo-server": "^1.0.0",
         "@ocom/service-token-validation": "^1.0.0"
 	},
 	"devDependencies": {
