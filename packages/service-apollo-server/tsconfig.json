@@ -4,8 +4,8 @@
 		{ "path": "../cellix-api-services-spec" }
 	],
 	"compilerOptions": {
-		"outDir": "./dist",
-		"rootDir": "./src",
+		"rootDir": ".",
+		"outDir": "dist",
 		"skipLibCheck": true
 	},
 	"include": ["src/**/*"],

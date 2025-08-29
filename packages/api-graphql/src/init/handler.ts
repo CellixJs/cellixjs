@@ -8,7 +8,7 @@ import {
 } from './azure-functions.ts';
 import type { GraphContext } from './context.ts';
 
-export const createGraphHandlerCreator = (apolloServerService: ApolloServerProvider) => {
+export const createGraphHandlerCreator = (apolloServerService: ApolloServerProvider<GraphContext>) => {
 	return (applicationServicesFactory: ApplicationServicesFactory): HttpHandler => {
 		const functionOptions: WithRequired<AzureFunctionsMiddlewareOptions<GraphContext>, 'context'> = {
 			context: async ({ req }) => {
@@ -28,7 +28,7 @@ export const createGraphHandlerCreator = (apolloServerService: ApolloServerProvi
 
 // Maintain backward compatibility - this will be removed after refactoring
 export const graphHandlerCreator = (
-	applicationServicesFactory: ApplicationServicesFactory,
+	_applicationServicesFactory: ApplicationServicesFactory,
 ): HttpHandler => {
 	throw new Error('Direct graphHandlerCreator usage is deprecated. Apollo Server should be injected via createGraphHandlerCreator. This error indicates the refactoring is not complete.');
 };

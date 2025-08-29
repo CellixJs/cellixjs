@@ -16,10 +16,10 @@ import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
-import { createGraphHandlerCreator } from '@ocom/api-graphql';
+import { createGraphHandlerCreator, type GraphContext } from '@ocom/api-graphql';
 import { restHandlerCreator } from '@ocom/api-rest';
 
-const apolloServerService = new ServiceApolloServer(
+const apolloServerService = new ServiceApolloServer<GraphContext>(
     ApolloServerConfig.apolloServerOptions,
 );
 
