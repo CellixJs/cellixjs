@@ -1,6 +1,12 @@
 import { defineConfig, mergeConfig } from 'vitest/config';
-import baseConfig from '../../vitest.base.config.ts';
+import backendConfig from '../../vitest.backend.config.ts';
 
-export default mergeConfig(baseConfig, defineConfig({
-  // Add package-specific overrides here if needed
+export default mergeConfig(backendConfig, defineConfig({
+  test: {
+    coverage: {
+        exclude: [
+            '**/index.ts',
+        ]
+    }
+  }
 }));

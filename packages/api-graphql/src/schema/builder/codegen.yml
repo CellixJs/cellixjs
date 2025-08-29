@@ -89,6 +89,18 @@ generates:
       - 'typescript'
       - 'typescript-operations'
       - 'typed-document-node'
+  ../ui-components/src/generated.tsx:
+    documents: '../ui-components/src/components/**/**.graphql'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typed-document-node'
 
 hooks:
   afterAllFileWrite:

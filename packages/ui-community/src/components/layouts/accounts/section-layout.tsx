@@ -1,6 +1,6 @@
+import { LoggedInUserContainer } from '@ocom/ui-components';
 import { Layout, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
-import { LoggedInUserContainer } from '../../ui/organisms/header/logged-in-user.container';
 
 const { Header } = Layout;
 

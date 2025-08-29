@@ -1,5 +1,5 @@
 {
-	"extends": ["../../tsconfig.base"],
+	"extends": ["../../tsconfig.backend"],
 	"compilerOptions": {
 		"exactOptionalPropertyTypes": false, //needed to comment out for a handful of @opentelemetry packages
 		/* Modules */

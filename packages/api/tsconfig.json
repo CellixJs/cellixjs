@@ -1,5 +1,5 @@
 {
-	"extends": ["../../tsconfig.base"],
+	"extends": ["../../tsconfig.backend"],
 	"compilerOptions": {
 		// "skipLibCheck": true // required to avoid typescript error after including mongoose
 		/* Modules */

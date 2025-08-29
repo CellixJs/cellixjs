@@ -1,11 +1,11 @@
 import { useQuery } from '@apollo/client';
+import { ComponentQueryLoader } from '@cellix/ui-core';
 import {
   AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-  AccountsCommunityListContainerMembersForCurrentEndUserDocument,
   type AccountsCommunityListContainerCommunityFieldsFragment,
   type AccountsCommunityListContainerMemberFieldsFragment,
+  AccountsCommunityListContainerMembersForCurrentEndUserDocument,
 } from '../../../../generated.tsx';
-import { ComponentQueryLoader } from '../../../ui/molecules/component-query-loader/index.tsx';
 import { CommunityList } from './community-list.tsx';
 
 export const CommunityListContainer: React.FC = () => {

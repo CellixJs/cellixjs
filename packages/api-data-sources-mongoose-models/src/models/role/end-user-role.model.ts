@@ -1,5 +1,5 @@
 import type { MongooseSeedwork } from '@cellix/data-sources-mongoose';
-import { type Model, type ObjectId, type PopulatedDoc, Schema } from 'mongoose';
+import { type Model, type ObjectId, type PopulatedDoc, Schema, type SchemaDefinition } from 'mongoose';
 import * as Community from '../community/community.model.ts';
 import { type Role, type RoleModelType, roleOptions } from './role.model.ts';
 
@@ -84,7 +84,7 @@ export const EndUserRoleSchema = new Schema<
 		permissions: {
 			servicePermissions: {
 				canManageServices: { type: Boolean, required: true, default: false },
-			},
+			} as SchemaDefinition<EndUserRoleServicePermissions>,
 			serviceTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
 				canManageTickets: { type: Boolean, required: true, default: false },
@@ -95,7 +95,7 @@ export const EndUserRoleSchema = new Schema<
 					default: false,
 					index: true,
 				},
-			},
+			} as SchemaDefinition<EndUserRoleServiceTicketPermissions>,
 			violationTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
 				canManageTickets: { type: Boolean, required: true, default: false },
@@ -106,7 +106,7 @@ export const EndUserRoleSchema = new Schema<
 					default: false,
 					index: true,
 				},
-			},
+			} as SchemaDefinition<EndUserRoleViolationTicketPermissions>,
 			communityPermissions: {
 				canManageRolesAndPermissions: {
 					type: Boolean,
@@ -130,12 +130,12 @@ export const EndUserRoleSchema = new Schema<
 					required: true,
 					default: false,
 				},
-			},
+			} as SchemaDefinition<EndUserRoleCommunityPermissions>,
 			propertyPermissions: {
 				canManageProperties: { type: Boolean, required: true, default: false },
 				canEditOwnProperty: { type: Boolean, required: true, default: false },
-			},
-		},
+			} as SchemaDefinition<EndUserRolePropertyPermissions>,
+		} as SchemaDefinition<EndUserRolePermissions>,
 		schemaVersion: { type: String, default: '1.0.0' },
 		roleName: { type: String, required: true, maxlength: 50 },
 		isDefault: { type: Boolean, required: true, default: false },

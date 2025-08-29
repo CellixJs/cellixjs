@@ -24,6 +24,9 @@
     { "path": "./packages/api-graphql"},
     { "path": "./packages/api-rest"},
     { "path": "./packages/api-persistence"},
-    { "path": "./packages/api"}
+    { "path": "./packages/api"},
+    { "path": "./packages/cellix-ui-core"},
+    { "path": "./packages/ui-components"},
+    { "path": "./packages/ui-community"}
   ]
 }

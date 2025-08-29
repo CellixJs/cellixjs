@@ -56,6 +56,9 @@ vi.mock('./otel-builder.js', () => {
       buildInstrumentations() {
         return ['http', 'azure', 'graphql', 'dataloader', 'mongoose'];
       }
+      buildSampler() {
+        return 'sampler';
+      }
     },
   };
 });

@@ -1,7 +1,7 @@
-import { useQuery } from "@apollo/client";
-import { AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument, type AccountsUserInfoContainerEndUserFieldsFragment } from "../../../../generated"
-import { ComponentQueryLoader } from "../../../ui/molecules/component-query-loader"
-import { UserInfo } from "./user-info";
+import { useQuery } from '@apollo/client';
+import { ComponentQueryLoader } from '@cellix/ui-core';
+import { AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument, type AccountsUserInfoContainerEndUserFieldsFragment } from '../../../../generated.tsx';
+import { UserInfo } from './user-info';
 
 export const UserInfoContainer: React.FC = () => {
     const { loading, error, data } = useQuery(AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument);

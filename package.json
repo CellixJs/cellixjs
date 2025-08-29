@@ -17,7 +17,7 @@
     "clean": "npm install && npm run clean --ws --if-present && rimraf dist node_modules package-lock.json **/coverage",
     "dev": "npm run build && concurrently \"npm:azurite:*\" \"npm:start-emulator:*\" \"npm:start:*\" --kill-others-on-fail --workspace=@ocom/api",
     "start:api": "npm run start --workspace=@ocom/api",
-    "start:ui-community": "cd packages/ui-community && npm install && npm run build && npm run dev",
+    "start:ui-community": "npm run dev --workspace=@ocom/ui-community",
     "start-emulator:mongo-memory-server": "cd packages/service-mongodb-memory-server && npm install && npm run build && npm run start",
     "start-emulator:auth-server": "cd packages/service-oauth2-mock-server && npm install && npm run build && npm run start",
     "test": "npm run test --ws --if-present",
@@ -48,7 +48,10 @@
     "packages/api-graphql",
     "packages/api-rest",
     "packages/api-persistence",
-    "packages/api"
+    "packages/api",
+    "packages/cellix-ui-core",
+    "packages/ui-components",
+    "packages/ui-community"
   ],
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",

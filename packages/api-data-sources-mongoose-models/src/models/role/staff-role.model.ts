@@ -1,4 +1,4 @@
-import { type Model, type ObjectId, Schema } from 'mongoose';
+import { type Model, type ObjectId, Schema, type SchemaDefinition } from 'mongoose';
 import { type Role, type RoleModelType, roleOptions } from './role.model.ts';
 
 export interface StaffRoleServicePermissions {
@@ -72,19 +72,19 @@ export const StaffRoleSchema = new Schema<
 		permissions: {
 			servicePermissions: {
 				// canManageServices: { type: Boolean, required: true, default: false },
-			},
+			} as SchemaDefinition<StaffRoleServicePermissions>,
 			serviceTicketPermissions: {
 				// canCreateTickets: { type: Boolean, required: true, default: false },
 				// canManageTickets: { type: Boolean, required: true, default: false },
 				// canAssignTickets: { type: Boolean, required: true, default: false },
 				// canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
-			},
+			} as SchemaDefinition<StaffRoleServiceTicketPermissions>,
 			violationTicketPermissions: {
 				// canCreateTickets: { type: Boolean, required: true, default: false },
 				// canManageTickets: { type: Boolean, required: true, default: false },
 				// canAssignTickets: { type: Boolean, required: true, default: false },
 				// canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
-			},
+			} as SchemaDefinition<StaffRoleViolationTicketPermissions>,
 			communityPermissions: {
 				canManageStaffRolesAndPermissions: {
 					type: Boolean,
@@ -107,12 +107,12 @@ export const StaffRoleSchema = new Schema<
 					required: true,
 					default: false,
 				},
-			},
+			} as SchemaDefinition<StaffRoleCommunityPermissions>,
 			propertyPermissions: {
 				// canManageProperties: { type: Boolean, required: true, default: false },
 				// canEditOwnProperty: { type: Boolean, required: true, default: false },
-			},
-		},
+			} as SchemaDefinition<StaffRolePropertyPermissions>,
+		} as SchemaDefinition<StaffRolePermissions>,
 		schemaVersion: { type: String, default: '1.0.0' },
 		roleName: { type: String, required: true, maxlength: 50 },
 		isDefault: { type: Boolean, required: true, default: false },

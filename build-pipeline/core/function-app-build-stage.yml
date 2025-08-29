@@ -41,6 +41,8 @@ stages:
     displayName: Build
     pool:
       vmImage: ${{parameters.vmImageName}}
+    variables:
+      PLAYWRIGHT_BROWSERS_PATH: $(Pipeline.Workspace)/.cache/ms-playwright
     steps:
 
     # Ensure the correct version of Node is installed.
@@ -52,8 +54,33 @@ stages:
     # Ensure the correct version of function tools are installed.
     - task: FuncToolsInstaller@0
       inputs:
-        version: '4.0.6280'
+        version: '4.2.1'
       displayName: 'Install: func tools - latest'
+
+    # Playwright: Restore browsers cache
+    - task: Cache@2
+      displayName: 'Playwright: Restore browsers cache'
+      continueOnError: true
+      inputs:
+        key: 'playwright | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
+        restoreKeys: |
+          playwright | "$(Agent.OS)"
+        path: '$(PLAYWRIGHT_BROWSERS_PATH)'
+        cacheHitVar: PW_CACHE_HIT
+
+    # Playwright: Install browsers if needed
+    - task: Bash@3
+      displayName: 'Playwright: Install browsers if needed'
+      condition: ne(variables.PW_CACHE_HIT, 'true')
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "PW_CACHE_HIT=${PW_CACHE_HIT:-unset}"
+          echo "Installing Playwright browsers into: $(PLAYWRIGHT_BROWSERS_PATH)"
+          npx playwright install --with-deps chromium
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     # Cache NPM packages to speed up build process.
     - task: Cache@2
@@ -74,9 +101,11 @@ stages:
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
           npm install
-          npm run test:coverage
           npm run build
+          npm run test:coverage
         workingDirectory: ''
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     - task: Bash@3
       displayName: 'NPM: Prepare binaries and run tests using NPM cache'
@@ -86,9 +115,34 @@ stages:
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
           npm ci
-          npm run test:coverage
           npm run build
+          npm run test:coverage
         workingDirectory: ''
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
+    # Discover all LCOV reports produced by workspace packages
+    - task: Bash@3
+      displayName: 'SonarCloud: Discover LCOV report files'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          ROOT="$(Build.SourcesDirectory)"
+          # Find all lcov.info files under packages/**/coverage (one per package)
+          list=$(find "$ROOT/packages" -type f -name lcov.info -path "*/coverage/lcov.info" | sort || true)
+          if [ -z "$list" ]; then
+            echo "No lcov.info files found under packages/**/coverage. Coverage may show as 0%."
+            echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
+          else
+            echo "Found LCOV files:"
+            printf '%s\n' "$list" | sed 's/^/ - /'
+            # Join newline-separated paths into a single comma-separated string
+            joined=$(printf '%s\n' "$list" | paste -sd, -)
+            # Expose as a pipeline variable for the prepare step
+            echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]$joined"
+          fi
 
     # Cache SonarCloud downloaded assets to speed up build process.
     - task: Cache@2
@@ -114,10 +168,12 @@ stages:
         cliProjectName: ${{parameters.SonarCloud_cliProjectName}}
         cliSources: '$(Build.SourcesDirectory)'
         extraProperties: |
-          sonar.javascript.lcov.reportPaths=$(System.DefaultWorkingDirectory)/**/lcov.info
+          sonar.javascript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
+          sonar.typescript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
           sonar.scanner.metadataFilePath=$(Agent.TempDirectory)/sonar/$(Build.BuildNumber)/test/report-task.txt
-          sonar.cpd.exclusions=**/*.test.ts
-        
+          sonar.cpd.exclusions=**/*.test.ts,**/generated.tsx
+          sonar.coverage.exclusions=**/*.config.ts,**/tsconfig.json,**/.storybook/**,**/*.stories.ts,**/*.stories.tsx,**/*.test.ts,**/*.test.tsx,**/generated.ts,**/generated.tsx,**/*.d.ts,dist/**
+
     # SonarCloud: Analyze code and code coverage
     - task: SonarCloudAnalyze@3
       displayName: 'SonarCloud: Run analysis'
@@ -154,4 +210,3 @@ stages:
       displayName: 'Artifact: Publish'
       condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: drop
-
