@@ -11,6 +11,7 @@
 	"references": [
 		//needs to match peer dependencies in package.json
 		{ "path": "../api-persistence" },
+        { "path": "../service-apollo-server" },
         { "path": "../service-token-validation" }
 	]
 }

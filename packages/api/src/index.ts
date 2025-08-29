@@ -8,14 +8,20 @@ import { RegisterEventHandlers } from '@ocom/api-event-handler';
 import { ServiceMongoose } from '@ocom/service-mongoose';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
 
+import { ServiceApolloServer } from '@ocom/service-apollo-server';
+import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
+
 import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
-import { graphHandlerCreator } from '@ocom/api-graphql';
+import { createGraphHandlerCreator } from '@ocom/api-graphql';
 import { restHandlerCreator } from '@ocom/api-rest';
 
+const apolloServerService = new ServiceApolloServer(
+    ApolloServerConfig.apolloServerOptions,
+);
 
 Cellix
     .initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
@@ -26,6 +32,7 @@ Cellix
                     MongooseConfig.mongooseConnectOptions,
                 ),
             )
+            .registerInfrastructureService(apolloServerService)
             .registerInfrastructureService(new ServiceBlobStorage())
             .registerInfrastructureService(
                 new ServiceTokenValidation(
@@ -44,13 +51,14 @@ Cellix
         return {
             dataSourcesFactory,
             tokenValidationService: serviceRegistry.getInfrastructureService<ServiceTokenValidation>(ServiceTokenValidation),
+            apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),
         };
     })
     .initializeApplicationServices((context) => buildApplicationServicesFactory(context))
     .registerAzureFunctionHttpHandler(
         'graphql',
         { route: 'graphql/{*segments}', methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'] },
-        graphHandlerCreator,
+        createGraphHandlerCreator(apolloServerService),
     )
     .registerAzureFunctionHttpHandler(
         'rest',

@@ -19,6 +19,7 @@
 		{ "path": "../api-persistence" },
 		{ "path": "../cellix-api-services-spec" },
         { "path": "../cellix-data-sources-mongoose" },
+        { "path": "../service-apollo-server" },
         { "path": "../service-blob-storage" },
 		{ "path": "../service-mongoose" },
 		{ "path": "../service-otel" },
