@@ -25,6 +25,7 @@
 		"@ocom/api-context-spec": "^1.0.0",
         "@ocom/api-event-handler": "^1.0.0",
 		"@ocom/api-graphql": "^1.0.0",
+		"@ocom/api-graphql-handler": "^1.0.0",
 		"@ocom/api-persistence": "^1.0.0",
 		"@ocom/api-rest": "^1.0.0",
         "@ocom/service-apollo-server": "^1.0.0",

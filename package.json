@@ -47,6 +47,7 @@
     "packages/api-context-spec",
     "packages/api-event-handler",
     "packages/api-graphql",
+    "packages/api-graphql-handler",
     "packages/api-rest",
     "packages/api-persistence",
     "packages/api",

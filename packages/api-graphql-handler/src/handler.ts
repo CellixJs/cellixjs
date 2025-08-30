@@ -5,7 +5,7 @@ import {
     startServerAndCreateHandler,
     type WithRequired
 } from './azure-functions.ts';
-import type { GraphContext } from './context.ts';
+import type { GraphContext } from '@ocom/api-graphql';
 
 export const graphHandlerCreator = (
 	applicationServicesFactory: ApplicationServicesFactory<GraphContext>,

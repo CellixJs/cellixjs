@@ -15,6 +15,7 @@
 		{ "path": "../api-context-spec" },
         { "path": "../api-event-handler" },
 		{ "path": "../api-graphql" },
+		{ "path": "../api-graphql-handler" },
 		{ "path": "../api-rest" },
 		{ "path": "../api-persistence" },
 		{ "path": "../cellix-api-services-spec" },

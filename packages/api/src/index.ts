@@ -16,7 +16,8 @@ import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
-import { graphHandlerCreator, type GraphContext } from '@ocom/api-graphql';
+import { graphHandlerCreator } from '@ocom/api-graphql-handler';
+import type { GraphContext } from '@ocom/api-graphql';
 import { restHandlerCreator } from '@ocom/api-rest';
 
 Cellix

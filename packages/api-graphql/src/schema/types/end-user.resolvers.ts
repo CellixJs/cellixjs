@@ -1,5 +1,5 @@
 import type { GraphQLResolveInfo } from "graphql";
-import type { GraphContext } from "../../init/context.ts";
+import type { GraphContext } from "../context.ts";
 import type { Resolvers } from "../builder/generated.ts";
 import { getRequestedFieldPaths } from "../resolver-helper.ts";
 

@@ -1,6 +1,6 @@
 // import { GraphQLError } from 'graphql';
 // import { allow, shield } from 'graphql-shield';
-// import type { GraphContext } from '../../init/context.ts';
+// import type { GraphContext } from '../context.ts';
 // import type { Resolvers } from '../builder/generated';
 
 

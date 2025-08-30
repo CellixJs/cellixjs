@@ -4,7 +4,7 @@ import { loadFilesSync } from '@graphql-tools/load-files';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import * as Scalars from 'graphql-scalars';
-import type { GraphContext } from '../../init/context.ts';
+import type { GraphContext } from '../context.ts';
 import { resolvers } from './resolver-builder.ts';
 
 const __filename = fileURLToPath(import.meta.url);
