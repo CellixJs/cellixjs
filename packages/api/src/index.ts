@@ -2,7 +2,7 @@ import './service-config/otel-starter.ts';
 
 import { Cellix } from './cellix.ts';
 import type { ApiContextSpec } from '@ocom/api-context-spec';
-import { type ApplicationServices, buildApplicationServicesFactory } from '@ocom/api-application-services';
+import { type ApplicationServices, buildApplicationServicesFactory, type ApplicationServicesFactory } from '@ocom/api-application-services';
 import { RegisterEventHandlers } from '@ocom/api-event-handler';
 
 import { ServiceMongoose } from '@ocom/service-mongoose';
@@ -16,15 +16,11 @@ import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
-import { createGraphHandlerCreator, type GraphContext } from '@ocom/api-graphql';
+import { graphHandlerCreator, type GraphContext } from '@ocom/api-graphql';
 import { restHandlerCreator } from '@ocom/api-rest';
 
-const apolloServerService = new ServiceApolloServer<GraphContext>(
-    ApolloServerConfig.apolloServerOptions,
-);
-
 Cellix
-    .initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
+    .initializeInfrastructureServices<ApiContextSpec<GraphContext>, ApplicationServices>((serviceRegistry) => {
         serviceRegistry
             .registerInfrastructureService(
                 new ServiceMongoose(
@@ -32,7 +28,11 @@ Cellix
                     MongooseConfig.mongooseConnectOptions,
                 ),
             )
-            .registerInfrastructureService(apolloServerService)
+            .registerInfrastructureService(
+                new ServiceApolloServer<GraphContext>(
+                    ApolloServerConfig.apolloServerOptions,
+                ),
+            )
             .registerInfrastructureService(new ServiceBlobStorage())
             .registerInfrastructureService(
                 new ServiceTokenValidation(
@@ -51,18 +51,18 @@ Cellix
         return {
             dataSourcesFactory,
             tokenValidationService: serviceRegistry.getInfrastructureService<ServiceTokenValidation>(ServiceTokenValidation),
-            apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),
+            apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer),
         };
     })
-    .initializeApplicationServices((context) => buildApplicationServicesFactory(context))
+    .initializeApplicationServices((context) => buildApplicationServicesFactory<GraphContext>(context))
     .registerAzureFunctionHttpHandler(
         'graphql',
         { route: 'graphql/{*segments}', methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'] },
-        createGraphHandlerCreator(apolloServerService),
+        (applicationServicesHost) => graphHandlerCreator(applicationServicesHost as ApplicationServicesFactory<GraphContext>),
     )
     .registerAzureFunctionHttpHandler(
         'rest',
         { route: '{communityId}/{role}/{memberId}/{*rest}' },
-        restHandlerCreator,
+        (applicationServicesHost) => restHandlerCreator(applicationServicesHost as ApplicationServicesFactory),
     )
     .startUp();
