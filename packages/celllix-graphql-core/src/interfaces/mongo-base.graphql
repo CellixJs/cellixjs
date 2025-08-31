@@ -1,0 +1,15 @@
+"""
+Base type for all models in mongo.
+"""
+interface MongoBase {
+  """
+  The ID of the object.
+  """
+  id: ObjectID!
+  schemaVersion: String
+  createdAt: DateTime
+  """
+  Automatically generated timestamp, updated on every save.
+  """
+  updatedAt: DateTime
+}

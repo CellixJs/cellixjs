@@ -1,0 +1,42 @@
+{
+	"name": "@celllix/graphql-core",
+	"version": "1.0.0",
+	"author": "",
+	"license": "MIT",
+	"description": "Core GraphQL utilities and schema building components for Cellix applications",
+	"type": "module",
+	"main": "dist/src/index.js",
+	"types": "dist/src/index.d.ts",
+	"scripts": {
+		"build": "tsc --build",
+		"clean": "rimraf dist node_modules tsconfig.tsbuildinfo && tsc --build --clean",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"prebuild": "biome lint",
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"peerDependencies": {
+		"graphql": "^16.10.0"
+	},
+	"dependencies": {
+		"@graphql-tools/json-file-loader": "^8.0.20",
+		"@graphql-tools/load": "^8.1.2",
+		"@graphql-tools/load-files": "^7.0.1",
+		"@graphql-tools/merge": "^9.0.21",
+		"@graphql-tools/schema": "^10.0.27",
+		"graphql-middleware": "^6.1.35",
+		"graphql-scalars": "^1.24.2"
+	},
+	"devDependencies": {
+		"@graphql-codegen/cli": "^5.0.7",
+		"@graphql-codegen/introspection": "^4.0.3",
+		"@graphql-codegen/typed-document-node": "^5.1.2",
+		"@graphql-codegen/typescript": "^4.1.6",
+		"@graphql-codegen/typescript-operations": "^4.6.1",
+		"@graphql-codegen/typescript-resolvers": "^4.5.1",
+		"rimraf": "^6.0.1",
+		"typescript": "^5.8.3",
+		"vitest": "^3.2.4"
+	}
+}

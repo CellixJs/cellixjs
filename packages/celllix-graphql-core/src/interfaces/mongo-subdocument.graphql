@@ -1,0 +1,14 @@
+"""
+Base type for all models in mongo.
+"""
+interface MongoSubdocument {
+  """
+  The ID of the object.
+  """
+  id: ObjectID!
+  createdAt: DateTime
+  """
+  Automatically generated timestamp, updated on every save.
+  """
+  updatedAt: DateTime
+}

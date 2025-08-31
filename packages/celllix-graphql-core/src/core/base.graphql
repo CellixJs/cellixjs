@@ -1,0 +1,34 @@
+""" Core schema """
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+""" Base Mutation Type definition - all mutations will be defined in separate files extending this type """
+type Mutation {
+    """
+    IGNORE: Dummy field necessary for the Mutation type to be valid
+    """
+    _empty:String
+}
+
+""" Base Query Type definition - , all mutations will be defined in separate files extending this type """
+type Query {
+    """
+    IGNORE: Dummy field necessary for the Query type to be valid
+    """
+    _empty:String
+}
+
+""" Required to enable Apollo Cache Control """
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+
+""" Required to enable Apollo Cache Control """
+directive @cacheControl22(
+  maxAge: Int
+  scope: CacheControlScope
+  inheritMaxAge: Boolean
+) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
