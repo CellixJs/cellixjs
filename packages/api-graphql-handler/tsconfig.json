@@ -1,0 +1,21 @@
+{
+	"extends": "../../tsconfig.backend.json",
+	"compilerOptions": {
+		"rootDir": ".",
+		"outDir": "dist",
+		"composite": true
+	},
+	"references": [
+		{
+			"path": "../api-application-services"
+		},
+		{
+			"path": "../api-graphql"
+		},
+		{
+			"path": "../service-apollo-server"
+		}
+	],
+	"include": ["src/**/*"],
+	"exclude": ["src/**/*.test.ts"]
+}

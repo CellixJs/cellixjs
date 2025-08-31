@@ -1,0 +1,32 @@
+{
+	"name": "@ocom/api-graphql-handler",
+	"version": "1.0.0",
+	"author": "",
+	"license": "MIT",
+	"description": "Azure Functions HTTP handler for GraphQL endpoints",
+	"type": "module",
+	"main": "dist/src/index.js",
+	"types": "dist/src/index.d.ts",
+	"scripts": {
+		"build": "tsc --build",
+		"clean": "rimraf dist node_modules tsconfig.tsbuildinfo && tsc --build --clean",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"prebuild": "biome lint",
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"peerDependencies": {
+        "@azure/functions-v4": "^4.0.0",
+        "@apollo/server": "^4.0.0",
+        "@apollo/utils.withrequired": "^3.0.0",
+        "@ocom/api-application-services": "^1.0.0",
+        "@ocom/api-graphql": "^1.0.0",
+        "@ocom/service-apollo-server": "^1.0.0"
+	},
+	"devDependencies": {
+		"rimraf": "^6.0.1",
+		"typescript": "^5.8.3",
+		"vitest": "^3.2.4"
+	}
+}

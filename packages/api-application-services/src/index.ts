@@ -2,6 +2,7 @@ import type { ApiContextSpec } from '@ocom/api-context-spec';
 import { Domain } from '@ocom/api-domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
+import type { BaseContext } from '@apollo/server';
 
 export interface ApplicationServices {
     Community: CommunityContextApplicationService;
@@ -36,9 +37,11 @@ export interface AppServicesHost<S> {
     // forAzureFunction: (opts?: unknown) => Promise<S>;
 }
 
-export type ApplicationServicesFactory = AppServicesHost<ApplicationServices>;
+export interface ApplicationServicesFactory<TContext extends BaseContext = BaseContext> extends AppServicesHost<ApplicationServices> {
+    getInfrastructureContext(): ApiContextSpec<TContext>;
+}
 
-export const buildApplicationServicesFactory = (infrastructureServicesRegistry: ApiContextSpec): ApplicationServicesFactory => {
+export const buildApplicationServicesFactory = <TContext extends BaseContext>(infrastructureServicesRegistry: ApiContextSpec<TContext>): ApplicationServicesFactory<TContext> => {
 
     const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints): Promise<ApplicationServices> => {
         const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
@@ -79,6 +82,7 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
     }
 
     return {
-        forRequest
+        forRequest,
+        getInfrastructureContext: () => infrastructureServicesRegistry
     }
 }
