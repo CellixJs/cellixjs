@@ -26,4 +26,3 @@ export { makeExecutableSchema } from '@graphql-tools/schema';
 // Common types that applications might use
 export type { BaseContext } from '@apollo/server';
 export type { IResolvers } from '@graphql-tools/utils';
-export type { ExecutableSchemaTransformation } from '@graphql-tools/schema';

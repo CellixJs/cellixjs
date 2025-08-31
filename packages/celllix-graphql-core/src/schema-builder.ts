@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFilesSync } from '@graphql-tools/load-files';
 import { mergeTypeDefs } from '@graphql-tools/merge';
-import { makeExecutableSchema, type ExecutableSchemaTransformation } from '@graphql-tools/schema';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 import * as Scalars from 'graphql-scalars';
 import type { BaseContext } from '@apollo/server';
 import type { IResolvers } from '@graphql-tools/utils';
@@ -19,13 +19,11 @@ const __dirname = path.dirname(__filename);
  */
 export interface CellixSchemaOptions<TContext extends BaseContext = BaseContext> {
   /** Application resolvers to merge with scalar resolvers */
-  resolvers: IResolvers<any, TContext> | Array<IResolvers<any, TContext>>;
+  resolvers: IResolvers<unknown, TContext> | Array<IResolvers<unknown, TContext>>;
   /** Custom GraphQL type definitions (optional - will be merged with scalars) */
   customTypeDefs?: string | string[];
   /** Path to load GraphQL schema files from (defaults to application schema directory) */
   schemaFilesPath?: string;
-  /** Schema transformations to apply */
-  schemaTransforms?: ExecutableSchemaTransformation<TContext>[];
 }
 
 /**
@@ -40,7 +38,6 @@ export function createCellixSchema<TContext extends BaseContext = BaseContext>(
     resolvers,
     customTypeDefs = [],
     schemaFilesPath,
-    schemaTransforms,
   } = options;
 
   // Default schema files path - look for GraphQL files in the application's schema directory
@@ -50,7 +47,7 @@ export function createCellixSchema<TContext extends BaseContext = BaseContext>(
   let sdlFiles: string[] = [];
   try {
     sdlFiles = loadFilesSync(defaultSchemaPath);
-  } catch (error) {
+  } catch (_error) {
     // If no schema files found, continue with just custom typeDefs and scalars
     console.warn(`No GraphQL schema files found at ${defaultSchemaPath}`);
   }
@@ -72,7 +69,6 @@ export function createCellixSchema<TContext extends BaseContext = BaseContext>(
   return makeExecutableSchema<TContext>({
     typeDefs,
     resolvers: allResolvers,
-    schemaTransforms,
   });
 }
 
@@ -83,11 +79,11 @@ export function createCellixSchema<TContext extends BaseContext = BaseContext>(
  * @returns Executable GraphQL schema
  */
 export function createCellixSchemaSimple<TContext extends BaseContext = BaseContext>(
-  resolvers: IResolvers<any, TContext> | Array<IResolvers<any, TContext>>,
+  resolvers: IResolvers<unknown, TContext> | Array<IResolvers<unknown, TContext>>,
   schemaFilesPath?: string
 ) {
   return createCellixSchema<TContext>({
     resolvers,
-    schemaFilesPath,
+    ...(schemaFilesPath && { schemaFilesPath }),
   });
 }

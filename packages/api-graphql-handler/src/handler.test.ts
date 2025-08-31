@@ -22,7 +22,7 @@ const mockApplicationServicesFactory = {
 
 // Mock the startServerAndCreateHandler function
 vi.mock('./azure-functions.js', () => ({
-  startServerAndCreateHandler: vi.fn((server, options) => {
+  startServerAndCreateHandler: vi.fn((_server, _options) => {
     // Return a mock handler function
     return vi.fn().mockResolvedValue({
       status: 200,
@@ -64,7 +64,7 @@ describe('handler', () => {
         ]),
       };
 
-      const result = await contextFunction!({ req: mockReq, context: {} } as any);
+      const result = await contextFunction?.({ req: mockReq, context: {} } as unknown);
 
       expect(mockApplicationServicesFactory.forRequest).toHaveBeenCalledWith(
         'Bearer token123',
@@ -90,7 +90,7 @@ describe('handler', () => {
         ]),
       };
 
-      await contextFunction!({ req: mockReq, context: {} } as any);
+      await contextFunction?.({ req: mockReq, context: {} } as unknown);
 
       expect(mockApplicationServicesFactory.forRequest).toHaveBeenCalledWith(
         undefined,
@@ -112,7 +112,7 @@ describe('handler', () => {
         ]),
       };
 
-      await contextFunction!({ req: mockReq, context: {} } as any);
+      await contextFunction?.({ req: mockReq, context: {} } as unknown);
 
       expect(mockApplicationServicesFactory.forRequest).toHaveBeenCalledWith(
         'Bearer token123',

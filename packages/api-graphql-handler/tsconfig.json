@@ -16,5 +16,6 @@
 			"path": "../service-apollo-server"
 		}
 	],
-	"include": ["src/**/*"]
+	"include": ["src/**/*"],
+	"exclude": ["src/**/*.test.ts"]
 }

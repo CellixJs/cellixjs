@@ -1,4 +1,0 @@
-type MutationStatus {
-  success: Boolean!
-  errorMessage: String
-}

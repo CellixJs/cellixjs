@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createCellixSchema, createCellixSchemaSimple } from './schema-builder.js';
-import { BaseContext } from '@apollo/server';
-import { IResolvers } from '@graphql-tools/utils';
+import type { BaseContext } from '@apollo/server';
+import type { IResolvers } from '@graphql-tools/utils';
 
 // Mock dependencies
 vi.mock('@graphql-tools/load-files', () => ({
@@ -29,7 +29,7 @@ interface TestContext extends BaseContext {
 }
 
 describe('schema-builder', () => {
-  const mockResolvers: IResolvers<any, TestContext> = {
+  const mockResolvers: IResolvers<unknown, TestContext> = {
     Query: {
       hello: () => 'Hello World',
       user: (_parent, _args, context) => ({ id: context.userId }),
@@ -51,7 +51,7 @@ describe('schema-builder', () => {
     });
 
     it('should handle array of resolvers', () => {
-      const additionalResolvers: IResolvers<any, TestContext> = {
+      const additionalResolvers: IResolvers<unknown, TestContext> = {
         Query: {
           goodbye: () => 'Goodbye World',
         },
@@ -103,7 +103,9 @@ describe('schema-builder', () => {
     });
 
     it('should handle missing schema files gracefully', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+        // Intentionally empty
+      });
       
       // Just test that schema can be created without schema files
       const schema = createCellixSchema({
@@ -115,10 +117,11 @@ describe('schema-builder', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should include schema transforms when provided', () => {
+    it('should accept various schema options', () => {
       const schema = createCellixSchema({
         resolvers: mockResolvers,
-        schemaTransforms: [], // Empty array to test transforms functionality
+        customTypeDefs: 'type TestType { value: String }',
+        schemaFilesPath: '/custom/path/**/*.graphql',
       });
 
       expect(schema).toBeDefined();
@@ -127,7 +130,7 @@ describe('schema-builder', () => {
     it('should filter out falsy custom type definitions', () => {
       const schema = createCellixSchema({
         resolvers: mockResolvers,
-        customTypeDefs: ['type ValidType { id: ID! }', '', null, undefined] as any,
+        customTypeDefs: ['type ValidType { id: ID! }', '', null, undefined] as string[],
       });
 
       expect(schema).toBeDefined();

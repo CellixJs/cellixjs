@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ApolloServer } from '@apollo/server';
-import { HttpRequest, InvocationContext } from '@azure/functions-v4';
+import type { ApolloServer } from '@apollo/server';
+import type { HttpRequest, InvocationContext } from '@azure/functions-v4';
 import { startServerAndCreateHandler } from './azure-functions.js';
 
 // Mock Apollo Server
@@ -167,10 +167,10 @@ describe('azure-functions', () => {
       };
 
       // Mock the Apollo Server executeHTTPGraphQLRequest to capture the context function
-      let capturedContextFunction: any = null;
-      vi.mocked(mockApolloServer.executeHTTPGraphQLRequest).mockImplementation(async ({ context }) => {
+      let capturedContextFunction: (() => unknown) | null = null;
+      vi.mocked(mockApolloServer.executeHTTPGraphQLRequest).mockImplementation(({ context }) => {
         capturedContextFunction = context;
-        return mockExecuteResult;
+        return Promise.resolve(mockExecuteResult);
       });
 
       const customContext = vi.fn().mockResolvedValue({ userId: '123' });

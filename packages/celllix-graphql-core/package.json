@@ -24,7 +24,7 @@
 		"@graphql-tools/load": "^8.1.2",
 		"@graphql-tools/load-files": "^7.0.1",
 		"@graphql-tools/merge": "^9.0.21",
-		"@graphql-tools/schema": "^10.0.27",
+		"@graphql-tools/schema": "^10.0.20",
 		"graphql-middleware": "^6.1.35",
 		"graphql-scalars": "^1.24.2"
 	},

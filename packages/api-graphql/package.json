@@ -17,15 +17,11 @@
 	},
 	"peerDependencies": {
 		"@ocom/api-application-services": "^1.0.0",
-        "@ocom/api-domain": "^1.0.0"
+		"@ocom/api-domain": "^1.0.0"
 	},
 	"dependencies": {
-		"@graphql-tools/json-file-loader": "^8.0.20",
-		"@graphql-tools/load": "^8.1.2",
-		"@graphql-tools/load-files": "^7.0.1",
-		"graphql": "^16.10.0",
-		"graphql-middleware": "^6.1.35",
-		"graphql-scalars": "^1.24.2"
+		"@celllix/graphql-core": "file:../celllix-graphql-core",
+		"graphql": "^16.10.0"
 	},
 	"devDependencies": {
 		"@graphql-codegen/cli": "^5.0.7",
