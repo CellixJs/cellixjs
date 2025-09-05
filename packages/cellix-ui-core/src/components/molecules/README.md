@@ -15,7 +15,7 @@ Currently, this library provides the following molecules:
 
 ### ComponentQueryLoader
 
-A utility component for handling loading states, errors, and data display in data fetching scenarios involving Apollo Client. This component is intended to be used in **Container** components that fetch data using GraphQL queries. (See [Container components](../../../../../.github/instructions//ui/container-components.instructions.md) instructions for more details.)
+A utility component for handling loading states, errors, and data display in data fetching scenarios involving Apollo Client. This component is intended to be used in **Container** components that fetch data using GraphQL queries.
 
 #### Usage
 
