@@ -1,6 +1,3 @@
----
-applyTo: "packages/api-persistence/**/*.ts"
----
 
 # API Persistence Package Development Guide
 

@@ -1,6 +1,3 @@
----
-applyTo: "packages/cellix-domain-seedwork/**/*.ts"
----
 # Copilot Instructions: @cellix/domain-seedwork
 
 ## Purpose

@@ -1,6 +1,3 @@
----
-applyTo: "packages/api-graphql/**/*.ts"
----
 # Copilot Instructions: @ocom/api-graphql
 
 ## Purpose
