@@ -82,7 +82,7 @@ steps:
         echo "Building the site..."
         npm run build
 
-        echo "Deploying to GitHub Pages...""
+        echo "Deploying to GitHub Pages..."
         npm run deploy --skip-build
 
         #requires GH_TOKEN secret variable with Pages permission with Read/Write access
