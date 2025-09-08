@@ -27,6 +27,8 @@ stages:
           vmImage: ubuntu-latest
         steps:
           - checkout: self
+            fetchDepth: 0 # Fetch all history for all branches and tags necessary for sonar cloud analysis 
+            # SonarCloud documentation https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/scm-integration/#:~:text=A%20full%20clone%20is%20required%20for%20this%20integration%20to%20be%20able%20to%20collect%20the%20required%20blame%20information%20(see%20Known%20Issues).%20If%20a%20shallow%20clone%20is%20detected%2C%20a%20warning%20will%20be%20logged%20and%20no%20attempt%20will%20be%20made%20to%20retrieve%20blame%20information.
 
           - task: UseNode@1
             inputs:
@@ -146,8 +148,8 @@ stages:
 
                 export GIT_USER=$(GH_NAME)
                 export GIT_PASS=$(GH_TOKEN)
-                
-                cd docusaurus
+
+                cd packages/docs
 
                 echo "Installing dependencies for deployment..."
                 npm ci
