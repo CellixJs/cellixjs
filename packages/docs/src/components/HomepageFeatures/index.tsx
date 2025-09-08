@@ -52,16 +52,20 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
+import { useId } from 'react';
+
 function Feature({title, Svg, description}: FeatureItem) {
+  const titleId = useId();
+
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
         <Svg
           className={styles.featureSvg}
           role="img"
-          aria-label={title}
+          aria-labelledby={titleId}
         >
-          <title>{title}</title>
+          <title id={titleId}>{title}</title>
         </Svg>
       </div>
       <div className="text--center padding-horiz--md">
