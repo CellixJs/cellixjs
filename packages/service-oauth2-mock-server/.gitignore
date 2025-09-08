@@ -1,7 +1,0 @@
-# .gitignore template - https://github.com/github/gitignore/blob/main/Node.gitignore
-/dist
-/node_modules
-.DS_Store
-__*
-
-.env.local

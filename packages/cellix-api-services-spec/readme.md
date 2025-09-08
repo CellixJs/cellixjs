@@ -1,1 +1,0 @@
-npm i -D -w api-services-spec @tsconfig/node20 @tsconfig/node-ts typescript
