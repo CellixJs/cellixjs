@@ -1,10 +1,11 @@
 {
     "cSpell.words": [
-        "Cellix",
-        "dataobject",
-        "lucaspaganini",
-        "maxlength",
-        "seedwork"
+      "Cellix",
+      "cellixjs",
+      "dataobject",
+      "lucaspaganini",
+      "maxlength",
+      "seedwork"
     ],
     "azureFunctions.deploySubpath": "packages/api",
     "azureFunctions.postDeployTask": "npm install (functions)",

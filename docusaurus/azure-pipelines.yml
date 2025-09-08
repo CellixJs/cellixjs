@@ -1,0 +1,89 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - docusaurus
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - docusaurus     
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: github-credential-sharethrift
+
+steps:
+  - checkout: self
+    persistCredentials: true
+
+  - task: UseNode@1
+    inputs:
+      version: '22.x'
+    displayName: 'Install Node.js'
+    
+  - task: Cache@2
+    displayName: 'NPM: Restore Cache'
+    inputs:
+      key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/docusaurus/package-lock.json'
+      restoreKeys: |
+          npm | "$(Agent.OS)"
+      path: 
+        $(Build.SourcesDirectory)/docusaurus/node_modules
+
+  - task: Bash@3
+    displayName: 'Install, Build, and Deploy'
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo "GH_NAME: $(GH_NAME)"
+        echo "GH_EMAIL: $(GH_EMAIL)"
+        echo "Current directory: $(pwd)"
+        echo "Git remote URL:"
+        git remote -v
+
+        if [ -z "$(GH_NAME)" ]; then
+          echo "Error: GH_NAME is empty or not loaded. Please check the variable group configuration."
+          exit 1
+        fi
+        echo "GH_NAME PRESENT: True"
+
+        if [ -z "$(GH_EMAIL)" ]; then
+          echo "Error: GH_EMAIL is empty or not loaded. Please check the variable group configuration."
+          exit 1
+        fi
+        echo "GH_EMAIL PRESENT: True"
+
+        if [ -z "$(GH_TOKEN)" ]; then
+          echo "Error: GH_TOKEN is empty or not loaded. Please check the variable group configuration."
+          exit 1
+        fi
+        echo "GH_TOKEN PRESENT: True"
+
+
+        git config --global user.name "$(GH_NAME)"
+        git config --global user.email "$(GH_EMAIL)"
+
+        export GIT_USER=$(GH_NAME)
+        export GIT_PASS=$(GH_TOKEN)
+      
+        cd docusaurus
+
+        echo "Installing dependencies..."
+        npm ci
+        
+        echo "Building the site..."
+        npm run build
+
+        echo "Deploying to GitHub Pages...""
+        npm run deploy --skip-build
+
+        #requires GH_TOKEN secret variable with Pages permission with Read/Write access
+
