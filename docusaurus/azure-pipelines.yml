@@ -14,76 +14,154 @@ pr:
     include:
       - docusaurus     
 
-pool:
-  vmImage: ubuntu-latest
-
 variables:
   - group: github-credential-cellixjs
 
-steps:
-  - checkout: self
-    persistCredentials: true
+stages:
+  - stage: Build
+    displayName: 'Build Docusaurus Site'
+    jobs:
+      - job: Build
+        displayName: 'Build Documentation'
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
 
-  - task: UseNode@1
-    inputs:
-      version: '22.x'
-    displayName: 'Install Node.js'
-    
-  - task: Cache@2
-    displayName: 'NPM: Restore Cache'
-    inputs:
-      key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/docusaurus/package-lock.json'
-      restoreKeys: |
-          npm | "$(Agent.OS)"
-      path: 
-        $(Build.SourcesDirectory)/docusaurus/node_modules
+          - task: UseNode@1
+            inputs:
+              version: '22.x'
+            displayName: 'Install Node.js'
 
-  - task: Bash@3
-    displayName: 'Install, Build, and Deploy'
-    inputs:
-      targetType: 'inline'
-      script: |
-        echo "GH_NAME: $(GH_NAME)"
-        echo "GH_EMAIL: $(GH_EMAIL)"
-        echo "Current directory: $(pwd)"
-        echo "Git remote URL:"
-        git remote -v
+          - task: Cache@2
+            displayName: 'NPM: Restore Cache'
+            inputs:
+              key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/docusaurus/package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: 
+                $(Build.SourcesDirectory)/docusaurus/node_modules
 
-        if [ -z "$(GH_NAME)" ]; then
-          echo "Error: GH_NAME is empty or not loaded. Please check the variable group configuration."
-          exit 1
-        fi
-        echo "GH_NAME PRESENT: True"
+          - task: Bash@3
+            displayName: 'Install Dependencies and Build Site'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Current directory: $(pwd)"
+                cd docusaurus
 
-        if [ -z "$(GH_EMAIL)" ]; then
-          echo "Error: GH_EMAIL is empty or not loaded. Please check the variable group configuration."
-          exit 1
-        fi
-        echo "GH_EMAIL PRESENT: True"
+                echo "Installing dependencies..."
+                npm ci
+                
+                echo "Building the site..."
+                npm run build
 
-        if [ -z "$(GH_TOKEN)" ]; then
-          echo "Error: GH_TOKEN is empty or not loaded. Please check the variable group configuration."
-          exit 1
-        fi
-        echo "GH_TOKEN PRESENT: True"
+                echo "Build completed successfully!"
 
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifacts'
+            inputs:
+              pathToPublish: '$(Build.SourcesDirectory)/docusaurus/build'
+              artifactName: 'docusaurus-build'
+              publishLocation: 'Container'
 
-        git config --global user.name "$(GH_NAME)"
-        git config --global user.email "$(GH_EMAIL)"
+  - stage: Deploy
+    displayName: 'Deploy to GitHub Pages'
+    dependsOn: Build
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    jobs:
+      - job: Deploy
+        displayName: 'Deploy Documentation'
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
 
-        export GIT_USER=$(GH_NAME)
-        export GIT_PASS=$(GH_TOKEN)
-      
-        cd docusaurus
+          - task: UseNode@1
+            inputs:
+              version: '22.x'
+            displayName: 'Install Node.js'
 
-        echo "Installing dependencies..."
-        npm ci
-        
-        echo "Building the site..."
-        npm run build
+          - task: Cache@2
+            displayName: 'NPM: Restore Cache'
+            inputs:
+              key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/docusaurus/package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: 
+                $(Build.SourcesDirectory)/docusaurus/node_modules
 
-        echo "Deploying to GitHub Pages..."
-        npm run deploy --skip-build
+          - task: DownloadBuildArtifacts@1
+            displayName: 'Download Build Artifacts'
+            inputs:
+              buildType: 'current'
+              artifactName: 'docusaurus-build'
+              downloadPath: '$(Build.SourcesDirectory)/docusaurus'
 
-        #requires GH_TOKEN secret variable with Pages permission with Read/Write access
+          - task: Bash@3
+            displayName: 'Restore Build Artifacts'
+            inputs:
+              targetType: 'inline'
+              script: |
+                cd $(Build.SourcesDirectory)/docusaurus
+                
+                # Move the downloaded artifacts to the correct build directory
+                if [ -d "docusaurus-build" ]; then
+                  rm -rf build
+                  mv docusaurus-build build
+                  echo "Build artifacts restored successfully"
+                  ls -la build/
+                else
+                  echo "Error: Downloaded artifacts not found"
+                  exit 1
+                fi
+
+          - task: Bash@3
+            displayName: 'Deploy to GitHub Pages'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "GH_NAME: $(GH_NAME)"
+                echo "GH_EMAIL: $(GH_EMAIL)"
+                echo "Current directory: $(pwd)"
+                echo "Git remote URL:"
+                git remote -v
+
+                if [ -z "$(GH_NAME)" ]; then
+                  echo "Error: GH_NAME is empty or not loaded. Please check the variable group configuration."
+                  exit 1
+                fi
+                echo "GH_NAME PRESENT: True"
+
+                if [ -z "$(GH_EMAIL)" ]; then
+                  echo "Error: GH_EMAIL is empty or not loaded. Please check the variable group configuration."
+                  exit 1
+                fi
+                echo "GH_EMAIL PRESENT: True"
+
+                if [ -z "$(GH_TOKEN)" ]; then
+                  echo "Error: GH_TOKEN is empty or not loaded. Please check the variable group configuration."
+                  exit 1
+                fi
+                echo "GH_TOKEN PRESENT: True"
+
+                git config --global user.name "$(GH_NAME)"
+                git config --global user.email "$(GH_EMAIL)"
+
+                export GIT_USER=$(GH_NAME)
+                export GIT_PASS=$(GH_TOKEN)
+                
+                cd docusaurus
+
+                echo "Installing dependencies for deployment..."
+                npm ci
+
+                set -e
+
+                echo "Deploying to GitHub Pages..."
+                npm run deploy --skip-build
+
+                echo "Deployment completed successfully!"
+                #requires GH_TOKEN secret variable with Pages permission with Read/Write access
 
