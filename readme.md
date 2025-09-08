@@ -191,3 +191,39 @@ npm init -w ./packages/event-bus-seedwork-node
 
 npm install --save-dev @tsconfig/node20 @tsconfig/node-ts vitest @vitest/coverage-v8
 ```
+
+## Your feedback matters!
+
+Do you find CellixJS useful? [Give us a ⭐ star on GitHub](https://github.com/cellixjs/cellixjs)!
+
+[![GitHub stars](https://img.shields.io/github/stars/cellixjs/cellixjs)](https://github.com/cellixjs/cellixjs)
+
+Found a bug? Need a feature? Raise [an issue](https://github.com/cellixjs/cellixjs/issues?state=open)
+or submit a pull request.
+
+Have feedback? Leave a comment in [CellixJS discussions on GitHub](https://github.com/cellixjs/cellixjs/discussions)
+
+
+## Project Status
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=bugs)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=coverage)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+Cellix Build:
+[![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs?branchName=main)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=12&branchName=main)
+
+Cellix Docs Build:
+[![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs.cellixjs.docs?branchName=main)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=15&branchName=main)
+
+## Thanks to all our contributors
+
+[![sharethrift contributors](https://contrib.rocks/image?repo=cellixjs/cellixjs)](https://github.com/cellixjs/cellixjs/graphs/contributors)
+
+[⬆ Back to Top](#table-of-contents)
