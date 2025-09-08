@@ -4,7 +4,7 @@ sidebar_label: Domain Driven Design
 description: "CellixJs is a Domain-Driven Design (DDD) platform built on Azure Functions with modular architecture and strict separation of concerns."
 ---
 
-# Domain Driven Design
+# Domain-Driven Design
 CellixJs is a modern platform built around the principles of Domain-Driven Design (DDD), a software development methodology that focuses on the core domain and logic of a business. The platform leverages Azure Functions and implements a modular architecture with strict separation of concerns.
 
 The domain is complex, with many interconnected concepts and relationships. By using DDD, we can model this domain in a way that is both understandable and maintainable. This allows us to build a platform that is flexible, scalable, and easy to extend.
