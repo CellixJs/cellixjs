@@ -27,6 +27,10 @@
     "[typescriptreact]": {
         "editor.defaultFormatter": "biomejs.biome"
     },
+    "sonarlint.connectedMode.project": {
+        "connectionId": "simnova",
+        "projectKey": "simnova_cellix-data-access"
+    },
     // "[typescript]": {
     //     "editor.tabSize": 2,
     //     // "prettier.singleQuote": true,
