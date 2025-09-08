@@ -45,7 +45,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/CellixJs/cellixjs/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/CellixJs/cellixjs/tree/main/docusaurus/',
         },
         blog: {
           showReadingTime: true,
@@ -56,7 +56,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/CellixJs/cellixjs/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/CellixJs/cellixjs/tree/main/docusaurus/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
