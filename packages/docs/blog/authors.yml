@@ -1,0 +1,25 @@
+heruwala:
+  name: Dhaval Heruwala
+  title: CellixJs core team
+  url: https://linkedin.com/in/heruwala
+  image_url: https://github.com/heruwala.png
+  page: true
+  socials:
+    x: heruwala
+    linkedin: heruwala
+    github: heruwala
+    newsletter: https://medium.com/@heruwala
+
+gidich:
+  name: Patrick Gidich
+  title: CellixJs maintainer
+  url: https://www.simnova.com
+  image_url: https://github.com/gidich.png
+  page:
+    # customize the url of the author page at /blog/authors/<permalink>
+    permalink: '/all-patrick-gidich-articles'
+  socials:
+    x: simnova
+    linkedin: gidich
+    github: gidich
+    newsletter: https://www.simnova.com

@@ -2,6 +2,10 @@ trigger:
  paths:
    include:
      - packages
+   exclude:
+     - packages/docs/**
+     - packages/ui-**
+     - packages/cellix-ui-core/**
  branches:
    include:
      - main
