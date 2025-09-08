@@ -4,7 +4,7 @@ trigger:
       - main
   paths:
     include:
-      - docusaurus
+      - packages/docs
 
 pr:
   branches:
@@ -12,7 +12,7 @@ pr:
       - main
   paths:
     include:
-      - docusaurus     
+      - packages/docs
 
 variables:
   - group: github-credential-cellixjs
@@ -36,32 +36,28 @@ stages:
           - task: Cache@2
             displayName: 'NPM: Restore Cache'
             inputs:
-              key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/docusaurus/package-lock.json'
+              key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/packages/docs/package-lock.json'
               restoreKeys: |
                 npm | "$(Agent.OS)"
               path: 
-                $(Build.SourcesDirectory)/docusaurus/node_modules
-
+                $(Build.SourcesDirectory)/packages/docs/node_modules
           - task: Bash@3
             displayName: 'Install Dependencies and Build Site'
             inputs:
               targetType: 'inline'
               script: |
-                echo "Current directory: $(pwd)"
-                cd docusaurus
-
                 echo "Installing dependencies..."
-                npm ci
+                npm ci -w docs
                 
                 echo "Building the site..."
-                npm run build
+                npm run build -w docs
 
                 echo "Build completed successfully!"
 
           - task: PublishBuildArtifacts@1
             displayName: 'Publish Build Artifacts'
             inputs:
-              pathToPublish: '$(Build.SourcesDirectory)/docusaurus/build'
+              pathToPublish: '$(Build.SourcesDirectory)/packages/docs/build'
               artifactName: 'docusaurus-build'
               publishLocation: 'Container'
 
@@ -86,25 +82,24 @@ stages:
           - task: Cache@2
             displayName: 'NPM: Restore Cache'
             inputs:
-              key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/docusaurus/package-lock.json'
+              key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/packages/docs/package-lock.json'
               restoreKeys: |
                 npm | "$(Agent.OS)"
               path: 
-                $(Build.SourcesDirectory)/docusaurus/node_modules
-
+                $(Build.SourcesDirectory)/packages/docs/node_modules
           - task: DownloadBuildArtifacts@1
             displayName: 'Download Build Artifacts'
             inputs:
               buildType: 'current'
               artifactName: 'docusaurus-build'
-              downloadPath: '$(Build.SourcesDirectory)/docusaurus'
+              downloadPath: '$(Build.SourcesDirectory)/packages/docs'
 
           - task: Bash@3
             displayName: 'Restore Build Artifacts'
             inputs:
               targetType: 'inline'
               script: |
-                cd $(Build.SourcesDirectory)/docusaurus
+                cd $(Build.SourcesDirectory)/packages/docs
                 
                 # Move the downloaded artifacts to the correct build directory
                 if [ -d "docusaurus-build" ]; then
