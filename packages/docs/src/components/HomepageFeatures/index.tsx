@@ -7,6 +7,7 @@ import TreeSvg from '@site/static/img/undraw_docusaurus_tree.svg';
 import ReactSvg from '@site/static/img/undraw_docusaurus_react.svg';
 
 type FeatureItem = {
+  id: string;
   title: string;
   Svg: React.ComponentType<React.ComponentProps<'svg'>>;
   description: ReactNode;
@@ -15,6 +16,7 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
+    id: 'ddd',
     title: 'Domain-Driven Design',
     Svg: MountainSvg,
     description: (
@@ -26,6 +28,7 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
+    id: 'enterprise',
     title: 'Enterprise-Ready Architecture',
     Svg: TreeSvg,
     description: (
@@ -37,6 +40,7 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
+    id: 'typescript',
     title: 'Modern TypeScript Stack',
     Svg: ReactSvg,
     description: (
@@ -68,7 +72,7 @@ export default function HomepageFeatures(): ReactNode {
       <div className="container">
         <div className="row">
           {FeatureList.map((props) => (
-            <Feature key={props.title} {...props} />
+            <Feature key={props.id} {...props} />
           ))}
         </div>
       </div>
