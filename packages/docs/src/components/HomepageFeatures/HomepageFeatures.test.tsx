@@ -6,10 +6,10 @@ describe('HomepageFeatures', () => {
   it('renders all feature items', () => {
     render(<HomepageFeatures />);
     
-    // Check if all three features are rendered
-    expect(screen.getByText('Domain-Driven Design')).toBeInTheDocument();
-    expect(screen.getByText('Enterprise-Ready Architecture')).toBeInTheDocument();
-    expect(screen.getByText('Modern TypeScript Stack')).toBeInTheDocument();
+    // Check if all three features are rendered as headings
+    expect(screen.getByRole('heading', { name: 'Domain-Driven Design' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Enterprise-Ready Architecture' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Modern TypeScript Stack' })).toBeInTheDocument();
   });
 
   it('renders feature descriptions', () => {
@@ -32,8 +32,9 @@ describe('HomepageFeatures', () => {
   it('has proper CSS structure', () => {
     render(<HomepageFeatures />);
     
-    // Check if the main section is rendered by looking for container and row
-    const container = screen.getByText('Domain-Driven Design').closest('.container');
+    // Check if the main section is rendered by looking for container and row using heading
+    const heading = screen.getByRole('heading', { name: 'Domain-Driven Design' });
+    const container = heading.closest('.container');
     expect(container).toBeInTheDocument();
     
     const row = container?.querySelector('.row');

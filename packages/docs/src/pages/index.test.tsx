@@ -35,10 +35,10 @@ describe('Home', () => {
   it('renders homepage features', () => {
     render(<Home />);
     
-    // Check if HomepageFeatures component is rendered
-    expect(screen.getByText('Domain-Driven Design')).toBeInTheDocument();
-    expect(screen.getByText('Enterprise-Ready Architecture')).toBeInTheDocument();
-    expect(screen.getByText('Modern TypeScript Stack')).toBeInTheDocument();
+    // Check if HomepageFeatures component is rendered by checking for headings
+    expect(screen.getByRole('heading', { name: 'Domain-Driven Design' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Enterprise-Ready Architecture' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Modern TypeScript Stack' })).toBeInTheDocument();
   });
 
   it('has proper header structure', () => {
