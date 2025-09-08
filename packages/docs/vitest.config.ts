@@ -20,6 +20,7 @@ export default mergeConfig(baseConfig, defineConfig({
         '**/*.config.{js,ts}',
         '**/index.{js,ts}',
         'src/test/',
+        '**/setup.{js,ts}'
       ],
     },
   },
