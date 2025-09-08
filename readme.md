@@ -217,10 +217,10 @@ Have feedback? Leave a comment in [CellixJS discussions on GitHub](https://githu
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
 
 Cellix Build:
-[![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs?branchName=refs%2Fpull%2F41%2Fmerge)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=12&branchName=refs%2Fpull%2F41%2Fmerge)
+[![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs?branchName=main)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=12&branchName=main)
 
 Cellix Docs Build:
-[![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs.cellixjs.docs?branchName=refs%2Fpull%2F41%2Fmerge)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=15&branchName=refs%2Fpull%2F41%2Fmerge)
+[![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs.cellixjs.docs?branchName=main)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=15&branchName=main)
 
 ## Thanks to all our contributors
 
