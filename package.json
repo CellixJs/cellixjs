@@ -51,7 +51,8 @@
     "packages/api",
     "packages/cellix-ui-core",
     "packages/ui-components",
-    "packages/ui-community"
+    "packages/ui-community",
+    "packages/docs"
   ],
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",

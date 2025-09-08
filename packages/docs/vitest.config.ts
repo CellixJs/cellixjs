@@ -1,15 +1,15 @@
-import { defineConfig } from 'vitest/config';
 import path from 'node:path';
+import { defineConfig, mergeConfig } from 'vitest/config';
+import baseConfig from '../../vitest.base.config.ts';
 
-export default defineConfig({
+export default mergeConfig(baseConfig, defineConfig({
+  // Add package-specific overrides here if needed
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', '**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
         'build/',
@@ -21,14 +21,6 @@ export default defineConfig({
         '**/index.{js,ts}',
         'src/test/',
       ],
-      thresholds: {
-        global: {
-          branches: 90,
-          functions: 90,
-          lines: 90,
-          statements: 90,
-        },
-      },
     },
   },
   esbuild: {
@@ -43,4 +35,4 @@ export default defineConfig({
       '@theme/Heading': path.resolve(__dirname, 'src/test/mocks/Heading.tsx'),
     },
   },
-});
+}));
