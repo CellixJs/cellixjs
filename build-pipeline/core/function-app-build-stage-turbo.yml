@@ -181,6 +181,7 @@ stages:
         TURBO_TEAM: $(TURBO_TEAM)
         TURBO_TOKEN: $(TURBO_TOKEN)
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
+        TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     # Run tests on affected packages  
@@ -204,6 +205,7 @@ stages:
         TURBO_TEAM: $(TURBO_TEAM)
         TURBO_TOKEN: $(TURBO_TOKEN)
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
+        TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     # Discover LCOV reports for affected packages only
@@ -219,11 +221,16 @@ stages:
           # Get list of affected packages for SonarCloud analysis
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Analyzing affected packages only..."
-            AFFECTED_PACKAGES=$(node scripts/turbo-utils.js categorize-affected "$(BASE_BRANCH)" | jq -r '.frontend + .backend | .[]' || echo "")
+            AFFECTED_JSON=$(node scripts/turbo-utils.js categorize-affected "$(BASE_BRANCH)" 2>/dev/null || echo '{"frontend":[],"backend":[]}')
           else
             echo "Analyzing all packages (main branch)..."
-            AFFECTED_PACKAGES=$(node scripts/turbo-utils.js categorize-all | jq -r '.frontend + .backend | .[]' || echo "")
+            AFFECTED_JSON=$(node scripts/turbo-utils.js categorize-all 2>/dev/null || echo '{"frontend":[],"backend":[]}')
           fi
+          
+          # Extract package names and combine frontend + backend
+          FRONTEND_PACKAGES=$(echo "$AFFECTED_JSON" | jq -r '.frontend[]?' 2>/dev/null || echo "")
+          BACKEND_PACKAGES=$(echo "$AFFECTED_JSON" | jq -r '.backend[]?' 2>/dev/null || echo "")
+          AFFECTED_PACKAGES=$(echo -e "$FRONTEND_PACKAGES\n$BACKEND_PACKAGES" | grep -v '^$' || echo "")
           
           if [ -z "$AFFECTED_PACKAGES" ]; then
             echo "No affected packages found. Setting default coverage path."

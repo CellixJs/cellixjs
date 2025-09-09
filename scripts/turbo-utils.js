@@ -143,7 +143,18 @@ function main() {
       if (packages.length === 0) {
         console.log('--filter="nothing"');
       } else {
-        const filter = packages.map(pkg => `--filter="${pkg}"`).join(' ');
+        // Convert directory names back to npm package names for turbo filters
+        const packageNames = packages.map(pkg => {
+          if (pkg.startsWith('cellix-')) {
+            return `@cellix/${pkg.replace('cellix-', '')}`;
+          } else if (pkg === 'docs') {
+            return 'docs';
+          } else if (!pkg.includes('/') && !pkg.startsWith('@')) {
+            return `@ocom/${pkg}`;
+          }
+          return pkg;
+        });
+        const filter = packageNames.map(pkg => `--filter="${pkg}"`).join(' ');
         console.log(filter);
       }
       break;
