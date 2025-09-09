@@ -1,6 +1,3 @@
----
-applyTo: "packages/ui-applicant/**/*"
----
 # Copilot Instructions: ui-applicant
 
 ## Purpose

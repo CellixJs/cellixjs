@@ -1,13 +1,10 @@
----
-applyTo: "packages/api-domain/src/domain/events/**/*.ts"
----
 
 # Copilot Instructions: Domain and Integration Events
 
-See the package-wide instructions in `.github/instructions/api-domain.instructions.md` for general rules, architecture, and conventions.
+See the package-wide instructions in `../../AGENTS.md` for general rules, architecture, and conventions.
 
 ## Related Instructions
-- `.github/instructions/aggregates.instructions.md`
+- `../aggregates/AGENTS.md`
 
 ## Purpose
 - This folder contains all domain and integration event definitions for the application-specific domain layer.
