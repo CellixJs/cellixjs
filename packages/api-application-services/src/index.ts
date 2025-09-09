@@ -40,33 +40,54 @@ export type ApplicationServicesFactory = AppServicesHost<ApplicationServices>;
 
 export const buildApplicationServicesFactory = (infrastructureServicesRegistry: ApiContextSpec): ApplicationServicesFactory => {
 
+    const createPassportFromToken = async (tokenValidationResult: any, hints?: PrincipalHints) => {
+        if (!tokenValidationResult) {
+            return Domain.PassportFactory.forGuest();
+        }
+
+        const { verifiedJwt, openIdConfigKey } = tokenValidationResult;
+        const { readonlyDataSource } = infrastructureServicesRegistry.dataSourcesFactory.withSystemPassport();
+
+        if (openIdConfigKey === 'AccountPortal') {
+            return await createAccountPortalPassport(readonlyDataSource, verifiedJwt, hints);
+        }
+
+        if (openIdConfigKey === 'StaffPortal') {
+            return await createStaffPortalPassport(readonlyDataSource, verifiedJwt);
+        }
+
+        return Domain.PassportFactory.forGuest();
+    };
+
+    const createAccountPortalPassport = async (readonlyDataSource: any, verifiedJwt: VerifiedJwt, hints?: PrincipalHints) => {
+        const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
+        const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithRole(hints?.memberId) : null;
+        const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
+
+        if (endUser && member && community) {
+            return Domain.PassportFactory.forMember(endUser, member, community);
+        }
+
+        return Domain.PassportFactory.forGuest();
+    };
+
+    const createStaffPortalPassport = async (_readonlyDataSource: any, _verifiedJwt: VerifiedJwt) => {
+        const staffUser = undefined;
+        // const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
+        if (staffUser) {
+            return Domain.PassportFactory.forStaffUser(staffUser);
+        }
+
+        return Domain.PassportFactory.forGuest();
+    };
+
     const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints): Promise<ApplicationServices> => {
         const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
         const tokenValidationResult = accessToken
             ? await infrastructureServicesRegistry.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken)
             : null;
-        let passport = Domain.PassportFactory.forGuest();
-        if (tokenValidationResult !== null) {
-            const { verifiedJwt, openIdConfigKey } = tokenValidationResult;
-            const { readonlyDataSource } = infrastructureServicesRegistry.dataSourcesFactory.withSystemPassport();
-            if (openIdConfigKey === 'AccountPortal') {
 
-                const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
-                const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithRole(hints?.memberId) : null;
-                const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
-
-                if (endUser && member && community) {
-                    passport = Domain.PassportFactory.forMember(endUser, member, community);
-                }
-            } else if (openIdConfigKey === 'StaffPortal') {
-                const staffUser = undefined;
-                // const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
-                if (staffUser) {
-                    passport = Domain.PassportFactory.forStaffUser(staffUser);
-                }
-            }
-        }
-
+        const passport = await createPassportFromToken(tokenValidationResult, hints);
         const dataSources = infrastructureServicesRegistry.dataSourcesFactory.withPassport(passport);
 
         return {
