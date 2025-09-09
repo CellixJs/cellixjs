@@ -1,0 +1,10 @@
+
+
+> @cellix/ui-core@1.0.0 prebuild
+> biome lint
+
+[0m[34mChecked [0m[0m[34m11[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m24[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+
+> @cellix/ui-core@1.0.0 build
+> tsc --build
+

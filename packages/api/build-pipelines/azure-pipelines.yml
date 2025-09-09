@@ -22,7 +22,7 @@ parameters:
 
 
 stages:
-  - template: ../../../build-pipeline/core/function-app-build-stage.yml
+  - template: ../../../build-pipeline/core/function-app-build-stage-turbo.yml
     parameters:
       vmImageName: $(vmImageName)
       npm_config_cache: $(npm_config_cache)
@@ -35,6 +35,7 @@ stages:
       SonarCloud_configMode: 'manual'
       SonarCloud_cliProjectKey: 'simnova_cellix-data-access'
       SonarCloud_cliProjectName: 'cellix-data-access'
+      enableTurboRemoteCache: 'true'
 
   - template: ../../../build-pipeline/core/function-app-deployment-stage.yml
     parameters: 
