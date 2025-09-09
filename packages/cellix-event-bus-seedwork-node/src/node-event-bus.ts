@@ -83,7 +83,7 @@ class NodeEventBusImpl implements DomainSeedwork.EventBus {
 			);
 
 			try {
-				await this.broadcaster.broadcast(event.name, {
+				this.broadcaster.broadcast(event.name, {
 					data: JSON.stringify(data),
 					context: contextObject,
 				});
