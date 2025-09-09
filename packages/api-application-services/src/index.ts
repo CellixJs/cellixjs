@@ -40,7 +40,43 @@ export type ApplicationServicesFactory = AppServicesHost<ApplicationServices>;
 
 export const buildApplicationServicesFactory = (infrastructureServicesRegistry: ApiContextSpec): ApplicationServicesFactory => {
 
-    const createPassportFromToken = async (tokenValidationResult: any, hints?: PrincipalHints) => {
+    interface TokenValidationResult {
+        verifiedJwt: VerifiedJwt;
+        openIdConfigKey: string;
+    }
+
+    type ReadonlyDataSource = ReturnType<ApiContextSpec['dataSourcesFactory']['withSystemPassport']>;
+
+    const createAccountPortalPassport = async (
+        readonlyDataSource: ReadonlyDataSource,
+        verifiedJwt: VerifiedJwt,
+        hints?: PrincipalHints
+    ) => {
+        const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
+        const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithRole(hints?.memberId) : null;
+        const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
+
+        if (endUser && member && community) {
+            return Domain.PassportFactory.forMember(endUser, member, community);
+        }
+
+        return Domain.PassportFactory.forGuest();
+    };
+
+    const createStaffPortalPassport = async (
+        readonlyDataSource: ReadonlyDataSource,
+        verifiedJwt: VerifiedJwt
+    ) => {
+        // Implement staff user lookup logic here if needed
+        // const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
+        // if (staffUser) {
+        //     return Domain.PassportFactory.forStaffUser(staffUser);
+        // }
+
+        return Domain.PassportFactory.forGuest();
+    };
+
+    const createPassportFromToken = async (tokenValidationResult: TokenValidationResult | null, hints?: PrincipalHints) => {
         if (!tokenValidationResult) {
             return Domain.PassportFactory.forGuest();
         }
@@ -54,28 +90,6 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
 
         if (openIdConfigKey === 'StaffPortal') {
             return await createStaffPortalPassport(readonlyDataSource, verifiedJwt);
-        }
-
-        return Domain.PassportFactory.forGuest();
-    };
-
-    const createAccountPortalPassport = async (readonlyDataSource: any, verifiedJwt: VerifiedJwt, hints?: PrincipalHints) => {
-        const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
-        const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithRole(hints?.memberId) : null;
-        const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
-
-        if (endUser && member && community) {
-            return Domain.PassportFactory.forMember(endUser, member, community);
-        }
-
-        return Domain.PassportFactory.forGuest();
-    };
-
-    const createStaffPortalPassport = async (_readonlyDataSource: any, _verifiedJwt: VerifiedJwt) => {
-        const staffUser = undefined;
-        // const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
-        if (staffUser) {
-            return Domain.PassportFactory.forStaffUser(staffUser);
         }
 
         return Domain.PassportFactory.forGuest();
