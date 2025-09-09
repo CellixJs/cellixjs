@@ -92,7 +92,10 @@ class NodeEventBusImpl implements DomainSeedwork.EventBus {
 					message: `NodeEventBus: Executed ${event.name}`,
 				});
 			} catch (err) {
-				span.setStatus({ code: SpanStatusCode.ERROR });
+				span.setStatus({
+					code: SpanStatusCode.ERROR,
+					message: `NodeEventBus: Error dispatching ${event.name}`,
+				});
 				span.recordException(err as Error);
 			} finally {
 				span.end();
