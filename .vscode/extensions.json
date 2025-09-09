@@ -6,5 +6,6 @@
     "biomejs.biome",
     "vitest.explorer",
     "sourcery.sourcery",
+    "sonarsource.sonarlint-vscode",
   ]
 }
