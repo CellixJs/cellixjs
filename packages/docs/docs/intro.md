@@ -28,15 +28,26 @@ git clone https://github.com/CellixJs/cellixjs.git
 cd cellixjs
 ```
 
-Install dependencies and build the project:
+
+
+Install dependencies and build the project: (we recommend using NVM)
 
 ```bash
+# Install Node.js v22
+nvm install v22
+
+# Install Lastest NPM (v11+)
+nvm install-latest-npm
+
 # Use Node.js v22
 nvm use v22
 
 # Clean, install dependencies, and build
 npm run clean && npm install && npm run build
 ```
+
+## Install VSCode plugins
+You will be prompted to install the [recommended VSCode Plugins](https://github.com/CellixJs/cellixjs/blob/main/.vscode/extensions.json) upon opening the project in VSCode. Go ahead and do so.
 
 ## Start Development
 
