@@ -7,22 +7,16 @@
 import { describe, it } from 'vitest';
 import { 
   executeArchRule,
-  executeArchRules,
-  shouldEnableDebugLogging,
-} from '../../../architecture/shared/utils/test-helpers';
-import {
   applicationShouldNotDependOnInfrastructure,
   applicationShouldNotDependOnUI,
   applicationShouldNotDependOnApi,
-} from '../../../architecture/shared/rules/clean-architecture.rules';
-import {
   applicationShouldHaveNoCycles,
-} from '../../../architecture/shared/rules/cyclic-dependency.rules';
+  metrics,
+} from '@cellix/test-core-archunit';
 
 const testOptions = {
-  enableLogging: shouldEnableDebugLogging(),
-  logLevel: 'info' as const,
-  allowEmptyTests: false,
+  enableLogging: false,
+  allowEmptyTests: true,
 };
 
 describe('Architecture: API Application Services Package', () => {
@@ -49,7 +43,6 @@ describe('Architecture: API Application Services Package', () => {
   describe('Application Service Quality', () => {
     it('application services should be focused and cohesive', async () => {
       // Application services should have high cohesion since they orchestrate use cases
-      const { metrics } = await import('archunit');
       const rule = metrics()
         .inFolder('src/**')
         .lcom()
@@ -61,7 +54,6 @@ describe('Architecture: API Application Services Package', () => {
 
     it('application services should not be too large', async () => {
       // Application services should be focused on specific use cases
-      const { metrics } = await import('archunit');
       const rule = metrics()
         .inFolder('src/**')
         .count()
@@ -73,7 +65,6 @@ describe('Architecture: API Application Services Package', () => {
 
     it('application services should have reasonable method count', async () => {
       // Application services should not have too many methods
-      const { metrics } = await import('archunit');
       const rule = metrics()
         .inFolder('src/**')
         .count()

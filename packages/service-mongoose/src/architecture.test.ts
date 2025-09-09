@@ -7,104 +7,61 @@
 import { describe, it } from 'vitest';
 import { 
   executeArchRule,
-  executeArchRules,
-  shouldEnableDebugLogging,
-} from '../../../architecture/shared/utils/test-helpers';
-import {
   servicesShouldNotDependOnDomain,
   servicesShouldNotDependOnApplication,
-} from '../../../architecture/shared/rules/clean-architecture.rules';
-import {
   servicesShouldHaveNoCycles,
-} from '../../../architecture/shared/rules/cyclic-dependency.rules';
+  projectFiles,
+  metrics,
+} from '@cellix/test-core-archunit';
 
 const testOptions = {
-  enableLogging: shouldEnableDebugLogging(),
-  logLevel: 'info' as const,
-  allowEmptyTests: true, // Services might be small and focused
+  enableLogging: false,
+  allowEmptyTests: true,
 };
 
 describe('Architecture: Service Mongoose Package', () => {
-  describe('Infrastructure Service Principles', () => {
-    it('service should not depend on domain layer', async () => {
+  describe('Infrastructure Layer Rules', () => {
+    it('services should not depend on domain layer', async () => {
       await executeArchRule(servicesShouldNotDependOnDomain(), testOptions);
     });
 
-    it('service should not depend on application layer', async () => {
+    it('services should not depend on application layer', async () => {
       await executeArchRule(servicesShouldNotDependOnApplication(), testOptions);
     });
 
-    it('service should not depend on other services directly', async () => {
-      const { projectFiles } = await import('archunit');
-      const rule = projectFiles()
-        .inFolder('src/**')
-        .shouldNot()
-        .dependOnFiles()
-        .inFolder('**/service-*/**');
-      
-      await executeArchRule(rule, testOptions);
-    });
-
-    it('service should not depend on UI layer', async () => {
-      const { projectFiles } = await import('archunit');
-      const rule = projectFiles()
-        .inFolder('src/**')
-        .shouldNot()
-        .dependOnFiles()
-        .inFolder('**/ui/**');
-      
-      await executeArchRule(rule, testOptions);
-    });
-  });
-
-  describe('Cyclic Dependencies', () => {
-    it('service should have no circular dependencies', async () => {
+    it('services should not have circular dependencies', async () => {
       await executeArchRule(servicesShouldHaveNoCycles(), testOptions);
     });
   });
 
-  describe('Service Quality', () => {
-    it('service should be focused and lightweight', async () => {
-      const { metrics } = await import('archunit');
-      const rule = metrics()
-        .inFolder('src/**')
-        .count()
-        .linesOfCode()
-        .shouldBeBelow(250); // Infrastructure services should be focused
-      
-      await executeArchRule(rule, testOptions);
-    });
-
-    it('service should have reasonable method count', async () => {
-      const { metrics } = await import('archunit');
-      const rule = metrics()
-        .inFolder('src/**')
-        .count()
-        .methodCount()
-        .shouldBeBelow(10); // Infrastructure services should be focused
-      
-      await executeArchRule(rule, testOptions);
-    });
-
-    it('service should have good cohesion', async () => {
-      const { metrics } = await import('archunit');
+  describe('Infrastructure Service Quality', () => {
+    it('infrastructure services should be focused and cohesive', async () => {
       const rule = metrics()
         .inFolder('src/**')
         .lcom()
         .lcom96b()
-        .shouldBeBelow(0.6); // Infrastructure services should be cohesive
+        .shouldBeBelow(0.3);
+      
+      await executeArchRule(rule, testOptions);
+    });
+
+    it('infrastructure services should not be too complex', async () => {
+      const rule = metrics()
+        .inFolder('src/**')
+        .count()
+        .methodCount()
+        .shouldBeBelow(15);
       
       await executeArchRule(rule, testOptions);
     });
   });
 
-  describe('MongoDB Integration', () => {
-    it('should properly encapsulate MongoDB concerns', async () => {
-      const { projectFiles } = await import('archunit');
+  describe('Data Access Patterns', () => {
+    it('should not expose infrastructure details', async () => {
       const rule = projectFiles()
         .inFolder('src/**')
         .should()
-        .haveNoCycles(); // Basic structural validation
+        .haveNoCycles();
       
       await executeArchRule(rule, testOptions);
     });

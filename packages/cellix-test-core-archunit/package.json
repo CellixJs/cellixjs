@@ -1,0 +1,33 @@
+{
+  "name": "@cellix/test-core-archunit",
+  "version": "1.0.0",
+  "description": "ArchUnit testing utilities and rules for Cellix workspace packages",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rimraf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check --write .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "archunit": "^2.1.51"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4",
+    "rimraf": "^6.0.1"
+  },
+  "peerDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

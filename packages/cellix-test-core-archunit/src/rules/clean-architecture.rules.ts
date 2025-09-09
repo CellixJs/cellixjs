@@ -93,19 +93,3 @@ export const servicesShouldNotDependOnApplication = () =>
     .shouldNot()
     .dependOnFiles()
     .inFolder('**/application/**');
-
-/**
- * All Clean Architecture rules combined
- */
-export const allCleanArchitectureRules = [
-  domainShouldNotDependOnInfrastructure,
-  domainShouldNotDependOnApplication,
-  domainShouldNotDependOnApi,
-  domainShouldNotDependOnUI,
-  applicationShouldNotDependOnInfrastructure,
-  applicationShouldNotDependOnUI,
-  applicationShouldNotDependOnApi,
-  uiShouldNotDependOnInfrastructure,
-  servicesShouldNotDependOnDomain,
-  servicesShouldNotDependOnApplication,
-];

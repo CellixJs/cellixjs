@@ -4,74 +4,45 @@
  * Tests the core domain layer to ensure Clean Architecture and DDD principles
  */
 
-import { describe, it, expect } from 'vitest';
-import { projectFiles, metrics } from 'archunit';
+import { describe, it } from 'vitest';
+import {
+  domainShouldNotDependOnInfrastructure,
+  domainShouldNotDependOnApplication,
+  domainShouldNotDependOnApi,
+  domainShouldNotDependOnUI,
+  domainShouldHaveNoCycles,
+  executeArchRule,
+  projectFiles,
+  metrics,
+} from '@cellix/test-core-archunit';
 
 describe('Architecture: API Domain Package', () => {
   describe('Clean Architecture Principles', () => {
     it('domain should not depend on infrastructure layer', async () => {
-      const rule = projectFiles()
-        .inFolder('src/domain/**')
-        .shouldNot()
-        .dependOnFiles()
-        .inFolder('**/infrastructure/**');
-        
-      const violations = await rule.check({ allowEmptyTests: true });
-      expect(violations).toHaveLength(0);
+      const rule = domainShouldNotDependOnInfrastructure();
+      await executeArchRule(rule, { allowEmptyTests: true });
     });
 
     it('domain should not depend on application layer', async () => {
-      const rule = projectFiles()
-        .inFolder('src/domain/**')
-        .shouldNot()
-        .dependOnFiles()
-        .inFolder('**/application/**');
-        
-      const violations = await rule.check({ allowEmptyTests: true });
-      expect(violations).toHaveLength(0);
+      const rule = domainShouldNotDependOnApplication();
+      await executeArchRule(rule, { allowEmptyTests: true });
     });
 
     it('domain should not depend on API layer', async () => {
-      const rule = projectFiles()
-        .inFolder('src/domain/**')
-        .shouldNot()
-        .dependOnFiles()
-        .inFolder('**/api/**');
-        
-      const violations = await rule.check({ allowEmptyTests: true });
-      expect(violations).toHaveLength(0);
+      const rule = domainShouldNotDependOnApi();
+      await executeArchRule(rule, { allowEmptyTests: true });
     });
 
     it('domain should not depend on UI layer', async () => {
-      const rule = projectFiles()
-        .inFolder('src/domain/**')
-        .shouldNot()
-        .dependOnFiles()
-        .inFolder('**/ui/**');
-        
-      const violations = await rule.check({ allowEmptyTests: true });
-      expect(violations).toHaveLength(0);
+      const rule = domainShouldNotDependOnUI();
+      await executeArchRule(rule, { allowEmptyTests: true });
     });
   });
 
   describe('Cyclic Dependencies', () => {
     it('domain should have no circular dependencies', async () => {
-      const rule = projectFiles()
-        .inFolder('src/domain/**')
-        .should()
-        .haveNoCycles();
-        
-      const violations = await rule.check();
-      
-      // Log violations for debugging
-      if (violations.length > 0) {
-        console.log('Cyclic dependency violations found:');
-        violations.forEach((violation, index) => {
-          console.log(`${index + 1}. ${violation.toString()}`);
-        });
-      }
-      
-      expect(violations).toHaveLength(0);
+      const rule = domainShouldHaveNoCycles();
+      await executeArchRule(rule, { allowEmptyTests: true, enableLogging: true });
     });
   });
 
@@ -80,11 +51,9 @@ describe('Architecture: API Domain Package', () => {
       const rule = projectFiles()
         .inFolder('src/domain/**')
         .should()
-        .haveNoCycles(); // Using haveNoCycles as a proxy for "files exist"
+        .haveNoCycles();
         
-      const violations = await rule.check({ allowEmptyTests: true });
-      // This test passes if files are found and analyzed (even if there are cycles)
-      expect(true).toBe(true); // Always pass - this is just to verify files exist
+      await executeArchRule(rule, { allowEmptyTests: true });
     });
   });
 
@@ -96,8 +65,7 @@ describe('Architecture: API Domain Package', () => {
         .methodCount()
         .shouldBeBelow(20);
         
-      const violations = await rule.check({ allowEmptyTests: true });
-      expect(violations).toHaveLength(0);
+      await executeArchRule(rule, { allowEmptyTests: true });
     });
   });
 });

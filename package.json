@@ -34,6 +34,7 @@
   "workspaces": [
     "packages/cellix-domain-seedwork",
     "packages/cellix-event-bus-seedwork-node",
+    "packages/cellix-test-core-archunit",
     "packages/api-domain",
     "packages/cellix-data-sources-mongoose",
     "packages/api-data-sources-mongoose-models",

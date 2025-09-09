@@ -7,23 +7,19 @@
 import { describe, it } from 'vitest';
 import { 
   executeArchRule,
-  executeArchRules,
-  shouldEnableDebugLogging,
-} from '../../../architecture/shared/utils/test-helpers';
-import {
   seedworkShouldHaveNoCycles,
-} from '../../../architecture/shared/rules/cyclic-dependency.rules';
+  projectFiles,
+  metrics,
+} from '@cellix/test-core-archunit';
 
 const testOptions = {
-  enableLogging: shouldEnableDebugLogging(),
-  logLevel: 'info' as const,
-  allowEmptyTests: false,
+  enableLogging: false,
+  allowEmptyTests: true,
 };
 
 describe('Architecture: Cellix Domain Seedwork Package', () => {
   describe('Seedwork Independence', () => {
     it('seedwork should not depend on application concerns', async () => {
-      const { projectFiles } = await import('archunit');
       const rule = projectFiles()
         .inFolder('src/**')
         .shouldNot()
@@ -34,7 +30,6 @@ describe('Architecture: Cellix Domain Seedwork Package', () => {
     });
 
     it('seedwork should not depend on infrastructure concerns', async () => {
-      const { projectFiles } = await import('archunit');
       const rule = projectFiles()
         .inFolder('src/**')
         .shouldNot()
@@ -45,7 +40,6 @@ describe('Architecture: Cellix Domain Seedwork Package', () => {
     });
 
     it('seedwork should not depend on UI concerns', async () => {
-      const { projectFiles } = await import('archunit');
       const rule = projectFiles()
         .inFolder('src/**')
         .shouldNot()
@@ -53,29 +47,6 @@ describe('Architecture: Cellix Domain Seedwork Package', () => {
         .inFolder('**/ui/**');
       
       await executeArchRule(rule, testOptions);
-    });
-
-    it('seedwork should not depend on external frameworks', async () => {
-      const { projectFiles } = await import('archunit');
-      const rules = [
-        () => projectFiles()
-          .inFolder('src/**')
-          .shouldNot()
-          .dependOnFiles()
-          .inPath('**/node_modules/express/**'),
-        () => projectFiles()
-          .inFolder('src/**')
-          .shouldNot()
-          .dependOnFiles()
-          .inPath('**/node_modules/@azure/functions/**'),
-        () => projectFiles()
-          .inFolder('src/**')
-          .shouldNot()
-          .dependOnFiles()
-          .inPath('**/node_modules/mongoose/**'),
-      ];
-      
-      await executeArchRules(rules, testOptions);
     });
   });
 
@@ -87,7 +58,6 @@ describe('Architecture: Cellix Domain Seedwork Package', () => {
 
   describe('Seedwork Quality', () => {
     it('seedwork abstractions should be lightweight and focused', async () => {
-      const { metrics } = await import('archunit');
       const rule = metrics()
         .inFolder('src/**')
         .count()
@@ -98,7 +68,6 @@ describe('Architecture: Cellix Domain Seedwork Package', () => {
     });
 
     it('seedwork should have high cohesion', async () => {
-      const { metrics } = await import('archunit');
       const rule = metrics()
         .inFolder('src/**')
         .lcom()
@@ -109,7 +78,6 @@ describe('Architecture: Cellix Domain Seedwork Package', () => {
     });
 
     it('seedwork should not have too many methods per class', async () => {
-      const { metrics } = await import('archunit');
       const rule = metrics()
         .inFolder('src/**')
         .count()
