@@ -36,7 +36,7 @@ Install dependencies and build the project: (we recommend using NVM)
 # Install Node.js v22
 nvm install v22
 
-# Install Lastest NPM (v11+)
+# Install Latest NPM (v11+)
 nvm install-latest-npm
 
 # Use Node.js v22
