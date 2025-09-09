@@ -52,10 +52,7 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
-import { useId } from 'react';
-
-function Feature({title, Svg, description}: FeatureItem) {
-  const titleId = useId();
+function Feature({id, title, Svg, description}: FeatureItem) {
 
   return (
     <div className={clsx('col col--4')}>
@@ -63,9 +60,9 @@ function Feature({title, Svg, description}: FeatureItem) {
         <Svg
           className={styles.featureSvg}
           role="img"
-          aria-labelledby={titleId}
+          aria-labelledby={id}
         >
-          <title id={titleId}>{title}</title>
+          <title id={id}>{title}</title>
         </Svg>
       </div>
       <div className="text--center padding-horiz--md">
@@ -81,8 +78,8 @@ export default function HomepageFeatures(): ReactNode {
     <section className={styles.features}>
       <div className="container">
         <div className="row">
-          {FeatureList.map((props) => (
-            <Feature key={props.id} {...props} />
+          {FeatureList.map(({id, title, Svg, description}) => (
+            <Feature key={id} id={id} title={title} Svg={Svg} description={description} />
           ))}
         </div>
       </div>
