@@ -26,6 +26,7 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../cellix-ui-core" }
+    { "path": "../cellix-ui-core" },
+    { "path": "../ui-components" }
   ]
 }

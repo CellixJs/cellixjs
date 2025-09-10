@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@cellix/ui-core": "^1.0.0",
+    "@ocom/ui-components": "^1.0.0",
     "@ant-design/pro-layout": "^7.22.7",
     "@apollo/client": "^3.13.9",
     "@dr.pogodin/react-helmet": "^3.0.2",
