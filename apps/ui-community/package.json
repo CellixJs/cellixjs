@@ -1,18 +1,18 @@
 {
   "name": "@ocom/ui-community",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
+    "dev": "vite",
+    "test": "echo \"No tests yet...\"",
     "lint": "biome lint",
-    "format": "biome format --write",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@cellix/ui-core": "^1.0.0",
-    "@ocom/ui-components": "^1.0.0",
+    "@cellix/ui-core": "*",
+    "@ocom/ui-components": "*",
     "@ant-design/pro-layout": "^7.22.7",
     "@apollo/client": "^3.13.9",
     "@dr.pogodin/react-helmet": "^3.0.2",
@@ -25,18 +25,13 @@
     "react-router-dom": "^7.0.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.30.1",
+    "@cellix/typescript-config": "*",
+    "typescript": "latest",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
     "dotenv": "^17.2.1",
-    "eslint": "^9.30.1",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
     "tailwindcss": "^4.1.12",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.35.1",
     "vite": "^7.0.4"
   }
 }

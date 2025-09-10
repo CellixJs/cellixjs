@@ -1,19 +1,14 @@
 {
-	"extends": ["../../tsconfig.backend"],
-	"compilerOptions": {
-		/* Modules */
-		"rootDir": ".",
-        
-		/* Emit */
-		"outDir": "dist"
-	},
-	"include": ["src/**/*.ts"],
-	"references": [
-		//needs to match peer dependencies in package.json
-		{ "path": "../cellix-domain-seedwork" },
-		{ "path": "../cellix-event-bus-seedwork-node" },
-		{ "path": "../cellix-data-sources-mongoose" },
-		{ "path": "../api-domain" },
-		{ "path": "../api-data-sources-mongoose-models" }
-	]
+  "extends": "@cellix/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

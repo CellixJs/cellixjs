@@ -1,41 +1,36 @@
 {
-	"name": "@ocom/service-otel",
-	"version": "1.0.0",
-	"author": "",
-	"license": "MIT",
-	"description": "",
-	"type": "module",
-	"main": "dist/src/index.js",
-	"types": "dist/src/index.d.ts",
-	"scripts": {
-		"build": "tsc --build",
-		"clean": "rimraf dist node_modules tsconfig.tsbuildinfo && tsc --build --clean",
-		"lint": "biome lint",
-		"format": "biome format --write",
-        "test": "vitest run",
-        "test:all": "npm run test",
-        "test:coverage": "vitest run --coverage",
-        "test:unit": "vitest run",
-        "test:watch": "vitest watch",
-		"prebuild": "biome lint"
-	},
-	"peerDependencies": {
-		"@cellix/api-services-spec": "^1.0.0"
-	},
-	"dependencies": {
-		"@azure/functions-opentelemetry-instrumentation": "0.1.0",
-		"@azure/monitor-opentelemetry-exporter": "1.0.0-beta.31",
-		"@opentelemetry/instrumentation-dataloader": "0.17.0",
-		"@opentelemetry/instrumentation-graphql": "0.48.0",
-		"@opentelemetry/instrumentation-http": "0.52.1",
-		"@opentelemetry/instrumentation-mongoose": "0.47.0",
-		"@opentelemetry/sdk-node": "0.57.2"
-	},
-	"devDependencies": {
-		"@eslint/js": "^9.29.0",
-		"eslint": "^9.29.0",
-		"rimraf": "^6.0.1",
-		"typescript": "^5.8.3",
-		"typescript-eslint": "^8.34.0"
-	}
+  "name": "@ocom/service-otel",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "lint": "biome lint",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@azure/functions-opentelemetry-instrumentation": "0.1.0",
+    "@azure/monitor-opentelemetry-exporter": "1.0.0-beta.31",
+    "@opentelemetry/instrumentation-dataloader": "0.17.0",
+    "@opentelemetry/instrumentation-graphql": "0.48.0",
+    "@opentelemetry/instrumentation-http": "0.52.1",
+    "@opentelemetry/instrumentation-mongoose": "0.47.0",
+    "@opentelemetry/sdk-node": "0.57.2",
+    "@cellix/api-services-spec": "*"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "*",
+    "typescript": "latest",
+    "rimraf": "^6.0.1",
+    "@eslint/js": "^9.29.0",
+    "eslint": "^9.29.0"
+  }
 }

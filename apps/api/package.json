@@ -1,43 +1,35 @@
 {
-	"name": "@ocom/api",
-	"version": "1.0.0",
-	"author": "",
-	"license": "MIT",
-	"description": "",
-	"type": "module",
-	"main": "dist/src/index.js",
-	"types": "dist/src/index.d.ts",
-	"scripts": {
-		"prebuild": "biome lint",
-		"build": "tsc --build",
-		"watch": "tsc -w",
-		"clean": "rimraf dist",
-		"lint": "biome lint",
-		"format": "biome format --write",
-		"prestart": "npm run clean && npm run build",
-		"start": "func start --typescript",
-		"test": "echo \"No tests yet...\""
-	},
-	"peerDependencies": {
-		"@cellix/api-services-spec": "^1.0.0",
-        "@cellix/data-sources-mongoose": "^1.0.0",
-        "@ocom/api-application-services": "^1.0.0",
-		"@ocom/api-context-spec": "^1.0.0",
-        "@ocom/api-event-handler": "^1.0.0",
-		"@ocom/api-graphql": "^1.0.0",
-		"@ocom/api-persistence": "^1.0.0",
-		"@ocom/api-rest": "^1.0.0",
-        "@ocom/service-blob-storage": "^1.0.0",
-		"@ocom/service-mongoose": "^1.0.0",
-		"@ocom/service-otel": "^1.0.0",
-		"@ocom/service-token-validation": "^1.0.0"
-	},
-	"dependencies": {
-		"@azure/functions": "^4.0.0",
-		"@azure/identity": "^4.8.0"
-	},
-	"devDependencies": {
-		"rimraf": "^6.0.1",
-		"typescript": "^5.8.3"
-	}
+  "name": "@ocom/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "test": "echo \"No tests yet...\"",
+    "lint": "biome lint",
+    "clean": "rimraf dist",
+    "start": "func start --typescript"
+  },
+  "dependencies": {
+    "@cellix/api-services-spec": "*",
+    "@cellix/data-sources-mongoose": "*",
+    "@ocom/application-services": "*",
+    "@ocom/context-spec": "*",
+    "@ocom/event-handler": "*",
+    "@ocom/graphql": "*",
+    "@ocom/persistence": "*",
+    "@ocom/rest": "*",
+    "@ocom/service-blob-storage": "*",
+    "@ocom/service-mongoose": "*",
+    "@ocom/service-otel": "*",
+    "@ocom/service-token-validation": "*",
+    "@azure/functions": "^4.0.0",
+    "@azure/identity": "^4.8.0"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "*",
+    "typescript": "latest",
+    "rimraf": "^6.0.1"
+  }
 }

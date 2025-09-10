@@ -1,23 +1,27 @@
 {
-  "name": "@ocom/api-event-handler",
+  "name": "@ocom/event-handler",
   "version": "1.0.0",
-  "author": "",
-  "license": "MIT",
-  "description": "",
+  "private": true,
   "type": "module",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "lint": "biome lint",
-    "format": "biome format --write"
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
   },
-  "peerDependencies": {
-    "@ocom/api-domain": "^1.0.0"
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run --coverage",
+    "lint": "biome lint",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@ocom/api-domain": "*"
   },
   "devDependencies": {
-    "rimraf": "^6.0.1",
-    "typescript": "^5.8.3"
+    "@cellix/typescript-config": "*",
+    "typescript": "latest",
+    "rimraf": "^6.0.1"
   }
 }

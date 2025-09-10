@@ -1,27 +1,9 @@
 {
-	"extends": ["../../tsconfig.backend"],
-	"compilerOptions": {
-		// "skipLibCheck": true // required to avoid typescript error after including mongoose
-		/* Modules */
-		"rootDir": ".",
-
-		/* Emit */
-		"outDir": "dist"
-	},
-	"include": ["src/**/*.ts"],
-	"references": [
-		//needs to match peer dependencies in package.json
-        { "path": "../api-application-services" },
-		{ "path": "../api-context-spec" },
-        { "path": "../api-event-handler" },
-		{ "path": "../api-graphql" },
-		{ "path": "../api-rest" },
-		{ "path": "../api-persistence" },
-		{ "path": "../cellix-api-services-spec" },
-        { "path": "../cellix-data-sources-mongoose" },
-        { "path": "../service-blob-storage" },
-		{ "path": "../service-mongoose" },
-		{ "path": "../service-otel" },
-        { "path": "../service-token-validation" }
-	]
+  "extends": "@cellix/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

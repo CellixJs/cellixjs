@@ -1,43 +1,43 @@
 {
-	"name": "@ocom/api-graphql",
-	"version": "1.0.0",
-	"author": "",
-	"license": "MIT",
-	"description": "",
-	"type": "module",
-	"main": "dist/src/index.js",
-	"types": "dist/src/index.d.ts",
-	"scripts": {
-		"build": "tsc --build",
-		"clean": "rimraf dist node_modules tsconfig.tsbuildinfo && tsc --build --clean",
-		"gen": "graphql-codegen --config src/schema/builder/codegen.yml",
-		"lint": "biome lint",
-		"format": "biome format --write",
-		"prebuild": "biome lint"
-	},
-	"peerDependencies": {
-		"@ocom/api-application-services": "^1.0.0",
-        "@ocom/api-domain": "^1.0.0"
-	},
-	"dependencies": {
-		"@apollo/server": "^4.11.3",
-		"@as-integrations/azure-functions": "^0.2.0",
-		"@azure/functions": "^4.6.0",
-		"@graphql-tools/json-file-loader": "^8.0.20",
-		"@graphql-tools/load": "^8.1.2",
-		"@graphql-tools/load-files": "^7.0.1",
-		"graphql": "^16.10.0",
-		"graphql-middleware": "^6.1.35",
-		"graphql-scalars": "^1.24.2"
-	},
-	"devDependencies": {
-		"@graphql-codegen/cli": "^5.0.7",
-		"@graphql-codegen/introspection": "^4.0.3",
-		"@graphql-codegen/typed-document-node": "^5.1.2",
-		"@graphql-codegen/typescript": "^4.1.6",
-		"@graphql-codegen/typescript-operations": "^4.6.1",
-		"@graphql-codegen/typescript-resolvers": "^4.5.1",
-		"rimraf": "^6.0.1",
-		"typescript": "^5.8.3"
-	}
+  "name": "@ocom/graphql",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run --coverage",
+    "lint": "biome lint",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.3",
+    "@as-integrations/azure-functions": "^0.2.0",
+    "@azure/functions": "^4.6.0",
+    "@graphql-tools/json-file-loader": "^8.0.20",
+    "@graphql-tools/load": "^8.1.2",
+    "@graphql-tools/load-files": "^7.0.1",
+    "graphql": "^16.10.0",
+    "graphql-middleware": "^6.1.35",
+    "graphql-scalars": "^1.24.2",
+    "@ocom/api-application-services": "*",
+    "@ocom/api-domain": "*"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "*",
+    "typescript": "latest",
+    "rimraf": "^6.0.1",
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/introspection": "^4.0.3",
+    "@graphql-codegen/typed-document-node": "^5.1.2",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-operations": "^4.6.1",
+    "@graphql-codegen/typescript-resolvers": "^4.5.1"
+  }
 }
