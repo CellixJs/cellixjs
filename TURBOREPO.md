@@ -6,7 +6,7 @@ This document describes the Turborepo setup for CellixJS monorepo optimization, 
 
 The CellixJS monorepo uses Turborepo to:
 - Build and test only affected packages
-- Cache build outputs locally and remotely 
+- Cache build outputs locally and in CI/CD pipeline
 - Optimize CI/CD pipeline performance
 - Maintain frontend/backend package separation
 
@@ -27,7 +27,9 @@ These packages are not included in standard build/test pipelines:
 
 ## Local Development
 
-### Basic Commands
+### Local Development
+
+Turborepo uses local caching by default to speed up subsequent builds:
 
 ```bash
 # Build all packages
@@ -52,33 +54,12 @@ npm run lint
 npm run lint:affected
 ```
 
-### Remote Caching Setup
+### Caching Behavior
 
-To enable remote caching locally, set the following environment variables:
-
-```bash
-# Export in your shell or add to .env.local (not tracked in git)
-export TURBO_TEAM="your-team-slug"
-export TURBO_TOKEN="your-vercel-token"
-```
-
-#### Getting Vercel Credentials
-
-1. **Team Slug**: Your Vercel team slug (found in Vercel dashboard URL)
-2. **Token**: Create a Vercel API token:
-   - Go to [Vercel Tokens](https://vercel.com/account/tokens)
-   - Click "Create Token"
-   - Select appropriate scope and expiration
-   - Copy the generated token
-
-### Using Local Cache Only
-
-If you don't have remote cache credentials, Turbo will automatically fall back to local caching only:
-
-```bash
-# This works without TURBO_TEAM/TURBO_TOKEN
-npm run build
-```
+Turborepo automatically caches task outputs locally in the `.turbo` directory:
+- **Local builds**: Subsequent builds of unchanged packages complete in ~160ms
+- **CI/CD builds**: Azure Pipelines Cache@2 task preserves cache between runs
+- **Selective execution**: Only changed packages and their dependents are rebuilt
 
 ## CI/CD Pipeline
 
@@ -100,11 +81,13 @@ For Pull Requests and non-main branches:
 For main branch:
 - All packages are built and tested (full pipeline)
 
-### Remote Cache Configuration
+### Caching in CI/CD
 
-The CI pipeline uses Azure Pipeline variables:
-- `TURBO_TEAM` - Vercel team slug (set in pipeline variables)
-- `TURBO_TOKEN` - Vercel API token (set as secret variable)
+The Azure Pipelines use the Cache@2 task to preserve Turborepo cache between runs:
+- **PR builds**: Cache helps speed up builds of unaffected packages 
+- **Main builds**: Full cache restoration for optimal performance
+- **Cache key**: Based on OS, package-lock.json, and source version
+- **Fallback keys**: Progressively broader cache matching
 
 ## Utility Scripts
 
@@ -138,7 +121,7 @@ The main Turborepo configuration defines:
 - Task dependencies (`build` depends on `^build`)
 - Output directories for caching
 - Environment variables to consider for cache keys
-- Remote caching enablement
+- Local caching behavior
 
 ### package.json Scripts
 
@@ -154,13 +137,13 @@ Updated scripts use `turbo run` instead of `npm run --ws`:
 1. **"Could not resolve workspaces" error**
    - Ensure `packageManager` field is set in root `package.json`
 
-2. **Remote cache not working**
-   - Verify `TURBO_TEAM` and `TURBO_TOKEN` are set correctly
-   - Check Vercel token has appropriate permissions
+2. **Local cache not working**
+   - Check that outputs are correctly specified in turbo.json
+   - Verify .turbo directory is not being cleared between runs
 
 3. **Cache misses in CI**
-   - Ensure cache keys are consistent
-   - Check that output directories are correctly specified
+   - Ensure Azure Cache@2 task is properly configured
+   - Check that cache keys are consistent across runs
 
 4. **Affected package detection not working**
    - Verify git history is available (fetchDepth: 0 in CI)
@@ -189,10 +172,10 @@ Expected improvements with Turborepo:
 
 2. **CI/CD Pipeline**  
    - 30-60% faster PR builds (affected packages only)
-   - Remote cache sharing across pipeline runs
+   - Azure Cache@2 sharing across pipeline runs
    - Reduced SonarCloud analysis time
 
 3. **Developer Experience**
    - Faster feedback loops
-   - Consistent caching across team
+   - Consistent local caching experience
    - Better build insights and debugging

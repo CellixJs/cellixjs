@@ -32,10 +32,6 @@ parameters:
 - name: SonarCloud_cliProjectName
   displayName: 'SonarCloud CLI Project Name'
   type: string
-- name: enableTurboRemoteCache
-  displayName: 'Enable Turbo Remote Cache'
-  type: string
-  default: 'true'
 
 stages:
 - stage: Build
@@ -178,8 +174,6 @@ stages:
           fi
         workingDirectory: ''
       env:
-        TURBO_TEAM: $(TURBO_TEAM)
-        TURBO_TOKEN: $(TURBO_TOKEN)
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
@@ -202,8 +196,6 @@ stages:
           fi
         workingDirectory: ''
       env:
-        TURBO_TEAM: $(TURBO_TEAM)
-        TURBO_TOKEN: $(TURBO_TOKEN)
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)

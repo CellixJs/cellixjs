@@ -35,7 +35,6 @@ stages:
       SonarCloud_configMode: 'manual'
       SonarCloud_cliProjectKey: 'simnova_cellix-data-access'
       SonarCloud_cliProjectName: 'cellix-data-access'
-      enableTurboRemoteCache: 'true'
 
   - template: ../../../build-pipeline/core/function-app-deployment-stage.yml
     parameters: 
