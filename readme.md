@@ -2,22 +2,11 @@
 
 Domain-driven architecture for Azure Functions with GraphQL/REST, MongoDB (Mongoose), and OpenTelemetry. This repo contains the API app, domain, infrastructure, and local dev services.
 
-## Prerequisites
+## Introduction
 
-- Node.js v22+
-- VS Code (recommended) with Azurite extension for local Storage emulation
-- npm v11+ (nvm recommended)
+[Getting Started](https://developers.cellixjs.org/docs/intro):
+Our Docusaurus website will help you get started in running and contributing to CellixJS
 
-## First Time Setup
-
-```bash
-nvm install v22
-nvm install-latest-npm
-nvm use v22
-npm run clean
-npm install
-npm run build
-```
 
 ## Developer usage
 
