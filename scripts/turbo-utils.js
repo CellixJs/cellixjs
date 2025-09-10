@@ -42,39 +42,92 @@ function isExcludedPackage(packageName) {
   return EXCLUDED_PACKAGES.includes(packageName);
 }
 
-// Get affected packages using turbo
+// Get affected packages using git diff instead of turbo (more reliable for selective builds)
 function getAffectedPackages(baseBranch = 'HEAD^1') {
   try {
-    // Use turbo to get list of tasks that would run for affected packages
-    const result = execSync(`npx turbo run build --filter='[${baseBranch}]' --dry-run`, {
+    // Get list of changed files, only in packages/ directory
+    const result = execSync(`git diff --name-only ${baseBranch}...HEAD`, {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'ignore']
     });
     
-    // Parse the output to extract package names
-    const packages = [];
-    const lines = result.split('\n');
+    const changedFiles = result.trim().split('\n').filter(file => file.trim());
+    const affectedPackages = new Set();
     
-    for (const line of lines) {
-      // Look for lines like "@ocom/ui-community#build" or "docs#build"
-      const match = line.match(/^([^#\s]+)#build\s*$/);
-      if (match) {
-        const packageName = match[1].trim();
-        // Convert npm package name to directory name
-        let dirName = packageName;
-        if (packageName.startsWith('@cellix/')) {
-          dirName = packageName.replace('@cellix/', 'cellix-');
-        } else if (packageName.startsWith('@ocom/')) {
-          dirName = packageName.replace('@ocom/', '');
+    // Extract package names from changed files
+    for (const file of changedFiles) {
+      if (file.startsWith('packages/')) {
+        const packagePath = file.split('/')[1];
+        if (packagePath && !isExcludedPackage(packagePath)) {
+          affectedPackages.add(packagePath);
         }
-        packages.push(dirName);
       }
     }
     
-    return packages;
+    // If no package files changed, but root files changed (like package.json, turbo.json),
+    // we'll return empty array to indicate no selective build needed
+    return Array.from(affectedPackages);
   } catch (error) {
     console.error('Error getting affected packages:', error.message);
     return [];
+  }
+}
+
+// Get packages that depend on the given packages (using turbo to find dependents)
+function getDependentPackages(affectedPackages) {
+  if (affectedPackages.length === 0) {
+    return [];
+  }
+  
+  try {
+    // Convert directory names to npm package names for turbo filters
+    const packageNames = affectedPackages.map(pkg => {
+      if (pkg.startsWith('cellix-')) {
+        return `@cellix/${pkg.replace('cellix-', '')}`;
+      } else if (pkg === 'docs') {
+        return 'docs';
+      } else if (!pkg.includes('/') && !pkg.startsWith('@')) {
+        return `@ocom/${pkg}`;
+      }
+      return pkg;
+    });
+    
+    // Use turbo to find all packages that depend on the affected packages
+    const filter = packageNames.map(pkg => `--filter="${pkg}..."`).join(' ');
+    const result = execSync(`npx turbo run build ${filter} --dry-run 2>/dev/null`, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore']
+    });
+    
+    // Extract package names from the "Packages in Scope" section
+    const packages = [];
+    const lines = result.split('\n');
+    let inScopeSection = false;
+    
+    for (const line of lines) {
+      if (line.includes('Packages in Scope')) {
+        inScopeSection = true;
+        continue;
+      }
+      if (inScopeSection && line.trim() === '') {
+        break;
+      }
+      if (inScopeSection && line.includes('packages/')) {
+        // Extract package directory from path like "packages/api-domain"
+        const match = line.match(/packages\/([^\s]+)/);
+        if (match) {
+          const packageDir = match[1];
+          if (!isExcludedPackage(packageDir)) {
+            packages.push(packageDir);
+          }
+        }
+      }
+    }
+    
+    return [...new Set(packages)]; // Remove duplicates
+  } catch (error) {
+    console.error('Error getting dependent packages:', error.message);
+    return affectedPackages; // Fall back to just the directly affected packages
   }
 }
 
@@ -104,8 +157,9 @@ function main() {
   switch (command) {
     case 'categorize-affected': {
       const baseBranch = process.argv[3] || 'HEAD^1';
-      const affected = getAffectedPackages(baseBranch);
-      const categories = categorizePackages(affected);
+      const directlyAffected = getAffectedPackages(baseBranch);
+      const allAffected = getDependentPackages(directlyAffected);
+      const categories = categorizePackages(allAffected);
       console.log(JSON.stringify(categories, null, 2));
       break;
     }
@@ -119,16 +173,18 @@ function main() {
     
     case 'has-frontend-changes': {
       const baseBranch = process.argv[3] || 'HEAD^1';
-      const affected = getAffectedPackages(baseBranch);
-      const categories = categorizePackages(affected);
+      const directlyAffected = getAffectedPackages(baseBranch);
+      const allAffected = getDependentPackages(directlyAffected);
+      const categories = categorizePackages(allAffected);
       console.log(categories.frontend.length > 0);
       break;
     }
     
     case 'has-backend-changes': {
       const baseBranch = process.argv[3] || 'HEAD^1';
-      const affected = getAffectedPackages(baseBranch);
-      const categories = categorizePackages(affected);
+      const directlyAffected = getAffectedPackages(baseBranch);
+      const allAffected = getDependentPackages(directlyAffected);
+      const categories = categorizePackages(allAffected);
       console.log(categories.backend.length > 0);
       break;
     }
@@ -136,8 +192,16 @@ function main() {
     case 'get-affected-filter': {
       const baseBranch = process.argv[3] || 'HEAD^1';
       const type = process.argv[4]; // 'frontend' or 'backend'
-      const affected = getAffectedPackages(baseBranch);
-      const categories = categorizePackages(affected);
+      const directlyAffected = getAffectedPackages(baseBranch);
+      
+      // If no packages are directly affected, return nothing filter
+      if (directlyAffected.length === 0) {
+        console.log('--filter="nothing"');
+        break;
+      }
+      
+      const allAffected = getDependentPackages(directlyAffected);
+      const categories = categorizePackages(allAffected);
       
       const packages = type === 'frontend' ? categories.frontend : categories.backend;
       if (packages.length === 0) {
@@ -175,4 +239,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
 
-export { categorizePackages, getAffectedPackages, isFrontendPackage, isExcludedPackage };
+export { categorizePackages, getAffectedPackages, getDependentPackages, isFrontendPackage, isExcludedPackage };
