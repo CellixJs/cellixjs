@@ -1,36 +1,29 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "ui": "tui",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", "build/**", "coverage/**", ".next/**", "storybook-static/**"],
-      "env": ["NODE_ENV"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "test": {
-      "dependsOn": ["build"],
-      "outputs": ["coverage/**"],
-      "env": ["NODE_ENV", "CI"]
+      "dependsOn": ["^build"]
     },
     "test:coverage": {
-      "dependsOn": ["build"],
-      "outputs": ["coverage/**"],
-      "env": ["NODE_ENV", "CI"]
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
     },
     "test:unit": {
-      "dependsOn": ["build"],
-      "outputs": ["coverage/**"],
-      "env": ["NODE_ENV", "CI"]
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
     },
     "test:integration": {
-      "dependsOn": ["build"],
-      "outputs": ["coverage/**"],
-      "env": ["NODE_ENV", "CI"]
-    },
-    "lint": {
       "dependsOn": ["^build"],
-      "outputs": []
+      "outputs": ["coverage/**"]
     },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {},
     "format": {
       "outputs": []
     },
@@ -41,10 +34,6 @@
     "gen": {
       "dependsOn": ["^build"],
       "outputs": ["src/generated/**", "generated/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
     }
   }
 }
