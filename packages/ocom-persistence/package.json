@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "dev": "tsc --watch",
     "test": "vitest run",
     "lint": "biome lint",
@@ -20,8 +20,8 @@
     "@cellix/domain-seedwork": "*",
     "@cellix/event-bus-seedwork-node": "*",
     "@cellix/data-sources-mongoose": "*",
-    "@ocom/api-domain": "*",
-    "@ocom/api-data-sources-mongoose-models": "*"
+    "@ocom/domain": "*",
+    "@ocom/data-sources-mongoose-models": "*"
   },
   "devDependencies": {
     "@cellix/typescript-config": "*",

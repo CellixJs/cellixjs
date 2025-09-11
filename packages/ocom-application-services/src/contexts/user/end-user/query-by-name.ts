@@ -1,5 +1,5 @@
-import type { Domain } from '@ocom/api-domain';
-import type { DataSources } from '@ocom/api-persistence';
+import type { Domain } from '@ocom/domain';
+import type { DataSources } from '@ocom/persistence';
 
 export interface EndUserQueryByNameCommand {
     displayName: string;

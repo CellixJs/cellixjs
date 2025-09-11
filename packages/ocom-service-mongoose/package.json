@@ -10,14 +10,14 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "dev": "tsc --watch",
     "test": "vitest run",
     "lint": "biome lint",
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "mongoose": "^8.9.4",
+    "mongoose": "8.18.0",
     "@cellix/api-services-spec": "*",
     "@cellix/data-sources-mongoose": "*"
   },

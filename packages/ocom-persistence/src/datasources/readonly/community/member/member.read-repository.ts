@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/data-sources-mongoose'; 
-import type { Domain } from '@ocom/api-domain';
+import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';

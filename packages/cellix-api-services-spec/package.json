@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "dev": "tsc --watch",
     "test": "echo \"No tests yet...\"",
     "lint": "biome lint",

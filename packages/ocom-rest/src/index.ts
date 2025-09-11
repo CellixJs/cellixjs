@@ -3,7 +3,7 @@ import type {
 	HttpResponseInit,
 	InvocationContext,
 } from '@azure/functions';
-import type { ApplicationServicesFactory, PrincipalHints } from '@ocom/api-application-services';
+import type { ApplicationServicesFactory, PrincipalHints } from '@ocom/application-services';
 
 export type HttpHandler = (
 	request: HttpRequest,

@@ -1,6 +1,3 @@
 {
-  "name": "@cellix/typescript-config",
-  "version": "1.0.0",
-  "private": true,
-  "files": ["base.json"]
+  "name": "@cellix/typescript-config"
 }

@@ -1,4 +1,4 @@
-import type { Domain } from '@ocom/api-domain';
+import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../index.ts';
 import type * as Community from './community/community/index.ts';
 import { CommunityContext } from './community/index.ts';

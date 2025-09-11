@@ -1,6 +1,7 @@
 {
-  "extends": "@cellix/typescript-config/base.json",
+  "extends": "@cellix/typescript-config/node.json",
   "compilerOptions": {
+    "exactOptionalPropertyTypes": false,
     "outDir": "dist",
     "rootDir": "src"
   },

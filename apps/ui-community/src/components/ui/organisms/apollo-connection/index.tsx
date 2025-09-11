@@ -3,7 +3,7 @@ import { RestLink } from 'apollo-link-rest';
 import { type FC, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { useParams } from "react-router-dom";
-import { ApolloLinkToAddAuthHeader, ApolloLinkToAddCustomHeader, BaseApolloLink, client, TerminatingApolloLinkForGraphqlServer } from "./apollo-client-links";
+import { ApolloLinkToAddAuthHeader, ApolloLinkToAddCustomHeader, BaseApolloLink, client, TerminatingApolloLinkForGraphqlServer } from "./apollo-client-links.tsx";
 
 export interface ApolloConnectionProps {
   children: React.ReactNode;

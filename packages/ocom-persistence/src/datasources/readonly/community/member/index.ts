@@ -1,4 +1,4 @@
-import type { Domain } from '@ocom/api-domain';
+import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { getMemberReadRepository } from './member.read-repository.ts';
 

@@ -1,6 +1,6 @@
 import { ApolloServer } from '@apollo/server';
 import type { HttpHandler } from '@azure/functions-v4';
-import type { ApplicationServicesFactory, PrincipalHints } from '@ocom/api-application-services';
+import type { ApplicationServicesFactory, PrincipalHints } from '@ocom/application-services';
 import {
 	type AzureFunctionsMiddlewareOptions,
     startServerAndCreateHandler,

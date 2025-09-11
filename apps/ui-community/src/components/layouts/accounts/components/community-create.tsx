@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Form, Input, Typography, theme } from 'antd';
 import { Helmet } from '@dr.pogodin/react-helmet';
-import type { CommunityCreateInput } from '../../../../generated';
+import type { CommunityCreateInput } from '../../../../generated.tsx';
 
 export interface CommunityCreateProps {
     onSave: (values: CommunityCreateInput) => void;

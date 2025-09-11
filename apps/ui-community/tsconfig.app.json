@@ -1,15 +1,14 @@
 {
-  "extends": ["../../tsconfig.base"],
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext", // Overrides tsconfig.base.json
-    "skipLibCheck": true, // Overrides tsconfig.base.json
+    "module": "ESNext", // Overrides @cellix/typescript-config/base.json
+    "skipLibCheck": true, // Overrides @cellix/typescript-config/base.json
 
     /* Bundler mode */
-    "moduleResolution": "bundler", // Overrides tsconfig.base.json
+    "moduleResolution": "bundler", // Overrides @cellix/typescript-config/base.json
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force", // New setting

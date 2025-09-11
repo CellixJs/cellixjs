@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "dev": "tsc --watch",
     "test": "vitest run --coverage",
     "lint": "biome lint",

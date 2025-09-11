@@ -1,5 +1,5 @@
-import type { Domain } from '@ocom/api-domain';
-import type { Models } from '@ocom/api-data-sources-mongoose-models';
+import type { Domain } from '@ocom/domain';
+import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { ModelsContext } from '../../../../index.ts';
 import { CommunityDataSourceImpl, type CommunityDataSource } from './community.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';

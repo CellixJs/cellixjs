@@ -1,4 +1,4 @@
-import type { DataSources } from '@ocom/api-persistence';
+import type { DataSources } from '@ocom/persistence';
 import { EndUser as EndUserApi, type EndUserApplicationService } from './end-user/index.ts';
 
 export interface UserContextApplicationService {

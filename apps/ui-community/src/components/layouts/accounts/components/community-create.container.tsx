@@ -5,7 +5,7 @@ import {
   AccountsCommunityCreateContainerCommunityCreateDocument,
   type CommunityCreateInput,
 //   AccountsCommunityListContainerCommunitiesDocument,
-} from '../../../../generated';
+} from '../../../../generated.tsx';
 import { CommunityCreate } from './community-create.tsx';
 
 export const CommunityCreateContainer: React.FC = () => {

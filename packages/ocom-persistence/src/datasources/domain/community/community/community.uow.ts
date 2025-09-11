@@ -3,8 +3,8 @@ import {
 	InProcEventBusInstance,
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
-import type { Models } from '@ocom/api-data-sources-mongoose-models';
-import type { Domain } from '@ocom/api-domain';
+import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { Domain } from '@ocom/domain';
 import { CommunityConverter } from './community.domain-adapter.ts';
 import { CommunityRepository } from './community.repository.ts';
 

@@ -1,4 +1,4 @@
-import type { Domain } from '@ocom/api-domain';
+import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';

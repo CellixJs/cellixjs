@@ -1,5 +1,5 @@
-import type { ApiContextSpec } from '@ocom/api-context-spec';
-import { Domain } from '@ocom/api-domain';
+import type { ApiContextSpec } from '@ocom/context-spec';
+import { Domain } from '@ocom/domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 

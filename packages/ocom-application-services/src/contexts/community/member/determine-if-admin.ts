@@ -1,4 +1,4 @@
-import type { DataSources } from '@ocom/api-persistence';
+import type { DataSources } from '@ocom/persistence';
 
 export interface MemberDetermineIfAdminCommand {
     memberId: string;

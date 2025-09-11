@@ -1,4 +1,4 @@
-import type { DataSourcesFactory } from '@ocom/api-persistence';
+import type { DataSourcesFactory } from '@ocom/persistence';
 import type { TokenValidation } from '@ocom/service-token-validation';
 export interface ApiContextSpec {
 	//mongooseService:Exclude<ServiceMongoose, ServiceBase>;

@@ -344,9 +344,9 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
   MongoBase:
-    | import("@ocom/api-domain").Domain.Contexts.Community.Community.CommunityEntityReference
-    | import("@ocom/api-domain").Domain.Contexts.User.EndUser.EndUserEntityReference
-    | import("@ocom/api-domain").Domain.Contexts.Community.Member.MemberEntityReference;
+    | import("@ocom/domain").Domain.Contexts.Community.Community.CommunityEntityReference
+    | import("@ocom/domain").Domain.Contexts.User.EndUser.EndUserEntityReference
+    | import("@ocom/domain").Domain.Contexts.Community.Member.MemberEntityReference;
   MongoSubdocument: Omit<MemberAccount, "createdBy" | "user"> & { createdBy?: Maybe<_RefType["EndUser"]>; user?: Maybe<_RefType["EndUser"]> };
   MutationResult: Omit<CommunityMutationResult, "community"> & { community?: Maybe<_RefType["Community"]> };
 }>;
@@ -361,7 +361,7 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars["Boolean"]["output"]>;
   Byte: ResolverTypeWrapper<Scalars["Byte"]["output"]>;
   CacheControlScope: CacheControlScope;
-  Community: ResolverTypeWrapper<import("@ocom/api-domain").Domain.Contexts.Community.Community.CommunityEntityReference>;
+  Community: ResolverTypeWrapper<import("@ocom/domain").Domain.Contexts.Community.Community.CommunityEntityReference>;
   CommunityCreateInput: CommunityCreateInput;
   CommunityMutationResult: ResolverTypeWrapper<Omit<CommunityMutationResult, "community"> & { community?: Maybe<ResolversTypes["Community"]> }>;
   CountryCode: ResolverTypeWrapper<Scalars["CountryCode"]["output"]>;
@@ -375,7 +375,7 @@ export type ResolversTypes = ResolversObject<{
   DeweyDecimal: ResolverTypeWrapper<Scalars["DeweyDecimal"]["output"]>;
   Duration: ResolverTypeWrapper<Scalars["Duration"]["output"]>;
   EmailAddress: ResolverTypeWrapper<Scalars["EmailAddress"]["output"]>;
-  EndUser: ResolverTypeWrapper<import("@ocom/api-domain").Domain.Contexts.User.EndUser.EndUserEntityReference>;
+  EndUser: ResolverTypeWrapper<import("@ocom/domain").Domain.Contexts.User.EndUser.EndUserEntityReference>;
   EndUserContactInformation: ResolverTypeWrapper<EndUserContactInformation>;
   EndUserIdentityDetails: ResolverTypeWrapper<EndUserIdentityDetails>;
   EndUserPersonalInformation: ResolverTypeWrapper<EndUserPersonalInformation>;
@@ -406,7 +406,7 @@ export type ResolversTypes = ResolversObject<{
   Long: ResolverTypeWrapper<Scalars["Long"]["output"]>;
   Longitude: ResolverTypeWrapper<Scalars["Longitude"]["output"]>;
   MAC: ResolverTypeWrapper<Scalars["MAC"]["output"]>;
-  Member: ResolverTypeWrapper<import("@ocom/api-domain").Domain.Contexts.Community.Member.MemberEntityReference>;
+  Member: ResolverTypeWrapper<import("@ocom/domain").Domain.Contexts.Community.Member.MemberEntityReference>;
   MemberAccount: ResolverTypeWrapper<
     Omit<MemberAccount, "createdBy" | "user"> & { createdBy?: Maybe<ResolversTypes["EndUser"]>; user?: Maybe<ResolversTypes["EndUser"]> }
   >;
@@ -458,7 +458,7 @@ export type ResolversParentTypes = ResolversObject<{
   BlobMetadataField: BlobMetadataField;
   Boolean: Scalars["Boolean"]["output"];
   Byte: Scalars["Byte"]["output"];
-  Community: import("@ocom/api-domain").Domain.Contexts.Community.Community.CommunityEntityReference;
+  Community: import("@ocom/domain").Domain.Contexts.Community.Community.CommunityEntityReference;
   CommunityCreateInput: CommunityCreateInput;
   CommunityMutationResult: Omit<CommunityMutationResult, "community"> & { community?: Maybe<ResolversParentTypes["Community"]> };
   CountryCode: Scalars["CountryCode"]["output"];
@@ -472,7 +472,7 @@ export type ResolversParentTypes = ResolversObject<{
   DeweyDecimal: Scalars["DeweyDecimal"]["output"];
   Duration: Scalars["Duration"]["output"];
   EmailAddress: Scalars["EmailAddress"]["output"];
-  EndUser: import("@ocom/api-domain").Domain.Contexts.User.EndUser.EndUserEntityReference;
+  EndUser: import("@ocom/domain").Domain.Contexts.User.EndUser.EndUserEntityReference;
   EndUserContactInformation: EndUserContactInformation;
   EndUserIdentityDetails: EndUserIdentityDetails;
   EndUserPersonalInformation: EndUserPersonalInformation;
@@ -503,7 +503,7 @@ export type ResolversParentTypes = ResolversObject<{
   Long: Scalars["Long"]["output"];
   Longitude: Scalars["Longitude"]["output"];
   MAC: Scalars["MAC"]["output"];
-  Member: import("@ocom/api-domain").Domain.Contexts.Community.Member.MemberEntityReference;
+  Member: import("@ocom/domain").Domain.Contexts.Community.Member.MemberEntityReference;
   MemberAccount: Omit<MemberAccount, "createdBy" | "user"> & {
     createdBy?: Maybe<ResolversParentTypes["EndUser"]>;
     user?: Maybe<ResolversParentTypes["EndUser"]>;

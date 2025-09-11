@@ -22,6 +22,7 @@
     "jose": "^5.9.6"
   },
   "devDependencies": {
+    "@cellix/typescript-config": "*",
     "rimraf": "^6.0.1",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"

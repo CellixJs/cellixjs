@@ -1,5 +1,5 @@
 import { Typography } from 'antd';
-import type { AccountsUserInfoContainerEndUserFieldsFragment } from '../../../../generated';
+import type { AccountsUserInfoContainerEndUserFieldsFragment } from '../../../../generated.tsx';
 
 export interface CommunityListProps {
    userData: AccountsUserInfoContainerEndUserFieldsFragment;

@@ -1,5 +1,5 @@
 {
-  "extends": ["../../tsconfig.backend"],
+  "extends": "@cellix/typescript-config/node.json",
   "compilerOptions": {
     "rootDir": ".",
 

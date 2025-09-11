@@ -1,5 +1,5 @@
-import type { Domain } from '@ocom/api-domain';
-import type { DataSources } from '@ocom/api-persistence';
+import type { Domain } from '@ocom/domain';
+import type { DataSources } from '@ocom/persistence';
 import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
 import { determineIfAdmin, type MemberDetermineIfAdminCommand } from './determine-if-admin.ts';
 

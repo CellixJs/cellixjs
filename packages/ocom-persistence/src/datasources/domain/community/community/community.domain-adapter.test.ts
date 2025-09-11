@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/data-sources-mongoose';
-import { Domain } from '@ocom/api-domain';
-import type { Models } from '@ocom/api-data-sources-mongoose-models';
+import { Domain } from '@ocom/domain';
+import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityConverter, CommunityDomainAdapter } from './community.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 

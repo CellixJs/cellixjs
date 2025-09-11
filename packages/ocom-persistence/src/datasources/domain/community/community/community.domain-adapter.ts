@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/data-sources-mongoose';
-import { Domain } from '@ocom/api-domain';
-import type { Models } from '@ocom/api-data-sources-mongoose-models';
+import { Domain } from '@ocom/domain';
+import type { Models } from '@ocom/data-sources-mongoose-models';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 
 export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<

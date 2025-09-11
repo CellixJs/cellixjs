@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/data-sources-mongoose';
-import type { Models } from '@ocom/api-data-sources-mongoose-models';
-import { Domain } from '@ocom/api-domain';
+import type { Models } from '@ocom/data-sources-mongoose-models';
+import { Domain } from '@ocom/domain';
 import type { EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 
 type EndUserRoleModelType = Models.Role.EndUserRole; // ReturnType<typeof Models.EndUserRole.EndUserRoleModelFactory> & Models.EndUserRole.EndUserRole & { baseModelName: string };

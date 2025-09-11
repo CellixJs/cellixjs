@@ -1,4 +1,4 @@
-import { Domain, type DomainDataSource} from '@ocom/api-domain';
+import { Domain, type DomainDataSource} from '@ocom/domain';
 
 const { EventBusInstance, CommunityCreatedEvent } = Domain.Events;
 export default (

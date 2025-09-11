@@ -3,8 +3,8 @@ import {
 	InProcEventBusInstance,
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
-import type { Models } from '@ocom/api-data-sources-mongoose-models';
-import type { Domain } from '@ocom/api-domain';
+import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { Domain } from '@ocom/domain';
 import { EndUserRoleConverter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
 

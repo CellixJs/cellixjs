@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "dev": "tsc --watch",
     "test": "vitest run --coverage",
     "test:integration": "vitest run integration.test.ts",
@@ -21,7 +21,7 @@
   "dependencies": {
     "@cellix/domain-seedwork": "*",
     "@cellix/event-bus-seedwork-node": "*",
-    "@types/mongoose": "^5.11.96"
+    "@types/mongoose": "5.11.96"
   },
   "devDependencies": {
     "@cellix/typescript-config": "*",

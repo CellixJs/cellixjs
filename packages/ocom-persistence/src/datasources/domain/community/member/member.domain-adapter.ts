@@ -1,8 +1,8 @@
 
 import { MongooseSeedwork } from '@cellix/data-sources-mongoose';
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { Models } from '@ocom/api-data-sources-mongoose-models';
-import { Domain } from '@ocom/api-domain';
+import type { Models } from '@ocom/data-sources-mongoose-models';
+import { Domain } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
 import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';

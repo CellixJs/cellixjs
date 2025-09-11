@@ -1,5 +1,5 @@
 import type { MongooseSeedwork } from '@cellix/data-sources-mongoose';
-import { Models } from '@ocom/api-data-sources-mongoose-models';
+import { Models } from '@ocom/data-sources-mongoose-models';
 import { DataSourcesFactoryImpl } from './datasources/index.ts';
 
 export type ModelsContext = ReturnType<typeof Models.mongooseContextBuilder>;

@@ -9,6 +9,7 @@ import type { WithRequired } from '@apollo/utils.withrequired';
 import type {
 	HttpHandler,
 	HttpRequest,
+	HttpResponseInit,
 	InvocationContext,
 } from '@azure/functions-v4';
 
@@ -65,7 +66,7 @@ export function startServerAndCreateHandler<TContext extends BaseContext>(
 							},
 						],
 					}),
-				};
+				} as HttpResponseInit;
 			}
 
 			return {
@@ -75,13 +76,13 @@ export function startServerAndCreateHandler<TContext extends BaseContext>(
 					'content-length': Buffer.byteLength(body.string).toString(),
 				},
 				body: body.string,
-			};
+			} as HttpResponseInit;
 		} catch (e) {
 			context.error('Failure processing GraphQL request', e);
 			return {
 				status: 400,
 				body: (e as Error).message,
-			};
+			} as HttpResponseInit;
 		}
 	};
 }

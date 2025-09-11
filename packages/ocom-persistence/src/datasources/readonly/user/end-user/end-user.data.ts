@@ -1,4 +1,4 @@
-import type { Models } from '@ocom/api-data-sources-mongoose-models';
+import type { Models } from '@ocom/data-sources-mongoose-models';
 import { type MongoDataSource, MongoDataSourceImpl } from '../../mongo-data-source.ts';
 
 export interface EndUserDataSource extends MongoDataSource<Models.User.EndUser> {}

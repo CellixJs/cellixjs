@@ -10,14 +10,14 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "dev": "tsc --watch",
     "test": "vitest run --coverage",
     "lint": "biome lint",
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@ocom/api-domain": "*"
+    "@ocom/domain": "*"
   },
   "devDependencies": {
     "@cellix/typescript-config": "*",

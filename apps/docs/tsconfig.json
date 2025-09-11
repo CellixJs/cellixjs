@@ -1,14 +1,12 @@
 {
   "extends": ["@cellix/typescript-config/base.json", "@docusaurus/tsconfig"],
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
     "baseUrl": ".",
-    "jsx": "react-jsx",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "exactOptionalPropertyTypes": false,
-    "skipLibCheck": true
+    "types": ["@docusaurus/module-type-aliases", "@docusaurus/theme-classic"],
+    "paths": {
+      "@site/*": ["./*"]
+    }
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", ".docusaurus", "build"]
+  "include": ["./src", "./docusaurus.config.*", "./sidebars.*"],
+  "exclude": [".docusaurus", "build"]
 }

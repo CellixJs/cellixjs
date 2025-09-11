@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "dev": "tsc -w",
     "test": "echo \"No tests yet...\"",
     "lint": "biome lint",

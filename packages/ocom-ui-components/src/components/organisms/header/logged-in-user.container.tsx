@@ -2,11 +2,11 @@ import { useParams } from 'react-router-dom';
 import { LoggedInUserCommunityContainer } from './logged-in-user-community.container.tsx';
 import { LoggedInUserRootContainer } from './logged-in-user-root.container.tsx';
 
-interface ComponentPropInterface {
+export interface LoggedInUserContainerProps {
   autoLogin: boolean;
 }
 
-export const LoggedInUserContainer: React.FC<ComponentPropInterface> = (props) => {
+export const LoggedInUserContainer: React.FC<LoggedInUserContainerProps> = (props) => {
   const { communityId } = useParams();
 
   return (

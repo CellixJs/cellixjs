@@ -1,5 +1,5 @@
-import type { Domain } from '@ocom/api-domain';
-import type { DataSources } from '@ocom/api-persistence';
+import type { Domain } from '@ocom/domain';
+import type { DataSources } from '@ocom/persistence';
 import { type EndUserQueryByIdCommand, queryById  } from './query-by-id.ts';
 import { type EndUserQueryByNameCommand, queryByName } from './query-by-name.ts';
 import { createIfNotExists, type EndUserCreateCommand } from './create-if-not-exists.ts';

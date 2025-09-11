@@ -59,7 +59,8 @@ function Feature({id, title, Svg, description}: FeatureItem) {
     <div className={clsx('col col--4')}>
       <div className="text--center">
         <Svg
-          className={styles.featureSvg}
+          // biome-ignore lint:useLiteralKeys
+          className={styles['featureSvg']}
           role="img"
           aria-labelledby={titleId}
         >
@@ -76,7 +77,8 @@ function Feature({id, title, Svg, description}: FeatureItem) {
 
 export default function HomepageFeatures(): ReactNode {
   return (
-    <section className={styles.features}>
+    // biome-ignore lint:useLiteralKeys
+    <section className={styles['features']}>
       <div className="container">
         <div className="row">
           {FeatureList.map(({id, title, Svg, description}) => (
