@@ -1,4 +1,4 @@
-# @ocom/service-mongodb-memory-server
+# @cellix/mock-mongodb-memory-server
 
 Spin up a local, single-node MongoDB replica set in memory for development and tests.
 

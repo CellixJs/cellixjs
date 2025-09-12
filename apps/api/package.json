@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
+    "prebuild": "biome lint",
     "build": "tsc --build",
-    "dev": "tsc -w",
+    "watch": "tsc -w",
     "test": "echo \"No tests yet...\"",
     "lint": "biome lint",
     "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
     "start": "func start --typescript"
   },
   "dependencies": {

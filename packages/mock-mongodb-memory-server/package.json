@@ -1,5 +1,5 @@
 {
-  "name": "@ocom/service-mongodb-memory-server",
+  "name": "@cellix/mock-mongodb-memory-server",
   "version": "1.0.0",
   "author": "",
   "license": "MIT",
@@ -10,7 +10,8 @@
   "scripts": {
     "prebuild": "biome lint",
     "build": "tsc --build",
-    "start": "node dist/src/index.js"
+    "start": "node dist/src/index.js",
+    "dev": "node dist/src/index.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

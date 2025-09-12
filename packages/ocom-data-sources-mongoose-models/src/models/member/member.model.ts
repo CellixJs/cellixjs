@@ -105,7 +105,7 @@ const MemberSchema = new Schema<Member, Model<Member>, Member>(
   }
 ).index({ community: 1, memberName: 1, 'accounts.user': 1 }, { unique: true });
 
-export const MemberModelName: string = 'member';
+export const MemberModelName: string = 'Member';
 export const MemberModelFactory = MongooseSeedwork.modelFactory<Member>(
     MemberModelName,
     MemberSchema

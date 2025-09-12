@@ -5,18 +5,16 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./dist/index.js"
-    },
-    "./entities": {
-      "types": "./src/entities.ts",
-      "default": "./dist/entities.js"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     }
   },
   "scripts": {
+    "prebuild": "biome lint",
     "build": "tsc --build",
-    "dev": "tsc --watch",
-    "test": "vitest run --coverage",
+    "watch": "tsc --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "lint": "biome lint",
     "clean": "rimraf dist"
   },

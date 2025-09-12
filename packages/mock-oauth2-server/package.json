@@ -1,5 +1,5 @@
 {
-  "name": "@ocom/service-oauth2-mock-server",
+  "name": "@cellix/mock-oauth2-server",
   "version": "1.0.0",
   "author": "",
   "license": "MIT",
@@ -13,7 +13,8 @@
     "lint": "biome lint",
     "format": "biome format --write",
     "start": "node dist/src/index.js",
-    "dev": "tsx watch src/index.ts",
+    "dev": "node dist/src/index.js",
+    "dev1": "tsx watch src/index.ts",
     "prebuild": "biome lint"
   },
   "dependencies": {

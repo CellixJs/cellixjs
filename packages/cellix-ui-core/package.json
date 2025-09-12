@@ -5,18 +5,20 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     },
-    "./components": {
-      "types": "./src/components.ts",
-      "default": "./dist/components.js"
+    "./components/*": {
+      "types": "./dist/src/components/*.d.ts",
+      "default": "./dist/src/components/*.js"
     }
   },
   "scripts": {
+    "prebuild": "biome lint",
     "build": "tsc --build",
-    "dev": "tsc --watch",
-    "test": "vitest run --coverage",
+    "watch": "tsc --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "lint": "biome lint",
     "clean": "rimraf dist",
     "storybook": "storybook dev -p 6007",

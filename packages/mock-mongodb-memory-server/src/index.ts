@@ -1,5 +1,5 @@
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
-import { setupEnvironment } from './setup-environment.js';
+import { setupEnvironment } from './setup-environment.ts';
 
 setupEnvironment();
 // biome-ignore lint:useLiteralKeys

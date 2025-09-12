@@ -1,4 +1,4 @@
-# @ocom/service-oauth2-mock-server
+# @cellix/mock-oauth2-server
 
 Local OAuth2/OIDC mock server for development and testing.
 
