@@ -11,7 +11,7 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "dev": "npm run build && concurrently \"npm:azurite:*\" \"npm:start-emulator:*\" \"npm:start:*\" --kill-others-on-fail --workspace=@ocom/api",
+    "dev": "npm run build && turbo run azurite start --parallel",
     "start": "turbo run build && concurrently npm:start:* --kill-others-on-fail --workspace=@ocom/api",
     "build:affected": "turbo run build --filter='[HEAD^1]'",
     "lint:affected": "turbo run lint --filter='[HEAD^1]'",
@@ -32,9 +32,7 @@
     "test:serenity": "turbo run test:serenity",
     "test:unit": "turbo run test:unit",
     "test:watch": "node scripts/test-watch-all.js",
-    "azurite:blob": "azurite-blob --silent --location ./__blobstorage__",
-    "azurite:queue": "azurite-queue --silent --location ./__queuestorage__",
-    "azurite:table": "azurite-table --silent --location ./__tablestorage__"
+    "azurite": "azurite-blob --silent --location ./__blobstorage__ & azurite-queue --silent --location ./__queuestorage__ & azurite-table --silent --location ./__tablestorage__"
   },
   "workspaces": [
     "apps/*",

@@ -20,7 +20,11 @@
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },
-    "dev": {
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
+    "azurite": {
       "cache": false,
       "persistent": true
     },
