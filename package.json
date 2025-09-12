@@ -31,7 +31,6 @@
     "test:integration": "turbo run test:integration",
     "test:serenity": "turbo run test:serenity",
     "test:unit": "turbo run test:unit",
-    "test:watch": "node scripts/test-watch-all.js",
     "azurite": "azurite-blob --silent --location ./__blobstorage__ & azurite-queue --silent --location ./__queuestorage__ & azurite-table --silent --location ./__tablestorage__"
   },
   "workspaces": [

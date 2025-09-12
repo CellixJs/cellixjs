@@ -9,7 +9,6 @@
     "prebuild": "biome lint",
     "build": "tsc --build",
     "watch": "tsc -w",
-    "test": "echo \"No tests yet...\"",
     "lint": "biome lint",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
