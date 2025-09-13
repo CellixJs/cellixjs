@@ -12,6 +12,11 @@
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },
+    "test:watch": {
+        "dependsOn": ["^build"],
+        "cache": false,
+        "persistent": true
+    },
     "test:unit": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
