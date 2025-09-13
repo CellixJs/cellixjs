@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@cellix/api-services-spec": "*",
-    "@cellix/data-sources-mongoose": "*",
+    "@cellix/mongoose-seedwork": "*",
     "@ocom/application-services": "*",
     "@ocom/context-spec": "*",
     "@ocom/event-handler": "*",

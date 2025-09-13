@@ -114,7 +114,7 @@ flowchart BT
   subgraph cellix
     direction TB
     cellix_api_services_spec["@cellix/api-services-spec"]
-    cellix_data_sources_mongoose["@cellix/data-sources-mongoose"]
+    cellix_data_sources_mongoose["@cellix/mongoose-seedwork"]
     cellix_domain_seedwork["@cellix/domain-seedwork"]
     cellix_event_bus_seedwork_node["@cellix/event-bus-seedwork-node"]
   end

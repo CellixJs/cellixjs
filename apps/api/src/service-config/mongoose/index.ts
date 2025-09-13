@@ -1,4 +1,4 @@
-import type { MongooseSeedwork } from '@cellix/data-sources-mongoose';
+import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceMongooseOptions } from '@ocom/service-mongoose';
 
