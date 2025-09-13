@@ -1,0 +1,17 @@
+{
+  "name": "@cellix/vitest-config",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "dependencies": {
+    "vitest": "^3.2.4"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "*",
+    "typescript": "^5.8.3"
+  }
+}

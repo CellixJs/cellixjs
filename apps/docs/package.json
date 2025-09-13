@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@cellix/typescript-config": "*",
+    "@cellix/vitest-config": "*",
     "typescript": "~5.6.2",
     "@docusaurus/module-type-aliases": "3.8.1",
     "@docusaurus/tsconfig": "3.8.1",

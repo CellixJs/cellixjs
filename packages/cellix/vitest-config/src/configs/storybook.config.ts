@@ -1,16 +1,16 @@
 import path from 'node:path';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import { defineConfig, mergeConfig, type ViteUserConfig } from 'vitest/config';
-import baseConfig from './vitest.base.config';
+import { baseConfig } from './base.config.ts';
 
-export type FrontendStorybookOptions = {
+export type StorybookVitestConfigOptions = {
   storybookDirRelativeToPackage?: string; // default: '.storybook'
   setupFiles?: string[]; // default: ['.storybook/vitest.setup.ts']
   browsers?: { browser: 'chromium' | 'firefox' | 'webkit' }[]; // default: [{ browser: 'chromium' }]
   additionalCoverageExclude?: string[];
 };
 
-export function createFrontendStorybookVitestConfig(pkgDirname: string, opts: FrontendStorybookOptions = {}): ViteUserConfig {
+export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookVitestConfigOptions = {}): ViteUserConfig {
   const STORYBOOK_DIR = opts.storybookDirRelativeToPackage ?? '.storybook';
   const setupFiles = opts.setupFiles ?? ['.storybook/vitest.setup.ts'];
   const instances = opts.browsers ?? [{ browser: 'chromium' }];

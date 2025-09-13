@@ -1,6 +1,6 @@
 import { defineConfig } from "vitest/config";
 
-export default defineConfig({
+export const baseConfig = defineConfig({
   test: {
     coverage: {
       provider: "v8",

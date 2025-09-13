@@ -28,7 +28,8 @@
   },
   "devDependencies": {
     "@cellix/typescript-config": "*",
-    "typescript": "latest",
+    "@cellix/vitest-config": "*",
+    "typescript": "^5.8.3",
     "mongodb-memory-server": "^10.1.4",
     "rimraf": "^6.0.1"
   }

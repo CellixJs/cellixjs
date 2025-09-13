@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@cellix/typescript-config": "*",
+    "@cellix/vitest-config": "*",
     "typescript": "5.8.3",
     "@cucumber/cucumber": "^11.3.0",
     "@cucumber/node": "^0.4.0",
