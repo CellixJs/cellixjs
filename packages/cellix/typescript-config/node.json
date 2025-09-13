@@ -1,0 +1,6 @@
+{
+    "extends": "@cellix/typescript-config/base.json",
+    "compilerOptions": {
+        "types": ["node"]
+    }
+}

@@ -1,0 +1,52 @@
+# Node.js Function App to Linux on Azure
+# Build a Node.js function app and deploy it to Azure as a Linux function app.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+parameters:
+- name: 'vmImageName'
+  displayName: 'VM Image - ubuntu-latest'
+  type: string
+- name: 'ServiceConnectionName'
+  displayName: 'Service Connection Name'
+  type: string
+- name: 'deploymentDefaultLocation'
+  displayName: 'Deployment location'
+  type: string
+- name: 'npm_config_cache'
+  displayName: 'NPM Config Cache Location'
+  type: string
+- name: 'SONAR_USER_HOME'
+  displayName: 'SonarCloud User Home'
+  type: string
+
+
+stages:
+  - template: ../../../build-pipeline/core/function-app-build-stage-turbo.yml
+    parameters:
+      vmImageName: $(vmImageName)
+      npm_config_cache: $(npm_config_cache)
+      isNpmCacheAvailable: 'true'
+      disableSonarCloudTasks: 'false'
+      SONAR_USER_HOME: $(SONAR_USER_HOME)
+      SonarCloud: 'sonarcloud'
+      SonarCloud_organization: 'simnova'
+      SonarCloud_scannerMode: 'CLI'
+      SonarCloud_configMode: 'manual'
+      SonarCloud_cliProjectKey: 'simnova_cellix-data-access'
+      SonarCloud_cliProjectName: 'cellix-data-access'
+
+  - template: ../../../build-pipeline/core/function-app-deployment-stage.yml
+    parameters: 
+      stageName: 'DEV'
+      #dependsOnStage: Core
+      environmentNameBicep: 'dev'
+      environmentNameDevOps: 'cellix-dev'
+      vmImageName: $(vmImageName)
+      ServiceConnectionName: $(ServiceConnectionName)
+      deploymentDefaultLocation: $(deploymentDefaultLocation)
+      resourceGroupName: 'rg-sharethrift'
+      functionAppNamePri: 'Cellix-func-app'
+      #functionAppNameSec: 'ahp-dev-func-sec-$(UniqueStringDev)'
+      appSettingsJsonFileRelativePathPri: '/build-pipeline/config/dev-pri.json'
+      #appSettingsJsonFileRelativePathSec: 'data-access/build-pipeline/config/dev-sec.json'

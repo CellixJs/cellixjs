@@ -5,3 +5,6 @@
 lcov-report
 __*
 local.settings.json
+
+# Turborepo
+.turbo

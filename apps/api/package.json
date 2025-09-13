@@ -1,0 +1,38 @@
+{
+  "name": "@ocom/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "prebuild": "biome lint",
+    "build": "tsc --build",
+    "watch": "tsc -w",
+    "lint": "biome lint",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
+    "start": "func start --typescript"
+  },
+  "dependencies": {
+    "@cellix/api-services-spec": "*",
+    "@cellix/mongoose-seedwork": "*",
+    "@ocom/application-services": "*",
+    "@ocom/context-spec": "*",
+    "@ocom/event-handler": "*",
+    "@ocom/graphql": "*",
+    "@ocom/persistence": "*",
+    "@ocom/rest": "*",
+    "@ocom/service-blob-storage": "*",
+    "@ocom/service-mongoose": "*",
+    "@ocom/service-otel": "*",
+    "@ocom/service-token-validation": "*",
+    "@azure/functions": "^4.0.0",
+    "@azure/identity": "^4.8.0"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "*",
+    "typescript": "^5.8.3",
+    "rimraf": "^6.0.1"
+  }
+}

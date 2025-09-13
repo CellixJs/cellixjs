@@ -1,0 +1,36 @@
+{
+  "name": "@ocom/ui-community",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "start": "vite",
+    "lint": "biome lint",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@cellix/ui-core": "*",
+    "@ocom/ui-components": "*",
+    "@ant-design/pro-layout": "^7.22.7",
+    "@apollo/client": "^3.13.9",
+    "@dr.pogodin/react-helmet": "^3.0.2",
+    "antd": "^5.27.0",
+    "apollo-link-rest": "^0.9.0",
+    "less": "^4.4.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-oidc-context": "^3.3.0",
+    "react-router-dom": "^7.0.2"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "*",
+    "typescript": "^5.8.3",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "dotenv": "^17.2.1",
+    "tailwindcss": "^4.1.12",
+    "vite": "^7.0.4"
+  }
+}

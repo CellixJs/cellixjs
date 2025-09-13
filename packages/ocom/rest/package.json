@@ -1,0 +1,30 @@
+{
+  "name": "@ocom/rest",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "prebuild": "biome lint",
+    "build": "tsc --build",
+    "watch": "tsc- --watch",
+    "lint": "biome lint",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.6.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3",
+    "@ocom/application-services": "*"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "*",
+    "typescript": "^5.8.3",
+    "rimraf": "^6.0.1"
+  }
+}
