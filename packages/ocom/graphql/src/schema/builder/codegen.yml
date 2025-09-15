@@ -68,17 +68,17 @@ generates:
         Void: any
 
       mappers:
-        Member: "import('@ocom/api-domain').Domain.Contexts.Community.Member.MemberEntityReference"
-        Community: "import('@ocom/api-domain').Domain.Contexts.Community.Community.CommunityEntityReference"
-        EndUser: "import('@ocom/api-domain').Domain.Contexts.User.EndUser.EndUserEntityReference"
+        Member: "import('@ocom/domain').Domain.Contexts.Community.Member.MemberEntityReference"
+        Community: "import('@ocom/domain').Domain.Contexts.Community.Community.CommunityEntityReference"
+        EndUser: "import('@ocom/domain').Domain.Contexts.User.EndUser.EndUserEntityReference"
     plugins:
       - 'typescript'
       - 'typescript-resolvers'
   ./src/schema/builder/graphql.schema.json:
     plugins:
       - 'introspection'
-  ../ui-community/src/generated.tsx:
-    documents: '../ui-community/src/components/**/**.graphql'
+  ../../../apps/ui-community/src/generated.tsx:
+    documents: '../../../apps/ui-community/src/components/**/**.graphql'
     config:
       withHooks: true
       withHOC: false
@@ -89,8 +89,8 @@ generates:
       - 'typescript'
       - 'typescript-operations'
       - 'typed-document-node'
-  ../ui-components/src/generated.tsx:
-    documents: '../ui-components/src/components/**/**.graphql'
+  ../../ocom/ui-components/src/generated.tsx:
+    documents: '../../ocom/ui-components/src/components/**/**.graphql'
     config:
       withHooks: true
       withHOC: false

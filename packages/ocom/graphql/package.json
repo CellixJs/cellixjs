@@ -13,6 +13,7 @@
     "prebuild": "biome lint",
     "build": "tsc --build",
     "watch": "tsc- --watch",
+    "gen": "graphql-codegen --config src/schema/builder/codegen.yml",
     "lint": "biome lint",
     "clean": "rimraf dist"
   },
