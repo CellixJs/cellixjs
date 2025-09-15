@@ -179,43 +179,20 @@ let uow: MongoUnitOfWork<
 >;
 describe('MongoUnitOfWork:Integration', () => {
 	beforeAll(async () => {
-		try {
-			mongoServer = await MongoMemoryReplSet.create({
-				replSet: { name: 'test' },
-				instanceOpts: [
-					{
-						storageEngine: 'wiredTiger',
-					},
-				],
-				binary: {
-					version: '6.0.0',
-				},
-			});
-			const uri = mongoServer.getUri();
-			await mongoose.connect(uri, {
-				retryWrites: false,
-				serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-			});
-			TestModel = model<TestMongoType>('Test', TestSchema);
-		} catch (error) {
-			console.error('Failed to start MongoDB replica set:', error);
-			throw error;
-		}
+		mongoServer = await MongoMemoryReplSet.create({
+			replSet: { name: 'test' },
+		});
+		const uri = mongoServer.getUri();
+		await mongoose.connect(uri, {
+			retryWrites: false,
+		});
+		TestModel = model<TestMongoType>('Test', TestSchema);
 	}, 60000); // Increase timeout to 60 seconds
 
 	afterAll(async () => {
-		try {
-			if (mongoose.connection.readyState !== 0) {
-				await mongoose.disconnect();
-			}
-			if (mongoServer) {
-				await mongoServer.stop();
-			}
-		} catch (error) {
-			console.error('Error during cleanup:', error);
-			// Don't throw in cleanup to avoid masking the original test failure
-		}
-	}, 30000);
+		await mongoose.disconnect();
+		await mongoServer.stop();
+	});
 
 	beforeEach(async () => {
 		await TestModel.deleteMany({});
