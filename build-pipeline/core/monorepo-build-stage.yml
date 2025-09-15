@@ -66,8 +66,9 @@ stages:
       displayName: 'Playwright: Restore browsers cache'
       continueOnError: true
       inputs:
-        key: 'playwright | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
+        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22'
         restoreKeys: |
+          playwright | "$(Agent.OS)" | ubuntu-latest
           playwright | "$(Agent.OS)"
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
         cacheHitVar: PW_CACHE_HIT
