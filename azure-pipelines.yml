@@ -1,11 +1,15 @@
 trigger:
  paths:
    include:
-     - packages
+     - packages/**
+     - apps/**
    exclude:
-     - packages/docs/**
-     - packages/ui-**
-     - packages/cellix-ui-core/**
+     - packages/**/coverage/**
+     - packages/**/dist/**
+     - apps/**/dist/**
+     - apps/**/build/**
+     - apps/**/.next/**
+     - apps/**/node_modules/**
  branches:
    include:
      - main
@@ -13,7 +17,7 @@ trigger:
 pr:
   branches:
     include:
-      - main
+     - main
 
 pool:
   vmImage: ubuntu-latest
@@ -27,10 +31,26 @@ variables:
   SONAR_USER_HOME: $(Pipeline.Workspace)/.sonar
 
 stages:
-  - template: ./packages/api/build-pipelines/azure-pipelines.yml
+  - template: ./build-pipeline/core/monorepo-build-stage.yml
     parameters:
       vmImageName: $(vmImageName)
-      ServiceConnectionName: $(ServiceConnectionName)
       npm_config_cache: $(npm_config_cache)
+      isNpmCacheAvailable: 'true'
+      disableSonarCloudTasks: 'false'
       SONAR_USER_HOME: $(SONAR_USER_HOME)
+      SonarCloud: 'sonarcloud'
+      SonarCloud_organization: 'simnova'
+      SonarCloud_scannerMode: 'CLI'
+      SonarCloud_configMode: 'manual'
+      SonarCloud_cliProjectKey: 'simnova_cellix-data-access'
+      SonarCloud_cliProjectName: 'cellix-data-access'
+
+  - template: ./build-pipeline/core/monorepo-deployment-stage.yml
+    parameters:
+      stageName: 'DEV'
+      environmentNameBicep: 'dev'
+      environmentNameDevOps: 'cellix-dev'
+      vmImageName: $(vmImageName)
+      ServiceConnectionName: $(ServiceConnectionName)
       deploymentDefaultLocation: $(deploymentDefaultLocation)
+      resourceGroupName: 'rg-sharethrift'

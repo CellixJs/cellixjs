@@ -1,0 +1,410 @@
+parameters:
+- name: vmImageName
+  displayName: 'VM Image - ubuntu-latest'
+  type: string
+- name: npm_config_cache
+  displayName: 'NPM Config Cache Location'
+  type: string
+- name: isNpmCacheAvailable
+  displayName: 'Flag to indicate if NPM cache is available'
+  type: string
+- name: disableSonarCloudTasks
+  displayName: 'Flag to disable SonarCloud tasks'
+  type: string
+- name: SONAR_USER_HOME
+  displayName: 'SonarCloud User Home'
+  type: string
+- name: SonarCloud
+  displayName: 'SonarCloud'
+  type: string
+- name: SonarCloud_organization
+  displayName: 'SonarCloud Organization'
+  type: string
+- name: SonarCloud_scannerMode
+  displayName: 'SonarCloud Scanner Mode'
+  type: string
+- name: SonarCloud_configMode
+  displayName: 'SonarCloud Config Mode'
+  type: string
+- name: SonarCloud_cliProjectKey
+  displayName: 'SonarCloud CLI Project Key'
+  type: string
+- name: SonarCloud_cliProjectName
+  displayName: 'SonarCloud CLI Project Name'
+  type: string
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: ${{parameters.vmImageName}}
+    variables:
+      PLAYWRIGHT_BROWSERS_PATH: $(Pipeline.Workspace)/.cache/ms-playwright
+      TURBO_CACHE_DIR: $(Build.SourcesDirectory)/.turbo
+    steps:
+    - checkout: self
+      fetchDepth: 0 # Fetch all history for all branches and tags necessary for sonar cloud analysis
+      # SonarCloud documentation https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/scm-integration/#:~:text=A%20full%20clone%20is%20required%20for%20this%20integration%20to%20be%20able%20to%20collect%20the%20required%20blame%20information%20(see%20Known%20Issues).%20If%20a%20shallow%20clone%20is%20detected%2C%20a%20warning%20will%20be%20logged%20and%20no%20attempt%20will%20be%20made%20to%20retrieve%20blame%20information.
+
+    # Ensure the correct version of Node is installed.
+    - task: NodeTool@0
+      displayName: 'Install: Node.js - LTS'
+      inputs:
+        versionSpec: '22.x'
+
+    # Ensure the correct version of function tools are installed.
+    - task: FuncToolsInstaller@0
+      inputs:
+        version: '4.2.1'
+      displayName: 'Install: func tools - latest'
+
+    # Playwright: Restore browsers cache
+    - task: Cache@2
+      displayName: 'Playwright: Restore browsers cache'
+      continueOnError: true
+      inputs:
+        key: 'playwright | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
+        restoreKeys: |
+          playwright | "$(Agent.OS)"
+        path: '$(PLAYWRIGHT_BROWSERS_PATH)'
+        cacheHitVar: PW_CACHE_HIT
+
+    # Playwright: Install browsers if needed
+    - task: Bash@3
+      displayName: 'Playwright: Install browsers if needed'
+      condition: ne(variables.PW_CACHE_HIT, 'true')
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "PW_CACHE_HIT=${PW_CACHE_HIT:-unset}"
+          echo "Installing Playwright browsers into: $(PLAYWRIGHT_BROWSERS_PATH)"
+          npx playwright install --with-deps chromium
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
+    # Playwright: Ensure browsers are available for packages that need them
+    - task: Bash@3
+      displayName: 'Playwright: Verify browser installation'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "Verifying Playwright browser installation..."
+          echo "PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)"
+
+          # Check if browsers are installed
+          if [ ! -d "$(PLAYWRIGHT_BROWSERS_PATH)" ] || [ -z "$(ls -A $(PLAYWRIGHT_BROWSERS_PATH) 2>/dev/null || echo '')" ]; then
+            echo "Browsers not found in cache, installing them..."
+            npx playwright install --with-deps chromium
+          else
+            echo "Browsers found in cache: $(ls -la $(PLAYWRIGHT_BROWSERS_PATH) | wc -l) items"
+          fi
+
+          # Make sure the browsers are executable
+          find $(PLAYWRIGHT_BROWSERS_PATH) -name "*chrome*" -type f -exec chmod +x {} \; 2>/dev/null || true
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
+    # Cache NPM packages to speed up build process.
+    - task: Cache@2
+      displayName: 'NPM: Restore Cache'
+      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
+      inputs:
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
+        restoreKeys: |
+            npm | "$(Agent.OS)"
+        path: ${{parameters.npm_config_cache}}
+
+    # Detect affected packages and set output variables for deployment stage
+    - task: Bash@3
+      displayName: 'Detect affected package types'
+      name: BuildJob
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          
+          # Determine base branch for change detection
+          if [ "$(Build.Reason)" = "PullRequest" ]; then
+            BASE_BRANCH="origin/$(System.PullRequest.TargetBranch)"
+          else
+            BASE_BRANCH="HEAD^1"
+          fi
+          
+          echo "Using base branch: $BASE_BRANCH for package type detection"
+          
+          # Check if frontend or backend packages are affected using Turbo's --affected
+          HAS_FRONTEND_CHANGES=false
+          HAS_BACKEND_CHANGES=false
+          HAS_DOCS_CHANGES=false
+          
+          # Use Turbo's --affected to get affected packages
+          if npx turbo run build --affected=$BASE_BRANCH --dry-run 2>/dev/null | grep -q "Packages in Scope"; then
+            AFFECTED_PACKAGES=$(npx turbo run build --affected=$BASE_BRANCH --dry-run 2>/dev/null | grep "packages/" | sed 's/.*packages\/([^/]*).*/\1/' || echo "")
+            
+            echo "Affected packages: $AFFECTED_PACKAGES"
+            
+            # Check each affected package
+            for package in $AFFECTED_PACKAGES; do
+              if [[ $package == ui-* ]] || [[ $package == cellix-ui-core ]]; then
+                HAS_FRONTEND_CHANGES=true
+                echo "Frontend package detected: $package"
+              elif [[ $package == docs ]]; then
+                HAS_DOCS_CHANGES=true
+                echo "Docs package detected: $package"
+              else
+                HAS_BACKEND_CHANGES=true
+                echo "Backend package detected: $package"
+              fi
+            done
+          else
+            echo "No packages affected by changes"
+          fi
+          
+          echo "Frontend changes: $HAS_FRONTEND_CHANGES"
+          echo "Backend changes: $HAS_BACKEND_CHANGES"
+          echo "Docs changes: $HAS_DOCS_CHANGES"
+          
+          # Set pipeline variables as outputs for deployment stage
+          echo "##vso[task.setvariable variable=HAS_FRONTEND_CHANGES;isOutput=true]$HAS_FRONTEND_CHANGES"
+          echo "##vso[task.setvariable variable=HAS_BACKEND_CHANGES;isOutput=true]$HAS_BACKEND_CHANGES"
+          echo "##vso[task.setvariable variable=HAS_DOCS_CHANGES;isOutput=true]$HAS_DOCS_CHANGES"
+          echo "##vso[task.setvariable variable=BASE_BRANCH]$BASE_BRANCH"
+
+    # Cache Turbo to speed up build process.
+    - task: Cache@2
+      displayName: 'Turbo: Restore Local Cache'
+      inputs:
+        key: 'turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json | $(Build.SourcesDirectory)/package-lock.json'
+        restoreKeys: |
+            turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json
+            turbo | "$(Agent.OS)"
+        path: '$(TURBO_CACHE_DIR)'
+
+    # Install dependencies
+    - task: Bash@3
+      displayName: 'NPM: Install dependencies'
+      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, False))
+      inputs:
+        targetType: 'inline'
+        script: |
+          export NODE_OPTIONS=--max_old_space_size=16384
+          npm install
+        workingDirectory: ''
+
+    - task: Bash@3
+      displayName: 'NPM: Install dependencies using cache'
+      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
+      inputs:
+        targetType: 'inline'
+        script: |
+          export NODE_OPTIONS=--max_old_space_size=16384
+          npm ci
+        workingDirectory: ''
+
+    # Build affected packages using Turbo's built-in --affected flag
+    - task: Bash@3
+      displayName: 'Turbo: Build affected packages'
+      inputs:
+        targetType: 'inline'
+        script: |
+          export NODE_OPTIONS=--max_old_space_size=16384
+          
+          # Use Turbo's built-in --affected flag for accurate change detection
+          if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
+            echo "Building affected packages only using Turbo's --affected..."
+            
+            # Determine base branch for change detection
+            if [ "$(Build.Reason)" = "PullRequest" ]; then
+              BASE_BRANCH="origin/$(System.PullRequest.TargetBranch)"
+            else
+              BASE_BRANCH="HEAD^1"
+            fi
+            
+            echo "Using base branch: $BASE_BRANCH"
+            
+            # Use Turbo's --affected flag directly - it handles dependencies automatically
+            if npx turbo run build --affected=$BASE_BRANCH --dry-run 2>/dev/null | grep -q "Packages in Scope"; then
+              echo "Found affected packages, building..."
+              npx turbo run build --affected=$BASE_BRANCH
+            else
+              echo "No packages affected by changes. Skipping build."
+              exit 0
+            fi
+          else
+            echo "Building all packages (main branch)..."
+            npx turbo run build
+          fi
+        workingDirectory: ''
+      env:
+        TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
+        TURBO_TELEMETRY_DISABLED: 1
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
+    # Run tests on affected packages using Turbo's --affected flag
+    - task: Bash@3
+      displayName: 'Turbo: Test affected packages'
+      inputs:
+        targetType: 'inline'
+        script: |
+          export NODE_OPTIONS=--max_old_space_size=16384
+          
+          # Use Turbo's built-in --affected flag for accurate change detection
+          if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
+            echo "Testing affected packages only using Turbo's --affected..."
+            
+            # Determine base branch for change detection
+            if [ "$(Build.Reason)" = "PullRequest" ]; then
+              BASE_BRANCH="origin/$(System.PullRequest.TargetBranch)"
+            else
+              BASE_BRANCH="HEAD^1"
+            fi
+            
+            echo "Using base branch: $BASE_BRANCH"
+            
+            # Use Turbo's --affected flag directly - it handles dependencies automatically
+            if npx turbo run test:coverage --affected=$BASE_BRANCH --dry-run 2>/dev/null | grep -q "Packages in Scope"; then
+              echo "Found affected packages, testing..."
+              npx turbo run test:coverage --affected=$BASE_BRANCH
+            else
+              echo "No packages affected by changes. Skipping tests."
+              exit 0
+            fi
+          else
+            echo "Testing all packages (main branch)..."
+            npx turbo run test:coverage
+          fi
+        workingDirectory: ''
+      env:
+        TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
+        TURBO_TELEMETRY_DISABLED: 1
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
+    # Discover LCOV reports for affected packages using Turbo's --affected
+    - task: Bash@3
+      displayName: 'SonarCloud: Discover LCOV report files for affected packages'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          ROOT="$(Build.SourcesDirectory)"
+          
+          # Use Turbo's --affected to get affected packages for SonarCloud analysis
+          if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
+            echo "Analyzing affected packages only..."
+            
+            # Determine base branch
+            if [ "$(Build.Reason)" = "PullRequest" ]; then
+              BASE_BRANCH="origin/$(System.PullRequest.TargetBranch)"
+            else
+              BASE_BRANCH="HEAD^1"
+            fi
+            
+            # Get affected packages using Turbo
+            AFFECTED_PACKAGES=$(npx turbo run build --affected=$BASE_BRANCH --dry-run 2>/dev/null | grep "packages/" | sed 's/.*packages\/([^/]*).*/\1/' || echo "")
+          else
+            echo "Analyzing all packages (main branch)..."
+            AFFECTED_PACKAGES=$(find "$ROOT/packages" -maxdepth 1 -type d -name "*" | grep -v "^$ROOT/packages$" | xargs -n1 basename || echo "")
+          fi
+          
+          if [ -z "$AFFECTED_PACKAGES" ]; then
+            echo "No affected packages found. Setting default coverage path."
+            echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
+          else
+            echo "Affected packages for SonarCloud analysis:"
+            echo "$AFFECTED_PACKAGES"
+            
+            # Find lcov.info files for affected packages only
+            LCOV_FILES=""
+            for package in $AFFECTED_PACKAGES; do
+              LCOV_PATH="$ROOT/packages/$package/coverage/lcov.info"
+              if [ -f "$LCOV_PATH" ]; then
+                if [ -z "$LCOV_FILES" ]; then
+                  LCOV_FILES="$LCOV_PATH"
+                else
+                  LCOV_FILES="$LCOV_FILES,$LCOV_PATH"
+                fi
+                echo " - Found: $LCOV_PATH"
+              fi
+            done
+            
+            if [ -z "$LCOV_FILES" ]; then
+              echo "No lcov.info files found for affected packages. Coverage may show as 0%."
+              echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
+            else
+              echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]$LCOV_FILES"
+            fi
+          fi
+
+    # Cache SonarCloud downloaded assets to speed up build process.
+    - task: Cache@2
+      displayName: 'SonarCloud: Restore Cache'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        key: 'sonarcloud | "$(Agent.OS)"'
+        restoreKeys: |
+          sonarcloud | "$(Agent.OS)"
+        path: ${{parameters.SONAR_USER_HOME}}/cache
+
+    # Set up SonarCloud for affected packages
+    - task: SonarCloudPrepare@3
+      displayName: 'SonarCloud: Prepare analysis configuration'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        SonarCloud: ${{parameters.SonarCloud}}
+        organization: ${{parameters.SonarCloud_organization}}
+        scannerMode: ${{parameters.SonarCloud_scannerMode}}
+        configMode: ${{parameters.SonarCloud_configMode}}
+        cliProjectKey: ${{parameters.SonarCloud_cliProjectKey}}
+        cliProjectName: ${{parameters.SonarCloud_cliProjectName}}
+        cliSources: '$(Build.SourcesDirectory)'
+        extraProperties: |
+          sonar.javascript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
+          sonar.typescript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
+          sonar.scanner.metadataFilePath=$(Agent.TempDirectory)/sonar/$(Build.BuildNumber)/test/report-task.txt
+          sonar.cpd.exclusions=**/*.test.ts,**/generated.tsx
+          sonar.coverage.exclusions=**/*.config.ts,**/tsconfig.json,**/.storybook/**,**/*.stories.ts,**/*.stories.tsx,**/*.test.ts,**/*.test.tsx,**/generated.ts,**/generated.tsx,**/*.d.ts,dist/**,packages/docs/src/test/**
+
+    # SonarCloud: Analyze code and code coverage
+    - task: SonarCloudAnalyze@3
+      displayName: 'SonarCloud: Run analysis'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+
+    # SonarCloud: Publish analysis results and wait until completion
+    - task: SonarCloudPublish@3
+      displayName: 'SonarCloud: Publish results on build summary'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        pollingTimeoutSec: '300'
+
+    # SonarCloud: Break the build if it doesn't pass the Quality Gate
+    - task: sonarcloud-buildbreaker@2
+      displayName: 'SonarCloud: Break the build if it does not pass the Quality'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        SonarCloud: ${{parameters.SonarCloud}}
+        organization: ${{parameters.SonarCloud_organization}}
+
+    # Package compiled assets into artifact
+    - task: ArchiveFiles@2
+      displayName: 'Artifact: Prepare'
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      inputs:
+        rootFolderOrFile: '$(Build.SourcesDirectory)/'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        replaceExistingArchive: true
+        # Include all build outputs from packages and apps
+        includeRootFolder: false
+
+    # Upload artifact as build result
+    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      displayName: 'Artifact: Publish'
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      artifact: drop

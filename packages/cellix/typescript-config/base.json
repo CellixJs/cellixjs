@@ -25,6 +25,11 @@
     "target": "ES2022",
     "composite": true,
     "incremental": true,
-    "skipLibCheck": false
+    "skipLibCheck": false,
+    "plugins": [
+        {
+            "name": "ts-scope-trimmer-plugin"
+        }
+    ] 
   }
 }
