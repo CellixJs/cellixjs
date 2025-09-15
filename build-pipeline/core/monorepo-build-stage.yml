@@ -76,7 +76,7 @@ stages:
     # Playwright: Install browsers if needed
     - task: Bash@3
       displayName: 'Playwright: Install browsers if needed'
-      condition: ne(variables.PW_CACHE_HIT, 'true')
+      condition: and(ne(variables.PW_CACHE_HIT, 'true'), ne(variables.PW_CACHE_HIT, 'inexact'))
       inputs:
         targetType: 'inline'
         script: |

@@ -52,6 +52,7 @@
     "packages/ocom/data-sources-mongoose-models",
     "packages/ocom/domain",
     "packages/ocom/event-handler",
+    "packages/ocom/graphql",
     "packages/ocom/persistence",
     "packages/ocom/rest",
     "packages/ocom/service-blob-storage",
