@@ -62,7 +62,7 @@ stages:
         key: 'func-tools | "$(Agent.OS)" | "4.2.1"'
         restoreKeys: |
           func-tools | "$(Agent.OS)"
-        path: '$(Agent.TempDirectory)/func-tools'
+        path: '~/.azure-functions-core-tools'
         cacheHitVar: FUNC_TOOLS_CACHE_HIT
 
     # Ensure the correct version of function tools are installed.
@@ -110,23 +110,24 @@ stages:
           echo "PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)"
 
           # Check if browsers are installed
-          if [ ! -d "$PLAYWRIGHT_BROWSERS_PATH" ] || [ -z "$(ls -A "$PLAYWRIGHT_BROWSERS_PATH" 2>/dev/null || echo '')" ]; then
+          if [ ! -d "$(PLAYWRIGHT_BROWSERS_PATH)" ] || [ -z "$(ls -A "$(PLAYWRIGHT_BROWSERS_PATH)" 2>/dev/null || echo '')" ]; then
             echo "Browsers not found in cache, installing them..."
             mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
             npx playwright install --with-deps
+          fi
 
           # Explicitly ensure chromium headless shell is available (used by Vitest browser provider)
-          if ! find "$BROWSERS_DIR" -maxdepth 2 -type d -name 'chromium_headless_shell-*' | grep -q chromium_headless_shell; then
+          if ! find "$(PLAYWRIGHT_BROWSERS_PATH)" -maxdepth 2 -type d -name 'chromium_headless_shell-*' | grep -q chromium_headless_shell; then
             echo "chromium_headless_shell not found; reinstalling browsers to fetch it..."
             npx playwright install --with-deps
           fi
 
           echo "Installed browsers:"
-          ls -la "$BROWSERS_DIR" || true
+          ls -la "$(PLAYWRIGHT_BROWSERS_PATH)" || true
 
           # Make sure browser binaries are executable
-          find "$BROWSERS_DIR" -type f -name "*chrome*" -exec chmod +x {} \; 2>/dev/null || true
-          find "$BROWSERS_DIR" -type f -name "headless_shell" -exec chmod +x {} \; 2>/dev/null || true
+          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "*chrome*" -exec chmod +x {} \; 2>/dev/null || true
+          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "headless_shell" -exec chmod +x {} \; 2>/dev/null || true
       env:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
