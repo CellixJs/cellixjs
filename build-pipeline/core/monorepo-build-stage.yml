@@ -140,16 +140,15 @@ stages:
         script: |
           set -euo pipefail
           
-          # Determine base branch for change detection
+          # Determine base branch for change detection (for logging only)
           if [ "$(Build.Reason)" = "PullRequest" ]; then
-            BASE_BRANCH="origin/$(System.PullRequest.TargetBranch)"
-            echo "PR build - comparing against: $BASE_BRANCH"
+            TARGET_BRANCH="origin/$(System.PullRequest.TargetBranch)"
+            BASE_BRANCH=$(git merge-base $TARGET_BRANCH HEAD)
+            echo "PR build - comparing current branch to: $TARGET_BRANCH (merge-base: $BASE_BRANCH)"
           else
             BASE_BRANCH="HEAD~1"
-            echo "Push build - comparing against: $BASE_BRANCH"
+            echo "Push build - comparing to previous commit: $BASE_BRANCH"
           fi
-          
-          echo "Using base branch: $BASE_BRANCH for package type detection"
           
           # Check if frontend or backend packages are affected using Turbo's --affected
           HAS_FRONTEND_CHANGES=false
@@ -158,7 +157,7 @@ stages:
           
           # Use Turbo's --affected to get affected packages with better output parsing
           echo "Running turbo to detect affected packages..."
-          TURBO_OUTPUT=$(npx turbo run build --affected=$BASE_BRANCH --dry-run 2>&1 || echo "TURBO_FAILED")
+          TURBO_OUTPUT=$(npx turbo run build --affected --dry-run 2>&1 || echo "TURBO_FAILED")
           
           echo "Turbo output:"
           echo "$TURBO_OUTPUT"
@@ -262,29 +261,13 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
+          set -euo pipefail
           export NODE_OPTIONS=--max_old_space_size=16384
           
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Building affected packages only using Turbo's --affected..."
-            
-            # Determine base branch for change detection
-            if [ "$(Build.Reason)" = "PullRequest" ]; then
-              BASE_BRANCH="origin/$(System.PullRequest.TargetBranch)"
-            else
-              BASE_BRANCH="HEAD^1"
-            fi
-            
-            echo "Using base branch: $BASE_BRANCH"
-            
-            # Use Turbo's --affected flag directly - it handles dependencies automatically
-            if npx turbo run build --affected=$BASE_BRANCH --dry-run 2>/dev/null | grep -q "Packages in Scope"; then
-              echo "Found affected packages, building..."
-              npx turbo run build --affected=$BASE_BRANCH
-            else
-              echo "No packages affected by changes. Skipping build."
-              exit 0
-            fi
+            npx turbo run build --affected
           else
             echo "Building all packages (main branch)..."
             npx turbo run build
@@ -295,35 +278,19 @@ stages:
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
-    # Run tests on affected packages using Turbo's --affected flag
+        # Run tests on affected packages using Turbo's --affected flag
     - task: Bash@3
       displayName: 'Turbo: Test affected packages'
       inputs:
         targetType: 'inline'
         script: |
+          set -euo pipefail
           export NODE_OPTIONS=--max_old_space_size=16384
           
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only using Turbo's --affected..."
-            
-            # Determine base branch for change detection
-            if [ "$(Build.Reason)" = "PullRequest" ]; then
-              BASE_BRANCH="origin/$(System.PullRequest.TargetBranch)"
-            else
-              BASE_BRANCH="HEAD^1"
-            fi
-            
-            echo "Using base branch: $BASE_BRANCH"
-            
-            # Use Turbo's --affected flag directly - it handles dependencies automatically
-            if npx turbo run test:coverage --affected=$BASE_BRANCH --dry-run 2>/dev/null | grep -q "Packages in Scope"; then
-              echo "Found affected packages, testing..."
-              npx turbo run test:coverage --affected=$BASE_BRANCH
-            else
-              echo "No packages affected by changes. Skipping tests."
-              exit 0
-            fi
+            npx turbo run test:coverage --affected
           else
             echo "Testing all packages (main branch)..."
             npx turbo run test:coverage
@@ -333,8 +300,6 @@ stages:
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
-
-    # Discover LCOV reports for affected packages using Turbo's --affected
     - task: Bash@3
       displayName: 'SonarCloud: Discover LCOV report files for affected packages'
       condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
@@ -347,16 +312,7 @@ stages:
           # Use Turbo's --affected to get affected packages for SonarCloud analysis
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Analyzing affected packages only..."
-            
-            # Determine base branch
-            if [ "$(Build.Reason)" = "PullRequest" ]; then
-              BASE_BRANCH="origin/$(System.PullRequest.TargetBranch)"
-            else
-              BASE_BRANCH="HEAD^1"
-            fi
-            
-            # Get affected packages using Turbo
-            AFFECTED_PACKAGES=$(npx turbo run build --affected=$BASE_BRANCH --dry-run 2>/dev/null | grep "packages/" | sed 's/.*packages\/([^/]*).*/\1/' || echo "")
+            AFFECTED_PACKAGES=$(npx turbo run build --affected --dry-run 2>/dev/null | grep "packages/" | sed 's/.*packages\/([^/]*).*/\1/' || echo "")
           else
             echo "Analyzing all packages (main branch)..."
             AFFECTED_PACKAGES=$(find "$ROOT/packages" -maxdepth 1 -type d -name "*" | grep -v "^$ROOT/packages$" | xargs -n1 basename || echo "")
