@@ -401,7 +401,6 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
         replaceExistingArchive: true
         # Include all build outputs from packages and apps
-        includeRootFolder: false
 
     # Upload artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
