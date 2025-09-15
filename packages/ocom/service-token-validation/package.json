@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@cellix/typescript-config": "*",
+    "@cellix/vitest-config": "*",
     "typescript": "^5.8.3",
     "rimraf": "^6.0.1"
   }

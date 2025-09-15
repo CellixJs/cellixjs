@@ -42,7 +42,7 @@ stages:
     pool:
       vmImage: ${{parameters.vmImageName}}
     variables:
-      PLAYWRIGHT_BROWSERS_PATH: $(Pipeline.Workspace)/.cache/ms-playwright
+      PLAYWRIGHT_BROWSERS_PATH: /home/vsts/.cache/ms-playwright
       TURBO_CACHE_DIR: $(Build.SourcesDirectory)/.turbo
     steps:
     - checkout: self
@@ -94,7 +94,8 @@ stages:
           set -euo pipefail
           echo "PW_CACHE_HIT=${PW_CACHE_HIT:-unset}"
           echo "Installing Playwright browsers into: $(PLAYWRIGHT_BROWSERS_PATH)"
-          npx playwright install --with-deps chromium
+          mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
+          npx playwright install --with-deps
       env:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
@@ -109,15 +110,23 @@ stages:
           echo "PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)"
 
           # Check if browsers are installed
-          if [ ! -d "$(PLAYWRIGHT_BROWSERS_PATH)" ] || [ -z "$(ls -A $(PLAYWRIGHT_BROWSERS_PATH) 2>/dev/null || echo '')" ]; then
+          if [ ! -d "$PLAYWRIGHT_BROWSERS_PATH" ] || [ -z "$(ls -A "$PLAYWRIGHT_BROWSERS_PATH" 2>/dev/null || echo '')" ]; then
             echo "Browsers not found in cache, installing them..."
-            npx playwright install --with-deps chromium
-          else
-            echo "Browsers found in cache: $(ls -la $(PLAYWRIGHT_BROWSERS_PATH) | wc -l) items"
+            mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
+            npx playwright install --with-deps
+
+          # Explicitly ensure chromium headless shell is available (used by Vitest browser provider)
+          if ! find "$BROWSERS_DIR" -maxdepth 2 -type d -name 'chromium_headless_shell-*' | grep -q chromium_headless_shell; then
+            echo "chromium_headless_shell not found; reinstalling browsers to fetch it..."
+            npx playwright install --with-deps
           fi
 
-          # Make sure the browsers are executable
-          find $(PLAYWRIGHT_BROWSERS_PATH) -name "*chrome*" -type f -exec chmod +x {} \; 2>/dev/null || true
+          echo "Installed browsers:"
+          ls -la "$BROWSERS_DIR" || true
+
+          # Make sure browser binaries are executable
+          find "$BROWSERS_DIR" -type f -name "*chrome*" -exec chmod +x {} \; 2>/dev/null || true
+          find "$BROWSERS_DIR" -type f -name "headless_shell" -exec chmod +x {} \; 2>/dev/null || true
       env:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
@@ -286,6 +295,7 @@ stages:
         script: |
           set -euo pipefail
           export NODE_OPTIONS=--max_old_space_size=16384
+          export PLAYWRIGHT_BROWSERS_PATH="$(PLAYWRIGHT_BROWSERS_PATH)"
           
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
