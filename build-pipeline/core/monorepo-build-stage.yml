@@ -59,7 +59,7 @@ stages:
     - task: Cache@2
       displayName: 'Azure Functions: Restore Core Tools Cache'
       inputs:
-        key: 'func-tools | "$(Agent.OS)" | 4.2.1'
+        key: 'func-tools | "$(Agent.OS)" | "4.2.1"'
         restoreKeys: |
           func-tools | "$(Agent.OS)"
         path: '$(Agent.TempDirectory)/func-tools'
