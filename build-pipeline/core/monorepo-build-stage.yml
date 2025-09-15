@@ -62,7 +62,7 @@ stages:
         key: 'func-tools | "$(Agent.OS)" | "4.2.1"'
         restoreKeys: |
           func-tools | "$(Agent.OS)"
-        path: '~/.azure-functions-core-tools'
+        path: '/opt/hostedtoolcache/func'
         cacheHitVar: FUNC_TOOLS_CACHE_HIT
 
     # Ensure the correct version of function tools are installed.
@@ -238,10 +238,9 @@ stages:
     - task: Cache@2
       displayName: 'Turbo: Restore Local Cache'
       inputs:
-        key: 'turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json | $(Build.SourcesDirectory)/package-lock.json'
+        key: 'turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json'
         restoreKeys: |
-            turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json
-            turbo | "$(Agent.OS)"
+          turbo | "$(Agent.OS)"
         path: '$(TURBO_CACHE_DIR)'
 
     # Install dependencies
