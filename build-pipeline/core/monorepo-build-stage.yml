@@ -289,7 +289,7 @@ stages:
 
         # Run tests on affected packages using Turbo's --affected flag
     - task: Bash@3
-      displayName: 'Turbo: Test affected packages'
+      displayName: 'Turbo: Test affected packages with coverage merge'
       inputs:
         targetType: 'inline'
         script: |
@@ -300,63 +300,19 @@ stages:
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only using Turbo's --affected..."
-            npx turbo run test:coverage --affected
+            npx turbo run test:coverage --affected && npm run merge-lcov-reports
           else
             echo "Testing all packages (main branch)..."
-            npx turbo run test:coverage
+            npm run test:coverage:merge
           fi
+          
+          # Set the merged coverage path for SonarCloud
+          echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
         workingDirectory: ''
       env:
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
-    - task: Bash@3
-      displayName: 'SonarCloud: Discover LCOV report files for affected packages'
-      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
-      inputs:
-        targetType: 'inline'
-        script: |
-          set -euo pipefail
-          ROOT="$(Build.SourcesDirectory)"
-          
-          # Use Turbo's --affected to get affected packages for SonarCloud analysis
-          if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
-            echo "Analyzing affected packages only..."
-            AFFECTED_PACKAGES=$(npx turbo run build --affected --dry-run 2>/dev/null | grep "packages/" | sed 's/.*packages\/([^/]*).*/\1/' || echo "")
-          else
-            echo "Analyzing all packages (main branch)..."
-            AFFECTED_PACKAGES=$(find "$ROOT/packages" -maxdepth 1 -type d -name "*" | grep -v "^$ROOT/packages$" | xargs -n1 basename || echo "")
-          fi
-          
-          if [ -z "$AFFECTED_PACKAGES" ]; then
-            echo "No affected packages found. Setting default coverage path."
-            echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
-          else
-            echo "Affected packages for SonarCloud analysis:"
-            echo "$AFFECTED_PACKAGES"
-            
-            # Find lcov.info files for affected packages only
-            LCOV_FILES=""
-            for package in $AFFECTED_PACKAGES; do
-              LCOV_PATH="$ROOT/packages/$package/coverage/lcov.info"
-              if [ -f "$LCOV_PATH" ]; then
-                if [ -z "$LCOV_FILES" ]; then
-                  LCOV_FILES="$LCOV_PATH"
-                else
-                  LCOV_FILES="$LCOV_FILES,$LCOV_PATH"
-                fi
-                echo " - Found: $LCOV_PATH"
-              fi
-            done
-            
-            if [ -z "$LCOV_FILES" ]; then
-              echo "No lcov.info files found for affected packages. Coverage may show as 0%."
-              echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
-            else
-              echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]$LCOV_FILES"
-            fi
-          fi
-
     # Cache SonarCloud downloaded assets to speed up build process.
     - task: Cache@2
       displayName: 'SonarCloud: Restore Cache'
