@@ -14,6 +14,7 @@ export default mergeConfig(baseConfig, defineConfig({
         'node_modules/',
         'build/',
         '.docusaurus/',
+        'coverage/**',
         'static/',
         'docs/',
         'blog/',

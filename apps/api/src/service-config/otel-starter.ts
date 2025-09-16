@@ -7,10 +7,3 @@ const Otel = new ServiceOtel({
 	useSimpleProcessors: process.env['NODE_ENV'] === 'development',
 });
 Otel.startUp();
-
-/*
-export function initOtel():ServiceOtel {
-
-  return Otel;
-};
-*/

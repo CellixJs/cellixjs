@@ -149,7 +149,7 @@ describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Given('a role with id "507f1f77bcf86cd799439013"', () => {
       roleId = '507f1f77bcf86cd799439013'; // Valid ObjectId string // Valid ObjectId string
       // Mock the find method to return members with the specified role
-      const ModelMock = repo['model'] as unknown as { find: (query: { role: unknown }) => { exec: () => Promise<Models.Member.Member[]> } };
+      const ModelMock = (repo as unknown as { model: unknown }).model as { find: (query: { role: unknown }) => { exec: () => Promise<Models.Member.Member[]> } };
       ModelMock.find = vi.fn((query: { role: unknown }) => ({
         exec: vi.fn(() => {
           if (query.role && (query.role as { toString: () => string }).toString() === roleId) {
