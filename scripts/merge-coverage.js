@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 /**
  * Simple LCOV merger that combines multiple lcov.info files
  */
-async function mergeLcovFiles() {
+function mergeLcovFiles() {
   const rootDir = process.cwd();
   const outputFile = path.join(rootDir, 'coverage', 'lcov.info');
   
@@ -87,4 +87,4 @@ async function mergeLcovFiles() {
 }
 
 // Run the merger
-mergeLcovFiles().catch(console.error);
+mergeLcovFiles();
