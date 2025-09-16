@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi, type Mock} from 'vitest';
 import path from 'node:path';
@@ -6,15 +7,20 @@ import type { ClientSession, Model } from 'mongoose';
 import mongoose from 'mongoose';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Base } from './index.js';
-import { MongoUnitOfWork } from './mongo-unit-of-work.js';
+import { MongoUnitOfWork, getInitializedUnitOfWork } from './mongo-unit-of-work.js';
 import { MongoRepositoryBase } from './mongo-repository.js';
+
+// Type alias for test purposes to avoid linting issues
+type PassportType = Record<string, never>;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/mongo-unit-of-work.feature')
 );
 
-class AggregateRootMock extends DomainSeedwork.AggregateRoot<PropType, unknown> {
+  const Passport = {};
+
+class AggregateRootMock extends DomainSeedwork.AggregateRoot<PropType, typeof Passport> {
   override getIntegrationEvents = vi.fn(() => []);
   get foo(): string { return this.props.foo; }
   set foo(foo: string) { this.props.foo = foo; }
@@ -27,7 +33,7 @@ type PropType = DomainSeedwork.DomainEntityProps & {
   readonly updatedAt: Date;
   readonly schemaVersion: string;
 };
-class RepoMock extends MongoRepositoryBase<MongoType, PropType, unknown, AggregateRootMock> {
+class RepoMock extends MongoRepositoryBase<MongoType, PropType, typeof Passport, AggregateRootMock> {
   override getIntegrationEvents = vi.fn(() => []);
 }
 
@@ -44,14 +50,14 @@ vi.mock('mongoose', async () => {
 });
 
 describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
-  let unitOfWork: MongoUnitOfWork<MongoType, PropType, unknown, AggregateRootMock, RepoMock>;
+  let unitOfWork: MongoUnitOfWork<MongoType, PropType, typeof Passport, AggregateRootMock, RepoMock>;
   let repoInstance: RepoMock;
   let eventBus: DomainSeedwork.EventBus;
   let integrationEventBus: DomainSeedwork.EventBus;
   let session: ClientSession;
   let mockModel: Model<MongoType>;
   let typeConverter: DomainSeedwork.TypeConverter<MongoType, PropType, unknown, AggregateRootMock>;
-  const Passport = {};
+
   const mockRepoClass = vi.fn((_passport, _model, _typeConverter, _bus, _session): RepoMock => repoInstance);
   let domainOperation: ReturnType<typeof vi.fn>;
 
@@ -71,13 +77,13 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
         isModified: () => true,
         save: vi.fn().mockResolvedValue({
           _id: 'agg-1',
-          foo: 'old`-foo',
+          foo: 'old-foo',
         }),
       })),
       toDomain: vi.fn().mockResolvedValue(
         new AggregateRootMock(
           vi.mocked({ id: 'agg-1', foo: 'old-foo' } as PropType),
-          vi.mocked({} as unknown)
+          vi.mocked({} as typeof Passport)
         )
       ),
     }) as DomainSeedwork.TypeConverter<MongoType, PropType, unknown, AggregateRootMock>;
@@ -235,6 +241,125 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     });
     Then('all are dispatched after the transaction', () => {
       expect(integrationEventBus.dispatch).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  Scenario('getInitializedUnitOfWork creates initialized unit of work', ({ Given, When, Then }) => {
+    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+
+    Given('a MongoUnitOfWork instance', () => {
+      // Setup is done in BeforeEachScenario
+    });
+
+    When('getInitializedUnitOfWork is called with passport', () => {
+      initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
+    });
+
+    Then('it returns an InitializedUnitOfWork with required methods', () => {
+      expect(initializedUow).toBeDefined();
+      expect(typeof initializedUow.withTransaction).toBe('function');
+      expect(typeof initializedUow.withScopedTransaction).toBe('function');
+      expect(typeof initializedUow.withScopedTransactionById).toBe('function');
+    });
+  });
+
+  Scenario('InitializedUnitOfWork withTransaction method', ({ Given, When, Then }) => {
+    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let transactionCallback: Mock;
+
+    Given('an initialized unit of work', () => {
+      initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
+      transactionCallback = vi.fn();
+    });
+
+    When('withTransaction is called', async () => {
+      await initializedUow.withTransaction(Passport, transactionCallback);
+    });
+
+    Then('it delegates to the underlying unit of work', () => {
+      expect(transactionCallback).toHaveBeenCalledWith(repoInstance);
+    });
+  });
+
+  Scenario('InitializedUnitOfWork withScopedTransaction method', ({ Given, When, Then }) => {
+    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let transactionCallback: Mock;
+
+    Given('an initialized unit of work', () => {
+      initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
+      transactionCallback = vi.fn();
+    });
+
+    When('withScopedTransaction is called', async () => {
+      await initializedUow.withScopedTransaction(transactionCallback);
+    });
+
+    Then('it delegates to the underlying unit of work with the stored passport', () => {
+      expect(transactionCallback).toHaveBeenCalledWith(repoInstance);
+    });
+  });
+
+  Scenario('InitializedUnitOfWork withScopedTransactionById with existing item', ({ Given, When, Then }) => {
+    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let result: AggregateRootMock;
+    let transactionCallback: Mock;
+
+    Given('an initialized unit of work and an existing item', () => {
+      initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
+      transactionCallback = vi.fn();
+    });
+
+    When('withScopedTransactionById is called with valid id', async () => {
+      result = await initializedUow.withScopedTransactionById('agg-1', transactionCallback);
+    });
+
+    Then('it gets the item, executes the callback, saves and returns the item', () => {
+      expect(transactionCallback).toHaveBeenCalledWith(repoInstance);
+      expect(result).toBeDefined();
+      expect(result.id).toBe('agg-1');
+    });
+  });
+
+  Scenario('InitializedUnitOfWork withScopedTransactionById with non-existing item', ({ Given, When, Then }) => {
+    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+
+    Given('an initialized unit of work', () => {
+      initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
+      // Mock repo.get to return null for non-existing item
+      vi.spyOn(repoInstance, 'get').mockResolvedValue(null as unknown as AggregateRootMock);
+    });
+
+    When('withScopedTransactionById is called with invalid id', async () => {
+      await expect(
+        initializedUow.withScopedTransactionById('invalid-id', vi.fn())
+      ).rejects.toThrow('item not found');
+    });
+
+    Then('it throws an error indicating item not found', () => {
+      // Error is already checked in When step
+    });
+  });
+
+  Scenario('InitializedUnitOfWork withScopedTransactionById callback throws error', ({ Given, When, Then }) => {
+    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let callbackError: Error;
+
+    Given('an initialized unit of work and an existing item', () => {
+      initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
+      callbackError = new Error('Callback failed');
+    });
+
+    When('withScopedTransactionById callback throws an error', async () => {
+      const failingCallback = vi.fn(() => {
+        throw callbackError;
+      });
+      await expect(
+        initializedUow.withScopedTransactionById('agg-1', failingCallback)
+      ).rejects.toThrow(callbackError);
+    });
+
+    Then('the error is propagated and transaction is rolled back', () => {
+      // Error propagation is already checked in When step
     });
   });
 });

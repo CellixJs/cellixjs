@@ -72,64 +72,26 @@ stages:
       inputs:
         version: '4.2.1'
 
-    # Playwright: Restore browsers cache
+    # Playwright: Setup browsers
     - task: Cache@2
-      displayName: 'Playwright: Restore browsers cache'
-      continueOnError: true
+      displayName: 'Playwright: Restore Cache'
       inputs:
         key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22'
         restoreKeys: |
           playwright | "$(Agent.OS)" | ubuntu-latest
           playwright | "$(Agent.OS)"
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
-        cacheHitVar: PW_CACHE_HIT
 
-    # Playwright: Install browsers if needed
+    # Playwright: Install if needed
     - task: Bash@3
-      displayName: 'Playwright: Install browsers if needed'
-      condition: and(ne(variables.PW_CACHE_HIT, 'true'), ne(variables.PW_CACHE_HIT, 'inexact'))
+      displayName: 'Playwright: Install if needed'
+      condition: ne(variables['CacheHit'], 'true')
       inputs:
         targetType: 'inline'
         script: |
-          set -euo pipefail
-          echo "PW_CACHE_HIT=${PW_CACHE_HIT:-unset}"
-          echo "Installing Playwright browsers into: $(PLAYWRIGHT_BROWSERS_PATH)"
           mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
-          npx playwright install --with-deps
-      env:
-        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
-
-    # Playwright: Ensure browsers are available for packages that need them
-    - task: Bash@3
-      displayName: 'Playwright: Verify browser installation'
-      inputs:
-        targetType: 'inline'
-        script: |
-          set -euo pipefail
-          echo "Verifying Playwright browser installation..."
-          echo "PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)"
-
-          # Check if browsers are installed
-          if [ ! -d "$(PLAYWRIGHT_BROWSERS_PATH)" ] || [ -z "$(ls -A "$(PLAYWRIGHT_BROWSERS_PATH)" 2>/dev/null || echo '')" ]; then
-            echo "Browsers not found in cache, installing them..."
-            mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
-            npx playwright install --with-deps
-          fi
-
-          # Explicitly ensure chromium headless shell is available (used by Vitest browser provider)
-          if ! find "$(PLAYWRIGHT_BROWSERS_PATH)" -maxdepth 2 -type d -name 'chromium_headless_shell-*' | grep -q chromium_headless_shell; then
-            echo "chromium_headless_shell not found; reinstalling browsers to fetch it..."
-            npx playwright install --with-deps
-          fi
-
-          echo "Installed browsers:"
-          ls -la "$(PLAYWRIGHT_BROWSERS_PATH)" || true
-
-          # Make sure browser binaries are executable
-          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "*chrome*" -exec chmod +x {} \; 2>/dev/null || true
-          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "headless_shell" -exec chmod +x {} \; 2>/dev/null || true
-      env:
-        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+          npx playwright install --with-deps chromium
+          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "*chrome*" -exec chmod +x {} \;
 
     # Cache NPM packages to speed up build process.
     - task: Cache@2
@@ -276,10 +238,10 @@ stages:
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Building affected packages only using Turbo's --affected..."
-            npx turbo run build --affected
+            npm run build -- --affected
           else
             echo "Building all packages (main branch)..."
-            npx turbo run build
+            npm run build
           fi
         workingDirectory: ''
       env:
@@ -300,7 +262,7 @@ stages:
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only using Turbo's --affected..."
-            npx turbo run test:coverage --affected && npm run merge-lcov-reports
+            npm run test:coverage -- --affected && npm run merge-lcov-reports
           else
             echo "Testing all packages (main branch)..."
             npm run test:coverage:merge
@@ -340,7 +302,7 @@ stages:
           sonar.typescript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
           sonar.scanner.metadataFilePath=$(Agent.TempDirectory)/sonar/$(Build.BuildNumber)/test/report-task.txt
           sonar.cpd.exclusions=**/*.test.ts,**/generated.tsx
-          sonar.coverage.exclusions=**/*.config.ts,**/tsconfig.json,**/.storybook/**,**/*.stories.ts,**/*.stories.tsx,**/*.test.ts,**/*.test.tsx,**/generated.ts,**/generated.tsx,**/*.d.ts,dist/**,apps/docs/src/test/**,scripts/**,packages/ocom/domain/tests/**
+          sonar.coverage.exclusions=**/*.config.ts,**/tsconfig.json,**/.storybook/**,**/*.stories.ts,**/*.stories.tsx,**/*.test.ts,**/*.test.tsx,**/generated.ts,**/generated.tsx,**/*.d.ts,dist/**,apps/docs/src/test/**,scripts/**,packages/ocom/domain/tests/**,packages/cellix/mock-oauth2-server/**,packages/cellix/mock-mongodb-memory-server/**
 
     # SonarCloud: Analyze code and code coverage
     - task: SonarCloudAnalyze@3

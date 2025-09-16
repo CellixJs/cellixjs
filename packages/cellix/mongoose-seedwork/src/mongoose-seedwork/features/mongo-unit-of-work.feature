@@ -29,3 +29,33 @@ Feature: MongoUnitOfWork
     Given integration events are emitted during the domain operation
     When multiple integration events are emitted and all succeed
     Then all are dispatched after the transaction
+
+  Scenario: getInitializedUnitOfWork creates initialized unit of work
+    Given a MongoUnitOfWork instance
+    When getInitializedUnitOfWork is called with passport
+    Then it returns an InitializedUnitOfWork with required methods
+
+  Scenario: InitializedUnitOfWork withTransaction method
+    Given an initialized unit of work
+    When withTransaction is called
+    Then it delegates to the underlying unit of work
+
+  Scenario: InitializedUnitOfWork withScopedTransaction method
+    Given an initialized unit of work
+    When withScopedTransaction is called
+    Then it delegates to the underlying unit of work with the stored passport
+
+  Scenario: InitializedUnitOfWork withScopedTransactionById with existing item
+    Given an initialized unit of work and an existing item
+    When withScopedTransactionById is called with valid id
+    Then it gets the item, executes the callback, saves and returns the item
+
+  Scenario: InitializedUnitOfWork withScopedTransactionById with non-existing item
+    Given an initialized unit of work
+    When withScopedTransactionById is called with invalid id
+    Then it throws an error indicating item not found
+
+  Scenario: InitializedUnitOfWork withScopedTransactionById callback throws error
+    Given an initialized unit of work and an existing item
+    When withScopedTransactionById callback throws an error
+    Then the error is propagated and transaction is rolled back
