@@ -146,16 +146,11 @@ stages:
           
           echo "Using base branch: $BASE_BRANCH for change detection"
           
-          # Check if we have frontend or backend changes
-          HAS_FRONTEND=$(node scripts/turbo-utils.js has-frontend-changes "$BASE_BRANCH" || echo "false")
-          HAS_BACKEND=$(node scripts/turbo-utils.js has-backend-changes "$BASE_BRANCH" || echo "false")
-          
-          echo "Has frontend changes: $HAS_FRONTEND"
-          echo "Has backend changes: $HAS_BACKEND"
+          # Use turbo to detect changes since base branch
+          # For PR builds, we'll use the git-based filter approach
+          # For main builds, we'll build everything
           
           # Set pipeline variables
-          echo "##vso[task.setvariable variable=HAS_FRONTEND_CHANGES]$HAS_FRONTEND"
-          echo "##vso[task.setvariable variable=HAS_BACKEND_CHANGES]$HAS_BACKEND"
           echo "##vso[task.setvariable variable=BASE_BRANCH]$BASE_BRANCH"
 
     # Install dependencies
@@ -187,34 +182,11 @@ stages:
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
           
-          # Build affected packages
+          # Build affected packages using native Turborepo filtering
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Building affected packages only..."
-            AFFECTED_JSON=$(node scripts/turbo-utils.js categorize-affected "$(BASE_BRANCH)" 2>/dev/null || echo '{"frontend":[],"backend":[]}')
-            FRONTEND_PACKAGES=$(echo "$AFFECTED_JSON" | jq -r '.frontend[]?' 2>/dev/null || echo "")
-            BACKEND_PACKAGES=$(echo "$AFFECTED_JSON" | jq -r '.backend[]?' 2>/dev/null || echo "")
-            AFFECTED_PACKAGES=$(echo -e "$FRONTEND_PACKAGES\n$BACKEND_PACKAGES" | grep -v '^$' || echo "")
-            
-            if [ -z "$AFFECTED_PACKAGES" ]; then
-              echo "No packages affected by changes. Skipping build."
-              exit 0
-            else
-              echo "Affected packages: $(echo "$AFFECTED_PACKAGES" | tr '\n' ' ')"
-              # Convert directory names to npm package names and create filter
-              FILTER_ARGS=""
-              for package in $AFFECTED_PACKAGES; do
-                if [[ $package == cellix-* ]]; then
-                  PKG_NAME="@cellix/${package#cellix-}"
-                elif [[ $package == "docs" ]]; then
-                  PKG_NAME="docs"
-                else
-                  PKG_NAME="@ocom/$package"
-                fi
-                FILTER_ARGS="$FILTER_ARGS --filter=\"$PKG_NAME\""
-              done
-              echo "Running: npx turbo run build $FILTER_ARGS"
-              eval "npx turbo run build $FILTER_ARGS"
-            fi
+            echo "Running: npx turbo run build --filter=\"[$(BASE_BRANCH)]\""
+            npx turbo run build --filter="[$(BASE_BRANCH)]"
           else
             echo "Building all packages (main branch)..."
             npx turbo run build
@@ -233,34 +205,11 @@ stages:
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
           
-          # Test affected packages with coverage
+          # Test affected packages with coverage using native Turborepo filtering
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only..."
-            AFFECTED_JSON=$(node scripts/turbo-utils.js categorize-affected "$(BASE_BRANCH)" 2>/dev/null || echo '{"frontend":[],"backend":[]}')
-            FRONTEND_PACKAGES=$(echo "$AFFECTED_JSON" | jq -r '.frontend[]?' 2>/dev/null || echo "")
-            BACKEND_PACKAGES=$(echo "$AFFECTED_JSON" | jq -r '.backend[]?' 2>/dev/null || echo "")
-            AFFECTED_PACKAGES=$(echo -e "$FRONTEND_PACKAGES\n$BACKEND_PACKAGES" | grep -v '^$' || echo "")
-            
-            if [ -z "$AFFECTED_PACKAGES" ]; then
-              echo "No packages affected by changes. Skipping tests."
-              exit 0
-            else
-              echo "Testing affected packages: $(echo "$AFFECTED_PACKAGES" | tr '\n' ' ')"
-              # Convert directory names to npm package names and create filter
-              FILTER_ARGS=""
-              for package in $AFFECTED_PACKAGES; do
-                if [[ $package == cellix-* ]]; then
-                  PKG_NAME="@cellix/${package#cellix-}"
-                elif [[ $package == "docs" ]]; then
-                  PKG_NAME="docs"
-                else
-                  PKG_NAME="@ocom/$package"
-                fi
-                FILTER_ARGS="$FILTER_ARGS --filter=\"$PKG_NAME\""
-              done
-              echo "Running: npx turbo run test:coverage $FILTER_ARGS"
-              eval "npx turbo run test:coverage $FILTER_ARGS"
-            fi
+            echo "Running: npx turbo run test:coverage --filter=\"[$(BASE_BRANCH)]\""
+            npx turbo run test:coverage --filter="[$(BASE_BRANCH)]"
           else
             echo "Testing all packages (main branch)..."
             npx turbo run test:coverage
@@ -271,9 +220,9 @@ stages:
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
-    # Discover LCOV reports for affected packages only
+    # Merge LCOV reports from all packages into a single file
     - task: Bash@3
-      displayName: 'SonarCloud: Discover LCOV report files for affected packages'
+      displayName: 'Coverage: Merge LCOV reports'
       condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
       inputs:
         targetType: 'inline'
@@ -281,48 +230,23 @@ stages:
           set -euo pipefail
           ROOT="$(Build.SourcesDirectory)"
           
-          # Get list of affected packages for SonarCloud analysis
-          if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
-            echo "Analyzing affected packages only..."
-            AFFECTED_JSON=$(node scripts/turbo-utils.js categorize-affected "$(BASE_BRANCH)" 2>/dev/null || echo '{"frontend":[],"backend":[]}')
+          echo "Merging LCOV reports from all workspace packages..."
+          
+          # Run our custom merge script
+          cd "$ROOT"
+          node scripts/merge-coverage.js
+          
+          # Verify the merged file exists and has content
+          if [ -f "$ROOT/coverage/lcov.info" ]; then
+            echo "Final LCOV file size: $(wc -l < "$ROOT/coverage/lcov.info") lines"
+            echo "Coverage records: $(grep -c "end_of_record" "$ROOT/coverage/lcov.info" || echo "0")"
           else
-            echo "Analyzing all packages (main branch)..."
-            AFFECTED_JSON=$(node scripts/turbo-utils.js categorize-all 2>/dev/null || echo '{"frontend":[],"backend":[]}')
+            echo "Error: Failed to create merged LCOV file"
+            exit 1
           fi
           
-          # Extract package names and combine frontend + backend
-          FRONTEND_PACKAGES=$(echo "$AFFECTED_JSON" | jq -r '.frontend[]?' 2>/dev/null || echo "")
-          BACKEND_PACKAGES=$(echo "$AFFECTED_JSON" | jq -r '.backend[]?' 2>/dev/null || echo "")
-          AFFECTED_PACKAGES=$(echo -e "$FRONTEND_PACKAGES\n$BACKEND_PACKAGES" | grep -v '^$' || echo "")
-          
-          if [ -z "$AFFECTED_PACKAGES" ]; then
-            echo "No affected packages found. Setting default coverage path."
-            echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
-          else
-            echo "Affected packages for SonarCloud analysis:"
-            echo "$AFFECTED_PACKAGES"
-            
-            # Find lcov.info files for affected packages only
-            LCOV_FILES=""
-            for package in $AFFECTED_PACKAGES; do
-              LCOV_PATH="$ROOT/packages/$package/coverage/lcov.info"
-              if [ -f "$LCOV_PATH" ]; then
-                if [ -z "$LCOV_FILES" ]; then
-                  LCOV_FILES="$LCOV_PATH"
-                else
-                  LCOV_FILES="$LCOV_FILES,$LCOV_PATH"
-                fi
-                echo " - Found: $LCOV_PATH"
-              fi
-            done
-            
-            if [ -z "$LCOV_FILES" ]; then
-              echo "No lcov.info files found for affected packages. Coverage may show as 0%."
-              echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
-            else
-              echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]$LCOV_FILES"
-            fi
-          fi
+          # Set the LCOV path for SonarCloud
+          echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]$ROOT/coverage/lcov.info"
 
     # Cache SonarCloud downloaded assets to speed up build process.
     - task: Cache@2

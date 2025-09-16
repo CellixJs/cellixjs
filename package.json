@@ -28,6 +28,8 @@
     "test:all": "turbo run test:all",
     "test:coverage": "turbo run test:coverage",
     "test:coverage:affected": "turbo run test:coverage --filter='[HEAD^1]'",
+    "test:coverage:merge": "npm run test:coverage && npm run coverage:merge",
+    "coverage:merge": "node scripts/merge-coverage.js",
     "test:integration": "turbo run test:integration",
     "test:serenity": "turbo run test:serenity",
     "test:unit": "turbo run test:unit",

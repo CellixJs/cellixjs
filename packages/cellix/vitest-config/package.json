@@ -5,17 +5,13 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "build": "tsc --build",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest"
+    "build": "tsc --build"
   },
   "dependencies": {
     "vitest": "^3.2.4"
   },
   "devDependencies": {
     "@cellix/typescript-config": "*",
-    "@vitest/coverage-v8": "^3.2.4",
     "typescript": "^5.8.3"
   }
 }
