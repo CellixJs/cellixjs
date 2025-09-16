@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.8.1">
 <title data-rh="true">Introduction 👋 | CellixJs Docs</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://cellixjs.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://cellixjs.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://cellixjs.github.io/docs/intro"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Introduction 👋 | CellixJs Docs"><meta data-rh="true" name="description" content="Let&#x27;s discover CellixJs in less than 5 minutes."><meta data-rh="true" property="og:description" content="Let&#x27;s discover CellixJs in less than 5 minutes."><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://cellixjs.github.io/docs/intro"><link data-rh="true" rel="alternate" href="https://cellixjs.github.io/docs/intro" hreflang="en"><link data-rh="true" rel="alternate" href="https://cellixjs.github.io/docs/intro" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Introduction 👋","item":"https://cellixjs.github.io/docs/intro"}]}</script><link rel="alternate" type="application/rss+xml" href="/blog/rss.xml" title="CellixJs Docs RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/blog/atom.xml" title="CellixJs Docs Atom Feed"><link rel="stylesheet" href="/assets/css/styles.bbe14fc9.css">
-<script src="/assets/js/runtime~main.a4afafec.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.eef52e27.js" defer="defer"></script>
 <script src="/assets/js/main.70efa084.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -19,19 +19,37 @@
 <p>CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, implementing a modular architecture with strict separation of concerns.</p>
 <h3 class="anchor anchorWithStickyNavbar_fF9Z" id="what-youll-need">What you&#x27;ll need<a href="#what-youll-need" class="hash-link" aria-label="Direct link to What you&#x27;ll need" title="Direct link to What you&#x27;ll need">​</a></h3>
 <ul>
-<li><a href="https://nodejs.org/en/download/" target="_blank" rel="noopener noreferrer">Node.js</a> version 22.0 or above:<!-- -->
+<li>
+<p><a href="https://nodejs.org/en/download/" target="_blank" rel="noopener noreferrer">Node.js</a> version 22.0 or above:</p>
 <ul>
 <li>When installing Node.js, you are recommended to check all checkboxes related to dependencies.</li>
 </ul>
 </li>
-<li><a href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local" target="_blank" rel="noopener noreferrer">Azure Functions Core Tools</a> for local development</li>
-<li><a href="https://www.mongodb.com/try/download/community" target="_blank" rel="noopener noreferrer">MongoDB</a> or access to a MongoDB instance</li>
+<li>
+<p><a href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local" target="_blank" rel="noopener noreferrer">Azure Functions Core Tools</a> for local development</p>
+<ul>
+<li><code>func --version</code>
+<ul>
+<li>should return 4.0.6610 or greater</li>
+</ul>
+</li>
+<li><a href="https://github.com/Azure/azure-functions-core-tools#installing" target="_blank" rel="noopener noreferrer">Install Guide</a>
+<ul>
+<li>to upgrade: (mac)</li>
+<li><code>brew upgrade azure-functions-core-tools@4</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><a href="https://www.mongodb.com/try/download/community" target="_blank" rel="noopener noreferrer">MongoDB</a> or access to a MongoDB instance</p>
+</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_fF9Z" id="clone-and-setup">Clone and Setup<a href="#clone-and-setup" class="hash-link" aria-label="Direct link to Clone and Setup" title="Direct link to Clone and Setup">​</a></h2>
 <p>Clone the CellixJs repository and set up the development environment:</p>
 <div class="language-bash codeBlockContainer_ZGJx theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_kX1v"><pre tabindex="0" class="prism-code language-bash codeBlock_TAPP thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_AdAo"><span class="token-line" style="color:#393A34"><span class="token plain">git clone https://github.com/CellixJs/cellixjs.git</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">cd cellixjs</span><br></span></code></pre></div></div>
 <p>Install dependencies and build the project: (we recommend using NVM)</p>
-<div class="language-bash codeBlockContainer_ZGJx theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_kX1v"><pre tabindex="0" class="prism-code language-bash codeBlock_TAPP thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_AdAo"><span class="token-line" style="color:#393A34"><span class="token plain"># Install Node.js v22</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">nvm install v22</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"># Install Latest NPM (v11+)</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">nvm install-latest-npm</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"># Use Node.js v22</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">nvm use v22</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"># Clean, install dependencies, and build</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">npm run clean &amp;&amp; npm install &amp;&amp; npm run build</span><br></span></code></pre></div></div>
+<div class="language-bash codeBlockContainer_ZGJx theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_kX1v"><pre tabindex="0" class="prism-code language-bash codeBlock_TAPP thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_AdAo"><span class="token-line" style="color:#393A34"><span class="token plain"># Install Node.js v22</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">nvm install v22</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"># Install Latest NPM (v11+)</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">nvm install-latest-npm</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"># Use Node.js v22</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">nvm use v22</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"># Clean, install dependencies, and build</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">npm run clean</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">npm install </span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">npm run build</span><br></span></code></pre></div></div>
 <h2 class="anchor anchorWithStickyNavbar_fF9Z" id="install-vscode-plugins">Install VSCode plugins<a href="#install-vscode-plugins" class="hash-link" aria-label="Direct link to Install VSCode plugins" title="Direct link to Install VSCode plugins">​</a></h2>
 <p>You will be prompted to install the <a href="https://github.com/CellixJs/cellixjs/blob/main/.vscode/extensions.json" target="_blank" rel="noopener noreferrer">recommended VSCode Plugins</a> upon opening the project in VSCode. Go ahead and do so.</p>
 <h2 class="anchor anchorWithStickyNavbar_fF9Z" id="start-development">Start Development<a href="#start-development" class="hash-link" aria-label="Direct link to Start Development" title="Direct link to Start Development">​</a></h2>
