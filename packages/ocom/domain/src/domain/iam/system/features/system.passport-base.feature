@@ -1,8 +1,9 @@
 Feature: <Class> SystemPassportBase
 
   Scenario: Creating SystemPassportBase with no permissions
-    Given I create a SystemPassportBase with no permissions
-    When I access the protected permissions property
+    Given I have no permissions
+    When I create a SystemPassportBase with no permissions
+    And I access the protected permissions property
     Then it should return an empty permissions object
 
   Scenario: Creating SystemPassportBase with provided permissions

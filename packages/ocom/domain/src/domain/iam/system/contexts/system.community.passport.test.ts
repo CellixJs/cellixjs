@@ -4,6 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 import { SystemCommunityPassport } from './system.community.passport.ts';
 import type { CommunityEntityReference } from '../../../contexts/community/community/community.ts';
+import type { CommunityDomainPermissions } from '../../../contexts/community/community.domain-permissions.ts';
 import type { CommunityVisa } from '../../../contexts/community/community.visa.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -11,65 +12,84 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/system.community.passport.feature'),
 );
 
-describeFeature(feature, ({ given, when, then, and }) => {
+describeFeature(feature, ({ Scenario, Background }) => {
   let passport: SystemCommunityPassport;
-  let permissions: any;
+  let permissions: Partial<CommunityDomainPermissions>;
   let communityRef: CommunityEntityReference;
   let visa: CommunityVisa;
   let permissionResult: boolean;
 
-  given('I have community domain permissions with canManageMembers true', () => {
-    permissions = {
-      canManageMembers: true
-    };
+  Background(({ Given }) => {
+    Given('I have community domain permissions with canManageMembers true', () => {
+      permissions = {
+        canManageMembers: true
+      };
+    });
   });
 
-  given('I create a SystemCommunityPassport with permissions', () => {
-    passport = new SystemCommunityPassport(permissions);
+  Scenario('Creating SystemCommunityPassport and getting visa for community', ({ Given, When, Then, And }) => {
+    Given('I create a SystemCommunityPassport with permissions', () => {
+      passport = new SystemCommunityPassport(permissions);
+    });
+
+    And('I have a community entity reference', () => {
+      communityRef = { id: 'community-123' } as CommunityEntityReference;
+    });
+
+    When('I call forCommunity with the community reference', () => {
+      visa = passport.forCommunity(communityRef);
+    });
+
+    Then('it should return a CommunityVisa', () => {
+      expect(visa).toBeDefined();
+      expect(typeof visa.determineIf).toBe('function');
+    });
+
+    And('the visa should allow determining permissions', () => {
+      expect(typeof visa.determineIf).toBe('function');
+      const result = visa.determineIf((perms: Readonly<CommunityDomainPermissions>) => perms.canManageMembers);
+      expect(typeof result).toBe('boolean');
+    });
   });
 
-  given('I create a SystemCommunityPassport with no permissions', () => {
-    passport = new SystemCommunityPassport();
+  Scenario('Creating SystemCommunityPassport with no permissions', ({ Given, When, Then, And }) => {
+    Given('I create a SystemCommunityPassport with no permissions', () => {
+      passport = new SystemCommunityPassport();
+    });
+
+    And('I have a community entity reference', () => {
+      communityRef = { id: 'community-123' } as CommunityEntityReference;
+    });
+
+    When('I call forCommunity with the community reference', () => {
+      visa = passport.forCommunity(communityRef);
+    });
+
+    Then('it should return a CommunityVisa that works with empty permissions', () => {
+      expect(visa).toBeDefined();
+      expect(typeof visa.determineIf).toBe('function');
+    });
   });
 
-  given('I create a SystemCommunityPassport with canManageMembers permission', () => {
-    permissions = { canManageMembers: true };
-    passport = new SystemCommunityPassport(permissions);
-  });
+  Scenario('Using visa to determine permissions', ({ Given, When, Then, And }) => {
+    Given('I create a SystemCommunityPassport with canManageMembers permission', () => {
+      passport = new SystemCommunityPassport({ canManageMembers: true });
+    });
 
-  given('I have a community entity reference', () => {
-    communityRef = { id: 'community-123' } as CommunityEntityReference;
-  });
+    And('I have a community entity reference', () => {
+      communityRef = { id: 'community-123' } as CommunityEntityReference;
+    });
 
-  when('I call forCommunity with the community reference', () => {
-    visa = passport.forCommunity(communityRef);
-  });
+    When('I get a visa for the community', () => {
+      visa = passport.forCommunity(communityRef);
+    });
 
-  when('I get a visa for the community', () => {
-    visa = passport.forCommunity(communityRef);
-  });
+    And('I use determineIf to check if canManageMembers is true', () => {
+      permissionResult = visa.determineIf((perms: Readonly<CommunityDomainPermissions>) => perms.canManageMembers === true);
+    });
 
-  when('I use determineIf to check if canManageMembers is true', () => {
-    permissionResult = visa.determineIf((perms: any) => perms.canManageMembers === true);
-  });
-
-  then('it should return a CommunityVisa', () => {
-    expect(visa).toBeDefined();
-    expect(typeof visa.determineIf).toBe('function');
-  });
-
-  then('it should return a CommunityVisa that works with empty permissions', () => {
-    expect(visa).toBeDefined();
-    expect(typeof visa.determineIf).toBe('function');
-  });
-
-  then('it should return true', () => {
-    expect(permissionResult).toBe(true);
-  });
-
-  and('the visa should allow determining permissions', () => {
-    expect(typeof visa.determineIf).toBe('function');
-    const result = visa.determineIf((perms: any) => perms.canManageMembers);
-    expect(typeof result).toBe('boolean');
+    Then('it should return true', () => {
+      expect(permissionResult).toBe(true);
+    });
   });
 });

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import { SystemPassportBase } from './system.passport-base.ts';
+import { SystemPassportBase, type PermissionsSpec } from './system.passport-base.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -16,57 +16,85 @@ class TestSystemPassport extends SystemPassportBase {
   }
 }
 
-describeFeature(feature, ({ given, when, then, and }) => {
+describeFeature(feature, ({ Scenario }) => {
   let passport: TestSystemPassport;
-  let permissions: any;
-  let result: any;
+  let permissions: Partial<PermissionsSpec>;
+  let result: Partial<PermissionsSpec>;
 
-  given('I create a SystemPassportBase with no permissions', () => {
-    // This will be done in the when step
+  Scenario('Creating SystemPassportBase with no permissions', ({ Given, When, Then, And }) => {
+    Given('I have no permissions', () => {
+      permissions = {};
+    });
+
+    When('I create a SystemPassportBase with no permissions', () => {
+      passport = new TestSystemPassport();
+    });
+
+    And('I access the protected permissions property', () => {
+      result = passport.getPermissions();
+    });
+
+    Then('it should return an empty permissions object', () => {
+      expect(result).toEqual({});
+    });
   });
 
-  given('I have permissions object with canManageMembers true and canManageCommunities false', () => {
-    permissions = {
-      canManageMembers: true,
-      canManageCommunities: false
-    };
+  Scenario('Creating SystemPassportBase with provided permissions', ({ Given, When, Then, And }) => {
+    Given('I have permissions object with canManageMembers true and canManageCommunities false', () => {
+      permissions = {
+        canManageMembers: true,
+        canCreateCommunities: false
+      } as Partial<PermissionsSpec>;
+    });
+
+    When('I create a SystemPassportBase with these permissions', () => {
+      passport = new TestSystemPassport(permissions);
+    });
+
+    And('I access the protected permissions property', () => {
+      result = passport.getPermissions();
+    });
+
+    Then('it should return the same permissions object', () => {
+      expect(result).toEqual(permissions);
+    });
   });
 
-  given('I have a partial permissions object with only canManageMembers true', () => {
-    permissions = {
-      canManageMembers: true
-    };
+  Scenario('Creating SystemPassportBase with partial permissions', ({ Given, When, Then, And }) => {
+    Given('I have a partial permissions object with only canManageMembers true', () => {
+      permissions = {
+        canManageMembers: true
+      };
+    });
+
+    When('I create a SystemPassportBase with these permissions', () => {
+      passport = new TestSystemPassport(permissions);
+    });
+
+    And('I access the protected permissions property', () => {
+      result = passport.getPermissions();
+    });
+
+    Then('it should return the partial permissions object', () => {
+      expect(result).toEqual(permissions);
+    });
   });
 
-  given('I pass undefined as permissions', () => {
-    permissions = undefined;
-  });
+  Scenario('Creating SystemPassportBase with undefined permissions', ({ Given, When, Then, And }) => {
+    Given('I pass undefined as permissions', () => {
+      permissions = undefined as unknown as Partial<PermissionsSpec>;
+    });
 
-  when('I access the protected permissions property', () => {
-    result = passport.getPermissions();
-  });
+    When('I create a SystemPassportBase with undefined permissions', () => {
+      passport = new TestSystemPassport(permissions);
+    });
 
-  when('I create a SystemPassportBase with these permissions', () => {
-    passport = new TestSystemPassport(permissions);
-  });
+    And('I access the protected permissions property', () => {
+      result = passport.getPermissions();
+    });
 
-  when('I create a SystemPassportBase with undefined permissions', () => {
-    passport = new TestSystemPassport(permissions);
-  });
-
-  and('I access the protected permissions property', () => {
-    result = passport.getPermissions();
-  });
-
-  then('it should return an empty permissions object', () => {
-    expect(result).toEqual({});
-  });
-
-  then('it should return the same permissions object', () => {
-    expect(result).toEqual(permissions);
-  });
-
-  then('it should return the partial permissions object', () => {
-    expect(result).toEqual(permissions);
+    Then('it should return an empty permissions object', () => {
+      expect(result).toEqual({});
+    });
   });
 });

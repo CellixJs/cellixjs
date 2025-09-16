@@ -9,19 +9,21 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/index.feature'),
 );
 
-describeFeature(feature, ({ given, when, then }) => {
+describeFeature(feature, ({ Scenario }) => {
   let communityExport: typeof Community;
 
-  given('the services index module', () => {
-    // Module is already imported
-  });
+  Scenario('Exporting Community services', ({ Given, When, Then }) => {
+    Given('the services index module', () => {
+      // Module is already imported
+    });
 
-  when('I import the Community export', () => {
-    communityExport = Community;
-  });
+    When('I import the Community export', () => {
+      communityExport = Community;
+    });
 
-  then('it should export the Community services object', () => {
-    expect(communityExport).toBeDefined();
-    expect(typeof communityExport).toBe('object');
+    Then('it should export the Community services object', () => {
+      expect(communityExport).toBeDefined();
+      expect(typeof communityExport).toBe('object');
+    });
   });
 });
