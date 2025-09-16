@@ -24,8 +24,6 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
         * to upgrade: (mac)
         * `brew upgrade azure-functions-core-tools@4`
 
-
-
 - [MongoDB](https://www.mongodb.com/try/download/community) or access to a MongoDB instance
 
 ## Clone and Setup
