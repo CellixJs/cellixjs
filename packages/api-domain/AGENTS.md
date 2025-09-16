@@ -1,13 +1,10 @@
----
-applyTo: "packages/api-domain/**/*.ts"
----
 
 # Copilot Instructions: api-domain
 
 ## Related Instructions
-- `.github/instructions/contexts.instructions.md`
-- `.github/instructions/events.instructions.md`
-- `.github/instructions/iam.instructions.md`
+- `../contexts/AGENTS.md`
+- `../events/AGENTS.md`
+- `../iam/AGENTS.md`
 
 ## Purpose
 - This package contains all application-specific domain logic for the CellixJS monorepo.
@@ -38,9 +35,9 @@ src/
 ```
 
 For detailed folder structure and conventions, see the instructions in each subfolder:
-- *contexts*: `.github/instructions/contexts.instructions.md`
-- *events*: `.github/instructions/events.instructions.md`
-- *iam*: `.github/instructions/iam.instructions.md`
+- *contexts*: `../contexts/AGENTS.md`
+- *events*: `../events/AGENTS.md`
+- *iam*: `../iam/AGENTS.md`
 
 ## Testing
 - Unit tests required for all domain logic.

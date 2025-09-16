@@ -1,6 +1,3 @@
----
-applyTo: "packages/api-domain/src/domain/iam/**/*.passport.ts"
----
 
 # Copilot Instructions: Passports
 
@@ -87,6 +84,3 @@ export class MemberPassport {
 - Adapt permission types and logic to fit the business domain.
 - Ensure all domain logic is protected by passport-based permission checks.
 
----
-
-**Note:** Do not duplicate rules from `iam.instructions.md`. For aggregate/entity integration, follow the conventions in the aggregates and entities instructions. For context structure, see the contexts instructions. For testing, follow the api-domain and context-level testing requirements.
