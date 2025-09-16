@@ -126,7 +126,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
   }
 
   get customViews(): DomainSeedwork.PropArray<Domain.Contexts.Community.Member.MemberCustomViewEntityReference> {
-    return new MongooseSeedwork.MongoosePropArray(this.doc.customViews, CustomViewDomainAdapter);
+    return new MongooseSeedwork.MongoosePropArray(this.doc.customViews, MemberCustomViewDomainAdapter);
   }
 }
 
@@ -206,7 +206,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
   }
 }
 
-export class CustomViewDomainAdapter implements Domain.Contexts.Community.Member.MemberCustomViewProps {
+export class MemberCustomViewDomainAdapter implements Domain.Contexts.Community.Member.MemberCustomViewProps {
   public readonly doc: Models.Member.MemberCustomView;
   constructor(doc: Models.Member.MemberCustomView) {
     this.doc = doc;

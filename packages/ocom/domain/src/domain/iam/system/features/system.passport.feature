@@ -1,4 +1,4 @@
-Feature: <Class> SystemPassport
+Feature: <Passport> SystemPassport
 
   Background:
     Given I have a permissions object with canManageMembers true

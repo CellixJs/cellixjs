@@ -1,4 +1,4 @@
-Feature: <Class> SystemUserPassport
+Feature: <Passport> SystemUserPassport
 
   Background:
     Given I have user domain permissions with canManageEndUsers true

@@ -1,4 +1,4 @@
-Feature: <Class> SystemPassportBase
+Feature: <Passport> SystemPassportBase
 
   Scenario: Creating SystemPassportBase with no permissions
     Given I have no permissions

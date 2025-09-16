@@ -48,9 +48,7 @@ export class EndUserRoleDomainAdapter
         return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
     }
 	set community(
-		community:
-			| Domain.Contexts.Community.Community.CommunityEntityReference
-			| Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>,
+		community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>,
 	) {
 		if (community instanceof Domain.Contexts.Community.Community.Community) {
 			this.doc.set('community', community.props.doc);

@@ -1,4 +1,4 @@
-Feature: <Class> SystemServicePassport
+Feature: <Passport> SystemServicePassport
 
   Background:
     Given I have service domain permissions with canManageServices true

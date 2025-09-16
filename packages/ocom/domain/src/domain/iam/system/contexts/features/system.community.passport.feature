@@ -1,4 +1,4 @@
-Feature: <Class> SystemCommunityPassport
+Feature: <Passport> SystemCommunityPassport
 
   Background:
     Given I have community domain permissions with canManageMembers true
