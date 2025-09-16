@@ -17,6 +17,13 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
 - [Node.js](https://nodejs.org/en/download/) version 22.0 or above:
   - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
 - [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local) for local development
+
+    * `func --version`
+        * should return 4.0.6610 or greater
+    * [Install Guide](https://github.com/Azure/azure-functions-core-tools#installing)
+        * to upgrade: (mac)
+        * `brew upgrade azure-functions-core-tools@4`
+
 - [MongoDB](https://www.mongodb.com/try/download/community) or access to a MongoDB instance
 
 ## Clone and Setup
@@ -43,7 +50,9 @@ nvm install-latest-npm
 nvm use v22
 
 # Clean, install dependencies, and build
-npm run clean && npm install && npm run build
+npm run clean
+npm install 
+npm run build
 ```
 
 ## Install VSCode plugins
