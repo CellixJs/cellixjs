@@ -85,7 +85,7 @@ stages:
     # Playwright: Install if needed
     - task: Bash@3
       displayName: 'Playwright: Install if needed'
-      condition: ne(variables['CacheHit'], 'true')
+      condition: and(ne(variables.PW_CACHE_HIT, 'true'), ne(variables.PW_CACHE_HIT, 'inexact'))
       inputs:
         targetType: 'inline'
         script: |
