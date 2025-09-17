@@ -36,6 +36,7 @@ export class Community<props extends CommunityProps>
 
 	//#region Constructors
 	constructor(props: props, passport: Passport) {
+        // this is a test change
 		super(props, passport);
 		this.visa = passport.community.forCommunity(this);
 	}
