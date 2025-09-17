@@ -49,7 +49,7 @@ describeFeature(feature, ({ Scenario }) => {
     });
 
     Then('it should return ["id", "name"]', () => {
-      expect(result.sort()).toEqual(['id', 'name']);
+      expect(result.sort((a, b) => a.localeCompare(b))).toEqual(['id', 'name']);
     });
   });
 
@@ -80,7 +80,7 @@ describeFeature(feature, ({ Scenario }) => {
     });
 
     Then('it should return ["user.id", "user.name"]', () => {
-      expect(result.sort()).toEqual(['user.id', 'user.name']);
+      expect(result.sort((a, b) => a.localeCompare(b))).toEqual(['user.id', 'user.name']);
     });
   });
 
@@ -124,7 +124,7 @@ describeFeature(feature, ({ Scenario }) => {
     });
 
     Then('it should return ["user.id", "user.name"]', () => {
-      expect(result.sort()).toEqual(['user.id', 'user.name']);
+      expect(result.sort((a, b) => a.localeCompare(b))).toEqual(['user.id', 'user.name']);
     });
   });
 
@@ -164,7 +164,7 @@ describeFeature(feature, ({ Scenario }) => {
     });
 
     Then('it should return ["user.id", "user.name"]', () => {
-      expect(result.sort()).toEqual(['user.id', 'user.name']);
+      expect(result.sort((a, b) => a.localeCompare(b))).toEqual(['user.id', 'user.name']);
     });
   });
 
