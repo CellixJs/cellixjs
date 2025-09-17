@@ -97,12 +97,31 @@ stages:
           # Create directory if it doesn't exist
           mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
 
-          # Check if we have a valid browser installation
-          if [ -d "$(PLAYWRIGHT_BROWSERS_PATH)/chromium" ] && [ -d "$(PLAYWRIGHT_BROWSERS_PATH)/firefox" ]; then
-            echo "✓ Browsers found in cache - verifying installation..."
+          # Check if we have a valid browser installation by verifying executables
+          CHROMIUM_EXECUTABLE="$(PLAYWRIGHT_BROWSERS_PATH)/chromium/chrome"
+          FIREFOX_EXECUTABLE="$(PLAYWRIGHT_BROWSERS_PATH)/firefox/firefox"
+
+          if [ "${PW_CACHE_RESTORED:-false}" = "true" ] && [ -x "$CHROMIUM_EXECUTABLE" ] && [ -x "$FIREFOX_EXECUTABLE" ]; then
+            echo "✓ Valid browser cache found - verifying installation..."
+            # Quick verification that browsers can start
+            timeout 5s "$CHROMIUM_EXECUTABLE" --version >/dev/null 2>&1 && echo "✓ Chromium executable verified" || {
+              echo "⚠ Chromium verification failed - reinstalling..."
+              PW_CACHE_RESTORED=false
+            }
+            timeout 5s "$FIREFOX_EXECUTABLE" --version >/dev/null 2>&1 && echo "✓ Firefox executable verified" || {
+              echo "⚠ Firefox verification failed - reinstalling..."
+              PW_CACHE_RESTORED=false
+            }
+          else
+            echo "⚠ No valid browser cache found - performing full installation..."
+            PW_CACHE_RESTORED=false
+          fi
+
+          if [ "${PW_CACHE_RESTORED:-false}" = "true" ]; then
+            echo "✓ Using cached browsers - installing only system dependencies..."
             npx playwright install-deps
           else
-            echo "⚠ Browsers not found or incomplete - performing full installation..."
+            echo "⚠ Installing browsers from scratch..."
             npx playwright install --with-deps
           fi
 
@@ -116,6 +135,7 @@ stages:
           find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f \( -name "*chrome*" -o -name "*firefox*" -o -name "headless_shell" \) -exec chmod +x {} \; 2>/dev/null || true
 
           echo "✓ Browser setup complete"
+          echo "Cache status: ${PW_CACHE_RESTORED:-false}"
           ls -la "$(PLAYWRIGHT_BROWSERS_PATH)" | head -10
       env:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
