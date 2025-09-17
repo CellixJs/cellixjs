@@ -29,8 +29,7 @@
     "test:integration": "turbo run test:integration",
     "test:serenity": "turbo run test:serenity",
     "test:unit": "turbo run test:unit",
-    "test:watch": "turbo run test:watch --concurrency 11",
-    "azurite": "azurite-blob --silent --location ./__blobstorage__ & azurite-queue --silent --location ./__queuestorage__ & azurite-table --silent --location ./__tablestorage__"
+    "test:watch": "turbo run test:watch --concurrency 14"
   },
   "workspaces": [
     "apps/api",
