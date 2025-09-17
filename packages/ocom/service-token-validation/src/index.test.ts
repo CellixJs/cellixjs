@@ -53,21 +53,33 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   Scenario('Constructing ServiceTokenValidation with valid portal tokens', ({ Given, When, Then, And }) => {
     Given('valid portal tokens mapping', () => {
       // Set up environment variables
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ENDPOINT'] = 'https://portal1.com/.well-known/jwks.json';
+     // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_AUDIENCE'] = 'audience1';
+     // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ISSUER'] = 'https://portal1.com';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL2_OIDC_ENDPOINT'] = 'https://portal2.com/.well-known/jwks.json';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL2_OIDC_AUDIENCE'] = 'audience2';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL2_OIDC_ISSUER'] = 'https://portal2.com';
     });
 
     When('the ServiceTokenValidation is constructed with these tokens', () => {
       // Ensure environment variables are set (they should be from Given, but let's be safe)
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ENDPOINT'] = 'https://portal1.com/.well-known/jwks.json';
+      // biome-ignore lint:useLiteralKeys 
       process.env['PORTAL1_OIDC_AUDIENCE'] = 'audience1';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ISSUER'] = 'https://portal1.com';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL2_OIDC_ENDPOINT'] = 'https://portal2.com/.well-known/jwks.json';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL2_OIDC_AUDIENCE'] = 'audience2';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL2_OIDC_ISSUER'] = 'https://portal2.com';
 
       const portalTokens = new Map([
@@ -85,6 +97,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('it should initialize the VerifiedTokenService with the configurations', () => {
+        // biome-ignore lint:useLiteralKeys
       expect(service['tokenVerifier']).toBe(mockVerifiedTokenService);
     });
   });
@@ -92,15 +105,23 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   Scenario('Constructing ServiceTokenValidation with missing optional environment variables', ({ Given, When, Then, And }) => {
     Given('portal tokens mapping with missing optional environment variables', () => {
       // Clear all environment variables first
+      // biome-ignore lint:useLiteralKeys
       delete process.env['PORTAL1_OIDC_ENDPOINT'];
+      // biome-ignore lint:useLiteralKeys
       delete process.env['PORTAL1_OIDC_AUDIENCE'];
+      // biome-ignore lint:useLiteralKeys
       delete process.env['PORTAL1_OIDC_ISSUER'];
+      // biome-ignore lint:useLiteralKeys
       delete process.env['PORTAL1_OIDC_CLOCK_TOLERANCE'];
+      // biome-ignore lint:useLiteralKeys
       delete process.env['PORTAL1_OIDC_IGNORE_ISSUER'];
 
       // Set only required environment variables
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ENDPOINT'] = 'https://portal1.com/.well-known/jwks.json';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_AUDIENCE'] = 'audience1';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ISSUER'] = 'https://portal1.com';
       // Explicitly don't set PORTAL1_OIDC_CLOCK_TOLERANCE and PORTAL1_OIDC_IGNORE_ISSUER
     });
@@ -128,6 +149,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('it should initialize the VerifiedTokenService with default configurations', () => {
+      // biome-ignore lint:useLiteralKeys
       expect(service['tokenVerifier']).toBe(mockVerifiedTokenService);
     });
   });
@@ -155,8 +177,11 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   Scenario('Starting up the ServiceTokenValidation', ({ Given, When, Then, And }) => {
     Given('a ServiceTokenValidation instance with valid configuration', () => {
       // Set up environment variables
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ENDPOINT'] = 'https://portal1.com/.well-known/jwks.json';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_AUDIENCE'] = 'audience1';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ISSUER'] = 'https://portal1.com';
 
       const portalTokens = new Map([['portal1', 'PORTAL1']]);
@@ -180,11 +205,17 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   Scenario('Verifying JWT with ServiceTokenValidation', ({ Given, When, Then, And }) => {
     Given('a ServiceTokenValidation instance that is started', () => {
       // Set up environment variables
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ENDPOINT'] = 'https://portal1.com/.well-known/jwks.json';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_AUDIENCE'] = 'audience1';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ISSUER'] = 'https://portal1.com';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL2_OIDC_ENDPOINT'] = 'https://portal2.com/.well-known/jwks.json';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL2_OIDC_AUDIENCE'] = 'audience2';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL2_OIDC_ISSUER'] = 'https://portal2.com';
 
       const portalTokens = new Map([
@@ -228,8 +259,11 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   Scenario('Verifying invalid JWT with ServiceTokenValidation', ({ Given, When, Then, And }) => {
     Given('a ServiceTokenValidation instance that is started', () => {
       // Set up environment variables
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ENDPOINT'] = 'https://portal1.com/.well-known/jwks.json';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_AUDIENCE'] = 'audience1';
+      // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ISSUER'] = 'https://portal1.com';
 
       const portalTokens = new Map([['portal1', 'PORTAL1']]);
@@ -256,8 +290,11 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   Scenario('Shutting down the ServiceTokenValidation', ({ Given, When, Then, And }) => {
     Given('a started ServiceTokenValidation instance', () => {
       // Set up environment variables
+        // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ENDPOINT'] = 'https://portal1.com/.well-known/jwks.json';
+        // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_AUDIENCE'] = 'audience1';
+        // biome-ignore lint:useLiteralKeys
       process.env['PORTAL1_OIDC_ISSUER'] = 'https://portal1.com';
 
       const portalTokens = new Map([['portal1', 'PORTAL1']]);

@@ -62,7 +62,9 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     Then('it should initialize the keystore collection and store the configurations', () => {
+      // biome-ignore lint:useLiteralKeys
       expect(service['keyStoreCollection']).toBeInstanceOf(Map);
+      // biome-ignore lint:useLiteralKeys
       expect(service['openIdConfigs']).toBe(mockOpenIdConfigs);
     });
   });
@@ -93,6 +95,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     Then('it should begin periodic keystore refresh and immediately refresh the collection', () => {
+      // biome-ignore lint:useLiteralKeys
       expect(service['timerInstance']).toBeDefined();
       expect(vi.mocked(createRemoteJWKSet)).toHaveBeenCalledTimes(2); // Once for each provider
       expect(vi.mocked(createRemoteJWKSet)).toHaveBeenCalledWith(new URL('https://provider1.com/.well-known/jwks.json'));
@@ -105,18 +108,22 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
       service = new VerifiedTokenService(mockOpenIdConfigs);
       service.start();
       // Verify it's started
+      // biome-ignore lint:useLiteralKeys
       expect(service['timerInstance']).toBeDefined();
     });
 
     When('start is called again', () => {
+      // biome-ignore lint:useLiteralKeys
       const originalTimer = service['timerInstance'];
       service.start();
       // Timer should remain the same (no new timer created)
+      // biome-ignore lint:useLiteralKeys
       expect(service['timerInstance']).toBe(originalTimer);
     });
 
     Then('it should not create a new timer and should return early', () => {
       // The start method should return early without creating a new timer
+      // biome-ignore lint:useLiteralKeys
       expect(service['timerInstance']).toBeDefined();
       // Verify createRemoteJWKSet was not called again (only called during first start)
       expect(vi.mocked(createRemoteJWKSet)).toHaveBeenCalledTimes(2); // Only from initial start
@@ -129,6 +136,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the keystore collection is refreshed', () => {
+      // biome-ignore lint:useLiteralKeys
       service['refreshCollection']();
     });
 
@@ -151,6 +159,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the keystore collection is refreshed with null configs', () => {
+      // biome-ignore lint:useLiteralKeys
       service['refreshCollection']();
     });
 
