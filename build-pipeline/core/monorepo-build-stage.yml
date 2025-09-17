@@ -264,32 +264,9 @@ stages:
           npm ci
         workingDirectory: ''
 
-    # Build affected packages using Turbo's built-in --affected flag
+    # Build and run tests on affected packages using Turbo's --affected flag
     - task: Bash@3
-      displayName: 'Turbo: Build affected packages'
-      inputs:
-        targetType: 'inline'
-        script: |
-          set -euo pipefail
-          export NODE_OPTIONS=--max_old_space_size=16384
-          
-          # Use Turbo's built-in --affected flag for accurate change detection
-          if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
-            echo "Building affected packages only using Turbo's --affected..."
-            npm run build -- --affected
-          else
-            echo "Building all packages (main branch)..."
-            npm run build
-          fi
-        workingDirectory: ''
-      env:
-        TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
-        TURBO_TELEMETRY_DISABLED: 1
-        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
-
-        # Run tests on affected packages using Turbo's --affected flag
-    - task: Bash@3
-      displayName: 'Turbo: Test affected packages with coverage merge'
+      displayName: 'Turbo: Prepare binaries and run tests on affected packages'
       inputs:
         targetType: 'inline'
         script: |
@@ -313,6 +290,7 @@ stages:
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+        
     # Cache SonarCloud downloaded assets to speed up build process.
     - task: Cache@2
       displayName: 'SonarCloud: Restore Cache'
