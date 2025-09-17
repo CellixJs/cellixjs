@@ -182,11 +182,11 @@ stages:
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
           
-          # Build affected packages using native Turborepo filtering
+          # Build affected packages using Turborepo's --affected flag
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Building affected packages only..."
-            echo "Running: npx turbo run build --filter=\"[$(BASE_BRANCH)]\""
-            npx turbo run build --filter="[$(BASE_BRANCH)]"
+            echo "Running: npx turbo run build --affected"
+            npx turbo run build --affected
           else
             echo "Building all packages (main branch)..."
             npx turbo run build
@@ -205,11 +205,11 @@ stages:
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
           
-          # Test affected packages with coverage using native Turborepo filtering
+          # Test affected packages with coverage using Turborepo's --affected flag
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only..."
-            echo "Running: npx turbo run test:coverage --filter=\"[$(BASE_BRANCH)]\""
-            npx turbo run test:coverage --filter="[$(BASE_BRANCH)]"
+            echo "Running: npx turbo run test:coverage --affected"
+            npx turbo run test:coverage --affected
           else
             echo "Testing all packages (main branch)..."
             npx turbo run test:coverage
