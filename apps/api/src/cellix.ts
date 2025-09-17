@@ -345,10 +345,10 @@ export class Cellix<ContextType, AppServices = unknown>
 				await this.tracer.startActiveSpan('cellix.appTerminate', async (span) => {
 					try {
 						await this.stopAllServicesWithTracing();
-						span.setStatus({ code: SpanStatusCode.OK });
+						span.setStatus({ code: SpanStatusCode.OK, message: 'Cellix stopped successfully' });
 						console.log('Cellix stopped');
 					} catch (err) {
-						span.setStatus({ code: SpanStatusCode.ERROR });
+						span.setStatus({ code: SpanStatusCode.ERROR, message: err instanceof Error ? err.message : 'Shutdown failed' });
 						if (err instanceof Error) {
 							span.recordException(err);
 						}
@@ -415,7 +415,7 @@ export class Cellix<ContextType, AppServices = unknown>
 						span.setStatus({ code: SpanStatusCode.OK, message: `Service ${ctorName} ${operationActionCompleted}` });
 						console.log(`${operationFullName}: Service ${ctorName} ${operationActionCompleted}`);
 					} catch (err) {
-						span.setStatus({ code: SpanStatusCode.ERROR });
+						span.setStatus({ code: SpanStatusCode.ERROR, message: err instanceof Error ? err.message : 'Service operation failed' });
 						if (err instanceof Error) {
 							span.recordException(err);
 						}

@@ -9,6 +9,9 @@
     "prebuild": "biome lint",
     "build": "tsc --build",
     "watch": "tsc -w",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
     "lint": "biome lint",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
@@ -32,6 +35,7 @@
   },
   "devDependencies": {
     "@cellix/typescript-config": "*",
+    "@cellix/vitest-config": "*",
     "typescript": "^5.8.3",
     "rimraf": "^6.0.1"
   }
