@@ -71,22 +71,66 @@ stages:
       condition: and(ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
       inputs:
         version: '4.2.1'
-
+        
     # Playwright: Restore browsers cache
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
       continueOnError: true
       inputs:
-        key: 'playwright | "$(Agent.OS)" | node-22.x | browsers-v1'
+        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22'
         restoreKeys: |
-          playwright | "$(Agent.OS)" | node-22
-          playwright | "$(Agent.OS)" | browsers-v1
+          playwright | "$(Agent.OS)" | ubuntu-latest
           playwright | "$(Agent.OS)"
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
-        cacheHitVar: PW_CACHE_RESTORED
+        cacheHitVar: PW_CACHE_HIT
 
-    # Playwright: Install and verify browsers
+    # Playwright: Install browsers if needed
     - task: Bash@3
+      displayName: 'Playwright: Install browsers if needed'
+      condition: and(ne(variables.PW_CACHE_HIT, 'true'), ne(variables.PW_CACHE_HIT, 'inexact'))
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "PW_CACHE_HIT=${PW_CACHE_HIT:-unset}"
+          echo "Installing Playwright browsers into: $(PLAYWRIGHT_BROWSERS_PATH)"
+          mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
+          npx playwright install --with-deps
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
+    # Playwright: Ensure browsers are available for packages that need them
+    - task: Bash@3
+      displayName: 'Playwright: Verify browser installation'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "Verifying Playwright browser installation..."
+          echo "PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)"
+
+          # Check if browsers are installed
+          if [ ! -d "$(PLAYWRIGHT_BROWSERS_PATH)" ] || [ -z "$(ls -A "$(PLAYWRIGHT_BROWSERS_PATH)" 2>/dev/null || echo '')" ]; then
+            echo "Browsers not found in cache, installing them..."
+            mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
+            npx playwright install --with-deps
+          fi
+
+          # Explicitly ensure chromium headless shell is available (used by Vitest browser provider)
+          if ! find "$(PLAYWRIGHT_BROWSERS_PATH)" -maxdepth 2 -type d -name 'chromium_headless_shell-*' | grep -q chromium_headless_shell; then
+            echo "chromium_headless_shell not found; reinstalling browsers to fetch it..."
+            npx playwright install --with-deps
+          fi
+
+          echo "Installed browsers:"
+          ls -la "$(PLAYWRIGHT_BROWSERS_PATH)" || true
+
+          # Make sure browser binaries are executable
+          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "*chrome*" -exec chmod +x {} \; 2>/dev/null || true
+          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "headless_shell" -exec chmod +x {} \; 2>/dev/null || true
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
       displayName: 'Playwright: Setup browsers'
       inputs:
         targetType: 'inline'
