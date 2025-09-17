@@ -11,6 +11,25 @@ const __dirname = dirname(__filename);
 /**
  * Simple LCOV merger that combines multiple lcov.info files
  */
+function processLcovContent(content, packagePath) {
+  const lines = content.split('\n');
+  const processedLines = [];
+  
+  for (const line of lines) {
+    if (line.startsWith('SF:')) {
+      // Extract the file path after 'SF:'
+      const filePath = line.substring(3);
+      // Prefix with package path, ensuring no double slashes
+      const prefixedPath = path.join(packagePath, filePath).replace(/\\/g, '/');
+      processedLines.push(`SF:${prefixedPath}`);
+    } else {
+      processedLines.push(line);
+    }
+  }
+  
+  return processedLines.join('\n');
+}
+
 function mergeLcovFiles() {
   const rootDir = process.cwd();
   const outputFile = path.join(rootDir, 'coverage', 'lcov.info');
@@ -65,8 +84,15 @@ function mergeLcovFiles() {
     try {
       const content = fs.readFileSync(lcovFile, 'utf8');
       if (content.trim()) {
-        mergedContent += content;
-        if (!content.endsWith('\n')) {
+        // Compute the package path relative to monorepo root
+        const packageDir = path.dirname(path.dirname(lcovFile)); // Go up from coverage/ to package/
+        const packagePath = path.relative(rootDir, packageDir);
+        
+        // Process the LCOV content to prefix SF: paths
+        const processedContent = processLcovContent(content, packagePath);
+        
+        mergedContent += processedContent;
+        if (!processedContent.endsWith('\n')) {
           mergedContent += '\n';
         }
       }
