@@ -22,7 +22,7 @@
     "test:watch": "vitest",
     "lint": "biome lint",
     "clean": "rimraf dist",
-    "storybook": "storybook dev -p 6007",
+    "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
   "dependencies": {
