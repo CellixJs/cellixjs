@@ -59,7 +59,7 @@ function makeBaseProps(
 	};
 }
 
-function fineEvent<T>(
+function findEvent<T>(
 	events: readonly unknown[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
@@ -114,7 +114,7 @@ describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(newCommunity.createdBy.id).toBe('user1');
 		});
 		And('a CommunityCreatedEvent should be emitted', () => {
-			const event = fineEvent(
+			const event = findEvent(
 				newCommunity.getIntegrationEvents(),
 				CommunityCreatedEvent,
 			);
@@ -195,7 +195,7 @@ describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			And(
 				'a CommunityDomainUpdatedEvent should be emitted with the new and old domain',
 				() => {
-					const event = fineEvent(
+					const event = findEvent(
 						community.getIntegrationEvents(),
 						CommunityDomainUpdatedEvent,
 					);
@@ -231,7 +231,7 @@ describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
             );
         });
         And('no CommunityDomainUpdatedEvent should be emitted', () => {
-            const event = fineEvent(
+            const event = findEvent(
                 community.getIntegrationEvents(),
                 CommunityDomainUpdatedEvent,
             );
@@ -270,7 +270,7 @@ describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				},
 			);
 			And('no CommunityDomainUpdatedEvent should be emitted', () => {
-				const event = fineEvent(
+				const event = findEvent(
 					community.getIntegrationEvents(),
 					CommunityDomainUpdatedEvent,
 				);
@@ -292,7 +292,7 @@ describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			Then(
 				'no CommunityDomainUpdatedEvent should be emitted',
 				() => {
-					const event = fineEvent(
+					const event = findEvent(
 						community.getIntegrationEvents(),
 						CommunityDomainUpdatedEvent,
 					);

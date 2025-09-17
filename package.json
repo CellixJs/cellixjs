@@ -29,7 +29,7 @@
     "test:integration": "turbo run test:integration",
     "test:serenity": "turbo run test:serenity",
     "test:unit": "turbo run test:unit",
-    "test:watch": "turbo run test:watch --concurrency 14"
+    "test:watch": "turbo run test:watch --concurrency 15"
   },
   "workspaces": [
     "apps/api",

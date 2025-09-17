@@ -154,9 +154,11 @@ stages:
           if [ "$(Build.Reason)" = "PullRequest" ]; then
             TARGET_BRANCH="origin/$(System.PullRequest.TargetBranch)"
             BASE_BRANCH=$(git merge-base $TARGET_BRANCH HEAD)
+            export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
             echo "PR build - comparing current branch to: $TARGET_BRANCH (merge-base: $BASE_BRANCH)"
           else
             BASE_BRANCH="HEAD~1"
+            export TURBO_SCM_BASE="HEAD~1"
             echo "Push build - comparing to previous commit: $BASE_BRANCH"
           fi
           
@@ -277,9 +279,11 @@ stages:
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only using Turbo's --affected..."
+            export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
             npm run test:coverage -- --affected && npm run merge-lcov-reports
           else
             echo "Testing all packages (main branch)..."
+            export TURBO_SCM_BASE="HEAD~1"
             npm run test:coverage:merge
           fi
           
