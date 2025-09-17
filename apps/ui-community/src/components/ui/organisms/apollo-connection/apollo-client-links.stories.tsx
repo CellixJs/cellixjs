@@ -48,7 +48,7 @@ Object.defineProperty(import.meta, 'env', {
 });
 
 const meta = {
-  title: 'Utils/Apollo Client Links',
+  title: 'Components/UI/Organisms/ApolloConnection/Apollo Client Links',
   parameters: {
     layout: 'fullscreen',
     docs: {

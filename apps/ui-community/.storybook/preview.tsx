@@ -63,5 +63,14 @@ export const parameters: Parameters = {
     },
     apolloClient: {
         MockedProvider,
-    }
+    },
+    options: {
+      storySort: {
+        order: [
+            'Pages',
+            'Components',
+            'App'
+        ],
+      },
+    },
 };

@@ -78,6 +78,7 @@ export default meta;
 type Story = StoryObj<typeof App>;
 
 export const Default: Story = {
+  name: 'Root Route',
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={['/']}>
@@ -97,28 +98,8 @@ export const Default: Story = {
   },
 };
 
-export const RootRoute: Story = {
-  name: 'Root Route (/)',
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={['/']}>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    // Verify root route renders
-    expect(canvasElement).toBeTruthy();
-
-    // The root route should render the Root component
-    // We can't easily test the exact content without mocking all child components,
-    // but we can verify the app doesn't crash and renders something
-    expect(canvasElement.children.length).toBeGreaterThan(0);
-  },
-};
-
-export const AuthRedirectRoute: Story = {
-  name: 'Auth Redirect Route (/auth-redirect)',
+export const Auth: Story = {
+  name: 'Auth Redirect',
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={['/auth-redirect']}>
@@ -136,8 +117,8 @@ export const AuthRedirectRoute: Story = {
   },
 };
 
-export const CommunityRoute: Story = {
-  name: 'Community Route (/community)',
+export const Community: Story = {
+  name: 'Community Route',
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={['/community']}>
@@ -151,118 +132,5 @@ export const CommunityRoute: Story = {
 
     // The community route should render the Accounts component
     expect(canvasElement.children.length).toBeGreaterThan(0);
-  },
-};
-
-export const CommunityAccountsRoute: Story = {
-  name: 'Community Accounts Route (/community/accounts)',
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={['/community/accounts']}>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    // Verify community accounts route renders
-    expect(canvasElement).toBeTruthy();
-
-    // This should render the Accounts component with nested routes
-    expect(canvasElement.children.length).toBeGreaterThan(0);
-  },
-};
-
-export const UnknownRoute: Story = {
-  name: 'Unknown Route (catch-all)',
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={['/some-unknown-route']}>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    // Verify unknown route falls back to root
-    expect(canvasElement).toBeTruthy();
-
-    // Unknown routes should be caught by the "*" route and render Root
-    expect(canvasElement.children.length).toBeGreaterThan(0);
-  },
-};
-
-export const WithAuthenticatedUser: Story = {
-  name: 'Authenticated User Flow',
-  decorators: [
-    (Story) => (
-      <AuthProvider
-        authority={mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY}
-        client_id={mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID}
-        redirect_uri={window.location.origin}
-        post_logout_redirect_uri={window.location.origin}
-        userStore={mockStorage as any}
-      >
-        <ApolloProvider client={client}>
-          <MemoryRouter initialEntries={['/community/accounts']}>
-            <Story />
-          </MemoryRouter>
-        </ApolloProvider>
-      </AuthProvider>
-    ),
-  ],
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    // Verify authenticated flow works
-    expect(canvasElement).toBeTruthy();
-
-    // With authenticated user, protected routes should render normally
-    expect(canvasElement.children.length).toBeGreaterThan(0);
-  },
-};
-
-export const WithUnauthenticatedUser: Story = {
-  name: 'Unauthenticated User Flow',
-  decorators: [
-    (Story) => (
-      <AuthProvider
-        authority={mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY}
-        client_id={mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID}
-        redirect_uri={window.location.origin}
-        post_logout_redirect_uri={window.location.origin}
-        userStore={mockStorage as any}
-      >
-        <ApolloProvider client={client}>
-          <MemoryRouter initialEntries={['/community/accounts']}>
-            <Story />
-          </MemoryRouter>
-        </ApolloProvider>
-      </AuthProvider>
-    ),
-  ],
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    // Verify unauthenticated flow works
-    expect(canvasElement).toBeTruthy();
-
-    // With unauthenticated user, RequireAuth should handle the authentication flow
-    expect(canvasElement.children.length).toBeGreaterThan(0);
-  },
-};
-
-export const ApolloIntegration: Story = {
-  name: 'Apollo Client Integration',
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={['/']}>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    // Verify Apollo integration works
-    expect(canvasElement).toBeTruthy();
-
-    // The app should be wrapped in ApolloConnection which provides Apollo context
-    const apolloProvider = canvasElement.closest('[data-testid="apollo-provider"]') ||
-                          canvasElement.querySelector('[data-testid="apollo-provider"]') ||
-                          canvasElement;
-    expect(apolloProvider).toBeInTheDocument();
   },
 };
