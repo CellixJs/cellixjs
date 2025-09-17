@@ -71,7 +71,7 @@ stages:
       condition: and(ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
       inputs:
         version: '4.2.1'
-        
+
     # Playwright: Restore browsers cache
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
@@ -130,71 +130,7 @@ stages:
           find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "headless_shell" -exec chmod +x {} \; 2>/dev/null || true
       env:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
-
-      displayName: 'Playwright: Setup browsers'
-      inputs:
-        targetType: 'inline'
-        script: |
-          set -euo pipefail
-          echo "Cache restored: ${PW_CACHE_RESTORED:-false}"
-          echo "Browser path: $(PLAYWRIGHT_BROWSERS_PATH)"
-
-          # Create directory if it doesn't exist
-          mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
-
-          # Check if we have a valid browser installation
-          CACHE_VALID=false
-          if [ "${PW_CACHE_RESTORED:-false}" = "true" ] || [ "${PW_CACHE_RESTORED:-false}" = "inexact" ]; then
-            echo "✓ Browser cache found - checking validity..."
-
-            # Check for browser directories (more reliable than executables)
-            if [ -d "$(PLAYWRIGHT_BROWSERS_PATH)/chromium" ] && [ -d "$(PLAYWRIGHT_BROWSERS_PATH)/firefox" ]; then
-              echo "✓ Browser directories found"
-
-              # Try to find any chromium executable
-              if find "$(PLAYWRIGHT_BROWSERS_PATH)/chromium" -name "*chrome*" -type f -executable 2>/dev/null | grep -q .; then
-                echo "✓ Chromium executable found"
-                CACHE_VALID=true
-              else
-                echo "⚠ No chromium executable found"
-              fi
-
-              # Try to find any firefox executable
-              if find "$(PLAYWRIGHT_BROWSERS_PATH)/firefox" -name "*firefox*" -type f -executable 2>/dev/null | grep -q .; then
-                echo "✓ Firefox executable found"
-                CACHE_VALID=true
-              else
-                echo "⚠ No firefox executable found"
-              fi
-            else
-              echo "⚠ Browser directories not found"
-            fi
-          fi
-
-          if [ "$CACHE_VALID" = "true" ]; then
-            echo "✓ Using cached browsers - installing only system dependencies..."
-            npx playwright install-deps
-          else
-            echo "⚠ Installing browsers from scratch..."
-            npx playwright install --with-deps
-          fi
-
-          # Ensure chromium headless shell is available (for Vitest)
-          if ! find "$(PLAYWRIGHT_BROWSERS_PATH)" -name "*headless*" -type f 2>/dev/null | grep -q .; then
-            echo "Installing chromium headless shell..."
-            npx playwright install chromium-headless-shell
-          fi
-
-          # Make all binaries executable (just in case)
-          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f \( -name "*chrome*" -o -name "*firefox*" -o -name "*headless*" \) -exec chmod +x {} \; 2>/dev/null || true
-
-          echo "✓ Browser setup complete"
-          echo "Cache status: ${PW_CACHE_RESTORED:-false}"
-          echo "Cache valid: $CACHE_VALID"
-          ls -la "$(PLAYWRIGHT_BROWSERS_PATH)" | head -10
-      env:
-        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
-
+        
     # Cache NPM packages to speed up build process.
     - task: Cache@2
       displayName: 'NPM: Restore Cache'
