@@ -72,26 +72,54 @@ stages:
       inputs:
         version: '4.2.1'
 
-    # Playwright: Setup browsers
+    # Playwright: Restore browsers cache
     - task: Cache@2
-      displayName: 'Playwright: Restore Cache'
+      displayName: 'Playwright: Restore browsers cache'
+      continueOnError: true
       inputs:
-        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22'
+        key: 'playwright | "$(Agent.OS)" | node-22 | browsers-v1'
         restoreKeys: |
-          playwright | "$(Agent.OS)" | ubuntu-latest
+          playwright | "$(Agent.OS)" | node-22
           playwright | "$(Agent.OS)"
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
+        cacheHitVar: PW_CACHE_RESTORED
 
-    # Playwright: Install if needed
+    # Playwright: Install and verify browsers
     - task: Bash@3
-      displayName: 'Playwright: Install if needed'
-      condition: and(ne(variables.PW_CACHE_HIT, 'true'), ne(variables.PW_CACHE_HIT, 'inexact'))
+      displayName: 'Playwright: Setup browsers'
       inputs:
         targetType: 'inline'
         script: |
+          set -euo pipefail
+          echo "Cache restored: ${PW_CACHE_RESTORED:-false}"
+          echo "Browser path: $(PLAYWRIGHT_BROWSERS_PATH)"
+
+          # Create directory if it doesn't exist
           mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
-          npx playwright install --with-deps chromium
-          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "*chrome*" -exec chmod +x {} \;
+
+          # Check if we have a valid browser installation
+          if [ -d "$(PLAYWRIGHT_BROWSERS_PATH)/chromium" ] && [ -d "$(PLAYWRIGHT_BROWSERS_PATH)/firefox" ]; then
+            echo "✓ Browsers found in cache - verifying installation..."
+            npx playwright install-deps
+          else
+            echo "⚠ Browsers not found or incomplete - performing full installation..."
+            npx playwright install --with-deps
+          fi
+
+          # Ensure chromium headless shell is available (for Vitest)
+          if ! find "$(PLAYWRIGHT_BROWSERS_PATH)" -name "chromium_headless_shell" -type f 2>/dev/null | grep -q .; then
+            echo "Installing chromium headless shell..."
+            npx playwright install chromium-headless-shell
+          fi
+
+          # Make binaries executable
+          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f \( -name "*chrome*" -o -name "*firefox*" -o -name "headless_shell" \) -exec chmod +x {} \; 2>/dev/null || true
+
+          echo "✓ Browser setup complete"
+          ls -la "$(PLAYWRIGHT_BROWSERS_PATH)" | head -10
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
 
     # Cache NPM packages to speed up build process.
     - task: Cache@2
