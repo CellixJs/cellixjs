@@ -141,110 +141,6 @@ stages:
             npm | "$(Agent.OS)"
         path: ${{parameters.npm_config_cache}}
 
-    # Detect affected packages and set output variables for deployment stage
-    - task: Bash@3
-      displayName: 'Detect affected package types'
-      name: BuildJob
-      inputs:
-        targetType: 'inline'
-        script: |
-          set -euo pipefail
-          
-          # Determine base branch for change detection (for logging only)
-          if [ "$(Build.Reason)" = "PullRequest" ]; then
-            TARGET_BRANCH="origin/$(System.PullRequest.TargetBranch)"
-            BASE_BRANCH=$(git merge-base $TARGET_BRANCH HEAD)
-            export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
-            echo "PR build - comparing current branch to: $TARGET_BRANCH (merge-base: $BASE_BRANCH)"
-          else
-            BASE_BRANCH="HEAD~1"
-            export TURBO_SCM_BASE="HEAD~1"
-            echo "Push build - comparing to previous commit: $BASE_BRANCH"
-          fi
-          
-          # Check if frontend or backend packages are affected using Turbo's --affected
-          HAS_FRONTEND_CHANGES=false
-          HAS_BACKEND_CHANGES=false
-          HAS_DOCS_CHANGES=false
-          
-          # Use Turbo's --affected to get affected packages with better output parsing
-          echo "Running turbo to detect affected packages..."
-          TURBO_OUTPUT=$(npx turbo run build --affected --dry-run 2>&1 || echo "TURBO_FAILED")
-          
-          echo "Turbo output:"
-          echo "$TURBO_OUTPUT"
-          
-          # Check if turbo found affected packages
-          if echo "$TURBO_OUTPUT" | grep -q "Packages in Scope"; then
-            echo "Found affected packages in turbo output"
-            
-            # Extract package names from turbo output - try multiple patterns
-            AFFECTED_PACKAGES=$(echo "$TURBO_OUTPUT" | grep -E "(packages/|@.*/)" | sed -E 's/.*packages\/([^/]+).*/\1/' | sed -E 's/@([^/]+)\/.*/\1/' | sort | uniq || echo "")
-            
-            # If no packages found with above, try a broader search
-            if [ -z "$AFFECTED_PACKAGES" ]; then
-              AFFECTED_PACKAGES=$(echo "$TURBO_OUTPUT" | grep -oE '[^[:space:]]+@[0-9]+\.[0-9]+\.[0-9]+' | sed 's/@.*//' | sort | uniq || echo "")
-            fi
-            
-            echo "Parsed affected packages: $AFFECTED_PACKAGES"
-            
-            # If still no packages found, check if this is a new branch or major change
-            if [ -z "$AFFECTED_PACKAGES" ]; then
-              echo "No specific packages parsed, checking if this affects all packages..."
-              # For major changes or new branches, assume all packages are affected
-              if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" = "refs/heads/main" ]; then
-                echo "Major change detected - marking all package types as affected"
-                HAS_FRONTEND_CHANGES=true
-                HAS_BACKEND_CHANGES=true
-                HAS_DOCS_CHANGES=true
-              fi
-            else
-              # Check each affected package
-              for package in $AFFECTED_PACKAGES; do
-                echo "Processing package: $package"
-                if [[ $package == ui-* ]] || [[ $package == cellix-ui-core ]] || [[ $package == *ui* ]]; then
-                  HAS_FRONTEND_CHANGES=true
-                  echo "Frontend package detected: $package"
-                elif [[ $package == docs ]] || [[ $package == *docs* ]]; then
-                  HAS_DOCS_CHANGES=true
-                  echo "Docs package detected: $package"
-                else
-                  HAS_BACKEND_CHANGES=true
-                  echo "Backend package detected: $package"
-                fi
-              done
-            fi
-          else
-            echo "No 'Packages in Scope' found in turbo output"
-            # For PRs or main branch pushes, assume broad impact
-            if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" = "refs/heads/main" ]; then
-              echo "PR or main branch change - assuming broad impact"
-              HAS_FRONTEND_CHANGES=true
-              HAS_BACKEND_CHANGES=true
-              HAS_DOCS_CHANGES=true
-            fi
-          fi
-          
-          echo "Final results:"
-          echo "Frontend changes: $HAS_FRONTEND_CHANGES"
-          echo "Backend changes: $HAS_BACKEND_CHANGES"
-          echo "Docs changes: $HAS_DOCS_CHANGES"
-          
-          # Set pipeline variables as outputs for deployment stage
-          echo "##vso[task.setvariable variable=HAS_FRONTEND_CHANGES;isOutput=true]$HAS_FRONTEND_CHANGES"
-          echo "##vso[task.setvariable variable=HAS_BACKEND_CHANGES;isOutput=true]$HAS_BACKEND_CHANGES"
-          echo "##vso[task.setvariable variable=HAS_DOCS_CHANGES;isOutput=true]$HAS_DOCS_CHANGES"
-          echo "##vso[task.setvariable variable=BASE_BRANCH]$BASE_BRANCH"
-
-    # Cache Turbo to speed up build process.
-    - task: Cache@2
-      displayName: 'Turbo: Restore Local Cache'
-      inputs:
-        key: 'turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json'
-        restoreKeys: |
-          turbo | "$(Agent.OS)"
-        path: '$(TURBO_CACHE_DIR)'
-
     # Install dependencies
     - task: Bash@3
       displayName: 'NPM: Install dependencies'
@@ -265,6 +161,27 @@ stages:
           export NODE_OPTIONS=--max_old_space_size=16384
           npm ci
         workingDirectory: ''
+
+    # Cache Turbo to speed up build process.
+    - task: Cache@2
+      displayName: 'Turbo: Restore Local Cache'
+      inputs:
+        key: 'turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json'
+        restoreKeys: |
+          turbo | "$(Agent.OS)"
+        path: '$(TURBO_CACHE_DIR)'
+
+    # Detect affected package types
+    - task: Bash@3
+      displayName: 'Detect affected package types'
+      name: BuildJob
+      inputs:
+        targetType: 'filePath'
+        filePath: './scripts/detect-changes.mjs'
+      env:
+        Build_Reason: $(Build.Reason)
+        System_PullRequest_TargetBranch: $(System.PullRequest.TargetBranch)
+        Build_SourceBranch: $(Build.SourceBranch)
 
     # Build and run tests on affected packages using Turbo's --affected flag
     - task: Bash@3
@@ -294,7 +211,7 @@ stages:
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
-        
+
     # Cache SonarCloud downloaded assets to speed up build process.
     - task: Cache@2
       displayName: 'SonarCloud: Restore Cache'

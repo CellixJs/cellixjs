@@ -25,15 +25,15 @@ const mockStorage = {
     }
     return null;
   },
-  setItem: (_key: string, _value: string) => {},
-  removeItem: (_key: string) => {},
-  clear: () => {},
+  setItem: (_key: string, _value: string) => Promise.resolve(),
+  removeItem: (_key: string) => Promise.resolve(),
+  clear: () => Promise.resolve(),
   key: () => null,
   length: 0,
-  set: (_key: string, _value: string) => {},
-  get: (key: string) => mockStorage.getItem(key),
-  remove: (_key: string) => {},
-  getAllKeys: () => [],
+  set: (_key: string, _value: string) => Promise.resolve(),
+  get: (key: string) => Promise.resolve(mockStorage.getItem(key)),
+  remove: (key: string) => Promise.resolve(key),
+  getAllKeys: () => Promise.resolve(['']),
 };
 
 // Setup global mocks
@@ -64,7 +64,7 @@ const meta = {
         client_id={mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID}
         redirect_uri={window.location.origin}
         post_logout_redirect_uri={window.location.origin}
-        userStore={mockStorage as any}
+        userStore={mockStorage}
       >
         <ApolloProvider client={client}>
           <Story />
@@ -86,7 +86,7 @@ export const Default: Story = {
       </MemoryRouter>
     ),
   ],
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
     // Verify that the app renders without errors
     expect(canvasElement).toBeTruthy();
 
@@ -107,7 +107,7 @@ export const Auth: Story = {
       </MemoryRouter>
     ),
   ],
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
     // Verify auth redirect route renders
     expect(canvasElement).toBeTruthy();
 
@@ -126,7 +126,7 @@ export const Community: Story = {
       </MemoryRouter>
     ),
   ],
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
     // Verify community route renders
     expect(canvasElement).toBeTruthy();
 
