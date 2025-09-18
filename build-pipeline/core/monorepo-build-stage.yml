@@ -176,8 +176,10 @@ stages:
       displayName: 'Detect affected package types'
       name: BuildJob
       inputs:
-        targetType: 'filePath'
-        filePath: './scripts/detect-changes.mjs'
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          node ./scripts/detect-changes.mjs
       env:
         Build_Reason: $(Build.Reason)
         System_PullRequest_TargetBranch: $(System.PullRequest.TargetBranch)
