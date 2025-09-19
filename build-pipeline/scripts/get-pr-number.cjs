@@ -35,6 +35,8 @@ function getCurrentBranch() {
   console.log('System_PullRequest_SourceBranch: ', prSourceBranch);
   if (prSourceBranch) {
     console.error(`Using Azure DevOps PR source branch: ${prSourceBranch}`);
+    // checkout the origin branch to ensure it exists locally
+    runCommand(`git checkout origin/${prSourceBranch.replace(/^refs\/heads\//, '')}`);
     return prSourceBranch.replace(/^refs\/heads\//, ''); // Strip 'refs/heads/' prefix
   }
 
