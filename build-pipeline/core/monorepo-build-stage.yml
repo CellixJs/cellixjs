@@ -236,6 +236,31 @@ stages:
         targetType: 'inline'
         script: |
           set -euo pipefail
+          echo "Git remote URL:"
+          git remote -v
+
+          if [ -z "$(GH_NAME)" ]; then
+            echo "Error: GH_NAME is empty or not loaded. Please check the variable group configuration."
+            exit 1
+          fi
+          echo "GH_NAME PRESENT: True"
+
+          if [ -z "$(GH_EMAIL)" ]; then
+            echo "Error: GH_EMAIL is empty or not loaded. Please check the variable group configuration."
+            exit 1
+          fi
+          echo "GH_EMAIL PRESENT: True"
+
+          if [ -z "$(GH_TOKEN)" ]; then
+            echo "Error: GH_TOKEN is empty or not loaded. Please check the variable group configuration."
+            exit 1
+          fi
+          echo "GH_TOKEN PRESENT: True"
+
+          git config --global user.name "$(GH_NAME)"
+          git config --global user.email "$(GH_EMAIL)"
+
+          export GH_PASSWORD=$(GH_TOKEN)
           
           # Run SonarCloud analysis using local sonarscanner
           if [ "$(Build.Reason)" = "PullRequest" ]; then
