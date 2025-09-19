@@ -218,15 +218,46 @@ stages:
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
-    # Cache SonarCloud downloaded assets to speed up build process.
+    # Cache Java JRE
     - task: Cache@2
-      displayName: 'SonarCloud: Restore Cache'
+      displayName: 'Java: Restore JRE Cache'
+      continueOnError: true
+      inputs:
+        key: 'java | "$(Agent.OS)" | openjdk-17-jre-headless'
+        restoreKeys: |
+          java | "$(Agent.OS)"
+        path: '/usr/lib/jvm/java-17-openjdk-amd64'
+        cacheHitVar: JAVA_CACHE_HIT
+
+    # Install Java JRE if cache is missed
+    - task: Bash@3
+      displayName: 'Java: Install JRE if cache missed'
+      condition: ne(variables.JAVA_CACHE_HIT, 'true')
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "Installing Java 17 JRE..."
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jre-headless
+          java -version
+          echo "JAVA_HOME set to: $JAVA_HOME"
+          # Ensure JRE directory is cached
+          sudo chmod -R 755 /usr/lib/jvm/java-17-openjdk-amd64
+      env:
+        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
+    # Cache SonarCloud scanner engine
+    - task: Cache@2
+      displayName: 'SonarCloud: Cache Scanner Engine'
+      continueOnError: true
       condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
       inputs:
-        key: 'sonarcloud | "$(Agent.OS)"'
+        key: 'sonarcloud | "$(Agent.OS)" | scanner-engine'
         restoreKeys: |
           sonarcloud | "$(Agent.OS)"
         path: ${{parameters.SONAR_USER_HOME}}/cache
+        cacheHitVar: SONAR_CACHE_HIT
 
     # SonarCloud analysis
     - task: Bash@3
@@ -238,11 +269,25 @@ stages:
           set -euo pipefail
           echo "Preparing SonarCloud analysis..."
 
+          # Verify environment variables
+          if [ -z "$GH_TOKEN" ]; then
+            echo "Error: GH_TOKEN is empty or not loaded."
+            exit 1
+          fi
+          echo "GH_TOKEN PRESENT: True"
+
           if [ -z "$SONAR_TOKEN" ]; then
             echo "Error: SONAR_TOKEN is empty or not loaded."
             exit 1
           fi
           echo "SONAR_TOKEN PRESENT: True"
+
+          # Verify Java installation
+          echo "Verifying Java installation..."
+          java -version
+          echo "JAVA_HOME: $JAVA_HOME"
+          echo "SONAR_SCANNER_JAVA_PATH: $SONAR_SCANNER_JAVA_PATH"
+          echo "SONAR_CACHE_HIT: $SONAR_CACHE_HIT"
 
           # Run SonarCloud analysis
           if [ "$(Build.Reason)" = "PullRequest" ]; then
@@ -250,18 +295,17 @@ stages:
             # Extract PR number from Build.SourceBranch
             PR_NUMBER=$(echo "$(Build.SourceBranch)" | sed -n 's|^refs/pull/\([0-9]*\)/merge$|\1|p')
             if [ -z "$PR_NUMBER" ]; then
-              echo "Error: Could not extract PR number from Build.SourceBranch: $Build_SourceBranch"
+              echo "Error: Could not extract PR number from Build.SourceBranch: $(Build.SourceBranch)"
               exit 1
             fi
             echo "PR Number: $PR_NUMBER"
 
             # Get branch from System.PullRequest.SourceBranch
-            PR_BRANCH="$(System.PullRequest.SourceBranch)"
+            PR_BRANCH=$(echo "$(System.PullRequest.SourceBranch)" | sed 's|^refs/heads/||')
             if [ -z "$PR_BRANCH" ]; then
-              echo "Error: System.PullRequest.SourceBranch is not set."
+              echo "Error: System.PullRequest.SourceBranch is not set or empty: $(System.PullRequest.SourceBranch)"
               exit 1
             fi
-            PR_BRANCH=$(echo "$PR_BRANCH" | sed 's|^refs/heads/||')
             echo "PR Branch: $PR_BRANCH"
 
             npm run sonar -- -Dsonar.pullrequest.key="$PR_NUMBER" -Dsonar.pullrequest.branch="$PR_BRANCH" -Dsonar.pullrequest.base=main
@@ -271,7 +315,9 @@ stages:
           fi
         workingDirectory: ''
       env:
-        SONAR_USER_HOME: ${{parameters.SONAR_USER_HOME}}
+        SONAR_USER_HOME: /home/vsts/work/_temp/.sonar
+        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+        SONAR_SCANNER_JAVA_PATH: /usr/lib/jvm/java-17-openjdk-amd64/bin/java
 
     # SonarCloud: Break the build if it doesn't pass the Quality Gate
     - task: sonarcloud-buildbreaker@2
