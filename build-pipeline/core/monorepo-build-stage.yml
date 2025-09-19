@@ -272,6 +272,8 @@ stages:
         workingDirectory: ''
       env:
         SONAR_USER_HOME: ${{parameters.SONAR_USER_HOME}}
+        SONAR_TOKEN: $(SONAR_TOKEN)
+        GH_TOKEN: $(GH_TOKEN)
 
     # SonarCloud: Break the build if it doesn't pass the Quality Gate
     - task: sonarcloud-buildbreaker@2

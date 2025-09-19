@@ -24,6 +24,7 @@ pool:
 
 variables:
   - group: github-credential-cellixjs
+  - group: sonarcloud-credential-cellixjs
   - name: deploymentDefaultLocation
     value: 'eastus2'
   - name: ServiceConnectionName
