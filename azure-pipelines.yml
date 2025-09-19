@@ -23,7 +23,6 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  - group: github-credential-cellixjs
   - group: sonarcloud-credential-cellixjs
   - name: deploymentDefaultLocation
     value: 'eastus2'

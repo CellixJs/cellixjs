@@ -270,12 +270,6 @@ stages:
           echo "Preparing SonarCloud analysis..."
 
           # Verify environment variables
-          if [ -z "$GH_TOKEN" ]; then
-            echo "Error: GH_TOKEN is empty or not loaded."
-            exit 1
-          fi
-          echo "GH_TOKEN PRESENT: True"
-
           if [ -z "$SONAR_TOKEN" ]; then
             echo "Error: SONAR_TOKEN is empty or not loaded."
             exit 1
