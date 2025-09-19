@@ -24,12 +24,18 @@ pool:
 
 variables:
   - group: github-credential-cellixjs
-  deploymentDefaultLocation: 'eastus2'
-  ServiceConnectionName: 'ShareThrift-MSDN'
-  vmImageName: 'ubuntu-latest'
-  system.debug: true
-  npm_config_cache: $(Pipeline.Workspace)/.npm
-  SONAR_USER_HOME: $(Pipeline.Workspace)/.sonar
+  - name: deploymentDefaultLocation
+    value: 'eastus2'
+  - name: ServiceConnectionName
+    value: 'ShareThrift-MSDN'
+  - name: vmImageName
+    value: 'ubuntu-latest'
+  - name: system.debug
+    value: true
+  - name: npm_config_cache
+    value: $(Pipeline.Workspace)/.npm
+  - name: SONAR_USER_HOME
+    value: $(Pipeline.Workspace)/.sonar
 
 stages:
   - template: ./build-pipeline/core/monorepo-build-stage.yml
