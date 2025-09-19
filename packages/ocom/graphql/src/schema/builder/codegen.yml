@@ -1,0 +1,107 @@
+# @format
+
+overwrite: true
+schema:
+  - './src/schema/core/graphql-tools-scalars.ts'
+  - './src/schema/**/**.graphql'
+generates:
+  ./src/schema/builder/generated.ts:
+    config:
+      contextType: '../../init/context.ts#GraphContext'
+      useIndexSignature: true
+      useTypeImports: true
+      enumsAsTypes: true
+      immutableTypes: true
+
+      scalars:
+        BigInt: any
+        Byte: any
+        Currency: any
+        Date: Date
+        DateTime: any
+        Duration: any
+        EmailAddress: string
+        GUID: string
+        HSL: any
+        HSLA: any
+        HexColorCode: any
+        Hexadecimal: any
+        IBAN: any
+        IPv4: any
+        IPv6: any
+        ISBN: any
+        ISO8601Duration: any
+        JSON: any
+        JSONObject: any
+        JWT: any
+        Latitude: any
+        LocalDate: any
+        LocalEndTime: any
+        LocalTime: any
+        Long: any
+        Longitude: any
+        MAC: any
+        NegativeFloat: any
+        NegativeInt: any
+        NonEmptyString: any
+        NonNegativeFloat: any
+        NonNegativeInt: any
+        NonPositiveFloat: any
+        NonPositiveInt: any
+        ObjectID: any
+        PhoneNumber: any
+        Port: any
+        PositiveFloat: any
+        PositiveInt: any
+        PostalCode: any
+        RGB: any
+        RGBA: any
+        SafeInt: any
+        Time: any
+        Timestamp: any
+        URL: any
+        USCurrency: any
+        UUID: any
+        UnsignedFloat: any
+        UnsignedInt: any
+        UtcOffset: any
+        Void: any
+
+      mappers:
+        Member: "import('@ocom/domain').Domain.Contexts.Community.Member.MemberEntityReference"
+        Community: "import('@ocom/domain').Domain.Contexts.Community.Community.CommunityEntityReference"
+        EndUser: "import('@ocom/domain').Domain.Contexts.User.EndUser.EndUserEntityReference"
+    plugins:
+      - 'typescript'
+      - 'typescript-resolvers'
+  ./src/schema/builder/graphql.schema.json:
+    plugins:
+      - 'introspection'
+  ../../../apps/ui-community/src/generated.tsx:
+    documents: '../../../apps/ui-community/src/components/**/**.graphql'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typed-document-node'
+  ../../ocom/ui-components/src/generated.tsx:
+    documents: '../../ocom/ui-components/src/components/**/**.graphql'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typed-document-node'
+
+hooks:
+  afterAllFileWrite:
+    - npx prettier --write

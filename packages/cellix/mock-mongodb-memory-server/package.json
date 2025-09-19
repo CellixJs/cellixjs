@@ -1,0 +1,25 @@
+{
+  "name": "@cellix/mock-mongodb-memory-server",
+  "version": "1.0.0",
+  "author": "",
+  "license": "MIT",
+  "description": "MongoDB Memory Server service for CellixJS monorepo.",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "prebuild": "biome lint",
+    "build": "tsc --build",
+    "start": "node dist/src/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mongodb-memory-server": "^10.1.4"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "*",
+    "@types/semver": "^7.7.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
+  }
+}

@@ -41,15 +41,32 @@ Our Docusaurus website will help you get started in running and contributing to 
 ## Scripts
 
 - Build all workspaces: `npm run build`
+- Build affected packages only: `npm run build:affected`
 - Lint all: `npm run lint`
+- Lint affected packages only: `npm run lint:affected`
 - Format all: `npm run format`
 - Tests: 
     - `npm run test`
+    - `npm run test:affected` (affected packages only)
     - `npm run test:coverage`
+    - `npm run test:coverage:affected` (affected packages only)
     - `npm run test:integration`
     - `npm run test:serenity`
     - `npm run test:unit`
     - `npm run test:watch` (typically run per workspace package)
+
+## Turborepo Optimization
+
+This monorepo uses [Turborepo](https://turbo.build/) for optimized builds and testing:
+
+- **Selective Builds**: Only affected packages are built/tested in CI
+- **Remote Caching**: Shared build cache across team and CI (when configured)
+- **Local Caching**: Faster subsequent builds on your machine
+- **Package Categories**: 
+  - Frontend: `ui-*`, `cellix-ui-core` packages
+  - Backend: All other packages (excluding mock servers)
+
+For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 
 ## Decisions
 
@@ -97,7 +114,7 @@ flowchart BT
   subgraph cellix
     direction TB
     cellix_api_services_spec["@cellix/api-services-spec"]
-    cellix_data_sources_mongoose["@cellix/data-sources-mongoose"]
+    cellix_data_sources_mongoose["@cellix/mongoose-seedwork"]
     cellix_domain_seedwork["@cellix/domain-seedwork"]
     cellix_event_bus_seedwork_node["@cellix/event-bus-seedwork-node"]
   end

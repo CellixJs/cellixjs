@@ -67,7 +67,7 @@ Use VS Code tasks for development (preferred over manual commands):
 
 ### Biome Configuration
 - Linting and formatting via Biome (configured in `biome.json`)
-- Strict TypeScript configuration (`tsconfig.base.json`)
+- Strict TypeScript configuration (`@cellix/typescript-config/base.json`)
 - Tab indentation, strict type checking enabled
 
 ### Observability

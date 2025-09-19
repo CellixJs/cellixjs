@@ -36,3 +36,10 @@ jobs:
 
       - name: Install JavaScript dependencies
         run: npm ci
+
+      - name: Install Playwright browsers
+        run: |
+          echo "Installing Playwright browsers for UI testing..."
+          npx playwright install --with-deps
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright

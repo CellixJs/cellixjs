@@ -1,0 +1,36 @@
+{
+  "name": "@cellix/mongoose-seedwork",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "prebuild": "biome lint",
+    "build": "tsc --build",
+    "watch": "tsc --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run integration.test.ts",
+    "test:unit": "vitest run --exclude tests/integration/**/*.test.ts",
+    "test:watch": "vitest",
+    "lint": "biome lint",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@cellix/domain-seedwork": "*",
+    "@cellix/event-bus-seedwork-node": "*",
+    "@types/mongoose": "5.11.96"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "*",
+    "@cellix/vitest-config": "*",
+    "typescript": "^5.8.3",
+    "mongodb-memory-server": "^10.1.4",
+    "rimraf": "^6.0.1"
+  }
+}

@@ -90,7 +90,9 @@
 			}
 		},
 		"includes": [
-			"**",
+            "apps/**",
+			"packages/**",
+            "build-pipeline/scripts/**",
 			"!*.config.*",
 			"!**/*.config.*",
 			"!**/node_modules/**",
@@ -136,7 +138,8 @@
 				}
 			}
 		},
-		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } }
+		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
+        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } }
 	],
 	"assist": {
 		"enabled": true,
