@@ -23,6 +23,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
+  - group: github-credential-cellixjs
   deploymentDefaultLocation: 'eastus2'
   ServiceConnectionName: 'ShareThrift-MSDN'
   vmImageName: 'ubuntu-latest'
