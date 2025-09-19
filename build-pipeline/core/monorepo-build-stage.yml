@@ -245,7 +245,7 @@ stages:
           echo "SONAR_TOKEN PRESENT: True"
 
           # Run SonarCloud analysis
-          if [ "$Build_Reason" = "PullRequest" ]; then
+          if [ "$(Build.Reason)" = "PullRequest" ]; then
             echo "Running SonarCloud analysis for Pull Request..."
             # Extract PR number from Build.SourceBranch
             PR_NUMBER=$(echo "$(Build.SourceBranch)" | sed -n 's|^refs/pull/\([0-9]*\)/merge$|\1|p')
