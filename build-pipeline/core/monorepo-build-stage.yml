@@ -194,6 +194,10 @@ stages:
           set -euo pipefail
           export NODE_OPTIONS=--max_old_space_size=16384
           export PLAYWRIGHT_BROWSERS_PATH="$(PLAYWRIGHT_BROWSERS_PATH)"
+
+          # Audit npm packages for vulnerabilities
+          echo "Running npm audit for vulnerabilities..."
+          npm audit --audit-level=high
           
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
