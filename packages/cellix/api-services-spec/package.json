@@ -12,7 +12,7 @@
   "scripts": {
     "prebuild": "biome lint",
     "build": "tsc --build",
-    "watch": "tsc- --watch",
+    "watch": "tsc --watch",
     "lint": "biome lint",
     "clean": "rimraf dist"
   },

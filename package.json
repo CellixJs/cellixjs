@@ -31,11 +31,8 @@
     "test:unit": "turbo run test:unit",
     "test:watch": "turbo run test:watch --concurrency 15",
     "sonar": "sonar-scanner",
-    "pre:sonar:pr": "export PR_NUMBER=$(node build-pipeline/scripts/get-pr-number.js)",
-    "pre:sonar:pr-windows": "for /f %i in ('node get-pr-number.js') do set PR_NUMBER=%i",
-    "sonar:pr": "sonar-scanner -Dsonar.pullrequest.key=$PR_NUMBER -Dsonar.pullrequest.branch=$(git branch --show-current) -Dsonar.pullrequest.base=main",
-    "sonar:pr-windows": "npm run sonar:pr",
-    "sonar:pr-powershell": "npm run sonar:pr"
+    "sonar:pr": "export PR_NUMBER=$(node build-pipeline/scripts/get-pr-number.cjs) && sonar-scanner -Dsonar.pullrequest.key=$PR_NUMBER -Dsonar.pullrequest.branch=$(git branch --show-current) -Dsonar.pullrequest.base=main",
+    "sonar:pr-windows": "for /f %i in ('node build-pipeline/scripts/get-pr-number.cjs') do set PR_NUMBER=%i && sonar-scanner -Dsonar.pullrequest.key=%PR_NUMBER% -Dsonar.pullrequest.branch=%BRANCH_NAME% -Dsonar.pullrequest.base=main"
   },
   "workspaces": [
     "apps/api",
