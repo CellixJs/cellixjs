@@ -5,60 +5,52 @@ function runCommand(command, options = {}) {
   try {
     return execSync(command, { encoding: 'utf8', shell: false, ...options }).trim();
   } catch (error) {
-    console.error(`Error running command: ${error.message}`);
-    process.exit(1);
+    console.error(`Error running command "${command}": ${error.message}`);
+    return null; // Return null instead of exiting to allow fallback
   }
 }
 
-// Step 1: Configure Git authentication if GH_TOKEN and GH_PASSWORD are provided
+// Step 1: Configure Git authentication if GH_TOKEN is provided
 function configureGitAuth() {
   const token = process.env.GH_TOKEN;
-  const password = process.env.GH_PASSWORD;
-
-  if (token && password) {
-    console.error('Configuring Git with GH_TOKEN and GH_PASSWORD for HTTPS authentication.');
-    try {
-      // Configure Git credential helper to store credentials
-      runCommand(`git config --global credential.helper store`);
-      // Write credentials to ~/.git-credentials (Note: Insecure for persistent storage)
-      runCommand(`echo "https://username:${password}@github.com" > ~/.git-credentials`);
-      console.error('Git credentials configured with GH_TOKEN and GH_PASSWORD.');
-    } catch (error) {
-      console.error('Failed to configure Git credentials:', error.message);
-      process.exit(1);
-    }
-  } else if (token) {
+  if (token) {
     console.error('Configuring Git with GH_TOKEN for HTTPS authentication.');
     try {
       runCommand(`git config --global credential.helper store`);
       runCommand(`echo "https://x-access-token:${token}@github.com" > ~/.git-credentials`);
       console.error('Git credentials configured with GH_TOKEN.');
     } catch (error) {
-      console.error('Failed to configure Git credentials with GH_TOKEN:', error.message);
+      console.error('Failed to configure Git credentials:', error.message);
       process.exit(1);
     }
   } else {
-    console.error('Using local Git authentication context (e.g., existing credentials or SSH).');
+    console.error('No GH_TOKEN provided. Using local Git authentication context.');
   }
 }
 
-// Step 2: Get the current Git branch
+// Step 2: Get the current Git branch or PR source branch
 function getCurrentBranch() {
+  // Check Azure DevOps PR source branch first
+  const prSourceBranch = process.env['System.PullRequest.SourceBranch'];
+  if (prSourceBranch) {
+    console.error(`Using Azure DevOps PR source branch: ${prSourceBranch}`);
+    return prSourceBranch.replace(/^refs\/heads\//, ''); // Strip 'refs/heads/' prefix
+  }
+
+  // Fallback to git command
   const currentBranch = runCommand('git branch --show-current');
   if (!currentBranch) {
     console.error('No current branch found. Are you in a Git repository?');
     process.exit(1);
   }
-  console.error(`Current branch: ${currentBranch}`);
+  console.error(`Current branch from Git: ${currentBranch}`);
   return currentBranch;
 }
 
 // Step 3: Get repository owner and name from remote URL
 function getRepoInfo() {
   try {
-    // Get the remote URL for 'origin'
     const remoteUrl = runCommand('git config --get remote.origin.url');
-    // Extract owner and repo from URL (e.g., https://github.com/owner/repo.git)
     const match = remoteUrl.match(/github\.com[/:]([^/]+)\/([^/]+?)(\.git)?$/);
     if (!match) {
       throw new Error('Could not parse GitHub repository from remote URL: ' + remoteUrl);
@@ -79,7 +71,7 @@ function pushBranch(branch) {
     runCommand(`git push origin ${branch}`);
     console.error(`Pushed branch ${branch} to remote`);
   } catch (error) {
-    console.error(`Failed to push branch ${branch}. It may not exist on remote or authentication is required. ${error.message}`);
+    console.error(`Failed to push branch ${branch}. It may not exist on remote: ${error.message}`);
     process.exit(1);
   }
 }
@@ -89,7 +81,6 @@ function getPRNumber(owner, repo, branch) {
   try {
     const token = process.env.GH_TOKEN || '';
     const authHeader = token ? `-H "Authorization: token ${token}"` : '';
-    // Use curl to query GitHub API for PRs associated with the branch
     const command = `curl -s ${authHeader} "https://api.github.com/repos/${owner}/${repo}/pulls?head=${owner}:${branch}&state=open" | jq '.[0].number'`;
     const prNumber = runCommand(command);
     if (!prNumber || prNumber === 'null') {
@@ -104,7 +95,7 @@ function getPRNumber(owner, repo, branch) {
 
 // Step 6: Main function to get and output PR number
 function main() {
-  // Configure Git authentication if needed
+  // Configure Git authentication
   configureGitAuth();
 
   // Get branch and repo info
