@@ -8,3 +8,6 @@ local.settings.json
 
 # Turborepo
 .turbo
+
+# SonarScanner
+.scannerwork

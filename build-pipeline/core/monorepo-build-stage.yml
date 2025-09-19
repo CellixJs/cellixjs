@@ -179,7 +179,7 @@ stages:
         targetType: 'inline'
         script: |
           set -euo pipefail
-          node ./scripts/detect-changes.mjs
+          node ./build-pipeline/scripts/detect-changes.mjs
       env:
         Build_Reason: $(Build.Reason)
         System_PullRequest_TargetBranch: $(System.PullRequest.TargetBranch)
@@ -241,7 +241,7 @@ stages:
           sonar.typescript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
           sonar.scanner.metadataFilePath=$(Agent.TempDirectory)/sonar/$(Build.BuildNumber)/test/report-task.txt
           sonar.cpd.exclusions=**/*.test.ts,**/generated.tsx
-          sonar.coverage.exclusions=**/*.config.ts,**/tsconfig.json,**/.storybook/**,**/*.stories.ts,**/*.stories.tsx,**/*.test.ts,**/*.test.tsx,**/generated.ts,**/generated.tsx,**/*.d.ts,dist/**,apps/docs/src/test/**,scripts/**,packages/ocom/domain/tests/**,packages/cellix/mock-oauth2-server/**,packages/cellix/mock-mongodb-memory-server/**
+          sonar.coverage.exclusions=**/*.config.ts,**/tsconfig.json,**/.storybook/**,**/*.stories.ts,**/*.stories.tsx,**/*.test.ts,**/*.test.tsx,**/generated.ts,**/generated.tsx,**/*.d.ts,dist/**,apps/docs/src/test/**,packages/ocom/domain/tests/**,packages/cellix/mock-oauth2-server/**,packages/cellix/mock-mongodb-memory-server/**
 
     # SonarCloud: Analyze code and code coverage
     - task: SonarCloudAnalyze@3

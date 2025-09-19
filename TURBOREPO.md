@@ -65,11 +65,11 @@ Turborepo automatically caches task outputs locally in the `.turbo` directory:
 
 ### Change Detection
 
-The pipeline automatically detects changes and categorizes them:
+The pipeline automatically detects changes and categorizes them based on tags specified in turbo.json:
 
-- **Frontend changes**: Any changes to `ui-*` or `cellix-ui-core` packages
-- **Backend changes**: Changes to any other packages (excluding mock servers)
-- **Mixed changes**: Changes affecting both frontend and backend
+- **Frontend changes**: Any changes to `ui-*` packages
+- **Backend changes**: Changes to packages used by `@ocom/api` (excluding mock servers)
+- **Docs changes**: Changes affecting documentation
 
 ### Selective Builds
 
@@ -93,24 +93,11 @@ The Azure Pipelines use the Cache@2 task to preserve Turborepo cache between run
 
 ### Change Detection Script
 
-The `scripts/turbo-utils.js` script provides utilities for package categorization:
+The `build-pipeline/scripts/detect-changes.mjs` script provides utilities for package categorization to optimize deployments:
 
 ```bash
-# Categorize all packages
-node scripts/turbo-utils.js categorize-all
-
-# Categorize affected packages since HEAD^1
-node scripts/turbo-utils.js categorize-affected HEAD^1
-
-# Check if there are frontend changes
-node scripts/turbo-utils.js has-frontend-changes HEAD^1
-
-# Check if there are backend changes  
-node scripts/turbo-utils.js has-backend-changes HEAD^1
-
-# Get turbo filter for affected packages
-node scripts/turbo-utils.js get-affected-filter HEAD^1 frontend
-node scripts/turbo-utils.js get-affected-filter HEAD^1 backend
+# Categorize affected packages
+node build-pipeline/scripts/detect-changes.mjs
 ```
 
 ## Configuration Files
