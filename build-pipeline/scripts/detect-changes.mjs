@@ -91,7 +91,7 @@ async function detectChanges() {
 	} else {
 		try {
 			const turboData = JSON.parse(turboOutput);
-			affectedPackages = turboData.affected || [];
+			affectedPackages = turboData.packages.filter((pkg) => pkg !== '//') || [];
 
 			console.log('Parsed affected packages:', affectedPackages.join(' '));
 

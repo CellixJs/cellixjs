@@ -228,7 +228,7 @@ stages:
           sonarcloud | "$(Agent.OS)"
         path: ${{parameters.SONAR_USER_HOME}}/cache
 
-    # Run SonarCloud analysis using local sonarscanner
+    # SonarCloud analysis
     - task: Bash@3
       displayName: 'SonarCloud: Run analysis with local sonarscanner'
       condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
@@ -236,50 +236,42 @@ stages:
         targetType: 'inline'
         script: |
           set -euo pipefail
-          echo "Git remote URL:"
-          git remote -v
+          echo "Preparing SonarCloud analysis..."
 
-          if [ -z "$(GH_NAME)" ]; then
-            echo "Error: GH_NAME is empty or not loaded. Please check the variable group configuration."
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "Error: SONAR_TOKEN is empty or not loaded."
             exit 1
           fi
-          echo "GH_NAME PRESENT: True"
+          echo "SONAR_TOKEN PRESENT: True"
 
-          if [ -z "$(GH_EMAIL)" ]; then
-            echo "Error: GH_EMAIL is empty or not loaded. Please check the variable group configuration."
-            exit 1
-          fi
-          echo "GH_EMAIL PRESENT: True"
-
-          if [ -z "$(GH_TOKEN)" ]; then
-            echo "Error: GH_TOKEN is empty or not loaded. Please check the variable group configuration."
-            exit 1
-          fi
-          echo "GH_TOKEN PRESENT: True"
-
-          git config --global user.name "$(GH_NAME)"
-          git config --global user.email "$(GH_EMAIL)"
-
-          export GH_PASSWORD=$(GH_TOKEN)
-
-          echo "Build_SourceBranch: $Build_SourceBranch"
-          echo "System_PullRequest_SourceBranch: $System_PullRequest_SourceBranch"
-
-          # Run SonarCloud analysis using local sonarscanner
-          if [ "$(Build.Reason)" = "PullRequest" ]; then
+          # Run SonarCloud analysis
+          if [ "$Build_Reason" = "PullRequest" ]; then
             echo "Running SonarCloud analysis for Pull Request..."
+            # Extract PR number from Build.SourceBranch
+            PR_NUMBER=$(echo "$(Build.SourceBranch)" | sed -n 's|^refs/pull/\([0-9]*\)/merge$|\1|p')
+            if [ -z "$PR_NUMBER" ]; then
+              echo "Error: Could not extract PR number from Build.SourceBranch: $Build_SourceBranch"
+              exit 1
+            fi
+            echo "PR Number: $PR_NUMBER"
 
-            npm run sonar:pr
+            # Get branch from System.PullRequest.SourceBranch
+            PR_BRANCH="$(System.PullRequest.SourceBranch)"
+            if [ -z "$PR_BRANCH" ]; then
+              echo "Error: System.PullRequest.SourceBranch is not set."
+              exit 1
+            fi
+            PR_BRANCH=$(echo "$PR_BRANCH" | sed 's|^refs/heads/||')
+            echo "PR Branch: $PR_BRANCH"
+
+            npm run sonar -- -Dsonar.pullrequest.key="$PR_NUMBER" -Dsonar.pullrequest.branch="$PR_BRANCH" -Dsonar.pullrequest.base=main
           else
+            echo "Running SonarCloud analysis for main branch..."
             npm run sonar
           fi
         workingDirectory: ''
       env:
         SONAR_USER_HOME: ${{parameters.SONAR_USER_HOME}}
-        SONAR_TOKEN: $(SONAR_TOKEN)
-        GH_TOKEN: $(GH_TOKEN)
-        System_PullRequest_SourceBranch: $(System.PullRequest.SourceBranch)
-        Build_SourceBranch: $(Build.SourceBranch)
 
     # SonarCloud: Break the build if it doesn't pass the Quality Gate
     - task: sonarcloud-buildbreaker@2
