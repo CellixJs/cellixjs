@@ -45,6 +45,5 @@
       "dependsOn": ["^build"],
       "outputs": ["src/generated/**", "generated/**"]
     }
-  },
-  "tags": ["backend", "config", "docs", "frontend", "mock"]
+  }
 }
