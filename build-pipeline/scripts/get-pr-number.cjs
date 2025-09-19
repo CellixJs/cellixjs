@@ -31,7 +31,8 @@ function configureGitAuth() {
 // Step 2: Get the current Git branch or PR source branch
 function getCurrentBranch() {
   // Check Azure DevOps PR source branch first
-  const prSourceBranch = process.env['System.PullRequest.SourceBranch'];
+  const prSourceBranch = process.env['System_PullRequest_SourceBranch'];
+  console.log('System_PullRequest_SourceBranch: ', prSourceBranch);
   if (prSourceBranch) {
     console.error(`Using Azure DevOps PR source branch: ${prSourceBranch}`);
     return prSourceBranch.replace(/^refs\/heads\//, ''); // Strip 'refs/heads/' prefix
