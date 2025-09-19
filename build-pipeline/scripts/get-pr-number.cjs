@@ -3,7 +3,7 @@ const { execSync } = require('node:child_process');
 // Function to run shell commands and capture output
 function runCommand(command, options = {}) {
   try {
-    return execSync(command, { encoding: 'utf8', ...options }).trim();
+    return execSync(command, { encoding: 'utf8', shell: false, ...options }).trim();
   } catch (error) {
     console.error(`Error running command "${command}": ${error.message}`);
     process.exit(1);

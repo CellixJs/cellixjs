@@ -228,36 +228,25 @@ stages:
           sonarcloud | "$(Agent.OS)"
         path: ${{parameters.SONAR_USER_HOME}}/cache
 
-    # Set up SonarCloud for affected packages
-    - task: SonarCloudPrepare@3
-      displayName: 'SonarCloud: Prepare analysis configuration'
+    # Run SonarCloud analysis using local sonarscanner
+    - task: Bash@3
+      displayName: 'SonarCloud: Run analysis with local sonarscanner'
       condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
       inputs:
-        SonarCloud: ${{parameters.SonarCloud}}
-        organization: ${{parameters.SonarCloud_organization}}
-        scannerMode: ${{parameters.SonarCloud_scannerMode}}
-        configMode: ${{parameters.SonarCloud_configMode}}
-        cliProjectKey: ${{parameters.SonarCloud_cliProjectKey}}
-        cliProjectName: ${{parameters.SonarCloud_cliProjectName}}
-        cliSources: '$(Build.SourcesDirectory)'
-        extraProperties: |
-          sonar.javascript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
-          sonar.typescript.lcov.reportPaths=$(SONAR_LCOV_PATHS)
-          sonar.scanner.metadataFilePath=$(Agent.TempDirectory)/sonar/$(Build.BuildNumber)/test/report-task.txt
-          sonar.cpd.exclusions=**/*.test.ts,**/generated.tsx
-          sonar.coverage.exclusions=**/*.config.ts,**/tsconfig.json,**/.storybook/**,**/*.stories.ts,**/*.stories.tsx,**/*.test.ts,**/*.test.tsx,**/generated.ts,**/generated.tsx,**/*.d.ts,dist/**,apps/docs/src/test/**,packages/ocom/domain/tests/**,packages/cellix/mock-oauth2-server/**,packages/cellix/mock-mongodb-memory-server/**
-
-    # SonarCloud: Analyze code and code coverage
-    - task: SonarCloudAnalyze@3
-      displayName: 'SonarCloud: Run analysis'
-      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
-
-    # SonarCloud: Publish analysis results and wait until completion
-    - task: SonarCloudPublish@3
-      displayName: 'SonarCloud: Publish results on build summary'
-      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
-      inputs:
-        pollingTimeoutSec: '300'
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          
+          # Run SonarCloud analysis using local sonarscanner
+          if [ "$(Build.Reason)" = "PullRequest" ]; then
+            echo "Running SonarCloud analysis for Pull Request..."
+            npm run sonar:pr
+          else
+            npm run sonar
+          fi
+        workingDirectory: ''
+      env:
+        SONAR_USER_HOME: ${{parameters.SONAR_USER_HOME}}
 
     # SonarCloud: Break the build if it doesn't pass the Quality Gate
     - task: sonarcloud-buildbreaker@2
