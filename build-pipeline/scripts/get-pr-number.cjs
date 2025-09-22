@@ -10,37 +10,9 @@ function runCommand(command, options = {}) {
   }
 }
 
-// Step 1: Configure Git authentication if GH_TOKEN is provided
-function configureGitAuth() {
-  const token = process.env.GH_TOKEN;
-  if (token) {
-    console.error('Configuring Git with GH_TOKEN for HTTPS authentication.');
-    try {
-      runCommand(`git config --global credential.helper store`);
-      runCommand(`echo "https://x-access-token:${token}@github.com" > ~/.git-credentials`);
-      console.error('Git credentials configured with GH_TOKEN.');
-    } catch (error) {
-      console.error('Failed to configure Git credentials:', error.message);
-      process.exit(1);
-    }
-  } else {
-    console.error('No GH_TOKEN provided. Using local Git authentication context.');
-  }
-}
 
 // Step 2: Get the current Git branch or PR source branch
 function getCurrentBranch() {
-  // Check Azure DevOps PR source branch first
-  const prSourceBranch = process.env['System_PullRequest_SourceBranch'];
-  console.log('System_PullRequest_SourceBranch: ', prSourceBranch);
-  if (prSourceBranch) {
-    console.error(`Using Azure DevOps PR source branch: ${prSourceBranch}`);
-    // checkout the origin branch to ensure it exists locally
-    runCommand(`git checkout origin/${prSourceBranch.replace(/^refs\/heads\//, '')}`);
-    return prSourceBranch.replace(/^refs\/heads\//, ''); // Strip 'refs/heads/' prefix
-  }
-
-  // Fallback to git command
   const currentBranch = runCommand('git branch --show-current');
   if (!currentBranch) {
     console.error('No current branch found. Are you in a Git repository?');
@@ -56,7 +28,7 @@ function getRepoInfo() {
     const remoteUrl = runCommand('git config --get remote.origin.url');
     const match = remoteUrl.match(/github\.com[/:]([^/]+)\/([^/]+?)(\.git)?$/);
     if (!match) {
-      throw new Error('Could not parse GitHub repository from remote URL: ' + remoteUrl);
+      throw new Error(`Could not parse GitHub repository from remote URL: ${remoteUrl}`);
     }
     const owner = match[1];
     const repo = match[2];
@@ -87,7 +59,7 @@ function getPRNumber(owner, repo, branch) {
     const command = `curl -s ${authHeader} "https://api.github.com/repos/${owner}/${repo}/pulls?head=${owner}:${branch}&state=open" | jq '.[0].number'`;
     const prNumber = runCommand(command);
     if (!prNumber || prNumber === 'null') {
-      throw new Error('No open PR found for branch ' + branch);
+      throw new Error(`No open PR found for branch ${branch}`);
     }
     return prNumber;
   } catch (error) {
@@ -98,9 +70,6 @@ function getPRNumber(owner, repo, branch) {
 
 // Step 6: Main function to get and output PR number
 function main() {
-  // Configure Git authentication
-  configureGitAuth();
-
   // Get branch and repo info
   const currentBranch = getCurrentBranch();
   const { owner, repo } = getRepoInfo();
