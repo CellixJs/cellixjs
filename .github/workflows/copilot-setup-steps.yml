@@ -14,6 +14,7 @@ on:
 jobs:
   # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
   copilot-setup-steps:
+    environment: copilot
     runs-on: ubuntu-latest
 
     # Set the permissions to the lowest permissions possible needed for your steps.
@@ -36,3 +37,32 @@ jobs:
 
       - name: Install JavaScript dependencies
         run: npm ci
+
+      - name: Install Playwright browsers
+        run: |
+          echo "Installing Playwright browsers for UI testing..."
+          npx playwright install --with-deps
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
+
+      - name: Install Java SDK (Required for SonarCloud)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Verify required environment variables
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "Error: SONAR_TOKEN is not set."
+            exit 1
+          fi
+          if [ -z "$GH_TOKEN" ]; then
+            echo "Error: GH_TOKEN is not set."
+            exit 1
+          fi
+          echo "All required environment variables are set."
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    

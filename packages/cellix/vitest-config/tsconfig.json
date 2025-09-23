@@ -1,0 +1,9 @@
+{
+  "extends": "@cellix/typescript-config/node.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "."
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"]
+}

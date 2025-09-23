@@ -1,0 +1,49 @@
+{
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "build/**"]
+    },
+    "test": {
+      "dependsOn": ["^build", "@cellix/vitest-config#build"]
+    },
+    "test:coverage": {
+      "dependsOn": ["^build", "@cellix/vitest-config#build"],
+      "outputs": ["coverage/lcov.info"]
+    },
+    "test:watch": {
+        "dependsOn": ["^build"],
+        "cache": false,
+        "persistent": true
+    },
+    "test:unit": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "test:integration": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
+    "azurite": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {},
+    "format": {
+      "outputs": []
+    },
+    "clean": {
+      "cache": false,
+      "outputs": []
+    },
+    "gen": {
+      "dependsOn": ["^build"],
+      "outputs": ["src/generated/**", "generated/**"]
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    "allowImportingTsExtensions": true,
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "noUncheckedSideEffectImports": true,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    "sourceMap": true,
+    "erasableSyntaxOnly": true,
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "lib": ["ES2023"],
+    "target": "ES2022",
+    "composite": true,
+    "incremental": true,
+    "skipLibCheck": false,
+    "plugins": [
+        {
+            "name": "ts-scope-trimmer-plugin"
+        }
+    ] 
+  }
+}

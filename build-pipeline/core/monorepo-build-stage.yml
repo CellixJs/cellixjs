@@ -1,0 +1,350 @@
+parameters:
+- name: vmImageName
+  displayName: 'VM Image - ubuntu-latest'
+  type: string
+- name: npm_config_cache
+  displayName: 'NPM Config Cache Location'
+  type: string
+- name: isNpmCacheAvailable
+  displayName: 'Flag to indicate if NPM cache is available'
+  type: string
+- name: disableSonarCloudTasks
+  displayName: 'Flag to disable SonarCloud tasks'
+  type: string
+- name: SONAR_USER_HOME
+  displayName: 'SonarCloud User Home'
+  type: string
+- name: SonarCloud
+  displayName: 'SonarCloud'
+  type: string
+- name: SonarCloud_organization
+  displayName: 'SonarCloud Organization'
+  type: string
+- name: SonarCloud_scannerMode
+  displayName: 'SonarCloud Scanner Mode'
+  type: string
+- name: SonarCloud_configMode
+  displayName: 'SonarCloud Config Mode'
+  type: string
+- name: SonarCloud_cliProjectKey
+  displayName: 'SonarCloud CLI Project Key'
+  type: string
+- name: SonarCloud_cliProjectName
+  displayName: 'SonarCloud CLI Project Name'
+  type: string
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: ${{parameters.vmImageName}}
+    variables:
+      PLAYWRIGHT_BROWSERS_PATH: /home/vsts/.cache/ms-playwright
+      TURBO_CACHE_DIR: $(Build.SourcesDirectory)/.turbo
+    steps:
+    - checkout: self
+      fetchDepth: 0 # Fetch all history for all branches and tags necessary for sonar cloud analysis
+      # SonarCloud documentation https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/scm-integration/#:~:text=A%20full%20clone%20is%20required%20for%20this%20integration%20to%20be%20able%20to%20collect%20the%20required%20blame%20information%20(see%20Known%20Issues).%20If%20a%20shallow%20clone%20is%20detected%2C%20a%20warning%20will%20be%20logged%20and%20no%20attempt%20will%20be%20made%20to%20retrieve%20blame%20information.
+
+    # Ensure the correct version of Node is installed.
+    - task: NodeTool@0
+      displayName: 'Install: Node.js - LTS'
+      inputs:
+        versionSpec: '22.x'
+
+    # Cache Azure Functions Core Tools
+    - task: Cache@2
+      displayName: 'Azure Functions: Restore Core Tools Cache'
+      inputs:
+        key: 'func-tools | "$(Agent.OS)" | "4.2.1"'
+        restoreKeys: |
+          func-tools | "$(Agent.OS)"
+        path: '/opt/hostedtoolcache/func'
+        cacheHitVar: FUNC_TOOLS_CACHE_HIT
+
+    # Ensure the correct version of function tools are installed.
+    - task: FuncToolsInstaller@0
+      displayName: 'Install: func tools - 4.2.1'
+      condition: and(ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
+      inputs:
+        version: '4.2.1'
+
+    # Playwright: Restore browsers cache
+    - task: Cache@2
+      displayName: 'Playwright: Restore browsers cache'
+      continueOnError: true
+      inputs:
+        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22'
+        restoreKeys: |
+          playwright | "$(Agent.OS)" | ubuntu-latest
+          playwright | "$(Agent.OS)"
+        path: '$(PLAYWRIGHT_BROWSERS_PATH)'
+        cacheHitVar: PW_CACHE_HIT
+
+    # Playwright: Install browsers if needed
+    - task: Bash@3
+      displayName: 'Playwright: Install browsers if needed'
+      condition: and(ne(variables.PW_CACHE_HIT, 'true'), ne(variables.PW_CACHE_HIT, 'inexact'))
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "PW_CACHE_HIT=${PW_CACHE_HIT:-unset}"
+          echo "Installing Playwright browsers into: $(PLAYWRIGHT_BROWSERS_PATH)"
+          mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
+          npx playwright install --with-deps
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
+    # Playwright: Ensure browsers are available for packages that need them
+    - task: Bash@3
+      displayName: 'Playwright: Verify browser installation'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "Verifying Playwright browser installation..."
+          echo "PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)"
+
+          # Check if browsers are installed
+          if [ ! -d "$(PLAYWRIGHT_BROWSERS_PATH)" ] || [ -z "$(ls -A "$(PLAYWRIGHT_BROWSERS_PATH)" 2>/dev/null || echo '')" ]; then
+            echo "Browsers not found in cache, installing them..."
+            mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
+            npx playwright install --with-deps
+          fi
+
+          # Explicitly ensure chromium headless shell is available (used by Vitest browser provider)
+          if ! find "$(PLAYWRIGHT_BROWSERS_PATH)" -maxdepth 2 -type d -name 'chromium_headless_shell-*' | grep -q chromium_headless_shell; then
+            echo "chromium_headless_shell not found; reinstalling browsers to fetch it..."
+            npx playwright install --with-deps
+          fi
+
+          echo "Installed browsers:"
+          ls -la "$(PLAYWRIGHT_BROWSERS_PATH)" || true
+
+          # Make sure browser binaries are executable
+          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "*chrome*" -exec chmod +x {} \; 2>/dev/null || true
+          find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "headless_shell" -exec chmod +x {} \; 2>/dev/null || true
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+        
+    # Cache NPM packages to speed up build process.
+    - task: Cache@2
+      displayName: 'NPM: Restore Cache'
+      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
+      inputs:
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
+        restoreKeys: |
+            npm | "$(Agent.OS)"
+        path: ${{parameters.npm_config_cache}}
+
+    # Install dependencies
+    - task: Bash@3
+      displayName: 'NPM: Install dependencies'
+      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, False))
+      inputs:
+        targetType: 'inline'
+        script: |
+          export NODE_OPTIONS=--max_old_space_size=16384
+          npm install
+        workingDirectory: ''
+
+    - task: Bash@3
+      displayName: 'NPM: Install dependencies using cache'
+      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
+      inputs:
+        targetType: 'inline'
+        script: |
+          export NODE_OPTIONS=--max_old_space_size=16384
+          npm ci
+        workingDirectory: ''
+
+    # Cache Turbo to speed up build process.
+    - task: Cache@2
+      displayName: 'Turbo: Restore Local Cache'
+      inputs:
+        key: 'turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json'
+        restoreKeys: |
+          turbo | "$(Agent.OS)"
+        path: '$(TURBO_CACHE_DIR)'
+
+    # Detect affected package types
+    - task: Bash@3
+      displayName: 'Detect affected package types'
+      name: BuildJob
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          node ./build-pipeline/scripts/detect-changes.mjs
+      env:
+        Build_Reason: $(Build.Reason)
+        System_PullRequest_TargetBranch: $(System.PullRequest.TargetBranch)
+        Build_SourceBranch: $(Build.SourceBranch)
+
+    # Build and run tests on affected packages using Turbo's --affected flag
+    - task: Bash@3
+      displayName: 'Turbo: Prepare binaries and run tests on affected packages'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          export NODE_OPTIONS=--max_old_space_size=16384
+          export PLAYWRIGHT_BROWSERS_PATH="$(PLAYWRIGHT_BROWSERS_PATH)"
+
+          # Audit npm packages for vulnerabilities
+          echo "Running npm audit for vulnerabilities..."
+          npm audit --audit-level=high --omit=dev
+          
+          # Use Turbo's built-in --affected flag for accurate change detection
+          if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
+            echo "Testing affected packages only using Turbo's --affected..."
+            export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
+            npm run test:coverage -- --affected && npm run merge-lcov-reports
+          else
+            echo "Testing all packages (main branch)..."
+            export TURBO_SCM_BASE="HEAD~1"
+            npm run test:coverage:merge
+          fi
+          
+          # Set the merged coverage path for SonarCloud
+          echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
+        workingDirectory: ''
+      env:
+        TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
+        TURBO_TELEMETRY_DISABLED: 1
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
+    # Cache Java JRE
+    - task: Cache@2
+      displayName: 'Java: Restore JRE Cache'
+      continueOnError: true
+      inputs:
+        key: 'java | "$(Agent.OS)" | openjdk-17-jre-headless'
+        restoreKeys: |
+          java | "$(Agent.OS)"
+        path: '/usr/lib/jvm/java-17-openjdk-amd64'
+        cacheHitVar: JAVA_CACHE_HIT
+
+    # Install Java JRE if cache is missed
+    - task: Bash@3
+      displayName: 'Java: Install JRE if cache missed'
+      condition: ne(variables.JAVA_CACHE_HIT, 'true')
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "Installing Java 17 JRE..."
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jre-headless
+          java -version
+          echo "JAVA_HOME set to: $JAVA_HOME"
+          # Ensure JRE directory is cached
+          sudo chmod -R 755 /usr/lib/jvm/java-17-openjdk-amd64
+      env:
+        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
+    # Cache SonarCloud scanner engine
+    - task: Cache@2
+      displayName: 'SonarCloud: Cache Scanner Engine'
+      continueOnError: true
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        key: 'sonarcloud | "$(Agent.OS)" | scanner-engine'
+        restoreKeys: |
+          sonarcloud | "$(Agent.OS)"
+        path: ${{parameters.SONAR_USER_HOME}}/cache
+        cacheHitVar: SONAR_CACHE_HIT
+
+    # SonarCloud analysis
+    - task: Bash@3
+      displayName: 'SonarCloud: Run analysis with local sonarscanner'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "Preparing SonarCloud analysis..."
+
+          # Verify environment variables
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "Error: SONAR_TOKEN is empty or not loaded."
+            exit 1
+          fi
+          echo "SONAR_TOKEN PRESENT: True"
+
+          # Verify Java installation
+          echo "Verifying Java installation..."
+          java -version
+          echo "JAVA_HOME: $JAVA_HOME"
+          echo "SONAR_SCANNER_JAVA_PATH: $SONAR_SCANNER_JAVA_PATH"
+          echo "SONAR_CACHE_HIT: $SONAR_CACHE_HIT"
+
+          # Run SonarCloud analysis
+          if [ "$(Build.Reason)" = "PullRequest" ]; then
+            echo "Running SonarCloud analysis for Pull Request..."
+            # Extract PR number from Build.SourceBranch
+            PR_NUMBER=$(echo "$(Build.SourceBranch)" | sed -n 's|^refs/pull/\([0-9]*\)/merge$|\1|p')
+            if [ -z "$PR_NUMBER" ]; then
+              echo "Error: Could not extract PR number from Build.SourceBranch: $(Build.SourceBranch)"
+              exit 1
+            fi
+            echo "PR Number: $PR_NUMBER"
+
+            # Get branch from System.PullRequest.SourceBranch
+            PR_BRANCH=$(echo "$(System.PullRequest.SourceBranch)" | sed 's|^refs/heads/||')
+            if [ -z "$PR_BRANCH" ]; then
+              echo "Error: System.PullRequest.SourceBranch is not set or empty: $(System.PullRequest.SourceBranch)"
+              exit 1
+            fi
+            echo "PR Branch: $PR_BRANCH"
+
+            npm run sonar -- -Dsonar.pullrequest.key="$PR_NUMBER" -Dsonar.pullrequest.branch="$PR_BRANCH" -Dsonar.pullrequest.base=main -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
+          else
+            echo "Running SonarCloud analysis for main branch..."
+            npm run sonar -- -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
+          fi
+
+          # Debug: Verify report-task.txt exists
+          echo "Checking for report-task.txt..."
+          if [ -f "/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt" ]; then
+            echo "report-task.txt found at /home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
+            cat "/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
+          else
+            echo "Error: report-task.txt not found at /home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
+            exit 1
+          fi
+        workingDirectory: ''
+      env:
+        SONAR_USER_HOME: /home/vsts/work/_temp/.sonar
+        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+        SONAR_SCANNER_JAVA_PATH: /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+
+    # SonarCloud: Break the build if it doesn't pass the Quality Gate
+    - task: sonarcloud-buildbreaker@2
+      displayName: 'SonarCloud: Break the build if it does not pass the Quality'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
+      inputs:
+        SonarCloud: ${{parameters.SonarCloud}}
+        organization: ${{parameters.SonarCloud_organization}}
+
+    # Package compiled assets into artifact
+    - task: ArchiveFiles@2
+      displayName: 'Artifact: Prepare'
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      inputs:
+        rootFolderOrFile: '$(Build.SourcesDirectory)/'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        replaceExistingArchive: true
+        # Include all build outputs from packages and apps
+
+    # Upload artifact as build result
+    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      displayName: 'Artifact: Publish'
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      artifact: drop
