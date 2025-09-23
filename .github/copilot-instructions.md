@@ -48,10 +48,17 @@ nvm use v22 && npm run clean && npm install && npm run build
 # Development startup
 npm run dev  # Builds all workspace packages, starts mock emulator services, backend Azure Functions entry point, and frontend React UI
 
+# Build Pipeline Verification
+npm run verify    # Run all verification steps (lint, build, test, sonarcloud, quality gate)
+
 # Package-specific operations
-npm run build --ws --if-present    # Build all workspaces
-npm run lint --ws --if-present     # Lint all workspaces
+npm run build    # Build all packages
+npm run lint     # Lint all packages
+npm run test     # Test all packages
+npm run gen      # Generate code (e.g., GraphQL types)
 ```
+
+Use `npm run verify` to ensure code quality before commits. Address any issues reported before pushing changes.
 
 ### VS Code Tasks
 Use VS Code tasks for development (preferred over manual commands):
