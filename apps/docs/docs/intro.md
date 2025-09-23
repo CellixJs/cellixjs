@@ -58,6 +58,16 @@ npm run build
 ## Install VSCode plugins
 You will be prompted to install the [recommended VSCode Plugins](https://github.com/CellixJs/cellixjs/blob/main/.vscode/extensions.json) upon opening the project in VSCode. Go ahead and do so.
 
+## Local SonarCloud Analysis
+
+- Create a SonarCloud API token from your [SonarCloud account](https://sonarcloud.io/account/security/)
+- Run the following command using your token in the terminal
+
+```bash
+echo "export SONAR_TOKEN=<your-token>" >> ~/.zshrc
+source ~/.zshrc
+```
+
 ## Start Development
 
 Run the development environment:
