@@ -2,7 +2,7 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "//#gen"],
       "outputs": ["dist/**", "build/**"]
     },
     "test": {
@@ -41,9 +41,17 @@
       "cache": false,
       "outputs": []
     },
-    "gen": {
-      "dependsOn": ["^build"],
-      "outputs": ["src/generated/**", "generated/**"]
+    "//#gen": {
+      "cache": true,
+      "outputs": [
+        "**/generated.ts",
+        "**/graphql.schema.json",
+        "**/generated.tsx"
+      ]
+    },
+    "//#gen:watch": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

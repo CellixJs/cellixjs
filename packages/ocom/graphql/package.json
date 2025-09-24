@@ -16,7 +16,6 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
-    "gen": "graphql-codegen --config src/schema/builder/codegen.yml",
     "lint": "biome lint",
     "clean": "rimraf dist"
   },
@@ -37,12 +36,6 @@
     "@cellix/typescript-config": "*",
     "@cellix/vitest-config": "*",
     "typescript": "^5.8.3",
-    "rimraf": "^6.0.1",
-    "@graphql-codegen/cli": "^5.0.7",
-    "@graphql-codegen/introspection": "^4.0.3",
-    "@graphql-codegen/typed-document-node": "^5.1.2",
-    "@graphql-codegen/typescript": "^4.1.6",
-    "@graphql-codegen/typescript-operations": "^4.6.1",
-    "@graphql-codegen/typescript-resolvers": "^4.5.1"
+    "rimraf": "^6.0.1"
   }
 }
