@@ -12,6 +12,8 @@ import { MemberCustomView, type MemberCustomViewProps } from './member-custom-vi
 import type { MemberProfileProps } from './member-profile.ts';
 import type { Passport } from '../../passport.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member.feature'),
@@ -101,7 +103,7 @@ function makeBaseProps(overrides: Partial<MemberProps> = {}): MemberProps {
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let passport: ReturnType<typeof makePassport>;
   let baseProps: MemberProps;
   let communityRef: CommunityEntityReference;

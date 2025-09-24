@@ -8,6 +8,8 @@ import { expect, type MockedFunction, vi } from 'vitest';
 import { Cellix } from './cellix.ts';
 
 // Mock Azure Functions
+
+const test = { for: describeFeature };
 vi.mock('@azure/functions', () => ({
   app: {
     http: vi.fn(),
@@ -57,7 +59,7 @@ class FailingService implements ServiceBase {
   shutDown = vi.fn().mockRejectedValue(new Error('Service shutdown failed'));
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let cellix: Cellix<unknown, unknown>;
   let mockService: MockService;
   let failingService: FailingService;

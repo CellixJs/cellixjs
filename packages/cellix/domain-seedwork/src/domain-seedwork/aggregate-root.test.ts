@@ -5,6 +5,8 @@ import { DomainSeedwork } from '../index.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+
+const test = { for: describeFeature };
 class TestDomainEvent extends DomainSeedwork.CustomDomainEventImpl<TestAggregateCreatedProps> {}
 
 interface TestAggregateUpdatedProps {
@@ -87,7 +89,7 @@ function expectNoEventEmitted<T>(
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const aggregateRootFeature = await loadFeature(path.resolve(__dirname, 'features/aggregate-root.feature'));
 
-describeFeature(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => {
+test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => {
 	let aggregate: TestAggregate<TestAggregateProps>;
 	let baseProps: TestAggregateProps;
 	let mockedPassport: unknown;

@@ -31,6 +31,8 @@ import { DataSourcesFactoryImpl } from './index.ts';
 import { DomainDataSourceImplementation } from './domain/index.ts';
 import { ReadonlyDataSourceImplementation } from './readonly/index.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'index.feature')
@@ -127,7 +129,7 @@ function makeMockDataSources() {
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: ModelsContext;
   let passport: Domain.Passport;
   let factory: ReturnType<typeof DataSourcesFactoryImpl>;

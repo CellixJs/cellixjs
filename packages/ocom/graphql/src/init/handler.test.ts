@@ -9,6 +9,8 @@ import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateHandler } from './azure-functions.ts';
 
 // Mocks
+
+const test = { for: describeFeature };
 vi.mock('./azure-functions.ts');
 vi.mock('../schema/builder/schema-builder.ts', () => ({
   combinedSchema: {},
@@ -51,7 +53,7 @@ function makeMockInvocationContext(): InvocationContext {
   } as unknown as InvocationContext;
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let factory: ApplicationServicesFactory;
   let handler: ReturnType<typeof graphHandlerCreator>;
   let req: HttpRequest;

@@ -6,6 +6,8 @@ import type { VendorUserContactInformationProps } from './vendor-user-contact-in
 import type { VendorUserIdentityDetailsProps } from './vendor-user-identity-details.ts';
 import { VendorUserPersonalInformation } from './vendor-user-personal-information.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user-personal-information.feature'),
@@ -41,7 +43,7 @@ function makePersonalInformationProps(overrides = {}) {
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let visa: ReturnType<typeof makeVisa>;
   let identityDetailsProps: ReturnType<typeof makeIdentityDetailsProps>;
   let contactInformationProps: ReturnType<typeof makeContactInformationProps>;

@@ -7,6 +7,8 @@ import { EndUserCreatedEvent } from '../../../events/types/end-user-created.ts';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/end-user.feature'),
@@ -62,7 +64,7 @@ function getIntegrationEvent<T>(
   return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let passport: Passport;
   let baseProps: EndUserProps;
   let endUser: EndUser<EndUserProps>;

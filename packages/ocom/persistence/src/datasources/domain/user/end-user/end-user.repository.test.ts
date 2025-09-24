@@ -9,6 +9,8 @@ import { EndUserConverter, type EndUserDomainAdapter } from './end-user.domain-a
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/end-user.repository.feature')
@@ -51,7 +53,7 @@ function makeMockPassport() {
   } as unknown as Domain.Passport;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: EndUserRepository<EndUserDomainAdapter>;
   let converter: EndUserConverter;
   let passport: Domain.Passport;

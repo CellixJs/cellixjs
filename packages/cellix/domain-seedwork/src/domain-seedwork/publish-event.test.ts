@@ -6,6 +6,8 @@ import { CustomDomainEventImpl } from './domain-event.js';
 import type { EventBus } from './event-bus.js';
 import { EventPublisher } from './publish-event.js';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/publish-event.feature')
@@ -13,7 +15,7 @@ const feature = await loadFeature(
 
 class TestDomainEvent extends CustomDomainEventImpl<{ foo: string }> {}
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let eventBus: MockedObject<EventBus>;
   let publisher: EventPublisher;
   let eventClass: new (aggregateId: string) => TestDomainEvent;

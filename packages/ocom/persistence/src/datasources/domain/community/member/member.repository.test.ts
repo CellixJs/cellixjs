@@ -9,6 +9,8 @@ import { MemberConverter, type MemberDomainAdapter } from './member.domain-adapt
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member.repository.feature')
@@ -46,7 +48,7 @@ function makeMockPassport() {
   } as unknown as Domain.Passport;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: MemberRepository;
   let converter: MemberConverter;
   let passport: Domain.Passport;

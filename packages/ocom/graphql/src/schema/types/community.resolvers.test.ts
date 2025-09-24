@@ -7,6 +7,8 @@ import type { GraphContext } from '../../init/context.ts';
 import type { CommunityCreateInput } from '../builder/generated.ts';
 import communityResolvers from './community.resolvers.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/community.resolvers.feature')
@@ -112,7 +114,7 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
   } as GraphContext;
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let context: GraphContext;
   let result: CommunityEntity | CommunityEntity[] | { status: { success: boolean; errorMessage?: string }; community?: CommunityEntity } | null;
 

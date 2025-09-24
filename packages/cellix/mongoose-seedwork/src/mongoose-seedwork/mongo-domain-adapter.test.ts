@@ -6,12 +6,14 @@ import type { Base } from './base.js';
 import { MongooseDomainAdapter } from './mongo-domain-adapter.js';
 
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/mongo-domain-adapter.feature')
 );
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   interface TestDoc extends Base {
     schemaVersion: string;
   }

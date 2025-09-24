@@ -4,6 +4,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 import { ValueObject } from './value-object.js';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/value-object.feature')
@@ -23,7 +25,7 @@ class TestValueObject extends ValueObject<TestValueObjectProps> {
   }
 }
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let props: TestValueObjectProps;
   let valueObject: TestValueObject;
 

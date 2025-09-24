@@ -7,6 +7,8 @@ import type { Base } from './base.js';
 import type { MongooseDomainAdapter } from './mongo-domain-adapter.js';
 import { MongoosePropArray } from './mongoose-prop-array.js';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/mongoose-prop-array.feature')
@@ -30,7 +32,7 @@ class TestAdapter implements MongooseDomainAdapter<TestDoc> {
   get schemaVersion() { return this.doc.schemaVersion; }
 }
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let docArray: TestDoc[];
   let propArray: MongoosePropArray<TestDoc, TestAdapter>;
   let doc1: TestDoc;

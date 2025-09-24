@@ -6,6 +6,8 @@ import { VerifiedTokenService } from './verified-token-service.ts';
 import { ServiceTokenValidation } from './index.ts';
 
 // Mock VerifiedTokenService
+
+const test = { for: describeFeature };
 vi.mock('./verified-token-service.ts', () => ({
   VerifiedTokenService: vi.fn(),
 }));
@@ -18,7 +20,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'index.feature')
 );
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let service: ServiceTokenValidation;
   let mockVerifiedTokenService: {
     start: ReturnType<typeof vi.fn>;

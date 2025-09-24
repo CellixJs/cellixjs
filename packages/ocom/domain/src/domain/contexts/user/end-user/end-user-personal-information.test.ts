@@ -7,6 +7,8 @@ import { EndUserPersonalInformation } from './end-user-personal-information.ts';
 import type { EndUserIdentityDetailsProps } from './end-user-identity-details.ts';
 import type { EndUserContactInformationProps } from './end-user-contact-information.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/end-user-personal-information.feature'),
@@ -50,7 +52,7 @@ function makeRoot() {
     }
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let visa: ReturnType<typeof makeVisa>;
   let root: ReturnType<typeof makeRoot>;
   let identityDetailsProps: ReturnType<typeof makeIdentityDetailsProps>;

@@ -4,6 +4,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 import { SyncDomainEventImpl } from './sync-domain-event-bus.js';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/sync-domain-event-bus.feature'));
 
@@ -13,7 +15,7 @@ interface TestPayload {
 
 class TestSyncDomainEvent extends SyncDomainEventImpl<TestPayload> {}
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let event: TestSyncDomainEvent;
   let error: Error | undefined;
 

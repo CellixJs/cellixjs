@@ -5,6 +5,8 @@ import { expect, vi } from 'vitest';
 import { MemberCustomView, type MemberCustomViewProps } from './member-custom-view.ts';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member-custom-view.feature'),
@@ -44,7 +46,7 @@ function makeProps(overrides: Partial<MemberCustomViewProps> = {}): MemberCustom
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let visa: ReturnType<typeof makeVisa>;
   let props: MemberCustomViewProps;
   let entity: MemberCustomView;

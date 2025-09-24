@@ -6,6 +6,8 @@ import type { MemberEntityReference } from '../../../contexts/community/member/m
 import type { VendorUserEntityReference } from '../../../contexts/user/vendor-user/vendor-user.ts';
 import { MemberUserVendorUserVisa } from './member.user.vendor-user.visa.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member.user.vendor-user.feature'),
@@ -19,7 +21,7 @@ function makeMember(id = 'member-1') {
   return { id } as MemberEntityReference;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let VendorUser: ReturnType<typeof makeVendorUser>;
   let member: ReturnType<typeof makeMember>;
   let visa: MemberUserVendorUserVisa<ReturnType<typeof makeVendorUser>>;

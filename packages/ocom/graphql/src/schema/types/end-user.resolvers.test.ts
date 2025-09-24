@@ -7,6 +7,8 @@ import type { GraphContext } from '../../init/context.ts';
 import endUserResolvers from './end-user.resolvers.ts';
 
 // Mock the resolver helper
+
+const test = { for: describeFeature };
 vi.mock('../resolver-helper.ts', () => ({
   getRequestedFieldPaths: vi.fn().mockReturnValue(['id', 'email']),
 }));
@@ -83,7 +85,7 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
   } as GraphContext;
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let context: GraphContext;
   let result: EndUserEntity | null;
 

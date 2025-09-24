@@ -6,12 +6,14 @@ import { GuestCommunityPassport } from './guest.community.passport.ts';
 import type { CommunityEntityReference } from '../../../contexts/community/community/community.ts';
 import type { CommunityVisa } from '../../../contexts/community/community.visa.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/guest.community.passport.feature'),
 );
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let passport: GuestCommunityPassport;
   let communityRef: CommunityEntityReference;
   let visa: CommunityVisa;

@@ -11,6 +11,8 @@ import { MongoUnitOfWork, getInitializedUnitOfWork } from './mongo-unit-of-work.
 import { MongoRepositoryBase } from './mongo-repository.js';
 
 // Type alias for test purposes to avoid linting issues
+
+const test = { for: describeFeature };
 type PassportType = Record<string, never>;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -49,7 +51,7 @@ vi.mock('mongoose', async () => {
   };
 });
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let unitOfWork: MongoUnitOfWork<MongoType, PropType, typeof Passport, AggregateRootMock, RepoMock>;
   let repoInstance: RepoMock;
   let eventBus: DomainSeedwork.EventBus;

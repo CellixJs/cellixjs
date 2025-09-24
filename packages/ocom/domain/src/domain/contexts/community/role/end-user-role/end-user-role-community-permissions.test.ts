@@ -5,6 +5,8 @@ import { expect, vi } from 'vitest';
 import { EndUserRoleCommunityPermissions } from './end-user-role-community-permissions.ts';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/end-user-role-community-permissions.feature'),
@@ -32,7 +34,7 @@ function makeProps() {
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let visa: ReturnType<typeof makeVisa>;
   let props: ReturnType<typeof makeProps>;
   let entity: EndUserRoleCommunityPermissions;

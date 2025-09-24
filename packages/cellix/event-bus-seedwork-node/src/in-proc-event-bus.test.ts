@@ -6,6 +6,8 @@ import { expect, vi } from 'vitest';
 import { InProcEventBusInstance } from './in-proc-event-bus.js';
 
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/in-proc-event-bus.feature')
@@ -15,7 +17,7 @@ class TestEvent extends DomainSeedwork.CustomDomainEventImpl<{ test: string }> {
 class TestEventA extends DomainSeedwork.CustomDomainEventImpl<{ testA: string }> {}
 class TestEventB extends DomainSeedwork.CustomDomainEventImpl<{ testB: string }> {}
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let handler: ReturnType<typeof vi.fn>;
   let handler1: ReturnType<typeof vi.fn>;
   let handler2: ReturnType<typeof vi.fn>;

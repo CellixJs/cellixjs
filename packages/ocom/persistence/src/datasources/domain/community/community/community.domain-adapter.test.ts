@@ -9,6 +9,8 @@ import { CommunityConverter, CommunityDomainAdapter } from './community.domain-a
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const domainAdapterFeature = await loadFeature(
   path.resolve(__dirname, 'features/community.domain-adapter.feature')
@@ -53,7 +55,7 @@ function makeMockPassport() {
     } as unknown as Domain.Passport;
 }
 
-describeFeature(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.Community.Community;
   let adapter: CommunityDomainAdapter;
   let userDoc: Models.User.EndUser;
@@ -232,7 +234,7 @@ describeFeature(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenari
   });
 });
 
-describeFeature(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.Community.Community;
   let userDoc: Models.User.EndUser;
   let converter: CommunityConverter;

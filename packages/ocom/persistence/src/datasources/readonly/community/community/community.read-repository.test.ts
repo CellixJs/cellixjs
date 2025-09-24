@@ -9,6 +9,8 @@ import { CommunityReadRepositoryImpl } from './community.read-repository.ts';
 import { CommunityDataSourceImpl } from './community.data.ts';
 
 // Mock the data source module
+
+const test = { for: describeFeature };
 vi.mock('./community.data.ts', () => ({
   CommunityDataSourceImpl: vi.fn(),
 }));
@@ -48,7 +50,7 @@ function makeMockCommunityDocument() {
   } as unknown as Models.Community.Community;
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
   let passport: Domain.Passport;
   let repository: CommunityReadRepositoryImpl;

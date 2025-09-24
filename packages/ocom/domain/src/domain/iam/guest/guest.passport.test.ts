@@ -7,12 +7,14 @@ import type { ServicePassport } from '../../contexts/service/service.passport.ts
 import type { UserPassport } from '../../contexts/user/user.passport.ts';
 import { GuestPassport } from './guest.passport.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/guest.passport.feature'),
 );
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let passport: GuestPassport;
   let communityPassport: CommunityPassport;
   let servicePassport: ServicePassport;

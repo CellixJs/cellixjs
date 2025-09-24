@@ -6,6 +6,8 @@ import type { ServiceEntityReference } from '../../../contexts/service/service/s
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
 import { MemberServiceVisa } from './member.service.visa.ts';
 
+const test = { for: describeFeature };
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member.service.visa.feature'),
@@ -34,7 +36,7 @@ function makeMember(
   } as unknown as MemberEntityReference;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let service: ServiceEntityReference;
   let member: MemberEntityReference;
   let visa: MemberServiceVisa<ServiceEntityReference>;

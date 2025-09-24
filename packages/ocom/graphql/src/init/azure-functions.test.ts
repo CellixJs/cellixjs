@@ -6,6 +6,8 @@ import { startServerAndCreateHandler } from './azure-functions.ts';
 import type { ApolloServer, BaseContext, HeaderMap } from '@apollo/server';
 import type { HttpRequest, InvocationContext, HttpResponseInit } from '@azure/functions-v4';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/azure-functions.feature')
@@ -37,7 +39,7 @@ function makeMockInvocationContext() {
   } as unknown as InvocationContext;
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let server: ApolloServer<BaseContext>;
   let handler: ReturnType<typeof startServerAndCreateHandler>;
   let req: HttpRequest;

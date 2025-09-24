@@ -6,6 +6,8 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
+
+const test = { for: describeFeature };
 import {
     EndUserRoleCommunityPermissionsDomainAdapter,
     EndUserRoleConverter,
@@ -95,7 +97,7 @@ function makeMockPassport() {
   } as unknown as Domain.Passport;
 }
 
-describeFeature(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.Role.EndUserRole;
   let adapter: EndUserRoleDomainAdapter;
   let communityDoc: Models.Community.Community;
@@ -661,7 +663,7 @@ describeFeature(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenari
   });
 });
 
-describeFeature(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.Role.EndUserRole;
   let communityDoc: Models.Community.Community;
   let converter: EndUserRoleConverter;

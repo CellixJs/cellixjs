@@ -5,12 +5,14 @@ import { expect } from 'vitest';
 import * as ValueObjects from './member-profile.value-objects.ts';
 import type { VOError } from '@lucaspaganini/value-objects';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member-profile.value-objects.feature'),
 );
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   // Name
   Scenario('Creating a name with valid value', ({ When, Then }) => {
     let value: string;

@@ -9,12 +9,14 @@ import type { StaffUserEntityReference } from '../../../contexts/user/staff-user
 import type { UserVisa } from '../../../contexts/user/user.visa.ts';
 import type { VendorUserEntityReference } from '../../../contexts/user/vendor-user/vendor-user.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/guest.user.passport.feature'),
 );
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let passport: GuestUserPassport;
   let endUserRef: EndUserEntityReference;
   let staffUserRef: StaffUserEntityReference;

@@ -10,6 +10,8 @@ import { EndUserDataSourceImpl } from './end-user.data.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
 
 // Mock the data source module
+
+const test = { for: describeFeature };
 vi.mock('./end-user.data.ts', () => ({
   EndUserDataSourceImpl: vi.fn(),
 }));
@@ -60,7 +62,7 @@ function makeMockEndUserDocument() {
   } as unknown as Models.User.EndUser;
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
   let passport: Domain.Passport;
   let repository: EndUserReadRepositoryImpl;

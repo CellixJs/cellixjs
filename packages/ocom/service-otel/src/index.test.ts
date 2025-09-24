@@ -4,6 +4,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { ServiceOtel } from './index.ts';
 
+
+const test = { for: describeFeature };
 vi.mock('@opentelemetry/sdk-node', () => {
   // Mock Resource class and resources namespace
   class Resource {
@@ -68,7 +70,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/service-otel.feature')
 );
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
  let service: ServiceOtel;
   let logSpy: ReturnType<typeof vi.spyOn>;
   let getLastConfig: () => unknown;

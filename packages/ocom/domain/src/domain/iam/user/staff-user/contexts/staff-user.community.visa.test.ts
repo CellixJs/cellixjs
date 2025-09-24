@@ -6,6 +6,8 @@ import type { CommunityEntityReference } from '../../../../contexts/community/co
 import type { StaffUserEntityReference } from '../../../../contexts/user/staff-user/staff-user.ts';
 import { StaffUserCommunityVisa } from './staff-user.community.visa.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/staff-user.community.visa.feature'),
@@ -33,7 +35,7 @@ function makeStaffUser(
   } as unknown as StaffUserEntityReference;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let community: ReturnType<typeof makeCommunity>;
   let staffUser: ReturnType<typeof makeStaffUser>;
   let visa: StaffUserCommunityVisa<typeof community>;

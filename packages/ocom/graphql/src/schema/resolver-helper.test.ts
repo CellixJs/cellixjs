@@ -5,6 +5,8 @@ import { expect } from 'vitest';
 import { getRequestedFieldPaths } from './resolver-helper.ts';
 import { type GraphQLResolveInfo, type FragmentDefinitionNode, type FieldNode, type SelectionSetNode, Kind } from 'graphql';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'resolver-helper.feature')
@@ -30,7 +32,7 @@ function makeInfo({
   } as unknown as GraphQLResolveInfo;
 }
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   Scenario('Extracting simple top-level fields', ({ Given, When, Then }) => {
     let info: GraphQLResolveInfo;
     let result: string[];

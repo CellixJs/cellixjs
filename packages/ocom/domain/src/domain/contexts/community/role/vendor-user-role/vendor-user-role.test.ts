@@ -13,6 +13,8 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../../passport.ts';
 import type { CommunityProps } from '../../community/community.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
 	path.resolve(__dirname, 'features/vendor-user-role.feature'),
@@ -81,7 +83,7 @@ function getIntegrationEvent<T>(
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let passport: ReturnType<typeof makePassport>;
 	let baseProps: ReturnType<typeof makeBaseProps>;
 	let communityRef: ReturnType<typeof makeCommunityProps>;

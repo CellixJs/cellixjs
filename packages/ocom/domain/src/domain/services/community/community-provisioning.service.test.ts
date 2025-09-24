@@ -5,6 +5,8 @@ import { expect, vi, type MockedFunction } from 'vitest';
 import type { Domain, DomainDataSource } from '../../../index.ts';
 import { CommunityProvisioningService } from './community-provisioning.service.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/community-provisioning.service.feature'),
@@ -81,7 +83,7 @@ function makeMockMember(): Domain.Contexts.Community.Member.MemberEntityReferenc
   } as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let service: CommunityProvisioningService;
   let mockDomainDataSource: DomainDataSource;
   let mockCommunity: Domain.Contexts.Community.Community.CommunityEntityReference; 

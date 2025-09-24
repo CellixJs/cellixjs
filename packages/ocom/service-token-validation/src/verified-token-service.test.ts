@@ -7,6 +7,8 @@ import type { OpenIdConfig } from './verified-token-service.ts';
 import { VerifiedTokenService } from './verified-token-service.ts';
 
 // Mock jose library
+
+const test = { for: describeFeature };
 vi.mock('jose', () => ({
   createRemoteJWKSet: vi.fn(),
   jwtVerify: vi.fn(),
@@ -17,7 +19,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/verified-token-service.feature')
 );
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let service: VerifiedTokenService;
   let mockOpenIdConfigs: Map<string, OpenIdConfig>;
 

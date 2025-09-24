@@ -20,6 +20,8 @@ import { MemberUserStaffUserVisa } from './contexts/member.user.staff-user.visa.
 import { MemberUserVendorUserVisa } from './contexts/member.user.vendor-user.visa.ts';
 import { MemberUserPassport } from './contexts/member.user.passport.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member.passport.feature'),
@@ -44,7 +46,7 @@ function makeMember(userId = 'user-1', communityId = 'community-1', accountsOver
   } as unknown as MemberEntityReference;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let user: EndUserEntityReference;
   let member: MemberEntityReference;
   let community: CommunityEntityReference;

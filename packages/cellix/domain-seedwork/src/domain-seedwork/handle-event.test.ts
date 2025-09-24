@@ -5,6 +5,8 @@ import { expect, vi } from 'vitest';
 import { DomainEventBase } from './domain-event.js';
 import { HandleEventImpl } from './handle-event.js';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/handle-event.feature')
@@ -12,7 +14,7 @@ const feature = await loadFeature(
 
 class TestEvent extends DomainEventBase {}
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let handlerFn: ReturnType<typeof vi.fn>;
   let handler: HandleEventImpl<TestEvent>;
   let event: TestEvent;
