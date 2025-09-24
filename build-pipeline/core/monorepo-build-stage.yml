@@ -71,8 +71,39 @@ stages:
       condition: and(ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
       inputs:
         version: '4.2.1'
+        
+    # Cache NPM packages to speed up build process.
+    - task: Cache@2
+      displayName: 'NPM: Restore Cache'
+      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
+      inputs:
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
+        restoreKeys: |
+            npm | "$(Agent.OS)"
+        path: ${{parameters.npm_config_cache}}
 
-    # Playwright: Restore browsers cache
+    # Install dependencies
+    - task: Bash@3
+      displayName: 'NPM: Install dependencies'
+      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, False))
+      inputs:
+        targetType: 'inline'
+        script: |
+          export NODE_OPTIONS=--max_old_space_size=16384
+          npm install
+        workingDirectory: ''
+
+    - task: Bash@3
+      displayName: 'NPM: Install dependencies using cache'
+      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
+      inputs:
+        targetType: 'inline'
+        script: |
+          export NODE_OPTIONS=--max_old_space_size=16384
+          npm ci
+        workingDirectory: ''
+
+        # Playwright: Restore browsers cache
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
       continueOnError: true
@@ -130,37 +161,6 @@ stages:
           find "$(PLAYWRIGHT_BROWSERS_PATH)" -type f -name "headless_shell" -exec chmod +x {} \; 2>/dev/null || true
       env:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
-        
-    # Cache NPM packages to speed up build process.
-    - task: Cache@2
-      displayName: 'NPM: Restore Cache'
-      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
-      inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
-        restoreKeys: |
-            npm | "$(Agent.OS)"
-        path: ${{parameters.npm_config_cache}}
-
-    # Install dependencies
-    - task: Bash@3
-      displayName: 'NPM: Install dependencies'
-      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, False))
-      inputs:
-        targetType: 'inline'
-        script: |
-          export NODE_OPTIONS=--max_old_space_size=16384
-          npm install
-        workingDirectory: ''
-
-    - task: Bash@3
-      displayName: 'NPM: Install dependencies using cache'
-      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
-      inputs:
-        targetType: 'inline'
-        script: |
-          export NODE_OPTIONS=--max_old_space_size=16384
-          npm ci
-        workingDirectory: ''
 
     # Cache Turbo to speed up build process.
     - task: Cache@2
