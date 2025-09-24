@@ -1,15 +1,4 @@
 trigger:
- paths:
-   include:
-     - packages/**
-     - apps/**
-   exclude:
-     - packages/**/coverage/**
-     - packages/**/dist/**
-     - apps/**/dist/**
-     - apps/**/build/**
-     - apps/**/.next/**
-     - apps/**/node_modules/**
  branches:
    include:
      - main
