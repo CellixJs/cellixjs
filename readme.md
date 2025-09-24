@@ -10,10 +10,18 @@ Our Docusaurus website will help you get started in running and contributing to 
 
 ## Developer usage
 
-- Full local dev (builds, starts Azurite, emulators, and the OwnerCommunity app):
+- Full local dev with automatic rebuild/restart (builds, starts Azurite, emulators, and watches for changes):
 
   ```bash
   npm run dev
+  ```
+
+  This uses Turborepo's watch mode to automatically rebuild affected packages and restart dev servers when source files change.
+
+- Development with test watching (includes all of the above plus test runners in watch mode):
+
+  ```bash
+  npm run dev:test
   ```
 
 - Start only the API app:
@@ -40,20 +48,42 @@ Our Docusaurus website will help you get started in running and contributing to 
 
 ## Scripts
 
-- Build all workspaces: `npm run build`
-- Build affected packages only: `npm run build:affected`
-- Lint all: `npm run lint`
-- Lint affected packages only: `npm run lint:affected`
-- Format all: `npm run format`
-- Tests: 
-    - `npm run test`
-    - `npm run test:affected` (affected packages only)
-    - `npm run test:coverage`
-    - `npm run test:coverage:affected` (affected packages only)
-    - `npm run test:integration`
-    - `npm run test:serenity`
-    - `npm run test:unit`
-    - `npm run test:watch` (typically run per workspace package)
+### Development
+- **Development with watch mode**: `npm run dev` - Starts all development services with automatic rebuild/restart using Turborepo watch mode
+- **Development with tests**: `npm run dev:test` - Same as above but also runs tests in watch mode
+- **Build all workspaces**: `npm run build`
+- **Build affected packages only**: `npm run build:affected`
+
+### Code Quality
+- **Lint all**: `npm run lint`
+- **Lint affected packages only**: `npm run lint:affected`
+- **Format all**: `npm run format`
+
+### Testing
+- `npm run test`
+- `npm run test:affected` (affected packages only)
+- `npm run test:coverage`
+- `npm run test:coverage:affected` (affected packages only)
+- `npm run test:integration`
+- `npm run test:serenity`
+- `npm run test:unit`
+- `npm run test:watch` (typically run per workspace package)
+
+## Turborepo Watch Mode
+
+The `dev` script leverages Turborepo's watch mode for intelligent development workflow:
+
+- **Automatic Dependency Tracking**: Changes in source files trigger rebuilds of affected packages only
+- **Parallel Execution**: Azurite, code generation, and dev servers run simultaneously
+- **No Redundant Watchers**: Single file watching system manages all change detection
+- **Efficient Rebuilds**: Only packages with actual changes are rebuilt, cached packages are skipped
+
+### Watch Mode Tasks
+
+- `dev` - Development servers for applications (API, UI)
+- `azurite` - Local Azure Storage emulator
+- `gen:watch` - GraphQL code generation in watch mode
+- `test:watch` - Test runners in watch mode (optional, via `npm run dev:test`)
 
 ## Turborepo Optimization
 

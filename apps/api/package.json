@@ -16,6 +16,7 @@
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
     "start": "func start --typescript",
+    "dev": "func start --typescript",
     "azurite": "azurite-blob --silent --location ../../__blobstorage__ & azurite-queue --silent --location ../../__queuestorage__ & azurite-table --silent --location ../../__tablestorage__"
   },
   "dependencies": {

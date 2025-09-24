@@ -70,17 +70,25 @@ source ~/.zshrc
 
 ## Start Development
 
-Run the development environment:
+Run the development environment with automatic rebuild/restart:
 
 ```bash
 npm run dev
 ```
 
-This command will:
-- Build all workspace packages
+This command uses Turborepo's watch mode to:
+- Build all workspace packages with dependency tracking
 - Start mock emulator services (Azurite for Azure Storage)
-- Launch the backend Azure Functions runtime
-- Start the frontend React UI
+- Launch the backend Azure Functions runtime with automatic restart
+- Start the frontend React UI with hot module replacement
+- Monitor file changes and automatically rebuild only affected packages
+- Run GraphQL code generation in watch mode
+
+For development with test watching:
+
+```bash
+npm run dev:test
+```
 
 The development server will be available at:
 - **API**: http://localhost:7071 (Azure Functions)

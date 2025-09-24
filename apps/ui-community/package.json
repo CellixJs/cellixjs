@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc -b && vite build",
     "start": "vite",
+    "dev": "vite",
     "lint": "biome lint",
     "preview": "vite preview",
     "test": "vitest run",
