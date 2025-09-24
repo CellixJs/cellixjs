@@ -11,3 +11,8 @@ local.settings.json
 
 # SonarScanner
 .scannerwork
+
+# Generated GraphQL files
+**/generated.ts
+**/generated.tsx
+**/graphql.schema.json

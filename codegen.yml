@@ -2,10 +2,10 @@
 
 overwrite: true
 schema:
-  - './src/schema/core/graphql-tools-scalars.ts'
-  - './src/schema/**/**.graphql'
+  - './packages/ocom/graphql/src/schema/core/graphql-tools-scalars.ts'
+  - './packages/ocom/graphql/src/schema/**/**.graphql'
 generates:
-  ./src/schema/builder/generated.ts:
+  ./packages/ocom/graphql/src/schema/builder/generated.ts:
     config:
       contextType: '../../init/context.ts#GraphContext'
       useIndexSignature: true
@@ -74,11 +74,11 @@ generates:
     plugins:
       - 'typescript'
       - 'typescript-resolvers'
-  ./src/schema/builder/graphql.schema.json:
+  ./packages/ocom/graphql/src/schema/builder/graphql.schema.json:
     plugins:
       - 'introspection'
-  ../../../apps/ui-community/src/generated.tsx:
-    documents: '../../../apps/ui-community/src/components/**/**.graphql'
+  ./apps/ui-community/src/generated.tsx:
+    documents: './apps/ui-community/src/components/**/**.graphql'
     config:
       withHooks: true
       withHOC: false
@@ -89,8 +89,8 @@ generates:
       - 'typescript'
       - 'typescript-operations'
       - 'typed-document-node'
-  ../../ocom/ui-components/src/generated.tsx:
-    documents: '../../ocom/ui-components/src/components/**/**.graphql'
+  ./packages/ocom/ui-components/src/generated.tsx:
+    documents: './packages/ocom/ui-components/src/components/**/**.graphql'
     config:
       withHooks: true
       withHOC: false
