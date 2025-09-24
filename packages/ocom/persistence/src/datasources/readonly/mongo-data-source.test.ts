@@ -7,6 +7,8 @@ import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { MongoDataSourceImpl, type MongoDataSource } from './mongo-data-source.ts';
 
 // Mock mongoose Model and isValidObjectId
+
+const test = { for: describeFeature };
 vi.mock('mongoose', () => ({
   Model: vi.fn(),
   isValidObjectId: vi.fn((id: string) => id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id)),
@@ -58,7 +60,7 @@ function makeMockLeanDocuments(): (TestDocument & { _id: string })[] {
   ];
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let model: Model<TestDocument>;
   let dataSource: MongoDataSource<TestDocument>;
   let mockLeanDoc: TestDocument & { _id: string };

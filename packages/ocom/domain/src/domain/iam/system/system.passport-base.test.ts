@@ -4,6 +4,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 import { SystemPassportBase, type PermissionsSpec } from './system.passport-base.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/system.passport-base.feature'),
@@ -16,7 +18,7 @@ class TestSystemPassport extends SystemPassportBase {
   }
 }
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let passport: TestSystemPassport;
   let permissions: Partial<PermissionsSpec>;
   let result: Partial<PermissionsSpec>;

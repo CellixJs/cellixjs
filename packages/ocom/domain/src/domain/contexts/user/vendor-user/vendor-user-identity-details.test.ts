@@ -6,6 +6,8 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { VendorUserIdentityDetails } from './vendor-user-identity-details.ts';
 import type { UserDomainPermissions } from '../user.domain-permissions.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user-identity-details.feature'),
@@ -31,7 +33,7 @@ function makeProps(overrides = {}) {
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let visa: ReturnType<typeof makeVisa>;
   let props: ReturnType<typeof makeProps>;
   let entity: VendorUserIdentityDetails;

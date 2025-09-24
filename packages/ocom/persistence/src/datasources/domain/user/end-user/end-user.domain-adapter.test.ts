@@ -4,6 +4,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
+
+const test = { for: describeFeature };
 import {
   EndUserConverter,
   EndUserDomainAdapter,
@@ -53,7 +55,7 @@ function makeMockPassport() {
   } as unknown as Domain.Passport;
 }
 
-describeFeature(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.User.EndUser;
   let adapter: EndUserDomainAdapter;
   let result: unknown;
@@ -418,7 +420,7 @@ describeFeature(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenari
   });
 });
 
-describeFeature(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.User.EndUser;
   let converter: EndUserConverter;
   let passport: Domain.Passport;

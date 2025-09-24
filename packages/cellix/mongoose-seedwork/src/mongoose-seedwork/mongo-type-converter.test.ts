@@ -7,6 +7,8 @@ import type { Base } from './base.js';
 import type { MongooseDomainAdapterType } from './mongo-domain-adapter.js';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/mongo-type-converter.feature')
@@ -31,7 +33,7 @@ class TestDomain extends DomainSeedwork.AggregateRoot<TestAdapter, string> {}
 
 class TestConverter extends MongoTypeConverter<TestDoc, TestAdapter, string, TestDomain> {}
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let doc: TestDoc;
   let adapter: TestAdapter;
   let domain: TestDomain;

@@ -18,12 +18,14 @@ vi.mock('mongoose', () => {
 
 import { ServiceMongoose } from './index.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
 	path.resolve(__dirname, 'features/service-mongoose.feature'),
 );
 
-describeFeature(
+test.for(
 	feature,
 	({ Scenario, BeforeEachScenario, AfterEachScenario }) => {
 		let uri: string;

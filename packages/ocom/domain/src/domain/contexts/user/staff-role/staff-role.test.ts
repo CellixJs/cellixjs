@@ -8,6 +8,8 @@ import { RoleDeletedReassignEvent } from '../../../events/types/role-deleted-rea
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/staff-role.feature'),
@@ -51,7 +53,7 @@ function getIntegrationEvent<T>(
   return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let passport: Passport;
   let baseProps: StaffRoleProps;
   let staffRole: StaffRole<StaffRoleProps>;

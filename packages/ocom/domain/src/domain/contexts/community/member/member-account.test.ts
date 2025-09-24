@@ -9,6 +9,8 @@ import type { CommunityVisa } from '../community.visa.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserPassport } from '../../user/user.passport.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member-account.feature'),
@@ -67,7 +69,7 @@ function makeProps(overrides: Partial<MemberAccountProps> = {}): MemberAccountPr
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let visa: ReturnType<typeof makeVisa>;
   let passport: ReturnType<typeof makePassport>;
   let props: MemberAccountProps;

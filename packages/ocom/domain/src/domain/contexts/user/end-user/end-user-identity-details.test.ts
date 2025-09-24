@@ -6,6 +6,8 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { EndUserIdentityDetails } from './end-user-identity-details.ts';
 import type { UserDomainPermissions } from '../user.domain-permissions.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/end-user-identity-details.feature'),
@@ -39,7 +41,7 @@ function makeRoot() {
     }
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let visa: ReturnType<typeof makeVisa>;
   let props: ReturnType<typeof makeProps>;
   let root: ReturnType<typeof makeRoot>;

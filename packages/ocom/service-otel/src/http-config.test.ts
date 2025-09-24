@@ -5,12 +5,14 @@ import { fileURLToPath } from 'node:url';
 import { httpInstrumentationConfig } from './http-config.ts';
 import type { IncomingMessage } from 'node:http';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/http-config.feature')
 );
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   Scenario('Ignoring incoming OPTIONS requests', ({ Given, When, Then }) => {
     let request: IncomingMessage;
     let result: boolean;

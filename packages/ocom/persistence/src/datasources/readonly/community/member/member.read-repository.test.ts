@@ -10,6 +10,8 @@ import { MemberDataSourceImpl } from './member.data.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
 
 // Mock the data source module
+
+const test = { for: describeFeature };
 vi.mock('./member.data.ts', () => ({
   MemberDataSourceImpl: vi.fn(),
 }));
@@ -68,7 +70,7 @@ function makeMockMemberDocument() {
   } as unknown as Models.Member.Member;
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
   let passport: Domain.Passport;
   let repository: MemberReadRepositoryImpl;

@@ -6,6 +6,8 @@ import { expect, vi } from 'vitest';
 import type { Base } from './base.js';
 import { modelFactory, type MongooseContextFactory } from './mongo-connection.js';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/mongo-connection.feature')
@@ -15,7 +17,7 @@ interface TestDoc extends Base {
   foo: string;
 }
 
-describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let mockService: {
     models: Record<string, unknown>;
     model: ReturnType<typeof vi.fn>;

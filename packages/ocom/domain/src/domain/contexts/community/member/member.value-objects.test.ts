@@ -4,12 +4,14 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 import * as ValueObjects from './member.value-objects.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member.value-objects.feature'),
 );
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   // MemberName
   Scenario('Creating a member name with valid value', ({ When, Then }) => {
     let value: string;

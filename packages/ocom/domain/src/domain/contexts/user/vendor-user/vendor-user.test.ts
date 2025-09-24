@@ -7,6 +7,8 @@ import { VendorUserCreatedEvent } from '../../../events/types/vendor-user-create
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user.feature'),
@@ -62,7 +64,7 @@ function getIntegrationEvent<T>(
   return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let passport: Passport;
   let baseProps: VendorUserProps;
   let vendorUser: VendorUser<VendorUserProps>;

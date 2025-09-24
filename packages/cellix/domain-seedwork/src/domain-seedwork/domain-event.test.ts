@@ -4,6 +4,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 import { CustomDomainEventImpl } from './domain-event.js';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
 	path.resolve(__dirname, 'features/domain-event.feature'),
@@ -11,7 +13,7 @@ const feature = await loadFeature(
 
 class TestDomainEvent extends CustomDomainEventImpl<{ foo: string }> {}
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
 	let aggregateId: string;
 	let event: TestDomainEvent;
 	let error: Error | undefined;

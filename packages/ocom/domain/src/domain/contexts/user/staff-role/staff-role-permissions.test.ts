@@ -9,6 +9,8 @@ import { StaffRoleServiceTicketPermissions } from './staff-role-service-ticket-p
 import { StaffRoleServicePermissions } from './staff-role-service-permissions.ts';
 import { StaffRoleViolationTicketPermissions } from './staff-role-violation-ticket-permissions.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/staff-role-permissions.feature'),
@@ -30,7 +32,7 @@ function makeProps() {
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let visa: ReturnType<typeof makeVisa>;
   let props: ReturnType<typeof makeProps>;
   let entity: StaffRolePermissions;

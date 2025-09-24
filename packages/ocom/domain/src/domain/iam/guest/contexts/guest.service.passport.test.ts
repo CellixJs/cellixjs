@@ -6,12 +6,14 @@ import { GuestServicePassport } from './guest.service.passport.ts';
 import type { ServiceEntityReference } from '../../../contexts/service/service/service.ts';
 import type { ServiceVisa } from '../../../contexts/service/service.visa.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/guest.service.passport.feature'),
 );
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let passport: GuestServicePassport;
   let serviceRef: ServiceEntityReference;
   let visa: ServiceVisa;

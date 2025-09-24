@@ -6,6 +6,8 @@ import type { Domain } from '@ocom/domain';
 import { MemberReadRepositoryImpl } from './index.ts';
 import { MemberDataSourceImpl, type MemberDataSource } from './member.data.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/index.feature')
@@ -39,7 +41,7 @@ function makeMockPassport() {
   } as unknown as Domain.Passport;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof MemberReadRepositoryImpl>[0];
   let passport: Domain.Passport;
   let result: ReturnType<typeof MemberReadRepositoryImpl>;

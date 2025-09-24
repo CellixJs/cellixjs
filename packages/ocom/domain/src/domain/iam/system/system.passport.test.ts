@@ -8,12 +8,14 @@ import type { UserPassport } from '../../contexts/user/user.passport.ts';
 import type { PermissionsSpec } from './system.passport-base.ts';
 import { SystemPassport } from './system.passport.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/system.passport.feature'),
 );
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let passport: SystemPassport;
   let permissions: Partial<PermissionsSpec>;
   let communityPassport: CommunityPassport;

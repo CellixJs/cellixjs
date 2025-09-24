@@ -7,6 +7,8 @@ import { StaffUser, type StaffUserProps } from './staff-user.ts';
 import { StaffUserCreatedEvent } from '../../../events/types/staff-user-created.ts';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
+
+const test = { for: describeFeature };
 import type {
 	StaffRoleEntityReference,
 	StaffRoleProps,
@@ -75,7 +77,7 @@ function getIntegrationEvent<T>(
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let passport: Passport;
 	let baseProps: StaffUserProps;
 	let staffUser: StaffUser<StaffUserProps>;

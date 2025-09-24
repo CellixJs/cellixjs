@@ -21,6 +21,8 @@ vi.mock('./datasources/index.ts', () => ({
 import { Persistence, type ModelsContext } from './index.ts';
 import { DataSourcesFactoryImpl } from './datasources/index.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'index.feature')
@@ -58,7 +60,7 @@ function makeMockDataSourcesFactory() {
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let mockMongooseFactory: MongooseSeedwork.MongooseContextFactory;
   let mockModelsContext: ReturnType<typeof makeMockModelsContext>;
   let mockFactory: ReturnType<typeof makeMockDataSourcesFactory>;

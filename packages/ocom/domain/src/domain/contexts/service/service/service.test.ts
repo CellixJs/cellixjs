@@ -7,6 +7,8 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 import type { CommunityEntityReference, CommunityProps } from '../../community/community/community.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/service.feature'),
@@ -50,7 +52,7 @@ function makeBaseProps(overrides: Partial<ServiceProps> = {}): ServiceProps {
   };
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let passport: Passport;
   let baseProps: ServiceProps;
   let communityRef: CommunityEntityReference;

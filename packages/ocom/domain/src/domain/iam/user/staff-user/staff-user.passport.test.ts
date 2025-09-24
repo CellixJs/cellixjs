@@ -8,6 +8,8 @@ import { StaffUserCommunityPassport } from './contexts/staff-user.community.pass
 import { StaffUserCommunityVisa } from './contexts/staff-user.community.visa.ts';
 import { StaffUserPassport } from './staff-user.passport.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/staff-user.passport.feature'),
@@ -27,7 +29,7 @@ function makeStaffUser(id = 'staff-1') {
   } as unknown as StaffUserEntityReference;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let staffUser: ReturnType<typeof makeStaffUser>;
   let passport: StaffUserPassport;
   let communityPassport: unknown;

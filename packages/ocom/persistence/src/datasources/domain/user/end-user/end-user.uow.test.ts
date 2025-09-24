@@ -6,6 +6,8 @@ import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getEndUserUnitOfWork } from './end-user.uow.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/end-user.uow.feature')
@@ -36,7 +38,7 @@ function makeMockPassport() {
   } as unknown as Domain.Passport;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let endUserModel: Models.User.EndUserModelType;
   let passport: Domain.Passport;
   let result: Domain.Contexts.User.EndUser.EndUserUnitOfWork;

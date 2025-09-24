@@ -5,12 +5,14 @@ import { expect } from 'vitest';
 import * as ValueObjects from './member-custom-view.value-objects.ts';
 import type { VOError } from '@lucaspaganini/value-objects';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/member-custom-view.value-objects.feature'),
 );
 
-describeFeature(feature, ({ Scenario, ScenarioOutline }) => {
+test.for(feature, ({ Scenario, ScenarioOutline }) => {
   // CustomViewName
   Scenario('Creating a custom view name with valid value', ({ When, Then }) => {
     let value: string;

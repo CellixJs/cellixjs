@@ -7,12 +7,14 @@ import type { ServiceEntityReference } from '../../../contexts/service/service/s
 import type { ServiceDomainPermissions } from '../../../contexts/service/service.domain-permissions.ts';
 import type { ServiceVisa } from '../../../contexts/service/service.visa.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/system.service.passport.feature'),
 );
 
-describeFeature(feature, ({ Scenario, Background }) => {
+test.for(feature, ({ Scenario, Background }) => {
   let passport: SystemServicePassport;
   let permissions: Partial<ServiceDomainPermissions>;
   let serviceRef: ServiceEntityReference;

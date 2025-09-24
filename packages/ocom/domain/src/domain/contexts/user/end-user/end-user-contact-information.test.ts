@@ -5,6 +5,8 @@ import { expect, vi } from 'vitest';
 import { EndUserContactInformation } from './end-user-contact-information.ts';
 import type { UserDomainPermissions } from '../user.domain-permissions.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/end-user-contact-information.feature'),
@@ -36,7 +38,7 @@ function makeRoot() {
     }
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let visa: ReturnType<typeof makeVisa>;
   let props: ReturnType<typeof makeProps>;
   let root: ReturnType<typeof makeRoot>;

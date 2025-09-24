@@ -10,6 +10,8 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
 	path.resolve(__dirname, 'features/community.feature'),
@@ -66,7 +68,7 @@ function findEvent<T>(
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
-describeFeature(feature, ({ Scenario, Background, BeforeEachScenario }) => {
+test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let passport: Passport;
 	let baseProps: CommunityProps;
 	let community: Community<CommunityProps>;

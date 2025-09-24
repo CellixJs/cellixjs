@@ -4,6 +4,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 import { DomainEntity, type DomainEntityProps, PermissionError } from './domain-entity.js';
 
+
+const test = { for: describeFeature };
 interface TestEntityProps extends DomainEntityProps {
   foo?: string;
 }
@@ -19,7 +21,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/domain-entity.feature')
 );
 
-describeFeature(feature, ({ Scenario }) => {
+test.for(feature, ({ Scenario }) => {
   let props: TestEntityProps;
   let entity: TestEntity;
   let error: Error | undefined;

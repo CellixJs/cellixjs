@@ -7,12 +7,14 @@ import type { CommunityEntityReference } from '../../../contexts/community/commu
 import type { CommunityDomainPermissions } from '../../../contexts/community/community.domain-permissions.ts';
 import type { CommunityVisa } from '../../../contexts/community/community.visa.ts';
 
+
+const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
   path.resolve(__dirname, 'features/system.community.passport.feature'),
 );
 
-describeFeature(feature, ({ Scenario, Background }) => {
+test.for(feature, ({ Scenario, Background }) => {
   let passport: SystemCommunityPassport;
   let permissions: Partial<CommunityDomainPermissions>;
   let communityRef: CommunityEntityReference;
