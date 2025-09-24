@@ -2,7 +2,7 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "gen"],
+      "dependsOn": ["^build", "//#gen"],
       "outputs": ["dist/**", "build/**"]
     },
     "test": {
@@ -41,7 +41,7 @@
       "cache": false,
       "outputs": []
     },
-    "gen": {
+    "//#gen": {
       "cache": true,
       "outputs": [
         "packages/ocom/graphql/src/schema/builder/generated.ts",
@@ -49,6 +49,10 @@
         "apps/ui-community/src/generated.tsx",
         "packages/ocom/ui-components/src/generated.tsx"
       ]
+    },
+    "//#gen:watch": {
+      "cache": false,
+      "persistent": true
     }
   }
 }
