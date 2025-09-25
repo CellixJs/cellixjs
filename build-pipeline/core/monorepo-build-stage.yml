@@ -198,7 +198,7 @@ stages:
           # Audit npm packages for vulnerabilities
           echo "Running npm audit for vulnerabilities..."
           npm audit --audit-level=high --omit=dev
-          
+
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only using Turbo's --affected..."
@@ -334,6 +334,7 @@ stages:
     # Package compiled assets into artifact
     - task: ArchiveFiles@2
       displayName: 'Artifact: Prepare'
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       inputs:
         rootFolderOrFile: '$(Build.SourcesDirectory)/'
         includeRootFolder: false
@@ -345,4 +346,5 @@ stages:
     # Upload artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Artifact: Publish'
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: drop
