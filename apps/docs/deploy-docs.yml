@@ -1,0 +1,91 @@
+parameters:
+- name: vmImageName
+  type: string
+
+jobs:
+- deployment: Deploy_Docs
+  displayName: 'Deploy Docs (Static Website)'
+  condition: succeeded()
+  pool:
+    vmImage: ${{parameters.vmImageName}}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - checkout: self
+          persistCredentials: true
+        - task: UseNode@1
+          inputs:
+            version: '22.x'
+          displayName: 'Install Node.js'
+        - task: Cache@2
+          displayName: 'NPM: Restore Cache'
+          inputs:
+            key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/apps/docs/package-lock.json'
+            restoreKeys: |
+              npm | "$(Agent.OS)"
+            path: $(Build.SourcesDirectory)/apps/docs/node_modules
+        - task: DownloadBuildArtifacts@1
+          displayName: 'Download Build Artifacts'
+          inputs:
+            buildType: 'current'
+            artifactName: 'drop'
+            downloadPath: $(Build.SourcesDirectory)
+        - task: Bash@3
+          displayName: 'Restore Build Artifacts'
+          inputs:
+            targetType: 'inline'
+            script: |
+              cd $(Build.SourcesDirectory)
+              unzip drop/$(Build.BuildId).zip -d temp
+              cp -r temp/apps/docs/build apps/docs/
+              rm -rf temp
+              echo "Build artifacts restored successfully"
+              ls -la apps/docs/build/
+        - task: Bash@3
+          displayName: 'Deploy to GitHub Pages'
+          inputs:
+            targetType: 'inline'
+            script: |
+              echo "GH_NAME: $(GH_NAME)"
+              echo "GH_EMAIL: $(GH_EMAIL)"
+              echo "Current directory: $(pwd)"
+              echo "Git remote URL:"
+              git remote -v
+
+              if [ -z "$(GH_NAME)" ]; then
+                echo "Error: GH_NAME is empty or not loaded. Please check the variable group configuration."
+                exit 1
+              fi
+              echo "GH_NAME PRESENT: True"
+
+              if [ -z "$(GH_EMAIL)" ]; then
+                echo "Error: GH_EMAIL is empty or not loaded. Please check the variable group configuration."
+                exit 1
+              fi
+              echo "GH_EMAIL PRESENT: True"
+
+              if [ -z "$(GH_TOKEN)" ]; then
+                echo "Error: GH_TOKEN is empty or not loaded. Please check the variable group configuration."
+                exit 1
+              fi
+              echo "GH_TOKEN PRESENT: True"
+
+              git config --global user.name "$(GH_NAME)"
+              git config --global user.email "$(GH_EMAIL)"
+
+              export GIT_USER=$(GH_NAME)
+              export GIT_PASS=$(GH_TOKEN)
+
+              cd apps/docs
+
+              echo "Installing dependencies for deployment..."
+              npm ci
+
+              set -e
+
+              echo "Deploying to GitHub Pages..."
+              npm run deploy --skip-build
+
+              echo "Deployment completed successfully!"
+              #requires GH_TOKEN secret variable with Pages permission with Read/Write access

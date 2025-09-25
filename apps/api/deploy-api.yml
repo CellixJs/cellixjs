@@ -1,0 +1,50 @@
+parameters:
+- name: ServiceConnectionName
+  type: string
+- name: deploymentDefaultLocation
+  type: string
+- name: resourceGroupName
+  type: string
+- name: environmentNameBicep
+  type: string
+- name: environmentNameDevOps
+  type: string
+- name: vmImageName
+  type: string
+- name: functionAppNamePri
+  type: string
+
+jobs:
+- job: Infrastructure
+  displayName: Infrastructure Setup
+  pool:
+    vmImage: ${{parameters.vmImageName}}
+  steps:
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      connectedServiceName: ${{parameters.ServiceConnectionName}}
+      deploymentName: $(Build.BuildNumber)
+      location: ${{parameters.deploymentDefaultLocation}}
+      resourceGroupName: ${{parameters.resourceGroupName}}
+      csmFile: apps/api/iac/main.bicep
+      overrideParameters: >
+                -environment ${{parameters.environmentNameBicep}}
+
+- deployment: Application_Deployment_Pri
+  displayName: Application Deployment (Primary)
+  environment: ${{parameters.environmentNameDevOps}}
+  pool:
+    vmImage: ${{parameters.vmImageName}}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: AzureFunctionApp@1
+          displayName: 'Azure Functions App Deploy: ${{parameters.functionAppNamePri}}'
+          inputs:
+            azureSubscription: ${{parameters.ServiceConnectionName}}
+            appType: 'functionAppLinux'
+            appName: ${{parameters.functionAppNamePri}}
+            package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+            runtimeStack: 'NODE|22'
+            deploymentMethod: 'runFromPackage'

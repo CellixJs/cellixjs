@@ -334,7 +334,6 @@ stages:
     # Package compiled assets into artifact
     - task: ArchiveFiles@2
       displayName: 'Artifact: Prepare'
-      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       inputs:
         rootFolderOrFile: '$(Build.SourcesDirectory)/'
         includeRootFolder: false
@@ -346,5 +345,4 @@ stages:
     # Upload artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Artifact: Publish'
-      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: drop

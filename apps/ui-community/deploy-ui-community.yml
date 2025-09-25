@@ -1,0 +1,27 @@
+parameters:
+- name: environmentNameDevOps
+  type: string
+- name: vmImageName
+  type: string
+
+jobs:
+- deployment: Deploy_UI_Community
+  displayName: 'Deploy UI Community (Static Web App)'
+  condition: eq(stageDependencies.Build.BuildJob.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true')
+  environment: ${{parameters.environmentNameDevOps}}
+  pool:
+    vmImage: ${{parameters.vmImageName}}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: AzureStaticWebApp@0
+          displayName: 'Azure Static Web App Deploy: Cellix-ui-community'
+          inputs:
+            azure_static_web_apps_api_token: $(deployment-token)
+            action: 'Upload'
+            app_location: 'apps/ui-community'
+            api_location: ''
+            output_location: 'dist'
+            skip_app_build: false
+            build_timeout_in_minutes: 15
