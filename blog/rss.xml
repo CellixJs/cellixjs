@@ -16,17 +16,17 @@
             <description><![CDATA[CellixJs documentation features are designed to help developers understand and implement Domain-Driven Design patterns with Azure Functions and modern web technologies.]]></description>
             <content:encoded><![CDATA[<p>CellixJs documentation features are designed to help developers understand and implement Domain-Driven Design patterns with Azure Functions and modern web technologies.</p>
 <p>Here are a few tips to get you started with CellixJs development.</p>
-<p>Simply explore the <code>packages</code> directory to understand the modular architecture.</p>
+<p>Simply explore the <code>apps</code> and <code>packages</code> directories to understand the modular architecture.</p>
 <p>Regular contributors can be added to the team through our development workflow.</p>
 <p>The project follows semantic versioning and clear release cycles:</p>
 <ul>
 <li>Architecture Decision Records (ADRs) document key decisions</li>
-<li>Domain contexts are organized under <code>packages/api-domain/src/domain/contexts/</code></li>
+<li>Domain contexts are organized under <code>packages/ocom/domain/src/domain/contexts/</code></li>
 </ul>
 <p>CellixJs provides comprehensive examples for DDD implementation:</p>
 <p><img decoding="async" loading="lazy" alt="CellixJs Architecture" src="https://cellixjs.github.io/assets/images/cellixjs-architecture-banner-0090e9fcf764642966519942a0ed171b.jpg" width="1024" height="1536" class="img__Ss2"></p>
 <p>The documentation supports categorized content as well!</p>
-<p><strong>Getting Started</strong>: Clone the repository, run <code>npm run clean &amp;&amp; npm install &amp;&amp; npm run build</code>, then use <code>npm run dev</code> to start the full development environment.</p>]]></content:encoded>
+<p><strong>Getting Started</strong>: Clone the repository, run <code>npm run clean &amp;&amp; npm install &amp;&amp; npm run build</code>, then use <code>npm run dev</code> to start the full development environment. You can simulate the CI pipeline locally with <code>npm run verify</code>.</p>]]></content:encoded>
             <category>Hello</category>
             <category>CellixJs</category>
         </item>
@@ -50,7 +50,7 @@
             <pubDate>Tue, 28 May 2024 00:00:00 GMT</pubDate>
             <description><![CDATA[Welcome to CellixJs, a Domain-Driven Design (DDD) monorepo built on Azure Functions with GraphQL/REST APIs and MongoDB persistence. This framework provides a modern approach to building scalable applications with clear separation of concerns.]]></description>
             <content:encoded><![CDATA[<p>Welcome to CellixJs, a Domain-Driven Design (DDD) monorepo built on Azure Functions with GraphQL/REST APIs and MongoDB persistence. This framework provides a modern approach to building scalable applications with clear separation of concerns.</p>
-<p>CellixJs implements a multi-layered architecture following strict DDD principles with bounded contexts for community management and user administration. The project includes specialized packages like <code>@ocom/api-domain</code> for business logic, <code>@ocom/api-graphql</code> for GraphQL implementation, and various service packages for MongoDB connectivity and observability.</p>]]></content:encoded>
+<p>CellixJs implements a multi-layered architecture following strict DDD principles with bounded contexts for community management and user administration. The project includes specialized packages like <code>@ocom/domain</code> for business logic, <code>@ocom/graphql</code> for GraphQL implementation, and various service packages for MongoDB connectivity and observability.</p>]]></content:encoded>
             <category>DDD</category>
             <category>Azure Functions</category>
             <category>GraphQL</category>
