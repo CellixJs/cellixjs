@@ -11,14 +11,14 @@ Here are a few tips to get you started with CellixJs development.
 
 <!-- truncate -->
 
-Simply explore the `packages` directory to understand the modular architecture.
+Simply explore the `apps` and `packages` directories to understand the modular architecture.
 
 Regular contributors can be added to the team through our development workflow.
 
 The project follows semantic versioning and clear release cycles:
 
 - Architecture Decision Records (ADRs) document key decisions
-- Domain contexts are organized under `packages/api-domain/src/domain/contexts/`
+- Domain contexts are organized under `packages/ocom/domain/src/domain/contexts/`
 
 CellixJs provides comprehensive examples for DDD implementation:
 
@@ -26,4 +26,4 @@ CellixJs provides comprehensive examples for DDD implementation:
 
 The documentation supports categorized content as well!
 
-**Getting Started**: Clone the repository, run `npm run clean && npm install && npm run build`, then use `npm run dev` to start the full development environment.
+**Getting Started**: Clone the repository, run `npm run clean && npm install && npm run build`, then use `npm run dev` to start the full development environment. You can simulate the CI pipeline locally with `npm run verify`.

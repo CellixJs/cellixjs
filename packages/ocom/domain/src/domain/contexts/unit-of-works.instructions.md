@@ -1,15 +1,15 @@
 ---
-applyTo: "packages/api-domain/src/domain/contexts/**/*.uow.ts"
+applyTo: "packages/ocom/domain/src/domain/contexts/**/*.uow.ts"
 ---
 
 # Copilot Instructions: Unit of Works
 
-See the package-wide instructions in `.github/instructions/api-domain.instructions.md` for general rules, architecture, and conventions.
+See the package-wide instructions in [domain.instructions.md](../../../domain.instructions.md) for general rules, architecture, and conventions.
 
 ## Related Instructions
-- `.github/instructions/contexts.instructions.md`
-- `.github/instructions/aggregates.instructions.md`
-- `.github/instructions/repositories.instructions.md`
+- [contexts.instructions.md](./contexts.instructions.md)
+- [aggregates.instructions.md](./aggregates.instructions.md)
+- [repositories.instructions.md](./repositories.instructions.md)
 
 ## Purpose
 - Unit of Work interfaces define transactional boundaries for aggregate operations within a bounded context.
@@ -67,7 +67,7 @@ export interface MyAggregateUnitOfWork
 
 ## Testing
 - No testing required for Unit of Work interfaces
-- Unit of Work implementations come from Cellix framework and are verified by the unit tests in `cellix-data-sources-mongoose`.
+- Unit of Work implementations come from Cellix framework and are verified by the unit tests in `@cellix/mongoose-seedwork`.
 
 ## References
 - [DDD Patterns (Evans, Fowler)](https://martinfowler.com/bliki/DomainDrivenDesign.html)

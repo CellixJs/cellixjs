@@ -1,15 +1,15 @@
 ---
-applyTo: "packages/api-domain/src/domain/contexts/**/*.entity.ts"
+applyTo: "packages/ocom/domain/src/domain/contexts/**/*.entity.ts"
 ---
 
 # Copilot Instructions: Entities
 
-See the package-wide instructions in `.github/instructions/api-domain.instructions.md` for general rules, architecture, and conventions.
+See the package-wide instructions in [domain.instructions.md](../../../domain.instructions.md) for general rules, architecture, and conventions.
 
 ## Related Instructions
-- `.github/instructions/contexts.instructions.md`
-- `.github/instructions/aggregates.instructions.md`
-- `.github/instructions/value-objects.instructions.md`
+- [contexts.instructions.md](./contexts.instructions.md)
+- [aggregates.instructions.md](./aggregates.instructions.md)
+- [value-objects.instructions.md](./value-objects.instructions.md)
 
 ## Purpose
 - Entity files define domain objects that have distinct identities but are not aggregate roots themselves.

@@ -198,7 +198,7 @@ stages:
           # Audit npm packages for vulnerabilities
           echo "Running npm audit for vulnerabilities..."
           npm audit --audit-level=high --omit=dev
-          
+
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only using Turbo's --affected..."

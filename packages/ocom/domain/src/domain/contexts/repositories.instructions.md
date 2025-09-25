@@ -1,19 +1,19 @@
 ---
-applyTo: "packages/api-domain/src/domain/contexts/**/*.repository.ts"
+applyTo: "packages/ocom/domain/src/domain/contexts/**/*.repository.ts"
 ---
 
 # Copilot Instructions: Repositories
 
-See the package-wide instructions in `.github/instructions/api-domain.instructions.md` for general rules, architecture, and conventions.
+See the package-wide instructions in [domain.instructions.md](../../../domain.instructions.md) for general rules, architecture, and conventions.
 
 ## Related Instructions
-- `.github/instructions/contexts.instructions.md`
-- `.github/instructions/aggregates.instructions.md`
+- [contexts.instructions.md](./contexts.instructions.md)
+- [aggregates.instructions.md](./aggregates.instructions.md)
 
 ## Purpose
 - Repository interfaces define the contract for persistence and retrieval of aggregate roots within a bounded context.
 - They abstract away infrastructure concerns, enabling domain logic to remain decoupled from data access implementations.
-- Note that repository implementation details (e.g., database queries) should be handled in the infrastructure layer (`api-persistence`), not in the domain layer.
+- Note that repository implementation details (e.g., database queries) should be handled in the infrastructure layer (`@ocom/persistence`), not in the domain layer.
 
 ## Architecture & Patterns
 - **Domain-Driven Design (DDD):** Repositories operate at the aggregate root level, providing methods for creation, retrieval, and other domain-specific operations.
@@ -56,4 +56,4 @@ export interface MyAggregateRepository<props extends MyAggregateProps>
 
 ## Testing
 - Repository interfaces do not require direct unit tests, but all domain logic using repositories must be covered by aggregate/entity tests.
-- Infrastructure implementations of repositories should be tested separately in `api-persistence`.
+- Infrastructure implementations of repositories should be tested separately in `@ocom/persistence`.

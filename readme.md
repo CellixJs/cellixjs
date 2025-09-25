@@ -10,10 +10,16 @@ Our Docusaurus website will help you get started in running and contributing to 
 
 ## Developer usage
 
-- Full local dev (builds, starts Azurite, emulators, and the OwnerCommunity app):
+- Full local dev (lints, builds, starts Azurite, emulators, and the OwnerCommunity app):
 
   ```bash
   npm run dev
+  ```
+
+- Simulate CI pipeline (lints, builds, tests, sonarcloud scan, quality gate):
+
+  ```bash
+  npm run verify
   ```
 
 - Start only the API app:
@@ -54,6 +60,7 @@ Our Docusaurus website will help you get started in running and contributing to 
     - `npm run test:serenity`
     - `npm run test:unit`
     - `npm run test:watch` (typically run per workspace package)
+- Verify build locally: `npm run verify`
 
 ## Turborepo Optimization
 

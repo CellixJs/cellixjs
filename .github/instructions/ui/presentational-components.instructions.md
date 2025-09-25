@@ -1,5 +1,5 @@
 ---
-applyTo: "packages/ui-*/src/components/**/!(*.container).tsx" 
+applyTo: "**/ui-*/src/components/**/!(*.container).tsx" 
 ---
 
 # Copilot Instructions: Presentational Components

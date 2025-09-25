@@ -9,4 +9,4 @@ Welcome to CellixJs, a Domain-Driven Design (DDD) monorepo built on Azure Functi
 
 <!-- truncate -->
 
-CellixJs implements a multi-layered architecture following strict DDD principles with bounded contexts for community management and user administration. The project includes specialized packages like `@ocom/api-domain` for business logic, `@ocom/api-graphql` for GraphQL implementation, and various service packages for MongoDB connectivity and observability.
+CellixJs implements a multi-layered architecture following strict DDD principles with bounded contexts for community management and user administration. The project includes specialized packages like `@ocom/domain` for business logic, `@ocom/graphql` for GraphQL implementation, and various service packages for MongoDB connectivity and observability.

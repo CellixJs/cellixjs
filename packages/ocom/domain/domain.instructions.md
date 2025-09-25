@@ -1,13 +1,13 @@
 ---
-applyTo: "packages/api-domain/**/*.ts"
+applyTo: "packages/ocom/domain/**/*.ts"
 ---
 
-# Copilot Instructions: api-domain
+# @ocom/domain Package Instructions
 
 ## Related Instructions
-- `.github/instructions/contexts.instructions.md`
-- `.github/instructions/events.instructions.md`
-- `.github/instructions/iam.instructions.md`
+- [contexts.instructions.md](src/domain/contexts/contexts.instructions.md)
+- [events.instructions.md](src/domain/events/events.instructions.md)
+- [iam.instructions.md](src/domain/iam/iam.instructions.md)
 
 ## Purpose
 - This package contains all application-specific domain logic for the CellixJS monorepo.

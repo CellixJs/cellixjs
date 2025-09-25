@@ -1,15 +1,15 @@
 ---
-applyTo: "packages/api-domain/src/domain/contexts/**/*.value-objects.ts"
+applyTo: "packages/ocom/domain/src/domain/contexts/**/*.value-objects.ts"
 ---
 
 # Copilot Instructions: Value Objects
 
-See the package-wide instructions in `.github/instructions/api-domain.instructions.md` for general rules, architecture, and conventions.
+See the package-wide instructions in [domain.instructions.md](../../../domain.instructions.md) for general rules, architecture, and conventions.
 
 ## Related Instructions
-- `.github/instructions/contexts.instructions.md`
-- `.github/instructions/aggregates.instructions.md`
-- `.github/instructions/entities.instructions.md`
+- [contexts.instructions.md](./contexts.instructions.md)
+- [aggregates.instructions.md](./aggregates.instructions.md)
+- [entities.instructions.md](./entities.instructions.md)
 
 ## Purpose
 This file defines instructions for writing value objects in the Cellix framework. Value objects are used to encapsulate and validate primitive values, enforce business invariants, and maintain immutability and referential integrity across the domain model. All domain entities and aggregate roots must utilize value objects for typed validation of their fields.

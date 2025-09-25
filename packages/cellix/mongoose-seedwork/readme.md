@@ -103,8 +103,8 @@ Common scripts from `package.json` (executed in this workspace):
 ## See also
 
 - `@cellix/domain-seedwork` — Core DDD seedwork which contains contracts implemented by this infra seedwork
-- `@ocom/api-persistence` — Real-world example of persistence layer leveraging this infra seedwork
-- `@ocom/api-data-sources-mongoose-models` — Real-world example of Mongoose models used with this infra seedwork
+- `@ocom/persistence` — Real-world example of persistence layer leveraging this infra seedwork
+- `@ocom/data-sources-mongoose-models` — Real-world example of Mongoose models used with this infra seedwork
 
 ---
 

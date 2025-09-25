@@ -1,5 +1,5 @@
 ---
-applyTo: "packages/ui-*/src/components/layouts/**/*"
+applyTo: "**/ui-*/src/components/layouts/**/*"
 ---
 
 # Copilot Instructions: Layouts
