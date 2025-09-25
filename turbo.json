@@ -9,7 +9,7 @@
       "dependsOn": ["^build", "@cellix/vitest-config#build"]
     },
     "test:coverage": {
-      "dependsOn": ["^build", "@cellix/vitest-config#build"],
+      "dependsOn": ["build", "^build", "@cellix/vitest-config#build"],
       "outputs": ["coverage/lcov.info"]
     },
     "test:watch": {
