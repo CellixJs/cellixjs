@@ -27,18 +27,18 @@ jobs:
           inputs:
             buildType: 'current'
             artifactName: 'drop'
-            downloadPath: $(Build.SourcesDirectory)
+            downloadPath: $(Pipeline.Workspace)
         - task: Bash@3
           displayName: 'Restore Build Artifacts'
           inputs:
             targetType: 'inline'
             script: |
-              cd $(Build.SourcesDirectory)
+              cd $(Pipeline.Workspace)
               unzip drop/$(Build.BuildId).zip -d temp
-              cp -r temp/apps/docs/build apps/docs/
+              cp -r temp/apps/docs/build $(Build.SourcesDirectory)/apps/docs/
               rm -rf temp
               echo "Build artifacts restored successfully"
-              ls -la apps/docs/build/
+              ls -la $(Build.SourcesDirectory)/apps/docs/build/
         - task: Bash@3
           displayName: 'Deploy to GitHub Pages'
           inputs:
