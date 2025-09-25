@@ -29,7 +29,7 @@ stages:
   displayName: ${{parameters.stageName}} stage
   condition: succeeded()
   jobs:
-  - template: ./apps/api/deploy-api.yml
+  - template: ../../apps/api/deploy-api.yml
     parameters:
       ServiceConnectionName: ${{parameters.ServiceConnectionName}}
       deploymentDefaultLocation: ${{parameters.deploymentDefaultLocation}}
@@ -38,10 +38,10 @@ stages:
       environmentNameDevOps: ${{parameters.environmentNameDevOps}}
       vmImageName: ${{parameters.vmImageName}}
       functionAppNamePri: ${{parameters.functionAppNamePri}}
-  - template: ./apps/docs/deploy-docs.yml
+  - template: ../../apps/docs/deploy-docs.yml
     parameters:
       vmImageName: ${{parameters.vmImageName}}
-  - template: ./apps/ui-community/deploy-ui-community.yml
+  - template: ../../apps/ui-community/deploy-ui-community.yml
     parameters:
       environmentNameDevOps: ${{parameters.environmentNameDevOps}}
       vmImageName: ${{parameters.vmImageName}}
