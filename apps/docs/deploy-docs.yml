@@ -3,15 +3,12 @@ parameters:
   type: string
 
 jobs:
-- deployment: Deploy_Docs
+- job: Deploy_Docs
   displayName: 'Deploy Docs (Static Website)'
   condition: succeeded()
   pool:
     vmImage: ${{parameters.vmImageName}}
-  strategy:
-    runOnce:
-      deploy:
-        steps:
+  steps:
         - checkout: self
           persistCredentials: true
         - task: UseNode@1
