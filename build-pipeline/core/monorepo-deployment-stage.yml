@@ -38,7 +38,6 @@ stages:
       environmentNameDevOps: ${{parameters.environmentNameDevOps}}
       vmImageName: ${{parameters.vmImageName}}
       functionAppNamePri: ${{parameters.functionAppNamePri}}
-    condition: eq(stageDependencies.Build.BuildJob.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true')
   - template: ./apps/docs/deploy-docs.yml
     parameters:
       vmImageName: ${{parameters.vmImageName}}
@@ -46,4 +45,3 @@ stages:
     parameters:
       environmentNameDevOps: ${{parameters.environmentNameDevOps}}
       vmImageName: ${{parameters.vmImageName}}
-    condition: eq(stageDependencies.Build.BuildJob.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true')
