@@ -34,7 +34,9 @@ jobs:
             targetType: 'inline'
             script: |
               cd $(Pipeline.Workspace)
-              unzip drop/$(Build.BuildId).zip -d temp
+              echo "Listing current directory:"
+              ls -la
+              unzip $(Build.BuildId).zip -d temp
               cp -r temp/apps/docs/build $(Build.SourcesDirectory)/apps/docs/
               rm -rf temp
               echo "Build artifacts restored successfully"
