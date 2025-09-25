@@ -1,8 +1,10 @@
 ---
-applyTo: "packages/api-domain/src/domain/iam/**/*.passport.ts"
+applyTo: "packages/ocom/domain/src/domain/iam/**/*.passport.ts"
 ---
 
 # Copilot Instructions: Passports
+
+See the package-wide instructions in [domain.instructions.md](../../../domain.instructions.md) for general rules, architecture, and conventions.
 
 ## Purpose
 
@@ -89,4 +91,4 @@ export class MemberPassport {
 
 ---
 
-**Note:** Do not duplicate rules from `iam.instructions.md`. For aggregate/entity integration, follow the conventions in the aggregates and entities instructions. For context structure, see the contexts instructions. For testing, follow the api-domain and context-level testing requirements.
+**Note:** Do not duplicate rules from `iam.instructions.md`. For aggregate/entity integration, follow the conventions in the aggregates and entities instructions. For context structure, see the contexts instructions. For testing, follow the domain and context-level testing requirements.

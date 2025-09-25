@@ -1,10 +1,10 @@
 ---
-applyTo: "packages/api-domain/src/domain/iam/**/*.ts"
+applyTo: "packages/ocom/domain/src/domain/iam/**/*.ts"
 ---
 
 # Copilot Instructions: Identity Access and Management
 
-See the package-wide instructions in `.github/instructions/api-domain.instructions.md` for general rules, architecture, and conventions.
+See the package-wide instructions in `.github/instructions/domain.instructions.md` for general rules, architecture, and conventions.
 
 ## Purpose
 - This folder contains all identity and access management (IAM) logic for the domain layer.

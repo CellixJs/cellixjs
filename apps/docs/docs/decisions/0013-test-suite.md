@@ -20,7 +20,7 @@ The project requires a robust, modern, and maintainable test suite for our TypeS
 
 - Compatibility with latest TypeScript standards and practices (ESM, latest TS versions, etc.)
 - Ease of installation/configuration as well as customizability and extensibility
-- Ability to accommodate significant unit tests for complex business rules in `@ocom/api-domain`
+- Ability to accommodate significant unit tests for complex business rules in `@ocom/domain`
 - Provides code coverage of unit tests through v8 or an alternative provider
 - Supports coverage reporting output in LCOV format
 - Performance
@@ -36,7 +36,7 @@ The project requires a robust, modern, and maintainable test suite for our TypeS
 
 Chosen option: **TBD**
 
-No decision has been made yet. The team will conduct a focused evaluation by implementing unit tests for selected domain context files in the `@ocom/api-domain` package using each test suite. This approach ensures a fair comparison and avoids redundant effort. The final decision will be based on the criteria above and the results of this evaluation.
+No decision has been made yet. The team will conduct a focused evaluation by implementing unit tests for selected domain context files in the `@ocom/domain` package using each test suite. This approach ensures a fair comparison and avoids redundant effort. The final decision will be based on the criteria above and the results of this evaluation.
 
 
 ### Consequences
@@ -82,6 +82,6 @@ No decision has been made yet. The team will conduct a focused evaluation by imp
 
 ## More Information
 
-The team will select one or more domain context files in the `@ocom/api-domain` package to implement unit tests for each test suite. This focused approach ensures a fair comparison and avoids redundant effort. The evaluation will consider developer experience, configuration complexity, performance, and coverage reporting. The final decision will be documented in this ADR after the evaluation is complete.
+The team will select one or more domain context files in the `@ocom/domain` package to implement unit tests for each test suite. This focused approach ensures a fair comparison and avoids redundant effort. The evaluation will consider developer experience, configuration complexity, performance, and coverage reporting. The final decision will be documented in this ADR after the evaluation is complete.
 
 > For ongoing reference, the team can track the relative adoption and popularity of these tools using [npm trends](https://npmtrends.com/jest-vs-vitest-vs-c8)

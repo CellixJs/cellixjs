@@ -77,23 +77,46 @@ npm run dev
 ```
 
 This command will:
-- Build all workspace packages
-- Start mock emulator services (Azurite for Azure Storage)
+- Build all workspace packages with linting
+- Start mock emulator services (Azurite for Azure Storage, MongoDB in-memory replica set, OAuth2/OIDC mock server)
 - Launch the backend Azure Functions runtime
 - Start the frontend React UI
+- Start the documentation site
 
 The development server will be available at:
 - **API**: http://localhost:7071 (Azure Functions)
 - **GraphQL Playground**: http://localhost:7071/api/graphql
-- **Frontend**: http://localhost:3000 (if using the UI packages)
+- **Frontend**: http://localhost:3000 (React UI)
+- **Docs**: http://localhost:3001 (Docusaurus)
+
+## Verify Code Quality locally
+
+Run all verification steps (lint, build, test, sonarcloud, quality gate):
+
+```bash
+npm run verify
+```
+ Expected output:
+```bash
+> ...
+> Quality Gate passed.
+```
+
+If there are any failing builds, tests, or sonarcloud analysis issues, this command will report them. Please address any issues before pushing code to simulate the CI pipeline and ensure checks will pass on the remote repository.
+
+> Note: The `verify` command requires a valid SONAR_TOKEN environment variable for SonarCloud analysis. See the [Local SonarCloud Analysis](#local-sonarcloud-analysis) section for setup instructions.
 
 ## Architecture Overview
 
 CellixJs follows these core patterns:
 
-- **Domain Layer**: Core business logic in `packages/api-domain/src/domain/contexts/`
-- **Application Services**: Orchestration layer for business operations
-- **Infrastructure**: Data persistence via Mongoose, OpenTelemetry observability  
-- **API Layer**: GraphQL and REST endpoints via Azure Functions
+- **Application Packages**:
+    - **API**: Azure Functions backend application `apps/api`
+    - **UI**: React frontend application `apps/ui-community`
+    - **Docs**: Documentation site using Docusaurus `apps/docs`
 
-Open any file in the `packages/` directory and start exploring: the project uses hot reloading for rapid development!
+- **Library Packages**:
+    - **Cellix**: Core framework and seedwork libraries used across projects `packages/cellix/*`
+    - **Ocom**: Application-specific libraries used by frontend and backend `packages/ocom/*`
+
+Open any file in the `apps/` or `packages/` directory and start exploring: the project uses hot reloading for rapid development!

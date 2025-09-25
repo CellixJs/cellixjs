@@ -1,5 +1,5 @@
 ---
-applyTo: "packages/api/**/*.ts"
+applyTo: "apps/api/**/*.ts"
 ---
 
 # @ocom/api Package Instructions

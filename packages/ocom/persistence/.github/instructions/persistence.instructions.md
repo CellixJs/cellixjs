@@ -1,11 +1,11 @@
 ---
-applyTo: "packages/api-persistence/**/*.ts"
+applyTo: "packages/ocom/persistence/**/*.ts"
 ---
 
-# API Persistence Package Development Guide
+# @ocom/persistence Package Instructions
 
 ## Package Purpose
-The `@ocom/api-persistence` package serves as the **Infrastructure Layer** in the DDD architecture, implementing data persistence for domain entities using MongoDB through Mongoose. It bridges domain models with data storage via the Repository and Unit of Work patterns.
+The `@ocom/persistence` package serves as the **Infrastructure Layer** in the DDD architecture, implementing data persistence for domain entities using MongoDB through Mongoose. It bridges domain models with data storage via the Repository and Unit of Work patterns.
 
 ## Architecture Patterns
 
@@ -54,8 +54,8 @@ src/
 - `@cellix/domain-seedwork` - Base domain patterns and interfaces
 - `@cellix/mongoose-seedwork` - Mongoose integration seedwork
 - `@cellix/event-bus-seedwork-node` - Event publishing infrastructure
-- `@ocom/api-domain` - Domain models and interfaces
-- `@ocom/api-data-sources-mongoose-models` - Mongoose model definitions
+- `@ocom/domain` - Domain models and interfaces
+- `@ocom/data-sources-mongoose-models` - Mongoose model definitions
 
 ### Event Bus Integration
 - Use `InProcEventBusInstance` for in-process events

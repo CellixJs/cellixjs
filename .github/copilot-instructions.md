@@ -4,10 +4,10 @@
 
 CellixJS is a Domain-Driven Design (DDD) monorepo built on Azure Functions, implementing a modular architecture with strict separation of concerns:
 
-- **Domain Layer**: Core business logic in `packages/api-domain/src/domain/contexts/`
-- **Application Services**: Orchestration layer in `packages/cellix-api-services-spec/`
-- **Infrastructure**: Data persistence via Mongoose, OpenTelemetry observability
-- **API Layer**: GraphQL and REST endpoints via Azure Functions
+- **Domain Layer**: Core business logic in `@ocom/domain`
+- **Application Services**: Orchestration layer in `@ocom/application-services`
+- **Infrastructure**: Data persistence via Mongoose, OpenTelemetry observability, etc.. in `@ocom/service-*`
+- **API Layer**: GraphQL and REST endpoints via Azure Functions in `@ocom/rest` and `@ocom/graphql`
 
 ## Core Patterns
 
@@ -58,7 +58,7 @@ npm run test     # Test all packages
 npm run gen      # Generate code (e.g., GraphQL types)
 ```
 
-Use `npm run verify` to ensure code quality before commits. Address any issues reported before pushing changes.
+**Important**: Use `npm run verify` to ensure code quality before commits. Address any issues reported before pushing changes.
 
 ### VS Code Tasks
 Use VS Code tasks for development (preferred over manual commands):
@@ -68,7 +68,9 @@ Use VS Code tasks for development (preferred over manual commands):
 
 ### Testing
 - Coverage reports generated in `packages/*/coverage/`
-- Run tests: `npm test`
+- Run tests: `npm run test`
+- Run test with coverage: `npm run test:coverage`
+- Run tests in watch mode: `npm run test:watch`
 
 ## Code Quality & Standards
 
@@ -86,10 +88,12 @@ Use VS Code tasks for development (preferred over manual commands):
 
 ### Workspace Structure
 Monorepo uses npm workspaces with these core packages:
-- `@ocom/api` - Main Azure Functions application
-- `@ocom/api-domain` - Domain models and business logic
-- `@ocom/api-graphql` - GraphQL implementation
+- `@ocom/api` - Main Azure Functions backend application
+- `@ocom/data-sources-mongoose-models` - Mongoose data source models
+- `@ocom/domain` - Domain models and business logic
+- `@ocom/graphql` - GraphQL implementation
 - `@ocom/service-mongoose` - MongoDB data layer
+- `@ocom/ui-community` - React frontend application
 - `@cellix/*` - Shared seedwork libraries
 
 ### External Integrations

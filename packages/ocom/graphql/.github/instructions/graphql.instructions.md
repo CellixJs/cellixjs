@@ -1,7 +1,7 @@
 ---
-applyTo: "packages/api-graphql/**/*.ts"
+applyTo: "packages/ocom/graphql/**/*.ts"
 ---
-# Copilot Instructions: @ocom/api-graphql
+# @ocom/graphql Package Instructions
 
 ## Purpose
 - This package provides GraphQL API endpoints for the CellixJS DDD application.

@@ -31,9 +31,9 @@ The CellixJs platform is divided into several contexts, each of which represents
    - [GitHub][case-context]
 
 
-[community-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/api-domain/src/domain/contexts/community
-[iam-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/api-domain/src/domain/iam
-[property-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/api-domain/src/domain/contexts/property
-[service-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/api-domain/src/domain/contexts/service
-[user-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/api-domain/src/domain/contexts/user
-[case-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/api-domain/src/domain/contexts/case 
+[community-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/ocom/domain/src/domain/contexts/community
+[iam-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/ocom/domain/src/domain/contexts/iam
+[property-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/ocom/domain/src/domain/contexts/property
+[service-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/ocom/domain/src/domain/contexts/service
+[user-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/ocom/domain/src/domain/contexts/user
+[case-context]: https://github.com/CellixJs/cellixjs/tree/main/packages/ocom/domain/src/domain/contexts/case
