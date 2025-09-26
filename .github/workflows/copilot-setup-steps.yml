@@ -71,7 +71,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'maven'
 
       - name: Verify required environment variables
         run: |
