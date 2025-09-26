@@ -1,0 +1,55 @@
+{
+  "servers": {
+    "sonarqube": {
+      "command": "node",
+      "args": [".github/mcp-servers/sonarqube-server.cjs"],
+      "env": {
+        "SONAR_TOKEN": "{{SONAR_TOKEN}}",
+        "SONAR_SERVER_URL": "{{SONAR_SERVER_URL}}",
+        "SONAR_ORGANIZATION": "{{SONAR_ORGANIZATION}}",
+        "SONAR_PROJECT_KEY": "{{SONAR_PROJECT_KEY}}",
+        "PR_CONTEXT": "{{PR_CONTEXT}}",
+        "PR_NUMBER": "{{PR_NUMBER}}"
+      }
+    }
+  },
+  "tools": {
+    "sonarqube_quality_gate": {
+      "server": "sonarqube",
+      "method": "sonarqube/quality-gate",
+      "description": "Get the current quality gate status for the project or PR"
+    },
+    "sonarqube_issues": {
+      "server": "sonarqube", 
+      "method": "sonarqube/issues",
+      "description": "Get issues from SonarCloud analysis. Optional parameters: severity (BLOCKER,CRITICAL,MAJOR,MINOR,INFO), type (BUG,VULNERABILITY,CODE_SMELL)",
+      "parameters": {
+        "severity": {
+          "type": "string",
+          "enum": ["BLOCKER", "CRITICAL", "MAJOR", "MINOR", "INFO"],
+          "description": "Filter issues by severity level"
+        },
+        "type": {
+          "type": "string", 
+          "enum": ["BUG", "VULNERABILITY", "CODE_SMELL"],
+          "description": "Filter issues by type"
+        }
+      }
+    },
+    "sonarqube_coverage": {
+      "server": "sonarqube",
+      "method": "sonarqube/coverage", 
+      "description": "Get code coverage metrics from SonarCloud"
+    },
+    "sonarqube_analysis_report": {
+      "server": "sonarqube",
+      "method": "sonarqube/analysis-report",
+      "description": "Get analysis results from local report-task.txt if available"
+    },
+    "sonarqube_info": {
+      "server": "sonarqube",
+      "method": "sonarqube/info",
+      "description": "Get SonarQube MCP server configuration and context information"
+    }
+  }
+}

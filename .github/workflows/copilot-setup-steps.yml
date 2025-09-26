@@ -35,8 +35,29 @@ jobs:
           node-version: "22"
           cache: "npm"
 
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install JavaScript dependencies
         run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - name: Install Playwright browsers
         run: |
@@ -65,4 +86,46 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Setup SonarQube MCP Server Integration
+        run: |
+          echo "Setting up SonarQube MCP server integration for copilot agent..."
+          
+          # Set environment variables for SonarQube integration
+          echo "SONAR_SERVER_URL=https://sonarcloud.io" >> $GITHUB_ENV
+          echo "SONAR_ORGANIZATION=simnova" >> $GITHUB_ENV
+          echo "SONAR_PROJECT_KEY=simnova_cellix-data-access" >> $GITHUB_ENV
+          
+          # Detect if this is a PR context
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "PR_CONTEXT=true" >> $GITHUB_ENV
+            echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+            echo "PR_HEAD_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+            echo "PR_BASE_REF=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV
+            echo "SonarQube MCP server enabled for PR context"
+          else
+            echo "PR_CONTEXT=false" >> $GITHUB_ENV
+            echo "SonarQube MCP server integration available for general analysis"
+          fi
+          
+          # Make the SonarQube MCP server executable
+          chmod +x .github/mcp-servers/sonarqube-server.cjs
+          
+          # Create MCP configuration with environment variables
+          sed -e "s|{{SONAR_TOKEN}}|$SONAR_TOKEN|g" \
+              -e "s|{{SONAR_SERVER_URL}}|https://sonarcloud.io|g" \
+              -e "s|{{SONAR_ORGANIZATION}}|simnova|g" \
+              -e "s|{{SONAR_PROJECT_KEY}}|simnova_cellix-data-access|g" \
+              -e "s|{{PR_CONTEXT}}|${PR_CONTEXT:-false}|g" \
+              -e "s|{{PR_NUMBER}}|${PR_NUMBER:-}|g" \
+              .github/mcp-servers/mcp-config.json > /tmp/mcp-config.json
+          
+          # Make MCP config available to copilot
+          echo "MCP_CONFIG_PATH=/tmp/mcp-config.json" >> $GITHUB_ENV
+          
+          # Test the MCP server connection
+          echo "Testing SonarQube MCP server connection..."
+          node .github/mcp-servers/sonarqube-server.cjs info || echo "Warning: SonarQube MCP server test failed, but continuing..."
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     
