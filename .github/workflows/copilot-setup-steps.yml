@@ -36,6 +36,7 @@ jobs:
           cache: "npm"
 
       - name: Cache node modules
+        id: npm-cache
         uses: actions/cache@v4
         with:
           path: |
@@ -50,8 +51,10 @@ jobs:
 
       - name: Install JavaScript dependencies
         run: npm ci
+        if: steps.npm-cache.outputs.cache-hit != 'true'
 
       - name: Cache Playwright browsers
+        id: playwright-cache
         uses: actions/cache@v4
         with:
           path: /home/runner/.cache/ms-playwright
@@ -65,6 +68,7 @@ jobs:
           npx playwright install --with-deps
         env:
           PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Install Java SDK (Required for SonarCloud)
         uses: actions/setup-java@v4
