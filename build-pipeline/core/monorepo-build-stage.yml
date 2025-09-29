@@ -322,6 +322,7 @@ stages:
         SONAR_USER_HOME: /home/vsts/work/_temp/.sonar
         JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
         SONAR_SCANNER_JAVA_PATH: /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+        SONAR_TOKEN: $(SONAR_TOKEN)
 
     # SonarCloud: Break the build if it doesn't pass the Quality Gate
     - task: sonarcloud-buildbreaker@2
