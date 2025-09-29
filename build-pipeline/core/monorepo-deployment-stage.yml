@@ -23,6 +23,9 @@ parameters:
 - name: functionAppNamePri
   displayName: 'Function App Name for Primary instance'
   type: string
+- name: appSettingsJsonFileRelativePathPri
+  displayName: 'AppSettings Json File Relative Path for Primary instance'
+  type: string
 
 stages:
 - stage: ${{parameters.stageName}}
@@ -39,6 +42,7 @@ stages:
       environmentNameDevOps: ${{parameters.environmentNameDevOps}}
       vmImageName: ${{parameters.vmImageName}}
       functionAppNamePri: ${{parameters.functionAppNamePri}}
+      appSettingsJsonFileRelativePathPri: ${{parameters.appSettingsJsonFileRelativePathPri}}
   - template: ../../apps/docs/deploy-docs.yml
     parameters:
       vmImageName: ${{parameters.vmImageName}}
