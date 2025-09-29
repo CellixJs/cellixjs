@@ -27,6 +27,7 @@ parameters:
 stages:
 - stage: ${{parameters.stageName}}
   displayName: ${{parameters.stageName}} stage
+  dependsOn: Build
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   jobs:
   - template: ../../apps/api/deploy-api.yml
