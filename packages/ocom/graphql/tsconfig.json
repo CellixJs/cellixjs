@@ -10,5 +10,9 @@
   "exclude": [
     "node_modules",
     "dist"
+  ],
+  "references": [
+    { "path": "../application-services" },
+    { "path": "../domain" }
   ]
 }
