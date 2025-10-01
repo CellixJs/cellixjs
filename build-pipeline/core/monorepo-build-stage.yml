@@ -121,7 +121,6 @@ stages:
         # Playwright: Restore browsers cache
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
-      continueOnError: true
       inputs:
         key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22'
         restoreKeys: |
@@ -194,7 +193,7 @@ stages:
         targetType: 'inline'
         script: |
           set -euo pipefail
-          node ./build-pipeline/scripts/detect-changes.mjs
+          node ./build-pipeline/scripts/detect-changes.cjs
       env:
         Build_Reason: $(Build.Reason)
         System_PullRequest_TargetBranch: $(System.PullRequest.TargetBranch)
@@ -237,7 +236,6 @@ stages:
     # Cache Java JRE
     - task: Cache@2
       displayName: 'Java: Restore JRE Cache'
-      continueOnError: true
       inputs:
         key: 'java | "$(Agent.OS)" | openjdk-17-jre-headless'
         restoreKeys: |
@@ -266,7 +264,6 @@ stages:
     # Cache SonarCloud scanner engine
     - task: Cache@2
       displayName: 'SonarCloud: Cache Scanner Engine'
-      continueOnError: true
       condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
       inputs:
         key: 'sonarcloud | "$(Agent.OS)" | scanner-engine'
