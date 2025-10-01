@@ -180,9 +180,12 @@ stages:
     - task: Cache@2
       displayName: 'Turbo: Restore Local Cache'
       inputs:
-        key: 'turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json'
+        key: 'turbo | "$(Agent.OS)" | "$(Build.SourceBranch)" | "$(Build.SourceVersion)"'
         restoreKeys: |
-          turbo | "$(Agent.OS)"
+          "turbo" | "$(Agent.OS)" | "$(Build.SourceBranch)"
+          "turbo" | "$(Agent.OS)" | "main"
+          "turbo" | "$(Agent.OS)"
+          "turbo"
         path: '$(TURBO_CACHE_DIR)'
 
     # Detect affected package types
@@ -232,7 +235,7 @@ stages:
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
-
+        
     # Cache Java JRE
     - task: Cache@2
       displayName: 'Java: Restore JRE Cache'
