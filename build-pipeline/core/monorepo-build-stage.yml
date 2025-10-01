@@ -315,10 +315,10 @@ stages:
             fi
             echo "PR Branch: $PR_BRANCH"
 
-            pnpm run sonar -- -Dsonar.pullrequest.key="$PR_NUMBER" -Dsonar.pullrequest.branch="$PR_BRANCH" -Dsonar.pullrequest.base=main -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
+            pnpm run sonar -Dsonar.pullrequest.key="$PR_NUMBER" -Dsonar.pullrequest.branch="$PR_BRANCH" -Dsonar.pullrequest.base=main -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
           else
             echo "Running SonarCloud analysis for main branch..."
-            pnpm run sonar -- -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
+            pnpm run sonar -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
           fi
 
           # Debug: Verify report-task.txt exists
