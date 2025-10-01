@@ -2,8 +2,8 @@ parameters:
 - name: vmImageName
   displayName: 'VM Image - ubuntu-latest'
   type: string
-- name: pnpm_store_dir
-  displayName: 'PNPM Store Directory'
+- name: pnpm_config_cache
+  displayName: 'PNPM Config Cache'
   type: string
 - name: isPnpmCacheAvailable
   displayName: 'Flag to indicate if PNPM cache is available'
@@ -80,7 +80,22 @@ stages:
         key: 'pnpm | "$(Agent.OS)" | $(Build.SourcesDirectory)/pnpm-lock.yaml'
         restoreKeys: |
             pnpm | "$(Agent.OS)"
-        path: ${{parameters.pnpm_store_dir}}
+        path: ${{parameters.pnpm_config_cache}}
+
+    # Install PNPM
+    - task: Bash@3
+      displayName: 'Install: PNPM'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "Installing PNPM..."
+          npm install --global corepack@latest
+          corepack enable
+          corepack prepare pnpm@latest-10 --activate
+          pnpm config set store-dir ${{parameters.pnpm_config_cache}}
+          pnpm --version
+        workingDirectory: ''
 
     # Install dependencies
     - task: Bash@3

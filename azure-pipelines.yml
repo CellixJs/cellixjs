@@ -22,7 +22,7 @@ variables:
     value: 'ubuntu-latest'
   - name: system.debug
     value: true
-  - name: pnpm_store_dir
+  - name: pnpm_config_cache
     value: $(Pipeline.Workspace)/.pnpm-store
   - name: SONAR_USER_HOME
     value: $(Pipeline.Workspace)/.sonar
@@ -31,7 +31,7 @@ stages:
   - template: ./build-pipeline/core/monorepo-build-stage.yml
     parameters:
       vmImageName: $(vmImageName)
-      pnpm_store_dir: $(pnpm_store_dir)
+      pnpm_config_cache: $(pnpm_config_cache)
       isPnpmCacheAvailable: 'false'
       disableSonarCloudTasks: 'false'
       SONAR_USER_HOME: $(SONAR_USER_HOME)
