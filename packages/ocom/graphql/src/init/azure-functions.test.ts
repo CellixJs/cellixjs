@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { startServerAndCreateHandler } from './azure-functions.ts';
 import type { ApolloServer, BaseContext, HeaderMap } from '@apollo/server';
-import type { HttpRequest, InvocationContext, HttpResponseInit } from '@azure/functions-v4';
+import type { HttpRequest, InvocationContext, HttpResponseInit } from '@azure/functions';
 
 
 const test = { for: describeFeature };

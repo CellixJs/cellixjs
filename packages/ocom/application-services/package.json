@@ -17,12 +17,12 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@ocom/context-spec": "*",
-    "@ocom/domain": "*",
-    "@ocom/persistence": "*"
+    "@ocom/context-spec": "workspace:*",
+    "@ocom/domain": "workspace:*",
+    "@ocom/persistence": "workspace:*"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "*",
+    "@cellix/typescript-config": "workspace:*",
     "typescript": "^5.8.3",
     "rimraf": "^6.0.1"
   }

@@ -20,8 +20,8 @@
     "clean": "rimraf dist"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "*",
-    "@cellix/vitest-config": "*",
+    "@cellix/typescript-config": "workspace:*",
+    "@cellix/vitest-config": "workspace:*",
     "typescript": "^5.8.3",
     "rimraf": "^6.0.1"
   }

@@ -2,11 +2,11 @@ parameters:
 - name: vmImageName
   displayName: 'VM Image - ubuntu-latest'
   type: string
-- name: npm_config_cache
-  displayName: 'NPM Config Cache Location'
+- name: pnpm_store_dir
+  displayName: 'PNPM Store Directory'
   type: string
-- name: isNpmCacheAvailable
-  displayName: 'Flag to indicate if NPM cache is available'
+- name: isPnpmCacheAvailable
+  displayName: 'Flag to indicate if PNPM cache is available'
   type: string
 - name: disableSonarCloudTasks
   displayName: 'Flag to disable SonarCloud tasks'
@@ -72,35 +72,35 @@ stages:
       inputs:
         version: '4.2.1'
         
-    # Cache NPM packages to speed up build process.
+    # Cache PNPM store to speed up build process.
     - task: Cache@2
-      displayName: 'NPM: Restore Cache'
-      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
+      displayName: 'PNPM: Restore Cache'
+      condition: and(succeeded(), eq(${{parameters.isPnpmCacheAvailable}}, True))
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
+        key: 'pnpm | "$(Agent.OS)" | $(Build.SourcesDirectory)/pnpm-lock.yaml'
         restoreKeys: |
-            npm | "$(Agent.OS)"
-        path: ${{parameters.npm_config_cache}}
+            pnpm | "$(Agent.OS)"
+        path: ${{parameters.pnpm_store_dir}}
 
     # Install dependencies
     - task: Bash@3
-      displayName: 'NPM: Install dependencies'
-      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, False))
+      displayName: 'PNPM: Install dependencies'
+      condition: and(succeeded(), eq(${{parameters.isPnpmCacheAvailable}}, False))
       inputs:
         targetType: 'inline'
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
-          npm install
+          pnpm install
         workingDirectory: ''
 
     - task: Bash@3
-      displayName: 'NPM: Install dependencies using cache'
-      condition: and(succeeded(), eq(${{parameters.isNpmCacheAvailable}}, True))
+      displayName: 'PNPM: Install dependencies using cache'
+      condition: and(succeeded(), eq(${{parameters.isPnpmCacheAvailable}}, True))
       inputs:
         targetType: 'inline'
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
-          npm ci
+          pnpm install --frozen-lockfile
         workingDirectory: ''
 
         # Playwright: Restore browsers cache
@@ -195,19 +195,20 @@ stages:
           export NODE_OPTIONS=--max_old_space_size=16384
           export PLAYWRIGHT_BROWSERS_PATH="$(PLAYWRIGHT_BROWSERS_PATH)"
 
-          # Audit npm packages for vulnerabilities
-          echo "Running npm audit for vulnerabilities..."
-          npm audit --audit-level=high --omit=dev
+          # Audit pnpm packages for vulnerabilities
+          echo "Running pnpm audit for vulnerabilities..."
+          pnpm audit --audit-level=high --prod
 
-          # Use Turbo's built-in --affected flag for accurate change detection
+                    # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only using Turbo's --affected..."
             export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
-            npm run test:coverage -- --affected && npm run merge-lcov-reports
+            pnpm run test:coverage -- --affected
+            pnpm run merge-lcov-reports
           else
             echo "Testing all packages (main branch)..."
             export TURBO_SCM_BASE="HEAD~1"
-            npm run test:coverage:merge
+            pnpm run test:coverage:merge
           fi
           
           # Set the merged coverage path for SonarCloud
@@ -302,10 +303,10 @@ stages:
             fi
             echo "PR Branch: $PR_BRANCH"
 
-            npm run sonar -- -Dsonar.pullrequest.key="$PR_NUMBER" -Dsonar.pullrequest.branch="$PR_BRANCH" -Dsonar.pullrequest.base=main -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
+            pnpm run sonar -- -Dsonar.pullrequest.key="$PR_NUMBER" -Dsonar.pullrequest.branch="$PR_BRANCH" -Dsonar.pullrequest.base=main -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
           else
             echo "Running SonarCloud analysis for main branch..."
-            npm run sonar -- -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
+            pnpm run sonar -- -Dsonar.scanner.metadataFilePath="/home/vsts/work/_temp/sonar/$(Build.BuildNumber)/report-task.txt"
           fi
 
           # Debug: Verify report-task.txt exists
@@ -332,20 +333,107 @@ stages:
         SonarCloud: ${{parameters.SonarCloud}}
         organization: ${{parameters.SonarCloud_organization}}
 
-    # Package compiled assets into artifact
-    - task: ArchiveFiles@2
-      displayName: 'Artifact: Prepare'
-      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    # Deploy API package with production dependencies
+    - task: Bash@3
+      displayName: 'Deploy: Prepare production API package'
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
       inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)/'
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          
+          DEPLOY_DIR="$(Build.SourcesDirectory)/apps/api-deploy"
+          rm -rf "$DEPLOY_DIR"
+          
+          echo "Creating production deployment for @ocom/api..."
+          
+          # Use pnpm deploy to resolve workspace dependencies
+          # This copies everything including dist/, host.json, and installs production deps
+          pnpm --filter @ocom/api --prod deploy "$DEPLOY_DIR"
+          
+          # Remove unnecessary files that pnpm deploy copied
+          echo "Cleaning up unnecessary files..."
+          rm -rf "$DEPLOY_DIR/src" \
+                 "$DEPLOY_DIR/coverage" \
+                 "$DEPLOY_DIR/build-pipelines" \
+                 "$DEPLOY_DIR/iac" \
+                 "$DEPLOY_DIR/.vscode" \
+                 "$DEPLOY_DIR/.turbo"
+          rm -f "$DEPLOY_DIR/tsconfig.json" \
+                "$DEPLOY_DIR/vitest.config.ts" \
+                "$DEPLOY_DIR/turbo.json" \
+                "$DEPLOY_DIR/deploy-api.yml" \
+                "$DEPLOY_DIR/readme.md" \
+                "$DEPLOY_DIR/.prettierrc.json" \
+                "$DEPLOY_DIR/.gitignore"
+          
+          # Verify deployment structure
+          echo ""
+          echo "✓ Production API structure:"
+          ls -lah "$DEPLOY_DIR"
+          
+          # Verify critical files exist
+          echo ""
+          echo "✓ Verifying required files..."
+          for file in package.json host.json dist node_modules; do
+            if [ ! -e "$DEPLOY_DIR/$file" ]; then
+              echo "ERROR: Required file/directory missing: $file"
+              exit 1
+            fi
+            echo "  ✓ $file"
+          done
+          
+          echo ""
+          echo "✓ Production API package ready for archiving"
+        workingDirectory: ''
+
+    # Package API compiled assets into artifact
+    - task: ArchiveFiles@2
+      displayName: 'Artifact: Prepare API'
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
+      inputs:
+        rootFolderOrFile: 'apps/api-deploy'
         includeRootFolder: false
         archiveType: zip
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/api-$(Build.BuildId).zip
         replaceExistingArchive: true
-        # Include all build outputs from packages and apps
 
-    # Upload artifact as build result
-    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      displayName: 'Artifact: Publish'
-      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-      artifact: drop
+    # Package UI Community compiled assets into artifact
+    - task: ArchiveFiles@2
+      displayName: 'Artifact: Prepare UI Community'
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_CHANGES'], 'true'))
+      inputs:
+        rootFolderOrFile: 'apps/ui-community/dist'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/ui-community-$(Build.BuildId).zip
+        replaceExistingArchive: true
+
+    # Package Docs compiled assets into artifact
+    - task: ArchiveFiles@2
+      displayName: 'Artifact: Prepare Docs'
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_DOCS_CHANGES'], 'true'))
+      inputs:
+        rootFolderOrFile: 'apps/docs/build'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/docs-$(Build.BuildId).zip
+        replaceExistingArchive: true
+
+    # Upload API artifact as build result
+    - publish: $(Build.ArtifactStagingDirectory)/api-$(Build.BuildId).zip
+      displayName: 'Artifact: Publish API'
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
+      artifact: api
+
+    # Upload UI Community artifact as build result
+    - publish: $(Build.ArtifactStagingDirectory)/ui-community-$(Build.BuildId).zip
+      displayName: 'Artifact: Publish UI Community'
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_CHANGES'], 'true'))
+      artifact: ui-community
+
+    # Upload Docs artifact as build result
+    - publish: $(Build.ArtifactStagingDirectory)/docs-$(Build.BuildId).zip
+      displayName: 'Artifact: Publish Docs'
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_DOCS_CHANGES'], 'true'))
+      artifact: docs

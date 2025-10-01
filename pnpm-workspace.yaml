@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+  - "packages/cellix/*"
+  - "packages/ocom/*"
+
+catalog:
+  mongoose: 8.18.3
+  mongodb: 6.18.0

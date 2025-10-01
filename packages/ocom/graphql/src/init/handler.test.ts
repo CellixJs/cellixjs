@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { graphHandlerCreator } from './handler.ts';
 import type { ApplicationServicesFactory } from '@ocom/application-services';
-import type { HttpRequest, InvocationContext } from '@azure/functions-v4';
+import type { HttpRequest, InvocationContext } from '@azure/functions';
 import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateHandler } from './azure-functions.ts';
 

@@ -17,11 +17,12 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@cellix/mongoose-seedwork": "*"
+    "@cellix/mongoose-seedwork": "workspace:*",
+    "mongoose": "catalog:"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "*",
-    "typescript": "^5.8.3",
-    "rimraf": "^6.0.1"
+    "@cellix/typescript-config": "workspace:*",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
   }
 }

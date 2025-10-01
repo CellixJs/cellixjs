@@ -25,6 +25,11 @@
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },
+    "storybook": {
+      "dependsOn": ["^build", "//#gen"],
+      "cache": false,
+      "persistent": true
+    },
     "start": {
       "cache": false,
       "persistent": true
@@ -43,6 +48,10 @@
     },
     "//#gen": {
       "cache": true,
+      "inputs": [
+        "codegen.yml",
+        "**/*.graphql"
+      ],
       "outputs": [
         "**/generated.ts",
         "**/graphql.schema.json",
