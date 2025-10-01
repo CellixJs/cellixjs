@@ -10,8 +10,8 @@ catalogs:
       specifier: 6.18.0
       version: 6.18.0
     mongoose:
-      specifier: 8.18.3
-      version: 8.18.3
+      specifier: 8.17.0
+      version: 8.17.0
 
 importers:
 
@@ -449,7 +449,7 @@ importers:
         version: 10.2.1
       mongoose:
         specifier: 'catalog:'
-        version: 8.18.3
+        version: 8.17.0
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -593,7 +593,7 @@ importers:
         version: link:../../cellix/mongoose-seedwork
       mongoose:
         specifier: 'catalog:'
-        version: 8.18.3
+        version: 8.17.0
     devDependencies:
       '@cellix/typescript-config':
         specifier: workspace:*
@@ -750,7 +750,7 @@ importers:
         version: 6.18.0
       mongoose:
         specifier: 'catalog:'
-        version: 8.18.3
+        version: 8.17.0
     devDependencies:
       '@cellix/typescript-config':
         specifier: workspace:*
@@ -813,7 +813,7 @@ importers:
         version: link:../../cellix/mongoose-seedwork
       mongoose:
         specifier: 'catalog:'
-        version: 8.18.3
+        version: 8.17.0
     devDependencies:
       '@cellix/typescript-config':
         specifier: workspace:*
@@ -7642,8 +7642,8 @@ packages:
       socks:
         optional: true
 
-  mongoose@8.18.3:
-    resolution: {integrity: sha512-5kuHl9IYD19xItCBKl0gtp7WKRH0X9Vm95pSRUml/Qv6uYAqDvGvKqEufluIBNextU22nB7w67N+UTmQxDA3RQ==}
+  mongoose@8.17.0:
+    resolution: {integrity: sha512-mxW6TBPHViORfNYOFXCVOnT4d5aRr+CgDxTs1ViYXfuHzNpkelgJQrQa+Lz6hofoEQISnKlXv1L3ZnHyJRkhfA==}
     engines: {node: '>=16.20.1'}
 
   morgan@1.10.1:
@@ -19369,7 +19369,7 @@ snapshots:
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
 
-  mongoose@8.18.3:
+  mongoose@8.17.0:
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3
