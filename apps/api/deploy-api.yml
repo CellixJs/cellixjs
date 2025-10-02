@@ -44,13 +44,16 @@ jobs:
     runOnce:
       deploy:
         steps:
+        - download: current
+          displayName: 'Artifact: Download API package'
+          artifact: api
         - task: AzureFunctionApp@1
           displayName: 'Azure Functions App Deploy: ${{parameters.functionAppNamePri}}'
           inputs:
             azureSubscription: ${{parameters.ServiceConnectionName}}
             appType: 'functionAppLinux'
             appName: ${{parameters.functionAppNamePri}}
-            package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+            package: '$(Pipeline.Workspace)/api/api-$(Build.BuildId).zip'
             runtimeStack: 'NODE|22'
             deploymentMethod: 'runFromPackage'
 

@@ -351,7 +351,7 @@ stages:
 
     # Deploy API package with production dependencies
     - task: Bash@3
-      displayName: 'Deploy: Prepare production API package'
+      displayName: 'Artifact: Prepare API'
       condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
       inputs:
         targetType: 'inline'

@@ -7,7 +7,7 @@ parameters:
 jobs:
 - deployment: Deploy_UI_Community
   displayName: 'Deploy UI Community (Static Web App)'
-  condition: eq(stageDependencies.Build.BuildJob.outputs['HAS_FRONTEND_CHANGES'], 'true')
+  condition: and(eq(stageDependencies.Build.BuildJob.outputs['HAS_FRONTEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
   environment: ${{parameters.environmentNameDevOps}}
   pool:
     vmImage: ${{parameters.vmImageName}}
