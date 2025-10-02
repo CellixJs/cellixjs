@@ -362,8 +362,8 @@ stages:
           rm -rf "$DEPLOY_DIR"
           
           echo "Creating production deployment for @ocom/api..."
-          
-          # Use pnpm deploy to resolve workspace dependencies
+
+          # Use pnpm deploy to resolve workspace dependencies while preserving pnpm symlinks
           # This copies everything including dist/, host.json, and installs production deps
           pnpm --filter @ocom/api --prod deploy "$DEPLOY_DIR"
           
@@ -374,6 +374,7 @@ stages:
                  "$DEPLOY_DIR/build-pipelines" \
                  "$DEPLOY_DIR/iac" \
                  "$DEPLOY_DIR/.vscode" \
+                 "$DEPLOY_DIR/.github" \
                  "$DEPLOY_DIR/.turbo"
           rm -f "$DEPLOY_DIR/tsconfig.json" \
                 "$DEPLOY_DIR/vitest.config.ts" \
@@ -401,18 +402,19 @@ stages:
           
           echo ""
           echo "✓ Production API package ready for archiving"
-        workingDirectory: ''
 
-    # Package API compiled assets into artifact
-    - task: ArchiveFiles@2
-      displayName: 'Artifact: Prepare API'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
-      inputs:
-        rootFolderOrFile: 'apps/api-deploy'
-        includeRootFolder: false
-        archiveType: zip
-        archiveFile: $(Build.ArtifactStagingDirectory)/api-$(Build.BuildId).zip
-        replaceExistingArchive: true
+          # Create the zip artifact while preserving pnpm symlinks
+          ZIP_PATH="$(Build.ArtifactStagingDirectory)/api-$(Build.BuildId).zip"
+          mkdir -p "$(Build.ArtifactStagingDirectory)"
+          rm -f "$ZIP_PATH"
+
+          echo ""
+          echo "✓ Creating symlink-aware zip archive..."
+          pushd "$DEPLOY_DIR" >/dev/null
+          zip --symlinks -r "$ZIP_PATH" .
+          popd >/dev/null
+          echo "✓ API artifact created at: $ZIP_PATH"
+        workingDirectory: ''
 
     # Package UI Community compiled assets into artifact
     - task: ArchiveFiles@2
