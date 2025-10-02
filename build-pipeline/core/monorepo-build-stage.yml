@@ -184,7 +184,6 @@ stages:
         restoreKeys: |
           turbo | "$(Agent.OS)"
         path: '$(TURBO_CACHE_DIR)'
-      cacheHitVar: TURBO_CACHE_HIT
 
     # Detect affected package types
     - task: Bash@3
