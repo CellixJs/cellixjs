@@ -67,6 +67,7 @@ module functionApp 'br/public:avm/res/web/site:0.16.0' = {
           AzureWebJobsStorage: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
           WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
           WEBSITES_CONTAINER_START_TIME_LIMIT: '1800'
+          WEBSITE_CONTENTSHARE: 'cel-dev-func-pri-ygkpomwvecmsc-29a98763l' //This needs to run initially but can be deleted afterwards. This is amanual step to create a fileshare in the function's storage account.
           ENABLE_ORYX_BUILD: 'false'
           SCM_DO_BUILD_DURING_DEPLOYMENT: 'false'
           WEBSITE_RUN_FROM_PACKAGE: '1'

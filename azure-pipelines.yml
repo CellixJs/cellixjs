@@ -51,5 +51,5 @@ stages:
       ServiceConnectionName: $(ServiceConnectionName)
       deploymentDefaultLocation: $(deploymentDefaultLocation)
       resourceGroupName: 'rg-sharethrift'
-      functionAppNamePri: 'Cellix-func-app'
-      appSettingsJsonFileRelativePathPri: '/build-pipeline/config/dev-pri.json'
+      functionAppNamePri: 'cel-dev-func-pri-bd52ztvowoqqe'
+      appSettingsJsonFileRelativePathPri: 'apps/api/build-pipelines/config/dev-pri.json'

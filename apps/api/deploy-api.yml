@@ -31,12 +31,14 @@ jobs:
       location: ${{parameters.deploymentDefaultLocation}}
       resourceGroupName: ${{parameters.resourceGroupName}}
       csmFile: apps/api/iac/main.bicep
-      overrideParameters: >
-                -environment ${{parameters.environmentNameBicep}}
+      csmParametersFile: apps/api/iac/${{parameters.environmentNameBicep}}.bicepparam
+      # overrideParameters: >
+      #           -environment ${{parameters.environmentNameBicep}}
 
 - deployment: Application_Deployment_Pri
   displayName: Application Deployment (Primary)
   condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true')
+  dependsOn: Infrastructure
   environment: ${{parameters.environmentNameDevOps}}
   pool:
     vmImage: ${{parameters.vmImageName}}
@@ -57,18 +59,18 @@ jobs:
             runtimeStack: 'NODE|22'
             deploymentMethod: 'runFromPackage'
 
-# - job: Application_Settings_Pri
-#   displayName: Application Settings (Primary)
-#   condition: eq(stageDependencies.Build.BuildJob.outputs['HAS_BACKEND_CHANGES'], 'true')
-#   dependsOn: Application_Deployment_Pri
-#   pool:
-#     vmImage: ${{parameters.vmImageName}}
-#   steps:
-#   - powershell: |
-#       $output = Get-Content '$(Build.SourcesDirectory)/${{parameters.appSettingsJsonFileRelativePathPri}}'
-#       Write-Host "##vso[task.setvariable variable=appSettingsPri]$($output)"
-#   - task: AzureAppServiceSettings@1
-#     inputs:
-#       azureSubscription: ${{parameters.ServiceConnectionName}}
-#       appName: ${{parameters.functionAppNamePri}}
-#       appSettings: '$(appSettingsPri)'
+- job: Application_Settings_Pri
+  displayName: Application Settings (Primary)
+  condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true')
+  dependsOn: Application_Deployment_Pri
+  pool:
+    vmImage: ${{parameters.vmImageName}}
+  steps:
+  - powershell: |
+      $output = Get-Content '$(Build.SourcesDirectory)/${{parameters.appSettingsJsonFileRelativePathPri}}'
+      Write-Host "##vso[task.setvariable variable=appSettingsPri]$($output)"
+  - task: AzureAppServiceSettings@1
+    inputs:
+      azureSubscription: ${{parameters.ServiceConnectionName}}
+      appName: ${{parameters.functionAppNamePri}}
+      appSettings: '$(appSettingsPri)'

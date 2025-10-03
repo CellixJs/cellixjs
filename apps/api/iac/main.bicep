@@ -1,10 +1,16 @@
 param applicationPrefix string
+param tags object
+param env string
+
+// app service plan
 param appServicePlanName string
-param location string
+param appServicePlanLocation string
 param appServicePlanOperatingSystem string
 param appServicePlanSku string
-param tags object
-param storageAccountName string
+
+// function app
+param functionAppLocation string
+param functionAppStorageAccountName string
 param functionAppInstanceName string
 param functionWorkerRuntime string 
 param functionExtensionVersion string
@@ -12,7 +18,8 @@ param maxOldSpaceSizeMB int
 param linuxFxVersion string
 param allowedOrigins array
 param keyVaultName string
-param environment string
+
+// cosmos db
 param cosmosMongoDBInstanceName string 
 param totalThroughputLimit int
 param backupIntervalInMinutes int
@@ -21,12 +28,31 @@ param maxThroughput int
 param runRbacRoleAssignment bool
 param rbacMembers array
 param enableAnalyticalStorage bool
+param cosmosLocation string
+
+// //storage account
+// param storageAccountName string
+// param storageAccountLocation string
+// param storageAccountSku string
+// param storageAccountManagementPolicy object
+// param enableBlobService bool
+// param containers array
+// param enableQueueService bool
+// param queues array
+// param cors object
+// param enableTableService bool
+// param isVersioningEnabled bool
+// param tables array
+
+
+// variables
+// var moduleNameSuffix = '-Module-main-${applicationPrefix}-${env}'
 
 module appServicePlan '../../../iac/app-service-plan/main.bicep' = {
   name: 'appServicePlan'
   params: {
     appServicePlanName: appServicePlanName
-    location: location
+    location: appServicePlanLocation
     operatingSystem: appServicePlanOperatingSystem
     tags: tags
     sku: appServicePlanSku
@@ -35,12 +61,15 @@ module appServicePlan '../../../iac/app-service-plan/main.bicep' = {
 
 module functionApp '../../../iac/function-app/main.bicep' = {
   name: 'functionApp'
+  dependsOn: [
+    appServicePlan
+  ]
   params: {
     applicationPrefix: applicationPrefix
-    location: location
+    location: functionAppLocation
     tags: tags
     appServicePlanName: appServicePlanName
-    storageAccountName: storageAccountName
+    storageAccountName: functionAppStorageAccountName
     functionAppInstanceName: functionAppInstanceName
     functionWorkerRuntime: functionWorkerRuntime
     functionExtensionVersion: functionExtensionVersion
@@ -48,16 +77,42 @@ module functionApp '../../../iac/function-app/main.bicep' = {
     linuxFxVersion: linuxFxVersion
     allowedOrigins: allowedOrigins
     keyVaultName: keyVaultName
-  env: environment
+    env: env
   }
 }
+
+// module storageAccount '../../../iac/storage-account/main.bicep' = {
+//   name: 'storageAccount${moduleNameSuffix}-${storageAccountName}'
+//   params: {
+//     applicationPrefix: applicationPrefix
+//     environment: env
+//     instanceName: storageAccountName
+//     location: storageAccountLocation
+//     storageAccountSku: storageAccountSku
+//     enableManagementPolicy: storageAccountManagementPolicy.enable
+//     deleteAfterNDaysList: storageAccountManagementPolicy.deleteAfterNDaysList
+//     enableBlobService: enableBlobService
+//     containers: containers
+//     enableQueueService: enableQueueService
+//     queues: queues
+//     corsAllowedMethods: cors.allowedMethods
+//     corsAllowedOrigins: cors.allowedOrigins
+//     corsAllowedHeaders: cors.allowedHeaders
+//     corsExposedHeaders: cors.exposedHeaders
+//     corsMaxAgeInSeconds: cors.maxAgeInSeconds
+//     enableTableService: enableTableService
+//     isVersioningEnabled: isVersioningEnabled
+//     tables: tables
+//     tags: tags
+//   }
+// }
 
 module cosmosMongoDB '../../../iac/cosmos-mongodb/main.bicep' = {
   name: 'cosmosMongoDB'
   params: {
     applicationPrefix: applicationPrefix
-  environment: environment
-    location: location
+    environment: env
+    location: cosmosLocation
     tags: tags
     instanceName: cosmosMongoDBInstanceName
     totalThroughputLimit: totalThroughputLimit
