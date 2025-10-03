@@ -12,7 +12,7 @@ param maxOldSpaceSizeMB int
 param linuxFxVersion string
 param allowedOrigins array
 param keyVaultName string
-param env string
+param environment string
 param cosmosMongoDBInstanceName string 
 param totalThroughputLimit int
 param backupIntervalInMinutes int
@@ -48,7 +48,7 @@ module functionApp '../../../iac/function-app/main.bicep' = {
     linuxFxVersion: linuxFxVersion
     allowedOrigins: allowedOrigins
     keyVaultName: keyVaultName
-    env: env
+  env: environment
   }
 }
 
@@ -56,7 +56,7 @@ module cosmosMongoDB '../../../iac/cosmos-mongodb/main.bicep' = {
   name: 'cosmosMongoDB'
   params: {
     applicationPrefix: applicationPrefix
-    environment: env
+  environment: environment
     location: location
     tags: tags
     instanceName: cosmosMongoDBInstanceName

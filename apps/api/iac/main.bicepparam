@@ -1,6 +1,6 @@
 using './main.bicep'
 
-param env = 'dev'
+param environment = 'dev'
 param applicationPrefix = 'cel'
 param appServicePlanName = 'pri-001'
 param location = 'eastus2'
