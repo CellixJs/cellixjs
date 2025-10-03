@@ -365,21 +365,6 @@ stages:
           pnpm --filter @ocom/api --prod deploy "$DEPLOY_DIR"
           
           # Remove unnecessary files that pnpm deploy copied
-          echo "Cleaning up unnecessary files..."
-          rm -rf "$DEPLOY_DIR/src" \
-                 "$DEPLOY_DIR/coverage" \
-                 "$DEPLOY_DIR/build-pipelines" \
-                 "$DEPLOY_DIR/iac" \
-                 "$DEPLOY_DIR/.vscode" \
-                 "$DEPLOY_DIR/.github" \
-                 "$DEPLOY_DIR/.turbo"
-          rm -f "$DEPLOY_DIR/tsconfig.json" \
-                "$DEPLOY_DIR/vitest.config.ts" \
-                "$DEPLOY_DIR/turbo.json" \
-                "$DEPLOY_DIR/deploy-api.yml" \
-                "$DEPLOY_DIR/readme.md" \
-                "$DEPLOY_DIR/.prettierrc.json" \
-                "$DEPLOY_DIR/.gitignore"
           
           # Verify deployment structure
           echo ""

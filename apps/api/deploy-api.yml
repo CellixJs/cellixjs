@@ -37,7 +37,7 @@ jobs:
 
 - deployment: Application_Deployment_Pri
   displayName: Application Deployment (Primary)
-  condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true')
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
   dependsOn: Infrastructure
   environment: ${{parameters.environmentNameDevOps}}
   pool:
@@ -61,7 +61,7 @@ jobs:
 
 - job: Application_Settings_Pri
   displayName: Application Settings (Primary)
-  condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true')
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
   dependsOn: Application_Deployment_Pri
   pool:
     vmImage: ${{parameters.vmImageName}}
