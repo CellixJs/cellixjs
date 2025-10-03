@@ -26,6 +26,50 @@ param allowedOrigins = [
 ]
 param keyVaultName = 'sharethrift-keyvault'
 
+//storage account
+param storageAccountName = 'app'
+param storageAccountLocation = 'eastus2'
+param storageAccountSku = 'Standard_RAGZRS'
+param storageAccountManagementPolicy = {
+  enable: false
+  deleteAfterNDaysList: []
+}
+param enableBlobService = true
+param containers = [
+  {
+    name: 'public'
+    publicAccess: 'blob'
+  }
+  {
+    name: 'private'
+    publicAccess: 'None'
+  }
+]
+param enableQueueService = true
+param queues = []
+param cors = {
+  allowedOrigins: [
+    '*'//having at least one origin is required for CORS to be enabled, do not use *
+  ]
+  allowedMethods: [
+    'GET'
+    'POST'
+    'PUT'
+    'OPTIONS'
+  ]
+  allowedHeaders: [
+    '*'
+  ]
+  exposedHeaders: [
+    'x-ms-version-id'
+  ]
+  maxAgeInSeconds: 0
+}
+param enableTableService = false
+param isVersioningEnabled = true
+param tables = []
+
+
 // cosmos
 param cosmosMongoDBInstanceName = 'dat'
 param cosmosLocation = 'eastus2'
