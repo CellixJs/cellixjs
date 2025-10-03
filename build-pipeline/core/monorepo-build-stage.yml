@@ -180,7 +180,7 @@ stages:
     - task: Cache@2
       displayName: 'Turbo: Restore Local Cache'
       inputs:
-        key: 'turbo | "$(Agent.OS)" | hash "pnpm-lock.yaml"'
+        key: 'turbo | "$(Agent.OS)" | hash "$(Build.SourcesDirectory)/pnpm-lock.yaml"'
         restoreKeys: |
           turbo | "$(Agent.OS)"
         path: '$(TURBO_CACHE_DIR)'
