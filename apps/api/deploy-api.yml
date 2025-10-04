@@ -13,11 +13,14 @@ parameters:
   type: string
 - name: functionAppNamePri
   type: string
+- name: appSettingsJsonFileRelativePathPri
+  displayName: 'AppSettings Json File Relative Path for Primary instance'
+  type: string
 
 jobs:
 - job: Infrastructure
   displayName: Infrastructure Setup
-  condition: eq(stageDependencies.Build.BuildJob.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true')
+  condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true')
   pool:
     vmImage: ${{parameters.vmImageName}}
   steps:
@@ -28,12 +31,14 @@ jobs:
       location: ${{parameters.deploymentDefaultLocation}}
       resourceGroupName: ${{parameters.resourceGroupName}}
       csmFile: apps/api/iac/main.bicep
-      overrideParameters: >
-                -environment ${{parameters.environmentNameBicep}}
+      csmParametersFile: apps/api/iac/${{parameters.environmentNameBicep}}.bicepparam
+      # overrideParameters: >
+      #           -environment ${{parameters.environmentNameBicep}}
 
 - deployment: Application_Deployment_Pri
   displayName: Application Deployment (Primary)
-  condition: eq(stageDependencies.Build.BuildJob.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true')
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
+  dependsOn: Infrastructure
   environment: ${{parameters.environmentNameDevOps}}
   pool:
     vmImage: ${{parameters.vmImageName}}
@@ -41,12 +46,31 @@ jobs:
     runOnce:
       deploy:
         steps:
+        - download: current
+          displayName: 'Artifact: Download API package'
+          artifact: api
         - task: AzureFunctionApp@1
           displayName: 'Azure Functions App Deploy: ${{parameters.functionAppNamePri}}'
           inputs:
             azureSubscription: ${{parameters.ServiceConnectionName}}
             appType: 'functionAppLinux'
             appName: ${{parameters.functionAppNamePri}}
-            package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+            package: '$(Pipeline.Workspace)/api/api-$(Build.BuildId).zip'
             runtimeStack: 'NODE|22'
             deploymentMethod: 'runFromPackage'
+
+- job: Application_Settings_Pri
+  displayName: Application Settings (Primary)
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
+  dependsOn: Application_Deployment_Pri
+  pool:
+    vmImage: ${{parameters.vmImageName}}
+  steps:
+  - powershell: |
+      $output = Get-Content '$(Build.SourcesDirectory)/${{parameters.appSettingsJsonFileRelativePathPri}}'
+      Write-Host "##vso[task.setvariable variable=appSettingsPri]$($output)"
+  - task: AzureAppServiceSettings@1
+    inputs:
+      azureSubscription: ${{parameters.ServiceConnectionName}}
+      appName: ${{parameters.functionAppNamePri}}
+      appSettings: '$(appSettingsPri)'

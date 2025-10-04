@@ -1,4 +1,15 @@
 {
   "extends": ["//"],
-  "tags": ["config"]
+  "tasks": {
+    "build": {
+        "inputs": [
+            "base.json",
+            "node.json"
+        ],
+        "outputs": [
+            "base.json",
+            "node.json"
+        ]
+    }
+  }
 }

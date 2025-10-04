@@ -3,13 +3,27 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build", "//#gen"],
+      "inputs": [
+        "src/**",
+        "tsconfig*.json"
+      ],
       "outputs": ["dist/**", "build/**"]
     },
     "test": {
-      "dependsOn": ["^build", "@cellix/vitest-config#build"]
+      "dependsOn": ["^build", "@cellix/vitest-config#build"],
+      "inputs": [
+        "src/**",
+        "tests/**",
+        "vitest*.config.*"
+      ]
     },
     "test:coverage": {
       "dependsOn": ["build", "^build", "@cellix/vitest-config#build"],
+      "inputs": [
+        "src/**",
+        "tests/**",
+        "vitest*.config.*"
+      ],
       "outputs": ["coverage/lcov.info"]
     },
     "test:watch": {
@@ -19,11 +33,26 @@
     },
     "test:unit": {
       "dependsOn": ["^build"],
+      "inputs": [
+        "src/**",
+        "tests/**",
+        "vitest*.config.*"
+      ],
       "outputs": ["coverage/**"]
     },
     "test:integration": {
       "dependsOn": ["^build"],
+      "inputs": [
+        "src/**",
+        "tests/**",
+        "vitest*.config.*"
+      ],
       "outputs": ["coverage/**"]
+    },
+    "storybook": {
+      "dependsOn": ["^build", "//#gen"],
+      "cache": false,
+      "persistent": true
     },
     "start": {
       "cache": false,
@@ -43,6 +72,10 @@
     },
     "//#gen": {
       "cache": true,
+      "inputs": [
+        "codegen.yml",
+        "**/*.graphql"
+      ],
       "outputs": [
         "**/generated.ts",
         "**/graphql.schema.json",

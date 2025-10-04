@@ -6,5 +6,19 @@
     "rootDir": "."
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/cellix/api-services-spec" },
+    { "path": "../../packages/cellix/mongoose-seedwork" },
+    { "path": "../../packages/ocom/application-services" },
+    { "path": "../../packages/ocom/context-spec" },
+    { "path": "../../packages/ocom/event-handler" },
+    { "path": "../../packages/ocom/graphql" },
+    { "path": "../../packages/ocom/persistence" },
+    { "path": "../../packages/ocom/rest" },
+    { "path": "../../packages/ocom/service-blob-storage" },
+    { "path": "../../packages/ocom/service-mongoose" },
+    { "path": "../../packages/ocom/service-otel" },
+    { "path": "../../packages/ocom/service-token-validation" }
+  ]
 }

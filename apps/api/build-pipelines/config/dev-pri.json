@@ -1,0 +1,62 @@
+[
+  {
+    "name": "APPLICATION_NAME",
+    "value": "CEL",
+    "slotSetting": false
+  },
+  {
+    "name": "AZURE_SUBSCRIPTION_ID",
+    "value": "b46b070d-1eee-4d27-943a-32728cfca0b5",
+    "slotSetting": false
+  },
+  {
+    "name": "AZURE_RESOURCE_GROUP_NAME",
+    "value": "rg-sharethrift",
+    "slotSetting": false
+  },
+  {
+    "name": "BLACK_LISTED_EMAILS",
+    "value": "[]",
+    "slotSetting": false
+  },
+  {
+    "name": "KEY_VAULT_URL",
+    "value": "https://sharethrift-keyvault.vault.azure.net/",
+    "slotSetting": false
+  },
+  {
+    "name": "NODE_ENV",
+    "value": "production",
+    "slotSetting": false
+  },
+  {
+    "name": "ACCOUNT_PORTAL_OIDC_AUDIENCE",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "ACCOUNT_PORTAL_OIDC_ENDPOINT",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "ACCOUNT_PORTAL_OIDC_ISSUER",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "COSMOSDB_CONNECTION_STRING",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "COSMOSDB_DBNAME",
+    "value": "owner-community",
+    "slotSetting": false
+  }
+]

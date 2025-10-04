@@ -10,5 +10,12 @@
   "exclude": [
     "node_modules",
     "dist"
+  ],
+  "references": [
+    { "path": "../../cellix/domain-seedwork" },
+    { "path": "../../cellix/event-bus-seedwork-node" },
+    { "path": "../../cellix/mongoose-seedwork" },
+    { "path": "../domain" },
+    { "path": "../data-sources-mongoose-models" }
   ]
 }

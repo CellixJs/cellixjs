@@ -20,15 +20,17 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@cellix/domain-seedwork": "*",
-    "@cellix/event-bus-seedwork-node": "*",
-    "@cellix/mongoose-seedwork": "*",
-    "@ocom/domain": "*",
-    "@ocom/data-sources-mongoose-models": "*"
+    "@cellix/domain-seedwork": "workspace:*",
+    "@cellix/event-bus-seedwork-node": "workspace:*",
+    "@cellix/mongoose-seedwork": "workspace:*",
+    "@ocom/domain": "workspace:*",
+    "@ocom/data-sources-mongoose-models": "workspace:*",
+    "mongoose": "catalog:",
+    "mongodb": "catalog:"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "*",
-    "@cellix/vitest-config": "*",
+    "@cellix/typescript-config": "workspace:*",
+    "@cellix/vitest-config": "workspace:*",
     "typescript": "^5.8.3",
     "rimraf": "^6.0.1"
   }

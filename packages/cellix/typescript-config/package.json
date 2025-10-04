@@ -1,3 +1,14 @@
 {
-  "name": "@cellix/typescript-config"
+  "name": "@cellix/typescript-config",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./base.json",
+  "files": [
+    "base.json",
+    "node.json"
+  ],
+  "exports": {
+    "./base.json": "./base.json",
+    "./node.json": "./node.json"
+  }
 }
