@@ -7,14 +7,14 @@ param tags = {
   application: 'cel'
 }
 
-// app service plan
+//app service plan
 param appServicePlanName = 'pri-001'
 param appServicePlanLocation = 'eastus2'
 param appServicePlanSku = 'B2'
 param appServicePlanOperatingSystem = 'linux'
 
-// function app
-param functionAppStorageAccountName = 'celdevstfunceastus2'
+//function app
+param functionAppStorageAccountName = 'cxadevfunceastus2'
 param functionAppLocation = 'eastus2'
 param functionAppInstanceName = 'pri'
 param functionWorkerRuntime = 'node'
@@ -70,7 +70,7 @@ param isVersioningEnabled = true
 param tables = []
 
 
-// cosmos
+//cosmos
 param cosmosMongoDBInstanceName = 'dat'
 param cosmosLocation = 'eastus2'
 param totalThroughputLimit = 3200
