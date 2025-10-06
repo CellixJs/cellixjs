@@ -362,7 +362,7 @@ stages:
 
           # Use pnpm deploy to resolve workspace dependencies while preserving pnpm symlinks
           # This copies everything including dist/, host.json, and installs production deps
-          pnpm --filter @ocom/api --prod deploy "$DEPLOY_DIR" --node-linker=hoisted
+          pnpm --filter @ocom/api --prod deploy "$DEPLOY_DIR"
           
           # Remove unnecessary files that pnpm deploy copied
           
@@ -393,7 +393,7 @@ stages:
           echo ""
           echo "✓ Creating symlink-aware zip archive..."
           pushd "$DEPLOY_DIR" >/dev/null
-          zip -r "$ZIP_PATH" .
+          zip --symlinks -q -r "$ZIP_PATH" .
           popd >/dev/null
           echo "✓ API artifact created at: $ZIP_PATH"
         workingDirectory: ''
