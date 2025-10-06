@@ -393,7 +393,7 @@ stages:
           echo ""
           echo "✓ Creating symlink-aware zip archive..."
           pushd "$DEPLOY_DIR" >/dev/null
-          zip --symlinks -r "$ZIP_PATH" .
+          zip -r "$ZIP_PATH" .
           popd >/dev/null
           echo "✓ API artifact created at: $ZIP_PATH"
         workingDirectory: ''
