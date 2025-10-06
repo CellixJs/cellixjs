@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -10,7 +11,7 @@
     }
   },
   "scripts": {
-    "prebuid": "biome lint",
+    "prebuild": "biome lint",
     "build": "tsc --build",
     "watch": "tsc- --watch",
     "test": "vitest run",
