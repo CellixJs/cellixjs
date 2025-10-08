@@ -16,6 +16,7 @@ jobs:
 - job: Infrastructure_UI_Community
   displayName: Infrastructure Setup (UI Community)
   condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true')
+  dependsOn: Infrastructure  # Wait for API infrastructure to complete
   pool:
     vmImage: ${{parameters.vmImageName}}
   steps:

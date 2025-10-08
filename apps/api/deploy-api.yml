@@ -40,10 +40,24 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        $outputs = '$(deployInfrastructure.outputs)' | ConvertFrom-Json
-        $functionAppNamePri = $outputs.functionAppNamePri.value
-        Write-Host "Function App Name (Primary): $functionAppNamePri"
-        Write-Host "##vso[task.setvariable variable=functionAppNamePri;isOutput=true]$functionAppNamePri"
+        $outputsJson = '$(deployInfrastructure.outputs)'
+        Write-Host "Raw outputs: $outputsJson"
+        
+        if ([string]::IsNullOrWhiteSpace($outputsJson) -or $outputsJson -eq '$(deployInfrastructure.outputs)') {
+          Write-Host "##vso[task.logissue type=error]No deployment outputs found. Check if Bicep template has outputs defined."
+          exit 1
+        }
+        
+        try {
+          $outputs = $outputsJson | ConvertFrom-Json
+          $functionAppNamePri = $outputs.functionAppNamePri.value
+          Write-Host "Function App Name (Primary): $functionAppNamePri"
+          Write-Host "##vso[task.setvariable variable=functionAppNamePri;isOutput=true]$functionAppNamePri"
+        } catch {
+          Write-Host "##vso[task.logissue type=error]Failed to parse deployment outputs: $_"
+          Write-Host "Raw outputs: $outputsJson"
+          exit 1
+        }
 
 - deployment: Application_Deployment_Pri
   displayName: Application Deployment (Primary)
