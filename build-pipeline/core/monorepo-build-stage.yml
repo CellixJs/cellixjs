@@ -32,10 +32,10 @@ parameters:
 - name: SonarCloud_cliProjectName
   displayName: 'SonarCloud CLI Project Name'
   type: string
-- name: uiEnvVariableGroup
-  displayName: 'Variable group name for UI environment settings'
-  type: string
-  default: ''
+- name: buildEnvSettings
+  displayName: 'ENV Settings to be injected during npm build'
+  type: object
+  default: {}
 
 stages:
 - stage: Build
@@ -50,8 +50,6 @@ stages:
         value: /home/vsts/.cache/ms-playwright
       - name: TURBO_CACHE_DIR
         value: $(Build.SourcesDirectory)/.turbo
-      ${{ if ne(parameters.uiEnvVariableGroup, '') }}:
-      - group: ${{parameters.uiEnvVariableGroup}}
     steps:
     - checkout: self
       fetchDepth: 0 # Fetch all history for all branches and tags necessary for sonar cloud analysis
@@ -240,6 +238,9 @@ stages:
         TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+        ${{ each pair in parameters.buildEnvSettings }}:
+        ${{ pair.key }}: ${{ pair.value }}
+
         
     # Cache Java JRE
     - task: Cache@2

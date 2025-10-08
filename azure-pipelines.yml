@@ -14,7 +14,7 @@ pool:
 variables:
   - group: sonarcloud-credential-cellixjs
   - group: github-credential-cellixjs
-  - group: ui-community-dev-cellixjs
+  - group: ui-community-settings-cellixjs
   - name: deploymentDefaultLocation
     value: 'eastus2'
   - name: ServiceConnectionName
@@ -42,7 +42,12 @@ stages:
       SonarCloud_configMode: 'manual'
       SonarCloud_cliProjectKey: 'simnova_cellix-data-access'
       SonarCloud_cliProjectName: 'cellix-data-access'
-      uiEnvVariableGroup: 'ui-community-dev-cellixjs'
+      buildEnvSettings:
+        VITE_AAD_B2C_ACCOUNT_AUDIENCE: $(VITE_AAD_B2C_ACCOUNT_AUDIENCE_DEV)
+        VITE_AAD_B2C_ACCOUNT_CLIENTID: $(VITE_AAD_B2C_CLIENT_ID_DEV)
+        VITE_AAD_B2C_REDIRECT_URI: $(VITE_AAD_B2C_REDIRECT_URI_DEV)
+        VITE_AAD_B2C_ACCOUNT_SCOPES: $(VITE_AAD_B2C_ACCOUNT_SCOPES_DEV)
+        VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_DEV)
 
 
   - template: ./build-pipeline/core/monorepo-deployment-stage.yml
