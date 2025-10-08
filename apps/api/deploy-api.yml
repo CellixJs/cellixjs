@@ -24,13 +24,15 @@ jobs:
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
     name: deployInfrastructure
+    displayName: 'Deploy API Infrastructure'
     inputs:
       connectedServiceName: ${{parameters.ServiceConnectionName}}
-      deploymentName: $(Build.BuildNumber)
+      deploymentName: $(Build.BuildNumber)-api
       location: ${{parameters.deploymentDefaultLocation}}
       resourceGroupName: ${{parameters.resourceGroupName}}
       csmFile: apps/api/iac/main.bicep
       csmParametersFile: apps/api/iac/${{parameters.environmentNameBicep}}.bicepparam
+      deploymentOutputs: 'armOutputs'
       # overrideParameters: >
       #           -environment ${{parameters.environmentNameBicep}}
   
@@ -40,24 +42,11 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        $outputsJson = '$(deployInfrastructure.outputs)'
-        Write-Host "Raw outputs: $outputsJson"
-        
-        if ([string]::IsNullOrWhiteSpace($outputsJson) -or $outputsJson -eq '$(deployInfrastructure.outputs)') {
-          Write-Host "##vso[task.logissue type=error]No deployment outputs found. Check if Bicep template has outputs defined."
-          exit 1
-        }
-        
-        try {
-          $outputs = $outputsJson | ConvertFrom-Json
-          $functionAppNamePri = $outputs.functionAppNamePri.value
-          Write-Host "Function App Name (Primary): $functionAppNamePri"
-          Write-Host "##vso[task.setvariable variable=functionAppNamePri;isOutput=true]$functionAppNamePri"
-        } catch {
-          Write-Host "##vso[task.logissue type=error]Failed to parse deployment outputs: $_"
-          Write-Host "Raw outputs: $outputsJson"
-          exit 1
-        }
+        Write-Host "Debug - armOutputs: $(armOutputs)"
+        $var = ConvertFrom-Json '$(armOutputs)'
+        $functionAppNamePri = $var.functionAppNamePri.value
+        Write-Host "Function App Name (Primary): $functionAppNamePri"
+        Write-Host "##vso[task.setvariable variable=functionAppNamePri;isOutput=true]$functionAppNamePri"
 
 - deployment: Application_Deployment_Pri
   displayName: Application Deployment (Primary)
