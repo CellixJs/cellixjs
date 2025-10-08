@@ -27,10 +27,10 @@ parameters:
   displayName: 'CDN Profile Name'
   type: string
 - name: cdnResourceGroup
-  displayName: 'CDN Resource Group Name'
+  displayName: 'CDN Resource Group'
   type: string
 - name: cdnName
-  displayName: 'CDN Name'
+  displayName: 'CDN Endpoint Name'
   type: string
 
 stages:

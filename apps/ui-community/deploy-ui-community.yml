@@ -12,10 +12,13 @@ parameters:
 - name: resourceGroupName
   type: string
 - name: cdnProfile
+  displayName: 'CDN Profile Name'
   type: string
 - name: cdnResourceGroup
+  displayName: 'CDN Resource Group'
   type: string
 - name: cdnName
+  displayName: 'CDN Endpoint Name'
   type: string
 
 jobs:
