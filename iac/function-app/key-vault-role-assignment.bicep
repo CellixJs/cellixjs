@@ -9,7 +9,7 @@ param principalId string
 param principalType string = 'ServicePrincipal'
 
 @description('The role definition ID for Key Vault access')
-param roleDefinitionId string = '4633458b-17de-408a-b874-0445c86b69f6' // Built-in 'Key Vault Secrets User' role ID
+param roleDefinitionId string = '4633458b-17de-408a-b874-0445c86b69e6' // Built-in 'Key Vault Secrets User' role ID
 
 // Reference existing Key Vault
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
