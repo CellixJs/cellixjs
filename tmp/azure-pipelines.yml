@@ -1,0 +1,529 @@
+trigger:
+ paths:
+   include:
+     - ui-applicant
+ branches:
+   include:
+     - main
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - ui-applicant
+
+variables:
+## PROJECT SPECIFIC VARIABLES -start
+    PROJECT_NAME: 'ui-applicant'
+    # Skip SonarCloud tasks if 'disableSonarCloudTasks' is set to True
+    disableSonarCloudTasks: 'false'
+    # SonarCloud configuration 
+    SonarCloud: 'sonarcloudADO'
+    SonarCloud_organization: 'ecfmg'
+    SONARCLOUD_PROJECT_KEY: 'ahp-ui-applicant'
+    SONARCLOUD_PROJECT_NAME: 'ahp-ui-applicant'
+    vmImageName: 'ubuntu-latest'
+## PROJECT SPECIFIC VARIABLES - end
+    system.debug: true
+    npm_config_cache: $(Pipeline.Workspace)/.npm
+    SONAR_USER_HOME: $(Pipeline.Workspace)/.sonar
+    ServiceConnectionName: 'Azure DevOps Resource Manager Connection'
+    #dev
+    environmentNameDev: 'ahp-dev'
+    ResourceGroupNameDev: 'corp-dev-rg'
+    destinationBlobContainerDev: 'ahpdevstuiaavaqbizf2s7le'
+    cdnProfileDev: 'cdn-dev-ms-standard'
+    cdnNameDev: 'ahp-dev-cdne-uia-avaqbizf2s7le'
+    #qa
+    environmentNameQa: 'ahp-qa'
+    ResourceGroupNameQa: 'corp-qa-rg'
+    destinationBlobContainerQa: 'ahpqastuiapnp3ehpzqysdg'
+    cdnProfileQa: 'cdn-qa-ms-standard'
+    cdnNameQa: 'ahp-qa-cdne-uia-pnp3ehpzqysdg'
+    #uat
+    environmentNameUat: 'ahp-uat'
+    ResourceGroupNameUat: 'corp-uat-rg'
+    destinationBlobContainerUat: 'ahpuatstuiambe5flfloncdm'
+    cdnProfileUat: 'cdn-uat-ms-standard'
+    cdnNameUat: 'ahp-uat-cdne-uia-mbe5flfloncdm'
+    #trn
+    environmentNameTrn: 'ahp-trn'
+    ResourceGroupNameTrn: 'corp-trn-rg'
+    destinationBlobContainerTrn: 'ahptrnstuiafxauyey43w7y6'
+    cdnProfileTrn: 'cdn-trn-ms-standard'
+    cdnNameTrn: 'ahp-trn-cdne-uia-fxauyey43w7y6'
+    #prod
+    environmentNamePrd: 'ahp-prd'
+    ResourceGroupNamePrd: 'corp-prod-rg'
+    destinationBlobContainerPrd: 'ahpprdstuialbiusbw5zdgpc'
+    cdnProfilePrd: 'cdn-prod-ms-standard'
+    cdnNamePrd: 'ahp-prd-cdne-uia-lbiusbw5zdgpc'
+
+pool:
+  vmImage: ubuntu-latest
+
+
+# resources:
+#   repositories:
+#     - repository: templates
+#       type: github
+#       name: ECFMG/azure-pipelines-yaml
+#       ref: 'refs/heads/main'
+#       endpoint: 'ecfmg-github'
+
+stages:
+- stage: build_dev_stage
+  displayName: Build Dev Stage
+  jobs:
+  - job: build_job
+    displayName: Build Job
+    steps:
+
+
+
+    - template: ./build-pipeline/cra-npm-build.yml
+      parameters: 
+        buildPath: $(PROJECT_NAME)
+        archivePath: $(PROJECT_NAME)/build
+        archiveName: $(environmentNameDev)
+        nodeVersion: '18.x'
+        buildEnvSettings: 
+          NODE_OPTIONS: --max_old_space_size=16384
+          INLINE_RUNTIME_CHUNK: 'false'
+          VITE_PORTAL_IDENTIFIER: $(VITE_PORTAL_IDENTIFIER)
+          VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_DEV)
+          VITE_NODE_ENVIRONMENT: $(VITE_NODE_ENVIRONMENT_DEV)
+          VITE_FEATURE_FLAG_URL: '$(VITE_FEATURE_FLAG_URL_DEV)'
+          VITE_GA_MEASUREMENT_ID: $(VITE_GA_MEASUREMENT_ID_DEV)
+          VITE_B2C_CLIENTID: $(VITE_B2C_CLIENTID_DEV)
+          VITE_B2C_AUTHORITY: $(VITE_B2C_AUTHORITY_DEV)
+          VITE_B2C_REDIRECT_URI: $(VITE_B2C_REDIRECT_URI_DEV)
+          VITE_B2C_SCOPE: $(VITE_B2C_SCOPE_DEV)
+          VITE_BLOB_STORAGE_CONFIG_URL: $(VITE_BLOB_STORAGE_CONFIG_URL_DEV)
+          VITE_NOTARY_CAM_URL: $(VITE_NOTARY_CAM_URL_DEV)
+          VITE_TIMEOUT_BEFORE_MAINTENANCE: $(VITE_TIMEOUT_BEFORE_MAINTENANCE_DEV)
+          VITE_IDLE_TIMER: $(VITE_IDLE_TIMER_DEV)
+          VITE_LOGOUT_TIMER: $(VITE_LOGOUT_TIMER_DEV)
+          VITE_PDF_WORKER_URL: $(VITE_PDF_WORKER_URL_DEV)
+
+    - task: Cache@2
+      inputs:
+        key: 'sonarcloud | "$(Agent.OS)"'
+        restoreKeys: |
+            sonarcloud | "$(Agent.OS)"
+        path: $(SONAR_USER_HOME)/cache
+      displayName: Cache SonarCloud
+
+    # Added metadataFilePath to the extraProperties to ensure that the report-task.txt file is created in the correct location for build breaker task https://github.com/simondel/sonar-buildbreaker-vsts/issues/33
+    - task: SonarCloudPrepare@3
+      condition: and(succeeded(), eq(variables['disableSonarCloudTasks'], False))
+      displayName: 'SonarCloud: Prepare analysis configuration'
+      inputs:
+        SonarCloud: $(SonarCloud)
+        organization: $(SonarCloud_organization)
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: $(SONARCLOUD_PROJECT_KEY)
+        cliProjectName: $(SONARCLOUD_PROJECT_NAME)
+        cliSources: './$(PROJECT_NAME)/src'
+        extraProperties: |
+          sonar.exclusions=**/src/generated.tsx
+          sonar.scanner.metadataFilePath=$(Agent.TempDirectory)/sonar/$(Build.BuildNumber)/test/report-task.txt
+
+    - task: SonarCloudAnalyze@3
+      displayName: 'SonarCloud: Run analysis'
+      condition: and(succeeded(), eq(variables['disableSonarCloudTasks'], False))
+
+    - task: SonarCloudPublish@3
+      displayName: 'SonarCloud: Publish results on build summary'
+      condition: and(succeeded(), eq(variables['disableSonarCloudTasks'], False))
+      inputs:
+        pollingTimeoutSec: '300'
+
+    # SonarCloud: Break the build if it doesn't pass the Quality Gate
+    - task: sonarcloud-buildbreaker@2
+      displayName: 'SonarCloud: Break the build if it does not pass the Quality'
+      condition: and(succeeded(), eq(variables['disableSonarCloudTasks'], False))
+      inputs:
+        SonarCloud: $(SonarCloud)
+        organization: $(SonarCloud_organization)        
+
+    - task: PublishBuildArtifacts@1
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'www'
+        publishLocation: 'Container'
+
+    # Publish chromatic
+    - task: Bash@3
+      condition: ne(variables['Build.Reason'], 'PullRequest')
+      displayName: 'chromatic build'
+      inputs:
+        targetType: 'inline'
+        script: |
+          npx chromatic --project-token=${CHROMATIC_PROJECT_TOKEN} --auto-accept-changes --allow-console-errors
+        workingDirectory: 'ui-applicant'
+      env: 
+        NODE_OPTIONS: --max_old_space_size=16384   
+        INLINE_RUNTIME_CHUNK: 'false'
+        VITE_PORTAL_IDENTIFIER: $(VITE_PORTAL_IDENTIFIER)
+        VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_DEV)
+        VITE_NODE_ENVIRONMENT: $(VITE_NODE_ENVIRONMENT_DEV)
+        VITE_FEATURE_FLAG_URL: '$(VITE_FEATURE_FLAG_URL_DEV)'
+        VITE_GA_MEASUREMENT_ID: $(VITE_GA_MEASUREMENT_ID_DEV)
+        VITE_B2C_CLIENTID: $(VITE_B2C_CLIENTID_DEV)
+        VITE_B2C_AUTHORITY: $(VITE_B2C_AUTHORITY_DEV)
+        VITE_B2C_REDIRECT_URI: $(VITE_B2C_REDIRECT_URI_DEV)
+        VITE_B2C_SCOPE: $(VITE_B2C_SCOPE_DEV)
+        VITE_BLOB_STORAGE_CONFIG_URL: $(VITE_BLOB_STORAGE_CONFIG_URL_DEV)
+        VITE_NOTARY_CAM_URL: $(VITE_NOTARY_CAM_URL_DEV)
+        VITE_TIMEOUT_BEFORE_MAINTENANCE: $(VITE_TIMEOUT_BEFORE_MAINTENANCE_DEV)
+        VITE_IDLE_TIMER: $(VITE_IDLE_TIMER_DEV)
+        VITE_LOGOUT_TIMER: $(VITE_LOGOUT_TIMER_DEV)
+        VITE_PDF_WORKER_URL: $(VITE_PDF_WORKER_URL_DEV)
+
+- stage: build_qa_stage
+  displayName: Build Qa Stage
+  dependsOn: build_dev_infrastructure
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  - job: build_job
+    displayName: Build Job
+    steps:
+
+    - template: ./build-pipeline/cra-npm-build.yml
+      parameters: 
+        buildPath: $(PROJECT_NAME)
+        archivePath: $(PROJECT_NAME)/build
+        archiveName: $(environmentNameQa)
+        nodeVersion: '18.x'
+        buildEnvSettings: 
+          NODE_OPTIONS: --max_old_space_size=16384
+          INLINE_RUNTIME_CHUNK: 'false'
+          VITE_PORTAL_IDENTIFIER: $(VITE_PORTAL_IDENTIFIER)
+          VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_QA)
+          VITE_NODE_ENVIRONMENT: $(VITE_NODE_ENVIRONMENT_QA)
+          VITE_FEATURE_FLAG_URL: '$(VITE_FEATURE_FLAG_URL_QA)'
+          VITE_GA_MEASUREMENT_ID: $(VITE_GA_MEASUREMENT_ID_QA)
+          VITE_B2C_CLIENTID: $(VITE_B2C_CLIENTID_QA)
+          VITE_B2C_AUTHORITY: $(VITE_B2C_AUTHORITY_QA)
+          VITE_B2C_REDIRECT_URI: $(VITE_B2C_REDIRECT_URI_QA)
+          VITE_B2C_SCOPE: $(VITE_B2C_SCOPE_QA)
+          VITE_BLOB_STORAGE_CONFIG_URL: $(VITE_BLOB_STORAGE_CONFIG_URL_QA)
+          VITE_NOTARY_CAM_URL: $(VITE_NOTARY_CAM_URL_QA)
+          VITE_TIMEOUT_BEFORE_MAINTENANCE: $(VITE_TIMEOUT_BEFORE_MAINTENANCE_QA)
+          VITE_IDLE_TIMER: $(VITE_IDLE_TIMER_QA)
+          VITE_LOGOUT_TIMER: $(VITE_LOGOUT_TIMER_QA)
+          VITE_PDF_WORKER_URL: $(VITE_PDF_WORKER_URL_QA)
+        
+    - task: PublishBuildArtifacts@1
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'www'
+        publishLocation: 'Container'
+
+- stage: build_uat_stage
+  displayName: Build Uat Stage
+  dependsOn: build_qa_infrastructure
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  - job: build_job
+    displayName: Build Job
+    steps:
+
+    - template: ./build-pipeline/cra-npm-build.yml
+      parameters: 
+        buildPath: $(PROJECT_NAME)
+        archivePath: $(PROJECT_NAME)/build
+        archiveName: $(environmentNameUat)
+        nodeVersion: '18.x'
+        buildEnvSettings: 
+          NODE_OPTIONS: --max_old_space_size=16384   
+          INLINE_RUNTIME_CHUNK: 'false'
+          VITE_PORTAL_IDENTIFIER: $(VITE_PORTAL_IDENTIFIER)
+          VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_UAT)
+          VITE_NODE_ENVIRONMENT: $(VITE_NODE_ENVIRONMENT_UAT)
+          VITE_FEATURE_FLAG_URL: '$(VITE_FEATURE_FLAG_URL_UAT)'
+          VITE_GA_MEASUREMENT_ID: $(VITE_GA_MEASUREMENT_ID_UAT)
+          VITE_B2C_CLIENTID: $(VITE_B2C_CLIENTID_UAT)
+          VITE_B2C_AUTHORITY: $(VITE_B2C_AUTHORITY_UAT)
+          VITE_B2C_REDIRECT_URI: $(VITE_B2C_REDIRECT_URI_UAT)
+          VITE_B2C_SCOPE: $(VITE_B2C_SCOPE_UAT)
+          VITE_BLOB_STORAGE_CONFIG_URL: $(VITE_BLOB_STORAGE_CONFIG_URL_UAT)
+          VITE_NOTARY_CAM_URL: $(VITE_NOTARY_CAM_URL_UAT)
+          VITE_TIMEOUT_BEFORE_MAINTENANCE: $(VITE_TIMEOUT_BEFORE_MAINTENANCE_UAT)
+          VITE_IDLE_TIMER: $(VITE_IDLE_TIMER_UAT)
+          VITE_LOGOUT_TIMER: $(VITE_LOGOUT_TIMER_UAT)
+          VITE_PDF_WORKER_URL: $(VITE_PDF_WORKER_URL_UAT)
+        
+    - task: PublishBuildArtifacts@1
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'www'
+        publishLocation: 'Container'
+
+- stage: build_trn_stage
+  displayName: Build Trn Stage
+  dependsOn: build_uat_infrastructure
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  - job: build_job
+    displayName: Build Job
+    steps:
+
+    - template: ./build-pipeline/cra-npm-build.yml
+      parameters: 
+        buildPath: $(PROJECT_NAME)
+        archivePath: $(PROJECT_NAME)/build
+        archiveName: $(environmentNameTrn)
+        nodeVersion: '18.x'
+        buildEnvSettings: 
+          NODE_OPTIONS: --max_old_space_size=16384   
+          INLINE_RUNTIME_CHUNK: 'false'
+          VITE_PORTAL_IDENTIFIER: $(VITE_PORTAL_IDENTIFIER)
+          VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_TRN)
+          VITE_NODE_ENVIRONMENT: $(VITE_NODE_ENVIRONMENT_TRN)
+          VITE_FEATURE_FLAG_URL: '$(VITE_FEATURE_FLAG_URL_TRN)'
+          VITE_GA_MEASUREMENT_ID: $(VITE_GA_MEASUREMENT_ID_TRN)
+          VITE_B2C_CLIENTID: $(VITE_B2C_CLIENTID_TRN)
+          VITE_B2C_AUTHORITY: $(VITE_B2C_AUTHORITY_TRN)
+          VITE_B2C_REDIRECT_URI: $(VITE_B2C_REDIRECT_URI_TRN)
+          VITE_B2C_SCOPE: $(VITE_B2C_SCOPE_TRN)
+          VITE_BLOB_STORAGE_CONFIG_URL: $(VITE_BLOB_STORAGE_CONFIG_URL_TRN)
+          VITE_NOTARY_CAM_URL: $(VITE_NOTARY_CAM_URL_TRN)
+          VITE_TIMEOUT_BEFORE_MAINTENANCE: $(VITE_TIMEOUT_BEFORE_MAINTENANCE_TRN)
+          VITE_IDLE_TIMER: $(VITE_IDLE_TIMER_TRN)
+          VITE_LOGOUT_TIMER: $(VITE_LOGOUT_TIMER_TRN)
+          VITE_PDF_WORKER_URL: $(VITE_PDF_WORKER_URL_TRN)
+        
+    - task: PublishBuildArtifacts@1
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'www'
+        publishLocation: 'Container'
+
+- stage: build_prd_stage
+  displayName: Build Prd Stage
+  dependsOn: build_trn_infrastructure
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  - job: build_job
+    displayName: Build Job
+    steps:
+
+    - template: ./build-pipeline/cra-npm-build.yml
+      parameters: 
+        buildPath: $(PROJECT_NAME)
+        archivePath: $(PROJECT_NAME)/build
+        archiveName: $(environmentNamePrd)
+        nodeVersion: '18.x'
+        buildEnvSettings: 
+          INLINE_RUNTIME_CHUNK: 'false'
+          VITE_PORTAL_IDENTIFIER: $(VITE_PORTAL_IDENTIFIER)
+          VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_PRD)
+          VITE_NODE_ENVIRONMENT: $(VITE_NODE_ENVIRONMENT_PRD)
+          VITE_FEATURE_FLAG_URL: '$(VITE_FEATURE_FLAG_URL_PRD)'
+          VITE_GA_MEASUREMENT_ID: $(VITE_GA_MEASUREMENT_ID_PRD)
+          VITE_B2C_CLIENTID: $(VITE_B2C_CLIENTID_PRD)
+          VITE_B2C_AUTHORITY: $(VITE_B2C_AUTHORITY_PRD)
+          VITE_B2C_REDIRECT_URI: $(VITE_B2C_REDIRECT_URI_PRD)
+          VITE_B2C_SCOPE: $(VITE_B2C_SCOPE_PRD)
+          VITE_BLOB_STORAGE_CONFIG_URL: $(VITE_BLOB_STORAGE_CONFIG_URL_PRD)
+          VITE_NOTARY_CAM_URL: $(VITE_NOTARY_CAM_URL_PRD)
+          VITE_TIMEOUT_BEFORE_MAINTENANCE: $(VITE_TIMEOUT_BEFORE_MAINTENANCE_PRD)
+          VITE_IDLE_TIMER: $(VITE_IDLE_TIMER_PRD)
+          VITE_LOGOUT_TIMER: $(VITE_LOGOUT_TIMER_PRD)
+          VITE_PDF_WORKER_URL: $(VITE_PDF_WORKER_URL_PRD)
+        
+    - task: PublishBuildArtifacts@1
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'www'
+        publishLocation: 'Container'
+
+- stage: build_dev_infrastructure
+  displayName: build dev infrastructure stage
+  dependsOn: build_dev_stage
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  # - job: Infrastructure 
+  #   displayName: Infrastructure Setup 
+  #   pool:
+  #     vmImage: $(vmImageName) 
+  #   steps:
+  #   - task: AzureResourceManagerTemplateDeployment@3
+  #     inputs:
+  #       connectedServiceName: $(ServiceConnectionName)
+  #       deploymentName: $(Build.BuildNumber)
+  #       location: $(deploymentDefaultLocation)
+  #       resourceGroupName: $(ResourceGroupNameDev)
+  #       csmFile: ui-applicant/iac/main.bicep
+  #       overrideParameters: >
+  #             -environment dev
+  - deployment: Application
+    # dependsOn: Infrastructure
+    displayName: Application Deployment
+    environment: $(environmentNameDev)
+    strategy:
+      runOnce:    #rolling, canary are the other strategies that are supported
+        deploy:
+          steps:
+          - template: ./build-pipeline/blob-cdn-website-deploy.yml
+            parameters:
+              subscription: $(ServiceConnectionName)
+              destinationBlobContainer: $(destinationBlobContainerDev)
+              archiveName: $(environmentNameDev)
+              cdnProfile: $(cdnProfileDev)
+              cdnResourceGroup: $(ResourceGroupNameDev)
+              cdnName: $(cdnNameDev)
+
+- stage: build_qa_infrastructure
+  displayName: build qa infrastructure stage
+  dependsOn: build_qa_stage
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  # - job: Infrastructure 
+  #   displayName: Infrastructure Setup 
+  #   pool:
+  #     vmImage: $(vmImageName) 
+  #   steps:
+  #   - task: AzureResourceManagerTemplateDeployment@3
+  #     inputs:
+  #       connectedServiceName: $(ServiceConnectionName)
+  #       deploymentName: $(Build.BuildNumber)
+  #       location: $(deploymentDefaultLocation)
+  #       resourceGroupName: $(ResourceGroupNameQa)
+  #       csmFile: ui-applicant/iac/main.bicep
+  #       overrideParameters: >
+  #             -environment qa
+  - deployment: Application
+    # dependsOn: Infrastructure
+    displayName: Application Deployment
+    environment: $(environmentNameQa)
+    strategy:
+      runOnce:    #rolling, canary are the other strategies that are supported
+        deploy:
+          steps:
+          - template: ./build-pipeline/blob-cdn-website-deploy.yml
+            parameters:
+              subscription: $(ServiceConnectionName)
+              destinationBlobContainer: $(destinationBlobContainerQa)
+              archiveName: $(environmentNameQa)
+              cdnProfile: $(cdnProfileQa)
+              cdnResourceGroup: $(ResourceGroupNameQa)
+              cdnName: $(cdnNameQa)
+
+- stage: build_uat_infrastructure
+  displayName: build uat infrastructure stage
+  dependsOn: build_uat_stage
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  # - job: Infrastructure 
+  #   displayName: Infrastructure Setup 
+  #   pool:
+  #     vmImage: $(vmImageName) 
+  #   steps:
+  #   - task: AzureResourceManagerTemplateDeployment@3
+  #     inputs:
+  #       connectedServiceName: $(ServiceConnectionName)
+  #       deploymentName: $(Build.BuildNumber)
+  #       location: $(deploymentDefaultLocation)
+  #       resourceGroupName: $(ResourceGroupNameUat)
+  #       csmFile: ui-applicant/iac/main.bicep
+  #       overrideParameters: >
+  #             -environment uat
+  - deployment: Application
+    # dependsOn: Infrastructure
+    displayName: Application Deployment
+    environment: $(environmentNameUat)
+    strategy:
+      runOnce:    #rolling, canary are the other strategies that are supported
+        deploy:
+          steps:
+          - template: ./build-pipeline/blob-cdn-website-deploy.yml
+            parameters:
+              subscription: $(ServiceConnectionName)
+              destinationBlobContainer: $(destinationBlobContainerUat)
+              archiveName: $(environmentNameUat)
+              cdnProfile: $(cdnProfileUat)
+              cdnResourceGroup: $(ResourceGroupNameUat)
+              cdnName: $(cdnNameUat)
+
+- stage: build_trn_infrastructure
+  displayName: build trn infrastructure stage
+  dependsOn: build_trn_stage
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  # - job: Infrastructure 
+  #   displayName: Infrastructure Setup 
+  #   pool:
+  #     vmImage: $(vmImageName) 
+  #   steps:
+  #   - task: AzureResourceManagerTemplateDeployment@3
+  #     inputs:
+  #       connectedServiceName: $(ServiceConnectionName)
+  #       deploymentName: $(Build.BuildNumber)
+  #       location: $(deploymentDefaultLocation)
+  #       resourceGroupName: $(ResourceGroupNameTrn)
+  #       csmFile: ui-applicant/iac/main.bicep
+  #       overrideParameters: >
+  #             -environment trn
+  - deployment: Application
+    # dependsOn: Infrastructure
+    displayName: Application Deployment
+    environment: $(environmentNameTrn)
+    strategy:
+      runOnce:    #rolling, canary are the other strategies that are supported
+        deploy:
+          steps:
+          - template: ./build-pipeline/blob-cdn-website-deploy.yml
+            parameters:
+              subscription: $(ServiceConnectionName)
+              destinationBlobContainer: $(destinationBlobContainerTrn)
+              archiveName: $(environmentNameTrn)
+              cdnProfile: $(cdnProfileTrn)
+              cdnResourceGroup: $(ResourceGroupNameTrn)
+              cdnName: $(cdnNameTrn)
+
+- stage: build_prd_infrastructure
+  displayName: build prd infrastructure stage
+  dependsOn: build_prd_stage
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  # - job: Infrastructure 
+  #   displayName: Infrastructure Setup 
+  #   pool:
+  #     vmImage: $(vmImageName) 
+  #   steps:
+  #   - task: AzureResourceManagerTemplateDeployment@3
+  #     inputs:
+  #       connectedServiceName: $(ServiceConnectionName)
+  #       deploymentName: $(Build.BuildNumber)
+  #       location: $(deploymentDefaultLocation)
+  #       resourceGroupName: $(ResourceGroupNamePrd)
+  #       csmFile: ui-applicant/iac/main.bicep
+  #       overrideParameters: >
+  #             -environment prd
+  - deployment: Application
+    # dependsOn: Infrastructure
+    displayName: Application Deployment
+    environment: $(environmentNamePrd)
+    strategy:
+      runOnce:    #rolling, canary are the other strategies that are supported
+        deploy:
+          steps:
+          - template: ./build-pipeline/blob-cdn-website-deploy.yml
+            parameters:
+              subscription: $(ServiceConnectionName)
+              destinationBlobContainer: $(destinationBlobContainerPrd)
+              archiveName: $(environmentNamePrd)
+              cdnProfile: $(cdnProfilePrd)
+              cdnResourceGroup: $(ResourceGroupNamePrd)
+              cdnName: $(cdnNamePrd)

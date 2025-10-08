@@ -23,6 +23,15 @@ parameters:
 - name: appSettingsJsonFileRelativePathPri
   displayName: 'AppSettings Json File Relative Path for Primary instance'
   type: string
+- name: cdnProfile
+  displayName: 'CDN Profile Name'
+  type: string
+- name: cdnResourceGroup
+  displayName: 'CDN Resource Group Name'
+  type: string
+- name: cdnName
+  displayName: 'CDN Name'
+  type: string
 
 stages:
 - stage: ${{parameters.stageName}}
@@ -50,3 +59,6 @@ stages:
       ServiceConnectionName: ${{parameters.ServiceConnectionName}}
       deploymentDefaultLocation: ${{parameters.deploymentDefaultLocation}}
       resourceGroupName: ${{parameters.resourceGroupName}}
+      cdnProfile: ${{parameters.cdnProfile}}
+      cdnResourceGroup: ${{parameters.cdnResourceGroup}}
+      cdnName: ${{parameters.cdnName}}
