@@ -11,15 +11,6 @@ parameters:
   type: string
 - name: resourceGroupName
   type: string
-- name: cdnProfile
-  displayName: 'CDN Profile Name'
-  type: string
-- name: cdnResourceGroup
-  displayName: 'CDN Resource Group'
-  type: string
-- name: cdnName
-  displayName: 'CDN Endpoint Name'
-  type: string
 
 jobs:
 - job: Infrastructure_UI_Community
@@ -99,5 +90,4 @@ jobs:
             inlineScript: |
               az storage blob delete-batch -s `$web --pattern * --account-name $(storageAccountName)
               az storage blob upload-batch --destination `$web --account-name $(storageAccountName) --source $(Build.ArtifactStagingDirectory)/deploy
-              az cdn endpoint purge --profile-name ${{parameters.cdnProfile}} -g ${{parameters.cdnResourceGroup}} -n ${{parameters.cdnName}} --content-paths "/*"
             addSpnToEnvironment: true
