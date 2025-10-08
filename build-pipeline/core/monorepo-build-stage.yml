@@ -46,10 +46,12 @@ stages:
     pool:
       vmImage: ${{parameters.vmImageName}}
     variables:
-      PLAYWRIGHT_BROWSERS_PATH: /home/vsts/.cache/ms-playwright
-      TURBO_CACHE_DIR: $(Build.SourcesDirectory)/.turbo
+      - name: PLAYWRIGHT_BROWSERS_PATH
+        value: /home/vsts/.cache/ms-playwright
+      - name: TURBO_CACHE_DIR
+        value: $(Build.SourcesDirectory)/.turbo
       ${{ if ne(parameters.uiEnvVariableGroup, '') }}:
-        - group: ${{parameters.uiEnvVariableGroup}}
+      - group: ${{parameters.uiEnvVariableGroup}}
     steps:
     - checkout: self
       fetchDepth: 0 # Fetch all history for all branches and tags necessary for sonar cloud analysis
