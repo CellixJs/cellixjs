@@ -1,7 +1,32 @@
 [
   {
+    "name": "ACCOUNT_PORTAL_OIDC_AUDIENCE",
+    "value": "https://localhost:3000",
+    "slotSetting": false
+  },
+  {
+    "name": "ACCOUNT_PORTAL_OIDC_ENDPOINT",
+    "value": "https://ownercommunityb2c.b2clogin.com/ownercommunityb2c.onmicrosoft.com/b2c_1a_signup_signin/discovery/v2.0/keys",
+    "slotSetting": false
+  },
+  {
+    "name": "ACCOUNT_PORTAL_OIDC_ISSUER",
+    "value": "https://ownercommunityb2c.b2clogin.com/9227e22b-4754-46be-98c1-2a1a1e40457e/",
+    "slotSetting": false
+  },
+  {
+    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+    "value": "@Microsoft.KeyVault(SecretUri=https://sharethrift-keyvault.vault.azure.net/secrets/OCM-APPLICATIONINSIGHTS-CONNECTION-STRING)",
+    "slotSetting": false
+  },
+  {
     "name": "APPLICATION_NAME",
-    "value": "CEL",
+    "value": "OCM",
+    "slotSetting": false
+  },
+  {
+    "name": "AZURE_STORAGE_CONNECTION_STRING",
+    "value": "@Microsoft.KeyVault(SecretUri=https://sharethrift-keyvault.vault.azure.net/secrets/OCM-AZURE-STORAGE-CONNECTION-STRING)",
     "slotSetting": false
   },
   {
@@ -30,33 +55,13 @@
     "slotSetting": false
   },
   {
-    "name": "ACCOUNT_PORTAL_OIDC_AUDIENCE",
-    "value": "",
-    "slotSetting": false
-  },
-  {
-    "name": "ACCOUNT_PORTAL_OIDC_ENDPOINT",
-    "value": "",
-    "slotSetting": false
-  },
-  {
-    "name": "ACCOUNT_PORTAL_OIDC_ISSUER",
-    "value": "",
-    "slotSetting": false
-  },
-  {
-    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-    "value": "",
-    "slotSetting": false
-  },
-  {
     "name": "COSMOSDB_CONNECTION_STRING",
-    "value": "",
+    "value": "@Microsoft.KeyVault(SecretUri=https://sharethrift-keyvault.vault.azure.net/secrets/OCM-COSMOSDB-CONNECTION-STRING)",
     "slotSetting": false
   },
   {
     "name": "COSMOSDB_DBNAME",
-    "value": "owner-community",
+    "value": "ocmdevcosmosdatbd52ztvowoqqe",
     "slotSetting": false
   }
 ]

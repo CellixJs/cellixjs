@@ -12,7 +12,7 @@ param applicationPrefix string
 //var moduleNameSuffix = '-Module-${applicationPrefix}-${environment}-st-${instanceName}'
 
 
-module searchService 'br/public:avm/res/search/search-service:0.10.0' = {
+module searchService 'br/public:avm/res/search/search-service:0.11.1' = {
   name: 'searchServiceDeployment'
   params:{
     name: '${applicationPrefix}-${searchServiceName}'

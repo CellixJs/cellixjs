@@ -4,7 +4,7 @@ param searchServiceName = 'cogeastus2'
 param location = 'eastus2'
 param tags = {
   environment: 'dev'
-  application: 'ahp'
+  application: 'ocm'
 }
 param sku = 'free'
 param replicaCount = 1

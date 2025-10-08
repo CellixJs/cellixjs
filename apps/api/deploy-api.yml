@@ -11,8 +11,6 @@ parameters:
   type: string
 - name: vmImageName
   type: string
-- name: functionAppNamePri
-  type: string
 - name: appSettingsJsonFileRelativePathPri
   displayName: 'AppSettings Json File Relative Path for Primary instance'
   type: string
@@ -25,6 +23,7 @@ jobs:
     vmImage: ${{parameters.vmImageName}}
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
+    name: deployInfrastructure
     inputs:
       connectedServiceName: ${{parameters.ServiceConnectionName}}
       deploymentName: $(Build.BuildNumber)
@@ -34,6 +33,17 @@ jobs:
       csmParametersFile: apps/api/iac/${{parameters.environmentNameBicep}}.bicepparam
       # overrideParameters: >
       #           -environment ${{parameters.environmentNameBicep}}
+  
+  - task: PowerShell@2
+    name: captureOutputs
+    displayName: 'Capture Infrastructure Outputs'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $outputs = '$(deployInfrastructure.outputs)' | ConvertFrom-Json
+        $functionAppNamePri = $outputs.functionAppNamePri.value
+        Write-Host "Function App Name (Primary): $functionAppNamePri"
+        Write-Host "##vso[task.setvariable variable=functionAppNamePri;isOutput=true]$functionAppNamePri"
 
 - deployment: Application_Deployment_Pri
   displayName: Application Deployment (Primary)
@@ -42,6 +52,8 @@ jobs:
   environment: ${{parameters.environmentNameDevOps}}
   pool:
     vmImage: ${{parameters.vmImageName}}
+  variables:
+    functionAppNamePri: $[ dependencies.Infrastructure.outputs['captureOutputs.functionAppNamePri'] ]
   strategy:
     runOnce:
       deploy:
@@ -50,11 +62,11 @@ jobs:
           displayName: 'Artifact: Download API package'
           artifact: api
         - task: AzureFunctionApp@1
-          displayName: 'Azure Functions App Deploy: ${{parameters.functionAppNamePri}}'
+          displayName: 'Azure Functions App Deploy: $(functionAppNamePri)'
           inputs:
             azureSubscription: ${{parameters.ServiceConnectionName}}
             appType: 'functionAppLinux'
-            appName: ${{parameters.functionAppNamePri}}
+            appName: $(functionAppNamePri)
             package: '$(Pipeline.Workspace)/api/api-$(Build.BuildId).zip'
             runtimeStack: 'NODE|22'
             deploymentMethod: 'runFromPackage'
@@ -62,9 +74,13 @@ jobs:
 - job: Application_Settings_Pri
   displayName: Application Settings (Primary)
   condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
-  dependsOn: Application_Deployment_Pri
+  dependsOn: 
+    - Infrastructure
+    - Application_Deployment_Pri
   pool:
     vmImage: ${{parameters.vmImageName}}
+  variables:
+    functionAppNamePri: $[ dependencies.Infrastructure.outputs['captureOutputs.functionAppNamePri'] ]
   steps:
   - powershell: |
       $output = Get-Content '$(Build.SourcesDirectory)/${{parameters.appSettingsJsonFileRelativePathPri}}'
@@ -72,5 +88,5 @@ jobs:
   - task: AzureAppServiceSettings@1
     inputs:
       azureSubscription: ${{parameters.ServiceConnectionName}}
-      appName: ${{parameters.functionAppNamePri}}
+      appName: $(functionAppNamePri)
       appSettings: '$(appSettingsPri)'

@@ -16,7 +16,7 @@ param backupIntervalInMinutes int
 @description('Backup retention interval in hours for the Cosmos MongoDB Account.')
 param backupRetentionIntervalInHours int
 
-@description('Max throughput for the Cosmos MongoDB Database.')
+@description('Maximum autoscale throughput for the Cosmos MongoDB Database (RU/s).')
 param maxThroughput int
 
 @maxLength(3)

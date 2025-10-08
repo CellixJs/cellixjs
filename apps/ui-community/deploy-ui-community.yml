@@ -1,27 +1,100 @@
 parameters:
 - name: environmentNameDevOps
   type: string
+- name: environmentNameBicep
+  type: string
 - name: vmImageName
+  type: string
+- name: ServiceConnectionName
+  type: string
+- name: deploymentDefaultLocation
+  type: string
+- name: resourceGroupName
+  type: string
+- name: cdnProfile
+  type: string
+- name: cdnResourceGroup
+  type: string
+- name: cdnName
   type: string
 
 jobs:
+- job: Infrastructure_UI_Community
+  displayName: Infrastructure Setup (UI Community)
+  condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true')
+  pool:
+    vmImage: ${{parameters.vmImageName}}
+  steps:
+  - task: AzureResourceManagerTemplateDeployment@3
+    name: deployInfrastructure
+    inputs:
+      connectedServiceName: ${{parameters.ServiceConnectionName}}
+      deploymentName: $(Build.BuildNumber)
+      location: ${{parameters.deploymentDefaultLocation}}
+      resourceGroupName: ${{parameters.resourceGroupName}}
+      csmFile: apps/ui-community/iac/main.bicep
+      csmParametersFile: apps/ui-community/iac/${{parameters.environmentNameBicep}}.bicepparam
+  
+  - task: PowerShell@2
+    name: captureOutputs
+    displayName: 'Capture Infrastructure Outputs'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $outputs = '$(deployInfrastructure.outputs)' | ConvertFrom-Json
+        $storageAccountName = $outputs.storageAccountName.value
+        Write-Host "Storage Account Name: $storageAccountName"
+        Write-Host "##vso[task.setvariable variable=storageAccountName;isOutput=true]$storageAccountName"
+
 - deployment: Deploy_UI_Community
   displayName: 'Deploy UI Community (Static Web App)'
-  condition: and(eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+  dependsOn: Infrastructure_UI_Community
   environment: ${{parameters.environmentNameDevOps}}
   pool:
     vmImage: ${{parameters.vmImageName}}
+  variables:
+    storageAccountName: $[ dependencies.Infrastructure_UI_Community.outputs['captureOutputs.storageAccountName'] ]
   strategy:
     runOnce:
       deploy:
         steps:
-        - task: AzureStaticWebApp@0
-          displayName: 'Azure Static Web App Deploy: Cellix-ui-community'
+        # Get the zip file for with proper environment settings already compiled in it.
+        - task: CopyFiles@2
           inputs:
-            azure_static_web_apps_api_token: $(deployment-token)
-            action: 'Upload'
-            app_location: 'apps/ui-community'
-            api_location: ''
-            output_location: 'dist'
-            skip_app_build: false
-            build_timeout_in_minutes: 15
+            SourceFolder: '$(Pipeline.Workspace)'
+            Contents: '**/ui-community-$(Build.BuildId).zip'
+            TargetFolder: '$(Build.ArtifactStagingDirectory)'
+            flattenFolders: true
+
+        # Extract the files from the zip file.
+        - task: ExtractFiles@1
+          inputs:
+            archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/ui-community-$(Build.BuildId).zip'
+            destinationFolder: '$(Build.ArtifactStagingDirectory)/deploy'
+            cleanDestinationFolder: true
+            overwriteExistingFiles: false
+
+        # Temporary workaround to downgrade Azure CLI
+        # TODO: remove this task when issue is resolved: https://github.com/Azure/azure-cli/issues/32039#issue
+        - task: Bash@3
+          displayName: Downgrade Azure CLI to 2.76.0
+          inputs:
+            targetType: 'inline'
+            script: |
+              pip install azure-cli==2.76.0 --force-reinstall
+              az --version
+
+        # Delete all files in the $web container and replace with extracted files.
+        # Purge the CDN endpoint to ensure the CDN has only latest files.
+        - task: AzureCLI@2
+          displayName: Copy to Blob
+          inputs:
+            azureSubscription: $(ServiceConnectionName)
+            scriptType: 'pscore'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              az storage blob delete-batch -s `$web --pattern * --account-name $(storageAccountName)
+              az storage blob upload-batch --destination `$web --account-name $(storageAccountName) --source $(Build.ArtifactStagingDirectory)/deploy
+              az cdn endpoint purge --profile-name $(cdnProfile) -g $(cdnResourceGroup) -n $(cdnName) --content-paths "/*"
+            addSpnToEnvironment: true

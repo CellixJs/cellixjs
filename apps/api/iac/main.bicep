@@ -126,3 +126,6 @@ module cosmosMongoDB '../../../iac/cosmos-mongodb/main.bicep' = {
 
   }
 }
+
+// Outputs
+output functionAppNamePri string = functionApp.outputs.functionAppNamePri

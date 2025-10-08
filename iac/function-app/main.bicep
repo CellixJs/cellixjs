@@ -46,7 +46,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' existing 
   name: storageAccountName
 }
 
-module functionApp 'br/public:avm/res/web/site:0.16.0' = {
+module functionApp 'br/public:avm/res/web/site:0.19.3' = {
   name: 'functionAppDeployment'
   params: {
     name: functionAppName
@@ -108,6 +108,7 @@ module functionApp 'br/public:avm/res/web/site:0.16.0' = {
     }
   ]
     siteConfig: {
+      alwaysOn: true
       linuxFxVersion: linuxFxVersion // Specify the Node.js version for the function app
       localMySqlEnabled: false
       netFrameworkVersion: null
@@ -144,3 +145,6 @@ resource addKeyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-
     ]
   }
 }
+
+// Outputs
+output functionAppNamePri string = functionApp.outputs.name

@@ -1,10 +1,10 @@
 using './main.bicep'
 
 param env = 'dev'
-param applicationPrefix = 'cel'
+param applicationPrefix = 'ocm'
 param tags = {
   environment: 'dev'
-  application: 'cel'
+  application: 'ocm'
 }
 
 //app service plan

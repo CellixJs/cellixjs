@@ -33,7 +33,7 @@ param publicAccessLevel string = 'None'
 
 var storageKind = 'StorageV2'
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01'= {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2025-01-01'= {
   name: storageAccountName
   location: location
   sku: {
@@ -62,7 +62,7 @@ param corsMaxAgeInSeconds int
 // Check to see if we have cors settings to include
 var includeCorsRules = length(corsAllowedOrigins) > 1 || (length(corsAllowedOrigins) == 1 && corsAllowedOrigins[0] != '')
 
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2025-01-01' = {
   parent: storageAccount
   name: 'default'
   properties: {
@@ -84,7 +84,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01'
   }
 }
 
-resource blobServiceContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+resource blobServiceContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2025-01-01' = {
   parent: blobService
   name: '$web'
   properties: {
@@ -118,12 +118,12 @@ resource contributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018
   
 }
 
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' = {
   name: managedIdentityName
   location: location
 }
 ///subscriptions/007d3e75-42c3-4169-b758-35fc59cf9cc9/resourcegroups/corp-dev-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/efmdeviduiavaqbizf2s7le
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: storageAccount
   dependsOn: [storageAccount, managedIdentity]
   name: guid(resourceGroup().id, managedIdentity.id, contributorRoleDefinition.id, 'ra')
@@ -134,7 +134,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
-resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   name: 'deploymentScript-${location}'
   location: location
   kind: 'AzurePowerShell'
@@ -149,7 +149,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     roleAssignment
   ]
   properties: {
-    azPowerShellVersion: '3.0'
+    azPowerShellVersion: '11.0'
     scriptContent: loadTextContent('./enable-static-website.ps1')
     retentionInterval: 'PT4H'
     environmentVariables: [

@@ -32,6 +32,10 @@ parameters:
 - name: SonarCloud_cliProjectName
   displayName: 'SonarCloud CLI Project Name'
   type: string
+- name: uiEnvVariableGroup
+  displayName: 'Variable group name for UI environment settings'
+  type: string
+  default: ''
 
 stages:
 - stage: Build
@@ -44,6 +48,8 @@ stages:
     variables:
       PLAYWRIGHT_BROWSERS_PATH: /home/vsts/.cache/ms-playwright
       TURBO_CACHE_DIR: $(Build.SourcesDirectory)/.turbo
+      ${{ if ne(parameters.uiEnvVariableGroup, '') }}:
+        - group: ${{parameters.uiEnvVariableGroup}}
     steps:
     - checkout: self
       fetchDepth: 0 # Fetch all history for all branches and tags necessary for sonar cloud analysis

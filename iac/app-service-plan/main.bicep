@@ -42,7 +42,7 @@ param tags object
 
 
 // app service plan for function app
-module appServicePlan 'br/public:avm/res/web/serverfarm:0.4.1' = {
+module appServicePlan 'br/public:avm/res/web/serverfarm:0.5.0' = {
   name: 'appServicePlanDeployment'
   params:{
     name: appServicePlanName
