@@ -15,20 +15,22 @@ parameters:
 jobs:
 - job: Infrastructure_UI_Community
   displayName: Infrastructure Setup (UI Community)
-  condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true')
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true'))
   dependsOn: Infrastructure  # Wait for API infrastructure to complete
   pool:
     vmImage: ${{parameters.vmImageName}}
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
     name: deployInfrastructure
+    displayName: 'Deploy UI Community Infrastructure'
     inputs:
       connectedServiceName: ${{parameters.ServiceConnectionName}}
-      deploymentName: $(Build.BuildNumber)
+      deploymentName: $(Build.BuildNumber)-ui
       location: ${{parameters.deploymentDefaultLocation}}
       resourceGroupName: ${{parameters.resourceGroupName}}
       csmFile: apps/ui-community/iac/main.bicep
       csmParametersFile: apps/ui-community/iac/${{parameters.environmentNameBicep}}.bicepparam
+      deploymentOutputs: 'armOutputs'
   
   - task: PowerShell@2
     name: captureOutputs
@@ -36,14 +38,15 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        $outputs = '$(deployInfrastructure.outputs)' | ConvertFrom-Json
-        $storageAccountName = $outputs.storageAccountName.value
+        Write-Host "Debug - armOutputs: $(armOutputs)"
+        $var = ConvertFrom-Json '$(armOutputs)'
+        $storageAccountName = $var.storageAccountName.value
         Write-Host "Storage Account Name: $storageAccountName"
         Write-Host "##vso[task.setvariable variable=storageAccountName;isOutput=true]$storageAccountName"
 
 - deployment: Deploy_UI_Community
   displayName: 'Deploy UI Community (Static Web App)'
-  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true'))
   dependsOn: Infrastructure_UI_Community
   environment: ${{parameters.environmentNameDevOps}}
   pool:
