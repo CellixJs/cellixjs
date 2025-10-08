@@ -99,5 +99,5 @@ jobs:
             inlineScript: |
               az storage blob delete-batch -s `$web --pattern * --account-name $(storageAccountName)
               az storage blob upload-batch --destination `$web --account-name $(storageAccountName) --source $(Build.ArtifactStagingDirectory)/deploy
-              az cdn endpoint purge --profile-name $(cdnProfile) -g $(cdnResourceGroup) -n $(cdnName) --content-paths "/*"
+              az cdn endpoint purge --profile-name ${{parameters.cdnProfile}} -g ${{parameters.cdnResourceGroup}} -n ${{parameters.cdnName}} --content-paths "/*"
             addSpnToEnvironment: true
