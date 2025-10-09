@@ -11,7 +11,9 @@ param maxOldSpaceSizeMB = 3072
 param functionWorkerRuntime = 'node'
 param linuxFxVersion = 'NODE|22' 
 param functionExtensionVersion = '~4' 
-param allowedOrigins = [] //Specify the frontend endpoints that can access the function app
+param allowedOrigins = [
+  'https://ocm-dev-fde-uic-f6g9crbzb0akh5c3.z02.azurefd.net'
+] //Specify the frontend endpoints that can access the function app
 param keyVaultName = 'sharethrift-keyvault'
 param functionAppInstanceName = 'pri'
 param applicationPrefix = 'ocm'
