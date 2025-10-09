@@ -43,7 +43,7 @@ stages:
       SonarCloud_cliProjectKey: 'simnova_cellix-data-access'
       SonarCloud_cliProjectName: 'cellix-data-access'
       buildEnvSettings:
-        VITE_AAD_B2C_ACCOUNT_AUDIENCE: $(VITE_AAD_B2C_ACCOUNT_AUDIENCE_DEV)
+        VITE_AAD_B2C_ACCOUNT_AUTHORITY: $(VITE_AAD_B2C_ACCOUNT_AUTHORITY_DEV)
         VITE_AAD_B2C_ACCOUNT_CLIENTID: $(VITE_AAD_B2C_CLIENT_ID_DEV)
         VITE_AAD_B2C_REDIRECT_URI: $(VITE_AAD_B2C_REDIRECT_URI_DEV)
         VITE_AAD_B2C_ACCOUNT_SCOPES: $(VITE_AAD_B2C_ACCOUNT_SCOPES_DEV)
