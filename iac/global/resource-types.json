@@ -2,6 +2,7 @@
     "resourceGroup": "rg",
     "cdnProfile": "cdnp",
     "cdnEndpoint": "cdne",
+    "frontDoorEndpoint": "fde",
     "appServicePlan": "asp",
     "functionApp": "func",
     "cosmosDbMongoAccount": "cosmon",

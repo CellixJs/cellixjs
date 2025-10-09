@@ -2,7 +2,7 @@ import { app, type HttpFunctionOptions, type HttpHandler } from '@azure/function
 import type { ServiceBase } from '@cellix/api-services-spec';
 import api, { SpanStatusCode, type Tracer, trace } from '@opentelemetry/api';
 
-export interface InfrastructureServiceRegistry<ContextType = unknown, AppServices = unknown> {
+interface InfrastructureServiceRegistry<ContextType = unknown, AppServices = unknown> {
     /**
      * Registers an infrastructure service with the application.
      *
