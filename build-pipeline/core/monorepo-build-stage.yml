@@ -184,9 +184,12 @@ stages:
     - task: Cache@2
       displayName: 'Cache Turborepo artifacts'
       inputs:
-        key: '"turbo-cache" | hashFiles("turbo.json", "**/turbo.json", "package-lock.json", "yarn.lock", "pnpm-lock.yaml")'  # Key based on config/lockfile hashes for invalidation
+        key: 'turbo-cache-v3 | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json | $(Build.SourcesDirectory)/pnpm-lock.yaml | $(Build.SourcesDirectory)/package.json'
         restoreKeys: |  # Fallback keys for partial matches
-          turbo-cache-%
+          turbo-cache-v3 | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json | $(Build.SourcesDirectory)/pnpm-lock.yaml
+          turbo-cache-v3 | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json
+          turbo-cache-v3 | "$(Agent.OS)"
+          turbo-cache-v3
         path: '.turbo/cache'  # The directory to cache/restore
         cacheHitVar: 'TURBO_CACHE_HIT'  # Optional: Set env var if cache hit (use in scripts)
 
@@ -214,20 +217,38 @@ stages:
           export NODE_OPTIONS=--max_old_space_size=16384
           export PLAYWRIGHT_BROWSERS_PATH="$(PLAYWRIGHT_BROWSERS_PATH)"
 
+          # Debug Turbo cache status
+          echo "=== Turbo Cache Debug Info ==="
+          echo "TURBO_CACHE_HIT: ${TURBO_CACHE_HIT:-unset}"
+          echo "Turbo cache directory contents:"
+          ls -la .turbo/cache/ 2>/dev/null || echo "No .turbo/cache directory found"
+          echo "Current commit: $(git rev-parse HEAD)"
+          echo "Working directory status:"
+          git status --porcelain || true
+          echo "=============================="
+
           # Audit pnpm packages for vulnerabilities
           echo "Running pnpm audit for vulnerabilities..."
           pnpm audit --audit-level=high --prod
 
-                    # Use Turbo's built-in --affected flag for accurate change detection
+          # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only using Turbo's --affected..."
             export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
-            pnpm run test:coverage --affected
+            echo "TURBO_SCM_BASE set to: $TURBO_SCM_BASE"
+            
+            # Enable verbose logging to see cache hits/misses
+            echo "Running with Turbo verbose logging..."
+            pnpm run test:coverage --affected --verbosity=2
             pnpm run merge-lcov-reports
           else
             echo "Testing all packages (main branch)..."
             export TURBO_SCM_BASE="HEAD~1"
-            pnpm run test:coverage:merge
+            echo "TURBO_SCM_BASE set to: $TURBO_SCM_BASE"
+            
+            # Enable verbose logging to see cache hits/misses
+            echo "Running with Turbo verbose logging..."
+            pnpm run test:coverage:merge --verbosity=2
           fi
           
           # Set the merged coverage path for SonarCloud
