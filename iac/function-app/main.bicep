@@ -46,7 +46,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' existing 
   name: storageAccountName
 }
 
-module functionApp 'br/public:avm/res/web/site:0.16.0' = {
+module functionApp 'br/public:avm/res/web/site:0.19.3' = {
   name: 'functionAppDeployment'
   params: {
     name: functionAppName
@@ -107,6 +107,7 @@ module functionApp 'br/public:avm/res/web/site:0.16.0' = {
     }
   ]
     siteConfig: {
+      alwaysOn: true
       linuxFxVersion: linuxFxVersion // Specify the Node.js version for the function app
       localMySqlEnabled: false
       netFrameworkVersion: null
@@ -118,28 +119,17 @@ module functionApp 'br/public:avm/res/web/site:0.16.0' = {
   }
 }
 
-
-// create access policy for key vault
-resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
-  name: keyVaultName
-}
-resource addKeyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
-  name: 'add'
-  parent: keyVault
-  properties: {
-    accessPolicies: [
-      {
-        tenantId: subscription().tenantId
-        objectId: functionApp.outputs.systemAssignedMIPrincipalId
-        permissions: {
-          certificates: []
-          keys: []
-          secrets: [
-            'get'
-            'list'
-          ]
-        }
-      }
-    ]
+// Key Vault role assignment module
+module keyVaultRoleAssignment 'key-vault-role-assignment.bicep' = {
+  name: 'keyVaultRoleAssignment${moduleNameSuffix}'
+  params: {
+    keyVaultName: keyVaultName
+    principalId: functionApp.outputs.systemAssignedMIPrincipalId!
+    principalType: 'ServicePrincipal'
   }
 }
+
+// Outputs
+output functionAppNamePri string = functionApp.outputs.name
+output systemAssignedMIPrincipalId string = functionApp.outputs.systemAssignedMIPrincipalId!
+output keyVaultRoleAssignmentId string = keyVaultRoleAssignment.outputs.roleAssignmentId

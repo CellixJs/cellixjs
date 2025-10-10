@@ -10,5 +10,8 @@
   "exclude": [
     "node_modules",
     "dist"
+  ],
+  "references": [
+    { "path": "../../cellix/mongoose-seedwork" },
   ]
 }

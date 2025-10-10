@@ -11,5 +11,8 @@
   "exclude": [
     "node_modules",
     "dist"
+  ],
+  "references": [
+    { "path": "../../cellix/api-services-spec" },
   ]
 }

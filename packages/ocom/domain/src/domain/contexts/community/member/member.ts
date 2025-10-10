@@ -1,30 +1,30 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import * as ValueObjects from './member.value-objects.ts';
-import {
-	Community,
-	type CommunityEntityReference,
-} from '../community/community.ts';
-import {
-	MemberAccount,
-	type MemberAccountEntityReference,
-	type MemberAccountProps,
-} from './member-account.ts';
-import {
-	EndUserRole,
-	type EndUserRoleEntityReference,
-} from '../role/end-user-role/end-user-role.ts';
-import {
-	MemberProfile,
-	type MemberProfileEntityReference,
-	type MemberProfileProps,
-} from './member-profile.ts';
+import type { Passport } from '../../passport.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import {
-	MemberCustomView,
-	type MemberCustomViewEntityReference,
-	type MemberCustomViewProps,
+    Community,
+    type CommunityEntityReference,
+} from '../community/community.ts';
+import {
+    EndUserRole,
+    type EndUserRoleEntityReference,
+} from '../role/end-user-role/end-user-role.ts';
+import {
+    MemberAccount,
+    type MemberAccountEntityReference,
+    type MemberAccountProps,
+} from './member-account.ts';
+import {
+    MemberCustomView,
+    type MemberCustomViewEntityReference,
+    type MemberCustomViewProps,
 } from './member-custom-view.ts';
-import type { Passport } from '../../passport.ts';
+import {
+    MemberProfile,
+    type MemberProfileEntityReference,
+    type MemberProfileProps,
+} from './member-profile.ts';
+import * as ValueObjects from './member.value-objects.ts';
 
 export interface MemberProps extends DomainSeedwork.DomainEntityProps {
 	memberName: string;

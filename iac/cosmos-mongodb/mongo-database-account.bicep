@@ -27,7 +27,7 @@ param members array
 @description('enableAnalyticalStorage of the MongoDB')
 param enableAnalyticalStorage bool
 
-resource mongoDatabaseAccount 'Microsoft.DocumentDB/databaseAccounts@2022-08-15' = {
+resource mongoDatabaseAccount 'Microsoft.DocumentDB/databaseAccounts@2025-05-01-preview' = {
   name: mongoDatabaseAccountName
   location: location
   tags: tags
@@ -40,7 +40,7 @@ resource mongoDatabaseAccount 'Microsoft.DocumentDB/databaseAccounts@2022-08-15'
     enableAutomaticFailover: false
     enableMultipleWriteLocations: false
     isVirtualNetworkFilterEnabled: false
-    enableClientTelemetry: false
+
     virtualNetworkRules: []
     disableKeyBasedMetadataWriteAccess: false
     enableFreeTier: false
@@ -58,9 +58,7 @@ resource mongoDatabaseAccount 'Microsoft.DocumentDB/databaseAccounts@2022-08-15'
       maxIntervalInSeconds: 5
       maxStalenessPrefix: 100
     }
-    configurationOverrides: {
-      EnableBsonSchema: 'True'
-    }
+
     apiProperties: {
       serverVersion: '4.2'
     }

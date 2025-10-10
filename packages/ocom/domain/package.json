@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -23,13 +24,13 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@cellix/domain-seedwork": "*",
-    "@cellix/event-bus-seedwork-node": "*",
+    "@cellix/domain-seedwork": "workspace:*",
+    "@cellix/event-bus-seedwork-node": "workspace:*",
     "@lucaspaganini/value-objects": "^1.3.1"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "*",
-    "@cellix/vitest-config": "*",
+    "@cellix/typescript-config": "workspace:*",
+    "@cellix/vitest-config": "workspace:*",
     "typescript": "5.8.3",
     "@cucumber/cucumber": "^11.3.0",
     "@cucumber/node": "^0.4.0",

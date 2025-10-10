@@ -10,5 +10,9 @@
   "exclude": [
     "node_modules",
     "dist"
+  ],
+  "references": [
+    { "path": "../persistence" },
+    { "path": "../service-token-validation" }
   ]
 }

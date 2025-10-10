@@ -1,4 +1,49 @@
 {
   "extends": ["//"],
-  "tags": ["docs"]
+  "tasks": {
+    "build": {
+      "inputs": [
+        "src/**",
+        "docs/**",
+        "blog/**",
+        "*.ts"
+      ],
+      "outputs": ["build/**"]
+    },
+    "test": {
+      "inputs": [
+        "src/**",
+        "sidebars.*",
+        "vitest*.config.*"
+      ]
+    },
+    "test:coverage": {
+      "inputs": [
+        "src/**",
+        "sidebars.*",
+        "vitest*.config.*"
+      ],
+      "outputs": ["coverage/lcov.info"]
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true,
+      "inputs": [
+        "src/**",
+        "sidebars.*",
+        "vitest*.config.*"
+      ]
+    },
+    "lint": {
+    "inputs": [
+        "src/**",
+        "docs/**",
+        "blog/**",
+        "sidebars.*",
+        "tsconfig*.json",
+        "../../biome.json",
+        "!**/*.md"
+    ]
+    }
+  }
 }

@@ -5,7 +5,7 @@ parameters:
 jobs:
 - job: Deploy_Docs
   displayName: 'Deploy Docs (Static Website)'
-  condition: succeeded()
+  condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_DOCS_CHANGES'], 'true')
   pool:
     vmImage: ${{parameters.vmImageName}}
   steps:
@@ -16,29 +16,50 @@ jobs:
             version: '22.x'
           displayName: 'Install Node.js'
         - task: Cache@2
-          displayName: 'NPM: Restore Cache'
+          displayName: 'PNPM: Restore Cache'
           inputs:
-            key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/apps/docs/package-lock.json'
+            key: 'pnpm | "$(Agent.OS)" | $(Build.SourcesDirectory)/pnpm-lock.yaml'
             restoreKeys: |
-              npm | "$(Agent.OS)"
-            path: $(Build.SourcesDirectory)/apps/docs/node_modules
-        - task: DownloadBuildArtifacts@1
-          displayName: 'Download Build Artifacts'
+              pnpm | "$(Agent.OS)"
+            path: $(Pipeline.Workspace)/.pnpm-store
+        - task: Bash@3
+          displayName: 'Install: PNPM'
           inputs:
-            buildType: 'current'
-            artifactName: 'drop'
-            downloadPath: $(Pipeline.Workspace)
+            targetType: 'inline'
+            script: |
+              set -euo pipefail
+              echo "Installing PNPM..."
+              npm install --global corepack@latest
+              corepack enable
+              corepack prepare pnpm@latest-10 --activate
+              pnpm config set store-dir $(Pipeline.Workspace)/.pnpm-store
+        - download: current
+          displayName: 'Artifact: Download Docs package'
+          artifact: docs
         - task: Bash@3
           displayName: 'Restore Build Artifacts'
           inputs:
             targetType: 'inline'
             script: |
-              cd $(Pipeline.Workspace)
-              echo "Listing current directory:"
-              ls -la
-              unzip $(Build.BuildId).zip "apps/docs/build/*" -d temp
-              cp -r temp/apps/docs/build $(Build.SourcesDirectory)/apps/docs/
-              rm -rf temp
+              ARTIFACT_DIR="$(Pipeline.Workspace)/docs"
+              ZIP_FILE="$ARTIFACT_DIR/docs-$(Build.BuildId).zip"
+
+              echo "Listing artifact directory: $ARTIFACT_DIR"
+              ls -la "$ARTIFACT_DIR"
+
+              if [ ! -f "$ZIP_FILE" ]; then
+                echo "Error: Expected artifact zip not found at $ZIP_FILE"
+                exit 1
+              fi
+
+              echo "Restoring docs build from artifact..."
+              rm -rf $(Build.SourcesDirectory)/apps/docs/build
+              mkdir -p $(Build.SourcesDirectory)/apps/docs/build
+
+              unzip "$ZIP_FILE" -d temp-docs
+              cp -r temp-docs/. $(Build.SourcesDirectory)/apps/docs/build/
+              rm -rf temp-docs
+
               echo "Build artifacts restored successfully"
               ls -la $(Build.SourcesDirectory)/apps/docs/build/
         - task: Bash@3
@@ -76,15 +97,15 @@ jobs:
               export GIT_USER=$(GH_NAME)
               export GIT_PASS=$(GH_TOKEN)
 
-              cd apps/docs
-
               echo "Installing dependencies for deployment..."
-              npm ci
+              pnpm install --filter @ocom/docs... --frozen-lockfile
+
+              cd apps/docs
 
               set -e
 
               echo "Deploying to GitHub Pages..."
-              npm run deploy --skip-build
+              pnpm run deploy --skip-build
 
               echo "Deployment completed successfully!"
               #requires GH_TOKEN secret variable with Pages permission with Read/Write access
