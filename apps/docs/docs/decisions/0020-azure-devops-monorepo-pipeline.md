@@ -76,10 +76,10 @@ condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANG
 ```
 
 ### Caching Strategy
-- **PNPM Cache**: Dependency installation caching across builds
-- **Turborepo Cache**: Build output caching with remote Azure Cache@2
-- **Tool Caches**: Azure Functions Core Tools, Java JRE, SonarCloud scanner
-- **Browser Cache**: Playwright browsers for UI testing
+- **PNPM Cache**: Dependency installation caching with pnpm store-dir optimization
+- **Turborepo Cache**: Local build output caching persisted via Azure Cache@2 task
+- **Tool Caches**: Azure Functions Core Tools, Java JRE, SonarCloud scanner, Playwright browsers
+- **Intelligent Cache Keys**: Version-controlled cache keys with hierarchical fallback strategies
 
 ## Consequences
 

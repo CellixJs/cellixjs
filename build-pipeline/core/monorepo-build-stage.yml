@@ -180,18 +180,18 @@ stages:
       env:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
-    # Cache Turbo to speed up build process.
+    # Cache Turbo to speed up build process
     - task: Cache@2
       displayName: 'Cache Turborepo artifacts'
       inputs:
         key: 'turbo-cache-v3 | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json | $(Build.SourcesDirectory)/pnpm-lock.yaml | $(Build.SourcesDirectory)/package.json'
-        restoreKeys: |  # Fallback keys for partial matches
+        restoreKeys: |
           turbo-cache-v3 | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json | $(Build.SourcesDirectory)/pnpm-lock.yaml
           turbo-cache-v3 | "$(Agent.OS)" | $(Build.SourcesDirectory)/turbo.json
           turbo-cache-v3 | "$(Agent.OS)"
           turbo-cache-v3
-        path: '.turbo/cache'  # The directory to cache/restore
-        cacheHitVar: 'TURBO_CACHE_HIT'  # Optional: Set env var if cache hit (use in scripts)
+        path: '.turbo/cache'
+        cacheHitVar: 'TURBO_CACHE_HIT'
 
     # Detect affected package types
     - task: Bash@3
@@ -209,7 +209,7 @@ stages:
 
     # Build and run tests on affected packages using Turbo's --affected flag
     - task: Bash@3
-      displayName: 'Turbo: Prepare binaries and run tests on affected packages'
+      displayName: 'Turbo: Build and test affected packages'
       inputs:
         targetType: 'inline'
         script: |
@@ -217,15 +217,11 @@ stages:
           export NODE_OPTIONS=--max_old_space_size=16384
           export PLAYWRIGHT_BROWSERS_PATH="$(PLAYWRIGHT_BROWSERS_PATH)"
 
-          # Debug Turbo cache status
-          echo "=== Turbo Cache Debug Info ==="
-          echo "TURBO_CACHE_HIT: ${TURBO_CACHE_HIT:-unset}"
-          echo "Turbo cache directory contents:"
-          ls -la .turbo/cache/ 2>/dev/null || echo "No .turbo/cache directory found"
-          echo "Current commit: $(git rev-parse HEAD)"
-          echo "Working directory status:"
-          git status --porcelain || true
-          echo "=============================="
+          # Show Turbo cache status
+          echo "Turbo cache status: ${TURBO_CACHE_HIT:-cache miss}"
+          if [ -d ".turbo/cache" ]; then
+            echo "Turbo cache directory exists with $(ls -1 .turbo/cache | wc -l) entries"
+          fi
 
           # Audit pnpm packages for vulnerabilities
           echo "Running pnpm audit for vulnerabilities..."
@@ -233,22 +229,14 @@ stages:
 
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
-            echo "Testing affected packages only using Turbo's --affected..."
+            echo "Testing affected packages only (PR/branch build)..."
             export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
-            echo "TURBO_SCM_BASE set to: $TURBO_SCM_BASE"
-            
-            # Enable verbose logging to see cache hits/misses
-            echo "Running with Turbo verbose logging..."
-            pnpm run test:coverage --affected --verbosity=2
+            pnpm run test:coverage --affected
             pnpm run merge-lcov-reports
           else
-            echo "Testing all packages (main branch)..."
+            echo "Testing all packages (main branch build)..."
             export TURBO_SCM_BASE="HEAD~1"
-            echo "TURBO_SCM_BASE set to: $TURBO_SCM_BASE"
-            
-            # Enable verbose logging to see cache hits/misses
-            echo "Running with Turbo verbose logging..."
-            pnpm run test:coverage:merge --verbosity=2
+            pnpm run test:coverage:merge
           fi
           
           # Set the merged coverage path for SonarCloud
@@ -260,8 +248,6 @@ stages:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
         ${{ each pair in parameters.buildEnvSettings }}:
           ${{ pair.key }}: ${{ pair.value }}
-
-        
     # Cache Java JRE
     - task: Cache@2
       displayName: 'Java: Restore JRE Cache'
