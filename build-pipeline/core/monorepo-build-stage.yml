@@ -394,6 +394,7 @@ stages:
           pnpm --filter @ocom/api --prod deploy "$DEPLOY_DIR"
           
           # Remove unnecessary files that pnpm deploy copied
+          rm -rf "$DEPLOY_DIR"/{.turbo,coverage,tests,.vscode,.github,.gitignore,README.md,src}
           
           # Verify deployment structure
           echo ""
