@@ -11,6 +11,10 @@ parameters:
   type: string
 - name: resourceGroupName
   type: string
+- name: frontDoorProfileName
+  type: string
+- name: frontDoorEndpointName
+  type: string
 
 jobs:
 - job: Infrastructure_UI_Community
@@ -84,7 +88,7 @@ jobs:
               az --version
 
         # Delete all files in the $web container and replace with extracted files.
-        # Purge the CDN endpoint to ensure the CDN has only latest files.
+        # Purge the Front Door endpoint to ensure the CDN cache is cleared.
         - task: AzureCLI@2
           displayName: Copy to Blob
           inputs:
@@ -94,4 +98,5 @@ jobs:
             inlineScript: |
               az storage blob delete-batch -s `$web --pattern * --account-name $(storageAccountName)
               az storage blob upload-batch --destination `$web --account-name $(storageAccountName) --source $(Build.ArtifactStagingDirectory)/deploy
+              az afd endpoint purge --content-paths "/*" --endpoint-name ${{parameters.frontDoorEndpointName}} --profile-name ${{parameters.frontDoorProfileName}} --resource-group ${{parameters.resourceGroupName}}
             addSpnToEnvironment: true

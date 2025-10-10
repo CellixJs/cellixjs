@@ -23,6 +23,12 @@ parameters:
 - name: appSettingsJsonFileRelativePathPri
   displayName: 'AppSettings Json File Relative Path for Primary instance'
   type: string
+- name: frontDoorProfileName
+  displayName: 'Front Door Profile Name'
+  type: string
+- name: frontDoorEndpointName
+  displayName: 'Front Door Endpoint Name'
+  type: string
 stages:
 - stage: ${{parameters.stageName}}
   displayName: ${{parameters.stageName}} stage
@@ -49,3 +55,5 @@ stages:
       ServiceConnectionName: ${{parameters.ServiceConnectionName}}
       deploymentDefaultLocation: ${{parameters.deploymentDefaultLocation}}
       resourceGroupName: ${{parameters.resourceGroupName}}
+      frontDoorProfileName: ${{parameters.frontDoorProfileName}}
+      frontDoorEndpointName: ${{parameters.frontDoorEndpointName}}
