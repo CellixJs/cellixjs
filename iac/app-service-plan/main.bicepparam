@@ -6,6 +6,6 @@ param tags = {
   environment: 'dev'
   application: 'ocm'
 }
-param sku = 'EP1'
+param sku = 'B1'
 param operatingSystem = 'linux' // Options: linux, windows
 

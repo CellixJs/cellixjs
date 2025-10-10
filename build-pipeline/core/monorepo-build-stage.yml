@@ -48,8 +48,6 @@ stages:
     variables:
       - name: PLAYWRIGHT_BROWSERS_PATH
         value: /home/vsts/.cache/ms-playwright
-      - name: TURBO_CACHE_DIR
-        value: $(Build.SourcesDirectory)/.turbo
     steps:
     - checkout: self
       fetchDepth: 0 # Fetch all history for all branches and tags necessary for sonar cloud analysis
@@ -184,12 +182,13 @@ stages:
 
     # Cache Turbo to speed up build process.
     - task: Cache@2
-      displayName: 'Turbo: Restore Local Cache'
+      displayName: 'Cache Turborepo artifacts'
       inputs:
-        key: 'turbo | "$(Agent.OS)" | $(Build.SourcesDirectory)/pnpm-lock.yaml'
-        restoreKeys: |
-          turbo | "$(Agent.OS)"
-        path: '$(TURBO_CACHE_DIR)'
+        key: '"turbo-cache" | hashFiles("turbo.json", "**/turbo.json", "package-lock.json", "yarn.lock", "pnpm-lock.yaml")'  # Key based on config/lockfile hashes for invalidation
+        restoreKeys: |  # Fallback keys for partial matches
+          turbo-cache-%
+        path: '.turbo/cache'  # The directory to cache/restore
+        cacheHitVar: 'TURBO_CACHE_HIT'  # Optional: Set env var if cache hit (use in scripts)
 
     # Detect affected package types
     - task: Bash@3
@@ -235,7 +234,7 @@ stages:
           echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
         workingDirectory: ''
       env:
-        TURBO_CACHE_DIR: $(TURBO_CACHE_DIR)
+        TURBO_CACHE_HIT: $(TURBO_CACHE_HIT)
         TURBO_TELEMETRY_DISABLED: 1
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
         ${{ each pair in parameters.buildEnvSettings }}:
