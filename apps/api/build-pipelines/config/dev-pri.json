@@ -1,7 +1,7 @@
 [
   {
     "name": "ACCOUNT_PORTAL_OIDC_AUDIENCE",
-    "value": "https://ocm-dev-fde-uic-f6g9crbzb0akh5c3.z02.azurefd.net",
+    "value": "https://ocm-fde-ged3a8gxcvfxafaf.z02.azurefd.net",
     "slotSetting": false
   },
   {

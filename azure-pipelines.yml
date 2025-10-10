@@ -60,5 +60,5 @@ stages:
       deploymentDefaultLocation: $(deploymentDefaultLocation)
       resourceGroupName: 'rg-sharethrift'
       appSettingsJsonFileRelativePathPri: 'apps/api/build-pipelines/config/dev-pri.json'
-      frontDoorProfileName: 'simnova-fd'
-      frontDoorEndpointName: 'ocm-dev-fde-uic-f6g9crbzb0akh5c3'
+      frontDoorProfileName: 'simnova-afd'
+      frontDoorEndpointName: 'ocm-fde-ged3a8gxcvfxafaf'
