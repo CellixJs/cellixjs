@@ -3,7 +3,7 @@ param tags object
 param env string
 
 // app service plan
-param appServicePlanName string
+param appServicePlanInstanceName string
 param appServicePlanLocation string
 param appServicePlanOperatingSystem string
 param appServicePlanSku string
@@ -51,7 +51,9 @@ var moduleNameSuffix = '-Module-main-${applicationPrefix}-${env}'
 module appServicePlan '../../../iac/app-service-plan/main.bicep' = {
   name: 'appServicePlan'
   params: {
-    appServicePlanName: appServicePlanName
+    applicationPrefix: applicationPrefix
+    environment: env
+    instanceName: appServicePlanInstanceName
     location: appServicePlanLocation
     operatingSystem: appServicePlanOperatingSystem
     tags: tags
@@ -61,14 +63,11 @@ module appServicePlan '../../../iac/app-service-plan/main.bicep' = {
 
 module functionApp '../../../iac/function-app/main.bicep' = {
   name: 'functionApp'
-  dependsOn: [
-    appServicePlan
-  ]
   params: {
     applicationPrefix: applicationPrefix
     location: functionAppLocation
     tags: tags
-    appServicePlanName: appServicePlanName
+    appServicePlanName: appServicePlan.outputs.appServicePlanName
     storageAccountName: functionAppStorageAccountName
     functionAppInstanceName: functionAppInstanceName
     functionWorkerRuntime: functionWorkerRuntime

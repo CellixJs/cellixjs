@@ -8,7 +8,7 @@ param tags = {
 }
 
 //app service plan
-param appServicePlanName = 'pri-001'
+param appServicePlanInstanceName = 'pri-001'
 param appServicePlanLocation = 'eastus2'
 param appServicePlanSku = 'B1'
 param appServicePlanOperatingSystem = 'linux'
