@@ -378,6 +378,13 @@ stages:
           # Use pnpm deploy to resolve workspace dependencies while preserving pnpm symlinks
           # This copies everything including dist/, host.json, and installs production deps
           # Using --legacy flag to maintain pnpm v9 behavior with v10+
+          # Rationale: The --legacy flag is required to preserve pnpm v9 workspace symlink behavior during deployment.
+          # Specifically, pnpm v10+ changes how workspace dependencies are resolved and symlinked, which can break
+          # our deployment artifact structure and runtime resolution. Until our deployment scripts and runtime
+          # are verified to work with the new pnpm v10+ behavior, we retain --legacy to ensure:
+          #   - Workspace dependencies are symlinked as in pnpm v9
+          #   - The node_modules structure matches what our runtime expects
+          # @CellixJs/tech-sme: Please reassess the need for --legacy when upgrading pnpm or changing deployment logic.
           pnpm --filter @ocom/api --prod deploy --legacy "$DEPLOY_DIR"
           
           # Remove unnecessary files that pnpm deploy copied
