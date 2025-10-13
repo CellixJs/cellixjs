@@ -18,7 +18,7 @@ parameters:
 jobs:
 - job: Infrastructure
   displayName: Infrastructure Setup
-  condition: succeeded()
+  condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true')
   pool:
     vmImage: ${{parameters.vmImageName}}
   steps:
@@ -50,7 +50,7 @@ jobs:
 
 - deployment: Application_Deployment_Pri
   displayName: Application Deployment (Primary)
-  condition: succeeded()
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
   dependsOn: Infrastructure
   environment: ${{parameters.environmentNameDevOps}}
   pool:
@@ -76,7 +76,7 @@ jobs:
 
 - job: Application_Settings_Pri
   displayName: Application Settings (Primary)
-  condition: succeeded()
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
   dependsOn: 
     - Infrastructure
     - Application_Deployment_Pri
