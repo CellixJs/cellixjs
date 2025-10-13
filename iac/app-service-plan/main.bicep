@@ -1,11 +1,17 @@
 // == PARAMETERS ==
-@description('Resource Location')
-param location string
+@description('Application prefix for resource naming')
+param applicationPrefix string
 
-@maxLength(40)
-@description('App Service Plan Name')
-param appServicePlanName string
-@description('App Service Plan sku')
+@description('Environment (dev, qa, prod)')
+param environment string
+
+@description('Instance name for the app service plan')
+param instanceName string
+
+@description('Resource location')
+param location string = resourceGroup().location
+
+@description('App Service Plan SKU')
 @allowed([
   //name  Tier          Full name
   'D1'  //Shared      an D1 Shared
@@ -36,22 +42,36 @@ param sku string
   'linux'
   // 'windows'  // commenting this because windows configuration is not known at this time
 ])
-param operatingSystem string
-@description('App Service Plan Tags')
-param tags object
+param operatingSystem string = 'linux'
 
+@description('Resource tags')
+param tags object = {}
 
-// app service plan for function app
-module appServicePlan 'br/public:avm/res/web/serverfarm:0.4.1' = {
-  name: 'appServicePlanDeployment'
-  params:{
-    name: appServicePlanName
-    location: location
-    kind: operatingSystem
-    tags: tags
-    skuName: sku
-    zoneRedundant: false // Options: true, false
-    reserved: true // true for Linux, false for Windows
+// == VARIABLES ==
+var appServicePlanName = '${applicationPrefix}-${environment}-asp-${instanceName}'
+
+// == RESOURCES ==
+resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
+  name: appServicePlanName
+  location: location
+  tags: tags
+  kind: operatingSystem
+  sku: {
+    name: sku
+  }
+  properties: {
+    reserved: operatingSystem == 'linux'
+    zoneRedundant: false
   }
 }
+
+// == OUTPUTS ==
+@description('The resource ID of the App Service Plan')
+output appServicePlanId string = appServicePlan.id
+
+@description('The name of the App Service Plan')
+output appServicePlanName string = appServicePlan.name
+
+@description('The location of the App Service Plan')
+output location string = appServicePlan.location
 

@@ -20,13 +20,19 @@ parameters:
 - name: resourceGroupName
   displayName: 'Resource Group Name'
   type: string
-- name: functionAppNamePri
-  displayName: 'Function App Name for Primary instance'
+- name: appSettingsJsonFileRelativePathPri
+  displayName: 'AppSettings Json File Relative Path for Primary instance'
   type: string
-
+- name: frontDoorProfileName
+  displayName: 'Front Door Profile Name'
+  type: string
+- name: frontDoorEndpointName
+  displayName: 'Front Door Endpoint Name'
+  type: string
 stages:
 - stage: ${{parameters.stageName}}
   displayName: ${{parameters.stageName}} stage
+  dependsOn: Build
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   jobs:
   - template: ../../apps/api/deploy-api.yml
@@ -37,11 +43,17 @@ stages:
       environmentNameBicep: ${{parameters.environmentNameBicep}}
       environmentNameDevOps: ${{parameters.environmentNameDevOps}}
       vmImageName: ${{parameters.vmImageName}}
-      functionAppNamePri: ${{parameters.functionAppNamePri}}
+      appSettingsJsonFileRelativePathPri: ${{parameters.appSettingsJsonFileRelativePathPri}}
   - template: ../../apps/docs/deploy-docs.yml
     parameters:
       vmImageName: ${{parameters.vmImageName}}
   - template: ../../apps/ui-community/deploy-ui-community.yml
     parameters:
       environmentNameDevOps: ${{parameters.environmentNameDevOps}}
+      environmentNameBicep: ${{parameters.environmentNameBicep}}
       vmImageName: ${{parameters.vmImageName}}
+      ServiceConnectionName: ${{parameters.ServiceConnectionName}}
+      deploymentDefaultLocation: ${{parameters.deploymentDefaultLocation}}
+      resourceGroupName: ${{parameters.resourceGroupName}}
+      frontDoorProfileName: ${{parameters.frontDoorProfileName}}
+      frontDoorEndpointName: ${{parameters.frontDoorEndpointName}}

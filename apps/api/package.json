@@ -14,30 +14,30 @@
     "test:watch": "vitest",
     "lint": "biome lint",
     "clean": "rimraf dist",
-    "prestart": "npm run clean && npm run build",
+    "prestart": "pnpm run clean && pnpm run build",
     "start": "func start --typescript",
     "azurite": "azurite-blob --silent --location ../../__blobstorage__ & azurite-queue --silent --location ../../__queuestorage__ & azurite-table --silent --location ../../__tablestorage__"
   },
   "dependencies": {
-    "@cellix/api-services-spec": "*",
-    "@cellix/mongoose-seedwork": "*",
-    "@ocom/application-services": "*",
-    "@ocom/context-spec": "*",
-    "@ocom/event-handler": "*",
-    "@ocom/graphql": "*",
-    "@ocom/persistence": "*",
-    "@ocom/rest": "*",
-    "@ocom/service-blob-storage": "*",
-    "@ocom/service-mongoose": "*",
-    "@ocom/service-otel": "*",
-    "@ocom/service-token-validation": "*",
     "@azure/functions": "^4.0.0",
-    "@azure/identity": "^4.8.0"
+    "@cellix/api-services-spec": "workspace:*",
+    "@cellix/mongoose-seedwork": "workspace:*",
+    "@ocom/application-services": "workspace:*",
+    "@ocom/context-spec": "workspace:*",
+    "@ocom/event-handler": "workspace:*",
+    "@ocom/graphql": "workspace:*",
+    "@ocom/persistence": "workspace:*",
+    "@ocom/rest": "workspace:*",
+    "@ocom/service-blob-storage": "workspace:*",
+    "@ocom/service-mongoose": "workspace:*",
+    "@ocom/service-otel": "workspace:*",
+    "@ocom/service-token-validation": "workspace:*",
+    "@opentelemetry/api": "1.9.0"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "*",
-    "@cellix/vitest-config": "*",
-    "typescript": "^5.8.3",
-    "rimraf": "^6.0.1"
+    "@cellix/typescript-config": "workspace:*",
+    "@cellix/vitest-config": "workspace:*",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
   }
 }

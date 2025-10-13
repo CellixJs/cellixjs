@@ -93,11 +93,11 @@ The Azure Pipelines use the Cache@2 task to preserve Turborepo cache between run
 
 ### Change Detection Script
 
-The `build-pipeline/scripts/detect-changes.mjs` script provides utilities for package categorization to optimize deployments:
+The `build-pipeline/scripts/detect-changes.cjs` script provides utilities for package categorization to optimize deployments:
 
 ```bash
 # Categorize affected packages
-node build-pipeline/scripts/detect-changes.mjs
+node build-pipeline/scripts/detect-changes.cjs
 ```
 
 ## Configuration Files

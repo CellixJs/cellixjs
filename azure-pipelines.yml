@@ -14,6 +14,7 @@ pool:
 variables:
   - group: sonarcloud-credential-cellixjs
   - group: github-credential-cellixjs
+  - group: ui-community-settings-cellixjs
   - name: deploymentDefaultLocation
     value: 'eastus2'
   - name: ServiceConnectionName
@@ -22,8 +23,8 @@ variables:
     value: 'ubuntu-latest'
   - name: system.debug
     value: true
-  - name: npm_config_cache
-    value: $(Pipeline.Workspace)/.npm
+  - name: pnpm_config_cache
+    value: $(Pipeline.Workspace)/.pnpm-store
   - name: SONAR_USER_HOME
     value: $(Pipeline.Workspace)/.sonar
 
@@ -31,8 +32,8 @@ stages:
   - template: ./build-pipeline/core/monorepo-build-stage.yml
     parameters:
       vmImageName: $(vmImageName)
-      npm_config_cache: $(npm_config_cache)
-      isNpmCacheAvailable: 'true'
+      pnpm_config_cache: $(pnpm_config_cache)
+      isPnpmCacheAvailable: 'true'
       disableSonarCloudTasks: 'false'
       SONAR_USER_HOME: $(SONAR_USER_HOME)
       SonarCloud: 'sonarcloud'
@@ -41,6 +42,13 @@ stages:
       SonarCloud_configMode: 'manual'
       SonarCloud_cliProjectKey: 'simnova_cellix-data-access'
       SonarCloud_cliProjectName: 'cellix-data-access'
+      buildEnvSettings:
+        VITE_AAD_B2C_ACCOUNT_AUTHORITY: $(VITE_AAD_B2C_ACCOUNT_AUTHORITY_DEV)
+        VITE_AAD_B2C_ACCOUNT_CLIENTID: $(VITE_AAD_B2C_ACCOUNT_CLIENTID_DEV)
+        VITE_AAD_B2C_REDIRECT_URI: $(VITE_AAD_B2C_REDIRECT_URI_DEV)
+        VITE_AAD_B2C_ACCOUNT_SCOPES: $(VITE_AAD_B2C_ACCOUNT_SCOPES_DEV)
+        VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_DEV)
+
 
   - template: ./build-pipeline/core/monorepo-deployment-stage.yml
     parameters:
@@ -51,4 +59,6 @@ stages:
       ServiceConnectionName: $(ServiceConnectionName)
       deploymentDefaultLocation: $(deploymentDefaultLocation)
       resourceGroupName: 'rg-sharethrift'
-      functionAppNamePri: 'Cellix-func-app'
+      appSettingsJsonFileRelativePathPri: 'apps/api/build-pipelines/config/dev-pri.json'
+      frontDoorProfileName: 'simnova-afd'
+      frontDoorEndpointName: 'ocm-fde-ged3a8gxcvfxafaf'
