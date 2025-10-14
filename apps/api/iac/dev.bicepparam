@@ -22,7 +22,7 @@ param functionExtensionVersion = '~4'
 param maxOldSpaceSizeMB = 3072
 param linuxFxVersion = 'NODE|22'
 param allowedOrigins = [
-  'https://ocm-fde-ged3a8gxcvfxafaf.z02.azurefd.net'
+  'https://ownercommunity.org'
 ]
 param keyVaultName = 'sharethrift-keyvault'
 
@@ -49,7 +49,7 @@ param enableQueueService = true
 param queues = []
 param cors = {
   allowedOrigins: [
-    'https://ocm-fde-ged3a8gxcvfxafaf.z02.azurefd.net'
+    'https://ownercommunity.org'
   ]
   allowedMethods: [
     'GET'

@@ -12,7 +12,7 @@ param functionWorkerRuntime = 'node'
 param linuxFxVersion = 'NODE|22' 
 param functionExtensionVersion = '~4' 
 param allowedOrigins = [
-  'https://ocm-fde-ged3a8gxcvfxafaf.z02.azurefd.net'
+  'https://ownercommunity.org'
 ] //Specify the frontend endpoints that can access the function app
 param keyVaultName = 'sharethrift-keyvault'
 param functionAppInstanceName = 'pri'
