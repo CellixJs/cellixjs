@@ -25,6 +25,31 @@ function setPipelineVariable(name, value) {
 
 // Main function to detect affected packages and map to deployment groups
 async function detectChanges() {
+	// Source .force-deploy script to set FORCE_DEPLOY_* env vars
+	const { spawnSync } = require('child_process');
+	const forceDeployVars = {
+		FORCE_DEPLOY_API: 'false',
+		FORCE_DEPLOY_UI: 'false',
+		FORCE_DEPLOY_DOCS: 'false',
+	};
+	try {
+		const result = spawnSync('bash', ['-c', 'source ./.force-deploy && env'], { encoding: 'utf8' });
+		if (result.stdout) {
+			result.stdout.split('\n').forEach(line => {
+				if (line.startsWith('FORCE_DEPLOY_API=')) {
+					forceDeployVars.FORCE_DEPLOY_API = line.split('=')[1];
+				}
+				if (line.startsWith('FORCE_DEPLOY_UI=')) {
+					forceDeployVars.FORCE_DEPLOY_UI = line.split('=')[1];
+				}
+				if (line.startsWith('FORCE_DEPLOY_DOCS=')) {
+					forceDeployVars.FORCE_DEPLOY_DOCS = line.split('=')[1];
+				}
+			});
+		}
+	} catch (e) {
+		console.warn('Could not source .force-deploy script:', e.message);
+	}
 	// Determine build context
 	const buildReason = process.env.Build_Reason || 'Manual';
 	const isPullRequest = buildReason === 'PullRequest';
@@ -37,6 +62,32 @@ async function detectChanges() {
 	} else {
 		console.log(`Push build - comparing to previous commit (HEAD~1)`);
 		process.env.TURBO_SCM_BASE = 'HEAD~1';
+	}
+
+	// Check for infrastructure and configuration changes that affect deployments
+	console.log('Checking for infrastructure and configuration changes...');
+	const infraFiles = [
+		'build-pipeline/**',
+		'iac/**',
+		'azure-pipelines.yml',
+		'host.json',
+		'.force-deploy'  // Special file to force full deployment
+	];
+
+	let hasInfraChanges = false;
+	let hasForceDeployTrigger = false;
+	for (const pattern of infraFiles) {
+		const gitCommand = `git diff --name-only ${process.env.TURBO_SCM_BASE} -- ${pattern}`;
+		const infraOutput = await runCommand(gitCommand);
+		if (infraOutput?.trim()) {
+			console.log(`Infrastructure changes detected in: ${pattern}`);
+			hasInfraChanges = true;
+			if (pattern === '.force-deploy') {
+				hasForceDeployTrigger = true;
+				console.log('🚨 FORCE DEPLOY TRIGGER DETECTED - deploying all components');
+			}
+			break;
+		}
 	}
 
 	// Run Turbo to get globally affected packages
@@ -78,9 +129,9 @@ async function detectChanges() {
 		hasBackendChanges = true;
 		hasFrontendChanges = true;
 		hasDocsChanges = true;
-	} else if (affectedPackages.length === 0) {
-		// No changes detected globally
-		console.log('No affected packages detected. Skipping all deployments.');
+	} else if (affectedPackages.length === 0 && !hasInfraChanges) {
+		// No changes detected globally and no infrastructure changes
+		console.log('No affected packages or infrastructure changes detected. Skipping all deployments.');
 	} else {
 		// Compute per-app changes by intersecting affected with each app's dependency scope
 		const affectedSet = new Set(affectedPackages);
@@ -137,6 +188,37 @@ async function detectChanges() {
 				}
 			}
 		}
+
+		// If infrastructure changes detected, force deployment of all components
+		if (hasInfraChanges) {
+			console.log('Infrastructure changes detected - forcing deployment of all components');
+			hasBackendChanges = true;
+			hasFrontendChanges = true;
+			hasDocsChanges = true;
+		}
+
+		// Special handling for force deploy trigger
+		if (hasForceDeployTrigger) {
+			console.log('Force deploy trigger file changed - this overrides all other logic');
+			console.log('Note: This file only triggers when its content changes between commits');
+			hasBackendChanges = true;
+			hasFrontendChanges = true;
+			hasDocsChanges = true;
+		}
+	}
+
+	// Override with FORCE_DEPLOY_* env vars if set to true
+	if (forceDeployVars.FORCE_DEPLOY_API === 'true') {
+		console.log('FORCE_DEPLOY_API=true detected, forcing API deployment');
+		hasBackendChanges = true;
+	}
+	if (forceDeployVars.FORCE_DEPLOY_UI === 'true') {
+		console.log('FORCE_DEPLOY_UI=true detected, forcing UI deployment');
+		hasFrontendChanges = true;
+	}
+	if (forceDeployVars.FORCE_DEPLOY_DOCS === 'true') {
+		console.log('FORCE_DEPLOY_DOCS=true detected, forcing Docs deployment');
+		hasDocsChanges = true;
 	}
 
 	// Log final results

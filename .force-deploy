@@ -1,0 +1,14 @@
+#!/bin/bash
+# .force-deploy script for CellixJS monorepo
+# Set FORCE_DEPLOY_* env vars to control manual deployment overrides
+# Set to 'true' to force deployment, 'false' to disable
+
+export FORCE_DEPLOY_API=false
+export FORCE_DEPLOY_UI=false
+export FORCE_DEPLOY_DOCS=false
+
+# Developers: Change any value to 'true' to force deployment of that package
+# Example:
+# export FORCE_DEPLOY_API=true
+# export FORCE_DEPLOY_UI=true
+# export FORCE_DEPLOY_DOCS=true

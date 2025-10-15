@@ -84,6 +84,50 @@ For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 - Install recommend VSCode extensions for best developer experience.
 - Use built-in tasks to run the Functions host and watch builds.
 
+## Deployment
+
+### Conditional Deployments
+
+The CI/CD pipeline uses intelligent change detection to deploy only affected components:
+
+- **Backend/API**: Deploys when API-related packages change
+- **Frontend/UI**: Deploys when UI packages change  
+- **Docs**: Deploys when documentation changes
+- **Infrastructure**: Deploys when Bicep templates, pipeline configs, or infrastructure code changes
+
+### Forcing Full Deployments
+
+In rare cases where external Azure DevOps configuration changes need deployment (variable groups, service connections, environment settings), or when you want to manually force deployment of specific packages, use the force deploy mechanism:
+
+#### Force Deploy Script
+
+The `.force-deploy` file is a shell script that sets environment variables to control manual deployment overrides:
+
+```bash
+#!/bin/bash
+# .force-deploy script for CellixJS monorepo
+# Set FORCE_DEPLOY_* env vars to control manual deployment overrides
+# Set to 'true' to force deployment, 'false' to disable
+
+export FORCE_DEPLOY_API=false
+export FORCE_DEPLOY_UI=false
+export FORCE_DEPLOY_DOCS=false
+
+# Developers: Change any value to 'true' to force deployment of that package
+# Example:
+# export FORCE_DEPLOY_API=true
+# export FORCE_DEPLOY_UI=true
+# export FORCE_DEPLOY_DOCS=true
+```
+
+**To force deployment of specific packages:**
+1. Edit `.force-deploy` and set the desired `FORCE_DEPLOY_*` variable(s) to `true`
+2. Commit and push the changes to trigger the pipeline
+3. The pipeline will deploy the selected packages even if no changes are detected
+4. Optionally reset the variables to `false` after successful deployment
+
+**Important**: The pipeline sources this script and respects the `FORCE_DEPLOY_*` variables, overriding change detection logic for the specified packages.
+
 ## Dependency Graph
 
 ```mermaid
