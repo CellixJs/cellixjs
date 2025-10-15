@@ -34,7 +34,7 @@ async function detectChanges() {
 	};
 	const result = spawnSync('bash', ['-c', 'source ./.force-deploy && env'], {
 		encoding: 'utf8',
-		env: { ...process.env, PATH: '/usr/bin:/bin' }
+		env: { PATH: '/usr/bin:/bin' }
 	});
 	if (result.status !== 0 || result.error || (result.stderr && result.stderr.trim() !== '')) {
 		console.warn('Could not source .force-deploy script:');
