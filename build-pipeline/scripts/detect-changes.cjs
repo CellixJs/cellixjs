@@ -86,7 +86,7 @@ async function detectChanges() {
 		if (infraOutput?.trim()) {
 			console.log(`Infrastructure changes detected in: ${pattern}`);
 			hasInfraChanges = true;
-			break;
+			// Continue checking other patterns to log all changes
 		}
 	}
 
