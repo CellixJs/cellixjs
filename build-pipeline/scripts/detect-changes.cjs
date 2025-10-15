@@ -70,22 +70,16 @@ async function detectChanges() {
 		'build-pipeline/**',
 		'iac/**',
 		'azure-pipelines.yml',
-		'host.json',
-		'.force-deploy'  // Special file to force full deployment
+		'host.json'
 	];
 
 	let hasInfraChanges = false;
-	let hasForceDeployTrigger = false;
 	for (const pattern of infraFiles) {
 		const gitCommand = `git diff --name-only ${process.env.TURBO_SCM_BASE} -- ${pattern}`;
 		const infraOutput = await runCommand(gitCommand);
 		if (infraOutput?.trim()) {
 			console.log(`Infrastructure changes detected in: ${pattern}`);
 			hasInfraChanges = true;
-			if (pattern === '.force-deploy') {
-				hasForceDeployTrigger = true;
-				console.log('🚨 FORCE DEPLOY TRIGGER DETECTED - deploying all components');
-			}
 			break;
 		}
 	}
@@ -192,15 +186,6 @@ async function detectChanges() {
 		// If infrastructure changes detected, force deployment of all components
 		if (hasInfraChanges) {
 			console.log('Infrastructure changes detected - forcing deployment of all components');
-			hasBackendChanges = true;
-			hasFrontendChanges = true;
-			hasDocsChanges = true;
-		}
-
-		// Special handling for force deploy trigger
-		if (hasForceDeployTrigger) {
-			console.log('Force deploy trigger file changed - this overrides all other logic');
-			console.log('Note: This file only triggers when its content changes between commits');
 			hasBackendChanges = true;
 			hasFrontendChanges = true;
 			hasDocsChanges = true;
