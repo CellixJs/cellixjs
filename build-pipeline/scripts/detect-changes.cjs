@@ -32,23 +32,29 @@ async function detectChanges() {
 		FORCE_DEPLOY_UI: 'false',
 		FORCE_DEPLOY_DOCS: 'false',
 	};
-	try {
-		const result = spawnSync('bash', ['-c', 'source ./.force-deploy && env'], { encoding: 'utf8' });
-		if (result.stdout) {
-			result.stdout.split('\n').forEach(line => {
-				if (line.startsWith('FORCE_DEPLOY_API=')) {
-					forceDeployVars.FORCE_DEPLOY_API = line.split('=')[1];
-				}
-				if (line.startsWith('FORCE_DEPLOY_UI=')) {
-					forceDeployVars.FORCE_DEPLOY_UI = line.split('=')[1];
-				}
-				if (line.startsWith('FORCE_DEPLOY_DOCS=')) {
-					forceDeployVars.FORCE_DEPLOY_DOCS = line.split('=')[1];
-				}
-			});
+	const result = spawnSync('bash', ['-c', 'source ./.force-deploy && env'], { encoding: 'utf8' });
+	if (result.status !== 0 || result.error || (result.stderr && result.stderr.trim() !== '')) {
+		console.warn('Could not source .force-deploy script:');
+		if (result.error) {
+			console.warn('Error:', result.error.message || result.error);
 		}
-	} catch (e) {
-		console.warn('Could not source .force-deploy script:', e.message);
+		if (result.stderr && result.stderr.trim() !== '') {
+			console.warn('Stderr:', result.stderr.trim());
+		}
+		console.warn('Exit status:', result.status);
+		// Do not parse stdout, use default forceDeployVars
+	} else if (result.stdout) {
+		result.stdout.split('\n').forEach(line => {
+			if (line.startsWith('FORCE_DEPLOY_API=')) {
+				forceDeployVars.FORCE_DEPLOY_API = line.split('=')[1];
+			}
+			if (line.startsWith('FORCE_DEPLOY_UI=')) {
+				forceDeployVars.FORCE_DEPLOY_UI = line.split('=')[1];
+			}
+			if (line.startsWith('FORCE_DEPLOY_DOCS=')) {
+				forceDeployVars.FORCE_DEPLOY_DOCS = line.split('=')[1];
+			}
+		});
 	}
 	// Determine build context
 	const buildReason = process.env.Build_Reason || 'Manual';
