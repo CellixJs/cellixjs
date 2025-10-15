@@ -81,7 +81,7 @@ For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 
 ## VS Code tips
 
-- Install recommend VSCode extensions for best developer experience.
+- Install recommended VSCode extensions for best developer experience.
 - Use built-in tasks to run the Functions host and watch builds.
 
 ## Deployment
