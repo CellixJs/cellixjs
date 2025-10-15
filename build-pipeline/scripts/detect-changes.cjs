@@ -25,10 +25,9 @@ function setPipelineVariable(name, value) {
 
 // Main function to detect affected packages and map to deployment groups
 async function detectChanges() {
-	// Source .force-deploy script to set FORCE_DEPLOY_* env vars
-	const { spawnSync } = require('node:child_process');
-	const fs = require('node:fs');
-	const path = require('node:path');
+	// Parse .force-deploy script to set FORCE_DEPLOY_* env vars
+	const fs = require('fs');
+	const path = require('path');
 	
 	const forceDeployVars = {
 		FORCE_DEPLOY_API: 'false',
@@ -36,35 +35,29 @@ async function detectChanges() {
 		FORCE_DEPLOY_DOCS: 'false',
 	};
 	
-	// Check if .force-deploy file exists
+	// Check if .force-deploy file exists and parse it
 	const forceDeployPath = path.resolve('.force-deploy');
 	if (fs.existsSync(forceDeployPath)) {
-		const result = spawnSync('bash', ['-c', 'source ./.force-deploy && env'], {
-			encoding: 'utf8',
-			env: { ...process.env, PATH: '/usr/bin:/bin' }
-		});
-		if (result.status !== 0 || result.error || (result.stderr && result.stderr.trim() !== '')) {
-			console.warn('Could not source .force-deploy script:');
-			if (result.error) {
-				console.warn('Error:', result.error.message || result.error);
+		try {
+			const content = fs.readFileSync(forceDeployPath, 'utf8');
+			const lines = content.split('\n');
+			
+			for (const line of lines) {
+				const trimmed = line.trim();
+				// Parse variable assignments like: FORCE_DEPLOY_API=true
+				if (trimmed.startsWith('FORCE_DEPLOY_API=')) {
+					forceDeployVars.FORCE_DEPLOY_API = trimmed.split('=')[1] || 'false';
+				} else if (trimmed.startsWith('FORCE_DEPLOY_UI=')) {
+					forceDeployVars.FORCE_DEPLOY_UI = trimmed.split('=')[1] || 'false';
+				} else if (trimmed.startsWith('FORCE_DEPLOY_DOCS=')) {
+					forceDeployVars.FORCE_DEPLOY_DOCS = trimmed.split('=')[1] || 'false';
+				}
 			}
-			if (result.stderr && result.stderr.trim() !== '') {
-				console.warn('Stderr:', result.stderr.trim());
-			}
-			console.warn('Exit status:', result.status);
-			// Do not parse stdout, use default forceDeployVars
-		} else if (result.stdout) {
-			result.stdout.split('\n').forEach(line => {
-				if (line.startsWith('FORCE_DEPLOY_API=')) {
-					forceDeployVars.FORCE_DEPLOY_API = line.split('=')[1];
-				}
-				if (line.startsWith('FORCE_DEPLOY_UI=')) {
-					forceDeployVars.FORCE_DEPLOY_UI = line.split('=')[1];
-				}
-				if (line.startsWith('FORCE_DEPLOY_DOCS=')) {
-					forceDeployVars.FORCE_DEPLOY_DOCS = line.split('=')[1];
-				}
-			});
+			
+			console.log('Parsed force deploy settings from .force-deploy file');
+		} catch (error) {
+			console.warn('Could not read .force-deploy file:', error.message);
+			// Use default forceDeployVars
 		}
 	} else {
 		console.log('.force-deploy file not found, using default force deploy settings');

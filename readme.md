@@ -101,23 +101,23 @@ In rare cases where external Azure DevOps configuration changes need deployment 
 
 #### Force Deploy Script
 
-The `.force-deploy` file is a shell script that sets environment variables to control manual deployment overrides:
+The `.force-deploy` file is a configuration file that sets environment variables to control manual deployment overrides:
 
 ```bash
 #!/bin/bash
-# .force-deploy script for CellixJS monorepo
-# Set FORCE_DEPLOY_* env vars to control manual deployment overrides
+# .force-deploy configuration file for CellixJS monorepo
+# Set FORCE_DEPLOY_* flags to control manual deployment overrides
 # Set to 'true' to force deployment, 'false' to disable
 
-export FORCE_DEPLOY_API=false
-export FORCE_DEPLOY_UI=false
-export FORCE_DEPLOY_DOCS=false
+FORCE_DEPLOY_API=false
+FORCE_DEPLOY_UI=false
+FORCE_DEPLOY_DOCS=false
 
 # Developers: Change any value to 'true' to force deployment of that package
 # Example:
-# export FORCE_DEPLOY_API=true
-# export FORCE_DEPLOY_UI=true
-# export FORCE_DEPLOY_DOCS=true
+# FORCE_DEPLOY_API=true
+# FORCE_DEPLOY_UI=true
+# FORCE_DEPLOY_DOCS=true
 ```
 
 **To force deployment of specific packages:**
@@ -126,7 +126,7 @@ export FORCE_DEPLOY_DOCS=false
 3. The pipeline will deploy the selected packages even if no changes are detected
 4. Optionally reset the variables to `false` after successful deployment
 
-**Important**: The pipeline sources this script and respects the `FORCE_DEPLOY_*` variables, overriding change detection logic for the specified packages.
+**Important**: The pipeline parses this file directly and respects the `FORCE_DEPLOY_*` variables, overriding change detection logic for the specified packages.
 
 ## Dependency Graph
 
