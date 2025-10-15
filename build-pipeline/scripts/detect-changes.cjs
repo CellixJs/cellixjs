@@ -26,38 +26,48 @@ function setPipelineVariable(name, value) {
 // Main function to detect affected packages and map to deployment groups
 async function detectChanges() {
 	// Source .force-deploy script to set FORCE_DEPLOY_* env vars
-	const { spawnSync } = require('child_process');
+	const { spawnSync } = require('node:child_process');
+	const fs = require('node:fs');
+	const path = require('node:path');
+	
 	const forceDeployVars = {
 		FORCE_DEPLOY_API: 'false',
 		FORCE_DEPLOY_UI: 'false',
 		FORCE_DEPLOY_DOCS: 'false',
 	};
-	const result = spawnSync('bash', ['-c', 'source ./.force-deploy && env'], {
-		encoding: 'utf8',
-		env: { PATH: '/usr/bin:/bin' }
-	});
-	if (result.status !== 0 || result.error || (result.stderr && result.stderr.trim() !== '')) {
-		console.warn('Could not source .force-deploy script:');
-		if (result.error) {
-			console.warn('Error:', result.error.message || result.error);
-		}
-		if (result.stderr && result.stderr.trim() !== '') {
-			console.warn('Stderr:', result.stderr.trim());
-		}
-		console.warn('Exit status:', result.status);
-		// Do not parse stdout, use default forceDeployVars
-	} else if (result.stdout) {
-		result.stdout.split('\n').forEach(line => {
-			if (line.startsWith('FORCE_DEPLOY_API=')) {
-				forceDeployVars.FORCE_DEPLOY_API = line.split('=')[1];
-			}
-			if (line.startsWith('FORCE_DEPLOY_UI=')) {
-				forceDeployVars.FORCE_DEPLOY_UI = line.split('=')[1];
-			}
-			if (line.startsWith('FORCE_DEPLOY_DOCS=')) {
-				forceDeployVars.FORCE_DEPLOY_DOCS = line.split('=')[1];
-			}
+	
+	// Check if .force-deploy file exists
+	const forceDeployPath = path.resolve('.force-deploy');
+	if (fs.existsSync(forceDeployPath)) {
+		const result = spawnSync('bash', ['-c', 'source ./.force-deploy && env'], {
+			encoding: 'utf8',
+			env: { ...process.env, PATH: '/usr/bin:/bin' }
 		});
+		if (result.status !== 0 || result.error || (result.stderr && result.stderr.trim() !== '')) {
+			console.warn('Could not source .force-deploy script:');
+			if (result.error) {
+				console.warn('Error:', result.error.message || result.error);
+			}
+			if (result.stderr && result.stderr.trim() !== '') {
+				console.warn('Stderr:', result.stderr.trim());
+			}
+			console.warn('Exit status:', result.status);
+			// Do not parse stdout, use default forceDeployVars
+		} else if (result.stdout) {
+			result.stdout.split('\n').forEach(line => {
+				if (line.startsWith('FORCE_DEPLOY_API=')) {
+					forceDeployVars.FORCE_DEPLOY_API = line.split('=')[1];
+				}
+				if (line.startsWith('FORCE_DEPLOY_UI=')) {
+					forceDeployVars.FORCE_DEPLOY_UI = line.split('=')[1];
+				}
+				if (line.startsWith('FORCE_DEPLOY_DOCS=')) {
+					forceDeployVars.FORCE_DEPLOY_DOCS = line.split('=')[1];
+				}
+			});
+		}
+	} else {
+		console.log('.force-deploy file not found, using default force deploy settings');
 	}
 	// Determine build context
 	const buildReason = process.env.Build_Reason || 'Manual';
