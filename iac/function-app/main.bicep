@@ -125,5 +125,6 @@ module keyVaultRoleAssignment 'key-vault-role-assignment.bicep' = {
 
 // Outputs
 output functionAppNamePri string = functionApp.outputs.name
+@secure()
 output systemAssignedMIPrincipalId string = functionApp.outputs.systemAssignedMIPrincipalId!
 output keyVaultRoleAssignmentId string = keyVaultRoleAssignment.outputs.roleAssignmentId
