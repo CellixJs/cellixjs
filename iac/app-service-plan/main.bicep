@@ -48,18 +48,28 @@ param operatingSystem string = 'linux'
 param tags object = {}
 
 // == VARIABLES ==
-var appServicePlanName = '${applicationPrefix}-${environment}-asp-${instanceName}'
+var moduleNameSuffix = '-Module-${applicationPrefix}-${environment}-asp-${instanceName}'
+
+// resource naming convention
+module resourceNamingConvention '../global/resource-naming-convention.bicep' = {
+  name: 'resourceNamingConvention${moduleNameSuffix}'
+  params: {
+    environment: environment
+    applicationPrefix: applicationPrefix
+  }
+}
+
+var appServicePlanName = '${resourceNamingConvention.outputs.prefix}${resourceNamingConvention.outputs.resourceTypes.appServicePlan}-${instanceName}'
 
 // == RESOURCES ==
-resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
-  name: appServicePlanName
-  location: location
-  tags: tags
-  kind: operatingSystem
-  sku: {
-    name: sku
-  }
-  properties: {
+module appServicePlan 'br/public:avm/res/web/serverfarm:0.5.0' = {
+  name: 'appServicePlan${moduleNameSuffix}'
+  params: {
+    name: appServicePlanName
+    location: location
+    skuName: sku
+    kind: operatingSystem
+    tags: tags
     reserved: operatingSystem == 'linux'
     zoneRedundant: false
   }
@@ -67,11 +77,11 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
 
 // == OUTPUTS ==
 @description('The resource ID of the App Service Plan')
-output appServicePlanId string = appServicePlan.id
+output appServicePlanId string = appServicePlan.outputs.resourceId
 
 @description('The name of the App Service Plan')
-output appServicePlanName string = appServicePlan.name
+output appServicePlanName string = appServicePlan.outputs.name
 
 @description('The location of the App Service Plan')
-output location string = appServicePlan.location
+output location string = appServicePlan.outputs.location
 
