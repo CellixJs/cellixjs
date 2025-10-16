@@ -23,10 +23,17 @@ param applicationInsightsConnectionString string
 // variables
 var uniqueId = uniqueString(resourceGroup().id)
 var moduleNameSuffix = '-Module-${applicationPrefix}-${env}-func-${functionAppInstanceName}'
-var prefix = '${applicationPrefix}-${env}-'
-var resourceTypes = loadJsonContent('../global/resource-types.json')
 
-var functionAppName = '${prefix}${resourceTypes.functionApp}-${functionAppInstanceName}-${uniqueId}'
+// resource naming convention
+module resourceNamingConvention '../global/resource-naming-convention.bicep' = {
+  name: 'resourceNamingConvention${moduleNameSuffix}'
+  params: {
+    environment: env
+    applicationPrefix: applicationPrefix
+  }
+}
+
+var functionAppName = '${resourceNamingConvention.outputs.prefix}${resourceNamingConvention.outputs.resourceTypes.functionApp}-${functionAppInstanceName}-${uniqueId}'
 
 
 // app service plan for function app
