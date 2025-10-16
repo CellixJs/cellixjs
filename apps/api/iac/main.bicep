@@ -19,6 +19,9 @@ param linuxFxVersion string
 param allowedOrigins array
 param keyVaultName string
 
+// application insights
+param applicationInsightsLocation string
+
 // cosmos db
 param cosmosMongoDBInstanceName string 
 param totalThroughputLimit int
@@ -61,6 +64,16 @@ module appServicePlan '../../../iac/app-service-plan/main.bicep' = {
   }
 }
 
+module applicationInsights '../../../iac/application-insights/main.bicep' = {
+  name: 'applicationInsights'
+  params: {
+    applicationPrefix: applicationPrefix
+    location: applicationInsightsLocation
+    tags: tags
+    env: env
+  }
+}
+
 module functionApp '../../../iac/function-app/main.bicep' = {
   name: 'functionApp'
   params: {
@@ -77,6 +90,7 @@ module functionApp '../../../iac/function-app/main.bicep' = {
     allowedOrigins: allowedOrigins
     keyVaultName: keyVaultName
     env: env
+    applicationInsightsConnectionString: applicationInsights.outputs.connectionString
   }
 }
 

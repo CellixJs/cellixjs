@@ -364,7 +364,7 @@ stages:
     # Deploy API package with production dependencies
     - task: Bash@3
       displayName: 'Artifact: Prepare API'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
       inputs:
         targetType: 'inline'
         script: |
@@ -447,7 +447,7 @@ stages:
     # Upload API artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/api-$(Build.BuildId).zip
       displayName: 'Artifact: Publish API'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
       artifact: api
 
     # Upload UI Community artifact as build result

@@ -11,5 +11,6 @@
     "searchService": "srch",
     "managedIdentity": "id",
     "eventHubNamespace": "evhns",
-    "eventHub": "evh"
+    "eventHub": "evh",
+    "applicationInsights": "appi"
 }

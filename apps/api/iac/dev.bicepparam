@@ -13,6 +13,9 @@ param appServicePlanLocation = 'eastus2'
 param appServicePlanSku = 'B1'
 param appServicePlanOperatingSystem = 'linux'
 
+// application insights
+param applicationInsightsLocation = 'eastus2'
+
 //function app
 param functionAppStorageAccountName = 'cxadevfunceastus2'
 param functionAppLocation = 'eastus2'
