@@ -22,6 +22,13 @@ param keyVaultName string
 // application insights
 param applicationInsightsLocation string
 
+// search service
+param searchServiceLocation string
+param searchServiceReplicaCount int
+param searchServicePartitionCount int
+param searchServiceSku string
+param searchServiceRoleAssignments array
+
 // cosmos db
 param cosmosMongoDBInstanceName string 
 param totalThroughputLimit int
@@ -71,6 +78,19 @@ module applicationInsights '../../../iac/application-insights/main.bicep' = {
     location: applicationInsightsLocation
     tags: tags
     env: env
+  }
+}
+
+module searchService '../../../iac/search-service/main.bicep' = {
+  name: 'searchService'
+  params: {
+    location: searchServiceLocation
+    tags: tags
+    replicaCount: searchServiceReplicaCount
+    partitionCount: searchServicePartitionCount
+    sku: searchServiceSku
+    roleAssignments: searchServiceRoleAssignments
+    applicationPrefix: applicationPrefix
   }
 }
 
