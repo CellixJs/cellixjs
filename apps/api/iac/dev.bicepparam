@@ -13,6 +13,16 @@ param appServicePlanLocation = 'eastus2'
 param appServicePlanSku = 'B1'
 param appServicePlanOperatingSystem = 'linux'
 
+// application insights
+param applicationInsightsLocation = 'eastus2'
+
+// cognitive search
+param searchServiceLocation = 'eastus2'
+param searchServiceReplicaCount = 1
+param searchServicePartitionCount = 1
+param searchServiceSku = 'free'
+param searchServiceRoleAssignments = []
+
 //function app
 param functionAppStorageAccountName = 'cxadevfunceastus2'
 param functionAppLocation = 'eastus2'

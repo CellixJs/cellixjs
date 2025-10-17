@@ -19,6 +19,16 @@ param linuxFxVersion string
 param allowedOrigins array
 param keyVaultName string
 
+// application insights
+param applicationInsightsLocation string
+
+// search service
+param searchServiceLocation string
+param searchServiceReplicaCount int
+param searchServicePartitionCount int
+param searchServiceSku string
+param searchServiceRoleAssignments array
+
 // cosmos db
 param cosmosMongoDBInstanceName string 
 param totalThroughputLimit int
@@ -61,6 +71,29 @@ module appServicePlan '../../../iac/app-service-plan/main.bicep' = {
   }
 }
 
+module applicationInsights '../../../iac/application-insights/main.bicep' = {
+  name: 'applicationInsights'
+  params: {
+    applicationPrefix: applicationPrefix
+    location: applicationInsightsLocation
+    tags: tags
+    env: env
+  }
+}
+
+module searchService '../../../iac/search-service/main.bicep' = {
+  name: 'searchService'
+  params: {
+    location: searchServiceLocation
+    tags: tags
+    replicaCount: searchServiceReplicaCount
+    partitionCount: searchServicePartitionCount
+    sku: searchServiceSku
+    roleAssignments: searchServiceRoleAssignments
+    applicationPrefix: applicationPrefix
+  }
+}
+
 module functionApp '../../../iac/function-app/main.bicep' = {
   name: 'functionApp'
   params: {
@@ -77,6 +110,7 @@ module functionApp '../../../iac/function-app/main.bicep' = {
     allowedOrigins: allowedOrigins
     keyVaultName: keyVaultName
     env: env
+    applicationInsightsConnectionString: applicationInsights.outputs.connectionString
   }
 }
 

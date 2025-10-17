@@ -18,11 +18,11 @@ param allowedOrigins array
 @description('Key Vault Name')
 param keyVaultName string
 param env string
+param applicationInsightsConnectionString string
 
 // variables
 var uniqueId = uniqueString(resourceGroup().id)
 var moduleNameSuffix = '-Module-${applicationPrefix}-${env}-func-${functionAppInstanceName}'
-
 
 // resource naming convention
 module resourceNamingConvention '../global/resource-naming-convention.bicep' = {
@@ -71,6 +71,7 @@ module functionApp 'br/public:avm/res/web/site:0.19.3' = {
           SCM_DO_BUILD_DURING_DEPLOYMENT: 'false'
           WEBSITE_RUN_FROM_PACKAGE: '1'
           languageWorkers__node__arguments: '--max-old-space-size=${maxOldSpaceSizeMB}' // Set max memory size for V8 old memory section
+          APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsightsConnectionString
         }
       }
       {
@@ -131,5 +132,6 @@ module keyVaultRoleAssignment 'key-vault-role-assignment.bicep' = {
 
 // Outputs
 output functionAppNamePri string = functionApp.outputs.name
+@secure()
 output systemAssignedMIPrincipalId string = functionApp.outputs.systemAssignedMIPrincipalId!
 output keyVaultRoleAssignmentId string = keyVaultRoleAssignment.outputs.roleAssignmentId
