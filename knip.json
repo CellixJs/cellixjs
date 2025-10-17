@@ -1,0 +1,39 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    "apps/api": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "apps/ui-community": {
+      "entry": ["src/main.tsx"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "apps/docs": {
+      "entry": ["src/**/*.{ts,tsx,js,jsx}"],
+      "project": ["src/**/*.{ts,tsx,js,jsx}"]
+    },
+    "packages/cellix/*": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/ocom/*": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    }
+  },
+  "ignoreWorkspaces": ["packages/cellix/typescript-config"],
+  "ignore": [
+    "build-pipeline/scripts/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.stories.tsx",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/__tests__/**",
+    "**/tests/**"
+  ],
+  "ignoreDependencies": [
+    "@types/*"
+  ]
+}
