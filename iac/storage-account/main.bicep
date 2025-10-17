@@ -59,7 +59,9 @@ param tables array
 
 // variables
 var uniqueId = uniqueString(resourceGroup().id)
+//var moduleNameSuffix = '-Module-${applicationPrefix}-${environment}-st-${instanceName}'
 var moduleNameSuffix = '-Module-${applicationPrefix}-${environment}-st-${instanceName}'
+
 
 // resource naming convention
 module resourceNamingConvention '../global/resource-naming-convention.bicep' = {
@@ -70,97 +72,48 @@ module resourceNamingConvention '../global/resource-naming-convention.bicep' = {
   }
 }
 
-var storageAccountName = '${resourceNamingConvention.outputs.smallPrefix}${resourceNamingConvention.outputs.resourceTypes.storageAccount}${instanceName}${uniqueId}'
-
-// storage account with AVM
-module storageAccount 'br/public:avm/res/storage/storage-account:0.12.0' = {
+// storage account
+module storageAccount './storage-account.bicep' = {
   name: 'storageAccount${moduleNameSuffix}'
   params: {
-    name: storageAccountName
     location: location
-    skuName: storageAccountSku
+    storageAccountName:'${resourceNamingConvention.outputs.smallPrefix}${resourceNamingConvention.outputs.resourceTypes.storageAccount}${instanceName}${uniqueId}'
+    storageAccountSku: storageAccountSku
     tags: tags
-    publicNetworkAccess: 'Enabled'
-    allowSharedKeyAccess: true
-    minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: true
-    enableHierarchicalNamespace: false
-    blobServices: enableBlobService ? {
-      cors: {
-        corsRules: [
-          {
-            allowedOrigins: corsAllowedOrigins
-            allowedMethods: corsAllowedMethods
-            allowedHeaders: corsAllowedHeaders
-            exposedHeaders: corsExposedHeaders
-            maxAgeInSeconds: corsMaxAgeInSeconds
-          }
-        ]
-      }
-      deleteRetentionPolicy: {
-        enabled: true
-        days: 7
-      }
-      containerDeleteRetentionPolicy: {
-        enabled: true
-        days: 7
-      }
-      isVersioningEnabled: isVersioningEnabled
-      containers: containers
-    } : null
-    queueServices: enableQueueService ? {
-      cors: {
-        corsRules: [
-          {
-            allowedOrigins: corsAllowedOrigins
-            allowedMethods: corsAllowedMethods
-            allowedHeaders: corsAllowedHeaders
-            exposedHeaders: corsExposedHeaders
-            maxAgeInSeconds: corsMaxAgeInSeconds
-          }
-        ]
-      }
-      queues: queues
-    } : null
-    tableServices: enableTableService ? {
-      cors: {
-        corsRules: [
-          {
-            allowedOrigins: corsAllowedOrigins
-            allowedMethods: corsAllowedMethods
-            allowedHeaders: corsAllowedHeaders
-            exposedHeaders: corsExposedHeaders
-            maxAgeInSeconds: corsMaxAgeInSeconds
-          }
-        ]
-      }
-      tables: tables
-    } : null
-    managementPolicyRules: enableManagementPolicy ? [
-      {
-        enabled: true
-        name: 'DeleteOldBlobs'
-        type: 'Lifecycle'
-        definition: {
-          actions: {
-            baseBlob: {
-              delete: {
-                daysAfterModificationGreaterThan: deleteAfterNDaysList[0]
-              }
-            }
-          }
-          filters: {
-            blobTypes: [
-              'blockBlob'
-            ]
-          }
-        }
-      }
-    ] : null
+    enableManagementPolicy: enableManagementPolicy
+    deleteAfterNDaysList: deleteAfterNDaysList
   }
 }
 
-// Outputs
-output storageAccountName string = storageAccount.outputs.name
-output storageAccountId string = storageAccount.outputs.resourceId
-output storageAccountPrimaryBlobEndpoint string = storageAccount.outputs.primaryBlobEndpoint
+// blob service
+module blobService './blob-service.bicep' = if(enableBlobService) {
+  name: 'blobService${moduleNameSuffix}'
+  params: {
+    storageAccountName: storageAccount.outputs.storageAccountName
+    containers: containers
+    corsAllowedOrigins: corsAllowedOrigins
+    corsAllowedMethods: corsAllowedMethods
+    corsAllowedHeaders: corsAllowedHeaders
+    corsExposedHeaders: corsExposedHeaders
+    corsMaxAgeInSeconds: corsMaxAgeInSeconds
+    isVersioningEnabled: isVersioningEnabled
+  }
+}
+
+// queue service
+module queueService './queue-service.bicep' = if(enableQueueService) {
+  name: 'queueService${moduleNameSuffix}'
+  params: {
+    storageAccountName: storageAccount.outputs.storageAccountName
+    queues: queues
+  }
+}
+
+// table service
+module tableService './table-service.bicep' = if(enableTableService) {
+  name: 'tableService${moduleNameSuffix}'
+  params: {
+    storageAccountName: storageAccount.outputs.storageAccountName
+    tables: tables
+  }
+}
