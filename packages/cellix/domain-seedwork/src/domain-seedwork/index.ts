@@ -1,5 +1,6 @@
 export { AggregateRoot, type RootEventRegistry } from './aggregate-root.js';
 export type { BaseDomainExecutionContext } from './base-domain-execution-context.js';
+export { ChildEntity } from './child-entity.js';
 export {
     DomainEntity,
 	type DomainEntityProps,

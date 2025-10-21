@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "files": ["dist", "src/schema/**/*.graphql"],
+  "files": [
+    "dist",
+    "src/schema/**/*.graphql"
+  ],
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -13,7 +16,7 @@
   "scripts": {
     "prebuild": "biome lint",
     "build": "tsc --build",
-    "watch": "tsc- --watch",
+    "watch": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
@@ -24,7 +27,6 @@
     "@apollo/server": "^4.11.3",
     "@apollo/utils.withrequired": "^3.0.0",
     "@azure/functions": "^4.0.0",
-    "@graphql-tools/load": "^8.1.2",
     "@graphql-tools/load-files": "^7.0.1",
     "@graphql-tools/merge": "^9.1.1",
     "@graphql-tools/schema": "^10.0.25",

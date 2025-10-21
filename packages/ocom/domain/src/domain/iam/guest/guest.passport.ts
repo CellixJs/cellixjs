@@ -1,8 +1,10 @@
 import type { CommunityPassport } from '../../contexts/community/community.passport.ts';
 import type { Passport } from '../../contexts/passport.ts';
+import type { PropertyPassport } from '../../contexts/property/property.passport.ts';
 import type { ServicePassport } from '../../contexts/service/service.passport.ts';
 import type { UserPassport } from '../../contexts/user/user.passport.ts';
 import { GuestCommunityPassport } from './contexts/guest.community.passport.ts';
+import { GuestPropertyPassport } from './contexts/guest.property.passport.ts';
 import { GuestServicePassport } from './contexts/guest.service.passport.ts';
 import { GuestUserPassport } from './contexts/guest.user.passport.ts';
 import { GuestPassportBase } from './guest.passport-base.ts';
@@ -10,6 +12,7 @@ import { GuestPassportBase } from './guest.passport-base.ts';
 
 export class GuestPassport extends GuestPassportBase implements Passport {
     private _communityPassport: CommunityPassport | undefined;
+    private _propertyPassport: PropertyPassport | undefined;
     private _servicePassport: ServicePassport | undefined;
     private _userPassport: UserPassport | undefined;
 
@@ -18,6 +21,13 @@ export class GuestPassport extends GuestPassportBase implements Passport {
             this._communityPassport = new GuestCommunityPassport();
         }
         return this._communityPassport;
+    }
+
+    public get property(): PropertyPassport {
+        if (!this._propertyPassport) {
+            this._propertyPassport = new GuestPropertyPassport();
+        }
+        return this._propertyPassport;
     }
 
     public get service(): ServicePassport {

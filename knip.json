@@ -14,12 +14,21 @@
       "project": ["src/**/*.{ts,tsx,js,jsx}"]
     },
     "packages/cellix/*": {
-      "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"]
     },
     "packages/ocom/*": {
       "entry": ["src/index.ts"],
-      "project": ["src/**/*.ts"]
+      "project": ["src/**/*.ts"],
+      "ignore": [
+        "**/graphql-tools-scalars.ts"
+      ]
+    },
+    "packages/ocom/ui-components": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/ocom/domain/*": {
+        "project": ["src/**/*.ts", "tests/**/*.ts"]
     }
   },
   "ignoreWorkspaces": ["packages/cellix/typescript-config"],
@@ -30,10 +39,18 @@
     "**/*.stories.tsx",
     "**/dist/**",
     "**/coverage/**",
-    "**/__tests__/**",
-    "**/tests/**"
+    "**/__tests__/**"
   ],
   "ignoreDependencies": [
-    "@types/*"
-  ]
+    "@types/*",
+    "@cucumber/node",
+    "@cucumber/pretty-formatter",
+    "@serenity-js/assertions",
+    "@serenity-js/console-reporter",
+    "@serenity-js/core",
+    "@serenity-js/cucumber",
+    "@serenity-js/serenity-bdd",
+    "ts-scope-trimmer-plugin"
+  ],
+  "ignoreBinaries": ["func"]
 }

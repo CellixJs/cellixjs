@@ -2,7 +2,7 @@
   "extends": ["@cellix/typescript-config/base.json", "@docusaurus/tsconfig"],
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["@docusaurus/module-type-aliases", "@docusaurus/theme-classic"],
+    "types": ["@docusaurus/module-type-aliases"],
     "paths": {
       "@site/*": ["./*"]
     }

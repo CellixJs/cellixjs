@@ -1,4 +1,4 @@
-export interface PropertyPermissions {
+export interface PropertyDomainPermissions {
 	canManageProperties: boolean;
 	canEditOwnProperty: boolean;
 	isEditingOwnProperty: boolean;

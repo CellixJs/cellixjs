@@ -32,11 +32,10 @@ const CommunitySchema = new Schema<Community, Model<Community>, Community>(
 			required: true,
 		},
 	},
-
-	{
-		timestamps: true,
-		versionKey: 'version',
-	},
+    { 
+        timestamps: true,
+        versionKey: 'version',
+    }
 )
 	.index(
 		{ domain: 1 },

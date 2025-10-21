@@ -31,6 +31,16 @@ function makeMockModelsContext() {
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as Models.Role.EndUserRoleModelType,
+      StaffRole: {
+        findById: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+      } as unknown as Models.Role.StaffRoleModelType,
+      VendorUserRole: {
+        findById: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+      } as unknown as Models.Role.VendorUserRoleModelType,
     },
     User: {
       EndUser: {
@@ -38,8 +48,37 @@ function makeMockModelsContext() {
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as Models.User.EndUserModelType,
+      StaffUser: {
+        findById: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+      } as unknown as Models.User.StaffUserModelType,
+      StaffRole: {
+        findById: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+      } as unknown as Models.Role.StaffRoleModelType,
+      VendorUser: {
+        findById: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+      } as unknown as Models.User.VendorUserModelType,
     },
-  } as unknown as Parameters<typeof DomainDataSourceImplementation>[0];
+    Property: {
+        Property: {
+            findById: vi.fn(),
+            find: vi.fn(),
+            create: vi.fn(),
+        } as unknown as Models.Property.PropertyModelType,
+    },
+    Service: {
+        Service: {
+            findById: vi.fn(),
+            find: vi.fn(),
+            create: vi.fn(),
+        } as unknown as Models.Service.ServiceModelType,
+    }
+  } as Parameters<typeof DomainDataSourceImplementation>[0];
 }
 
 function makeMockPassport() {
@@ -49,8 +88,27 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+    property: {
+      forProperty: vi.fn(() => ({
+        determineIf: vi.fn(() => true),
+      })),
+    },
+    service: {
+      forService: vi.fn(() => ({
+        determineIf: vi.fn(() => true),
+      })),
+    },
     user: {
       forEndUser: vi.fn(() => ({
+        determineIf: vi.fn(() => true),
+      })),
+      forStaffRole: vi.fn(() => ({
+        determineIf: vi.fn(() => true),
+      })),
+      forStaffUser: vi.fn(() => ({
+        determineIf: vi.fn(() => true),
+      })),
+      forVendorUser: vi.fn(() => ({
         determineIf: vi.fn(() => true),
       })),
     },
@@ -93,6 +151,16 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(typeof result.Community).toBe('object');
     });
 
+    And('the DomainDataSource should have Property property', () => {
+      expect(result).toHaveProperty('Property');
+      expect(typeof result.Property).toBe('object');
+    });
+
+    And('the DomainDataSource should have Service property', () => {
+      expect(result).toHaveProperty('Service');
+      expect(typeof result.Service).toBe('object');
+    });
+
     And('the DomainDataSource should have User property', () => {
       expect(result).toHaveProperty('User');
       expect(typeof result.User).toBe('object');
@@ -103,10 +171,18 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result.Community).toHaveProperty('Member');
       expect(result.Community).toHaveProperty('Role');
       expect(result.Community.Role).toHaveProperty('EndUserRole');
+      expect(result.Community.Role).toHaveProperty('VendorUserRole');
     });
 
     And('the User property should have the correct structure', () => {
       expect(result.User).toHaveProperty('EndUser');
+      expect(result.User).toHaveProperty('StaffRole');
+      expect(result.User).toHaveProperty('StaffUser');
+      expect(result.User).toHaveProperty('VendorUser');
+    });
+
+    And('the Service property should have the correct structure', () => {
+      expect(result.Service).toHaveProperty('Service');
     });
   });
 });

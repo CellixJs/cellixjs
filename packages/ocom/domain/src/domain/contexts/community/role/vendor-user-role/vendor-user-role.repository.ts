@@ -8,7 +8,8 @@ import type { CommunityEntityReference } from '../../community/community.ts';
 export interface VendorUserRoleRepository<props extends VendorUserRoleProps>
 	extends DomainSeedwork.Repository<VendorUserRole<props>> {
 	getNewInstance(
-		name: string,
+		roleName: string,
+		isDefault: boolean,
 		community: CommunityEntityReference,
 	): Promise<VendorUserRole<props>>;
 	getById(id: string): Promise<VendorUserRole<props>>;

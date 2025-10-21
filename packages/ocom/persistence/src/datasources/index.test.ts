@@ -57,6 +57,16 @@ function makeMockModelsContext() {
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as Models.Role.EndUserRoleModelType,
+      StaffRole: {
+        findById: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+      } as unknown as Models.Role.StaffRoleModelType,
+      VendorUserRole: {
+        findById: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+      } as unknown as Models.Role.VendorUserRoleModelType,
     },
     User: {
       EndUser: {
@@ -65,6 +75,16 @@ function makeMockModelsContext() {
         create: vi.fn(),
         aggregate: vi.fn(),
       } as unknown as Models.User.EndUserModelType,
+      StaffUser: {
+        findById: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+      } as unknown as Models.User.StaffUserModelType,
+      VendorUser: {
+        findById: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+      } as unknown as Models.User.VendorUserModelType,
     },
   } as ModelsContext;
 }
@@ -80,6 +100,12 @@ function makeMockPassport() {
       forEndUser: vi.fn(() => ({
         determineIf: vi.fn(() => true),
       })),
+      forStaffRole: vi.fn(() => ({
+        determineIf: vi.fn(() => true),
+      })),
+      forVendorUser: vi.fn(() => ({
+        determineIf: vi.fn(() => true),
+      })),
     },
   } as unknown as Domain.Passport;
 }
@@ -92,9 +118,9 @@ function makeMockDataSources() {
           CommunityUnitOfWork: {},
         },
         Member: {},
-        Role: { EndUserRole: {} },
+        Role: { EndUserRole: {}, VendorUserRole: {} },
       },
-      User: { EndUser: {} },
+  User: { EndUser: {}, StaffRole: {}, StaffUser: {}, VendorUser: {} },
     } as unknown as DomainDataSource,
     readonlyDataSource: {
       Community: {
@@ -122,6 +148,12 @@ function makeMockDataSources() {
             getById: vi.fn(),
             getByExternalId: vi.fn(),
             getByIdWithCommunities: vi.fn(),
+          },
+        },
+        StaffRole: {
+          StaffRoleReadRepo: {
+            getById: vi.fn(),
+            getByRoleName: vi.fn(),
           },
         },
       },

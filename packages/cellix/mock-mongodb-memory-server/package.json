@@ -10,7 +10,8 @@
   "scripts": {
     "prebuild": "biome lint",
     "build": "tsc --build",
-    "start": "node dist/src/index.js"
+    "start": "node dist/src/index.js",
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
