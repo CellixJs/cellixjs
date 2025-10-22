@@ -1,8 +1,17 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
+import { ServiceTicketV1CreatedEvent } from '../../../../events/types/service-ticket-v1-created.ts';
+import { ServiceTicketV1DeletedEvent } from '../../../../events/types/service-ticket-v1-deleted.ts';
+import { ServiceTicketV1UpdatedEvent } from '../../../../events/types/service-ticket-v1-updated.ts';
+import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { Passport } from '../../../passport.ts';
-import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.js';
-import { ServiceTicketV1ActivityDetail, type ServiceTicketV1ActivityDetailEntityReference, type ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.js';
-import * as ValueObjects from './service-ticket-v1.value-objects.js';
+
+import { ServiceTicketV1ActivityDetail, type ServiceTicketV1ActivityDetailEntityReference, type ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.ts';
+import * as ActivityDetailValueObjects from './service-ticket-v1-activity-detail.value-objects.ts';
+import { ServiceTicketV1Message, type ServiceTicketV1MessageEntityReference, type ServiceTicketV1MessageProps } from './service-ticket-v1-message.ts';
+import * as ValueObjects from './service-ticket-v1.value-objects.ts';
+import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.ts';
+
+
 
 /**
  * Props for ServiceTicket aggregate
@@ -10,8 +19,8 @@ import * as ValueObjects from './service-ticket-v1.value-objects.js';
 export interface ServiceTicketV1Props extends DomainSeedwork.DomainEntityProps {
   title: string;
   description: string;
-  status: ValueObjects.StatusCode;
-  priority: ValueObjects.Priority;
+  status: string;
+  priority: number;
   ticketType: string | undefined;
   communityId: string;
   propertyId: string | undefined;
@@ -19,6 +28,7 @@ export interface ServiceTicketV1Props extends DomainSeedwork.DomainEntityProps {
   assignedToId: string | undefined;
   serviceId: string | undefined;
   activityLog: DomainSeedwork.PropArray<ServiceTicketV1ActivityDetailProps>;
+  messages: DomainSeedwork.PropArray<ServiceTicketV1MessageProps>;
   readonly createdAt: Date;
   readonly updatedAt: Date;
   readonly schemaVersion: string;
@@ -31,9 +41,10 @@ export interface ServiceTicketV1Props extends DomainSeedwork.DomainEntityProps {
  * Entity reference for ServiceTicket
  */
 export interface ServiceTicketV1EntityReference extends Readonly<
-  Omit<ServiceTicketV1Props, 'activityLog'>
+  Omit<ServiceTicketV1Props, 'activityLog' | 'messages'>
 > {
   readonly activityLog: ReadonlyArray<ServiceTicketV1ActivityDetailEntityReference>;
+  readonly messages: ReadonlyArray<ServiceTicketV1MessageEntityReference>;
 }
 
 /**
@@ -66,42 +77,102 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     propertyId?: string,
   ): ServiceTicketV1<props> {
     const serviceTicket = new ServiceTicketV1(newProps, passport);
-    serviceTicket.isNew = true;
-    serviceTicket.Title = title;
-    serviceTicket.Description = description;
+    serviceTicket.markAsNew();
+    serviceTicket.title = title;
+    serviceTicket.description = description;
     serviceTicket.communityId = communityId;
     serviceTicket.requestorId = requestorId;
     if (propertyId) {
       serviceTicket.propertyId = propertyId;
     }
-    serviceTicket.Status = ValueObjects.StatusCodes.Draft;
-    serviceTicket.Priority = new ValueObjects.Priority(3);
+    serviceTicket.status = ValueObjects.StatusCodes.Draft;
+    serviceTicket.priority = new ValueObjects.Priority(3);
     serviceTicket.isNew = false;
 
     return serviceTicket;
   }
 
-  public requestNewActivityDetail(): ServiceTicketV1ActivityDetail {
-    const activityDetailProps = this.props.activityLog.getNewItem();
-    return new ServiceTicketV1ActivityDetail(activityDetailProps);
+  private markAsNew(): void {
+    this.isNew = true;
+    this.addIntegrationEvent(ServiceTicketV1CreatedEvent, {
+        id: this.props.id,
+    })
   }
 
-  public requestDelete(): void {
+  public requestNewActivityDetail(activityBy: MemberEntityReference): ServiceTicketV1ActivityDetail {
+    const activityDetailProps = this.props.activityLog.getNewItem();
+    return ServiceTicketV1ActivityDetail.getNewInstance(activityDetailProps, activityBy);
+  }
+
+  public requestAddStatusUpdate(description: string, by: MemberEntityReference): void {
+    if (
+      !this.isNew &&
+      !this.visa.determineIf(
+        (permissions) =>
+          permissions.isSystemAccount ||
+          (permissions.canCreateTickets && permissions.isEditingOwnTicket) ||
+          (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket) ||
+          permissions.canManageTickets ||
+          permissions.canAssignTickets
+      )
+    ) {
+      throw new Error('Unauthorized7');
+    }
+    const activityDetail = this.requestNewActivityDetail(by);
+    activityDetail.activityType = ActivityDetailValueObjects.ActivityTypeCodes.Updated;
+    activityDetail.activityDescription = description;
+  }
+  public requestAddStatusTransition(newStatus: ValueObjects.StatusCode, description: string, by: MemberEntityReference): void {
     if (
       !this.visa.determineIf(
         (permissions) =>
-          permissions.isSystemAccount || permissions.canManageTickets,
+           permissions.isSystemAccount ||
+          (this.validStatusTransitions.get(this.status)?.includes(newStatus.valueOf()) ?? false) &&
+            (permissions.canManageTickets ||
+              permissions.canAssignTickets ||
+              (permissions.canCreateTickets && permissions.isEditingOwnTicket) ||
+              (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket))
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to delete this service ticket');
+      throw new Error('Unauthorized or Invalid Status Transition');
+    }
+
+    this.props.status = newStatus.valueOf();
+    const activityDetail = this.requestNewActivityDetail(by);
+    activityDetail.activityDescription = description;
+    activityDetail.activityType = this.statusMappings.get(newStatus.valueOf()) || ActivityDetailValueObjects.ActivityTypeCodes.Updated;
+  }
+
+   private readonly validStatusTransitions = new Map<string, string[]>([
+    [ValueObjects.StatusCodes.Draft, [ValueObjects.StatusCodes.Submitted]],
+    [ValueObjects.StatusCodes.Submitted, [ValueObjects.StatusCodes.Draft, ValueObjects.StatusCodes.Assigned]],
+    [ValueObjects.StatusCodes.Assigned, [ValueObjects.StatusCodes.Submitted, ValueObjects.StatusCodes.InProgress]],
+    [ValueObjects.StatusCodes.InProgress, [ValueObjects.StatusCodes.Assigned, ValueObjects.StatusCodes.Completed]],
+    [ValueObjects.StatusCodes.Completed, [ValueObjects.StatusCodes.InProgress, ValueObjects.StatusCodes.Closed]],
+    [ValueObjects.StatusCodes.Closed, [ValueObjects.StatusCodes.InProgress]],
+  ]);
+  private readonly statusMappings = new Map<string, string>([
+    [ValueObjects.StatusCodes.Draft, ActivityDetailValueObjects.ActivityTypeCodes.Created],
+    [ValueObjects.StatusCodes.Submitted, ActivityDetailValueObjects.ActivityTypeCodes.Submitted],
+    [ValueObjects.StatusCodes.Assigned, ActivityDetailValueObjects.ActivityTypeCodes.Assigned],
+    [ValueObjects.StatusCodes.InProgress, ActivityDetailValueObjects.ActivityTypeCodes.InProgress],
+    [ValueObjects.StatusCodes.Completed, ActivityDetailValueObjects.ActivityTypeCodes.Completed],
+    [ValueObjects.StatusCodes.Closed, ActivityDetailValueObjects.ActivityTypeCodes.Closed],
+  ]);
+
+  public requestDelete(): void {
+    if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
+      throw new Error('You do not have permission to delete this property');
     }
     super.isDeleted = true;
+    this.addIntegrationEvent(ServiceTicketV1DeletedEvent, { id: this.props.id });
   }
 
   public override onSave(isModified: boolean): void {
     if (isModified && !super.isDeleted) {
-      // TODO: Add integration event when event classes are defined
-      // this.addIntegrationEvent(ServiceTicketUpdatedEvent, { id: this.props.id });
+        this.addIntegrationEvent(ServiceTicketV1UpdatedEvent, {
+            id: this.props.id,
+        })
     }
   }
   //#endregion Methods
@@ -112,7 +183,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     return this.props.title;
   }
 
-  set Title(value: string) {
+  set title(value: string) {
     if (
       !this.isNew &&
       !this.visa.determineIf(
@@ -132,7 +203,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     return this.props.description;
   }
 
-  set Description(value: string) {
+  set description(value: string) {
     if (
       !this.isNew &&
       !this.visa.determineIf(
@@ -148,11 +219,11 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     this.props.description = value;
   }
 
-  get status(): ValueObjects.StatusCode {
+  get status(): string {
     return this.props.status;
   }
 
-  set Status(value: ValueObjects.StatusCode) {
+  set status(status: ValueObjects.StatusCode) {
     if (
       !this.isNew &&
       !this.visa.determineIf(
@@ -165,14 +236,14 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     ) {
       throw new DomainSeedwork.PermissionError('You do not have permission to change the status of this service ticket');
     }
-    this.props.status = value;
+    this.props.status = status.valueOf();
   }
 
-  get priority(): ValueObjects.Priority {
+  get priority(): number {
     return this.props.priority;
   }
 
-  set Priority(value: ValueObjects.Priority) {
+  set priority(priority: ValueObjects.Priority) {
     if (
       !this.isNew &&
       !this.visa.determineIf(
@@ -184,7 +255,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     ) {
       throw new DomainSeedwork.PermissionError('You do not have permission to change the priority of this service ticket');
     }
-    this.props.priority = value;
+    this.props.priority = priority.valueOf();
   }
 
   get ticketType(): string | undefined {
@@ -280,6 +351,10 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     return this.props.activityLog.items.map((item) => new ServiceTicketV1ActivityDetail(item));
   }
 
+  get messages(): ReadonlyArray<ServiceTicketV1MessageEntityReference> {
+    return this.props.messages.items.map((item) => new ServiceTicketV1Message(item, this.visa));
+  }
+
   get createdAt(): Date {
     return this.props.createdAt;
   }
@@ -296,7 +371,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     return this.props.hash;
   }
 
-  set Hash(value: string) {
+  set hash(value: string) {
     this.props.hash = value;
   }
 
@@ -304,7 +379,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     return this.props.lastIndexed;
   }
 
-  set LastIndexed(value: Date | undefined) {
+  set lastIndexed(value: Date | undefined) {
     this.props.lastIndexed = value;
   }
 
@@ -312,7 +387,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     return this.props.updateIndexFailedDate;
   }
 
-  set UpdateIndexFailedDate(value: Date | undefined) {
+  set updateIndexFailedDate(value: Date | undefined) {
     this.props.updateIndexFailedDate = value;
   }
   //#endregion Properties

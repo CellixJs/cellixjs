@@ -29,7 +29,10 @@
     },
     "packages/ocom/ui-components": {
       "entry": ["src/index.ts"],
-      "project": ["src/**/*.{ts,tsx}"]
+      "project": ["src/**/*.{ts,tsx}"],
+      "ignoreDependencies": [
+        "@graphql-typed-document-node/core"
+      ]
     }
   },
   "ignoreWorkspaces": ["packages/cellix/typescript-config"],

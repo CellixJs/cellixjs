@@ -1,1 +1,1 @@
-export * from './molecules/index.js';
+export * from './molecules/index.ts';

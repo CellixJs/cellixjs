@@ -1,7 +1,7 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.ts';
 import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type { CaseDomainPermissions } from '../../case.domain-permissions.ts';
+import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.ts';
 import type * as ValueObjects from './service-ticket-v1-message.value-objects.ts';
 
 /**

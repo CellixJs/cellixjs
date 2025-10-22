@@ -3,6 +3,13 @@ import type { Contexts } from './domain/index.ts';
 export * as Domain from './domain/index.ts';
 
 export interface DomainDataSource {
+    Case: {
+        ServiceTicket: {
+            V1: {
+                ServiceTicketV1UnitOfWork: Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
+            };
+        };
+    };
 	Community: {
 		Community: {
 			CommunityUnitOfWork: Contexts.Community.Community.CommunityUnitOfWork;

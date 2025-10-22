@@ -1,6 +1,6 @@
-import type { Base } from './base.js';
+import type { Base } from './base.ts';
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { MongooseDomainAdapterType } from './mongo-domain-adapter.js';
+import type { MongooseDomainAdapterType } from './mongo-domain-adapter.ts';
 
 export abstract class MongoTypeConverter<
 	MongooseModelType extends Base,

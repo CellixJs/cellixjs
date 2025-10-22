@@ -227,10 +227,6 @@ stages:
           echo "Running pnpm audit for vulnerabilities..."
           pnpm audit --audit-level=high --prod
 
-          # Audit unused dependencies with knip
-          echo "Running knip to detect unused dependencies..."
-          pnpm knip 
-
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only (PR/branch build)..."
@@ -245,6 +241,10 @@ stages:
           
           # Set the merged coverage path for SonarCloud
           echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
+
+          # Audit unused dependencies with knip (after packages are built)
+          echo "Running knip to detect unused dependencies..."
+          pnpm knip
         workingDirectory: ''
       env:
         TURBO_CACHE_HIT: $(TURBO_CACHE_HIT)

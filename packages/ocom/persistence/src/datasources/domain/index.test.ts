@@ -15,6 +15,13 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
+    Case: {
+        ServiceTicket: {
+            findById: vi.fn(),
+            find: vi.fn(),
+            create: vi.fn(),
+        } as unknown as Models.Case.ServiceTicketModelType,
+    },
     Community: {
       Community: {
         findById: vi.fn(),

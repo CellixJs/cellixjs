@@ -1,19 +1,21 @@
-export { VendorUser } from './vendor-user.ts';
+
 export type {
-	VendorUserProps,
-	VendorUserEntityReference,
-} from './vendor-user.ts';
+    VendorUserContactInformationEntityReference,
+    VendorUserContactInformationProps
+} from './vendor-user-contact-information.ts';
 export type {
-	VendorUserPersonalInformationProps,
-	VendorUserPersonalInformationEntityReference,
-} from './vendor-user-personal-information.ts';
-export type {
-	VendorUserIdentityDetailsProps,
-	VendorUserIdentityDetailsEntityReference,
+    VendorUserIdentityDetailsEntityReference,
+    VendorUserIdentityDetailsProps
 } from './vendor-user-identity-details.ts';
 export type {
-	VendorUserContactInformationProps,
-	VendorUserContactInformationEntityReference,
-} from './vendor-user-contact-information.ts';
+    VendorUserPersonalInformationEntityReference,
+    VendorUserPersonalInformationProps
+} from './vendor-user-personal-information.ts';
 export type { VendorUserRepository } from './vendor-user.repository.ts';
+export {
+    VendorUser,
+    type VendorUserEntityReference,
+    type VendorUserProps
+} from './vendor-user.ts';
 export type { VendorUserUnitOfWork } from './vendor-user.uow.ts';
+

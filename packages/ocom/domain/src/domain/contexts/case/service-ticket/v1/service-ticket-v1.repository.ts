@@ -10,8 +10,8 @@ export interface ServiceTicketV1Repository<props extends ServiceTicketV1Props>
 		title: string,
 		description: string,
 		community: CommunityEntityReference,
-		property: PropertyEntityReference,
 		requestor: MemberEntityReference,
+		property?: PropertyEntityReference,
 	): Promise<ServiceTicketV1<props>>;
 	getById(id: string): Promise<ServiceTicketV1<props>>;
 }

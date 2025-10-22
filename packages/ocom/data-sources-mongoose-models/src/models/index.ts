@@ -7,12 +7,18 @@ import {
 	VendorUserModelFactory,
 	UserModelFactory,
 } from './user/index.ts';
-import { RoleModelFactory } from './role/role.model.ts';
-import { EndUserRoleModelFactory } from './role/end-user-role.model.ts';
-import { StaffRoleModelFactory } from './role/staff-role.model.ts';
-import { VendorUserRoleModelFactory } from './role/vendor-user-role.model.ts';
-import { ServiceModelFactory } from './service/index.ts';
+import {
+    EndUserRoleModelFactory,
+    RoleModelFactory,
+    StaffRoleModelFactory,
+    VendorUserRoleModelFactory,
+} from './role/index.ts';
+import {
+    ServiceTicketModelFactory,
+    TicketModelFactory,
+} from './case/index.ts';
 import { PropertyModelFactory } from './property/index.ts';
+import { ServiceModelFactory } from './service/index.ts';
 
 export * as Community from './community/index.ts';
 export * as Member from './member/index.ts';
@@ -20,13 +26,18 @@ export * as Role from './role/index.ts';
 export * as User from './user/index.ts';
 export * as Service from './service/index.ts';
 export * as Property from './property/index.ts';
+export * as Case from './case/index.ts';
 
 export const mongooseContextBuilder = (
 	initializedService: MongooseSeedwork.MongooseContextFactory,
 ) => {
 	const roleModel = RoleModelFactory(initializedService);
 	const userModel = UserModelFactory(initializedService);
+    const ticketModel = TicketModelFactory(initializedService);
 	return {
+        Case: {
+			ServiceTicket: ServiceTicketModelFactory(ticketModel),
+		},
 		Community: {
 			Community: CommunityModelFactory(initializedService),
 			Member: MemberModelFactory(initializedService),

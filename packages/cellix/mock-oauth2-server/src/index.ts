@@ -2,7 +2,7 @@
 import crypto from 'node:crypto';
 import express from 'express';
 import { exportJWK, generateKeyPair, type KeyLike, SignJWT } from 'jose';
-import { setupEnvironment } from './setup-environment.js';
+import { setupEnvironment } from './setup-environment.ts';
 
 setupEnvironment();
 

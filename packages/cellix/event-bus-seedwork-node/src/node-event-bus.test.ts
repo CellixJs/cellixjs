@@ -2,7 +2,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { NodeEventBusInstance } from './node-event-bus.js';
+import { NodeEventBusInstance } from './node-event-bus.ts';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 
 // --- Mocks for OpenTelemetry and performance ---

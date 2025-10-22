@@ -1,4 +1,4 @@
-import type { Domain } from './domain.js';
+import type { Domain } from './domain.ts';
 
 export interface DomainEntityProps {
 	readonly id: string;

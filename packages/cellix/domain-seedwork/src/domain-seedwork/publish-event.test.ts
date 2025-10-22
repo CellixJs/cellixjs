@@ -2,9 +2,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature  } from '@amiceli/vitest-cucumber';
 import { expect, type MockedObject, vi } from 'vitest';
-import { CustomDomainEventImpl } from './domain-event.js';
-import type { EventBus } from './event-bus.js';
-import { EventPublisher } from './publish-event.js';
+import { CustomDomainEventImpl } from './domain-event.ts';
+import type { EventBus } from './event-bus.ts';
+import { EventPublisher } from './publish-event.ts';
 
 
 const test = { for: describeFeature };

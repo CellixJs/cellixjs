@@ -1,10 +1,7 @@
+export type { StaffUserRepository } from './staff-user.repository.ts';
 export {
 	StaffUser,
-}
-from './staff-user.ts';
-export type {
-	StaffUserProps,
-	StaffUserEntityReference,
+	type StaffUserEntityReference,
+	type StaffUserProps,
 } from './staff-user.ts';
-export type { StaffUserRepository } from './staff-user.repository.ts';
 export type { StaffUserUnitOfWork } from './staff-user.uow.ts';

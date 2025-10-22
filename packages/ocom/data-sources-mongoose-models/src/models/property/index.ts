@@ -1,10 +1,11 @@
 export {
-	type Property,
-	type Point,
-	type BedroomDetail,
-	type AdditionalAmenity,
-	type ListingDetail,
-	type Location,
-	PropertyModelFactory,
-	type PropertyModelType,
+    type AdditionalAmenity, 
+    type BedroomDetail, 
+    type ListingDetail,
+    type Location, 
+    type Point, 
+    type Property, 
+    PropertyModelFactory, 
+    PropertyModelName, 
+    type PropertyModelType
 } from './property.model.ts';
