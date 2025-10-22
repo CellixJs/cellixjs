@@ -231,11 +231,13 @@ stages:
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only (PR/branch build)..."
             export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
+            export TURBO_CONCURRENCY=4
             pnpm run test:coverage --affected
             pnpm run merge-lcov-reports
           else
             echo "Testing all packages (main branch build)..."
             export TURBO_SCM_BASE="HEAD~1"
+            export TURBO_CONCURRENCY=4
             pnpm run test:coverage:merge
           fi
           
