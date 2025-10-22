@@ -16,6 +16,10 @@
     "packages/cellix/*": {
       "project": ["src/**/*.ts"]
     },
+    "packages/cellix/ui-core/*": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
     "packages/ocom/*": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"],
@@ -26,9 +30,6 @@
     "packages/ocom/ui-components": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.{ts,tsx}"]
-    },
-    "packages/ocom/domain/*": {
-        "project": ["src/**/*.ts", "tests/**/*.ts"]
     }
   },
   "ignoreWorkspaces": ["packages/cellix/typescript-config"],
@@ -39,7 +40,8 @@
     "**/*.stories.tsx",
     "**/dist/**",
     "**/coverage/**",
-    "**/__tests__/**"
+    "**/__tests__/**",
+    "**/tests/**"
   ],
   "ignoreDependencies": [
     "@types/*",
