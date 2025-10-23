@@ -226,6 +226,9 @@ importers:
       '@dr.pogodin/react-helmet':
         specifier: ^3.0.2
         version: 3.0.4(react@19.1.1)
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.11.0)
       '@ocom/ui-components':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-components
@@ -16133,9 +16136,9 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.1)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(less@4.4.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.1)(@vitest/browser@3.2.4)(jiti@1.21.7)(jsdom@26.1.0)(less@4.4.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
     optionalDependencies:
-      '@vitest/browser': 3.2.4(playwright@1.55.1)(vite@7.1.7(@types/node@24.6.1)(jiti@2.6.1)(less@4.4.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)
+      '@vitest/browser': 3.2.4(playwright@1.55.1)(vite@7.1.7(@types/node@24.6.1)(jiti@1.21.7)(less@4.4.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)
     transitivePeerDependencies:
       - supports-color
 

@@ -6,6 +6,9 @@
   "author": "CellixJS",
   "license": "MIT",
   "packageManager": "pnpm@10.18.2",
+  "overrides": {
+    "jiti": "2.6.1"
+  },
   "main": "apps/api/dist/src/index.js",
   "scripts": {
     "build": "turbo run build",
