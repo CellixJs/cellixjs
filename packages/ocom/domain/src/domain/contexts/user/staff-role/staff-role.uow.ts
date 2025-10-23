@@ -9,4 +9,10 @@ export interface StaffRoleUnitOfWork
 		StaffRoleProps,
 		StaffRole<StaffRoleProps>,
 		StaffRoleRepository<StaffRoleProps>
+	>,
+	DomainSeedwork.InitializedUnitOfWork<
+		Passport,
+		StaffRoleProps,
+		StaffRole<StaffRoleProps>,
+		StaffRoleRepository<StaffRoleProps>
 	> {}

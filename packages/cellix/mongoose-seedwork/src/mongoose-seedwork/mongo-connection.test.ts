@@ -3,8 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Base } from './base.js';
-import { modelFactory, type MongooseContextFactory } from './mongo-connection.js';
+import type { Base } from './base.ts';
+import { modelFactory, type MongooseContextFactory } from './mongo-connection.ts';
 
 
 const test = { for: describeFeature };

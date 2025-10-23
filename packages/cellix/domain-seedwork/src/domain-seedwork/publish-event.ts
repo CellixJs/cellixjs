@@ -1,5 +1,5 @@
-import type { DomainEvent } from './domain-event.js';
-import type { EventBus } from './event-bus.js';
+import type { DomainEvent } from './domain-event.ts';
+import type { EventBus } from './event-bus.ts';
 
 export interface PublishEvent {
 	publish<T extends { payload: unknown } & DomainEvent>(

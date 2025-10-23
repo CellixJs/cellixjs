@@ -2,8 +2,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type mongoose from 'mongoose';
 import { expect, type Mock, vi } from 'vitest';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { Base } from './base.js';
-import { MongoRepositoryBase } from './mongo-repository.js';
+import type { Base } from './base.ts';
+import { MongoRepositoryBase } from './mongo-repository.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 

@@ -8,6 +8,7 @@ import {
 } from '../../user/end-user/end-user.ts';
 import * as ValueObjects from './community.value-objects.ts';
 import type { Passport } from '../../passport.ts';
+import { CommunityWhiteLabelDomainUpdatedEvent } from '../../../events/types/community-white-label-domain-updated.ts';
 
 export interface CommunityProps extends DomainSeedwork.DomainEntityProps {
 	name: string;
@@ -121,7 +122,15 @@ export class Community<props extends CommunityProps>
 				'You do not have permission to change the white label domain of this community',
 			);
 		}
+        const oldWhiteLabelDomain = this.props.whiteLabelDomain;
 		this.props.whiteLabelDomain = new ValueObjects.WhiteLabelDomain(whiteLabelDomain).valueOf();
+        if (oldWhiteLabelDomain !== this.props.whiteLabelDomain && this.props.whiteLabelDomain !== null) {
+            this.addIntegrationEvent(CommunityWhiteLabelDomainUpdatedEvent, {
+                communityId: this.props.id,
+                whiteLabelDomain: this.props.whiteLabelDomain,
+                oldWhiteLabelDomain: oldWhiteLabelDomain,
+            });
+        }
 	}
 
 	get handle(): string | null {

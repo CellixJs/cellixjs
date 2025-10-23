@@ -1,10 +1,12 @@
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Domain } from '@ocom/domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
+import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
 export interface ApplicationServices {
     Community: CommunityContextApplicationService;
+    Service: ServiceContextApplicationService;
     User: UserContextApplicationService;
     get verifiedUser(): VerifiedUser | null;
 }
@@ -71,6 +73,7 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
 
         return {
             Community: Community(dataSources),
+            Service: Service(dataSources),
             User: User(dataSources),
             get verifiedUser(): VerifiedUser | null {
                 return {...tokenValidationResult, hints: hints};

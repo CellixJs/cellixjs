@@ -29,6 +29,13 @@ function makeMockDomainDataSource(): DomainDataSource {
             withScopedTransaction: vi.fn(),
             withScopedTransactionById: vi.fn()
           }
+        },
+        VendorUserRole: {
+          VendorUserRoleUnitOfWork: {
+            withTransaction: vi.fn(),
+            withScopedTransaction: vi.fn(),
+            withScopedTransactionById: vi.fn()
+          }
         }
       },
       Member: {
@@ -36,6 +43,29 @@ function makeMockDomainDataSource(): DomainDataSource {
             withTransaction: vi.fn(),
             withScopedTransaction: vi.fn(),
             withScopedTransactionById: vi.fn()    
+        }
+      }
+    },
+    User: {
+      EndUser: {
+        EndUserUnitOfWork: {
+          withTransaction: vi.fn(),
+          withScopedTransaction: vi.fn(),
+          withScopedTransactionById: vi.fn()
+        }
+      },
+      StaffRole: {
+        StaffRoleUnitOfWork: {
+          withTransaction: vi.fn(),
+          withScopedTransaction: vi.fn(),
+          withScopedTransactionById: vi.fn()
+        }
+      },
+      VendorUser: {
+        VendorUserUnitOfWork: {
+          withTransaction: vi.fn(),
+          withScopedTransaction: vi.fn(),
+          withScopedTransactionById: vi.fn()
         }
       }
     }

@@ -9,4 +9,10 @@ export interface ServiceUnitOfWork
 		ServiceProps,
 		Service<ServiceProps>,
 		ServiceRepository<ServiceProps>
+	>,
+	DomainSeedwork.InitializedUnitOfWork<
+		Passport,
+		ServiceProps,
+		Service<ServiceProps>,
+		ServiceRepository<ServiceProps>
 	> {}

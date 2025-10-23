@@ -1,2 +1,2 @@
-export { NodeEventBusInstance } from './node-event-bus.js';
-export { InProcEventBusInstance } from './in-proc-event-bus.js';
+export { NodeEventBusInstance } from './node-event-bus.ts';
+export { InProcEventBusInstance } from './in-proc-event-bus.ts';

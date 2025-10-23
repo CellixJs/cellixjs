@@ -1,5 +1,5 @@
-import { DomainEntity, type DomainEntityProps } from './domain-entity.js';
-import type { CustomDomainEvent } from './domain-event.js';
+import { DomainEntity, type DomainEntityProps } from './domain-entity.ts';
+import type { CustomDomainEvent } from './domain-event.ts';
 
 export interface RootEventRegistry {
 	addDomainEvent<EventProps, T extends CustomDomainEvent<EventProps>>(

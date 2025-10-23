@@ -1,5 +1,5 @@
-import type { AggregateRoot } from './aggregate-root.js';
-import type { DomainEntityProps } from './domain-entity.js';
+import type { AggregateRoot } from './aggregate-root.ts';
+import type { DomainEntityProps } from './domain-entity.ts';
 
 export interface TypeConverter<
 	PersistenceType,

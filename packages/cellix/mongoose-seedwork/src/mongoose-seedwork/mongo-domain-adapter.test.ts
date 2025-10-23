@@ -2,8 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Base } from './base.js';
-import { MongooseDomainAdapter } from './mongo-domain-adapter.js';
+import type { Base } from './base.ts';
+import { MongooseDomainAdapter } from './mongo-domain-adapter.ts';
 
 
 

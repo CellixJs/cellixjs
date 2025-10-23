@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import { CustomDomainEventImpl } from './domain-event.js';
+import { CustomDomainEventImpl } from './domain-event.ts';
 
 
 const test = { for: describeFeature };

@@ -1,6 +1,6 @@
-import type { AggregateRoot } from './aggregate-root.js';
-import type { DomainEntityProps } from './domain-entity.js';
-import type { Repository } from './repository.js';
+import type { AggregateRoot } from './aggregate-root.ts';
+import type { DomainEntityProps } from './domain-entity.ts';
+import type { Repository } from './repository.ts';
 
 export interface UnitOfWork<
 	PassportType,

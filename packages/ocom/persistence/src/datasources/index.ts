@@ -25,6 +25,8 @@ export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactor
         const systemPassport = Domain.PassportFactory.forSystem({
             canManageMembers: true,
             canManageEndUserRolesAndPermissions: true,
+            canManageServices: true,
+            isSystemAccount: true,
         });
         return {
             domainDataSource: DomainDataSourceImplementation(models, systemPassport),

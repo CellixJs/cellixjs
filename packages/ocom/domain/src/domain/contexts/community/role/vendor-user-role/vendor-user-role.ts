@@ -39,11 +39,18 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 	implements VendorUserRoleEntityReference
 {
 	private isNew: boolean = false;
-	private readonly visa: CommunityVisa;
+	private _visa?: CommunityVisa;
 
-	constructor(props: props, passport: Passport) {
-		super(props, passport);
-		this.visa = this.passport.community.forCommunity(this.community);
+	private get visa(): CommunityVisa {
+		if (!this._visa) {
+			if (!this.props.community) {
+				throw new Error(
+					'Community must be set before computing a visa for VendorUserRole',
+				);
+			}
+			this._visa = this.passport.community.forCommunity(this.community);
+		}
+		return this._visa;
 	}
 
 	public static getNewInstance<props extends VendorUserRoleProps>(
@@ -92,7 +99,8 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 		if (
 			!this.isNew &&
 			!this.visa.determineIf(
-				(permissions) => permissions.canManageEndUserRolesAndPermissions,
+				(domainPermissions) =>
+					domainPermissions.canManageVendorUserRolesAndPermissions,
 			)
 		) {
 			throw new DomainSeedwork.PermissionError(

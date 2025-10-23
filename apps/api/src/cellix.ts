@@ -19,7 +19,7 @@ interface InfrastructureServiceRegistry<ContextType = unknown, AppServices = unk
 	registerInfrastructureService<T extends ServiceBase>(service: T): InfrastructureServiceRegistry<ContextType, AppServices>;
 }
 
-export interface ContextBuilder<ContextType = unknown, AppServices = unknown> {
+interface ContextBuilder<ContextType = unknown, AppServices = unknown> {
     /**
      * Defines the infrastructure context available for the application.
      *
@@ -40,7 +40,7 @@ export interface ContextBuilder<ContextType = unknown, AppServices = unknown> {
 	): ApplicationServicesInitializer<ContextType, AppServices>;
 }
 
-export interface ApplicationServicesInitializer<ContextType, AppServices = unknown> {
+interface ApplicationServicesInitializer<ContextType, AppServices = unknown> {
     /**
      * Registers the factory that creates the request-scoped application services host.
      *
@@ -70,7 +70,7 @@ export interface ApplicationServicesInitializer<ContextType, AppServices = unkno
 	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
 }
 
-export interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unknown> {
+interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unknown> {
     /**
      * Registers an Azure Function HTTP endpoint.
      *
@@ -118,12 +118,12 @@ export interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices
 	startUp(): Promise<StartedApplication<ContextType>>;
 }
 
-export interface StartedApplication<ContextType = unknown>
+interface StartedApplication<ContextType = unknown>
 	extends InitializedServiceRegistry {
 	get context(): ContextType;
 }
 
-export interface InitializedServiceRegistry {
+interface InitializedServiceRegistry {
     /**
      * Retrieves a registered infrastructure service by its constructor key.
      *
@@ -152,14 +152,14 @@ export interface InitializedServiceRegistry {
 	get servicesInitialized(): boolean;
 }
 
-export type UninitializedServiceRegistry<ContextType = unknown, AppServices = unknown> = InfrastructureServiceRegistry<ContextType, AppServices>;
+type UninitializedServiceRegistry<ContextType = unknown, AppServices = unknown> = InfrastructureServiceRegistry<ContextType, AppServices>;
 
 
 type RequestScopedHost<S, H = unknown> = {
   forRequest(rawAuthHeader?: string, hints?: H): Promise<S>;
 };
 
-export type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;
+type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;
 
 interface PendingHandler<AppServices> {
 	name: string;

@@ -2,8 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature} from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { DomainEventBase } from './domain-event.js';
-import { HandleEventImpl } from './handle-event.js';
+import { DomainEventBase } from './domain-event.ts';
+import { HandleEventImpl } from './handle-event.ts';
 
 
 const test = { for: describeFeature };
