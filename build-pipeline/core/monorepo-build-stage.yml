@@ -110,6 +110,16 @@ stages:
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
           pnpm install
+          
+          # Debug: Check jiti versions
+          echo "=== Dependency Resolution Debug ==="
+          echo "Node version: $(node --version)"
+          echo "PNPM version: $(pnpm --version)"
+          echo "Jiti versions in node_modules:"
+          find node_modules -name "jiti" -type d | head -10
+          echo "Jiti package.json versions:"
+          find node_modules -name "package.json" -path "*/jiti/package.json" -exec grep '"version"' {} \;
+          echo "==================================="
         workingDirectory: ''
 
     - task: Bash@3
