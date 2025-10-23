@@ -139,8 +139,6 @@ stages:
         key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v3'
         restoreKeys: |
           playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v3
-          playwright | "$(Agent.OS)" | ubuntu-latest
-          playwright | "$(Agent.OS)"
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
         cacheHitVar: PW_CACHE_HIT
 
