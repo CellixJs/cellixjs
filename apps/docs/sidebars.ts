@@ -29,5 +29,5 @@ const sidebars: SidebarsConfig = {
   ],
    */
 };
-
-export default sidebars;
+// biome-ignore lint:noCommonJs
+module.exports = sidebars satisfies SidebarsConfig; 

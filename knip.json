@@ -29,10 +29,7 @@
     },
     "packages/ocom/ui-components": {
       "entry": ["src/index.ts"],
-      "project": ["src/**/*.{ts,tsx}"],
-      "ignoreDependencies": [
-        "@graphql-typed-document-node/core"
-      ]
+      "project": ["src/**/*.{ts,tsx}"]
     }
   },
   "ignoreWorkspaces": ["packages/cellix/typescript-config"],
@@ -55,6 +52,7 @@
     "@serenity-js/core",
     "@serenity-js/cucumber",
     "@serenity-js/serenity-bdd",
+    "@graphql-typed-document-node/core",
     "ts-scope-trimmer-plugin"
   ],
   "ignoreBinaries": ["func"]
