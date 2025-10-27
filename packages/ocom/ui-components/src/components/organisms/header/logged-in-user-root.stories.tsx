@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within, fn } from 'storybook/test';
 import type { LoggedInUserContainerEndUserFieldsFragment } from '../../../generated.tsx';
-import { LoggedInUserRoot } from './logged-in-user-root.tsx';
+import { LoggedInUserRoot, type LoggedInUserRootProps } from './logged-in-user-root.tsx';
 
 const meta = {
 	title: 'UI/Organisms/Header/LoggedInUserRoot/Display',
@@ -9,7 +9,7 @@ const meta = {
 	argTypes: {
 		handleLogout: { action: 'handleLogout' },
 	},
-} satisfies Meta<typeof LoggedInUserRoot>;
+} satisfies Meta<typeof LoggedInUserRoot & LoggedInUserRootProps>;
 
 export default meta;
 type Story = StoryObj<typeof LoggedInUserRoot>;

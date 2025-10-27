@@ -14,7 +14,7 @@ export const ticketOptions = {
 };
 
 const TicketSchema = new Schema<Ticket, Model<Ticket>, Ticket>({}, ticketOptions);
-export const TicketModelName = 'Ticket';
+const TicketModelName = 'Ticket';
 
 export const TicketModelFactory = MongooseSeedwork.modelFactory<Ticket>(
     TicketModelName,

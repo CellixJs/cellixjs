@@ -153,7 +153,7 @@ stages:
           echo "PW_CACHE_HIT=${PW_CACHE_HIT:-unset}"
           echo "Installing Playwright browsers into: $(PLAYWRIGHT_BROWSERS_PATH)"
           mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
-          npx playwright install --with-deps
+          pnpm exec playwright install --with-deps
       env:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
@@ -171,13 +171,13 @@ stages:
           if [ ! -d "$(PLAYWRIGHT_BROWSERS_PATH)" ] || [ -z "$(ls -A "$(PLAYWRIGHT_BROWSERS_PATH)" 2>/dev/null || echo '')" ]; then
             echo "Browsers not found in cache, installing them..."
             mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
-            npx playwright install --with-deps
+            pnpm exec playwright install --with-deps
           fi
 
           # Explicitly ensure chromium headless shell is available (used by Vitest browser provider)
           if ! find "$(PLAYWRIGHT_BROWSERS_PATH)" -maxdepth 2 -type d -name 'chromium_headless_shell-*' | grep -q chromium_headless_shell; then
             echo "chromium_headless_shell not found; reinstalling browsers to fetch it..."
-            npx playwright install --with-deps
+            pnpm exec playwright install --with-deps
           fi
 
           echo "Installed browsers:"

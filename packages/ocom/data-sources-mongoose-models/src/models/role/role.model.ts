@@ -13,7 +13,7 @@ export const roleOptions = {
 };
 
 const RoleSchema = new Schema<Role, Model<Role>, Role>({}, roleOptions);
-export const RoleModelName = 'Role';
+const RoleModelName = 'Role';
 
 export const RoleModelFactory = MongooseSeedwork.modelFactory<Role>(
     RoleModelName,

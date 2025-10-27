@@ -3,8 +3,6 @@ import type { DataSources } from '@ocom/persistence';
 import {
 	create,
 	type StaffRoleCreateCommand,
-	type StaffRolePermissionsCommand,
-	type StaffRoleCommunityPermissionsCommand,
 } from './create.ts';
 import {
 	deleteAndReassign,
@@ -33,15 +31,6 @@ export interface StaffRoleApplicationService {
 		command: StaffRoleQueryByRoleNameCommand,
 	) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null>;
 }
-
-export type {
-	StaffRoleCreateCommand,
-	StaffRolePermissionsCommand,
-	StaffRoleCommunityPermissionsCommand,
-	StaffRoleDeleteAndReassignCommand,
-	StaffRoleQueryByIdCommand,
-	StaffRoleQueryByRoleNameCommand,
-};
 
 export const StaffRole = (
 	dataSources: DataSources,

@@ -6,19 +6,19 @@ import * as Property from '../property/index.ts';
 import * as Service from '../service/index.ts';
 import { type Ticket, type TicketModelType, ticketOptions } from './ticket.model.ts';
 
-export interface ServiceTicketRevisionRequestChanges extends MongooseSeedwork.NestedPath {
+interface ServiceTicketRevisionRequestChanges extends MongooseSeedwork.NestedPath {
   requestUpdatedAssignment: boolean;
   requestUpdatedStatus: boolean;
   requestUpdatedProperty: boolean;
 }
 
-export const ServiceTicketRevisionRequestChangesType = {
+const ServiceTicketRevisionRequestChangesType = {
   requestUpdatedAssignment: { type: Boolean, required: true },
   requestUpdatedStatus: { type: Boolean, required: true },
   requestUpdatedProperty: { type: Boolean, required: true },
 }
 
-export interface ServiceTicketRevisionRequest extends MongooseSeedwork.NestedPath {
+interface ServiceTicketRevisionRequest extends MongooseSeedwork.NestedPath {
   requestedAt: Date;
   requestedBy: PopulatedDoc<Member.Member>;
   revisionSummary: string;
@@ -26,7 +26,7 @@ export interface ServiceTicketRevisionRequest extends MongooseSeedwork.NestedPat
   revisionSubmittedAt?: Date;
 }
 
-export const ServiceTicketRevisionRequestType: SchemaDefinition<ServiceTicketRevisionRequest> = {
+const ServiceTicketRevisionRequestType: SchemaDefinition<ServiceTicketRevisionRequest> = {
   requestedAt: { type: Date, required: true },
   requestedBy: { type: Schema.Types.ObjectId, ref: Member.MemberModelName, required: true },
   revisionSummary: { type: String, required: true },
@@ -77,11 +77,11 @@ const ServiceTicketMessageSchema = new Schema<ServiceTicketMessage, Model<Servic
   isHiddenFromApplicant: { type: Boolean, required: true, default: false },
 });
 
-export interface Photo extends MongooseSeedwork.SubdocumentBase {
+interface ServiceTicketPhoto extends MongooseSeedwork.SubdocumentBase {
   documentId: string;
   description: string;
 }
-export const PhotoSchema = new Schema<Photo, Model<Photo>, Photo>({
+const ServiceTicketPhotoSchema = new Schema<ServiceTicketPhoto, Model<ServiceTicketPhoto>, ServiceTicketPhoto>({
   description: {
     type: String,
     required: false,
@@ -107,7 +107,7 @@ export interface ServiceTicket extends Ticket {
   activityLog: Types.DocumentArray<ServiceTicketActivityDetail>;
   revisionRequest?: ServiceTicketRevisionRequest;
   messages: Types.DocumentArray<ServiceTicketMessage>;
-  photos: Types.DocumentArray<Photo>;
+  photos: Types.DocumentArray<ServiceTicketPhoto>;
   hash: string;
   lastIndexed: Date | undefined;
   updateIndexFailedDate: Date | undefined;
@@ -152,7 +152,7 @@ const ServiceTicketSchema = new Schema<ServiceTicket, Model<ServiceTicket>, Serv
     activityLog: [ServiceTicketActivityDetailSchema],
     revisionRequest: { type: ServiceTicketRevisionRequestType, required: false, ...MongooseSeedwork.NestedPathOptions },
     messages: [ServiceTicketMessageSchema],
-    photos: [PhotoSchema],
+    photos: [ServiceTicketPhotoSchema],
     hash: { type: String, required: false, maxlength: 100 },
     lastIndexed: { type: Date, required: false },
     updateIndexFailedDate: { type: Date, required: false },

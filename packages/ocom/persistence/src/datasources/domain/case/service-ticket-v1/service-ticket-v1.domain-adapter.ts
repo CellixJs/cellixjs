@@ -157,7 +157,7 @@ export class ServiceTicketV1DomainAdapter
 	}
 }
 
-export class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1ActivityDetailProps {
+class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1ActivityDetailProps {
 	public readonly doc: Models.Case.ServiceTicketActivityDetail;
 	
 	constructor(doc: Models.Case.ServiceTicketActivityDetail) {
@@ -223,7 +223,7 @@ export class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contex
 	}
 }
 
-export class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1MessageProps {
+class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1MessageProps {
 	public readonly doc: Models.Case.ServiceTicketMessage;
 	
 	constructor(doc: Models.Case.ServiceTicketMessage) {

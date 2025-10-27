@@ -7,7 +7,10 @@
     },
     "apps/ui-community": {
       "entry": ["src/main.tsx"],
-      "project": ["src/**/*.{ts,tsx}"]
+      "project": ["src/**/*.{ts,tsx}"],
+      "ignore": [
+        "**/apollo-client-links.tsx"
+      ]
     },
     "apps/docs": {
       "entry": ["src/**/*.{ts,tsx,js,jsx}"],
@@ -15,6 +18,13 @@
     },
     "packages/cellix/*": {
       "project": ["src/**/*.ts"]
+    },
+    "packages/cellix/mongoose-seedwork": {
+        "entry": ["src/index.ts"],
+        "project": ["src/**/*.ts"],
+        "ignore": [
+            "**/mongo-connection.ts"
+        ]
     },
     "packages/cellix/ui-core/*": {
       "entry": ["src/index.ts"],

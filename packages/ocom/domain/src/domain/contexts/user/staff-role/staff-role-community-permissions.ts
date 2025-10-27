@@ -1,7 +1,7 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { UserVisa } from '../user.visa.ts';
 
-export interface StaffRoleCommunityPermissionsSpec {
+interface StaffRoleCommunityPermissionsSpec {
 	canManageStaffRolesAndPermissions: boolean;
 	canManageAllCommunities: boolean;
 	canDeleteCommunities: boolean;

@@ -7,7 +7,7 @@ export interface VendorUserContactInformation extends MongooseSeedwork.NestedPat
 	email: string | undefined;
 }
 
-export const VendorUserContactInformationType:
+const VendorUserContactInformationType:
 	SchemaDefinition<VendorUserContactInformation> = {
 	email: {
 		type: String,
@@ -23,7 +23,7 @@ export interface VendorUserIdentityDetails extends MongooseSeedwork.NestedPath {
 	restOfName: string | undefined;
 }
 
-export const VendorUserIdentityDetailsType:
+const VendorUserIdentityDetailsType:
 	SchemaDefinition<VendorUserIdentityDetails> = {
 	lastName: { type: String, required: true, maxlength: 50 },
 	legalNameConsistsOfOneName: {
@@ -40,7 +40,7 @@ export interface VendorUserPersonalInformation
 	contactInformation: VendorUserContactInformation;
 }
 
-export const VendorUserPersonalInformationType:
+const VendorUserPersonalInformationType:
 	SchemaDefinition<VendorUserPersonalInformation> = {
 	identityDetails: {
 		type: VendorUserIdentityDetailsType,
@@ -65,7 +65,7 @@ export interface VendorUser extends User {
 	tags: string[] | undefined;
 }
 
-export const VendorUserSchema = new Schema<
+const VendorUserSchema = new Schema<
 	VendorUser,
 	Model<VendorUser>,
 	VendorUser
@@ -114,7 +114,7 @@ export const VendorUserSchema = new Schema<
 	userOptions,
 ).index({ 'personalInformation.contactInformation.email': 1 }, { sparse: true });
 
-export const VendorUserModelName: string = 'vendor-user';
+const VendorUserModelName: string = 'vendor-user';
 
 export const VendorUserModelFactory = (UserModel: UserModelType) => {
 	return UserModel.discriminator(VendorUserModelName, VendorUserSchema);

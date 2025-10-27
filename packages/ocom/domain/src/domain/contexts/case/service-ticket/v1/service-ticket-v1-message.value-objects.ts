@@ -1,6 +1,6 @@
 import { VOString } from '@lucaspaganini/value-objects';
 
-export const ServiceTicketV1MessageSentByEnum = {
+const ServiceTicketV1MessageSentByEnum = {
   Internal: 'internal',
   External: 'external'
 } as const;

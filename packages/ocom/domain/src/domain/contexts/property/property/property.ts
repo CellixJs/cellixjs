@@ -1,7 +1,7 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import { PropertyCreatedEvent } from '../../../events/types/property-created.ts';
-import { PropertyDeletedEvent } from '../../../events/types/property-deleted.ts';
-import { PropertyUpdatedEvent } from '../../../events/types/property-updated.ts';
+import { PropertyCreatedEvent, type PropertyCreatedProps } from '../../../events/types/property-created.ts';
+import { PropertyDeletedEvent, type PropertyDeletedEventProps } from '../../../events/types/property-deleted.ts';
+import { PropertyUpdatedEvent, type PropertyUpdatedProps } from '../../../events/types/property-updated.ts';
 import {
 	Community,
 	type CommunityEntityReference,
@@ -70,7 +70,9 @@ export class Property<props extends PropertyProps>
 		property.isNew = true;
 		property.propertyName = propertyName;
 		property.community = community;
-		property.addIntegrationEvent(PropertyCreatedEvent, { id: property.props.id });
+		property.addIntegrationEvent<PropertyCreatedProps, PropertyCreatedEvent>(PropertyCreatedEvent, {
+			id: property.props.id,
+		});
 		property.isNew = false;
 		return property;
 	}
@@ -230,14 +232,14 @@ export class Property<props extends PropertyProps>
 		this.ensureCanManage('You do not have permission to delete this property');
 		if (!this.isDeleted) {
 			this.isDeleted = true;
-			this.addIntegrationEvent(PropertyDeletedEvent, { id: this.props.id });
+			this.addIntegrationEvent<PropertyDeletedEventProps, PropertyDeletedEvent>(PropertyDeletedEvent, { id: this.props.id });
 		}
 	}
 
 	public override onSave(isModified: boolean): void {
 		super.onSave(isModified);
 		if (isModified && !this.isDeleted) {
-			this.addIntegrationEvent(PropertyUpdatedEvent, { id: this.props.id });
+			this.addIntegrationEvent<PropertyUpdatedProps, PropertyUpdatedEvent>(PropertyUpdatedEvent, { id: this.props.id });
 		}
 	}
 

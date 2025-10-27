@@ -1,7 +1,7 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import { ServiceTicketV1CreatedEvent } from '../../../../events/types/service-ticket-v1-created.ts';
-import { ServiceTicketV1DeletedEvent } from '../../../../events/types/service-ticket-v1-deleted.ts';
-import { ServiceTicketV1UpdatedEvent } from '../../../../events/types/service-ticket-v1-updated.ts';
+import { ServiceTicketV1CreatedEvent, type ServiceTicketV1CreatedProps } from '../../../../events/types/service-ticket-v1-created.ts';
+import { ServiceTicketV1DeletedEvent, type ServiceTicketV1DeletedProps } from '../../../../events/types/service-ticket-v1-deleted.ts';
+import { ServiceTicketV1UpdatedEvent, type ServiceTicketV1UpdatedProps } from '../../../../events/types/service-ticket-v1-updated.ts';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { Passport } from '../../../passport.ts';
 
@@ -70,8 +70,8 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
   public static getNewInstance<props extends ServiceTicketV1Props>(
     newProps: props,
     passport: Passport,
-    title: string,
-    description: string,
+    title: ValueObjects.Title,
+    description: ValueObjects.Description,
     communityId: string,
     requestorId: string,
     propertyId?: string,
@@ -94,7 +94,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 
   private markAsNew(): void {
     this.isNew = true;
-    this.addIntegrationEvent(ServiceTicketV1CreatedEvent, {
+    this.addIntegrationEvent<ServiceTicketV1CreatedProps, ServiceTicketV1CreatedEvent>(ServiceTicketV1CreatedEvent, {
         id: this.props.id,
     })
   }
@@ -165,12 +165,12 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
       throw new Error('You do not have permission to delete this property');
     }
     super.isDeleted = true;
-    this.addIntegrationEvent(ServiceTicketV1DeletedEvent, { id: this.props.id });
+    this.addIntegrationEvent<ServiceTicketV1DeletedProps, ServiceTicketV1DeletedEvent>(ServiceTicketV1DeletedEvent, { id: this.props.id });
   }
 
   public override onSave(isModified: boolean): void {
     if (isModified && !super.isDeleted) {
-        this.addIntegrationEvent(ServiceTicketV1UpdatedEvent, {
+        this.addIntegrationEvent<ServiceTicketV1UpdatedProps, ServiceTicketV1UpdatedEvent>(ServiceTicketV1UpdatedEvent, {
             id: this.props.id,
         })
     }
@@ -183,7 +183,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     return this.props.title;
   }
 
-  set title(value: string) {
+  set title(title: ValueObjects.Title) {
     if (
       !this.isNew &&
       !this.visa.determineIf(
@@ -196,14 +196,14 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     ) {
       throw new DomainSeedwork.PermissionError('You do not have permission to update this service ticket');
     }
-    this.props.title = value;
+    this.props.title = title.valueOf();
   }
 
   get description(): string {
     return this.props.description;
   }
 
-  set description(value: string) {
+  set description(description: ValueObjects.Description) {
     if (
       !this.isNew &&
       !this.visa.determineIf(
@@ -216,7 +216,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
     ) {
       throw new DomainSeedwork.PermissionError('You do not have permission to update this service ticket');
     }
-    this.props.description = value;
+    this.props.description = description.valueOf();
   }
 
   get status(): string {

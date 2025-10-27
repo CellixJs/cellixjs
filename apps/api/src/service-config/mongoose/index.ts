@@ -30,5 +30,3 @@ export const mongooseContextBuilder = (
 ) => {
 	return Persistence(initializedService);
 };
-
-export type MongooseModels = ReturnType<typeof mongooseContextBuilder>;

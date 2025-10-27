@@ -2,7 +2,7 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { CommunityVisa } from '../../community.visa.ts';
 import type { CommunityDomainPermissions } from '../../community.domain-permissions.ts';
 
-export interface VendorUserRoleCommunityPermissionsSpec
+interface VendorUserRoleCommunityPermissionsSpec
 	extends Omit<
 			CommunityDomainPermissions,
 			| 'canCreateCommunities'

@@ -1,6 +1,6 @@
 import type { Document, SchemaOptions, Types } from 'mongoose';
 
-export interface MongoBase {
+interface MongoBase {
 	id: Types.ObjectId | undefined;
 	schemaVersion: string;
 	createdAt: Date | undefined;

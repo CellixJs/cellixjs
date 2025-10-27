@@ -1,7 +1,7 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
-export interface StaffRoleCommunityPermissionsCommand {
+interface StaffRoleCommunityPermissionsCommand {
 	canManageStaffRolesAndPermissions?: boolean;
 	canManageAllCommunities?: boolean;
 	canDeleteCommunities?: boolean;
@@ -9,7 +9,7 @@ export interface StaffRoleCommunityPermissionsCommand {
 	canReIndexSearchCollections?: boolean;
 }
 
-export interface StaffRolePermissionsCommand {
+interface StaffRolePermissionsCommand {
 	community?: StaffRoleCommunityPermissionsCommand;
 }
 

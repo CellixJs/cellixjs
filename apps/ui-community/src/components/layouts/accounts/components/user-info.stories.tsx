@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
-import { UserInfo } from './user-info.tsx';
+import { UserInfo, type UserInfoProps} from './user-info.tsx';
 
 const meta = {
   title: 'Components/Accounts/UserInfo',
@@ -21,7 +21,7 @@ const mockUserData = {
 export const Default: Story = {
   args: {
     userData: mockUserData,
-  },
+  } satisfies UserInfoProps,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 

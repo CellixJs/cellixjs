@@ -1,5 +1,5 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import { EndUserCreatedEvent } from '../../../events/types/end-user-created.ts';
+import { EndUserCreatedEvent, type EndUserCreatedProps } from '../../../events/types/end-user-created.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './end-user.value-objects.ts';
@@ -70,7 +70,9 @@ export class EndUser<props extends EndUserProps>
 
 	private markAsNew(): void {
 		this._isNew = true;
-		this.addIntegrationEvent(EndUserCreatedEvent, { userId: this.props.id });
+		this.addIntegrationEvent<EndUserCreatedProps, EndUserCreatedEvent>(EndUserCreatedEvent, {
+			userId: this.props.id,
+		});
 	}
 
 	private validateVisa(): void {

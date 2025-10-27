@@ -9,8 +9,6 @@ export interface ServiceApplicationService {
 	) => Promise<Domain.Contexts.Service.Service.ServiceEntityReference>;
 }
 
-export type { ServiceCreateCommand } from './create.ts';
-
 export const Service = (
 	dataSources: DataSources,
 ): ServiceApplicationService => {

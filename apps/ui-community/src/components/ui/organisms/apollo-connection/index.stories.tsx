@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, within } from 'storybook/test';
-import { MemoryRouter } from 'react-router-dom';
-import { AuthProvider } from 'react-oidc-context';
 import { ApolloProvider } from '@apollo/client';
-import { ApolloConnection } from './index.tsx';
+import type { Meta, StoryObj } from '@storybook/react';
+import { AuthProvider } from 'react-oidc-context';
+import { MemoryRouter } from 'react-router-dom';
+import { expect, within } from 'storybook/test';
 import { client } from './apollo-client-links.tsx';
+import { ApolloConnection, type ApolloConnectionProps } from './index.tsx';
 
 // Mock environment variables
 const mockEnv = {
@@ -81,7 +81,7 @@ type Story = StoryObj<typeof ApolloConnection>;
 export const Default: Story = {
   args: {
     children: <div data-testid="test-child">Test Child Component</div>,
-  },
+  } satisfies ApolloConnectionProps,
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={['/accounts']}>

@@ -29,8 +29,8 @@ export class ServiceTicketV1Repository //<
 			Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1.getNewInstance(
 				adapter,
 				this.passport,
-                title,
-				description,
+                new Domain.Contexts.Case.ServiceTicket.V1.ValueObjects.Title(title),
+				new Domain.Contexts.Case.ServiceTicket.V1.ValueObjects.Description(description),
 				community.id,
 				requestor.id,
 				property?.id,

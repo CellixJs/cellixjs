@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature} from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { DomainEventBase } from './domain-event.ts';
-import { HandleEventImpl } from './handle-event.ts';
+import { type HandleEvent, HandleEventImpl } from './handle-event.ts';
 
 
 const test = { for: describeFeature };
@@ -16,7 +16,7 @@ class TestEvent extends DomainEventBase {}
 
 test.for(feature, ({ Scenario }) => {
   let handlerFn: ReturnType<typeof vi.fn>;
-  let handler: HandleEventImpl<TestEvent>;
+  let handler: HandleEvent<TestEvent>   ;
   let event: TestEvent;
 
   Scenario('Handling a domain event with a registered handler', ({ Given, When, Then }) => {

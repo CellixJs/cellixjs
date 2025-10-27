@@ -208,7 +208,7 @@ export class PropertyDomainAdapter
 	}
 }
 
-export class PropertyLocationDomainAdapter implements Domain.Contexts.Property.Property.PropertyLocationProps {
+class PropertyLocationDomainAdapter implements Domain.Contexts.Property.Property.PropertyLocationProps {
 	public readonly doc: Models.Property.Location;
 	constructor(doc: Models.Property.Location) {
 		this.doc = doc;
@@ -223,7 +223,7 @@ export class PropertyLocationDomainAdapter implements Domain.Contexts.Property.P
 	}
 }
 
-export class PropertyLocationAddressDomainAdapter implements Domain.Contexts.Property.Property.PropertyLocationAddressProps {
+class PropertyLocationAddressDomainAdapter implements Domain.Contexts.Property.Property.PropertyLocationAddressProps {
 	public readonly doc: Models.Property.Location['address'];
 	constructor(doc: Models.Property.Location['address']) {
 		this.doc = doc;
@@ -374,7 +374,7 @@ export class PropertyLocationAddressDomainAdapter implements Domain.Contexts.Pro
 	}
 }
 
-export class PropertyLocationPositionDomainAdapter implements Domain.Contexts.Property.Property.PropertyLocationPositionProps {
+class PropertyLocationPositionDomainAdapter implements Domain.Contexts.Property.Property.PropertyLocationPositionProps {
 	public readonly doc: Models.Property.Location['position'];
 	constructor(doc: Models.Property.Location['position']) {
 		this.doc = doc;
@@ -397,7 +397,7 @@ export class PropertyLocationPositionDomainAdapter implements Domain.Contexts.Pr
 	}
 }
 
-export class PropertyListingDetailBedroomDetailDomainAdapter implements Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps {
+class PropertyListingDetailBedroomDetailDomainAdapter implements Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps {
 	public readonly doc: Models.Property.BedroomDetail;
 	constructor(doc: Models.Property.BedroomDetail) {
 		this.doc = doc;
@@ -424,7 +424,7 @@ export class PropertyListingDetailBedroomDetailDomainAdapter implements Domain.C
 	}
 }
 
-export class PropertyListingDetailAdditionalAmenityDomainAdapter implements Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps {
+class PropertyListingDetailAdditionalAmenityDomainAdapter implements Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps {
 	public readonly doc: Models.Property.AdditionalAmenity;
 	constructor(doc: Models.Property.AdditionalAmenity) {
 		this.doc = doc;
@@ -451,7 +451,7 @@ export class PropertyListingDetailAdditionalAmenityDomainAdapter implements Doma
 	}
 }
 
-export class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Property.PropertyListingDetailProps {
+class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Property.PropertyListingDetailProps {
 	public readonly doc: Models.Property.ListingDetail;
 	constructor(doc: Models.Property.ListingDetail) {
 		this.doc = doc;

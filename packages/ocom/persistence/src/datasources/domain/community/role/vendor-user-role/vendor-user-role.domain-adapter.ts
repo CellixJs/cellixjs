@@ -127,7 +127,7 @@ export class VendorUserRolePermissionsDomainAdapter
 	}
 }
 
-export class VendorUserRoleServicePermissionsDomainAdapter
+class VendorUserRoleServicePermissionsDomainAdapter
 	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServicePermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRoleServicePermissions;
@@ -142,7 +142,7 @@ export class VendorUserRoleServicePermissionsDomainAdapter
 	}
 }
 
-export class VendorUserRoleServiceTicketPermissionsDomainAdapter
+class VendorUserRoleServiceTicketPermissionsDomainAdapter
 	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServiceTicketPermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRoleServiceTicketPermissions;
@@ -175,7 +175,7 @@ export class VendorUserRoleServiceTicketPermissionsDomainAdapter
 	}
 }
 
-export class VendorUserRoleViolationTicketPermissionsDomainAdapter
+class VendorUserRoleViolationTicketPermissionsDomainAdapter
 	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleViolationTicketPermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRoleViolationTicketPermissions;
@@ -208,7 +208,7 @@ export class VendorUserRoleViolationTicketPermissionsDomainAdapter
 	}
 }
 
-export class VendorUserRolePropertyPermissionsDomainAdapter
+class VendorUserRolePropertyPermissionsDomainAdapter
 	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePropertyPermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRolePropertyPermissions;
@@ -229,7 +229,7 @@ export class VendorUserRolePropertyPermissionsDomainAdapter
 	}
 }
 
-export class VendorUserRoleCommunityPermissionsDomainAdapter
+class VendorUserRoleCommunityPermissionsDomainAdapter
 	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleCommunityPermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRoleCommunityPermissions;

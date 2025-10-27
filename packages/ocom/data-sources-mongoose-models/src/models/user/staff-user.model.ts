@@ -16,7 +16,7 @@ export interface StaffUser extends User {
 	tags?: string[];
 }
 
-export const StaffUserSchema = new Schema<
+const StaffUserSchema = new Schema<
 	StaffUser,
 	Model<StaffUser>,
 	StaffUser
@@ -75,7 +75,7 @@ export const StaffUserSchema = new Schema<
 	userOptions,
 ).index({ email: 1 }, { sparse: true });
 
-export const StaffUserModelName: string = 'staff-user';
+const StaffUserModelName: string = 'staff-user';
 
 export const StaffUserModelFactory = (UserModel: UserModelType) => {
 	return UserModel.discriminator(StaffUserModelName, StaffUserSchema);
