@@ -26,7 +26,6 @@
 
 		/* Interop Constraints */
 		"erasableSyntaxOnly": true,
-        "esModuleInterop": true,
 		"verbatimModuleSyntax": true,
 
 		/* Language and Environment */

@@ -27,7 +27,7 @@
       "outputs": ["coverage/lcov.info"]
     },
     "test:watch": {
-        "dependsOn": ["^build"],
+        "dependsOn": ["build", "^build"],
         "cache": false,
         "persistent": true
     },

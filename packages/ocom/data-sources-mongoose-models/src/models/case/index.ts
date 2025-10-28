@@ -9,3 +9,11 @@ export {
 export {
     TicketModelFactory,
 } from './ticket.model.ts';
+export {
+    type ViolationTicket,
+    type ViolationTicketActivityDetail,
+    type ViolationTicketMessage,
+    ViolationTicketModelFactory,
+    ViolationTicketModelName,
+    type ViolationTicketModelType,
+} from './violation-ticket.model.ts';

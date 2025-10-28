@@ -5,9 +5,9 @@ import { ServiceTicketV1UpdatedEvent, type ServiceTicketV1UpdatedProps } from '.
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { Passport } from '../../../passport.ts';
 
-import { ServiceTicketV1ActivityDetail, type ServiceTicketV1ActivityDetailEntityReference, type ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.ts';
+import { ServiceTicketV1ActivityDetail, type ServiceTicketV1ActivityDetailEntityReference, type ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.entity.ts';
 import * as ActivityDetailValueObjects from './service-ticket-v1-activity-detail.value-objects.ts';
-import { ServiceTicketV1Message, type ServiceTicketV1MessageEntityReference, type ServiceTicketV1MessageProps } from './service-ticket-v1-message.ts';
+import { ServiceTicketV1Message, type ServiceTicketV1MessageEntityReference, type ServiceTicketV1MessageProps } from './service-ticket-v1-message.entity.ts';
 import * as ValueObjects from './service-ticket-v1.value-objects.ts';
 import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.ts';
 
@@ -116,7 +116,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
           permissions.canAssignTickets
       )
     ) {
-      throw new Error('Unauthorized7');
+      throw new DomainSeedwork.PermissionError('You do not have permission to update this service ticket');
     }
     const activityDetail = this.requestNewActivityDetail(by);
     activityDetail.activityType = ActivityDetailValueObjects.ActivityTypeCodes.Updated;
@@ -134,7 +134,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
               (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket))
       )
     ) {
-      throw new Error('Unauthorized or Invalid Status Transition');
+      throw new DomainSeedwork.PermissionError('You do not have permission to change the status of this service ticket or the status transition is invalid');
     }
 
     this.props.status = newStatus.valueOf();
@@ -162,7 +162,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 
   public requestDelete(): void {
     if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
-      throw new Error('You do not have permission to delete this property');
+      throw new DomainSeedwork.PermissionError('You do not have permission to delete this property');
     }
     super.isDeleted = true;
     this.addIntegrationEvent<ServiceTicketV1DeletedProps, ServiceTicketV1DeletedEvent>(ServiceTicketV1DeletedEvent, { id: this.props.id });

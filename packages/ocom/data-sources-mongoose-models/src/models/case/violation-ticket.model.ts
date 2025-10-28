@@ -7,55 +7,55 @@ import * as Service from '../service/index.ts';
 import { type Ticket, type TicketModelType, ticketOptions } from './ticket.model.ts';
 
 // Finance Details Subdocuments
-interface ViolationTicketV1FinanceDetailsAdhocTransactionsApproval extends MongooseSeedwork.NestedPath {
+interface ViolationTicketFinanceDetailsAdhocTransactionsApproval extends MongooseSeedwork.NestedPath {
   isApplicantApprovalRequired: boolean;
   isApplicantApproved: boolean;
   applicantRespondedAt?: Date;
 }
 
-const ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalType: SchemaDefinition<ViolationTicketV1FinanceDetailsAdhocTransactionsApproval> = {
+const ViolationTicketFinanceDetailsAdhocTransactionsApprovalType: SchemaDefinition<ViolationTicketFinanceDetailsAdhocTransactionsApproval> = {
   isApplicantApprovalRequired: { type: Boolean, required: true },
   isApplicantApproved: { type: Boolean, required: true },
   applicantRespondedAt: { type: Date, required: false },
 };
 
-interface ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference extends MongooseSeedwork.NestedPath {
+interface ViolationTicketFinanceDetailsAdhocTransactionsFinanceReference extends MongooseSeedwork.NestedPath {
   referenceType: string;
   referenceId: string;
 }
 
-const ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceType: SchemaDefinition<ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference> = {
+const ViolationTicketFinanceDetailsAdhocTransactionsFinanceReferenceType: SchemaDefinition<ViolationTicketFinanceDetailsAdhocTransactionsFinanceReference> = {
   referenceType: { type: String, required: true },
   referenceId: { type: String, required: true },
 };
 
-interface ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReference extends MongooseSeedwork.NestedPath {
+interface ViolationTicketFinanceDetailsAdhocTransactionsTransactionReference extends MongooseSeedwork.NestedPath {
   referenceType: string;
   referenceId: string;
 }
 
-const ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReferenceType: SchemaDefinition<ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReference> = {
+const ViolationTicketFinanceDetailsAdhocTransactionsTransactionReferenceType: SchemaDefinition<ViolationTicketFinanceDetailsAdhocTransactionsTransactionReference> = {
   referenceType: { type: String, required: true },
   referenceId: { type: String, required: true },
 };
 
-interface ViolationTicketV1FinanceDetailsAdhocTransactions extends MongooseSeedwork.SubdocumentBase {
+interface ViolationTicketFinanceDetailsAdhocTransactions extends MongooseSeedwork.SubdocumentBase {
   amount: number;
   description: string;
   transactionType: string;
-  approval: ViolationTicketV1FinanceDetailsAdhocTransactionsApproval;
-  financeReference: ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference;
-  transactionReference: ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReference;
+  approval: ViolationTicketFinanceDetailsAdhocTransactionsApproval;
+  financeReference: ViolationTicketFinanceDetailsAdhocTransactionsFinanceReference;
+  transactionReference: ViolationTicketFinanceDetailsAdhocTransactionsTransactionReference;
 }
 
-const ViolationTicketV1FinanceDetailsAdhocTransactionsSchema = new Schema<ViolationTicketV1FinanceDetailsAdhocTransactions, Model<ViolationTicketV1FinanceDetailsAdhocTransactions>, ViolationTicketV1FinanceDetailsAdhocTransactions>(
+const ViolationTicketFinanceDetailsAdhocTransactionsSchema = new Schema<ViolationTicketFinanceDetailsAdhocTransactions, Model<ViolationTicketFinanceDetailsAdhocTransactions>, ViolationTicketFinanceDetailsAdhocTransactions>(
   {
     amount: { type: Number, required: true },
     description: { type: String, required: true, maxlength: 500 },
     transactionType: { type: String, required: true },
-    approval: { type: ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalType, required: true, ...MongooseSeedwork.NestedPathOptions },
-    financeReference: { type: ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceType, required: true, ...MongooseSeedwork.NestedPathOptions },
-    transactionReference: { type: ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReferenceType, required: true, ...MongooseSeedwork.NestedPathOptions },
+    approval: { type: ViolationTicketFinanceDetailsAdhocTransactionsApprovalType, required: true, ...MongooseSeedwork.NestedPathOptions },
+    financeReference: { type: ViolationTicketFinanceDetailsAdhocTransactionsFinanceReferenceType, required: true, ...MongooseSeedwork.NestedPathOptions },
+    transactionReference: { type: ViolationTicketFinanceDetailsAdhocTransactionsTransactionReferenceType, required: true, ...MongooseSeedwork.NestedPathOptions },
   },
   {
     timestamps: true,
@@ -63,71 +63,71 @@ const ViolationTicketV1FinanceDetailsAdhocTransactionsSchema = new Schema<Violat
   }
 );
 
-interface ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference extends MongooseSeedwork.NestedPath {
+interface ViolationTicketFinanceDetailsTransactionsSubmissionTransactionReference extends MongooseSeedwork.NestedPath {
   referenceType: string;
   referenceId: string;
 }
 
-const ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceType: SchemaDefinition<ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference> = {
+const ViolationTicketFinanceDetailsTransactionsSubmissionTransactionReferenceType: SchemaDefinition<ViolationTicketFinanceDetailsTransactionsSubmissionTransactionReference> = {
   referenceType: { type: String, required: true },
   referenceId: { type: String, required: true },
 };
 
-interface ViolationTicketV1FinanceDetailsTransactionsSubmission extends MongooseSeedwork.NestedPath {
+interface ViolationTicketFinanceDetailsTransactionsSubmission extends MongooseSeedwork.NestedPath {
   amount: number;
   description: string;
-  transactionReference: ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference;
+  transactionReference: ViolationTicketFinanceDetailsTransactionsSubmissionTransactionReference;
 }
 
-const ViolationTicketV1FinanceDetailsTransactionsSubmissionType: SchemaDefinition<ViolationTicketV1FinanceDetailsTransactionsSubmission> = {
+const ViolationTicketFinanceDetailsTransactionsSubmissionType: SchemaDefinition<ViolationTicketFinanceDetailsTransactionsSubmission> = {
   amount: { type: Number, required: true },
   description: { type: String, required: true, maxlength: 500 },
-  transactionReference: { type: ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceType, required: true, ...MongooseSeedwork.NestedPathOptions },
+  transactionReference: { type: ViolationTicketFinanceDetailsTransactionsSubmissionTransactionReferenceType, required: true, ...MongooseSeedwork.NestedPathOptions },
 };
 
-interface ViolationTicketV1FinanceDetailsTransactions extends MongooseSeedwork.NestedPath {
-  submission: ViolationTicketV1FinanceDetailsTransactionsSubmission;
-  adhocTransactions: Types.DocumentArray<ViolationTicketV1FinanceDetailsAdhocTransactions>;
+interface ViolationTicketFinanceDetailsTransactions extends MongooseSeedwork.NestedPath {
+  submission: ViolationTicketFinanceDetailsTransactionsSubmission;
+  adhocTransactions: Types.DocumentArray<ViolationTicketFinanceDetailsAdhocTransactions>;
 }
 
-const ViolationTicketV1FinanceDetailsTransactionsType: SchemaDefinition<ViolationTicketV1FinanceDetailsTransactions> = {
-  submission: { type: ViolationTicketV1FinanceDetailsTransactionsSubmissionType, required: true, ...MongooseSeedwork.NestedPathOptions },
-  adhocTransactions: [ViolationTicketV1FinanceDetailsAdhocTransactionsSchema],
+const ViolationTicketFinanceDetailsTransactionsType: SchemaDefinition<ViolationTicketFinanceDetailsTransactions> = {
+  submission: { type: ViolationTicketFinanceDetailsTransactionsSubmissionType, required: true, ...MongooseSeedwork.NestedPathOptions },
+  adhocTransactions: [ViolationTicketFinanceDetailsAdhocTransactionsSchema],
 };
 
-interface ViolationTicketV1FinanceDetailsRevenueRecognition extends MongooseSeedwork.NestedPath {
+interface ViolationTicketFinanceDetailsRevenueRecognition extends MongooseSeedwork.NestedPath {
   amount: number;
   description: string;
   recognizedAt: Date;
 }
 
-const ViolationTicketV1FinanceDetailsRevenueRecognitionType: SchemaDefinition<ViolationTicketV1FinanceDetailsRevenueRecognition> = {
+const ViolationTicketFinanceDetailsRevenueRecognitionType: SchemaDefinition<ViolationTicketFinanceDetailsRevenueRecognition> = {
   amount: { type: Number, required: true },
   description: { type: String, required: true, maxlength: 500 },
   recognizedAt: { type: Date, required: true },
 };
 
-interface ViolationTicketV1FinanceDetails extends MongooseSeedwork.NestedPath {
+interface ViolationTicketFinanceDetails extends MongooseSeedwork.NestedPath {
   serviceFee: number;
-  transactions: ViolationTicketV1FinanceDetailsTransactions;
-  revenueRecognition: ViolationTicketV1FinanceDetailsRevenueRecognition;
+  transactions: ViolationTicketFinanceDetailsTransactions;
+  revenueRecognition: ViolationTicketFinanceDetailsRevenueRecognition;
 }
 
-const ViolationTicketV1FinanceDetailsType: SchemaDefinition<ViolationTicketV1FinanceDetails> = {
+const ViolationTicketFinanceDetailsType: SchemaDefinition<ViolationTicketFinanceDetails> = {
   serviceFee: { type: Number, required: true },
-  transactions: { type: ViolationTicketV1FinanceDetailsTransactionsType, required: true, ...MongooseSeedwork.NestedPathOptions },
-  revenueRecognition: { type: ViolationTicketV1FinanceDetailsRevenueRecognitionType, required: true, ...MongooseSeedwork.NestedPathOptions },
+  transactions: { type: ViolationTicketFinanceDetailsTransactionsType, required: true, ...MongooseSeedwork.NestedPathOptions },
+  revenueRecognition: { type: ViolationTicketFinanceDetailsRevenueRecognitionType, required: true, ...MongooseSeedwork.NestedPathOptions },
 };
 
 // Revision Request
-interface ViolationTicketV1RevisionRequest extends MongooseSeedwork.NestedPath {
+interface ViolationTicketRevisionRequest extends MongooseSeedwork.NestedPath {
   requestedAt: Date;
   requestedBy: PopulatedDoc<Member.Member>;
   revisionSummary: string;
   revisionSubmittedAt?: Date;
 }
 
-const ViolationTicketV1RevisionRequestType: SchemaDefinition<ViolationTicketV1RevisionRequest> = {
+const ViolationTicketRevisionRequestType: SchemaDefinition<ViolationTicketRevisionRequest> = {
   requestedAt: { type: Date, required: true },
   requestedBy: { type: Schema.Types.ObjectId, ref: Member.MemberModelName, required: true },
   revisionSummary: { type: String, required: true },
@@ -135,13 +135,13 @@ const ViolationTicketV1RevisionRequestType: SchemaDefinition<ViolationTicketV1Re
 };
 
 // Activity Detail
-export interface ViolationTicketV1ActivityDetail extends MongooseSeedwork.SubdocumentBase {
+export interface ViolationTicketActivityDetail extends MongooseSeedwork.SubdocumentBase {
   activityType: string;
   activityDescription: string;
   activityBy: PopulatedDoc<Member.Member>;
 }
 
-const ViolationTicketV1ActivityDetailSchema = new Schema<ViolationTicketV1ActivityDetail, Model<ViolationTicketV1ActivityDetail>, ViolationTicketV1ActivityDetail>(
+const ViolationTicketActivityDetailSchema = new Schema<ViolationTicketActivityDetail, Model<ViolationTicketActivityDetail>, ViolationTicketActivityDetail>(
   {
     activityType: {
       type: String,
@@ -162,7 +162,7 @@ const ViolationTicketV1ActivityDetailSchema = new Schema<ViolationTicketV1Activi
 );
 
 // Message
-export interface ViolationTicketV1Message extends MongooseSeedwork.SubdocumentBase {
+export interface ViolationTicketMessage extends MongooseSeedwork.SubdocumentBase {
   sentBy: string;
   initiatedBy?: PopulatedDoc<Member.Member>;
   message: string;
@@ -171,7 +171,7 @@ export interface ViolationTicketV1Message extends MongooseSeedwork.SubdocumentBa
   isHiddenFromApplicant: boolean;
 }
 
-const ViolationTicketV1MessageSchema = new Schema<ViolationTicketV1Message, Model<ViolationTicketV1Message>, ViolationTicketV1Message>(
+const ViolationTicketMessageSchema = new Schema<ViolationTicketMessage, Model<ViolationTicketMessage>, ViolationTicketMessage>(
   {
     sentBy: { type: String, required: true, enum: ['external', 'internal'] },
     initiatedBy: { type: Schema.Types.ObjectId, ref: Member.MemberModelName, required: false, index: true },
@@ -187,12 +187,12 @@ const ViolationTicketV1MessageSchema = new Schema<ViolationTicketV1Message, Mode
 );
 
 // Photo
-interface ViolationTicketV1Photo extends MongooseSeedwork.SubdocumentBase {
+interface ViolationTicketPhoto extends MongooseSeedwork.SubdocumentBase {
   documentId: string;
   description: string;
 }
 
-const ViolationTicketV1PhotoSchema = new Schema<ViolationTicketV1Photo, Model<ViolationTicketV1Photo>, ViolationTicketV1Photo>(
+const ViolationTicketPhotoSchema = new Schema<ViolationTicketPhoto, Model<ViolationTicketPhoto>, ViolationTicketPhoto>(
   {
     documentId: { type: String, required: true },
     description: { type: String, required: false, maxlength: 300 },
@@ -216,11 +216,11 @@ export interface ViolationTicket extends Ticket {
   priority: number;
   ticketType?: string;
   discriminatorKey: string;
-  activityLog: Types.DocumentArray<ViolationTicketV1ActivityDetail>;
-  messages: Types.DocumentArray<ViolationTicketV1Message>;
-  photos: Types.DocumentArray<ViolationTicketV1Photo>;
-  financeDetails: ViolationTicketV1FinanceDetails;
-  revisionRequest?: ViolationTicketV1RevisionRequest;
+  activityLog: Types.DocumentArray<ViolationTicketActivityDetail>;
+  messages: Types.DocumentArray<ViolationTicketMessage>;
+  photos: Types.DocumentArray<ViolationTicketPhoto>;
+  financeDetails: ViolationTicketFinanceDetails;
+  revisionRequest?: ViolationTicketRevisionRequest;
   hash: string;
   lastIndexed?: Date;
   updateIndexFailedDate?: Date;
@@ -262,11 +262,11 @@ const ViolationTicketSchema = new Schema<ViolationTicket, Model<ViolationTicket>
       min: 1,
       max: 5,
     },
-    activityLog: [ViolationTicketV1ActivityDetailSchema],
-    messages: [ViolationTicketV1MessageSchema],
-    photos: [ViolationTicketV1PhotoSchema],
-    financeDetails: { type: ViolationTicketV1FinanceDetailsType, required: true, ...MongooseSeedwork.NestedPathOptions },
-    revisionRequest: { type: ViolationTicketV1RevisionRequestType, required: false, ...MongooseSeedwork.NestedPathOptions },
+    activityLog: [ViolationTicketActivityDetailSchema],
+    messages: [ViolationTicketMessageSchema],
+    photos: [ViolationTicketPhotoSchema],
+    financeDetails: { type: ViolationTicketFinanceDetailsType, required: true, ...MongooseSeedwork.NestedPathOptions },
+    revisionRequest: { type: ViolationTicketRevisionRequestType, required: false, ...MongooseSeedwork.NestedPathOptions },
     hash: { type: String, required: false, maxlength: 100 },
     lastIndexed: { type: Date, required: false },
     updateIndexFailedDate: { type: Date, required: false },
