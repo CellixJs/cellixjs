@@ -1,5 +1,5 @@
 {
-  "extends": ["@cellix/typescript-config/base.json", "@docusaurus/tsconfig"],
+  "extends": ["@cellix/typescript-config/base", "@docusaurus/tsconfig"],
   "compilerOptions": {
     "baseUrl": ".",
     "types": ["@docusaurus/module-type-aliases"],
@@ -7,6 +7,5 @@
       "@site/*": ["./*"]
     }
   },
-  "include": ["./src", "./docusaurus.config.*", "./sidebars.*"],
-  "exclude": [".docusaurus", "build"]
+  "include": ["./src", "./docusaurus.config.*", "./sidebars.*"]
 }

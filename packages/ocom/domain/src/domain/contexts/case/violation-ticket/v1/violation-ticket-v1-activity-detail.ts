@@ -27,8 +27,9 @@ export class ViolationTicketV1ActivityDetail extends DomainSeedwork.DomainEntity
   public static getNewInstance(
     newProps: ViolationTicketV1ActivityDetailProps,
     activityBy: MemberEntityReference,
+    visa: ViolationTicketV1Visa,
   ): ViolationTicketV1ActivityDetail {
-    const instance = new ViolationTicketV1ActivityDetail(newProps, {} as ViolationTicketV1Visa);
+    const instance = new ViolationTicketV1ActivityDetail(newProps, visa);
     instance.activityBy = activityBy;
     return instance;
   }

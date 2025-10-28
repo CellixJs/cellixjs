@@ -40,21 +40,25 @@ export const mongooseContextBuilder = (
 		},
 		Community: {
 			Community: CommunityModelFactory(initializedService),
-			Member: MemberModelFactory(initializedService),
-			EndUserRole: EndUserRoleModelFactory(roleModel),
+		},
+        Member: {
+           Member: MemberModelFactory(initializedService),
+        },
+        Property: {
+			Property: PropertyModelFactory(initializedService),
+		},
+        Role: {
+            EndUserRole: EndUserRoleModelFactory(roleModel),
 			StaffRole: StaffRoleModelFactory(roleModel),
 			VendorUserRole: VendorUserRoleModelFactory(roleModel),
+        },
+        Service: {
+			Service: ServiceModelFactory(initializedService),
 		},
 		User: {
 			EndUser: EndUserModelFactory(userModel),
 			StaffUser: StaffUserModelFactory(userModel),
 			VendorUser: VendorUserModelFactory(userModel),
-		},
-		Service: {
-			Service: ServiceModelFactory(initializedService),
-		},
-		Property: {
-			Property: PropertyModelFactory(initializedService),
 		},
 	};
 };

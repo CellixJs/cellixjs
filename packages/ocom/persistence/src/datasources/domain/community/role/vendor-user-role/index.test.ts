@@ -15,7 +15,7 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Community: {
+    Role: {
       VendorUserRole: {
         findById: vi.fn(),
         find: vi.fn(),

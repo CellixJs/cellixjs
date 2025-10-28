@@ -22,8 +22,12 @@ function makeMockModelsContext() {
   return {
     Community: {
       Community: {} as unknown,
+    },
+    Member: {
       Member: {} as unknown,
-      EndUserRole: {} as unknown,
+    },
+    Role: {
+        EndUserRole: {} as unknown
     },
     User: {
       EndUser: {} as unknown,

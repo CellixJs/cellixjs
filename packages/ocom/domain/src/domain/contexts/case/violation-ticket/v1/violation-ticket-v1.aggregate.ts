@@ -119,7 +119,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   public requestNewActivityDetail(activityBy: MemberEntityReference): ViolationTicketV1ActivityDetail {
     const activityDetailProps = this.props.activityLog.getNewItem();
-    return ViolationTicketV1ActivityDetail.getNewInstance(activityDetailProps, activityBy);
+    return ViolationTicketV1ActivityDetail.getNewInstance(activityDetailProps, activityBy, this.visa);
   }
 
   public requestAddStatusUpdate(description: string, by: MemberEntityReference): void {
