@@ -18,8 +18,8 @@ export class ServiceTicketV1Repository //<
 	implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Repository<PropType>
 {
 	getNewInstance(
-		title: string,
-		description: string,
+		title: Domain.Contexts.Case.ServiceTicket.V1.ValueObjects.Title,
+		description: Domain.Contexts.Case.ServiceTicket.V1.ValueObjects.Description,
 		community: Domain.Contexts.Community.Community.CommunityEntityReference,
 		requestor: Domain.Contexts.Community.Member.MemberEntityReference,
 		property?: Domain.Contexts.Property.Property.PropertyEntityReference,
@@ -29,8 +29,8 @@ export class ServiceTicketV1Repository //<
 			Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1.getNewInstance(
 				adapter,
 				this.passport,
-                new Domain.Contexts.Case.ServiceTicket.V1.ValueObjects.Title(title),
-				new Domain.Contexts.Case.ServiceTicket.V1.ValueObjects.Description(description),
+                title,
+				description,
 				community.id,
 				requestor.id,
 				property?.id,

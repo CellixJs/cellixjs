@@ -2,6 +2,7 @@ import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
+import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 
 export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverter<
@@ -56,7 +57,10 @@ export class ServiceTicketV1DomainAdapter
 
 	get communityId(): string {
         if (!this.doc.community) {
-            throw new Error('community is not populated');
+            throw new Error('community is not set');
+        }
+        if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
+            return this.doc.community.toString();
         }
 		return this.doc.community.id.toString();
 	}
@@ -79,13 +83,84 @@ export class ServiceTicketV1DomainAdapter
 
 	get requestorId(): string {
         if (!this.doc.requestor) {
-            throw new Error('requestor is not populated');
+            throw new Error('requestor is not set');
+        }
+        if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
+            return this.doc.requestor.toString();
         }
 		return this.doc.requestor.id.toString();
 	}
 
 	set requestorId(requestorId: string) {
 		this.doc.requestor = new MongooseSeedwork.ObjectId(requestorId);
+	}
+
+	get community(): Domain.Contexts.Community.Community.CommunityProps {
+		if (!this.doc.community) {
+			throw new Error('community is not populated');
+		}
+		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
+			throw new Error('community is not populated');
+		}
+		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+	}
+
+	async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
+		if (!this.doc.community) {
+			throw new Error('community is not populated');
+		}
+		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
+			await this.doc.populate('community');
+		}
+		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+	}
+
+	set community(community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>) {
+		//check to see if community is derived from MongooseDomainAdapter
+		if (community instanceof Domain.Contexts.Community.Community.Community) {
+			this.doc.set('community', community.props.doc);
+			return;
+		}
+
+		if (!community?.id) {
+			throw new Error('community reference is missing id');
+		}
+
+		this.doc.set('community', new MongooseSeedwork.ObjectId(community.id));
+	}
+
+	get requestor(): Domain.Contexts.Community.Member.MemberProps {
+		if (!this.doc.requestor) {
+			throw new Error('requestor is not populated');
+		}
+		if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
+			throw new Error('requestor is not populated');
+		}
+		return new MemberDomainAdapter(this.doc.requestor as Models.Member.Member);
+	}
+
+	async loadRequestor(): Promise<Domain.Contexts.Community.Member.MemberProps> {
+		if (!this.doc.requestor) {
+			throw new Error('requestor is not populated');
+		}
+		if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
+			await this.doc.populate('requestor');
+		}
+		return new MemberDomainAdapter(this.doc.requestor as Models.Member.Member);
+	}
+
+	set requestor(member: Domain.Contexts.Community.Member.MemberEntityReference | Domain.Contexts.Community.Member.Member<MemberDomainAdapter>) {
+		//check to see if member is derived from MongooseDomainAdapter
+		if (member instanceof Domain.Contexts.Community.Member.Member) {
+			this.doc.set('requestor', member.props.doc);
+			return;
+		}
+
+		if (!member?.id) {
+			throw new Error('member reference is missing id');
+		}
+
+		this.doc.set('requestor', new MongooseSeedwork.ObjectId(member.id));
 	}
 
 	get assignedToId(): string | undefined {

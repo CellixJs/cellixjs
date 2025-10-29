@@ -209,10 +209,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       visa = new MemberPropertyVisa(property, member);
     });
     When('I call determineIf with a function that returns isSystemAccount', () => {
-      result = visa.determineIf((p) => p.isSystemAccount === false);
+      result = visa.determineIf((p) => p.isSystemAccount);
     });
-    Then('the result should be true', () => {
-      expect(result).toBe(true);
+    Then('the result should be false', () => {
+      expect(result).toBe(false);
     });
   });
 });

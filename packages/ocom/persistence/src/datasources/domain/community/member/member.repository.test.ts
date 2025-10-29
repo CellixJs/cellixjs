@@ -20,7 +20,7 @@ function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011', // Valid ObjectId string
     memberName: 'Test Member',
-    community: undefined,
+    community: makeCommunityDoc(),
     set(key: keyof Models.Member.Member, value: unknown) {
       (this as Models.Member.Member)[key] = value as never;
     },
@@ -72,10 +72,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     // Attach static methods to the constructor
     Object.assign(ModelMock, {
       findById: vi.fn((id: string) => ({
+        populate: vi.fn().mockReturnThis(),
         exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? memberDoc : null)),
       })),
       find: vi.fn(() => ({
-        exec: vi.fn(async () => [memberDoc]),
+        populate: vi.fn().mockReturnThis(),
+        exec: vi.fn(() => [memberDoc]),
       })),
     });
 
@@ -151,8 +153,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Given('a role with id "507f1f77bcf86cd799439013"', () => {
       roleId = '507f1f77bcf86cd799439013'; // Valid ObjectId string // Valid ObjectId string
       // Mock the find method to return members with the specified role
-      const ModelMock = (repo as unknown as { model: unknown }).model as { find: (query: { role: unknown }) => { exec: () => Promise<Models.Member.Member[]> } };
+      const ModelMock = (repo as unknown as { model: unknown }).model as { find: (query: { role: unknown }) => { populate: () => { exec: () => Promise<Models.Member.Member[]> } } };
       ModelMock.find = vi.fn((query: { role: unknown }) => ({
+        populate: vi.fn().mockReturnThis(),
         exec: vi.fn(() => {
           if (query.role && (query.role as { toString: () => string }).toString() === roleId) {
             return Promise.resolve([memberDoc]);

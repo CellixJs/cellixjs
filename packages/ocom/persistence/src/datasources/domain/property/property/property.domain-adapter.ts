@@ -139,14 +139,7 @@ export class PropertyDomainAdapter
 		return (c as Models.Community.Community).id.toString();
 	}
 
-	setCommunityRef(community: Domain.Contexts.Community.Community.CommunityEntityReference) {
-		if (!community?.id) {
-			throw new Error('community reference is missing id');
-		}
-		this.doc.set('community', new MongooseSeedwork.ObjectId(community.id));
-	}
-
-	get owner(): Domain.Contexts.Community.Member.MemberProps | null {
+	get owner(): Domain.Contexts.Community.Member.MemberEntityReference | null {
 		if (!this.doc.owner) {
 			return null;
 		}
@@ -155,7 +148,9 @@ export class PropertyDomainAdapter
 				'owner is not populated or is not of the correct type',
 			);
 		}
-		return new MemberDomainAdapter(this.doc.owner as Models.Member.Member);
+        // TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
+		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
+		return new MemberDomainAdapter(this.doc.owner as Models.Member.Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 
 	async loadOwner(): Promise<Domain.Contexts.Community.Member.MemberProps | null> {
