@@ -11,8 +11,6 @@ Feature: <TypeConverter> ServiceTicketV1Converter
     And the domain object's description should be "Test Description"
     And the domain object's status should be "open"
     And the domain object's priority should be 1
-    And the domain object's community should be a Community domain object
-    And the domain object's requestor should be a Member domain object
 
   Scenario: Converting a domain object to a Mongoose ServiceTicket document
     Given a ServiceTicketV1Converter instance

@@ -82,7 +82,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
       throw new Error('community reference is missing id');
     }
 
-    this.doc.set('community', new MongooseSeedwork.ObjectId(community.id));
+    this.doc.set('community', community);
   }
 
   get accounts(): DomainSeedwork.PropArray<Domain.Contexts.Community.Member.MemberAccountEntityReference> {
@@ -115,7 +115,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     if (!role?.id) {
         throw new Error('role reference is missing id');
     }
-    this.doc.set('role', new MongooseSeedwork.ObjectId(role.id));
+    this.doc.set('role', role);
   }
 
   get profile() {

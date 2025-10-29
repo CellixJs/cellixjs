@@ -123,6 +123,20 @@ export class PropertyDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
 
+    set community(community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>) {
+        //check to see if community is derived from MongooseDomainAdapter
+        if (community instanceof Domain.Contexts.Community.Community.Community) {
+            this.doc.set('community', community.props.doc);
+            return;
+        }
+
+        if (!community?.id) {
+            throw new Error('community reference is missing id');
+        }
+
+        this.doc.set('community', community);
+    }
+
 	/**
 	 * Exposes the community foreign key as a string regardless of populated state.
 	 * Use this in GraphQL field resolvers to fetch the Community via DataLoader/repo.

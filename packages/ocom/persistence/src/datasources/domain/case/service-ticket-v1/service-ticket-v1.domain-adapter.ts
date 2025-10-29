@@ -60,7 +60,7 @@ export class ServiceTicketV1DomainAdapter
             throw new Error('community is not set');
         }
         if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-            return this.doc.community.toString();
+            throw new Error('community is not populated');
         }
 		return this.doc.community.id.toString();
 	}
@@ -86,7 +86,7 @@ export class ServiceTicketV1DomainAdapter
             throw new Error('requestor is not set');
         }
         if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
-            return this.doc.requestor.toString();
+            throw new Error('requestor is not populated');
         }
 		return this.doc.requestor.id.toString();
 	}
@@ -126,7 +126,7 @@ export class ServiceTicketV1DomainAdapter
 			throw new Error('community reference is missing id');
 		}
 
-		this.doc.set('community', new MongooseSeedwork.ObjectId(community.id));
+		this.doc.set('community', community);
 	}
 
 	get requestor(): Domain.Contexts.Community.Member.MemberProps {
@@ -160,7 +160,7 @@ export class ServiceTicketV1DomainAdapter
 			throw new Error('member reference is missing id');
 		}
 
-		this.doc.set('requestor', new MongooseSeedwork.ObjectId(member.id));
+		this.doc.set('requestor', member);
 	}
 
 	get assignedToId(): string | undefined {
@@ -294,7 +294,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 			throw new Error('member reference is missing id');
 		}
 
-		this.doc.set('activityBy', new MongooseSeedwork.ObjectId(member.id));
+		this.doc.set('activityBy', member);
 	}
 }
 
@@ -352,7 +352,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 			throw new Error('member reference is missing id');
 		}
 
-		this.doc.set('initiatedBy', new MongooseSeedwork.ObjectId(member.id));
+		this.doc.set('initiatedBy', member);
 	}
 
 	get message(): string {

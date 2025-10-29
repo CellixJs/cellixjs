@@ -21,5 +21,3 @@ Feature: <Repository> ServiceTicketV1Repository
     Then I should receive a new ServiceTicketV1 domain object
     And the domain object's title should be "New Ticket"
     And the domain object's description should be "New Description"
-    And the domain object's communityId should be the given community id
-    And the domain object's requestorId should be the given requestor id

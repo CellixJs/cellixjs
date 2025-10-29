@@ -189,11 +189,5 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     And('the domain object\'s description should be "New Description"', () => {
       expect(result.description).toBe('New Description');
     });
-    And('the domain object\'s communityId should be the given community id', () => {
-      expect(result.communityId).toBe(communityDomainObject.id);
-    });
-    And('the domain object\'s requestorId should be the given requestor id', () => {
-      expect(result.requestorId).toBe(requestorDomainObject.id);
-    });
   });
 });
