@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Service, type ServiceProps } from './service.ts';
+import { Service, type ServiceProps } from './service.aggregate.ts';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 import type { CommunityEntityReference, CommunityProps } from '../../community/community/community.ts';
@@ -11,7 +11,7 @@ import type { CommunityEntityReference, CommunityProps } from '../../community/c
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
-  path.resolve(__dirname, 'features/service.feature'),
+  path.resolve(__dirname, 'features/service.aggregate.feature'),
 );
 
 function makePassport(overrides: Partial<{ canManageServices: boolean }> = {}) {

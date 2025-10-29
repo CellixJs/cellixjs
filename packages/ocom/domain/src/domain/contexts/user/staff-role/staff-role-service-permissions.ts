@@ -31,7 +31,7 @@ export class StaffRoleServicePermissions
 
 	set canManageServices(value:boolean) {
 	  if(!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new Error('Cannot set permission');
+	    throw new DomainSeedwork.PermissionError('Cannot set permission');
 	  }
 	  this.props.canManageServices = value;
 	}

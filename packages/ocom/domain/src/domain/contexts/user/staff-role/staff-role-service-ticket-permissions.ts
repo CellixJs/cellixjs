@@ -42,28 +42,28 @@ export class StaffRoleServiceTicketPermissions
 
 	set canCreateTickets(value: boolean) {
 	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new Error('Cannot set permission');
+	    throw new DomainSeedwork.PermissionError('Cannot set permission');
 	  }
 	  this.props.canCreateTickets = value;
 	}
 
 	set canManageTickets(value: boolean) {
 	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new Error('Cannot set permission');
+	    throw new DomainSeedwork.PermissionError('Cannot set permission');
 	  }
 	  this.props.canManageTickets = value;
 	}
 
 	set canAssignTickets(value: boolean) {
 	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new Error('Cannot set permission');
+	    throw new DomainSeedwork.PermissionError('Cannot set permission');
 	  }
 	  this.props.canAssignTickets = value;
 	}
 
 	set canWorkOnTickets(value: boolean) {
 	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new Error('Cannot set permission');
+	    throw new DomainSeedwork.PermissionError('Cannot set permission');
 	  }
 	  this.props.canWorkOnTickets = value;
 	}

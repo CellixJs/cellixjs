@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		/* Type Checking */
-        "allowUnreachableCode": false,
-        "allowUnusedLabels": false,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
 		"exactOptionalPropertyTypes": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitOverride": true,

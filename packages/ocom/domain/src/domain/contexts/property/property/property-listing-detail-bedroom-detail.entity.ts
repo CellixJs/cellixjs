@@ -1,5 +1,6 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { PropertyVisa } from '../property.visa.ts';
+import type * as ValueObjects from './property-listing-detail-bedroom-detail.value-objects.ts';
 
 export interface PropertyListingDetailBedroomDetailProps
 	extends DomainSeedwork.DomainEntityProps {
@@ -25,18 +26,18 @@ export class PropertyListingDetailBedroomDetail
 		return this.props.roomName;
 	}
 
-	set roomName(roomName: string) {
+	set roomName(roomName: ValueObjects.RoomName) {
 		this.ensureCanModify();
-		this.props.roomName = roomName.trim();
+		this.props.roomName = roomName.valueOf();
 	}
 
 	get bedDescriptions(): string[] {
 		return [...this.props.bedDescriptions];
 	}
 
-	set bedDescriptions(descriptions: string[]) {
+	set bedDescriptions(descriptions: ValueObjects.BedDescriptions) {
 		this.ensureCanModify();
-		this.props.bedDescriptions = descriptions.map((item) => item.trim());
+		this.props.bedDescriptions = descriptions.valueOf();
 	}
 
 	private ensureCanModify(): void {

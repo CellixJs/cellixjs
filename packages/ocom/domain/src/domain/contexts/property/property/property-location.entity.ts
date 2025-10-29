@@ -4,12 +4,12 @@ import {
 	PropertyLocationAddress,
 	type PropertyLocationAddressEntityReference,
 	type PropertyLocationAddressProps,
-} from './property-location-address.ts';
+} from './property-location-address.entity.ts';
 import {
 	PropertyLocationPosition,
 	type PropertyLocationPositionEntityReference,
 	type PropertyLocationPositionProps,
-} from './property-location-position.ts';
+} from './property-location-position.entity.ts';
 
 export interface PropertyLocationProps extends DomainSeedwork.ValueObjectProps {
 	address: PropertyLocationAddressProps;
@@ -37,10 +37,28 @@ export class PropertyLocation
 		return new PropertyLocationAddress(this.props.address);
 	}
 
-	set address(address: PropertyLocationAddressProps) {
-		this.ensureCanModify();
-		this.props.address = { ...address };
-	}
+    set address(address: PropertyLocationAddressProps) {
+        this.ensureCanModify();
+
+        this.props.address.country = address.country;
+        this.props.address.countryCode = address.countryCode;
+        this.props.address.countryCodeISO3 = address.countryCodeISO3;
+        this.props.address.countrySubdivision = address.countrySubdivision;
+        this.props.address.countrySubdivisionName = address.countrySubdivisionName;
+        this.props.address.countryTertiarySubdivision = address.countryTertiarySubdivision;
+        this.props.address.countrySecondarySubdivision = address.countrySecondarySubdivision;
+        this.props.address.municipality = address.municipality;
+        this.props.address.municipalitySubdivision = address.municipalitySubdivision;
+        this.props.address.localName = address.localName;
+        this.props.address.postalCode = address.postalCode;
+        this.props.address.extendedPostalCode = address.extendedPostalCode;
+        this.props.address.streetName = address.streetName;
+        this.props.address.streetNumber = address.streetNumber;
+        this.props.address.freeformAddress = address.freeformAddress;
+        this.props.address.streetNameAndNumber = address.streetNameAndNumber;
+        this.props.address.routeNumbers = address.routeNumbers;
+        this.props.address.crossStreet = address.crossStreet;
+    }
 
 	get position(): PropertyLocationPositionEntityReference {
 		return new PropertyLocationPosition(this.props.position);
@@ -48,10 +66,8 @@ export class PropertyLocation
 
 	set position(position: PropertyLocationPositionProps) {
 		this.ensureCanModify();
-		this.props.position = {
-			type: position.type,
-			coordinates: position.coordinates ? [...position.coordinates] : null,
-		};
+		this.props.position.type = position.type;
+        this.props.position.coordinates = position.coordinates ? [...position.coordinates] : null;
 	}
 
 	private ensureCanModify(): void {

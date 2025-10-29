@@ -3,27 +3,23 @@ import { PropertyCreatedEvent, type PropertyCreatedProps } from '../../../events
 import { PropertyDeletedEvent, type PropertyDeletedEventProps } from '../../../events/types/property-deleted.ts';
 import { PropertyUpdatedEvent, type PropertyUpdatedProps } from '../../../events/types/property-updated.ts';
 import {
-	Community,
-	type CommunityEntityReference,
-	type CommunityProps,
+    Community,
+    type CommunityEntityReference,
+    type CommunityProps,
 } from '../../community/community/community.ts';
-import {
-	Member,
-	type MemberEntityReference,
-	type MemberProps,
+import type {
+    MemberEntityReference,
 } from '../../community/member/member.ts';
 import type { Passport } from '../../passport.ts';
-import { PropertyListingDetail, type PropertyListingDetailEntityReference, type PropertyListingDetailProps } from './property-listing-detail.ts';
-import { PropertyLocation, type PropertyLocationEntityReference, type PropertyLocationProps } from './property-location.ts';
 import type { PropertyVisa } from '../property.visa.ts';
+import { PropertyListingDetail, type PropertyListingDetailEntityReference, type PropertyListingDetailProps } from './property-listing-detail.entity.ts';
+import { PropertyLocation, type PropertyLocationEntityReference, type PropertyLocationProps } from './property-location.entity.ts';
 import * as ValueObjects from './property.value-objects.ts';
 
 export interface PropertyProps extends DomainSeedwork.DomainEntityProps {
 	community: CommunityProps;
-	setCommunityRef(community: CommunityEntityReference): void;
 	location: PropertyLocationProps;
-	owner: MemberProps | null;
-	setOwnerRef(owner: MemberEntityReference | null): void;
+	owner: Readonly<MemberEntityReference>| null;
 	propertyName: string;
 	propertyType: string;
 	listedForSale: boolean;
@@ -49,7 +45,7 @@ export interface PropertyEntityReference
 > {
 	readonly community: CommunityEntityReference;
 	readonly location: PropertyLocationEntityReference;
-	readonly owner: MemberEntityReference | undefined;
+	readonly owner: MemberEntityReference | null;
 	readonly listingDetail: PropertyListingDetailEntityReference;
 }
 
@@ -70,6 +66,10 @@ export class Property<props extends PropertyProps>
 		property.isNew = true;
 		property.propertyName = propertyName;
 		property.community = community;
+		property.listedForSale = false;
+		property.listedForRent = false;
+		property.listedForLease = false;
+		property.listedInDirectory = false;
 		property.addIntegrationEvent<PropertyCreatedProps, PropertyCreatedEvent>(PropertyCreatedEvent, {
 			id: property.props.id,
 		});
@@ -91,7 +91,7 @@ export class Property<props extends PropertyProps>
 		if (!this.isNew) {
 			this.ensureCanManage('You do not have permission to update this property\'s community');
 		}
-		this.props.setCommunityRef(value);
+		this.props.community = value;
 	}
 
 	get location(): PropertyLocationEntityReference {
@@ -109,15 +109,15 @@ export class Property<props extends PropertyProps>
 		};
 	}
 
-	get owner(): MemberEntityReference | undefined {
-		return this.props.owner ? new Member(this.props.owner, this.passport) : undefined;
+	get owner(): MemberEntityReference | null {
+		return this.props.owner;
 	}
 
-	set owner(owner: MemberEntityReference | null | undefined) {
+	set owner(owner: MemberEntityReference | null) {
 		if (!this.isNew) {
 			this.ensureCanManage('You do not have permission to update this property\'s owner');
 		}
-		this.props.setOwnerRef(owner ?? null);
+		this.props.owner = owner;
 	}
 
 	get propertyName(): string {

@@ -68,6 +68,10 @@ export class Member<props extends MemberProps>
 	//#endregion Fields
 
 	//#region Constructors
+    constructor(props: props, passport: Passport) {
+        super(props, passport);
+        this._visa = passport.community.forCommunity(this.props.community);
+    }
 	//#endregion Constructors
 
 	//#region Methods

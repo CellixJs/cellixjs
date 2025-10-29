@@ -4,12 +4,13 @@ import {
 	PropertyListingDetailAdditionalAmenity,
 	type PropertyListingDetailAdditionalAmenityEntityReference,
 	type PropertyListingDetailAdditionalAmenityProps,
-} from './property-listing-detail-additional-amenity.ts';
+} from './property-listing-detail-additional-amenity.entity.ts';
 import {
 	PropertyListingDetailBedroomDetail,
 	type PropertyListingDetailBedroomDetailEntityReference,
 	type PropertyListingDetailBedroomDetailProps,
-} from './property-listing-detail-bedroom-detail.ts';
+} from './property-listing-detail-bedroom-detail.entity.ts';
+import type * as ValueObjects from './property-listing-detail.value-objects.ts';
 
 export interface PropertyListingDetailProps
 	extends DomainSeedwork.ValueObjectProps {
@@ -25,12 +26,12 @@ export interface PropertyListingDetailProps
 	yearBuilt: number | null;
 	lotSize: number | null;
 	description: string | null;
-	amenities: string[];
+	amenities: string[] | null;
 	readonly additionalAmenities: DomainSeedwork.PropArray<PropertyListingDetailAdditionalAmenityProps>;
-	images: string[];
+	images: string[] | null;
 	video: string | null;
 	floorPlan: string | null;
-	floorPlanImages: string[];
+	floorPlanImages: string[] | null;
 	listingAgent: string | null;
 	listingAgentPhone: string | null;
 	listingAgentEmail: string | null;
@@ -67,49 +68,49 @@ export class PropertyListingDetail
 	get price(): number | null {
 		return this.props.price;
 	}
-	set price(price: number | null) {
+	set price(price: ValueObjects.Price) {
 		this.ensureCanModifyListing();
-		this.props.price = this.normalizeNullableNumber(price);
+		this.props.price = price.valueOf();
 	}
 
 	get rentHigh(): number | null {
 		return this.props.rentHigh;
 	}
-	set rentHigh(value: number | null) {
+	set rentHigh(value: ValueObjects.RentHigh) {
 		this.ensureCanModifyListing();
-		this.props.rentHigh = this.normalizeNullableNumber(value);
+		this.props.rentHigh = value.valueOf();
 	}
 
 	get rentLow(): number | null {
 		return this.props.rentLow;
 	}
-	set rentLow(value: number | null) {
+	set rentLow(value: ValueObjects.RentLow) {
 		this.ensureCanModifyListing();
-		this.props.rentLow = this.normalizeNullableNumber(value);
+		this.props.rentLow = value.valueOf();
 	}
 
 	get lease(): number | null {
 		return this.props.lease;
 	}
-	set lease(value: number | null) {
+	set lease(value: ValueObjects.Lease) {
 		this.ensureCanModifyListing();
-		this.props.lease = this.normalizeNullableNumber(value);
+		this.props.lease = value.valueOf();
 	}
 
 	get maxGuests(): number | null {
 		return this.props.maxGuests;
 	}
-	set maxGuests(value: number | null) {
+	set maxGuests(value: ValueObjects.MaxGuests) {
 		this.ensureCanModifyListing();
-		this.props.maxGuests = this.normalizeNullableWholeNumber(value);
+		this.props.maxGuests = value.valueOf();
 	}
 
 	get bedrooms(): number | null {
 		return this.props.bedrooms;
 	}
-	set bedrooms(value: number | null) {
+	set bedrooms(value: ValueObjects.Bedrooms) {
 		this.ensureCanModifyListing();
-		this.props.bedrooms = this.normalizeNullableWholeNumber(value);
+		this.props.bedrooms = value.valueOf();
 	}
 
 	get bedroomDetails(): ReadonlyArray<PropertyListingDetailBedroomDetail> {
@@ -121,49 +122,49 @@ export class PropertyListingDetail
 	get bathrooms(): number | null {
 		return this.props.bathrooms;
 	}
-	set bathrooms(value: number | null) {
+	set bathrooms(value: ValueObjects.Bathrooms) {
 		this.ensureCanModifyListing();
-		this.props.bathrooms = this.normalizeNullableNumber(value);
+		this.props.bathrooms = value.valueOf();
 	}
 
 	get squareFeet(): number | null {
 		return this.props.squareFeet;
 	}
-	set squareFeet(value: number | null) {
+	set squareFeet(value: ValueObjects.SquareFeet) {
 		this.ensureCanModifyListing();
-		this.props.squareFeet = this.normalizeNullableWholeNumber(value);
+		this.props.squareFeet = value.valueOf();
 	}
 
 	get yearBuilt(): number | null {
 		return this.props.yearBuilt;
 	}
-	set yearBuilt(value: number | null) {
+	set yearBuilt(value: ValueObjects.YearBuilt) {
 		this.ensureCanModifyListing();
-		this.props.yearBuilt = this.normalizeNullableWholeNumber(value);
+		this.props.yearBuilt = value.valueOf();
 	}
 
 	get lotSize(): number | null {
 		return this.props.lotSize;
 	}
-	set lotSize(value: number | null) {
+	set lotSize(value: ValueObjects.LotSize) {
 		this.ensureCanModifyListing();
-		this.props.lotSize = this.normalizeNullableWholeNumber(value);
+		this.props.lotSize = value.valueOf();
 	}
 
 	get description(): string | null {
 		return this.props.description;
 	}
-	set description(value: string | null) {
+	set description(value: ValueObjects.Description) {
 		this.ensureCanModifyListing();
-		this.props.description = this.normalizeNullableString(value, 5000);
+		this.props.description = value.valueOf();
 	}
 
-	get amenities(): string[] {
-		return [...this.props.amenities];
+	get amenities(): string[] | null {
+		return this.props.amenities;
 	}
-	set amenities(values: string[]) {
+	set amenities(values: ValueObjects.Amenities) {
 		this.ensureCanModifyListing();
-		this.props.amenities = this.normalizeStringArray(values, 50, 100);
+		this.props.amenities = values.valueOf();
 	}
 
 	get additionalAmenities(): ReadonlyArray<PropertyListingDetailAdditionalAmenity> {
@@ -172,108 +173,108 @@ export class PropertyListingDetail
 		);
 	}
 
-	get images(): string[] {
-		return [...this.props.images];
+	get images(): string[] | null {
+		return this.props.images;
 	}
-	set images(images: string[]) {
+	set images(images: ValueObjects.Images) {
 		this.ensureCanModifyListing();
-		this.props.images = this.normalizeStringArray(images, 50, 2048);
+		this.props.images = images.valueOf();
 	}
 
 	get video(): string | null {
 		return this.props.video;
 	}
-	set video(value: string | null) {
+	set video(value: ValueObjects.Video) {
 		this.ensureCanModifyListing();
-		this.props.video = this.normalizeNullableString(value, 2048);
+		this.props.video = value.valueOf();
 	}
 
 	get floorPlan(): string | null {
 		return this.props.floorPlan;
 	}
-	set floorPlan(value: string | null) {
+	set floorPlan(value: ValueObjects.FloorPlan) {
 		this.ensureCanModifyListing();
-		this.props.floorPlan = this.normalizeNullableString(value, 2048);
+		this.props.floorPlan = value.valueOf();
 	}
 
-	get floorPlanImages(): string[] {
-		return [...this.props.floorPlanImages];
+	get floorPlanImages(): string[] | null {
+		return this.props.floorPlanImages;
 	}
-	set floorPlanImages(images: string[]) {
+	set floorPlanImages(images: ValueObjects.FloorPlanImages) {
 		this.ensureCanModifyListing();
-		this.props.floorPlanImages = this.normalizeStringArray(images, 50, 2048);
+		this.props.floorPlanImages = images.valueOf();
 	}
 
 	get listingAgent(): string | null {
 		return this.props.listingAgent;
 	}
-	set listingAgent(value: string | null) {
+	set listingAgent(value: ValueObjects.ListingAgent) {
 		this.ensureCanModifyListing();
-		this.props.listingAgent = this.normalizeNullableString(value, 500);
+		this.props.listingAgent = value.valueOf();
 	}
 
 	get listingAgentPhone(): string | null {
 		return this.props.listingAgentPhone;
 	}
-	set listingAgentPhone(value: string | null) {
+	set listingAgentPhone(value: ValueObjects.ListingAgentPhone) {
 		this.ensureCanModifyListing();
-		this.props.listingAgentPhone = this.normalizeNullableString(value, 100);
+		this.props.listingAgentPhone = value.valueOf();
 	}
 
 	get listingAgentEmail(): string | null {
 		return this.props.listingAgentEmail;
 	}
-	set listingAgentEmail(value: string | null) {
+	set listingAgentEmail(value: ValueObjects.ListingAgentEmail) {
 		this.ensureCanModifyListing();
-		this.props.listingAgentEmail = this.normalizeNullableString(value, 320);
+		this.props.listingAgentEmail = value.valueOf();
 	}
 
 	get listingAgentWebsite(): string | null {
 		return this.props.listingAgentWebsite;
 	}
-	set listingAgentWebsite(value: string | null) {
+	set listingAgentWebsite(value: ValueObjects.ListingAgentWebsite) {
 		this.ensureCanModifyListing();
-		this.props.listingAgentWebsite = this.normalizeNullableString(value, 1000);
+		this.props.listingAgentWebsite = value.valueOf();
 	}
 
 	get listingAgentCompany(): string | null {
 		return this.props.listingAgentCompany;
 	}
-	set listingAgentCompany(value: string | null) {
+	set listingAgentCompany(value: ValueObjects.ListingAgentCompany) {
 		this.ensureCanModifyListing();
-		this.props.listingAgentCompany = this.normalizeNullableString(value, 500);
+		this.props.listingAgentCompany = value.valueOf();
 	}
 
 	get listingAgentCompanyPhone(): string | null {
 		return this.props.listingAgentCompanyPhone;
 	}
-	set listingAgentCompanyPhone(value: string | null) {
+	set listingAgentCompanyPhone(value: ValueObjects.ListingAgentCompanyPhone) {
 		this.ensureCanModifyListing();
-		this.props.listingAgentCompanyPhone = this.normalizeNullableString(value, 100);
+		this.props.listingAgentCompanyPhone = value.valueOf();
 	}
 
 	get listingAgentCompanyEmail(): string | null {
 		return this.props.listingAgentCompanyEmail;
 	}
-	set listingAgentCompanyEmail(value: string | null) {
+	set listingAgentCompanyEmail(value: ValueObjects.ListingAgentCompanyEmail) {
 		this.ensureCanModifyListing();
-		this.props.listingAgentCompanyEmail = this.normalizeNullableString(value, 320);
+		this.props.listingAgentCompanyEmail = value.valueOf();
 	}
 
 	get listingAgentCompanyWebsite(): string | null {
 		return this.props.listingAgentCompanyWebsite;
 	}
-	set listingAgentCompanyWebsite(value: string | null) {
+	set listingAgentCompanyWebsite(value: ValueObjects.ListingAgentCompanyWebsite) {
 		this.ensureCanModifyListing();
-		this.props.listingAgentCompanyWebsite = this.normalizeNullableString(value, 1000);
+		this.props.listingAgentCompanyWebsite = value.valueOf();
 	}
 
 	get listingAgentCompanyAddress(): string | null {
 		return this.props.listingAgentCompanyAddress;
 	}
-	set listingAgentCompanyAddress(value: string | null) {
+	set listingAgentCompanyAddress(value: ValueObjects.ListingAgentCompanyAddress) {
 		this.ensureCanModifyListing();
-		this.props.listingAgentCompanyAddress = this.normalizeNullableString(value, 1000);
+		this.props.listingAgentCompanyAddress = value.valueOf();
 	}
 
 	public requestNewBedroom(): PropertyListingDetailBedroomDetail {
@@ -306,10 +307,10 @@ export class PropertyListingDetail
 
 	public requestRemoveImage(blobName: string): void {
 		this.ensureCanModifyListing();
-		this.props.images = this.props.images.filter((image) => image !== blobName);
-		this.props.floorPlanImages = this.props.floorPlanImages.filter(
+		this.props.images = this.props.images?.filter((image) => image !== blobName) || null;
+		this.props.floorPlanImages = this.props.floorPlanImages?.filter(
 			(image) => image !== blobName,
-		);
+		) || null;
 	}
 
 	private ensureCanModifyListing(): void {
@@ -325,36 +326,5 @@ export class PropertyListingDetail
 				'You do not have permission to update this property listing',
 			);
 		}
-	}
-
-	private normalizeNullableNumber(value: number | null): number | null {
-		if (value === null || value === undefined) {
-			return null;
-		}
-		return Number.isFinite(value) ? value : null;
-	}
-
-	private normalizeNullableWholeNumber(value: number | null): number | null {
-		const normalised = this.normalizeNullableNumber(value);
-		return normalised === null ? null : Math.trunc(normalised);
-	}
-
-	private normalizeNullableString(value: string | null, maxLength: number): string | null {
-		if (value === null || value === undefined) {
-			return null;
-		}
-		const trimmed = value.trim();
-		return trimmed.slice(0, maxLength);
-	}
-
-	private normalizeStringArray(
-		values: string[],
-		maxItems: number,
-		maxLength: number,
-	): string[] {
-		return values
-			.slice(0, maxItems)
-			.map((item) => item.trim().slice(0, maxLength))
-			.filter((item) => item.length > 0);
 	}
 }

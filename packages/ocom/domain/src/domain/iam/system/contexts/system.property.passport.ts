@@ -1,5 +1,5 @@
 
-import type { PropertyEntityReference } from '../../../contexts/property/property/property.ts';
+import type { PropertyEntityReference } from '../../../contexts/property/property/property.aggregate.ts';
 import type { PropertyDomainPermissions } from '../../../contexts/property/property.domain-permissions.ts';
 import type { PropertyPassport } from '../../../contexts/property/property.passport.ts';
 import type { PropertyVisa } from '../../../contexts/property/property.visa.ts';

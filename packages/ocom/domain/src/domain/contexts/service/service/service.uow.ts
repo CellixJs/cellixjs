@@ -1,6 +1,6 @@
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
-import type { Service, ServiceProps } from './service.ts';
+import type { Service, ServiceProps } from './service.aggregate.ts';
 import type { ServiceRepository } from './service.repository.ts';
 
 export interface ServiceUnitOfWork

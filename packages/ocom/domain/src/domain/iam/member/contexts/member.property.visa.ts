@@ -1,6 +1,6 @@
 import type { PropertyVisa } from '../../../contexts/property/property.visa.ts';
 import type { PropertyDomainPermissions } from '../../../contexts/property/property.domain-permissions.ts';
-import type { PropertyEntityReference } from '../../../contexts/property/property/property.ts';
+import type { PropertyEntityReference } from '../../../contexts/property/property/property.aggregate.ts';
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
 
 export class MemberPropertyVisa<root extends PropertyEntityReference>

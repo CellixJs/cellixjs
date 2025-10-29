@@ -2,23 +2,31 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import type { CommunityEntityReference } from '../../contexts/community/community/community.ts';
-import type { EndUserEntityReference } from '../../contexts/user/end-user/end-user.ts'
-import type { MemberEntityReference } from '../../contexts/community/member/member.ts';
-import type { ServiceEntityReference } from '../../contexts/service/service/service.ts';
-import type { StaffRoleEntityReference } from '../../contexts/user/staff-role/staff-role.ts';
-import type { StaffUserEntityReference } from '../../contexts/user/staff-user/staff-user.ts';
-import type { VendorUserEntityReference } from '../../contexts/user/vendor-user/vendor-user.ts';
+import type { CommunityEntityReference } from '../../contexts/community/community/index.ts';
+import type { MemberEntityReference } from '../../contexts/community/member/index.ts';
+import type { PropertyEntityReference } from '../../contexts/property/property/property.aggregate.ts';
+import type { ServiceEntityReference } from '../../contexts/service/service/index.ts';
+import type { ServiceTicketV1EntityReference } from '../../contexts/case/service-ticket/v1/index.ts';
+import type { ViolationTicketV1EntityReference } from '../../contexts/case/violation-ticket/v1/index.ts';
+import type { EndUserEntityReference } from '../../contexts/user/end-user/index.ts';
+import type { StaffRoleEntityReference } from '../../contexts/user/staff-role/index.ts';
+import type { StaffUserEntityReference } from '../../contexts/user/staff-user/index.ts';
+import type { VendorUserEntityReference } from '../../contexts/user/vendor-user/index.ts';
+import { MemberCasePassport } from './contexts/member.case.passport.ts';
+import { MemberServiceTicketVisa } from './contexts/member.service-ticket.visa.ts';
+import { MemberViolationTicketVisa } from './contexts/member.violation-ticket.visa.ts';
 import { MemberCommunityPassport } from './contexts/member.community.passport.ts';
 import { MemberCommunityVisa } from './contexts/member.community.visa.ts';
-import { MemberPassport } from './member.passport.ts';
+import { MemberPropertyPassport } from './contexts/member.property.passport.ts';
+import { MemberPropertyVisa } from './contexts/member.property.visa.ts';
 import { MemberServicePassport } from './contexts/member.service.passport.ts';
 import { MemberServiceVisa } from './contexts/member.service.visa.ts';
 import { MemberUserEndUserVisa } from './contexts/member.user.end-user.visa.ts';
+import { MemberUserPassport } from './contexts/member.user.passport.ts';
 import { MemberUserStaffRoleVisa } from './contexts/member.user.staff-role.visa.ts';
 import { MemberUserStaffUserVisa } from './contexts/member.user.staff-user.visa.ts';
 import { MemberUserVendorUserVisa } from './contexts/member.user.vendor-user.visa.ts';
-import { MemberUserPassport } from './contexts/member.user.passport.ts';
+import { MemberPassport } from './member.passport.ts';
 
 
 const test = { for: describeFeature };
@@ -157,6 +165,35 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect((userPassport as MemberUserPassport).forStaffRole({} as StaffRoleEntityReference)).toBeInstanceOf(MemberUserStaffRoleVisa);
       expect((userPassport as MemberUserPassport).forEndUser(user)).toBeInstanceOf(MemberUserEndUserVisa);
       expect((userPassport as MemberUserPassport).forVendorUser({} as VendorUserEntityReference)).toBeInstanceOf(MemberUserVendorUserVisa);
+    });
+  });
+
+  Scenario('Accessing the property passport', ({ When, And, Then }) => {
+    let propertyPassport: unknown;
+    When('I create a MemberPassport with valid user, member, and community', () => {
+      passport = new MemberPassport(user, member, community);
+    });
+    And('I access the property property', () => {
+      propertyPassport = passport.property;
+    });
+    Then('I should receive a MemberPropertyPassport instance with all visas', () => {
+      expect(propertyPassport).toBeInstanceOf(MemberPropertyPassport);
+      expect((propertyPassport as MemberPropertyPassport).forProperty({} as PropertyEntityReference)).toBeInstanceOf(MemberPropertyVisa);
+    });
+  });
+
+  Scenario('Accessing the case passport', ({ When, And, Then }) => {
+    let casePassport: unknown;
+    When('I create a MemberPassport with valid user, member, and community', () => {
+      passport = new MemberPassport(user, member, community);
+    });
+    And('I access the case property', () => {
+      casePassport = passport.case;
+    });
+    Then('I should receive a MemberCasePassport instance with all visas', () => {
+      expect(casePassport).toBeInstanceOf(MemberCasePassport);
+      expect((casePassport as MemberCasePassport).forServiceTicketV1({} as ServiceTicketV1EntityReference)).toBeInstanceOf(MemberServiceTicketVisa);
+      expect((casePassport as MemberCasePassport).forViolationTicketV1({} as ViolationTicketV1EntityReference)).toBeInstanceOf(MemberViolationTicketVisa);
     });
   });
 });
