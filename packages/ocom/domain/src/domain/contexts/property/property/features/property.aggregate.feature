@@ -100,3 +100,92 @@ Feature: <AggregateRoot> Property
     Given a Property aggregate without permission to manage properties
     When I try to request deletion of the property
     Then a PermissionError should be thrown
+
+  Scenario: Changing the location with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set the location to a new valid location
+    Then the property's location should be updated
+
+  Scenario: Changing the location without permission
+    Given a Property aggregate without permission to manage properties
+    When I try to set the location to a new valid location
+    Then a PermissionError should be thrown
+
+  Scenario: Changing the location with edit own property permission
+    Given a Property aggregate with edit own property permission and is editing own property
+    When I set the location to a new valid location
+    Then the property's location should be updated
+
+  Scenario: Changing the owner with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set the owner to a new member
+    Then the property's owner should be updated
+
+  Scenario: Changing the owner without permission
+    Given a Property aggregate without permission to manage properties
+    When I try to set the owner to a new member
+    Then a PermissionError should be thrown
+
+  Scenario: Changing the tags with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set the tags to ["pool", "gym", "parking"]
+    Then the property's tags should be ["pool", "gym", "parking"]
+
+  Scenario: Changing the tags without permission
+    Given a Property aggregate without permission to manage properties
+    When I try to set the tags to ["pool", "gym"]
+    Then a PermissionError should be thrown
+
+  Scenario: Changing the tags with edit own property permission
+    Given a Property aggregate with edit own property permission and is editing own property
+    When I set the tags to ["pool", "gym"]
+    Then the property's tags should be ["pool", "gym"]
+
+  Scenario: Setting the hash with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set the hash to "new-hash-value"
+    Then the property's hash should be "new-hash-value"
+
+  Scenario: Setting the hash without permission
+    Given a Property aggregate without permission to manage properties
+    When I try to set the hash to "new-hash-value"
+    Then a PermissionError should be thrown
+
+  Scenario: Setting the hash with edit own property permission
+    Given a Property aggregate with edit own property permission and is editing own property
+    When I set the hash to "new-hash-value"
+    Then the property's hash should be "new-hash-value"
+
+  Scenario: Setting lastIndexed with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set lastIndexed to a specific date
+    Then the property's lastIndexed should be updated
+
+  Scenario: Setting lastIndexed without permission
+    Given a Property aggregate without permission to manage properties
+    When I try to set lastIndexed to a specific date
+    Then a PermissionError should be thrown
+
+  Scenario: Setting lastIndexed with edit own property permission
+    Given a Property aggregate with edit own property permission and is editing own property
+    When I set lastIndexed to a specific date
+    Then the property's lastIndexed should be updated
+
+  Scenario: Setting updateIndexFailedDate with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set updateIndexFailedDate to a specific date
+    Then the property's updateIndexFailedDate should be updated
+
+  Scenario: Setting updateIndexFailedDate without permission
+    Given a Property aggregate without permission to manage properties
+    When I try to set updateIndexFailedDate to a specific date
+    Then a PermissionError should be thrown
+
+  Scenario: Setting updateIndexFailedDate with edit own property permission
+    Given a Property aggregate with edit own property permission and is editing own property
+    When I set updateIndexFailedDate to a specific date
+    Then the property's updateIndexFailedDate should be updated
+
+  Scenario: Getting listingDetail
+    Given a Property aggregate
+    Then I should be able to get the listingDetail

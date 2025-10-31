@@ -483,4 +483,273 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(requestDeleteWithoutPermission).toThrow('You do not have permission to delete this property');
     });
   });
+
+  Scenario('Changing the location with permission to manage properties', ({ Given, When, Then }) => {
+    Given('a Property aggregate with permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set the location to a new valid location', () => {
+      const newLocation = makePropertyLocationProps();
+      newLocation.address.streetNumber = '456';
+      property.location = newLocation;
+    });
+    Then('the property\'s location should be updated', () => {
+      expect(property.location.address.streetNumber).toBe('456');
+    });
+  });
+
+  Scenario('Changing the location without permission', ({ Given, When, Then }) => {
+    let changeLocationWithoutPermission: () => void;
+    Given('a Property aggregate without permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: false, isEditingOwnProperty: false });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I try to set the location to a new valid location', () => {
+      changeLocationWithoutPermission = () => {
+        const newLocation = makePropertyLocationProps();
+        newLocation.address.streetNumber = '456';
+        property.location = newLocation;
+      };
+    });
+    Then('a PermissionError should be thrown', () => {
+      expect(changeLocationWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeLocationWithoutPermission).toThrow('You do not have permission to update this property\'s location');
+    });
+  });
+
+  Scenario('Changing the location with edit own property permission', ({ Given, When, Then }) => {
+    Given('a Property aggregate with edit own property permission and is editing own property', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: true, isEditingOwnProperty: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set the location to a new valid location', () => {
+      const newLocation = makePropertyLocationProps();
+      newLocation.address.streetNumber = '789';
+      property.location = newLocation;
+    });
+    Then('the property\'s location should be updated', () => {
+      expect(property.location.address.streetNumber).toBe('789');
+    });
+  });
+
+  Scenario('Changing the owner with permission to manage properties', ({ Given, When, Then }) => {
+    Given('a Property aggregate with permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set the owner to a new member', () => {
+      const newOwner = makeMemberEntityReference('new-owner-1');
+      property.owner = newOwner;
+    });
+    Then('the property\'s owner should be updated', () => {
+      expect(property.owner?.id).toBe('new-owner-1');
+    });
+  });
+
+  Scenario('Changing the owner without permission', ({ Given, When, Then }) => {
+    let changeOwnerWithoutPermission: () => void;
+    Given('a Property aggregate without permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: false });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I try to set the owner to a new member', () => {
+      changeOwnerWithoutPermission = () => {
+        const newOwner = makeMemberEntityReference('new-owner-1');
+        property.owner = newOwner;
+      };
+    });
+    Then('a PermissionError should be thrown', () => {
+      expect(changeOwnerWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeOwnerWithoutPermission).toThrow('You do not have permission to update this property\'s owner');
+    });
+  });
+
+  Scenario('Changing the tags with permission to manage properties', ({ Given, When, Then }) => {
+    Given('a Property aggregate with permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set the tags to ["pool", "gym", "parking"]', () => {
+      property.tags = ['pool', 'gym', 'parking'];
+    });
+    Then('the property\'s tags should be ["pool", "gym", "parking"]', () => {
+      expect(property.tags).toEqual(['pool', 'gym', 'parking']);
+    });
+  });
+
+  Scenario('Changing the tags without permission', ({ Given, When, Then }) => {
+    let changeTagsWithoutPermission: () => void;
+    Given('a Property aggregate without permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: false, isEditingOwnProperty: false });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I try to set the tags to ["pool", "gym"]', () => {
+      changeTagsWithoutPermission = () => {
+        property.tags = ['pool', 'gym'];
+      };
+    });
+    Then('a PermissionError should be thrown', () => {
+      expect(changeTagsWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeTagsWithoutPermission).toThrow('You do not have permission to update the tags for this property');
+    });
+  });
+
+  Scenario('Changing the tags with edit own property permission', ({ Given, When, Then }) => {
+    Given('a Property aggregate with edit own property permission and is editing own property', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: true, isEditingOwnProperty: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set the tags to ["pool", "gym"]', () => {
+      property.tags = ['pool', 'gym'];
+    });
+    Then('the property\'s tags should be ["pool", "gym"]', () => {
+      expect(property.tags).toEqual(['pool', 'gym']);
+    });
+  });
+
+  Scenario('Setting the hash with permission to manage properties', ({ Given, When, Then }) => {
+    Given('a Property aggregate with permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set the hash to "new-hash-value"', () => {
+      property.hash = 'new-hash-value';
+    });
+    Then('the property\'s hash should be "new-hash-value"', () => {
+      expect(property.hash).toBe('new-hash-value');
+    });
+  });
+
+  Scenario('Setting the hash without permission', ({ Given, When, Then }) => {
+    let setHashWithoutPermission: () => void;
+    Given('a Property aggregate without permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: false, isEditingOwnProperty: false });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I try to set the hash to "new-hash-value"', () => {
+      setHashWithoutPermission = () => {
+        property.hash = 'new-hash-value';
+      };
+    });
+    Then('a PermissionError should be thrown', () => {
+      expect(setHashWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setHashWithoutPermission).toThrow('You do not have permission to update the index hash for this property');
+    });
+  });
+
+  Scenario('Setting the hash with edit own property permission', ({ Given, When, Then }) => {
+    Given('a Property aggregate with edit own property permission and is editing own property', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: true, isEditingOwnProperty: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set the hash to "new-hash-value"', () => {
+      property.hash = 'new-hash-value';
+    });
+    Then('the property\'s hash should be "new-hash-value"', () => {
+      expect(property.hash).toBe('new-hash-value');
+    });
+  });
+
+  Scenario('Setting lastIndexed with permission to manage properties', ({ Given, When, Then }) => {
+    Given('a Property aggregate with permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set lastIndexed to a specific date', () => {
+      const testDate = new Date('2024-01-01T00:00:00Z');
+      property.lastIndexed = testDate;
+    });
+    Then('the property\'s lastIndexed should be updated', () => {
+      expect(property.lastIndexed).toEqual(new Date('2024-01-01T00:00:00Z'));
+    });
+  });
+
+  Scenario('Setting lastIndexed without permission', ({ Given, When, Then }) => {
+    let setLastIndexedWithoutPermission: () => void;
+    Given('a Property aggregate without permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: false, isEditingOwnProperty: false });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I try to set lastIndexed to a specific date', () => {
+      setLastIndexedWithoutPermission = () => {
+        const testDate = new Date('2024-01-01T00:00:00Z');
+        property.lastIndexed = testDate;
+      };
+    });
+    Then('a PermissionError should be thrown', () => {
+      expect(setLastIndexedWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setLastIndexedWithoutPermission).toThrow('You do not have permission to update the index timestamp for this property');
+    });
+  });
+
+  Scenario('Setting lastIndexed with edit own property permission', ({ Given, When, Then }) => {
+    Given('a Property aggregate with edit own property permission and is editing own property', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: true, isEditingOwnProperty: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set lastIndexed to a specific date', () => {
+      const testDate = new Date('2024-01-01T00:00:00Z');
+      property.lastIndexed = testDate;
+    });
+    Then('the property\'s lastIndexed should be updated', () => {
+      expect(property.lastIndexed).toEqual(new Date('2024-01-01T00:00:00Z'));
+    });
+  });
+
+  Scenario('Setting updateIndexFailedDate with permission to manage properties', ({ Given, When, Then }) => {
+    Given('a Property aggregate with permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set updateIndexFailedDate to a specific date', () => {
+      const testDate = new Date('2024-01-01T00:00:00Z');
+      property.updateIndexFailedDate = testDate;
+    });
+    Then('the property\'s updateIndexFailedDate should be updated', () => {
+      expect(property.updateIndexFailedDate).toEqual(new Date('2024-01-01T00:00:00Z'));
+    });
+  });
+
+  Scenario('Setting updateIndexFailedDate without permission', ({ Given, When, Then }) => {
+    let setUpdateIndexFailedDateWithoutPermission: () => void;
+    Given('a Property aggregate without permission to manage properties', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: false, isEditingOwnProperty: false });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I try to set updateIndexFailedDate to a specific date', () => {
+      setUpdateIndexFailedDateWithoutPermission = () => {
+        const testDate = new Date('2024-01-01T00:00:00Z');
+        property.updateIndexFailedDate = testDate;
+      };
+    });
+    Then('a PermissionError should be thrown', () => {
+      expect(setUpdateIndexFailedDateWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setUpdateIndexFailedDateWithoutPermission).toThrow('You do not have permission to update the failed index timestamp for this property');
+    });
+  });
+
+  Scenario('Setting updateIndexFailedDate with edit own property permission', ({ Given, When, Then }) => {
+    Given('a Property aggregate with edit own property permission and is editing own property', () => {
+      passport = makePassport({ canManageProperties: false, canEditOwnProperty: true, isEditingOwnProperty: true });
+      property = new Property(makeBaseProps(), passport);
+    });
+    When('I set updateIndexFailedDate to a specific date', () => {
+      const testDate = new Date('2024-01-01T00:00:00Z');
+      property.updateIndexFailedDate = testDate;
+    });
+    Then('the property\'s updateIndexFailedDate should be updated', () => {
+      expect(property.updateIndexFailedDate).toEqual(new Date('2024-01-01T00:00:00Z'));
+    });
+  });
+
+  Scenario('Getting listingDetail', ({ Given, Then }) => {
+    Given('a Property aggregate', () => {
+      property = new Property(makeBaseProps(), passport);
+    });
+    Then('I should be able to get the listingDetail', () => {
+      expect(property.listingDetail).toBeDefined();
+      expect(typeof property.listingDetail.price).toBe('number');
+    });
+  });
 });
