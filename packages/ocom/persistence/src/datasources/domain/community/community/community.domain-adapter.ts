@@ -82,6 +82,6 @@ export class CommunityDomainAdapter
             throw new Error('user reference is missing id');
         }
 
-		this.doc.set('createdBy', new MongooseSeedwork.ObjectId(user.id));
+		this.doc.set('createdBy', user);
 	}
 }

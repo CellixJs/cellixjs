@@ -22,6 +22,8 @@ function makeMockModelsContext() {
         create: vi.fn(),
         aggregate: vi.fn(),
       } as unknown as Models.Community.CommunityModelType,
+    },
+    Member: {
       Member: {
         findById: vi.fn(),
         find: vi.fn(),

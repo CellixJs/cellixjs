@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within, fn } from 'storybook/test';
-import { NotLoggedIn } from './not-logged-in.tsx';
+import { NotLoggedIn, type NotLoggedInProps } from './not-logged-in.tsx';
 
 const meta = {
   title: 'UI/Molecules/LoggedInUser/NotLoggedIn',
@@ -15,7 +15,7 @@ export const Default: Story = {
   args: {
     onLoginClicked: fn(),
     onSignupClicked: fn(),
-  },
+  } satisfies NotLoggedInProps,
   play: async ({ canvasElement, args }) => {
   const canvas = within(canvasElement);
   const loginBtn = await canvas.findByRole('button', { name: /login/i });

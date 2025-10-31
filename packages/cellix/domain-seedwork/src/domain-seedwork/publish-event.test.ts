@@ -2,9 +2,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature  } from '@amiceli/vitest-cucumber';
 import { expect, type MockedObject, vi } from 'vitest';
-import { CustomDomainEventImpl } from './domain-event.js';
-import type { EventBus } from './event-bus.js';
-import { EventPublisher } from './publish-event.js';
+import { CustomDomainEventImpl } from './domain-event.ts';
+import type { EventBus } from './event-bus.ts';
+import { EventPublisher, type PublishEvent } from './publish-event.ts';
 
 
 const test = { for: describeFeature };
@@ -17,7 +17,7 @@ class TestDomainEvent extends CustomDomainEventImpl<{ foo: string }> {}
 
 test.for(feature, ({ Scenario }) => {
   let eventBus: MockedObject<EventBus>;
-  let publisher: EventPublisher;
+  let publisher: PublishEvent;
   let eventClass: new (aggregateId: string) => TestDomainEvent;
   let payload: { foo: string };
   let publishResult: unknown;

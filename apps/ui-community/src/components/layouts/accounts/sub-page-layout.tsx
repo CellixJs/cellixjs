@@ -4,7 +4,7 @@ import type React from "react";
 
 const { Header, Content, Footer } = Layout;
 
-export interface SubPageLayoutProps {
+interface SubPageLayoutProps {
     header: React.JSX.Element;
     fixedHeader?: boolean;
     children?: React.ReactNode;

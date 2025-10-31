@@ -10,7 +10,7 @@ import {
 	type CommunityEntityReference,
 } from '../../community/community.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
-import { RoleDeletedReassignEvent } from '../../../../events/types/role-deleted-reassign.ts';
+import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../../passport.ts';
 
@@ -81,7 +81,7 @@ export class EndUserRole<props extends EndUserRoleProps>
             );
         }
 		super.isDeleted = true;
-		this.addIntegrationEvent(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});

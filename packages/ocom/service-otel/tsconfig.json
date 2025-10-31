@@ -1,5 +1,5 @@
 {
-  "extends": "@cellix/typescript-config/node.json",
+  "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "outDir": "dist",
@@ -7,10 +7,6 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
   ],
   "references": [
     { "path": "../../cellix/api-services-spec" },

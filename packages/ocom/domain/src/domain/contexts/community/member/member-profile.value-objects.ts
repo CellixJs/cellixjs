@@ -1,6 +1,6 @@
 import { VOString, VOArray } from '@lucaspaganini/value-objects';
 
-export { Email, NullableEmail } from '../../value-objects.ts';
+export { NullableEmail } from '../../value-objects.ts';
 
 export class Name extends VOString({ trim: true, maxLength: 500, minLength: 1 }) {}
 export class Bio extends VOString({ trim: true, maxLength: 2000 }) {}

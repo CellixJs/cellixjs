@@ -1,4 +1,4 @@
-import type { CustomDomainEvent, DomainEvent } from './domain-event.js';
+import type { CustomDomainEvent, DomainEvent } from './domain-event.ts';
 
 export interface EventBus {
 	dispatch<T extends { payload: unknown } & DomainEvent>(

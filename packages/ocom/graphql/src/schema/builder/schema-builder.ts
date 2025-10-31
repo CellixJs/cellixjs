@@ -6,6 +6,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import * as Scalars from 'graphql-scalars';
 import type { GraphContext } from '../../init/context.ts';
 import { resolvers } from './resolver-builder.ts';
+import type { GraphQLSchema } from 'graphql';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,7 +23,7 @@ const typeDefs = mergeTypeDefs([
 ]);
 
 // Include scalar resolvers alongside your resolvers
-export const combinedSchema = makeExecutableSchema<GraphContext>({
+export const combinedSchema: GraphQLSchema = makeExecutableSchema<GraphContext>({
   typeDefs,
   resolvers: [Scalars.resolvers, resolvers],
 });

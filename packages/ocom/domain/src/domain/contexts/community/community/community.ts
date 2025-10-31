@@ -1,13 +1,14 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { CommunityVisa } from '../community.visa.ts';
-import { CommunityCreatedEvent } from '../../../events/types/community-created.ts';
-import { CommunityDomainUpdatedEvent } from '../../../events/types/community-domain-updated.ts';
-import {
-	EndUser,
-	type EndUserEntityReference,
-} from '../../user/end-user/end-user.ts';
-import * as ValueObjects from './community.value-objects.ts';
+import { CommunityCreatedEvent, type CommunityCreatedProps } from '../../../events/types/community-created.ts';
+import { CommunityDomainUpdatedEvent, type CommunityDomainUpdatedProps } from '../../../events/types/community-domain-updated.ts';
+import { CommunityWhiteLabelDomainUpdatedEvent, type CommunityWhiteLabelDomainUpdatedProps } from '../../../events/types/community-white-label-domain-updated.ts';
 import type { Passport } from '../../passport.ts';
+import {
+    EndUser,
+    type EndUserEntityReference,
+} from '../../user/end-user/end-user.ts';
+import type { CommunityVisa } from '../community.visa.ts';
+import * as ValueObjects from './community.value-objects.ts';
 
 export interface CommunityProps extends DomainSeedwork.DomainEntityProps {
 	name: string;
@@ -58,7 +59,7 @@ export class Community<props extends CommunityProps>
 
 	private markAsNew(): void {
 		this.isNew = true;
-		this.addIntegrationEvent(CommunityCreatedEvent, {
+		this.addIntegrationEvent<CommunityCreatedProps, CommunityCreatedEvent>(CommunityCreatedEvent, {
 			communityId: this.props.id,
 		});
 	}
@@ -99,7 +100,7 @@ export class Community<props extends CommunityProps>
 		const oldDomain = this.props.domain;
 		if (this.props.domain !== domain) {
 			this.props.domain = new ValueObjects.Domain(domain).valueOf();
-			this.addIntegrationEvent(CommunityDomainUpdatedEvent, {
+			this.addIntegrationEvent<CommunityDomainUpdatedProps, CommunityDomainUpdatedEvent>(CommunityDomainUpdatedEvent, {
 				communityId: this.props.id,
 				domain,
 				oldDomain: oldDomain,
@@ -121,7 +122,15 @@ export class Community<props extends CommunityProps>
 				'You do not have permission to change the white label domain of this community',
 			);
 		}
+        const oldWhiteLabelDomain = this.props.whiteLabelDomain;
 		this.props.whiteLabelDomain = new ValueObjects.WhiteLabelDomain(whiteLabelDomain).valueOf();
+        if (oldWhiteLabelDomain !== this.props.whiteLabelDomain && this.props.whiteLabelDomain !== null) {
+            this.addIntegrationEvent<CommunityWhiteLabelDomainUpdatedProps, CommunityWhiteLabelDomainUpdatedEvent>(CommunityWhiteLabelDomainUpdatedEvent, {
+                communityId: this.props.id,
+                whiteLabelDomain: this.props.whiteLabelDomain,
+                oldWhiteLabelDomain: oldWhiteLabelDomain,
+            });
+        }
 	}
 
 	get handle(): string | null {

@@ -1,4 +1,4 @@
-export type OIDCConfig = {
+type OIDCConfig = {
   authority: string
   client_id: string
   redirect_uri: string

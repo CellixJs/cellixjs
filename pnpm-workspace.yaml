@@ -6,3 +6,5 @@ packages:
 catalog:
   mongoose: 8.17.0
   mongodb: 6.18.0
+  typescript: 5.9.3
+  vite: 7.1.12

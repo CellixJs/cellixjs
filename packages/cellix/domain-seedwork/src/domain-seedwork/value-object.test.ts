@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import { ValueObject } from './value-object.js';
+import { ValueObject } from './value-object.ts';
 
 
 const test = { for: describeFeature };

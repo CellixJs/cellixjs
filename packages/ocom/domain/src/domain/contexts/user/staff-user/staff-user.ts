@@ -5,7 +5,7 @@ import {
 	type StaffRoleEntityReference,
 	type StaffRoleProps,
 } from '../staff-role/staff-role.ts';
-import { StaffUserCreatedEvent } from '../../../events/types/staff-user-created.ts';
+import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../events/types/staff-user-created.ts';
 import type { UserVisa } from '../user.visa.ts';
 import type { Passport } from '../../passport.ts';
 
@@ -65,7 +65,7 @@ export class StaffUser<props extends StaffUserProps>
 
 	private markAsNew(): void {
 		this.isNew = true;
-		this.addIntegrationEvent(StaffUserCreatedEvent, {
+		this.addIntegrationEvent<StaffUserCreatedProps, StaffUserCreatedEvent>(StaffUserCreatedEvent, {
 			externalId: this.props.externalId,
 		});
 	}

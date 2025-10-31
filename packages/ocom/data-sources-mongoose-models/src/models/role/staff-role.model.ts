@@ -3,37 +3,32 @@ import { type Role, type RoleModelType, roleOptions } from './role.model.ts';
 
 export interface StaffRoleServicePermissions {
 	id?: ObjectId;
-	// canManageServices: boolean;
+	canManageServices: boolean;
 	// isSystemAccount: false;
 }
 
 export interface StaffRoleServiceTicketPermissions {
 	id?: ObjectId;
-	// canCreateTickets: boolean;
-	// canManageTickets: boolean;
-	// canAssignTickets: boolean;
-	// canWorkOnTickets: boolean;
-	// isEditingOwnTicket: false;
-	// isEditingAssignedTicket: false;
+	canCreateTickets: boolean;
+	canManageTickets: boolean;
+	canAssignTickets: boolean;
+	canWorkOnTickets: boolean;
 	// isSystemAccount: false;
 }
 
 export interface StaffRoleViolationTicketPermissions {
 	id?: ObjectId;
-	// canCreateTickets: boolean;
-	// canManageTickets: boolean;
-	// canAssignTickets: boolean;
-	// canWorkOnTickets: boolean;
-	// isEditingOwnTicket: false;
-	// isEditingAssignedTicket: false;
+	canCreateTickets: boolean;
+	canManageTickets: boolean;
+	canAssignTickets: boolean;
+	canWorkOnTickets: boolean;
 	// isSystemAccount: false;
 }
 
 export interface StaffRolePropertyPermissions {
 	id?: ObjectId;
-	// canManageProperties: boolean;
-	// canEditOwnProperty: boolean;
-	// isEditingOwnProperty: false;
+	canManageProperties: boolean;
+	canEditOwnProperty: boolean;
 	// isSystemAccount: false;
 }
 
@@ -63,7 +58,7 @@ export interface StaffRole extends Role {
 	isDefault: boolean;
 }
 
-export const StaffRoleSchema = new Schema<
+const StaffRoleSchema = new Schema<
 	StaffRole,
 	Model<StaffRole>,
 	StaffRole
@@ -71,19 +66,19 @@ export const StaffRoleSchema = new Schema<
 	{
 		permissions: {
 			servicePermissions: {
-				// canManageServices: { type: Boolean, required: true, default: false },
+				canManageServices: { type: Boolean, required: true, default: false },
 			} as SchemaDefinition<StaffRoleServicePermissions>,
 			serviceTicketPermissions: {
-				// canCreateTickets: { type: Boolean, required: true, default: false },
-				// canManageTickets: { type: Boolean, required: true, default: false },
-				// canAssignTickets: { type: Boolean, required: true, default: false },
-				// canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
+				canCreateTickets: { type: Boolean, required: true, default: false },
+				canManageTickets: { type: Boolean, required: true, default: false },
+				canAssignTickets: { type: Boolean, required: true, default: false },
+				canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
 			} as SchemaDefinition<StaffRoleServiceTicketPermissions>,
 			violationTicketPermissions: {
-				// canCreateTickets: { type: Boolean, required: true, default: false },
-				// canManageTickets: { type: Boolean, required: true, default: false },
-				// canAssignTickets: { type: Boolean, required: true, default: false },
-				// canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
+				canCreateTickets: { type: Boolean, required: true, default: false },
+				canManageTickets: { type: Boolean, required: true, default: false },
+				canAssignTickets: { type: Boolean, required: true, default: false },
+				canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
 			} as SchemaDefinition<StaffRoleViolationTicketPermissions>,
 			communityPermissions: {
 				canManageStaffRolesAndPermissions: {

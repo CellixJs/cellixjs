@@ -6,9 +6,9 @@ import { fileURLToPath } from 'node:url';
 import type { ClientSession, Model } from 'mongoose';
 import mongoose from 'mongoose';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { Base } from './index.js';
-import { MongoUnitOfWork, getInitializedUnitOfWork } from './mongo-unit-of-work.js';
-import { MongoRepositoryBase } from './mongo-repository.js';
+import type { Base } from './index.ts';
+import { MongoUnitOfWork, getInitializedUnitOfWork } from './mongo-unit-of-work.ts';
+import { MongoRepositoryBase } from './mongo-repository.ts';
 
 // Type alias for test purposes to avoid linting issues
 

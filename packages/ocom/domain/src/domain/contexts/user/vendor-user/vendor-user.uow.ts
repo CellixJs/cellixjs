@@ -9,4 +9,10 @@ export interface VendorUserUnitOfWork
 		VendorUserProps,
 		VendorUser<VendorUserProps>,
 		VendorUserRepository<VendorUserProps>
+	>,
+	DomainSeedwork.InitializedUnitOfWork<
+		Passport,
+		VendorUserProps,
+		VendorUser<VendorUserProps>,
+		VendorUserRepository<VendorUserProps>
 	> {}

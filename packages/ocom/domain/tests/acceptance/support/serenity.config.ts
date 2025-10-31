@@ -4,7 +4,7 @@ import { SerenityBDDReporter } from '@serenity-js/serenity-bdd';
 import { ConsoleReporter } from '@serenity-js/console-reporter';
 import { resolve } from 'node:path';
 import { mkdirSync } from 'node:fs';
-import { CommunityCreationResults } from '../screenplay/interactions/create-community.js';
+import { CommunityCreationResults } from '../screenplay/interactions/create-community.ts';
 
 /**
  * Serenity/JS configuration for BDD tests

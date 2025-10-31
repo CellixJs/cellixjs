@@ -110,6 +110,16 @@ stages:
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
           pnpm install
+          
+          # Debug: Check jiti versions
+          echo "=== Dependency Resolution Debug ==="
+          echo "Node version: $(node --version)"
+          echo "PNPM version: $(pnpm --version)"
+          echo "Jiti versions in node_modules:"
+          find node_modules -name "jiti" -type d | head -10
+          echo "Jiti package.json versions:"
+          find node_modules -name "package.json" -path "*/jiti/package.json" -exec grep '"version"' {} \;
+          echo "==================================="
         workingDirectory: ''
 
     - task: Bash@3
@@ -126,10 +136,9 @@ stages:
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
       inputs:
-        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22'
+        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v3'
         restoreKeys: |
-          playwright | "$(Agent.OS)" | ubuntu-latest
-          playwright | "$(Agent.OS)"
+          playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v3
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
         cacheHitVar: PW_CACHE_HIT
 
@@ -144,7 +153,7 @@ stages:
           echo "PW_CACHE_HIT=${PW_CACHE_HIT:-unset}"
           echo "Installing Playwright browsers into: $(PLAYWRIGHT_BROWSERS_PATH)"
           mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
-          npx playwright install --with-deps
+          pnpm exec playwright install --with-deps
       env:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
@@ -162,13 +171,13 @@ stages:
           if [ ! -d "$(PLAYWRIGHT_BROWSERS_PATH)" ] || [ -z "$(ls -A "$(PLAYWRIGHT_BROWSERS_PATH)" 2>/dev/null || echo '')" ]; then
             echo "Browsers not found in cache, installing them..."
             mkdir -p "$(PLAYWRIGHT_BROWSERS_PATH)"
-            npx playwright install --with-deps
+            pnpm exec playwright install --with-deps
           fi
 
           # Explicitly ensure chromium headless shell is available (used by Vitest browser provider)
           if ! find "$(PLAYWRIGHT_BROWSERS_PATH)" -maxdepth 2 -type d -name 'chromium_headless_shell-*' | grep -q chromium_headless_shell; then
             echo "chromium_headless_shell not found; reinstalling browsers to fetch it..."
-            npx playwright install --with-deps
+            pnpm exec playwright install --with-deps
           fi
 
           echo "Installed browsers:"
@@ -231,16 +240,22 @@ stages:
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only (PR/branch build)..."
             export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
+            export TURBO_CONCURRENCY=4
             pnpm run test:coverage --affected
             pnpm run merge-lcov-reports
           else
             echo "Testing all packages (main branch build)..."
             export TURBO_SCM_BASE="HEAD~1"
+            export TURBO_CONCURRENCY=4
             pnpm run test:coverage:merge
           fi
           
           # Set the merged coverage path for SonarCloud
           echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
+
+          # Audit unused dependencies with knip (after packages are built)
+          echo "Running knip to detect unused dependencies..."
+          pnpm knip
         workingDirectory: ''
       env:
         TURBO_CACHE_HIT: $(TURBO_CACHE_HIT)

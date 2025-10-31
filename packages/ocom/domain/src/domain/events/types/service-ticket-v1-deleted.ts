@@ -1,7 +1,7 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 
-export interface ServiceTicketV1DeletedEventProps {
+export interface ServiceTicketV1DeletedProps {
 	id: string;
 }
 
-export class ServiceTicketV1DeletedEvent extends DomainSeedwork.CustomDomainEventImpl<ServiceTicketV1DeletedEventProps> {}
+export class ServiceTicketV1DeletedEvent extends DomainSeedwork.CustomDomainEventImpl<ServiceTicketV1DeletedProps> {}

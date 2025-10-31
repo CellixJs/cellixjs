@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 import { GuestServicePassport } from './guest.service.passport.ts';
-import type { ServiceEntityReference } from '../../../contexts/service/service/service.ts';
+import type { ServiceEntityReference } from '../../../contexts/service/service/index.ts';
 import type { ServiceVisa } from '../../../contexts/service/service.visa.ts';
 
 

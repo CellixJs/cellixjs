@@ -1,12 +1,11 @@
 {
-  "extends": ["@cellix/typescript-config/base.json", "@docusaurus/tsconfig"],
+  "extends": ["@cellix/typescript-config/base", "@docusaurus/tsconfig"],
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["@docusaurus/module-type-aliases", "@docusaurus/theme-classic"],
+    "types": ["@docusaurus/module-type-aliases"],
     "paths": {
       "@site/*": ["./*"]
     }
   },
-  "include": ["./src", "./docusaurus.config.*", "./sidebars.*"],
-  "exclude": [".docusaurus", "build"]
+  "include": ["./src", "./docusaurus.config.*", "./sidebars.*"]
 }

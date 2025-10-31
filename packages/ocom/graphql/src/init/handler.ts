@@ -10,6 +10,7 @@ import type { GraphContext } from './context.ts';
 import { combinedSchema } from '../schema/builder/schema-builder.ts';
 import { applyMiddleware } from 'graphql-middleware';
 import type { GraphQLSchemaWithFragmentReplacements } from 'graphql-middleware/types';
+import { permissions } from '../schema/builder/resolver-builder.ts';
 
 const serverConfig = (securedSchema: GraphQLSchemaWithFragmentReplacements) => {
 	return {
@@ -26,7 +27,7 @@ export const graphHandlerCreator = (
 	applicationServicesFactory: ApplicationServicesFactory,
 ): HttpHandler => {
 	// Set up Apollo Server
-    const securedSchema = applyMiddleware(combinedSchema);
+    const securedSchema = applyMiddleware(combinedSchema, permissions);
 	const server = new ApolloServer<GraphContext>({
         ...serverConfig(securedSchema)
 	});

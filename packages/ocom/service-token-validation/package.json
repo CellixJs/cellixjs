@@ -13,7 +13,7 @@
   "scripts": {
     "prebuild": "biome lint",
     "build": "tsc --build",
-    "watch": "tsc- --watch",
+    "watch": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
@@ -27,7 +27,7 @@
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
-    "typescript": "^5.8.3",
+    "typescript": "catalog:",
     "rimraf": "^6.0.1"
   }
 }

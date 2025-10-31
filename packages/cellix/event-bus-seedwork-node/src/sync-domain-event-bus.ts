@@ -1,8 +1,8 @@
 //// Sync Domain Event
 // biome-ignore lint:noEmptyInterface
-export interface SyncDomainEventPayloadBaseType {}
+interface SyncDomainEventPayloadBaseType {}
 
-export interface SyncDomainEventType<
+interface SyncDomainEventType<
 	EventPayloadType extends SyncDomainEventPayloadBaseType,
 > {
 	get payload(): EventPayloadType;

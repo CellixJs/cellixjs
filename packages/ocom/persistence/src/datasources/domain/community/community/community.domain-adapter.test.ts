@@ -210,7 +210,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter.createdBy = userAdapter;
     });
     Then('the document\'s createdBy should be set to the user\'s doc', () => {
-      expect(doc.createdBy?.toString()).toBe(userAdapter.doc.id);
+      expect(doc.createdBy).toBe(userAdapter);
     });
   });
 

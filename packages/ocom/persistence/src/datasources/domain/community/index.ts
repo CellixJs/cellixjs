@@ -9,5 +9,6 @@ export const CommunityContextPersistence = (models: ModelsContext, passport: Dom
 	Member: Member.MemberPersistence(models, passport),
     Role: {
         EndUserRole: Role.EndUserRole.EndUserRolePersistence(models, passport),
+        VendorUserRole: Role.VendorUserRole.VendorUserRolePersistence(models, passport),
     },
 });

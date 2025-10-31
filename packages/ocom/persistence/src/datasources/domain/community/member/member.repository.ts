@@ -22,6 +22,7 @@ export class MemberRepository //<
 	): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
 		const mongoMember = await this.model
 			.findById(id)
+			.populate(['community'])
 			.exec();
 		if (!mongoMember) {
 			throw new Error(`Member with id ${id} not found`);
@@ -30,12 +31,12 @@ export class MemberRepository //<
 	}
 
     async getAll(): Promise<Domain.Contexts.Community.Member.Member<PropType>[]> {
-        const mongoMembers = await this.model.find().exec();
+        const mongoMembers = await this.model.find().populate(['community']).exec();
         return mongoMembers.map(member => this.typeConverter.toDomain(member, this.passport));
     }
 
     async getAssignedToRole(roleId: string): Promise<Domain.Contexts.Community.Member.Member<MemberDomainAdapter>[]> {
-        const mongoMembers = await this.model.find({ role: new MongooseSeedwork.ObjectId(roleId) }).exec();
+        const mongoMembers = await this.model.find({ role: new MongooseSeedwork.ObjectId(roleId) }).populate(['community', 'role']).exec();
         return mongoMembers.map(member => this.typeConverter.toDomain(member, this.passport));
     }
 

@@ -8,7 +8,7 @@ import type {
 	SchemaDefinition,
 	SchemaDefinitionType
 } from 'mongoose';
-import type { Base } from './base.js';
+import type { Base } from './base.ts';
 
 export type SchemaConstructor<ModelType extends Base> =
 	| ObtainDocumentType<

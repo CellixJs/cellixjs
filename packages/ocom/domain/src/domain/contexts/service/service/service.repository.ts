@@ -1,5 +1,5 @@
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { Service, ServiceProps } from './service.ts';
+import type { Service, ServiceProps } from './service.aggregate.ts';
 import type { CommunityEntityReference } from '../../community/community/community.ts';
 
 export interface ServiceRepository<props extends ServiceProps>
