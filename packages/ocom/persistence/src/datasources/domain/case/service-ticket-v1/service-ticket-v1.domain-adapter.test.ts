@@ -7,7 +7,9 @@ import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import {
   ServiceTicketV1Converter,
-  ServiceTicketV1DomainAdapter
+  ServiceTicketV1DomainAdapter,
+  ServiceTicketV1ActivityDetailDomainAdapter,
+  ServiceTicketV1MessageDomainAdapter
 } from './service-ticket-v1.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
@@ -56,6 +58,29 @@ function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
 
 function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
   return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Models.Member.Member;
+}
+
+function makeActivityDetailDoc(overrides: Partial<Models.Case.ServiceTicketActivityDetail> = {}) {
+  return {
+    id: '507f1f77bcf86cd799439014',
+    activityType: 'created',
+    activityDescription: 'Ticket created',
+    activityBy: makeMemberDoc(),
+    ...overrides,
+  } as Models.Case.ServiceTicketActivityDetail;
+}
+
+function makeMessageDoc(overrides: Partial<Models.Case.ServiceTicketMessage> = {}) {
+  return {
+    id: '507f1f77bcf86cd799439015',
+    sentBy: 'test@example.com',
+    message: 'Test message',
+    initiatedBy: makeMemberDoc(),
+    createdAt: new Date(),
+    isHiddenFromApplicant: false,
+    embedding: '',
+    ...overrides,
+  } as Models.Case.ServiceTicketMessage;
 }
 
 function makeMockPassport() {
@@ -422,6 +447,96 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     Then('the document\'s updateIndexFailedDate should be set to that Date', () => {
       expect(doc.updateIndexFailedDate).toBe(testDate);
+    });
+  });
+
+  Scenario('Getting activity detail properties', ({ Given, When, Then, And }) => {
+    let activityDetail: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1ActivityDetailProps;
+
+    Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document', () => {
+      const activityDoc = makeActivityDetailDoc();
+      const adapter = new ServiceTicketV1ActivityDetailDomainAdapter(activityDoc);
+      activityDetail = adapter;
+    });
+
+    When('I get the activity detail properties', () => {
+      // Already have it
+    });
+
+    Then('it should have activityType "created"', () => {
+      expect(activityDetail.activityType).toBe('created');
+    });
+
+    And('activityDescription "Ticket created"', () => {
+      expect(activityDetail.activityDescription).toBe('Ticket created');
+    });
+
+    And('activityBy should be a member reference', () => {
+      expect(activityDetail.activityBy).toBeDefined();
+      expect(activityDetail.activityBy.id).toBe('507f1f77bcf86cd799439013');
+    });
+  });
+
+  Scenario('Setting activity detail properties', ({ Given, When, Then }) => {
+    let activityDoc: Models.Case.ServiceTicketActivityDetail;
+
+    Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document', () => {
+      activityDoc = makeActivityDetailDoc();
+      new ServiceTicketV1ActivityDetailDomainAdapter(activityDoc);
+    });
+
+    When('I set the activityType to "updated"', () => {
+      const adapter = new ServiceTicketV1ActivityDetailDomainAdapter(activityDoc);
+      adapter.activityType = 'updated';
+    });
+
+    Then('the document\'s activityType should be "updated"', () => {
+      expect(activityDoc.activityType).toBe('updated');
+    });
+  });
+
+  Scenario('Getting message properties', ({ Given, When, Then, And }) => {
+    let message: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1MessageProps;
+
+    Given('a ServiceTicketV1MessageDomainAdapter for a document', () => {
+      const messageDoc = makeMessageDoc();
+      const adapter = new ServiceTicketV1MessageDomainAdapter(messageDoc);
+      message = adapter;
+    });
+
+    When('I get the message properties', () => {
+      // Already have it
+    });
+
+    Then('it should have sentBy "test@example.com"', () => {
+      expect(message.sentBy).toBe('test@example.com');
+    });
+
+    And('message "Test message"', () => {
+      expect(message.message).toBe('Test message');
+    });
+
+    And('initiatedBy should be a member reference', () => {
+      expect(message.initiatedBy).toBeDefined();
+      expect(message.initiatedBy.id).toBe('507f1f77bcf86cd799439013');
+    });
+  });
+
+  Scenario('Setting message properties', ({ Given, When, Then }) => {
+    let messageDoc: Models.Case.ServiceTicketMessage;
+
+    Given('a ServiceTicketV1MessageDomainAdapter for a document', () => {
+      messageDoc = makeMessageDoc();
+      new ServiceTicketV1MessageDomainAdapter(messageDoc);
+    });
+
+    When('I set the message to "Updated message"', () => {
+      const adapter = new ServiceTicketV1MessageDomainAdapter(messageDoc);
+      adapter.message = 'Updated message';
+    });
+
+    Then('the document\'s message should be "Updated message"', () => {
+      expect(messageDoc.message).toBe('Updated message');
     });
   });
 });

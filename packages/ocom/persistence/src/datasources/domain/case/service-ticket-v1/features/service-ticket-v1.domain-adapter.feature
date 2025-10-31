@@ -126,3 +126,27 @@ Feature: <DomainAdapter> ServiceTicketV1DomainAdapter
     Then it should return undefined
     When I set the updateIndexFailedDate property to a Date
     Then the document's updateIndexFailedDate should be set to that Date
+
+  Scenario: Getting activity detail properties
+    Given a ServiceTicketV1ActivityDetailDomainAdapter for a document
+    When I get the activity detail properties
+    Then it should have activityType "created"
+    And activityDescription "Ticket created"
+    And activityBy should be a member reference
+
+  Scenario: Setting activity detail properties
+    Given a ServiceTicketV1ActivityDetailDomainAdapter for a document
+    When I set the activityType to "updated"
+    Then the document's activityType should be "updated"
+
+  Scenario: Getting message properties
+    Given a ServiceTicketV1MessageDomainAdapter for a document
+    When I get the message properties
+    Then it should have sentBy "test@example.com"
+    And message "Test message"
+    And initiatedBy should be a member reference
+
+  Scenario: Setting message properties
+    Given a ServiceTicketV1MessageDomainAdapter for a document
+    When I set the message to "Updated message"
+    Then the document's message should be "Updated message"

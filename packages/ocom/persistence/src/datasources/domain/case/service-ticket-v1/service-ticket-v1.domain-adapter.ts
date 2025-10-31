@@ -232,6 +232,8 @@ export class ServiceTicketV1DomainAdapter
 	}
 }
 
+export { ServiceTicketV1ActivityDetailDomainAdapter, ServiceTicketV1MessageDomainAdapter };
+
 class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1ActivityDetailProps {
 	public readonly doc: Models.Case.ServiceTicketActivityDetail;
 	

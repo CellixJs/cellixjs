@@ -2,84 +2,16 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 
-class VendorUserIdentityDetailsDomainAdapter
-	implements Domain.Contexts.User.VendorUser.VendorUserIdentityDetailsProps
-{
-	private readonly props: Models.User.VendorUserIdentityDetails;
-
-	constructor(props: Models.User.VendorUserIdentityDetails) {
-		this.props = props;
-	}
-
-	get lastName(): string {
-		return this.props.lastName ?? '';
-	}
-	set lastName(lastName: string) {
-		this.props.lastName = lastName;
-	}
-
-	get legalNameConsistsOfOneName(): boolean {
-		return this.props.legalNameConsistsOfOneName ?? false;
-	}
-	set legalNameConsistsOfOneName(legalNameConsistsOfOneName: boolean) {
-		this.props.legalNameConsistsOfOneName = legalNameConsistsOfOneName;
-	}
-
-	get restOfName(): string | undefined {
-		return this.props.restOfName ?? undefined;
-	}
-	set restOfName(restOfName: string | undefined) {
-		this.props.restOfName = restOfName;
-	}
-}
-
-class VendorUserContactInformationDomainAdapter
-	implements Domain.Contexts.User.VendorUser.VendorUserContactInformationProps
-{
-	private readonly props: Models.User.VendorUserContactInformation;
-
-	constructor(props: Models.User.VendorUserContactInformation) {
-		this.props = props;
-	}
-
-	get email(): string {
-		return this.props.email ?? '';
-	}
-	set email(email: string) {
-		this.props.email = email;
-	}
-}
-
-class VendorUserPersonalInformationDomainAdapter
-	implements Domain.Contexts.User.VendorUser.VendorUserPersonalInformationProps
-{
-	private readonly props: Models.User.VendorUserPersonalInformation;
-
-	constructor(props: Models.User.VendorUserPersonalInformation) {
-		this.props = props;
-	}
-
-	get identityDetails(): Domain.Contexts.User.VendorUser.VendorUserIdentityDetailsProps {
-		if (!this.props.identityDetails) {
-			this.props.set(
-				'identityDetails',
-				{} as Models.User.VendorUserIdentityDetails,
-			);
-		}
-		return new VendorUserIdentityDetailsDomainAdapter(
-			this.props.identityDetails as Models.User.VendorUserIdentityDetails,
-		);
-	}
-
-	get contactInformation(): Domain.Contexts.User.VendorUser.VendorUserContactInformationProps {
-		if (!this.props.contactInformation) {
-			this.props.set(
-				'contactInformation',
-				{} as Models.User.VendorUserContactInformation,
-			);
-		}
-		return new VendorUserContactInformationDomainAdapter(
-			this.props.contactInformation as Models.User.VendorUserContactInformation,
+export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
+	Models.User.VendorUser,
+	VendorUserDomainAdapter,
+	Domain.Passport,
+	Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>
+> {
+	constructor() {
+		super(
+			VendorUserDomainAdapter,
+			Domain.Contexts.User.VendorUser.VendorUser,
 		);
 	}
 }
@@ -152,16 +84,84 @@ export class VendorUserDomainAdapter
 	}
 }
 
-export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.User.VendorUser,
-	VendorUserDomainAdapter,
-	Domain.Passport,
-	Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>
-> {
-	constructor() {
-		super(
-			VendorUserDomainAdapter,
-			Domain.Contexts.User.VendorUser.VendorUser,
+export class VendorUserIdentityDetailsDomainAdapter
+	implements Domain.Contexts.User.VendorUser.VendorUserIdentityDetailsProps
+{
+	private readonly props: Models.User.VendorUserIdentityDetails;
+
+	constructor(props: Models.User.VendorUserIdentityDetails) {
+		this.props = props;
+	}
+
+	get lastName(): string {
+		return this.props.lastName ?? '';
+	}
+	set lastName(lastName: string) {
+		this.props.lastName = lastName;
+	}
+
+	get legalNameConsistsOfOneName(): boolean {
+		return this.props.legalNameConsistsOfOneName ?? false;
+	}
+	set legalNameConsistsOfOneName(legalNameConsistsOfOneName: boolean) {
+		this.props.legalNameConsistsOfOneName = legalNameConsistsOfOneName;
+	}
+
+	get restOfName(): string | undefined {
+		return this.props.restOfName ?? undefined;
+	}
+	set restOfName(restOfName: string | undefined) {
+		this.props.restOfName = restOfName;
+	}
+}
+
+export class VendorUserContactInformationDomainAdapter
+	implements Domain.Contexts.User.VendorUser.VendorUserContactInformationProps
+{
+	private readonly props: Models.User.VendorUserContactInformation;
+
+	constructor(props: Models.User.VendorUserContactInformation) {
+		this.props = props;
+	}
+
+	get email(): string {
+		return this.props.email ?? '';
+	}
+	set email(email: string) {
+		this.props.email = email;
+	}
+}
+
+export class VendorUserPersonalInformationDomainAdapter
+	implements Domain.Contexts.User.VendorUser.VendorUserPersonalInformationProps
+{
+	private readonly props: Models.User.VendorUserPersonalInformation;
+
+	constructor(props: Models.User.VendorUserPersonalInformation) {
+		this.props = props;
+	}
+
+	get identityDetails(): Domain.Contexts.User.VendorUser.VendorUserIdentityDetailsProps {
+		if (!this.props.identityDetails) {
+			this.props.set(
+				'identityDetails',
+				{} as Models.User.VendorUserIdentityDetails,
+			);
+		}
+		return new VendorUserIdentityDetailsDomainAdapter(
+			this.props.identityDetails as Models.User.VendorUserIdentityDetails,
+		);
+	}
+
+	get contactInformation(): Domain.Contexts.User.VendorUser.VendorUserContactInformationProps {
+		if (!this.props.contactInformation) {
+			this.props.set(
+				'contactInformation',
+				{} as Models.User.VendorUserContactInformation,
+			);
+		}
+		return new VendorUserContactInformationDomainAdapter(
+			this.props.contactInformation as Models.User.VendorUserContactInformation,
 		);
 	}
 }

@@ -9,4 +9,10 @@ export interface StaffUserUnitOfWork
 		StaffUserProps,
 		StaffUser<StaffUserProps>,
 		StaffUserRepository<StaffUserProps>
-	> {}
+	>,
+    DomainSeedwork.InitializedUnitOfWork<
+        Passport,
+        StaffUserProps,
+        StaffUser<StaffUserProps>,
+        StaffUserRepository<StaffUserProps>
+    > {}
