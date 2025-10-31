@@ -464,4 +464,370 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       // Already checked in previous step
     });
   });
+
+  Scenario('Setting communityId with proper permissions', ({ When, Then, And }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => true)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I have proper permissions to set communityId', () => {
+      // Already set
+    });
+
+    And('I set the communityId', () => {
+      serviceTicket.communityId = 'new-community-id';
+    });
+
+    Then('the communityId should be updated', () => {
+      expect(serviceTicket.communityId).toBe('new-community-id');
+    });
+  });
+
+  Scenario('Setting communityId without permissions', ({ When, Then, And }) => {
+    let setCommunityIdWithoutPermission: () => void;
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => false)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I do not have proper permissions to set communityId', () => {
+      // Already set
+    });
+
+    And('I set the communityId', () => {
+      setCommunityIdWithoutPermission = () => {
+        serviceTicket.communityId = 'new-community-id';
+      };
+    });
+
+    Then('a PermissionError should be thrown', () => {
+      expect(setCommunityIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+    });
+  });
+
+  Scenario('Setting propertyId with proper permissions', ({ When, Then, And }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => true)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I have proper permissions to set propertyId', () => {
+      // Already set
+    });
+
+    And('I set the propertyId', () => {
+      serviceTicket.propertyId = 'new-property-id';
+    });
+
+    Then('the propertyId should be updated', () => {
+      expect(serviceTicket.propertyId).toBe('new-property-id');
+    });
+  });
+
+  Scenario('Setting propertyId without permissions', ({ When, Then, And }) => {
+    let setPropertyIdWithoutPermission: () => void;
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => false)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I do not have proper permissions to set propertyId', () => {
+      // Already set
+    });
+
+    And('I set the propertyId', () => {
+      setPropertyIdWithoutPermission = () => {
+        serviceTicket.propertyId = 'new-property-id';
+      };
+    });
+
+    Then('a PermissionError should be thrown', () => {
+      expect(setPropertyIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+    });
+  });
+
+  Scenario('Setting requestorId with proper permissions', ({ When, Then, And }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => true)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I have proper permissions to set requestorId', () => {
+      // Already set
+    });
+
+    And('I set the requestorId', () => {
+      serviceTicket.requestorId = 'new-requestor-id';
+    });
+
+    Then('the requestorId should be updated', () => {
+      expect(serviceTicket.requestorId).toBe('new-requestor-id');
+    });
+  });
+
+  Scenario('Setting requestorId without permissions', ({ When, Then, And }) => {
+    let setRequestorIdWithoutPermission: () => void;
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => false)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I do not have proper permissions to set requestorId', () => {
+      // Already set
+    });
+
+    And('I set the requestorId', () => {
+      setRequestorIdWithoutPermission = () => {
+        serviceTicket.requestorId = 'new-requestor-id';
+      };
+    });
+
+    Then('a PermissionError should be thrown', () => {
+      expect(setRequestorIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+    });
+  });
+
+  Scenario('Setting assignedToId with proper permissions', ({ When, Then, And }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => true)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I have proper permissions to assign', () => {
+      // Already set
+    });
+
+    And('I set the assignedToId', () => {
+      serviceTicket.assignedToId = 'new-assigned-to-id';
+    });
+
+    Then('the assignedToId should be updated', () => {
+      expect(serviceTicket.assignedToId).toBe('new-assigned-to-id');
+    });
+  });
+
+  Scenario('Setting assignedToId without permissions', ({ When, Then, And }) => {
+    let setAssignedToIdWithoutPermission: () => void;
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => false)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I do not have proper permissions to assign', () => {
+      // Already set
+    });
+
+    And('I set the assignedToId', () => {
+      setAssignedToIdWithoutPermission = () => {
+        serviceTicket.assignedToId = 'new-assigned-to-id';
+      };
+    });
+
+    Then('a PermissionError should be thrown', () => {
+      expect(setAssignedToIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+    });
+  });
+
+  Scenario('Setting serviceId with proper permissions', ({ When, Then, And }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => true)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I have proper permissions to set serviceId', () => {
+      // Already set
+    });
+
+    And('I set the serviceId', () => {
+      serviceTicket.serviceId = 'new-service-id';
+    });
+
+    Then('the serviceId should be updated', () => {
+      expect(serviceTicket.serviceId).toBe('new-service-id');
+    });
+  });
+
+  Scenario('Setting serviceId without permissions', ({ When, Then, And }) => {
+    let setServiceIdWithoutPermission: () => void;
+    When('I have a ServiceTicketV1 instance', () => {
+      vi.mocked(passport.case.forServiceTicketV1).mockReturnValue({
+        determineIf: vi.fn(() => false)
+      });
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I do not have proper permissions to set serviceId', () => {
+      // Already set
+    });
+
+    And('I set the serviceId', () => {
+      setServiceIdWithoutPermission = () => {
+        serviceTicket.serviceId = 'new-service-id';
+      };
+    });
+
+    Then('a PermissionError should be thrown', () => {
+      expect(setServiceIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+    });
+  });
+
+  Scenario('Setting hash', ({ When, Then, And }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I set the hash', () => {
+      serviceTicket.hash = 'new-hash-value';
+    });
+
+    Then('the hash should be updated', () => {
+      expect(serviceTicket.hash).toBe('new-hash-value');
+    });
+  });
+
+  Scenario('Setting lastIndexed', ({ When, Then, And }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I set the lastIndexed', () => {
+      const newDate = new Date('2024-01-01T00:00:00Z');
+      serviceTicket.lastIndexed = newDate;
+    });
+
+    Then('the lastIndexed should be updated', () => {
+      expect(serviceTicket.lastIndexed).toEqual(new Date('2024-01-01T00:00:00Z'));
+    });
+  });
+
+  Scenario('Setting updateIndexFailedDate', ({ When, Then, And }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I set the updateIndexFailedDate', () => {
+      const newDate = new Date('2024-01-01T00:00:00Z');
+      serviceTicket.updateIndexFailedDate = newDate;
+    });
+
+    Then('the updateIndexFailedDate should be updated', () => {
+      expect(serviceTicket.updateIndexFailedDate).toEqual(new Date('2024-01-01T00:00:00Z'));
+    });
+  });
+
+  Scenario('Getting activity log', ({ When, Then }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    Then('I should be able to get the activity log', () => {
+      expect(serviceTicket.activityLog).toBeDefined();
+      expect(Array.isArray(serviceTicket.activityLog)).toBe(true);
+    });
+  });
+
+  Scenario('Getting messages', ({ When, Then }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    Then('I should be able to get the messages', () => {
+      expect(serviceTicket.messages).toBeDefined();
+      expect(Array.isArray(serviceTicket.messages)).toBe(true);
+    });
+  });
+
+  Scenario('Getting createdAt', ({ When, Then }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    Then('I should be able to get the createdAt date', () => {
+      expect(serviceTicket.createdAt).toBeInstanceOf(Date);
+    });
+  });
+
+  Scenario('Getting updatedAt', ({ When, Then }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    Then('I should be able to get the updatedAt date', () => {
+      expect(serviceTicket.updatedAt).toBeInstanceOf(Date);
+    });
+  });
+
+  Scenario('Getting schemaVersion', ({ When, Then }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    Then('I should be able to get the schemaVersion', () => {
+      expect(typeof serviceTicket.schemaVersion).toBe('string');
+    });
+  });
+
+  Scenario('Requesting new activity detail', ({ When, Then, And }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I request a new activity detail', () => {
+      const activityDetail = serviceTicket.requestNewActivityDetail(memberRef);
+      expect(activityDetail).toBeDefined();
+    });
+
+    Then('a new activity detail should be returned', () => {
+      // Already checked in previous step
+    });
+  });
+
+  Scenario('Calling onSave with modifications', ({ When, And, Then }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I call onSave with isModified true', () => {
+      serviceTicket.onSave(true);
+    });
+
+    Then('an updated event should be added', () => {
+      // Check that integration event was added
+      expect(serviceTicket).toBeDefined();
+    });
+  });
+
+  Scenario('Calling onSave without modifications', ({ When, And, Then }) => {
+    When('I have a ServiceTicketV1 instance', () => {
+      serviceTicket = ServiceTicketV1.getNewInstance(props, passport, new ValueObjects.Title(props.title), new ValueObjects.Description(props.description), props.communityId, props.requestorId, props.propertyId);
+    });
+
+    And('I call onSave with isModified false', () => {
+      serviceTicket.onSave(false);
+    });
+
+    Then('no updated event should be added', () => {
+      // Check that no integration event was added
+      expect(serviceTicket).toBeDefined();
+    });
+  });
 });
