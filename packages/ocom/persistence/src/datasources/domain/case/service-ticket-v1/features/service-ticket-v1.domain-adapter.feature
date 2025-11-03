@@ -210,3 +210,53 @@ Feature: <DomainAdapter> ServiceTicketV1DomainAdapter
     Given a ServiceTicketV1DomainAdapter for the document with requestor as an ObjectId
     When I load the requestor
     Then it should populate and return a Member domain adapter
+
+  Scenario: Setting the community property
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the community property to a Community entity reference
+    Then the document's community should be set to that reference
+
+  Scenario: Setting the community property with a domain object
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the community property to a Community domain object
+    Then the document's community should be set to the domain object's document
+
+  Scenario: Setting the community property with missing id
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the community property to a reference without id
+    Then an error should be thrown indicating "community reference is missing id"
+
+  Scenario: Setting the requestor property
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the requestor property to a Member entity reference
+    Then the document's requestor should be set to that reference
+
+  Scenario: Setting the requestor property with a domain object
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the requestor property to a Member domain object
+    Then the document's requestor should be set to the domain object's document
+
+  Scenario: Setting the requestor property with missing id
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the requestor property to a reference without id
+    Then an error should be thrown indicating "member reference is missing id"
+
+  Scenario: Setting the community property with null reference
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the community property to null
+    Then an error should be thrown indicating "community reference is missing id"
+
+  Scenario: Setting the requestor property with null reference
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the requestor property to null
+    Then an error should be thrown indicating "member reference is missing id"
+
+  Scenario: Setting the community property with undefined reference
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the community property to undefined
+    Then an error should be thrown indicating "community reference is missing id"
+
+  Scenario: Setting the requestor property with undefined reference
+    Given a ServiceTicketV1DomainAdapter for the document
+    When I set the requestor property to undefined
+    Then an error should be thrown indicating "member reference is missing id"

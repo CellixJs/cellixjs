@@ -771,6 +771,195 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result).toBeInstanceOf(MemberDomainAdapter);
     });
   });
+
+  Scenario('Setting the community property', ({ Given, When, Then }) => {
+    let communityRef: Domain.Contexts.Community.Community.CommunityEntityReference;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      communityRef = { id: '507f1f77bcf86cd799439012' } as Domain.Contexts.Community.Community.CommunityEntityReference;
+      // Already set up
+    });
+    When('I set the community property to a Community entity reference', () => {
+      adapter.community = communityRef;
+    });
+    Then('the document\'s community should be set to that reference', () => {
+      expect(doc.community).toBe(communityRef);
+    });
+  });
+
+  Scenario('Setting the requestor property', ({ Given, When, Then }) => {
+    let memberRef: Domain.Contexts.Community.Member.MemberEntityReference;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      memberRef = { id: '507f1f77bcf86cd799439013' } as Domain.Contexts.Community.Member.MemberEntityReference;
+      // Already set up
+    });
+    When('I set the requestor property to a Member entity reference', () => {
+      adapter.requestor = memberRef;
+    });
+    Then('the document\'s requestor should be set to that reference', () => {
+      expect(doc.requestor).toBe(memberRef);
+    });
+  });
+
+  Scenario('Setting the community property with a domain object', ({ Given, When, Then }) => {
+    let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      const communityDoc = makeCommunityDoc();
+      const communityAdapter = new CommunityDomainAdapter(communityDoc);
+      communityDomainObj = new Domain.Contexts.Community.Community.Community(communityAdapter, makeMockPassport());
+      // Already set up
+    });
+    When('I set the community property to a Community domain object', () => {
+      adapter.community = communityDomainObj;
+    });
+    Then('the document\'s community should be set to the domain object\'s document', () => {
+      expect(doc.community).toBe(communityDomainObj.props.doc);
+    });
+  });
+
+  Scenario('Setting the community property with missing id', ({ Given, When, Then }) => {
+    let communityRef: Domain.Contexts.Community.Community.CommunityEntityReference;
+    let setCommunityWithoutId: () => void;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      communityRef = { id: '' } as Domain.Contexts.Community.Community.CommunityEntityReference; // Missing id
+      // Already set up
+    });
+    When('I set the community property to a reference without id', () => {
+      setCommunityWithoutId = () => {
+        adapter.community = communityRef;
+      };
+    });
+    Then('an error should be thrown indicating "community reference is missing id"', () => {
+      try {
+        setCommunityWithoutId();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toBe('community reference is missing id');
+      }
+    });
+  });
+
+  Scenario('Setting the requestor property with a domain object', ({ Given, When, Then }) => {
+    let memberDomainObj: Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      const communityDoc = makeCommunityDoc();
+      const memberDoc = makeMemberDoc({ community: communityDoc });
+      const memberAdapter = new MemberDomainAdapter(memberDoc);
+      memberDomainObj = new Domain.Contexts.Community.Member.Member(memberAdapter, makeMockPassport());
+      // Already set up
+    });
+    When('I set the requestor property to a Member domain object', () => {
+      adapter.requestor = memberDomainObj;
+    });
+    Then('the document\'s requestor should be set to the domain object\'s document', () => {
+      expect(doc.requestor).toBe(memberDomainObj.props.doc);
+    });
+  });
+
+  Scenario('Setting the requestor property with missing id', ({ Given, When, Then }) => {
+    let memberRef: Domain.Contexts.Community.Member.MemberEntityReference;
+    let setRequestorWithoutId: () => void;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      memberRef = { id: '' } as Domain.Contexts.Community.Member.MemberEntityReference; // Missing id
+      // Already set up
+    });
+    When('I set the requestor property to a reference without id', () => {
+      setRequestorWithoutId = () => {
+        adapter.requestor = memberRef;
+      };
+    });
+    Then('an error should be thrown indicating "member reference is missing id"', () => {
+      try {
+        setRequestorWithoutId();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toBe('member reference is missing id');
+      }
+    });
+  });
+
+  Scenario('Setting the community property with null reference', ({ Given, When, Then }) => {
+    let setCommunityWithNull: () => void;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      // Already set up
+    });
+    When('I set the community property to null', () => {
+      setCommunityWithNull = () => {
+        // @ts-expect-error Testing invalid input
+        adapter.community = null;
+      };
+    });
+    Then('an error should be thrown indicating "community reference is missing id"', () => {
+      try {
+        setCommunityWithNull();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toBe('community reference is missing id');
+      }
+    });
+  });
+
+  Scenario('Setting the requestor property with null reference', ({ Given, When, Then }) => {
+    let setRequestorWithNull: () => void;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      // Already set up
+    });
+    When('I set the requestor property to null', () => {
+      setRequestorWithNull = () => {
+        // @ts-expect-error Testing invalid input
+        adapter.requestor = null;
+      };
+    });
+    Then('an error should be thrown indicating "member reference is missing id"', () => {
+      try {
+        setRequestorWithNull();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toBe('member reference is missing id');
+      }
+    });
+  });
+
+  Scenario('Setting the community property with undefined reference', ({ Given, When, Then }) => {
+    let setCommunityWithUndefined: () => void;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      // Already set up
+    });
+    When('I set the community property to undefined', () => {
+      setCommunityWithUndefined = () => {
+        // @ts-expect-error Testing invalid input
+        adapter.community = undefined;
+      };
+    });
+    Then('an error should be thrown indicating "community reference is missing id"', () => {
+      try {
+        setCommunityWithUndefined();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toBe('community reference is missing id');
+      }
+    });
+  });
+
+  Scenario('Setting the requestor property with undefined reference', ({ Given, When, Then }) => {
+    let setRequestorWithUndefined: () => void;
+    Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      // Already set up
+    });
+    When('I set the requestor property to undefined', () => {
+      setRequestorWithUndefined = () => {
+        // @ts-expect-error Testing invalid input
+        adapter.requestor = undefined;
+      };
+    });
+    Then('an error should be thrown indicating "member reference is missing id"', () => {
+      try {
+        setRequestorWithUndefined();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toBe('member reference is missing id');
+      }
+    });
+  });
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
