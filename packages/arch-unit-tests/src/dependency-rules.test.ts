@@ -1,0 +1,74 @@
+import { projectFiles } from 'archunit';
+import { describe, expect, it } from 'vitest';
+
+describe('Dependency Rules', () => {
+  it('apps should not have circular dependencies', async () => {
+    const rule = projectFiles().inFolder('../../apps').should().haveNoCycles();
+    await expect(rule).toPassAsync();
+  }, 30000);
+
+  it('packages should not have circular dependencies', async () => {
+    const rule = projectFiles().inFolder('..').should().haveNoCycles();
+    await expect(rule).toPassAsync();
+  }, 10000);
+
+  it('domain layer should not depend on persistence layer', async () => {
+    const rule = projectFiles()
+      .inFolder('../ocom/domain')
+      .shouldNot()
+      .dependOnFiles()
+      .inFolder('../ocom/persistence');
+
+    await expect(rule).toPassAsync();
+  });
+
+  it('domain layer should not depend on infrastructure layer', async () => {
+    const rule = projectFiles()
+      .inFolder('../ocom/domain/src/domain')
+      .shouldNot()
+      .dependOnFiles()
+      .inPath('../ocom/service-*/**');
+
+    await expect(rule).toPassAsync();
+  });
+
+  it('domain layer should not depend on application services', async () => {
+    const rule = projectFiles()
+      .inFolder('../ocom/domain')
+      .shouldNot()
+      .dependOnFiles()
+      .inFolder('../ocom/application-services');
+
+    await expect(rule).toPassAsync();
+  });
+
+  it('application services should not depend on infrastructure', async () => {
+    const rule = projectFiles()
+      .inFolder('../ocom/application-services')
+      .shouldNot()
+      .dependOnFiles()
+      .inPath('../ocom/service-*/**');
+
+    await expect(rule).toPassAsync();
+  });
+
+  it('GraphQL API layer should not depend on infrastructure directly', async () => {
+    const rule = projectFiles()
+      .inFolder('../ocom/graphql')
+      .shouldNot()
+      .dependOnFiles()
+      .inPath('../ocom/service-*/**');
+
+    await expect(rule).toPassAsync();
+  });
+
+  it('REST API layer should not depend on infrastructure directly', async () => {
+    const rule = projectFiles()
+      .inFolder('../ocom/rest')
+      .shouldNot()
+      .dependOnFiles()
+      .inPath('../ocom/service-*/**');
+
+    await expect(rule).toPassAsync({ allowEmptyTests: true });
+  });
+});
