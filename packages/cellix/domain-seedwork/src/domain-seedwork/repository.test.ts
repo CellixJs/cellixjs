@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import { NotFoundError } from './repository.js';
+import { NotFoundError } from './repository.ts';
 
 
 const test = { for: describeFeature };

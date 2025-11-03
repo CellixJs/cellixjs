@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within, fn } from 'storybook/test';
-import { CommunityCreate } from './community-create.tsx';
+import { expect, fn, userEvent, within } from 'storybook/test';
+import { CommunityCreate, type CommunityCreateProps } from './community-create.tsx';
 
 const meta = {
   title: 'Components/Accounts/CommunityCreate',
@@ -19,7 +19,7 @@ type Story = StoryObj<typeof CommunityCreate>;
 export const Default: Story = {
   args: {
     onSave: fn(),
-  },
+  } satisfies CommunityCreateProps,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import { DomainEntity, type DomainEntityProps, PermissionError } from './domain-entity.js';
+import { DomainEntity, type DomainEntityProps, PermissionError } from './domain-entity.ts';
 
 
 const test = { for: describeFeature };

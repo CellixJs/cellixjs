@@ -1,5 +1,5 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import { VendorUserCreatedEvent } from '../../../events/types/vendor-user-created.ts';
+import { VendorUserCreatedEvent, type VendorUserCreatedProps } from '../../../events/types/vendor-user-created.ts';
 import * as ValueObjects from './vendor-user.value-objects.ts';
 import {
 	VendorUserPersonalInformation,
@@ -69,7 +69,7 @@ export class VendorUser<props extends VendorUserProps>
 
 	private markAsNew(): void {
 		this.isNew = true;
-		this.addIntegrationEvent(VendorUserCreatedEvent, { userId: this.props.id });
+		this.addIntegrationEvent<VendorUserCreatedProps, VendorUserCreatedEvent>(VendorUserCreatedEvent, { userId: this.props.id });
 	}
 
 	private validateVisa(): void {

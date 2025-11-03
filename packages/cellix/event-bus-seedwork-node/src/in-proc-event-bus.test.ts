@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { expect, vi } from 'vitest';
-import { InProcEventBusInstance } from './in-proc-event-bus.js';
+import { InProcEventBusInstance } from './in-proc-event-bus.ts';
 
 
 

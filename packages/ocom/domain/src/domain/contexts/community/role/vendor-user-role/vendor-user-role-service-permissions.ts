@@ -1,7 +1,7 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { CommunityVisa } from '../../community.visa.ts';
 
-export interface VendorUserRoleServicePermissionsSpec {
+interface VendorUserRoleServicePermissionsSpec {
 	canManageServices: boolean;
 	isSystemAccount: boolean;
 }

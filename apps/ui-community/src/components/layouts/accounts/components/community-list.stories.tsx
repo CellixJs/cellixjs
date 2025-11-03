@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from 'storybook/test';
-import { CommunityList } from './community-list.tsx';
 import { MemoryRouter } from 'react-router-dom';
+import { expect, userEvent, within } from 'storybook/test';
+import { CommunityList, type CommunityListProps } from './community-list.tsx';
 
 const meta = {
   title: 'Components/Accounts/CommunityList',
@@ -80,7 +80,7 @@ const mockData = {
 export const Default: Story = {
   args: {
     data: mockData,
-  },
+  } satisfies CommunityListProps,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 

@@ -31,7 +31,7 @@ export const CommunityListContainer: React.FC = () => {
   ) {
     for (const community of communityData.communitiesForCurrentEndUser) {
       members.push(
-        membersData.membersForCurrentEndUser.filter((member) => member?.community?.id === community?.id)
+        membersData.membersForCurrentEndUser.filter((member: AccountsCommunityListContainerMemberFieldsFragment) => member?.community?.id === community?.id)
       );
     }
   }

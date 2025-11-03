@@ -69,7 +69,7 @@ export interface EndUserRole extends Role {
 	isDefault: boolean;
 }
 
-export const EndUserRoleSchema = new Schema<
+const EndUserRoleSchema = new Schema<
 	EndUserRole,
 	Model<EndUserRole>,
 	EndUserRole

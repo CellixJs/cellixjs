@@ -1,15 +1,11 @@
 {
-  "extends": "@cellix/typescript-config/node.json",
+  "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "."
   },
   "include": [
     "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
   ],
   "references": [
     { "path": "../context-spec" },

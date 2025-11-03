@@ -1,17 +1,15 @@
+import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { type Model, type ObjectId, type PopulatedDoc, Schema, type SchemaDefinition } from 'mongoose';
-import {
-	type Community,
-	CommunityModelName,
-} from '../community/community.model.ts';
+import * as Community from '../community/community.model.ts';
 import { type Role, type RoleModelType, roleOptions } from './role.model.ts';
 
-export interface VendorUserRoleServicePermissions {
+export interface VendorUserRoleServicePermissions extends MongooseSeedwork.NestedPath {
 	id?: ObjectId;
 	canManageServices: boolean;
 	isSystemAccount: false;
 }
 
-export interface VendorUserRoleServiceTicketPermissions {
+export interface VendorUserRoleServiceTicketPermissions extends MongooseSeedwork.NestedPath {
 	id?: ObjectId;
 	canCreateTickets: boolean;
 	canManageTickets: boolean;
@@ -22,7 +20,7 @@ export interface VendorUserRoleServiceTicketPermissions {
 	isSystemAccount: false;
 }
 
-export interface VendorUserRoleViolationTicketPermissions {
+export interface VendorUserRoleViolationTicketPermissions extends MongooseSeedwork.NestedPath {
 	id?: ObjectId;
 	canCreateTickets: boolean;
 	canManageTickets: boolean;
@@ -33,7 +31,7 @@ export interface VendorUserRoleViolationTicketPermissions {
 	isSystemAccount: false;
 }
 
-export interface VendorUserRolePropertyPermissions {
+export interface VendorUserRolePropertyPermissions extends MongooseSeedwork.NestedPath {
 	id?: ObjectId;
 	canManageProperties: boolean;
 	canEditOwnProperty: boolean;
@@ -41,7 +39,7 @@ export interface VendorUserRolePropertyPermissions {
 	isSystemAccount: false;
 }
 
-export interface VendorUserRoleCommunityPermissions {
+export interface VendorUserRoleCommunityPermissions extends MongooseSeedwork.NestedPath {
 	id?: ObjectId;
 	canManageRolesAndPermissions: boolean;
 	canManageCommunitySettings: boolean;
@@ -53,7 +51,7 @@ export interface VendorUserRoleCommunityPermissions {
 	isSystemAccount: false;
 }
 
-export interface VendorUserRolePermissions {
+export interface VendorUserRolePermissions extends MongooseSeedwork.NestedPath {
 	id?: ObjectId;
 	servicePermissions: VendorUserRoleServicePermissions;
 	serviceTicketPermissions: VendorUserRoleServiceTicketPermissions;
@@ -63,7 +61,7 @@ export interface VendorUserRolePermissions {
 }
 
 export interface VendorUserRole extends Role {
-	community: PopulatedDoc<Community> | ObjectId;
+	community: PopulatedDoc<Community.Community> | ObjectId;
 	permissions: VendorUserRolePermissions;
 
 	roleName: string;
@@ -71,7 +69,7 @@ export interface VendorUserRole extends Role {
 	isDefault: boolean;
 }
 
-export const VendorUserRoleSchema = new Schema<
+const VendorUserRoleSchema = new Schema<
 	VendorUserRole,
 	Model<VendorUserRole>,
 	VendorUserRole
@@ -79,7 +77,7 @@ export const VendorUserRoleSchema = new Schema<
 	{
 		community: {
 			type: Schema.Types.ObjectId,
-			ref: CommunityModelName,
+			ref: Community.CommunityModelName,
 			required: true,
 			index: true,
 		},
@@ -145,7 +143,7 @@ export const VendorUserRoleSchema = new Schema<
 	roleOptions,
 ).index({ roleName: 1, community: 1 }, { unique: true });
 
-export const VendorUserRoleModelName: string = 'vendor-user-roles';
+const VendorUserRoleModelName: string = 'vendor-user-roles';
 
 export const VendorUserRoleModelFactory = (RoleModel: RoleModelType) => {
     return RoleModel.discriminator(VendorUserRoleModelName, VendorUserRoleSchema);

@@ -7,7 +7,7 @@ import {
 import * as ValueObjects from './staff-role.value-objects.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
-import { RoleDeletedReassignEvent } from '../../../events/types/role-deleted-reassign.ts';
+import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../events/types/role-deleted-reassign.ts';
 
 export interface StaffRoleProps extends DomainSeedwork.DomainEntityProps {
 	roleName: string;
@@ -65,7 +65,7 @@ export class StaffRole<props extends StaffRoleProps>
             );
         }
 		super.isDeleted = true;
-		this.addIntegrationEvent(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});

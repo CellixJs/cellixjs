@@ -1,5 +1,5 @@
 {
-  "extends": "@cellix/typescript-config/node.json",
+  "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "dist"

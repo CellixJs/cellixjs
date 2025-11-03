@@ -1,12 +1,11 @@
 {
-  "extends": "@cellix/typescript-config/node.json",
+  "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "outDir": "dist",
     "rootDir": "."
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"],
   "references": [
     { "path": "../../packages/cellix/api-services-spec" },
     { "path": "../../packages/cellix/mongoose-seedwork" },

@@ -1,4 +1,4 @@
-import type { DomainEvent } from './domain-event.js';
+import type { DomainEvent } from './domain-event.ts';
 
 export interface HandleEvent<T> {
 	handle(event: T): void;

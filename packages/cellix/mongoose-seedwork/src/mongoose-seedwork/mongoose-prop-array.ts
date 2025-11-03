@@ -1,12 +1,12 @@
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type mongoose from 'mongoose';
 import { Types } from 'mongoose';
-import type { Base, SubdocumentBase } from './base.js';
+import type { Base, SubdocumentBase } from './base.ts';
 
-export interface HasDoc<docType> {
+interface HasDoc<docType> {
 	doc: docType;
 }
-export interface HasProps<docType extends Base | SubdocumentBase> {
+interface HasProps<docType extends Base | SubdocumentBase> {
 	props: docType;
 }
 

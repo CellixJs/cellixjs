@@ -2,9 +2,9 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MongoTypeConverter } from './mongo-type-converter.js';
-import type { Base } from './base.js';
-import type { MongooseDomainAdapterType } from './mongo-domain-adapter.js';
+import { MongoTypeConverter } from './mongo-type-converter.ts';
+import type { Base } from './base.ts';
+import type { MongooseDomainAdapterType } from './mongo-domain-adapter.ts';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 
 

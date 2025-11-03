@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import { loadFeature, describeFeature } from '@amiceli/vitest-cucumber';
-import { AggregateRoot } from './aggregate-root.js';
-import { DomainSeedwork } from '../index.js';
+import { AggregateRoot } from './aggregate-root.ts';
+import { DomainSeedwork } from '../index.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    "apps/api": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "apps/ui-community": {
+      "entry": ["src/main.tsx"],
+      "project": ["src/**/*.{ts,tsx}"],
+      "ignore": [
+        "**/apollo-client-links.tsx"
+      ]
+    },
+    "apps/docs": {
+      "entry": ["src/**/*.{ts,tsx,js,jsx}"],
+      "project": ["src/**/*.{ts,tsx,js,jsx}"]
+    },
+    "packages/cellix/*": {
+      "project": ["src/**/*.ts"]
+    },
+    "packages/cellix/mongoose-seedwork": {
+        "entry": ["src/index.ts"],
+        "project": ["src/**/*.ts"],
+        "ignore": [
+            "**/mongo-connection.ts"
+        ]
+    },
+    "packages/cellix/ui-core/*": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/ocom/*": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"],
+      "ignore": [
+        "**/graphql-tools-scalars.ts"
+      ]
+    },
+    "packages/ocom/ui-components": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
+    }
+  },
+  "ignoreWorkspaces": ["packages/cellix/typescript-config"],
+  "ignore": [
+    "build-pipeline/scripts/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.stories.tsx",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/__tests__/**",
+    "**/tests/**"
+  ],
+  "ignoreDependencies": [
+    "@types/*",
+    "@cucumber/node",
+    "@cucumber/pretty-formatter",
+    "@serenity-js/assertions",
+    "@serenity-js/console-reporter",
+    "@serenity-js/core",
+    "@serenity-js/cucumber",
+    "@serenity-js/serenity-bdd",
+    "@graphql-typed-document-node/core",
+    "ts-scope-trimmer-plugin"
+  ],
+  "ignoreBinaries": ["func"]
+}

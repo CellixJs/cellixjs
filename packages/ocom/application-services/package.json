@@ -14,6 +14,9 @@
     "prebuild": "biome lint",
     "build": "tsc --build",
     "watch": "tsc --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
     "lint": "biome lint",
     "clean": "rimraf dist"
   },
@@ -24,7 +27,8 @@
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
-    "typescript": "^5.8.3",
+    "@cellix/vitest-config": "workspace:*",
+    "typescript": "catalog:",
     "rimraf": "^6.0.1"
   }
 }

@@ -11,7 +11,7 @@ import {
 	type CommunityEntityReference,
 } from '../../community/community.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
-import { RoleDeletedReassignEvent } from '../../../../events/types/role-deleted-reassign.ts';
+import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../../passport.ts';
 
 export interface VendorUserRoleProps extends DomainSeedwork.DomainEntityProps {
@@ -39,11 +39,18 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 	implements VendorUserRoleEntityReference
 {
 	private isNew: boolean = false;
-	private readonly visa: CommunityVisa;
+	private _visa?: CommunityVisa;
 
-	constructor(props: props, passport: Passport) {
-		super(props, passport);
-		this.visa = this.passport.community.forCommunity(this.community);
+	private get visa(): CommunityVisa {
+		if (!this._visa) {
+			if (!this.props.community) {
+				throw new Error(
+					'Community must be set before computing a visa for VendorUserRole',
+				);
+			}
+			this._visa = this.passport.community.forCommunity(this.community);
+		}
+		return this._visa;
 	}
 
 	public static getNewInstance<props extends VendorUserRoleProps>(
@@ -79,7 +86,7 @@ export class VendorUserRole<props extends VendorUserRoleProps>
             );
         }
 		super.isDeleted = true;
-		this.addIntegrationEvent(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});
@@ -92,7 +99,8 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 		if (
 			!this.isNew &&
 			!this.visa.determineIf(
-				(permissions) => permissions.canManageEndUserRolesAndPermissions,
+				(domainPermissions) =>
+					domainPermissions.canManageVendorUserRolesAndPermissions,
 			)
 		) {
 			throw new DomainSeedwork.PermissionError(

@@ -3,9 +3,9 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { Types } from 'mongoose';
 import { expect, vi } from 'vitest';
-import type { Base } from './base.js';
-import type { MongooseDomainAdapter } from './mongo-domain-adapter.js';
-import { MongoosePropArray } from './mongoose-prop-array.js';
+import type { Base } from './base.ts';
+import type { MongooseDomainAdapter } from './mongo-domain-adapter.ts';
+import { MongoosePropArray } from './mongoose-prop-array.ts';
 
 
 const test = { for: describeFeature };

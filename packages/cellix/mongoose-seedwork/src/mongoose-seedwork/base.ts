@@ -1,6 +1,6 @@
 import type { Document, SchemaOptions, Types } from 'mongoose';
 
-export interface MongoBase {
+interface MongoBase {
 	id: Types.ObjectId | undefined;
 	schemaVersion: string;
 	createdAt: Date | undefined;
@@ -18,10 +18,10 @@ export interface Base extends Document, MongoBase {
 	createdAt: Date;
 	updatedAt: Date;
 }
-export const BaseOptions: SchemaOptions = {
-	timestamps: true,
-	versionKey: 'version',
-};
+// const BaseOptions: SchemaOptions = {
+// 	timestamps: true,
+// 	versionKey: 'version',
+// };
 
 /**
  * This interface is to be used for all Mongoose Subdocuments, either inside an array or as a single document
@@ -30,7 +30,7 @@ export const BaseOptions: SchemaOptions = {
 export interface SubdocumentBase
 	extends Omit<Document, 'id'>,
 		Omit<MongoBase, 'schemaVersion'> {}
-export const SubdocumentBaseOptions: SchemaOptions = BaseOptions;
+// const SubdocumentBaseOptions: SchemaOptions = BaseOptions;
 
 /**
  * This interface can only be used for defining a grouping of properties inside a path ina document

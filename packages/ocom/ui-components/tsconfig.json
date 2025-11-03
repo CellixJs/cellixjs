@@ -1,5 +1,5 @@
 {
-  "extends": "@cellix/typescript-config/base.json",
+  "extends": "@cellix/typescript-config/base",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
@@ -9,7 +9,6 @@
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"],
   "references": [
     { "path": "../../cellix/ui-core" },
   ]
