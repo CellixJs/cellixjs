@@ -2,17 +2,20 @@ import { projectFiles } from 'archunit';
 import { describe, expect, it } from 'vitest';
 
 describe('Dependency Rules', () => {
-  it('apps should not have circular dependencies', async () => {
-    const rule = projectFiles().inFolder('../../apps').should().haveNoCycles();
-    await expect(rule).toPassAsync();
-  }, 30000);
+  describe('Circular Dependencies', () => {
+    it('apps should not have circular dependencies', async () => {
+      const rule = projectFiles().inFolder('../../apps').should().haveNoCycles();
+      await expect(rule).toPassAsync();
+    }, 30000);
 
-  it('packages should not have circular dependencies', async () => {
-    const rule = projectFiles().inFolder('..').should().haveNoCycles();
-    await expect(rule).toPassAsync();
-  }, 10000);
+    it('packages should not have circular dependencies', async () => {
+      const rule = projectFiles().inFolder('..').should().haveNoCycles();
+      await expect(rule).toPassAsync();
+    }, 10000);
+  });
 
-  it('domain layer should not depend on persistence layer', async () => {
+  describe('api', () => {
+    it('domain layer should not depend on persistence layer', async () => {
     const rule = projectFiles()
       .inFolder('../ocom/domain')
       .shouldNot()
@@ -24,7 +27,7 @@ describe('Dependency Rules', () => {
 
   it('domain layer should not depend on infrastructure layer', async () => {
     const rule = projectFiles()
-      .inFolder('../ocom/domain/src/domain')
+      .inFolder('../ocom/domain')
       .shouldNot()
       .dependOnFiles()
       .inPath('../ocom/service-*/**');
@@ -63,12 +66,45 @@ describe('Dependency Rules', () => {
   });
 
   it('REST API layer should not depend on infrastructure directly', async () => {
-    const rule = projectFiles()
-      .inFolder('../ocom/rest')
-      .shouldNot()
-      .dependOnFiles()
-      .inPath('../ocom/service-*/**');
+      const rule = projectFiles()
+        .inFolder('../ocom/rest')
+        .shouldNot()
+        .dependOnFiles()
+        .inPath('../ocom/service-*/**');
 
-    await expect(rule).toPassAsync({ allowEmptyTests: true });
+      await expect(rule).toPassAsync({ allowEmptyTests: true });
+    });
+  });
+
+  describe('ui-community', () => {
+    it('UI core should not depend on UI components', async () => {
+      const rule = projectFiles()
+        .inFolder('../cellix/ui-core')
+        .shouldNot()
+        .dependOnFiles()
+        .inFolder('../ocom/ui-components');
+
+      await expect(rule).toPassAsync();
+    });
+
+    it('UI core should not depend on UI community app', async () => {
+      const rule = projectFiles()
+        .inFolder('../cellix/ui-core')
+        .shouldNot()
+        .dependOnFiles()
+        .inFolder('../../apps/ui-community');
+
+      await expect(rule).toPassAsync();
+    });
+
+    it('UI components should not depend on UI community app', async () => {
+      const rule = projectFiles()
+        .inFolder('../ocom/ui-components')
+        .shouldNot()
+        .dependOnFiles()
+        .inFolder('../../apps/ui-community');
+
+      await expect(rule).toPassAsync();
+    });
   });
 });

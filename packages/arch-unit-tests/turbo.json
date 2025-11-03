@@ -4,6 +4,7 @@
     "test:coverage": {
       "dependsOn": [
         "@cellix/vitest-config#build",
+        "@cellix/ui-core#build",
         "@ocom/domain#build",
         "@ocom/persistence#build",
         "@ocom/application-services#build",
