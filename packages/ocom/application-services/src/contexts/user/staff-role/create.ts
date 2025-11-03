@@ -1,7 +1,7 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
-interface StaffRoleCommunityPermissionsCommand {
+interface StaffRoleCreateCommandCommunityPermissions {
 	canManageStaffRolesAndPermissions?: boolean;
 	canManageAllCommunities?: boolean;
 	canDeleteCommunities?: boolean;
@@ -9,14 +9,14 @@ interface StaffRoleCommunityPermissionsCommand {
 	canReIndexSearchCollections?: boolean;
 }
 
-interface StaffRolePermissionsCommand {
-	community?: StaffRoleCommunityPermissionsCommand;
+export interface StaffRoleCreateCommandPermissions {
+	community?: StaffRoleCreateCommandCommunityPermissions;
 }
 
 export interface StaffRoleCreateCommand {
 	roleName: string;
 	isDefault?: boolean;
-	permissions?: StaffRolePermissionsCommand;
+	permissions?: StaffRoleCreateCommandPermissions;
 }
 
 const isNotFoundError = (error: unknown): boolean => {
@@ -44,7 +44,7 @@ const ensureRoleDoesNotExist = async (
 
 const applyCommunityPermissions = (
 	staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>,
-	permissions?: StaffRoleCommunityPermissionsCommand,
+	permissions?: StaffRoleCreateCommandCommunityPermissions,
 ) => {
 	if (!permissions) {
 		return;

@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
@@ -54,6 +55,6 @@ export class ViolationTicketV1Photo extends DomainSeedwork.DomainEntity<Violatio
 
   getNewDocumentId(): string {
     // Generate a new document ID - implementation can be customized
-    return `photo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `photo-${Date.now()}-${randomBytes(5).toString('hex').substr(0, 9)}`;
   }
 }

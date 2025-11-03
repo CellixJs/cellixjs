@@ -34,3 +34,8 @@ Feature: <Entity> ViolationTicketV1Photo
     When I have a ViolationTicketV1Photo instance
     And I call getNewDocumentId
     Then it should return a new document ID
+
+  Scenario: Getting new document ID generates unique values
+    When I call getNewDocumentId multiple times
+    Then each result should be unique
+    And each should match the expected format

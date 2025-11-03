@@ -16,6 +16,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let photo: ViolationTicketV1Photo;
   let props: ViolationTicketV1PhotoProps;
   let visa: ViolationTicketV1Visa;
+  let results: string[];
 
   BeforeEachScenario(() => {
     visa = {
@@ -138,6 +139,28 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     Then('it should return a new document ID', () => {
       // Already checked
+    });
+  });
+
+  Scenario('Getting new document ID generates unique values', ({ When, Then, And }) => {
+    When('I call getNewDocumentId multiple times', () => {
+      photo = new ViolationTicketV1Photo(props, visa);
+      results = [];
+      for (let i = 0; i < 10; i++) {
+        results.push(photo.getNewDocumentId());
+      }
+    });
+
+    Then('each result should be unique', () => {
+      const uniqueResults = new Set(results);
+      expect(uniqueResults.size).toBe(results.length);
+    });
+
+    And('each should match the expected format', () => {
+      const regex = /^photo-\d+-[a-f0-9]{9}$/;
+      results.forEach((result: string) => {
+        expect(result).toMatch(regex);
+      });
     });
   });
 });
