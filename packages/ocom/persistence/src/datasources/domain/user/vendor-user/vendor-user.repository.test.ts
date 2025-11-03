@@ -18,6 +18,7 @@ const feature = await loadFeature(
 function makeVendorUserDoc(overrides: Partial<Models.User.VendorUser> = {}) {
   const base = {
     _id: '507f1f77bcf86cd799439011',
+    id: '507f1f77bcf86cd799439011',
     userType: 'vendor-user',
     externalId: '123e4567-e89b-12d3-a456-426614174001',
     email: 'vendor@example.com',
@@ -143,6 +144,25 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     Then('the VendorUser document should be deleted from the database', () => {
       expect(findByIdAndDeleteMock).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+    });
+  });
+
+  Scenario('Creating a new VendorUser instance', ({ When, Then, And }) => {
+    let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    When('I call getNewInstance with externalId "123e4567-e89b-12d3-a456-426614174002", lastName "Smith", and restOfName "John"', async () => {
+      result = await repo.getNewInstance('123e4567-e89b-12d3-a456-426614174002', 'Smith', 'John');
+    });
+    Then('it should return a new VendorUser domain object', () => {
+      expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
+    });
+    And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174002"', () => {
+      expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174002');
+    });
+    And('the domain object\'s lastName should be "Smith"', () => {
+      expect(result.personalInformation.identityDetails.lastName).toBe('Smith');
+    });
+    And('the domain object\'s restOfName should be "John"', () => {
+      expect(result.personalInformation.identityDetails.restOfName).toBe('John');
     });
   });
 });

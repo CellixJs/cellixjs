@@ -24,7 +24,7 @@ const typeConverterFeature = await loadFeature(
 );
 
 function makeServiceTicketDoc(overrides: Partial<Models.Case.ServiceTicket> = {}) {
-  const base = {
+  return {
     id: '507f1f77bcf86cd799439011',
     title: 'Test Ticket',
     description: 'Test Description',
@@ -44,12 +44,12 @@ function makeServiceTicketDoc(overrides: Partial<Models.Case.ServiceTicket> = {}
     hash: '',
     lastIndexed: undefined,
     updateIndexFailedDate: undefined,
-    set(key: keyof Models.Case.ServiceTicket, value: unknown) {
-      (this as Models.Case.ServiceTicket)[key] = value as never;
+    set(key: string, value: unknown) {
+      (this as unknown as Record<string, unknown>)[key] = value;
     },
+    populate: vi.fn(),
     ...overrides,
   } as Models.Case.ServiceTicket;
-  return vi.mocked(base);
 }
 
 function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
@@ -66,6 +66,7 @@ function makeActivityDetailDoc(overrides: Partial<Models.Case.ServiceTicketActiv
     activityType: 'created',
     activityDescription: 'Ticket created',
     activityBy: makeMemberDoc(),
+    populate: vi.fn(),
     ...overrides,
   } as Models.Case.ServiceTicketActivityDetail;
 }
@@ -79,6 +80,7 @@ function makeMessageDoc(overrides: Partial<Models.Case.ServiceTicketMessage> = {
     createdAt: new Date(),
     isHiddenFromApplicant: false,
     embedding: '',
+    populate: vi.fn(),
     ...overrides,
   } as Models.Case.ServiceTicketMessage;
 }
@@ -537,6 +539,236 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     Then('the document\'s message should be "Updated message"', () => {
       expect(messageDoc.message).toBe('Updated message');
+    });
+  });
+
+  Scenario('Loading activityBy when already populated', ({ Given, When, Then }) => {
+    let activityDoc: Models.Case.ServiceTicketActivityDetail;
+    let result: Domain.Contexts.Community.Member.MemberEntityReference;
+
+    Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document with populated activityBy', () => {
+      const memberDoc = makeMemberDoc();
+      activityDoc = makeActivityDetailDoc({ activityBy: memberDoc });
+      new ServiceTicketV1ActivityDetailDomainAdapter(activityDoc);
+    });
+
+    When('I load the activityBy', async () => {
+      const adapter = new ServiceTicketV1ActivityDetailDomainAdapter(activityDoc);
+      result = await adapter.loadActivityBy();
+    });
+
+    Then('it should return a Member entity reference', () => {
+      const memberRef = result as Domain.Contexts.Community.Member.MemberEntityReference;
+      expect(memberRef).toBeDefined();
+      expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
+    });
+  });
+
+  Scenario('Loading activityBy when not populated', ({ Given, When, Then }) => {
+    let activityDoc: Models.Case.ServiceTicketActivityDetail;
+    let result: Domain.Contexts.Community.Member.MemberEntityReference;
+
+    Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document with activityBy as an ObjectId', () => {
+      const memberDoc = makeMemberDoc();
+      activityDoc = makeActivityDetailDoc({ activityBy: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
+      vi.mocked(activityDoc.populate).mockImplementation((path) => {
+        if (path === 'activityBy') {
+          activityDoc.activityBy = memberDoc;
+        }
+        return Promise.resolve(activityDoc);
+      });
+      new ServiceTicketV1ActivityDetailDomainAdapter(activityDoc);
+    });
+
+    When('I load the activityBy', async () => {
+      const adapter = new ServiceTicketV1ActivityDetailDomainAdapter(activityDoc);
+      result = await adapter.loadActivityBy();
+    });
+
+    Then('it should populate and return a Member entity reference', () => {
+      expect(activityDoc.populate).toHaveBeenCalledWith('activityBy');
+      const memberRef = result as Domain.Contexts.Community.Member.MemberEntityReference;
+      expect(memberRef).toBeDefined();
+      expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
+    });
+  });
+
+  Scenario('Loading initiatedBy when already populated', ({ Given, When, Then }) => {
+    let messageDoc: Models.Case.ServiceTicketMessage;
+    let result: Domain.Contexts.Community.Member.MemberEntityReference;
+
+    Given('a ServiceTicketV1MessageDomainAdapter for a document with populated initiatedBy', () => {
+      const memberDoc = makeMemberDoc();
+      messageDoc = makeMessageDoc({ initiatedBy: memberDoc });
+      new ServiceTicketV1MessageDomainAdapter(messageDoc);
+    });
+
+    When('I load the initiatedBy', async () => {
+      const adapter = new ServiceTicketV1MessageDomainAdapter(messageDoc);
+      result = await adapter.loadInitiatedBy();
+    });
+
+    Then('it should return a Member entity reference', () => {
+      const memberRef = result as Domain.Contexts.Community.Member.MemberEntityReference;
+      expect(memberRef).toBeDefined();
+      expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
+    });
+  });
+
+  Scenario('Loading initiatedBy when not populated', ({ Given, When, Then }) => {
+    let messageDoc: Models.Case.ServiceTicketMessage;
+    let result: Domain.Contexts.Community.Member.MemberEntityReference;
+
+    Given('a ServiceTicketV1MessageDomainAdapter for a document with initiatedBy as an ObjectId', () => {
+      const memberDoc = makeMemberDoc();
+      messageDoc = makeMessageDoc({ initiatedBy: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
+      vi.mocked(messageDoc.populate).mockImplementation((path) => {
+        if (path === 'initiatedBy') {
+          messageDoc.initiatedBy = memberDoc;
+        }
+        return Promise.resolve(messageDoc);
+      });
+      new ServiceTicketV1MessageDomainAdapter(messageDoc);
+    });
+
+    When('I load the initiatedBy', async () => {
+      const adapter = new ServiceTicketV1MessageDomainAdapter(messageDoc);
+      result = await adapter.loadInitiatedBy();
+    });
+
+    Then('it should populate and return a Member entity reference', () => {
+      expect(messageDoc.populate).toHaveBeenCalledWith('initiatedBy');
+      const memberRef = result as Domain.Contexts.Community.Member.MemberEntityReference;
+      expect(memberRef).toBeDefined();
+      expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
+    });
+  });
+
+  Scenario('Getting the community property when populated', ({ Given, When, Then }) => {
+    Given('a ServiceTicketV1DomainAdapter for the document with populated community', () => {
+      const communityDoc = makeCommunityDoc();
+      doc = makeServiceTicketDoc({ community: communityDoc });
+      adapter = new ServiceTicketV1DomainAdapter(doc);
+    });
+    When('I get the community property', () => {
+      // Test will check the value
+    });
+    Then('it should return a Community domain adapter', () => {
+      expect(adapter.community).toBeInstanceOf(CommunityDomainAdapter);
+    });
+  });
+
+  Scenario('Getting the community property when not set', ({ Given, When, Then }) => {
+    Given('a ServiceTicketV1DomainAdapter for the document without community', () => {
+      doc = makeServiceTicketDoc({ community: undefined });
+      adapter = new ServiceTicketV1DomainAdapter(doc);
+    });
+    When('I get the community property', () => {
+      // Test will check the value
+    });
+    Then('an error should be thrown indicating "community is not populated"', () => {
+      expect(() => adapter.community).toThrow('community is not populated');
+    });
+  });
+
+  Scenario('Getting the requestor property when populated', ({ Given, When, Then }) => {
+    Given('a ServiceTicketV1DomainAdapter for the document with populated requestor', () => {
+      const memberDoc = makeMemberDoc();
+      doc = makeServiceTicketDoc({ requestor: memberDoc });
+      adapter = new ServiceTicketV1DomainAdapter(doc);
+    });
+    When('I get the requestor property', () => {
+      // Test will check the value
+    });
+    Then('it should return a Member domain adapter', () => {
+      expect(adapter.requestor).toBeInstanceOf(MemberDomainAdapter);
+    });
+  });
+
+  Scenario('Getting the requestor property when not set', ({ Given, When, Then }) => {
+    Given('a ServiceTicketV1DomainAdapter for the document without requestor', () => {
+      doc = makeServiceTicketDoc({ requestor: undefined });
+      adapter = new ServiceTicketV1DomainAdapter(doc);
+    });
+    When('I get the requestor property', () => {
+      // Test will check the value
+    });
+    Then('an error should be thrown indicating "requestor is not populated"', () => {
+      expect(() => adapter.requestor).toThrow('requestor is not populated');
+    });
+  });
+
+  Scenario('Loading the community when already populated', ({ Given, When, Then }) => {
+    let result: Domain.Contexts.Community.Community.CommunityEntityReference;
+    Given('a ServiceTicketV1DomainAdapter for the document with populated community', () => {
+      const communityDoc = makeCommunityDoc();
+      doc = makeServiceTicketDoc({ community: communityDoc });
+      adapter = new ServiceTicketV1DomainAdapter(doc);
+    });
+    When('I load the community', async () => {
+      result = await adapter.loadCommunity();
+    });
+    Then('it should return a Community domain adapter', () => {
+      expect(result).toBeInstanceOf(CommunityDomainAdapter);
+    });
+  });
+
+  Scenario('Loading the community when not populated', ({ Given, When, Then }) => {
+    let result: Domain.Contexts.Community.Community.CommunityEntityReference;
+    Given('a ServiceTicketV1DomainAdapter for the document with community as an ObjectId', () => {
+      const communityDoc = makeCommunityDoc();
+      doc = makeServiceTicketDoc({ community: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012') });
+      vi.mocked(doc.populate).mockImplementation((path) => {
+        if (path === 'community') {
+          doc.community = communityDoc;
+        }
+        return Promise.resolve(doc);
+      });
+      adapter = new ServiceTicketV1DomainAdapter(doc);
+    });
+    When('I load the community', async () => {
+      result = await adapter.loadCommunity();
+    });
+    Then('it should populate and return a Community domain adapter', () => {
+      expect(doc.populate).toHaveBeenCalledWith('community');
+      expect(result).toBeInstanceOf(CommunityDomainAdapter);
+    });
+  });
+
+  Scenario('Loading the requestor when already populated', ({ Given, When, Then }) => {
+    let result: Domain.Contexts.Community.Member.MemberProps;
+    Given('a ServiceTicketV1DomainAdapter for the document with populated requestor', () => {
+      const memberDoc = makeMemberDoc();
+      doc = makeServiceTicketDoc({ requestor: memberDoc });
+      adapter = new ServiceTicketV1DomainAdapter(doc);
+    });
+    When('I load the requestor', async () => {
+      result = await adapter.loadRequestor();
+    });
+    Then('it should return a Member domain adapter', () => {
+      expect(result).toBeInstanceOf(MemberDomainAdapter);
+    });
+  });
+
+  Scenario('Loading the requestor when not populated', ({ Given, When, Then }) => {
+    let result: Domain.Contexts.Community.Member.MemberProps;
+    Given('a ServiceTicketV1DomainAdapter for the document with requestor as an ObjectId', () => {
+      const memberDoc = makeMemberDoc();
+      doc = makeServiceTicketDoc({ requestor: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
+      vi.mocked(doc.populate).mockImplementation((path) => {
+        if (path === 'requestor') {
+          doc.requestor = memberDoc;
+        }
+        return Promise.resolve(doc);
+      });
+      adapter = new ServiceTicketV1DomainAdapter(doc);
+    });
+    When('I load the requestor', async () => {
+      result = await adapter.loadRequestor();
+    });
+    Then('it should populate and return a Member domain adapter', () => {
+      expect(doc.populate).toHaveBeenCalledWith('requestor');
+      expect(result).toBeInstanceOf(MemberDomainAdapter);
     });
   });
 });

@@ -150,3 +150,63 @@ Feature: <DomainAdapter> ServiceTicketV1DomainAdapter
     Given a ServiceTicketV1MessageDomainAdapter for a document
     When I set the message to "Updated message"
     Then the document's message should be "Updated message"
+
+  Scenario: Loading activityBy when already populated
+    Given a ServiceTicketV1ActivityDetailDomainAdapter for a document with populated activityBy
+    When I load the activityBy
+    Then it should return a Member entity reference
+
+  Scenario: Loading activityBy when not populated
+    Given a ServiceTicketV1ActivityDetailDomainAdapter for a document with activityBy as an ObjectId
+    When I load the activityBy
+    Then it should populate and return a Member entity reference
+
+  Scenario: Loading initiatedBy when already populated
+    Given a ServiceTicketV1MessageDomainAdapter for a document with populated initiatedBy
+    When I load the initiatedBy
+    Then it should return a Member entity reference
+
+  Scenario: Loading initiatedBy when not populated
+    Given a ServiceTicketV1MessageDomainAdapter for a document with initiatedBy as an ObjectId
+    When I load the initiatedBy
+    Then it should populate and return a Member entity reference
+
+  Scenario: Getting the community property when populated
+    Given a ServiceTicketV1DomainAdapter for the document with populated community
+    When I get the community property
+    Then it should return a Community domain adapter
+
+  Scenario: Getting the community property when not set
+    Given a ServiceTicketV1DomainAdapter for the document without community
+    When I get the community property
+    Then an error should be thrown indicating "community is not populated"
+
+  Scenario: Getting the requestor property when populated
+    Given a ServiceTicketV1DomainAdapter for the document with populated requestor
+    When I get the requestor property
+    Then it should return a Member domain adapter
+
+  Scenario: Getting the requestor property when not set
+    Given a ServiceTicketV1DomainAdapter for the document without requestor
+    When I get the requestor property
+    Then an error should be thrown indicating "requestor is not populated"
+
+  Scenario: Loading the community when already populated
+    Given a ServiceTicketV1DomainAdapter for the document with populated community
+    When I load the community
+    Then it should return a Community domain adapter
+
+  Scenario: Loading the community when not populated
+    Given a ServiceTicketV1DomainAdapter for the document with community as an ObjectId
+    When I load the community
+    Then it should populate and return a Community domain adapter
+
+  Scenario: Loading the requestor when already populated
+    Given a ServiceTicketV1DomainAdapter for the document with populated requestor
+    When I load the requestor
+    Then it should return a Member domain adapter
+
+  Scenario: Loading the requestor when not populated
+    Given a ServiceTicketV1DomainAdapter for the document with requestor as an ObjectId
+    When I load the requestor
+    Then it should populate and return a Member domain adapter
