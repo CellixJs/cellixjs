@@ -1,27 +1,19 @@
 import { ApolloServer } from '@apollo/server';
+import depthLimit from 'graphql-depth-limit';
 import type { HttpHandler } from '@azure/functions';
 import type { ApplicationServicesFactory, PrincipalHints } from '@ocom/application-services';
+import { applyMiddleware } from 'graphql-middleware';
+import { permissions } from '../schema/builder/resolver-builder.ts';
+import { combinedSchema } from '../schema/builder/schema-builder.ts';
 import {
-	type AzureFunctionsMiddlewareOptions,
+    type AzureFunctionsMiddlewareOptions,
     startServerAndCreateHandler,
     type WithRequired
 } from './azure-functions.ts';
 import type { GraphContext } from './context.ts';
-import { combinedSchema } from '../schema/builder/schema-builder.ts';
-import { applyMiddleware } from 'graphql-middleware';
-import type { GraphQLSchemaWithFragmentReplacements } from 'graphql-middleware/types';
-import { permissions } from '../schema/builder/resolver-builder.ts';
 
-const serverConfig = (securedSchema: GraphQLSchemaWithFragmentReplacements) => {
-	return {
-		schema: securedSchema,
-        cors: {
-            origin: true,
-            credentials: true,
-        },
-        allowBatchedHttpRequests: true,
-	};
-};
+const { NODE_ENV } = process.env;
+const isDev = NODE_ENV !== 'production';
 
 export const graphHandlerCreator = (
 	applicationServicesFactory: ApplicationServicesFactory,
@@ -29,8 +21,11 @@ export const graphHandlerCreator = (
 	// Set up Apollo Server
     const securedSchema = applyMiddleware(combinedSchema, permissions);
 	const server = new ApolloServer<GraphContext>({
-        ...serverConfig(securedSchema)
-	});
+            schema: securedSchema,
+            introspection: isDev,
+            allowBatchedHttpRequests: true,
+            validationRules: [depthLimit(10)],
+    });
 	const functionOptions: WithRequired<AzureFunctionsMiddlewareOptions<GraphContext>, 'context'> = {
 		context: async ({ req }) => {
             const authHeader = req.headers.get('Authorization') ?? undefined;

@@ -37,7 +37,11 @@
     "sonar:pr-windows": "for /f %i in ('node build-pipeline/scripts/get-pr-number.cjs') do set PR_NUMBER=%i && sonar-scanner -Dsonar.pullrequest.key=%PR_NUMBER% -Dsonar.pullrequest.branch=%BRANCH_NAME% -Dsonar.pullrequest.base=main",
     "check-sonar": "node build-pipeline/scripts/check-sonar-quality-gate.cjs",
     "verify": "pnpm audit --audit-level=high --prod && pnpm run test:coverage:merge && pnpm run sonar:pr && pnpm run check-sonar",
-    "knip": "knip"
+    "knip": "knip",
+    "snyk:sca": "snyk test --all-projects",
+    "snyk:code": "snyk code test",
+    "snyk:iac": "snyk iac test",
+    "snyk": "pnpm run snyk:sca && pnpm run snyk:code && pnpm run snyk:iac"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",
@@ -57,6 +61,7 @@
     "concurrently": "^9.1.2",
     "knip": "^5.64.2",
     "rimraf": "^6.0.1",
+    "snyk": "^1.1300.2",
     "ts-scope-trimmer-plugin": "^1.0.2",
     "turbo": "^2.5.8",
     "typescript": "catalog:",

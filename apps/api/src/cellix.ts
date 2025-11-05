@@ -401,7 +401,6 @@ export class Cellix<ContextType, AppServices = unknown>
 	private async stopAllServicesWithTracing(): Promise<void> {
 		await this.iterateServicesWithTracing('stop', 'shutDown');
 	}
-    
 	private async iterateServicesWithTracing(operationName: 'start' | 'stop', serviceMethod: 'startUp' | 'shutDown'): Promise<void> {
 		const operationFullName = `${operationName.charAt(0).toUpperCase() + operationName.slice(1)}Service`;
 		const operationActionPending = operationName === 'start' ? 'starting' : 'stopping';

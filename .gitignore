@@ -16,3 +16,6 @@ local.settings.json
 **/generated.ts
 **/generated.tsx
 **/graphql.schema.json
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.github/instructions/snyk_rules.instructions.md

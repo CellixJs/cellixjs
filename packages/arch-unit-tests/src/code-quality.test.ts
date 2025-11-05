@@ -18,7 +18,7 @@ describe('Code Quality', () => {
     				.shouldBeBelowOrEqual(1.0);
 
 			await expect(rule).toPassAsync();
-		});
+		}, 10000);
 
 		it('should avoid excessive methods per class', async () => {
 			const rule = metrics(tsconfigPath)

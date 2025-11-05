@@ -77,7 +77,7 @@ describe('Dependency Rules', () => {
   });
 
   describe('ui-community', () => {
-    it('UI core should not depend on UI components', async () => {
+    it('ui-core should not depend on ui-components', async () => {
       const rule = projectFiles()
         .inFolder('../cellix/ui-core')
         .shouldNot()
@@ -87,7 +87,7 @@ describe('Dependency Rules', () => {
       await expect(rule).toPassAsync();
     });
 
-    it('UI core should not depend on UI community app', async () => {
+    it('ui-core should not depend on ui-community app', async () => {
       const rule = projectFiles()
         .inFolder('../cellix/ui-core')
         .shouldNot()
@@ -97,7 +97,7 @@ describe('Dependency Rules', () => {
       await expect(rule).toPassAsync();
     });
 
-    it('UI components should not depend on UI community app', async () => {
+    it('ui-components should not depend on ui-community app', async () => {
       const rule = projectFiles()
         .inFolder('../ocom/ui-components')
         .shouldNot()

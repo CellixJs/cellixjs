@@ -1,21 +1,23 @@
 # CODEOWNERS for CellixJS framework
 
 # Assigns code ownership of all CellixJS framework files to the core team
-/packages/cellix-*                          @CellixJs/tech-sme
-/packages/service-*                         @CellixJs/tech-sme
+/packages/cellix/*                          @CellixJs/tech-sme
 
 # Assigns code ownership of configuration files to the admin team
-/tsconfig.json                              @CellixJs/tech-admin
-/tsconfig.base.json                         @CellixJs/tech-admin
 /packages/**/tsconfig.json                  @CellixJs/tech-admin
 /biome.json                                 @CellixJs/tech-admin
 /packages/**/biome.json                     @CellixJs/tech-admin
-/vitest.base.config.js                      @CellixJs/tech-admin
+/vitest.config.ts                           @CellixJs/tech-admin
 /packages/**/vitest.config.ts               @CellixJs/tech-admin
+/knip.json                                  @CellixJs/tech-admin
+/turbo.json                                 @CellixJs/tech-admin
+sonar-project.properties                    @CellixJs/tech-admin
 
 # Assigns ownership of infrastructure as code files to the admin team
+azure-pipelines.yml                         @CellixJs/tech-admin
 /iac/*                                      @CellixJs/tech-admin
-/build-pipeline/*.yml                       @CellixJs/tech-admin
+/build-pipeline/*                           @CellixJs/tech-admin
+/apps/**/iac/*                              @CellixJs/tech-admin
 
 # Assigns code ownership of all .feature files to the QA team (need to create 'tech-qa' team)
 # /packages/**/*.feature                      @CellixJs/tech-qa
