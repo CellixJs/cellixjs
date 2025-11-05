@@ -176,6 +176,20 @@ async function detectChanges() {
 	console.log('Running turbo to detect affected packages...');
 	const { packages: affectedPackages, error: globalError } = await getAffectedPackages();
 
+	// Determine whether any source packages are affected (distinct from infra/pipeline changes)
+	// If Turbo failed (globalError) be conservative and treat this as source-changes = true
+	let hasSourceChanges = false;
+	if (globalError) {
+		hasSourceChanges = true;
+	} else {
+		// Turbo returns an array of affected package ids; non-empty => source changes
+		hasSourceChanges = Array.isArray(affectedPackages) && affectedPackages.length > 0;
+	}
+
+	// Export a pipeline variable for other tasks to consume
+	setPipelineVariable('HAS_SOURCE_CHANGES', hasSourceChanges);
+	console.log(`Source/package changes detected: ${hasSourceChanges}`);
+
 	// Initialize deployment flags
 	let hasBackendChanges = false;
 	let hasFrontendChanges = false;

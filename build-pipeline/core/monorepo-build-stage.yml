@@ -252,10 +252,6 @@ stages:
           
           # Set the merged coverage path for SonarCloud
           echo "##vso[task.setvariable variable=SONAR_LCOV_PATHS]coverage/lcov.info"
-
-          # Audit unused dependencies with knip (after packages are built)
-          echo "Running knip to detect unused dependencies..."
-          pnpm knip
         workingDirectory: ''
       env:
         TURBO_CACHE_HIT: $(TURBO_CACHE_HIT)
@@ -263,6 +259,18 @@ stages:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
         ${{ each pair in parameters.buildEnvSettings }}:
           ${{ pair.key }}: ${{ pair.value }}
+
+    # Audit unused dependencies with knip (after packages are built)
+    - task: Bash@3
+      displayName: 'Audit unused dependencies with knip'
+      condition: eq(variables['BuildJob.HAS_SOURCE_CHANGES'], 'true')
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "Running knip to detect unused dependencies..."
+          pnpm knip
+        workingDirectory: ''
     # Cache Java JRE
     - task: Cache@2
       displayName: 'Java: Restore JRE Cache'
