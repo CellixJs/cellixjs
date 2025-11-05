@@ -270,7 +270,7 @@ stages:
           set -euo pipefail
           echo "Running knip to detect unused dependencies..."
           pnpm knip
-      workingDirectory: ''
+        workingDirectory: ''
     # Cache Java JRE
     - task: Cache@2
       displayName: 'Java: Restore JRE Cache'
