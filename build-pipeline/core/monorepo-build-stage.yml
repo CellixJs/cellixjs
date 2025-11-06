@@ -261,9 +261,31 @@ stages:
           echo "Running knip to detect unused dependencies..."
           pnpm knip
         workingDirectory: ''
+
+    # Audit security vulnerabilities with Snyk CLI
+    - task: Bash@3
+      displayName: 'Audit security vulnerabilities with Snyk CLI'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          echo "Running Snyk to detect security vulnerabilities..."
+          # If PR build, run the test commands 
+          if [ "$(Build.Reason)" = "PullRequest" ]; then
+            echo "Authenticating Snyk for PR build..."
+            pnpm run snyk:code
+            pnpm run snyk:test
+          else
+            echo "Authenticating Snyk for main branch build..."
+            pnpm run snyk:code:report
+            pnpm run snyk:monitor
+          fi
+        workingDirectory: ''
+
     # Cache Java JRE
     - task: Cache@2
       displayName: 'Java: Restore JRE Cache'
+      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
       inputs:
         key: 'java | "$(Agent.OS)" | openjdk-17-jre-headless'
         restoreKeys: |
@@ -274,7 +296,7 @@ stages:
     # Install Java JRE if cache is missed
     - task: Bash@3
       displayName: 'Java: Install JRE if cache missed'
-      condition: ne(variables.JAVA_CACHE_HIT, 'true')
+      condition: and(ne(variables.JAVA_CACHE_HIT, 'true'), eq(${{parameters.disableSonarCloudTasks}}, False))
       inputs:
         targetType: 'inline'
         script: |

@@ -38,10 +38,12 @@
     "check-sonar": "node build-pipeline/scripts/check-sonar-quality-gate.cjs",
     "verify": "pnpm audit --audit-level=high --prod && pnpm run test:coverage:merge && pnpm run sonar:pr && pnpm run check-sonar",
     "knip": "knip",
-    "snyk:sca": "snyk test --all-projects",
-    "snyk:code": "snyk code test",
+    "snyk:test": "snyk test --all-projects --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs",
+    "snyk:monitor": "snyk monitor --org=cellixjs --target-reference=main --remote-repo-url=https://github.com/CellixJs/cellixjs",
+    "snyk:code": "snyk code test --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs",
+    "snyk:code:report": "snyk code test --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --project-name=cellixjs-code --report",
     "snyk:iac": "snyk iac test",
-    "snyk": "pnpm run snyk:sca && pnpm run snyk:code && pnpm run snyk:iac"
+    "snyk": "pnpm run snyk:test && pnpm run snyk:code && pnpm run snyk:iac"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",
