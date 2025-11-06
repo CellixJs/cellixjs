@@ -12,6 +12,7 @@
 /knip.json                                  @CellixJs/tech-admin
 /turbo.json                                 @CellixJs/tech-admin
 sonar-project.properties                    @CellixJs/tech-admin
+/.snyk                                      @CellixJs/tech-admin
 
 # Assigns ownership of infrastructure as code files to the admin team
 azure-pipelines.yml                         @CellixJs/tech-admin

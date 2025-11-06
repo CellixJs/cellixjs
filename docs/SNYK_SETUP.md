@@ -8,8 +8,9 @@ This document explains how to enable and run Snyk Open Source (SCA), Snyk Code (
 - CI will use a secret `SNYK_TOKEN` to run scans in the build stage.
 
 ## Prerequisites
-- Node.js (v18+ recommended) and pnpm/yarn/npm available.
+- Node.js (v22+ recommended, matching CI/CD pipeline) and pnpm available.
 - Snyk account (free for open-source projects) and an API token.
+- Snyk organization: `cellixjs`
 
 Get token:
 1. Sign into https://app.snyk.io
@@ -40,140 +41,258 @@ export SNYK_TOKEN="<YOUR_TOKEN>"
 
 From the repository root.
 
-SCA (Open Source dependency scanning):
+**SCA (Software Composition Analysis - dependency scanning)**:
 
 ```bash
-# fast dependency test
-snyk test --all-projects
+# Test for dependency vulnerabilities (will fail on high/critical issues)
+pnpm run snyk:test
 
-# generate SBOM (CycloneDX JSON)
-snyk sbom generate --format=cx
+# Or using snyk CLI directly:
+snyk test --all-projects --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --policy-path=.snyk
 ```
 
-Snyk Code (SAST):
+**Snyk Code (SAST - static code analysis)**:
 
 ```bash
-# static code analysis for TypeScript/JS and other languages
-snyk code test
+# Scan source code for security vulnerabilities
+pnpm run snyk:code
+
+# Or using snyk CLI directly:
+snyk code test --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --policy-path=.snyk
 ```
 
-IaC scan (Terraform, Kubernetes, CloudFormation, ARM templates):
+**IaC scan (Infrastructure as Code - Bicep templates)**:
 
 ```bash
-# scan all IaC files under iac/
-snyk iac test iac/ --severity-threshold=low
+# Scan IaC files for security misconfigurations
+pnpm run snyk:iac
+
+# Or using snyk CLI directly:
+snyk iac test
 ```
 
-Run all (SCA + Code + IaC):
+**Run all scans (recommended before committing)**:
 
 ```bash
-snyk test --all-projects || true
-snyk code test || true
-snyk iac test iac/ --severity-threshold=low || true
+pnpm run snyk
 ```
 
-> Note: Use `|| true` while first enabling to prevent early CI failures until you triage results.
+This runs all three scan types (SCA + SAST + IaC) using the npm script defined in `package.json`.
 
-## Recommended package.json scripts (developer ergonomics)
+## NPM Scripts (Already Configured)
 
-Add to your `package.json` (docs only; do not commit without review):
+The following scripts are already configured in the root `package.json`:
 
 ```json
 "scripts": {
-  "snyk:auth": "snyk auth",
-  "snyk:sca": "snyk test --all-projects",
-  "snyk:code": "snyk code test",
-  "snyk:iac": "snyk iac test iac/",
-  "snyk:all": "pnpm run snyk:sca && pnpm run snyk:code && pnpm run snyk:iac"
+  "snyk:test": "snyk test --all-projects --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --policy-path=.snyk",
+  "snyk:monitor": "snyk monitor --all-projects --org=cellixjs --target-reference=main --remote-repo-url=https://github.com/CellixJs/cellixjs --policy-path=.snyk",
+  "snyk:code": "snyk code test --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --policy-path=.snyk",
+  "snyk:code:report": "snyk code test --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --project-name=cellixjs-code --report --policy-path=.snyk",
+  "snyk:iac": "snyk iac test",
+  "snyk": "pnpm run snyk:test && pnpm run snyk:code && pnpm run snyk:iac"
 }
 ```
 
-## CI Integration
+**Script Explanations**:
+- `snyk:test` - SCA scan for dependency vulnerabilities (used in PR builds)
+- `snyk:monitor` - Upload SCA results to Snyk Web UI (used in main branch builds)
+- `snyk:code` - SAST scan for code vulnerabilities (used in PR builds)
+- `snyk:code:report` - SAST scan with Web UI reporting (used in main branch builds)
+- `snyk:iac` - IaC scan for Bicep template misconfigurations
+- `snyk` - Run all three scan types (convenience script for local development)
 
-Two options: Azure Pipelines (your repo has) and GitHub Actions. Below are examples.
+**Key flags**:
+- `--org=cellixjs` - Associates scans with the CellixJS Snyk organization
+- `--remote-repo-url` - Links results to the GitHub repository
+- `--policy-path=.snyk` - Uses the `.snyk` policy file for ignore rules
+- `--target-reference=main` - Tags results as main branch for tracking
+- `--report` - Sends results to Snyk Web UI dashboard
 
-### Azure Pipelines example (job step)
+## CI Integration (Azure Pipelines)
 
-Place this snippet in the pipeline job that runs tests/build (use secure pipeline variables):
+Snyk is integrated into the Azure Pipelines build stage with **different behavior for PR builds vs. main branch builds**.
+
+### Implementation Location
+
+The Snyk scan is configured in `build-pipeline/core/monorepo-build-stage.yml` as a Bash task.
+
+### PR Builds (Security Gate)
+
+For pull request builds, Snyk acts as a **security gate** - the build will **fail** if high or critical vulnerabilities are detected:
 
 ```yaml
-- task: NodeTool@0
+- task: Bash@3
+  displayName: 'Audit security vulnerabilities with Snyk CLI'
   inputs:
-    versionSpec: '18.x'
-  displayName: 'Install Node'
-
-- script: |
-    npm ci
-    npx snyk auth $(SNYK_TOKEN)
-    npx snyk test --all-projects
-    npx snyk code test || true
-    npx snyk iac test iac/ --severity-threshold=low || true
-  displayName: 'Run Snyk scans'
+    targetType: 'inline'
+    script: |
+      set -euo pipefail
+      
+      # Authenticate Snyk CLI
+      pnpm exec snyk auth "$SNYK_TOKEN"
+      
+      # PR build: Run security gate (fails on high/critical issues)
+      if [ "$(Build.Reason)" = "PullRequest" ]; then
+        pnpm run snyk:code      # SAST - will fail on high/critical
+        pnpm run snyk:test      # SCA - will fail on high/critical
+      fi
   env:
     SNYK_TOKEN: $(SNYK_TOKEN)
 ```
 
-Set `SNYK_TOKEN` as a pipeline secret variable in Azure DevOps.
+**PR Build Behavior**:
+- Runs `snyk:code` (SAST) and `snyk:test` (SCA)
+- **Fails the build** if high or critical vulnerabilities are found
+- Provides immediate feedback in PR checks
+- Works alongside SonarCloud quality gate (both must pass)
 
-### GitHub Actions example (optional)
+### Main Branch Builds (Monitoring)
+
+For main branch builds, Snyk **updates the Snyk Web UI project** with the current security snapshot:
 
 ```yaml
-name: Snyk Scan
-on: [push, pull_request]
-jobs:
-  snyk:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - name: Install deps
-        run: npm ci
-      - name: Authenticate Snyk
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-          npx snyk auth $SNYK_TOKEN
-      - name: Snyk SCA
-        run: npx snyk test --all-projects
-      - name: Snyk Code
-        run: npx snyk code test || true
-      - name: Snyk IaC
-        run: npx snyk iac test iac/ --severity-threshold=low || true
+      # Main branch: Report to Snyk dashboard and monitor
+      else
+        pnpm run snyk:code:report  # SAST with dashboard reporting
+        pnpm run snyk:monitor       # Update Snyk Web UI project
+      fi
 ```
 
-## Snyk Monitor (optional)
+**Main Branch Behavior**:
+- Runs `snyk:code:report` (SAST with Web UI reporting)
+- Runs `snyk:monitor` (updates Snyk Web UI with current dependency snapshot)
+- Does NOT fail the build
+- Enables continuous monitoring and trend tracking in Snyk Web UI
+- Team can view vulnerability history and remediation progress
 
-To keep track of SCA results over time, call `snyk monitor` and upload results to Snyk UI:
+### Secret Configuration
+
+The `SNYK_TOKEN` is stored as a pipeline secret variable in the Azure DevOps variable group `snyk-credential-cellixjs`.
+
+**To configure**:
+1. Go to Azure DevOps -> Pipelines -> Library -> Variable groups
+2. Find or create `snyk-credential-cellixjs` variable group
+3. Add `SNYK_TOKEN` variable with your Snyk API token
+4. Mark it as secret (lock icon)
+
+## Snyk Web UI Project Monitoring
+
+**Main branch builds automatically update the CellixJS project in Snyk Web UI**.
+
+This is accomplished via:
+- `snyk:monitor` - Uploads current dependency snapshot to Snyk Web UI
+- `snyk:code:report` - Uploads SAST results to Snyk Web UI
+
+The Snyk Web UI project provides:
+- **Vulnerability trends over time** - Track security improvements/regressions
+- **Historical snapshots** - See when vulnerabilities were introduced
+- **Proactive alerting** - Get notified when new CVEs affect your dependencies
+- **Remediation tracking** - Monitor progress on fixing security issues
+- **Executive reporting** - Security dashboards and metrics
+
+You can manually update the Snyk project locally:
 
 ```bash
-npx snyk monitor --all-projects
+pnpm run snyk:monitor
+pnpm run snyk:code:report
 ```
 
-## Failure policy suggestions
+However, this is primarily handled automatically by CI/CD main branch builds.
 
-- SCA: Fail the build for high/critical Snyk findings. Use `--severity-threshold=high` to exit non-zero only for high+.
-- Code/SAST: Initially run as advisory (do not fail CI) until you triage results; later fail on `high` or `critical` severity.
-- IaC: Fail for `high`+ or enforce fix policies via PR bot.
+## Failure Policy
 
-## Developer & Agent usage
+The project uses Snyk's default failure behavior:
 
-- Developers should `npm ci` and run `pnpm run snyk:all` locally.
-- AI agents should authenticate using `SNYK_TOKEN` env var in the execution environment, and then run `npx snyk code test` and `npx snyk test --all-projects`.
+**PR Builds (Security Gate)**:
+- **SCA (`snyk:test`)**: Fails on ANY vulnerability by default
+- **SAST (`snyk:code`)**: Fails on high or critical vulnerabilities
+- **Build blocks PR merge** if either scan fails
+
+**Main Branch Builds (Monitoring Only)**:
+- Does NOT fail the build
+- Only reports results to Snyk Web UI for tracking
+
+**Policy Management**:
+
+The `.snyk` policy file allows you to ignore specific vulnerabilities:
+
+```yaml
+version: v1.5.0
+ignore:
+  'SNYK-JS-SIRV-12558119':
+    - '* > sirv@2.0.4':
+        reason: 'Transitive dependency in Docusaurus; not exploitable in context'
+        expires: '2026-11-20T00:00:00.000Z'
+        created: '2024-11-06T15:57:00.000Z'
+```
+
+**Best practices for ignores**:
+- Document the business reason
+- Set expiration dates to force periodic review
+- Only ignore false positives or accepted risks
+
+## Developer & AI Agent Usage
+
+**Developers**:
+
+Before committing code, run all Snyk scans:
+
+```bash
+pnpm run snyk
+```
+
+This runs SCA, SAST, and IaC scans using the same commands that CI uses.
+
+**AI Agents (GitHub Copilot)**:
+
+AI agents are configured via `.github/instructions/snyk_rules.instructions.md` to automatically:
+1. Run `snyk_code_scan` tool after generating code
+2. Detect security issues in newly generated code
+3. Attempt to fix issues automatically
+4. Rescan after fixes to verify resolution
+5. Repeat until no issues remain
+
+This enables **"security at inception"** - catching vulnerabilities during code generation before they're even committed.
+
+**Manual AI agent authentication** (if needed):
+
+```bash
+export SNYK_TOKEN="<YOUR_TOKEN>"
+pnpm exec snyk auth "$SNYK_TOKEN"
+pnpm run snyk:code
+pnpm run snyk:test
+```
 
 ## Notes & Troubleshooting
 
-- If `snyk code test` doesn't report results in CI, ensure the CLI is up-to-date and the project has source files for supported languages.
-- For multi-package monorepos, `--all-projects` will auto-detect manifests (package.json, pom.xml, etc.). If it misses packages, specify `--file` per-project.
+**Monorepo Support**:
+- The `--all-projects` flag automatically detects all `package.json` files in the workspace
+- Snyk will scan all workspace packages for vulnerabilities
+- No additional configuration needed for Turborepo/pnpm workspaces
+
+**Policy File**:
+- The `.snyk` file in the repository root contains ignore rules
+- All npm scripts reference it via `--policy-path=.snyk`
+- Edit this file to add new ignore rules with expiration dates
+
+**Snyk CLI Version**:
+- Currently using `snyk@1.1300.2` as a dev dependency
+- Update via: `pnpm add -D snyk@latest`
+
+**IaC Scanning**:
+- Automatically scans Bicep files (`.bicep`) in the repository
+- No path or severity threshold configured (scans all files, all severities)
+- Customize via `snyk:iac` script if needed
+
+**CI/CD Integration**:
+- Already fully configured in Azure Pipelines
+- See `build-pipeline/core/monorepo-build-stage.yml` for implementation
+- Variable group `snyk-credential-cellixjs` contains the `SNYK_TOKEN` secret
+
+**Resources**:
+- Snyk CLI Documentation: https://docs.snyk.io/snyk-cli
+- Snyk for Azure Pipelines: https://docs.snyk.io/integrations/ci-cd-integrations/azure-pipelines-integration
+- Snyk Policy File: https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/the-.snyk-file
+- Snyk for Monorepos: https://docs.snyk.io/scan-applications/supported-languages-and-frameworks/monorepos
 - Snyk Support: https://support.snyk.io/
-
----
-
-If you'd like, I can also:
-- Add a CI step to your `azure-pipelines.yml` now (I'll only do it if you confirm).
-- Add a GitHub Actions workflow file.
-- Add a small npm script into `packages/arch-unit-tests/package.json` or repo root `package.json` to make running Snyk local easier.
-
-Which of the above would you like me to do next?

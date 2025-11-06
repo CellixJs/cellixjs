@@ -51,6 +51,9 @@ npm run dev  # Builds all workspace packages, starts mock emulator services, bac
 # Build Pipeline Verification
 npm run verify    # Run all verification steps (lint, build, test, sonarcloud, quality gate)
 
+# Security Scanning (before committing)
+pnpm run snyk     # Run all security scans (SCA + SAST + IaC)
+
 # Package-specific operations
 npm run build    # Build all packages
 npm run lint     # Lint all packages
@@ -58,7 +61,35 @@ npm run test     # Test all packages
 npm run gen      # Generate code (e.g., GraphQL types)
 ```
 
-**Important**: Use `npm run verify` to ensure code quality before commits. Address any issues reported before pushing changes.
+**Important**: 
+- Use `npm run verify` to ensure code quality before commits
+- Use `pnpm run snyk` to run security scans before commits
+- Address any issues reported before pushing changes
+
+### Security Scanning Workflow
+
+**During code generation**:
+- Use `snyk_code_scan` MCP tool for immediate security feedback on newly generated code
+- Fix security issues iteratively as code is generated
+
+**Before committing changes**:
+```bash
+pnpm run snyk  # Run all security scans
+```
+
+This runs three security scans:
+- `snyk:code` - SAST (Static Application Security Testing) for source code vulnerabilities
+- `snyk:test` - SCA (Software Composition Analysis) for dependency vulnerabilities
+- `snyk:iac` - IaC scanning for Bicep template security misconfigurations
+
+**If security issues are found**:
+1. Review Snyk output for vulnerability details and remediation guidance
+2. Fix the reported issues (upgrade dependencies, refactor code, etc.)
+3. Re-run `pnpm run snyk` to verify fixes
+4. Repeat until all scans pass
+5. Only then commit the changes
+
+**Note**: Do NOT use `snyk:report` or any Snyk subtasks tagged with `:report` - these are reserved for CI/CD pipeline only.
 
 ### VS Code Tasks
 Use VS Code tasks for development (preferred over manual commands):
