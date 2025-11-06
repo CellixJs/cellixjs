@@ -293,6 +293,8 @@ stages:
             pnpm run snyk:monitor
           fi
         workingDirectory: ''
+      env:
+        SNYK_TOKEN: $(SNYK_TOKEN)
 
     # Cache Java JRE
     - task: Cache@2
