@@ -269,6 +269,18 @@ stages:
         targetType: 'inline'
         script: |
           set -euo pipefail
+
+          # Verify environment variables
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "Error: SNYK_TOKEN is empty or not loaded."
+            exit 1
+          fi
+          echo "SNYK_TOKEN PRESENT: True"
+
+          # Authenticate Snyk CLI
+          echo "Authenticating Snyk CLI..."
+          pnpm exec snyk auth "$SNYK_TOKEN"
+
           echo "Running Snyk to detect security vulnerabilities..."
           # If PR build, run the test commands 
           if [ "$(Build.Reason)" = "PullRequest" ]; then
