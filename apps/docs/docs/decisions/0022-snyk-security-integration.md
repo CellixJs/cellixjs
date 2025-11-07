@@ -182,10 +182,12 @@ ignore:
 ```
 
 The `.snyk` policy file allows teams to:
-- Document known false positives
+- Document known false positives or accepted risks when no remediation is available
 - Set expiration dates for ignore rules (forcing periodic review)
 - Provide business justification for accepting risks
 - Share policies across local development and CI/CD
+
+**Governance**: The `.snyk` file is specified in `CODEOWNERS`, requiring senior developer approval for any changes. This ensures proper risk assessment and prevents casual ignoring of security vulnerabilities.
 
 #### 5. **Scan Coverage**
 
@@ -248,13 +250,19 @@ AI agents automatically run Snyk SAST scans on generated code, ensuring **securi
 ## Validation
 
 ### Local Development Validation
-- Developers can run `pnpm run snyk` to execute all scans locally
+- Developers must run `pnpm run verify` at least once before committing changes to a PR
 - AI agents automatically run `snyk_code_scan` tool after generating code
 - Results are displayed in terminal with actionable remediation steps
+- **Remediation expectations**:
+  - Prioritize by severity: Critical → High → Medium → Low
+  - All issues must be investigated and resolved if possible (including low severity)
+  - If no remediation is available, document in `.snyk` file with justification and request CODEOWNERS approval
 
 ### CI/CD Validation
 - **PR security gate**: PR builds fail if high/critical vulnerabilities are detected by Snyk
 - Snyk results are visible in Azure Pipelines build logs alongside SonarCloud quality gate results
+- **Both gates must pass**: Snyk security gate AND SonarCloud quality gate must pass before PR can merge
+- Developers can check build logs on Azure DevOps if gates fail (ideally won't happen since developers can run commands locally first)
 - **Main branch monitoring**: Main branch builds update the CellixJS project in Snyk Web UI with current security snapshot
 - **Snyk Web UI project**: Team can view security trends, vulnerability history, and remediation progress in Snyk dashboard
 

@@ -90,6 +90,18 @@ pnpm run snyk:test    # SCA - scan dependencies for vulnerabilities
 pnpm run snyk:iac     # IaC - scan Bicep templates for misconfigurations
 ```
 
+**Expected output for successful scan:**
+```bash
+✓ Tested for known issues, no vulnerable paths found.
+```
+
+**If vulnerabilities are found:**
+- Review Snyk output for vulnerability details and remediation guidance
+- Prioritize by severity: Critical → High → Medium → Low
+- Fix issues using upgrade paths or code refactoring
+- If no fix is available, document in `.snyk` file (requires CODEOWNERS approval)
+- Re-run `pnpm run snyk` to verify fixes
+
 > **Note**: Only use the npm scripts listed above. Other Snyk scripts (`snyk:monitor`, `snyk:code:report`) are reserved for CI/CD pipeline use only.
 
 ## Start Development
@@ -137,6 +149,19 @@ pnpm run snyk
 ```
 
 This runs security scans (SCA, SAST, IaC) to catch vulnerabilities before committing. The CI pipeline will run these scans automatically on PRs and block merges if security issues are found.
+
+### Before Committing to a PR
+
+**Both quality gates must pass:**
+1. ✅ **Snyk security gate**: (no vulnerabilities found)
+2. ✅ **SonarCloud quality gate**: (quality gate passed)
+
+Use the `pnpm run verify` command locally to ensure both gates pass before pushing code.
+
+**If your PR fails a gate in CI/CD:**
+- Check the build logs on Azure DevOps to see which issues were detected
+- Rerun `pnpm run verify` to reproduce the issues locally
+- Fix the issues and push your changes
 
 ## Architecture Overview
 

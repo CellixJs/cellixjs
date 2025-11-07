@@ -8,48 +8,74 @@ description: Snyk CLI Usage and Security Scanning Workflow
 ## When to Run Snyk Scans
 
 - **During code generation**: Run `snyk_code_scan` MCP tool for new first-party code in Snyk-supported languages
-- **Before committing changes**: Run Snyk CLI scans after completing a coding session and before committing changes
-- **After fixing security issues**: Always rescan to verify fixes and ensure no new issues were introduced
+- **Before committing changes**: Run Snyk CLI scans at least once before committing to a PR
+- **After fixing security issues**: Always rescan to verify fixes
 
-## Snyk Scan Commands for Developers
-
-Use these npm scripts to run security scans (same commands developers use):
+## Snyk Commands
 
 ```bash
-# Run all security scans (recommended before committing)
-pnpm run snyk
-
-# Or run individual scans:
-pnpm run snyk:code    # SAST - scan source code for security vulnerabilities
-pnpm run snyk:test    # SCA - scan dependencies for vulnerabilities  
-pnpm run snyk:iac     # IaC - scan Bicep templates for misconfigurations
+pnpm run snyk        # Run all scans (SCA + SAST + IaC)
+pnpm run snyk:code   # SAST - scan source code
+pnpm run snyk:test   # SCA - scan dependencies
+pnpm run snyk:iac    # IaC - scan Bicep templates
 ```
 
-**DO NOT use** `snyk:monitor` or `snyk:code:report` - these are reserved for CI/CD pipeline only.
+**DO NOT use** `snyk:monitor` or `snyk:code:report` (CI/CD only).
 
-## Security Scan Workflow
+## Workflow
 
-1. **Generate/modify code** using appropriate tools and patterns
-2. **Run `snyk_code_scan` MCP tool** on newly generated code for immediate feedback
-3. **Fix any security issues** found by Snyk using the provided context and remediation guidance
-4. **Rescan after fixes** to verify issues are resolved
-5. **Before committing**, run `pnpm run snyk` to execute all security scans (SCA + SAST + IaC)
-6. **Iterate on feedback** from the full scan and resolve any reported issues
-7. **Repeat steps 5-6** until all scans pass with no security issues
-8. **Only then commit** the changes
+1. Generate/modify code
+2. Run `snyk_code_scan` MCP tool on new code
+3. Fix security issues using Snyk guidance
+4. Rescan to verify fixes
+5. Before commit: run `pnpm run snyk` AND `npm run verify`
+6. Iterate until both pass
+7. Commit
 
-## Handling Security Issues
+> Both Snyk security gate AND SonarCloud quality gate must pass before committing.
 
-- Review Snyk output carefully for vulnerability details and remediation guidance
-- Prioritize fixing high and critical severity issues
-- For dependency vulnerabilities, upgrade to patched versions when available
-- For code vulnerabilities, refactor code following Snyk's security recommendations
-- If a vulnerability is a false positive or accepted risk, document it (do not ignore without justification)
+## Fixing Issues
 
-## Integration with Development Workflow
+**Priority**: Critical → High → Medium → Low (all must be investigated)
 
-This security-first approach ensures:
-- Vulnerabilities are caught during code generation (shift-left security)
-- All changes are scanned before commit (consistent with CI/CD pipeline)
-- Security issues are fixed iteratively before code is committed
-- The same scans that run in CI/CD are run locally, preventing PR failures
+**Dependency vulnerabilities (SCA):**
+```bash
+npm install package-name@fixed-version  # Upgrade to patched version
+pnpm run snyk:test                       # Verify fix
+```
+
+**Code vulnerabilities (SAST):**
+- Refactor following security best practices (input validation, parameterized queries, secure crypto)
+- Run `snyk_code_scan` or `pnpm run snyk:code` to verify
+
+**IaC misconfigurations:**
+- Update Bicep templates per Snyk recommendations
+- Run `pnpm run snyk:iac` to verify
+
+**No fix available:**
+1. Assess risk in your use case
+2. Document in `.snyk` file with justification
+3. Set expiration (6-12 months)
+4. Get CODEOWNERS approval (required)
+
+```yaml
+version: v1.5.0
+ignore:
+  'SNYK-JS-PACKAGE-ID':
+    - '* > package-name@version':
+        reason: 'Clear justification of why not exploitable'
+        expires: '2026-06-01T00:00:00.000Z'
+        created: '2025-11-07T00:00:00.000Z'
+```
+
+## Troubleshooting
+
+**PR failed Snyk gate:**
+- Check Azure DevOps build logs
+- Run `pnpm run snyk` locally
+- Fix by priority, push changes
+
+**Auth failed:**
+```bash
+pnpm exec snyk auth
+```

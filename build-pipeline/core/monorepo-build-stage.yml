@@ -285,12 +285,10 @@ stages:
           # If PR build, run the test commands 
           if [ "$(Build.Reason)" = "PullRequest" ]; then
             echo "Authenticating Snyk for PR build..."
-            pnpm run snyk:code
-            pnpm run snyk:test
+            pnpm run snyk
           else
             echo "Authenticating Snyk for main branch build..."
-            pnpm run snyk:code:report
-            pnpm run snyk:monitor
+            pnpm run snyk:report
           fi
         workingDirectory: ''
       env:
