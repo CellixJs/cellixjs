@@ -1,0 +1,23 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "test:coverage": {
+      "dependsOn": [
+        "@cellix/vitest-config#build",
+        "@cellix/ui-core#build",
+        "@ocom/domain#build",
+        "@ocom/persistence#build",
+        "@ocom/application-services#build",
+        "@ocom/graphql#build",
+        "@ocom/rest#build",
+        "@ocom/service-mongoose#build",
+        "@ocom/service-otel#build",
+        "@ocom/service-blob-storage#build",
+        "@ocom/service-token-validation#build",
+        "@ocom/ui-components#build",
+        "@ocom/api#build",
+        "@ocom/ui-community#build"
+      ]
+    }
+  }
+}

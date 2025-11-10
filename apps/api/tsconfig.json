@@ -5,7 +5,7 @@
     "outDir": "dist",
     "rootDir": "."
   },
-  "include": ["src"],
+  "include": ["src", "globals.d.ts"],
   "references": [
     { "path": "../../packages/cellix/api-services-spec" },
     { "path": "../../packages/cellix/mongoose-seedwork" },

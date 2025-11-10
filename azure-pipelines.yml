@@ -15,6 +15,7 @@ variables:
   - group: sonarcloud-credential-cellixjs
   - group: github-credential-cellixjs
   - group: ui-community-settings-cellixjs
+  - group: snyk-credential-cellixjs
   - name: deploymentDefaultLocation
     value: 'eastus2'
   - name: ServiceConnectionName

@@ -33,25 +33,25 @@ Turborepo uses local caching by default to speed up subsequent builds:
 
 ```bash
 # Build all packages
-npm run build
+pnpm run build
 
 # Build only affected packages (since last commit)
-npm run build:affected
+pnpm run build:affected
 
 # Test all packages  
-npm run test
+pnpm run test
 
 # Test only affected packages
-npm run test:affected
+pnpm run test:affected
 
 # Run with coverage for affected packages
-npm run test:coverage:affected
+pnpm run test:coverage:affected
 
 # Lint all packages
-npm run lint
+pnpm run lint
 
 # Lint only affected packages  
-npm run lint:affected
+pnpm run lint:affected
 ```
 
 ### Caching Behavior
@@ -112,7 +112,7 @@ The main Turborepo configuration defines:
 
 ### package.json Scripts
 
-Updated scripts use `turbo run` instead of `npm run --ws`:
+Updated scripts use `turbo run` instead of `pnpm run --ws`:
 - Better dependency handling
 - Improved caching
 - Selective execution capabilities

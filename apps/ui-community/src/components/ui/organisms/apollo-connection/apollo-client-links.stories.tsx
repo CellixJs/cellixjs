@@ -23,7 +23,7 @@ const mockStorage = {
   getItem: (key: string) => {
     if (key.includes('oidc.user')) {
       return JSON.stringify({
-        access_token: 'fallback-access-token',
+        access_token: '',
         profile: { sub: 'fallback-user' },
       });
     }

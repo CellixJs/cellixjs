@@ -8,7 +8,6 @@ Feature: GraphQL Handler Creator
     Given a valid ApplicationServicesFactory
     When graphHandlerCreator is called with the factory
     Then it should create an ApolloServer with the combined schema and middleware
-    And it should configure CORS and allow batched HTTP requests
     And it should return an Azure Functions HttpHandler
 
   Scenario: Handler context creation with headers

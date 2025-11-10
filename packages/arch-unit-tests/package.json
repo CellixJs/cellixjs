@@ -1,0 +1,20 @@
+{
+  "name": "@ocom/arch-unit-tests",
+  "version": "1.0.0",
+  "description": "Architectural fitness tests for the CellixJS monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pnpm run test:coverage",
+    "test:coverage": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "workspace:*",
+    "@cellix/vitest-config": "workspace:*",
+    "@types/node": "^24.6.1",
+    "archunit": "^2.1.63",
+    "typescript": "catalog:",
+    "vitest": "^3.2.4"
+  }
+}

@@ -7,6 +7,9 @@ import type { ApplicationServicesFactory } from '@ocom/application-services';
 import type { HttpRequest, InvocationContext } from '@azure/functions';
 import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateHandler } from './azure-functions.ts';
+import { applyMiddleware } from 'graphql-middleware';
+import { combinedSchema } from '../schema/builder/schema-builder.ts';
+import { permissions } from '../schema/builder/resolver-builder.ts';
 
 // Mocks
 
@@ -14,6 +17,9 @@ const test = { for: describeFeature };
 vi.mock('./azure-functions.ts');
 vi.mock('../schema/builder/schema-builder.ts', () => ({
   combinedSchema: {},
+}));
+vi.mock('../schema/builder/resolver-builder.ts', () => ({
+  permissions: {},
 }));
 vi.mock('graphql-middleware', () => ({
   applyMiddleware: vi.fn(() => ({})),
@@ -76,18 +82,13 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     Then('it should create an ApolloServer with the combined schema and middleware', () => {
+      expect(applyMiddleware).toHaveBeenCalledWith(combinedSchema, permissions);
       expect(ApolloServer).toHaveBeenCalledWith({
         schema: {},
-        cors: {
-          origin: true,
-          credentials: true,
-        },
+        introspection: true,
         allowBatchedHttpRequests: true,
+        validationRules: expect.any(Array),
       });
-    });
-
-    And('it should configure CORS and allow batched HTTP requests', () => {
-      // Already checked in the above assertion
     });
 
     And('it should return an Azure Functions HttpHandler', () => {

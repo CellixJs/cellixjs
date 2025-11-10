@@ -43,22 +43,50 @@ cellix.registerAzureFunctionHandler('graphql', { route: 'graphql' }, graphHandle
 ### Essential Commands
 ```bash
 # Initial setup (Node v22 required)
-nvm use v22 && npm run clean && npm install && npm run build
+nvm use v22 && pnpm run clean && pnpm install && pnpm run build
 
 # Development startup
-npm run dev  # Builds all workspace packages, starts mock emulator services, backend Azure Functions entry point, and frontend React UI
+pnpm run dev  # Builds all workspace packages, starts mock emulator services, backend Azure Functions entry point, and frontend React UI
 
 # Build Pipeline Verification
-npm run verify    # Run all verification steps (lint, build, test, sonarcloud, quality gate)
+pnpm run verify    # Run all verification steps (lint, build, test, sonarcloud, quality gate)
 
 # Package-specific operations
-npm run build    # Build all packages
-npm run lint     # Lint all packages
-npm run test     # Test all packages
-npm run gen      # Generate code (e.g., GraphQL types)
+pnpm run build    # Build all packages
+pnpm run lint     # Lint all packages
+pnpm run test     # Test all packages
+pnpm run gen      # Generate code (e.g., GraphQL types)
 ```
 
-**Important**: Use `npm run verify` to ensure code quality before commits. Address any issues reported before pushing changes.
+**Important**: 
+- Use `pnpm run verify` to ensure code quality before commits
+- Use `pnpm run snyk` to run security scans before commits
+- Address any issues reported before pushing changes
+
+### Security Scanning Workflow
+
+**During code generation**:
+- Use `snyk_code_scan` MCP tool for immediate security feedback on newly generated code
+- Fix security issues iteratively as code is generated
+
+**Before committing changes**:
+```bash
+pnpm run snyk  # Run all security scans
+```
+
+This runs three security scans:
+- `snyk:code` - SAST (Static Application Security Testing) for source code vulnerabilities
+- `snyk:test` - SCA (Software Composition Analysis) for dependency vulnerabilities
+- `snyk:iac` - IaC scanning for Bicep template security misconfigurations
+
+**If security issues are found**:
+1. Review Snyk output for vulnerability details and remediation guidance
+2. Fix the reported issues (upgrade dependencies, refactor code, etc.)
+3. Re-run `pnpm run snyk` to verify fixes
+4. Repeat until all scans pass
+5. Only then commit the changes
+
+**Note**: Do NOT use `snyk:report` or any Snyk subtasks tagged with `:report` - these are reserved for CI/CD pipeline only.
 
 ### VS Code Tasks
 Use VS Code tasks for development (preferred over manual commands):
@@ -68,9 +96,9 @@ Use VS Code tasks for development (preferred over manual commands):
 
 ### Testing
 - Coverage reports generated in `packages/*/coverage/`
-- Run tests: `npm run test`
-- Run test with coverage: `npm run test:coverage`
-- Run tests in watch mode: `npm run test:watch`
+- Run tests: `pnpm run test`
+- Run test with coverage: `pnpm run test:coverage`
+- Run tests in watch mode: `pnpm run test:watch`
 
 ## Code Quality & Standards
 
@@ -87,7 +115,7 @@ Use VS Code tasks for development (preferred over manual commands):
 ## Key Dependencies
 
 ### Workspace Structure
-Monorepo uses npm workspaces with these core packages:
+Monorepo uses pnpm workspaces with these core packages:
 - `@ocom/api` - Main Azure Functions backend application
 - `@ocom/data-sources-mongoose-models` - Mongoose data source models
 - `@ocom/domain` - Domain models and business logic
