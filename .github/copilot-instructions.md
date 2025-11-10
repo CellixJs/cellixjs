@@ -43,26 +43,23 @@ cellix.registerAzureFunctionHandler('graphql', { route: 'graphql' }, graphHandle
 ### Essential Commands
 ```bash
 # Initial setup (Node v22 required)
-nvm use v22 && npm run clean && npm install && npm run build
+nvm use v22 && pnpm run clean && pnpm install && pnpm run build
 
 # Development startup
-npm run dev  # Builds all workspace packages, starts mock emulator services, backend Azure Functions entry point, and frontend React UI
+pnpm run dev  # Builds all workspace packages, starts mock emulator services, backend Azure Functions entry point, and frontend React UI
 
 # Build Pipeline Verification
-npm run verify    # Run all verification steps (lint, build, test, sonarcloud, quality gate)
-
-# Security Scanning (before committing)
-pnpm run snyk     # Run all security scans (SCA + SAST + IaC)
+pnpm run verify    # Run all verification steps (lint, build, test, sonarcloud, quality gate)
 
 # Package-specific operations
-npm run build    # Build all packages
-npm run lint     # Lint all packages
-npm run test     # Test all packages
-npm run gen      # Generate code (e.g., GraphQL types)
+pnpm run build    # Build all packages
+pnpm run lint     # Lint all packages
+pnpm run test     # Test all packages
+pnpm run gen      # Generate code (e.g., GraphQL types)
 ```
 
 **Important**: 
-- Use `npm run verify` to ensure code quality before commits
+- Use `pnpm run verify` to ensure code quality before commits
 - Use `pnpm run snyk` to run security scans before commits
 - Address any issues reported before pushing changes
 
@@ -99,9 +96,9 @@ Use VS Code tasks for development (preferred over manual commands):
 
 ### Testing
 - Coverage reports generated in `packages/*/coverage/`
-- Run tests: `npm run test`
-- Run test with coverage: `npm run test:coverage`
-- Run tests in watch mode: `npm run test:watch`
+- Run tests: `pnpm run test`
+- Run test with coverage: `pnpm run test:coverage`
+- Run tests in watch mode: `pnpm run test:watch`
 
 ## Code Quality & Standards
 
@@ -118,7 +115,7 @@ Use VS Code tasks for development (preferred over manual commands):
 ## Key Dependencies
 
 ### Workspace Structure
-Monorepo uses npm workspaces with these core packages:
+Monorepo uses pnpm workspaces with these core packages:
 - `@ocom/api` - Main Azure Functions backend application
 - `@ocom/data-sources-mongoose-models` - Mongoose data source models
 - `@ocom/domain` - Domain models and business logic

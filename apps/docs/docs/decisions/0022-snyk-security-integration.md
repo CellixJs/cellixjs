@@ -307,6 +307,11 @@ AI agents automatically run Snyk SAST scans on generated code, ensuring **securi
 - [Snyk for Monorepos](https://docs.snyk.io/scan-applications/supported-languages-and-frameworks/monorepos)
 
 ### Future Considerations
+
+- **Snyk IaC Pipeline Integration**: Snyk IaC scanning will not be included in the build pipeline initially. The team needs to analyze all reported issues by Snyk and determine appropriate actions before enabling automated gating. This ensures that only actionable and relevant misconfigurations block builds, and avoids unnecessary disruption from false positives or non-critical findings.
+
+- **Snyk IaC CLI Invocation Issues**: There are current issues with the `snyk iac test` command: when run via `pnpm exec snyk iac test <dir>`, it accepts a directory path and analyzes all files. However, when invoked from a package.json script, the CLI does not accept a directory path for some reason. This limitation needs to be resolved before Snyk IaC can be fully integrated into automated scripts and CI/CD pipelines.
+
 - **IDE Integration**: Consider adding Snyk VS Code extension for inline security feedback
 - **GitHub App**: Evaluate Snyk GitHub App for automatic PR checks and fix PRs
 - **Dependency Upgrade Automation**: Use Snyk fix PRs to automate dependency upgrades

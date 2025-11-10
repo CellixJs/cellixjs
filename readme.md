@@ -7,60 +7,76 @@ Domain-driven architecture for Azure Functions with GraphQL/REST, MongoDB (Mongo
 [Getting Started](https://developers.cellixjs.org/docs/intro):
 Our Docusaurus website will help you get started in running and contributing to CellixJS
 
+## Project Status
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+[![Known Vulnerabilities](https://snyk.io/test/github/CellixJs/cellixjs/badge.svg)](https://snyk.io/test/github/CellixJs/cellixjs)
+
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=bugs)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=coverage)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
+
+[![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs?branchName=main)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=12&branchName=main)
+
 
 ## Developer usage
 
 - Full local dev (lints, builds, starts Azurite, emulators, and the OwnerCommunity app):
 
   ```bash
-  npm run dev
+  pnpm run dev
   ```
 
 - Simulate CI pipeline (lints, builds, tests, sonarcloud scan, quality gate):
 
   ```bash
-  npm run verify
+  pnpm run verify
   ```
 
 - Start only the API app:
 
   ```bash
-  npm run start:api
+  pnpm run start:api
   ```
 
 - Start the UI (frontend):
 
   ```bash
-  npm run start:ui-community
+  pnpm run start:ui-community
   ```
 
 - Start emulators individually:
 
   ```bash
   # MongoDB in-memory replica set
-  npm run start-emulator:mongo-memory-server
+  pnpm run start-emulator:mongo-memory-server
 
   # OAuth2/OIDC mock server
-  npm run start-emulator:auth-server
+  pnpm run start-emulator:auth-server
   ```
 
 ## Scripts
 
 - Build all workspaces: `npm run build`
-- Build affected packages only: `npm run build:affected`
-- Lint all: `npm run lint`
-- Lint affected packages only: `npm run lint:affected`
-- Format all: `npm run format`
+- Build affected packages only: `pnpm run build:affected`
+- Lint all: `pnpm run lint`
+- Lint affected packages only: `pnpm run lint:affected`
+- Format all: `pnpm run format`
 - Tests: 
-    - `npm run test`
-    - `npm run test:affected` (affected packages only)
-    - `npm run test:coverage`
-    - `npm run test:coverage:affected` (affected packages only)
-    - `npm run test:integration`
-    - `npm run test:serenity`
-    - `npm run test:unit`
-    - `npm run test:watch` (typically run per workspace package)
-- Verify build locally: `npm run verify`
+    - `pnpm run test`
+    - `pnpm run test:affected` (affected packages only)
+    - `pnpm run test:coverage`
+    - `pnpm run test:coverage:affected` (affected packages only)
+    - `pnpm run test:integration`
+    - `pnpm run test:serenity`
+    - `pnpm run test:unit`
+    - `pnpm run test:watch` (typically run per workspace package)
+- Verify build locally: `pnpm run verify`
 
 ## Turborepo Optimization
 
@@ -70,7 +86,7 @@ This monorepo uses [Turborepo](https://turbo.build/) for optimized builds and te
 - **Remote Caching**: Shared build cache across team and CI (when configured)
 - **Local Caching**: Faster subsequent builds on your machine
 - **Package Categories**: 
-  - Frontend: `ui-*`, `cellix-ui-core` packages
+  - Frontend: `ui-*` packages
   - Backend: All other packages (excluding mock servers)
 
 For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
@@ -260,24 +276,6 @@ or submit a pull request.
 
 Have feedback? Leave a comment in [CellixJS discussions on GitHub](https://github.com/cellixjs/cellixjs/discussions)
 
-
-## Project Status
-
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
-
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=bugs)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
-
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
-
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=coverage)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
-
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=simnova_cellix-data-access&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=simnova_cellix-data-access)
-
-Cellix Build:
-[![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs?branchName=main)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=12&branchName=main)
-
-Cellix Docs Build:
-[![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs.cellixjs.docs?branchName=main)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=15&branchName=main)
 
 ## Thanks to all our contributors
 
