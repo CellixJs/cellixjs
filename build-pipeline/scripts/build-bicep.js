@@ -63,7 +63,7 @@ function buildAllBicep() {
     mkdirSync(outdir, { recursive: true });
     console.log(`Building: ${rel}`);
     try {
-      execSync(`az bicep build -f "${bf}" --outdir "${outdir}"`, { cwd: rootDir, stdio: 'inherit' });
+      execSync(`az bicep build -f "${bf}" --outdir "${outdir}"`, { cwd: rootDir, stdio: 'inherit', shell: false });
       success++;
     } catch (err) {
       console.error(`Failed to build ${rel}:`, err.message || err);
