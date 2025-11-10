@@ -28,8 +28,8 @@ pnpm run snyk:iac    # IaC - scan Bicep templates
 2. Run `snyk_code_scan` MCP tool on new code
 3. Fix security issues using Snyk guidance
 4. Rescan to verify fixes
-5. Before commit: run `pnpm run snyk` AND `npm run verify`
-6. Iterate until both pass
+5. Before commit: run `pnpm run verify` (includes Snyk scans)
+6. Iterate until no issues remain
 7. Commit
 
 > Both Snyk security gate AND SonarCloud quality gate must pass before committing.
@@ -40,8 +40,8 @@ pnpm run snyk:iac    # IaC - scan Bicep templates
 
 **Dependency vulnerabilities (SCA):**
 ```bash
-npm install package-name@fixed-version  # Upgrade to patched version
-pnpm run snyk:test                       # Verify fix
+pnpm install package-name@fixed-version --filter <workspace>  # Upgrade to patched version in affected workspace
+pnpm run snyk:test                                            # Verify fix
 ```
 
 **Code vulnerabilities (SAST):**

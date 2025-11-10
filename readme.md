@@ -62,7 +62,7 @@ Our Docusaurus website will help you get started in running and contributing to 
 
 ## Scripts
 
-- Build all workspaces: `npm run build`
+- Build all workspaces: `pnpm run build`
 - Build affected packages only: `pnpm run build:affected`
 - Lint all: `pnpm run lint`
 - Lint affected packages only: `pnpm run lint:affected`
