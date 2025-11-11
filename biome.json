@@ -144,75 +144,7 @@
 			}
 		},
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
-		{ "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } },
-		{
-			"includes": ["packages/ocom/*/src/index.ts", "packages/cellix/*/src/index.ts", "apps/*/src/index.ts"],
-			"linter": {
-				"rules": {
-					"performance": {
-						"noBarrelFile": "off",
-						"noReExportAll": "off"
-					}
-				}
-			}
-		},
-		{
-			"includes": [
-				"packages/ocom/domain/src/domain/index.ts",
-				"packages/ocom/domain/src/domain/*/index.ts",
-				"packages/ocom/domain/src/domain/*/*/index.ts",
-				"packages/ocom/domain/src/domain/*/*/*/index.ts",
-				"packages/ocom/domain/src/domain/*/*/*/*/index.ts",
-				"packages/ocom/domain/tests/**/index.ts"
-			],
-			"linter": {
-				"rules": {
-					"performance": {
-						"noBarrelFile": "off",
-						"noReExportAll": "off"
-					}
-				}
-			}
-		},
-		{
-			"includes": [
-				"packages/ocom/persistence/src/datasources/**/index.ts"
-			],
-			"linter": {
-				"rules": {
-					"performance": {
-						"noBarrelFile": "off",
-						"noReExportAll": "off"
-					}
-				}
-			}
-		},
-		{
-			"includes": [
-				"packages/ocom/data-sources-mongoose-models/src/models/**/index.ts"
-			],
-			"linter": {
-				"rules": {
-					"performance": {
-						"noBarrelFile": "off",
-						"noReExportAll": "off"
-					}
-				}
-			}
-		},
-		{
-			"includes": [
-				"packages/cellix/*/src/*/index.ts"
-			],
-			"linter": {
-				"rules": {
-					"performance": {
-						"noBarrelFile": "off",
-						"noReExportAll": "off"
-					}
-				}
-			}
-		}
+		{ "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } }
 	],
 	"assist": {
 		"enabled": true,
