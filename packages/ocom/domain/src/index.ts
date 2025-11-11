@@ -1,53 +1,64 @@
-import type { Contexts } from './domain/index.ts';
+import type { CommunityUnitOfWork } from './domain/contexts/community/community/index.ts';
+import type { MemberUnitOfWork } from './domain/contexts/community/member/index.ts';
+import type { EndUserRoleUnitOfWork } from './domain/contexts/community/role/end-user-role/index.ts';
+import type { VendorUserRoleUnitOfWork } from './domain/contexts/community/role/vendor-user-role/index.ts';
+import type { ServiceTicketV1UnitOfWork } from './domain/contexts/case/service-ticket/v1/index.ts';
+import type { PropertyUnitOfWork } from './domain/contexts/property/property/index.ts';
+import type { EndUserUnitOfWork } from './domain/contexts/user/end-user/index.ts';
+import type { StaffRoleUnitOfWork } from './domain/contexts/user/staff-role/index.ts';
+import type { StaffUserUnitOfWork } from './domain/contexts/user/staff-user/index.ts';
+import type { VendorUserUnitOfWork } from './domain/contexts/user/vendor-user/index.ts';
+import type { ServiceUnitOfWork } from './domain/contexts/service/service/index.ts';
 
-export * as Domain from './domain/index.ts';
+export { type Passport, PassportFactory } from './domain/contexts/passport.ts';
+export type { DomainExecutionContext } from './domain/domain-execution-context.ts';
 
 export interface DomainDataSource {
-    Case: {
-        ServiceTicket: {
-            V1: {
-                ServiceTicketV1UnitOfWork: Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
-            };
-        };
-    };
+	Case: {
+		ServiceTicket: {
+			V1: {
+				ServiceTicketV1UnitOfWork: ServiceTicketV1UnitOfWork;
+			};
+		};
+	};
 	Community: {
 		Community: {
-			CommunityUnitOfWork: Contexts.Community.Community.CommunityUnitOfWork;
+			CommunityUnitOfWork: CommunityUnitOfWork;
 		};
-        Member: {
-            MemberUnitOfWork: Contexts.Community.Member.MemberUnitOfWork;
-        };
+		Member: {
+			MemberUnitOfWork: MemberUnitOfWork;
+		};
 		Role: {
 			EndUserRole: {
-				EndUserRoleUnitOfWork: Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+				EndUserRoleUnitOfWork: EndUserRoleUnitOfWork;
 			};
 			VendorUserRole: {
-				VendorUserRoleUnitOfWork: Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork;
+				VendorUserRoleUnitOfWork: VendorUserRoleUnitOfWork;
 			};
 		};
 	};
 	Property: {
 		Property: {
-			PropertyUnitOfWork: Contexts.Property.Property.PropertyUnitOfWork;
+			PropertyUnitOfWork: PropertyUnitOfWork;
 		};
 	};
 	User: {
 		EndUser: {
-			EndUserUnitOfWork: Contexts.User.EndUser.EndUserUnitOfWork;
+			EndUserUnitOfWork: EndUserUnitOfWork;
 		};
 		StaffRole: {
-			StaffRoleUnitOfWork: Contexts.User.StaffRole.StaffRoleUnitOfWork;
+			StaffRoleUnitOfWork: StaffRoleUnitOfWork;
 		};
 		StaffUser: {
-			StaffUserUnitOfWork: Contexts.User.StaffUser.StaffUserUnitOfWork;
+			StaffUserUnitOfWork: StaffUserUnitOfWork;
 		};
 		VendorUser: {
-			VendorUserUnitOfWork: Contexts.User.VendorUser.VendorUserUnitOfWork;
+			VendorUserUnitOfWork: VendorUserUnitOfWork;
 		};
 	};
 	Service: {
 		Service: {
-			ServiceUnitOfWork: Contexts.Service.Service.ServiceUnitOfWork;
+			ServiceUnitOfWork: ServiceUnitOfWork;
 		};
 	};
 }
