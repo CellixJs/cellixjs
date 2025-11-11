@@ -47,6 +47,10 @@
 				"useValidTypeof": "error",
 				"useYield": "error"
 			},
+			"performance": {
+				"noBarrelFile": "error",
+				"noReExportAll": "error"
+			},
 			"style": {
 				"noCommonJs": "error",
 				"noNamespace": "error",
@@ -140,7 +144,18 @@
 			}
 		},
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
-        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } }
+		{ "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } },
+		{
+			"includes": ["packages/ocom/*/src/index.ts", "packages/cellix/*/src/index.ts", "apps/*/src/index.ts"],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "off",
+						"noReExportAll": "off"
+					}
+				}
+			}
+		}
 	],
 	"assist": {
 		"enabled": true,
