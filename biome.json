@@ -155,6 +155,63 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": [
+				"packages/ocom/domain/src/domain/index.ts",
+				"packages/ocom/domain/src/domain/*/index.ts",
+				"packages/ocom/domain/src/domain/*/*/index.ts",
+				"packages/ocom/domain/src/domain/*/*/*/index.ts",
+				"packages/ocom/domain/src/domain/*/*/*/*/index.ts",
+				"packages/ocom/domain/tests/**/index.ts"
+			],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "off",
+						"noReExportAll": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"packages/ocom/persistence/src/datasources/**/index.ts"
+			],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "off",
+						"noReExportAll": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"packages/ocom/data-sources-mongoose-models/src/models/**/index.ts"
+			],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "off",
+						"noReExportAll": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"packages/cellix/*/src/*/index.ts"
+			],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "off",
+						"noReExportAll": "off"
+					}
+				}
+			}
 		}
 	],
 	"assist": {

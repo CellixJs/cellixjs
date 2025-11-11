@@ -1,6 +1,8 @@
 import { VOOptional, VOString } from '@lucaspaganini/value-objects';
-import { Email as EmailBase } from '../../value-objects.ts';
-export { ExternalId } from '../../value-objects.ts';
+import { Email as EmailBase, ExternalId } from '../../value-objects.ts';
+
+export { ExternalId };
+
 class RestOfNameBase extends VOString({ trim: true, maxLength: 50, minLength: 1}) {}
 export class RestOfName extends VOOptional(RestOfNameBase, [undefined]) {}
 export class LastName extends VOString({ trim: true, maxLength: 50, minLength: 1 }) {}
