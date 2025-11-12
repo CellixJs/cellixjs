@@ -11,7 +11,7 @@ import {
 	ServiceTicketV1UpdatedEvent,
 	type ServiceTicketV1UpdatedProps,
 } from '../../../../events/types/service-ticket-v1-updated.ts';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type { Passport } from '../../../passport.ts';
 import * as ValueObjects from './service-ticket-v1.value-objects.ts';
 import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.ts';

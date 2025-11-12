@@ -1,7 +1,7 @@
 import type { DomainDataSource } from '../../../index.ts';
 import type { Community } from '../../contexts/community/index.ts';
-import * as Member from '../../contexts/community/member/index.ts';
-import type * as Role from '../../contexts/community/role/index.ts';
+import * as Member from '../../contexts/community/member/member.ts';
+import type * as Role from '../../contexts/community/role/end-user-role/end-user-role.ts';
 import { PassportFactory } from '../../contexts/passport.ts';
 
 export class CommunityProvisioningService {

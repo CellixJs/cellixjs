@@ -11,7 +11,7 @@ import {
 	ViolationTicketV1UpdatedEvent,
 	type ViolationTicketV1UpdatedProps,
 } from '../../../../events/types/violation-ticket-v1-updated.ts';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type { Passport } from '../../../passport.ts';
 import * as ValueObjects from './violation-ticket-v1.value-objects.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
