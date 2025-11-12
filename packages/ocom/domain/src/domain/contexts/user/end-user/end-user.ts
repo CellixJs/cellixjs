@@ -165,13 +165,10 @@ export class EndUser<props extends EndUserProps>
 	}
 }
 
-import type { EndUserRepository } from './end-user.repository.ts';
-import type { EndUserUnitOfWork } from './end-user.uow.ts';
 //#region Exports
-import type { EndUserContactInformationProps } from './end-user-contact-information.ts';
-import type { EndUserIdentityDetailsProps } from './end-user-identity-details.ts';
-import type { EndUserPersonalInformationProps } from './end-user-personal-information.ts';
 
+
+//#region Exports
 export type {
 	EndUserContactInformationProps,
 	EndUserIdentityDetailsProps,
@@ -179,4 +176,5 @@ export type {
 	EndUserRepository,
 	EndUserUnitOfWork,
 };
+
 //#endregion Exports

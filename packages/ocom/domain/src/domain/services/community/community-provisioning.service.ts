@@ -1,7 +1,7 @@
 import type { DomainDataSource } from '../../../index.ts';
-import type { Community } from '../../contexts/community/index.ts';
+import type { Community, CommunityProps } from '../../contexts/community/community/community.ts';
 import * as Member from '../../contexts/community/member/member.ts';
-import type * as Role from '../../contexts/community/role/end-user-role/end-user-role.ts';
+import type { EndUserRole, EndUserRoleEntityReference } from '../../contexts/community/role/end-user-role/end-user-role.ts';
 import { PassportFactory } from '../../contexts/passport.ts';
 
 export class CommunityProvisioningService {
@@ -9,7 +9,7 @@ export class CommunityProvisioningService {
 		communityId: string,
 		domainDataSource: DomainDataSource,
 	): Promise<void> {
-		let communityDo: Community.Community<Community.CommunityProps> | null =
+		let communityDo: Community<CommunityProps> | null =
 			null;
 		await domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(
 			async (repo) => {
@@ -24,7 +24,7 @@ export class CommunityProvisioningService {
 			canManageEndUserRolesAndPermissions: true,
 		});
 		// create the default admin role for the community
-		let role: Role.EndUserRole.EndUserRoleEntityReference | null = null;
+		let role: Role.EndUserEndUserRoleEntityReference | null = null;
 		await domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withTransaction(
 			systemPassportForEndUserRole,
 			async (repo) => {
@@ -39,7 +39,7 @@ export class CommunityProvisioningService {
 		);
 
 		const { createdBy } =
-			communityDo as Community.Community<Community.CommunityProps>;
+			communityDo as Community<CommunityProps>;
 
 		if (!role) {
 			throw new Error(
@@ -62,7 +62,7 @@ export class CommunityProvisioningService {
 					createdBy.displayName,
 					communityDo as Community.CommunityEntityReference,
 				);
-				newMember.role = role as Role.EndUserRole.EndUserRoleEntityReference;
+				newMember.role = role as Role.EndUserEndUserRoleEntityReference;
 				const newAccount = newMember.requestNewAccount();
 				newAccount.createdBy = createdBy;
 				newAccount.firstName =

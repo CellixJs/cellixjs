@@ -167,34 +167,26 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 	}
 }
 
-import type { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
-import type { VendorUserRoleUnitOfWork } from './vendor-user-role.uow.ts';
-import {
 	VendorUserRoleCommunityPermissions,
 	type VendorUserRoleCommunityPermissionsEntityReference,
 	type VendorUserRoleCommunityPermissionsProps,
 } from './vendor-user-role-community-permissions.ts';
-import {
 	VendorUserRolePermissions,
 	type VendorUserRolePermissionsEntityReference,
 	type VendorUserRolePermissionsProps,
 } from './vendor-user-role-permissions.ts';
-import {
 	VendorUserRolePropertyPermissions,
 	type VendorUserRolePropertyPermissionsEntityReference,
 	type VendorUserRolePropertyPermissionsProps,
 } from './vendor-user-role-property-permissions.ts';
-import {
 	VendorUserRoleServicePermissions,
 	type VendorUserRoleServicePermissionsEntityReference,
 	type VendorUserRoleServicePermissionsProps,
 } from './vendor-user-role-service-permissions.ts';
-import {
 	VendorUserRoleServiceTicketPermissions,
 	type VendorUserRoleServiceTicketPermissionsEntityReference,
 	type VendorUserRoleServiceTicketPermissionsProps,
 } from './vendor-user-role-service-ticket-permissions.ts';
-import {
 	VendorUserRoleViolationTicketPermissions,
 	type VendorUserRoleViolationTicketPermissionsEntityReference,
 	type VendorUserRoleViolationTicketPermissionsProps,
@@ -208,6 +200,8 @@ export {
 	VendorUserRoleServiceTicketPermissions,
 	VendorUserRoleViolationTicketPermissions,
 };
+
+//#region Exports
 export type {
 	VendorUserRoleRepository,
 	VendorUserRoleUnitOfWork,
@@ -224,4 +218,5 @@ export type {
 	VendorUserRoleViolationTicketPermissionsEntityReference,
 	VendorUserRoleViolationTicketPermissionsProps,
 };
+
 //#endregion Exports

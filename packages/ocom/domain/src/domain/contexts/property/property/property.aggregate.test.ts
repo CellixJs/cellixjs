@@ -14,7 +14,7 @@ import type { MemberProfileProps } from '../../community/member/member-profile.t
 import type { EndUserRoleEntityReference } from '../../community/role/end-user-role/end-user-role.ts';
 import type { Passport } from '../../passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
-import type { PropertyLocationAddressProps } from './index.ts';
+import type { PropertyLocationAddressProps } from './property-location-address.entity.ts';
 import { Property, type PropertyProps } from './property.aggregate.ts';
 import type { PropertyListingDetailProps } from './property-listing-detail.entity.ts';
 import type { PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';

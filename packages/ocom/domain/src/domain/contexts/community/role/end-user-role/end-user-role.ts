@@ -176,34 +176,26 @@ export class EndUserRole<props extends EndUserRoleProps>
 	//#endregion Properties
 }
 
-import type { EndUserRoleRepository } from './end-user-role.repository.ts';
-import type { EndUserRoleUnitOfWork } from './end-user-role.uow.ts';
-import {
 	EndUserRoleCommunityPermissions,
 	type EndUserRoleCommunityPermissionsEntityReference,
 	type EndUserRoleCommunityPermissionsProps,
 } from './end-user-role-community-permissions.ts';
-import {
 	EndUserRolePermissions,
 	type EndUserRolePermissionsEntityReference,
 	type EndUserRolePermissionsProps,
 } from './end-user-role-permissions.ts';
-import {
 	EndUserRolePropertyPermissions,
 	type EndUserRolePropertyPermissionsEntityReference,
 	type EndUserRolePropertyPermissionsProps,
 } from './end-user-role-property-permissions.ts';
-import {
 	EndUserRoleServicePermissions,
 	type EndUserRoleServicePermissionsEntityReference,
 	type EndUserRoleServicePermissionsProps,
 } from './end-user-role-service-permissions.ts';
-import {
 	EndUserRoleServiceTicketPermissions,
 	type EndUserRoleServiceTicketPermissionsEntityReference,
 	type EndUserRoleServiceTicketPermissionsProps,
 } from './end-user-role-service-ticket-permissions.ts';
-import {
 	EndUserRoleViolationTicketPermissions,
 	type EndUserRoleViolationTicketPermissionsEntityReference,
 	type EndUserRoleViolationTicketPermissionsProps,
@@ -217,6 +209,8 @@ export {
 	EndUserRoleServiceTicketPermissions,
 	EndUserRoleViolationTicketPermissions,
 };
+
+//#region Exports
 export type {
 	EndUserRoleRepository,
 	EndUserRoleUnitOfWork,
@@ -233,4 +227,5 @@ export type {
 	EndUserRoleViolationTicketPermissionsEntityReference,
 	EndUserRoleViolationTicketPermissionsProps,
 };
+
 //#endregion Exports
