@@ -190,3 +190,11 @@ export class Community<props extends CommunityProps>
 	}
 	//#endregion Properties
 }
+
+//#region Exports
+export type { CommunityRepository } from './community.repository.ts';
+export type { CommunityUnitOfWork } from './community.uow.ts';
+export {
+	ValueObjects as CommunityValueObjects,
+};
+//#endregion Exports

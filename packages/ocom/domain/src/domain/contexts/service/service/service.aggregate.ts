@@ -116,3 +116,10 @@ export class Service<props extends ServiceProps>
 		return this.props.schemaVersion;
 	}
 }
+
+
+//#region Exports
+export { Service, type ServiceEntityReference, type ServiceProps } from './service.aggregate.ts';
+export type { ServiceRepository } from './service.repository.ts';
+export type { ServiceUnitOfWork } from './service.uow.ts';
+//#endregion Exports

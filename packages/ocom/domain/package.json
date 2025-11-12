@@ -12,52 +12,52 @@
       "default": "./dist/src/index.js"
     },
     "./contexts/case/service-ticket/v1": {
-      "types": "./dist/src/domain/contexts/case/service-ticket/v1/index.d.ts",
-      "default": "./dist/src/domain/contexts/case/service-ticket/v1/index.js"
+      "types": "./dist/src/domain/contexts/case/service-ticket/v1/service-ticket-v1.aggregate.d.ts",
+      "default": "./dist/src/domain/contexts/case/service-ticket/v1/service-ticket-v1.aggregate.js"
     },
     "./contexts/case/violation-ticket/v1": {
-      "types": "./dist/src/domain/contexts/case/violation-ticket/v1/index.d.ts",
-      "default": "./dist/src/domain/contexts/case/violation-ticket/v1/index.js"
+      "types": "./dist/src/domain/contexts/case/violation-ticket/v1/violation-ticket-v1.aggregate.d.ts",
+      "default": "./dist/src/domain/contexts/case/violation-ticket/v1/violation-ticket-v1.aggregate.js"
     },
     "./contexts/community/community": {
-      "types": "./dist/src/domain/contexts/community/community/index.d.ts",
-      "default": "./dist/src/domain/contexts/community/community/index.js"
+      "types": "./dist/src/domain/contexts/community/community/community.d.ts",
+      "default": "./dist/src/domain/contexts/community/community/community.js"
     },
     "./contexts/community/member": {
-      "types": "./dist/src/domain/contexts/community/member/index.d.ts",
-      "default": "./dist/src/domain/contexts/community/member/index.js"
+      "types": "./dist/src/domain/contexts/community/member/member.d.ts",
+      "default": "./dist/src/domain/contexts/community/member/member.js"
     },
     "./contexts/community/role/end-user-role": {
-      "types": "./dist/src/domain/contexts/community/role/end-user-role/index.d.ts",
-      "default": "./dist/src/domain/contexts/community/role/end-user-role/index.js"
+      "types": "./dist/src/domain/contexts/community/role/end-user-role/end-user-role.d.ts",
+      "default": "./dist/src/domain/contexts/community/role/end-user-role/end-user-role.js"
     },
     "./contexts/community/role/vendor-user-role": {
-      "types": "./dist/src/domain/contexts/community/role/vendor-user-role/index.d.ts",
-      "default": "./dist/src/domain/contexts/community/role/vendor-user-role/index.js"
+      "types": "./dist/src/domain/contexts/community/role/vendor-user-role/vendor-user-role.d.ts",
+      "default": "./dist/src/domain/contexts/community/role/vendor-user-role/vendor-user-role.js"
     },
     "./contexts/property/property": {
-      "types": "./dist/src/domain/contexts/property/property/index.d.ts",
-      "default": "./dist/src/domain/contexts/property/property/index.js"
+      "types": "./dist/src/domain/contexts/property/property/property.aggregate.d.ts",
+      "default": "./dist/src/domain/contexts/property/property/property.aggregate.js"
     },
     "./contexts/service/service": {
-      "types": "./dist/src/domain/contexts/service/service/index.d.ts",
-      "default": "./dist/src/domain/contexts/service/service/index.js"
+      "types": "./dist/src/domain/contexts/service/service/service.aggregate.d.ts",
+      "default": "./dist/src/domain/contexts/service/service/service.aggregate.js"
     },
     "./contexts/user/end-user": {
-      "types": "./dist/src/domain/contexts/user/end-user/index.d.ts",
-      "default": "./dist/src/domain/contexts/user/end-user/index.js"
+      "types": "./dist/src/domain/contexts/user/end-user/end-user.d.ts",
+      "default": "./dist/src/domain/contexts/user/end-user/end-user.js"
     },
     "./contexts/user/staff-role": {
-      "types": "./dist/src/domain/contexts/user/staff-role/index.d.ts",
-      "default": "./dist/src/domain/contexts/user/staff-role/index.js"
+      "types": "./dist/src/domain/contexts/user/staff-role/staff-role.d.ts",
+      "default": "./dist/src/domain/contexts/user/staff-role/staff-role.js"
     },
     "./contexts/user/staff-user": {
-      "types": "./dist/src/domain/contexts/user/staff-user/index.d.ts",
-      "default": "./dist/src/domain/contexts/user/staff-user/index.js"
+      "types": "./dist/src/domain/contexts/user/staff-user/staff-user.d.ts",
+      "default": "./dist/src/domain/contexts/user/staff-user/staff-user.js"
     },
     "./contexts/user/vendor-user": {
-      "types": "./dist/src/domain/contexts/user/vendor-user/index.d.ts",
-      "default": "./dist/src/domain/contexts/user/vendor-user/index.js"
+      "types": "./dist/src/domain/contexts/user/vendor-user/vendor-user.d.ts",
+      "default": "./dist/src/domain/contexts/user/vendor-user/vendor-user.js"
     },
     "./events": {
       "types": "./dist/src/domain/events/index.d.ts",
