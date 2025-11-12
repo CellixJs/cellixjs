@@ -396,9 +396,12 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 // Placeholder events - these would be defined properly
 
 //#region Exports
-export * as ValueObjects from './service-ticket-v1.value-objects.ts';
-export type { ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.entity.ts';
-export type { ServiceTicketV1MessageProps } from './service-ticket-v1-message.entity.ts';
-export type { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
-export type { ServiceTicketV1UnitOfWork } from './service-ticket-v1.uow.ts';
+import * as ValueObjects from './service-ticket-v1.value-objects.ts';
+import type { ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.entity.ts';
+import type { ServiceTicketV1MessageProps } from './service-ticket-v1-message.entity.ts';
+import type { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
+import type { ServiceTicketV1UnitOfWork } from './service-ticket-v1.uow.ts';
+
+export { ValueObjects };
+export type { ServiceTicketV1ActivityDetailProps, ServiceTicketV1MessageProps, ServiceTicketV1Repository, ServiceTicketV1UnitOfWork };
 //#endregion Exports

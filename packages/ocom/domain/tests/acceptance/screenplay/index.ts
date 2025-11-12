@@ -1,6 +1,8 @@
 // Export all Screenplay pattern components
-export * from './abilities/index.ts';
-export * from './actors.ts';
-export * from './interactions/index.ts';
-export * from './questions/index.ts';
-export * from './tasks/index.ts';
+import * as abilities from './abilities/index.ts';
+import * as actors from './actors.ts';
+import * as interactions from './interactions/index.ts';
+import * as questions from './questions/index.ts';
+import * as tasks from './tasks/index.ts';
+
+export { abilities, actors, interactions, questions, tasks };

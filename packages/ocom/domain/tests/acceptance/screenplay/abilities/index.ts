@@ -1,1 +1,3 @@
-export { ManageCommunities } from './manage-communities.ts';
+import { ManageCommunities } from './manage-communities.ts';
+
+export { ManageCommunities };

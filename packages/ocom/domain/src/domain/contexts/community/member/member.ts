@@ -287,10 +287,13 @@ export class Member<props extends MemberProps>
 }
 
 //#region Exports
-export type { MemberAccountEntityReference, MemberAccountProps } from './member-account.ts';
-export { AccountStatusCodes as MemberAccountStatusCodes } from './member-account.value-objects.ts';
-export type { MemberCustomViewEntityReference, MemberCustomViewProps } from './member-custom-view.ts';
-export type { MemberProfileEntityReference, MemberProfileProps } from './member-profile.ts';
-export type { MemberRepository } from './member.repository.ts';
-export type { MemberUnitOfWork } from './member.uow.ts';
+import type { MemberAccountEntityReference, MemberAccountProps } from './member-account.ts';
+import { AccountStatusCodes as MemberAccountStatusCodes } from './member-account.value-objects.ts';
+import type { MemberCustomViewEntityReference, MemberCustomViewProps } from './member-custom-view.ts';
+import type { MemberProfileEntityReference, MemberProfileProps } from './member-profile.ts';
+import type { MemberRepository } from './member.repository.ts';
+import type { MemberUnitOfWork } from './member.uow.ts';
+
+export { { AccountStatusCodes as MemberAccountStatusCodes } };
+export type { MemberAccountEntityReference, MemberAccountProps, MemberCustomViewEntityReference, MemberCustomViewProps, MemberProfileEntityReference, MemberProfileProps, MemberRepository, MemberUnitOfWork };
 //#endregion Exports

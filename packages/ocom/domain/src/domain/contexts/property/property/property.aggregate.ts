@@ -276,13 +276,16 @@ export class Property<props extends PropertyProps>
 
 
 //#region Exports
-export type { PropertyRepository } from './property.repository.ts';
-export { Property, type PropertyEntityReference, type PropertyProps } from './property.aggregate.ts';
-export type { PropertyListingDetailProps } from './property-listing-detail.entity.ts';
-export type { PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';
-export type { PropertyListingDetailBedroomDetailProps } from './property-listing-detail-bedroom-detail.entity.ts';
-export type { PropertyLocationProps } from './property-location.entity.ts';
-export type { PropertyLocationAddressProps } from './property-location-address.entity.ts';
-export type { PropertyLocationPositionProps } from './property-location-position.entity.ts';
-export type { PropertyUnitOfWork } from './property.uow.ts';
+import type { PropertyRepository } from './property.repository.ts';
+import { Property, type PropertyEntityReference, type PropertyProps } from './property.aggregate.ts';
+import type { PropertyListingDetailProps } from './property-listing-detail.entity.ts';
+import type { PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';
+import type { PropertyListingDetailBedroomDetailProps } from './property-listing-detail-bedroom-detail.entity.ts';
+import type { PropertyLocationProps } from './property-location.entity.ts';
+import type { PropertyLocationAddressProps } from './property-location-address.entity.ts';
+import type { PropertyLocationPositionProps } from './property-location-position.entity.ts';
+import type { PropertyUnitOfWork } from './property.uow.ts';
+
+export { { Property, type PropertyEntityReference, type PropertyProps } };
+export type { PropertyRepository, PropertyListingDetailProps, PropertyListingDetailAdditionalAmenityProps, PropertyListingDetailBedroomDetailProps, PropertyLocationProps, PropertyLocationAddressProps, PropertyLocationPositionProps, PropertyUnitOfWork };
 //#endregion Exports
