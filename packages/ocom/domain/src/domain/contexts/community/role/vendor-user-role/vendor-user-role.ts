@@ -175,11 +175,6 @@ import {
 	type VendorUserRoleCommunityPermissionsProps,
 } from './vendor-user-role-community-permissions.ts';
 import {
-	VendorUserRolePermissions,
-	type VendorUserRolePermissionsEntityReference,
-	type VendorUserRolePermissionsProps,
-} from './vendor-user-role-permissions.ts';
-import {
 	VendorUserRolePropertyPermissions,
 	type VendorUserRolePropertyPermissionsEntityReference,
 	type VendorUserRolePropertyPermissionsProps,

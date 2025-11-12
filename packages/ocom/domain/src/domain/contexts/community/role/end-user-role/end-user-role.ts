@@ -184,11 +184,6 @@ import {
 	type EndUserRoleCommunityPermissionsProps,
 } from './end-user-role-community-permissions.ts';
 import {
-	EndUserRolePermissions,
-	type EndUserRolePermissionsEntityReference,
-	type EndUserRolePermissionsProps,
-} from './end-user-role-permissions.ts';
-import {
 	EndUserRolePropertyPermissions,
 	type EndUserRolePropertyPermissionsEntityReference,
 	type EndUserRolePropertyPermissionsProps,

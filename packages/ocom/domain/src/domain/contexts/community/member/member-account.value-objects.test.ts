@@ -234,7 +234,7 @@ test.for(feature, ({ Scenario, ScenarioOutline }) => {
 			let value: string;
 			When('I create an account status code with "<statusCode>"', () => {
 				value = new ValueObjects.AccountStatusCode(
-					variables.statusCode,
+					variables['statusCode'],
 				).valueOf();
 			});
 			Then('the value should be "<statusCode>"', () => {
