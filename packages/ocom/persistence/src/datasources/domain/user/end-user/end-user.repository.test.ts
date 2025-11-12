@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { EndUserRepository } from './end-user.repository.ts';
 import { EndUserConverter, type EndUserDomainAdapter } from './end-user.domain-adapter.ts';

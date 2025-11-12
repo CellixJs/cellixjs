@@ -1,6 +1,6 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 
 export class VendorUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<

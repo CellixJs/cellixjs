@@ -1,6 +1,6 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { PropertyDomainAdapter } from './property.domain-adapter.ts';
 
 type PropertyModelType = Models.Property.Property;

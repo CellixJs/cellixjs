@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';
 import { VendorUserRoleConverter, type VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
