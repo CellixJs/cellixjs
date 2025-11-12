@@ -82,7 +82,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
