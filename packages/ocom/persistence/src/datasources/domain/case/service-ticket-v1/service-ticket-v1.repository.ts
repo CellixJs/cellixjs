@@ -1,6 +1,6 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
 
 type ServiceTicketModelType = Models.Case.ServiceTicket; // ReturnType<typeof models.Case.ServiceTicketModelFactory> & models.Case.ServiceTicket & { baseModelName: string };

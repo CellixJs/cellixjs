@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { MemberReadRepositoryImpl } from './index.ts';
 import { MemberDataSourceImpl, type MemberDataSource } from './member.data.ts';
 
@@ -47,7 +47,7 @@ function makeMockPassport() {
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof MemberReadRepositoryImpl>[0];
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof MemberReadRepositoryImpl>;
   let mockDataSource: MemberDataSource;
 

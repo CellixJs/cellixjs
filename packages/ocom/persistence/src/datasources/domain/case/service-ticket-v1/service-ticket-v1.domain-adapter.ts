@@ -1,7 +1,7 @@
 import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { ServiceRepository } from './service.repository.ts';
 import { ServiceConverter } from './service.domain-adapter.ts';
@@ -67,7 +67,7 @@ function makeMockPassport() {
 test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repository: ServiceRepository;
   let converter: ServiceConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let mockModel: Models.Service.ServiceModelType;
   let result: unknown;
 

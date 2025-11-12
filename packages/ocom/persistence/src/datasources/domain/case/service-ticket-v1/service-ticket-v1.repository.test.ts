@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 import { ServiceTicketV1Converter, type ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
@@ -74,7 +74,7 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: ServiceTicketV1Repository;
   let converter: ServiceTicketV1Converter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let serviceTicketDoc: Models.Case.ServiceTicket;
   let communityDoc: Models.Community.Community;
   let memberDoc: Models.Member.Member;

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { ReadonlyDataSourceImplementation } from './index.ts';
 
 
@@ -58,7 +58,7 @@ function makeMockPassport() {
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof ReadonlyDataSourceImplementation>[0];
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof ReadonlyDataSourceImplementation>;
 
   BeforeEachScenario(() => {

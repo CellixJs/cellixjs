@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';
 import { EndUserRoleConverter, type EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
@@ -89,7 +89,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let model: Models.Role.EndUserRoleModelType;
   let converter: EndUserRoleConverter;
   let repository: EndUserRoleRepository;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let communityDoc: Models.Community.Community;
   let result: unknown;
 

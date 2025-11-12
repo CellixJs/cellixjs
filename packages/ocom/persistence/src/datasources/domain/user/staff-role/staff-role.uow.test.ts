@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getStaffRoleUnitOfWork } from './staff-role.uow.ts';
 
@@ -34,7 +34,7 @@ function makeMockPassport() {
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let staffRoleModel: Models.Role.StaffRoleModelType;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: Domain.Contexts.User.StaffRole.StaffRoleUnitOfWork;
 
   BeforeEachScenario(() => {

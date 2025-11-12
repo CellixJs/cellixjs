@@ -2,7 +2,7 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
 import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';

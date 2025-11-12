@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { VendorUserRepository } from './vendor-user.repository.ts';
 import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
@@ -56,7 +56,7 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: VendorUserRepository;
   let converter: VendorUserConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let vendorUserDoc: Models.User.VendorUser;
   let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
 

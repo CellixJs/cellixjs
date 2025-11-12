@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import {
   PropertyConverter,
@@ -1158,7 +1158,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   let communityDoc: Models.Community.Community;
   let memberDoc: Models.Member.Member;
   let converter: PropertyConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {

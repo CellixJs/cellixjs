@@ -1,5 +1,5 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 

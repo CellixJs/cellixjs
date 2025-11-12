@@ -1,6 +1,6 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { MemberDomainAdapter } from './member.domain-adapter.ts';
 
 type MemberModelType = Models.Member.Member; // ReturnType<typeof Models.Member.MemberModelFactory> & Models.Member.Member & { baseModelName: string };

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 
 const test = { for: describeFeature };
@@ -423,7 +423,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.User.EndUser;
   let converter: EndUserConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {

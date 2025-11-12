@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import {
   ServiceTicketV1Converter,
@@ -965,7 +965,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: ServiceTicketV1Converter;
   let doc: Models.Case.ServiceTicket;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
   BeforeEachScenario(() => {

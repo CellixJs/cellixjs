@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { MemberReadRepositoryImpl } from './member.read-repository.ts';
 import { MemberDataSourceImpl } from './member.data.ts';
@@ -73,7 +73,7 @@ function makeMockMemberDocument() {
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let repository: MemberReadRepositoryImpl;
   let mockMemberDoc: Models.Member.Member;
   let mockDataSource: {

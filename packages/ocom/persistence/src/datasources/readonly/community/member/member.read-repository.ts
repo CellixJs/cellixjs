@@ -1,5 +1,5 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork'; 
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
@@ -25,14 +25,14 @@ export interface MemberReadRepository {
 export class MemberReadRepositoryImpl implements MemberReadRepository {
     private readonly mongoDataSource: MemberDataSource;
     private readonly converter: MemberConverter;
-    private readonly passport: Domain.Passport;
+    private readonly passport: Passport;
 
     /**
      * Constructs a new MemberReadRepositoryImpl.
      * @param models - The models context containing the Member model.
      * @param passport - The passport object for domain access.
      */
-    constructor(models: ModelsContext, passport: Domain.Passport) {
+    constructor(models: ModelsContext, passport: Passport) {
         this.mongoDataSource = new MemberDataSourceImpl(models.Member.Member);
         this.converter = new MemberConverter();
         this.passport = passport;
@@ -143,7 +143,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
 
 export const getMemberReadRepository = (
     models: ModelsContext,
-    passport: Domain.Passport
+    passport: Passport
 ) => {
     return new MemberReadRepositoryImpl(models, passport);
 };

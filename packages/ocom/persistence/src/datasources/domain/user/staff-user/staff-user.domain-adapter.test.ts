@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
 import { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';

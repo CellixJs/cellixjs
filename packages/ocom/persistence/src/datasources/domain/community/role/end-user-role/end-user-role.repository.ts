@@ -1,6 +1,6 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 
 type EndUserRoleModelType = Models.Role.EndUserRole; // ReturnType<typeof Models.EndUserRole.EndUserRoleModelFactory> & Models.EndUserRole.EndUserRole & { baseModelName: string };

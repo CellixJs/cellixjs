@@ -15,13 +15,6 @@ import type { DomainExecutionContext } from './domain/domain-execution-context.t
 export { type Passport, PassportFactory };
 export type { DomainExecutionContext };
 
-// Export Domain namespace for backward compatibility with persistence layer
-// biome-ignore lint/style/noNamespace: Required for backward compatibility with existing persistence layer code
-export namespace Domain {
-	export type { Passport };
-	export { PassportFactory };
-}
-
 export interface DomainDataSource {
 	Case: {
 		ServiceTicket: {

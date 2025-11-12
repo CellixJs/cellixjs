@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityConverter, CommunityDomainAdapter } from './community.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
@@ -238,7 +238,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   let doc: Models.Community.Community;
   let userDoc: Models.User.EndUser;
   let converter: CommunityConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {

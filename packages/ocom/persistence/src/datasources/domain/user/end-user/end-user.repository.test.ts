@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
+import { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { EndUserRepository } from './end-user.repository.ts';
 import { EndUserConverter, type EndUserDomainAdapter } from './end-user.domain-adapter.ts';
@@ -56,7 +56,7 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: EndUserRepository<EndUserDomainAdapter>;
   let converter: EndUserConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let endUserDoc: Models.User.EndUser;
   let model: Models.User.EndUserModelType;
   let eventBus: DomainSeedwork.EventBus;

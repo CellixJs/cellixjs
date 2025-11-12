@@ -1,4 +1,4 @@
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
@@ -14,9 +14,9 @@ export interface EndUserReadRepository {
 export class EndUserReadRepositoryImpl implements EndUserReadRepository {
     private readonly mongoDataSource: EndUserDataSource;
     private readonly converter: EndUserConverter;
-    private readonly passport: Domain.Passport;
+    private readonly passport: Passport;
 
-    constructor(models: ModelsContext, passport: Domain.Passport) {
+    constructor(models: ModelsContext, passport: Passport) {
         this.mongoDataSource = new EndUserDataSourceImpl(models.User.EndUser);
         this.converter = new EndUserConverter();
         this.passport = passport;
@@ -46,7 +46,7 @@ export class EndUserReadRepositoryImpl implements EndUserReadRepository {
 
 export const getEndUserReadRepository = (
     models: ModelsContext,
-    passport: Domain.Passport
+    passport: Passport
 ) => {
     return new EndUserReadRepositoryImpl(models, passport);
 };
