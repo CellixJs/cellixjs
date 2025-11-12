@@ -10,6 +10,14 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./contexts/community": {
+        "types": "./dist/src/domain/contexts/community/community/index.d.ts",
+        "default": "./dist/src/domain/contexts/community/community/index.js"
+    },
+    "./contexts/case/service-ticket/v1": {
+        "types": "./dist/src/domain/contexts/case/service-ticket/v1/index.d.ts",
+        "default": "./dist/src/domain/contexts/case/service-ticket/v1/index.js"
     }
   },
   "scripts": {
