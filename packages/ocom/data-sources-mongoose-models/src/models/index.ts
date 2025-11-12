@@ -19,14 +19,15 @@ import {
 } from './case/index.ts';
 import { PropertyModelFactory } from './property/index.ts';
 import { ServiceModelFactory } from './service/index.ts';
+import * as Community from './community/index.ts';
+import * as Member from './member/index.ts';
+import * as Role from './role/index.ts';
+import * as User from './user/index.ts';
+import * as Service from './service/index.ts';
+import * as Property from './property/index.ts';
+import * as Case from './case/index.ts';
 
-export * as Community from './community/index.ts';
-export * as Member from './member/index.ts';
-export * as Role from './role/index.ts';
-export * as User from './user/index.ts';
-export * as Service from './service/index.ts';
-export * as Property from './property/index.ts';
-export * as Case from './case/index.ts';
+export { Community, Member, Role, User, Service, Property, Case };
 
 export const mongooseContextBuilder = (
 	initializedService: MongooseSeedwork.MongooseContextFactory,

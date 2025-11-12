@@ -1,1 +1,3 @@
-export { graphHandlerCreator } from './init/handler.ts';
+import { graphHandlerCreator } from './init/handler.ts';
+
+export { graphHandlerCreator };
