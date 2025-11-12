@@ -1,7 +1,7 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
-import * as ValueObjects from './end-user.value-objects.ts';
 import type { UserVisa } from '../user.visa.ts';
 import type { EndUserAggregateRoot } from './end-user.ts';
+import * as ValueObjects from './end-user.value-objects.ts';
 
 export interface EndUserIdentityDetailsProps
 	extends DomainSeedwork.ValueObjectProps {
@@ -18,11 +18,15 @@ export class EndUserIdentityDetails
 	implements EndUserIdentityDetailsEntityReference
 {
 	private readonly visa: UserVisa;
-    private readonly root: EndUserAggregateRoot;
-	constructor(props: EndUserIdentityDetailsProps, visa: UserVisa, root: EndUserAggregateRoot) {
+	private readonly root: EndUserAggregateRoot;
+	constructor(
+		props: EndUserIdentityDetailsProps,
+		visa: UserVisa,
+		root: EndUserAggregateRoot,
+	) {
 		super(props);
 		this.visa = visa;
-        this.root = root;
+		this.root = root;
 	}
 
 	private validateVisa(): void {

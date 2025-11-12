@@ -15,11 +15,15 @@ export class EndUserContactInformation
 	implements EndUserContactInformationEntityReference
 {
 	private readonly visa: UserVisa;
-    private readonly root: EndUserAggregateRoot; 
-	public constructor(props: EndUserContactInformationProps, visa: UserVisa, root: EndUserAggregateRoot) {
+	private readonly root: EndUserAggregateRoot;
+	public constructor(
+		props: EndUserContactInformationProps,
+		visa: UserVisa,
+		root: EndUserAggregateRoot,
+	) {
 		super(props);
 		this.visa = visa;
-        this.root = root;
+		this.root = root;
 	}
 
 	public get email(): string {

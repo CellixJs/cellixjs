@@ -27,7 +27,7 @@ export class VendorUserRoleServicePermissions
 
 	get canManageServices(): boolean {
 		return this.props.canManageServices;
-    }
+	}
 	set canManageServices(value: boolean) {
 		if (
 			!this.visa.determineIf(

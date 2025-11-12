@@ -1,12 +1,12 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import {
 	Community,
-	type CommunityProps,
 	type CommunityEntityReference,
+	type CommunityProps,
 } from '../../community/community/community.ts';
-import * as ValueObjects from './service.value-objects.ts';
-import type { ServiceVisa } from '../service.visa.ts';
 import type { Passport } from '../../passport.ts';
+import type { ServiceVisa } from '../service.visa.ts';
+import * as ValueObjects from './service.value-objects.ts';
 
 export interface ServiceProps extends DomainSeedwork.DomainEntityProps {
 	readonly community: CommunityProps;
@@ -117,9 +117,9 @@ export class Service<props extends ServiceProps>
 	}
 }
 
-
 //#region Exports
-export { Service, type ServiceEntityReference, type ServiceProps } from './service.aggregate.ts';
-export type { ServiceRepository } from './service.repository.ts';
-export type { ServiceUnitOfWork } from './service.uow.ts';
+import type { ServiceRepository } from './service.repository.ts';
+import type { ServiceUnitOfWork } from './service.uow.ts';
+
+export type { ServiceRepository, ServiceUnitOfWork };
 //#endregion Exports

@@ -17,7 +17,10 @@ export class PropertyListingDetailBedroomDetail
 {
 	private readonly visa: PropertyVisa;
 
-	constructor(props: PropertyListingDetailBedroomDetailProps, visa: PropertyVisa) {
+	constructor(
+		props: PropertyListingDetailBedroomDetailProps,
+		visa: PropertyVisa,
+	) {
 		super(props);
 		this.visa = visa;
 	}

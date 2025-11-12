@@ -1,2 +1,4 @@
-export { EventBusInstance } from './event-bus.ts';
-export * from './types/index.ts';
+import { EventBusInstance } from './event-bus.ts';
+import { CommunityCreatedEvent } from './types/community-created.ts';
+
+export { EventBusInstance, CommunityCreatedEvent };

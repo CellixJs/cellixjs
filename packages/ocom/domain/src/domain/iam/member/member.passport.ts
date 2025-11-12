@@ -12,13 +12,13 @@ import { MemberUserPassport } from './contexts/member.user.passport.ts';
 import { MemberPassportBase } from './member.passport-base.ts';
 
 export class MemberPassport extends MemberPassportBase implements Passport {
-    private _casePassport: CasePassport | undefined;
+	private _casePassport: CasePassport | undefined;
 	private _communityPassport: CommunityPassport | undefined;
 	private _propertyPassport: PropertyPassport | undefined;
 	private _servicePassport: ServicePassport | undefined;
 	private _userPassport: UserPassport | undefined;
 
-    public get case(): CasePassport {
+	public get case(): CasePassport {
 		if (!this._casePassport) {
 			this._casePassport = new MemberCasePassport(
 				this._user,

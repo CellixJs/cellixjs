@@ -1,13 +1,16 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
-import * as ValueObjects from './staff-user.value-objects.ts';
+import {
+	StaffUserCreatedEvent,
+	type StaffUserCreatedProps,
+} from '../../../events/types/staff-user-created.ts';
+import type { Passport } from '../../passport.ts';
 import {
 	StaffRole,
 	type StaffRoleEntityReference,
 	type StaffRoleProps,
 } from '../staff-role/staff-role.ts';
-import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../events/types/staff-user-created.ts';
 import type { UserVisa } from '../user.visa.ts';
-import type { Passport } from '../../passport.ts';
+import * as ValueObjects from './staff-user.value-objects.ts';
 
 export interface StaffUserProps extends DomainSeedwork.DomainEntityProps {
 	readonly role?: StaffRoleProps;
@@ -65,9 +68,12 @@ export class StaffUser<props extends StaffUserProps>
 
 	private markAsNew(): void {
 		this.isNew = true;
-		this.addIntegrationEvent<StaffUserCreatedProps, StaffUserCreatedEvent>(StaffUserCreatedEvent, {
-			externalId: this.props.externalId,
-		});
+		this.addIntegrationEvent<StaffUserCreatedProps, StaffUserCreatedEvent>(
+			StaffUserCreatedEvent,
+			{
+				externalId: this.props.externalId,
+			},
+		);
 	}
 
 	private validateVisa(): void {
@@ -162,7 +168,6 @@ export class StaffUser<props extends StaffUserProps>
 		return this.props.schemaVersion;
 	}
 }
-
 
 //#region Exports
 export type { StaffUserRepository } from './staff-user.repository.ts';

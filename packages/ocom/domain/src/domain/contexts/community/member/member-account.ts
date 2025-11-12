@@ -1,11 +1,11 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
+import type { Passport } from '../../passport.ts';
 import {
 	EndUser,
 	type EndUserEntityReference,
 } from '../../user/end-user/end-user.ts';
-import * as ValueObjects from './member-account.value-objects.ts';
 import type { CommunityVisa } from '../community.visa.ts';
-import type { Passport } from '../../passport.ts';
+import * as ValueObjects from './member-account.value-objects.ts';
 
 export interface MemberAccountProps extends DomainSeedwork.DomainEntityProps {
 	firstName: string;

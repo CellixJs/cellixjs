@@ -5,14 +5,14 @@ import type { Community, CommunityProps } from './community.ts';
 
 export interface CommunityUnitOfWork
 	extends DomainSeedwork.UnitOfWork<
-		Passport,
-		CommunityProps,
-		Community<CommunityProps>,
-		CommunityRepository<CommunityProps>
-	>,
-    DomainSeedwork.InitializedUnitOfWork<
-        Passport,
-        CommunityProps,
-        Community<CommunityProps>,
-        CommunityRepository<CommunityProps>
-    > {}
+			Passport,
+			CommunityProps,
+			Community<CommunityProps>,
+			CommunityRepository<CommunityProps>
+		>,
+		DomainSeedwork.InitializedUnitOfWork<
+			Passport,
+			CommunityProps,
+			Community<CommunityProps>,
+			CommunityRepository<CommunityProps>
+		> {}

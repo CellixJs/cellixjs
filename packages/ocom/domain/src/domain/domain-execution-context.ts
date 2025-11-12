@@ -5,5 +5,5 @@ import type { Passport } from './contexts/passport.ts';
 export interface DomainExecutionContext
 	extends DomainSeedwork.BaseDomainExecutionContext {
 	passport: Passport;
-    domainDataSource: DomainDataSource;
+	domainDataSource: DomainDataSource;
 }

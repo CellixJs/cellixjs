@@ -5,14 +5,14 @@ import type { PropertyRepository } from './property.repository.ts';
 
 export interface PropertyUnitOfWork
 	extends DomainSeedwork.UnitOfWork<
-	Passport,
-	PropertyProps,
-	Property<PropertyProps>,
-	PropertyRepository<PropertyProps>
->,
-	DomainSeedwork.InitializedUnitOfWork<
-		Passport,
-		PropertyProps,
-		Property<PropertyProps>,
-		PropertyRepository<PropertyProps>
-	> {}
+			Passport,
+			PropertyProps,
+			Property<PropertyProps>,
+			PropertyRepository<PropertyProps>
+		>,
+		DomainSeedwork.InitializedUnitOfWork<
+			Passport,
+			PropertyProps,
+			Property<PropertyProps>,
+			PropertyRepository<PropertyProps>
+		> {}

@@ -1,11 +1,12 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
-import type { CommunityVisa } from '../../community.visa.ts';
 import type { CaseDomainPermissions } from '../../../case/case.domain-permissions.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
 
 export interface EndUserRoleServiceTicketPermissionsProps
 	extends Omit<
-                CaseDomainPermissions,
-                "isEditingOwnTicket" | "isEditingAssignedTicket" | "isSystemAccount" >,
+			CaseDomainPermissions,
+			'isEditingOwnTicket' | 'isEditingAssignedTicket' | 'isSystemAccount'
+		>,
 		DomainSeedwork.ValueObjectProps {}
 export interface EndUserRoleServiceTicketPermissionsEntityReference
 	extends Readonly<EndUserRoleServiceTicketPermissionsProps> {}

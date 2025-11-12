@@ -1,13 +1,16 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
-import { VendorUserCreatedEvent, type VendorUserCreatedProps } from '../../../events/types/vendor-user-created.ts';
+import {
+	VendorUserCreatedEvent,
+	type VendorUserCreatedProps,
+} from '../../../events/types/vendor-user-created.ts';
+import type { Passport } from '../../passport.ts';
+import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './vendor-user.value-objects.ts';
 import {
 	VendorUserPersonalInformation,
 	type VendorUserPersonalInformationEntityReference,
 	type VendorUserPersonalInformationProps,
 } from './vendor-user-personal-information.ts';
-import type { Passport } from '../../passport.ts';
-import type { UserVisa } from '../user.visa.ts';
 
 export interface VendorUserProps extends DomainSeedwork.DomainEntityProps {
 	readonly personalInformation: VendorUserPersonalInformationProps;
@@ -69,7 +72,10 @@ export class VendorUser<props extends VendorUserProps>
 
 	private markAsNew(): void {
 		this.isNew = true;
-		this.addIntegrationEvent<VendorUserCreatedProps, VendorUserCreatedEvent>(VendorUserCreatedEvent, { userId: this.props.id });
+		this.addIntegrationEvent<VendorUserCreatedProps, VendorUserCreatedEvent>(
+			VendorUserCreatedEvent,
+			{ userId: this.props.id },
+		);
 	}
 
 	private validateVisa(): void {
@@ -93,10 +99,13 @@ export class VendorUser<props extends VendorUserProps>
 	}
 
 	get personalInformation() {
-		return new VendorUserPersonalInformation(this.props.personalInformation, this.visa);
+		return new VendorUserPersonalInformation(
+			this.props.personalInformation,
+			this.visa,
+		);
 	}
 
-	get userType(): string  {
+	get userType(): string {
 		return this.props.userType;
 	}
 
@@ -152,7 +161,8 @@ export class VendorUser<props extends VendorUserProps>
 	}
 }
 
-
+export type { VendorUserRepository } from './vendor-user.repository.ts';
+export type { VendorUserUnitOfWork } from './vendor-user.uow.ts';
 //#region Exports
 export type {
 	VendorUserContactInformationEntityReference,
@@ -166,7 +176,5 @@ export type {
 	VendorUserPersonalInformationEntityReference,
 	VendorUserPersonalInformationProps,
 } from './vendor-user-personal-information.ts';
-export type { VendorUserRepository } from './vendor-user.repository.ts';
-export type { VendorUserUnitOfWork } from './vendor-user.uow.ts';
 //#endregion Exports
 //#endregion Exports

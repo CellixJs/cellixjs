@@ -1,18 +1,21 @@
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
+import {
+	RoleDeletedReassignEvent,
+	type RoleDeletedReassignProps,
+} from '../../../../events/types/role-deleted-reassign.ts';
+import type { Passport } from '../../../passport.ts';
+import {
+	Community,
+	type CommunityEntityReference,
+	type CommunityProps,
+} from '../../community/community.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
+import * as ValueObjects from './end-user-role.value-objects.ts';
 import {
 	EndUserRolePermissions,
 	type EndUserRolePermissionsEntityReference,
 	type EndUserRolePermissionsProps,
 } from './end-user-role-permissions.ts';
-import * as ValueObjects from './end-user-role.value-objects.ts';
-import {
-	Community,
-	type CommunityProps,
-	type CommunityEntityReference,
-} from '../../community/community.ts';
-import type { CommunityVisa } from '../../community.visa.ts';
-import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
-import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
-import type { Passport } from '../../../passport.ts';
 
 export interface EndUserRoleProps extends DomainSeedwork.DomainEntityProps {
 	roleName: string;
@@ -65,39 +68,42 @@ export class EndUserRole<props extends EndUserRoleProps>
 		return role;
 	}
 	deleteAndReassignTo(roleRef: EndUserRoleEntityReference) {
-        if (this.isDefault) {
-            throw new DomainSeedwork.PermissionError(
-                'You cannot delete a default end user role',
-            );
-        }
-        if (
-            !this.isDeleted &&
-            !this.visa.determineIf(
-                (permissions) => permissions.canManageEndUserRolesAndPermissions,
-            )
-        ) {
-            throw new DomainSeedwork.PermissionError(
-                'You do not have permission to delete this role',
-            );
-        }
+		if (this.isDefault) {
+			throw new DomainSeedwork.PermissionError(
+				'You cannot delete a default end user role',
+			);
+		}
+		if (
+			!this.isDeleted &&
+			!this.visa.determineIf(
+				(permissions) => permissions.canManageEndUserRolesAndPermissions,
+			)
+		) {
+			throw new DomainSeedwork.PermissionError(
+				'You do not have permission to delete this role',
+			);
+		}
 		super.isDeleted = true;
-		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<
+			RoleDeletedReassignProps,
+			RoleDeletedReassignEvent
+		>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});
 	}
 
-    private get visa(): CommunityVisa {
-        if (!this._visa) {
-            if (!this.props.community) {
-                throw new Error(
-                    'Community must be set before computing a visa for EndUserRole',
-                );
-            }
-            this._visa = this.passport.community.forCommunity(this.community);
-        }
-        return this._visa;
-    }
+	private get visa(): CommunityVisa {
+		if (!this._visa) {
+			if (!this.props.community) {
+				throw new Error(
+					'Community must be set before computing a visa for EndUserRole',
+				);
+			}
+			this._visa = this.passport.community.forCommunity(this.community);
+		}
+		return this._visa;
+	}
 	//#endregion Methods
 
 	//#region Properties
@@ -170,18 +176,61 @@ export class EndUserRole<props extends EndUserRoleProps>
 	//#endregion Properties
 }
 
-
-//#region Exports
-import { EndUserRole, type EndUserRoleEntityReference, type EndUserRoleProps } from './end-user-role.ts';
-import { EndUserRoleCommunityPermissions, type EndUserRoleCommunityPermissionsEntityReference, type EndUserRoleCommunityPermissionsProps } from './end-user-role-community-permissions.ts';
-import { EndUserRolePermissions, type EndUserRolePermissionsEntityReference, type EndUserRolePermissionsProps } from './end-user-role-permissions.ts';
-import { EndUserRolePropertyPermissions, type EndUserRolePropertyPermissionsEntityReference, type EndUserRolePropertyPermissionsProps } from './end-user-role-property-permissions.ts';
-import { EndUserRoleServicePermissions, type EndUserRoleServicePermissionsEntityReference, type EndUserRoleServicePermissionsProps } from './end-user-role-service-permissions.ts';
-import { EndUserRoleServiceTicketPermissions, type EndUserRoleServiceTicketPermissionsEntityReference, type EndUserRoleServiceTicketPermissionsProps } from './end-user-role-service-ticket-permissions.ts';
-import { EndUserRoleViolationTicketPermissions, type EndUserRoleViolationTicketPermissionsEntityReference, type EndUserRoleViolationTicketPermissionsProps } from './end-user-role-violation-ticket-permissions.ts';
 import type { EndUserRoleRepository } from './end-user-role.repository.ts';
 import type { EndUserRoleUnitOfWork } from './end-user-role.uow.ts';
+import {
+	EndUserRoleCommunityPermissions,
+	type EndUserRoleCommunityPermissionsEntityReference,
+	type EndUserRoleCommunityPermissionsProps,
+} from './end-user-role-community-permissions.ts';
+import {
+	EndUserRolePermissions,
+	type EndUserRolePermissionsEntityReference,
+	type EndUserRolePermissionsProps,
+} from './end-user-role-permissions.ts';
+import {
+	EndUserRolePropertyPermissions,
+	type EndUserRolePropertyPermissionsEntityReference,
+	type EndUserRolePropertyPermissionsProps,
+} from './end-user-role-property-permissions.ts';
+import {
+	EndUserRoleServicePermissions,
+	type EndUserRoleServicePermissionsEntityReference,
+	type EndUserRoleServicePermissionsProps,
+} from './end-user-role-service-permissions.ts';
+import {
+	EndUserRoleServiceTicketPermissions,
+	type EndUserRoleServiceTicketPermissionsEntityReference,
+	type EndUserRoleServiceTicketPermissionsProps,
+} from './end-user-role-service-ticket-permissions.ts';
+import {
+	EndUserRoleViolationTicketPermissions,
+	type EndUserRoleViolationTicketPermissionsEntityReference,
+	type EndUserRoleViolationTicketPermissionsProps,
+} from './end-user-role-violation-ticket-permissions.ts';
 
-export { { EndUserRole, type EndUserRoleEntityReference, type EndUserRoleProps }, { EndUserRoleCommunityPermissions, type EndUserRoleCommunityPermissionsEntityReference, type EndUserRoleCommunityPermissionsProps }, { EndUserRolePermissions, type EndUserRolePermissionsEntityReference, type EndUserRolePermissionsProps }, { EndUserRolePropertyPermissions, type EndUserRolePropertyPermissionsEntityReference, type EndUserRolePropertyPermissionsProps }, { EndUserRoleServicePermissions, type EndUserRoleServicePermissionsEntityReference, type EndUserRoleServicePermissionsProps }, { EndUserRoleServiceTicketPermissions, type EndUserRoleServiceTicketPermissionsEntityReference, type EndUserRoleServiceTicketPermissionsProps }, { EndUserRoleViolationTicketPermissions, type EndUserRoleViolationTicketPermissionsEntityReference, type EndUserRoleViolationTicketPermissionsProps } };
-export type { EndUserRoleRepository, EndUserRoleUnitOfWork };
+export {
+	EndUserRoleCommunityPermissions,
+	EndUserRolePermissions,
+	EndUserRolePropertyPermissions,
+	EndUserRoleServicePermissions,
+	EndUserRoleServiceTicketPermissions,
+	EndUserRoleViolationTicketPermissions,
+};
+export type {
+	EndUserRoleRepository,
+	EndUserRoleUnitOfWork,
+	EndUserRoleCommunityPermissionsEntityReference,
+	EndUserRoleCommunityPermissionsProps,
+	EndUserRolePermissionsEntityReference,
+	EndUserRolePermissionsProps,
+	EndUserRolePropertyPermissionsEntityReference,
+	EndUserRolePropertyPermissionsProps,
+	EndUserRoleServicePermissionsEntityReference,
+	EndUserRoleServicePermissionsProps,
+	EndUserRoleServiceTicketPermissionsEntityReference,
+	EndUserRoleServiceTicketPermissionsProps,
+	EndUserRoleViolationTicketPermissionsEntityReference,
+	EndUserRoleViolationTicketPermissionsProps,
+};
 //#endregion Exports

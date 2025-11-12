@@ -30,34 +30,34 @@ export interface EndUserPersonalInformationEntityReference
 }
 
 export class EndUserPersonalInformation
-		extends DomainSeedwork.ValueObject<EndUserPersonalInformationProps>
-		implements EndUserPersonalInformationEntityReference
-	{
-		private readonly visa: UserVisa;
-		private readonly root: EndUserAggregateRoot;
-		constructor(
-			props: EndUserPersonalInformationProps,
-			visa: UserVisa,
-			root: EndUserAggregateRoot,
-		) {
-			super(props);
-			this.visa = visa;
-			this.root = root;
-		}
-
-		get identityDetails() {
-			return new EndUserIdentityDetails(
-				this.props.identityDetails,
-				this.visa,
-				this.root,
-			);
-		}
-
-		get contactInformation() {
-			return new EndUserContactInformation(
-				this.props.contactInformation,
-				this.visa,
-				this.root,
-			);
-		}
+	extends DomainSeedwork.ValueObject<EndUserPersonalInformationProps>
+	implements EndUserPersonalInformationEntityReference
+{
+	private readonly visa: UserVisa;
+	private readonly root: EndUserAggregateRoot;
+	constructor(
+		props: EndUserPersonalInformationProps,
+		visa: UserVisa,
+		root: EndUserAggregateRoot,
+	) {
+		super(props);
+		this.visa = visa;
+		this.root = root;
 	}
+
+	get identityDetails() {
+		return new EndUserIdentityDetails(
+			this.props.identityDetails,
+			this.visa,
+			this.root,
+		);
+	}
+
+	get contactInformation() {
+		return new EndUserContactInformation(
+			this.props.contactInformation,
+			this.visa,
+			this.root,
+		);
+	}
+}

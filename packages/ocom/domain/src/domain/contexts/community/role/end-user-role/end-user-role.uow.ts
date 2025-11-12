@@ -5,14 +5,14 @@ import type { EndUserRole, EndUserRoleProps } from './end-user-role.ts';
 
 export interface EndUserRoleUnitOfWork
 	extends DomainSeedwork.UnitOfWork<
-		Passport,
-		EndUserRoleProps,
-		EndUserRole<EndUserRoleProps>,
-		EndUserRoleRepository<EndUserRoleProps>
-	>,
-    DomainSeedwork.InitializedUnitOfWork<
-        Passport,
-        EndUserRoleProps,
-        EndUserRole<EndUserRoleProps>,
-        EndUserRoleRepository<EndUserRoleProps>
-    > {}
+			Passport,
+			EndUserRoleProps,
+			EndUserRole<EndUserRoleProps>,
+			EndUserRoleRepository<EndUserRoleProps>
+		>,
+		DomainSeedwork.InitializedUnitOfWork<
+			Passport,
+			EndUserRoleProps,
+			EndUserRole<EndUserRoleProps>,
+			EndUserRoleRepository<EndUserRoleProps>
+		> {}

@@ -5,14 +5,14 @@ import type { Member, MemberProps } from './member.ts';
 
 export interface MemberUnitOfWork
 	extends DomainSeedwork.UnitOfWork<
-		Passport,
-		MemberProps,
-		Member<MemberProps>,
-		MemberRepository<MemberProps>
-	>,
-    DomainSeedwork.InitializedUnitOfWork<
-        Passport,
-        MemberProps,
-        Member<MemberProps>,
-        MemberRepository<MemberProps>
-    > {}
+			Passport,
+			MemberProps,
+			Member<MemberProps>,
+			MemberRepository<MemberProps>
+		>,
+		DomainSeedwork.InitializedUnitOfWork<
+			Passport,
+			MemberProps,
+			Member<MemberProps>,
+			MemberRepository<MemberProps>
+		> {}

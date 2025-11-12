@@ -1,13 +1,16 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import {
-	type StaffRolePermissionsProps,
-	type StaffRolePermissionsEntityReference,
-	StaffRolePermissions,
-} from './staff-role-permissions.ts';
-import * as ValueObjects from './staff-role.value-objects.ts';
+	RoleDeletedReassignEvent,
+	type RoleDeletedReassignProps,
+} from '../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
-import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../events/types/role-deleted-reassign.ts';
+import * as ValueObjects from './staff-role.value-objects.ts';
+import {
+	StaffRolePermissions,
+	type StaffRolePermissionsEntityReference,
+	type StaffRolePermissionsProps,
+} from './staff-role-permissions.ts';
 
 export interface StaffRoleProps extends DomainSeedwork.DomainEntityProps {
 	roleName: string;
@@ -49,23 +52,26 @@ export class StaffRole<props extends StaffRoleProps>
 		return role;
 	}
 	public deleteAndReassignTo(roleRef: StaffRoleEntityReference) {
-        if (this.isDefault) {
-            throw new DomainSeedwork.PermissionError(
-                'You cannot delete a default staff role',
-            );
-        }
-        if (
-            !this.isDeleted &&
-            !this.visa.determineIf(
-                (permissions) => permissions.canManageStaffRolesAndPermissions,
-            )
-        ) {
-            throw new DomainSeedwork.PermissionError(
-                'You do not have permission to delete this role',
-            );
-        }
+		if (this.isDefault) {
+			throw new DomainSeedwork.PermissionError(
+				'You cannot delete a default staff role',
+			);
+		}
+		if (
+			!this.isDeleted &&
+			!this.visa.determineIf(
+				(permissions) => permissions.canManageStaffRolesAndPermissions,
+			)
+		) {
+			throw new DomainSeedwork.PermissionError(
+				'You do not have permission to delete this role',
+			);
+		}
 		super.isDeleted = true;
-		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<
+			RoleDeletedReassignProps,
+			RoleDeletedReassignEvent
+		>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});
@@ -122,33 +128,32 @@ export class StaffRole<props extends StaffRoleProps>
 	}
 }
 
-
-//#region Exports
-export type {
-	StaffRolePermissionsProps,
-	StaffRolePermissionsEntityReference,
-} from './staff-role-permissions.ts';
-export type {
-	StaffRoleCommunityPermissionsProps,
-	StaffRoleCommunityPermissionsEntityReference,
-} from './staff-role-community-permissions.ts';
-export type {
-	StaffRolePropertyPermissionsProps,
-	StaffRolePropertyPermissionsEntityReference,
-} from './staff-role-property-permissions.ts';
-export type {
-	StaffRoleServicePermissionsProps,
-	StaffRoleServicePermissionsEntityReference,
-} from './staff-role-service-permissions.ts';
-export type {
-	StaffRoleServiceTicketPermissionsProps,
-	StaffRoleServiceTicketPermissionsEntityReference,
-} from './staff-role-service-ticket-permissions.ts';
-export type {
-	StaffRoleViolationTicketPermissionsProps,
-	StaffRoleViolationTicketPermissionsEntityReference,
-} from './staff-role-violation-ticket-permissions.ts';
 export type { StaffRoleRepository } from './staff-role.repository.ts';
 export type { StaffRoleUnitOfWork } from './staff-role.uow.ts';
+export type {
+	StaffRoleCommunityPermissionsEntityReference,
+	StaffRoleCommunityPermissionsProps,
+} from './staff-role-community-permissions.ts';
+//#region Exports
+export type {
+	StaffRolePermissionsEntityReference,
+	StaffRolePermissionsProps,
+} from './staff-role-permissions.ts';
+export type {
+	StaffRolePropertyPermissionsEntityReference,
+	StaffRolePropertyPermissionsProps,
+} from './staff-role-property-permissions.ts';
+export type {
+	StaffRoleServicePermissionsEntityReference,
+	StaffRoleServicePermissionsProps,
+} from './staff-role-service-permissions.ts';
+export type {
+	StaffRoleServiceTicketPermissionsEntityReference,
+	StaffRoleServiceTicketPermissionsProps,
+} from './staff-role-service-ticket-permissions.ts';
+export type {
+	StaffRoleViolationTicketPermissionsEntityReference,
+	StaffRoleViolationTicketPermissionsProps,
+} from './staff-role-violation-ticket-permissions.ts';
 //#endregion Exports
 //#endregion Exports

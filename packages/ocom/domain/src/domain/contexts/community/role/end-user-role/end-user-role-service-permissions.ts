@@ -1,6 +1,6 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
-import type { CommunityVisa } from '../../community.visa.ts';
 import type { ServiceDomainPermissions } from '../../../service/service.domain-permissions.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
 
 export interface EndUserRoleServicePermissionsProps
 	extends Omit<ServiceDomainPermissions, 'isSystemAccount'>,

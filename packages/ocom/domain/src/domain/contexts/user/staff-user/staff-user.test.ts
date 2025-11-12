@@ -1,14 +1,14 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-
-import { StaffUser, type StaffUserProps } from './staff-user.ts';
-import { StaffUserCreatedEvent } from '../../../events/types/staff-user-created.ts';
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
+import { expect, vi } from 'vitest';
+import { StaffUserCreatedEvent } from '../../../events/types/staff-user-created.ts';
 import type { Passport } from '../../passport.ts';
+import { StaffUser, type StaffUserProps } from './staff-user.ts';
 
 const test = { for: describeFeature };
+
 import type {
 	StaffRoleEntityReference,
 	StaffRoleProps,
@@ -27,11 +27,11 @@ function makePassport(canManageStaffRolesAndPermissions = true): Passport {
 					fn: (p: { canManageStaffRolesAndPermissions: boolean }) => boolean,
 				) => fn({ canManageStaffRolesAndPermissions }),
 			})),
-            forStaffRole: vi.fn(() => ({
-                determineIf: (
-                    fn: (p: { canManageStaffRolesAndPermissions: boolean }) => boolean,
-                ) => fn({ canManageStaffRolesAndPermissions }),
-            })),
+			forStaffRole: vi.fn(() => ({
+				determineIf: (
+					fn: (p: { canManageStaffRolesAndPermissions: boolean }) => boolean,
+				) => fn({ canManageStaffRolesAndPermissions }),
+			})),
 		},
 	} as unknown as Passport);
 }
@@ -43,10 +43,10 @@ function makePassport(canManageStaffRolesAndPermissions = true): Passport {
 function makeBaseProps(
 	overrides: Partial<StaffUserProps> = {},
 ): StaffUserProps {
-    let _role: StaffRoleEntityReference | undefined = vi.mocked({
-        roleName: 'test role',
-        roleType: 'staff-role',
-    } as StaffRoleProps);
+	let _role: StaffRoleEntityReference | undefined = vi.mocked({
+		roleName: 'test role',
+		roleType: 'staff-role',
+	} as StaffRoleProps);
 	return {
 		id: 'staff-1',
 		firstName: 'Alice',
@@ -60,12 +60,12 @@ function makeBaseProps(
 		createdAt: new Date('2020-01-01T00:00:00Z'),
 		updatedAt: new Date('2020-01-02T00:00:00Z'),
 		schemaVersion: '1.0.0',
-        get role() {
-            return _role as StaffRoleEntityReference;
-        },
+		get role() {
+			return _role as StaffRoleEntityReference;
+		},
 		setRoleRef: (role: StaffRoleEntityReference | undefined) => {
-         _role = role;
-        },
+			_role = role;
+		},
 		...overrides,
 	};
 }
@@ -129,9 +129,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('the staff user\'s displayName should be "Alice Smith"', () => {
 			expect(newStaffUser.displayName).toBe('Alice Smith');
 		});
-		And('the staff user\'s externalId should be "123e4567-e89b-12d3-a456-426614174000"', () => {
-			expect(newStaffUser.externalId).toBe('123e4567-e89b-12d3-a456-426614174000');
-		});
+		And(
+			'the staff user\'s externalId should be "123e4567-e89b-12d3-a456-426614174000"',
+			() => {
+				expect(newStaffUser.externalId).toBe(
+					'123e4567-e89b-12d3-a456-426614174000',
+				);
+			},
+		);
 		And('a StaffUserCreatedEvent should be added to integration events', () => {
 			const event = getIntegrationEvent(
 				newStaffUser.getIntegrationEvents(),
@@ -210,13 +215,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					};
 				},
 			);
-			Then(
-				'an error should be thrown indicating the value is invalid',
-				() => {
-					expect(changingFirstNameToNull).throws('Wrong raw value type');
-					expect(changingFirstNameToEmptyString).throws('Too short');
-				},
-			);
+			Then('an error should be thrown indicating the value is invalid', () => {
+				expect(changingFirstNameToNull).throws('Wrong raw value type');
+				expect(changingFirstNameToEmptyString).throws('Too short');
+			});
 		},
 	);
 
@@ -286,13 +288,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					};
 				},
 			);
-			Then(
-				'an error should be thrown indicating the value is invalid',
-				() => {
-					expect(changingLastNameToNull).throws('Wrong raw value type');
-					expect(changingLastNameToEmptyString).throws('Too short');
-				},
-			);
+			Then('an error should be thrown indicating the value is invalid', () => {
+				expect(changingLastNameToNull).throws('Wrong raw value type');
+				expect(changingLastNameToEmptyString).throws('Too short');
+			});
 		},
 	);
 
@@ -365,13 +364,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					};
 				},
 			);
-			Then(
-				'an error should be thrown indicating the value is invalid',
-				() => {
-					expect(changingDisplayNameToNull).throws('Wrong raw value type');
-					expect(changingDisplayNameToEmptyString).throws('Too short');
-				},
-			);
+			Then('an error should be thrown indicating the value is invalid', () => {
+				expect(changingDisplayNameToNull).throws('Wrong raw value type');
+				expect(changingDisplayNameToEmptyString).throws('Too short');
+			});
 		},
 	);
 
@@ -414,246 +410,285 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-    Scenario('Changing the email to an invalid value', ({ Given, When, Then }) => {
-        let changingEmailToInvalidEmail: () => void;
-        Given(
-            'a StaffUser aggregate with permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(true);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I try to set the email to "not-an-email"', () => {
-            changingEmailToInvalidEmail = () => {
-                staffUser.email = 'not-an-email';
-            };
-        });
-        Then('an error should be thrown indicating the value is invalid', () => {
-            expect(changingEmailToInvalidEmail).throws('Value doesn\'t match pattern');
-        });
-    });
+	Scenario(
+		'Changing the email to an invalid value',
+		({ Given, When, Then }) => {
+			let changingEmailToInvalidEmail: () => void;
+			Given(
+				'a StaffUser aggregate with permission to manage staff roles and permissions',
+				() => {
+					passport = makePassport(true);
+					staffUser = new StaffUser(makeBaseProps(), passport);
+				},
+			);
+			When('I try to set the email to "not-an-email"', () => {
+				changingEmailToInvalidEmail = () => {
+					staffUser.email = 'not-an-email';
+				};
+			});
+			Then('an error should be thrown indicating the value is invalid', () => {
+				expect(changingEmailToInvalidEmail).throws(
+					"Value doesn't match pattern",
+				);
+			});
+		},
+	);
 
-    // externalId
-    Scenario('Changing the externalId with permission', ({ Given, When, Then }) => {
-        Given(
-            'a StaffUser aggregate with permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(true);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I set the externalId to "123e4567-e89b-12d3-a456-426614174000"', () => {
-            staffUser.externalId = '123e4567-e89b-12d3-a456-426614174000';
-        });
-        Then('the staff user\'s externalId should be "123e4567-e89b-12d3-a456-426614174000"', () => {
-            expect(staffUser.externalId).toBe('123e4567-e89b-12d3-a456-426614174000');
-        });
-    });
+	// externalId
+	Scenario(
+		'Changing the externalId with permission',
+		({ Given, When, Then }) => {
+			Given(
+				'a StaffUser aggregate with permission to manage staff roles and permissions',
+				() => {
+					passport = makePassport(true);
+					staffUser = new StaffUser(makeBaseProps(), passport);
+				},
+			);
+			When(
+				'I set the externalId to "123e4567-e89b-12d3-a456-426614174000"',
+				() => {
+					staffUser.externalId = '123e4567-e89b-12d3-a456-426614174000';
+				},
+			);
+			Then(
+				'the staff user\'s externalId should be "123e4567-e89b-12d3-a456-426614174000"',
+				() => {
+					expect(staffUser.externalId).toBe(
+						'123e4567-e89b-12d3-a456-426614174000',
+					);
+				},
+			);
+		},
+	);
 
-    Scenario('Changing the externalId without permission', ({ Given, When, Then }) => {
-        let changingExternalIdWithoutPermission: () => void;
-        Given(
-            'a StaffUser aggregate without permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(false);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I try to set the externalId to "123e4567-e89b-12d3-a456-426614174000"', () => {
-            changingExternalIdWithoutPermission = () => {
-                staffUser.externalId = '123e4567-e89b-12d3-a456-426614174000';
-            };
-        });
-        Then('a PermissionError should be thrown', () => {
-            expect(changingExternalIdWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
-            );
-            expect(changingExternalIdWithoutPermission).throws('Unauthorized');
-        });
-    });
+	Scenario(
+		'Changing the externalId without permission',
+		({ Given, When, Then }) => {
+			let changingExternalIdWithoutPermission: () => void;
+			Given(
+				'a StaffUser aggregate without permission to manage staff roles and permissions',
+				() => {
+					passport = makePassport(false);
+					staffUser = new StaffUser(makeBaseProps(), passport);
+				},
+			);
+			When(
+				'I try to set the externalId to "123e4567-e89b-12d3-a456-426614174000"',
+				() => {
+					changingExternalIdWithoutPermission = () => {
+						staffUser.externalId = '123e4567-e89b-12d3-a456-426614174000';
+					};
+				},
+			);
+			Then('a PermissionError should be thrown', () => {
+				expect(changingExternalIdWithoutPermission).toThrow(
+					DomainSeedwork.PermissionError,
+				);
+				expect(changingExternalIdWithoutPermission).throws('Unauthorized');
+			});
+		},
+	);
 
-    Scenario('Changing the externalId to an invalid value', ({ Given, When, Then }) => {
-        let changingExternalIdToInvalid: () => void;
-        Given(
-            'a StaffUser aggregate with permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(true);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I try to set the externalId to an invalid value', () => {
-            changingExternalIdToInvalid = () => {
-                staffUser.externalId = 'a'.repeat(36);
-            };
-        });
-        Then('an error should be thrown indicating the value is invalid', () => {
-            expect(changingExternalIdToInvalid).throws('Value doesn\'t match pattern');
-        });
-    });
+	Scenario(
+		'Changing the externalId to an invalid value',
+		({ Given, When, Then }) => {
+			let changingExternalIdToInvalid: () => void;
+			Given(
+				'a StaffUser aggregate with permission to manage staff roles and permissions',
+				() => {
+					passport = makePassport(true);
+					staffUser = new StaffUser(makeBaseProps(), passport);
+				},
+			);
+			When('I try to set the externalId to an invalid value', () => {
+				changingExternalIdToInvalid = () => {
+					staffUser.externalId = 'a'.repeat(36);
+				};
+			});
+			Then('an error should be thrown indicating the value is invalid', () => {
+				expect(changingExternalIdToInvalid).throws(
+					"Value doesn't match pattern",
+				);
+			});
+		},
+	);
 
-    // accessBlocked
-    Scenario('Changing accessBlocked with permission', ({ Given, When, Then }) => {
-        Given(
-            'a StaffUser aggregate with permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(true);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I set accessBlocked to true', () => {
-            staffUser.accessBlocked = true;
-        });
-        Then('the staff user\'s accessBlocked should be true', () => {
-            expect(staffUser.accessBlocked).toBe(true);
-        });
-    });
+	// accessBlocked
+	Scenario(
+		'Changing accessBlocked with permission',
+		({ Given, When, Then }) => {
+			Given(
+				'a StaffUser aggregate with permission to manage staff roles and permissions',
+				() => {
+					passport = makePassport(true);
+					staffUser = new StaffUser(makeBaseProps(), passport);
+				},
+			);
+			When('I set accessBlocked to true', () => {
+				staffUser.accessBlocked = true;
+			});
+			Then("the staff user's accessBlocked should be true", () => {
+				expect(staffUser.accessBlocked).toBe(true);
+			});
+		},
+	);
 
-    Scenario('Changing accessBlocked without permission', ({ Given, When, Then }) => {
-        let changingAccessBlockedWithoutPermission: () => void;
-        Given(
-            'a StaffUser aggregate without permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(false);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I try to set accessBlocked to true', () => {
-            changingAccessBlockedWithoutPermission = () => {
-                staffUser.accessBlocked = true;
-            };
-        });
-        Then('a PermissionError should be thrown', () => {
-            expect(changingAccessBlockedWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
-            );
-            expect(changingAccessBlockedWithoutPermission).throws('Unauthorized');
-        });
-    });
+	Scenario(
+		'Changing accessBlocked without permission',
+		({ Given, When, Then }) => {
+			let changingAccessBlockedWithoutPermission: () => void;
+			Given(
+				'a StaffUser aggregate without permission to manage staff roles and permissions',
+				() => {
+					passport = makePassport(false);
+					staffUser = new StaffUser(makeBaseProps(), passport);
+				},
+			);
+			When('I try to set accessBlocked to true', () => {
+				changingAccessBlockedWithoutPermission = () => {
+					staffUser.accessBlocked = true;
+				};
+			});
+			Then('a PermissionError should be thrown', () => {
+				expect(changingAccessBlockedWithoutPermission).toThrow(
+					DomainSeedwork.PermissionError,
+				);
+				expect(changingAccessBlockedWithoutPermission).throws('Unauthorized');
+			});
+		},
+	);
 
-    // tags
-    Scenario('Changing tags with permission', ({ Given, When, Then }) => {
-        Given(
-            'a StaffUser aggregate with permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(true);
-                staffUser = new StaffUser(makeBaseProps(), passport);  
-            }
-        );
-        When('I set tags to ["admin", "support"]', () => {
-            staffUser.tags = ['admin', 'support'];
-        });
-        Then('the staff user\'s tags should be ["admin", "support"]', () => {
-            expect(staffUser.tags).toEqual(['admin', 'support']);
-        });
-    });
+	// tags
+	Scenario('Changing tags with permission', ({ Given, When, Then }) => {
+		Given(
+			'a StaffUser aggregate with permission to manage staff roles and permissions',
+			() => {
+				passport = makePassport(true);
+				staffUser = new StaffUser(makeBaseProps(), passport);
+			},
+		);
+		When('I set tags to ["admin", "support"]', () => {
+			staffUser.tags = ['admin', 'support'];
+		});
+		Then('the staff user\'s tags should be ["admin", "support"]', () => {
+			expect(staffUser.tags).toEqual(['admin', 'support']);
+		});
+	});
 
-    Scenario('Changing tags without permission', ({ Given, When, Then }) => {
-        let changingTagsWithoutPermission: () => void;
-        Given(
-            'a StaffUser aggregate without permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(false);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I try to set tags to ["admin", "support"]', () => {
-            changingTagsWithoutPermission = () => {
-                staffUser.tags = ['admin', 'support'];
-            };
-        });
-        Then('a PermissionError should be thrown', () => {
-            expect(changingTagsWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
-            );
-            expect(changingTagsWithoutPermission).throws('Unauthorized');
-        });
-    });
+	Scenario('Changing tags without permission', ({ Given, When, Then }) => {
+		let changingTagsWithoutPermission: () => void;
+		Given(
+			'a StaffUser aggregate without permission to manage staff roles and permissions',
+			() => {
+				passport = makePassport(false);
+				staffUser = new StaffUser(makeBaseProps(), passport);
+			},
+		);
+		When('I try to set tags to ["admin", "support"]', () => {
+			changingTagsWithoutPermission = () => {
+				staffUser.tags = ['admin', 'support'];
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(changingTagsWithoutPermission).toThrow(
+				DomainSeedwork.PermissionError,
+			);
+			expect(changingTagsWithoutPermission).throws('Unauthorized');
+		});
+	});
 
-    // role
-    Scenario('Changing the role with permission', ({ Given, When, Then }) => {
-        Given(
-            'a StaffUser aggregate with permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(true);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I set the role to a valid staff role', () => {
-            const newRole = vi.mocked({
-                id: 'role-1',
-                roleName: 'New Role',
-                roleType: 'staff-role'
-            } as StaffRoleEntityReference);
-            staffUser.role = newRole;
-        });
-        Then('the staff user\'s role should be updated', () => {
-            expect(staffUser?.role?.id).toBe('role-1');
-            expect(staffUser?.role?.roleName).toBe('New Role');
-        });
-    });
+	// role
+	Scenario('Changing the role with permission', ({ Given, When, Then }) => {
+		Given(
+			'a StaffUser aggregate with permission to manage staff roles and permissions',
+			() => {
+				passport = makePassport(true);
+				staffUser = new StaffUser(makeBaseProps(), passport);
+			},
+		);
+		When('I set the role to a valid staff role', () => {
+			const newRole = vi.mocked({
+				id: 'role-1',
+				roleName: 'New Role',
+				roleType: 'staff-role',
+			} as StaffRoleEntityReference);
+			staffUser.role = newRole;
+		});
+		Then("the staff user's role should be updated", () => {
+			expect(staffUser?.role?.id).toBe('role-1');
+			expect(staffUser?.role?.roleName).toBe('New Role');
+		});
+	});
 
-    Scenario('Changing the role without permission', ({ Given, When, Then }) => {
-        let changingRoleWithoutPermission: () => void;
-        Given(
-            'a StaffUser aggregate without permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(false);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I try to set the role to a valid staff role', () => {
-            const newRole = {
-                id: 'role-1',
-                roleName: 'New Role',
-                roleType: 'staff-role',
-            } as StaffRoleEntityReference;
-            changingRoleWithoutPermission = () => {
-                staffUser.role = newRole;
-            };
-        });
-        Then('a PermissionError should be thrown', () => {
-            expect(changingRoleWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
-            );
-            expect(changingRoleWithoutPermission).throws('Unauthorized');
-        });
-    });
+	Scenario('Changing the role without permission', ({ Given, When, Then }) => {
+		let changingRoleWithoutPermission: () => void;
+		Given(
+			'a StaffUser aggregate without permission to manage staff roles and permissions',
+			() => {
+				passport = makePassport(false);
+				staffUser = new StaffUser(makeBaseProps(), passport);
+			},
+		);
+		When('I try to set the role to a valid staff role', () => {
+			const newRole = {
+				id: 'role-1',
+				roleName: 'New Role',
+				roleType: 'staff-role',
+			} as StaffRoleEntityReference;
+			changingRoleWithoutPermission = () => {
+				staffUser.role = newRole;
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(changingRoleWithoutPermission).toThrow(
+				DomainSeedwork.PermissionError,
+			);
+			expect(changingRoleWithoutPermission).throws('Unauthorized');
+		});
+	});
 
-    Scenario('Clearing the role with permission', ({ Given, When, Then }) => {
-        Given(
-            'a StaffUser aggregate with permission to manage staff roles and permissions',
-            () => {
-                passport = makePassport(true);
-                staffUser = new StaffUser(makeBaseProps(), passport);
-            },
-        );
-        When('I clear the role', () => {
-            staffUser.role = undefined;
-        });
-        Then('the staff user\'s role should be undefined', () => {
-            expect(staffUser.role).toBeUndefined();
-        });
-    });
+	Scenario('Clearing the role with permission', ({ Given, When, Then }) => {
+		Given(
+			'a StaffUser aggregate with permission to manage staff roles and permissions',
+			() => {
+				passport = makePassport(true);
+				staffUser = new StaffUser(makeBaseProps(), passport);
+			},
+		);
+		When('I clear the role', () => {
+			staffUser.role = undefined;
+		});
+		Then("the staff user's role should be undefined", () => {
+			expect(staffUser.role).toBeUndefined();
+		});
+	});
 
-    // readonly properties
-    Scenario('Getting userType, createdAt, updatedAt, and schemaVersion', ({ Given, Then, And }) => {
-        Given('a StaffUser aggregate', () => {
-            passport = makePassport(true);
-            staffUser = new StaffUser(makeBaseProps(), passport);
-        });
-        Then('the userType property should return the correct type', () => {
-            expect(staffUser.userType).toBe('staff-user');
-        });
-        And('the createdAt property should return the correct date', () => {
-            expect(staffUser.createdAt).toEqual(new Date('2020-01-01T00:00:00Z'));
-        });
-        And('the updatedAt property should return the correct date', () => {
-            expect(staffUser.updatedAt).toEqual(new Date('2020-01-02T00:00:00Z'));
-        });
-        And('the schemaVersion property should return the correct version', () => {
-            expect(staffUser.schemaVersion).toBe('1.0.0');
-        });
-    });
+	// readonly properties
+	Scenario(
+		'Getting userType, createdAt, updatedAt, and schemaVersion',
+		({ Given, Then, And }) => {
+			Given('a StaffUser aggregate', () => {
+				passport = makePassport(true);
+				staffUser = new StaffUser(makeBaseProps(), passport);
+			});
+			Then('the userType property should return the correct type', () => {
+				expect(staffUser.userType).toBe('staff-user');
+			});
+			And('the createdAt property should return the correct date', () => {
+				expect(staffUser.createdAt).toEqual(new Date('2020-01-01T00:00:00Z'));
+			});
+			And('the updatedAt property should return the correct date', () => {
+				expect(staffUser.updatedAt).toEqual(new Date('2020-01-02T00:00:00Z'));
+			});
+			And(
+				'the schemaVersion property should return the correct version',
+				() => {
+					expect(staffUser.schemaVersion).toBe('1.0.0');
+				},
+			);
+		},
+	);
 
 	// Repeat the above pattern for lastName, displayName, email, externalId, accessBlocked, tags, role, and read-only properties.
 	// For brevity, only firstName scenarios are shown here.

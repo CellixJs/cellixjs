@@ -1,40 +1,40 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Passport } from '../../passport.ts';
+import {
+	Community,
+	type CommunityEntityReference,
+} from '../community/community.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import {
-    Community,
-    type CommunityEntityReference,
-} from '../community/community.ts';
-import {
-    EndUserRole,
-    type EndUserRoleEntityReference,
+	EndUserRole,
+	type EndUserRoleEntityReference,
 } from '../role/end-user-role/end-user-role.ts';
+import * as ValueObjects from './member.value-objects.ts';
 import {
-    MemberAccount,
-    type MemberAccountEntityReference,
-    type MemberAccountProps,
+	MemberAccount,
+	type MemberAccountEntityReference,
+	type MemberAccountProps,
 } from './member-account.ts';
 import {
-    MemberCustomView,
-    type MemberCustomViewEntityReference,
-    type MemberCustomViewProps,
+	MemberCustomView,
+	type MemberCustomViewEntityReference,
+	type MemberCustomViewProps,
 } from './member-custom-view.ts';
 import {
-    MemberProfile,
-    type MemberProfileEntityReference,
-    type MemberProfileProps,
+	MemberProfile,
+	type MemberProfileEntityReference,
+	type MemberProfileProps,
 } from './member-profile.ts';
-import * as ValueObjects from './member.value-objects.ts';
 
 export interface MemberProps extends DomainSeedwork.DomainEntityProps {
 	memberName: string;
 	cybersourceCustomerId: string;
-    communityId: string;
+	communityId: string;
 	community: Readonly<CommunityEntityReference>;
-    loadCommunity: () => Promise<CommunityEntityReference>;
+	loadCommunity: () => Promise<CommunityEntityReference>;
 	readonly accounts: DomainSeedwork.PropArray<MemberAccountProps>;
 	role: Readonly<EndUserRoleEntityReference>;
-    loadRole: () => Promise<EndUserRoleEntityReference>;
+	loadRole: () => Promise<EndUserRoleEntityReference>;
 
 	customViews: DomainSeedwork.PropArray<MemberCustomViewProps>;
 	readonly profile: MemberProfileProps;
@@ -68,10 +68,10 @@ export class Member<props extends MemberProps>
 	//#endregion Fields
 
 	//#region Constructors
-    constructor(props: props, passport: Passport) {
-        super(props, passport);
-        this._visa = passport.community.forCommunity(this.props.community);
-    }
+	constructor(props: props, passport: Passport) {
+		super(props, passport);
+		this._visa = passport.community.forCommunity(this.props.community);
+	}
 	//#endregion Constructors
 
 	//#region Methods
@@ -164,17 +164,17 @@ export class Member<props extends MemberProps>
 	//#endregion Methods
 
 	//#region Properties
-    private get visa(): CommunityVisa {
-        if (!this._visa) {
-            if (!this.props.community) {
-                throw new Error(
-                    'Community must be set before computing a visa for Member',
-                );
-            }
-            this._visa = this.passport.community.forCommunity(this.community);
-        }
-        return this._visa;
-    }
+	private get visa(): CommunityVisa {
+		if (!this._visa) {
+			if (!this.props.community) {
+				throw new Error(
+					'Community must be set before computing a visa for Member',
+				);
+			}
+			this._visa = this.passport.community.forCommunity(this.community);
+		}
+		return this._visa;
+	}
 	get memberName(): string {
 		return this.props.memberName;
 	}
@@ -212,15 +212,15 @@ export class Member<props extends MemberProps>
 			cybersourceCustomerId,
 		).valueOf();
 	}
-    get communityId(): string {
-        return this.props.communityId;
-    }
+	get communityId(): string {
+		return this.props.communityId;
+	}
 	get community(): CommunityEntityReference {
 		return new Community(this.props.community, this.passport);
 	}
-    async loadCommunity(): Promise<CommunityEntityReference> {
-        return await this.props.loadCommunity();
-    }
+	async loadCommunity(): Promise<CommunityEntityReference> {
+		return await this.props.loadCommunity();
+	}
 	//TODO: why is this not security checked?
 	set community(community: CommunityEntityReference) {
 		if (
@@ -245,9 +245,9 @@ export class Member<props extends MemberProps>
 	get role(): EndUserRoleEntityReference {
 		return new EndUserRole(this.props.role, this.passport);
 	}
-    async loadRole(): Promise<EndUserRoleEntityReference> {
-        return await this.props.loadRole();
-    }
+	async loadRole(): Promise<EndUserRoleEntityReference> {
+		return await this.props.loadRole();
+	}
 	set role(role: EndUserRoleEntityReference) {
 		if (
 			!this.isNew &&
@@ -286,14 +286,32 @@ export class Member<props extends MemberProps>
 	// #endregion Properties
 }
 
-//#region Exports
-import type { MemberAccountEntityReference, MemberAccountProps } from './member-account.ts';
-import { AccountStatusCodes as MemberAccountStatusCodes } from './member-account.value-objects.ts';
-import type { MemberCustomViewEntityReference, MemberCustomViewProps } from './member-custom-view.ts';
-import type { MemberProfileEntityReference, MemberProfileProps } from './member-profile.ts';
 import type { MemberRepository } from './member.repository.ts';
 import type { MemberUnitOfWork } from './member.uow.ts';
+//#region Exports
+import type {
+	MemberAccountEntityReference,
+	MemberAccountProps,
+} from './member-account.ts';
+import { AccountStatusCodes as MemberAccountStatusCodes } from './member-account.value-objects.ts';
+import type {
+	MemberCustomViewEntityReference,
+	MemberCustomViewProps,
+} from './member-custom-view.ts';
+import type {
+	MemberProfileEntityReference,
+	MemberProfileProps,
+} from './member-profile.ts';
 
-export { { AccountStatusCodes as MemberAccountStatusCodes } };
-export type { MemberAccountEntityReference, MemberAccountProps, MemberCustomViewEntityReference, MemberCustomViewProps, MemberProfileEntityReference, MemberProfileProps, MemberRepository, MemberUnitOfWork };
+export { MemberAccountStatusCodes };
+export type {
+	MemberAccountEntityReference,
+	MemberAccountProps,
+	MemberCustomViewEntityReference,
+	MemberCustomViewProps,
+	MemberProfileEntityReference,
+	MemberProfileProps,
+	MemberRepository,
+	MemberUnitOfWork,
+};
 //#endregion Exports

@@ -25,10 +25,10 @@ export class StaffRolePropertyPermissions
 	}
 
 	get canManageProperties(): boolean {
-	  return this.props.canManageProperties;
+		return this.props.canManageProperties;
 	}
 	get canEditOwnProperty(): boolean {
-	  return this.props.canEditOwnProperty;
+		return this.props.canEditOwnProperty;
 	}
 	// get isEditingOwnProperty(): boolean {
 	//   return false;
@@ -40,16 +40,28 @@ export class StaffRolePropertyPermissions
 	// setters using TS 5.1
 
 	set canManageProperties(value: boolean) {
-	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new DomainSeedwork.PermissionError('Cannot set permission');
-	  }
-	  this.props.canManageProperties = value;
+		if (
+			!this.visa.determineIf(
+				(permissions) =>
+					permissions.canManageStaffRolesAndPermissions ||
+					permissions.isSystemAccount,
+			)
+		) {
+			throw new DomainSeedwork.PermissionError('Cannot set permission');
+		}
+		this.props.canManageProperties = value;
 	}
 
 	set canEditOwnProperty(value: boolean) {
-	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new DomainSeedwork.PermissionError('Cannot set permission');
-	  }
-	  this.props.canEditOwnProperty = value;
+		if (
+			!this.visa.determineIf(
+				(permissions) =>
+					permissions.canManageStaffRolesAndPermissions ||
+					permissions.isSystemAccount,
+			)
+		) {
+			throw new DomainSeedwork.PermissionError('Cannot set permission');
+		}
+		this.props.canEditOwnProperty = value;
 	}
 }

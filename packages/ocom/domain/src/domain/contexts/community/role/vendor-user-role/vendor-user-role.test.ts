@@ -1,18 +1,16 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { expect, vi } from 'vitest';
-
+import { RoleDeletedReassignEvent } from '../../../../events/types/role-deleted-reassign.ts';
+import type { Passport } from '../../../passport.ts';
+import type { CommunityProps } from '../../community/community.ts';
 import {
 	VendorUserRole,
 	type VendorUserRoleProps,
 } from './vendor-user-role.ts';
 import { VendorUserRolePermissions } from './vendor-user-role-permissions.ts';
-import { RoleDeletedReassignEvent } from '../../../../events/types/role-deleted-reassign.ts';
-import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
-import type { Passport } from '../../../passport.ts';
-import type { CommunityProps } from '../../community/community.ts';
-
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

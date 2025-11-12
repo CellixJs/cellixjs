@@ -1,5 +1,8 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
-import { EndUserCreatedEvent, type EndUserCreatedProps } from '../../../events/types/end-user-created.ts';
+import {
+	EndUserCreatedEvent,
+	type EndUserCreatedProps,
+} from '../../../events/types/end-user-created.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './end-user.value-objects.ts';
@@ -8,7 +11,6 @@ import {
 	type EndUserPersonalInformationEntityReference,
 	type EndUserPersonalInformationProps,
 } from './end-user-personal-information.ts';
-
 
 export interface EndUserProps extends DomainSeedwork.DomainEntityProps {
 	readonly personalInformation: EndUserPersonalInformationProps;
@@ -28,13 +30,12 @@ export interface EndUserEntityReference
 }
 
 export interface EndUserAggregateRoot extends DomainSeedwork.RootEventRegistry {
-    get isNew(): boolean;
+	get isNew(): boolean;
 }
 
 export class EndUser<props extends EndUserProps>
 	extends DomainSeedwork.AggregateRoot<props, Passport>
-	implements EndUserEntityReference,
-    EndUserAggregateRoot
+	implements EndUserEntityReference, EndUserAggregateRoot
 {
 	private _isNew: boolean = false;
 	private readonly visa: UserVisa;
@@ -54,14 +55,14 @@ export class EndUser<props extends EndUserProps>
 		const newInstance = new EndUser(newProps, passport);
 		newInstance.markAsNew();
 		newInstance.externalId = externalId;
-        newInstance.personalInformation.contactInformation.email = email;
-        newInstance.personalInformation.identityDetails.lastName = lastName;
+		newInstance.personalInformation.contactInformation.email = email;
+		newInstance.personalInformation.identityDetails.lastName = lastName;
 		if (restOfName !== undefined && restOfName.trim() !== '') {
-            newInstance.personalInformation.identityDetails.legalNameConsistsOfOneName = false;
-            newInstance.personalInformation.identityDetails.restOfName = restOfName;
+			newInstance.personalInformation.identityDetails.legalNameConsistsOfOneName = false;
+			newInstance.personalInformation.identityDetails.restOfName = restOfName;
 			newInstance.displayName = `${restOfName} ${lastName}`;
 		} else {
-            newInstance.personalInformation.identityDetails.legalNameConsistsOfOneName = true;
+			newInstance.personalInformation.identityDetails.legalNameConsistsOfOneName = true;
 			newInstance.displayName = lastName;
 		}
 		newInstance._isNew = false;
@@ -70,9 +71,12 @@ export class EndUser<props extends EndUserProps>
 
 	private markAsNew(): void {
 		this._isNew = true;
-		this.addIntegrationEvent<EndUserCreatedProps, EndUserCreatedEvent>(EndUserCreatedEvent, {
-			userId: this.props.id,
-		});
+		this.addIntegrationEvent<EndUserCreatedProps, EndUserCreatedEvent>(
+			EndUserCreatedEvent,
+			{
+				userId: this.props.id,
+			},
+		);
 	}
 
 	private validateVisa(): void {
@@ -95,9 +99,9 @@ export class EndUser<props extends EndUserProps>
 		}
 	}
 
-    get isNew() {
-        return this._isNew;
-    }
+	get isNew() {
+		return this._isNew;
+	}
 
 	get email(): string | undefined {
 		return this.props.email;
@@ -143,7 +147,7 @@ export class EndUser<props extends EndUserProps>
 		return new EndUserPersonalInformation(
 			this.props.personalInformation,
 			this.visa,
-            this
+			this,
 		);
 	}
 
@@ -161,13 +165,18 @@ export class EndUser<props extends EndUserProps>
 	}
 }
 
-
+import type { EndUserRepository } from './end-user.repository.ts';
+import type { EndUserUnitOfWork } from './end-user.uow.ts';
 //#region Exports
-export { EndUser } from './end-user.ts';
-export type { EndUserEntityReference, EndUserProps } from './end-user.ts';
-export type { EndUserContactInformationProps } from './end-user-contact-information.ts';
-export type { EndUserIdentityDetailsProps } from './end-user-identity-details.ts';
-export type { EndUserPersonalInformationProps } from './end-user-personal-information.ts';
-export type { EndUserRepository } from './end-user.repository.ts';
-export type { EndUserUnitOfWork } from './end-user.uow.ts';
+import type { EndUserContactInformationProps } from './end-user-contact-information.ts';
+import type { EndUserIdentityDetailsProps } from './end-user-identity-details.ts';
+import type { EndUserPersonalInformationProps } from './end-user-personal-information.ts';
+
+export type {
+	EndUserContactInformationProps,
+	EndUserIdentityDetailsProps,
+	EndUserPersonalInformationProps,
+	EndUserRepository,
+	EndUserUnitOfWork,
+};
 //#endregion Exports

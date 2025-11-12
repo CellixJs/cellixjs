@@ -16,34 +16,34 @@ export class VendorUserIdentityDetails
 	extends DomainSeedwork.ValueObject<VendorUserIdentityDetailsProps>
 	implements VendorUserIdentityDetailsEntityReference
 {
-    private isNew: boolean = false;
-    private readonly visa: UserVisa;
+	private isNew: boolean = false;
+	private readonly visa: UserVisa;
 	constructor(props: VendorUserIdentityDetailsProps, visa: UserVisa) {
 		super(props);
 		this.visa = visa;
 	}
 
-    public static getNewInstance(
-        props: VendorUserIdentityDetailsProps,
-        visa: UserVisa,
-        lastName: string,
-        legalNameConsistsOfOneName: boolean,
-        restOfName: string | undefined,
-    ): VendorUserIdentityDetails {
-        const newInstance = new VendorUserIdentityDetails(props, visa);
-        newInstance.markAsNew();
-        newInstance.lastName = lastName;
-        newInstance.legalNameConsistsOfOneName = legalNameConsistsOfOneName;
-        newInstance.restOfName = restOfName;
-        newInstance.isNew = false;
-        return newInstance;
-    }
+	public static getNewInstance(
+		props: VendorUserIdentityDetailsProps,
+		visa: UserVisa,
+		lastName: string,
+		legalNameConsistsOfOneName: boolean,
+		restOfName: string | undefined,
+	): VendorUserIdentityDetails {
+		const newInstance = new VendorUserIdentityDetails(props, visa);
+		newInstance.markAsNew();
+		newInstance.lastName = lastName;
+		newInstance.legalNameConsistsOfOneName = legalNameConsistsOfOneName;
+		newInstance.restOfName = restOfName;
+		newInstance.isNew = false;
+		return newInstance;
+	}
 
-    private markAsNew(): void {
-        this.isNew = true;
-    }
+	private markAsNew(): void {
+		this.isNew = true;
+	}
 
-    private validateVisa(): void {
+	private validateVisa(): void {
 		if (
 			!this.isNew &&
 			!this.visa.determineIf(
@@ -59,7 +59,7 @@ export class VendorUserIdentityDetails
 		return this.props.lastName;
 	}
 	set lastName(lastName: string) {
-        this.validateVisa();
+		this.validateVisa();
 		this.props.lastName = new ValueObjects.LastName(lastName).valueOf();
 	}
 
@@ -67,7 +67,7 @@ export class VendorUserIdentityDetails
 		return this.props.legalNameConsistsOfOneName;
 	}
 	set legalNameConsistsOfOneName(legalNameConsistsOfOneName: boolean) {
-        this.validateVisa();
+		this.validateVisa();
 		this.props.legalNameConsistsOfOneName = legalNameConsistsOfOneName;
 	}
 
@@ -75,7 +75,7 @@ export class VendorUserIdentityDetails
 		return this.props.restOfName;
 	}
 	set restOfName(restOfName: string | undefined) {
-        this.validateVisa();
+		this.validateVisa();
 		this.props.restOfName = new ValueObjects.RestOfName(restOfName).valueOf();
 	}
 }

@@ -1,18 +1,21 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import {
+	RoleDeletedReassignEvent,
+	type RoleDeletedReassignProps,
+} from '../../../../events/types/role-deleted-reassign.ts';
+import type { Passport } from '../../../passport.ts';
+import {
+	Community,
+	type CommunityEntityReference,
+	type CommunityProps,
+} from '../../community/community.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
+import * as ValueObjects from './vendor-user-role.value-objects.ts';
+import {
 	VendorUserRolePermissions,
 	type VendorUserRolePermissionsEntityReference,
 	type VendorUserRolePermissionsProps,
 } from './vendor-user-role-permissions.ts';
-import * as ValueObjects from './vendor-user-role.value-objects.ts';
-import {
-	Community,
-	type CommunityProps,
-	type CommunityEntityReference,
-} from '../../community/community.ts';
-import type { CommunityVisa } from '../../community.visa.ts';
-import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
-import type { Passport } from '../../../passport.ts';
 
 export interface VendorUserRoleProps extends DomainSeedwork.DomainEntityProps {
 	roleName: string;
@@ -70,23 +73,26 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 	}
 
 	public deleteAndReassignTo(roleRef: VendorUserRoleEntityReference) {
-        if (this.isDefault) {
-            throw new DomainSeedwork.PermissionError(
-                'You cannot delete a default vendor user role',
-            );
-        }
-        if (
-            !this.isDeleted &&
-            !this.visa.determineIf(
-                (permissions) => permissions.canManageVendorUserRolesAndPermissions,
-            )
-        ) {
-            throw new DomainSeedwork.PermissionError(
-                'You do not have permission to delete this role',
-            );
-        }
+		if (this.isDefault) {
+			throw new DomainSeedwork.PermissionError(
+				'You cannot delete a default vendor user role',
+			);
+		}
+		if (
+			!this.isDeleted &&
+			!this.visa.determineIf(
+				(permissions) => permissions.canManageVendorUserRolesAndPermissions,
+			)
+		) {
+			throw new DomainSeedwork.PermissionError(
+				'You do not have permission to delete this role',
+			);
+		}
 		super.isDeleted = true;
-		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<
+			RoleDeletedReassignProps,
+			RoleDeletedReassignEvent
+		>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});
@@ -161,18 +167,61 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 	}
 }
 
-
-//#region Exports
-import { VendorUserRole, type VendorUserRoleEntityReference, type VendorUserRoleProps } from './vendor-user-role.ts';
-import { VendorUserRoleCommunityPermissions, type VendorUserRoleCommunityPermissionsEntityReference, type VendorUserRoleCommunityPermissionsProps } from './vendor-user-role-community-permissions.ts';
-import { VendorUserRolePermissions, type VendorUserRolePermissionsEntityReference, type VendorUserRolePermissionsProps } from './vendor-user-role-permissions.ts';
-import { VendorUserRolePropertyPermissions, type VendorUserRolePropertyPermissionsEntityReference, type VendorUserRolePropertyPermissionsProps } from './vendor-user-role-property-permissions.ts';
-import { VendorUserRoleServicePermissions, type VendorUserRoleServicePermissionsEntityReference, type VendorUserRoleServicePermissionsProps } from './vendor-user-role-service-permissions.ts';
-import { VendorUserRoleServiceTicketPermissions, type VendorUserRoleServiceTicketPermissionsEntityReference, type VendorUserRoleServiceTicketPermissionsProps } from './vendor-user-role-service-ticket-permissions.ts';
-import { VendorUserRoleViolationTicketPermissions, type VendorUserRoleViolationTicketPermissionsEntityReference, type VendorUserRoleViolationTicketPermissionsProps } from './vendor-user-role-violation-ticket-permissions.ts';
 import type { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
 import type { VendorUserRoleUnitOfWork } from './vendor-user-role.uow.ts';
+import {
+	VendorUserRoleCommunityPermissions,
+	type VendorUserRoleCommunityPermissionsEntityReference,
+	type VendorUserRoleCommunityPermissionsProps,
+} from './vendor-user-role-community-permissions.ts';
+import {
+	VendorUserRolePermissions,
+	type VendorUserRolePermissionsEntityReference,
+	type VendorUserRolePermissionsProps,
+} from './vendor-user-role-permissions.ts';
+import {
+	VendorUserRolePropertyPermissions,
+	type VendorUserRolePropertyPermissionsEntityReference,
+	type VendorUserRolePropertyPermissionsProps,
+} from './vendor-user-role-property-permissions.ts';
+import {
+	VendorUserRoleServicePermissions,
+	type VendorUserRoleServicePermissionsEntityReference,
+	type VendorUserRoleServicePermissionsProps,
+} from './vendor-user-role-service-permissions.ts';
+import {
+	VendorUserRoleServiceTicketPermissions,
+	type VendorUserRoleServiceTicketPermissionsEntityReference,
+	type VendorUserRoleServiceTicketPermissionsProps,
+} from './vendor-user-role-service-ticket-permissions.ts';
+import {
+	VendorUserRoleViolationTicketPermissions,
+	type VendorUserRoleViolationTicketPermissionsEntityReference,
+	type VendorUserRoleViolationTicketPermissionsProps,
+} from './vendor-user-role-violation-ticket-permissions.ts';
 
-export { { VendorUserRole, type VendorUserRoleEntityReference, type VendorUserRoleProps }, { VendorUserRoleCommunityPermissions, type VendorUserRoleCommunityPermissionsEntityReference, type VendorUserRoleCommunityPermissionsProps }, { VendorUserRolePermissions, type VendorUserRolePermissionsEntityReference, type VendorUserRolePermissionsProps }, { VendorUserRolePropertyPermissions, type VendorUserRolePropertyPermissionsEntityReference, type VendorUserRolePropertyPermissionsProps }, { VendorUserRoleServicePermissions, type VendorUserRoleServicePermissionsEntityReference, type VendorUserRoleServicePermissionsProps }, { VendorUserRoleServiceTicketPermissions, type VendorUserRoleServiceTicketPermissionsEntityReference, type VendorUserRoleServiceTicketPermissionsProps }, { VendorUserRoleViolationTicketPermissions, type VendorUserRoleViolationTicketPermissionsEntityReference, type VendorUserRoleViolationTicketPermissionsProps } };
-export type { VendorUserRoleRepository, VendorUserRoleUnitOfWork };
+export {
+	VendorUserRoleCommunityPermissions,
+	VendorUserRolePermissions,
+	VendorUserRolePropertyPermissions,
+	VendorUserRoleServicePermissions,
+	VendorUserRoleServiceTicketPermissions,
+	VendorUserRoleViolationTicketPermissions,
+};
+export type {
+	VendorUserRoleRepository,
+	VendorUserRoleUnitOfWork,
+	VendorUserRoleCommunityPermissionsEntityReference,
+	VendorUserRoleCommunityPermissionsProps,
+	VendorUserRolePermissionsEntityReference,
+	VendorUserRolePermissionsProps,
+	VendorUserRolePropertyPermissionsEntityReference,
+	VendorUserRolePropertyPermissionsProps,
+	VendorUserRoleServicePermissionsEntityReference,
+	VendorUserRoleServicePermissionsProps,
+	VendorUserRoleServiceTicketPermissionsEntityReference,
+	VendorUserRoleServiceTicketPermissionsProps,
+	VendorUserRoleViolationTicketPermissionsEntityReference,
+	VendorUserRoleViolationTicketPermissionsProps,
+};
 //#endregion Exports

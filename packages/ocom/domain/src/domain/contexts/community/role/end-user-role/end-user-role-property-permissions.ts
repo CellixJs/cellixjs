@@ -1,11 +1,12 @@
 import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
-import type { CommunityVisa } from '../../community.visa.ts';
 import type { PropertyDomainPermissions } from '../../../property/property.domain-permissions.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
 
 export interface EndUserRolePropertyPermissionsProps
 	extends Omit<
-	PropertyDomainPermissions,
-    'isEditingOwnProperty' | 'isSystemAccount'>,
+			PropertyDomainPermissions,
+			'isEditingOwnProperty' | 'isSystemAccount'
+		>,
 		DomainSeedwork.ValueObjectProps {}
 export interface EndUserRolePropertyPermissionsEntityReference
 	extends Readonly<EndUserRolePropertyPermissionsProps> {}

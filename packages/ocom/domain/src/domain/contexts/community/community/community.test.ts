@@ -1,15 +1,13 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { expect, vi } from 'vitest';
-
-import { Community, type CommunityProps } from './community.ts';
 import { CommunityCreatedEvent } from '../../../events/types/community-created.ts';
 import { CommunityDomainUpdatedEvent } from '../../../events/types/community-domain-updated.ts';
-import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
-
+import { Community, type CommunityProps } from './community.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,7 +51,7 @@ function makeBaseProps(
 		whiteLabelDomain: 'wl.test.com',
 		handle: 'testhandle',
 		createdBy: makeEndUserEntityReference('user1'),
-        loadCreatedBy: async () => makeEndUserEntityReference('user1'),
+		loadCreatedBy: async () => makeEndUserEntityReference('user1'),
 		createdAt: new Date('2020-01-01T00:00:00Z'),
 		updatedAt: new Date('2020-01-02T00:00:00Z'),
 		schemaVersion: '1.0.0',
@@ -122,47 +120,63 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			);
 			expect(event).toBeDefined();
 			expect(event).toBeInstanceOf(CommunityCreatedEvent);
-            expect(event?.payload.communityId).toBe(newCommunity.props.id);
+			expect(event?.payload.communityId).toBe(newCommunity.props.id);
 		});
 	});
 
-	Scenario('Changing the name with permission to manage community settings', ({ Given, When, Then }) => {
-		Given('a Community aggregate with permission to manage community settings', () => {
-			passport = makePassport(true);
-			community = new Community(makeBaseProps(), passport);
-		});
-		When('I set the name to "Updated Name"', () => {
-			community.name = 'Updated Name';
-		});
-		Then('the community\'s name should be "Updated Name"', () => {
-			expect(community.name).toBe('Updated Name');
-		});
-	});
+	Scenario(
+		'Changing the name with permission to manage community settings',
+		({ Given, When, Then }) => {
+			Given(
+				'a Community aggregate with permission to manage community settings',
+				() => {
+					passport = makePassport(true);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
+			When('I set the name to "Updated Name"', () => {
+				community.name = 'Updated Name';
+			});
+			Then('the community\'s name should be "Updated Name"', () => {
+				expect(community.name).toBe('Updated Name');
+			});
+		},
+	);
 
 	Scenario('Changing the name without permission', ({ Given, When, Then }) => {
 		let changingNameWithoutPermission: () => void;
-		Given('a Community aggregate without permission to manage community settings', () => {
-			passport = makePassport(false);
-			community = new Community(makeBaseProps(), passport);
-		});
+		Given(
+			'a Community aggregate without permission to manage community settings',
+			() => {
+				passport = makePassport(false);
+				community = new Community(makeBaseProps(), passport);
+			},
+		);
 		When('I try to set the name to "Updated Name"', () => {
 			changingNameWithoutPermission = () => {
 				community.name = 'Updated Name';
 			};
 		});
 		Then('a PermissionError should be thrown', () => {
-			expect(changingNameWithoutPermission).toThrow(DomainSeedwork.PermissionError);
-            expect(changingNameWithoutPermission).toThrow('You do not have permission to change the name of this community');
+			expect(changingNameWithoutPermission).toThrow(
+				DomainSeedwork.PermissionError,
+			);
+			expect(changingNameWithoutPermission).toThrow(
+				'You do not have permission to change the name of this community',
+			);
 		});
 	});
 
 	Scenario('Changing the name to an invalid value', ({ Given, When, Then }) => {
 		let changingNameToNull: () => void;
-        let changingNameToEmptyString: () => void;
-		Given('a Community aggregate with permission to manage community settings', () => {
-			passport = makePassport(true);
-			community = new Community(makeBaseProps(), passport);
-		});
+		let changingNameToEmptyString: () => void;
+		Given(
+			'a Community aggregate with permission to manage community settings',
+			() => {
+				passport = makePassport(true);
+				community = new Community(makeBaseProps(), passport);
+			},
+		);
 		When(
 			'I try to set the name to an invalid value (e.g., null or empty string)',
 			() => {
@@ -170,9 +184,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					// @ts-expect-error
 					community.name = null;
 				};
-                changingNameToEmptyString = () => {
-                    community.name = '';
-                };
+				changingNameToEmptyString = () => {
+					community.name = '';
+				};
 			},
 		);
 		Then('an error should be thrown indicating the value is invalid', () => {
@@ -184,10 +198,13 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	Scenario(
 		'Changing the domain with permission to manage community settings',
 		({ Given, When, Then, And }) => {
-			Given('a Community aggregate with permission to manage community settings', () => {
-				passport = makePassport(true);
-				community = new Community(makeBaseProps(), passport);
-			});
+			Given(
+				'a Community aggregate with permission to manage community settings',
+				() => {
+					passport = makePassport(true);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
 			When('I set the domain to "updated.com"', () => {
 				community.domain = 'updated.com';
 			});
@@ -203,53 +220,59 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					);
 					expect(event).toBeDefined();
 					expect(event).toBeInstanceOf(CommunityDomainUpdatedEvent);
-					expect(
-						event?.payload.domain,
-					).toBe('updated.com');
-					expect(event?.payload.oldDomain,
-					).toBe('test.com');
+					expect(event?.payload.domain).toBe('updated.com');
+					expect(event?.payload.oldDomain).toBe('test.com');
 				},
 			);
 		},
 	);
 
-    Scenario('Changing the domain without permission', ({ Given, When, Then, And }) => {
-        let changingDomainWithoutPermission: () => void;
-        Given('a Community aggregate without permission to manage community settings', () => {
-            passport = makePassport(false);
-            community = new Community(makeBaseProps(), passport);
-        });
-        When('I try to set the domain to "updated.com"', () => {
-            changingDomainWithoutPermission = () => {
-                community.domain = 'updated.com';
-            };
-        });
-        Then('a PermissionError should be thrown', () => {
-            expect(changingDomainWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
-            );
-            expect(changingDomainWithoutPermission).throws(
-                'You do not have permission to change the domain of this community',
-            );
-        });
-        And('no CommunityDomainUpdatedEvent should be emitted', () => {
-            const event = findEvent(
-                community.getIntegrationEvents(),
-                CommunityDomainUpdatedEvent,
-            );
-            expect(event).toBeUndefined();
-        });
-    });
+	Scenario(
+		'Changing the domain without permission',
+		({ Given, When, Then, And }) => {
+			let changingDomainWithoutPermission: () => void;
+			Given(
+				'a Community aggregate without permission to manage community settings',
+				() => {
+					passport = makePassport(false);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
+			When('I try to set the domain to "updated.com"', () => {
+				changingDomainWithoutPermission = () => {
+					community.domain = 'updated.com';
+				};
+			});
+			Then('a PermissionError should be thrown', () => {
+				expect(changingDomainWithoutPermission).toThrow(
+					DomainSeedwork.PermissionError,
+				);
+				expect(changingDomainWithoutPermission).throws(
+					'You do not have permission to change the domain of this community',
+				);
+			});
+			And('no CommunityDomainUpdatedEvent should be emitted', () => {
+				const event = findEvent(
+					community.getIntegrationEvents(),
+					CommunityDomainUpdatedEvent,
+				);
+				expect(event).toBeUndefined();
+			});
+		},
+	);
 
 	Scenario(
 		'Changing the domain to an invalid value',
 		({ Given, When, Then, And }) => {
 			let changingDomainToNull: () => void;
 			let changingDomainToEmptyString: () => void;
-			Given('a Community aggregate with permission to manage community settings', () => {
-				passport = makePassport(true);
-				community = new Community(makeBaseProps(), passport);
-			});
+			Given(
+				'a Community aggregate with permission to manage community settings',
+				() => {
+					passport = makePassport(true);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
 			When(
 				'I try to set the domain to an invalid value (e.g., null or empty string)',
 				() => {
@@ -262,15 +285,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					};
 				},
 			);
-			Then(
-				'an error should be thrown indicating the value is invalid',
-				() => {
-					expect(changingDomainToNull).toThrow();
-					expect(changingDomainToNull).throws('Wrong raw value type');
-					expect(changingDomainToEmptyString).toThrow();
-					expect(changingDomainToEmptyString).throws('Too short');
-				},
-			);
+			Then('an error should be thrown indicating the value is invalid', () => {
+				expect(changingDomainToNull).toThrow();
+				expect(changingDomainToNull).throws('Wrong raw value type');
+				expect(changingDomainToEmptyString).toThrow();
+				expect(changingDomainToEmptyString).throws('Too short');
+			});
 			And('no CommunityDomainUpdatedEvent should be emitted', () => {
 				const event = findEvent(
 					community.getIntegrationEvents(),
@@ -284,41 +304,47 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	Scenario(
 		'Changing the domain to the same value',
 		({ Given, When, Then, And }) => {
-			Given('a Community aggregate with permission to manage community settings', () => {
-				passport = makePassport(true);
-				community = new Community(makeBaseProps(), passport);
-			});
+			Given(
+				'a Community aggregate with permission to manage community settings',
+				() => {
+					passport = makePassport(true);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
 			When('I set the domain to its current value', () => {
 				community.domain = 'test.com';
 			});
-			Then(
-				'no CommunityDomainUpdatedEvent should be emitted',
-				() => {
-					const event = findEvent(
-						community.getIntegrationEvents(),
-						CommunityDomainUpdatedEvent,
-					);
-					expect(event).toBeUndefined();
-				},
-			);
+			Then('no CommunityDomainUpdatedEvent should be emitted', () => {
+				const event = findEvent(
+					community.getIntegrationEvents(),
+					CommunityDomainUpdatedEvent,
+				);
+				expect(event).toBeUndefined();
+			});
 			And("the community's domain should remain unchanged", () => {
 				expect(community.domain).toBe('test.com');
 			});
 		},
 	);
 
-    Scenario('Changing the white label domain with permission to manage community settings', ({ Given, When, Then }) => {
-        Given('a Community aggregate with permission to manage community settings', () => {
-            passport = makePassport(true);
-            community = new Community(makeBaseProps(), passport);
-        });
-        When('I set the whiteLabelDomain to "newwl.com"', () => {
-            community.whiteLabelDomain = 'newwl.com';
-        });
-        Then('the community\'s whiteLabelDomain should be "newwl.com"', () => {
-            expect(community.whiteLabelDomain).toBe('newwl.com');
-        });
-    });
+	Scenario(
+		'Changing the white label domain with permission to manage community settings',
+		({ Given, When, Then }) => {
+			Given(
+				'a Community aggregate with permission to manage community settings',
+				() => {
+					passport = makePassport(true);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
+			When('I set the whiteLabelDomain to "newwl.com"', () => {
+				community.whiteLabelDomain = 'newwl.com';
+			});
+			Then('the community\'s whiteLabelDomain should be "newwl.com"', () => {
+				expect(community.whiteLabelDomain).toBe('newwl.com');
+			});
+		},
+	);
 
 	Scenario(
 		'Changing the white label domain without permission',
@@ -340,107 +366,124 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				expect(updatingWhiteLabelDomainWithoutPermission).toThrow(
 					DomainSeedwork.PermissionError,
 				);
-                expect(updatingWhiteLabelDomainWithoutPermission).throws(
-                    'You do not have permission to change the white label domain of this community',
-                );
+				expect(updatingWhiteLabelDomainWithoutPermission).throws(
+					'You do not have permission to change the white label domain of this community',
+				);
 			});
 		},
 	);
 
-    Scenario('Changing the white label domain to an invalid value', ({ Given, When, Then }) => {
-        let changingWhiteLabelDomainToUndefined: () => void;
-        let changingWhiteLabelDomainToEmptyString: () => void;
-        Given('a Community aggregate with permission to manage community settings', () => {
-            passport = makePassport(true);
-            community = new Community(makeBaseProps(), passport);
-        });
-        When(
-            'I try to set the whiteLabelDomain to an invalid value (e.g., undefined or empty string)',
-            () => {
-                changingWhiteLabelDomainToUndefined = () => {
-                    // @ts-expect-error
-                    community.whiteLabelDomain = undefined;
-                };
-                changingWhiteLabelDomainToEmptyString = () => {
-                    community.whiteLabelDomain = '';
-                };
-            },
-        );
-        Then(
-            'an error should be thrown indicating the value is invalid',
-            () => {
-                expect(changingWhiteLabelDomainToUndefined).toThrow();
-                expect(changingWhiteLabelDomainToUndefined).throws('Wrong raw value type');
-                expect(changingWhiteLabelDomainToEmptyString).toThrow();
-                expect(changingWhiteLabelDomainToEmptyString).throws('Too short');
-            },
-        );
-    });
+	Scenario(
+		'Changing the white label domain to an invalid value',
+		({ Given, When, Then }) => {
+			let changingWhiteLabelDomainToUndefined: () => void;
+			let changingWhiteLabelDomainToEmptyString: () => void;
+			Given(
+				'a Community aggregate with permission to manage community settings',
+				() => {
+					passport = makePassport(true);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
+			When(
+				'I try to set the whiteLabelDomain to an invalid value (e.g., undefined or empty string)',
+				() => {
+					changingWhiteLabelDomainToUndefined = () => {
+						// @ts-expect-error
+						community.whiteLabelDomain = undefined;
+					};
+					changingWhiteLabelDomainToEmptyString = () => {
+						community.whiteLabelDomain = '';
+					};
+				},
+			);
+			Then('an error should be thrown indicating the value is invalid', () => {
+				expect(changingWhiteLabelDomainToUndefined).toThrow();
+				expect(changingWhiteLabelDomainToUndefined).throws(
+					'Wrong raw value type',
+				);
+				expect(changingWhiteLabelDomainToEmptyString).toThrow();
+				expect(changingWhiteLabelDomainToEmptyString).throws('Too short');
+			});
+		},
+	);
 
+	Scenario(
+		'Changing the handle with permission to manage community settings',
+		({ Given, When, Then }) => {
+			Given(
+				'a Community aggregate with permission to manage community settings',
+				() => {
+					passport = makePassport(true);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
+			When('I set the handle to "newhandle"', () => {
+				community.handle = 'newhandle';
+			});
+			Then('the community\'s handle should be "newhandle"', () => {
+				expect(community.handle).toBe('newhandle');
+			});
+		},
+	);
 
-	Scenario('Changing the handle with permission to manage community settings', ({ Given, When, Then }) => {
-		Given('a Community aggregate with permission to manage community settings', () => {
-			passport = makePassport(true);
-			community = new Community(makeBaseProps(), passport);
-		});
-		When('I set the handle to "newhandle"', () => {
-			community.handle = 'newhandle';
-		});
-		Then('the community\'s handle should be "newhandle"', () => {
-			expect(community.handle).toBe('newhandle');
-		});
-	});
+	Scenario(
+		'Changing the handle without permission',
+		({ Given, When, Then }) => {
+			let updatingHandleWithoutPermission: () => void;
+			Given(
+				'a Community aggregate without permission to manage community settings',
+				() => {
+					passport = makePassport(false);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
+			When('I try to set the handle to "newhandle"', () => {
+				updatingHandleWithoutPermission = () => {
+					community.handle = 'newhandle';
+				};
+			});
+			Then('a PermissionError should be thrown', () => {
+				expect(updatingHandleWithoutPermission).toThrow(
+					DomainSeedwork.PermissionError,
+				);
+				expect(updatingHandleWithoutPermission).throws(
+					'You do not have permission to change the handle of this community',
+				);
+			});
+		},
+	);
 
-	Scenario('Changing the handle without permission', ({ Given, When, Then }) => {
-        let updatingHandleWithoutPermission: () => void;
-        Given(
-            'a Community aggregate without permission to manage community settings',
-            () => {
-                passport = makePassport(false);
-                community = new Community(makeBaseProps(), passport);
-            },
-        );
-        When('I try to set the handle to "newhandle"', () => {
-            updatingHandleWithoutPermission = () => {
-                community.handle = 'newhandle';
-            };
-        });
-        Then('a PermissionError should be thrown', () => {
-            expect(updatingHandleWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
-            );
-            expect(updatingHandleWithoutPermission).throws('You do not have permission to change the handle of this community');
-        });
-	});
-
-
-    Scenario('Changing the handle to an invalid value', ({ Given, When, Then }) => {
-        let changingHandleToUndefined: () => void;
-        let changingHandleToEmptyString: () => void;
-        Given('a Community aggregate with permission to manage community settings', () => {
-            passport = makePassport(true);
-            community = new Community(makeBaseProps(), passport);
-        });
-        When(
-            'I try to set the handle to an invalid value (e.g. undefined or empty string)',
-            () => {
-                changingHandleToUndefined = () => {
-                    // @ts-expect-error
-                    community.handle = undefined;
-                };
-                changingHandleToEmptyString = () => {
-                    community.handle = '';
-                };
-            }
-        );
-        Then(
-            'an error should be thrown indicating the value is invalid',
-            () => {
-                expect(changingHandleToUndefined).throws('Wrong raw value type');
-                expect(changingHandleToEmptyString).throws('Too short');
-            }
-        );
-    });
+	Scenario(
+		'Changing the handle to an invalid value',
+		({ Given, When, Then }) => {
+			let changingHandleToUndefined: () => void;
+			let changingHandleToEmptyString: () => void;
+			Given(
+				'a Community aggregate with permission to manage community settings',
+				() => {
+					passport = makePassport(true);
+					community = new Community(makeBaseProps(), passport);
+				},
+			);
+			When(
+				'I try to set the handle to an invalid value (e.g. undefined or empty string)',
+				() => {
+					changingHandleToUndefined = () => {
+						// @ts-expect-error
+						community.handle = undefined;
+					};
+					changingHandleToEmptyString = () => {
+						community.handle = '';
+					};
+				},
+			);
+			Then('an error should be thrown indicating the value is invalid', () => {
+				expect(changingHandleToUndefined).throws('Wrong raw value type');
+				expect(changingHandleToEmptyString).throws('Too short');
+			});
+		},
+	);
 
 	Scenario(
 		'Getting createdAt, updatedAt, and schemaVersion',
