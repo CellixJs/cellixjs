@@ -1,7 +1,7 @@
 import type { DomainDataSource } from '../../../index.ts';
 import type { Community, CommunityProps } from '../../contexts/community/community/community.ts';
 import * as Member from '../../contexts/community/member/member.ts';
-import type { EndUserRole, EndUserRoleEntityReference } from '../../contexts/community/role/end-user-role/end-user-role.ts';
+import type { EndUserRoleEntityReference } from '../../contexts/community/role/end-user-role/end-user-role.ts';
 import { PassportFactory } from '../../contexts/passport.ts';
 
 export class CommunityProvisioningService {
@@ -24,14 +24,14 @@ export class CommunityProvisioningService {
 			canManageEndUserRolesAndPermissions: true,
 		});
 		// create the default admin role for the community
-		let role: Role.EndUserEndUserRoleEntityReference | null = null;
+		let role: EndUserRoleEntityReference | null = null;
 		await domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withTransaction(
 			systemPassportForEndUserRole,
 			async (repo) => {
 				const newRole = await repo.getNewInstance(
 					'admin',
 					true,
-					communityDo as Community.CommunityEntityReference,
+					communityDo as Community,
 				);
 				newRole.permissions.setDefaultAdminPermissions();
 				role = await repo.save(newRole);
@@ -60,9 +60,9 @@ export class CommunityProvisioningService {
 			async (repo) => {
 				const newMember = await repo.getNewInstance(
 					createdBy.displayName,
-					communityDo as Community.CommunityEntityReference,
+					communityDo as Community,
 				);
-				newMember.role = role as Role.EndUserEndUserRoleEntityReference;
+				newMember.role = role as EndUserRoleEntityReference;
 				const newAccount = newMember.requestNewAccount();
 				newAccount.createdBy = createdBy;
 				newAccount.firstName =

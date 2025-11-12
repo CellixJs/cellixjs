@@ -4,6 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, type MockedFunction, vi } from 'vitest';
 import type { DomainDataSource } from '../../../index.ts';
 import type { CommunityEntityReference, CommunityProps } from '../../contexts/community/community/community.ts';
+import type { MemberEntityReference } from '../../contexts/community/member/member.ts';
 import type { EndUserRoleEntityReference } from '../../contexts/community/role/end-user-role/end-user-role.ts';
 import { CommunityProvisioningService } from './community-provisioning.service.ts';
 
@@ -101,7 +102,7 @@ function makeMockRole(): EndUserRoleEntityReference {
 	} as unknown as EndUserRoleEntityReference;
 }
 
-function makeMockMember(): Domain.Contexts.Community.Member.MemberEntityReference {
+function makeMockMember(): MemberEntityReference {
 	return {
 		role: {
 			id: 'role-123',
@@ -113,7 +114,7 @@ function makeMockMember(): Domain.Contexts.Community.Member.MemberEntityReferenc
 			statusCode: '',
 			user: null,
 		})),
-	} as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
+	} as unknown as MemberEntityReference;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -121,7 +122,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let mockDomainDataSource: DomainDataSource;
 	let mockCommunity: CommunityEntityReference;
 	let mockRole: EndUserRoleEntityReference;
-	let mockMember: Domain.Contexts.Community.Member.MemberEntityReference;
+	let mockMember: MemberEntityReference;
 	let mockCommunityRepo: {
 		getByIdWithCreatedBy: MockedFunction<
 			(
@@ -148,12 +149,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			(
 				displayName: string,
 				community: CommunityEntityReference,
-			) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>
+			) => Promise<MemberEntityReference>
 		>;
 		save: MockedFunction<
 			(
-				member: Domain.Contexts.Community.Member.MemberEntityReference,
-			) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>
+				member: MemberEntityReference,
+			) => Promise<MemberEntityReference>
 		>;
 	};
 	let thrownError: Error | null = null;

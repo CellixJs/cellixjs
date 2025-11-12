@@ -286,20 +286,25 @@ export class Member<props extends MemberProps>
 	// #endregion Properties
 }
 
+import type { MemberRepository } from './member.repository.ts';
+import type { MemberUnitOfWork } from './member.uow.ts';
 //#region Exports
+import type {
 	MemberAccountEntityReference,
 	MemberAccountProps,
 } from './member-account.ts';
+import { AccountStatusCodes as MemberAccountStatusCodes } from './member-account.value-objects.ts';
+import type {
 	MemberCustomViewEntityReference,
 	MemberCustomViewProps,
 } from './member-custom-view.ts';
+//#region Exports
+import type {
 	MemberProfileEntityReference,
 	MemberProfileProps,
 } from './member-profile.ts';
 
 export { MemberAccountStatusCodes };
-
-//#region Exports
 export type {
 	MemberAccountEntityReference,
 	MemberAccountProps,
@@ -310,5 +315,4 @@ export type {
 	MemberRepository,
 	MemberUnitOfWork,
 };
-
 //#endregion Exports

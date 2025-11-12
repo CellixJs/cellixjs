@@ -653,6 +653,17 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
 
 //#region Exports
+import { ViolationTicketV1FinanceDetailsTransactions } from './violation-ticket-v1-finance-details-transactions.ts';
+import { ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference } from './violation-ticket-v1-finance-details-transactions-submission-transaction-reference.ts';
+import { ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReference } from './violation-ticket-v1-finance-details-adhoc-transactions-transaction-reference.ts';
+import { ViolationTicketV1FinanceDetailsTransactionsSubmission } from './violation-ticket-v1-finance-details-transactions-submission.ts';
+import { ViolationTicketV1FinanceDetailsAdhocTransactionsApproval } from './violation-ticket-v1-finance-details-adhoc-transactions-approval.ts';
+import { ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference } from './violation-ticket-v1-finance-details-adhoc-transactions-finance-reference.ts';
+import { ViolationTicketV1FinanceDetailsRevenueRecognition } from './violation-ticket-v1-finance-details-revenue-recognition.ts';
+import { ViolationTicketV1FinanceDetailsGlTransaction } from './violation-ticket-v1-finance-details-gl-transaction.ts';
+import type { ViolationTicketV1Repository } from './violation-ticket-v1.repository.ts';
+import type { ViolationTicketV1UnitOfWork } from './violation-ticket-v1.uow.ts';
+
 export {
 	ViolationTicketV1FinanceDetailsTransactions,
 	ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference,
