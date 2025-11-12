@@ -171,7 +171,6 @@ import type { EndUserUnitOfWork } from './end-user.uow.ts';
 //#region Exports
 import type { EndUserContactInformationProps } from './end-user-contact-information.ts';
 import type { EndUserIdentityDetailsProps } from './end-user-identity-details.ts';
-import type { EndUserPersonalInformationProps } from './end-user-personal-information.ts';
 
 export type {
 	EndUserContactInformationProps,

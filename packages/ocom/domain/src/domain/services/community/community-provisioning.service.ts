@@ -31,7 +31,7 @@ export class CommunityProvisioningService {
 				const newRole = await repo.getNewInstance(
 					'admin',
 					true,
-					communityDo as Community,
+					communityDo as Community<CommunityProps>,
 				);
 				newRole.permissions.setDefaultAdminPermissions();
 				role = await repo.save(newRole);
@@ -60,7 +60,7 @@ export class CommunityProvisioningService {
 			async (repo) => {
 				const newMember = await repo.getNewInstance(
 					createdBy.displayName,
-					communityDo as Community,
+					communityDo as Community<CommunityProps>,
 				);
 				newMember.role = role as EndUserRoleEntityReference;
 				const newAccount = newMember.requestNewAccount();

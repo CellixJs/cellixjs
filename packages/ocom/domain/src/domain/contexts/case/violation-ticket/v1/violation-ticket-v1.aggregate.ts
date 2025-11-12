@@ -654,13 +654,49 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
 //#region Exports
 import { ViolationTicketV1FinanceDetailsTransactions } from './violation-ticket-v1-finance-details-transactions.ts';
+import type {
+	ViolationTicketV1FinanceDetailsTransactionsEntityReference,
+	ViolationTicketV1FinanceDetailsTransactionsProps,
+} from './violation-ticket-v1-finance-details-transactions.ts';
 import { ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference } from './violation-ticket-v1-finance-details-transactions-submission-transaction-reference.ts';
+import type {
+	ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceEntityReference,
+	ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceProps,
+} from './violation-ticket-v1-finance-details-transactions-submission-transaction-reference.ts';
 import { ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReference } from './violation-ticket-v1-finance-details-adhoc-transactions-transaction-reference.ts';
+import type {
+	ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReferenceEntityReference,
+	ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReferenceProps,
+} from './violation-ticket-v1-finance-details-adhoc-transactions-transaction-reference.ts';
 import { ViolationTicketV1FinanceDetailsTransactionsSubmission } from './violation-ticket-v1-finance-details-transactions-submission.ts';
+import type {
+	ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference,
+	ViolationTicketV1FinanceDetailsTransactionsSubmissionProps,
+} from './violation-ticket-v1-finance-details-transactions-submission.ts';
 import { ViolationTicketV1FinanceDetailsAdhocTransactionsApproval } from './violation-ticket-v1-finance-details-adhoc-transactions-approval.ts';
+import type {
+	ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference,
+	ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps,
+} from './violation-ticket-v1-finance-details-adhoc-transactions-approval.ts';
 import { ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference } from './violation-ticket-v1-finance-details-adhoc-transactions-finance-reference.ts';
+import type {
+	ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference,
+	ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceProps,
+} from './violation-ticket-v1-finance-details-adhoc-transactions-finance-reference.ts';
 import { ViolationTicketV1FinanceDetailsRevenueRecognition } from './violation-ticket-v1-finance-details-revenue-recognition.ts';
+import type {
+	ViolationTicketV1FinanceDetailsRevenueRecognitionEntityReference,
+	ViolationTicketV1FinanceDetailsRevenueRecognitionProps,
+} from './violation-ticket-v1-finance-details-revenue-recognition.ts';
 import { ViolationTicketV1FinanceDetailsGlTransaction } from './violation-ticket-v1-finance-details-gl-transaction.ts';
+import type {
+	ViolationTicketV1FinanceDetailsGlTransactionEntityReference,
+	ViolationTicketV1FinanceDetailsGlTransactionProps,
+} from './violation-ticket-v1-finance-details-gl-transaction.ts';
+import type {
+	ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference,
+	ViolationTicketV1FinanceDetailsAdhocTransactionsProps,
+} from './violation-ticket-v1-finance-details-adhoc-transactions.ts';
 import type { ViolationTicketV1Repository } from './violation-ticket-v1.repository.ts';
 import type { ViolationTicketV1UnitOfWork } from './violation-ticket-v1.uow.ts';
 

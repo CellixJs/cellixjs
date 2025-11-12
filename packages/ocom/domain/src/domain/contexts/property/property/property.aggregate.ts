@@ -340,10 +340,8 @@ export class Property<props extends PropertyProps>
 //#region Exports
 import type { PropertyRepository } from './property.repository.ts';
 import type { PropertyUnitOfWork } from './property.uow.ts';
-import type { PropertyListingDetailProps } from './property-listing-detail.entity.ts';
 import type { PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';
 import type { PropertyListingDetailBedroomDetailProps } from './property-listing-detail-bedroom-detail.entity.ts';
-import type { PropertyLocationProps } from './property-location.entity.ts';
 import type { PropertyLocationAddressProps } from './property-location-address.entity.ts';
 import type { PropertyLocationPositionProps } from './property-location-position.entity.ts';
 
