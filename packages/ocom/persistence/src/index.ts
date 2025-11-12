@@ -1,4 +1,4 @@
-import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import { Models } from '@ocom/data-sources-mongoose-models';
 import { DataSourcesFactoryImpl } from './datasources/index.ts';
 

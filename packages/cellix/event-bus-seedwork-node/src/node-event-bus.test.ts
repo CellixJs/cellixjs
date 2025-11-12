@@ -3,7 +3,7 @@ import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NodeEventBusInstance } from './node-event-bus.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 
 // --- Mocks for OpenTelemetry and performance ---
 

@@ -9,7 +9,7 @@ import {
 } from 'vitest';
 import mongoose, { Schema, model, type Model } from 'mongoose';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import {
 	InProcEventBusInstance,
 	NodeEventBusInstance,

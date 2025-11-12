@@ -1,4 +1,4 @@
-import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import { type Model, type ObjectId, type PopulatedDoc, Schema, type SchemaDefinition } from 'mongoose';
 import * as Community from '../community/community.model.ts';
 import { type Role, type RoleModelType, roleOptions } from './role.model.ts';

@@ -5,9 +5,13 @@
   "type": "module",
   "files": ["dist"],
   "exports": {
-    ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+    "./domain-seedwork": {
+      "types": "./dist/src/domain-seedwork/index.d.ts",
+      "default": "./dist/src/domain-seedwork/index.js"
+    },
+    "./passport-seedwork": {
+      "types": "./dist/src/passport-seedwork/index.d.ts",
+      "default": "./dist/src/passport-seedwork/index.js"
     }
   },
   "scripts": {

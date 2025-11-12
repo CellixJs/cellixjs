@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type * as ValueObjects from './service-ticket-v1-activity-detail.value-objects.ts';
 

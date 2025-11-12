@@ -9,7 +9,7 @@ import {
 } from './vendor-user-role.ts';
 import { VendorUserRolePermissions } from './vendor-user-role-permissions.ts';
 import { RoleDeletedReassignEvent } from '../../../../events/types/role-deleted-reassign.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Passport } from '../../../passport.ts';
 import type { CommunityProps } from '../../community/community.ts';
 

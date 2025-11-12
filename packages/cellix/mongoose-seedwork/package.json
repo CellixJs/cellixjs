@@ -6,8 +6,8 @@
   "files": ["dist"],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/src/mongoose-seedwork/index.d.ts",
+      "default": "./dist/src/mongoose-seedwork/index.js"
     }
   },
   "scripts": {

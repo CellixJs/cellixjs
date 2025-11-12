@@ -1,5 +1,5 @@
 import type { EndUser, EndUserProps } from './end-user.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 
 export interface EndUserRepository<props extends EndUserProps>
 	extends DomainSeedwork.Repository<EndUser<props>> {

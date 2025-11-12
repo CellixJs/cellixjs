@@ -1,4 +1,4 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { CommunityEntityReference } from '../../../community/community/index.ts';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { PropertyEntityReference } from '../../../property/property/index.ts';

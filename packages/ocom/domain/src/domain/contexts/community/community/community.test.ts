@@ -6,7 +6,7 @@ import { expect, vi } from 'vitest';
 import { Community, type CommunityProps } from './community.ts';
 import { CommunityCreatedEvent } from '../../../events/types/community-created.ts';
 import { CommunityDomainUpdatedEvent } from '../../../events/types/community-domain-updated.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 

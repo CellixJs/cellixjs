@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { Email } from './vendor-user.value-objects.ts';
 import type { UserVisa } from '../user.visa.ts';
 

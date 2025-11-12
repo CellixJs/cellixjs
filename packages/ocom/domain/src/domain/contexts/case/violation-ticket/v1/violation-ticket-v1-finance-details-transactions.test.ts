@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { ViolationTicketV1FinanceDetailsTransactions, type ViolationTicketV1FinanceDetailsTransactionsProps } from './violation-ticket-v1-finance-details-transactions.ts';
 import type { ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference } from './violation-ticket-v1-finance-details-transactions-submission.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions.ts';

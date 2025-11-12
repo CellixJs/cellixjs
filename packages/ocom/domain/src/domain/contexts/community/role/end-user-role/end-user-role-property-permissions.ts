@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { CommunityVisa } from '../../community.visa.ts';
 import type { PropertyDomainPermissions } from '../../../property/property.domain-permissions.ts';
 

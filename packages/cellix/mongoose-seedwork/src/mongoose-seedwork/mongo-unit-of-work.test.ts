@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ClientSession, Model } from 'mongoose';
 import mongoose from 'mongoose';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Base } from './index.ts';
 import { MongoUnitOfWork, getInitializedUnitOfWork } from './mongo-unit-of-work.ts';
 import { MongoRepositoryBase } from './mongo-repository.ts';

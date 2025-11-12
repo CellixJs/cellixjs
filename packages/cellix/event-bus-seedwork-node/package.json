@@ -5,9 +5,13 @@
   "type": "module",
   "files": ["dist"],
   "exports": {
-    ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+    "./node-event-bus": {
+      "types": "./dist/src/node-event-bus.d.ts",
+      "default": "./dist/src/node-event-bus.js"
+    },
+    "./in-proc-event-bus": {
+      "types": "./dist/src/in-proc-event-bus.d.ts",
+      "default": "./dist/src/in-proc-event-bus.js"
     }
   },
   "scripts": {

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type mongoose from 'mongoose';
 import { Models } from '@ocom/data-sources-mongoose-models';
 

@@ -1,6 +1,6 @@
 import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
 
 type ServiceModelType = Models.Service.Service;

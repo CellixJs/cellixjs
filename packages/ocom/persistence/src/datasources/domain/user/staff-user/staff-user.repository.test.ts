@@ -6,7 +6,7 @@ import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { StaffUserRepository } from './staff-user.repository.ts';
 import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
 const test = { for: describeFeature };

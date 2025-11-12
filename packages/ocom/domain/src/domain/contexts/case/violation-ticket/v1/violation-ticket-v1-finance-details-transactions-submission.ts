@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceEntityReference } from './violation-ticket-v1-finance-details-transactions-submission-transaction-reference.ts';
 
 export interface ViolationTicketV1FinanceDetailsTransactionsSubmissionProps extends DomainSeedwork.ValueObjectProps {

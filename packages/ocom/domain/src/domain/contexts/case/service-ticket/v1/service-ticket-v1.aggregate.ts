@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { ServiceTicketV1CreatedEvent, type ServiceTicketV1CreatedProps } from '../../../../events/types/service-ticket-v1-created.ts';
 import { ServiceTicketV1DeletedEvent, type ServiceTicketV1DeletedProps } from '../../../../events/types/service-ticket-v1-deleted.ts';
 import { ServiceTicketV1UpdatedEvent, type ServiceTicketV1UpdatedProps } from '../../../../events/types/service-ticket-v1-updated.ts';

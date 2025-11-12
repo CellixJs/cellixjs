@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { VendorUser, type VendorUserProps } from './vendor-user.ts';
 import { VendorUserCreatedEvent } from '../../../events/types/vendor-user-created.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
 

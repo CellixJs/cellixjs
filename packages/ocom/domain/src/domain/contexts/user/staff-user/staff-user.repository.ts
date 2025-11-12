@@ -1,5 +1,5 @@
 import type { StaffUser, StaffUserProps } from './staff-user.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 
 export interface StaffUserRepository<props extends StaffUserProps>
 	extends DomainSeedwork.Repository<StaffUser<props>> {

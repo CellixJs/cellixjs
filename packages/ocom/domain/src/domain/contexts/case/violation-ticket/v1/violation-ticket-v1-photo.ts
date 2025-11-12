@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
 export interface ViolationTicketV1PhotoProps extends DomainSeedwork.DomainEntityProps {

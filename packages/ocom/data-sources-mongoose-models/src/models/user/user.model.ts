@@ -1,4 +1,4 @@
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import { type Model, Schema } from 'mongoose';
 
 export interface User extends MongooseSeedwork.Base {

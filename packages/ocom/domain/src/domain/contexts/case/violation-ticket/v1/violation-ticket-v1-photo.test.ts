@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { ViolationTicketV1Photo, type ViolationTicketV1PhotoProps } from './violation-ticket-v1-photo.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 

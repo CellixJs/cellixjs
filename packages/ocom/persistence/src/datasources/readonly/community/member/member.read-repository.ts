@@ -1,4 +1,4 @@
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork'; 
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork'; 
 import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';

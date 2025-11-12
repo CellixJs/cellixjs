@@ -1,4 +1,4 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import type { Community, CommunityProps } from './community.ts';
 

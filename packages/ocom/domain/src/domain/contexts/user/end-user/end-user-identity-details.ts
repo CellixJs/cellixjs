@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import * as ValueObjects from './end-user.value-objects.ts';
 import type { UserVisa } from '../user.visa.ts';
 import type { EndUserAggregateRoot } from './end-user.ts';

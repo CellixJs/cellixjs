@@ -6,7 +6,7 @@ import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 import { ServiceTicketV1Converter, type ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
 

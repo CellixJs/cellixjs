@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { PropertyCreatedEvent, type PropertyCreatedProps } from '../../../events/types/property-created.ts';
 import { PropertyDeletedEvent, type PropertyDeletedEventProps } from '../../../events/types/property-deleted.ts';
 import { PropertyUpdatedEvent, type PropertyUpdatedProps } from '../../../events/types/property-updated.ts';

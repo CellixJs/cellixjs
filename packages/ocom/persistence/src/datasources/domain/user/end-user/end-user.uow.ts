@@ -1,10 +1,8 @@
 import type { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import {
-	InProcEventBusInstance,
-	NodeEventBusInstance,
-} from '@cellix/event-bus-seedwork-node';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
+import { NodeEventBusInstance } from '@cellix/event-bus-seedwork-node/node-event-bus';
+import { InProcEventBusInstance } from '@cellix/event-bus-seedwork-node/in-proc-event-bus';
 
 import {
 	EndUserConverter,

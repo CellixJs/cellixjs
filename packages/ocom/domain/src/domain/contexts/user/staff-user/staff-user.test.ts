@@ -5,7 +5,7 @@ import { expect, vi } from 'vitest';
 
 import { StaffUser, type StaffUserProps } from './staff-user.ts';
 import { StaffUserCreatedEvent } from '../../../events/types/staff-user-created.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
 const test = { for: describeFeature };

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { MongoTypeConverter } from './mongo-type-converter.ts';
 import type { Base } from './base.ts';
 import type { MongooseDomainAdapterType } from './mongo-domain-adapter.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 
 
 const test = { for: describeFeature };

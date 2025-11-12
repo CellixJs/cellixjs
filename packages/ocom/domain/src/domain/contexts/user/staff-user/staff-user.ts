@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import * as ValueObjects from './staff-user.value-objects.ts';
 import {
 	StaffRole,

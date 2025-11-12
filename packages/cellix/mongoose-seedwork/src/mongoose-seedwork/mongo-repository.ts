@@ -1,5 +1,5 @@
 import type { ClientSession, Model } from 'mongoose';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Base } from './base.ts';
 
 export abstract class MongoRepositoryBase<

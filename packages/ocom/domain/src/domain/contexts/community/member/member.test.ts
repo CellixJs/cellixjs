@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, vi } from 'vitest';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { CommunityEntityReference, CommunityProps } from '../community/community.ts';
 import type { EndUserRoleEntityReference, EndUserRoleProps } from '../role/end-user-role/end-user-role.ts';
 import { Member, type MemberProps } from './member.ts';

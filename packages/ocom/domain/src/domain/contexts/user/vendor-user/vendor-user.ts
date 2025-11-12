@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { VendorUserCreatedEvent, type VendorUserCreatedProps } from '../../../events/types/vendor-user-created.ts';
 import * as ValueObjects from './vendor-user.value-objects.ts';
 import {

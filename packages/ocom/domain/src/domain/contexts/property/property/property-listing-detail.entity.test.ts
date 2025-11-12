@@ -6,7 +6,7 @@ import * as PropertyListingDetailEntity from './property-listing-detail.entity.t
 import * as ValueObjects from './property-listing-detail.value-objects.ts';
 import type { PropertyListingDetailBedroomDetail, PropertyListingDetailBedroomDetailProps } from './property-listing-detail-bedroom-detail.entity.ts';
 import type { PropertyListingDetailAdditionalAmenity, PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

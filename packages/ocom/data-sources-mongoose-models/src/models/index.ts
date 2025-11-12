@@ -1,4 +1,4 @@
-import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import { CommunityModelFactory } from './community/index.ts';
 import { MemberModelFactory } from './member/index.ts';
 import {

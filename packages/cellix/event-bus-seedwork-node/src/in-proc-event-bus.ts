@@ -1,4 +1,4 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 
 class InProcEventBusImpl implements DomainSeedwork.EventBus {
 	private eventSubscribers: {

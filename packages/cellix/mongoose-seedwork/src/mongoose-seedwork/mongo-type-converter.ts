@@ -1,5 +1,5 @@
 import type { Base } from './base.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { MongooseDomainAdapterType } from './mongo-domain-adapter.ts';
 
 export abstract class MongoTypeConverter<

@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-approval.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-finance-reference.ts';

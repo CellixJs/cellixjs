@@ -11,7 +11,7 @@ import {
 } from '../../community/community.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
 import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Passport } from '../../../passport.ts';
 
 export interface EndUserRoleProps extends DomainSeedwork.DomainEntityProps {

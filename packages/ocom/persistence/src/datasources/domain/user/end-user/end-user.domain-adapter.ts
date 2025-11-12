@@ -1,6 +1,6 @@
 import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 
 export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.User.EndUser,

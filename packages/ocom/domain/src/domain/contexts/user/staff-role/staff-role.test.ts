@@ -5,7 +5,7 @@ import { expect, vi } from 'vitest';
 import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from './staff-role.ts';
 import { StaffRolePermissions } from './staff-role-permissions.ts';
 import { RoleDeletedReassignEvent } from '../../../events/types/role-deleted-reassign.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
 

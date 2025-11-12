@@ -6,8 +6,8 @@
   "files": ["dist"],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/src/handlers/index.d.ts",
+      "default": "./dist/src/handlers/index.js"
     }
   },
   "scripts": {

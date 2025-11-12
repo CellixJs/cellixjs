@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { EndUserCreatedEvent, type EndUserCreatedProps } from '../../../events/types/end-user-created.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';

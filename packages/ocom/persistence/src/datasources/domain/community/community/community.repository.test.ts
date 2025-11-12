@@ -7,7 +7,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityRepository } from './community.repository.ts';
 import { CommunityConverter, type CommunityDomainAdapter } from './community.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
 
