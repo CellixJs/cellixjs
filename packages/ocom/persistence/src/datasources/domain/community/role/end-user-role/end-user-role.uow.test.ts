@@ -2,11 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getEndUserRoleUnitOfWork } from './end-user-role.uow.ts';
 
 
+import { EndUserRole } from '@ocom/domain/contexts/community/role/end-user-role';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -35,18 +36,18 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let endUserRoleModel: Models.Role.EndUserRoleModelType;
-  let passport: Domain.Passport;
-  let result: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+  let passport: Passport;
+  let result: EndUserRoleUnitOfWork;
 
   BeforeEachScenario(() => {
     endUserRoleModel = makeMockEndUserRoleModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+    result = {} as EndUserRoleUnitOfWork;
   });
 
   Background(({ Given, And }) => {

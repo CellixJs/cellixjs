@@ -2,8 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
+import type { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import {
   PropertyConverter,
@@ -13,6 +13,11 @@ import { CommunityDomainAdapter } from '../../community/community/community.doma
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 
 
+import type { MemberEntityReference } from '@ocom/domain/contexts/community/member';
+import type { PropertyLocationProps } from '@ocom/domain/contexts/property/property';
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Member } from '@ocom/domain/contexts/community/member';
+import { Property } from '@ocom/domain/contexts/property/property';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const domainAdapterFeature = await loadFeature(
@@ -100,7 +105,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -327,7 +332,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Getting the location property', ({ Given, When, Then }) => {
-    let locationAdapter: Domain.Contexts.Property.Property.PropertyLocationProps;
+    let locationAdapter: PropertyLocationProps;
     Given('a PropertyDomainAdapter for the document', () => {
       adapter = new PropertyDomainAdapter(doc);
     });
@@ -416,13 +421,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Setting the community property with a valid Community domain object', ({ Given, And, When, Then }) => {
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
     Given('a PropertyDomainAdapter for the document', () => {
       adapter = new PropertyDomainAdapter(doc);
     });
     And('a valid Community domain object', () => {
       communityAdapter = new CommunityDomainAdapter(communityDoc);
-      communityDomainObj = new Domain.Contexts.Community.Community.Community(communityAdapter, makeMockPassport());
+      communityDomainObj = new Community(communityAdapter, makeMockPassport());
     });
     When('I set the community property to the Community domain object', () => {
       adapter.community = communityDomainObj;
@@ -508,13 +513,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Setting the owner property with a valid Member domain object', ({ Given, And, When, Then }) => {
     let memberAdapter: MemberDomainAdapter;
-    let memberDomainObj: Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
+    let memberDomainObj: Member<MemberDomainAdapter>;
     Given('a PropertyDomainAdapter for the document', () => {
       adapter = new PropertyDomainAdapter(doc);
     });
     And('a valid Member domain object', () => {
       memberAdapter = new MemberDomainAdapter(memberDoc);
-      memberDomainObj = new Domain.Contexts.Community.Member.Member(memberAdapter, makeMockPassport());
+      memberDomainObj = new Member(memberAdapter, makeMockPassport());
     });
     When('I set the owner property to the Member domain object', () => {
       adapter.setOwnerRef(memberDomainObj);
@@ -534,7 +539,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     When('I try to set the owner property to the invalid object', () => {
       settingOwnerWithInvalidValue = () => {
-        adapter.setOwnerRef(memberAdapter as unknown as Domain.Contexts.Community.Member.MemberEntityReference);
+        adapter.setOwnerRef(memberAdapter as unknown as MemberEntityReference);
       };
     });
     Then('an error should be thrown indicating "owner reference is missing id"', () => {
@@ -802,7 +807,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Getting and setting position properties', ({ Given, When, Then }) => {
-    let positionAdapter: Domain.Contexts.Property.Property.PropertyLocationPositionProps;
+    let positionAdapter: PropertyLocationPositionProps;
     Given('a PropertyDomainAdapter for the document', () => {
       adapter = new PropertyDomainAdapter(doc);
       positionAdapter = adapter.location.position;
@@ -834,7 +839,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Getting and setting listing detail properties', ({ Given, When, Then }) => {
-    let listingDetailAdapter: Domain.Contexts.Property.Property.PropertyListingDetailProps;
+    let listingDetailAdapter: PropertyListingDetailProps;
     Given('a PropertyDomainAdapter for the document', () => {
       adapter = new PropertyDomainAdapter(doc);
       listingDetailAdapter = adapter.listingDetail;
@@ -1158,7 +1163,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   let communityDoc: Models.Community.Community;
   let memberDoc: Models.Member.Member;
   let converter: PropertyConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -1197,22 +1202,22 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a Property domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Property.Property.Property);
+      expect(result).toBeInstanceOf(Property);
     });
     And('the domain object\'s propertyName should be "Test Property"', () => {
-      expect((result as Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>).propertyName).toBe('Test Property');
+      expect((result as Property<PropertyDomainAdapter>).propertyName).toBe('Test Property');
     });
     And('the domain object\'s propertyType should be "house"', () => {
-      expect((result as Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>).propertyType).toBe('house');
+      expect((result as Property<PropertyDomainAdapter>).propertyType).toBe('house');
     });
   });
 
   Scenario('Converting a domain object to a Mongoose Property document', ({ Given, And, When, Then }) => {
-    let domainObj: Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>;
+    let domainObj: Property<PropertyDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let memberAdapter: MemberDomainAdapter;
-    let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
-    let memberDomainObj: Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
+    let memberDomainObj: Member<MemberDomainAdapter>;
     let resultDoc: Models.Property.Property;
 
     Given('a PropertyConverter instance', () => {
@@ -1221,8 +1226,8 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     And('a Property domain object with propertyName "New Property", propertyType "apartment", and valid community and owner', () => {
       communityAdapter = new CommunityDomainAdapter(communityDoc);
       memberAdapter = new MemberDomainAdapter(memberDoc);
-      communityDomainObj = new Domain.Contexts.Community.Community.Community(communityAdapter, passport);
-      memberDomainObj = new Domain.Contexts.Community.Member.Member(memberAdapter, passport);
+      communityDomainObj = new Community(communityAdapter, passport);
+      memberDomainObj = new Member(memberAdapter, passport);
 
       const propertyDoc = makePropertyDoc({
         propertyName: 'New Property',
@@ -1233,7 +1238,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       const adapter = new PropertyDomainAdapter(propertyDoc);
       adapter.community = communityDomainObj;
       adapter.setOwnerRef(memberDomainObj);
-      domainObj = new Domain.Contexts.Property.Property.Property(adapter, passport);
+      domainObj = new Property(adapter, passport);
     });
     When('I call toPersistence with the Property domain object', () => {
       resultDoc = converter.toPersistence(domainObj);

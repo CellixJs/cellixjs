@@ -1,24 +1,25 @@
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 
+import { EndUser, EndUserPersonalInformation } from '@ocom/domain/contexts/user/end-user';
+import type { EndUserPersonalInformationProps, EndUserProps } from '@ocom/domain/contexts/user/end-user';
 export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.User.EndUser,
 	EndUserDomainAdapter,
-	Domain.Passport,
-	Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>
+	Passport,
+	EndUser<EndUserDomainAdapter>
 > {
 	constructor() {
 		super(
 			EndUserDomainAdapter,
-			Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>
+			EndUser<EndUserDomainAdapter>
 		);
 	}
 }
 
 export class EndUserDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.User.EndUser>
-	implements Domain.Contexts.User.EndUser.EndUserProps
+	implements EndUserProps
 {
 	get userType() {
 		return this.doc.userType;
@@ -70,7 +71,7 @@ export class EndUserDomainAdapter
 }
 
 export class EndUserPersonalInformationDomainAdapter
-	implements Domain.Contexts.User.EndUser.EndUserPersonalInformationProps
+	implements EndUserPersonalInformationProps
 {
 	private readonly props: Models.User.EndUserPersonalInformation;
 	constructor(props: Models.User.EndUserPersonalInformation) {
@@ -95,7 +96,7 @@ export class EndUserPersonalInformationDomainAdapter
 }
 
 export class EndUserIdentityDetailsDomainAdapter
-	implements Domain.Contexts.User.EndUser.EndUserIdentityDetailsProps
+	implements EndUserIdentityDetailsProps
 {
 	private readonly props: Models.User.EndUserIdentityDetails;
 	constructor(props: Models.User.EndUserIdentityDetails) {
@@ -125,7 +126,7 @@ export class EndUserIdentityDetailsDomainAdapter
 }
 
 export class EndUserContactInformationDomainAdapter
-	implements Domain.Contexts.User.EndUser.EndUserContactInformationProps
+	implements EndUserContactInformationProps
 {
 	private readonly props: Models.User.EndUserContactInformation;
 	constructor(props: Models.User.EndUserContactInformation) {

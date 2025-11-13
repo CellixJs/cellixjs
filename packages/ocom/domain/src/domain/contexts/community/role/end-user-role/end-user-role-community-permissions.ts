@@ -1,11 +1,14 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { CommunityVisa } from '../../community.visa.ts';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { CommunityDomainPermissions } from '../../community.domain-permissions.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
 
 export interface EndUserRoleCommunityPermissionsProps
 	extends Omit<
 			CommunityDomainPermissions,
-			'canCreateCommunities' | 'canManageVendorUserRolesAndPermissions' | 'isEditingOwnMemberAccount' | 'isSystemAccount'
+			| 'canCreateCommunities'
+			| 'canManageVendorUserRolesAndPermissions'
+			| 'isEditingOwnMemberAccount'
+			| 'isSystemAccount'
 		>,
 		DomainSeedwork.ValueObjectProps {}
 export interface EndUserRoleCommunityPermissionsEntityReference

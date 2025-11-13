@@ -9,8 +9,6 @@ export default defineConfig(
   createStorybookVitestConfig(dirname, {
     additionalCoverageExclude: [
       '**/index.ts',
-      'src/components/molecules/index.tsx',
-      'src/components/organisms/index.tsx'
     ],
   })
 );

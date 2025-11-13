@@ -1,5 +1,5 @@
 import { type Model, Schema, type SchemaDefinition } from 'mongoose';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import { type User, type UserModelType, userOptions } from './user.model.ts';
 import { Patterns } from '../../patterns.ts';
 

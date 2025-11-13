@@ -1,25 +1,28 @@
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 
+import { EndUserRole } from '@ocom/domain/contexts/community/role/end-user-role';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import type { EndUserRoleProps } from '@ocom/domain/contexts/community/role/end-user-role';
 type EndUserRoleModelType = Models.Role.EndUserRole; // ReturnType<typeof Models.EndUserRole.EndUserRoleModelFactory> & Models.EndUserRole.EndUserRole & { baseModelName: string };
 type PropType = EndUserRoleDomainAdapter;
 
 export class EndUserRoleRepository //<
-	//PropType extends Domain.Contexts.EndUserRole.EndUserRole.EndUserRoleProps
+	//PropType extends EndUserRoleProps
 	//>
 	extends MongooseSeedwork.MongoRepositoryBase<
 		EndUserRoleModelType,
 		PropType,
-		Domain.Passport,
-		Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>
+		Passport,
+		EndUserRole<PropType>
 	>
-	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRoleRepository<PropType>
+	implements EndUserRoleRepository<PropType>
 {
 	async getById(
 		id: string,
-	): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>> {
+	): Promise<EndUserRole<PropType>> {
 		const mongoEndUserRole = await this.model
 			.findById(id)
 			.exec();
@@ -32,11 +35,11 @@ export class EndUserRoleRepository //<
 	async getNewInstance(
 		roleName: string,
         isDefault: boolean,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference
-	): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>> {
+		community: CommunityEntityReference
+	): Promise<EndUserRole<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.Community.Role.EndUserRole.EndUserRole.getNewInstance(
+			getNewInstance(
 				adapter,
                 this.passport,
 				roleName,

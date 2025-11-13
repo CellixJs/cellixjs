@@ -1,23 +1,16 @@
-export {
-	type EndUser,
-	EndUserModelName,
-	EndUserModelFactory,
-	type EndUserModelType,
-	type EndUserPersonalInformation,
-	type EndUserIdentityDetails,
-	type EndUserContactInformation,
-} from './end-user.model.ts';
-export {
-	type StaffUser,
-	StaffUserModelFactory,
-	type StaffUserModelType,
-} from './staff-user.model.ts';
-export {
-	type VendorUser,
-	VendorUserModelFactory,
-	type VendorUserModelType,
-	type VendorUserPersonalInformation,
-	type VendorUserIdentityDetails,
-	type VendorUserContactInformation,
+import { UserModelFactory } from './user.model.ts';
+import { EndUserModelFactory } from './end-user.model.ts';
+import { StaffUserModelFactory } from './staff-user.model.ts';
+import { VendorUserModelFactory } from './vendor-user.model.ts';
+
+export { UserModelFactory, EndUserModelFactory, StaffUserModelFactory, VendorUserModelFactory };
+export type { User, UserModelType } from './user.model.ts';
+export type { EndUser, EndUserModelType } from './end-user.model.ts';
+export type { StaffUser, StaffUserModelType } from './staff-user.model.ts';
+export type {
+	VendorUser,
+	VendorUserModelType,
+	VendorUserContactInformation,
+	VendorUserIdentityDetails,
+	VendorUserPersonalInformation,
 } from './vendor-user.model.ts';
-export { UserModelFactory } from './user.model.ts';

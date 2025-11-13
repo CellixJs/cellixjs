@@ -1,25 +1,28 @@
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Service } from '@ocom/domain/contexts/service/service';
+import type { CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community/community';
+import type { ServiceProps } from '@ocom/domain/contexts/service/service';
 export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Service.Service,
 	ServiceDomainAdapter,
-	Domain.Passport,
-	Domain.Contexts.Service.Service.Service<ServiceDomainAdapter>
+	Passport,
+	Service<ServiceDomainAdapter>
 > {
 	constructor() {
 		super(
 			ServiceDomainAdapter,
-			Domain.Contexts.Service.Service.Service
+			Service
 		);
 	}
 }
 
 export class ServiceDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.Service.Service>
-	implements Domain.Contexts.Service.Service.ServiceProps
+	implements ServiceProps
 {
 	get serviceName() {
 		return this.doc.serviceName;
@@ -42,7 +45,7 @@ export class ServiceDomainAdapter
 		this.doc.isActive = isActive;
 	}
 
-	get community(): Domain.Contexts.Community.Community.CommunityProps {
+	get community(): CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -54,7 +57,7 @@ export class ServiceDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
 
-    async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
+    async loadCommunity(): Promise<CommunityProps> {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -64,7 +67,7 @@ export class ServiceDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
 
-	setCommunityRef(community: Domain.Contexts.Community.Community.CommunityEntityReference) {
+	setCommunityRef(community: CommunityEntityReference) {
 		if (!community?.id) {
 			throw new Error('community reference is missing id');
 		}

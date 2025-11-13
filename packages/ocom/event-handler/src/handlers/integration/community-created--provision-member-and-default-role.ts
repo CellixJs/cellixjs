@@ -1,14 +1,13 @@
-import { Domain, type DomainDataSource} from '@ocom/domain';
+import type { DomainDataSource } from '@ocom/domain';
+import { EventBusInstance, CommunityCreatedEvent } from '@ocom/domain/events';
+import { Community } from '@ocom/domain/services';
 
-const { EventBusInstance, CommunityCreatedEvent } = Domain.Events;
-export default (
-    domainDataSource: DomainDataSource
-) => {
-    EventBusInstance.register(CommunityCreatedEvent, async (payload) => {
-        const { communityId } = payload;
-        return await Domain.Services.Community.CommunityProvisioningService.provisionMemberAndDefaultRole(
-            communityId,
-            domainDataSource
-        );
-    });
-}
+export default (domainDataSource: DomainDataSource) => {
+	EventBusInstance.register(CommunityCreatedEvent, async (payload) => {
+		const { communityId } = payload;
+		return await Community.CommunityProvisioningService.provisionMemberAndDefaultRole(
+			communityId,
+			domainDataSource,
+		);
+	});
+};

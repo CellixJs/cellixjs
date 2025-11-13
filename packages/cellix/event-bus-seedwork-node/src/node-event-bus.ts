@@ -1,6 +1,6 @@
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import api, { trace, type TimeInput, SpanStatusCode } from '@opentelemetry/api';
 // import { SEMATTRS_DB_SYSTEM, SEMATTRS_DB_NAME, SEMATTRS_DB_STATEMENT } from '@opentelemetry/semantic-conventions';
 // not sure where to import these from, see link below

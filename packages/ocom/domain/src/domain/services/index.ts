@@ -1,1 +1,3 @@
-export { Community } from './community/index.ts';
+import { Community } from './community/index.ts';
+
+export { Community };

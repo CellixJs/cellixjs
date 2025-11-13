@@ -1,4 +1,4 @@
-import { LoggedInUser, type LoggedInUserProps } from "../../molecules/index.tsx";
+import { LoggedInUser, type LoggedInUserProps } from "../../molecules/logged-in-user/index.tsx";
 
 export interface LoggedInUserCommunityProps {
   data: {

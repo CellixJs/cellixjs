@@ -3,11 +3,13 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { CommunityReadRepositoryImpl } from './community.read-repository.ts';
 import { CommunityDataSourceImpl } from './community.data.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
 // Mock the data source module
 
 const test = { for: describeFeature };
@@ -35,7 +37,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 function makeMockCommunityDocument() {
@@ -52,7 +54,7 @@ function makeMockCommunityDocument() {
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let repository: CommunityReadRepositoryImpl;
   let mockCommunityDoc: Models.Community.Community;
   let mockDataSource: {

@@ -1,1 +1,3 @@
-export { CommunityManagement } from './community-management.ts';
+import { CommunityManagement } from './community-management.ts';
+
+export { CommunityManagement };

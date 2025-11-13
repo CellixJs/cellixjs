@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail-bedroom-detail.value-objects.ts';
 
@@ -17,7 +17,10 @@ export class PropertyListingDetailBedroomDetail
 {
 	private readonly visa: PropertyVisa;
 
-	constructor(props: PropertyListingDetailBedroomDetailProps, visa: PropertyVisa) {
+	constructor(
+		props: PropertyListingDetailBedroomDetailProps,
+		visa: PropertyVisa,
+	) {
 		super(props);
 		this.visa = visa;
 	}

@@ -1,17 +1,15 @@
-import {
-    InProcEventBusInstance,
-    NodeEventBusInstance,
-} from '@cellix/event-bus-seedwork-node';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import { NodeEventBusInstance } from '@cellix/event-bus-seedwork-node/node-event-bus';
+import { InProcEventBusInstance } from '@cellix/event-bus-seedwork-node/in-proc-event-bus';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { ServiceTicketV1Converter } from './service-ticket-v1.domain-adapter.ts';
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 
 export const getServiceTicketV1UnitOfWork = (
     serviceTicketModel: Models.Case.ServiceTicketModelType,
-    passport: Domain.Passport
-): Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork => {
+    passport: Passport
+): ServiceTicketV1UnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

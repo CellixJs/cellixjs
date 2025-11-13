@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail-additional-amenity.value-objects.ts';
 
@@ -17,7 +17,10 @@ export class PropertyListingDetailAdditionalAmenity
 {
 	private readonly visa: PropertyVisa;
 
-	constructor(props: PropertyListingDetailAdditionalAmenityProps, visa: PropertyVisa) {
+	constructor(
+		props: PropertyListingDetailAdditionalAmenityProps,
+		visa: PropertyVisa,
+	) {
 		super(props);
 		this.visa = visa;
 	}

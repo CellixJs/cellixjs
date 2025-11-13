@@ -47,6 +47,10 @@
 				"useValidTypeof": "error",
 				"useYield": "error"
 			},
+			"performance": {
+				"noBarrelFile": "error",
+				"noReExportAll": "error"
+			},
 			"style": {
 				"noCommonJs": "error",
 				"noNamespace": "error",
@@ -140,7 +144,7 @@
 			}
 		},
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
-        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } }
+		{ "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } }
 	],
 	"assist": {
 		"enabled": true,

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import { expect, vi } from 'vitest';
 import { InProcEventBusInstance } from './in-proc-event-bus.ts';
 

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 
@@ -10,6 +10,8 @@ const test = { for: describeFeature };
 
 import { VendorUserRoleConverter, VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { VendorUserRole } from '@ocom/domain/contexts/community/role/vendor-user-role';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user-role.type-converter.feature')
@@ -73,7 +75,7 @@ function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
   return { ...base, ...overrides } as Models.Community.Community;
 }
 
-function makeMockPassport(): Domain.Passport {
+function makeMockPassport(): Passport {
   return {
     community: {
       forCommunity: vi.fn(() => ({
@@ -95,14 +97,14 @@ function makeMockPassport(): Domain.Passport {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.Role.VendorUserRole;
   let communityDoc: Models.Community.Community;
   let converter: VendorUserRoleConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -135,24 +137,24 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a VendorUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole);
+      expect(result).toBeInstanceOf(VendorUserRole);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
-      expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
     });
     And('the domain object\'s isDefault should be true', () => {
-      expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(true);
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(true);
     });
     And('the domain object\'s community should be a Community domain object', () => {
-      const { community } = result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>;
-      expect(community).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
+      const { community } = result as VendorUserRole<VendorUserRoleDomainAdapter>;
+      expect(community).toBeInstanceOf(Community);
     });
   });
 
   Scenario('Converting a domain object to a Mongoose VendorUserRole document', ({ Given, And, When, Then }) => {
-    let domainObj: Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>;
+    let domainObj: VendorUserRole<VendorUserRoleDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
     let resultDoc: Models.Role.VendorUserRole;
 
     Given('a VendorUserRoleConverter instance', () => {
@@ -160,7 +162,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     And('a VendorUserRole domain object with roleName "New Role", isDefault false, and valid community', () => {
       communityAdapter = new CommunityDomainAdapter(communityDoc);
-      communityDomainObj = new Domain.Contexts.Community.Community.Community(communityAdapter, passport);
+      communityDomainObj = new Community(communityAdapter, passport);
 
       const roleDoc = makeVendorUserRoleDoc({
         roleName: 'New Role',
@@ -169,7 +171,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       });
       const adapter = new VendorUserRoleDomainAdapter(roleDoc);
       adapter.community = communityDomainObj;
-      domainObj = new Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole(adapter, passport);
+      domainObj = new VendorUserRole(adapter, passport);
     });
     When('I call toPersistence with the VendorUserRole domain object', () => {
       resultDoc = converter.toPersistence(domainObj);

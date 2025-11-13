@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { UserVisa } from '../user.visa.ts';
 import {
 	VendorUserContactInformation,
@@ -32,7 +32,7 @@ export class VendorUserPersonalInformation
 	extends DomainSeedwork.ValueObject<VendorUserPersonalInformationProps>
 	implements VendorUserPersonalInformationEntityReference
 {
-    private readonly visa: UserVisa;
+	private readonly visa: UserVisa;
 	constructor(props: VendorUserPersonalInformationProps, visa: UserVisa) {
 		super(props);
 		this.visa = visa;
@@ -43,6 +43,9 @@ export class VendorUserPersonalInformation
 	}
 
 	get contactInformation() {
-		return new VendorUserContactInformation(this.props.contactInformation, this.visa);
+		return new VendorUserContactInformation(
+			this.props.contactInformation,
+			this.visa,
+		);
 	}
 }

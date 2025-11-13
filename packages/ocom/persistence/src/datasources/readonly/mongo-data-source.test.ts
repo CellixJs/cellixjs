@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Model } from 'mongoose';
-import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import { MongoDataSourceImpl, type MongoDataSource } from './mongo-data-source.ts';
 
 // Mock mongoose Model and isValidObjectId

@@ -90,6 +90,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('themeProp', JSON.stringify(valueToSet));
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: setTheme recreated on every render, only run once on mount
   useEffect(() => {
     const extractFromLocal = JSON.parse(localStorage.getItem('themeProp') || '{}');
     if (extractFromLocal && extractFromLocal.type === 'dark') {
@@ -132,8 +133,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       setTheme(theme.defaultSeed, 'light');
       return;
     }
-  }, []);
+  }, [theme.defaultSeed]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: toggleHidden uses setState callback so doesn't need to be in deps
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.metaKey && event.shiftKey && event.key === 'k') {

@@ -2,14 +2,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
+import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
+import type { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityConverter, CommunityDomainAdapter } from './community.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 
 
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const domainAdapterFeature = await loadFeature(
@@ -52,7 +54,7 @@ function makeMockPassport() {
                 determineIf: vi.fn(() => true),
             })),
         },
-    } as unknown as Domain.Passport;
+    } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -238,7 +240,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   let doc: Models.Community.Community;
   let userDoc: Models.User.EndUser;
   let converter: CommunityConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -267,32 +269,32 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a Community domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
+      expect(result).toBeInstanceOf(Community);
     });
     And('the domain object\'s name should be "Test Community"', () => {
-      expect((result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>).name).toBe('Test Community');
+      expect((result as Community<CommunityDomainAdapter>).name).toBe('Test Community');
     });
     And('the domain object\'s domain should be "test.com"', () => {
-      expect((result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>).domain).toBe('test.com');
+      expect((result as Community<CommunityDomainAdapter>).domain).toBe('test.com');
     });
     And('the domain object\'s whiteLabelDomain should be "white.test.com"', () => {
-      expect((result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>).whiteLabelDomain).toBe('white.test.com');
+      expect((result as Community<CommunityDomainAdapter>).whiteLabelDomain).toBe('white.test.com');
     });
     And('the domain object\'s handle should be "test-handle"', () => {
-      expect((result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>).handle).toBe('test-handle');
+      expect((result as Community<CommunityDomainAdapter>).handle).toBe('test-handle');
     });
     And('the domain object\'s createdBy should be an EndUser domain object with the correct user data', () => {
-      const { createdBy } = result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
-      expect(createdBy).toBeInstanceOf(Domain.Contexts.User.EndUser.EndUser);
+      const { createdBy } = result as Community<CommunityDomainAdapter>;
+      expect(createdBy).toBeInstanceOf(EndUser);
       expect(createdBy.id).toBe(userDoc.id);
       expect(createdBy.displayName).toBe(userDoc.displayName);
     });
   });
 
   Scenario('Converting a domain object to a Mongoose Community document', ({ Given, And, When, Then }) => {
-    let domainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
+    let domainObj: Community<CommunityDomainAdapter>;
     let userAdapter: EndUserDomainAdapter;
-    let userDomainObj: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
+    let userDomainObj: EndUser<EndUserDomainAdapter>;
     let userDoc: Models.User.EndUser;
     let resultDoc: Models.Community.Community;
     Given('a CommunityConverter instance', () => {
@@ -301,7 +303,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     And('a Community domain object with name "New Community", domain "new.com", whiteLabelDomain "newwhite.com", handle "new-handle", and a valid createdBy', () => {
       userDoc = makeUserDoc();
       userAdapter = new EndUserDomainAdapter(userDoc);
-      userDomainObj = new Domain.Contexts.User.EndUser.EndUser(userAdapter, passport);
+      userDomainObj = new EndUser(userAdapter, passport);
       const doc = makeCommunityDoc({
         name: 'New Community',
         domain: 'new.com',
@@ -311,7 +313,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       });
       const adapter = new CommunityDomainAdapter(doc);
       adapter.createdBy = userDomainObj;
-      domainObj = new Domain.Contexts.Community.Community.Community(adapter, passport);
+      domainObj = new Community(adapter, passport);
     });
     When('I call toPersistence with the Community domain object', () => {
       resultDoc = converter.toPersistence(domainObj);

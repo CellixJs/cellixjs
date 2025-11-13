@@ -1,6 +1,6 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { Member, MemberProps } from './member.ts';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { CommunityEntityReference } from '../community/community.ts';
+import type { Member, MemberProps } from './member.ts';
 
 export interface MemberRepository<props extends MemberProps>
 	extends DomainSeedwork.Repository<Member<props>> {

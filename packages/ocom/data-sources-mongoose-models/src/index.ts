@@ -1,1 +1,3 @@
-export * as Models from './models/index.ts';
+import * as Models from './models/index.ts';
+
+export { Models };

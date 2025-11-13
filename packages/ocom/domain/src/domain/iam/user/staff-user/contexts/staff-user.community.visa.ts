@@ -1,7 +1,7 @@
+import type { CommunityEntityReference } from '../../../../contexts/community/community/community.ts';
+import type { CommunityDomainPermissions } from '../../../../contexts/community/community.domain-permissions.ts';
 import type { CommunityVisa } from '../../../../contexts/community/community.visa.ts';
 import type { StaffUserEntityReference } from '../../../../contexts/user/staff-user/staff-user.ts';
-import type { CommunityDomainPermissions } from '../../../../contexts/community/community.domain-permissions.ts';
-import type { CommunityEntityReference } from '../../../../contexts/community/community/community.ts';
 
 export class StaffUserCommunityVisa<root extends CommunityEntityReference>
 	implements CommunityVisa

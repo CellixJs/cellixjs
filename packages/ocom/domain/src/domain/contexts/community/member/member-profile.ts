@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './member-profile.value-objects.ts';
 

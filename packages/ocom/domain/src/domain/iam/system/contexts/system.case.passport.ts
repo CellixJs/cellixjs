@@ -9,16 +9,20 @@ export class SystemCasePassport
 	implements CasePassport
 {
 	forServiceTicketV1(_root: ServiceTicketV1EntityReference) {
-        const permissions = this.permissions as CaseDomainPermissions;
+		const permissions = this.permissions as CaseDomainPermissions;
 		return {
-			determineIf: (func: (permissions: Readonly<CaseDomainPermissions>) => boolean) => func(permissions)
+			determineIf: (
+				func: (permissions: Readonly<CaseDomainPermissions>) => boolean,
+			) => func(permissions),
 		};
 	}
 
 	forViolationTicketV1(_root: ViolationTicketV1EntityReference) {
-        const permissions = this.permissions as CaseDomainPermissions;
+		const permissions = this.permissions as CaseDomainPermissions;
 		return {
-			determineIf: (func: (permissions: Readonly<CaseDomainPermissions>) => boolean) => func(permissions)
+			determineIf: (
+				func: (permissions: Readonly<CaseDomainPermissions>) => boolean,
+			) => func(permissions),
 		};
 	}
 }

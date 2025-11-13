@@ -1,28 +1,30 @@
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { ModelsContext } from '../../../../index.ts';
 import { CommunityDataSourceImpl, type CommunityDataSource } from './community.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { CommunityConverter } from '../../../domain/community/community/community.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
 export interface CommunityReadRepository {
-    getAll: (options?: FindOptions) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference[]>;
-    getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference | null>;
-    getByIdWithCreatedBy: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference | null>;
-    getByEndUserExternalId: (endUserId: string) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference[]>;
+    getAll: (options?: FindOptions) => Promise<CommunityEntityReference[]>;
+    getById: (id: string, options?: FindOneOptions) => Promise<CommunityEntityReference | null>;
+    getByIdWithCreatedBy: (id: string, options?: FindOneOptions) => Promise<CommunityEntityReference | null>;
+    getByEndUserExternalId: (endUserId: string) => Promise<CommunityEntityReference[]>;
 }
 
 export class CommunityReadRepositoryImpl implements CommunityReadRepository {
     private readonly mongoDataSource: CommunityDataSource;
     private readonly converter: CommunityConverter;
-    private readonly passport: Domain.Passport;
+    private readonly passport: Passport;
 
     /**
      * Constructs a new CommunityReadRepositoryImpl.
      * @param models - The models context containing the Community model.
      * @param passport - The passport object for domain access.
      */
-    constructor(models: ModelsContext, passport: Domain.Passport) {
+    constructor(models: ModelsContext, passport: Passport) {
         this.mongoDataSource = new CommunityDataSourceImpl(models.Community.Community);
         this.converter = new CommunityConverter();
         this.passport = passport;
@@ -33,7 +35,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to an array of CommunityEntityReference objects.
      */
-    async getAll(options?: FindOptions): Promise<Domain.Contexts.Community.Community.CommunityEntityReference[]> {
+    async getAll(options?: FindOptions): Promise<CommunityEntityReference[]> {
         const result = await this.mongoDataSource.find({}, options);
         return result.map(doc => this.converter.toDomain(doc, this.passport));
     }
@@ -44,7 +46,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to a CommunityEntityReference object or null if not found.
      */
-    async getById(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Community.CommunityEntityReference | null> {
+    async getById(id: string, options?: FindOneOptions): Promise<CommunityEntityReference | null> {
         const result = await this.mongoDataSource.findById(id, options);
         if (!result) { return null; }
         return this.converter.toDomain(result, this.passport);
@@ -56,7 +58,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to a CommunityEntityReference object or null if not found.
      */
-    async getByIdWithCreatedBy(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Community.CommunityEntityReference | null> {
+    async getByIdWithCreatedBy(id: string, options?: FindOneOptions): Promise<CommunityEntityReference | null> {
         const finalOptions: FindOneOptions = {
             ...options,
             populateFields: ['createdBy']
@@ -71,7 +73,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
      * This performs an aggregation starting from the Community collection and joining Members,
      * then filtering by members.accounts.user == endUserId.
      */
-    async getByEndUserExternalId(endUserId: string): Promise<Domain.Contexts.Community.Community.CommunityEntityReference[]> {
+    async getByEndUserExternalId(endUserId: string): Promise<CommunityEntityReference[]> {
         // Starting from communities, join members, then resolve end-user by externalId
         // and keep communities where the member accounts include that end-user ObjectId.
         const pipeline = [
@@ -125,7 +127,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
 
 export const getCommunityReadRepository = (
     models: ModelsContext,
-    passport: Domain.Passport
+    passport: Passport
 ) => {
     return new CommunityReadRepositoryImpl(models, passport);
 };

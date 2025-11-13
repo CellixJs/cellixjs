@@ -1,4 +1,4 @@
-import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import { type FilterQuery, type FlattenMaps, isValidObjectId, type Model, type PipelineStage, type QueryOptions, type Require_id } from 'mongoose';
 
 type LeanBase<T> = Readonly<Require_id<FlattenMaps<T>>>;

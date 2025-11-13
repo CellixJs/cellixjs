@@ -2,11 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getCommunityUnitOfWork } from './community.uow.ts';
 
 
+import { Community } from '@ocom/domain/contexts/community/community';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -35,18 +36,18 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let communityModel: Models.Community.CommunityModelType;
-  let passport: Domain.Passport;
-  let result: Domain.Contexts.Community.Community.CommunityUnitOfWork;
+  let passport: Passport;
+  let result: CommunityUnitOfWork;
 
   BeforeEachScenario(() => {
     communityModel = makeMockCommunityModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Community.Community.CommunityUnitOfWork;
+    result = {} as CommunityUnitOfWork;
   });
 
   Background(({ Given, And }) => {

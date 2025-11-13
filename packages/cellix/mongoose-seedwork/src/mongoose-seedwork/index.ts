@@ -1,9 +1,26 @@
+/**
+ * Mongoose Seedwork - Database persistence utilities for domain-driven design
+ * 
+ * This module provides base classes and utilities for implementing repositories,
+ * unit of work, and domain adapters using Mongoose.
+ */
 
-export { ObjectId } from 'mongodb';
-export { type Base, type NestedPath, NestedPathOptions, type SubdocumentBase } from './base.ts';
-export { type MongooseContextFactory, modelFactory} from './mongo-connection.ts';
-export { MongooseDomainAdapter } from './mongo-domain-adapter.ts';
-export { MongoosePropArray } from './mongoose-prop-array.ts';
-export { MongoRepositoryBase } from './mongo-repository.ts';
-export { MongoTypeConverter } from './mongo-type-converter.ts';
-export { getInitializedUnitOfWork, MongoUnitOfWork } from './mongo-unit-of-work.ts';
+import { ObjectId as MongoObjectId } from 'mongodb';
+import { type Base, type NestedPath, NestedPathOptions, type SubdocumentBase } from './base.ts';
+import { type MongooseContextFactory, modelFactory } from './mongo-connection.ts';
+import { MongooseDomainAdapter } from './mongo-domain-adapter.ts';
+import { MongoosePropArray } from './mongoose-prop-array.ts';
+import { MongoRepositoryBase } from './mongo-repository.ts';
+import { MongoTypeConverter } from './mongo-type-converter.ts';
+import { getInitializedUnitOfWork, MongoUnitOfWork } from './mongo-unit-of-work.ts';
+
+export { MongoObjectId as ObjectId };
+export type { Base, NestedPath, SubdocumentBase };
+export { NestedPathOptions };
+export type { MongooseContextFactory };
+export { modelFactory };
+export { MongooseDomainAdapter };
+export { MongoosePropArray };
+export { MongoRepositoryBase };
+export { MongoTypeConverter };
+export { getInitializedUnitOfWork, MongoUnitOfWork };

@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { UserVisa } from '../user.visa.ts';
 
 interface StaffRoleServicePermissionsSpec {
@@ -23,16 +23,22 @@ export class StaffRoleServicePermissions
 	}
 
 	get canManageServices(): boolean {
-        return this.props.canManageServices;
-    }
+		return this.props.canManageServices;
+	}
 	// get isSystemAccount(): boolean {return false;}
 
 	// using setters from TS 5.1
 
-	set canManageServices(value:boolean) {
-	  if(!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new DomainSeedwork.PermissionError('Cannot set permission');
-	  }
-	  this.props.canManageServices = value;
+	set canManageServices(value: boolean) {
+		if (
+			!this.visa.determineIf(
+				(permissions) =>
+					permissions.canManageStaffRolesAndPermissions ||
+					permissions.isSystemAccount,
+			)
+		) {
+			throw new DomainSeedwork.PermissionError('Cannot set permission');
+		}
+		this.props.canManageServices = value;
 	}
 }

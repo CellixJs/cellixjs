@@ -3,12 +3,16 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { MemberReadRepositoryImpl } from './member.read-repository.ts';
 import { MemberDataSourceImpl } from './member.data.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Member } from '@ocom/domain/contexts/community/member';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
+import type { MemberEntityReference } from '@ocom/domain/contexts/community/member';
 // Mock the data source module
 
 const test = { for: describeFeature };
@@ -54,7 +58,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 function makeMockMemberDocument() {
@@ -73,7 +77,7 @@ function makeMockMemberDocument() {
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let repository: MemberReadRepositoryImpl;
   let mockMemberDoc: Models.Member.Member;
   let mockDataSource: {

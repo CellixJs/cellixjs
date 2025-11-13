@@ -2,13 +2,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { StaffRoleRepository } from './staff-role.repository.ts';
 import { StaffRoleConverter, type StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
+import { StaffRole } from '@ocom/domain/contexts/user/staff-role';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -64,13 +65,13 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: StaffRoleRepository;
   let converter: StaffRoleConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let staffRoleDoc: Models.Role.StaffRole;
   let eventBus: DomainSeedwork.EventBus;
   let session: ClientSession;
@@ -122,12 +123,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a staff role by id', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    let result: StaffRole<StaffRoleDomainAdapter>;
     When('I call getById with "role-1"', async () => {
       result = await repo.getById('role-1');
     });
     Then('I should receive a StaffRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRole);
     });
     And('the domain object\'s roleName should be "Manager"', () => {
       expect(result.roleName).toBe('Manager');
@@ -152,12 +153,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a staff role by roleName', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    let result: StaffRole<StaffRoleDomainAdapter>;
     When('I call getByRoleName with "Manager"', async () => {
       result = await repo.getByRoleName('Manager');
     });
     Then('I should receive a StaffRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRole);
     });
     And('the domain object\'s roleName should be "Manager"', () => {
       expect(result.roleName).toBe('Manager');
@@ -182,12 +183,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new staff role instance', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    let result: StaffRole<StaffRoleDomainAdapter>;
     When('I call getNewInstance with name "Supervisor"', async () => {
       result = await repo.getNewInstance('Supervisor');
     });
     Then('I should receive a new StaffRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRole);
     });
     And('the domain object\'s roleName should be "Supervisor"', () => {
       expect(result.roleName).toBe('Supervisor');

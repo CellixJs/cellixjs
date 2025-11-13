@@ -1,4 +1,4 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type mongoose from 'mongoose';
 import { Types } from 'mongoose';
 import type { Base, SubdocumentBase } from './base.ts';

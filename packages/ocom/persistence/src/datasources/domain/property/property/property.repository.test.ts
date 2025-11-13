@@ -2,14 +2,17 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { PropertyRepository } from './property.repository.ts';
 import { PropertyConverter, type PropertyDomainAdapter } from './property.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
 
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Property } from '@ocom/domain/contexts/property/property';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -45,24 +48,24 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: PropertyRepository;
   let converter: PropertyConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let propertyDoc: Models.Property.Property;
   let communityDoc: Models.Community.Community;
-  let result: Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>;
-  let results: ReadonlyArray<Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>>;
+  let result: Property<PropertyDomainAdapter>;
+  let results: ReadonlyArray<Property<PropertyDomainAdapter>>;
 
   BeforeEachScenario(() => {
     propertyDoc = makePropertyDoc();
     communityDoc = makeCommunityDoc();
     converter = new PropertyConverter();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>;
+    result = {} as Property<PropertyDomainAdapter>;
     results = [];
 
     // Mock the Mongoose model as a constructor function with static methods
@@ -115,7 +118,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a Property domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Property.Property.Property);
+      expect(result).toBeInstanceOf(Property);
     });
     And('the domain object\'s name should be "Test Property"', () => {
       expect(result.propertyName).toBe('Test Property');
@@ -123,7 +126,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a property by id that does not exist', ({ When, Then }) => {
-    let gettingPropertyThatDoesNotExist: () => Promise<Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>>;
+    let gettingPropertyThatDoesNotExist: () => Promise<Property<PropertyDomainAdapter>>;
     When('I call getById with "nonexistent-id"', () => {
       gettingPropertyThatDoesNotExist = async () => await repo.getById('nonexistent-id');
     });
@@ -140,7 +143,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Then('I should receive an array of Property domain objects', () => {
       expect(Array.isArray(results)).toBe(true);
       expect(results.length).toBeGreaterThan(0);
-      expect(results[0]).toBeInstanceOf(Domain.Contexts.Property.Property.Property);
+      expect(results[0]).toBeInstanceOf(Property);
     });
     And('the array should contain at least one property with name "Test Property"', () => {
       const testProperty = results.find(property => property.propertyName === 'Test Property');
@@ -149,15 +152,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new property instance', ({ Given, When, Then, And }) => {
-    let communityDomainObject: Domain.Contexts.Community.Community.CommunityEntityReference;
+    let communityDomainObject: CommunityEntityReference;
     Given('a valid Community domain object as the community', () => {
-            communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
+            communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as CommunityEntityReference;
     });
     When('I call getNewInstance with name "New Property" and the community', async () => {
       result = await repo.getNewInstance('New Property', communityDomainObject);
     });
     Then('I should receive a new Property domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Property.Property.Property);
+      expect(result).toBeInstanceOf(Property);
     });
     And('the domain object\'s name should be "New Property"', () => {
       expect(result.propertyName).toBe('New Property');
@@ -174,7 +177,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       invalidCommunity = undefined;
     });
     When('I call getNewInstance with name "Invalid Property" and the invalid community', () => {
-      getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Property', invalidCommunity as Domain.Contexts.Community.Community.CommunityEntityReference);
+      getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Property', invalidCommunity as CommunityEntityReference);
     });
     Then('an error should be thrown indicating the community is not valid', async () => {
       await expect(getNewInstanceWithInvalidCommunity).rejects.toThrow();
