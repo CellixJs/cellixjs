@@ -179,3 +179,33 @@ We maintain an Excel spreadsheet tracking the Simnova MSDN subscription budget f
 While respecting the $150/month MSDN budget constraint, we aim to align our development environment as closely as possible with production application needs. This allows us to effectively explore and test scenarios in an environment that emulates production requirements, while strategically reducing unnecessary costs where possible. The resource scoping decisions balance these competing priorities to maintain development velocity without compromising architectural integrity.
 
 This constraint is temporary for development/demo environments and should be reassessed when applications move to production subscriptions with higher budgets.
+
+## Resource Naming Conventions
+
+We defer to Microsoft's recommended resource naming conventions as documented in the [Azure Cloud Adoption Framework](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations). Our Bicep templates implement these conventions using standardized prefixes and abbreviations defined in `iac/global/resource-types.json` and `iac/global/resource-naming-convention.bicep`.
+
+The naming convention follows a consistent pattern across resources:
+- **Prefix**: `${applicationPrefix}-${environment}-` (e.g., `ocm-dev-`)
+- **Small Prefix**: `${applicationPrefix}${environment}` (e.g., `ocmdev`)
+- **Abbreviation**: Microsoft's standard abbreviation from `resource-types.json`
+- **Instance Name**: Application-specific identifier
+- **Unique ID**: `uniqueString(resourceGroup().id)` for global uniqueness
+
+| Resource | Naming Convention | Date of Implementation | Who Decided It |
+|----------|-------------------|-------------------------|----------------|
+| Resource Group | `${applicationPrefix}-${environment}-rg` | 2025-10-16 | gidich, nnoce14 |
+| CDN Profile | `${smallPrefix}${abbrev}${instanceName}${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| CDN Endpoint | `${prefix}${abbrev}-${instanceName}-${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| Front Door Endpoint | `${prefix}${abbrev}-${instanceName}-${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| Application Insights | `${prefix}${abbrev}` | 2025-10-16 | gidich, nnoce14 |
+| App Service Plan | `${applicationPrefix}-${environment}-asp-${instanceName}` | 2025-10-16 | gidich, nnoce14 |
+| Function App | `${prefix}${abbrev}-${instanceName}-${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| Cosmos DB Mongo Account | `${smallPrefix}${abbrev}${instanceName}${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| Cosmos DB | `${smallPrefix}${abbrev}${instanceName}${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| Cognitive Search | `${applicationPrefix}${abbrev}cog${location}${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| Storage Account | `${smallPrefix}${abbrev}${instanceName}${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| Managed Identity | `${smallPrefix}${abbrev}${instanceName}${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| Event Hub Namespace | `${smallPrefix}${abbrev}${instanceName}${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+| Event Hub | `${prefix}${abbrev}-${instanceName}-${uniqueId}` | 2025-10-16 | gidich, nnoce14 |
+
+*Note: Abbreviations are sourced from Microsoft's official resource abbreviation list. The "ogn" convention for Front Door Origin Groups is a custom addition for clarity in our templates.*
