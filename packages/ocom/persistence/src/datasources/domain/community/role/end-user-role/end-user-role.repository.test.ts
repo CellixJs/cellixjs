@@ -151,10 +151,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive an EndUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.EndUserRole.EndUserRole);
+      expect(result).toBeInstanceOf(EndUserRole);
     });
     And('the domain object\'s roleName should be "Test Role"', () => {
-      expect((result as Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
+      expect((result as EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
     });
   });
 
@@ -171,31 +171,31 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new end user role instance', ({ Given, When, Then, And }) => {
-    let communityDomainObj: Domain.Contexts.Community.Community.CommunityEntityReference;
+    let communityDomainObj: CommunityEntityReference;
 
     Given('a valid Community domain object as the community', () => {
-      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
+      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "New Role", isDefault false, and the community', async () => {
       result = await repository.getNewInstance('New Role', false, communityDomainObj);
     });
     Then('I should receive a new EndUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.EndUserRole.EndUserRole);
+      expect(result).toBeInstanceOf(EndUserRole);
     });
     And('the domain object\'s roleName should be "New Role"', () => {
-      expect((result as Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('New Role');
+      expect((result as EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('New Role');
     });
     And('the domain object\'s isDefault should be false', () => {
-      expect((result as Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(false);
+      expect((result as EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(false);
     });
   });
 
   Scenario('Creating a new end user role instance with an invalid community', ({ Given, When, Then }) => {
     let getNewInstanceError: () => Promise<void>;
-    let invalidCommunity: Domain.Contexts.Community.Community.CommunityEntityReference;
+    let invalidCommunity: CommunityEntityReference;
 
     Given('an invalid community object', () => {
-      invalidCommunity = { id: '' } as Domain.Contexts.Community.Community.CommunityEntityReference;
+      invalidCommunity = { id: '' } as CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "Invalid Role", isDefault true, and the invalid community', () => {
       getNewInstanceError = async () => {

@@ -151,10 +151,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a VendorUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole);
+      expect(result).toBeInstanceOf(VendorUserRole);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
-      expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
     });
   });
 
@@ -171,22 +171,22 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new vendor user role instance', ({ Given, When, Then, And }) => {
-    let communityDomainObj: Domain.Contexts.Community.Community.CommunityEntityReference;
+    let communityDomainObj: CommunityEntityReference;
 
     Given('a valid Community domain object as the community', () => {
-      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
+      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "New Vendor Role", isDefault false, and the community', async () => {
       result = await repository.getNewInstance('New Vendor Role', false, communityDomainObj);
     });
     Then('I should receive a new VendorUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole);
+      expect(result).toBeInstanceOf(VendorUserRole);
     });
     And('the domain object\'s roleName should be "New Vendor Role"', () => {
-      expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('New Vendor Role');
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('New Vendor Role');
     });
     And('the domain object\'s isDefault should be false', () => {
-      expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(false);
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(false);
     });
   });
 });

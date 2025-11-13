@@ -41,12 +41,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let memberModel: Models.Member.MemberModelType;
   let passport: Passport;
-  let result: Domain.Contexts.Community.Member.MemberUnitOfWork;
+  let result: MemberUnitOfWork;
 
   BeforeEachScenario(() => {
     memberModel = makeMockMemberModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Community.Member.MemberUnitOfWork;
+    result = {} as MemberUnitOfWork;
   });
 
   Background(({ Given, And }) => {

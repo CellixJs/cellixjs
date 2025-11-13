@@ -110,7 +110,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getById('123');
     });
     Then('it should return a Service domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Service.Service.Service);
+      expect(result).toBeInstanceOf(Service);
     });
     And('the model\'s findById method should have been called with "123"', () => {
       expect(mockModel.findById).toHaveBeenCalledWith('123');
@@ -118,7 +118,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a service by ID when the service does not exist', ({ Given, When, Then }) => {
-    let gettingServiceThatDoesNotExist: () => Promise<Domain.Contexts.Service.Service.Service<Domain.Contexts.Service.Service.ServiceProps>>;
+    let gettingServiceThatDoesNotExist: () => Promise<Service<ServiceProps>>;
     Given('no service document exists in the database with ID "999"', () => {
       // Mock is set up in BeforeEachScenario
     });
@@ -132,15 +132,15 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a new service instance', ({ Given, When, Then }) => {
-    let communityRef: Domain.Contexts.Community.Community.CommunityEntityReference;
+    let communityRef: CommunityEntityReference;
     Given('a valid community reference', () => {
-      communityRef = { id: '507f1f77bcf86cd799439012' } as Domain.Contexts.Community.Community.CommunityEntityReference;
+      communityRef = { id: '507f1f77bcf86cd799439012' } as CommunityEntityReference;
     });
     When('I call getNewInstance with service name "New Service", description "New description", and community reference', async () => {
       result = await repository.getNewInstance('New Service', 'New description', communityRef);
     });
     Then('it should return a new Service domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Service.Service.Service);
+      expect(result).toBeInstanceOf(Service);
     });
   });
 });

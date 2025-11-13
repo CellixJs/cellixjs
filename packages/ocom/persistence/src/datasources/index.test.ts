@@ -125,7 +125,7 @@ function makeMockDataSources() {
         Role: { EndUserRole: {}, VendorUserRole: {} },
       },
   User: { EndUser: {}, StaffRole: {}, StaffUser: {}, VendorUser: {} },
-    } as unknown as DomainDataSource,
+    } as unknown as PassportDataSource,
     readonlyDataSource: {
       Community: {
         Community: {
@@ -181,7 +181,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     vi.mocked(ReadonlyDataSourceImplementation).mockReturnValue(mockDataSources.readonlyDataSource);
 
     // Mock the system passport
-    vi.mocked(Domain.PassportFactory.forSystem).mockReturnValue(passport);
+    vi.mocked(PassportFactory.forSystem).mockReturnValue(passport);
 
     factory = DataSourcesFactoryImpl(models);
   });

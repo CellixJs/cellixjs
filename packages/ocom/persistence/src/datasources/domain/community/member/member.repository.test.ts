@@ -54,15 +54,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let passport: Passport;
   let memberDoc: Models.Member.Member;
   let communityDoc: Models.Community.Community;
-  let result: Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
-  let results: Domain.Contexts.Community.Member.Member<MemberDomainAdapter>[];
+  let result: Member<MemberDomainAdapter>;
+  let results: Member<MemberDomainAdapter>[];
 
   BeforeEachScenario(() => {
     memberDoc = makeMemberDoc();
     communityDoc = makeCommunityDoc();
     converter = new MemberConverter();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
+    result = {} as Member<MemberDomainAdapter>;
     results = [];
 
     // Mock the Mongoose model as a constructor function with static methods
@@ -115,7 +115,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a Member domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Member.Member);
+      expect(result).toBeInstanceOf(Member);
     });
     And('the domain object\'s name should be "Test Member"', () => {
       expect(result.memberName).toBe('Test Member');
@@ -123,7 +123,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a member by id that does not exist', ({ When, Then }) => {
-    let gettingMemberThatDoesNotExist: () => Promise<Domain.Contexts.Community.Member.Member<MemberDomainAdapter>>;
+    let gettingMemberThatDoesNotExist: () => Promise<Member<MemberDomainAdapter>>;
     When('I call getById with "nonexistent-id"', () => {
       gettingMemberThatDoesNotExist = async () => await repo.getById('nonexistent-id');
     });
@@ -140,7 +140,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Then('I should receive an array of Member domain objects', () => {
       expect(Array.isArray(results)).toBe(true);
       expect(results.length).toBeGreaterThan(0);
-      expect(results[0]).toBeInstanceOf(Domain.Contexts.Community.Member.Member);
+      expect(results[0]).toBeInstanceOf(Member);
     });
     And('the array should contain at least one member with name "Test Member"', () => {
       const testMember = results.find(member => member.memberName === 'Test Member');
@@ -169,7 +169,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     Then('I should receive an array of Member domain objects', () => {
       expect(Array.isArray(results)).toBe(true);
-      expect(results[0]).toBeInstanceOf(Domain.Contexts.Community.Member.Member);
+      expect(results[0]).toBeInstanceOf(Member);
     });
     And('all members should have the specified role', () => {
       // Note: This would require more complex mocking to verify the role assignment
@@ -179,15 +179,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new member instance', ({ Given, When, Then, And }) => {
-    let communityDomainObject: Domain.Contexts.Community.Community.CommunityEntityReference;
+    let communityDomainObject: CommunityEntityReference;
     Given('a valid Community domain object as the community', () => {
-            communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
+            communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as CommunityEntityReference;
     });
     When('I call getNewInstance with name "New Member" and the community', async () => {
       result = await repo.getNewInstance('New Member', communityDomainObject);
     });
     Then('I should receive a new Member domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Member.Member);
+      expect(result).toBeInstanceOf(Member);
     });
     And('the domain object\'s name should be "New Member"', () => {
       expect(result.memberName).toBe('New Member');
@@ -204,7 +204,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       invalidCommunity = {};
     });
     When('I call getNewInstance with name "Invalid Member" and the invalid community', () => {
-      getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Member', invalidCommunity as Domain.Contexts.Community.Community.CommunityEntityReference);
+      getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Member', invalidCommunity as CommunityEntityReference);
     });
     Then('an error should be thrown indicating the community is not valid', async () => {
       await expect(getNewInstanceWithInvalidCommunity).rejects.toThrow();

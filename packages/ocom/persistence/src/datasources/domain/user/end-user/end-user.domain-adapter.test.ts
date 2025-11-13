@@ -450,30 +450,30 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive an EndUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.EndUser.EndUser);
+      expect(result).toBeInstanceOf(EndUser);
     });
     And('the domain object\'s userType should be "end-user"', () => {
-      expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).userType).toBe('end-user');
+      expect((result as EndUser<EndUserDomainAdapter>).userType).toBe('end-user');
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174001"', () => {
-      expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
+      expect((result as EndUser<EndUserDomainAdapter>).externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
     });
     And('the domain object\'s email should be "user@example.com"', () => {
-      expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).email).toBe('user@example.com');
+      expect((result as EndUser<EndUserDomainAdapter>).email).toBe('user@example.com');
     });
     And('the domain object\'s displayName should be "Test User"', () => {
-      expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).displayName).toBe('Test User');
+      expect((result as EndUser<EndUserDomainAdapter>).displayName).toBe('Test User');
     });
     And('the domain object\'s accessBlocked should be false', () => {
-      expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).accessBlocked).toBe(false);
+      expect((result as EndUser<EndUserDomainAdapter>).accessBlocked).toBe(false);
     });
     And('the domain object\'s tags should be ["tag1", "tag2"]', () => {
-      expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).tags).toEqual(['tag1', 'tag2']);
+      expect((result as EndUser<EndUserDomainAdapter>).tags).toEqual(['tag1', 'tag2']);
     });
   });
 
   Scenario('Converting a domain object to a Mongoose EndUser document', ({ Given, And, When, Then }) => {
-    let domainObj: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
+    let domainObj: EndUser<EndUserDomainAdapter>;
     let resultDoc: Models.User.EndUser;
     Given('an EndUserConverter instance', () => {
       converter = new EndUserConverter();
@@ -487,7 +487,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         accessBlocked: true,
         tags: ['admin'],
       }));
-      domainObj = new Domain.Contexts.User.EndUser.EndUser(adapter, passport);
+      domainObj = new EndUser(adapter, passport);
     });
     When('I call toPersistence with the EndUser domain object', () => {
       resultDoc = converter.toPersistence(domainObj);

@@ -510,13 +510,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: StaffRoleConverter;
   let doc: Models.Role.StaffRole;
-  let domainObject: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
-  let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter> | Models.Role.StaffRole | undefined;
+  let domainObject: StaffRole<StaffRoleDomainAdapter>;
+  let result: StaffRole<StaffRoleDomainAdapter> | Models.Role.StaffRole | undefined;
 
   BeforeEachScenario(() => {
     converter = new StaffRoleConverter();
     doc = makeStaffRoleDoc();
-    domainObject = {} as Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    domainObject = {} as StaffRole<StaffRoleDomainAdapter>;
     result = undefined;
   });
 
@@ -534,11 +534,11 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       converter = new StaffRoleConverter();
     });
     When('I call toDomain with the Mongoose StaffRole document', () => {
-      result = converter.toDomain(doc, makeMockPassport()) as Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+      result = converter.toDomain(doc, makeMockPassport()) as StaffRole<StaffRoleDomainAdapter>;
     });
     Then('I should receive a StaffRole domain object', () => {
       expect(result).toBeDefined();
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRole);
     });
     And('the domain object\'s roleName should be "Manager"', () => {
       expect(result?.roleName).toBe('Manager');
@@ -562,7 +562,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         isDefault: true,
         roleType: 'admin',
       }));
-      domainObject = new Domain.Contexts.User.StaffRole.StaffRole(mockAdapter, makeMockPassport());
+      domainObject = new StaffRole(mockAdapter, makeMockPassport());
     });
     When('I call toPersistence with the StaffRole domain object', () => {
       result = converter.toPersistence(domainObject) as Models.Role.StaffRole;

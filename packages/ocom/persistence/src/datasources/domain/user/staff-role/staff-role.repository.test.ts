@@ -122,12 +122,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a staff role by id', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    let result: StaffRole<StaffRoleDomainAdapter>;
     When('I call getById with "role-1"', async () => {
       result = await repo.getById('role-1');
     });
     Then('I should receive a StaffRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRole);
     });
     And('the domain object\'s roleName should be "Manager"', () => {
       expect(result.roleName).toBe('Manager');
@@ -152,12 +152,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a staff role by roleName', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    let result: StaffRole<StaffRoleDomainAdapter>;
     When('I call getByRoleName with "Manager"', async () => {
       result = await repo.getByRoleName('Manager');
     });
     Then('I should receive a StaffRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRole);
     });
     And('the domain object\'s roleName should be "Manager"', () => {
       expect(result.roleName).toBe('Manager');
@@ -182,12 +182,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new staff role instance', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    let result: StaffRole<StaffRoleDomainAdapter>;
     When('I call getNewInstance with name "Supervisor"', async () => {
       result = await repo.getNewInstance('Supervisor');
     });
     Then('I should receive a new StaffRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRole);
     });
     And('the domain object\'s roleName should be "Supervisor"', () => {
       expect(result.roleName).toBe('Supervisor');

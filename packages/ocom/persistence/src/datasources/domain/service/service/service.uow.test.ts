@@ -40,12 +40,12 @@ function makeMockPassport() {
 test.for(uowFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let serviceModel: Models.Service.ServiceModelType;
   let passport: Passport;
-  let result: Domain.Contexts.Service.Service.ServiceUnitOfWork;
+  let result: ServiceUnitOfWork;
 
   BeforeEachScenario(() => {
     serviceModel = makeMockServiceModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Service.Service.ServiceUnitOfWork;
+    result = {} as ServiceUnitOfWork;
   });
 
   Background(({ Given, And }) => {

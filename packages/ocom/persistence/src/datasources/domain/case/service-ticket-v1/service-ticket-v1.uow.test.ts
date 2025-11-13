@@ -40,12 +40,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let serviceTicketModel: Models.Case.ServiceTicketModelType;
   let passport: Passport;
-  let result: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
+  let result: ServiceTicketV1UnitOfWork;
 
   BeforeEachScenario(() => {
     serviceTicketModel = makeMockServiceTicketModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
+    result = {} as ServiceTicketV1UnitOfWork;
   });
 
   Background(({ Given, And }) => {

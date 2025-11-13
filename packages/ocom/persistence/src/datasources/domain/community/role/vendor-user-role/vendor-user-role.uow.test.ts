@@ -41,7 +41,7 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let vendorUserRoleModel: Models.Role.VendorUserRoleModelType;
   let passport: Passport;
-  let result: Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork;
+  let result: VendorUserRoleUnitOfWork;
 
   BeforeEachScenario(() => {
     vendorUserRoleModel = makeMockVendorUserRoleModel();
