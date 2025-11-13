@@ -1,6 +1,5 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Passport } from '@ocom/domain';
 import type { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
 
 type StaffUserDocument = Models.User.StaffUser;

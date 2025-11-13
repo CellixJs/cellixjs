@@ -1,6 +1,5 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Passport } from '@ocom/domain';
 
 export class EndUserRepository<
 		PropType extends Domain.Contexts.User.EndUser.EndUserProps,

@@ -1,6 +1,5 @@
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Passport } from '@ocom/domain';
 import type { VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
 
 type VendorUserDocument = Models.User.VendorUser;

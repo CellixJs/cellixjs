@@ -234,7 +234,6 @@ test.for(feature, ({ Scenario, ScenarioOutline }) => {
 			let value: string;
 			When('I create an account status code with "<statusCode>"', () => {
 				value = new ValueObjects.AccountStatusCode(
-				// biome-ignore lint/complexity/useLiteralKeys: Variable comes from Cucumber test table
 				// @ts-expect-error - Cucumber test table variables use index signature
 					variables.statusCode,
 				).valueOf();

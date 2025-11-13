@@ -55,6 +55,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
     ]);  
   }; 
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: updateLink recreated on every render, auth is the actual dependency
   useEffect(() => {
     client.setLink(updateLink());
   }, [auth]);

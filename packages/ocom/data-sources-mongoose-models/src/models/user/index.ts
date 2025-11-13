@@ -7,4 +7,10 @@ export { UserModelFactory, EndUserModelFactory, StaffUserModelFactory, VendorUse
 export type { User, UserModelType } from './user.model.ts';
 export type { EndUser, EndUserModelType } from './end-user.model.ts';
 export type { StaffUser, StaffUserModelType } from './staff-user.model.ts';
-export type { VendorUser, VendorUserModelType } from './vendor-user.model.ts';
+export type {
+	VendorUser,
+	VendorUserModelType,
+	VendorUserContactInformation,
+	VendorUserIdentityDetails,
+	VendorUserPersonalInformation,
+} from './vendor-user.model.ts';

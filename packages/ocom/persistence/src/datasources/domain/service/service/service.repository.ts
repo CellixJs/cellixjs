@@ -1,4 +1,3 @@
-import type { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
