@@ -12,6 +12,7 @@ import { MemberConverter } from '../../../domain/community/member/member.domain-
 import { Community } from '@ocom/domain/contexts/community/community';
 import { Member } from '@ocom/domain/contexts/community/member';
 import { EndUser } from '@ocom/domain/contexts/user/end-user';
+import type { MemberEntityReference } from '@ocom/domain/contexts/community/member';
 // Mock the data source module
 
 const test = { for: describeFeature };

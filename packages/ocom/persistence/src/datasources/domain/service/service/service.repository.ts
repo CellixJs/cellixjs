@@ -3,6 +3,7 @@ import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
 
 import { Service } from '@ocom/domain/contexts/service/service';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
 type ServiceModelType = Models.Service.Service;
 type PropType = ServiceDomainAdapter;
 

@@ -5,6 +5,8 @@ import { CommunityDomainAdapter } from '../../community/community.domain-adapter
 
 import { Community } from '@ocom/domain/contexts/community/community';
 import { VendorUserRole, VendorUserRolePermissions } from '@ocom/domain/contexts/community/role/vendor-user-role';
+import type { CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community/community';
+import type { VendorUserRolePermissionsProps, VendorUserRoleProps } from '@ocom/domain/contexts/community/role/vendor-user-role';
 export class VendorUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.VendorUserRole,
 	VendorUserRoleDomainAdapter,

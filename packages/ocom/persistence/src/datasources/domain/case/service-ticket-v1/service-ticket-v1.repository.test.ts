@@ -15,6 +15,7 @@ import type { MemberEntityReference } from '@ocom/domain/contexts/community/memb
 import { ServiceTicketV1 } from '@ocom/domain/contexts/case/service-ticket/v1';
 import { Community } from '@ocom/domain/contexts/community/community';
 import { Member } from '@ocom/domain/contexts/community/member';
+import { ValueObjects as ServiceTicketV1ValueObjects } from '@ocom/domain/contexts/case/service-ticket/v1';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -179,8 +180,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     When('I call getNewInstance with title "New Ticket", description "New Description", community, and requestor', async () => {
       result = await repo.getNewInstance(
-        new Title('New Ticket'),
-        new Description('New Description'),
+        new ServiceTicketV1ValueObjects.Title('New Ticket'),
+        new ServiceTicketV1ValueObjects.Description('New Description'),
         communityDomainObject,
         requestorDomainObject
       );

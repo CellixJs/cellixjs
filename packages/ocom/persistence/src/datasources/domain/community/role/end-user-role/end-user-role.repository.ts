@@ -4,6 +4,8 @@ import type { Passport } from '@ocom/domain';
 import type { EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 
 import { EndUserRole } from '@ocom/domain/contexts/community/role/end-user-role';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import type { EndUserRoleProps } from '@ocom/domain/contexts/community/role/end-user-role';
 type EndUserRoleModelType = Models.Role.EndUserRole; // ReturnType<typeof Models.EndUserRole.EndUserRoleModelFactory> & Models.EndUserRole.EndUserRole & { baseModelName: string };
 type PropType = EndUserRoleDomainAdapter;
 

@@ -9,15 +9,12 @@ import {
   ServiceTicketV1Converter,
   ServiceTicketV1DomainAdapter,
   ServiceTicketV1ActivityDetailDomainAdapter,
-  ServiceTicketV1MessageDomainAdapter
 } from './service-ticket-v1.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 
-import type { ServiceTicketV1ActivityDetailProps, ServiceTicketV1MessageProps } from '@ocom/domain/contexts/case/service-ticket/v1';
 import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
 import type { MemberEntityReference, MemberProps } from '@ocom/domain/contexts/community/member';
-import { ServiceTicketV1, ServiceTicketV1ActivityDetail, ServiceTicketV1Message } from '@ocom/domain/contexts/case/service-ticket/v1';
 import { Community } from '@ocom/domain/contexts/community/community';
 import { Member } from '@ocom/domain/contexts/community/member';
 const test = { for: describeFeature };
@@ -370,7 +367,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     When('I get the messages property', () => {
       // Test will check the value
     });
-    Then('it should return a MongoosePropArray of ServiceTicketV1Message', () => {
       expect(adapter.messages).toBeDefined();
       expect(adapter.messages).toBeInstanceOf(MongooseSeedwork.MongoosePropArray);
     });
@@ -504,11 +500,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting message properties', ({ Given, When, Then, And }) => {
-    let message: ServiceTicketV1MessageProps;
 
-    Given('a ServiceTicketV1MessageDomainAdapter for a document', () => {
       const messageDoc = makeMessageDoc();
-      const adapter = new ServiceTicketV1MessageDomainAdapter(messageDoc);
       message = adapter;
     });
 
@@ -533,13 +526,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   Scenario('Setting message properties', ({ Given, When, Then }) => {
     let messageDoc: Models.Case.ServiceTicketMessage;
 
-    Given('a ServiceTicketV1MessageDomainAdapter for a document', () => {
       messageDoc = makeMessageDoc();
-      new ServiceTicketV1MessageDomainAdapter(messageDoc);
     });
 
     When('I set the message to "Updated message"', () => {
-      const adapter = new ServiceTicketV1MessageDomainAdapter(messageDoc);
       adapter.message = 'Updated message';
     });
 
@@ -603,14 +593,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     let messageDoc: Models.Case.ServiceTicketMessage;
     let result: MemberEntityReference;
 
-    Given('a ServiceTicketV1MessageDomainAdapter for a document with populated initiatedBy', () => {
       const memberDoc = makeMemberDoc();
       messageDoc = makeMessageDoc({ initiatedBy: memberDoc });
-      new ServiceTicketV1MessageDomainAdapter(messageDoc);
     });
 
     When('I load the initiatedBy', async () => {
-      const adapter = new ServiceTicketV1MessageDomainAdapter(messageDoc);
       result = await adapter.loadInitiatedBy();
     });
 
@@ -625,7 +612,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     let messageDoc: Models.Case.ServiceTicketMessage;
     let result: MemberEntityReference;
 
-    Given('a ServiceTicketV1MessageDomainAdapter for a document with initiatedBy as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
       messageDoc = makeMessageDoc({ initiatedBy: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
       vi.mocked(messageDoc.populate).mockImplementation((path) => {
@@ -634,11 +620,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         }
         return Promise.resolve(messageDoc);
       });
-      new ServiceTicketV1MessageDomainAdapter(messageDoc);
     });
 
     When('I load the initiatedBy', async () => {
-      const adapter = new ServiceTicketV1MessageDomainAdapter(messageDoc);
       result = await adapter.loadInitiatedBy();
     });
 

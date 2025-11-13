@@ -11,6 +11,7 @@ import { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
 import type { StaffRoleEntityReference } from '@ocom/domain/contexts/user/staff-role';
 import { StaffRole } from '@ocom/domain/contexts/user/staff-role';
 import { StaffUser } from '@ocom/domain/contexts/user/staff-user';
+import type { StaffRoleProps } from '@ocom/domain/contexts/user/staff-role';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

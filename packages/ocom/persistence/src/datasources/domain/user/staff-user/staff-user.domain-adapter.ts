@@ -5,6 +5,8 @@ import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.
 
 import { StaffRole } from '@ocom/domain/contexts/user/staff-role';
 import { StaffUser } from '@ocom/domain/contexts/user/staff-user';
+import type { StaffRoleEntityReference, StaffRoleProps } from '@ocom/domain/contexts/user/staff-role';
+import type { StaffUserProps } from '@ocom/domain/contexts/user/staff-user';
 export class StaffUserDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.User.StaffUser>
 	implements StaffUserProps

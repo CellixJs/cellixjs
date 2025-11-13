@@ -9,6 +9,7 @@ import { CommunityReadRepositoryImpl } from './community.read-repository.ts';
 import { CommunityDataSourceImpl } from './community.data.ts';
 
 import { Community } from '@ocom/domain/contexts/community/community';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
 // Mock the data source module
 
 const test = { for: describeFeature };

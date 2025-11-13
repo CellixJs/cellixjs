@@ -3,6 +3,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { Passport } from '@ocom/domain';
 
 import { StaffRole } from '@ocom/domain/contexts/user/staff-role';
+import type { StaffRoleProps } from '@ocom/domain/contexts/user/staff-role';
 export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.StaffRole,
 	StaffRoleDomainAdapter,

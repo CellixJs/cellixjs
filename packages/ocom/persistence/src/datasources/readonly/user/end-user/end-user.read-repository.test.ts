@@ -10,6 +10,7 @@ import { EndUserDataSourceImpl } from './end-user.data.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
 
 import { EndUser } from '@ocom/domain/contexts/user/end-user';
+import type { EndUserEntityReference } from '@ocom/domain/contexts/user/end-user';
 // Mock the data source module
 
 const test = { for: describeFeature };

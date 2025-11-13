@@ -4,6 +4,8 @@ import { CommunityDomainAdapter } from '../../community/community/community.doma
 
 import { Community } from '@ocom/domain/contexts/community/community';
 import { Service } from '@ocom/domain/contexts/service/service';
+import type { CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community/community';
+import type { ServiceProps } from '@ocom/domain/contexts/service/service';
 export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Service.Service,
 	ServiceDomainAdapter,

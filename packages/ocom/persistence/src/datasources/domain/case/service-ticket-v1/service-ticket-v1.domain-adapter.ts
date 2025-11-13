@@ -8,6 +8,9 @@ import { MemberDomainAdapter } from '../../community/member/member.domain-adapte
 import { ServiceTicketV1 } from '@ocom/domain/contexts/case/service-ticket/v1';
 import { Community } from '@ocom/domain/contexts/community/community';
 import { Member } from '@ocom/domain/contexts/community/member';
+import type { ServiceTicketV1ActivityDetailProps, ServiceTicketV1MessageProps, ServiceTicketV1Props } from '@ocom/domain/contexts/case/service-ticket/v1';
+import type { CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community/community';
+import type { MemberEntityReference, MemberProps } from '@ocom/domain/contexts/community/member';
 export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Case.ServiceTicket,
 	ServiceTicketV1DomainAdapter,

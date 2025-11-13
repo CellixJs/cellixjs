@@ -3,6 +3,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { PropertyDomainAdapter } from './property.domain-adapter.ts';
 
 import { Property } from '@ocom/domain/contexts/property/property';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
 type PropertyModelType = Models.Property.Property;
 type PropType = PropertyDomainAdapter;
 

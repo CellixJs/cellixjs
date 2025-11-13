@@ -2,6 +2,7 @@ import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 
 import { EndUser } from '@ocom/domain/contexts/user/end-user';
+import type { EndUserProps } from '@ocom/domain/contexts/user/end-user';
 export class EndUserRepository<
 		PropType extends EndUserProps,
 	>

@@ -11,6 +11,10 @@ import { Community } from '@ocom/domain/contexts/community/community';
 import { Member, MemberAccount, MemberCustomView, MemberProfile } from '@ocom/domain/contexts/community/member';
 import { EndUserRole } from '@ocom/domain/contexts/community/role/end-user-role';
 import { EndUser } from '@ocom/domain/contexts/user/end-user';
+import type { CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community/community';
+import type { MemberAccountProps, MemberCustomViewProps, MemberProfileProps, MemberProps } from '@ocom/domain/contexts/community/member';
+import type { EndUserRoleEntityReference, EndUserRoleProps } from '@ocom/domain/contexts/community/role/end-user-role';
+import type { EndUserEntityReference, EndUserProps } from '@ocom/domain/contexts/user/end-user';
 export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Member.Member,
 	MemberDomainAdapter,

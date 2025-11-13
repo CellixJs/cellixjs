@@ -7,6 +7,9 @@ import { MemberDomainAdapter } from '../../community/member/member.domain-adapte
 import { Community } from '@ocom/domain/contexts/community/community';
 import { Member } from '@ocom/domain/contexts/community/member';
 import { Property } from '@ocom/domain/contexts/property/property';
+import type { CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community/community';
+import type { MemberEntityReference, MemberProps } from '@ocom/domain/contexts/community/member';
+import type { PropertyLocationProps, PropertyProps } from '@ocom/domain/contexts/property/property';
 export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Property.Property,
 	PropertyDomainAdapter,

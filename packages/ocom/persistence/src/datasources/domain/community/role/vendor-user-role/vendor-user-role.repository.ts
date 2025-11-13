@@ -3,6 +3,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 
 import { VendorUserRole } from '@ocom/domain/contexts/community/role/vendor-user-role';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
 type VendorUserRoleModelType = Models.Role.VendorUserRole;
 type PropType = VendorUserRoleDomainAdapter;
 

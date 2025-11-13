@@ -4,6 +4,11 @@ import type { Passport } from '@ocom/domain';
 import type { ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
 
 import { ServiceTicketV1 } from '@ocom/domain/contexts/case/service-ticket/v1';
+import type { ServiceTicketV1Props } from '@ocom/domain/contexts/case/service-ticket/v1';
+import { ValueObjects as ServiceTicketV1ValueObjects } from '@ocom/domain/contexts/case/service-ticket/v1';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import type { MemberEntityReference } from '@ocom/domain/contexts/community/member';
+import type { PropertyEntityReference } from '@ocom/domain/contexts/property/property';
 type ServiceTicketModelType = Models.Case.ServiceTicket; // ReturnType<typeof models.Case.ServiceTicketModelFactory> & models.Case.ServiceTicket & { baseModelName: string };
 type PropType = ServiceTicketV1DomainAdapter;
 
@@ -19,8 +24,8 @@ export class ServiceTicketV1Repository //<
 	implements ServiceTicketV1Repository<PropType>
 {
 	getNewInstance(
-		title: Title,
-		description: Description,
+		title: ServiceTicketV1ValueObjects.Title,
+		description: ServiceTicketV1ValueObjects.Description,
 		community: CommunityEntityReference,
 		requestor: MemberEntityReference,
 		property?: PropertyEntityReference,

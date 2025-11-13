@@ -5,6 +5,8 @@ import { CommunityDomainAdapter } from '../../community/community.domain-adapter
 
 import { Community } from '@ocom/domain/contexts/community/community';
 import { EndUserRole, EndUserRolePermissions } from '@ocom/domain/contexts/community/role/end-user-role';
+import type { CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community/community';
+import type { EndUserRolePermissionsProps, EndUserRoleProps } from '@ocom/domain/contexts/community/role/end-user-role';
 export class EndUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.EndUserRole,
 	EndUserRoleDomainAdapter,

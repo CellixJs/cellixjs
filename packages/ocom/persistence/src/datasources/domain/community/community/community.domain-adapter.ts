@@ -5,6 +5,8 @@ import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapte
 
 import { Community } from '@ocom/domain/contexts/community/community';
 import { EndUser } from '@ocom/domain/contexts/user/end-user';
+import type { CommunityProps } from '@ocom/domain/contexts/community/community';
+import type { EndUserEntityReference, EndUserProps } from '@ocom/domain/contexts/user/end-user';
 export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Community.Community,
 	CommunityDomainAdapter,

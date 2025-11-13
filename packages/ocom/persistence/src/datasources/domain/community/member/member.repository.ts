@@ -4,6 +4,8 @@ import type { Passport } from '@ocom/domain';
 import type { MemberDomainAdapter } from './member.domain-adapter.ts';
 
 import { Member } from '@ocom/domain/contexts/community/member';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import type { MemberProps } from '@ocom/domain/contexts/community/member';
 type MemberModelType = Models.Member.Member; // ReturnType<typeof Models.Member.MemberModelFactory> & Models.Member.Member & { baseModelName: string };
 type PropType = MemberDomainAdapter;
 

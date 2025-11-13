@@ -4,6 +4,8 @@ import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { CommunityDomainAdapter } from './community.domain-adapter.ts';
 
 import { Community } from '@ocom/domain/contexts/community/community';
+import type { CommunityProps } from '@ocom/domain/contexts/community/community';
+import type { EndUserEntityReference } from '@ocom/domain/contexts/user/end-user';
 type CommunityModelType = Models.Community.Community; // ReturnType<typeof Models.Community.CommunityModelFactory> & Models.Community.Community & { baseModelName: string };
 type PropType = CommunityDomainAdapter;
 
