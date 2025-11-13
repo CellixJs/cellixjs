@@ -33,7 +33,7 @@ stages:
 - stage: ${{parameters.stageName}}
   displayName: ${{parameters.stageName}} stage
   dependsOn: Build
-  condition: and(succeeded())
+  condition: succeeded()
   jobs:
   - template: ../../apps/api/deploy-api.yml
     parameters:
