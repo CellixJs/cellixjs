@@ -123,6 +123,11 @@ Most Azure resources follow this pattern to ensure proper isolation, security, a
 - [Azure Resource Naming Conventions](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming)
 - [Bicep Template Best Practices](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/best-practices)
 
+
+## Front Door Origin Group Naming Convention
+
+There is no official recommendation from Microsoft for Origin Group naming convention. We are using `ogn` in our Bicep templates and parameter names to refer to Front Door "Origin Groups". In this repository `ogn` specifically means "origin group name" (for example: `ocm-dev-ogn-ui-community`). Using `ogn` consistently keeps origin-group identifiers concise and makes cross-references between Bicep modules and deployment parameters easier to follow.
+
 ### Function App High Availability Standard
 For production enterprise applications, we recommend 2 Function App instances per environment for high availability and load distribution. The sample applications (CellixJS and ShareThrift) currently use 1 instance to stay within the $150/month MSDN budget constraints.
 
