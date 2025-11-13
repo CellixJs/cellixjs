@@ -6,6 +6,8 @@ import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { VendorUserRole } from '@ocom/domain/contexts/community/role/vendor-user-role';
 const test = { for: describeFeature };
 import {
     VendorUserRoleConverter,

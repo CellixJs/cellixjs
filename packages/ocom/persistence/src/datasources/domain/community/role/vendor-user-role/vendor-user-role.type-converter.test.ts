@@ -10,6 +10,8 @@ const test = { for: describeFeature };
 
 import { VendorUserRoleConverter, VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { VendorUserRole } from '@ocom/domain/contexts/community/role/vendor-user-role';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user-role.type-converter.feature')

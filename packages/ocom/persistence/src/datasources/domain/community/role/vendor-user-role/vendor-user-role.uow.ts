@@ -9,7 +9,7 @@ import { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
 export const getVendorUserRoleUnitOfWork = (
     vendorUserRoleModel: Models.Role.VendorUserRoleModelType,
     passport: Passport
-): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork => {
+): VendorUserRoleUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

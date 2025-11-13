@@ -6,10 +6,11 @@ import type { Passport } from '@ocom/domain';
 import { CommunityConverter } from './community.domain-adapter.ts';
 import { CommunityRepository } from './community.repository.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
 export const getCommunityUnitOfWork = (
     endUserModel: Models.Community.CommunityModelType,
     passport: Passport
-): Domain.Contexts.Community.Community.CommunityUnitOfWork => {
+): CommunityUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

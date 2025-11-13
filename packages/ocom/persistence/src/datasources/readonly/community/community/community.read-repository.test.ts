@@ -8,6 +8,7 @@ import type { ModelsContext } from '../../../../index.ts';
 import { CommunityReadRepositoryImpl } from './community.read-repository.ts';
 import { CommunityDataSourceImpl } from './community.data.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
 // Mock the data source module
 
 const test = { for: describeFeature };

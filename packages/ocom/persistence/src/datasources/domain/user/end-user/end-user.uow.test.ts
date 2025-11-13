@@ -7,6 +7,7 @@ import { expect, vi } from 'vitest';
 import { getEndUserUnitOfWork } from './end-user.uow.ts';
 
 
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

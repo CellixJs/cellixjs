@@ -10,6 +10,9 @@ import { EndUserRoleConverter, type EndUserRoleDomainAdapter } from './end-user-
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
 
 
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import { Community } from '@ocom/domain/contexts/community/community';
+import { EndUserRole } from '@ocom/domain/contexts/community/role/end-user-role';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

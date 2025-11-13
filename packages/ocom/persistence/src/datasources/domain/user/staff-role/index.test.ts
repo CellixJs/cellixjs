@@ -7,6 +7,7 @@ import type { Passport } from '@ocom/domain';
 import { StaffRolePersistence } from './index.ts';
 
 
+import { StaffRole } from '@ocom/domain/contexts/user/staff-role';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

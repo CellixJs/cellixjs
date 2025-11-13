@@ -10,6 +10,10 @@ import { ServiceConverter } from './service.domain-adapter.ts';
 import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import type { ServiceProps } from '@ocom/domain/contexts/service/service';
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Service } from '@ocom/domain/contexts/service/service';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repositoryFeature = await loadFeature(

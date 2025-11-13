@@ -2,6 +2,7 @@ import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { getVendorUserUnitOfWork } from './vendor-user.uow.ts';
 
+import { VendorUser } from '@ocom/domain/contexts/user/vendor-user';
 export const VendorUserPersistence = (models: ModelsContext, passport: Passport) => {
 	const vendorUserModel = models.User?.VendorUser;
 	if (!vendorUserModel) {

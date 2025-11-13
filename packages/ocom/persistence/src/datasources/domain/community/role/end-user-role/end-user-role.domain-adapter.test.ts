@@ -7,6 +7,8 @@ import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { EndUserRole } from '@ocom/domain/contexts/community/role/end-user-role';
 const test = { for: describeFeature };
 import {
     EndUserRoleCommunityPermissionsDomainAdapter,

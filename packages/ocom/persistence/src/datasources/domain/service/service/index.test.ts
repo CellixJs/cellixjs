@@ -6,6 +6,7 @@ import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { ServicePersistence } from './index.ts';
 
+import { Service } from '@ocom/domain/contexts/service/service';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const indexFeature = await loadFeature(

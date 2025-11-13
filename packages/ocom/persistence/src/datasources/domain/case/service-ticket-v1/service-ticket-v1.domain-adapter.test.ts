@@ -14,6 +14,12 @@ import {
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 
+import type { ServiceTicketV1ActivityDetailProps, ServiceTicketV1MessageProps } from '@ocom/domain/contexts/case/service-ticket/v1';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import type { MemberEntityReference, MemberProps } from '@ocom/domain/contexts/community/member';
+import { ServiceTicketV1, ServiceTicketV1ActivityDetail, ServiceTicketV1Message } from '@ocom/domain/contexts/case/service-ticket/v1';
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Member } from '@ocom/domain/contexts/community/member';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

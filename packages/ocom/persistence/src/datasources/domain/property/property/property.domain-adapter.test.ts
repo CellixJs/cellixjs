@@ -13,6 +13,11 @@ import { CommunityDomainAdapter } from '../../community/community/community.doma
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 
 
+import type { MemberEntityReference } from '@ocom/domain/contexts/community/member';
+import type { PropertyLocationProps } from '@ocom/domain/contexts/property/property';
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Member } from '@ocom/domain/contexts/community/member';
+import { Property } from '@ocom/domain/contexts/property/property';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const domainAdapterFeature = await loadFeature(

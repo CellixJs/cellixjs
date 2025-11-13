@@ -3,6 +3,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { Passport } from '@ocom/domain';
 import type { StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
 
+import { StaffRole } from '@ocom/domain/contexts/user/staff-role';
 type StaffRoleModelType = Models.Role.StaffRole;
 type AdapterType = StaffRoleDomainAdapter;
 
@@ -10,14 +11,14 @@ export class StaffRoleRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
 		StaffRoleModelType,
 		AdapterType,
-		Domain.Passport,
-		Domain.Contexts.User.StaffRole.StaffRole<AdapterType>
+		Passport,
+		StaffRole<AdapterType>
 	>
-	implements Domain.Contexts.User.StaffRole.StaffRoleRepository<AdapterType>
+	implements StaffRoleRepository<AdapterType>
 {
 	async getById(
 		id: string,
-	): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
+	): Promise<StaffRole<AdapterType>> {
 		const staffRole = await this.model.findById(id).exec();
 		if (!staffRole) {
 			throw new Error(`StaffRole with id ${id} not found`);
@@ -27,7 +28,7 @@ export class StaffRoleRepository
 
 	async getByRoleName(
 		roleName: string,
-	): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
+	): Promise<StaffRole<AdapterType>> {
 		const staffRole = await this.model.findOne({ roleName }).exec();
 		if (!staffRole) {
 			throw new Error(`StaffRole with roleName ${roleName} not found`);
@@ -37,10 +38,10 @@ export class StaffRoleRepository
 
 	getNewInstance(
 		name: string,
-	): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
+	): Promise<StaffRole<AdapterType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.User.StaffRole.StaffRole.getNewInstance(
+			getNewInstance(
 				adapter,
 				this.passport,
 				name,

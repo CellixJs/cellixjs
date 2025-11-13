@@ -9,7 +9,7 @@ import { EndUserRoleRepository } from './end-user-role.repository.ts';
 export const getEndUserRoleUnitOfWork = (
     endUserRoleModel: Models.Role.EndUserRoleModelType,
     passport: Passport
-): Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork => {
+): EndUserRoleUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

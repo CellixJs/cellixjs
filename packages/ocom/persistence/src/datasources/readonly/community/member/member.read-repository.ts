@@ -8,6 +8,8 @@ import { type MemberDataSource, MemberDataSourceImpl } from './member.data.ts';
 
 
 
+import { Member } from '@ocom/domain/contexts/community/member';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 export interface MemberReadRepository {
     getByCommunityId: (communityId: string, options?: FindOptions) => Promise<MemberEntityReference[]>;
     getById: (id: string, options?: FindOneOptions) => Promise<MemberEntityReference | null>;

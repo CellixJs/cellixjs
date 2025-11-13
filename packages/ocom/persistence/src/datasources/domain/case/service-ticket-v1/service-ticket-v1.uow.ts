@@ -9,7 +9,7 @@ import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 export const getServiceTicketV1UnitOfWork = (
     serviceTicketModel: Models.Case.ServiceTicketModelType,
     passport: Passport
-): Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork => {
+): ServiceTicketV1UnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

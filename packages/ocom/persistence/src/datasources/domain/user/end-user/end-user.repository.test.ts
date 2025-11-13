@@ -10,6 +10,7 @@ import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
 
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

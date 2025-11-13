@@ -2,6 +2,7 @@ import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { getCommunityUnitOfWork } from './community.uow.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
 export const CommunityPersistence = (models: ModelsContext, passport: Passport) => {
 	const CommunityModel = models.Community.Community;
 	return {

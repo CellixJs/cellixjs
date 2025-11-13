@@ -7,6 +7,16 @@ import { expect, vi } from 'vitest';
 import { DomainDataSourceImplementation } from './index.ts';
 
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Member } from '@ocom/domain/contexts/community/member';
+import { EndUserRole } from '@ocom/domain/contexts/community/role/end-user-role';
+import { VendorUserRole } from '@ocom/domain/contexts/community/role/vendor-user-role';
+import { Property } from '@ocom/domain/contexts/property/property';
+import { Service } from '@ocom/domain/contexts/service/service';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
+import { StaffRole } from '@ocom/domain/contexts/user/staff-role';
+import { StaffUser } from '@ocom/domain/contexts/user/staff-user';
+import { VendorUser } from '@ocom/domain/contexts/user/vendor-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

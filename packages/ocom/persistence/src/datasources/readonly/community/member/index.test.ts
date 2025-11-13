@@ -7,6 +7,10 @@ import { MemberReadRepositoryImpl } from './index.ts';
 import { MemberDataSourceImpl, type MemberDataSource } from './member.data.ts';
 
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Member } from '@ocom/domain/contexts/community/member';
+import { EndUserRole } from '@ocom/domain/contexts/community/role/end-user-role';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

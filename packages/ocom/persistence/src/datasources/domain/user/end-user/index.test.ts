@@ -7,6 +7,7 @@ import type { Passport } from '@ocom/domain';
 import { EndUserPersistence } from './index.ts';
 
 
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

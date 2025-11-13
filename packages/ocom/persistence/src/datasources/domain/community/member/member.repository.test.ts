@@ -10,6 +10,9 @@ import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
 
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Member } from '@ocom/domain/contexts/community/member';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

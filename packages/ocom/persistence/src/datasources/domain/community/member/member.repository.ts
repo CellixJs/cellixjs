@@ -3,23 +3,24 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { Passport } from '@ocom/domain';
 import type { MemberDomainAdapter } from './member.domain-adapter.ts';
 
+import { Member } from '@ocom/domain/contexts/community/member';
 type MemberModelType = Models.Member.Member; // ReturnType<typeof Models.Member.MemberModelFactory> & Models.Member.Member & { baseModelName: string };
 type PropType = MemberDomainAdapter;
 
 export class MemberRepository //<
-	//PropType extends Domain.Contexts.Member.Member.MemberProps
+	//PropType extends MemberProps
 	//>
 	extends MongooseSeedwork.MongoRepositoryBase<
 		MemberModelType,
 		PropType,
-		Domain.Passport,
-		Domain.Contexts.Community.Member.Member<PropType>
+		Passport,
+		Member<PropType>
 	>
-	implements Domain.Contexts.Community.Member.MemberRepository<PropType>
+	implements MemberRepository<PropType>
 {
 	async getById(
 		id: string,
-	): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
+	): Promise<Member<PropType>> {
 		const mongoMember = await this.model
 			.findById(id)
 			.populate(['community'])
@@ -30,12 +31,12 @@ export class MemberRepository //<
 		return this.typeConverter.toDomain(mongoMember, this.passport);
 	}
 
-    async getAll(): Promise<Domain.Contexts.Community.Member.Member<PropType>[]> {
+    async getAll(): Promise<Member<PropType>[]> {
         const mongoMembers = await this.model.find().populate(['community']).exec();
         return mongoMembers.map(member => this.typeConverter.toDomain(member, this.passport));
     }
 
-    async getAssignedToRole(roleId: string): Promise<Domain.Contexts.Community.Member.Member<MemberDomainAdapter>[]> {
+    async getAssignedToRole(roleId: string): Promise<Member<MemberDomainAdapter>[]> {
         const mongoMembers = await this.model.find({ role: new MongooseSeedwork.ObjectId(roleId) }).populate(['community', 'role']).exec();
         return mongoMembers.map(member => this.typeConverter.toDomain(member, this.passport));
     }
@@ -43,11 +44,11 @@ export class MemberRepository //<
 	// biome-ignore lint:noRequireAwait
 	async getNewInstance(
 		name: string,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference
-	): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
+		community: CommunityEntityReference
+	): Promise<Member<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.Community.Member.Member.getNewInstance(
+			getNewInstance(
 				adapter,
                 this.passport,
 				name,

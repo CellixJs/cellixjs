@@ -6,10 +6,11 @@ import type { Passport } from '@ocom/domain';
 import { PropertyConverter } from './property.domain-adapter.ts';
 import { PropertyRepository } from './property.repository.ts';
 
+import { Property } from '@ocom/domain/contexts/property/property';
 export const getPropertyUnitOfWork = (
 	propertyModel: Models.Property.PropertyModelType,
 	passport: Passport
-): Domain.Contexts.Property.Property.PropertyUnitOfWork => {
+): PropertyUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

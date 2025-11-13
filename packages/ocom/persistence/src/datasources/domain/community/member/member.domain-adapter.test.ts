@@ -17,6 +17,10 @@ import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.do
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Member, MemberAccount, MemberCustomView, MemberProfile } from '@ocom/domain/contexts/community/member';
+import { EndUserRole } from '@ocom/domain/contexts/community/role/end-user-role';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const domainAdapterFeature = await loadFeature(

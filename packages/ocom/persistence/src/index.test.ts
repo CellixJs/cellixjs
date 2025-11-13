@@ -22,6 +22,8 @@ import { Persistence, type ModelsContext } from './index.ts';
 import { DataSourcesFactoryImpl } from './datasources/index.ts';
 
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

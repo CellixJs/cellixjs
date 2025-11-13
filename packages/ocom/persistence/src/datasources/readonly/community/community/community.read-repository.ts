@@ -6,6 +6,7 @@ import { CommunityDataSourceImpl, type CommunityDataSource } from './community.d
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { CommunityConverter } from '../../../domain/community/community/community.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
 export interface CommunityReadRepository {
     getAll: (options?: FindOptions) => Promise<CommunityEntityReference[]>;
     getById: (id: string, options?: FindOneOptions) => Promise<CommunityEntityReference | null>;

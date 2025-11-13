@@ -10,6 +10,8 @@ import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapte
 
 
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const domainAdapterFeature = await loadFeature(

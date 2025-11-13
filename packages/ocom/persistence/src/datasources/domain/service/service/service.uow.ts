@@ -6,10 +6,11 @@ import type { Passport } from '@ocom/domain';
 import { ServiceConverter } from './service.domain-adapter.ts';
 import { ServiceRepository } from './service.repository.ts';
 
+import { Service } from '@ocom/domain/contexts/service/service';
 export const getServiceUnitOfWork = (
     serviceModel: Models.Service.ServiceModelType,
     passport: Passport
-): Domain.Contexts.Service.Service.ServiceUnitOfWork => {
+): ServiceUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

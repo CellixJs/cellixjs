@@ -5,6 +5,7 @@ import { expect, vi } from 'vitest';
 import type { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 
+import { VendorUser } from '@ocom/domain/contexts/user/vendor-user';
 const test = { for: describeFeature };
 import {
   VendorUserConverter,

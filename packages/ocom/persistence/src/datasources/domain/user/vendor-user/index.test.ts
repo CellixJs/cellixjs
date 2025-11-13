@@ -6,6 +6,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { Passport } from '@ocom/domain';
 import { VendorUserPersistence } from './index.ts';
 
+import { VendorUser } from '@ocom/domain/contexts/user/vendor-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

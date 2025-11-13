@@ -5,6 +5,7 @@ import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.t
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
 
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 export interface EndUserReadRepository {
     getAll: (options?: FindOptions) => Promise<EndUserEntityReference[]>;
     getById: (id: string, options?: FindOneOptions) => Promise<EndUserEntityReference | null>;

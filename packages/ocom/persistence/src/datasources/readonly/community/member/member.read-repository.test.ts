@@ -9,6 +9,9 @@ import { MemberReadRepositoryImpl } from './member.read-repository.ts';
 import { MemberDataSourceImpl } from './member.data.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Member } from '@ocom/domain/contexts/community/member';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 // Mock the data source module
 
 const test = { for: describeFeature };

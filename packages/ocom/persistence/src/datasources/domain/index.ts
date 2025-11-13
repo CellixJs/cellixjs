@@ -6,6 +6,9 @@ import { PropertyContextPersistence } from './property/index.ts';
 import { ServiceContextPersistence } from './service/index.ts';
 import { UserContextPersistence } from './user/index.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Property } from '@ocom/domain/contexts/property/property';
+import { Service } from '@ocom/domain/contexts/service/service';
 export const DomainDataSourceImplementation = (models: ModelsContext, passport: Passport): DomainDataSource => ({
     Case: CaseContextPersistence(models, passport),
     Community: CommunityContextPersistence(models, passport),

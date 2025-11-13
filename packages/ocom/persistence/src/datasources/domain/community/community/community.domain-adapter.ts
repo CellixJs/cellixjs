@@ -3,23 +3,25 @@ import type { Passport } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { EndUser } from '@ocom/domain/contexts/user/end-user';
 export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Community.Community,
 	CommunityDomainAdapter,
-	Domain.Passport,
-	Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>
+	Passport,
+	Community<CommunityDomainAdapter>
 > {
 	constructor() {
 		super(
 			CommunityDomainAdapter,
-			Domain.Contexts.Community.Community.Community
+			Community
 		);
 	}
 }
 
 export class CommunityDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.Community.Community>
-	implements Domain.Contexts.Community.Community.CommunityProps
+	implements CommunityProps
 {
 	get name() {
 		return this.doc.name;
@@ -49,7 +51,7 @@ export class CommunityDomainAdapter
 		this.doc.handle = handle;
 	}
 
-	get createdBy(): Domain.Contexts.User.EndUser.EndUserProps {
+	get createdBy(): EndUserProps {
 		if (!this.doc.createdBy) {
 			throw new Error('createdBy is not populated');
 		}
@@ -61,7 +63,7 @@ export class CommunityDomainAdapter
 		return new EndUserDomainAdapter(this.doc.createdBy as Models.User.EndUser);
 	}
 
-    async loadCreatedBy(): Promise<Domain.Contexts.User.EndUser.EndUserProps> {
+    async loadCreatedBy(): Promise<EndUserProps> {
 		if (!this.doc.createdBy) {
 			throw new Error('createdBy is not populated');
 		}
@@ -71,9 +73,9 @@ export class CommunityDomainAdapter
 		return new EndUserDomainAdapter(this.doc.createdBy as Models.User.EndUser);
 	}
 
-	set createdBy(user: Domain.Contexts.User.EndUser.EndUserEntityReference | Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>) {
+	set createdBy(user: EndUserEntityReference | EndUser<EndUserDomainAdapter>) {
 		//check to see if user is derived from MongooseDomainAdapter
-		if (user instanceof Domain.Contexts.User.EndUser.EndUser) {
+		if (user instanceof EndUser) {
             this.doc.set('createdBy', user.props.doc);
             return;
 		}

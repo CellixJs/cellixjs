@@ -6,6 +6,7 @@ import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getStaffUserUnitOfWork } from './staff-user.uow.ts';
 
+import { StaffUser } from '@ocom/domain/contexts/user/staff-user';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

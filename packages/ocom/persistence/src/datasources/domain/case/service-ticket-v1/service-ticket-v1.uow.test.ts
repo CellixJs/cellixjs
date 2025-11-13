@@ -6,6 +6,7 @@ import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getServiceTicketV1UnitOfWork } from './service-ticket-v1.uow.ts';
 
+import { ServiceTicketV1 } from '@ocom/domain/contexts/case/service-ticket/v1';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

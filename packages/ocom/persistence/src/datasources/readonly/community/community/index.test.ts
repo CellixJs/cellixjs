@@ -8,6 +8,7 @@ import type { ModelsContext } from '../../../../index.ts';
 import { CommunityReadRepositoryImpl } from './index.ts';
 
 
+import { Community } from '@ocom/domain/contexts/community/community';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

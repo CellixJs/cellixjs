@@ -10,6 +10,9 @@ import { VendorUserRoleConverter, type VendorUserRoleDomainAdapter } from './ven
 import { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
 
 
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community/community';
+import { Community } from '@ocom/domain/contexts/community/community';
+import { VendorUserRole } from '@ocom/domain/contexts/community/role/vendor-user-role';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

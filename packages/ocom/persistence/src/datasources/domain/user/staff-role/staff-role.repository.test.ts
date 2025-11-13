@@ -9,6 +9,7 @@ import { StaffRoleConverter, type StaffRoleDomainAdapter } from './staff-role.do
 import type * as DomainSeedwork from '@cellix/domain-seedwork/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
+import { StaffRole } from '@ocom/domain/contexts/user/staff-role';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

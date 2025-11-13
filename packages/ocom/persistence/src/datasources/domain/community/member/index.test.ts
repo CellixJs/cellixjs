@@ -7,6 +7,7 @@ import type { Passport } from '@ocom/domain';
 import { MemberPersistence } from './index.ts';
 
 
+import { Member } from '@ocom/domain/contexts/community/member';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

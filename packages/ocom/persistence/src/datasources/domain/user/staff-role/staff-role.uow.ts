@@ -9,7 +9,7 @@ import { StaffRoleRepository } from './staff-role.repository.ts';
 export const getStaffRoleUnitOfWork = (
 	staffRoleModel: Models.Role.StaffRoleModelType,
 	passport: Passport,
-): Domain.Contexts.User.StaffRole.StaffRoleUnitOfWork => {
+): StaffRoleUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

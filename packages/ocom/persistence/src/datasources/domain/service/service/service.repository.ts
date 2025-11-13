@@ -2,6 +2,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import * as MongooseSeedwork from '@cellix/mongoose-seedwork';
 import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
 
+import { Service } from '@ocom/domain/contexts/service/service';
 type ServiceModelType = Models.Service.Service;
 type PropType = ServiceDomainAdapter;
 
@@ -9,12 +10,12 @@ export class ServiceRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
 		ServiceModelType,
 		PropType,
-		Domain.Passport,
-		Domain.Contexts.Service.Service.Service<PropType>
+		Passport,
+		Service<PropType>
 	>
-	implements Domain.Contexts.Service.Service.ServiceRepository<PropType>
+	implements ServiceRepository<PropType>
 {
-	async getById(id: string): Promise<Domain.Contexts.Service.Service.Service<PropType>> {
+	async getById(id: string): Promise<Service<PropType>> {
 		const mongoService = await this.model.findById(id).exec();
 		if (!mongoService) {
 			throw new Error(`Service with id ${id} not found`);
@@ -25,11 +26,11 @@ export class ServiceRepository
 	getNewInstance(
 		serviceName: string,
 		description: string,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference,
-	): Promise<Domain.Contexts.Service.Service.Service<PropType>> {
+		community: CommunityEntityReference,
+	): Promise<Service<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.Service.Service.Service.getNewInstance(
+			getNewInstance(
 				adapter,
 				serviceName,
 				description,

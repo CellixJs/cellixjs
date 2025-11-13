@@ -11,6 +11,8 @@ import {
 } from './service.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 
+import { Community } from '@ocom/domain/contexts/community/community';
+import { Service } from '@ocom/domain/contexts/service/service';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const domainAdapterFeature = await loadFeature(

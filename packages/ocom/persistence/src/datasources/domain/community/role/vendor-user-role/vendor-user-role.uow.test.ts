@@ -7,6 +7,7 @@ import { expect, vi } from 'vitest';
 import { getVendorUserRoleUnitOfWork } from './vendor-user-role.uow.ts';
 
 
+import { VendorUserRole } from '@ocom/domain/contexts/community/role/vendor-user-role';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(

@@ -7,6 +7,7 @@ import type { Passport } from '@ocom/domain';
 import { PropertyPersistence } from './index.ts';
 
 
+import { Property } from '@ocom/domain/contexts/property/property';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
