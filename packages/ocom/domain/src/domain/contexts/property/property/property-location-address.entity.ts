@@ -1,7 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
-export interface PropertyLocationAddressProps
-	extends DomainSeedwork.ValueObjectProps {
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+export interface PropertyLocationAddressProps extends ValueObjectProps {
 	streetNumber: string;
 	streetName: string;
 	municipality: string;
@@ -26,7 +25,7 @@ export interface PropertyLocationAddressEntityReference
 	extends Readonly<PropertyLocationAddressProps> {}
 
 export class PropertyLocationAddress
-	extends DomainSeedwork.ValueObject<PropertyLocationAddressProps>
+	extends ValueObject<PropertyLocationAddressProps>
 	implements PropertyLocationAddressEntityReference
 {
 	get streetNumber(): string {

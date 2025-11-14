@@ -1,7 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 export interface ViolationTicketV1UpdatedProps {
 	id: string;
 }
 
-export class ViolationTicketV1UpdatedEvent extends DomainSeedwork.CustomDomainEventImpl<ViolationTicketV1UpdatedProps> {}
+export class ViolationTicketV1UpdatedEvent extends CustomDomainEventImpl<ViolationTicketV1UpdatedProps> {}

@@ -1,6 +1,6 @@
 
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
@@ -85,7 +85,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     this.doc.set('community', community);
   }
 
-  get accounts(): DomainSeedwork.PropArray<Domain.Contexts.Community.Member.MemberAccountEntityReference> {
+  get accounts(): PropArray<Domain.Contexts.Community.Member.MemberAccountEntityReference> {
     return new MongooseSeedwork.MongoosePropArray(this.doc.accounts, MemberAccountDomainAdapter);
   }
 
@@ -125,7 +125,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     return new MemberProfileDomainAdapter(this.doc.profile);
   }
 
-  get customViews(): DomainSeedwork.PropArray<Domain.Contexts.Community.Member.MemberCustomViewEntityReference> {
+  get customViews(): PropArray<Domain.Contexts.Community.Member.MemberCustomViewEntityReference> {
     return new MongooseSeedwork.MongoosePropArray(this.doc.customViews, MemberCustomViewDomainAdapter);
   }
 }

@@ -1,11 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
+import type { InitializedUnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi, type Mock} from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ClientSession, Model } from 'mongoose';
 import mongoose from 'mongoose';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Base } from './index.ts';
 import { MongoUnitOfWork, getInitializedUnitOfWork } from './mongo-unit-of-work.ts';
 import { MongoRepositoryBase } from './mongo-repository.ts';
@@ -22,14 +27,14 @@ const feature = await loadFeature(
 
   const Passport = {};
 
-class AggregateRootMock extends DomainSeedwork.AggregateRoot<PropType, typeof Passport> {
+class AggregateRootMock extends AggregateRoot<PropType, typeof Passport> {
   override getIntegrationEvents = vi.fn(() => []);
   get foo(): string { return this.props.foo; }
   set foo(foo: string) { this.props.foo = foo; }
   get createdAt(): Date { return this.props.createdAt; }
 }
 interface MongoType extends Base { foo: string; }
-type PropType = DomainSeedwork.DomainEntityProps & {
+type PropType = DomainEntityProps & {
   foo: string;
   readonly createdAt: Date;
   readonly updatedAt: Date;
@@ -39,7 +44,7 @@ class RepoMock extends MongoRepositoryBase<MongoType, PropType, typeof Passport,
   override getIntegrationEvents = vi.fn(() => []);
 }
 
-class TestEvent extends DomainSeedwork.CustomDomainEventImpl<{ foo: string }> {}
+class TestEvent extends CustomDomainEventImpl<{ foo: string }> {}
 
 vi.mock('mongoose', async () => {
   const original = await vi.importActual<typeof import('mongoose')>('mongoose');
@@ -54,11 +59,11 @@ vi.mock('mongoose', async () => {
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let unitOfWork: MongoUnitOfWork<MongoType, PropType, typeof Passport, AggregateRootMock, RepoMock>;
   let repoInstance: RepoMock;
-  let eventBus: DomainSeedwork.EventBus;
-  let integrationEventBus: DomainSeedwork.EventBus;
+  let eventBus: EventBus;
+  let integrationEventBus: EventBus;
   let session: ClientSession;
   let mockModel: Model<MongoType>;
-  let typeConverter: DomainSeedwork.TypeConverter<MongoType, PropType, unknown, AggregateRootMock>;
+  let typeConverter: TypeConverter<MongoType, PropType, unknown, AggregateRootMock>;
 
   const mockRepoClass = vi.fn((_passport, _model, _typeConverter, _bus, _session): RepoMock => repoInstance);
   let domainOperation: ReturnType<typeof vi.fn>;
@@ -88,15 +93,15 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
           vi.mocked({} as typeof Passport)
         )
       ),
-    }) as DomainSeedwork.TypeConverter<MongoType, PropType, unknown, AggregateRootMock>;
+    }) as TypeConverter<MongoType, PropType, unknown, AggregateRootMock>;
     eventBus = vi.mocked({
       dispatch: vi.fn(),
       register: vi.fn(),
-    }) as DomainSeedwork.EventBus;
+    }) as EventBus;
     integrationEventBus = vi.mocked({
       dispatch: vi.fn(),
       register: vi.fn(),
-    }) as DomainSeedwork.EventBus;
+    }) as EventBus;
     repoInstance = new RepoMock(
       vi.mocked({}),
       mockModel,
@@ -247,7 +252,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('getInitializedUnitOfWork creates initialized unit of work', ({ Given, When, Then }) => {
-    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
 
     Given('a MongoUnitOfWork instance', () => {
       // Setup is done in BeforeEachScenario
@@ -266,7 +271,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('InitializedUnitOfWork withTransaction method', ({ Given, When, Then }) => {
-    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
     let transactionCallback: Mock;
 
     Given('an initialized unit of work', () => {
@@ -284,7 +289,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('InitializedUnitOfWork withScopedTransaction method', ({ Given, When, Then }) => {
-    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
     let transactionCallback: Mock;
 
     Given('an initialized unit of work', () => {
@@ -302,7 +307,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('InitializedUnitOfWork withScopedTransactionById with existing item', ({ Given, When, Then }) => {
-    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
     let result: AggregateRootMock;
     let transactionCallback: Mock;
 
@@ -323,7 +328,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('InitializedUnitOfWork withScopedTransactionById with non-existing item', ({ Given, When, Then }) => {
-    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
 
     Given('an initialized unit of work', () => {
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
@@ -343,7 +348,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('InitializedUnitOfWork withScopedTransactionById callback throws error', ({ Given, When, Then }) => {
-    let initializedUow: DomainSeedwork.InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
+    let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
     let callbackError: Error;
 
     Given('an initialized unit of work and an existing item', () => {

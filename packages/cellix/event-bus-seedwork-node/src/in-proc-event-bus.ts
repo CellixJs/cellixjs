@@ -1,12 +1,12 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
-
-class InProcEventBusImpl implements DomainSeedwork.EventBus {
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import type { CustomDomainEvent, DomainEvent } from '@cellix/domain-seedwork/domain-event';
+class InProcEventBusImpl implements EventBus {
 	private eventSubscribers: {
 		[eventType: string]: Array<(rawpayload: string) => Promise<void>>;
 	} = {};
 	private static instance: InProcEventBusImpl;
 
-	async dispatch<T extends DomainSeedwork.DomainEvent>(
+	async dispatch<T extends DomainEvent>(
 		event: new (aggregateId: string) => T,
 		data: unknown,
 	): Promise<void> {
@@ -23,7 +23,7 @@ class InProcEventBusImpl implements DomainSeedwork.EventBus {
 		}
 	}
 
-	register<EventProps, T extends DomainSeedwork.CustomDomainEvent<EventProps>>(
+	register<EventProps, T extends CustomDomainEvent<EventProps>>(
 		event: new (aggregateId: string) => T,
 		func: (payload: T['payload']) => Promise<void>,
 	): void {

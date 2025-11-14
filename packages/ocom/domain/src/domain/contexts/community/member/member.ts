@@ -1,42 +1,45 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import type { Passport } from '../../passport.ts';
+import {
+	Community,
+	type CommunityEntityReference,
+} from '../community/community.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import {
-    Community,
-    type CommunityEntityReference,
-} from '../community/community.ts';
-import {
-    EndUserRole,
-    type EndUserRoleEntityReference,
+	EndUserRole,
+	type EndUserRoleEntityReference,
 } from '../role/end-user-role/end-user-role.ts';
+import * as ValueObjects from './member.value-objects.ts';
 import {
-    MemberAccount,
-    type MemberAccountEntityReference,
-    type MemberAccountProps,
+	MemberAccount,
+	type MemberAccountEntityReference,
+	type MemberAccountProps,
 } from './member-account.ts';
 import {
-    MemberCustomView,
-    type MemberCustomViewEntityReference,
-    type MemberCustomViewProps,
+	MemberCustomView,
+	type MemberCustomViewEntityReference,
+	type MemberCustomViewProps,
 } from './member-custom-view.ts';
 import {
-    MemberProfile,
-    type MemberProfileEntityReference,
-    type MemberProfileProps,
+	MemberProfile,
+	type MemberProfileEntityReference,
+	type MemberProfileProps,
 } from './member-profile.ts';
-import * as ValueObjects from './member.value-objects.ts';
 
-export interface MemberProps extends DomainSeedwork.DomainEntityProps {
+export interface MemberProps extends DomainEntityProps {
 	memberName: string;
 	cybersourceCustomerId: string;
-    communityId: string;
+	communityId: string;
 	community: Readonly<CommunityEntityReference>;
-    loadCommunity: () => Promise<CommunityEntityReference>;
-	readonly accounts: DomainSeedwork.PropArray<MemberAccountProps>;
+	loadCommunity: () => Promise<CommunityEntityReference>;
+	readonly accounts: PropArray<MemberAccountProps>;
 	role: Readonly<EndUserRoleEntityReference>;
-    loadRole: () => Promise<EndUserRoleEntityReference>;
+	loadRole: () => Promise<EndUserRoleEntityReference>;
 
-	customViews: DomainSeedwork.PropArray<MemberCustomViewProps>;
+	customViews: PropArray<MemberCustomViewProps>;
 	readonly profile: MemberProfileProps;
 
 	readonly createdAt: Date;
@@ -59,7 +62,7 @@ export interface MemberEntityReference
 }
 
 export class Member<props extends MemberProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements MemberEntityReference
 {
 	//#region Fields
@@ -68,10 +71,10 @@ export class Member<props extends MemberProps>
 	//#endregion Fields
 
 	//#region Constructors
-    constructor(props: props, passport: Passport) {
-        super(props, passport);
-        this._visa = passport.community.forCommunity(this.props.community);
-    }
+	constructor(props: props, passport: Passport) {
+		super(props, passport);
+		this._visa = passport.community.forCommunity(this.props.community);
+	}
 	//#endregion Constructors
 
 	//#region Methods
@@ -90,7 +93,7 @@ export class Member<props extends MemberProps>
 						domainPermissions.isSystemAccount,
 				)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot create new member');
+			throw new PermissionError('Cannot create new member');
 		}
 
 		const newInstance = new Member(newProps, passport);
@@ -110,7 +113,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set role');
+			throw new PermissionError('Cannot set role');
 		}
 		return new MemberAccount(
 			this.props.accounts.getNewItem(),
@@ -128,7 +131,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set role');
+			throw new PermissionError('Cannot set role');
 		}
 		this.props.accounts.removeItem(accountRef);
 	}
@@ -142,7 +145,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set custom view');
+			throw new PermissionError('Cannot set custom view');
 		}
 		return new MemberCustomView(this.props.customViews.getNewItem(), this.visa);
 	}
@@ -156,7 +159,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot remove custom view');
+			throw new PermissionError('Cannot remove custom view');
 		}
 		console.log(customView.name);
 		this.props.customViews.removeItem(customView.props);
@@ -164,17 +167,17 @@ export class Member<props extends MemberProps>
 	//#endregion Methods
 
 	//#region Properties
-    private get visa(): CommunityVisa {
-        if (!this._visa) {
-            if (!this.props.community) {
-                throw new Error(
-                    'Community must be set before computing a visa for Member',
-                );
-            }
-            this._visa = this.passport.community.forCommunity(this.community);
-        }
-        return this._visa;
-    }
+	private get visa(): CommunityVisa {
+		if (!this._visa) {
+			if (!this.props.community) {
+				throw new Error(
+					'Community must be set before computing a visa for Member',
+				);
+			}
+			this._visa = this.passport.community.forCommunity(this.community);
+		}
+		return this._visa;
+	}
 	get memberName(): string {
 		return this.props.memberName;
 	}
@@ -187,7 +190,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set member name');
+			throw new PermissionError('Cannot set member name');
 		}
 		this.props.memberName = new ValueObjects.MemberName(memberName).valueOf();
 	}
@@ -204,23 +207,21 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
-				'Cannot set cybersource customer id',
-			);
+			throw new PermissionError('Cannot set cybersource customer id');
 		}
 		this.props.cybersourceCustomerId = new ValueObjects.CyberSourceCustomerId(
 			cybersourceCustomerId,
 		).valueOf();
 	}
-    get communityId(): string {
-        return this.props.communityId;
-    }
+	get communityId(): string {
+		return this.props.communityId;
+	}
 	get community(): CommunityEntityReference {
 		return new Community(this.props.community, this.passport);
 	}
-    async loadCommunity(): Promise<CommunityEntityReference> {
-        return await this.props.loadCommunity();
-    }
+	async loadCommunity(): Promise<CommunityEntityReference> {
+		return await this.props.loadCommunity();
+	}
 	//TODO: why is this not security checked?
 	set community(community: CommunityEntityReference) {
 		if (
@@ -231,7 +232,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set community');
+			throw new PermissionError('Cannot set community');
 		}
 		this.props.community = community;
 	}
@@ -245,9 +246,9 @@ export class Member<props extends MemberProps>
 	get role(): EndUserRoleEntityReference {
 		return new EndUserRole(this.props.role, this.passport);
 	}
-    async loadRole(): Promise<EndUserRoleEntityReference> {
-        return await this.props.loadRole();
-    }
+	async loadRole(): Promise<EndUserRoleEntityReference> {
+		return await this.props.loadRole();
+	}
 	set role(role: EndUserRoleEntityReference) {
 		if (
 			!this.isNew &&
@@ -257,7 +258,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set role');
+			throw new PermissionError('Cannot set role');
 		}
 		this.props.role = role;
 	}

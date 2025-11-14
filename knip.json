@@ -16,6 +16,23 @@
       "entry": ["src/**/*.{ts,tsx,js,jsx}"],
       "project": ["src/**/*.{ts,tsx,js,jsx}"]
     },
+    "packages/cellix/domain-seedwork": {
+      "entry": [
+        "src/domain-seedwork/aggregate-root.ts",
+        "src/domain-seedwork/base-domain-execution-context.ts",
+        "src/domain-seedwork/child-entity.ts",
+        "src/domain-seedwork/domain-entity.ts",
+        "src/domain-seedwork/domain-event.ts",
+        "src/domain-seedwork/event-bus.ts",
+        "src/domain-seedwork/prop-array.ts",
+        "src/domain-seedwork/repository.ts",
+        "src/domain-seedwork/type-converter.ts",
+        "src/domain-seedwork/unit-of-work.ts",
+        "src/domain-seedwork/value-object.ts",
+        "src/passport-seedwork/visa.ts"
+      ],
+      "project": ["src/**/*.ts"]
+    },
     "packages/cellix/*": {
       "project": ["src/**/*.ts"]
     },

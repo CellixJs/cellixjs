@@ -1,8 +1,7 @@
+import type { Repository } from '@cellix/domain-seedwork/repository';
 import type { EndUser, EndUserProps } from './end-user.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
-
 export interface EndUserRepository<props extends EndUserProps>
-	extends DomainSeedwork.Repository<EndUser<props>> {
+	extends Repository<EndUser<props>> {
 	delete(id: string): Promise<void>;
 	getByExternalId(externalId: string): Promise<EndUser<props>>;
 	getNewInstance(

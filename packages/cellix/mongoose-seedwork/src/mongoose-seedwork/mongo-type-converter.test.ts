@@ -1,3 +1,4 @@
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import path from 'node:path';
@@ -5,9 +6,6 @@ import { fileURLToPath } from 'node:url';
 import { MongoTypeConverter } from './mongo-type-converter.ts';
 import type { Base } from './base.ts';
 import type { MongooseDomainAdapterType } from './mongo-domain-adapter.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
-
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -29,7 +27,7 @@ class TestAdapter implements MongooseDomainAdapterType<TestDoc> {
   get schemaVersion() { return this.doc.schemaVersion; }
 }
 
-class TestDomain extends DomainSeedwork.AggregateRoot<TestAdapter, string> {}
+class TestDomain extends AggregateRoot<TestAdapter, string> {}
 
 class TestConverter extends MongoTypeConverter<TestDoc, TestAdapter, string, TestDomain> {}
 

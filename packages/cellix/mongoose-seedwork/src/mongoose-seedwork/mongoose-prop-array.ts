@@ -1,4 +1,5 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import type mongoose from 'mongoose';
 import { Types } from 'mongoose';
 import type { Base, SubdocumentBase } from './base.ts';
@@ -11,12 +12,12 @@ interface HasProps<docType extends Base | SubdocumentBase> {
 }
 
 // Minimal contract any adapter must satisfy for this prop array
-type AdapterLike<TDoc> = DomainSeedwork.DomainEntityProps & HasDoc<TDoc>;
+type AdapterLike<TDoc> = DomainEntityProps & HasDoc<TDoc>;
 
 export class MongoosePropArray<
 	docType extends Base | SubdocumentBase,
 	propType extends AdapterLike<docType>,
-> implements DomainSeedwork.PropArray<propType>
+> implements PropArray<propType>
 {
 	protected docArray: mongoose.Types.DocumentArray<docType>;
 	protected adapter: new (

@@ -1,10 +1,9 @@
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NodeEventBusInstance } from './node-event-bus.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
 // --- Mocks for OpenTelemetry and performance ---
 
 const test = { for: describeFeature };
@@ -45,9 +44,9 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/node-event-bus.feature')
 );
 
-class TestEvent extends DomainSeedwork.CustomDomainEventImpl<{ test: string }> {}
-class EventA extends DomainSeedwork.CustomDomainEventImpl<{ a: string }> {}
-class EventB extends DomainSeedwork.CustomDomainEventImpl<{ b: string }> {}
+class TestEvent extends CustomDomainEventImpl<{ test: string }> {}
+class EventA extends CustomDomainEventImpl<{ a: string }> {}
+class EventB extends CustomDomainEventImpl<{ b: string }> {}
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let handler: ReturnType<typeof vi.fn>;

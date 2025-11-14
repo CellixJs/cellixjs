@@ -1,3 +1,4 @@
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
@@ -6,7 +7,6 @@ import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { StaffRoleRepository } from './staff-role.repository.ts';
 import { StaffRoleConverter, type StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
 const test = { for: describeFeature };
@@ -72,7 +72,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: StaffRoleConverter;
   let passport: Domain.Passport;
   let staffRoleDoc: Models.Role.StaffRole;
-  let eventBus: DomainSeedwork.EventBus;
+  let eventBus: EventBus;
   let session: ClientSession;
 
   BeforeEachScenario(() => {
@@ -94,7 +94,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       prototype: {},
     });
 
-    eventBus = { publish: vi.fn() } as unknown as DomainSeedwork.EventBus;
+    eventBus = { publish: vi.fn() } as unknown as EventBus;
     session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     repo = new StaffRoleRepository(

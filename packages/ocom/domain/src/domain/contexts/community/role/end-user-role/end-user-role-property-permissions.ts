@@ -1,17 +1,20 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { CommunityVisa } from '../../community.visa.ts';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { PropertyDomainPermissions } from '../../../property/property.domain-permissions.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
 
 export interface EndUserRolePropertyPermissionsProps
 	extends Omit<
-	PropertyDomainPermissions,
-    'isEditingOwnProperty' | 'isSystemAccount'>,
-		DomainSeedwork.ValueObjectProps {}
+			PropertyDomainPermissions,
+			'isEditingOwnProperty' | 'isSystemAccount'
+		>,
+		ValueObjectProps {}
 export interface EndUserRolePropertyPermissionsEntityReference
 	extends Readonly<EndUserRolePropertyPermissionsProps> {}
 
 export class EndUserRolePropertyPermissions
-	extends DomainSeedwork.ValueObject<EndUserRolePropertyPermissionsProps>
+	extends ValueObject<EndUserRolePropertyPermissionsProps>
 	implements EndUserRolePropertyPermissionsEntityReference
 {
 	private readonly visa: CommunityVisa;
@@ -31,7 +34,7 @@ export class EndUserRolePropertyPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canManageProperties = value;
 	}
@@ -47,7 +50,7 @@ export class EndUserRolePropertyPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canEditOwnProperty = value;
 	}

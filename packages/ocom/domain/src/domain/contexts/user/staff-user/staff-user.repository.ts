@@ -1,8 +1,7 @@
+import type { Repository } from '@cellix/domain-seedwork/repository';
 import type { StaffUser, StaffUserProps } from './staff-user.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
-
 export interface StaffUserRepository<props extends StaffUserProps>
-	extends DomainSeedwork.Repository<StaffUser<props>> {
+	extends Repository<StaffUser<props>> {
 	delete(id: string): Promise<void>;
 	getByExternalId(externalId: string): Promise<StaffUser<props>>;
 	getNewInstance(

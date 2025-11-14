@@ -1,11 +1,12 @@
-import { VOString, VOArray } from '@lucaspaganini/value-objects';
+import { VOArray, VOString } from '@lucaspaganini/value-objects';
 
 const CustomViewTypes = {
 	Property: 'PROPERTY',
 	ServiceTicket: 'SERVICE_TICKET',
 } as const;
 
-type CustomViewTypeEnum = (typeof CustomViewTypes)[keyof typeof CustomViewTypes];
+type CustomViewTypeEnum =
+	(typeof CustomViewTypes)[keyof typeof CustomViewTypes];
 
 export class CustomViewName extends VOString({ trim: true, maxLength: 500 }) {}
 class CustomViewTypeBase extends VOString({ trim: true, maxLength: 500 }) {}

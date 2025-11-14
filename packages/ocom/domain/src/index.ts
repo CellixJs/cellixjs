@@ -3,20 +3,20 @@ import type { Contexts } from './domain/index.ts';
 export * as Domain from './domain/index.ts';
 
 export interface DomainDataSource {
-    Case: {
-        ServiceTicket: {
-            V1: {
-                ServiceTicketV1UnitOfWork: Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
-            };
-        };
-    };
+	Case: {
+		ServiceTicket: {
+			V1: {
+				ServiceTicketV1UnitOfWork: Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
+			};
+		};
+	};
 	Community: {
 		Community: {
 			CommunityUnitOfWork: Contexts.Community.Community.CommunityUnitOfWork;
 		};
-        Member: {
-            MemberUnitOfWork: Contexts.Community.Member.MemberUnitOfWork;
-        };
+		Member: {
+			MemberUnitOfWork: Contexts.Community.Member.MemberUnitOfWork;
+		};
 		Role: {
 			EndUserRole: {
 				EndUserRoleUnitOfWork: Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;

@@ -1,9 +1,9 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './member-custom-view.value-objects.ts';
 
-export interface MemberCustomViewProps
-	extends DomainSeedwork.DomainEntityProps {
+export interface MemberCustomViewProps extends DomainEntityProps {
 	name: string;
 	type: string;
 	filters: string[];
@@ -15,7 +15,7 @@ export interface MemberCustomViewEntityReference
 	extends Readonly<MemberCustomViewProps> {}
 
 export class MemberCustomView
-	extends DomainSeedwork.DomainEntity<MemberCustomViewProps>
+	extends DomainEntity<MemberCustomViewProps>
 	implements MemberCustomViewEntityReference
 {
 	//#region Fields
@@ -40,7 +40,7 @@ export class MemberCustomView
 						permissions.isEditingOwnMemberAccount),
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this account',
 			);
 		}

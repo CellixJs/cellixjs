@@ -1,7 +1,11 @@
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
+import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import { NotFoundError } from '@cellix/domain-seedwork/repository';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type mongoose from 'mongoose';
 import { expect, type Mock, vi } from 'vitest';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Base } from './base.ts';
 import { MongoRepositoryBase } from './mongo-repository.ts';
 import path from 'node:path';
@@ -21,7 +25,7 @@ interface TestProps {
 }
 const passport = vi.mocked({} as unknown);
 // Minimal concrete AggregateRoot for testing
-class DummyAggregateRoot extends DomainSeedwork.AggregateRoot<
+class DummyAggregateRoot extends AggregateRoot<
 	TestProps,
 	typeof passport
 > {
@@ -45,11 +49,11 @@ class DummyAggregateRoot extends DomainSeedwork.AggregateRoot<
 	}
 }
 
-class TestDomainEvent1 extends DomainSeedwork.CustomDomainEventImpl<{ foo: string }> {}
-class TestDomainEvent2 extends DomainSeedwork.CustomDomainEventImpl<{ foo: string }> {}
+class TestDomainEvent1 extends CustomDomainEventImpl<{ foo: string }> {}
+class TestDomainEvent2 extends CustomDomainEventImpl<{ foo: string }> {}
 
-class TestIntegrationEvent1 extends DomainSeedwork.CustomDomainEventImpl<{ id: string, foo: string }> {}
-class TestIntegrationEvent2 extends DomainSeedwork.CustomDomainEventImpl<{ id: string, foo: string }> {}
+class TestIntegrationEvent1 extends CustomDomainEventImpl<{ id: string, foo: string }> {}
+class TestIntegrationEvent2 extends CustomDomainEventImpl<{ id: string, foo: string }> {}
 
 
 // All dependencies mocked with vi.mocked({})
@@ -68,7 +72,7 @@ const typeConverter = vi.mocked({
 	toDomain: vi.fn(),
 	toAdapter: vi.fn(),
 	toPersistence: vi.fn(),
-} as DomainSeedwork.TypeConverter<
+} as TypeConverter<
 	TestMongoType,
 	TestProps,
 	typeof passport,
@@ -77,7 +81,7 @@ const typeConverter = vi.mocked({
 const eventBus = vi.mocked({
 	dispatch: vi.fn(),
 	register: vi.fn(),
-} as DomainSeedwork.EventBus);
+} as EventBus);
 const session = vi.mocked({} as mongoose.ClientSession);
 
 // Concrete repository for testing
@@ -374,7 +378,7 @@ Scenario('Getting an aggregate that exists', ({ When, Then }) => {
 	  }
 	});
 	Then('it should throw NotFoundError if the document is not found', () => {
-	  expect(thrownError).toBeInstanceOf(DomainSeedwork.NotFoundError);
+	  expect(thrownError).toBeInstanceOf(NotFoundError);
 	  expect(thrownError?.message).toBe('Item with id not-found-id not found');
 	});
   });

@@ -1,5 +1,5 @@
-import type { CommunityDomainPermissions } from '../../../contexts/community/community.domain-permissions.ts';
 import type { CommunityEntityReference } from '../../../contexts/community/community/community.ts';
+import type { CommunityDomainPermissions } from '../../../contexts/community/community.domain-permissions.ts';
 import type { CommunityVisa } from '../../../contexts/community/community.visa.ts';
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
 
@@ -38,7 +38,7 @@ export class MemberCommunityVisa<root extends CommunityEntityReference>
 			...communityPermissions, //using spread here to ensure that we get type safety and we don't need to deep copy
 			isEditingOwnMemberAccount: false,
 			canCreateCommunities: true, //TODO: add a more complext rule here like can only create one community for free, otherwise need a paid plan
-            canManageVendorUserRolesAndPermissions: false, // end user roles cannot manage vendor user roles
+			canManageVendorUserRolesAndPermissions: false, // end user roles cannot manage vendor user roles
 			isSystemAccount: false,
 		};
 

@@ -1,23 +1,25 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { CommunityVisa } from '../../community.visa.ts';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { CommunityDomainPermissions } from '../../community.domain-permissions.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
 
 interface VendorUserRoleCommunityPermissionsSpec
 	extends Omit<
 			CommunityDomainPermissions,
 			| 'canCreateCommunities'
-            | 'canManageEndUserRolesAndPermissions'
+			| 'canManageEndUserRolesAndPermissions'
 			| 'isEditingOwnMemberAccount'
 			| 'isSystemAccount'
 		>,
-		DomainSeedwork.ValueObjectProps {}
+		ValueObjectProps {}
 
 export interface VendorUserRoleCommunityPermissionsProps
 	extends VendorUserRoleCommunityPermissionsSpec,
-		DomainSeedwork.ValueObjectProps {}
+		ValueObjectProps {}
 
 export class VendorUserRoleCommunityPermissions
-	extends DomainSeedwork.ValueObject<VendorUserRoleCommunityPermissionsProps>
+	extends ValueObject<VendorUserRoleCommunityPermissionsProps>
 	implements VendorUserRoleCommunityPermissionsEntityReference
 {
 	private readonly visa: CommunityVisa;
@@ -29,7 +31,7 @@ export class VendorUserRoleCommunityPermissions
 		this.visa = visa;
 	}
 
-    private validateVisa(): void {
+	private validateVisa(): void {
 		if (
 			!this.visa.determineIf(
 				(permissions) =>
@@ -37,46 +39,46 @@ export class VendorUserRoleCommunityPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission1');
+			throw new PermissionError('Cannot set permission1');
 		}
-    }
-
-    get canManageVendorUserRolesAndPermissions(): boolean {
-        return this.props.canManageVendorUserRolesAndPermissions;
 	}
-    set canManageVendorUserRolesAndPermissions(value: boolean) {
-        this.validateVisa();
+
+	get canManageVendorUserRolesAndPermissions(): boolean {
+		return this.props.canManageVendorUserRolesAndPermissions;
+	}
+	set canManageVendorUserRolesAndPermissions(value: boolean) {
+		this.validateVisa();
 		this.props.canManageVendorUserRolesAndPermissions = value;
 	}
 
 	get canManageCommunitySettings(): boolean {
 		return this.props.canManageCommunitySettings;
 	}
-    set canManageCommunitySettings(value: boolean) {
-        this.validateVisa();
+	set canManageCommunitySettings(value: boolean) {
+		this.validateVisa();
 		this.props.canManageCommunitySettings = value;
 	}
 
 	get canManageSiteContent(): boolean {
 		return this.props.canManageSiteContent;
 	}
-    set canManageSiteContent(value: boolean) {
-        this.validateVisa();
+	set canManageSiteContent(value: boolean) {
+		this.validateVisa();
 		this.props.canManageSiteContent = value;
 	}
 	get canManageMembers(): boolean {
 		return this.props.canManageMembers;
 	}
-    set canManageMembers(value: boolean) {
-        this.validateVisa();
+	set canManageMembers(value: boolean) {
+		this.validateVisa();
 		this.props.canManageMembers = value;
 	}
 
 	get canEditOwnMemberProfile(): boolean {
 		return this.props.canEditOwnMemberProfile;
 	}
-    set canEditOwnMemberProfile(value: boolean) {
-        this.validateVisa();
+	set canEditOwnMemberProfile(value: boolean) {
+		this.validateVisa();
 		this.props.canEditOwnMemberProfile = value;
 	}
 
@@ -84,8 +86,8 @@ export class VendorUserRoleCommunityPermissions
 		return this.props.canEditOwnMemberAccounts;
 	}
 
-    set canEditOwnMemberAccounts(value: boolean) {
-        this.validateVisa();
+	set canEditOwnMemberAccounts(value: boolean) {
+		this.validateVisa();
 		this.props.canEditOwnMemberAccounts = value;
 	}
 }

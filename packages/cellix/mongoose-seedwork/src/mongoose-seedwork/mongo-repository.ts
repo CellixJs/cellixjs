@@ -1,36 +1,42 @@
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import type { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import { NotFoundError } from '@cellix/domain-seedwork/repository';
+import type { Repository } from '@cellix/domain-seedwork/repository';
+import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import type { CustomDomainEvent } from '@cellix/domain-seedwork/domain-event';
 import type { ClientSession, Model } from 'mongoose';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Base } from './base.ts';
 
 export abstract class MongoRepositoryBase<
 	MongoType extends Base,
-	PropType extends DomainSeedwork.DomainEntityProps,
+	PropType extends DomainEntityProps,
 	PassportType,
-	DomainType extends DomainSeedwork.AggregateRoot<PropType, PassportType>,
-> implements DomainSeedwork.Repository<DomainType>
+	DomainType extends AggregateRoot<PropType, PassportType>,
+> implements Repository<DomainType>
 {
 	protected itemsInTransaction: DomainType[] = [];
 	protected passport: PassportType;
 	protected model: Model<MongoType>;
-	public typeConverter: DomainSeedwork.TypeConverter<
+	public typeConverter: TypeConverter<
 		MongoType,
 		PropType,
 		PassportType,
 		DomainType
 	>;
-	protected bus: DomainSeedwork.EventBus;
+	protected bus: EventBus;
 	protected session: ClientSession;
 
 	public constructor(
 		passport: PassportType,
 		model: Model<MongoType>,
-		typeConverter: DomainSeedwork.TypeConverter<
+		typeConverter: TypeConverter<
 			MongoType,
 			PropType,
 			PassportType,
 			DomainType
 		>,
-		eventBus: DomainSeedwork.EventBus,
+		eventBus: EventBus,
 		session: ClientSession,
 	) {
 		this.passport = passport;
@@ -43,7 +49,7 @@ export abstract class MongoRepositoryBase<
 	async get(id: string): Promise<DomainType> {
 		const item = await this.model.findById(id).exec();
 		if (!item) {
-			throw new DomainSeedwork.NotFoundError(`Item with id ${id} not found`);
+			throw new NotFoundError(`Item with id ${id} not found`);
 		}
 		return this.typeConverter.toDomain(item, this.passport);
 	}
@@ -84,7 +90,7 @@ export abstract class MongoRepositoryBase<
 	}
 
 	getIntegrationEvents(): ReadonlyArray<
-		DomainSeedwork.CustomDomainEvent<unknown>
+		CustomDomainEvent<unknown>
 	> {
 		const integrationEventsGroup = this.itemsInTransaction.map((item) => {
 			const integrationEvents = item.getIntegrationEvents();
@@ -96,9 +102,9 @@ export abstract class MongoRepositoryBase<
 
 	static create<
 		MongoType extends Base,
-		PropType extends DomainSeedwork.DomainEntityProps,
+		PropType extends DomainEntityProps,
 		PassportType,
-		DomainType extends DomainSeedwork.AggregateRoot<PropType, PassportType>,
+		DomainType extends AggregateRoot<PropType, PassportType>,
 		RepoType extends MongoRepositoryBase<
 			MongoType,
 			PropType,
@@ -108,24 +114,24 @@ export abstract class MongoRepositoryBase<
 	>(
 		passport: PassportType,
 		model: Model<MongoType>,
-		typeConverter: DomainSeedwork.TypeConverter<
+		typeConverter: TypeConverter<
 			MongoType,
 			PropType,
 			PassportType,
 			DomainType
 		>,
-		bus: DomainSeedwork.EventBus,
+		bus: EventBus,
 		session: ClientSession,
 		repoClass: new (
 			passport: PassportType,
 			model: Model<MongoType>,
-			typeConverter: DomainSeedwork.TypeConverter<
+			typeConverter: TypeConverter<
 				MongoType,
 				PropType,
 				PassportType,
 				DomainType
 			>,
-			bus: DomainSeedwork.EventBus,
+			bus: EventBus,
 			session: ClientSession,
 		) => RepoType,
 	): RepoType {

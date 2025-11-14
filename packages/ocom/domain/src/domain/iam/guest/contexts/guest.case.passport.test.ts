@@ -9,67 +9,77 @@ import { GuestCasePassport } from './guest.case.passport.ts';
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
-  path.resolve(__dirname, 'features/guest.case.passport.feature'),
+	path.resolve(__dirname, 'features/guest.case.passport.feature'),
 );
 
 function makeServiceTicketV1EntityReference(): ServiceTicketV1EntityReference {
-  return vi.mocked({
-    id: 'service-ticket-id',
-  } as ServiceTicketV1EntityReference);
+	return vi.mocked({
+		id: 'service-ticket-id',
+	} as ServiceTicketV1EntityReference);
 }
 
 function makeViolationTicketV1EntityReference(): ViolationTicketV1EntityReference {
-  return vi.mocked({
-    id: 'violation-ticket-id',
-  } as ViolationTicketV1EntityReference);
+	return vi.mocked({
+		id: 'violation-ticket-id',
+	} as ViolationTicketV1EntityReference);
 }
 
 test.for(feature, ({ Scenario }) => {
-  let passport: GuestCasePassport;
-  let serviceTicketRef: ServiceTicketV1EntityReference;
-  let violationTicketRef: ViolationTicketV1EntityReference;
-  let serviceTicketVisa: { determineIf: (fn: () => boolean) => boolean };
-  let violationTicketVisa: { determineIf: (fn: () => boolean) => boolean };
+	let passport: GuestCasePassport;
+	let serviceTicketRef: ServiceTicketV1EntityReference;
+	let violationTicketRef: ViolationTicketV1EntityReference;
+	let serviceTicketVisa: { determineIf: (fn: () => boolean) => boolean };
+	let violationTicketVisa: { determineIf: (fn: () => boolean) => boolean };
 
-  Scenario('Creating GuestCasePassport and getting visa for service ticket V1', ({ When, Then, And }) => {
-    When('I create a GuestCasePassport', () => {
-      passport = new GuestCasePassport();
-    });
+	Scenario(
+		'Creating GuestCasePassport and getting visa for service ticket V1',
+		({ When, Then, And }) => {
+			When('I create a GuestCasePassport', () => {
+				passport = new GuestCasePassport();
+			});
 
-    And('I have a service ticket V1 entity reference', () => {
-      serviceTicketRef = makeServiceTicketV1EntityReference();
-    });
+			And('I have a service ticket V1 entity reference', () => {
+				serviceTicketRef = makeServiceTicketV1EntityReference();
+			});
 
-    And('I call forServiceTicketV1 with the service ticket reference', () => {
-      serviceTicketVisa = passport.forServiceTicketV1(serviceTicketRef);
-    });
+			And('I call forServiceTicketV1 with the service ticket reference', () => {
+				serviceTicketVisa = passport.forServiceTicketV1(serviceTicketRef);
+			});
 
-    Then('it should return a visa that denies all permissions', () => {
-      expect(serviceTicketVisa).toBeDefined();
-      expect(typeof serviceTicketVisa.determineIf).toBe('function');
-      expect(serviceTicketVisa.determineIf(() => true)).toBe(false);
-      expect(serviceTicketVisa.determineIf(() => false)).toBe(false);
-    });
-  });
+			Then('it should return a visa that denies all permissions', () => {
+				expect(serviceTicketVisa).toBeDefined();
+				expect(typeof serviceTicketVisa.determineIf).toBe('function');
+				expect(serviceTicketVisa.determineIf(() => true)).toBe(false);
+				expect(serviceTicketVisa.determineIf(() => false)).toBe(false);
+			});
+		},
+	);
 
-  Scenario('Creating GuestCasePassport and getting visa for violation ticket V1', ({ When, Then, And }) => {
-    When('I create a GuestCasePassport', () => {
-      passport = new GuestCasePassport();
-    });
+	Scenario(
+		'Creating GuestCasePassport and getting visa for violation ticket V1',
+		({ When, Then, And }) => {
+			When('I create a GuestCasePassport', () => {
+				passport = new GuestCasePassport();
+			});
 
-    And('I have a violation ticket V1 entity reference', () => {
-      violationTicketRef = makeViolationTicketV1EntityReference();
-    });
+			And('I have a violation ticket V1 entity reference', () => {
+				violationTicketRef = makeViolationTicketV1EntityReference();
+			});
 
-    And('I call forViolationTicketV1 with the violation ticket reference', () => {
-      violationTicketVisa = passport.forViolationTicketV1(violationTicketRef);
-    });
+			And(
+				'I call forViolationTicketV1 with the violation ticket reference',
+				() => {
+					violationTicketVisa =
+						passport.forViolationTicketV1(violationTicketRef);
+				},
+			);
 
-    Then('it should return a visa that denies all permissions', () => {
-      expect(violationTicketVisa).toBeDefined();
-      expect(typeof violationTicketVisa.determineIf).toBe('function');
-      expect(violationTicketVisa.determineIf(() => true)).toBe(false);
-      expect(violationTicketVisa.determineIf(() => false)).toBe(false);
-    });
-  });
+			Then('it should return a visa that denies all permissions', () => {
+				expect(violationTicketVisa).toBeDefined();
+				expect(typeof violationTicketVisa.determineIf).toBe('function');
+				expect(violationTicketVisa.determineIf(() => true)).toBe(false);
+				expect(violationTicketVisa.determineIf(() => false)).toBe(false);
+			});
+		},
+	);
 });

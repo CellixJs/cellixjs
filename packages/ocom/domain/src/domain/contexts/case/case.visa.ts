@@ -1,7 +1,7 @@
-import type { PassportSeedwork } from '@cellix/domain-seedwork';
+import type { Visa } from '@cellix/domain-seedwork/visa';
 import type { CaseDomainPermissions } from './case.domain-permissions.ts';
 
-export interface CaseVisa extends PassportSeedwork.Visa<CaseDomainPermissions> {
+export interface CaseVisa extends Visa<CaseDomainPermissions> {
 	determineIf(
 		func: (permissions: Readonly<CaseDomainPermissions>) => boolean,
 	): boolean;

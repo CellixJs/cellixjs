@@ -1,17 +1,18 @@
+import type { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { Base } from './base.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { MongooseDomainAdapterType } from './mongo-domain-adapter.ts';
 
 export abstract class MongoTypeConverter<
 	MongooseModelType extends Base,
 	DomainPropInterface extends MongooseDomainAdapterType<MongooseModelType>,
 	PassportType,
-	DomainType extends DomainSeedwork.AggregateRoot<
+	DomainType extends AggregateRoot<
 		DomainPropInterface,
 		PassportType
 	>,
 > implements
-		DomainSeedwork.TypeConverter<
+		TypeConverter<
 			MongooseModelType,
 			DomainPropInterface,
 			PassportType,

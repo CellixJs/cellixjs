@@ -1,9 +1,8 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 export interface CommunityDomainUpdatedProps {
 	communityId: string;
 	domain: string;
 	oldDomain?: string;
 }
 
-export class CommunityDomainUpdatedEvent extends DomainSeedwork.CustomDomainEventImpl<CommunityDomainUpdatedProps> {}
+export class CommunityDomainUpdatedEvent extends CustomDomainEventImpl<CommunityDomainUpdatedProps> {}

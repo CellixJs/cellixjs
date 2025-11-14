@@ -1,4 +1,3 @@
-
 import type { EndUserEntityReference } from '../../../contexts/user/end-user/index.ts';
 import type { StaffRoleEntityReference } from '../../../contexts/user/staff-role/staff-role.ts';
 import type { StaffUserEntityReference } from '../../../contexts/user/staff-user/index.ts';
@@ -15,15 +14,15 @@ export class GuestUserPassport
 		return { determineIf: () => false };
 	}
 
-    forStaffUser(_root: StaffUserEntityReference): UserVisa {
-        return { determineIf: () => false };
-    }
+	forStaffUser(_root: StaffUserEntityReference): UserVisa {
+		return { determineIf: () => false };
+	}
 
-    forStaffRole(_root: StaffRoleEntityReference): UserVisa {
-        return { determineIf: () => false };
-    }
+	forStaffRole(_root: StaffRoleEntityReference): UserVisa {
+		return { determineIf: () => false };
+	}
 
-    forVendorUser(_root: VendorUserEntityReference): UserVisa {
-        return { determineIf: () => false };
-    }
+	forVendorUser(_root: VendorUserEntityReference): UserVisa {
+		return { determineIf: () => false };
+	}
 }

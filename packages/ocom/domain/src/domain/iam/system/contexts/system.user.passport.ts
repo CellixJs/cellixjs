@@ -1,4 +1,3 @@
-
 import type { EndUserEntityReference } from '../../../contexts/user/end-user/index.ts';
 import type { StaffRoleEntityReference } from '../../../contexts/user/staff-role/staff-role.ts';
 import type { StaffUserEntityReference } from '../../../contexts/user/staff-user/index.ts';
@@ -13,22 +12,22 @@ export class SystemUserPassport
 	implements UserPassport
 {
 	forEndUser(_root: EndUserEntityReference): UserVisa {
-        const permissions = this.permissions as UserDomainPermissions;
+		const permissions = this.permissions as UserDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
 	}
 
-    forStaffUser(_root: StaffUserEntityReference): UserVisa {
-        const permissions = this.permissions as UserDomainPermissions;
+	forStaffUser(_root: StaffUserEntityReference): UserVisa {
+		const permissions = this.permissions as UserDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
-    }
+	}
 
-    forStaffRole(_root: StaffRoleEntityReference): UserVisa {
-        const permissions = this.permissions as UserDomainPermissions;
+	forStaffRole(_root: StaffRoleEntityReference): UserVisa {
+		const permissions = this.permissions as UserDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
-    }
+	}
 
-    forVendorUser(_root: VendorUserEntityReference): UserVisa {
-        const permissions = this.permissions as UserDomainPermissions;
+	forVendorUser(_root: VendorUserEntityReference): UserVisa {
+		const permissions = this.permissions as UserDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
-    }
+	}
 }
