@@ -10,7 +10,7 @@ export interface ServiceCreateCommand {
 export const create = (dataSources: DataSources) => {
 	return async (
 		command: ServiceCreateCommand,
-	): Promise<Domain.Contexts.Service.Service.ServiceEntityReference> => {
+	): Promise<Domain.Service.Service.ServiceEntityReference> => {
 		const community =
 			await dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById(
 				command.communityId,
@@ -20,7 +20,7 @@ export const create = (dataSources: DataSources) => {
 		}
 
 		let serviceToReturn:
-			Domain.Contexts.Service.Service.ServiceEntityReference | undefined;
+			Domain.Service.Service.ServiceEntityReference | undefined;
 		await dataSources.domainDataSource.Service.Service.ServiceUnitOfWork.withScopedTransaction(
 			async (repo) => {
 				const newService = await repo.getNewInstance(

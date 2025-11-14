@@ -28,7 +28,7 @@ const isNotFoundError = (error: unknown): boolean => {
 };
 
 const ensureRoleDoesNotExist = async (
-	repository: Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>,
+	repository: Domain.User.StaffRole.StaffRoleRepository<Domain.User.StaffRole.StaffRoleProps>,
 	roleName: string,
 ): Promise<void> => {
 	try {
@@ -43,7 +43,7 @@ const ensureRoleDoesNotExist = async (
 };
 
 const applyCommunityPermissions = (
-	staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>,
+	staffRole: Domain.User.StaffRole.StaffRole<Domain.User.StaffRole.StaffRoleProps>,
 	permissions?: StaffRoleCreateCommandCommunityPermissions,
 ) => {
 	if (!permissions) {
@@ -77,9 +77,9 @@ const applyCommunityPermissions = (
 export const create = (dataSources: DataSources) => {
 	return async (
 		command: StaffRoleCreateCommand,
-	): Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference> => {
+	): Promise<Domain.User.StaffRole.StaffRoleEntityReference> => {
 		let createdRole:
-			| Domain.Contexts.User.StaffRole.StaffRoleEntityReference
+			| Domain.User.StaffRole.StaffRoleEntityReference
 			| undefined;
 
 		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(

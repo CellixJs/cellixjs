@@ -34,7 +34,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/index.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<Domain.Contexts.User.StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<Domain.User.StaffRole.StaffRoleEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -53,7 +53,7 @@ function makeMockStaffRole(overrides: Partial<Domain.Contexts.User.StaffRole.Sta
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+  } as Domain.User.StaffRole.StaffRoleEntityReference;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
@@ -91,7 +91,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a staff role through the application service', ({ Given, When, Then }) => {
-    let result: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+    let result: Domain.User.StaffRole.StaffRoleEntityReference;
 
     Given('a staff role application service', () => {
       expect(service).toBeDefined();
@@ -123,7 +123,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by ID through the application service', ({ Given, When, Then }) => {
-    let result: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null;
+    let result: Domain.User.StaffRole.StaffRoleEntityReference | null;
 
     Given('a staff role application service', () => {
       expect(service).toBeDefined();
@@ -140,7 +140,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by name through the application service', ({ Given, When, Then }) => {
-    let result: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null;
+    let result: Domain.User.StaffRole.StaffRoleEntityReference | null;
 
     Given('a staff role application service', () => {
       expect(service).toBeDefined();

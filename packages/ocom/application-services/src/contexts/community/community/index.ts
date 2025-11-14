@@ -6,9 +6,9 @@ import { type CommunityQueryByIdCommand, queryById } from './query-by-id.ts';
 
 
 export interface CommunityApplicationService {
-    create: (command: CommunityCreateCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference>,
-    queryById: (command: CommunityQueryByIdCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference | null>,
-    queryByEndUserExternalId: (command: CommunityQueryByEndUserExternalIdCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference[]>,
+    create: (command: CommunityCreateCommand) => Promise<Domain.Community.Community.CommunityEntityReference>,
+    queryById: (command: CommunityQueryByIdCommand) => Promise<Domain.Community.Community.CommunityEntityReference | null>,
+    queryByEndUserExternalId: (command: CommunityQueryByEndUserExternalIdCommand) => Promise<Domain.Community.Community.CommunityEntityReference[]>,
 }
 
 export const Community = (

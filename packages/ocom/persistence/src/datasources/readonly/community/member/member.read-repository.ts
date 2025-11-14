@@ -8,9 +8,9 @@ import { type MemberDataSource, MemberDataSourceImpl } from './member.data.ts';
 
 
 export interface MemberReadRepository {
-    getByCommunityId: (communityId: string, options?: FindOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
-    getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
-    getByIdWithRole: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
+    getByCommunityId: (communityId: string, options?: FindOptions) => Promise<Domain.Community.Member.MemberEntityReference[]>;
+    getById: (id: string, options?: FindOneOptions) => Promise<Domain.Community.Member.MemberEntityReference | null>;
+    getByIdWithRole: (id: string, options?: FindOneOptions) => Promise<Domain.Community.Member.MemberEntityReference | null>;
      /**
      * Retrieves all Member entities for a given end-user external ID.
      * Finds members whose accounts reference a user with the specified external ID.
@@ -18,7 +18,7 @@ export interface MemberReadRepository {
      * @param externalId - The external ID of the end user to match.
      * @returns A promise that resolves to an array of MemberEntityReference objects for the matching end user.
      */
-    getMembersForEndUserExternalId: (externalId: string) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
+    getMembersForEndUserExternalId: (externalId: string) => Promise<Domain.Community.Member.MemberEntityReference[]>;
     isAdmin: (id: string) => Promise<boolean>;
 }
 
@@ -44,7 +44,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to an array of MemberEntityReference objects that belong to the specified community.
      */
-    async getByCommunityId(communityId: string, options?: FindOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {
+    async getByCommunityId(communityId: string, options?: FindOptions): Promise<Domain.Community.Member.MemberEntityReference[]> {
         const result = await this.mongoDataSource.find({ community: new MongooseSeedwork.ObjectId(communityId) }, options);
         return result.map(doc => this.converter.toDomain(doc, this.passport));
     }
@@ -55,7 +55,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to a MemberEntityReference object or null if not found.
      */
-    async getById(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
+    async getById(id: string, options?: FindOneOptions): Promise<Domain.Community.Member.MemberEntityReference | null> {
         const result = await this.mongoDataSource.findById(id, options);
         if (!result) { return null; }
         return this.converter.toDomain(result, this.passport);
@@ -67,7 +67,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to a MemberEntityReference object or null if not found.
      */
-    async getByIdWithRole(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
+    async getByIdWithRole(id: string, options?: FindOneOptions): Promise<Domain.Community.Member.MemberEntityReference | null> {
         const finalOptions: FindOneOptions = {
             ...options,
             populateFields: ['role']
@@ -77,7 +77,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
         return this.converter.toDomain(result, this.passport);
     }
 
-    async getMembersForEndUserExternalId(externalId: string): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {
+    async getMembersForEndUserExternalId(externalId: string): Promise<Domain.Community.Member.MemberEntityReference[]> {
         // Goal: Given an EndUser's externalId (unique in `users` where userType === 'end-users'),
         // return Members whose accounts reference that EndUser's _id.
         // We handle both schemas:

@@ -20,16 +20,16 @@ import {
 export interface StaffRoleApplicationService {
 	create: (
 		command: StaffRoleCreateCommand,
-	) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference>;
+	) => Promise<Domain.User.StaffRole.StaffRoleEntityReference>;
 	deleteAndReassign: (
 		command: StaffRoleDeleteAndReassignCommand,
 	) => Promise<void>;
 	queryById: (
 		command: StaffRoleQueryByIdCommand,
-	) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null>;
+	) => Promise<Domain.User.StaffRole.StaffRoleEntityReference | null>;
 	queryByRoleName: (
 		command: StaffRoleQueryByRoleNameCommand,
-	) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null>;
+	) => Promise<Domain.User.StaffRole.StaffRoleEntityReference | null>;
 }
 
 export const StaffRole = (

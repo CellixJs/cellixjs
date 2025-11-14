@@ -13,12 +13,12 @@ export const createIfNotExists = (
 ) => {
     return async (
         command: EndUserCreateCommand,
-    ): Promise<Domain.Contexts.User.EndUser.EndUserEntityReference> => {
+    ): Promise<Domain.User.EndUser.EndUserEntityReference> => {
         const existingEndUser = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.externalId);
         if (existingEndUser) {
             return existingEndUser;
         }
-        let endUserToReturn: Domain.Contexts.User.EndUser.EndUserEntityReference | undefined;
+        let endUserToReturn: Domain.User.EndUser.EndUserEntityReference | undefined;
         await dataSources.domainDataSource.User.EndUser.EndUserUnitOfWork.withScopedTransaction(
             async (repo) => {
                 const newEndUser = await repo.getNewInstance(command.externalId, command.lastName, command.restOfName, command.email);

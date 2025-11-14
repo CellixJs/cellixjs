@@ -16,9 +16,9 @@ const isNotFoundError = (error: unknown): boolean => {
 export const queryByRoleName = (dataSources: DataSources) => {
 	return async (
 		command: StaffRoleQueryByRoleNameCommand,
-	): Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null> => {
+	): Promise<Domain.User.StaffRole.StaffRoleEntityReference | null> => {
 		let staffRole:
-			| Domain.Contexts.User.StaffRole.StaffRoleEntityReference
+			| Domain.User.StaffRole.StaffRoleEntityReference
 			| null = null;
 		try {
 			await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(

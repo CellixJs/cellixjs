@@ -140,7 +140,36 @@
 			}
 		},
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
-        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } }
+        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } },
+		{
+			"includes": ["packages/ocom/domain/src/domain/contexts/**/*.ts"],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "error",
+						"noReExportAll": "error"
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"packages/ocom/domain/src/domain/contexts/**/*.value-objects.ts",
+				"packages/ocom/domain/src/domain/contexts/case.ts",
+				"packages/ocom/domain/src/domain/contexts/community.ts",
+				"packages/ocom/domain/src/domain/contexts/property.ts",
+				"packages/ocom/domain/src/domain/contexts/service.ts",
+				"packages/ocom/domain/src/domain/contexts/user.ts"
+			],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "off",
+						"noReExportAll": "off"
+					}
+				}
+			}
+		}
 	],
 	"assist": {
 		"enabled": true,

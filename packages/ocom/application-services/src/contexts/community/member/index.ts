@@ -5,7 +5,7 @@ import { determineIfAdmin, type MemberDetermineIfAdminCommand } from './determin
 
 export interface MemberApplicationService {
     determineIfAdmin: (command: MemberDetermineIfAdminCommand) => Promise<boolean>,
-    queryByEndUserExternalId: (command: MemberQueryByEndUserExternalIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>,
+    queryByEndUserExternalId: (command: MemberQueryByEndUserExternalIdCommand) => Promise<Domain.Community.Member.MemberEntityReference[]>,
 }
 
 export const Member = (

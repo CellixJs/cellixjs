@@ -14,8 +14,8 @@ const feature = await loadFeature(
 
 type CommunityEntity = { id: string; name: string };
 type MemberEntity = { id: string; communityId: string };
-type CommunityReference = Domain.Contexts.Community.Community.CommunityEntityReference;
-type MemberReference = Domain.Contexts.Community.Member.MemberEntityReference;
+type CommunityReference = Domain.Community.Community.CommunityEntityReference;
+type MemberReference = Domain.Community.Member.MemberEntityReference;
 
 function createMockCommunity(overrides: Partial<CommunityEntity> = {}): CommunityEntity {
   return {
