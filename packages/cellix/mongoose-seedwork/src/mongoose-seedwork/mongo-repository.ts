@@ -1,5 +1,5 @@
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
-import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { NotFoundError } from '@cellix/domain-seedwork/repository';
 import type { Repository } from '@cellix/domain-seedwork/repository';
 import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';

@@ -1,5 +1,5 @@
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
-import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { InitializedUnitOfWork, UnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
 import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';

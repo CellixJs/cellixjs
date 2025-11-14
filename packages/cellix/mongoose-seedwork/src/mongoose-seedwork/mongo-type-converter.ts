@@ -1,4 +1,4 @@
-import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { Base } from './base.ts';
 import type { MongooseDomainAdapterType } from './mongo-domain-adapter.ts';

@@ -1,4 +1,4 @@
-import { AggregateRoot } from './aggregate-root.ts';
+import type { AggregateRoot } from './aggregate-root.ts';
 import type { DomainEntityProps } from './domain-entity.ts';
 
 export interface TypeConverter<
