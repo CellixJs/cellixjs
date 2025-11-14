@@ -6,7 +6,6 @@
   "author": "CellixJS",
   "license": "MIT",
   "packageManager": "pnpm@10.18.2",
-  "main": "apps/api/dist/src/index.js",
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
@@ -45,7 +44,8 @@
     "snyk:code": "snyk code test --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs",
     "snyk:code:report": "snyk code test --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --project-name=cellixjs-code --report",
     "snyk:iac": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs",
-    "snyk:iac:report": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --target-name=cellixjs-iac --report"
+    "snyk:iac:report": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --target-name=cellixjs-iac --report",
+    "analyze": "pnpm -r exec -- pnpx @e18e/cli analyze"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",

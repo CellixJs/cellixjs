@@ -19,8 +19,8 @@ parameters:
 jobs:
 - job: Infrastructure_UI_Community
   displayName: Infrastructure Setup (UI Community)
-  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true'))
-  dependsOn: Infrastructure  # Wait for API infrastructure to complete
+  condition: and(in(dependencies.Infrastructure.result, 'Succeeded', 'Skipped'), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true'))
+  dependsOn: Infrastructure
   pool:
     vmImage: ${{parameters.vmImageName}}
   steps:
