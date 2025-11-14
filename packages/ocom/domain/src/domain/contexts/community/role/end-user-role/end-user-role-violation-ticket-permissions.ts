@@ -1,12 +1,13 @@
-import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
-import type { CommunityVisa } from '../../community.visa.ts';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { CaseDomainPermissions } from '../../../case/case.domain-permissions.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
 
 export interface EndUserRoleViolationTicketPermissionsProps
 	extends Omit<
-                CaseDomainPermissions,
-                'isEditingOwnTicket' | 'isEditingAssignedTicket' | 'isSystemAccount' >,
+			CaseDomainPermissions,
+			'isEditingOwnTicket' | 'isEditingAssignedTicket' | 'isSystemAccount'
+		>,
 		ValueObjectProps {}
 export interface EndUserRoleViolationTicketPermissionsEntityReference
 	extends Readonly<EndUserRoleViolationTicketPermissionsProps> {}

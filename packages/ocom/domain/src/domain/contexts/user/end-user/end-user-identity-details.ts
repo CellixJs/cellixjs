@@ -1,8 +1,9 @@
-import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
-import * as ValueObjects from './end-user.value-objects.ts';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
 import type { EndUserAggregateRoot } from './end-user.ts';
+import * as ValueObjects from './end-user.value-objects.ts';
 
 export interface EndUserIdentityDetailsProps
 	extends ValueObjectProps {

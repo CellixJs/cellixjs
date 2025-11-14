@@ -1,4 +1,4 @@
-import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail-additional-amenity.value-objects.ts';
 
@@ -17,7 +17,10 @@ export class PropertyListingDetailAdditionalAmenity
 {
 	private readonly visa: PropertyVisa;
 
-	constructor(props: PropertyListingDetailAdditionalAmenityProps, visa: PropertyVisa) {
+	constructor(
+		props: PropertyListingDetailAdditionalAmenityProps,
+		visa: PropertyVisa,
+	) {
 		super(props);
 		this.visa = visa;
 	}

@@ -1,14 +1,15 @@
-import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import {
-	type StaffRolePermissionsProps,
-	type StaffRolePermissionsEntityReference,
-	StaffRolePermissions,
-} from './staff-role-permissions.ts';
-import * as ValueObjects from './staff-role.value-objects.ts';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
-import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../events/types/role-deleted-reassign.ts';
+import * as ValueObjects from './staff-role.value-objects.ts';
+import {
+	StaffRolePermissions,
+	type StaffRolePermissionsEntityReference,
+	type StaffRolePermissionsProps,
+} from './staff-role-permissions.ts';
 
 export interface StaffRoleProps extends DomainEntityProps {
 	roleName: string;

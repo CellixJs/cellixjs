@@ -1,5 +1,5 @@
-import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { CommunityVisa } from '../../community.visa.ts';
 
 interface VendorUserRoleServicePermissionsSpec {
@@ -28,7 +28,7 @@ export class VendorUserRoleServicePermissions
 
 	get canManageServices(): boolean {
 		return this.props.canManageServices;
-    }
+	}
 	set canManageServices(value: boolean) {
 		if (
 			!this.visa.determineIf(

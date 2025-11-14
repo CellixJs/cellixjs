@@ -1,6 +1,5 @@
-import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
-export interface PropertyLocationPositionProps
-	extends ValueObjectProps {
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+export interface PropertyLocationPositionProps extends ValueObjectProps {
 	type: string | null;
 	coordinates: ReadonlyArray<number> | null;
 }

@@ -1,31 +1,31 @@
-export { StaffRole } from './staff-role.ts';
+export type { StaffRoleRepository } from './staff-role.repository.ts';
 export type {
-	StaffRoleProps,
 	StaffRoleEntityReference,
+	StaffRoleProps,
 } from './staff-role.ts';
+export { StaffRole } from './staff-role.ts';
+export type { StaffRoleUnitOfWork } from './staff-role.uow.ts';
 export type {
-	StaffRolePermissionsProps,
-	StaffRolePermissionsEntityReference,
-} from './staff-role-permissions.ts';
-export type {
-	StaffRoleCommunityPermissionsProps,
 	StaffRoleCommunityPermissionsEntityReference,
+	StaffRoleCommunityPermissionsProps,
 } from './staff-role-community-permissions.ts';
 export type {
-	StaffRolePropertyPermissionsProps,
+	StaffRolePermissionsEntityReference,
+	StaffRolePermissionsProps,
+} from './staff-role-permissions.ts';
+export type {
 	StaffRolePropertyPermissionsEntityReference,
+	StaffRolePropertyPermissionsProps,
 } from './staff-role-property-permissions.ts';
 export type {
-	StaffRoleServicePermissionsProps,
 	StaffRoleServicePermissionsEntityReference,
+	StaffRoleServicePermissionsProps,
 } from './staff-role-service-permissions.ts';
 export type {
-	StaffRoleServiceTicketPermissionsProps,
 	StaffRoleServiceTicketPermissionsEntityReference,
+	StaffRoleServiceTicketPermissionsProps,
 } from './staff-role-service-ticket-permissions.ts';
 export type {
-	StaffRoleViolationTicketPermissionsProps,
 	StaffRoleViolationTicketPermissionsEntityReference,
+	StaffRoleViolationTicketPermissionsProps,
 } from './staff-role-violation-ticket-permissions.ts';
-export type { StaffRoleRepository } from './staff-role.repository.ts';
-export type { StaffRoleUnitOfWork } from './staff-role.uow.ts';

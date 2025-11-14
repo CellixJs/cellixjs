@@ -1,12 +1,21 @@
-import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import { CommunityCreatedEvent, type CommunityCreatedProps } from '../../../events/types/community-created.ts';
-import { CommunityDomainUpdatedEvent, type CommunityDomainUpdatedProps } from '../../../events/types/community-domain-updated.ts';
-import { CommunityWhiteLabelDomainUpdatedEvent, type CommunityWhiteLabelDomainUpdatedProps } from '../../../events/types/community-white-label-domain-updated.ts';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import {
+	CommunityCreatedEvent,
+	type CommunityCreatedProps,
+} from '../../../events/types/community-created.ts';
+import {
+	CommunityDomainUpdatedEvent,
+	type CommunityDomainUpdatedProps,
+} from '../../../events/types/community-domain-updated.ts';
+import {
+	CommunityWhiteLabelDomainUpdatedEvent,
+	type CommunityWhiteLabelDomainUpdatedProps,
+} from '../../../events/types/community-white-label-domain-updated.ts';
 import type { Passport } from '../../passport.ts';
 import {
-    EndUser,
-    type EndUserEntityReference,
+	EndUser,
+	type EndUserEntityReference,
 } from '../../user/end-user/end-user.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './community.value-objects.ts';
@@ -17,7 +26,7 @@ export interface CommunityProps extends DomainEntityProps {
 	whiteLabelDomain: string | null;
 	handle: string | null;
 	createdBy: Readonly<EndUserEntityReference>;
-    loadCreatedBy: () => Promise<EndUserEntityReference>;
+	loadCreatedBy: () => Promise<EndUserEntityReference>;
 
 	get createdAt(): Date;
 	get updatedAt(): Date;
@@ -60,9 +69,12 @@ export class Community<props extends CommunityProps>
 
 	private markAsNew(): void {
 		this.isNew = true;
-		this.addIntegrationEvent<CommunityCreatedProps, CommunityCreatedEvent>(CommunityCreatedEvent, {
-			communityId: this.props.id,
-		});
+		this.addIntegrationEvent<CommunityCreatedProps, CommunityCreatedEvent>(
+			CommunityCreatedEvent,
+			{
+				communityId: this.props.id,
+			},
+		);
 	}
 	//#endregion Methods
 
@@ -101,7 +113,10 @@ export class Community<props extends CommunityProps>
 		const oldDomain = this.props.domain;
 		if (this.props.domain !== domain) {
 			this.props.domain = new ValueObjects.Domain(domain).valueOf();
-			this.addIntegrationEvent<CommunityDomainUpdatedProps, CommunityDomainUpdatedEvent>(CommunityDomainUpdatedEvent, {
+			this.addIntegrationEvent<
+				CommunityDomainUpdatedProps,
+				CommunityDomainUpdatedEvent
+			>(CommunityDomainUpdatedEvent, {
 				communityId: this.props.id,
 				domain,
 				oldDomain: oldDomain,
@@ -123,15 +138,23 @@ export class Community<props extends CommunityProps>
 				'You do not have permission to change the white label domain of this community',
 			);
 		}
-        const oldWhiteLabelDomain = this.props.whiteLabelDomain;
-		this.props.whiteLabelDomain = new ValueObjects.WhiteLabelDomain(whiteLabelDomain).valueOf();
-        if (oldWhiteLabelDomain !== this.props.whiteLabelDomain && this.props.whiteLabelDomain !== null) {
-            this.addIntegrationEvent<CommunityWhiteLabelDomainUpdatedProps, CommunityWhiteLabelDomainUpdatedEvent>(CommunityWhiteLabelDomainUpdatedEvent, {
-                communityId: this.props.id,
-                whiteLabelDomain: this.props.whiteLabelDomain,
-                oldWhiteLabelDomain: oldWhiteLabelDomain,
-            });
-        }
+		const oldWhiteLabelDomain = this.props.whiteLabelDomain;
+		this.props.whiteLabelDomain = new ValueObjects.WhiteLabelDomain(
+			whiteLabelDomain,
+		).valueOf();
+		if (
+			oldWhiteLabelDomain !== this.props.whiteLabelDomain &&
+			this.props.whiteLabelDomain !== null
+		) {
+			this.addIntegrationEvent<
+				CommunityWhiteLabelDomainUpdatedProps,
+				CommunityWhiteLabelDomainUpdatedEvent
+			>(CommunityWhiteLabelDomainUpdatedEvent, {
+				communityId: this.props.id,
+				whiteLabelDomain: this.props.whiteLabelDomain,
+				oldWhiteLabelDomain: oldWhiteLabelDomain,
+			});
+		}
 	}
 
 	get handle(): string | null {
@@ -155,9 +178,9 @@ export class Community<props extends CommunityProps>
 		return new EndUser(this.props.createdBy, this.passport);
 	}
 
-    async loadCreatedBy(): Promise<EndUserEntityReference> {
-        return await this.props.loadCreatedBy();
-    }
+	async loadCreatedBy(): Promise<EndUserEntityReference> {
+		return await this.props.loadCreatedBy();
+	}
 
 	private set createdBy(createdBy: EndUserEntityReference | null | undefined) {
 		if (
@@ -171,9 +194,7 @@ export class Community<props extends CommunityProps>
 			);
 		}
 		if (createdBy === null || createdBy === undefined) {
-			throw new PermissionError(
-				'createdBy cannot be null or undefined',
-			);
+			throw new PermissionError('createdBy cannot be null or undefined');
 		}
 		this.props.createdBy = createdBy;
 	}

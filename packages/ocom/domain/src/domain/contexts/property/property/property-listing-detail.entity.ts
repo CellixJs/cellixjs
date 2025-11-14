@@ -1,7 +1,8 @@
-import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
-import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { PropertyVisa } from '../property.visa.ts';
+import type * as ValueObjects from './property-listing-detail.value-objects.ts';
 import {
 	PropertyListingDetailAdditionalAmenity,
 	type PropertyListingDetailAdditionalAmenityEntityReference,
@@ -12,10 +13,8 @@ import {
 	type PropertyListingDetailBedroomDetailEntityReference,
 	type PropertyListingDetailBedroomDetailProps,
 } from './property-listing-detail-bedroom-detail.entity.ts';
-import type * as ValueObjects from './property-listing-detail.value-objects.ts';
 
-export interface PropertyListingDetailProps
-	extends ValueObjectProps {
+export interface PropertyListingDetailProps extends ValueObjectProps {
 	price: number | null;
 	rentHigh: number | null;
 	rentLow: number | null;
@@ -47,11 +46,8 @@ export interface PropertyListingDetailProps
 
 export interface PropertyListingDetailEntityReference
 	extends Readonly<
-	Omit<
-		PropertyListingDetailProps,
-		'bedroomDetails' | 'additionalAmenities'
-	>
-> {
+		Omit<PropertyListingDetailProps, 'bedroomDetails' | 'additionalAmenities'>
+	> {
 	readonly bedroomDetails: ReadonlyArray<PropertyListingDetailBedroomDetailEntityReference>;
 	readonly additionalAmenities: ReadonlyArray<PropertyListingDetailAdditionalAmenityEntityReference>;
 }
@@ -287,7 +283,9 @@ export class PropertyListingDetail
 		);
 	}
 
-	public requestRemoveBedroom(detail: PropertyListingDetailBedroomDetailProps): void {
+	public requestRemoveBedroom(
+		detail: PropertyListingDetailBedroomDetailProps,
+	): void {
 		this.ensureCanModifyListing();
 		this.props.bedroomDetails.removeItem(detail);
 	}
@@ -309,10 +307,10 @@ export class PropertyListingDetail
 
 	public requestRemoveImage(blobName: string): void {
 		this.ensureCanModifyListing();
-		this.props.images = this.props.images?.filter((image) => image !== blobName) || null;
-		this.props.floorPlanImages = this.props.floorPlanImages?.filter(
-			(image) => image !== blobName,
-		) || null;
+		this.props.images =
+			this.props.images?.filter((image) => image !== blobName) || null;
+		this.props.floorPlanImages =
+			this.props.floorPlanImages?.filter((image) => image !== blobName) || null;
 	}
 
 	private ensureCanModifyListing(): void {

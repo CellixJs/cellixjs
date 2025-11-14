@@ -1,9 +1,8 @@
-import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './member-custom-view.value-objects.ts';
 
-export interface MemberCustomViewProps
-	extends DomainEntityProps {
+export interface MemberCustomViewProps extends DomainEntityProps {
 	name: string;
 	type: string;
 	filters: string[];

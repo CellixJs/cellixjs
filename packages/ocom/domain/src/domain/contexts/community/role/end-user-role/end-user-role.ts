@@ -1,19 +1,22 @@
-import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import {
+	RoleDeletedReassignEvent,
+	type RoleDeletedReassignProps,
+} from '../../../../events/types/role-deleted-reassign.ts';
+import type { Passport } from '../../../passport.ts';
+import {
+	Community,
+	type CommunityEntityReference,
+	type CommunityProps,
+} from '../../community/community.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
+import * as ValueObjects from './end-user-role.value-objects.ts';
 import {
 	EndUserRolePermissions,
 	type EndUserRolePermissionsEntityReference,
 	type EndUserRolePermissionsProps,
 } from './end-user-role-permissions.ts';
-import * as ValueObjects from './end-user-role.value-objects.ts';
-import {
-	Community,
-	type CommunityProps,
-	type CommunityEntityReference,
-} from '../../community/community.ts';
-import type { CommunityVisa } from '../../community.visa.ts';
-import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
-import type { Passport } from '../../../passport.ts';
 
 export interface EndUserRoleProps extends DomainEntityProps {
 	roleName: string;
@@ -66,39 +69,40 @@ export class EndUserRole<props extends EndUserRoleProps>
 		return role;
 	}
 	deleteAndReassignTo(roleRef: EndUserRoleEntityReference) {
-        if (this.isDefault) {
-            throw new PermissionError(
-                'You cannot delete a default end user role',
-            );
-        }
-        if (
-            !this.isDeleted &&
-            !this.visa.determineIf(
-                (permissions) => permissions.canManageEndUserRolesAndPermissions,
-            )
-        ) {
-            throw new PermissionError(
-                'You do not have permission to delete this role',
-            );
-        }
+		if (this.isDefault) {
+			throw new PermissionError('You cannot delete a default end user role');
+		}
+		if (
+			!this.isDeleted &&
+			!this.visa.determineIf(
+				(permissions) => permissions.canManageEndUserRolesAndPermissions,
+			)
+		) {
+			throw new PermissionError(
+				'You do not have permission to delete this role',
+			);
+		}
 		super.isDeleted = true;
-		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<
+			RoleDeletedReassignProps,
+			RoleDeletedReassignEvent
+		>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});
 	}
 
-    private get visa(): CommunityVisa {
-        if (!this._visa) {
-            if (!this.props.community) {
-                throw new Error(
-                    'Community must be set before computing a visa for EndUserRole',
-                );
-            }
-            this._visa = this.passport.community.forCommunity(this.community);
-        }
-        return this._visa;
-    }
+	private get visa(): CommunityVisa {
+		if (!this._visa) {
+			if (!this.props.community) {
+				throw new Error(
+					'Community must be set before computing a visa for EndUserRole',
+				);
+			}
+			this._visa = this.passport.community.forCommunity(this.community);
+		}
+		return this._visa;
+	}
 	//#endregion Methods
 
 	//#region Properties

@@ -1,1 +1,1 @@
-export { CommunityCreatedEvent} from './community-created.ts';
+export { CommunityCreatedEvent } from './community-created.ts';

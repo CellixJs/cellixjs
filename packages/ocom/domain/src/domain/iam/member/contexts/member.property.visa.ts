@@ -1,7 +1,7 @@
-import type { PropertyVisa } from '../../../contexts/property/property.visa.ts';
-import type { PropertyDomainPermissions } from '../../../contexts/property/property.domain-permissions.ts';
-import type { PropertyEntityReference } from '../../../contexts/property/property/property.aggregate.ts';
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
+import type { PropertyEntityReference } from '../../../contexts/property/property/property.aggregate.ts';
+import type { PropertyDomainPermissions } from '../../../contexts/property/property.domain-permissions.ts';
+import type { PropertyVisa } from '../../../contexts/property/property.visa.ts';
 
 export class MemberPropertyVisa<root extends PropertyEntityReference>
 	implements PropertyVisa
@@ -26,8 +26,9 @@ export class MemberPropertyVisa<root extends PropertyEntityReference>
 			canManageProperties: propertyPermissions?.canManageProperties ?? false,
 			canEditOwnProperty: propertyPermissions?.canEditOwnProperty ?? false,
 			isSystemAccount: false,
-			isEditingOwnProperty:
-				Boolean(this.root.owner?.id && this.root.owner.id === this.member.id),
+			isEditingOwnProperty: Boolean(
+				this.root.owner?.id && this.root.owner.id === this.member.id,
+			),
 		};
 
 		return func(permissions);

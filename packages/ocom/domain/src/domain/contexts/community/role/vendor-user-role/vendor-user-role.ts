@@ -1,19 +1,22 @@
-import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import {
+	RoleDeletedReassignEvent,
+	type RoleDeletedReassignProps,
+} from '../../../../events/types/role-deleted-reassign.ts';
+import type { Passport } from '../../../passport.ts';
+import {
+	Community,
+	type CommunityEntityReference,
+	type CommunityProps,
+} from '../../community/community.ts';
+import type { CommunityVisa } from '../../community.visa.ts';
+import * as ValueObjects from './vendor-user-role.value-objects.ts';
 import {
 	VendorUserRolePermissions,
 	type VendorUserRolePermissionsEntityReference,
 	type VendorUserRolePermissionsProps,
 } from './vendor-user-role-permissions.ts';
-import * as ValueObjects from './vendor-user-role.value-objects.ts';
-import {
-	Community,
-	type CommunityProps,
-	type CommunityEntityReference,
-} from '../../community/community.ts';
-import type { CommunityVisa } from '../../community.visa.ts';
-import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
-import type { Passport } from '../../../passport.ts';
 
 export interface VendorUserRoleProps extends DomainEntityProps {
 	roleName: string;
@@ -71,23 +74,24 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 	}
 
 	public deleteAndReassignTo(roleRef: VendorUserRoleEntityReference) {
-        if (this.isDefault) {
-            throw new PermissionError(
-                'You cannot delete a default vendor user role',
-            );
-        }
-        if (
-            !this.isDeleted &&
-            !this.visa.determineIf(
-                (permissions) => permissions.canManageVendorUserRolesAndPermissions,
-            )
-        ) {
-            throw new PermissionError(
-                'You do not have permission to delete this role',
-            );
-        }
+		if (this.isDefault) {
+			throw new PermissionError('You cannot delete a default vendor user role');
+		}
+		if (
+			!this.isDeleted &&
+			!this.visa.determineIf(
+				(permissions) => permissions.canManageVendorUserRolesAndPermissions,
+			)
+		) {
+			throw new PermissionError(
+				'You do not have permission to delete this role',
+			);
+		}
 		super.isDeleted = true;
-		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<
+			RoleDeletedReassignProps,
+			RoleDeletedReassignEvent
+		>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});

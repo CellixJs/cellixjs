@@ -1,14 +1,15 @@
-import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import * as ValueObjects from './staff-user.value-objects.ts';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../events/types/staff-user-created.ts';
+import type { Passport } from '../../passport.ts';
 import {
 	StaffRole,
 	type StaffRoleEntityReference,
 	type StaffRoleProps,
 } from '../staff-role/staff-role.ts';
-import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../events/types/staff-user-created.ts';
 import type { UserVisa } from '../user.visa.ts';
-import type { Passport } from '../../passport.ts';
+import * as ValueObjects from './staff-user.value-objects.ts';
 
 export interface StaffUserProps extends DomainEntityProps {
 	readonly role?: StaffRoleProps;

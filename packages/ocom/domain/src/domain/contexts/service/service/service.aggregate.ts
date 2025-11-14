@@ -1,13 +1,14 @@
-import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import {
 	Community,
-	type CommunityProps,
 	type CommunityEntityReference,
+	type CommunityProps,
 } from '../../community/community/community.ts';
-import * as ValueObjects from './service.value-objects.ts';
-import type { ServiceVisa } from '../service.visa.ts';
 import type { Passport } from '../../passport.ts';
+import type { ServiceVisa } from '../service.visa.ts';
+import * as ValueObjects from './service.value-objects.ts';
 
 export interface ServiceProps extends DomainEntityProps {
 	readonly community: CommunityProps;

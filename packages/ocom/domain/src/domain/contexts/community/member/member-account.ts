@@ -1,11 +1,11 @@
-import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import type { Passport } from '../../passport.ts';
 import {
 	EndUser,
 	type EndUserEntityReference,
 } from '../../user/end-user/end-user.ts';
-import * as ValueObjects from './member-account.value-objects.ts';
 import type { CommunityVisa } from '../community.visa.ts';
-import type { Passport } from '../../passport.ts';
+import * as ValueObjects from './member-account.value-objects.ts';
 
 export interface MemberAccountProps extends DomainEntityProps {
 	firstName: string;

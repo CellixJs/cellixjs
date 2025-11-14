@@ -1,14 +1,15 @@
-import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { VendorUserCreatedEvent, type VendorUserCreatedProps } from '../../../events/types/vendor-user-created.ts';
+import type { Passport } from '../../passport.ts';
+import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './vendor-user.value-objects.ts';
 import {
 	VendorUserPersonalInformation,
 	type VendorUserPersonalInformationEntityReference,
 	type VendorUserPersonalInformationProps,
 } from './vendor-user-personal-information.ts';
-import type { Passport } from '../../passport.ts';
-import type { UserVisa } from '../user.visa.ts';
 
 export interface VendorUserProps extends DomainEntityProps {
 	readonly personalInformation: VendorUserPersonalInformationProps;

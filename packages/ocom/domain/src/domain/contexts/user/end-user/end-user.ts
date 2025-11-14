@@ -1,5 +1,7 @@
-import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
-import type { AggregateRoot, RootEventRegistry } from '@cellix/domain-seedwork/aggregate-root';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { RootEventRegistry } from '@cellix/domain-seedwork/aggregate-root';
 import { EndUserCreatedEvent, type EndUserCreatedProps } from '../../../events/types/end-user-created.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
