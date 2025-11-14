@@ -1,3 +1,4 @@
+import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail-bedroom-detail.value-objects.ts';

@@ -1,4 +1,5 @@
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './member-custom-view.value-objects.ts';
 

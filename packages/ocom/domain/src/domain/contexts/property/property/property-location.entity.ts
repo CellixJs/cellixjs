@@ -1,4 +1,5 @@
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { PropertyVisa } from '../property.visa.ts';
 import {

@@ -1,4 +1,5 @@
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ViolationTicketV1FinanceDetailsRevenueRecognitionEntityReference } from './violation-ticket-v1-finance-details-revenue-recognition.ts';
 import type { ViolationTicketV1FinanceDetailsTransactionsEntityReference } from './violation-ticket-v1-finance-details-transactions.ts';
 

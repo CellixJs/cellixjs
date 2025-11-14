@@ -1,3 +1,4 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';

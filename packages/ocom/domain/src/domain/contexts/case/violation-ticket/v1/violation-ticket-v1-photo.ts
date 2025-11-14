@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
 export interface ViolationTicketV1PhotoProps extends DomainEntityProps {

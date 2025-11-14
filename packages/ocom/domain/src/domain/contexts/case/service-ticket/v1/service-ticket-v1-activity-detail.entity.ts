@@ -1,3 +1,4 @@
+import { DomainEntity } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type * as ValueObjects from './service-ticket-v1-activity-detail.value-objects.ts';

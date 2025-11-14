@@ -1,5 +1,6 @@
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ServiceDomainPermissions } from '../../../service/service.domain-permissions.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
 

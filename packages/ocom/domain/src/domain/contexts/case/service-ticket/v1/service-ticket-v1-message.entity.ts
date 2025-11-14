@@ -1,3 +1,4 @@
+import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type { CaseDomainPermissions } from '../../case.domain-permissions.ts';

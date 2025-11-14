@@ -1,4 +1,5 @@
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
 import type { Passport } from '../../passport.ts';
 import {
 	EndUser,

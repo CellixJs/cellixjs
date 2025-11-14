@@ -1,3 +1,4 @@
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 export interface PropertyLocationAddressProps extends ValueObjectProps {
 	streetNumber: string;

@@ -1,5 +1,6 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 import {
 	ViolationTicketV1FinanceDetailsAdhocTransactions,

@@ -1,4 +1,5 @@
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 export interface ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceProps
 	extends ValueObjectProps {
 	debitGlAccount: string;

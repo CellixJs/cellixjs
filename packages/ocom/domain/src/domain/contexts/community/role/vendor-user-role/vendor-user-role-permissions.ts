@@ -1,4 +1,5 @@
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { CommunityVisa } from '../../community.visa.ts';
 import {
 	VendorUserRoleCommunityPermissions,

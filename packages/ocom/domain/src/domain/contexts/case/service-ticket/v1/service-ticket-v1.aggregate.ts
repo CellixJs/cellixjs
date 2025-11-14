@@ -1,4 +1,5 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import {

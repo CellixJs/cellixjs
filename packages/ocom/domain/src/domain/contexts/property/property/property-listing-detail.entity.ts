@@ -1,5 +1,6 @@
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail.value-objects.ts';
