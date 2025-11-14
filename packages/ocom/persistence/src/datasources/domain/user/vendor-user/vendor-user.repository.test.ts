@@ -113,12 +113,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a VendorUser by ID', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
     When('I call getById with ID "507f1f77bcf86cd799439011"', async () => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('it should return the VendorUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(Domain.VendorUser.VendorUser);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174001"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
@@ -126,12 +126,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a VendorUser by external ID', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
     When('I call getByExternalId with externalId "123e4567-e89b-12d3-a456-426614174001"', async () => {
       result = await repo.getByExternalId('123e4567-e89b-12d3-a456-426614174001');
     });
     Then('it should return the VendorUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(Domain.VendorUser.VendorUser);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174001"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
@@ -148,12 +148,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new VendorUser instance', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
     When('I call getNewInstance with externalId "123e4567-e89b-12d3-a456-426614174002", lastName "Smith", and restOfName "John"', async () => {
       result = await repo.getNewInstance('123e4567-e89b-12d3-a456-426614174002', 'Smith', 'John');
     });
     Then('it should return a new VendorUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(Domain.VendorUser.VendorUser);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174002"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174002');

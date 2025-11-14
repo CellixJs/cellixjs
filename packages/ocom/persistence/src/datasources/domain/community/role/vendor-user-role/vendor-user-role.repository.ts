@@ -11,13 +11,13 @@ export class VendorUserRoleRepository
 		VendorUserRoleModelType,
 		PropType,
 		Domain.Passport,
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<PropType>
+		Domain.VendorUserRole.VendorUserRole<PropType>
 	>
-	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleRepository<PropType>
+	implements Domain.VendorUserRole.VendorUserRoleRepository<PropType>
 {
 	async getById(
 		id: string,
-	): Promise<Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<PropType>> {
+	): Promise<Domain.VendorUserRole.VendorUserRole<PropType>> {
 		const mongoVendorUserRole = await this.model
 			.findById(id)
 			.exec();
@@ -31,11 +31,11 @@ export class VendorUserRoleRepository
 	async getNewInstance(
 		roleName: string,
 		isDefault: boolean,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference
-	): Promise<Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<PropType>> {
+		community: Domain.Community.CommunityEntityReference
+	): Promise<Domain.VendorUserRole.VendorUserRole<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole.getNewInstance(
+			Domain.VendorUserRole.VendorUserRole.getNewInstance(
 				adapter,
 				this.passport,
 				roleName,

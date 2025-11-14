@@ -35,7 +35,7 @@ test.for(feature, ({ Scenario }) => {
   Scenario('Creating a staff user unit of work', ({ Given, When, Then, And }) => {
     let model: Models.User.StaffUserModelType;
     let passport: Domain.Passport;
-    let result: Domain.Contexts.User.StaffUser.StaffUserUnitOfWork;
+    let result: Domain.StaffUser.StaffUserUnitOfWork;
 
     Given('a valid StaffUser model and passport', () => {
       model = makeStaffUserModel();

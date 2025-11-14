@@ -7,19 +7,19 @@ export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Service.Service,
 	ServiceDomainAdapter,
 	Domain.Passport,
-	Domain.Contexts.Service.Service.Service<ServiceDomainAdapter>
+	Domain.Service.Service<ServiceDomainAdapter>
 > {
 	constructor() {
 		super(
 			ServiceDomainAdapter,
-			Domain.Contexts.Service.Service.Service
+			Domain.Service.Service
 		);
 	}
 }
 
 export class ServiceDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.Service.Service>
-	implements Domain.Contexts.Service.Service.ServiceProps
+	implements Domain.Service.ServiceProps
 {
 	get serviceName() {
 		return this.doc.serviceName;
@@ -42,7 +42,7 @@ export class ServiceDomainAdapter
 		this.doc.isActive = isActive;
 	}
 
-	get community(): Domain.Contexts.Community.Community.CommunityProps {
+	get community(): Domain.Community.CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -54,7 +54,7 @@ export class ServiceDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
 
-    async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
+    async loadCommunity(): Promise<Domain.Community.CommunityProps> {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -64,7 +64,7 @@ export class ServiceDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
 
-	setCommunityRef(community: Domain.Contexts.Community.Community.CommunityEntityReference) {
+	setCommunityRef(community: Domain.Community.CommunityEntityReference) {
 		if (!community?.id) {
 			throw new Error('community reference is missing id');
 		}

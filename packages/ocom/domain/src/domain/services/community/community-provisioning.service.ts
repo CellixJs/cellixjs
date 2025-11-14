@@ -1,6 +1,6 @@
-import type { Community } from '../../contexts/community/index.ts';
-import * as Member from '../../contexts/community/member/index.ts';
-import type * as Role from '../../contexts/community/role/index.ts';
+import type * as Community from '../../contexts/community/community/community.ts';
+import { MemberAccountStatusCodes } from '../../contexts/community/member/member.ts';
+import type * as EndUserRole from '../../contexts/community/role/end-user-role/end-user-role.ts';
 import { PassportFactory } from '../../contexts/passport.ts';
 import type { DomainDataSource } from '../../../index.ts';
 
@@ -19,7 +19,7 @@ export class CommunityProvisioningService {
             canManageEndUserRolesAndPermissions: true
         });
         // create the default admin role for the community
-        let role: Role.EndUserRole.EndUserRoleEntityReference | null = null;
+        let role: EndUserRole.EndUserRoleEntityReference | null = null;
         await domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withTransaction(systemPassportForEndUserRole, async (repo) => {
             const newRole = await repo.getNewInstance('admin', true, communityDo as Community.CommunityEntityReference);
             newRole.permissions.setDefaultAdminPermissions();
@@ -36,12 +36,12 @@ export class CommunityProvisioningService {
         });
         await domainDataSource.Community.Member.MemberUnitOfWork.withTransaction(systemPassportForMember, async (repo) => {
             const newMember = await repo.getNewInstance(createdBy.displayName, communityDo as Community.CommunityEntityReference);
-            newMember.role = role as Role.EndUserRole.EndUserRoleEntityReference;
+            newMember.role = role as EndUserRole.EndUserRoleEntityReference;
             const newAccount = newMember.requestNewAccount();
             newAccount.createdBy = createdBy;
             newAccount.firstName = createdBy.personalInformation.identityDetails?.restOfName ?? '';
             newAccount.lastName = createdBy.personalInformation.identityDetails?.lastName;
-            newAccount.statusCode = Member.MemberAccountStatusCodes.Accepted;
+            newAccount.statusCode = MemberAccountStatusCodes.Accepted;
             newAccount.user = createdBy;
             await repo.save(newMember);
         });

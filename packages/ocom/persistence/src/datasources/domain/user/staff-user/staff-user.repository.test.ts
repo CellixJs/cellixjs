@@ -52,14 +52,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: StaffUserConverter;
   let passport: Domain.Passport;
   let staffUserDoc: Models.User.StaffUser;
-  let result: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
+  let result: Domain.StaffUser.StaffUser<StaffUserDomainAdapter>;
   let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
 
   BeforeEachScenario(() => {
     staffUserDoc = makeStaffUserDoc();
     converter = new StaffUserConverter();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
+    result = {} as Domain.StaffUser.StaffUser<StaffUserDomainAdapter>;
 
     // Mock the Mongoose model as a constructor function with static methods
     const ModelMock = function (this: Models.User.StaffUser) {
@@ -114,7 +114,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('it should return the staff user aggregate by ID', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffUser.StaffUser);
+      expect(result).toBeInstanceOf(Domain.StaffUser.StaffUser);
     });
     And('the staff user by ID should have the correct properties', () => {
       expect(result.firstName).toBe('John');
@@ -145,7 +145,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getByExternalId('12345678-1234-1234-8123-123456789012');
     });
     Then('it should return the staff user aggregate by external ID', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffUser.StaffUser);
+      expect(result).toBeInstanceOf(Domain.StaffUser.StaffUser);
     });
     And('the staff user by external ID should have the correct properties', () => {
       expect(result.firstName).toBe('John');
@@ -181,7 +181,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       );
     });
     Then('it should return a new staff user aggregate', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.StaffUser.StaffUser);
+      expect(result).toBeInstanceOf(Domain.StaffUser.StaffUser);
     });
     And('the new staff user should have tags set to an empty array', () => {
       expect(result.tags).toEqual([]);

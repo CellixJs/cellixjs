@@ -1,7 +1,7 @@
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { CommunityEntityReference } from '../../../community/community/index.ts';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
-import type { PropertyEntityReference } from '../../../property/property/index.ts';
+import type { CommunityEntityReference } from '../../../community/community/community.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
+import type { PropertyEntityReference } from '../../../property/property/property.aggregate.ts';
 import type { ServiceTicketV1, ServiceTicketV1Props } from './service-ticket-v1.aggregate.ts';
 import type * as ValueObjects from './service-ticket-v1.value-objects.ts';
 

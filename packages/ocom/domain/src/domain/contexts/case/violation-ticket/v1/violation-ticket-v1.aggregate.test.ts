@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { expect, vi } from 'vitest';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type { Passport } from '../../../passport.ts';
 import * as ActivityDetailValueObjects from './violation-ticket-v1-activity-detail.value-objects.ts';
 import { ViolationTicketV1, type ViolationTicketV1Props } from './violation-ticket-v1.aggregate.ts';

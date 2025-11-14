@@ -169,3 +169,26 @@ export class EndUserRole<props extends EndUserRoleProps>
 	}
 	//#endregion Properties
 }
+
+//#region Exports
+export type { EndUserRoleRepository } from './end-user-role.repository.ts';
+export type { EndUserRoleUnitOfWork } from './end-user-role.uow.ts';
+import { EndUserRoleCommunityPermissions as EndUserRoleCommunityPermissionsImport } from './end-user-role-community-permissions.ts';
+export const EndUserRoleCommunityPermissions = EndUserRoleCommunityPermissionsImport;
+export type { EndUserRoleCommunityPermissionsEntityReference, EndUserRoleCommunityPermissionsProps } from './end-user-role-community-permissions.ts';
+// EndUserRolePermissions is already imported at the top of the file for internal use, so just re-export it
+export { EndUserRolePermissions };
+export type { EndUserRolePermissionsEntityReference, EndUserRolePermissionsProps } from './end-user-role-permissions.ts';
+import { EndUserRolePropertyPermissions as EndUserRolePropertyPermissionsImport } from './end-user-role-property-permissions.ts';
+export const EndUserRolePropertyPermissions = EndUserRolePropertyPermissionsImport;
+export type { EndUserRolePropertyPermissionsEntityReference, EndUserRolePropertyPermissionsProps } from './end-user-role-property-permissions.ts';
+import { EndUserRoleServicePermissions as EndUserRoleServicePermissionsImport } from './end-user-role-service-permissions.ts';
+export const EndUserRoleServicePermissions = EndUserRoleServicePermissionsImport;
+export type { EndUserRoleServicePermissionsEntityReference, EndUserRoleServicePermissionsProps } from './end-user-role-service-permissions.ts';
+import { EndUserRoleServiceTicketPermissions as EndUserRoleServiceTicketPermissionsImport } from './end-user-role-service-ticket-permissions.ts';
+export const EndUserRoleServiceTicketPermissions = EndUserRoleServiceTicketPermissionsImport;
+export type { EndUserRoleServiceTicketPermissionsEntityReference, EndUserRoleServiceTicketPermissionsProps } from './end-user-role-service-ticket-permissions.ts';
+import { EndUserRoleViolationTicketPermissions as EndUserRoleViolationTicketPermissionsImport } from './end-user-role-violation-ticket-permissions.ts';
+export const EndUserRoleViolationTicketPermissions = EndUserRoleViolationTicketPermissionsImport;
+export type { EndUserRoleViolationTicketPermissionsEntityReference, EndUserRoleViolationTicketPermissionsProps } from './end-user-role-violation-ticket-permissions.ts';
+//#endregion

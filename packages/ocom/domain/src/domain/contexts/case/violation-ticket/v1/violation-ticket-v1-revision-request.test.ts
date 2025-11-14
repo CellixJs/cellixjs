@@ -5,7 +5,7 @@ import { expect, vi } from 'vitest';
 import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ViolationTicketV1RevisionRequest, type ViolationTicketV1RevisionRequestProps } from './violation-ticket-v1-revision-request.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

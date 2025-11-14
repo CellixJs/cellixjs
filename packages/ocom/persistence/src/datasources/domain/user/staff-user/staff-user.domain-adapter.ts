@@ -5,22 +5,22 @@ import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.
 
 export class StaffUserDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.User.StaffUser>
-	implements Domain.Contexts.User.StaffUser.StaffUserProps
+	implements Domain.StaffUser.StaffUserProps
 {
-	get role(): Domain.Contexts.User.StaffRole.StaffRoleProps {
+	get role(): Domain.StaffRole.StaffRoleProps {
 		if (!this.doc.role) {
-			return undefined as unknown as Domain.Contexts.User.StaffRole.StaffRoleProps;
+			return undefined as unknown as Domain.StaffRole.StaffRoleProps;
 		}
 		if (this.doc.role instanceof MongooseSeedwork.ObjectId) {
-			return undefined as unknown as Domain.Contexts.User.StaffRole.StaffRoleProps;
+			return undefined as unknown as Domain.StaffRole.StaffRoleProps;
 		}
 		return new StaffRoleDomainAdapter(this.doc.role as Models.Role.StaffRole);
 	}
 
 	setRoleRef(
 		role:
-			| Domain.Contexts.User.StaffRole.StaffRoleEntityReference
-			| Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>
+			| Domain.StaffRole.StaffRoleEntityReference
+			| Domain.StaffRole.StaffRole<StaffRoleDomainAdapter>
 			| undefined,
 	): void {
 		if (!role) {
@@ -28,7 +28,7 @@ export class StaffUserDomainAdapter
 			return;
 		}
 
-		if (role instanceof Domain.Contexts.User.StaffRole.StaffRole) {
+		if (role instanceof Domain.StaffRole.StaffRole) {
 			this.doc.set('role', role.props.doc);
 			return;
 		}
@@ -113,12 +113,12 @@ export class StaffUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.User.StaffUser,
 	StaffUserDomainAdapter,
 	Domain.Passport,
-	Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>
+	Domain.StaffUser.StaffUser<StaffUserDomainAdapter>
 > {
 	constructor() {
 		super(
 			StaffUserDomainAdapter,
-			Domain.Contexts.User.StaffUser.StaffUser,
+			Domain.StaffUser.StaffUser,
 		);
 	}
 }

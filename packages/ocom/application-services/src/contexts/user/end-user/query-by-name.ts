@@ -11,7 +11,7 @@ export const queryByName = (
 ) => {
     return async (
         command: EndUserQueryByNameCommand,
-    ): Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]> => {
+    ): Promise<Domain.EndUser.EndUserEntityReference[]> => {
         return await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByName(
             command.displayName,
             {

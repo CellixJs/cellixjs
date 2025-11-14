@@ -6,21 +6,21 @@ export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.User.VendorUser,
 	VendorUserDomainAdapter,
 	Domain.Passport,
-	Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>
+	Domain.VendorUser.VendorUser<VendorUserDomainAdapter>
 > {
 	constructor() {
 		super(
 			VendorUserDomainAdapter,
-			Domain.Contexts.User.VendorUser.VendorUser,
+			Domain.VendorUser.VendorUser,
 		);
 	}
 }
 
 export class VendorUserDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.User.VendorUser>
-	implements Domain.Contexts.User.VendorUser.VendorUserProps
+	implements Domain.VendorUser.VendorUserProps
 {
-	get personalInformation(): Domain.Contexts.User.VendorUser.VendorUserPersonalInformationProps {
+	get personalInformation(): Domain.VendorUser.VendorUserPersonalInformationProps {
 		if (!this.doc.personalInformation) {
 			this.doc.set(
 				'personalInformation',
@@ -85,7 +85,7 @@ export class VendorUserDomainAdapter
 }
 
 export class VendorUserIdentityDetailsDomainAdapter
-	implements Domain.Contexts.User.VendorUser.VendorUserIdentityDetailsProps
+	implements Domain.VendorUser.VendorUserIdentityDetailsProps
 {
 	private readonly props: Models.User.VendorUserIdentityDetails;
 
@@ -116,7 +116,7 @@ export class VendorUserIdentityDetailsDomainAdapter
 }
 
 export class VendorUserContactInformationDomainAdapter
-	implements Domain.Contexts.User.VendorUser.VendorUserContactInformationProps
+	implements Domain.VendorUser.VendorUserContactInformationProps
 {
 	private readonly props: Models.User.VendorUserContactInformation;
 
@@ -133,7 +133,7 @@ export class VendorUserContactInformationDomainAdapter
 }
 
 export class VendorUserPersonalInformationDomainAdapter
-	implements Domain.Contexts.User.VendorUser.VendorUserPersonalInformationProps
+	implements Domain.VendorUser.VendorUserPersonalInformationProps
 {
 	private readonly props: Models.User.VendorUserPersonalInformation;
 
@@ -141,7 +141,7 @@ export class VendorUserPersonalInformationDomainAdapter
 		this.props = props;
 	}
 
-	get identityDetails(): Domain.Contexts.User.VendorUser.VendorUserIdentityDetailsProps {
+	get identityDetails(): Domain.VendorUser.VendorUserIdentityDetailsProps {
 		if (!this.props.identityDetails) {
 			this.props.set(
 				'identityDetails',
@@ -153,7 +153,7 @@ export class VendorUserPersonalInformationDomainAdapter
 		);
 	}
 
-	get contactInformation(): Domain.Contexts.User.VendorUser.VendorUserContactInformationProps {
+	get contactInformation(): Domain.VendorUser.VendorUserContactInformationProps {
 		if (!this.props.contactInformation) {
 			this.props.set(
 				'contactInformation',

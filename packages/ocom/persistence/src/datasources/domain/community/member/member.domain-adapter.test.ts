@@ -263,13 +263,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Setting the community property with a valid Community domain object', ({ Given, And, When, Then }) => {
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Domain.Community.Community<CommunityDomainAdapter>;
     Given('a MemberDomainAdapter for the document', () => {
       adapter = new MemberDomainAdapter(doc);
     });
     And('a valid Community domain object', () => {
       communityAdapter = new CommunityDomainAdapter(communityDoc);
-      communityDomainObj = new Domain.Contexts.Community.Community.Community(communityAdapter, makeMockPassport());
+      communityDomainObj = new Domain.Community.Community(communityAdapter, makeMockPassport());
     });
     When('I set the community property to the Community domain object', () => {
       adapter.community = communityDomainObj;
@@ -330,13 +330,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Setting the role property with a valid EndUserRole domain object', ({ Given, And, When, Then }) => {
     let roleAdapter: EndUserRoleDomainAdapter;
-    let roleDomainObj: Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
+    let roleDomainObj: Domain.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
     Given('a MemberDomainAdapter for the document', () => {
       adapter = new MemberDomainAdapter(doc);
     });
     And('a valid EndUserRole domain object', () => {
       roleAdapter = new EndUserRoleDomainAdapter(roleDoc);
-      roleDomainObj = new Domain.Contexts.Community.Role.EndUserRole.EndUserRole(roleAdapter, makeMockPassport());
+      roleDomainObj = new Domain.EndUserRole.EndUserRole(roleAdapter, makeMockPassport());
     });
     When('I set the role property to the EndUserRole domain object', () => {
       adapter.role = roleDomainObj;
@@ -468,7 +468,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let accountDoc: Models.Member.MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
     let userAdapter: EndUserDomainAdapter;
-    let userDomainObj: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
+    let userDomainObj: Domain.EndUser.EndUser<EndUserDomainAdapter>;
 
     Given('a MemberAccountDomainAdapter for a member account document', () => {
       accountDoc = makeMemberAccountDoc();
@@ -477,7 +477,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     And('a valid EndUser domain object', () => {
       const userDoc = makeUserDoc();
       userAdapter = new EndUserDomainAdapter(userDoc);
-      userDomainObj = new Domain.Contexts.User.EndUser.EndUser(userAdapter, makeMockPassport());
+      userDomainObj = new Domain.EndUser.EndUser(userAdapter, makeMockPassport());
     });
     When('I set the user property to the EndUser domain object', () => {
       accountAdapter.user = userDomainObj;
@@ -532,7 +532,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let accountDoc: Models.Member.MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
     let userAdapter: EndUserDomainAdapter;
-    let userDomainObj: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
+    let userDomainObj: Domain.EndUser.EndUser<EndUserDomainAdapter>;
 
     Given('a MemberAccountDomainAdapter for a member account document', () => {
       accountDoc = makeMemberAccountDoc();
@@ -541,7 +541,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     And('a valid EndUser domain object', () => {
       const userDoc = makeUserDoc();
       userAdapter = new EndUserDomainAdapter(userDoc);
-      userDomainObj = new Domain.Contexts.User.EndUser.EndUser(userAdapter, makeMockPassport());
+      userDomainObj = new Domain.EndUser.EndUser(userAdapter, makeMockPassport());
     });
     When('I set the createdBy property to the EndUser domain object', () => {
       accountAdapter.createdBy = userDomainObj;
@@ -935,34 +935,34 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a Member domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Member.Member);
+      expect(result).toBeInstanceOf(Domain.Member.Member);
     });
     And('the domain object\'s memberName should be "Test Member"', () => {
-      expect((result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>).memberName).toBe('Test Member');
+      expect((result as Domain.Member.Member<MemberDomainAdapter>).memberName).toBe('Test Member');
     });
     And('the domain object\'s cybersourceCustomerId should be "test-customer-id"', () => {
-      expect((result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>).cybersourceCustomerId).toBe('test-customer-id');
+      expect((result as Domain.Member.Member<MemberDomainAdapter>).cybersourceCustomerId).toBe('test-customer-id');
     });
     And('the domain object\'s community should be a Community domain object', () => {
-      const { community } = result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
-      expect(community).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
+      const { community } = result as Domain.Member.Member<MemberDomainAdapter>;
+      expect(community).toBeInstanceOf(Domain.Community.Community);
     });
     And('the domain object\'s role should be an EndUserRole domain object', () => {
-      const { role } = result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
-      expect(role).toBeInstanceOf(Domain.Contexts.Community.Role.EndUserRole.EndUserRole);
+      const { role } = result as Domain.Member.Member<MemberDomainAdapter>;
+      expect(role).toBeInstanceOf(Domain.EndUserRole.EndUserRole);
     });
     And('the domain object\'s profile should be a MemberProfile domain object', () => {
-      const { profile } = result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
+      const { profile } = result as Domain.Member.Member<MemberDomainAdapter>;
       expect(profile).toBeDefined();
     });
   });
 
   Scenario('Converting a domain object to a Mongoose Member document', ({ Given, And, When, Then }) => {
-    let domainObj: Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
+    let domainObj: Domain.Member.Member<MemberDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let roleAdapter: EndUserRoleDomainAdapter;
-    let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
-    let roleDomainObj: Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
+    let communityDomainObj: Domain.Community.Community<CommunityDomainAdapter>;
+    let roleDomainObj: Domain.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
     let resultDoc: Models.Member.Member;
 
     Given('a MemberConverter instance', () => {
@@ -971,8 +971,8 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     And('a Member domain object with memberName "New Member", cybersourceCustomerId "new-customer-id", and valid community, role, and profile', () => {
       communityAdapter = new CommunityDomainAdapter(communityDoc);
       roleAdapter = new EndUserRoleDomainAdapter(roleDoc);
-      communityDomainObj = new Domain.Contexts.Community.Community.Community(communityAdapter, passport);
-      roleDomainObj = new Domain.Contexts.Community.Role.EndUserRole.EndUserRole(roleAdapter, passport);
+      communityDomainObj = new Domain.Community.Community(communityAdapter, passport);
+      roleDomainObj = new Domain.EndUserRole.EndUserRole(roleAdapter, passport);
 
       const memberDoc = makeMemberDoc({
         memberName: 'New Member',
@@ -984,7 +984,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       const adapter = new MemberDomainAdapter(memberDoc);
       adapter.community = communityDomainObj;
       adapter.role = roleDomainObj;
-      domainObj = new Domain.Contexts.Community.Member.Member(adapter, passport);
+      domainObj = new Domain.Member.Member(adapter, passport);
     });
     When('I call toPersistence with the Member domain object', () => {
       resultDoc = converter.toPersistence(domainObj);

@@ -2,7 +2,7 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ServiceTicketV1CreatedEvent, type ServiceTicketV1CreatedProps } from '../../../../events/types/service-ticket-v1-created.ts';
 import { ServiceTicketV1DeletedEvent, type ServiceTicketV1DeletedProps } from '../../../../events/types/service-ticket-v1-deleted.ts';
 import { ServiceTicketV1UpdatedEvent, type ServiceTicketV1UpdatedProps } from '../../../../events/types/service-ticket-v1-updated.ts';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type { Passport } from '../../../passport.ts';
 
 import { ServiceTicketV1ActivityDetail, type ServiceTicketV1ActivityDetailEntityReference, type ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.entity.ts';
@@ -394,3 +394,12 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 }
 
 // Placeholder events - these would be defined properly
+//#region Exports
+export type { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
+export type { ServiceTicketV1UnitOfWork } from './service-ticket-v1.uow.ts';
+// Import and re-export value objects to avoid export *
+import * as ValueObjectsImport from './service-ticket-v1.value-objects.ts';
+export const ServiceTicketV1ValueObjects = ValueObjectsImport;
+export type { ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.entity.ts';
+export type { ServiceTicketV1MessageProps } from './service-ticket-v1-message.entity.ts';
+//#endregion

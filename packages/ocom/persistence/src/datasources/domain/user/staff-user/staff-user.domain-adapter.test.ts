@@ -112,7 +112,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(adapter.role).toBeUndefined();
     });
     When('I set the role reference to a valid role', () => {
-      const roleRef = { id: '507f1f77bcf86cd799439012' } as Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+      const roleRef = { id: '507f1f77bcf86cd799439012' } as Domain.StaffRole.StaffRoleEntityReference;
       adapter.setRoleRef(roleRef);
     });
     Then('the document\'s role should be set to the ObjectId', () => {

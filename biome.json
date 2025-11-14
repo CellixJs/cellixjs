@@ -1,7 +1,9 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-	"files": { "ignoreUnknown": false },
+	"files": { 
+		"ignoreUnknown": false
+	},
     "css": { "parser": { "cssModules": true } },
 	"formatter": {
 		"enabled": true,
@@ -140,7 +142,29 @@
 			}
 		},
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
-        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } }
+        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } },
+		{
+			"includes": ["packages/ocom/domain/**/*.ts"],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "error",
+						"noReExportAll": "error"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["packages/ocom/domain/**/tests/**/*.ts", "packages/ocom/domain/**/*.test.ts", "packages/ocom/domain/**/*.spec.ts"],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "off",
+						"noReExportAll": "off"
+					}
+				}
+			}
+		}
 	],
 	"assist": {
 		"enabled": true,

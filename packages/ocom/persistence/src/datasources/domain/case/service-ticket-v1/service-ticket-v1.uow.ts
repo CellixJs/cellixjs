@@ -11,7 +11,7 @@ import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 export const getServiceTicketV1UnitOfWork = (
     serviceTicketModel: Models.Case.ServiceTicketModelType,
     passport: Domain.Passport
-): Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork => {
+): Domain.ServiceTicketV1.ServiceTicketV1UnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,
