@@ -5,7 +5,7 @@ parameters:
 jobs:
 - job: Deploy_Docs
   displayName: 'Deploy Docs (Static Website)'
-  condition: and(eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_DOCS_CHANGES'], 'true'), false)
+  condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_DOCS_CHANGES'], 'true')
   pool:
     vmImage: ${{parameters.vmImageName}}
   steps:
