@@ -1,10 +1,10 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { EndUser, type EndUserProps } from './end-user.ts';
 import { EndUserCreatedEvent } from '../../../events/types/end-user-created.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
 
@@ -176,7 +176,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changingEmailWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changingEmailWithoutPermission).toThrow(PermissionError);
       expect(changingEmailWithoutPermission).throws('Unauthorized');
     });
   });
@@ -223,7 +223,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changingDisplayNameWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changingDisplayNameWithoutPermission).toThrow(PermissionError);
       expect(changingDisplayNameWithoutPermission).throws('Unauthorized');
     });
   });
@@ -331,7 +331,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changingAccessBlockedWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changingAccessBlockedWithoutPermission).toThrow(PermissionError);
       expect(changingAccessBlockedWithoutPermission).throws('Unauthorized');
     });
   });
@@ -362,7 +362,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changingTagsWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changingTagsWithoutPermission).toThrow(PermissionError);
       expect(changingTagsWithoutPermission).throws('Unauthorized');
     });
   });

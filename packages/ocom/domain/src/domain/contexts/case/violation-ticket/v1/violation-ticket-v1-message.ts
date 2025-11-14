@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 import * as ValueObjects from './violation-ticket-v1-message.value-objects.ts';
@@ -6,7 +6,7 @@ import * as ValueObjects from './violation-ticket-v1-message.value-objects.ts';
 /**
  * Props for ViolationTicketV1Message
  */
-export interface ViolationTicketV1MessageProps extends DomainSeedwork.DomainEntityProps {
+export interface ViolationTicketV1MessageProps extends DomainEntityProps {
   sentBy: string;
   initiatedBy: MemberEntityReference;
   loadInitiatedBy: () => Promise<MemberEntityReference>;
@@ -21,7 +21,7 @@ export interface ViolationTicketV1MessageEntityReference extends Readonly<Violat
 /**
  * ViolationTicketV1Message entity
  */
-export class ViolationTicketV1Message extends DomainSeedwork.DomainEntity<ViolationTicketV1MessageProps>
+export class ViolationTicketV1Message extends DomainEntity<ViolationTicketV1MessageProps>
   implements ViolationTicketV1MessageEntityReference
 {
   private readonly visa: ViolationTicketV1Visa;
@@ -67,7 +67,7 @@ export class ViolationTicketV1Message extends DomainSeedwork.DomainEntity<Violat
 
   set sentBy(sentBy: ValueObjects.SentBy) {
     if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to modify this message');
+      throw new PermissionError('You do not have permission to modify this message');
     }
     this.props.sentBy = sentBy.valueOf();
   }
@@ -86,7 +86,7 @@ export class ViolationTicketV1Message extends DomainSeedwork.DomainEntity<Violat
 
   set message(message: ValueObjects.Message) {
     if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to modify this message');
+      throw new PermissionError('You do not have permission to modify this message');
     }
     this.props.message = message.valueOf();
   }
@@ -97,7 +97,7 @@ export class ViolationTicketV1Message extends DomainSeedwork.DomainEntity<Violat
 
   set embedding(embedding: ValueObjects.Embedding) {
     if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to modify this message');
+      throw new PermissionError('You do not have permission to modify this message');
     }
     this.props.embedding = embedding.valueOf();
   }
@@ -108,7 +108,7 @@ export class ViolationTicketV1Message extends DomainSeedwork.DomainEntity<Violat
 
   set createdAt(createdAt: Date) {
     if (!this.visa.determineIf((permissions) => permissions.isSystemAccount)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to modify this message timestamp');
+      throw new PermissionError('You do not have permission to modify this message timestamp');
     }
     this.props.createdAt = createdAt;
   }
@@ -119,7 +119,7 @@ export class ViolationTicketV1Message extends DomainSeedwork.DomainEntity<Violat
 
   set isHiddenFromApplicant(isHiddenFromApplicant: boolean) {
     if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to modify this message visibility');
+      throw new PermissionError('You do not have permission to modify this message visibility');
     }
     this.props.isHiddenFromApplicant = isHiddenFromApplicant;
   }

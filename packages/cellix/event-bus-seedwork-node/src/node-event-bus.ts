@@ -1,6 +1,7 @@
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import type { CustomDomainEvent, DomainEvent } from '@cellix/domain-seedwork/domain-event';
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import api, { trace, type TimeInput, SpanStatusCode } from '@opentelemetry/api';
 // import { SEMATTRS_DB_SYSTEM, SEMATTRS_DB_NAME, SEMATTRS_DB_STATEMENT } from '@opentelemetry/semantic-conventions';
 // not sure where to import these from, see link below
@@ -47,7 +48,7 @@ interface RawPayload {
 	context: Record<string, unknown>; // Or a more specific type if known
 }
 
-class NodeEventBusImpl implements DomainSeedwork.EventBus {
+class NodeEventBusImpl implements EventBus {
 	private static instance: NodeEventBusImpl;
 	private broadcaster: BroadCaster;
 
@@ -60,7 +61,7 @@ class NodeEventBusImpl implements DomainSeedwork.EventBus {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-	async dispatch<T extends DomainSeedwork.DomainEvent>(
+	async dispatch<T extends DomainEvent>(
 		event: new (aggregateId: string) => T,
 		data: unknown,
 	): Promise<void> {
@@ -100,7 +101,7 @@ class NodeEventBusImpl implements DomainSeedwork.EventBus {
 		});
 	}
 
-	register<EventProps, T extends DomainSeedwork.CustomDomainEvent<EventProps>>(
+	register<EventProps, T extends CustomDomainEvent<EventProps>>(
 		event: new (aggregateId: string) => T,
 		func: (payload: T['payload']) => Promise<void>,
 	): void {

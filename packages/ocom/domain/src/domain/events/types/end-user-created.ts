@@ -1,7 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 export interface EndUserCreatedProps {
 	userId: string;
 }
 
-export class EndUserCreatedEvent extends DomainSeedwork.CustomDomainEventImpl<EndUserCreatedProps> {}
+export class EndUserCreatedEvent extends CustomDomainEventImpl<EndUserCreatedProps> {}

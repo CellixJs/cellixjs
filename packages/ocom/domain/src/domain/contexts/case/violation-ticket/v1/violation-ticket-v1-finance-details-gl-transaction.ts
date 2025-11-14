@@ -1,6 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
-export interface ViolationTicketV1FinanceDetailsGlTransactionProps extends DomainSeedwork.ValueObjectProps {
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+export interface ViolationTicketV1FinanceDetailsGlTransactionProps extends ValueObjectProps {
   debitGlAccount: string;
   creditGlAccount: string;
   amount: number;
@@ -12,7 +11,7 @@ export interface ViolationTicketV1FinanceDetailsGlTransactionEntityReference ext
   ViolationTicketV1FinanceDetailsGlTransactionProps
 > {}
 
-export class ViolationTicketV1FinanceDetailsGlTransaction extends DomainSeedwork.ValueObject<ViolationTicketV1FinanceDetailsGlTransactionProps>
+export class ViolationTicketV1FinanceDetailsGlTransaction extends ValueObject<ViolationTicketV1FinanceDetailsGlTransactionProps>
   implements ViolationTicketV1FinanceDetailsGlTransactionEntityReference
 {
   get debitGlAccount(): string {

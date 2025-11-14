@@ -1,8 +1,8 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
-export interface ViolationTicketV1RevisionRequestProps extends DomainSeedwork.DomainEntityProps {
+export interface ViolationTicketV1RevisionRequestProps extends DomainEntityProps {
   requestedAt: Date;
   requestedBy: MemberEntityReference;
   loadRequestedBy: () => Promise<MemberEntityReference>;
@@ -18,7 +18,7 @@ export interface ViolationTicketV1RevisionRequestProps extends DomainSeedwork.Do
 
 export interface ViolationTicketV1RevisionRequestEntityReference extends Readonly<ViolationTicketV1RevisionRequestProps> {}
 
-export class ViolationTicketV1RevisionRequest extends DomainSeedwork.DomainEntity<ViolationTicketV1RevisionRequestProps>
+export class ViolationTicketV1RevisionRequest extends DomainEntity<ViolationTicketV1RevisionRequestProps>
   implements ViolationTicketV1RevisionRequestEntityReference
 {
   //#region Fields
@@ -91,7 +91,7 @@ export class ViolationTicketV1RevisionRequest extends DomainSeedwork.DomainEntit
 
   set revisionSubmittedAt(value: Date | undefined) {
     if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to submit this revision request');
+      throw new PermissionError('You do not have permission to submit this revision request');
     }
     this.props.revisionSubmittedAt = value;
   }

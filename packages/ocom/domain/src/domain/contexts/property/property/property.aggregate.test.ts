@@ -1,9 +1,10 @@
+import { PropArray } from '@cellix/domain-seedwork/prop-array';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Property, type PropertyProps } from './property.aggregate.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 import type { CommunityEntityReference, CommunityProps } from '../../community/community/community.ts';
 import type { MemberEntityReference } from '../../community/member/member.ts';
@@ -103,14 +104,14 @@ function makePropertyListingDetailProps(): PropertyListingDetailProps {
     lease: null,
     maxGuests: 4,
     bedrooms: 2,
-    bedroomDetails: {} as DomainSeedwork.PropArray<PropertyListingDetailBedroomDetailProps>,
+    bedroomDetails: {} as PropArray<PropertyListingDetailBedroomDetailProps>,
     bathrooms: 2,
     squareFeet: 1200,
     yearBuilt: 2020,
     lotSize: null,
     description: 'A nice property',
     amenities: ['pool', 'gym'],
-    additionalAmenities: {} as DomainSeedwork.PropArray<PropertyListingDetailAdditionalAmenityProps>,
+    additionalAmenities: {} as PropArray<PropertyListingDetailAdditionalAmenityProps>,
     images: ['image1.jpg'],
     video: null,
     floorPlan: null,
@@ -233,7 +234,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changePropertyNameWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changePropertyNameWithoutPermission).toThrow(PermissionError);
       expect(changePropertyNameWithoutPermission).toThrow('You do not have permission to update this property\'s name');
     });
   });
@@ -285,7 +286,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changePropertyTypeWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changePropertyTypeWithoutPermission).toThrow(PermissionError);
       expect(changePropertyTypeWithoutPermission).toThrow('You do not have permission to update this property\'s type');
     });
   });
@@ -337,7 +338,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeListedForSaleWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeListedForSaleWithoutPermission).toThrow(PermissionError);
       expect(changeListedForSaleWithoutPermission).toThrow('You do not have permission to update the sale status of this property');
     });
   });
@@ -367,7 +368,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeListedForRentWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeListedForRentWithoutPermission).toThrow(PermissionError);
       expect(changeListedForRentWithoutPermission).toThrow('You do not have permission to update the rental status of this property');
     });
   });
@@ -397,7 +398,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeListedForLeaseWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeListedForLeaseWithoutPermission).toThrow(PermissionError);
       expect(changeListedForLeaseWithoutPermission).toThrow('You do not have permission to update the lease status of this property');
     });
   });
@@ -427,7 +428,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeListedInDirectoryWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeListedInDirectoryWithoutPermission).toThrow(PermissionError);
       expect(changeListedInDirectoryWithoutPermission).toThrow('You do not have permission to update the directory visibility for this property');
     });
   });
@@ -479,7 +480,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(requestDeleteWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(requestDeleteWithoutPermission).toThrow(PermissionError);
       expect(requestDeleteWithoutPermission).toThrow('You do not have permission to delete this property');
     });
   });
@@ -513,7 +514,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeLocationWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeLocationWithoutPermission).toThrow(PermissionError);
       expect(changeLocationWithoutPermission).toThrow('You do not have permission to update this property\'s location');
     });
   });
@@ -560,7 +561,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeOwnerWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeOwnerWithoutPermission).toThrow(PermissionError);
       expect(changeOwnerWithoutPermission).toThrow('You do not have permission to update this property\'s owner');
     });
   });
@@ -590,7 +591,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeTagsWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeTagsWithoutPermission).toThrow(PermissionError);
       expect(changeTagsWithoutPermission).toThrow('You do not have permission to update the tags for this property');
     });
   });
@@ -633,7 +634,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setHashWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setHashWithoutPermission).toThrow(PermissionError);
       expect(setHashWithoutPermission).toThrow('You do not have permission to update the index hash for this property');
     });
   });
@@ -678,7 +679,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setLastIndexedWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setLastIndexedWithoutPermission).toThrow(PermissionError);
       expect(setLastIndexedWithoutPermission).toThrow('You do not have permission to update the index timestamp for this property');
     });
   });
@@ -724,7 +725,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setUpdateIndexFailedDateWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setUpdateIndexFailedDateWithoutPermission).toThrow(PermissionError);
       expect(setUpdateIndexFailedDateWithoutPermission).toThrow('You do not have permission to update the failed index timestamp for this property');
     });
   });

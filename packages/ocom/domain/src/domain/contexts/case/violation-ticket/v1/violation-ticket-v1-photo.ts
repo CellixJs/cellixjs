@@ -1,15 +1,15 @@
+import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { randomBytes } from 'node:crypto';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
-export interface ViolationTicketV1PhotoProps extends DomainSeedwork.DomainEntityProps {
+export interface ViolationTicketV1PhotoProps extends DomainEntityProps {
   documentId: string;
   description: string;
 }
 
 export interface ViolationTicketV1PhotoEntityReference extends Readonly<ViolationTicketV1PhotoProps> {}
 
-export class ViolationTicketV1Photo extends DomainSeedwork.DomainEntity<ViolationTicketV1PhotoProps>
+export class ViolationTicketV1Photo extends DomainEntity<ViolationTicketV1PhotoProps>
   implements ViolationTicketV1PhotoEntityReference
 {
   private readonly visa: ViolationTicketV1Visa;
@@ -37,7 +37,7 @@ export class ViolationTicketV1Photo extends DomainSeedwork.DomainEntity<Violatio
 
   set documentId(value: string) {
     if (!this.visa.determineIf(permissions => permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update photo document ID');
+      throw new PermissionError('You do not have permission to update photo document ID');
     }
     this.props.documentId = value;
   }
@@ -48,7 +48,7 @@ export class ViolationTicketV1Photo extends DomainSeedwork.DomainEntity<Violatio
 
   set description(value: string) {
     if (!this.visa.determineIf(permissions => permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update photo description');
+      throw new PermissionError('You do not have permission to update photo description');
     }
     this.props.description = value;
   }

@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import {
 	VendorUserRolePermissions,
 	type VendorUserRolePermissionsEntityReference,
@@ -14,7 +15,7 @@ import type { CommunityVisa } from '../../community.visa.ts';
 import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../../passport.ts';
 
-export interface VendorUserRoleProps extends DomainSeedwork.DomainEntityProps {
+export interface VendorUserRoleProps extends DomainEntityProps {
 	roleName: string;
 	get community(): CommunityProps;
 	set community(community: CommunityEntityReference);
@@ -35,7 +36,7 @@ export interface VendorUserRoleEntityReference
 }
 
 export class VendorUserRole<props extends VendorUserRoleProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements VendorUserRoleEntityReference
 {
 	private isNew: boolean = false;
@@ -71,7 +72,7 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 
 	public deleteAndReassignTo(roleRef: VendorUserRoleEntityReference) {
         if (this.isDefault) {
-            throw new DomainSeedwork.PermissionError(
+            throw new PermissionError(
                 'You cannot delete a default vendor user role',
             );
         }
@@ -81,7 +82,7 @@ export class VendorUserRole<props extends VendorUserRoleProps>
                 (permissions) => permissions.canManageVendorUserRolesAndPermissions,
             )
         ) {
-            throw new DomainSeedwork.PermissionError(
+            throw new PermissionError(
                 'You do not have permission to delete this role',
             );
         }
@@ -103,7 +104,7 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 					domainPermissions.canManageVendorUserRolesAndPermissions,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this role',
 			);
 		}
@@ -122,7 +123,7 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this role',
 			);
 		}
@@ -139,7 +140,7 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 				(permissions) => permissions.canManageVendorUserRolesAndPermissions,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set role name');
+			throw new PermissionError('Cannot set role name');
 		}
 		this.props.roleName = new ValueObjects.RoleName(roleName).valueOf();
 	}

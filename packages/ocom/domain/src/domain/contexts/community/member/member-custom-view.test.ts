@@ -1,11 +1,9 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MemberCustomView, type MemberCustomViewProps } from './member-custom-view.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
-
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -138,7 +136,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setName).toThrow(DomainSeedwork.PermissionError);
+      expect(setName).toThrow(PermissionError);
     });
   });
 
@@ -210,7 +208,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setType).toThrow(DomainSeedwork.PermissionError);
+      expect(setType).toThrow(PermissionError);
     });
   });
 
@@ -281,7 +279,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setFilters).toThrow(DomainSeedwork.PermissionError);
+      expect(setFilters).toThrow(PermissionError);
     });
   });
 
@@ -353,7 +351,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setSortOrder).toThrow(DomainSeedwork.PermissionError);
+      expect(setSortOrder).toThrow(PermissionError);
     });
   });
 
@@ -425,7 +423,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setColumns).toThrow(DomainSeedwork.PermissionError);
+      expect(setColumns).toThrow(PermissionError);
     });
   });
 

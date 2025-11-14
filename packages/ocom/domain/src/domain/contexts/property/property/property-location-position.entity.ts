@@ -1,7 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 export interface PropertyLocationPositionProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	type: string | null;
 	coordinates: ReadonlyArray<number> | null;
 }
@@ -10,7 +9,7 @@ export interface PropertyLocationPositionEntityReference
 	extends Readonly<PropertyLocationPositionProps> {}
 
 export class PropertyLocationPosition
-	extends DomainSeedwork.ValueObject<PropertyLocationPositionProps>
+	extends ValueObject<PropertyLocationPositionProps>
 	implements PropertyLocationPositionEntityReference
 {
 	get type(): string | null {

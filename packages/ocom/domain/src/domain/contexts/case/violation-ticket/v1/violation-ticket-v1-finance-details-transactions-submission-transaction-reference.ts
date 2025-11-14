@@ -1,6 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
-export interface ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceProps extends DomainSeedwork.ValueObjectProps {
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+export interface ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceProps extends ValueObjectProps {
   referenceId: string;
   completedOn: Date;
   vendor: string;
@@ -10,7 +9,7 @@ export interface ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactio
   ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceProps
 > {}
 
-export class ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference extends DomainSeedwork.ValueObject<ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceProps>
+export class ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference extends ValueObject<ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceProps>
   implements ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceEntityReference
 {
   get referenceId(): string {

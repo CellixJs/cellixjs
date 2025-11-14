@@ -1,9 +1,9 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail-additional-amenity.value-objects.ts';
 
 export interface PropertyListingDetailAdditionalAmenityProps
-	extends DomainSeedwork.DomainEntityProps {
+	extends DomainEntityProps {
 	category: string;
 	amenities: string[];
 }
@@ -12,7 +12,7 @@ export interface PropertyListingDetailAdditionalAmenityEntityReference
 	extends Readonly<PropertyListingDetailAdditionalAmenityProps> {}
 
 export class PropertyListingDetailAdditionalAmenity
-	extends DomainSeedwork.DomainEntity<PropertyListingDetailAdditionalAmenityProps>
+	extends DomainEntity<PropertyListingDetailAdditionalAmenityProps>
 	implements PropertyListingDetailAdditionalAmenityEntityReference
 {
 	private readonly visa: PropertyVisa;
@@ -49,7 +49,7 @@ export class PropertyListingDetailAdditionalAmenity
 					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update property amenities',
 			);
 		}

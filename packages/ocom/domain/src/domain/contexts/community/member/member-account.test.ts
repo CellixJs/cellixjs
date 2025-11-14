@@ -1,9 +1,9 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MemberAccount, type MemberAccountProps } from './member-account.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import type { Passport } from '../../passport.ts';
@@ -166,7 +166,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setFirstName).toThrow(DomainSeedwork.PermissionError);
+      expect(setFirstName).toThrow(PermissionError);
       expect(setFirstName).toThrow('You do not have permission to update this account');
     });
   });
@@ -239,7 +239,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setLastName).toThrow(DomainSeedwork.PermissionError);
+      expect(setLastName).toThrow(PermissionError);
       expect(setLastName).toThrow('You do not have permission to update this account');
     });
   });
@@ -320,7 +320,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setUser).toThrow(DomainSeedwork.PermissionError);
+      expect(setUser).toThrow(PermissionError);
       expect(setUser).toThrow('You do not have permission to update this account');
     });
   });
@@ -363,7 +363,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setStatusCode).toThrow(DomainSeedwork.PermissionError);
+      expect(setStatusCode).toThrow(PermissionError);
       expect(setStatusCode).toThrow('You do not have permission to update this account');
     });
   });
@@ -444,7 +444,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setCreatedBy).toThrow(DomainSeedwork.PermissionError);
+      expect(setCreatedBy).toThrow(PermissionError);
       expect(setCreatedBy).toThrow('You do not have permission to update this account');
     });
   });

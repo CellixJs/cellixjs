@@ -5,9 +5,53 @@
   "type": "module",
   "files": ["dist"],
   "exports": {
-    ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+    "./aggregate-root": {
+      "types": "./dist/src/domain-seedwork/aggregate-root.d.ts",
+      "default": "./dist/src/domain-seedwork/aggregate-root.js"
+    },
+    "./base-domain-execution-context": {
+      "types": "./dist/src/domain-seedwork/base-domain-execution-context.d.ts",
+      "default": "./dist/src/domain-seedwork/base-domain-execution-context.js"
+    },
+    "./child-entity": {
+      "types": "./dist/src/domain-seedwork/child-entity.d.ts",
+      "default": "./dist/src/domain-seedwork/child-entity.js"
+    },
+    "./domain-entity": {
+      "types": "./dist/src/domain-seedwork/domain-entity.d.ts",
+      "default": "./dist/src/domain-seedwork/domain-entity.js"
+    },
+    "./domain-event": {
+      "types": "./dist/src/domain-seedwork/domain-event.d.ts",
+      "default": "./dist/src/domain-seedwork/domain-event.js"
+    },
+    "./event-bus": {
+      "types": "./dist/src/domain-seedwork/event-bus.d.ts",
+      "default": "./dist/src/domain-seedwork/event-bus.js"
+    },
+    "./prop-array": {
+      "types": "./dist/src/domain-seedwork/prop-array.d.ts",
+      "default": "./dist/src/domain-seedwork/prop-array.js"
+    },
+    "./repository": {
+      "types": "./dist/src/domain-seedwork/repository.d.ts",
+      "default": "./dist/src/domain-seedwork/repository.js"
+    },
+    "./type-converter": {
+      "types": "./dist/src/domain-seedwork/type-converter.d.ts",
+      "default": "./dist/src/domain-seedwork/type-converter.js"
+    },
+    "./unit-of-work": {
+      "types": "./dist/src/domain-seedwork/unit-of-work.d.ts",
+      "default": "./dist/src/domain-seedwork/unit-of-work.js"
+    },
+    "./value-object": {
+      "types": "./dist/src/domain-seedwork/value-object.d.ts",
+      "default": "./dist/src/domain-seedwork/value-object.js"
+    },
+    "./visa": {
+      "types": "./dist/src/passport-seedwork/visa.d.ts",
+      "default": "./dist/src/passport-seedwork/visa.js"
     }
   },
   "scripts": {

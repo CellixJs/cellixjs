@@ -1,3 +1,5 @@
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import {
 	EndUserRolePermissions,
 	type EndUserRolePermissionsEntityReference,
@@ -11,10 +13,9 @@ import {
 } from '../../community/community.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
 import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../../passport.ts';
 
-export interface EndUserRoleProps extends DomainSeedwork.DomainEntityProps {
+export interface EndUserRoleProps extends DomainEntityProps {
 	roleName: string;
 	get community(): CommunityProps;
 	set community(CommunityEntityReference);
@@ -33,7 +34,7 @@ export interface EndUserRoleEntityReference
 }
 
 export class EndUserRole<props extends EndUserRoleProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements EndUserRoleEntityReference
 {
 	//#region Fields
@@ -66,7 +67,7 @@ export class EndUserRole<props extends EndUserRoleProps>
 	}
 	deleteAndReassignTo(roleRef: EndUserRoleEntityReference) {
         if (this.isDefault) {
-            throw new DomainSeedwork.PermissionError(
+            throw new PermissionError(
                 'You cannot delete a default end user role',
             );
         }
@@ -76,7 +77,7 @@ export class EndUserRole<props extends EndUserRoleProps>
                 (permissions) => permissions.canManageEndUserRolesAndPermissions,
             )
         ) {
-            throw new DomainSeedwork.PermissionError(
+            throw new PermissionError(
                 'You do not have permission to delete this role',
             );
         }
@@ -112,7 +113,7 @@ export class EndUserRole<props extends EndUserRoleProps>
 					domainPermissions.canManageEndUserRolesAndPermissions,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set role name');
+			throw new PermissionError('Cannot set role name');
 		}
 		this.props.roleName = new ValueObjects.RoleName(roleName).valueOf();
 	}
@@ -128,7 +129,7 @@ export class EndUserRole<props extends EndUserRoleProps>
 					domainPermissions.canManageEndUserRolesAndPermissions,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this role',
 			);
 		}
@@ -146,7 +147,7 @@ export class EndUserRole<props extends EndUserRoleProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this role',
 			);
 		}

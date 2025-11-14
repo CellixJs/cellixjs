@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import * as ValueObjects from './staff-user.value-objects.ts';
 import {
 	StaffRole,
@@ -9,7 +10,7 @@ import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../even
 import type { UserVisa } from '../user.visa.ts';
 import type { Passport } from '../../passport.ts';
 
-export interface StaffUserProps extends DomainSeedwork.DomainEntityProps {
+export interface StaffUserProps extends DomainEntityProps {
 	readonly role?: StaffRoleProps;
 	setRoleRef: (role: StaffRoleEntityReference | undefined) => void;
 	firstName: string;
@@ -32,7 +33,7 @@ export interface StaffUserEntityReference
 }
 
 export class StaffUser<props extends StaffUserProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements StaffUserEntityReference
 {
 	private isNew: boolean = false;
@@ -77,7 +78,7 @@ export class StaffUser<props extends StaffUserProps>
 				(permissions) => permissions.canManageStaffRolesAndPermissions,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Unauthorized');
+			throw new PermissionError('Unauthorized');
 		}
 	}
 

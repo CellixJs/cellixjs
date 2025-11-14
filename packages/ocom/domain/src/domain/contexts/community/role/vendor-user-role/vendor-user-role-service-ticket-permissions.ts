@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { CommunityVisa } from '../../community.visa.ts';
 import type { CaseDomainPermissions } from '../../../case/case.domain-permissions.ts';
 
@@ -6,12 +7,12 @@ export interface VendorUserRoleServiceTicketPermissionsProps
 	extends Omit<
             CaseDomainPermissions,
             'isEditingOwnTicket' | 'isEditingAssignedTicket' | 'isSystemAccount'>,
-		DomainSeedwork.ValueObjectProps {}
+		ValueObjectProps {}
 export interface VendorUserRoleServiceTicketPermissionsEntityReference
 	extends Readonly<VendorUserRoleServiceTicketPermissionsProps> {}
 
 export class VendorUserRoleServiceTicketPermissions
-	extends DomainSeedwork.ValueObject<VendorUserRoleServiceTicketPermissionsProps>
+	extends ValueObject<VendorUserRoleServiceTicketPermissionsProps>
 	implements VendorUserRoleServiceTicketPermissionsEntityReference
 {
 	private readonly visa: CommunityVisa;
@@ -31,7 +32,7 @@ export class VendorUserRoleServiceTicketPermissions
 					permissions.isSystemAccount,
             )
         ) {
-            throw new DomainSeedwork.PermissionError('Cannot set permission');
+            throw new PermissionError('Cannot set permission');
         }
     }
 

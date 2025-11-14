@@ -1,11 +1,9 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MemberProfile, type MemberProfileProps } from './member-profile.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
-
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -133,7 +131,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setName).toThrow(DomainSeedwork.PermissionError);
+      expect(setName).toThrow(PermissionError);
       expect(setName).throws('You do not have permission to update this profile');
     });
   });
@@ -193,7 +191,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setEmail).toThrow(DomainSeedwork.PermissionError);
+      expect(setEmail).toThrow(PermissionError);
       expect(setEmail).throws('You do not have permission to update this profile');
     });
   });
@@ -252,7 +250,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setBio).toThrow(DomainSeedwork.PermissionError);
+      expect(setBio).toThrow(PermissionError);
       expect(setBio).toThrow('You do not have permission to update this profile');
     });
   });
@@ -311,7 +309,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setAvatar).toThrow(DomainSeedwork.PermissionError);
+      expect(setAvatar).toThrow(PermissionError);
       expect(setAvatar).toThrow('You do not have permission to update this profile');
     });
   });
@@ -354,7 +352,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setInterests).toThrow(DomainSeedwork.PermissionError);
+      expect(setInterests).toThrow(PermissionError);
       expect(setInterests).toThrow('You do not have permission to update this profile');
     });
   });
@@ -414,7 +412,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setShowInterests).toThrow(DomainSeedwork.PermissionError);
+      expect(setShowInterests).toThrow(PermissionError);
       expect(setShowInterests).toThrow('You do not have permission to update this profile');
     });
   });
@@ -457,7 +455,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setShowEmail).toThrow(DomainSeedwork.PermissionError);
+      expect(setShowEmail).toThrow(PermissionError);
       expect(setShowEmail).toThrow('You do not have permission to update this profile');
     });
   });
@@ -500,7 +498,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setShowProfile).toThrow(DomainSeedwork.PermissionError);
+      expect(setShowProfile).toThrow(PermissionError);
       expect(setShowProfile).toThrow('You do not have permission to update this profile');
     });
   });
@@ -543,7 +541,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setShowLocation).toThrow(DomainSeedwork.PermissionError);
+      expect(setShowLocation).toThrow(PermissionError);
       expect(setShowLocation).toThrow('You do not have permission to update this profile');
     });
   });
@@ -586,7 +584,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setShowProperties).toThrow(DomainSeedwork.PermissionError);
+      expect(setShowProperties).toThrow(PermissionError);
       expect(setShowProperties).toThrow('You do not have permission to update this profile');
     });
   });

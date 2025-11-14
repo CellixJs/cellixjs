@@ -1,3 +1,5 @@
+import { CustomDomainEvent } from '@cellix/domain-seedwork/domain-event';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
@@ -5,7 +7,6 @@ import { expect, vi } from 'vitest';
 
 import { StaffUser, type StaffUserProps } from './staff-user.ts';
 import { StaffUserCreatedEvent } from '../../../events/types/staff-user-created.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
 const test = { for: describeFeature };
@@ -71,7 +72,7 @@ function makeBaseProps(
 }
 
 function getIntegrationEvent<T>(
-	events: readonly DomainSeedwork.CustomDomainEvent<unknown>[],
+	events: readonly CustomDomainEvent<unknown>[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
 	return events.find((e) => e instanceof eventClass) as T | undefined;
@@ -180,7 +181,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			});
 			Then('a PermissionError should be thrown', () => {
 				expect(changingFirstNameWithoutPermission).toThrow(
-					DomainSeedwork.PermissionError,
+					PermissionError,
 				);
 			});
 		},
@@ -255,7 +256,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			});
 			Then('a PermissionError should be thrown', () => {
 				expect(changingLastNameWithoutPermission).toThrow(
-					DomainSeedwork.PermissionError,
+					PermissionError,
 				);
 				expect(changingLastNameWithoutPermission).toThrow('Unauthorized');
 			});
@@ -334,7 +335,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			});
 			Then('a PermissionError should be thrown', () => {
 				expect(changingDisplayNameWithoutPermission).toThrow(
-					DomainSeedwork.PermissionError,
+					PermissionError,
 				);
 				expect(changingDisplayNameWithoutPermission).toThrow('Unauthorized');
 			});
@@ -408,7 +409,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('a PermissionError should be thrown', () => {
 			expect(changingEmailWithoutPermission).toThrow(
-				DomainSeedwork.PermissionError,
+				PermissionError,
 			);
 			expect(changingEmailWithoutPermission).throws('Unauthorized');
 		});
@@ -466,7 +467,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         });
         Then('a PermissionError should be thrown', () => {
             expect(changingExternalIdWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
+                PermissionError,
             );
             expect(changingExternalIdWithoutPermission).throws('Unauthorized');
         });
@@ -524,7 +525,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         });
         Then('a PermissionError should be thrown', () => {
             expect(changingAccessBlockedWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
+                PermissionError,
             );
             expect(changingAccessBlockedWithoutPermission).throws('Unauthorized');
         });
@@ -563,7 +564,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         });
         Then('a PermissionError should be thrown', () => {
             expect(changingTagsWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
+                PermissionError,
             );
             expect(changingTagsWithoutPermission).throws('Unauthorized');
         });
@@ -613,7 +614,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         });
         Then('a PermissionError should be thrown', () => {
             expect(changingRoleWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
+                PermissionError,
             );
             expect(changingRoleWithoutPermission).throws('Unauthorized');
         });

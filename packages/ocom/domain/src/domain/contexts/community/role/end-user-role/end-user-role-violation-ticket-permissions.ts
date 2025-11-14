@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { CommunityVisa } from '../../community.visa.ts';
 import type { CaseDomainPermissions } from '../../../case/case.domain-permissions.ts';
 
@@ -6,12 +7,12 @@ export interface EndUserRoleViolationTicketPermissionsProps
 	extends Omit<
                 CaseDomainPermissions,
                 'isEditingOwnTicket' | 'isEditingAssignedTicket' | 'isSystemAccount' >,
-		DomainSeedwork.ValueObjectProps {}
+		ValueObjectProps {}
 export interface EndUserRoleViolationTicketPermissionsEntityReference
 	extends Readonly<EndUserRoleViolationTicketPermissionsProps> {}
 
 export class EndUserRoleViolationTicketPermissions
-	extends DomainSeedwork.ValueObject<EndUserRoleViolationTicketPermissionsProps>
+	extends ValueObject<EndUserRoleViolationTicketPermissionsProps>
 	implements EndUserRoleViolationTicketPermissionsEntityReference
 {
 	private visa: CommunityVisa;
@@ -35,7 +36,7 @@ export class EndUserRoleViolationTicketPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canCreateTickets = value;
 	}
@@ -50,7 +51,7 @@ export class EndUserRoleViolationTicketPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canManageTickets = value;
 	}
@@ -65,7 +66,7 @@ export class EndUserRoleViolationTicketPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canAssignTickets = value;
 	}
@@ -80,7 +81,7 @@ export class EndUserRoleViolationTicketPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canWorkOnTickets = value;
 	}

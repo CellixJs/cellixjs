@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { AggregateRoot, RootEventRegistry } from '@cellix/domain-seedwork/aggregate-root';
 import { EndUserCreatedEvent, type EndUserCreatedProps } from '../../../events/types/end-user-created.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
@@ -10,7 +11,7 @@ import {
 } from './end-user-personal-information.ts';
 
 
-export interface EndUserProps extends DomainSeedwork.DomainEntityProps {
+export interface EndUserProps extends DomainEntityProps {
 	readonly personalInformation: EndUserPersonalInformationProps;
 	email: string | undefined;
 	displayName: string;
@@ -27,12 +28,12 @@ export interface EndUserEntityReference
 	readonly personalInformation: EndUserPersonalInformationEntityReference;
 }
 
-export interface EndUserAggregateRoot extends DomainSeedwork.RootEventRegistry {
+export interface EndUserAggregateRoot extends RootEventRegistry {
     get isNew(): boolean;
 }
 
 export class EndUser<props extends EndUserProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements EndUserEntityReference,
     EndUserAggregateRoot
 {
@@ -83,7 +84,7 @@ export class EndUser<props extends EndUserProps>
 					permissions.isEditingOwnAccount || permissions.canManageEndUsers,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Unauthorized');
+			throw new PermissionError('Unauthorized');
 		}
 	}
 	private validateVisaElevated(): void {
@@ -91,7 +92,7 @@ export class EndUser<props extends EndUserProps>
 			!this.isNew &&
 			!this.visa.determineIf((permissions) => permissions.canManageEndUsers)
 		) {
-			throw new DomainSeedwork.PermissionError('Unauthorized');
+			throw new PermissionError('Unauthorized');
 		}
 	}
 

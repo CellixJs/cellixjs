@@ -1,4 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { ServiceTicketV1CreatedEvent, type ServiceTicketV1CreatedProps } from '../../../../events/types/service-ticket-v1-created.ts';
 import { ServiceTicketV1DeletedEvent, type ServiceTicketV1DeletedProps } from '../../../../events/types/service-ticket-v1-deleted.ts';
 import { ServiceTicketV1UpdatedEvent, type ServiceTicketV1UpdatedProps } from '../../../../events/types/service-ticket-v1-updated.ts';
@@ -16,7 +18,7 @@ import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.ts';
 /**
  * Props for ServiceTicket aggregate
  */
-export interface ServiceTicketV1Props extends DomainSeedwork.DomainEntityProps {
+export interface ServiceTicketV1Props extends DomainEntityProps {
   title: string;
   description: string;
   status: string;
@@ -27,8 +29,8 @@ export interface ServiceTicketV1Props extends DomainSeedwork.DomainEntityProps {
   requestorId: string;
   assignedToId: string | undefined;
   serviceId: string | undefined;
-  activityLog: DomainSeedwork.PropArray<ServiceTicketV1ActivityDetailProps>;
-  messages: DomainSeedwork.PropArray<ServiceTicketV1MessageProps>;
+  activityLog: PropArray<ServiceTicketV1ActivityDetailProps>;
+  messages: PropArray<ServiceTicketV1MessageProps>;
   readonly createdAt: Date;
   readonly updatedAt: Date;
   readonly schemaVersion: string;
@@ -51,7 +53,7 @@ export interface ServiceTicketV1EntityReference extends Readonly<
  * ServiceTicket aggregate root
  */
 export class ServiceTicketV1<props extends ServiceTicketV1Props>
-  extends DomainSeedwork.AggregateRoot<props, Passport>
+  extends AggregateRoot<props, Passport>
   implements ServiceTicketV1EntityReference
 {
   //#region Fields
@@ -116,7 +118,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
           permissions.canAssignTickets
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update this service ticket');
+      throw new PermissionError('You do not have permission to update this service ticket');
     }
     const activityDetail = this.requestNewActivityDetail(by);
     activityDetail.activityType = ActivityDetailValueObjects.ActivityTypeCodes.Updated;
@@ -134,7 +136,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
               (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket))
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the status of this service ticket or the status transition is invalid');
+      throw new PermissionError('You do not have permission to change the status of this service ticket or the status transition is invalid');
     }
 
     this.props.status = newStatus.valueOf();
@@ -162,7 +164,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 
   public requestDelete(): void {
     if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to delete this property');
+      throw new PermissionError('You do not have permission to delete this property');
     }
     super.isDeleted = true;
     this.addIntegrationEvent<ServiceTicketV1DeletedProps, ServiceTicketV1DeletedEvent>(ServiceTicketV1DeletedEvent, { id: this.props.id });
@@ -194,7 +196,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
           (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update this service ticket');
+      throw new PermissionError('You do not have permission to update this service ticket');
     }
     this.props.title = title.valueOf();
   }
@@ -214,7 +216,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
           (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update this service ticket');
+      throw new PermissionError('You do not have permission to update this service ticket');
     }
     this.props.description = description.valueOf();
   }
@@ -234,7 +236,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
           (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the status of this service ticket');
+      throw new PermissionError('You do not have permission to change the status of this service ticket');
     }
     this.props.status = status.valueOf();
   }
@@ -253,7 +255,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
           permissions.canAssignTickets,
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the priority of this service ticket');
+      throw new PermissionError('You do not have permission to change the priority of this service ticket');
     }
     this.props.priority = priority.valueOf();
   }
@@ -273,7 +275,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
         (permissions) => permissions.isSystemAccount || permissions.canManageTickets,
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the community of this service ticket');
+      throw new PermissionError('You do not have permission to change the community of this service ticket');
     }
     this.props.communityId = value;
   }
@@ -289,7 +291,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
         (permissions) => permissions.isSystemAccount || permissions.canManageTickets,
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the property of this service ticket');
+      throw new PermissionError('You do not have permission to change the property of this service ticket');
     }
     this.props.propertyId = value;
   }
@@ -305,7 +307,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
         (permissions) => permissions.isSystemAccount || permissions.canManageTickets,
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the requestor of this service ticket');
+      throw new PermissionError('You do not have permission to change the requestor of this service ticket');
     }
     this.props.requestorId = value;
   }
@@ -323,7 +325,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
           permissions.canAssignTickets,
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to assign this service ticket');
+      throw new PermissionError('You do not have permission to assign this service ticket');
     }
     this.props.assignedToId = value;
   }
@@ -342,7 +344,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
           (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
       )
     ) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the service of this service ticket');
+      throw new PermissionError('You do not have permission to change the service of this service ticket');
     }
     this.props.serviceId = value;
   }

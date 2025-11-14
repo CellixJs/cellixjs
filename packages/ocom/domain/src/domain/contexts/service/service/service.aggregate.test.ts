@@ -1,9 +1,9 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Service, type ServiceProps } from './service.aggregate.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 import type { CommunityEntityReference, CommunityProps } from '../../community/community/community.ts';
 
@@ -129,7 +129,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeServiceNameWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeServiceNameWithoutPermission).toThrow(PermissionError);
       expect(changeServiceNameWithoutPermission).toThrow('You do not have permission to change the service name');
     });
   });
@@ -181,7 +181,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeDescriptionWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeDescriptionWithoutPermission).toThrow(PermissionError);
       expect(changeDescriptionWithoutPermission).toThrow('You do not have permission to change the service description');
     });
   });
@@ -233,7 +233,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeIsActiveWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeIsActiveWithoutPermission).toThrow(PermissionError);
       expect(changeIsActiveWithoutPermission).toThrow('You do not have permission to change the service status');
     });
   });

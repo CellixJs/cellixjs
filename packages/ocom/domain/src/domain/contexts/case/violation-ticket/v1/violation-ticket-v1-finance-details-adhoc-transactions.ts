@@ -1,10 +1,10 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-approval.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-finance-reference.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReferenceEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-transaction-reference.ts';
 
-export interface ViolationTicketV1FinanceDetailsAdhocTransactionsProps extends DomainSeedwork.DomainEntityProps {
+export interface ViolationTicketV1FinanceDetailsAdhocTransactionsProps extends DomainEntityProps {
   amount: number;
   requestedBy: string; // Member ID reference
   requestedOn: Date;
@@ -24,7 +24,7 @@ export interface ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference
   readonly financeReference: ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference;
 }
 
-export class ViolationTicketV1FinanceDetailsAdhocTransactions extends DomainSeedwork.DomainEntity<ViolationTicketV1FinanceDetailsAdhocTransactionsProps>
+export class ViolationTicketV1FinanceDetailsAdhocTransactions extends DomainEntity<ViolationTicketV1FinanceDetailsAdhocTransactionsProps>
   implements ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference
 {
   private readonly visa: ViolationTicketV1Visa;
@@ -40,7 +40,7 @@ export class ViolationTicketV1FinanceDetailsAdhocTransactions extends DomainSeed
 
   set amount(value: number) {
     if (!this.visa.determineIf(permissions => permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update adhoc transaction amount');
+      throw new PermissionError('You do not have permission to update adhoc transaction amount');
     }
     this.props.amount = value;
   }
@@ -51,7 +51,7 @@ export class ViolationTicketV1FinanceDetailsAdhocTransactions extends DomainSeed
 
   set requestedBy(value: string) {
     if (!this.visa.determineIf(permissions => permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update requested by');
+      throw new PermissionError('You do not have permission to update requested by');
     }
     this.props.requestedBy = value;
   }
@@ -62,7 +62,7 @@ export class ViolationTicketV1FinanceDetailsAdhocTransactions extends DomainSeed
 
   set requestedOn(value: Date) {
     if (!this.visa.determineIf(permissions => permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update requested on');
+      throw new PermissionError('You do not have permission to update requested on');
     }
     this.props.requestedOn = value;
   }
@@ -73,7 +73,7 @@ export class ViolationTicketV1FinanceDetailsAdhocTransactions extends DomainSeed
 
   set reason(value: string) {
     if (!this.visa.determineIf(permissions => permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update reason');
+      throw new PermissionError('You do not have permission to update reason');
     }
     this.props.reason = value;
   }

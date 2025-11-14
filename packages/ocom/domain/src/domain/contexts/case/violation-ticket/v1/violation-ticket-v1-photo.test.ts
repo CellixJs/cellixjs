@@ -1,8 +1,8 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ViolationTicketV1Photo, type ViolationTicketV1PhotoProps } from './violation-ticket-v1-photo.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
@@ -79,7 +79,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     And('I set the document ID', () => {
       expect(() => {
         photo.documentId = 'doc-456';
-      }).toThrow(DomainSeedwork.PermissionError);
+      }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -117,7 +117,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     And('I set the description', () => {
       expect(() => {
         photo.description = 'Updated description';
-      }).toThrow(DomainSeedwork.PermissionError);
+      }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {

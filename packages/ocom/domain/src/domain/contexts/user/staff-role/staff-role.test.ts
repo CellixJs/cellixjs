@@ -1,3 +1,4 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
@@ -5,7 +6,6 @@ import { expect, vi } from 'vitest';
 import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from './staff-role.ts';
 import { StaffRolePermissions } from './staff-role-permissions.ts';
 import { RoleDeletedReassignEvent } from '../../../events/types/role-deleted-reassign.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
 
@@ -138,7 +138,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changingRoleNameWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changingRoleNameWithoutPermission).toThrow(PermissionError);
       expect(changingRoleNameWithoutPermission).toThrow('Cannot set role name');
     });
   });
@@ -198,7 +198,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changingIsDefaultWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changingIsDefaultWithoutPermission).toThrow(PermissionError);
       expect(changingIsDefaultWithoutPermission).throws('You do not have permission to update this role');
     });
   });
@@ -241,7 +241,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(deletingRoleWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(deletingRoleWithoutPermission).toThrow(PermissionError);
       expect(deletingRoleWithoutPermission).toThrow('You do not have permission to delete this role');
     });
     And('no RoleDeletedReassignEvent should be emitted', () => {
@@ -266,7 +266,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(deletingDefaultRole).toThrow(DomainSeedwork.PermissionError);
+      expect(deletingDefaultRole).toThrow(PermissionError);
     });
     And('no RoleDeletedReassignEvent should be emitted', () => {
       const event = getIntegrationEvent(

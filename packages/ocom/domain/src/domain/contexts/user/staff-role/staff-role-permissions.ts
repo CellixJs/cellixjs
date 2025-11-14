@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import {
 	StaffRoleCommunityPermissions,
 	type StaffRoleCommunityPermissionsEntityReference,
@@ -27,7 +27,7 @@ import {
 import type { UserVisa } from '../user.visa.ts';
 
 export interface StaffRolePermissionsProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	readonly communityPermissions: StaffRoleCommunityPermissionsProps;
 	readonly propertyPermissions: StaffRolePropertyPermissionsProps;
 	readonly serviceTicketPermissions: StaffRoleServiceTicketPermissionsProps;
@@ -54,7 +54,7 @@ export interface StaffRolePermissionsEntityReference
 }
 
 export class StaffRolePermissions
-	extends DomainSeedwork.ValueObject<StaffRolePermissionsProps>
+	extends ValueObject<StaffRolePermissionsProps>
 	implements StaffRolePermissionsEntityReference
 {
 	private visa: UserVisa;

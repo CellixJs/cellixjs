@@ -1,10 +1,10 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { VendorUser, type VendorUserProps } from './vendor-user.ts';
 import { VendorUserCreatedEvent } from '../../../events/types/vendor-user-created.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 
 
@@ -214,7 +214,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changingDisplayNameWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changingDisplayNameWithoutPermission).toThrow(PermissionError);
       expect(changingDisplayNameWithoutPermission).toThrow('Unauthorized');
     });
   });

@@ -1,4 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { ViolationTicketV1CreatedEvent, type ViolationTicketV1CreatedProps } from '../../../../events/types/violation-ticket-v1-created.ts';
 import { ViolationTicketV1DeletedEvent, type ViolationTicketV1DeletedEventProps } from '../../../../events/types/violation-ticket-v1-deleted.ts';
 import { ViolationTicketV1UpdatedEvent, type ViolationTicketV1UpdatedProps } from '../../../../events/types/violation-ticket-v1-updated.ts';
@@ -18,7 +20,7 @@ import { type ViolationTicketV1RevisionRequestProps, type ViolationTicketV1Revis
 /**
  * Props for ViolationTicket aggregate
  */
-export interface ViolationTicketV1Props extends DomainSeedwork.DomainEntityProps {
+export interface ViolationTicketV1Props extends DomainEntityProps {
   communityId: string;
   propertyId: string | undefined;
   requestorId: string;
@@ -29,9 +31,9 @@ export interface ViolationTicketV1Props extends DomainSeedwork.DomainEntityProps
   status: string;
   priority: number;
   ticketType: string | undefined;
-  activityLog: DomainSeedwork.PropArray<ViolationTicketV1ActivityDetailProps>;
-  messages: DomainSeedwork.PropArray<ViolationTicketV1MessageProps>;
-  photos: DomainSeedwork.PropArray<ViolationTicketV1PhotoProps>;
+  activityLog: PropArray<ViolationTicketV1ActivityDetailProps>;
+  messages: PropArray<ViolationTicketV1MessageProps>;
+  photos: PropArray<ViolationTicketV1PhotoProps>;
   financeDetails: ViolationTicketV1FinanceDetailProps;
   revisionRequest: ViolationTicketV1RevisionRequestProps | undefined;
   readonly createdAt: Date;
@@ -59,7 +61,7 @@ export interface ViolationTicketV1EntityReference extends Readonly<
  * ViolationTicket aggregate root
  */
 export class ViolationTicketV1<props extends ViolationTicketV1Props>
-  extends DomainSeedwork.AggregateRoot<props, Passport>
+  extends AggregateRoot<props, Passport>
   implements ViolationTicketV1EntityReference
 {
   //#region Fields
@@ -111,7 +113,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   public requestDelete(): void {
     if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to delete this violation ticket');
+      throw new PermissionError('You do not have permission to delete this violation ticket');
     }
     this.isDeleted = true;
     this.addIntegrationEvent<ViolationTicketV1DeletedEventProps, ViolationTicketV1DeletedEvent>(ViolationTicketV1DeletedEvent, { id: this.props.id });
@@ -124,7 +126,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   public requestAddStatusUpdate(description: string, by: MemberEntityReference): void {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket) || permissions.canManageTickets || permissions.canAssignTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to update this violation ticket');
+      throw new PermissionError('You do not have permission to update this violation ticket');
     }
     const activityDetail = this.requestNewActivityDetail(by);
     activityDetail.activityType = ActivityDetailValueObjects.ActivityTypeCodes.Updated;
@@ -133,7 +135,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   public requestAddMessage(message: string, sentBy: string, embedding: string, initiatedBy?: MemberEntityReference): void {
     if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket) || permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to add messages to this violation ticket');
+      throw new PermissionError('You do not have permission to add messages to this violation ticket');
     }
     const messageProps = this.props.messages.getNewItem();
     ViolationTicketV1Message.getNewInstance(messageProps, this.visa, message, sentBy, embedding, initiatedBy);
@@ -142,7 +144,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   public requestAddPhoto(documentId: string, description: string): void {
     if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket) || permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to add photos to this violation ticket');
+      throw new PermissionError('You do not have permission to add photos to this violation ticket');
     }
     const photoProps = this.props.photos.getNewItem();
     ViolationTicketV1Photo.getNewInstance(photoProps, documentId, description, this.visa);
@@ -151,7 +153,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   public requestAddStatusTransition(newStatus: ValueObjects.StatusCode, description: string, by: MemberEntityReference): void {
     if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || (this.validStatusTransitions.get(this.status)?.includes(newStatus.valueOf()) ?? false) && (permissions.canManageTickets || permissions.canAssignTickets || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket)))) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the status of this violation ticket or the status transition is invalid');
+      throw new PermissionError('You do not have permission to change the status of this violation ticket or the status transition is invalid');
     }
 
     this.props.status = newStatus.valueOf();
@@ -190,7 +192,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set communityId(value: string) {
     if (!this.isNew) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the community');
+      throw new PermissionError('You do not have permission to change the community');
     }
     this.props.communityId = value;
   }
@@ -201,7 +203,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set propertyId(value: string | undefined) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets || (permissions.canCreateTickets && permissions.isEditingOwnTicket))) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the property');
+      throw new PermissionError('You do not have permission to change the property');
     }
     this.props.propertyId = value;
   }
@@ -211,7 +213,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
   }
   private set requestorId(value: string) {
     if (!this.isNew) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the requestor');
+      throw new PermissionError('You do not have permission to change the requestor');
     }
     this.props.requestorId = value;
   }
@@ -222,7 +224,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set assignedToId(value: string | undefined) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canAssignTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to assign this violation ticket');
+      throw new PermissionError('You do not have permission to assign this violation ticket');
     }
     this.props.assignedToId = value;
   }
@@ -233,7 +235,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set serviceId(value: string | undefined) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets || (permissions.canCreateTickets && permissions.isEditingOwnTicket))) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the service');
+      throw new PermissionError('You do not have permission to change the service');
     }
     this.props.serviceId = value;
   }
@@ -244,7 +246,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set title(value: string) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets || (permissions.canCreateTickets && permissions.isEditingOwnTicket))) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the title');
+      throw new PermissionError('You do not have permission to change the title');
     }
     this.props.title = new ValueObjects.Title(value).valueOf();
   }
@@ -255,7 +257,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set description(value: string) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets || (permissions.canCreateTickets && permissions.isEditingOwnTicket))) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the description');
+      throw new PermissionError('You do not have permission to change the description');
     }
     this.props.description = new ValueObjects.Description(value).valueOf();
   }
@@ -266,7 +268,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set ticketType(value: string | undefined) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the ticket type');
+      throw new PermissionError('You do not have permission to change the ticket type');
     }
     this.props.ticketType = value;
   }
@@ -277,7 +279,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set status(value: string) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the status');
+      throw new PermissionError('You do not have permission to change the status');
     }
     this.props.status = new ValueObjects.StatusCode(value).valueOf();
   }
@@ -288,7 +290,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set priority(value: number) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the priority');
+      throw new PermissionError('You do not have permission to change the priority');
     }
     this.props.priority = new ValueObjects.Priority(value).valueOf();
   }
@@ -331,7 +333,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set hash(value: string) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket) || permissions.canManageTickets || permissions.canAssignTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the hash');
+      throw new PermissionError('You do not have permission to change the hash');
     }
     this.props.hash = value;
   }
@@ -342,7 +344,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set lastIndexed(value: Date | undefined) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket) || permissions.canManageTickets || permissions.canAssignTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the last indexed date');
+      throw new PermissionError('You do not have permission to change the last indexed date');
     }
     this.props.lastIndexed = value;
   }
@@ -353,7 +355,7 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 
   set updateIndexFailedDate(value: Date | undefined) {
     if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket) || permissions.canManageTickets || permissions.canAssignTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to change the update index failed date');
+      throw new PermissionError('You do not have permission to change the update index failed date');
     }
     this.props.updateIndexFailedDate = value;
   }

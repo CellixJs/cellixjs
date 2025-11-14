@@ -1,13 +1,18 @@
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { InitializedUnitOfWork, UnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
+import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import type { CustomDomainEvent } from '@cellix/domain-seedwork/domain-event';
 import mongoose, { type ClientSession, type Model } from 'mongoose';
 import { MongoRepositoryBase } from './mongo-repository.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Base } from './base.ts';
 
 export class MongoUnitOfWork<
 	MongoType extends Base,
-	PropType extends DomainSeedwork.DomainEntityProps,
+	PropType extends DomainEntityProps,
 	PassportType,
-	DomainType extends DomainSeedwork.AggregateRoot<PropType, PassportType>,
+	DomainType extends AggregateRoot<PropType, PassportType>,
 	RepoType extends MongoRepositoryBase<
 		MongoType,
 		PropType,
@@ -15,37 +20,37 @@ export class MongoUnitOfWork<
 		DomainType
 	>,
 > implements
-		DomainSeedwork.UnitOfWork<PassportType, PropType, DomainType, RepoType>
+		UnitOfWork<PassportType, PropType, DomainType, RepoType>
 {
 	public readonly model: Model<MongoType>;
-	public readonly typeConverter: DomainSeedwork.TypeConverter<
+	public readonly typeConverter: TypeConverter<
 		MongoType,
 		PropType,
 		PassportType,
 		DomainType
 	>;
-	public readonly bus: DomainSeedwork.EventBus;
-	public readonly integrationEventBus: DomainSeedwork.EventBus;
+	public readonly bus: EventBus;
+	public readonly integrationEventBus: EventBus;
 	// protected passport: PassportType;
 	public readonly repoClass: new (
 		passport: PassportType,
 		model: Model<MongoType>,
-		typeConverter: DomainSeedwork.TypeConverter<
+		typeConverter: TypeConverter<
 			MongoType,
 			PropType,
 			PassportType,
 			DomainType
 		>,
-		bus: DomainSeedwork.EventBus,
+		bus: EventBus,
 		session: ClientSession,
 	) => RepoType;
 
 	constructor(
 		//  passport: PassportType,
-		bus: DomainSeedwork.EventBus,
-		integrationEventBus: DomainSeedwork.EventBus,
+		bus: EventBus,
+		integrationEventBus: EventBus,
 		model: Model<MongoType>,
-		typeConverter: DomainSeedwork.TypeConverter<
+		typeConverter: TypeConverter<
 			MongoType,
 			PropType,
 			PassportType,
@@ -54,13 +59,13 @@ export class MongoUnitOfWork<
 		repoClass: new (
 			passport: PassportType,
 			model: Model<MongoType>,
-			typeConverter: DomainSeedwork.TypeConverter<
+			typeConverter: TypeConverter<
 				MongoType,
 				PropType,
 				PassportType,
 				DomainType
 			>,
-			bus: DomainSeedwork.EventBus,
+			bus: EventBus,
 			session: ClientSession,
 		) => RepoType,
 	) {
@@ -76,7 +81,7 @@ export class MongoUnitOfWork<
 		passport: PassportType,
 		func: (repository: RepoType) => Promise<void>,
 	): Promise<void> {
-		let repoEvents: ReadonlyArray<DomainSeedwork.CustomDomainEvent<unknown>> =
+		let repoEvents: ReadonlyArray<CustomDomainEvent<unknown>> =
 			[]; //todo: can we make this an arry of CustomDomainEvents?
 
 		await mongoose.connection.transaction(async (session: ClientSession) => {
@@ -118,9 +123,9 @@ export class MongoUnitOfWork<
 
 export function getInitializedUnitOfWork<
 	MongoType extends Base,
-	PropType extends DomainSeedwork.DomainEntityProps,
+	PropType extends DomainEntityProps,
 	PassportType,
-	DomainType extends DomainSeedwork.AggregateRoot<PropType, PassportType>,
+	DomainType extends AggregateRoot<PropType, PassportType>,
 	RepoType extends MongoRepositoryBase<
 		MongoType,
 		PropType,
@@ -136,7 +141,7 @@ export function getInitializedUnitOfWork<
 		RepoType
 	>,
 	passport: PassportType,
-): DomainSeedwork.InitializedUnitOfWork<
+): InitializedUnitOfWork<
         PassportType,
         PropType,
         DomainType,

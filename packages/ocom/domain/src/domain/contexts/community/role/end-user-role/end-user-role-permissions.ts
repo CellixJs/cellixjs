@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import {
 	EndUserRoleCommunityPermissions,
 	type EndUserRoleCommunityPermissionsEntityReference,
@@ -27,7 +27,7 @@ import {
 } from './end-user-role-violation-ticket-permissions.ts';
 
 export interface EndUserRolePermissionsProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	readonly communityPermissions: EndUserRoleCommunityPermissionsProps;
 	readonly propertyPermissions: EndUserRolePropertyPermissionsProps;
 	readonly serviceTicketPermissions: EndUserRoleServiceTicketPermissionsProps;
@@ -54,7 +54,7 @@ export interface EndUserRolePermissionsEntityReference
 }
 
 export class EndUserRolePermissions
-	extends DomainSeedwork.ValueObject<EndUserRolePermissionsProps>
+	extends ValueObject<EndUserRolePermissionsProps>
 	implements EndUserRolePermissionsEntityReference
 {
 	private readonly visa: CommunityVisa;

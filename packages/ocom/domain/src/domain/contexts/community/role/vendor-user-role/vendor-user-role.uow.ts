@@ -1,4 +1,4 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { UnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
 import type { Passport } from '../../../passport.ts';
 import type {
 	VendorUserRole,
@@ -7,7 +7,7 @@ import type {
 import type { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
 
 export interface VendorUserRoleUnitOfWork
-	extends DomainSeedwork.UnitOfWork<
+	extends UnitOfWork<
 		Passport,
 		VendorUserRoleProps,
 		VendorUserRole<VendorUserRoleProps>,

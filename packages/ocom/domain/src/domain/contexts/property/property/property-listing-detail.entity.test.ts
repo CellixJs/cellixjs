@@ -1,3 +1,4 @@
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
@@ -6,8 +7,6 @@ import * as PropertyListingDetailEntity from './property-listing-detail.entity.t
 import * as ValueObjects from './property-listing-detail.value-objects.ts';
 import type { PropertyListingDetailBedroomDetail, PropertyListingDetailBedroomDetailProps } from './property-listing-detail-bedroom-detail.entity.ts';
 import type { PropertyListingDetailAdditionalAmenity, PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
-
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -26,14 +25,14 @@ test.for(feature, ({ Scenario }) => {
     lease: null,
     maxGuests: null,
     bedrooms: 3,
-    bedroomDetails: { items: [], getNewItem: vi.fn(() => ({ id: '1', roomName: 'new room', bedDescriptions: [] })), removeItem: vi.fn() } as unknown as DomainSeedwork.PropArray<PropertyListingDetailBedroomDetailProps>,
+    bedroomDetails: { items: [], getNewItem: vi.fn(() => ({ id: '1', roomName: 'new room', bedDescriptions: [] })), removeItem: vi.fn() } as unknown as PropArray<PropertyListingDetailBedroomDetailProps>,
     bathrooms: 2,
     squareFeet: null,
     yearBuilt: null,
     lotSize: null,
     description: 'A nice property',
     amenities: ['pool', 'gym'],
-    additionalAmenities: { items: [], getNewItem: vi.fn(() => ({ id: '1', category: 'amenity', amenities: ['pool'] })), removeItem: vi.fn() } as unknown as DomainSeedwork.PropArray<PropertyListingDetailAdditionalAmenity>,
+    additionalAmenities: { items: [], getNewItem: vi.fn(() => ({ id: '1', category: 'amenity', amenities: ['pool'] })), removeItem: vi.fn() } as unknown as PropArray<PropertyListingDetailAdditionalAmenity>,
     images: ['image1.jpg'],
     video: null,
     floorPlan: null,

@@ -1,8 +1,8 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ViolationTicketV1ActivityDetail, type ViolationTicketV1ActivityDetailProps } from './violation-ticket-v1-activity-detail.ts';
 import * as ValueObjects from './violation-ticket-v1-activity-detail.value-objects.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
@@ -89,7 +89,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     And('I set the activity type', () => {
       expect(() => {
         activityDetail.activityType = new ValueObjects.ActivityTypeCode(ValueObjects.ActivityTypeCodes.Updated);
-      }).toThrow(DomainSeedwork.PermissionError);
+      }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -127,7 +127,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     And('I set the activity description', () => {
       expect(() => {
         activityDetail.activityDescription = new ValueObjects.Description('Updated description');
-      }).toThrow(DomainSeedwork.PermissionError);
+      }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {

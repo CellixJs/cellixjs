@@ -1,8 +1,9 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './member-profile.value-objects.ts';
 
-export interface MemberProfileProps extends DomainSeedwork.ValueObjectProps {
+export interface MemberProfileProps extends ValueObjectProps {
 	name: string;
 	email: string;
 	bio: string;
@@ -19,7 +20,7 @@ export interface MemberProfileEntityReference
 	extends Readonly<MemberProfileProps> {}
 
 export class MemberProfile
-	extends DomainSeedwork.ValueObject<MemberProfileProps>
+	extends ValueObject<MemberProfileProps>
 	implements MemberProfileEntityReference
 {
 	//#region Fields
@@ -43,7 +44,7 @@ export class MemberProfile
 						domainPermissions.isEditingOwnMemberAccount),
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this profile',
 			);
 		}

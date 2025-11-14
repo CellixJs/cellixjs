@@ -1,11 +1,12 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { ViolationTicketV1FinanceDetailsAdhocTransactions, type ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions.ts';
 import type { ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference } from './violation-ticket-v1-finance-details-transactions-submission.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
-export interface ViolationTicketV1FinanceDetailsTransactionsProps extends DomainSeedwork.ValueObjectProps {
+export interface ViolationTicketV1FinanceDetailsTransactionsProps extends ValueObjectProps {
   submission: ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference;
-  adhocTransactions: DomainSeedwork.PropArray<ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference>;
+  adhocTransactions: PropArray<ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference>;
 }
 
 export interface ViolationTicketV1FinanceDetailsTransactionsEntityReference extends Readonly<
@@ -15,7 +16,7 @@ export interface ViolationTicketV1FinanceDetailsTransactionsEntityReference exte
   readonly adhocTransactions: ReadonlyArray<ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference>;
 }
 
-export class ViolationTicketV1FinanceDetailsTransactions extends DomainSeedwork.ValueObject<ViolationTicketV1FinanceDetailsTransactionsProps>
+export class ViolationTicketV1FinanceDetailsTransactions extends ValueObject<ViolationTicketV1FinanceDetailsTransactionsProps>
   implements ViolationTicketV1FinanceDetailsTransactionsEntityReference
 {
 

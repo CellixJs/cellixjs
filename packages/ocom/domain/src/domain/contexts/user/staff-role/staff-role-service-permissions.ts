@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { UserVisa } from '../user.visa.ts';
 
 interface StaffRoleServicePermissionsSpec {
@@ -8,12 +9,12 @@ interface StaffRoleServicePermissionsSpec {
 
 export interface StaffRoleServicePermissionsProps
 	extends StaffRoleServicePermissionsSpec,
-		DomainSeedwork.ValueObjectProps {}
+		ValueObjectProps {}
 export interface StaffRoleServicePermissionsEntityReference
 	extends Readonly<StaffRoleServicePermissionsProps> {}
 
 export class StaffRoleServicePermissions
-	extends DomainSeedwork.ValueObject<StaffRoleServicePermissionsProps>
+	extends ValueObject<StaffRoleServicePermissionsProps>
 	implements StaffRoleServicePermissionsEntityReference
 {
 	private readonly visa: UserVisa;
@@ -31,7 +32,7 @@ export class StaffRoleServicePermissions
 
 	set canManageServices(value:boolean) {
 	  if(!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new DomainSeedwork.PermissionError('Cannot set permission');
+	    throw new PermissionError('Cannot set permission');
 	  }
 	  this.props.canManageServices = value;
 	}

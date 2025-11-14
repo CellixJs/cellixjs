@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { PropertyCreatedEvent, type PropertyCreatedProps } from '../../../events/types/property-created.ts';
 import { PropertyDeletedEvent, type PropertyDeletedEventProps } from '../../../events/types/property-deleted.ts';
 import { PropertyUpdatedEvent, type PropertyUpdatedProps } from '../../../events/types/property-updated.ts';
@@ -16,7 +17,7 @@ import { PropertyListingDetail, type PropertyListingDetailEntityReference, type 
 import { PropertyLocation, type PropertyLocationEntityReference, type PropertyLocationProps } from './property-location.entity.ts';
 import * as ValueObjects from './property.value-objects.ts';
 
-export interface PropertyProps extends DomainSeedwork.DomainEntityProps {
+export interface PropertyProps extends DomainEntityProps {
 	community: CommunityProps;
 	location: PropertyLocationProps;
 	owner: Readonly<MemberEntityReference>| null;
@@ -50,7 +51,7 @@ export interface PropertyEntityReference
 }
 
 export class Property<props extends PropertyProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements PropertyEntityReference
 {
 	private isNew: boolean = false;
@@ -249,7 +250,7 @@ export class Property<props extends PropertyProps>
 				(permissions) => permissions.isSystemAccount || permissions.canManageProperties,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(message);
+			throw new PermissionError(message);
 		}
 	}
 
@@ -262,7 +263,7 @@ export class Property<props extends PropertyProps>
 					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(message);
+			throw new PermissionError(message);
 		}
 	}
 

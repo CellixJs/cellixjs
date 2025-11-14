@@ -1,15 +1,16 @@
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ViolationTicketV1FinanceDetailsTransactions, type ViolationTicketV1FinanceDetailsTransactionsProps } from './violation-ticket-v1-finance-details-transactions.ts';
 import type { ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference } from './violation-ticket-v1-finance-details-transactions-submission.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
 // Mock PropArray for testing
-class MockPropArray<T extends DomainSeedwork.DomainEntityProps> implements DomainSeedwork.PropArray<T> {
+class MockPropArray<T extends DomainEntityProps> implements PropArray<T> {
   private _items: T[];
 
   constructor(items: T[] = []) {
@@ -67,7 +68,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let props: ViolationTicketV1FinanceDetailsTransactionsProps;
   let visa: ViolationTicketV1Visa;
   let submission: ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference;
-  let adhocTransactions: DomainSeedwork.PropArray<ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference>;
+  let adhocTransactions: PropArray<ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference>;
 
   BeforeEachScenario(() => {
     submission = { id: 'submission-123' } as unknown as ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference;

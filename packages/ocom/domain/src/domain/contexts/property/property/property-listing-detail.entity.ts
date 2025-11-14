@@ -1,4 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropertyVisa } from '../property.visa.ts';
 import {
 	PropertyListingDetailAdditionalAmenity,
@@ -13,21 +15,21 @@ import {
 import type * as ValueObjects from './property-listing-detail.value-objects.ts';
 
 export interface PropertyListingDetailProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	price: number | null;
 	rentHigh: number | null;
 	rentLow: number | null;
 	lease: number | null;
 	maxGuests: number | null;
 	bedrooms: number | null;
-	readonly bedroomDetails: DomainSeedwork.PropArray<PropertyListingDetailBedroomDetailProps>;
+	readonly bedroomDetails: PropArray<PropertyListingDetailBedroomDetailProps>;
 	bathrooms: number | null;
 	squareFeet: number | null;
 	yearBuilt: number | null;
 	lotSize: number | null;
 	description: string | null;
 	amenities: string[] | null;
-	readonly additionalAmenities: DomainSeedwork.PropArray<PropertyListingDetailAdditionalAmenityProps>;
+	readonly additionalAmenities: PropArray<PropertyListingDetailAdditionalAmenityProps>;
 	images: string[] | null;
 	video: string | null;
 	floorPlan: string | null;
@@ -55,7 +57,7 @@ export interface PropertyListingDetailEntityReference
 }
 
 export class PropertyListingDetail
-	extends DomainSeedwork.ValueObject<PropertyListingDetailProps>
+	extends ValueObject<PropertyListingDetailProps>
 	implements PropertyListingDetailEntityReference
 {
 	private readonly visa: PropertyVisa;
@@ -322,7 +324,7 @@ export class PropertyListingDetail
 					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this property listing',
 			);
 		}

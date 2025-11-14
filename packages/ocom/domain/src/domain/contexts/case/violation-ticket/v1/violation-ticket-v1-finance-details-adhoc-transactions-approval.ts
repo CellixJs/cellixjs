@@ -1,6 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
-export interface ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps extends DomainSeedwork.ValueObjectProps {
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+export interface ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps extends ValueObjectProps {
   isApplicantApprovalRequired: boolean;
   isApplicantApproved: boolean;
   applicantRespondedAt: Date;
@@ -10,7 +9,7 @@ export interface ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityR
   ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps
 > {}
 
-export class ViolationTicketV1FinanceDetailsAdhocTransactionsApproval extends DomainSeedwork.ValueObject<ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps>
+export class ViolationTicketV1FinanceDetailsAdhocTransactionsApproval extends ValueObject<ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps>
   implements ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference
 {
   get isApplicantApprovalRequired(): boolean {

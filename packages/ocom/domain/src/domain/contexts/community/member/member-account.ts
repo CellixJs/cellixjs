@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import {
 	EndUser,
 	type EndUserEntityReference,
@@ -7,7 +7,7 @@ import * as ValueObjects from './member-account.value-objects.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import type { Passport } from '../../passport.ts';
 
-export interface MemberAccountProps extends DomainSeedwork.DomainEntityProps {
+export interface MemberAccountProps extends DomainEntityProps {
 	firstName: string;
 	lastName: string;
 	user: Readonly<EndUserEntityReference>;
@@ -22,7 +22,7 @@ export interface MemberAccountEntityReference
 }
 
 export class MemberAccount
-	extends DomainSeedwork.DomainEntity<MemberAccountProps>
+	extends DomainEntity<MemberAccountProps>
 	implements MemberAccountEntityReference
 {
 	//#region Fields
@@ -53,7 +53,7 @@ export class MemberAccount
 						domainPermissions.isEditingOwnMemberAccount),
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this account',
 			);
 		}
@@ -96,7 +96,7 @@ export class MemberAccount
 					domainPermissions.canManageMembers,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this account',
 			);
 		}

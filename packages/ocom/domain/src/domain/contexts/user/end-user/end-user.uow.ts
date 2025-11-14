@@ -1,16 +1,16 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { InitializedUnitOfWork, UnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
 import type { Passport } from '../../passport.ts';
 import type { EndUser, EndUserProps } from './end-user.ts';
 import type { EndUserRepository } from './end-user.repository.ts';
 
 export interface EndUserUnitOfWork
-	extends DomainSeedwork.UnitOfWork<
+	extends UnitOfWork<
 		Passport,
 		EndUserProps,
 		EndUser<EndUserProps>,
 		EndUserRepository<EndUserProps>
 	>,
-    DomainSeedwork.InitializedUnitOfWork<
+    InitializedUnitOfWork<
         Passport,
         EndUserProps,
         EndUser<EndUserProps>,

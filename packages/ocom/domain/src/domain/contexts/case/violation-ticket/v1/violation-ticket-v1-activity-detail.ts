@@ -1,9 +1,9 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 import type * as ValueObjects from './violation-ticket-v1-activity-detail.value-objects.ts';
 
-export interface ViolationTicketV1ActivityDetailProps extends DomainSeedwork.DomainEntityProps {
+export interface ViolationTicketV1ActivityDetailProps extends DomainEntityProps {
   activityType: string;
   activityDescription: string;
   activityBy: MemberEntityReference;
@@ -12,7 +12,7 @@ export interface ViolationTicketV1ActivityDetailProps extends DomainSeedwork.Dom
 
 export interface ViolationTicketV1ActivityDetailEntityReference extends Readonly<ViolationTicketV1ActivityDetailProps> {}
 
-export class ViolationTicketV1ActivityDetail extends DomainSeedwork.DomainEntity<ViolationTicketV1ActivityDetailProps>
+export class ViolationTicketV1ActivityDetail extends DomainEntity<ViolationTicketV1ActivityDetailProps>
   implements ViolationTicketV1ActivityDetailEntityReference
 {
   private readonly visa: ViolationTicketV1Visa;
@@ -46,7 +46,7 @@ export class ViolationTicketV1ActivityDetail extends DomainSeedwork.DomainEntity
 
   set activityType(activityTypeCode: ValueObjects.ActivityTypeCode) {
     if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to modify this activity detail');
+      throw new PermissionError('You do not have permission to modify this activity detail');
     }
     this.props.activityType = activityTypeCode.valueOf();
   }
@@ -57,7 +57,7 @@ export class ViolationTicketV1ActivityDetail extends DomainSeedwork.DomainEntity
 
   set activityDescription(activityDescription: ValueObjects.Description) {
     if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
-      throw new DomainSeedwork.PermissionError('You do not have permission to modify this activity detail');
+      throw new PermissionError('You do not have permission to modify this activity detail');
     }
     this.props.activityDescription = activityDescription.valueOf();
   }

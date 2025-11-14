@@ -1,16 +1,16 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { InitializedUnitOfWork, UnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
 import type { Passport } from '../../passport.ts';
 import type { Service, ServiceProps } from './service.aggregate.ts';
 import type { ServiceRepository } from './service.repository.ts';
 
 export interface ServiceUnitOfWork
-	extends DomainSeedwork.UnitOfWork<
+	extends UnitOfWork<
 		Passport,
 		ServiceProps,
 		Service<ServiceProps>,
 		ServiceRepository<ServiceProps>
 	>,
-	DomainSeedwork.InitializedUnitOfWork<
+	InitializedUnitOfWork<
 		Passport,
 		ServiceProps,
 		Service<ServiceProps>,

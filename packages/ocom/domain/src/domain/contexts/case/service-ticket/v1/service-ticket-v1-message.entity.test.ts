@@ -1,7 +1,7 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { expect, vi } from 'vitest';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.ts';
@@ -97,7 +97,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the sentBy to "external"', () => {
-      expect(() => { message.sentBy = new ValueObjects.SentBy('external'); }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { message.sentBy = new ValueObjects.SentBy('external'); }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -133,7 +133,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the message to "Updated message"', () => {
-      expect(() => { message.message = new ValueObjects.Message('Updated message'); }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { message.message = new ValueObjects.Message('Updated message'); }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -169,7 +169,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the embedding to "updated-embedding"', () => {
-      expect(() => { message.embedding = new ValueObjects.Embedding('updated-embedding'); }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { message.embedding = new ValueObjects.Embedding('updated-embedding'); }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -207,7 +207,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     And('I set the createdAt to a new date', () => {
       const newDate = new Date('2024-01-01');
-      expect(() => { message.createdAt = newDate; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { message.createdAt = newDate; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -243,7 +243,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the isHiddenFromApplicant to true', () => {
-      expect(() => { message.isHiddenFromApplicant = true; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { message.isHiddenFromApplicant = true; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {

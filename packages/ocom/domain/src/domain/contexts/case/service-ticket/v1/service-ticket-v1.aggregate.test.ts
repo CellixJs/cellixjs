@@ -1,7 +1,8 @@
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { expect, vi } from 'vitest';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { Passport } from '../../../passport.ts';
@@ -16,7 +17,7 @@ const feature = await loadFeature(
 );
 
 // Mock PropArray implementation for testing
-class MockPropArray<T extends DomainSeedwork.DomainEntityProps> implements DomainSeedwork.PropArray<T> {
+class MockPropArray<T extends DomainEntityProps> implements PropArray<T> {
   private _items: T[] = [];
 
   constructor(items: T[] = []) {
@@ -195,7 +196,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I request delete', () => {
-      expect(() => serviceTicket.requestDelete()).toThrow(DomainSeedwork.PermissionError);
+      expect(() => serviceTicket.requestDelete()).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -241,7 +242,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I add a status update', () => {
-      expect(() => serviceTicket.requestAddStatusUpdate('Test update', memberRef)).toThrow(DomainSeedwork.PermissionError);
+      expect(() => serviceTicket.requestAddStatusUpdate('Test update', memberRef)).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -283,7 +284,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the title', () => {
-      expect(() => { serviceTicket.title = new ValueObjects.Title('New Title'); }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { serviceTicket.title = new ValueObjects.Title('New Title'); }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -325,7 +326,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the description', () => {
-      expect(() => { serviceTicket.description = new ValueObjects.Description('New Description'); }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { serviceTicket.description = new ValueObjects.Description('New Description'); }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -367,7 +368,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the status', () => {
-      expect(() => { serviceTicket.status = new ValueObjects.StatusCode(ValueObjects.StatusCodes.Assigned); }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { serviceTicket.status = new ValueObjects.StatusCode(ValueObjects.StatusCodes.Assigned); }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -409,7 +410,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the priority', () => {
-      expect(() => { serviceTicket.priority = new ValueObjects.Priority(4); }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { serviceTicket.priority = new ValueObjects.Priority(4); }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -457,7 +458,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I request an invalid status transition', () => {
-      expect(() => serviceTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Closed), 'Invalid transition', memberRef)).toThrow(DomainSeedwork.PermissionError);
+      expect(() => serviceTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Closed), 'Invalid transition', memberRef)).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -506,7 +507,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     Then('a PermissionError should be thrown', () => {
-      expect(setCommunityIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setCommunityIdWithoutPermission).toThrow(PermissionError);
     });
   });
 
@@ -551,7 +552,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     Then('a PermissionError should be thrown', () => {
-      expect(setPropertyIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setPropertyIdWithoutPermission).toThrow(PermissionError);
     });
   });
 
@@ -596,7 +597,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     Then('a PermissionError should be thrown', () => {
-      expect(setRequestorIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setRequestorIdWithoutPermission).toThrow(PermissionError);
     });
   });
 
@@ -641,7 +642,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     Then('a PermissionError should be thrown', () => {
-      expect(setAssignedToIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setAssignedToIdWithoutPermission).toThrow(PermissionError);
     });
   });
 
@@ -686,7 +687,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     Then('a PermissionError should be thrown', () => {
-      expect(setServiceIdWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setServiceIdWithoutPermission).toThrow(PermissionError);
     });
   });
 

@@ -1,12 +1,12 @@
+import type { Repository } from '@cellix/domain-seedwork/repository';
 import type {
 	VendorUserRole,
     VendorUserRoleProps,
 } from './vendor-user-role.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { CommunityEntityReference } from '../../community/community.ts';
 
 export interface VendorUserRoleRepository<props extends VendorUserRoleProps>
-	extends DomainSeedwork.Repository<VendorUserRole<props>> {
+	extends Repository<VendorUserRole<props>> {
 	getNewInstance(
 		roleName: string,
 		isDefault: boolean,

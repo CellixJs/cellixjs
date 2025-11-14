@@ -1,8 +1,8 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ViolationTicketV1RevisionRequest, type ViolationTicketV1RevisionRequestProps } from './violation-ticket-v1-revision-request.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
@@ -109,7 +109,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     And('I set the revision submitted at', () => {
       expect(() => {
         revisionRequest.revisionSubmittedAt = new Date('2023-02-01');
-      }).toThrow(DomainSeedwork.PermissionError);
+      }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {

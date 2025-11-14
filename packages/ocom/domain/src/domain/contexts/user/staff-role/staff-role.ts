@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import {
 	type StaffRolePermissionsProps,
 	type StaffRolePermissionsEntityReference,
@@ -9,7 +10,7 @@ import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
 import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../events/types/role-deleted-reassign.ts';
 
-export interface StaffRoleProps extends DomainSeedwork.DomainEntityProps {
+export interface StaffRoleProps extends DomainEntityProps {
 	roleName: string;
 	isDefault: boolean;
 	readonly permissions: StaffRolePermissionsProps;
@@ -25,7 +26,7 @@ export interface StaffRoleEntityReference
 }
 
 export class StaffRole<props extends StaffRoleProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements StaffRoleEntityReference
 {
 	private isNew: boolean = false;
@@ -50,7 +51,7 @@ export class StaffRole<props extends StaffRoleProps>
 	}
 	public deleteAndReassignTo(roleRef: StaffRoleEntityReference) {
         if (this.isDefault) {
-            throw new DomainSeedwork.PermissionError(
+            throw new PermissionError(
                 'You cannot delete a default staff role',
             );
         }
@@ -60,7 +61,7 @@ export class StaffRole<props extends StaffRoleProps>
                 (permissions) => permissions.canManageStaffRolesAndPermissions,
             )
         ) {
-            throw new DomainSeedwork.PermissionError(
+            throw new PermissionError(
                 'You do not have permission to delete this role',
             );
         }
@@ -83,7 +84,7 @@ export class StaffRole<props extends StaffRoleProps>
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set role name');
+			throw new PermissionError('Cannot set role name');
 		}
 		this.props.roleName = new ValueObjects.RoleName(roleName).valueOf();
 	}
@@ -99,7 +100,7 @@ export class StaffRole<props extends StaffRoleProps>
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this role',
 			);
 		}

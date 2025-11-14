@@ -1,16 +1,16 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { InitializedUnitOfWork, UnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
 import type { Passport } from '../../passport.ts';
 import type { StaffRole, StaffRoleProps } from './staff-role.ts';
 import type { StaffRoleRepository } from './staff-role.repository.ts';
 
 export interface StaffRoleUnitOfWork
-	extends DomainSeedwork.UnitOfWork<
+	extends UnitOfWork<
 		Passport,
 		StaffRoleProps,
 		StaffRole<StaffRoleProps>,
 		StaffRoleRepository<StaffRoleProps>
 	>,
-	DomainSeedwork.InitializedUnitOfWork<
+	InitializedUnitOfWork<
 		Passport,
 		StaffRoleProps,
 		StaffRole<StaffRoleProps>,

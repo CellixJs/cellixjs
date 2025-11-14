@@ -1,3 +1,4 @@
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import {
 	VendorUserRoleCommunityPermissions,
 	type VendorUserRoleCommunityPermissionsEntityReference,
@@ -24,10 +25,8 @@ import {
 	type VendorUserRoleViolationTicketPermissionsEntityReference,
 	type VendorUserRoleViolationTicketPermissionsProps,
 } from './vendor-user-role-violation-ticket-permissions.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
 export interface VendorUserRolePermissionsProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	readonly communityPermissions: VendorUserRoleCommunityPermissionsProps;
 	readonly propertyPermissions: VendorUserRolePropertyPermissionsProps;
 	readonly serviceTicketPermissions: VendorUserRoleServiceTicketPermissionsProps;
@@ -54,7 +53,7 @@ export interface VendorUserRolePermissionsEntityReference
 }
 
 export class VendorUserRolePermissions
-	extends DomainSeedwork.ValueObject<VendorUserRolePermissionsProps>
+	extends ValueObject<VendorUserRolePermissionsProps>
 	implements VendorUserRolePermissionsEntityReference
 {
 	private readonly visa: CommunityVisa;

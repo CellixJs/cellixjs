@@ -1,8 +1,8 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ViolationTicketV1Message, type ViolationTicketV1MessageProps } from './violation-ticket-v1-message.ts';
 import * as ValueObjects from './violation-ticket-v1-message.value-objects.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
@@ -100,7 +100,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     And('I set the sent by', () => {
       expect(() => {
         message.sentBy = new ValueObjects.SentBy(ValueObjects.SentByCodes.External);
-      }).toThrow(DomainSeedwork.PermissionError);
+      }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -138,7 +138,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     And('I set the message', () => {
       expect(() => {
         message.message = new ValueObjects.Message('Updated message');
-      }).toThrow(DomainSeedwork.PermissionError);
+      }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {

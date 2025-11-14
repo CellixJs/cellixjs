@@ -1,9 +1,9 @@
 
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, vi } from 'vitest';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { CommunityEntityReference, CommunityProps } from '../community/community.ts';
 import type { EndUserRoleEntityReference, EndUserRoleProps } from '../role/end-user-role/end-user-role.ts';
 import { Member, type MemberProps } from './member.ts';
@@ -187,7 +187,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(createWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(createWithoutPermission).toThrow(PermissionError);
       expect(createWithoutPermission).toThrow('Cannot create new member');
     });
   });
@@ -230,7 +230,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeMemberNameWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeMemberNameWithoutPermission).toThrow(PermissionError);
       expect(changeMemberNameWithoutPermission).toThrow('Cannot set member name');
     });
   });
@@ -290,7 +290,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeCustomerId).toThrow(DomainSeedwork.PermissionError);
+      expect(changeCustomerId).toThrow(PermissionError);
       expect(changeCustomerId).toThrow('Cannot set cybersource customer id');
     });
   });
@@ -355,7 +355,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeCommunityWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(changeCommunityWithoutPermission).toThrow(PermissionError);
       expect(changeCommunityWithoutPermission).toThrow('Cannot set community');
     });
   });
@@ -404,7 +404,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(changeRole).toThrow(DomainSeedwork.PermissionError);
+      expect(changeRole).toThrow(PermissionError);
       expect(changeRole).toThrow('Cannot set role');
     });
   });
@@ -451,7 +451,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(requestNewAccountWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(requestNewAccountWithoutPermission).toThrow(PermissionError);
       expect(requestNewAccountWithoutPermission).toThrow('Cannot set role');
     });
   });
@@ -503,7 +503,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(requestRemoveAccount).toThrow(DomainSeedwork.PermissionError);
+      expect(requestRemoveAccount).toThrow(PermissionError);
       expect(requestRemoveAccount).toThrow('Cannot set role');
     });
   });
@@ -550,7 +550,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(requestNewCustomView).toThrow(DomainSeedwork.PermissionError);
+      expect(requestNewCustomView).toThrow(PermissionError);
       expect(requestNewCustomView).toThrow('Cannot set custom view');
     });
   });
@@ -602,7 +602,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(requestRemoveCustomView).toThrow(DomainSeedwork.PermissionError);
+      expect(requestRemoveCustomView).toThrow(PermissionError);
       expect(requestRemoveCustomView).toThrow('Cannot remove custom view');
     });
   });

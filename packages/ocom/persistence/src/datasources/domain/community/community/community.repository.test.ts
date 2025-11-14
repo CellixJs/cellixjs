@@ -1,3 +1,4 @@
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
@@ -7,7 +8,6 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityRepository } from './community.repository.ts';
 import { CommunityConverter, type CommunityDomainAdapter } from './community.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 
 
@@ -82,7 +82,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks
-    const eventBus = { publish: vi.fn() } as unknown as DomainSeedwork.EventBus;
+    const eventBus = { publish: vi.fn() } as unknown as EventBus;
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     repo = new CommunityRepository(

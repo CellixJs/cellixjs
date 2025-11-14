@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { VendorUserCreatedEvent, type VendorUserCreatedProps } from '../../../events/types/vendor-user-created.ts';
 import * as ValueObjects from './vendor-user.value-objects.ts';
 import {
@@ -9,7 +10,7 @@ import {
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
 
-export interface VendorUserProps extends DomainSeedwork.DomainEntityProps {
+export interface VendorUserProps extends DomainEntityProps {
 	readonly personalInformation: VendorUserPersonalInformationProps;
 
 	email: string | undefined;
@@ -29,7 +30,7 @@ export interface VendorUserEntityReference
 }
 
 export class VendorUser<props extends VendorUserProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements VendorUserEntityReference
 {
 	private isNew: boolean = false;
@@ -80,7 +81,7 @@ export class VendorUser<props extends VendorUserProps>
 					permissions.canManageVendorUsers || permissions.isEditingOwnAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Unauthorized');
+			throw new PermissionError('Unauthorized');
 		}
 	}
 	private validateVisaElevated(): void {

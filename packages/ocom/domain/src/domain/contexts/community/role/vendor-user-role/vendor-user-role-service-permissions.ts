@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { CommunityVisa } from '../../community.visa.ts';
 
 interface VendorUserRoleServicePermissionsSpec {
@@ -8,12 +9,12 @@ interface VendorUserRoleServicePermissionsSpec {
 
 export interface VendorUserRoleServicePermissionsProps
 	extends Omit<VendorUserRoleServicePermissionsSpec, 'isSystemAccount'>,
-		DomainSeedwork.ValueObjectProps {}
+		ValueObjectProps {}
 export interface VendorUserRoleServicePermissionsEntityReference
 	extends Readonly<VendorUserRoleServicePermissionsProps> {}
 
 export class VendorUserRoleServicePermissions
-	extends DomainSeedwork.ValueObject<VendorUserRoleServicePermissionsProps>
+	extends ValueObject<VendorUserRoleServicePermissionsProps>
 	implements VendorUserRoleServicePermissionsEntityReference
 {
 	private readonly visa: CommunityVisa;
@@ -36,7 +37,7 @@ export class VendorUserRoleServicePermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canManageServices = value;
 	}

@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropertyVisa } from '../property.visa.ts';
 import {
 	PropertyLocationAddress,
@@ -11,7 +12,7 @@ import {
 	type PropertyLocationPositionProps,
 } from './property-location-position.entity.ts';
 
-export interface PropertyLocationProps extends DomainSeedwork.ValueObjectProps {
+export interface PropertyLocationProps extends ValueObjectProps {
 	address: PropertyLocationAddressProps;
 	position: PropertyLocationPositionProps;
 }
@@ -23,7 +24,7 @@ export interface PropertyLocationEntityReference
 }
 
 export class PropertyLocation
-	extends DomainSeedwork.ValueObject<PropertyLocationProps>
+	extends ValueObject<PropertyLocationProps>
 	implements PropertyLocationEntityReference
 {
 	private readonly visa: PropertyVisa;
@@ -79,7 +80,7 @@ export class PropertyLocation
 					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this property location',
 			);
 		}

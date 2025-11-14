@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { CommunityCreatedEvent, type CommunityCreatedProps } from '../../../events/types/community-created.ts';
 import { CommunityDomainUpdatedEvent, type CommunityDomainUpdatedProps } from '../../../events/types/community-domain-updated.ts';
 import { CommunityWhiteLabelDomainUpdatedEvent, type CommunityWhiteLabelDomainUpdatedProps } from '../../../events/types/community-white-label-domain-updated.ts';
@@ -10,7 +11,7 @@ import {
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './community.value-objects.ts';
 
-export interface CommunityProps extends DomainSeedwork.DomainEntityProps {
+export interface CommunityProps extends DomainEntityProps {
 	name: string;
 	domain: string;
 	whiteLabelDomain: string | null;
@@ -26,7 +27,7 @@ export interface CommunityProps extends DomainSeedwork.DomainEntityProps {
 export interface CommunityEntityReference extends Readonly<CommunityProps> {}
 
 export class Community<props extends CommunityProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements CommunityEntityReference
 {
 	//#region Fields
@@ -76,7 +77,7 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the name of this community',
 			);
 		}
@@ -93,7 +94,7 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the domain of this community',
 			);
 		}
@@ -118,7 +119,7 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the white label domain of this community',
 			);
 		}
@@ -143,7 +144,7 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the handle of this community',
 			);
 		}
@@ -165,12 +166,12 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the created by of this community',
 			);
 		}
 		if (createdBy === null || createdBy === undefined) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'createdBy cannot be null or undefined',
 			);
 		}

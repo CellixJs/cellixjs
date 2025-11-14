@@ -1,4 +1,4 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
 import type { EndUserAggregateRoot } from './end-user.ts';
 import {
@@ -13,7 +13,7 @@ import {
 } from './end-user-identity-details.ts';
 
 export interface EndUserPersonalInformationProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	readonly identityDetails: EndUserIdentityDetailsProps;
 	readonly contactInformation: EndUserContactInformationProps;
 }
@@ -30,7 +30,7 @@ export interface EndUserPersonalInformationEntityReference
 }
 
 export class EndUserPersonalInformation
-		extends DomainSeedwork.ValueObject<EndUserPersonalInformationProps>
+		extends ValueObject<EndUserPersonalInformationProps>
 		implements EndUserPersonalInformationEntityReference
 	{
 		private readonly visa: UserVisa;

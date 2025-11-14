@@ -1,9 +1,9 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntity, DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail-bedroom-detail.value-objects.ts';
 
 export interface PropertyListingDetailBedroomDetailProps
-	extends DomainSeedwork.DomainEntityProps {
+	extends DomainEntityProps {
 	roomName: string;
 	bedDescriptions: string[];
 }
@@ -12,7 +12,7 @@ export interface PropertyListingDetailBedroomDetailEntityReference
 	extends Readonly<PropertyListingDetailBedroomDetailProps> {}
 
 export class PropertyListingDetailBedroomDetail
-	extends DomainSeedwork.DomainEntity<PropertyListingDetailBedroomDetailProps>
+	extends DomainEntity<PropertyListingDetailBedroomDetailProps>
 	implements PropertyListingDetailBedroomDetailEntityReference
 {
 	private readonly visa: PropertyVisa;
@@ -49,7 +49,7 @@ export class PropertyListingDetailBedroomDetail
 					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update bedroom details for this property',
 			);
 		}

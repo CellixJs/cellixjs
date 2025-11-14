@@ -1,4 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { Passport } from '../../passport.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import {
@@ -26,17 +28,17 @@ import {
 } from './member-profile.ts';
 import * as ValueObjects from './member.value-objects.ts';
 
-export interface MemberProps extends DomainSeedwork.DomainEntityProps {
+export interface MemberProps extends DomainEntityProps {
 	memberName: string;
 	cybersourceCustomerId: string;
     communityId: string;
 	community: Readonly<CommunityEntityReference>;
     loadCommunity: () => Promise<CommunityEntityReference>;
-	readonly accounts: DomainSeedwork.PropArray<MemberAccountProps>;
+	readonly accounts: PropArray<MemberAccountProps>;
 	role: Readonly<EndUserRoleEntityReference>;
     loadRole: () => Promise<EndUserRoleEntityReference>;
 
-	customViews: DomainSeedwork.PropArray<MemberCustomViewProps>;
+	customViews: PropArray<MemberCustomViewProps>;
 	readonly profile: MemberProfileProps;
 
 	readonly createdAt: Date;
@@ -59,7 +61,7 @@ export interface MemberEntityReference
 }
 
 export class Member<props extends MemberProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements MemberEntityReference
 {
 	//#region Fields
@@ -90,7 +92,7 @@ export class Member<props extends MemberProps>
 						domainPermissions.isSystemAccount,
 				)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot create new member');
+			throw new PermissionError('Cannot create new member');
 		}
 
 		const newInstance = new Member(newProps, passport);
@@ -110,7 +112,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set role');
+			throw new PermissionError('Cannot set role');
 		}
 		return new MemberAccount(
 			this.props.accounts.getNewItem(),
@@ -128,7 +130,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set role');
+			throw new PermissionError('Cannot set role');
 		}
 		this.props.accounts.removeItem(accountRef);
 	}
@@ -142,7 +144,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set custom view');
+			throw new PermissionError('Cannot set custom view');
 		}
 		return new MemberCustomView(this.props.customViews.getNewItem(), this.visa);
 	}
@@ -156,7 +158,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot remove custom view');
+			throw new PermissionError('Cannot remove custom view');
 		}
 		console.log(customView.name);
 		this.props.customViews.removeItem(customView.props);
@@ -187,7 +189,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set member name');
+			throw new PermissionError('Cannot set member name');
 		}
 		this.props.memberName = new ValueObjects.MemberName(memberName).valueOf();
 	}
@@ -204,7 +206,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'Cannot set cybersource customer id',
 			);
 		}
@@ -231,7 +233,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set community');
+			throw new PermissionError('Cannot set community');
 		}
 		this.props.community = community;
 	}
@@ -257,7 +259,7 @@ export class Member<props extends MemberProps>
 					domainPermissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set role');
+			throw new PermissionError('Cannot set role');
 		}
 		this.props.role = role;
 	}

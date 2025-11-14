@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { CommunityVisa } from '../../community.visa.ts';
 import type { CommunityDomainPermissions } from '../../community.domain-permissions.ts';
 
@@ -7,12 +8,12 @@ export interface EndUserRoleCommunityPermissionsProps
 			CommunityDomainPermissions,
 			'canCreateCommunities' | 'canManageVendorUserRolesAndPermissions' | 'isEditingOwnMemberAccount' | 'isSystemAccount'
 		>,
-		DomainSeedwork.ValueObjectProps {}
+		ValueObjectProps {}
 export interface EndUserRoleCommunityPermissionsEntityReference
 	extends Readonly<EndUserRoleCommunityPermissionsProps> {}
 
 export class EndUserRoleCommunityPermissions
-	extends DomainSeedwork.ValueObject<EndUserRoleCommunityPermissionsProps>
+	extends ValueObject<EndUserRoleCommunityPermissionsProps>
 	implements EndUserRoleCommunityPermissionsEntityReference
 {
 	private visa: CommunityVisa;
@@ -36,7 +37,7 @@ export class EndUserRoleCommunityPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission1');
+			throw new PermissionError('Cannot set permission1');
 		}
 		this.props.canManageEndUserRolesAndPermissions = value;
 	}
@@ -52,7 +53,7 @@ export class EndUserRoleCommunityPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission2');
+			throw new PermissionError('Cannot set permission2');
 		}
 		this.props.canManageCommunitySettings = value;
 	}
@@ -68,7 +69,7 @@ export class EndUserRoleCommunityPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission3');
+			throw new PermissionError('Cannot set permission3');
 		}
 		this.props.canManageSiteContent = value;
 	}
@@ -84,7 +85,7 @@ export class EndUserRoleCommunityPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canManageMembers = value;
 	}
@@ -100,7 +101,7 @@ export class EndUserRoleCommunityPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canEditOwnMemberProfile = value;
 	}
@@ -116,7 +117,7 @@ export class EndUserRoleCommunityPermissions
 					permissions.isSystemAccount,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set permission');
+			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canEditOwnMemberAccounts = value;
 	}

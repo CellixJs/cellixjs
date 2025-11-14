@@ -1,3 +1,4 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
@@ -6,7 +7,6 @@ import { expect, vi } from 'vitest';
 import { Community, type CommunityProps } from './community.ts';
 import { CommunityCreatedEvent } from '../../../events/types/community-created.ts';
 import { CommunityDomainUpdatedEvent } from '../../../events/types/community-domain-updated.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Passport } from '../../passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 
@@ -151,7 +151,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			};
 		});
 		Then('a PermissionError should be thrown', () => {
-			expect(changingNameWithoutPermission).toThrow(DomainSeedwork.PermissionError);
+			expect(changingNameWithoutPermission).toThrow(PermissionError);
             expect(changingNameWithoutPermission).toThrow('You do not have permission to change the name of this community');
 		});
 	});
@@ -226,7 +226,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         });
         Then('a PermissionError should be thrown', () => {
             expect(changingDomainWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
+                PermissionError,
             );
             expect(changingDomainWithoutPermission).throws(
                 'You do not have permission to change the domain of this community',
@@ -338,7 +338,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			});
 			Then('a PermissionError should be thrown', () => {
 				expect(updatingWhiteLabelDomainWithoutPermission).toThrow(
-					DomainSeedwork.PermissionError,
+					PermissionError,
 				);
                 expect(updatingWhiteLabelDomainWithoutPermission).throws(
                     'You do not have permission to change the white label domain of this community',
@@ -407,7 +407,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         });
         Then('a PermissionError should be thrown', () => {
             expect(updatingHandleWithoutPermission).toThrow(
-                DomainSeedwork.PermissionError,
+                PermissionError,
             );
             expect(updatingHandleWithoutPermission).throws('You do not have permission to change the handle of this community');
         });

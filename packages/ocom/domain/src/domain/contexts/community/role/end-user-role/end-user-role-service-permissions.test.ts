@@ -1,11 +1,9 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { EndUserRoleServicePermissions } from './end-user-role-service-permissions.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
-
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -86,7 +84,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       };
     });
     Then('a PermissionError should be thrown', () => {
-      expect(setPermission).toThrow(DomainSeedwork.PermissionError);
+      expect(setPermission).toThrow(PermissionError);
       expect(setPermission).throws('Cannot set permission');
     });
   });

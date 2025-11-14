@@ -1,7 +1,7 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObject, ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceEntityReference } from './violation-ticket-v1-finance-details-transactions-submission-transaction-reference.ts';
 
-export interface ViolationTicketV1FinanceDetailsTransactionsSubmissionProps extends DomainSeedwork.ValueObjectProps {
+export interface ViolationTicketV1FinanceDetailsTransactionsSubmissionProps extends ValueObjectProps {
   amount: number;
   transactionReference: ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceEntityReference;
 }
@@ -12,7 +12,7 @@ export interface ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityRefe
   readonly transactionReference: ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceEntityReference;
 }
 
-export class ViolationTicketV1FinanceDetailsTransactionsSubmission extends DomainSeedwork.ValueObject<ViolationTicketV1FinanceDetailsTransactionsSubmissionProps>
+export class ViolationTicketV1FinanceDetailsTransactionsSubmission extends ValueObject<ViolationTicketV1FinanceDetailsTransactionsSubmissionProps>
   implements ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference
 {
   get amount(): number {

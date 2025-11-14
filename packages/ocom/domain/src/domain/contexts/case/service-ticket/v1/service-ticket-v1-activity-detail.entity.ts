@@ -1,9 +1,9 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { DomainEntity, DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type * as ValueObjects from './service-ticket-v1-activity-detail.value-objects.ts';
 
 
-export interface ServiceTicketV1ActivityDetailProps extends DomainSeedwork.DomainEntityProps {
+export interface ServiceTicketV1ActivityDetailProps extends DomainEntityProps {
   activityType: string;
   activityDescription: string;
   activityBy: MemberEntityReference;
@@ -11,7 +11,7 @@ export interface ServiceTicketV1ActivityDetailProps extends DomainSeedwork.Domai
 }
 
 export interface ServiceTicketV1ActivityDetailEntityReference extends Readonly<ServiceTicketV1ActivityDetailProps> {}
-export class ServiceTicketV1ActivityDetail extends DomainSeedwork.DomainEntity<ServiceTicketV1ActivityDetailProps>
+export class ServiceTicketV1ActivityDetail extends DomainEntity<ServiceTicketV1ActivityDetailProps>
   implements ServiceTicketV1ActivityDetailEntityReference
 {
   //#region Fields

@@ -1,7 +1,8 @@
+import type { DomainEntityProps, PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { expect, vi } from 'vitest';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { Passport } from '../../../passport.ts';
@@ -16,7 +17,7 @@ const feature = await loadFeature(
 );
 
 // Mock PropArray implementation for testing
-class MockPropArray<T extends DomainSeedwork.DomainEntityProps> implements DomainSeedwork.PropArray<T> {
+class MockPropArray<T extends DomainEntityProps> implements PropArray<T> {
   private _items: T[] = [];
 
   constructor(items: T[] = []) {
@@ -187,7 +188,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I request delete', () => {
-      expect(() => violationTicket.requestDelete()).toThrow(DomainSeedwork.PermissionError);
+      expect(() => violationTicket.requestDelete()).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -233,7 +234,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I add a status update', () => {
-      expect(() => violationTicket.requestAddStatusUpdate('Test update', memberRef)).toThrow(DomainSeedwork.PermissionError);
+      expect(() => violationTicket.requestAddStatusUpdate('Test update', memberRef)).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -268,7 +269,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the communityId', () => {
-      expect(() => { violationTicket.communityId = 'new-community-123'; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.communityId = 'new-community-123'; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -282,7 +283,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the communityId', () => {
-      expect(() => { violationTicket.communityId = 'new-community-123'; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.communityId = 'new-community-123'; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -324,7 +325,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the propertyId', () => {
-      expect(() => { violationTicket.propertyId = 'new-property-123'; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.propertyId = 'new-property-123'; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -366,7 +367,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the assignedToId', () => {
-      expect(() => { violationTicket.assignedToId = 'new-assignee-123'; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.assignedToId = 'new-assignee-123'; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -408,7 +409,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the serviceId', () => {
-      expect(() => { violationTicket.serviceId = 'new-service-123'; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.serviceId = 'new-service-123'; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -450,7 +451,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the description', () => {
-      expect(() => { violationTicket.description = 'New Description'; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.description = 'New Description'; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -492,7 +493,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the ticketType', () => {
-      expect(() => { violationTicket.ticketType = 'Parking'; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.ticketType = 'Parking'; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -534,7 +535,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the status', () => {
-      expect(() => { violationTicket.status = ValueObjects.StatusCodes.Submitted; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.status = ValueObjects.StatusCodes.Submitted; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -576,7 +577,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the priority', () => {
-      expect(() => { violationTicket.priority = 3; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.priority = 3; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -618,7 +619,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the hash', () => {
-      expect(() => { violationTicket.hash = 'new-hash-123'; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.hash = 'new-hash-123'; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -661,7 +662,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the lastIndexed', () => {
-      expect(() => { violationTicket.lastIndexed = new Date(); }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.lastIndexed = new Date(); }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -704,7 +705,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the updateIndexFailedDate', () => {
-      expect(() => { violationTicket.updateIndexFailedDate = new Date(); }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.updateIndexFailedDate = new Date(); }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -725,7 +726,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I set the title', () => {
-      expect(() => { violationTicket.title = 'New Title'; }).toThrow(DomainSeedwork.PermissionError);
+      expect(() => { violationTicket.title = 'New Title'; }).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -767,7 +768,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I add a message', () => {
-      expect(() => violationTicket.requestAddMessage('Test message', 'external', 'embedding-123')).toThrow(DomainSeedwork.PermissionError);
+      expect(() => violationTicket.requestAddMessage('Test message', 'external', 'embedding-123')).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -809,7 +810,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I add a photo', () => {
-      expect(() => violationTicket.requestAddPhoto('document-123', 'Test photo description')).toThrow(DomainSeedwork.PermissionError);
+      expect(() => violationTicket.requestAddPhoto('document-123', 'Test photo description')).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -857,7 +858,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I add a status transition to "Closed"', () => {
-      expect(() => violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Closed), 'Invalid transition', memberRef)).toThrow(DomainSeedwork.PermissionError);
+      expect(() => violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Closed), 'Invalid transition', memberRef)).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
@@ -879,7 +880,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('I add a status transition to "Submitted"', () => {
-      expect(() => violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Submitted), 'Status changed', memberRef)).toThrow(DomainSeedwork.PermissionError);
+      expect(() => violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Submitted), 'Status changed', memberRef)).toThrow(PermissionError);
     });
 
     Then('a PermissionError should be thrown', () => {
