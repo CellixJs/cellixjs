@@ -1,4 +1,11 @@
-export * as Contexts from './contexts/index.ts';
+// Domain Contexts - Direct exports from aggregate files (no barrel re-exports)
+export * as Case from './contexts/case.ts';
+export * as Community from './contexts/community.ts';
+export * as Property from './contexts/property.ts';
+export * as Service from './contexts/service.ts';
+export * as User from './contexts/user.ts';
+
+// Passport and other domain concerns
 export { type Passport, PassportFactory } from './contexts/passport.ts';
 export type { DomainExecutionContext } from './domain-execution-context.ts';
 export * as Events from './events/index.ts';

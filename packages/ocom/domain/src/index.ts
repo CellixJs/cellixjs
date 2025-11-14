@@ -1,4 +1,8 @@
-import type { Contexts } from './domain/index.ts';
+import type * as Case from './domain/contexts/case.ts';
+import type * as Community from './domain/contexts/community.ts';
+import type * as Property from './domain/contexts/property.ts';
+import type * as Service from './domain/contexts/service.ts';
+import type * as User from './domain/contexts/user.ts';
 
 export * as Domain from './domain/index.ts';
 
@@ -6,48 +10,48 @@ export interface DomainDataSource {
     Case: {
         ServiceTicket: {
             V1: {
-                ServiceTicketV1UnitOfWork: Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
+                ServiceTicketV1UnitOfWork: Case.ServiceTicketV1UnitOfWork;
             };
         };
     };
 	Community: {
 		Community: {
-			CommunityUnitOfWork: Contexts.Community.Community.CommunityUnitOfWork;
+			CommunityUnitOfWork: Community.CommunityUnitOfWork;
 		};
         Member: {
-            MemberUnitOfWork: Contexts.Community.Member.MemberUnitOfWork;
+            MemberUnitOfWork: Community.MemberUnitOfWork;
         };
 		Role: {
 			EndUserRole: {
-				EndUserRoleUnitOfWork: Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+				EndUserRoleUnitOfWork: Community.EndUserRoleUnitOfWork;
 			};
 			VendorUserRole: {
-				VendorUserRoleUnitOfWork: Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork;
+				VendorUserRoleUnitOfWork: Community.VendorUserRoleUnitOfWork;
 			};
 		};
 	};
 	Property: {
 		Property: {
-			PropertyUnitOfWork: Contexts.Property.Property.PropertyUnitOfWork;
+			PropertyUnitOfWork: Property.PropertyUnitOfWork;
 		};
 	};
 	User: {
 		EndUser: {
-			EndUserUnitOfWork: Contexts.User.EndUser.EndUserUnitOfWork;
+			EndUserUnitOfWork: User.EndUserUnitOfWork;
 		};
 		StaffRole: {
-			StaffRoleUnitOfWork: Contexts.User.StaffRole.StaffRoleUnitOfWork;
+			StaffRoleUnitOfWork: User.StaffRoleUnitOfWork;
 		};
 		StaffUser: {
-			StaffUserUnitOfWork: Contexts.User.StaffUser.StaffUserUnitOfWork;
+			StaffUserUnitOfWork: User.StaffUserUnitOfWork;
 		};
 		VendorUser: {
-			VendorUserUnitOfWork: Contexts.User.VendorUser.VendorUserUnitOfWork;
+			VendorUserUnitOfWork: User.VendorUserUnitOfWork;
 		};
 	};
 	Service: {
 		Service: {
-			ServiceUnitOfWork: Contexts.Service.Service.ServiceUnitOfWork;
+			ServiceUnitOfWork: Service.ServiceUnitOfWork;
 		};
 	};
 }

@@ -2,7 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi, type MockedFunction } from 'vitest';
-import type { Domain, DomainDataSource } from '../../../index.ts';
+import type * as Community from '../../../domain/contexts/community.ts';
+import type { DomainDataSource } from '../../../index.ts';
 import { CommunityProvisioningService } from './community-provisioning.service.ts';
 
 
@@ -72,7 +73,7 @@ function makeMockDomainDataSource(): DomainDataSource {
   } as unknown as DomainDataSource;
 }
 
-function makeMockCommunity(overrides: Partial<Domain.Contexts.Community.Community.CommunityProps> = {}): Domain.Contexts.Community.Community.CommunityEntityReference {
+function makeMockCommunity(overrides: Partial<Community.CommunityProps> = {}): Community.CommunityEntityReference {
   return {
     id: 'community-123',
     createdBy: {
@@ -86,19 +87,19 @@ function makeMockCommunity(overrides: Partial<Domain.Contexts.Community.Communit
       }
     },
     ...overrides
-  } as unknown as Domain.Contexts.Community.Community.CommunityEntityReference;
+  } as unknown as Community.CommunityEntityReference;
 }
 
-function makeMockRole(): Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference {
+function makeMockRole(): Community.EndUserRoleEntityReference {
   return {
     id: 'role-123',
     permissions: {
       setDefaultAdminPermissions: vi.fn()
     }
-  } as unknown as Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference;
+  } as unknown as Community.EndUserRoleEntityReference;
 }
 
-function makeMockMember(): Domain.Contexts.Community.Member.MemberEntityReference {
+function makeMockMember(): Community.MemberEntityReference {
   return {
     role: {
         id: 'role-123',
@@ -110,25 +111,25 @@ function makeMockMember(): Domain.Contexts.Community.Member.MemberEntityReferenc
       statusCode: '',
       user: null
     }))
-  } as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
+  } as unknown as Community.MemberEntityReference;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let service: CommunityProvisioningService;
   let mockDomainDataSource: DomainDataSource;
-  let mockCommunity: Domain.Contexts.Community.Community.CommunityEntityReference; 
-  let mockRole: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference;
-  let mockMember: Domain.Contexts.Community.Member.MemberEntityReference;
+  let mockCommunity: Community.CommunityEntityReference; 
+  let mockRole: Community.EndUserRoleEntityReference;
+  let mockMember: Community.MemberEntityReference;
   let mockCommunityRepo: {
-    getByIdWithCreatedBy: MockedFunction<(id: string) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference | null>>;
+    getByIdWithCreatedBy: MockedFunction<(id: string) => Promise<Community.CommunityEntityReference | null>>;
   };
   let mockRoleRepo: {
-    getNewInstance: MockedFunction<(name: string, isDefault: boolean, community: Domain.Contexts.Community.Community.CommunityEntityReference) => Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference>>;
-    save: MockedFunction<(role: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference) => Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference | null>>;
+    getNewInstance: MockedFunction<(name: string, isDefault: boolean, community: Community.CommunityEntityReference) => Promise<Community.EndUserRoleEntityReference>>;
+    save: MockedFunction<(role: Community.EndUserRoleEntityReference) => Promise<Community.EndUserRoleEntityReference | null>>;
   };
   let mockMemberRepo: {
-    getNewInstance: MockedFunction<(displayName: string, community: Domain.Contexts.Community.Community.CommunityEntityReference) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>>;
-    save: MockedFunction<(member: Domain.Contexts.Community.Member.MemberEntityReference) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>>;
+    getNewInstance: MockedFunction<(displayName: string, community: Community.CommunityEntityReference) => Promise<Community.MemberEntityReference>>;
+    save: MockedFunction<(member: Community.MemberEntityReference) => Promise<Community.MemberEntityReference>>;
   };
   let thrownError: Error | null = null;
 
@@ -274,7 +275,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       const communityWithoutCreatedBy = {
         ...mockCommunity,
         createdBy: null
-      } as unknown as Domain.Contexts.Community.Community.CommunityEntityReference;
+      } as unknown as Community.CommunityEntityReference;
       mockCommunityRepo.getByIdWithCreatedBy.mockResolvedValue(communityWithoutCreatedBy);
     });
 
