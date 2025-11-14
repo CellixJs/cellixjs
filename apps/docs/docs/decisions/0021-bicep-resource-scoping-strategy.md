@@ -84,13 +84,12 @@ We defer to Microsoft's recommended resource naming conventions as documented in
 | Application Insights    | `ocm-dev-appi`                    | `${prefix}{abbrev}`                                            | appi         | 2025-10-16            | gidich, nnoce14    | application-insights/main.bicep        |
 | App Service Plan        | `ocm-dev-asp-pri-001`              | `${applicationPrefix}-{env}-asp-{instanceName}`                | asp          | 2025-10-16            | gidich, nnoce14    | app-service-plan/main.bicep            |
 | Function App            | `ocm-dev-func-pri-bd52ztvowoqqe`  | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | func         | 2025-10-16            | gidich, nnoce14    | function-app/main.bicep                |
-| Cosmos DB Mongo Account | `ocmdevcosmonui1abc123`           | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cosmon       | 2025-10-16            | gidich, nnoce14    | cosmos-mongodb/mongo-database-account.bicep |
-| Cosmos DB               | `ocmdevcosmosui1abc123`           | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cosmos       | 2025-10-16            | gidich, nnoce14    | cosmos-mongodb/mongo-database.bicep    |
-| Cognitive Search        | `ocmsrchcogea2abc123`             | `${applicationPrefix}{abbrev}cog{location}{uniqueId}`          | srch         | 2025-10-16            | gidich, nnoce14    | search-service/main.bicep              |
-| Storage Account         | `ocmdevstui1abc123`               | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | st           | 2025-10-16            | gidich, nnoce14    | storage-account/main.bicep, static-website/main.bicep |
-| Managed Identity        | `ocmdevidui1abc123`               | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | id           | 2025-10-16            | gidich, nnoce14    | static-website/main.bicep              |
-| Event Hub Namespace     | `ocmdevevhnsui1abc123`            | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | evhns        | 2025-10-16            | gidich, nnoce14    | (future use)                           |
-| Event Hub               | `ocm-dev-evh-ui1-abc123`          | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | evh          | 2025-10-16            | gidich, nnoce14    | (future use)                           |
+| Cosmos DB Mongo Account | `ocmdevcosmondatbd52ztvowoqqe`    | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cosmon       | 2025-10-16            | gidich, nnoce14    | cosmos-mongodb/mongo-database-account.bicep |
+| Cosmos DB               | `ocmdevcosmosdatbd52ztvowoqqe`    | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cosmos       | 2025-10-16            | gidich, nnoce14    | cosmos-mongodb/mongo-database.bicep    |
+| Cognitive Search        | `ocmsrchcogeastus2bd52ztvowoqqe`  | `${applicationPrefix}{abbrev}cog{location}{uniqueId}`          | srch         | 2025-10-16            | gidich, nnoce14    | search-service/main.bicep              |
+| Storage Account (Function App) | `ocmdevstappbd52ztvowoqqe` | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | st           | 2025-10-16            | gidich, nnoce14    | storage-account/main.bicep             |
+| Storage Account (Static Website) | `ocmdevstuicbd52ztvowoqqe` | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | st           | 2025-10-16            | gidich, nnoce14    | static-website/main.bicep              |
+| Managed Identity        | `ocmdeviduicbd52ztvowoqqe`        | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | id           | 2025-10-16            | gidich, nnoce14    | static-website/main.bicep              |
 
 **Legend:**
 - `applicationPrefix`: 3-char app code (e.g., `ocm`)
@@ -102,7 +101,7 @@ We defer to Microsoft's recommended resource naming conventions as documented in
 - `uniqueId`: `uniqueString(resourceGroup().id)` for global uniqueness
 - `location`: short location code (e.g., `ea2` for `eastus2`)
 
-*Note: Abbreviations are sourced from Microsoft's official resource abbreviation list. The "ogn" convention for Front Door Origin Groups is a custom addition for clarity in our templates.*
+*Note: Abbreviations are sourced from Microsoft's official resource abbreviation list.*
 
 ## Azure Cognitive Search Service Strategy
 
@@ -165,14 +164,6 @@ Most Azure resources follow this pattern to ensure proper isolation, security, a
 - **Azure Cognitive Search**: Complex scoping driven by technical limitations (15-index limit per service) and cost constraints ($150/month MSDN budget), resulting in shared Free tier for sample applications despite technical preference for isolation.
 
 ## More Information
-
-- [Azure Cognitive Search Service Limits](https://docs.microsoft.com/en-us/azure/search/search-limits-quotas-capacity)
-- [Azure Resource Naming Conventions](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming)
-- [Bicep Template Best Practices](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/best-practices)
-
-
-## Front Door Origin Group Naming Convention
-
 
 ### Front Door Origin Group and Origin Name Conventions
 
@@ -237,48 +228,8 @@ While respecting the $150/month MSDN budget constraint, we aim to align our deve
 
 This constraint is temporary for development/demo environments and should be reassessed when applications move to production subscriptions with higher budgets.
 
-## Resource Naming Conventions
+### References
 
-We defer to Microsoft's recommended resource naming conventions as documented in the [Azure Cloud Adoption Framework](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations). Our Bicep templates implement these conventions using standardized prefixes and abbreviations defined in `iac/global/resource-types.json` and `iac/global/resource-naming-convention.bicep`.
-
-
-- The naming convention follows a consistent pattern across resources:
-- **Prefix**: `${applicationPrefix}-{env}-` (e.g., `ocm-dev-`)
-- **Small Prefix**: `${applicationPrefix}{env}` (e.g., `ocmdev`)
-- **Abbreviation**: Microsoft standard abbreviation from `resource-types.json`
-- **Instance Name**: Application-specific identifier
-- **Unique ID**: `uniqueString(resourceGroup().id)` for global uniqueness
-- **Location**: Short code (e.g., `ea2` for `eastus2`)
-
-
-| Resource                | Naming Convention Example         | Pattern / Template                                             | Abbreviation | Date of Implementation | Who Implemented It | Notes / Source File(s)                |
-|-------------------------|-----------------------------------|----------------------------------------------------------------|--------------|-----------------------|--------------------|---------------------------------------|
-| Resource Group          | `ocm-dev-rg`                      | `${applicationPrefix}-{env}-rg`                                | rg           | 2025-10-16            | gidich, nnoce14    | global/resource-naming-convention.bicep |
-| CDN Profile             | `ocmdevcdnpui1abc123`             | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cdnp         | 2025-10-16            | gidich, nnoce14    | static-website/cdn.bicep              |
-| CDN Endpoint            | `ocm-dev-cdne-ui1-abc123`         | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | cdne         | 2025-10-16            | gidich, nnoce14    | static-website/cdn.bicep              |
-| Azure Front Door        | `simnova-afd`                     | `{subscription}-{abbrev}`                                      | afd          | 2025-11-14            | gidich, nnoce14    | See ADR, documented above              |
-| Front Door Endpoint     | `ocm-fde-ged3a8gxcvfxafaf`        | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | fde          | 2025-10-16            | gidich, nnoce14    | static-website/front-door.bicep        |
-| Front Door Origin Group | `ocm-dev-ogr-ui-community`        | `${applicationPrefix}-{env}-ogr-{instanceName}`                | ogr          | 2025-11-14            | gidich, nnoce14    | static-website/front-door.bicep        |
-| Origin Name             | `ocm-dev-ogn-pri`<br />`ocm-dev-ogn-ui-community` | `${applicationPrefix}-{env}-ogn-{instanceName}`                      | ogn          | 2025-11-14            | gidich, nnoce14    | static-website/front-door.bicep        |
-| Application Insights    | `ocm-dev-appi`                    | `${prefix}{abbrev}`                                            | appi         | 2025-10-16            | gidich, nnoce14    | application-insights/main.bicep        |
-| App Service Plan        | `ocm-dev-asp-pri-001`              | `${applicationPrefix}-{env}-asp-{instanceName}`                | asp          | 2025-10-16            | gidich, nnoce14    | app-service-plan/main.bicep            |
-| Function App            | `ocm-dev-func-pri-bd52ztvowoqqe`  | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | func         | 2025-10-16            | gidich, nnoce14    | function-app/main.bicep                |
-| Cosmos DB Mongo Account | `ocmdevcosmonui1abc123`           | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cosmon       | 2025-10-16            | gidich, nnoce14    | cosmos-mongodb/mongo-database-account.bicep |
-| Cosmos DB               | `ocmdevcosmosui1abc123`           | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cosmos       | 2025-10-16            | gidich, nnoce14    | cosmos-mongodb/mongo-database.bicep    |
-| Cognitive Search        | `ocmsrchcogea2abc123`             | `${applicationPrefix}{abbrev}cog{location}{uniqueId}`          | srch         | 2025-10-16            | gidich, nnoce14    | search-service/main.bicep              |
-| Storage Account         | `ocmdevstui1abc123`               | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | st           | 2025-10-16            | gidich, nnoce14    | storage-account/main.bicep, static-website/main.bicep |
-| Managed Identity        | `ocmdevidui1abc123`               | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | id           | 2025-10-16            | gidich, nnoce14    | static-website/main.bicep              |
-| Event Hub Namespace     | `ocmdevevhnsui1abc123`            | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | evhns        | 2025-10-16            | gidich, nnoce14    | (future use)                           |
-| Event Hub               | `ocm-dev-evh-ui1-abc123`          | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | evh          | 2025-10-16            | gidich, nnoce14    | (future use)                           |
-
-**Legend:**
-- `applicationPrefix`: 3-char app code (e.g., `ocm`)
-- `env`: 3-char environment code (e.g., `dev`, `prd`)
-- `smallPrefix`: `${applicationPrefix}{env}` (e.g., `ocmdev`)
-- `prefix`: `${applicationPrefix}-{env}-` (e.g., `ocm-dev-`)
-- `abbrev`: resource abbreviation from `resource-types.json`
-- `instanceName`: logical instance name (e.g., `ui1`)
-- `uniqueId`: `uniqueString(resourceGroup().id)` for global uniqueness
-- `location`: short location code (e.g., `ea2` for `eastus2`)
-
-*Note: Abbreviations are sourced from Microsoft's official resource abbreviation list. The "ogn" convention for Front Door Origin Groups is a custom addition for clarity in our templates.*
+- [Azure Cognitive Search Service Limits](https://docs.microsoft.com/en-us/azure/search/search-limits-quotas-capacity)
+- [Azure Resource Naming Conventions](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming)
+- [Bicep Template Best Practices](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/best-practices)
