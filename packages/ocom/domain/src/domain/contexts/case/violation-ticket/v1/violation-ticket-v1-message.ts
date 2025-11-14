@@ -1,5 +1,5 @@
 import { DomainSeedwork } from '@cellix/domain-seedwork';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 import * as ValueObjects from './violation-ticket-v1-message.value-objects.ts';
 

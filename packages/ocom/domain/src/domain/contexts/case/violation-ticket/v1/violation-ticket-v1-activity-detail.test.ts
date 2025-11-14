@@ -6,7 +6,7 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ViolationTicketV1ActivityDetail, type ViolationTicketV1ActivityDetailProps } from './violation-ticket-v1-activity-detail.ts';
 import * as ValueObjects from './violation-ticket-v1-activity-detail.value-objects.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

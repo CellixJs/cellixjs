@@ -16,7 +16,7 @@ import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import type { MemberAccountEntityReference } from '../../community/member/member-account.ts';
 import type { EndUserRoleEntityReference } from '../../community/role/end-user-role/end-user-role.ts';
 import type { MemberProfileProps } from '../../community/member/member-profile.ts';
-import type { PropertyLocationAddressProps } from './index.ts';
+import type { PropertyLocationAddressProps } from './property-location-address.entity.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

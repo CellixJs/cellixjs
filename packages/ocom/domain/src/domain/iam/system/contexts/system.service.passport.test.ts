@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import type { ServiceEntityReference } from '../../../contexts/service/service/index.ts';
+import type { ServiceEntityReference } from '../../../contexts/service/service/service.aggregate.ts';
 import type { ServiceDomainPermissions } from '../../../contexts/service/service.domain-permissions.ts';
 import type { ServiceVisa } from '../../../contexts/service/service.visa.ts';
 import { SystemServicePassport } from './system.service.passport.ts';

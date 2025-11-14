@@ -2,7 +2,7 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ViolationTicketV1CreatedEvent, type ViolationTicketV1CreatedProps } from '../../../../events/types/violation-ticket-v1-created.ts';
 import { ViolationTicketV1DeletedEvent, type ViolationTicketV1DeletedEventProps } from '../../../../events/types/violation-ticket-v1-deleted.ts';
 import { ViolationTicketV1UpdatedEvent, type ViolationTicketV1UpdatedProps } from '../../../../events/types/violation-ticket-v1-updated.ts';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type { Passport } from '../../../passport.ts';
 
 import { ViolationTicketV1ActivityDetail, type ViolationTicketV1ActivityDetailEntityReference, type ViolationTicketV1ActivityDetailProps } from './violation-ticket-v1-activity-detail.ts';

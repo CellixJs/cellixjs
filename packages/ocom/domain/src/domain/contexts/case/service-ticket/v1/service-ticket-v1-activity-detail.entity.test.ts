@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 import { ServiceTicketV1ActivityDetail, type ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.entity.ts';
 import * as ValueObjects from './service-ticket-v1-activity-detail.value-objects.ts';
 

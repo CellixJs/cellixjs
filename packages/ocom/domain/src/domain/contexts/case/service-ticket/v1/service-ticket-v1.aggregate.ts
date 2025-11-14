@@ -2,7 +2,7 @@ import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { ServiceTicketV1CreatedEvent, type ServiceTicketV1CreatedProps } from '../../../../events/types/service-ticket-v1-created.ts';
 import { ServiceTicketV1DeletedEvent, type ServiceTicketV1DeletedProps } from '../../../../events/types/service-ticket-v1-deleted.ts';
 import { ServiceTicketV1UpdatedEvent, type ServiceTicketV1UpdatedProps } from '../../../../events/types/service-ticket-v1-updated.ts';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member/member.ts';
 import type { Passport } from '../../../passport.ts';
 
 import { ServiceTicketV1ActivityDetail, type ServiceTicketV1ActivityDetailEntityReference, type ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.entity.ts';
