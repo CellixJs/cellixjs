@@ -234,9 +234,7 @@ test.for(feature, ({ Scenario, ScenarioOutline }) => {
 			let value: string;
 			When('I create an account status code with "<statusCode>"', () => {
 				// biome-ignore lint:useLiteralKeys
-				value = new ValueObjects.AccountStatusCode(
-					variables.statusCode,
-				).valueOf();
+				value = new ValueObjects.AccountStatusCode(variables['statusCode']).valueOf();
 			});
 			Then('the value should be "<statusCode>"', () => {
 				// biome-ignore lint:useLiteralKeys
