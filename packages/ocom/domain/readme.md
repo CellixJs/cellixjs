@@ -4,18 +4,28 @@ This package contains all the application-specific Domain code implementing Doma
 
 ## Package Structure
 
-The domain package is organized using DDD bounded contexts with aggregate export files:
+The domain package is organized using DDD bounded contexts with direct aggregate exports (no barrel files):
 
 ```
 src/
 ├── domain/
 │   ├── contexts/
-│   │   ├── case.ts           # Case domain aggregate (ServiceTicket, ViolationTicket)
-│   │   ├── community.ts      # Community domain aggregate (Community, Member, Roles)
-│   │   ├── property.ts       # Property domain aggregate
-│   │   ├── service.ts        # Service domain aggregate
-│   │   ├── user.ts           # User domain aggregate (EndUser, StaffUser, VendorUser, StaffRole)
-│   │   └── [context]/        # Individual context implementations
+│   │   ├── case/
+│   │   │   ├── service-ticket/v1/service-ticket-v1.aggregate.ts
+│   │   │   └── violation-ticket/v1/violation-ticket-v1.aggregate.ts
+│   │   ├── community/
+│   │   │   ├── community/community.ts        # Community aggregate
+│   │   │   ├── member/member.ts              # Member aggregate
+│   │   │   └── role/
+│   │   │       ├── end-user-role/end-user-role.ts
+│   │   │       └── vendor-user-role/vendor-user-role.ts
+│   │   ├── property/property/property.aggregate.ts
+│   │   ├── service/service/service.aggregate.ts
+│   │   └── user/
+│   │       ├── end-user/end-user.ts
+│   │       ├── staff-role/staff-role.ts
+│   │       ├── staff-user/staff-user.ts
+│   │       └── vendor-user/vendor-user.ts
 │   ├── events/               # Domain events
 │   ├── iam/                  # Identity and access management
 │   └── services/             # Domain services
@@ -24,18 +34,54 @@ src/
 
 ## Import Paths
 
-### After Refactor (Current)
+### Direct Package Exports (Recommended)
 
-Import domain types using the aggregate files or the Domain namespace:
+Import individual aggregates directly using package exports:
 
 ```typescript
-// Via Domain namespace (recommended for existing code)
-import type { Domain } from '@ocom/domain';
-const community: Domain.Community.CommunityEntityReference;
-
-// Via direct aggregate imports (recommended for new code)
+// Community aggregate
 import type * as Community from '@ocom/domain/contexts/community';
 const community: Community.CommunityEntityReference;
+const repo: Community.CommunityRepository;
+
+// Member aggregate
+import type * as Member from '@ocom/domain/contexts/member';
+const member: Member.MemberEntityReference;
+
+// Service Ticket V1 aggregate
+import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
+const ticket: ServiceTicketV1.ServiceTicketV1EntityReference;
+
+// End User Role aggregate
+import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
+const role: EndUserRole.EndUserRoleEntityReference;
+```
+
+### Available Package Exports
+
+- `@ocom/domain/contexts/community` - Community aggregate
+- `@ocom/domain/contexts/member` - Member aggregate
+- `@ocom/domain/contexts/end-user-role` - End User Role aggregate
+- `@ocom/domain/contexts/vendor-user-role` - Vendor User Role aggregate
+- `@ocom/domain/contexts/property` - Property aggregate
+- `@ocom/domain/contexts/service` - Service aggregate
+- `@ocom/domain/contexts/service-ticket/v1` - Service Ticket V1 aggregate
+- `@ocom/domain/contexts/violation-ticket/v1` - Violation Ticket V1 aggregate
+- `@ocom/domain/contexts/end-user` - End User aggregate
+- `@ocom/domain/contexts/staff-role` - Staff Role aggregate
+- `@ocom/domain/contexts/staff-user` - Staff User aggregate
+- `@ocom/domain/contexts/vendor-user` - Vendor User aggregate
+
+### Via Domain Namespace (For Existing Code)
+
+The Domain namespace re-exports all aggregates for backward compatibility:
+
+```typescript
+import type { Domain } from '@ocom/domain';
+
+const community: Domain.Community.CommunityEntityReference;
+const member: Domain.Member.MemberEntityReference;
+const ticket: Domain.ServiceTicketV1.ServiceTicketV1EntityReference;
 ```
 
 ### Available Context Exports

@@ -162,3 +162,8 @@ export class StaffUser<props extends StaffUserProps>
 		return this.props.schemaVersion;
 	}
 }
+
+//#region Exports
+export type { StaffUserRepository } from './staff-user.repository.ts';
+export type { StaffUserUnitOfWork } from './staff-user.uow.ts';
+//#endregion

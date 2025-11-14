@@ -285,3 +285,9 @@ export class Member<props extends MemberProps>
 	} // return customView as it's an embedded document not a reference (allows editing)
 	// #endregion Properties
 }
+
+//#region Exports
+export type { MemberRepository } from './member.repository.ts';
+export type { MemberUnitOfWork } from './member.uow.ts';
+export { AccountStatusCodes as MemberAccountStatusCodes } from './member-account.value-objects.ts';
+//#endregion

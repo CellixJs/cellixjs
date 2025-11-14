@@ -1,5 +1,6 @@
-import type * as Community from '../../contexts/community.ts';
-import { MemberAccountStatusCodes } from '../../contexts/community.ts';
+import type * as Community from '../../contexts/community/community/community.ts';
+import { MemberAccountStatusCodes } from '../../contexts/community/member/member.ts';
+import type * as EndUserRole from '../../contexts/community/role/end-user-role/end-user-role.ts';
 import { PassportFactory } from '../../contexts/passport.ts';
 import type { DomainDataSource } from '../../../index.ts';
 
@@ -14,31 +15,28 @@ export class CommunityProvisioningService {
         });
         if (!communityDo) { throw new Error('Community not found'); }
 
-        // At this point, we know communityDo is non-null
-        const community = communityDo;
-        
         const systemPassportForEndUserRole = PassportFactory.forSystem({
             canManageEndUserRolesAndPermissions: true
         });
         // create the default admin role for the community
-        let role: Community.EndUserRoleEntityReference | null = null;
+        let role: EndUserRole.EndUserRoleEntityReference | null = null;
         await domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withTransaction(systemPassportForEndUserRole, async (repo) => {
-            const newRole = await repo.getNewInstance('admin', true, community as Community.CommunityEntityReference);
+            const newRole = await repo.getNewInstance('admin', true, communityDo as Community.CommunityEntityReference);
             newRole.permissions.setDefaultAdminPermissions();
             role = await repo.save(newRole);
         });
 
+        const { createdBy } = communityDo as Community.Community<Community.CommunityProps>;
+
         if (!role) { throw new Error(`Failed to provision default role for Community ID ${communityId}`); }
-        
-        const { createdBy } = community as Community.Community<Community.CommunityProps>;
         if (!createdBy) { throw new Error(`CreatedBy ID is required to provision member and default role for Community ID ${communityId}`); }
 
         const systemPassportForMember = PassportFactory.forSystem({
             canManageMembers: true
         });
         await domainDataSource.Community.Member.MemberUnitOfWork.withTransaction(systemPassportForMember, async (repo) => {
-            const newMember = await repo.getNewInstance(createdBy.displayName, community as Community.CommunityEntityReference);
-            newMember.role = role as Community.EndUserRoleEntityReference;
+            const newMember = await repo.getNewInstance(createdBy.displayName, communityDo as Community.CommunityEntityReference);
+            newMember.role = role as EndUserRole.EndUserRoleEntityReference;
             const newAccount = newMember.requestNewAccount();
             newAccount.createdBy = createdBy;
             newAccount.firstName = createdBy.personalInformation.identityDetails?.restOfName ?? '';

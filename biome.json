@@ -155,11 +155,18 @@
 		{
 			"includes": [
 				"packages/ocom/domain/src/domain/contexts/**/*.value-objects.ts",
-				"packages/ocom/domain/src/domain/contexts/case.ts",
-				"packages/ocom/domain/src/domain/contexts/community.ts",
-				"packages/ocom/domain/src/domain/contexts/property.ts",
-				"packages/ocom/domain/src/domain/contexts/service.ts",
-				"packages/ocom/domain/src/domain/contexts/user.ts"
+				"packages/ocom/domain/src/domain/contexts/community/community/community.ts",
+				"packages/ocom/domain/src/domain/contexts/community/member/member.ts",
+				"packages/ocom/domain/src/domain/contexts/community/role/end-user-role/end-user-role.ts",
+				"packages/ocom/domain/src/domain/contexts/community/role/vendor-user-role/vendor-user-role.ts",
+				"packages/ocom/domain/src/domain/contexts/property/property/property.aggregate.ts",
+				"packages/ocom/domain/src/domain/contexts/service/service/service.aggregate.ts",
+				"packages/ocom/domain/src/domain/contexts/case/service-ticket/v1/service-ticket-v1.aggregate.ts",
+				"packages/ocom/domain/src/domain/contexts/case/violation-ticket/v1/violation-ticket-v1.aggregate.ts",
+				"packages/ocom/domain/src/domain/contexts/user/end-user/end-user.ts",
+				"packages/ocom/domain/src/domain/contexts/user/staff-role/staff-role.ts",
+				"packages/ocom/domain/src/domain/contexts/user/staff-user/staff-user.ts",
+				"packages/ocom/domain/src/domain/contexts/user/vendor-user/vendor-user.ts"
 			],
 			"linter": {
 				"rules": {
