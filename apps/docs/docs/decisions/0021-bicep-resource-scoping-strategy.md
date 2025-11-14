@@ -43,19 +43,66 @@ Resources are managed across two infrastructure repositories:
 - **Application repositories**: Contain application-specific infrastructure (this repository)
 - **Shared infrastructure repository**: Contains cross-application resources (Front Door, Key Vault, etc.)
 
+
 ### Resource Scoping Matrix
 
 | Category | Resource Type | Scope | SKU Tier | Reasoning |
 |----------|---------------|-------|----------|-----------|
-| **Compute** | Function App | Two per environment per application (standard)<br/>One per environment per application (CellixJS/ShareThrift) | B1 Basic (Sample)<br/>B2 Basic (Enterprise) | Requires environment-specific configuration, deployment slots, and isolation. Standard is 2 instances for high availability, but sample applications use 1 instance to reduce costs within $150/month MSDN budget. B1 tier used for cost optimization in sample apps, B2 recommended for enterprise applications. |
-| **Compute** | App Service Plan | One per environment per application | B1 Basic (Sample)<br/>B2 Basic (Enterprise) | Compute resource isolation, scaling requirements. Basic tier provides sufficient compute for development workloads. B1 used for cost optimization in sample apps, B2 recommended for enterprise applications. |
+| **Compute** | Function App | Two per environment per application (standard)<br />One per environment per application (CellixJS/ShareThrift) | B1 Basic (Sample)<br />B2 Basic (Enterprise) | Requires environment-specific configuration, deployment slots, and isolation. Standard is 2 instances for high availability, but sample applications use 1 instance to reduce costs within $150/month MSDN budget. B1 tier used for cost optimization in sample apps, B2 recommended for enterprise applications. |
+| **Compute** | App Service Plan | One per environment per application | B1 Basic (Sample)<br />B2 Basic (Enterprise) | Compute resource isolation, scaling requirements. Basic tier provides sufficient compute for development workloads. B1 used for cost optimization in sample apps, B2 recommended for enterprise applications. |
 | **Storage** | Storage Account | One per environment per application | Standard_RAGZRS | Application storage for blobs, queues, and tables. Data isolation between environments, security boundaries. Geo-redundant with read access for high availability. |
 | **Storage** | Static Website (Storage) | One per environment per application | Standard_RAGZRS | Frontend assets require environment-specific deployments for testing and staging. Geo-redundant with read access. |
 | **Database** | Cosmos DB (MongoDB) | One per environment per application | Standard | One database per application with autoscaling to maximum 1000 RU/s shared across up to 25 collections. Data isolation, performance requirements, backup strategies. |
 | **Monitoring** | Application Insights | One per environment per application | Classic | Telemetry isolation, monitoring per environment. Classic mode for cost optimization. |
-| **Search/AI** | Azure Cognitive Search | See special case below | Free (Sample)<br/>Basic (Enterprise) | Complex scoping due to cost and quota constraints |
+| **Search/AI** | Azure Cognitive Search | See special case below | Free (Sample)<br />Basic (Enterprise) | Complex scoping due to cost and quota constraints |
 | **Security** | Key Vault | One per environment (shared across applications) | Standard | Secrets management shared across applications within each environment. Managed in separate infrastructure repository for cross-application resources. |
 | **Networking** | Azure Front Door | One per subscription | Standard | Global CDN and application delivery network. Managed in separate infrastructure repository for cross-application resources. |
+
+## Resource Naming Conventions
+
+We defer to Microsoft's recommended resource naming conventions as documented in the [Azure Cloud Adoption Framework](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations). Our Bicep templates implement these conventions using standardized prefixes and abbreviations defined in `iac/global/resource-types.json` and `iac/global/resource-naming-convention.bicep`.
+
+
+- The naming convention follows a consistent pattern across resources:
+- **Prefix**: `${applicationPrefix}-{env}-` (e.g., `ocm-dev-`)
+- **Small Prefix**: `${applicationPrefix}{env}` (e.g., `ocmdev`)
+- **Abbreviation**: Microsoft standard abbreviation from `resource-types.json`
+- **Instance Name**: Application-specific identifier
+- **Unique ID**: `uniqueString(resourceGroup().id)` for global uniqueness
+- **Location**: Short code (e.g., `ea2` for `eastus2`)
+
+
+| Resource                | Naming Convention Example         | Pattern / Template                                             | Abbreviation | Date of Implementation | Who Implemented It | Notes / Source File(s)                |
+|-------------------------|-----------------------------------|----------------------------------------------------------------|--------------|-----------------------|--------------------|---------------------------------------|
+| Resource Group          | `ocm-dev-rg`                      | `${applicationPrefix}-{env}-rg`                                | rg           | 2025-10-16            | gidich, nnoce14    | global/resource-naming-convention.bicep |
+| CDN Profile             | `ocmdevcdnpui1abc123`             | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cdnp         | 2025-10-16            | gidich, nnoce14    | static-website/cdn.bicep              |
+| CDN Endpoint            | `ocm-dev-cdne-ui1-abc123`         | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | cdne         | 2025-10-16            | gidich, nnoce14    | static-website/cdn.bicep              |
+| Azure Front Door        | `simnova-afd`                     | `{subscription}-{abbrev}`                                      | afd          | 2025-11-14            | gidich, nnoce14    | See ADR, documented above              |
+| Front Door Endpoint     | `ocm-fde-ged3a8gxcvfxafaf`        | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | fde          | 2025-10-16            | gidich, nnoce14    | static-website/front-door.bicep        |
+| Front Door Origin Group | `ocm-dev-ogr-ui-community`        | `${applicationPrefix}-{env}-ogr-{instanceName}`                | ogr          | 2025-11-14            | gidich, nnoce14    | static-website/front-door.bicep        |
+| Origin Name             | `ocm-dev-ogn-pri`<br />`ocm-dev-ogn-ui-community` | `${applicationPrefix}-{env}-ogn-{instanceName}`                      | ogn          | 2025-11-14            | gidich, nnoce14    | static-website/front-door.bicep        |
+| Application Insights    | `ocm-dev-appi`                    | `${prefix}{abbrev}`                                            | appi         | 2025-10-16            | gidich, nnoce14    | application-insights/main.bicep        |
+| App Service Plan        | `ocm-dev-asp-pri-001`              | `${applicationPrefix}-{env}-asp-{instanceName}`                | asp          | 2025-10-16            | gidich, nnoce14    | app-service-plan/main.bicep            |
+| Function App            | `ocm-dev-func-pri-bd52ztvowoqqe`  | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | func         | 2025-10-16            | gidich, nnoce14    | function-app/main.bicep                |
+| Cosmos DB Mongo Account | `ocmdevcosmonui1abc123`           | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cosmon       | 2025-10-16            | gidich, nnoce14    | cosmos-mongodb/mongo-database-account.bicep |
+| Cosmos DB               | `ocmdevcosmosui1abc123`           | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | cosmos       | 2025-10-16            | gidich, nnoce14    | cosmos-mongodb/mongo-database.bicep    |
+| Cognitive Search        | `ocmsrchcogea2abc123`             | `${applicationPrefix}{abbrev}cog{location}{uniqueId}`          | srch         | 2025-10-16            | gidich, nnoce14    | search-service/main.bicep              |
+| Storage Account         | `ocmdevstui1abc123`               | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | st           | 2025-10-16            | gidich, nnoce14    | storage-account/main.bicep, static-website/main.bicep |
+| Managed Identity        | `ocmdevidui1abc123`               | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | id           | 2025-10-16            | gidich, nnoce14    | static-website/main.bicep              |
+| Event Hub Namespace     | `ocmdevevhnsui1abc123`            | `${smallPrefix}{abbrev}{instanceName}{uniqueId}`               | evhns        | 2025-10-16            | gidich, nnoce14    | (future use)                           |
+| Event Hub               | `ocm-dev-evh-ui1-abc123`          | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | evh          | 2025-10-16            | gidich, nnoce14    | (future use)                           |
+
+**Legend:**
+- `applicationPrefix`: 3-char app code (e.g., `ocm`)
+- `env`: 3-char environment code (e.g., `dev`, `prd`)
+- `smallPrefix`: `${applicationPrefix}{env}` (e.g., `ocmdev`)
+- `prefix`: `${applicationPrefix}-{env}-` (e.g., `ocm-dev-`)
+- `abbrev`: resource abbreviation from `resource-types.json`
+- `instanceName`: logical instance name (e.g., `ui1`)
+- `uniqueId`: `uniqueString(resourceGroup().id)` for global uniqueness
+- `location`: short location code (e.g., `ea2` for `eastus2`)
+
+*Note: Abbreviations are sourced from Microsoft's official resource abbreviation list. The "ogn" convention for Front Door Origin Groups is a custom addition for clarity in our templates.*
 
 ## Azure Cognitive Search Service Strategy
 
@@ -212,7 +259,7 @@ We defer to Microsoft's recommended resource naming conventions as documented in
 | Azure Front Door        | `simnova-afd`                     | `{subscription}-{abbrev}`                                      | afd          | 2025-11-14            | gidich, nnoce14    | See ADR, documented above              |
 | Front Door Endpoint     | `ocm-fde-ged3a8gxcvfxafaf`        | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | fde          | 2025-10-16            | gidich, nnoce14    | static-website/front-door.bicep        |
 | Front Door Origin Group | `ocm-dev-ogr-ui-community`        | `${applicationPrefix}-{env}-ogr-{instanceName}`                | ogr          | 2025-11-14            | gidich, nnoce14    | static-website/front-door.bicep        |
-| Origin Name             | `ocm-dev-ogn-pri`<br>`ocm-dev-ogn-ui-community` | `${applicationPrefix}-{env}-ogn-{instanceName}`                      | ogn          | 2025-11-14            | gidich, nnoce14    | static-website/front-door.bicep        |
+| Origin Name             | `ocm-dev-ogn-pri`<br />`ocm-dev-ogn-ui-community` | `${applicationPrefix}-{env}-ogn-{instanceName}`                      | ogn          | 2025-11-14            | gidich, nnoce14    | static-website/front-door.bicep        |
 | Application Insights    | `ocm-dev-appi`                    | `${prefix}{abbrev}`                                            | appi         | 2025-10-16            | gidich, nnoce14    | application-insights/main.bicep        |
 | App Service Plan        | `ocm-dev-asp-pri-001`              | `${applicationPrefix}-{env}-asp-{instanceName}`                | asp          | 2025-10-16            | gidich, nnoce14    | app-service-plan/main.bicep            |
 | Function App            | `ocm-dev-func-pri-bd52ztvowoqqe`  | `${prefix}{abbrev}-{instanceName}-{uniqueId}`                  | func         | 2025-10-16            | gidich, nnoce14    | function-app/main.bicep                |
