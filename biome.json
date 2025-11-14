@@ -1,7 +1,9 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-	"files": { "ignoreUnknown": false },
+	"files": { 
+		"ignoreUnknown": false
+	},
     "css": { "parser": { "cssModules": true } },
 	"formatter": {
 		"enabled": true,
@@ -142,7 +144,7 @@
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
         { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } },
 		{
-			"includes": ["packages/ocom/domain/src/domain/contexts/**/*.ts"],
+			"includes": ["packages/ocom/domain/**/*.ts"],
 			"linter": {
 				"rules": {
 					"performance": {
@@ -153,21 +155,7 @@
 			}
 		},
 		{
-			"includes": [
-				"packages/ocom/domain/src/domain/contexts/**/*.value-objects.ts",
-				"packages/ocom/domain/src/domain/contexts/community/community/community.ts",
-				"packages/ocom/domain/src/domain/contexts/community/member/member.ts",
-				"packages/ocom/domain/src/domain/contexts/community/role/end-user-role/end-user-role.ts",
-				"packages/ocom/domain/src/domain/contexts/community/role/vendor-user-role/vendor-user-role.ts",
-				"packages/ocom/domain/src/domain/contexts/property/property/property.aggregate.ts",
-				"packages/ocom/domain/src/domain/contexts/service/service/service.aggregate.ts",
-				"packages/ocom/domain/src/domain/contexts/case/service-ticket/v1/service-ticket-v1.aggregate.ts",
-				"packages/ocom/domain/src/domain/contexts/case/violation-ticket/v1/violation-ticket-v1.aggregate.ts",
-				"packages/ocom/domain/src/domain/contexts/user/end-user/end-user.ts",
-				"packages/ocom/domain/src/domain/contexts/user/staff-role/staff-role.ts",
-				"packages/ocom/domain/src/domain/contexts/user/staff-user/staff-user.ts",
-				"packages/ocom/domain/src/domain/contexts/user/vendor-user/vendor-user.ts"
-			],
+			"includes": ["packages/ocom/domain/**/tests/**/*.ts", "packages/ocom/domain/**/*.test.ts", "packages/ocom/domain/**/*.spec.ts"],
 			"linter": {
 				"rules": {
 					"performance": {

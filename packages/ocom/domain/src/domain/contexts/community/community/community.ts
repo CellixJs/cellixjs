@@ -194,5 +194,7 @@ export class Community<props extends CommunityProps>
 //#region Exports
 export type { CommunityRepository } from './community.repository.ts';
 export type { CommunityUnitOfWork } from './community.uow.ts';
-export * as ValueObjects from './community.value-objects.ts';
+// Import and re-export individual value object types to avoid export *
+import * as ValueObjectsImport from './community.value-objects.ts';
+export const CommunityValueObjects = ValueObjectsImport;
 //#endregion

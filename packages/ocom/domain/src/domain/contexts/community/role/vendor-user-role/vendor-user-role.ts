@@ -164,10 +164,22 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 //#region Exports
 export type { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
 export type { VendorUserRoleUnitOfWork } from './vendor-user-role.uow.ts';
-export { VendorUserRoleCommunityPermissions, type VendorUserRoleCommunityPermissionsEntityReference, type VendorUserRoleCommunityPermissionsProps } from './vendor-user-role-community-permissions.ts';
-export { VendorUserRolePermissions, type VendorUserRolePermissionsEntityReference, type VendorUserRolePermissionsProps } from './vendor-user-role-permissions.ts';
-export { VendorUserRolePropertyPermissions, type VendorUserRolePropertyPermissionsEntityReference, type VendorUserRolePropertyPermissionsProps } from './vendor-user-role-property-permissions.ts';
-export { VendorUserRoleServicePermissions, type VendorUserRoleServicePermissionsEntityReference, type VendorUserRoleServicePermissionsProps } from './vendor-user-role-service-permissions.ts';
-export { VendorUserRoleServiceTicketPermissions, type VendorUserRoleServiceTicketPermissionsEntityReference, type VendorUserRoleServiceTicketPermissionsProps } from './vendor-user-role-service-ticket-permissions.ts';
-export { VendorUserRoleViolationTicketPermissions, type VendorUserRoleViolationTicketPermissionsEntityReference, type VendorUserRoleViolationTicketPermissionsProps } from './vendor-user-role-violation-ticket-permissions.ts';
+import { VendorUserRoleCommunityPermissions as VendorUserRoleCommunityPermissionsImport } from './vendor-user-role-community-permissions.ts';
+export const VendorUserRoleCommunityPermissions = VendorUserRoleCommunityPermissionsImport;
+export type { VendorUserRoleCommunityPermissionsEntityReference, VendorUserRoleCommunityPermissionsProps } from './vendor-user-role-community-permissions.ts';
+// VendorUserRolePermissions is already imported at the top of the file for internal use, so just re-export it
+export { VendorUserRolePermissions };
+export type { VendorUserRolePermissionsEntityReference, VendorUserRolePermissionsProps } from './vendor-user-role-permissions.ts';
+import { VendorUserRolePropertyPermissions as VendorUserRolePropertyPermissionsImport } from './vendor-user-role-property-permissions.ts';
+export const VendorUserRolePropertyPermissions = VendorUserRolePropertyPermissionsImport;
+export type { VendorUserRolePropertyPermissionsEntityReference, VendorUserRolePropertyPermissionsProps } from './vendor-user-role-property-permissions.ts';
+import { VendorUserRoleServicePermissions as VendorUserRoleServicePermissionsImport } from './vendor-user-role-service-permissions.ts';
+export const VendorUserRoleServicePermissions = VendorUserRoleServicePermissionsImport;
+export type { VendorUserRoleServicePermissionsEntityReference, VendorUserRoleServicePermissionsProps } from './vendor-user-role-service-permissions.ts';
+import { VendorUserRoleServiceTicketPermissions as VendorUserRoleServiceTicketPermissionsImport } from './vendor-user-role-service-ticket-permissions.ts';
+export const VendorUserRoleServiceTicketPermissions = VendorUserRoleServiceTicketPermissionsImport;
+export type { VendorUserRoleServiceTicketPermissionsEntityReference, VendorUserRoleServiceTicketPermissionsProps } from './vendor-user-role-service-ticket-permissions.ts';
+import { VendorUserRoleViolationTicketPermissions as VendorUserRoleViolationTicketPermissionsImport } from './vendor-user-role-violation-ticket-permissions.ts';
+export const VendorUserRoleViolationTicketPermissions = VendorUserRoleViolationTicketPermissionsImport;
+export type { VendorUserRoleViolationTicketPermissionsEntityReference, VendorUserRoleViolationTicketPermissionsProps } from './vendor-user-role-violation-ticket-permissions.ts';
 //#endregion
