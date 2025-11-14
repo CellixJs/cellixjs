@@ -41,12 +41,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let endUserRoleModel: Models.Role.EndUserRoleModelType;
   let passport: Domain.Passport;
-  let result: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+  let result: Domain.EndUserRole.EndUserRoleUnitOfWork;
 
   BeforeEachScenario(() => {
     endUserRoleModel = makeMockEndUserRoleModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+    result = {} as Domain.EndUserRole.EndUserRoleUnitOfWork;
   });
 
   Background(({ Given, And }) => {

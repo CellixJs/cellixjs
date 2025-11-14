@@ -11,7 +11,7 @@ export const queryById = (
 ) => {
     return async (
         command: EndUserQueryByIdCommand,
-    ): Promise<Domain.User.EndUser.EndUserEntityReference | null> => {
+    ): Promise<Domain.EndUser.EndUserEntityReference | null> => {
         return await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getById(
             command.id, 
             { fields: command.fields }

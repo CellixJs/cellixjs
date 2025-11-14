@@ -12,7 +12,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/delete-and-reassign.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<Domain.User.StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityReference> = {}) {
   const baseRole = {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -37,15 +37,15 @@ function makeMockStaffRole(overrides: Partial<Domain.User.StaffRole.StaffRoleEnt
   return {
     ...baseRole,
     deleteAndReassignTo: vi.fn(),
-  } as unknown as Domain.User.StaffRole.StaffRole<Domain.User.StaffRole.StaffRoleProps>;
+  } as unknown as Domain.StaffRole.StaffRole<Domain.StaffRole.StaffRoleProps>;
 }
 
-function makeMockRepo(overrides: Partial<Domain.User.StaffRole.StaffRoleRepository<Domain.User.StaffRole.StaffRoleProps>> = {}) { 
+function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>> = {}) { 
   return {
     getById: vi.fn(),
     save: vi.fn(),
     ...overrides,
-  } as unknown as Domain.User.StaffRole.StaffRoleRepository<Domain.User.StaffRole.StaffRoleProps>;
+  } as unknown as Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {

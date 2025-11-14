@@ -12,7 +12,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/query-by-role-name.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<Domain.User.StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -31,19 +31,19 @@ function makeMockStaffRole(overrides: Partial<Domain.User.StaffRole.StaffRoleEnt
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as Domain.User.StaffRole.StaffRoleEntityReference;
+  } as Domain.StaffRole.StaffRoleEntityReference;
 }
 
-function makeMockRepo(overrides: Partial<Domain.User.StaffRole.StaffRoleRepository<Domain.User.StaffRole.StaffRoleProps>> = {}) { 
+function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>> = {}) { 
   return {
     getByRoleName: vi.fn(),
     ...overrides,
-  } as unknown as Domain.User.StaffRole.StaffRoleRepository<Domain.User.StaffRole.StaffRoleProps>;
+  } as unknown as Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let dataSources: DataSources;
-  let queryStaffRoleByName: (command: { roleName: string }) => Promise<Domain.User.StaffRole.StaffRoleEntityReference | null>;
+  let queryStaffRoleByName: (command: { roleName: string }) => Promise<Domain.StaffRole.StaffRoleEntityReference | null>;
 
   BeforeEachScenario(() => {
     dataSources = {
@@ -62,7 +62,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by role name successfully', ({ Given, When, Then }) => {
-    let result: Domain.User.StaffRole.StaffRoleEntityReference | null;
+    let result: Domain.StaffRole.StaffRoleEntityReference | null;
 
     Given('a staff role with name "Test Role" exists', () => {
       // Mock will be set up in When step
@@ -89,7 +89,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by role name that does not exist', ({ Given, When, Then }) => {
-    let result: Domain.User.StaffRole.StaffRoleEntityReference | null;
+    let result: Domain.StaffRole.StaffRoleEntityReference | null;
 
     Given('no staff role with name "Test Role" exists', () => {
       // Mock will be set up in When step

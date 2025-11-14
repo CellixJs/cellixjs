@@ -11,7 +11,7 @@ import { ServiceRepository } from './service.repository.ts';
 export const getServiceUnitOfWork = (
     serviceModel: Models.Service.ServiceModelType,
     passport: Domain.Passport
-): Domain.Contexts.Service.Service.ServiceUnitOfWork => {
+): Domain.Service.ServiceUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

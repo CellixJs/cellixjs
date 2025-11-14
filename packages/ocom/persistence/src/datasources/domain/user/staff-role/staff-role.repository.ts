@@ -11,13 +11,13 @@ export class StaffRoleRepository
 		StaffRoleModelType,
 		AdapterType,
 		Domain.Passport,
-		Domain.Contexts.User.StaffRole.StaffRole<AdapterType>
+		Domain.StaffRole.StaffRole<AdapterType>
 	>
-	implements Domain.Contexts.User.StaffRole.StaffRoleRepository<AdapterType>
+	implements Domain.StaffRole.StaffRoleRepository<AdapterType>
 {
 	async getById(
 		id: string,
-	): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
+	): Promise<Domain.StaffRole.StaffRole<AdapterType>> {
 		const staffRole = await this.model.findById(id).exec();
 		if (!staffRole) {
 			throw new Error(`StaffRole with id ${id} not found`);
@@ -27,7 +27,7 @@ export class StaffRoleRepository
 
 	async getByRoleName(
 		roleName: string,
-	): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
+	): Promise<Domain.StaffRole.StaffRole<AdapterType>> {
 		const staffRole = await this.model.findOne({ roleName }).exec();
 		if (!staffRole) {
 			throw new Error(`StaffRole with roleName ${roleName} not found`);
@@ -37,10 +37,10 @@ export class StaffRoleRepository
 
 	getNewInstance(
 		name: string,
-	): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
+	): Promise<Domain.StaffRole.StaffRole<AdapterType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.User.StaffRole.StaffRole.getNewInstance(
+			Domain.StaffRole.StaffRole.getNewInstance(
 				adapter,
 				this.passport,
 				name,

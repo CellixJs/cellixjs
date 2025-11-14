@@ -11,7 +11,7 @@ import { VendorUserRepository } from './vendor-user.repository.ts';
 export const getVendorUserUnitOfWork = (
 	vendorUserModel: Models.User.VendorUserModelType,
 	passport: Domain.Passport,
-): Domain.Contexts.User.VendorUser.VendorUserUnitOfWork => {
+): Domain.VendorUser.VendorUserUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

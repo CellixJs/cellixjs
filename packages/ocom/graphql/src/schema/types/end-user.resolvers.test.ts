@@ -19,7 +19,7 @@ const feature = await loadFeature(
 );
 
 // Types for test results
-type EndUserEntity = Domain.User.EndUser.EndUserEntityReference;
+type EndUserEntity = Domain.EndUser.EndUserEntityReference;
 
 // Helper function to create mock end user
 function createMockEndUser(overrides: Partial<EndUserEntity> = {}): EndUserEntity {

@@ -11,7 +11,7 @@ import { CommunityRepository } from './community.repository.ts';
 export const getCommunityUnitOfWork = (
     endUserModel: Models.Community.CommunityModelType,
     passport: Domain.Passport
-): Domain.Contexts.Community.Community.CommunityUnitOfWork => {
+): Domain.Community.CommunityUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

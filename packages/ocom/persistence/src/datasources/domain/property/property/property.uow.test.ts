@@ -41,12 +41,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let propertyModel: Models.Property.PropertyModelType;
   let passport: Domain.Passport;
-  let result: Domain.Contexts.Property.Property.PropertyUnitOfWork;
+  let result: Domain.Property.PropertyUnitOfWork;
 
   BeforeEachScenario(() => {
     propertyModel = makeMockPropertyModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Property.Property.PropertyUnitOfWork;
+    result = {} as Domain.Property.PropertyUnitOfWork;
   });
 
   Background(({ Given, And }) => {

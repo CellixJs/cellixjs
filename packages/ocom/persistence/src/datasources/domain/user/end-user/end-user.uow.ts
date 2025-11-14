@@ -14,7 +14,7 @@ import { EndUserRepository } from './end-user.repository.ts';
 export const getEndUserUnitOfWork: (
 	endUserModel: Models.User.EndUserModelType,
 	passport: Domain.Passport,
-) => Domain.Contexts.User.EndUser.EndUserUnitOfWork = (endUserModel: Models.User.EndUserModelType, passport: Domain.Passport) => {
+) => Domain.EndUser.EndUserUnitOfWork = (endUserModel: Models.User.EndUserModelType, passport: Domain.Passport) => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

@@ -3,7 +3,7 @@ import type { GraphQLResolveInfo } from "graphql";
 import type { GraphContext } from "../../init/context.ts";
 import type { CommunityCreateInput, Resolvers } from "../builder/generated.ts";
 
-const CommunityMutationResolver = async (getCommunity: Promise<Domain.Community.Community.CommunityEntityReference>) => {
+const CommunityMutationResolver = async (getCommunity: Promise<Domain.Community.CommunityEntityReference>) => {
   try {
     return {
       status: { success: true },

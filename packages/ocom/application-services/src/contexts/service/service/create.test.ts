@@ -12,26 +12,26 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/create.feature')
 );
 
-function makeMockCommunity(overrides: Partial<Domain.Community.Community.CommunityEntityReference> = {}) {
+function makeMockCommunity(overrides: Partial<Domain.Community.CommunityEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     name: 'Test Community',
     ...overrides,
-  } as Domain.Community.Community.CommunityEntityReference;
+  } as Domain.Community.CommunityEntityReference;
 }
 
-function makeMockService(overrides: Partial<Domain.Service.Service.ServiceEntityReference> = {}) {
+function makeMockService(overrides: Partial<Domain.Service.ServiceEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439012',
     serviceName: 'Test Service',
     description: 'Test Description',
     ...overrides,
-  } as Domain.Service.Service.ServiceEntityReference;
+  } as Domain.Service.ServiceEntityReference;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let dataSources: DataSources;
-  let createService: (command: { serviceName: string; description: string; communityId: string }) => Promise<Domain.Service.Service.ServiceEntityReference>;
+  let createService: (command: { serviceName: string; description: string; communityId: string }) => Promise<Domain.Service.ServiceEntityReference>;
 
   BeforeEachScenario(() => {
     dataSources = {
@@ -59,7 +59,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a service successfully', ({ Given, When, Then }) => {
-    let result: Domain.Service.Service.ServiceEntityReference;
+    let result: Domain.Service.ServiceEntityReference;
 
     Given('a valid community exists with id "507f1f77bcf86cd799439011"', () => {
       vi.mocked(dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById).mockResolvedValue(makeMockCommunity({ id: '507f1f77bcf86cd799439011' }));

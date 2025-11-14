@@ -11,12 +11,12 @@ export const create = (
 ) => {
 	return async (
 		command: CommunityCreateCommand,
-	): Promise<Domain.Community.Community.CommunityEntityReference> => {
+	): Promise<Domain.Community.CommunityEntityReference> => {
         const createdBy = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.endUserExternalId);
         if (!createdBy) {
             throw new Error(`End user not found for external id ${command.endUserExternalId}`);
         }
-        let communityToReturn: Domain.Community.Community.CommunityEntityReference | undefined;
+        let communityToReturn: Domain.Community.CommunityEntityReference | undefined;
 		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(
 			async (repo) => {
                 const newCommunity = await repo.getNewInstance(command.name, createdBy);

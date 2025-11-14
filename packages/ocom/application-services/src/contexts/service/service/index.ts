@@ -6,7 +6,7 @@ import type { ServiceCreateCommand } from './create.ts';
 export interface ServiceApplicationService {
 	create: (
 		command: ServiceCreateCommand,
-	) => Promise<Domain.Service.Service.ServiceEntityReference>;
+	) => Promise<Domain.Service.ServiceEntityReference>;
 }
 
 export const Service = (

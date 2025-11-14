@@ -11,7 +11,7 @@ import { MemberRepository } from './member.repository.ts';
 export const getMemberUnitOfWork = (
     endUserModel: Models.Member.MemberModelType,
     passport: Domain.Passport
-): Domain.Contexts.Community.Member.MemberUnitOfWork => {
+): Domain.Member.MemberUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

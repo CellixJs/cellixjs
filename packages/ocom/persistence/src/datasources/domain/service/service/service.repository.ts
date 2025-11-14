@@ -11,11 +11,11 @@ export class ServiceRepository
 		ServiceModelType,
 		PropType,
 		Domain.Passport,
-		Domain.Contexts.Service.Service.Service<PropType>
+		Domain.Service.Service<PropType>
 	>
-	implements Domain.Contexts.Service.Service.ServiceRepository<PropType>
+	implements Domain.Service.ServiceRepository<PropType>
 {
-	async getById(id: string): Promise<Domain.Contexts.Service.Service.Service<PropType>> {
+	async getById(id: string): Promise<Domain.Service.Service<PropType>> {
 		const mongoService = await this.model.findById(id).exec();
 		if (!mongoService) {
 			throw new Error(`Service with id ${id} not found`);
@@ -26,11 +26,11 @@ export class ServiceRepository
 	getNewInstance(
 		serviceName: string,
 		description: string,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference,
-	): Promise<Domain.Contexts.Service.Service.Service<PropType>> {
+		community: Domain.Community.CommunityEntityReference,
+	): Promise<Domain.Service.Service<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.Service.Service.Service.getNewInstance(
+			Domain.Service.Service.getNewInstance(
 				adapter,
 				serviceName,
 				description,

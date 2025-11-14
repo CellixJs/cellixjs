@@ -380,13 +380,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: VendorUserConverter;
   let doc: Models.User.VendorUser;
-  let domainObject: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
-  let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter> | Models.User.VendorUser | undefined;
+  let domainObject: Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
+  let result: Domain.VendorUser.VendorUser<VendorUserDomainAdapter> | Models.User.VendorUser | undefined;
 
   BeforeEachScenario(() => {
     converter = new VendorUserConverter();
     doc = makeVendorUserDoc();
-    domainObject = {} as Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    domainObject = {} as Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
     result = undefined;
   });
 
@@ -404,11 +404,11 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       converter = new VendorUserConverter();
     });
     When('I call toDomain with the Mongoose VendorUser document', () => {
-      result = converter.toDomain(doc, makeMockPassport()) as Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+      result = converter.toDomain(doc, makeMockPassport()) as Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
     });
     Then('I should receive a VendorUser domain object', () => {
       expect(result).toBeDefined();
-      expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(Domain.VendorUser.VendorUser);
     });
     And('the domain object\'s userType should be "vendor-user"', () => {
       expect(result?.userType).toBe('vendor-user');
@@ -443,7 +443,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         accessBlocked: true,
         tags: ['tag3'],
       }));
-      domainObject = new Domain.Contexts.User.VendorUser.VendorUser(mockAdapter, makeMockPassport());
+      domainObject = new Domain.VendorUser.VendorUser(mockAdapter, makeMockPassport());
     });
     When('I call toPersistence with the VendorUser domain object', () => {
       result = converter.toPersistence(domainObject) as Models.User.VendorUser;

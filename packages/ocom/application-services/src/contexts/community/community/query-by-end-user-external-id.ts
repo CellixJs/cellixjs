@@ -11,7 +11,7 @@ export const queryByEndUserExternalId = (
 ) => {
     return async (
         command: CommunityQueryByEndUserExternalIdCommand,
-    ): Promise<Domain.Community.Community.CommunityEntityReference[]> => {
+    ): Promise<Domain.Community.CommunityEntityReference[]> => {
         return await dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getByEndUserExternalId(
             command.externalId,
         )

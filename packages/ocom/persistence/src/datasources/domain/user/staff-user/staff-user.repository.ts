@@ -4,8 +4,8 @@ import { Domain } from '@ocom/domain';
 import type { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
 
 type StaffUserDocument = Models.User.StaffUser;
-type StaffUserAggregate = Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
-type StaffUserRepositoryContract = Domain.Contexts.User.StaffUser.StaffUserRepository<StaffUserDomainAdapter>;
+type StaffUserAggregate = Domain.StaffUser.StaffUser<StaffUserDomainAdapter>;
+type StaffUserRepositoryContract = Domain.StaffUser.StaffUserRepository<StaffUserDomainAdapter>;
 
 export class StaffUserRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
@@ -49,7 +49,7 @@ export class StaffUserRepository
 		adapter.tags = [];
 		adapter.accessBlocked = false;
 		return Promise.resolve(
-			Domain.Contexts.User.StaffUser.StaffUser.getNewUser(
+			Domain.StaffUser.StaffUser.getNewUser(
 				adapter,
 				this.passport,
 				externalId,

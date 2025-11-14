@@ -19,7 +19,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/index.feature')
 );
 
-function makeMockService(overrides: Partial<Domain.Service.Service.ServiceEntityReference> = {}) {
+function makeMockService(overrides: Partial<Domain.Service.ServiceEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     serviceName: 'Test Service',
@@ -29,7 +29,7 @@ function makeMockService(overrides: Partial<Domain.Service.Service.ServiceEntity
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as Domain.Service.Service.ServiceEntityReference;
+  } as Domain.Service.ServiceEntityReference;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
@@ -61,7 +61,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a service through the application service', ({ Given, When, Then }) => {
-    let result: Domain.Service.Service.ServiceEntityReference;
+    let result: Domain.Service.ServiceEntityReference;
 
     Given('a service application service', () => {
       expect(service).toBeDefined();

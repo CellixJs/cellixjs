@@ -15,7 +15,7 @@ const feature = await loadFeature(
 );
 
 // Types for test results
-type CommunityEntity = Domain.Community.Community.CommunityEntityReference;
+type CommunityEntity = Domain.Community.CommunityEntityReference;
 
 // Helper function to create mock community
 function createMockCommunity(overrides: Partial<CommunityEntity> = {}): CommunityEntity {

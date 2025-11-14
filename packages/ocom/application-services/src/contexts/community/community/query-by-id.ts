@@ -11,7 +11,7 @@ export const queryById = (
 ) => {
     return async (
         command: CommunityQueryByIdCommand,
-    ): Promise<Domain.Community.Community.CommunityEntityReference | null> => {
+    ): Promise<Domain.Community.CommunityEntityReference | null> => {
         return await dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById(
             command.id, 
             { fields: command.fields }

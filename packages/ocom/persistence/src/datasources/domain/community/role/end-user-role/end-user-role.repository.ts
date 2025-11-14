@@ -7,19 +7,19 @@ type EndUserRoleModelType = Models.Role.EndUserRole; // ReturnType<typeof Models
 type PropType = EndUserRoleDomainAdapter;
 
 export class EndUserRoleRepository //<
-	//PropType extends Domain.Contexts.EndUserRole.EndUserRole.EndUserRoleProps
+	//PropType extends Domain.EndUserRole.EndUserRoleProps
 	//>
 	extends MongooseSeedwork.MongoRepositoryBase<
 		EndUserRoleModelType,
 		PropType,
 		Domain.Passport,
-		Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>
+		Domain.EndUserRole.EndUserRole<PropType>
 	>
-	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRoleRepository<PropType>
+	implements Domain.EndUserRole.EndUserRoleRepository<PropType>
 {
 	async getById(
 		id: string,
-	): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>> {
+	): Promise<Domain.EndUserRole.EndUserRole<PropType>> {
 		const mongoEndUserRole = await this.model
 			.findById(id)
 			.exec();
@@ -32,11 +32,11 @@ export class EndUserRoleRepository //<
 	async getNewInstance(
 		roleName: string,
         isDefault: boolean,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference
-	): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>> {
+		community: Domain.Community.CommunityEntityReference
+	): Promise<Domain.EndUserRole.EndUserRole<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.Community.Role.EndUserRole.EndUserRole.getNewInstance(
+			Domain.EndUserRole.EndUserRole.getNewInstance(
 				adapter,
                 this.passport,
 				roleName,

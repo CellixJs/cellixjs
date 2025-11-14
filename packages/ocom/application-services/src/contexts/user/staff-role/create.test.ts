@@ -12,7 +12,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/create.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<Domain.User.StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -31,21 +31,21 @@ function makeMockStaffRole(overrides: Partial<Domain.User.StaffRole.StaffRoleEnt
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as Domain.User.StaffRole.StaffRoleEntityReference;
+  } as Domain.StaffRole.StaffRoleEntityReference;
 }
 
-function makeMockRepo(overrides: Partial<Domain.User.StaffRole.StaffRoleRepository<Domain.User.StaffRole.StaffRoleProps>> = {}) { 
+function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>> = {}) { 
   return {
     getByRoleName: vi.fn(),
     getNewInstance: vi.fn(),
     save: vi.fn(),
     ...overrides,
-  } as unknown as Domain.User.StaffRole.StaffRoleRepository<Domain.User.StaffRole.StaffRoleProps>;
+  } as unknown as Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let dataSources: DataSources;
-  let createStaffRole: (command: { roleName: string; isDefault?: boolean; permissions?: StaffRoleCreateCommandPermissions }) => Promise<Domain.User.StaffRole.StaffRoleEntityReference>;
+  let createStaffRole: (command: { roleName: string; isDefault?: boolean; permissions?: StaffRoleCreateCommandPermissions }) => Promise<Domain.StaffRole.StaffRoleEntityReference>;
 
   BeforeEachScenario(() => {
     dataSources = {
@@ -64,7 +64,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a staff role successfully', ({ Given, When, Then }) => {
-    let result: Domain.User.StaffRole.StaffRoleEntityReference;
+    let result: Domain.StaffRole.StaffRoleEntityReference;
 
     Given('a staff role with name "Test Role" does not exist', () => {
       // Mock will be set up in When step
@@ -92,7 +92,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a staff role with permissions', ({ Given, When, Then }) => {
-    let result: Domain.User.StaffRole.StaffRoleEntityReference;
+    let result: Domain.StaffRole.StaffRoleEntityReference;
 
     Given('a staff role with name "Admin Role" does not exist', () => {
       // Mock will be set up in When step

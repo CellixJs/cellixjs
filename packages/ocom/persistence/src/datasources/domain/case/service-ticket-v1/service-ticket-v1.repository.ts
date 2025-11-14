@@ -7,26 +7,26 @@ type ServiceTicketModelType = Models.Case.ServiceTicket; // ReturnType<typeof mo
 type PropType = ServiceTicketV1DomainAdapter;
 
 export class ServiceTicketV1Repository //<
-	//PropType extends Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Props
+	//PropType extends Domain.ServiceTicketV1.ServiceTicketV1Props
 	//>
 	extends MongooseSeedwork.MongoRepositoryBase<
 		ServiceTicketModelType,
 		PropType,
 		Domain.Passport,
-		Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>
+		Domain.ServiceTicketV1.ServiceTicketV1<PropType>
 	>
-	implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Repository<PropType>
+	implements Domain.ServiceTicketV1.ServiceTicketV1Repository<PropType>
 {
 	getNewInstance(
-		title: Domain.Contexts.Case.ServiceTicket.V1.ValueObjects.Title,
-		description: Domain.Contexts.Case.ServiceTicket.V1.ValueObjects.Description,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference,
-		requestor: Domain.Contexts.Community.Member.MemberEntityReference,
-		property?: Domain.Contexts.Property.Property.PropertyEntityReference,
-	): Promise<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>> {
+		title: Domain.ServiceTicketV1.ValueObjects.Title,
+		description: Domain.ServiceTicketV1.ValueObjects.Description,
+		community: Domain.Community.CommunityEntityReference,
+		requestor: Domain.Member.MemberEntityReference,
+		property?: Domain.Property.PropertyEntityReference,
+	): Promise<Domain.ServiceTicketV1.ServiceTicketV1<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1.getNewInstance(
+			Domain.ServiceTicketV1.ServiceTicketV1.getNewInstance(
 				adapter,
 				this.passport,
                 title,
@@ -38,7 +38,7 @@ export class ServiceTicketV1Repository //<
 		);
 	}
 
-	async getById(id: string): Promise<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>> {
+	async getById(id: string): Promise<Domain.ServiceTicketV1.ServiceTicketV1<PropType>> {
 		const mongoServiceTicket = await this.model.findById(id).exec();
 		if (!mongoServiceTicket) {
 			throw new Error(`ServiceTicket with id ${id} not found`);

@@ -11,7 +11,7 @@ import { PropertyRepository } from './property.repository.ts';
 export const getPropertyUnitOfWork = (
 	propertyModel: Models.Property.PropertyModelType,
 	passport: Domain.Passport
-): Domain.Contexts.Property.Property.PropertyUnitOfWork => {
+): Domain.Property.PropertyUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,
