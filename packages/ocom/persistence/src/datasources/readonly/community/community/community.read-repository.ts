@@ -1,10 +1,10 @@
-import type { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { ModelsContext } from '../../../../index.ts';
 import { CommunityDataSourceImpl, type CommunityDataSource } from './community.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { CommunityConverter } from '../../../domain/community/community/community.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 export interface CommunityReadRepository {
     getAll: (options?: FindOptions) => Promise<Community.CommunityEntityReference[]>;
@@ -16,14 +16,14 @@ export interface CommunityReadRepository {
 export class CommunityReadRepositoryImpl implements CommunityReadRepository {
     private readonly mongoDataSource: CommunityDataSource;
     private readonly converter: CommunityConverter;
-    private readonly passport: Domain.Passport;
+    private readonly passport: Passport;
 
     /**
      * Constructs a new CommunityReadRepositoryImpl.
      * @param models - The models context containing the Community model.
      * @param passport - The passport object for domain access.
      */
-    constructor(models: ModelsContext, passport: Domain.Passport) {
+    constructor(models: ModelsContext, passport: Passport) {
         this.mongoDataSource = new CommunityDataSourceImpl(models.Community.Community);
         this.converter = new CommunityConverter();
         this.passport = passport;
@@ -126,7 +126,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
 
 export const getCommunityReadRepository = (
     models: ModelsContext,
-    passport: Domain.Passport
+    passport: Passport
 ) => {
     return new CommunityReadRepositoryImpl(models, passport);
 };

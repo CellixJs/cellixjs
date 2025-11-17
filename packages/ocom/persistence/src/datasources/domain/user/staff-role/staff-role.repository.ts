@@ -1,8 +1,8 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import type { StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
 import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 type StaffRoleModelType = Models.Role.StaffRole;
 type AdapterType = StaffRoleDomainAdapter;
@@ -11,7 +11,7 @@ export class StaffRoleRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
 		StaffRoleModelType,
 		AdapterType,
-		Domain.Passport,
+		Passport,
 		StaffRole.StaffRole<AdapterType>
 	>
 	implements StaffRole.StaffRoleRepository<AdapterType>

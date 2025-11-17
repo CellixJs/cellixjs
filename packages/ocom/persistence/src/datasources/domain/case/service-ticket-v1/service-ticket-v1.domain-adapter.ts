@@ -1,17 +1,17 @@
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as Member from '@ocom/domain/contexts/member';
 import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Case.ServiceTicket,
 	ServiceTicketV1DomainAdapter,
-	Domain.Passport,
+	Passport,
 	ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>
 > {
 	constructor() {

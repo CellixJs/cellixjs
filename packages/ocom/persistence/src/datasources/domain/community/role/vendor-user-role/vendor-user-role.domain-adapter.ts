@@ -1,14 +1,14 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as VendorUserRole from '@ocom/domain/contexts/vendor-user-role';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class VendorUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.VendorUserRole,
 	VendorUserRoleDomainAdapter,
-	Domain.Passport,
+	Passport,
 	VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>
 > {
 	constructor() {

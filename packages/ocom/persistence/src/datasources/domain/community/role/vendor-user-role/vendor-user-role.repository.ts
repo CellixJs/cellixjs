@@ -1,9 +1,9 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import type { VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as VendorUserRole from '@ocom/domain/contexts/vendor-user-role';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 type VendorUserRoleModelType = Models.Role.VendorUserRole;
 type PropType = VendorUserRoleDomainAdapter;
@@ -12,7 +12,7 @@ export class VendorUserRoleRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
 		VendorUserRoleModelType,
 		PropType,
-		Domain.Passport,
+		Passport,
 		VendorUserRole.VendorUserRole<PropType>
 	>
 	implements VendorUserRole.VendorUserRoleRepository<PropType>

@@ -1,9 +1,9 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
 import type * as StaffRole from '@ocom/domain/contexts/staff-role';
 import type * as StaffUser from '@ocom/domain/contexts/staff-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class StaffUserDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.User.StaffUser>
@@ -114,7 +114,7 @@ export class StaffUserDomainAdapter
 export class StaffUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.User.StaffUser,
 	StaffUserDomainAdapter,
-	Domain.Passport,
+	Passport,
 	StaffUser.StaffUser<StaffUserDomainAdapter>
 > {
 	constructor() {

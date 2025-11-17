@@ -1,8 +1,8 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import type { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
 import type * as StaffUser from '@ocom/domain/contexts/staff-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 type StaffUserDocument = Models.User.StaffUser;
 type StaffUserAggregate = StaffUser.StaffUser<StaffUserDomainAdapter>;
@@ -12,7 +12,7 @@ export class StaffUserRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
 	StaffUserDocument,
 	StaffUserDomainAdapter,
-	Domain.Passport,
+	Passport,
 	StaffUserAggregate
 	>
 	implements StaffUserRepositoryContract

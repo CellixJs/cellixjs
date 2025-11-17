@@ -1,14 +1,14 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class EndUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.EndUserRole,
 	EndUserRoleDomainAdapter,
-	Domain.Passport,
+	Passport,
 	EndUserRole.EndUserRole<EndUserRoleDomainAdapter>
 > {
 	constructor() {

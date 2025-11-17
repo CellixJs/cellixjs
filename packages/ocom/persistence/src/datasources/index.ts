@@ -1,8 +1,9 @@
-import { Domain, type DomainDataSource } from "@ocom/domain";
+import type { DomainDataSource } from "@ocom/domain";
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { PassportFactory } from '@ocom/domain/contexts/passport';
 import type { ModelsContext } from "../index.ts";
 import { DomainDataSourceImplementation } from "./domain/index.ts";
 import { type ReadonlyDataSource, ReadonlyDataSourceImplementation } from "./readonly/index.ts";
-import { PassportFactory } from '@ocom/domain/contexts/passport';
 
 export type DataSources = {
     domainDataSource: DomainDataSource;
@@ -10,12 +11,12 @@ export type DataSources = {
 }
 
 export type DataSourcesFactory = {
-    withPassport: (passport: Domain.Passport) => DataSources,
+    withPassport: (passport: Passport) => DataSources,
     withSystemPassport: () => DataSources
 }
 
 export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactory => {
-    const withPassport = (passport: Domain.Passport): DataSources => {
+    const withPassport = (passport: Passport): DataSources => {
         return {
             domainDataSource: DomainDataSourceImplementation(models, passport),
             readonlyDataSource: ReadonlyDataSourceImplementation(models, passport)

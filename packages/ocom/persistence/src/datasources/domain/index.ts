@@ -1,4 +1,5 @@
-import type { Domain, DomainDataSource } from '@ocom/domain';
+import type { DomainDataSource } from '@ocom/domain';
+import type { Passport } from '@ocom/domain/contexts/passport';
 import type { ModelsContext } from '../../index.ts';
 import { CaseContextPersistence } from './case/index.ts';
 import { CommunityContextPersistence } from './community/index.ts';
@@ -6,7 +7,7 @@ import { PropertyContextPersistence } from './property/index.ts';
 import { ServiceContextPersistence } from './service/index.ts';
 import { UserContextPersistence } from './user/index.ts';
 
-export const DomainDataSourceImplementation = (models: ModelsContext, passport: Domain.Passport): DomainDataSource => ({
+export const DomainDataSourceImplementation = (models: ModelsContext, passport: Passport): DomainDataSource => ({
     Case: CaseContextPersistence(models, passport),
     Community: CommunityContextPersistence(models, passport),
     Property: PropertyContextPersistence(models, passport),

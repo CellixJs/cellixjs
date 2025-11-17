@@ -1,9 +1,9 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import type { MemberDomainAdapter } from './member.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as Member from '@ocom/domain/contexts/member';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 type MemberModelType = Models.Member.Member; // ReturnType<typeof Models.Member.MemberModelFactory> & Models.Member.Member & { baseModelName: string };
 type PropType = MemberDomainAdapter;
@@ -14,7 +14,7 @@ export class MemberRepository //<
 	extends MongooseSeedwork.MongoRepositoryBase<
 		MemberModelType,
 		PropType,
-		Domain.Passport,
+		Passport,
 		Member.Member<PropType>
 	>
 	implements Member.MemberRepository<PropType>

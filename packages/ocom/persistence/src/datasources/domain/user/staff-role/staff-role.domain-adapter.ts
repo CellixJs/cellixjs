@@ -1,12 +1,12 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.StaffRole,
 	StaffRoleDomainAdapter,
-	Domain.Passport,
+	Passport,
 	StaffRole.StaffRole<StaffRoleDomainAdapter>
 > {
 	constructor() {

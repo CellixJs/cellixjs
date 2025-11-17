@@ -1,12 +1,12 @@
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.User.EndUser,
 	EndUserDomainAdapter,
-	Domain.Passport,
+	Passport,
 	EndUser.EndUser<EndUserDomainAdapter>
 > {
 	constructor() {

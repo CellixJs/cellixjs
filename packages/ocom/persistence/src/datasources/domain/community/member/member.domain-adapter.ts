@@ -2,7 +2,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
 import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';
@@ -10,11 +9,12 @@ import type * as Community from '@ocom/domain/contexts/community';
 import type * as Member from '@ocom/domain/contexts/member';
 import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
 import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Member.Member,
 	MemberDomainAdapter,
-	Domain.Passport,
+	Passport,
 	Member.Member<MemberDomainAdapter>
 > {
 	constructor() {

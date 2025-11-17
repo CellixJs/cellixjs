@@ -62,6 +62,18 @@
     "./contexts/passport": {
       "types": "./dist/src/domain/contexts/passport.d.ts",
       "default": "./dist/src/domain/contexts/passport.js"
+    },
+    "./events": {
+      "types": "./dist/src/domain/events/index.d.ts",
+      "default": "./dist/src/domain/events/index.js"
+    },
+    "./events/types": {
+      "types": "./dist/src/domain/events/types/index.d.ts",
+      "default": "./dist/src/domain/events/types/index.js"
+    },
+    "./services/community": {
+      "types": "./dist/src/domain/services/community/index.d.ts",
+      "default": "./dist/src/domain/services/community/index.js"
     }
   },
   "scripts": {
