@@ -42,6 +42,7 @@
     "@cellix/vitest-config": "workspace:*",
     "@types/graphql-depth-limit": "^1.1.6",
     "rimraf": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

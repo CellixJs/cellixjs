@@ -69,7 +69,7 @@
     "ts-scope-trimmer-plugin": "^1.0.2",
     "turbo": "^2.5.8",
     "typescript": "catalog:",
-    "vitest": "^3.2.4"
+    "vitest": "catalog:"
   },
   "pnpm": {
     "overrides": {

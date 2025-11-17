@@ -37,6 +37,7 @@
     "mongodb": "catalog:",
     "mongodb-memory-server": "^10.1.4",
     "rimraf": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
