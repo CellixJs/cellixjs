@@ -3,5 +3,10 @@ ignore:
   'SNYK-JS-SIRV-12558119':
     - '* > sirv@2.0.4':
         reason: 'Transitive dependency in Docusaurus; not exploitable in static site serving context (dev-only asset handler)'
-        expires: '2026-11-20T00:00:00.000Z'
-        created: '2024-11-06T15:57:00.000Z'
+        expires: '2025-11-20T00:00:00.000Z'
+        created: '2025-11-06T15:57:00.000Z'
+  'SNYK-JS-JSYAML-13961110':
+    - '* > js-yaml':
+        reason: 'Transitive dependency in Docusaurus; upgrade path blocked until https://github.com/jonschlinkert/gray-matter/pull/137#issuecomment-3533768351 is merged and transitive deps are updated. Not exploitable in current usage.'
+        expires: '2025-11-30T00:00:00.000Z'
+        created: '2025-11-17T09:06:00.000Z'
