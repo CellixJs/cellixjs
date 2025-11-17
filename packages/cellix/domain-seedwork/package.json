@@ -13,10 +13,6 @@
       "types": "./dist/src/domain-seedwork/base-domain-execution-context.d.ts",
       "default": "./dist/src/domain-seedwork/base-domain-execution-context.js"
     },
-    "./child-entity": {
-      "types": "./dist/src/domain-seedwork/child-entity.d.ts",
-      "default": "./dist/src/domain-seedwork/child-entity.js"
-    },
     "./domain-entity": {
       "types": "./dist/src/domain-seedwork/domain-entity.d.ts",
       "default": "./dist/src/domain-seedwork/domain-entity.js"

@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import { loadFeature, describeFeature } from '@amiceli/vitest-cucumber';
-import { AggregateRoot } from './aggregate-root.ts';
+import { AggregateRoot, type RootEventRegistry } from './aggregate-root.ts';
 import { CustomDomainEventImpl } from './domain-event.ts';
 import type { DomainEntityProps } from './domain-entity.ts';
 import path from 'node:path';
@@ -8,6 +8,12 @@ import { fileURLToPath } from 'node:url';
 
 
 const test = { for: describeFeature };
+
+// Test interface to verify RootEventRegistry export
+export interface TestRegistry extends RootEventRegistry {
+	testMethod(): void;
+}
+
 class TestDomainEvent extends CustomDomainEventImpl<TestAggregateCreatedProps> {}
 
 interface TestAggregateUpdatedProps {
