@@ -2,24 +2,26 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as VendorUserRole from '@ocom/domain/contexts/vendor-user-role';
 
 export class VendorUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.VendorUserRole,
 	VendorUserRoleDomainAdapter,
 	Domain.Passport,
-	Domain.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>
+	VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>
 > {
 	constructor() {
 		super(
 			VendorUserRoleDomainAdapter,
-            Domain.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>
+            VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>
 		);
 	}
 }
 
 export class VendorUserRoleDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.Role.VendorUserRole>
-	implements Domain.VendorUserRole.VendorUserRoleProps
+	implements VendorUserRole.VendorUserRoleProps
 {
 	// roleName
 	get roleName(): string {
@@ -29,7 +31,7 @@ export class VendorUserRoleDomainAdapter
 		this.doc.roleName = roleName;
 	}
 
-    get community(): Domain.Community.CommunityProps {
+    get community(): Community.CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -38,7 +40,7 @@ export class VendorUserRoleDomainAdapter
 		}
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
-    async loadCommunity(): Promise<Domain.Community.CommunityProps> {
+    async loadCommunity(): Promise<Community.CommunityProps> {
         if (!this.doc.community) {
             throw new Error('community is not populated');
         }
@@ -48,9 +50,9 @@ export class VendorUserRoleDomainAdapter
         return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
     }
 	set community(
-		community: Domain.Community.CommunityEntityReference | Domain.Community.Community<CommunityDomainAdapter>,
+		community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>,
 	) {
-		if (community instanceof Domain.Community.Community) {
+		if (community instanceof Community.Community) {
 			this.doc.set('community', community.props.doc);
 			return;
 		}
@@ -67,7 +69,7 @@ export class VendorUserRoleDomainAdapter
 		this.doc.isDefault = value;
 	}
 
-    get permissions(): Domain.VendorUserRole.VendorUserRolePermissionsProps {
+    get permissions(): VendorUserRole.VendorUserRolePermissionsProps {
         if (!this.doc.permissions) {
             // ensure subdocument exists
             this.doc.set('permissions', {} as Models.Role.VendorUserRolePermissions);
@@ -84,42 +86,42 @@ export class VendorUserRoleDomainAdapter
 
 // Permissions adapter tree
 export class VendorUserRolePermissionsDomainAdapter
-	implements Domain.VendorUserRole.VendorUserRolePermissionsProps
+	implements VendorUserRole.VendorUserRolePermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRolePermissions;
 	constructor(props: Models.Role.VendorUserRolePermissions) {
 		this.props = props;
 	}
 
-	get communityPermissions(): Domain.VendorUserRole.VendorUserRoleCommunityPermissionsProps {
+	get communityPermissions(): VendorUserRole.VendorUserRoleCommunityPermissionsProps {
 		if (!this.props.communityPermissions) {
 			this.props.set('communityPermissions', {});
 		}
 		return new VendorUserRoleCommunityPermissionsDomainAdapter(this.props.communityPermissions);
 	}
 
-	get propertyPermissions(): Domain.VendorUserRole.VendorUserRolePropertyPermissionsProps {
+	get propertyPermissions(): VendorUserRole.VendorUserRolePropertyPermissionsProps {
 		if (!this.props.propertyPermissions) {
             this.props.set('propertyPermissions', {});
 		}
 		return new VendorUserRolePropertyPermissionsDomainAdapter(this.props.propertyPermissions);
 	}
 
-	get serviceTicketPermissions(): Domain.VendorUserRole.VendorUserRoleServiceTicketPermissionsProps {
+	get serviceTicketPermissions(): VendorUserRole.VendorUserRoleServiceTicketPermissionsProps {
 		if (!this.props.serviceTicketPermissions) {
             this.props.set('serviceTicketPermissions', {});
 		}
 		return new VendorUserRoleServiceTicketPermissionsDomainAdapter(this.props.serviceTicketPermissions);
 	}
 
-	get servicePermissions(): Domain.VendorUserRole.VendorUserRoleServicePermissionsProps {
+	get servicePermissions(): VendorUserRole.VendorUserRoleServicePermissionsProps {
 		if (!this.props.servicePermissions) {
 			this.props.set('servicePermissions', {});
 		}
 		return new VendorUserRoleServicePermissionsDomainAdapter(this.props.servicePermissions);
 	}
 
-	get violationTicketPermissions(): Domain.VendorUserRole.VendorUserRoleViolationTicketPermissionsProps {
+	get violationTicketPermissions(): VendorUserRole.VendorUserRoleViolationTicketPermissionsProps {
 		if (!this.props.violationTicketPermissions) {
 			this.props.set('violationTicketPermissions', {});
 		}
@@ -128,7 +130,7 @@ export class VendorUserRolePermissionsDomainAdapter
 }
 
 class VendorUserRoleServicePermissionsDomainAdapter
-	implements Domain.VendorUserRole.VendorUserRoleServicePermissionsProps
+	implements VendorUserRole.VendorUserRoleServicePermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRoleServicePermissions;
 	constructor(props: Models.Role.VendorUserRoleServicePermissions) {
@@ -143,7 +145,7 @@ class VendorUserRoleServicePermissionsDomainAdapter
 }
 
 class VendorUserRoleServiceTicketPermissionsDomainAdapter
-	implements Domain.VendorUserRole.VendorUserRoleServiceTicketPermissionsProps
+	implements VendorUserRole.VendorUserRoleServiceTicketPermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRoleServiceTicketPermissions;
 	constructor(props: Models.Role.VendorUserRoleServiceTicketPermissions) {
@@ -176,7 +178,7 @@ class VendorUserRoleServiceTicketPermissionsDomainAdapter
 }
 
 class VendorUserRoleViolationTicketPermissionsDomainAdapter
-	implements Domain.VendorUserRole.VendorUserRoleViolationTicketPermissionsProps
+	implements VendorUserRole.VendorUserRoleViolationTicketPermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRoleViolationTicketPermissions;
 	constructor(props: Models.Role.VendorUserRoleViolationTicketPermissions) {
@@ -209,7 +211,7 @@ class VendorUserRoleViolationTicketPermissionsDomainAdapter
 }
 
 class VendorUserRolePropertyPermissionsDomainAdapter
-	implements Domain.VendorUserRole.VendorUserRolePropertyPermissionsProps
+	implements VendorUserRole.VendorUserRolePropertyPermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRolePropertyPermissions;
 	constructor(props: Models.Role.VendorUserRolePropertyPermissions) {
@@ -230,7 +232,7 @@ class VendorUserRolePropertyPermissionsDomainAdapter
 }
 
 class VendorUserRoleCommunityPermissionsDomainAdapter
-	implements Domain.VendorUserRole.VendorUserRoleCommunityPermissionsProps
+	implements VendorUserRole.VendorUserRoleCommunityPermissionsProps
 {
 	public readonly props: Models.Role.VendorUserRoleCommunityPermissions;
 	constructor(props: Models.Role.VendorUserRoleCommunityPermissions) {

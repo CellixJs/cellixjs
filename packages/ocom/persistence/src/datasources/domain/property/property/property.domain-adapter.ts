@@ -4,24 +4,27 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Member from '@ocom/domain/contexts/member';
+import type * as Property from '@ocom/domain/contexts/property';
 
 export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Property.Property,
 	PropertyDomainAdapter,
 	Domain.Passport,
-	Domain.Property.Property<PropertyDomainAdapter>
+	Property.Property<PropertyDomainAdapter>
 > {
 	constructor() {
 		super(
 			PropertyDomainAdapter,
-			Domain.Property.Property
+			Property.Property
 		);
 	}
 }
 
 export class PropertyDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.Property.Property>
-	implements Domain.Property.PropertyProps
+	implements Property.PropertyProps
 {
 	get propertyName() {
 		return this.doc.propertyName;
@@ -93,15 +96,15 @@ export class PropertyDomainAdapter
 		this.doc.updateIndexFailedDate = updateIndexFailedDate;
 	}
 
-	get location(): Domain.Property.PropertyLocationProps {
+	get location(): Property.PropertyLocationProps {
 		return new PropertyLocationDomainAdapter(this.doc.location);
 	}
 
-	get listingDetail(): Domain.Property.PropertyListingDetailProps {
+	get listingDetail(): Property.PropertyListingDetailProps {
 		return new PropertyListingDetailDomainAdapter(this.doc.listingDetail);
 	}
 
-	get community(): Domain.Community.CommunityProps {
+	get community(): Community.CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -113,7 +116,7 @@ export class PropertyDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
 
-	async loadCommunity(): Promise<Domain.Community.CommunityProps> {
+	async loadCommunity(): Promise<Community.CommunityProps> {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -123,9 +126,9 @@ export class PropertyDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
 
-    set community(community: Domain.Community.CommunityEntityReference | Domain.Community.Community<CommunityDomainAdapter>) {
+    set community(community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>) {
         //check to see if community is derived from MongooseDomainAdapter
-        if (community instanceof Domain.Community.Community) {
+        if (community instanceof Community.Community) {
             this.doc.set('community', community.props.doc);
             return;
         }
@@ -153,7 +156,7 @@ export class PropertyDomainAdapter
 		return (c as Models.Community.Community).id.toString();
 	}
 
-	get owner(): Domain.Member.MemberEntityReference | null {
+	get owner(): Member.MemberEntityReference | null {
 		if (!this.doc.owner) {
 			return null;
 		}
@@ -164,10 +167,10 @@ export class PropertyDomainAdapter
 		}
         // TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.owner as Models.Member.Member) as unknown as Domain.Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.owner as Models.Member.Member) as unknown as Member.MemberEntityReference;
 	}
 
-	async loadOwner(): Promise<Domain.Member.MemberProps | null> {
+	async loadOwner(): Promise<Member.MemberProps | null> {
 		if (!this.doc.owner) {
 			return null;
 		}
@@ -193,7 +196,7 @@ export class PropertyDomainAdapter
 		return (o as Models.Member.Member).id.toString();
 	}
 
-	setOwnerRef(owner: Domain.Member.MemberEntityReference | null) {
+	setOwnerRef(owner: Member.MemberEntityReference | null) {
 		if (!owner) {
 			this.doc.set('owner', null);
 			return;
@@ -217,22 +220,22 @@ export class PropertyDomainAdapter
 	}
 }
 
-class PropertyLocationDomainAdapter implements Domain.Property.PropertyLocationProps {
+class PropertyLocationDomainAdapter implements Property.PropertyLocationProps {
 	public readonly doc: Models.Property.Location;
 	constructor(doc: Models.Property.Location) {
 		this.doc = doc;
 	}
 
-	get address(): Domain.Property.PropertyLocationAddressProps {
+	get address(): Property.PropertyLocationAddressProps {
 		return new PropertyLocationAddressDomainAdapter(this.doc.address);
 	}
 
-	get position(): Domain.Property.PropertyLocationPositionProps {
+	get position(): Property.PropertyLocationPositionProps {
 		return new PropertyLocationPositionDomainAdapter(this.doc.position);
 	}
 }
 
-class PropertyLocationAddressDomainAdapter implements Domain.Property.PropertyLocationAddressProps {
+class PropertyLocationAddressDomainAdapter implements Property.PropertyLocationAddressProps {
 	public readonly doc: Models.Property.Location['address'];
 	constructor(doc: Models.Property.Location['address']) {
 		this.doc = doc;
@@ -383,7 +386,7 @@ class PropertyLocationAddressDomainAdapter implements Domain.Property.PropertyLo
 	}
 }
 
-class PropertyLocationPositionDomainAdapter implements Domain.Property.PropertyLocationPositionProps {
+class PropertyLocationPositionDomainAdapter implements Property.PropertyLocationPositionProps {
 	public readonly doc: Models.Property.Location['position'];
 	constructor(doc: Models.Property.Location['position']) {
 		this.doc = doc;
@@ -406,7 +409,7 @@ class PropertyLocationPositionDomainAdapter implements Domain.Property.PropertyL
 	}
 }
 
-class PropertyListingDetailBedroomDetailDomainAdapter implements Domain.Property.PropertyListingDetailBedroomDetailProps {
+class PropertyListingDetailBedroomDetailDomainAdapter implements Property.PropertyListingDetailBedroomDetailProps {
 	public readonly doc: Models.Property.BedroomDetail;
 	constructor(doc: Models.Property.BedroomDetail) {
 		this.doc = doc;
@@ -433,7 +436,7 @@ class PropertyListingDetailBedroomDetailDomainAdapter implements Domain.Property
 	}
 }
 
-class PropertyListingDetailAdditionalAmenityDomainAdapter implements Domain.Property.PropertyListingDetailAdditionalAmenityProps {
+class PropertyListingDetailAdditionalAmenityDomainAdapter implements Property.PropertyListingDetailAdditionalAmenityProps {
 	public readonly doc: Models.Property.AdditionalAmenity;
 	constructor(doc: Models.Property.AdditionalAmenity) {
 		this.doc = doc;
@@ -460,7 +463,7 @@ class PropertyListingDetailAdditionalAmenityDomainAdapter implements Domain.Prop
 	}
 }
 
-class PropertyListingDetailDomainAdapter implements Domain.Property.PropertyListingDetailProps {
+class PropertyListingDetailDomainAdapter implements Property.PropertyListingDetailProps {
 	public readonly doc: Models.Property.ListingDetail;
 	constructor(doc: Models.Property.ListingDetail) {
 		this.doc = doc;
@@ -514,7 +517,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Property.PropertyList
 		this.doc.bedrooms = bedrooms;
 	}
 
-	get bedroomDetails(): DomainSeedwork.PropArray<Domain.Property.PropertyListingDetailBedroomDetailProps> {
+	get bedroomDetails(): DomainSeedwork.PropArray<Property.PropertyListingDetailBedroomDetailProps> {
 		return new MongooseSeedwork.MongoosePropArray(this.doc.bedroomDetails, PropertyListingDetailBedroomDetailDomainAdapter);
 	}
 
@@ -566,7 +569,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Property.PropertyList
 		this.doc.amenities = amenities;
 	}
 
-	get additionalAmenities(): DomainSeedwork.PropArray<Domain.Property.PropertyListingDetailAdditionalAmenityProps> {
+	get additionalAmenities(): DomainSeedwork.PropArray<Property.PropertyListingDetailAdditionalAmenityProps> {
 		return new MongooseSeedwork.MongoosePropArray(this.doc.additionalAmenities, PropertyListingDetailAdditionalAmenityDomainAdapter);
 	}
 

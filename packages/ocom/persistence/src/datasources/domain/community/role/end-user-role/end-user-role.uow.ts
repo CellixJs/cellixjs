@@ -7,11 +7,12 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { Domain } from '@ocom/domain';
 import { EndUserRoleConverter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
+import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
 
 export const getEndUserRoleUnitOfWork = (
     endUserRoleModel: Models.Role.EndUserRoleModelType,
     passport: Domain.Passport
-): Domain.EndUserRole.EndUserRoleUnitOfWork => {
+): EndUserRole.EndUserRoleUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

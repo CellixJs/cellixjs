@@ -2,6 +2,7 @@ import { Domain, type DomainDataSource } from "@ocom/domain";
 import type { ModelsContext } from "../index.ts";
 import { DomainDataSourceImplementation } from "./domain/index.ts";
 import { type ReadonlyDataSource, ReadonlyDataSourceImplementation } from "./readonly/index.ts";
+import { PassportFactory } from '@ocom/domain/contexts/passport';
 
 export type DataSources = {
     domainDataSource: DomainDataSource;
@@ -22,7 +23,7 @@ export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactor
     };
 
     const withSystemPassport = (): DataSources => {
-        const systemPassport = Domain.PassportFactory.forSystem({
+        const systemPassport = PassportFactory.forSystem({
             canManageMembers: true,
             canManageEndUserRolesAndPermissions: true,
             canManageServices: true,

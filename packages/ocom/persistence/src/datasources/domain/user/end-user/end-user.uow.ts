@@ -10,11 +10,12 @@ import {
 	EndUserConverter,
 } from './end-user.domain-adapter.ts';
 import { EndUserRepository } from './end-user.repository.ts';
+import type * as EndUser from '@ocom/domain/contexts/end-user';
 
 export const getEndUserUnitOfWork: (
 	endUserModel: Models.User.EndUserModelType,
 	passport: Domain.Passport,
-) => Domain.EndUser.EndUserUnitOfWork = (endUserModel: Models.User.EndUserModelType, passport: Domain.Passport) => {
+) => EndUser.EndUserUnitOfWork = (endUserModel: Models.User.EndUserModelType, passport: Domain.Passport) => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

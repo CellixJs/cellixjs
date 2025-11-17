@@ -1,21 +1,22 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
+import type * as StaffRole from '@ocom/domain/contexts/staff-role';
 
 export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.StaffRole,
 	StaffRoleDomainAdapter,
 	Domain.Passport,
-	Domain.StaffRole.StaffRole<StaffRoleDomainAdapter>
+	StaffRole.StaffRole<StaffRoleDomainAdapter>
 > {
 	constructor() {
-		super(StaffRoleDomainAdapter, Domain.StaffRole.StaffRole);
+		super(StaffRoleDomainAdapter, StaffRole.StaffRole);
 	}
 }
 
 export class StaffRoleDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.Role.StaffRole>
-	implements Domain.StaffRole.StaffRoleProps
+	implements StaffRole.StaffRoleProps
 {
 	get roleName(): string {
 		return this.doc.roleName;
@@ -33,7 +34,7 @@ export class StaffRoleDomainAdapter
 		this.doc.isDefault = isDefault;
 	}
 
-	get permissions(): Domain.StaffRole.StaffRolePermissionsProps {
+	get permissions(): StaffRole.StaffRolePermissionsProps {
 		if (!this.doc.permissions) {
 			this.doc.set('permissions', {});
 		}
@@ -48,7 +49,7 @@ export class StaffRoleDomainAdapter
 }
 
 export class StaffRolePermissionsAdapter
-	implements Domain.StaffRole.StaffRolePermissionsProps
+	implements StaffRole.StaffRolePermissionsProps
 {
 	private readonly doc: Models.Role.StaffRolePermissions;
 
@@ -56,7 +57,7 @@ export class StaffRolePermissionsAdapter
 		this.doc = permissions;
 	}
 
-	get communityPermissions(): Domain.StaffRole.StaffRoleCommunityPermissionsProps {
+	get communityPermissions(): StaffRole.StaffRoleCommunityPermissionsProps {
 		if (!this.doc.communityPermissions) {
 			this.doc.communityPermissions = {
 				canManageStaffRolesAndPermissions: false,
@@ -71,7 +72,7 @@ export class StaffRolePermissionsAdapter
 		);
 	}
 
-	get propertyPermissions(): Domain.StaffRole.StaffRolePropertyPermissionsProps {
+	get propertyPermissions(): StaffRole.StaffRolePropertyPermissionsProps {
 		if (!this.doc.propertyPermissions) {
 			this.doc.propertyPermissions = {
                 canEditOwnProperty: false,
@@ -83,7 +84,7 @@ export class StaffRolePermissionsAdapter
 		);
 	}
 
-	get servicePermissions(): Domain.StaffRole.StaffRoleServicePermissionsProps {
+	get servicePermissions(): StaffRole.StaffRoleServicePermissionsProps {
 		if (!this.doc.servicePermissions) {
 			this.doc.servicePermissions = {
                 canManageServices: false
@@ -94,7 +95,7 @@ export class StaffRolePermissionsAdapter
 		);
 	}
 
-	get serviceTicketPermissions(): Domain.StaffRole.StaffRoleServiceTicketPermissionsProps {
+	get serviceTicketPermissions(): StaffRole.StaffRoleServiceTicketPermissionsProps {
 		if (!this.doc.serviceTicketPermissions) {
 			this.doc.serviceTicketPermissions = {
                 canCreateTickets: false,
@@ -108,7 +109,7 @@ export class StaffRolePermissionsAdapter
 		);
 	}
 
-	get violationTicketPermissions(): Domain.StaffRole.StaffRoleViolationTicketPermissionsProps {
+	get violationTicketPermissions(): StaffRole.StaffRoleViolationTicketPermissionsProps {
 		if (!this.doc.violationTicketPermissions) {
 			this.doc.violationTicketPermissions = {
                 canCreateTickets: false,
@@ -124,7 +125,7 @@ export class StaffRolePermissionsAdapter
 }
 
 export class StaffRoleCommunityPermissionsAdapter
-	implements Domain.StaffRole.StaffRoleCommunityPermissionsProps
+	implements StaffRole.StaffRoleCommunityPermissionsProps
 {
 	public readonly doc: Models.Role.StaffRoleCommunityPermissions;
 
@@ -179,7 +180,7 @@ export class StaffRoleCommunityPermissionsAdapter
 }
 
 export class StaffRolePropertyPermissionsAdapter
-	implements Domain.StaffRole.StaffRolePropertyPermissionsProps
+	implements StaffRole.StaffRolePropertyPermissionsProps
 {
 	public readonly doc: Models.Role.StaffRolePropertyPermissions;
 
@@ -207,7 +208,7 @@ export class StaffRolePropertyPermissionsAdapter
 }
 
 export class StaffRoleServicePermissionsAdapter
-	implements Domain.StaffRole.StaffRoleServicePermissionsProps
+	implements StaffRole.StaffRoleServicePermissionsProps
 {
 	private readonly doc: Models.Role.StaffRoleServicePermissions;
 
@@ -225,7 +226,7 @@ export class StaffRoleServicePermissionsAdapter
 }
 
 export class StaffRoleServiceTicketPermissionsAdapter
-	implements Domain.StaffRole.StaffRoleServiceTicketPermissionsProps
+	implements StaffRole.StaffRoleServiceTicketPermissionsProps
 {
 	private readonly doc: Models.Role.StaffRoleServiceTicketPermissions;
 
@@ -255,7 +256,7 @@ export class StaffRoleServiceTicketPermissionsAdapter
 }
 
 export class StaffRoleViolationTicketPermissionsAdapter
-	implements Domain.StaffRole.StaffRoleViolationTicketPermissionsProps
+	implements StaffRole.StaffRoleViolationTicketPermissionsProps
 {
 	private readonly doc: Models.Role.StaffRoleViolationTicketPermissions;
 

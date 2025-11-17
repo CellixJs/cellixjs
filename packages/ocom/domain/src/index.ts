@@ -10,10 +10,7 @@ import type * as StaffRole from './domain/contexts/user/staff-role/staff-role.ts
 import type * as StaffUser from './domain/contexts/user/staff-user/staff-user.ts';
 import type * as VendorUser from './domain/contexts/user/vendor-user/vendor-user.ts';
 
-// Import and re-export as constant to avoid export * as
-import * as DomainImport from './domain/index.ts';
-export const Domain = DomainImport;
-
+// Export only the DomainDataSource interface for infrastructure configuration
 export interface DomainDataSource {
     Case: {
         ServiceTicket: {

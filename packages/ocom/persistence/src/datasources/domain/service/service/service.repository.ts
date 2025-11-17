@@ -2,6 +2,8 @@ import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Service from '@ocom/domain/contexts/service';
 
 type ServiceModelType = Models.Service.Service;
 type PropType = ServiceDomainAdapter;
@@ -11,11 +13,11 @@ export class ServiceRepository
 		ServiceModelType,
 		PropType,
 		Domain.Passport,
-		Domain.Service.Service<PropType>
+		Service.Service<PropType>
 	>
-	implements Domain.Service.ServiceRepository<PropType>
+	implements Service.ServiceRepository<PropType>
 {
-	async getById(id: string): Promise<Domain.Service.Service<PropType>> {
+	async getById(id: string): Promise<Service.Service<PropType>> {
 		const mongoService = await this.model.findById(id).exec();
 		if (!mongoService) {
 			throw new Error(`Service with id ${id} not found`);
@@ -26,11 +28,11 @@ export class ServiceRepository
 	getNewInstance(
 		serviceName: string,
 		description: string,
-		community: Domain.Community.CommunityEntityReference,
-	): Promise<Domain.Service.Service<PropType>> {
+		community: Community.CommunityEntityReference,
+	): Promise<Service.Service<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Service.Service.getNewInstance(
+			Service.Service.getNewInstance(
 				adapter,
 				serviceName,
 				description,

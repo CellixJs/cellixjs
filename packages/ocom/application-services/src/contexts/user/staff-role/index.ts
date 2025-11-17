@@ -1,4 +1,3 @@
-import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import {
 	create,
@@ -13,6 +12,7 @@ import {
 	type StaffRoleQueryByIdCommand,
 } from './query-by-id.ts';
 import {
+import type * as StaffRole from '@ocom/domain/contexts/staff-role';
 	queryByRoleName,
 	type StaffRoleQueryByRoleNameCommand,
 } from './query-by-role-name.ts';
@@ -20,16 +20,16 @@ import {
 export interface StaffRoleApplicationService {
 	create: (
 		command: StaffRoleCreateCommand,
-	) => Promise<Domain.StaffRole.StaffRoleEntityReference>;
+	) => Promise<StaffRole.StaffRoleEntityReference>;
 	deleteAndReassign: (
 		command: StaffRoleDeleteAndReassignCommand,
 	) => Promise<void>;
 	queryById: (
 		command: StaffRoleQueryByIdCommand,
-	) => Promise<Domain.StaffRole.StaffRoleEntityReference | null>;
+	) => Promise<StaffRole.StaffRoleEntityReference | null>;
 	queryByRoleName: (
 		command: StaffRoleQueryByRoleNameCommand,
-	) => Promise<Domain.StaffRole.StaffRoleEntityReference | null>;
+	) => Promise<StaffRole.StaffRoleEntityReference | null>;
 }
 
 export const StaffRole = (

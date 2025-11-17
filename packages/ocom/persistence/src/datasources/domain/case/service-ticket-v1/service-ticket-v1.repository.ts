@@ -2,31 +2,35 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import type { ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Member from '@ocom/domain/contexts/member';
+import type * as Property from '@ocom/domain/contexts/property';
+import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
 
 type ServiceTicketModelType = Models.Case.ServiceTicket; // ReturnType<typeof models.Case.ServiceTicketModelFactory> & models.Case.ServiceTicket & { baseModelName: string };
 type PropType = ServiceTicketV1DomainAdapter;
 
 export class ServiceTicketV1Repository //<
-	//PropType extends Domain.ServiceTicketV1.ServiceTicketV1Props
+	//PropType extends ServiceTicketV1.ServiceTicketV1Props
 	//>
 	extends MongooseSeedwork.MongoRepositoryBase<
 		ServiceTicketModelType,
 		PropType,
 		Domain.Passport,
-		Domain.ServiceTicketV1.ServiceTicketV1<PropType>
+		ServiceTicketV1.ServiceTicketV1<PropType>
 	>
-	implements Domain.ServiceTicketV1.ServiceTicketV1Repository<PropType>
+	implements ServiceTicketV1.ServiceTicketV1Repository<PropType>
 {
 	getNewInstance(
-		title: Domain.ServiceTicketV1.ValueObjects.Title,
-		description: Domain.ServiceTicketV1.ValueObjects.Description,
-		community: Domain.Community.CommunityEntityReference,
-		requestor: Domain.Member.MemberEntityReference,
-		property?: Domain.Property.PropertyEntityReference,
-	): Promise<Domain.ServiceTicketV1.ServiceTicketV1<PropType>> {
+		title: ServiceTicketV1.ValueObjects.Title,
+		description: ServiceTicketV1.ValueObjects.Description,
+		community: Community.CommunityEntityReference,
+		requestor: Member.MemberEntityReference,
+		property?: Property.PropertyEntityReference,
+	): Promise<ServiceTicketV1.ServiceTicketV1<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.ServiceTicketV1.ServiceTicketV1.getNewInstance(
+			ServiceTicketV1.ServiceTicketV1.getNewInstance(
 				adapter,
 				this.passport,
                 title,
@@ -38,7 +42,7 @@ export class ServiceTicketV1Repository //<
 		);
 	}
 
-	async getById(id: string): Promise<Domain.ServiceTicketV1.ServiceTicketV1<PropType>> {
+	async getById(id: string): Promise<ServiceTicketV1.ServiceTicketV1<PropType>> {
 		const mongoServiceTicket = await this.model.findById(id).exec();
 		if (!mongoServiceTicket) {
 			throw new Error(`ServiceTicket with id ${id} not found`);

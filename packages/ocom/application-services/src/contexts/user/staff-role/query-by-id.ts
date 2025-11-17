@@ -1,5 +1,5 @@
-import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
+import type * as StaffRole from '@ocom/domain/contexts/staff-role';
 
 export interface StaffRoleQueryByIdCommand {
 	roleId: string;
@@ -16,9 +16,9 @@ const isNotFoundError = (error: unknown): boolean => {
 export const queryById = (dataSources: DataSources) => {
 	return async (
 		command: StaffRoleQueryByIdCommand,
-	): Promise<Domain.StaffRole.StaffRoleEntityReference | null> => {
+	): Promise<StaffRole.StaffRoleEntityReference | null> => {
 		let staffRole:
-			| Domain.StaffRole.StaffRoleEntityReference
+			| StaffRole.StaffRoleEntityReference
 			| null = null;
 		try {
 			await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(

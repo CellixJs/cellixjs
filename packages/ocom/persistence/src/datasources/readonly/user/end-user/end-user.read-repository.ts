@@ -3,12 +3,13 @@ import type { ModelsContext } from '../../../../index.ts';
 import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
+import type * as EndUser from '@ocom/domain/contexts/end-user';
 
 export interface EndUserReadRepository {
-    getAll: (options?: FindOptions) => Promise<Domain.EndUser.EndUserEntityReference[]>;
-    getById: (id: string, options?: FindOneOptions) => Promise<Domain.EndUser.EndUserEntityReference | null>;
-    getByName: (displayName: string, options?: FindOneOptions) => Promise<Domain.EndUser.EndUserEntityReference[]>;
-    getByExternalId: (externalId: string, options?: FindOneOptions) => Promise<Domain.EndUser.EndUserEntityReference | null>;
+    getAll: (options?: FindOptions) => Promise<EndUser.EndUserEntityReference[]>;
+    getById: (id: string, options?: FindOneOptions) => Promise<EndUser.EndUserEntityReference | null>;
+    getByName: (displayName: string, options?: FindOneOptions) => Promise<EndUser.EndUserEntityReference[]>;
+    getByExternalId: (externalId: string, options?: FindOneOptions) => Promise<EndUser.EndUserEntityReference | null>;
 }
 
 export class EndUserReadRepositoryImpl implements EndUserReadRepository {
@@ -22,22 +23,22 @@ export class EndUserReadRepositoryImpl implements EndUserReadRepository {
         this.passport = passport;
     }
 
-    async getAll(options?: FindOptions): Promise<Domain.EndUser.EndUserEntityReference[]> {
+    async getAll(options?: FindOptions): Promise<EndUser.EndUserEntityReference[]> {
         return await this.mongoDataSource.find({}, options);
     }
 
-    async getById(id: string, options?: FindOneOptions): Promise<Domain.EndUser.EndUserEntityReference | null> {
+    async getById(id: string, options?: FindOneOptions): Promise<EndUser.EndUserEntityReference | null> {
         const result = await this.mongoDataSource.findById(id, options);
         if (!result) { return null; }
         return this.converter.toDomain(result, this.passport);
     }
 
-    async getByName(displayName: string, options?: FindOneOptions): Promise<Domain.EndUser.EndUserEntityReference[]> {
+    async getByName(displayName: string, options?: FindOneOptions): Promise<EndUser.EndUserEntityReference[]> {
         const result = await this.mongoDataSource.find({ displayName }, options);
         return result.map(item => this.converter.toDomain(item, this.passport));
     }
 
-    async getByExternalId(externalId: string, options?: FindOneOptions): Promise<Domain.EndUser.EndUserEntityReference | null> {
+    async getByExternalId(externalId: string, options?: FindOneOptions): Promise<EndUser.EndUserEntityReference | null> {
         const result = await this.mongoDataSource.findOne({ externalId }, options);
         if (!result) { return null; }
         return this.converter.toDomain(result, this.passport);

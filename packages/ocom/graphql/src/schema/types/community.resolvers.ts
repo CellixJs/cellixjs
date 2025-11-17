@@ -1,9 +1,9 @@
-import type { Domain } from "@ocom/domain";
 import type { GraphQLResolveInfo } from "graphql";
 import type { GraphContext } from "../../init/context.ts";
 import type { CommunityCreateInput, Resolvers } from "../builder/generated.ts";
+import type * as Community from '@ocom/domain/contexts/community';
 
-const CommunityMutationResolver = async (getCommunity: Promise<Domain.Community.CommunityEntityReference>) => {
+const CommunityMutationResolver = async (getCommunity: Promise<Community.CommunityEntityReference>) => {
   try {
     return {
       status: { success: true },

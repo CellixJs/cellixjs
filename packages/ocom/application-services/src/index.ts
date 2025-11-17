@@ -1,5 +1,5 @@
 import type { ApiContextSpec } from '@ocom/context-spec';
-import { Domain } from '@ocom/domain';
+import { PassportFactory } from '@ocom/domain/contexts/passport';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
@@ -47,7 +47,7 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
         const tokenValidationResult = accessToken
             ? await infrastructureServicesRegistry.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken)
             : null;
-        let passport = Domain.PassportFactory.forGuest();
+        let passport = PassportFactory.forGuest();
         if (tokenValidationResult !== null) {
             const { verifiedJwt, openIdConfigKey } = tokenValidationResult;
             const { readonlyDataSource } = infrastructureServicesRegistry.dataSourcesFactory.withSystemPassport();
@@ -58,13 +58,13 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
                 const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
 
                 if (endUser && member && community) {
-                    passport = Domain.PassportFactory.forMember(endUser, member, community);
+                    passport = PassportFactory.forMember(endUser, member, community);
                 }
             } else if (openIdConfigKey === 'StaffPortal') {
                 const staffUser = undefined;
                 // const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
                 if (staffUser) {
-                    passport = Domain.PassportFactory.forStaffUser(staffUser);
+                    passport = PassportFactory.forStaffUser(staffUser);
                 }
             }
         }

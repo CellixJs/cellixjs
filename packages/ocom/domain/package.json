@@ -58,6 +58,10 @@
     "./contexts/vendor-user": {
       "types": "./dist/src/domain/contexts/user/vendor-user/vendor-user.d.ts",
       "default": "./dist/src/domain/contexts/user/vendor-user/vendor-user.js"
+    },
+    "./contexts/passport": {
+      "types": "./dist/src/domain/contexts/passport.d.ts",
+      "default": "./dist/src/domain/contexts/passport.js"
     }
   },
   "scripts": {

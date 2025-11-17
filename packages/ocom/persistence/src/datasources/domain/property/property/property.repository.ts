@@ -2,6 +2,8 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import type { PropertyDomainAdapter } from './property.domain-adapter.ts';
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Property from '@ocom/domain/contexts/property';
 
 type PropertyModelType = Models.Property.Property;
 type PropType = PropertyDomainAdapter;
@@ -11,18 +13,18 @@ export class PropertyRepository
 		PropertyModelType,
 		PropType,
 		Domain.Passport,
-		Domain.Property.Property<PropType>
+		Property.Property<PropType>
 	>
-	implements Domain.Property.PropertyRepository<PropType>
+	implements Property.PropertyRepository<PropType>
 {
 	// biome-ignore lint:noRequireAwait
 	async getNewInstance(
 		propertyName: string,
-		community: Domain.Community.CommunityEntityReference,
-	): Promise<Domain.Property.Property<PropType>> {
+		community: Community.CommunityEntityReference,
+	): Promise<Property.Property<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Property.Property.getNewInstance(
+			Property.Property.getNewInstance(
 				adapter,
 				propertyName,
 				community,
@@ -31,7 +33,7 @@ export class PropertyRepository
 		);
 	}
 
-	async getById(id: string): Promise<Domain.Property.Property<PropType>> {
+	async getById(id: string): Promise<Property.Property<PropType>> {
 		const mongoProperty = await this.model.findById(id).exec();
 		if (!mongoProperty) {
 			throw new Error(`Property with id ${id} not found`);
@@ -39,7 +41,7 @@ export class PropertyRepository
 		return this.typeConverter.toDomain(mongoProperty, this.passport);
 	}
 
-	async getAll(): Promise<ReadonlyArray<Domain.Property.Property<PropType>>> {
+	async getAll(): Promise<ReadonlyArray<Property.Property<PropType>>> {
 		const mongoProperties = await this.model.find().exec();
 		return Promise.all(
 			mongoProperties.map((mongoProperty) =>

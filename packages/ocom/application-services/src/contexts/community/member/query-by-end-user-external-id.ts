@@ -1,5 +1,5 @@
-import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
+import type * as Member from '@ocom/domain/contexts/member';
 
 export interface MemberQueryByEndUserExternalIdCommand {
     externalId: string;
@@ -11,7 +11,7 @@ export const queryByEndUserExternalId = (
 ) => {
     return async (
         command: MemberQueryByEndUserExternalIdCommand,
-    ): Promise<Domain.Member.MemberEntityReference[]> => {
+    ): Promise<Member.MemberEntityReference[]> => {
         return await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getMembersForEndUserExternalId(
             command.externalId,
         )

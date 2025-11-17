@@ -4,24 +4,27 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Member from '@ocom/domain/contexts/member';
+import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
 
 export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Case.ServiceTicket,
 	ServiceTicketV1DomainAdapter,
 	Domain.Passport,
-	Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>
+	ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>
 > {
 	constructor() {
 		super(
 			ServiceTicketV1DomainAdapter,
-			Domain.ServiceTicketV1.ServiceTicketV1
+			ServiceTicketV1.ServiceTicketV1
 		);
 	}
 }
 
 export class ServiceTicketV1DomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.Case.ServiceTicket>
-	implements Domain.ServiceTicketV1.ServiceTicketV1Props
+	implements ServiceTicketV1.ServiceTicketV1Props
 {
 	get title(): string {
 		return this.doc.title;
@@ -95,7 +98,7 @@ export class ServiceTicketV1DomainAdapter
 		this.doc.requestor = new MongooseSeedwork.ObjectId(requestorId);
 	}
 
-	get community(): Domain.Community.CommunityProps {
+	get community(): Community.CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -105,7 +108,7 @@ export class ServiceTicketV1DomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
 
-	async loadCommunity(): Promise<Domain.Community.CommunityProps> {
+	async loadCommunity(): Promise<Community.CommunityProps> {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -115,9 +118,9 @@ export class ServiceTicketV1DomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
 	}
 
-	set community(community: Domain.Community.CommunityEntityReference | Domain.Community.Community<CommunityDomainAdapter>) {
+	set community(community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>) {
 		//check to see if community is derived from MongooseDomainAdapter
-		if (community instanceof Domain.Community.Community) {
+		if (community instanceof Community.Community) {
 			this.doc.set('community', community.props.doc);
 			return;
 		}
@@ -129,7 +132,7 @@ export class ServiceTicketV1DomainAdapter
 		this.doc.set('community', community);
 	}
 
-	get requestor(): Domain.Member.MemberProps {
+	get requestor(): Member.MemberProps {
 		if (!this.doc.requestor) {
 			throw new Error('requestor is not populated');
 		}
@@ -139,7 +142,7 @@ export class ServiceTicketV1DomainAdapter
 		return new MemberDomainAdapter(this.doc.requestor as Models.Member.Member);
 	}
 
-	async loadRequestor(): Promise<Domain.Member.MemberProps> {
+	async loadRequestor(): Promise<Member.MemberProps> {
 		if (!this.doc.requestor) {
 			throw new Error('requestor is not populated');
 		}
@@ -149,9 +152,9 @@ export class ServiceTicketV1DomainAdapter
 		return new MemberDomainAdapter(this.doc.requestor as Models.Member.Member);
 	}
 
-	set requestor(member: Domain.Member.MemberEntityReference | Domain.Member.Member<MemberDomainAdapter>) {
+	set requestor(member: Member.MemberEntityReference | Member.Member<MemberDomainAdapter>) {
 		//check to see if member is derived from MongooseDomainAdapter
-		if (member instanceof Domain.Member.Member) {
+		if (member instanceof Member.Member) {
 			this.doc.set('requestor', member.props.doc);
 			return;
 		}
@@ -187,11 +190,11 @@ export class ServiceTicketV1DomainAdapter
 		}
 	}
 
-	get activityLog(): DomainSeedwork.PropArray<Domain.ServiceTicketV1.ServiceTicketV1ActivityDetailProps> {
+	get activityLog(): DomainSeedwork.PropArray<ServiceTicketV1.ServiceTicketV1ActivityDetailProps> {
 		return new MongooseSeedwork.MongoosePropArray(this.doc.activityLog, ServiceTicketV1ActivityDetailDomainAdapter);
 	}
 
-	get messages(): DomainSeedwork.PropArray<Domain.ServiceTicketV1.ServiceTicketV1MessageProps> {
+	get messages(): DomainSeedwork.PropArray<ServiceTicketV1.ServiceTicketV1MessageProps> {
 		return new MongooseSeedwork.MongoosePropArray(this.doc.messages, ServiceTicketV1MessageDomainAdapter);
 	}
 
@@ -234,7 +237,7 @@ export class ServiceTicketV1DomainAdapter
 
 export { ServiceTicketV1ActivityDetailDomainAdapter, ServiceTicketV1MessageDomainAdapter };
 
-class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.ServiceTicketV1.ServiceTicketV1ActivityDetailProps {
+class ServiceTicketV1ActivityDetailDomainAdapter implements ServiceTicketV1.ServiceTicketV1ActivityDetailProps {
 	public readonly doc: Models.Case.ServiceTicketActivityDetail;
 	
 	constructor(doc: Models.Case.ServiceTicketActivityDetail) {
@@ -261,7 +264,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.ServiceTicket
 		this.doc.activityDescription = activityDescription;
 	}
 
-	get activityBy(): Domain.Member.MemberEntityReference {
+	get activityBy(): Member.MemberEntityReference {
 		if (!this.doc.activityBy) {
 			throw new Error('activityBy is not populated');
 		}
@@ -270,10 +273,10 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.ServiceTicket
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.activityBy as Models.Member.Member) as unknown as Domain.Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.activityBy as Models.Member.Member) as unknown as Member.MemberEntityReference;
 	}
 
-	async loadActivityBy(): Promise<Domain.Member.MemberEntityReference> {
+	async loadActivityBy(): Promise<Member.MemberEntityReference> {
 		if (!this.doc.activityBy) {
 			throw new Error('activityBy is not populated');
 		}
@@ -282,12 +285,12 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.ServiceTicket
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.activityBy as Models.Member.Member) as unknown as Domain.Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.activityBy as Models.Member.Member) as unknown as Member.MemberEntityReference;
 	}
 
-	set activityBy(member: Domain.Member.MemberEntityReference | Domain.Member.Member<MemberDomainAdapter>) {
+	set activityBy(member: Member.MemberEntityReference | Member.Member<MemberDomainAdapter>) {
 		//check to see if member is derived from MongooseDomainAdapter
-		if (member instanceof Domain.Member.Member) {
+		if (member instanceof Member.Member) {
 			this.doc.set('activityBy', member.props.doc);
 			return;
 		}
@@ -300,7 +303,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.ServiceTicket
 	}
 }
 
-class ServiceTicketV1MessageDomainAdapter implements Domain.ServiceTicketV1.ServiceTicketV1MessageProps {
+class ServiceTicketV1MessageDomainAdapter implements ServiceTicketV1.ServiceTicketV1MessageProps {
 	public readonly doc: Models.Case.ServiceTicketMessage;
 	
 	constructor(doc: Models.Case.ServiceTicketMessage) {
@@ -319,7 +322,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.ServiceTicketV1.Serv
 		this.doc.sentBy = sentBy;
 	}
 
-	get initiatedBy(): Domain.Member.MemberEntityReference {
+	get initiatedBy(): Member.MemberEntityReference {
 		if (!this.doc.initiatedBy) {
 			throw new Error('initiatedBy is not populated');
 		}
@@ -328,10 +331,10 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.ServiceTicketV1.Serv
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.initiatedBy as Models.Member.Member) as unknown as Domain.Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.initiatedBy as Models.Member.Member) as unknown as Member.MemberEntityReference;
 	}
 
-	async loadInitiatedBy(): Promise<Domain.Member.MemberEntityReference> {
+	async loadInitiatedBy(): Promise<Member.MemberEntityReference> {
 		if (!this.doc.initiatedBy) {
 			throw new Error('initiatedBy is not populated');
 		}
@@ -340,12 +343,12 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.ServiceTicketV1.Serv
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.initiatedBy as Models.Member.Member) as unknown as Domain.Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.initiatedBy as Models.Member.Member) as unknown as Member.MemberEntityReference;
 	}
 
-	set initiatedBy(member: Domain.Member.MemberEntityReference | Domain.Member.Member<MemberDomainAdapter>) {
+	set initiatedBy(member: Member.MemberEntityReference | Member.Member<MemberDomainAdapter>) {
 		//check to see if member is derived from MongooseDomainAdapter
-		if (member instanceof Domain.Member.Member) {
+		if (member instanceof Member.Member) {
 			this.doc.set('initiatedBy', member.props.doc);
 			return;
 		}
