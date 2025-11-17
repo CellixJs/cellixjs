@@ -49,6 +49,7 @@ stages:
         VITE_AAD_B2C_REDIRECT_URI: $(VITE_AAD_B2C_REDIRECT_URI_DEV)
         VITE_AAD_B2C_ACCOUNT_SCOPES: $(VITE_AAD_B2C_ACCOUNT_SCOPES_DEV)
         VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_DEV)
+        NODE_ENV: $(NODE_ENV)
 
 
   - template: ./build-pipeline/core/monorepo-deployment-stage.yml
