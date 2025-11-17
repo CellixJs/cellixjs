@@ -37,7 +37,7 @@
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
-    "rimraf": "^6.0.1",
+    "rimraf": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -33,6 +33,6 @@
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
     "typescript": "catalog:",
-    "rimraf": "^6.0.1"
+    "rimraf": "catalog:"
   }
 }

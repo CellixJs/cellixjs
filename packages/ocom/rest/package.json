@@ -19,13 +19,11 @@
   },
   "dependencies": {
     "@azure/functions": "^4.6.0",
-    "rimraf": "^6.0.1",
-    "typescript": "catalog:",
     "@ocom/application-services": "workspace:*"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
     "typescript": "catalog:",
-    "rimraf": "^6.0.1"
+    "rimraf": "catalog:"
   }
 }
