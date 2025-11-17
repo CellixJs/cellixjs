@@ -6,6 +6,9 @@ lcov-report
 __*
 local.settings.json
 
+# TypeScript cache
+*.tsbuildinfo
+
 # Turborepo
 .turbo
 
