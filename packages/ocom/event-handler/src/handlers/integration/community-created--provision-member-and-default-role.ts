@@ -1,5 +1,6 @@
 import type { DomainDataSource} from '@ocom/domain';
-import { EventBusInstance, CommunityCreatedEvent } from '@ocom/domain/events';
+import { EventBusInstance } from '@ocom/domain/events/event-bus';
+import type { CommunityCreatedEvent } from '@ocom/domain/events/types/community-created';
 import { CommunityProvisioningServiceInstance } from '@ocom/domain/services/community-provisioning';
 
 export default (

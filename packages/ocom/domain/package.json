@@ -63,9 +63,73 @@
       "types": "./dist/src/domain/contexts/passport.d.ts",
       "default": "./dist/src/domain/contexts/passport.js"
     },
-    "./events": {
-      "types": "./dist/src/domain/events/index.d.ts",
-      "default": "./dist/src/domain/events/index.js"
+    "./events/event-bus": {
+      "types": "./dist/src/domain/events/event-bus.d.ts",
+      "default": "./dist/src/domain/events/event-bus.js"
+    },
+    "./events/types/community-created": {
+      "types": "./dist/src/domain/events/types/community-created.d.ts",
+      "default": "./dist/src/domain/events/types/community-created.js"
+    },
+    "./events/types/community-domain-updated": {
+      "types": "./dist/src/domain/events/types/community-domain-updated.d.ts",
+      "default": "./dist/src/domain/events/types/community-domain-updated.js"
+    },
+    "./events/types/community-white-label-domain-updated": {
+      "types": "./dist/src/domain/events/types/community-white-label-domain-updated.d.ts",
+      "default": "./dist/src/domain/events/types/community-white-label-domain-updated.js"
+    },
+    "./events/types/end-user-created": {
+      "types": "./dist/src/domain/events/types/end-user-created.d.ts",
+      "default": "./dist/src/domain/events/types/end-user-created.js"
+    },
+    "./events/types/property-created": {
+      "types": "./dist/src/domain/events/types/property-created.d.ts",
+      "default": "./dist/src/domain/events/types/property-created.js"
+    },
+    "./events/types/property-deleted": {
+      "types": "./dist/src/domain/events/types/property-deleted.d.ts",
+      "default": "./dist/src/domain/events/types/property-deleted.js"
+    },
+    "./events/types/property-updated": {
+      "types": "./dist/src/domain/events/types/property-updated.d.ts",
+      "default": "./dist/src/domain/events/types/property-updated.js"
+    },
+    "./events/types/role-deleted-reassign": {
+      "types": "./dist/src/domain/events/types/role-deleted-reassign.d.ts",
+      "default": "./dist/src/domain/events/types/role-deleted-reassign.js"
+    },
+    "./events/types/service-ticket-v1-created": {
+      "types": "./dist/src/domain/events/types/service-ticket-v1-created.d.ts",
+      "default": "./dist/src/domain/events/types/service-ticket-v1-created.js"
+    },
+    "./events/types/service-ticket-v1-deleted": {
+      "types": "./dist/src/domain/events/types/service-ticket-v1-deleted.d.ts",
+      "default": "./dist/src/domain/events/types/service-ticket-v1-deleted.js"
+    },
+    "./events/types/service-ticket-v1-updated": {
+      "types": "./dist/src/domain/events/types/service-ticket-v1-updated.d.ts",
+      "default": "./dist/src/domain/events/types/service-ticket-v1-updated.js"
+    },
+    "./events/types/staff-user-created": {
+      "types": "./dist/src/domain/events/types/staff-user-created.d.ts",
+      "default": "./dist/src/domain/events/types/staff-user-created.js"
+    },
+    "./events/types/vendor-user-created": {
+      "types": "./dist/src/domain/events/types/vendor-user-created.d.ts",
+      "default": "./dist/src/domain/events/types/vendor-user-created.js"
+    },
+    "./events/types/violation-ticket-v1-created": {
+      "types": "./dist/src/domain/events/types/violation-ticket-v1-created.d.ts",
+      "default": "./dist/src/domain/events/types/violation-ticket-v1-created.js"
+    },
+    "./events/types/violation-ticket-v1-deleted": {
+      "types": "./dist/src/domain/events/types/violation-ticket-v1-deleted.d.ts",
+      "default": "./dist/src/domain/events/types/violation-ticket-v1-deleted.js"
+    },
+    "./events/types/violation-ticket-v1-updated": {
+      "types": "./dist/src/domain/events/types/violation-ticket-v1-updated.d.ts",
+      "default": "./dist/src/domain/events/types/violation-ticket-v1-updated.js"
     },
     "./iam/guest": {
       "types": "./dist/src/domain/iam/guest/guest.passport.d.ts",
