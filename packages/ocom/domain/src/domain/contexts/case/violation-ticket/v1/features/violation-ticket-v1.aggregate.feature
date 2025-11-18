@@ -264,3 +264,55 @@ Feature: <Aggregate> ViolationTicketV1
     When I have a ViolationTicketV1 instance
     And I call onSave with isModified false
     Then no updated event should be added
+
+  Scenario: Attempting to set requestorId after creation
+    When I have a ViolationTicketV1 instance
+    When I try to set the requestorId
+    Then a PermissionError should be thrown
+
+  Scenario: Setting priority to a negative value
+    When I have a ViolationTicketV1 instance with proper permissions
+    When I set the priority to -1
+    Then a validation error should be thrown
+
+  Scenario: Setting status to an invalid value
+    When I have a ViolationTicketV1 instance with system account permissions
+    When I set the status to "InvalidStatus"
+    Then a validation error should be thrown
+
+  Scenario: Adding a status transition to an invalid status
+    When I have a ViolationTicketV1 instance with status "Draft" and proper permissions
+    When I add a status transition to "Paid"
+    Then a PermissionError should be thrown
+
+  Scenario: Setting title to an empty string
+    When I have a ViolationTicketV1 instance with proper permissions
+    When I set the title to ""
+    Then a validation error should be thrown
+
+  Scenario: Setting description to an empty string
+    When I have a ViolationTicketV1 instance with proper permissions
+    When I set the description to ""
+    Then a validation error should be thrown
+
+  Scenario: Setting ticketType to undefined
+    When I have a ViolationTicketV1 instance with proper permissions
+    When I set the ticketType to undefined
+    Then the ticketType should be undefined
+
+  Scenario: Attempting to set createdAt
+    When I have a ViolationTicketV1 instance
+    When I try to set the createdAt date
+    Then a TypeError should be thrown
+
+  Scenario: Attempting to call requestDelete twice
+    When I have a ViolationTicketV1 instance with system account permissions
+    When I request delete
+    And I request delete again
+    Then the ticket should remain deleted
+
+  Scenario: Calling onSave after deletion
+    When I have a ViolationTicketV1 instance with system account permissions
+    When I request delete
+    And I call onSave with isModified true
+    Then no updated event should be added

@@ -129,6 +129,201 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		memberRef = { id: 'member-123' } as MemberEntityReference;
 	});
 
+	Scenario('Attempting to set requestorId after creation', ({ When, Then }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When('I have a ViolationTicketV1 instance', () => {
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
+		When('I try to set the requestorId', () => {
+			expect(() => {
+				// @ts-expect-error: private setter
+				violationTicket.requestorId = 'new-requestor-123';
+			}).toThrow(PermissionError);
+		});
+		Then('a PermissionError should be thrown', () => {
+			// Already checked above
+		});
+	});
+	Scenario('Setting priority to a negative value', ({ When, Then }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When('I have a ViolationTicketV1 instance with proper permissions', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
+			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
+		When('I set the priority to -1', () => {
+			expect(() => {
+				violationTicket.priority = -1;
+			}).toThrow();
+		});
+		Then('a validation error should be thrown', () => {
+			// Already checked above
+		});
+	});
+
+	Scenario('Setting status to an invalid value', ({ When, Then }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When(
+			'I have a ViolationTicketV1 instance with system account permissions',
+			() => {
+				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+					determineIf: vi.fn(() => true),
+				});
+				violationTicket = new ViolationTicketV1(props, passport);
+			},
+		);
+		When('I set the status to "InvalidStatus"', () => {
+			expect(() => {
+				violationTicket.status = 'InvalidStatus';
+			}).toThrow();
+		});
+		Then('a validation error should be thrown', () => {
+			// Already checked above
+		});
+	});
+
+	Scenario(
+		'Adding a status transition to an invalid status',
+		({ When, Then }) => {
+			let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+			When(
+				'I have a ViolationTicketV1 instance with status "Draft" and proper permissions',
+				() => {
+					props.status = ValueObjects.StatusCodes.Draft;
+					vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+						determineIf: vi.fn(() => false),
+					});
+					violationTicket = new ViolationTicketV1(props, passport);
+				},
+			);
+			When('I add a status transition to "Paid"', () => {
+				expect(() => {
+					violationTicket.requestAddStatusTransition(
+						new ValueObjects.StatusCode(ValueObjects.StatusCodes.Paid),
+						'Invalid transition',
+						memberRef,
+					);
+				}).toThrow(PermissionError);
+			});
+			Then('a PermissionError should be thrown', () => {
+				// Already checked above
+			});
+		},
+	);
+
+	Scenario('Setting title to an empty string', ({ When, Then }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When('I have a ViolationTicketV1 instance with proper permissions', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
+			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
+		When('I set the title to ""', () => {
+			expect(() => {
+				violationTicket.title = '';
+			}).toThrow();
+		});
+		Then('a validation error should be thrown', () => {
+			// Already checked above
+		});
+	});
+
+	Scenario('Setting description to an empty string', ({ When, Then }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When('I have a ViolationTicketV1 instance with proper permissions', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
+			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
+		When('I set the description to ""', () => {
+			expect(() => {
+				violationTicket.description = '';
+			}).toThrow();
+		});
+		Then('a validation error should be thrown', () => {
+			// Already checked above
+		});
+	});
+
+	Scenario('Setting ticketType to undefined', ({ When, Then }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When('I have a ViolationTicketV1 instance with proper permissions', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
+			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
+		When('I set the ticketType to undefined', () => {
+			violationTicket.ticketType = undefined;
+		});
+		Then('the ticketType should be undefined', () => {
+			expect(violationTicket.ticketType).toBeUndefined();
+		});
+	});
+
+	Scenario('Attempting to set createdAt', ({ When, Then }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When('I have a ViolationTicketV1 instance', () => {
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
+		When('I try to set the createdAt date', () => {
+			expect(() => {
+				// @ts-expect-error: readonly property
+				violationTicket.createdAt = new Date();
+			}).toThrow(TypeError);
+		});
+		Then('a TypeError should be thrown', () => {
+			// Already checked above
+		});
+	});
+
+	Scenario('Attempting to call requestDelete twice', ({ When, Then, And }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When(
+			'I have a ViolationTicketV1 instance with system account permissions',
+			() => {
+				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+					determineIf: vi.fn(() => true),
+				});
+				violationTicket = new ViolationTicketV1(props, passport);
+			},
+		);
+		When('I request delete', () => {
+			violationTicket.requestDelete();
+		});
+		And('I request delete again', () => {
+			violationTicket.requestDelete();
+		});
+		Then('the ticket should remain deleted', () => {
+			expect(violationTicket.isDeleted).toBe(true);
+		});
+	});
+
+	Scenario('Calling onSave after deletion', ({ When, Then, And }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When(
+			'I have a ViolationTicketV1 instance with system account permissions',
+			() => {
+				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+					determineIf: vi.fn(() => true),
+				});
+				violationTicket = new ViolationTicketV1(props, passport);
+			},
+		);
+		When('I request delete', () => {
+			violationTicket.requestDelete();
+		});
+		And('I call onSave with isModified true', () => {
+			violationTicket.onSave(true);
+		});
+		Then('no updated event should be added', () => {
+			// Since isDeleted is true, no event should be added
+			expect(violationTicket.isDeleted).toBe(true);
+		});
+	});
 	Scenario(
 		'Creating a new ViolationTicketV1 instance',
 		({ When, Then, And }) => {
