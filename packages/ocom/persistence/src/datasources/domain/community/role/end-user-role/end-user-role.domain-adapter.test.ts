@@ -706,7 +706,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive an EndUserRole domain object', () => {
-      expect(result).toBeInstanceOf((EndUserRole.EndUserRole);
+      expect(result).toBeInstanceOf(EndUserRoleClass);
     });
     And('the domain object\'s roleName should be "Test Role"', () => {
       expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
@@ -716,7 +716,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     And('the domain object\'s community should be a Community domain object', () => {
       const { community } = result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
-      expect(community).toBeInstanceOf((Community.Community);
+      expect(community).toBeInstanceOf(CommunityClass);
     });
   });
 

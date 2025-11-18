@@ -131,7 +131,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getById('role-1');
     });
     Then('I should receive a StaffRole domain object', () => {
-      expect(result).toBeInstanceOf((StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRoleClass);
     });
     And('the domain object\'s roleName should be "Manager"', () => {
       expect(result.roleName).toBe('Manager');
@@ -161,7 +161,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getByRoleName('Manager');
     });
     Then('I should receive a StaffRole domain object', () => {
-      expect(result).toBeInstanceOf((StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRoleClass);
     });
     And('the domain object\'s roleName should be "Manager"', () => {
       expect(result.roleName).toBe('Manager');
@@ -191,7 +191,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getNewInstance('Supervisor');
     });
     Then('I should receive a new StaffRole domain object', () => {
-      expect(result).toBeInstanceOf((StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRoleClass);
     });
     And('the domain object\'s roleName should be "Supervisor"', () => {
       expect(result.roleName).toBe('Supervisor');

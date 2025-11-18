@@ -454,7 +454,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive an EndUser domain object', () => {
-      expect(result).toBeInstanceOf((EndUser.EndUser);
+      expect(result).toBeInstanceOf(EndUserClass);
     });
     And('the domain object\'s userType should be "end-user"', () => {
       expect((result as EndUser.EndUser<EndUserDomainAdapter>).userType).toBe('end-user');

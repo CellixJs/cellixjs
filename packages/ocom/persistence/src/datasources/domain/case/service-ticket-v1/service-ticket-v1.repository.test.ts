@@ -150,7 +150,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a ServiceTicketV1 domain object', () => {
-      expect(result).toBeInstanceOf((ServiceTicketV1.ServiceTicketV1);
+      expect(result).toBeInstanceOf(ServiceTicketV1Class);
     });
     And('the domain object\'s title should be "Test Ticket"', () => {
       expect(result.title).toBe('Test Ticket');
@@ -182,14 +182,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     When('I call getNewInstance with title "New Ticket", description "New Description", community, and requestor', async () => {
       result = await repo.getNewInstance(
-        new Domain.ServiceTicketV1.ValueObjects.Title('New Ticket'),
-        new Domain.ServiceTicketV1.ValueObjects.Description('New Description'),
+        new ServiceTicketV1.ValueObjects.Title('New Ticket'),
+        new ServiceTicketV1.ValueObjects.Description('New Description'),
         communityDomainObject,
         requestorDomainObject
       );
     });
     Then('I should receive a new ServiceTicketV1 domain object', () => {
-      expect(result).toBeInstanceOf((ServiceTicketV1.ServiceTicketV1);
+      expect(result).toBeInstanceOf(ServiceTicketV1Class);
     });
     And('the domain object\'s title should be "New Ticket"', () => {
       expect(result.title).toBe('New Ticket');

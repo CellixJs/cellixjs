@@ -273,7 +273,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a Community domain object', () => {
-      expect(result).toBeInstanceOf((Community.Community);
+      expect(result).toBeInstanceOf(CommunityClass);
     });
     And('the domain object\'s name should be "Test Community"', () => {
       expect((result as Community.Community<CommunityDomainAdapter>).name).toBe('Test Community');
@@ -289,7 +289,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     And('the domain object\'s createdBy should be an EndUser domain object with the correct user data', () => {
       const { createdBy } = result as Community.Community<CommunityDomainAdapter>;
-      expect(createdBy).toBeInstanceOf((EndUser.EndUser);
+      expect(createdBy).toBeInstanceOf(EndUserClass);
       expect(createdBy.id).toBe(userDoc.id);
       expect(createdBy.displayName).toBe(userDoc.displayName);
     });

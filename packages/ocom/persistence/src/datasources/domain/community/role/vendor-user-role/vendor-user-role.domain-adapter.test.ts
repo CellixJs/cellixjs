@@ -454,7 +454,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a VendorUserRole domain object', () => {
-      expect(result).toBeInstanceOf((VendorUserRole.VendorUserRole);
+      expect(result).toBeInstanceOf(VendorUserRoleClass);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
       expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
@@ -464,7 +464,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     And('the domain object\'s community should be a Community domain object', () => {
       const { community } = result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>;
-      expect(community).toBeInstanceOf((Community.Community);
+      expect(community).toBeInstanceOf(CommunityClass);
     });
   });
 

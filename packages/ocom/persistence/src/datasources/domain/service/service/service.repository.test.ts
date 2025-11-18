@@ -116,7 +116,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getById('123');
     });
     Then('it should return a Service domain object', () => {
-      expect(result).toBeInstanceOf((Service.Service);
+      expect(result).toBeInstanceOf(ServiceClass);
     });
     And('the model\'s findById method should have been called with "123"', () => {
       expect(mockModel.findById).toHaveBeenCalledWith('123');
@@ -146,7 +146,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getNewInstance('New Service', 'New description', communityRef);
     });
     Then('it should return a new Service domain object', () => {
-      expect(result).toBeInstanceOf((Service.Service);
+      expect(result).toBeInstanceOf(ServiceClass);
     });
   });
 });

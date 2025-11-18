@@ -121,7 +121,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a Property domain object', () => {
-      expect(result).toBeInstanceOf((Property.Property);
+      expect(result).toBeInstanceOf(PropertyClass);
     });
     And('the domain object\'s name should be "Test Property"', () => {
       expect(result.propertyName).toBe('Test Property');
@@ -146,7 +146,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Then('I should receive an array of Property domain objects', () => {
       expect(Array.isArray(results)).toBe(true);
       expect(results.length).toBeGreaterThan(0);
-      expect(results[0]).toBeInstanceOf((Property.Property);
+      expect(results[0]).toBeInstanceOf(PropertyClass);
     });
     And('the array should contain at least one property with name "Test Property"', () => {
       const testProperty = results.find(property => property.propertyName === 'Test Property');
@@ -163,7 +163,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getNewInstance('New Property', communityDomainObject);
     });
     Then('I should receive a new Property domain object', () => {
-      expect(result).toBeInstanceOf((Property.Property);
+      expect(result).toBeInstanceOf(PropertyClass);
     });
     And('the domain object\'s name should be "New Property"', () => {
       expect(result.propertyName).toBe('New Property');

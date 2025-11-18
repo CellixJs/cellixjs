@@ -157,7 +157,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive an EndUserRole domain object', () => {
-      expect(result).toBeInstanceOf((EndUserRole.EndUserRole);
+      expect(result).toBeInstanceOf(EndUserRoleClass);
     });
     And('the domain object\'s roleName should be "Test Role"', () => {
       expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
@@ -186,7 +186,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getNewInstance('New Role', false, communityDomainObj);
     });
     Then('I should receive a new EndUserRole domain object', () => {
-      expect(result).toBeInstanceOf((EndUserRole.EndUserRole);
+      expect(result).toBeInstanceOf(EndUserRoleClass);
     });
     And('the domain object\'s roleName should be "New Role"', () => {
       expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('New Role');

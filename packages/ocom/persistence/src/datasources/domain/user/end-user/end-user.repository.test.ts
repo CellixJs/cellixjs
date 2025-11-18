@@ -120,7 +120,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getByExternalId('123e4567-e89b-12d3-a456-426614174001');
     });
     Then('I should receive an EndUser domain object', () => {
-      expect(result).toBeInstanceOf((EndUser.EndUser);
+      expect(result).toBeInstanceOf(EndUserClass);
     });
     And('the domain object\'s email should be "user@example.com"', () => {
       expect(result.email).toBe('user@example.com');
@@ -152,7 +152,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       );
     });
     Then('I should receive a new EndUser domain object', () => {
-      expect(result).toBeInstanceOf((EndUser.EndUser);
+      expect(result).toBeInstanceOf(EndUserClass);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174002"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174002');
@@ -176,7 +176,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       );
     });
     Then('I should receive a new EndUser domain object', () => {
-      expect(result).toBeInstanceOf((EndUser.EndUser);
+      expect(result).toBeInstanceOf(EndUserClass);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174003"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174003');

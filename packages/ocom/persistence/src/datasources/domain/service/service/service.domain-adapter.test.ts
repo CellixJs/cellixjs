@@ -300,7 +300,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a Service domain object', () => {
-      expect(result).toBeInstanceOf((Service.Service);
+      expect(result).toBeInstanceOf(ServiceClass);
     });
     And('the domain object\'s serviceName should be "Test Service"', () => {
       expect((result as Service.Service<ServiceDomainAdapter>).serviceName).toBe('Test Service');

@@ -542,7 +542,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('I should receive a StaffRole domain object', () => {
       expect(result).toBeDefined();
-      expect(result).toBeInstanceOf((StaffRole.StaffRole);
+      expect(result).toBeInstanceOf(StaffRoleClass);
     });
     And('the domain object\'s roleName should be "Manager"', () => {
       expect(result?.roleName).toBe('Manager');

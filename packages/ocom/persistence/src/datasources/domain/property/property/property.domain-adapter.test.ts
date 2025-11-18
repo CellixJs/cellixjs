@@ -1205,7 +1205,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a Property domain object', () => {
-      expect(result).toBeInstanceOf((Property.Property);
+      expect(result).toBeInstanceOf(PropertyClass);
     });
     And('the domain object\'s propertyName should be "Test Property"', () => {
       expect((result as Property.Property<PropertyDomainAdapter>).propertyName).toBe('Test Property');

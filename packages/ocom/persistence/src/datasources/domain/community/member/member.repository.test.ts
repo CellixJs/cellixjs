@@ -121,7 +121,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a Member domain object', () => {
-      expect(result).toBeInstanceOf((Member.Member);
+      expect(result).toBeInstanceOf(MemberClass);
     });
     And('the domain object\'s name should be "Test Member"', () => {
       expect(result.memberName).toBe('Test Member');
@@ -146,7 +146,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Then('I should receive an array of Member domain objects', () => {
       expect(Array.isArray(results)).toBe(true);
       expect(results.length).toBeGreaterThan(0);
-      expect(results[0]).toBeInstanceOf((Member.Member);
+      expect(results[0]).toBeInstanceOf(MemberClass);
     });
     And('the array should contain at least one member with name "Test Member"', () => {
       const testMember = results.find(member => member.memberName === 'Test Member');
@@ -175,7 +175,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     Then('I should receive an array of Member domain objects', () => {
       expect(Array.isArray(results)).toBe(true);
-      expect(results[0]).toBeInstanceOf((Member.Member);
+      expect(results[0]).toBeInstanceOf(MemberClass);
     });
     And('all members should have the specified role', () => {
       // Note: This would require more complex mocking to verify the role assignment
@@ -193,7 +193,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getNewInstance('New Member', communityDomainObject);
     });
     Then('I should receive a new Member domain object', () => {
-      expect(result).toBeInstanceOf((Member.Member);
+      expect(result).toBeInstanceOf(MemberClass);
     });
     And('the domain object\'s name should be "New Member"', () => {
       expect(result.memberName).toBe('New Member');

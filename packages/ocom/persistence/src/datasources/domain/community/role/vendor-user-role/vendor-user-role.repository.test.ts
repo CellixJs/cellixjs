@@ -157,7 +157,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a VendorUserRole domain object', () => {
-      expect(result).toBeInstanceOf((VendorUserRole.VendorUserRole);
+      expect(result).toBeInstanceOf(VendorUserRoleClass);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
       expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
@@ -186,7 +186,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getNewInstance('New Vendor Role', false, communityDomainObj);
     });
     Then('I should receive a new VendorUserRole domain object', () => {
-      expect(result).toBeInstanceOf((VendorUserRole.VendorUserRole);
+      expect(result).toBeInstanceOf(VendorUserRoleClass);
     });
     And('the domain object\'s roleName should be "New Vendor Role"', () => {
       expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('New Vendor Role');
