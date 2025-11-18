@@ -4,8 +4,11 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import type * as Member from '@ocom/domain/contexts/member';
+import { Member as MemberClass } from '@ocom/domain/contexts/member';
 import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
+import { ServiceTicketV1 as ServiceTicketV1Class } from '@ocom/domain/contexts/service-ticket/v1';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverter<
@@ -17,7 +20,7 @@ export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverte
 	constructor() {
 		super(
 			ServiceTicketV1DomainAdapter,
-			ServiceTicketV1.ServiceTicketV1
+			ServiceTicketV1Class
 		);
 	}
 }
@@ -120,7 +123,7 @@ export class ServiceTicketV1DomainAdapter
 
 	set community(community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>) {
 		//check to see if community is derived from MongooseDomainAdapter
-		if (community instanceof Community.Community) {
+		if (community instanceof CommunityClass) {
 			this.doc.set('community', community.props.doc);
 			return;
 		}
@@ -154,7 +157,7 @@ export class ServiceTicketV1DomainAdapter
 
 	set requestor(member: Member.MemberEntityReference | Member.Member<MemberDomainAdapter>) {
 		//check to see if member is derived from MongooseDomainAdapter
-		if (member instanceof Member.Member) {
+		if (member instanceof MemberClass) {
 			this.doc.set('requestor', member.props.doc);
 			return;
 		}
@@ -290,7 +293,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements ServiceTicketV1.Serv
 
 	set activityBy(member: Member.MemberEntityReference | Member.Member<MemberDomainAdapter>) {
 		//check to see if member is derived from MongooseDomainAdapter
-		if (member instanceof Member.Member) {
+		if (member instanceof MemberClass) {
 			this.doc.set('activityBy', member.props.doc);
 			return;
 		}
@@ -348,7 +351,7 @@ class ServiceTicketV1MessageDomainAdapter implements ServiceTicketV1.ServiceTick
 
 	set initiatedBy(member: Member.MemberEntityReference | Member.Member<MemberDomainAdapter>) {
 		//check to see if member is derived from MongooseDomainAdapter
-		if (member instanceof Member.Member) {
+		if (member instanceof MemberClass) {
 			this.doc.set('initiatedBy', member.props.doc);
 			return;
 		}

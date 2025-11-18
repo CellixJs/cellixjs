@@ -2,7 +2,9 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import type * as EndUser from '@ocom/domain/contexts/end-user';
+import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
@@ -14,7 +16,7 @@ export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			CommunityDomainAdapter,
-			Community.Community
+			CommunityClass
 		);
 	}
 }
@@ -75,7 +77,7 @@ export class CommunityDomainAdapter
 
 	set createdBy(user: EndUser.EndUserEntityReference | EndUser.EndUser<EndUserDomainAdapter>) {
 		//check to see if user is derived from MongooseDomainAdapter
-		if (user instanceof EndUser.EndUser) {
+		if (user instanceof EndUserClass) {
             this.doc.set('createdBy', user.props.doc);
             return;
 		}

@@ -5,6 +5,7 @@ import type * as Community from '@ocom/domain/contexts/community';
 import type * as Member from '@ocom/domain/contexts/member';
 import type * as Property from '@ocom/domain/contexts/property';
 import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
+import { ServiceTicketV1 as ServiceTicketV1Class } from '@ocom/domain/contexts/service-ticket/v1';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 type ServiceTicketModelType = Models.Case.ServiceTicket; // ReturnType<typeof models.Case.ServiceTicketModelFactory> & models.Case.ServiceTicket & { baseModelName: string };
@@ -30,7 +31,7 @@ export class ServiceTicketV1Repository //<
 	): Promise<ServiceTicketV1.ServiceTicketV1<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			ServiceTicketV1.ServiceTicketV1.getNewInstance(
+			ServiceTicketV1Class.getNewInstance(
 				adapter,
 				this.passport,
                 title,
