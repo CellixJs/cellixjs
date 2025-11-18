@@ -1,6 +1,7 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
@@ -12,7 +13,7 @@ export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			VendorUserDomainAdapter,
-			VendorUser.VendorUser,
+			VendorUserClass,
 		);
 	}
 }

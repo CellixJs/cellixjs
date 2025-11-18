@@ -2,7 +2,9 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
 import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 import type * as StaffUser from '@ocom/domain/contexts/staff-user';
+import { StaffUser as StaffUserClass } from '@ocom/domain/contexts/staff-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class StaffUserDomainAdapter
@@ -30,7 +32,7 @@ export class StaffUserDomainAdapter
 			return;
 		}
 
-		if (role instanceof StaffRole.StaffRole) {
+		if (role instanceof StaffRoleClass) {
 			this.doc.set('role', role.props.doc);
 			return;
 		}
@@ -120,7 +122,7 @@ export class StaffUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			StaffUserDomainAdapter,
-			StaffUser.StaffUser,
+			StaffUserClass,
 		);
 	}
 }

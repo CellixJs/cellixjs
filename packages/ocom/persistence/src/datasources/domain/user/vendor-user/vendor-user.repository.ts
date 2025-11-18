@@ -2,6 +2,7 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
 import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 type VendorUserDocument = Models.User.VendorUser;
@@ -50,7 +51,7 @@ export class VendorUserRepository
 		adapter.tags = [];
 		adapter.accessBlocked = false;
 		return Promise.resolve(
-			VendorUser.VendorUser.getNewUser(
+			VendorUserClass.getNewUser(
 				adapter,
 				this.passport,
 				externalId,
