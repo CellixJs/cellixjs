@@ -316,3 +316,167 @@ Feature: <Aggregate> ViolationTicketV1
     When I request delete
     And I call onSave with isModified true
     Then no updated event should be added
+
+  Scenario: Requesting delete with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I request delete
+    Then the ticket should be marked as deleted
+
+  Scenario: Setting propertyId with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I set the propertyId
+    Then the propertyId should be updated
+
+  Scenario: Setting propertyId with canCreateTickets and isEditingOwnTicket
+    When I have a ViolationTicketV1 instance
+    And I have canCreateTickets and isEditingOwnTicket permissions
+    And I set the propertyId
+    Then the propertyId should be updated
+
+  Scenario: Setting assignedToId with canAssignTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canAssignTickets permission
+    And I set the assignedToId
+    Then the assignedToId should be updated
+
+  Scenario: Setting serviceId with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I set the serviceId
+    Then the serviceId should be updated
+
+  Scenario: Setting serviceId with canCreateTickets and isEditingOwnTicket
+    When I have a ViolationTicketV1 instance
+    And I have canCreateTickets and isEditingOwnTicket permissions
+    And I set the serviceId
+    Then the serviceId should be updated
+
+  Scenario: Setting title with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I set the title
+    Then the title should be updated
+
+  Scenario: Setting title with canCreateTickets and isEditingOwnTicket
+    When I have a ViolationTicketV1 instance
+    And I have canCreateTickets and isEditingOwnTicket permissions
+    And I set the title
+    Then the title should be updated
+
+  Scenario: Setting description with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I set the description
+    Then the description should be updated
+
+  Scenario: Setting description with canCreateTickets and isEditingOwnTicket
+    When I have a ViolationTicketV1 instance
+    And I have canCreateTickets and isEditingOwnTicket permissions
+    And I set the description
+    Then the description should be updated
+
+  Scenario: Setting ticketType with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I set the ticketType
+    Then the ticketType should be updated
+
+  Scenario: Setting priority with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I set the priority
+    Then the priority should be updated
+
+  Scenario: Setting priority with canCreateTickets and isEditingOwnTicket
+    When I have a ViolationTicketV1 instance
+    And I have canCreateTickets and isEditingOwnTicket permissions
+    And I set the priority
+    Then the priority should be updated
+
+  Scenario: Adding message with canCreateTickets and isEditingOwnTicket
+    When I have a ViolationTicketV1 instance
+    And I have canCreateTickets and isEditingOwnTicket permissions
+    And I add a message
+    Then a new message should be created
+
+  Scenario: Adding message with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I add a message
+    Then a new message should be created
+
+  Scenario: Adding message with canWorkOnTickets and isEditingAssignedTicket
+    When I have a ViolationTicketV1 instance
+    And I have canWorkOnTickets and isEditingAssignedTicket permissions
+    And I add a message
+    Then a new message should be created
+
+  Scenario: Adding photo with canCreateTickets and isEditingOwnTicket
+    When I have a ViolationTicketV1 instance
+    And I have canCreateTickets and isEditingOwnTicket permissions
+    And I add a photo
+    Then a new photo should be created
+
+  Scenario: Adding photo with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I add a photo
+    Then a new photo should be created
+
+  Scenario: Adding status update with canCreateTickets and isEditingOwnTicket
+    When I have a ViolationTicketV1 instance
+    And I have canCreateTickets and isEditingOwnTicket permissions
+    And I add a status update
+    Then a new activity detail should be created
+
+  Scenario: Adding status update with canManageTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I add a status update
+    Then a new activity detail should be created
+
+  Scenario: Adding status update with canAssignTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canAssignTickets permission
+    And I add a status update
+    Then a new activity detail should be created
+
+  Scenario: Setting hash with multiple permission combinations
+    When I have a ViolationTicketV1 instance
+    And I have canManageTickets permission
+    And I set the hash
+    Then the hash should be updated
+
+  Scenario: Setting lastIndexed with canWorkOnTickets and isEditingAssignedTicket
+    When I have a ViolationTicketV1 instance
+    And I have canWorkOnTickets and isEditingAssignedTicket permissions
+    And I set the lastIndexed
+    Then the lastIndexed should be updated
+
+  Scenario: Setting updateIndexFailedDate with canAssignTickets permission
+    When I have a ViolationTicketV1 instance
+    And I have canAssignTickets permission
+    And I set the updateIndexFailedDate
+    Then the updateIndexFailedDate should be updated
+
+  Scenario: Adding valid status transition with canAssignTickets permission
+    When I have a ViolationTicketV1 instance with status "Submitted"
+    And I have canAssignTickets permission
+    And I add a status transition to "Assigned"
+    Then the status should be updated to Assigned
+    And a new activity detail should be created
+
+  Scenario: Adding valid status transition with canWorkOnTickets and isEditingAssignedTicket
+    When I have a ViolationTicketV1 instance with status "Assigned"
+    And I have canWorkOnTickets and isEditingAssignedTicket permissions
+    And I add a status transition to "Paid"
+    Then the status should be updated to Paid
+    And a new activity detail should be created
+
+  Scenario: Adding status transition with invalid permission combination
+    When I have a ViolationTicketV1 instance with status "Submitted"
+    And I have insufficient permissions for status transition
+    And I add a status transition to "Assigned"
+    Then a PermissionError should be thrown

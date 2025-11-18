@@ -121,6 +121,107 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario(
+		'Setting sent by with canManageTickets permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I have canManageTickets permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: true,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: false,
+					}),
+				);
+			});
+
+			And('I set the sent by', () => {
+				message.sentBy = new ValueObjects.SentBy(
+					ValueObjects.SentByCodes.External,
+				);
+			});
+
+			Then('the sent by should be updated', () => {
+				expect(message.sentBy).toBe(ValueObjects.SentByCodes.External);
+			});
+		},
+	);
+
+	Scenario(
+		'Setting sent by with isSystemAccount permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I have isSystemAccount permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: true,
+					}),
+				);
+			});
+
+			And('I set the sent by', () => {
+				message.sentBy = new ValueObjects.SentBy(
+					ValueObjects.SentByCodes.External,
+				);
+			});
+
+			Then('the sent by should be updated', () => {
+				expect(message.sentBy).toBe(ValueObjects.SentByCodes.External);
+			});
+		},
+	);
+
+	Scenario(
+		'Setting sent by without sufficient permissions',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I do not have canManageTickets or isSystemAccount permissions', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: false,
+					}),
+				);
+			});
+
+			And('I set the sent by', () => {
+				expect(() => {
+					message.sentBy = new ValueObjects.SentBy(
+						ValueObjects.SentByCodes.External,
+					);
+				}).toThrow(PermissionError);
+			});
+
+			Then('a PermissionError should be thrown', () => {
+				// Already checked
+			});
+		},
+	);
+
 	Scenario('Setting message with proper permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1Message instance', () => {
 			message = new ViolationTicketV1Message(props, visa);
@@ -160,6 +261,101 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	});
 
 	Scenario(
+		'Setting message with canManageTickets permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I have canManageTickets permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: true,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: false,
+					}),
+				);
+			});
+
+			And('I set the message', () => {
+				message.message = new ValueObjects.Message('Updated message');
+			});
+
+			Then('the message should be updated', () => {
+				expect(message.message).toBe('Updated message');
+			});
+		},
+	);
+
+	Scenario(
+		'Setting message with isSystemAccount permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I have isSystemAccount permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: true,
+					}),
+				);
+			});
+
+			And('I set the message', () => {
+				message.message = new ValueObjects.Message('Updated message');
+			});
+
+			Then('the message should be updated', () => {
+				expect(message.message).toBe('Updated message');
+			});
+		},
+	);
+
+	Scenario(
+		'Setting message without sufficient permissions',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I do not have canManageTickets or isSystemAccount permissions', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: false,
+					}),
+				);
+			});
+
+			And('I set the message', () => {
+				expect(() => {
+					message.message = new ValueObjects.Message('Updated message');
+				}).toThrow(PermissionError);
+			});
+
+			Then('a PermissionError should be thrown', () => {
+				// Already checked
+			});
+		},
+	);
+
+	Scenario(
 		'Setting embedding with proper permissions',
 		({ When, Then, And }) => {
 			When('I have a ViolationTicketV1Message instance', () => {
@@ -181,6 +377,101 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	);
 
 	Scenario(
+		'Setting embedding with canManageTickets permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I have canManageTickets permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: true,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: false,
+					}),
+				);
+			});
+
+			And('I set the embedding', () => {
+				message.embedding = new ValueObjects.Embedding('updated-embedding');
+			});
+
+			Then('the embedding should be updated', () => {
+				expect(message.embedding).toBe('updated-embedding');
+			});
+		},
+	);
+
+	Scenario(
+		'Setting embedding with isSystemAccount permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I have isSystemAccount permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: true,
+					}),
+				);
+			});
+
+			And('I set the embedding', () => {
+				message.embedding = new ValueObjects.Embedding('updated-embedding');
+			});
+
+			Then('the embedding should be updated', () => {
+				expect(message.embedding).toBe('updated-embedding');
+			});
+		},
+	);
+
+	Scenario(
+		'Setting embedding without sufficient permissions',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I do not have canManageTickets or isSystemAccount permissions', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: false,
+					}),
+				);
+			});
+
+			And('I set the embedding', () => {
+				expect(() => {
+					message.embedding = new ValueObjects.Embedding('updated-embedding');
+				}).toThrow(PermissionError);
+			});
+
+			Then('a PermissionError should be thrown', () => {
+				// Already checked
+			});
+		},
+	);
+
+	Scenario(
 		'Setting is hidden from applicant with proper permissions',
 		({ When, Then, And }) => {
 			When('I have a ViolationTicketV1Message instance', () => {
@@ -197,6 +488,166 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 			Then('the visibility should be updated', () => {
 				expect(message.isHiddenFromApplicant).toBe(true);
+			});
+		},
+	);
+
+	Scenario(
+		'Setting isHiddenFromApplicant with canManageTickets permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I have canManageTickets permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: true,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: false,
+					}),
+				);
+			});
+
+			And('I set is hidden from applicant', () => {
+				message.isHiddenFromApplicant = true;
+			});
+
+			Then('the visibility should be updated', () => {
+				expect(message.isHiddenFromApplicant).toBe(true);
+			});
+		},
+	);
+
+	Scenario(
+		'Setting isHiddenFromApplicant with isSystemAccount permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I have isSystemAccount permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: true,
+					}),
+				);
+			});
+
+			And('I set is hidden from applicant', () => {
+				message.isHiddenFromApplicant = true;
+			});
+
+			Then('the visibility should be updated', () => {
+				expect(message.isHiddenFromApplicant).toBe(true);
+			});
+		},
+	);
+
+	Scenario(
+		'Setting isHiddenFromApplicant without sufficient permissions',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I do not have canManageTickets or isSystemAccount permissions', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: false,
+					}),
+				);
+			});
+
+			And('I set is hidden from applicant', () => {
+				expect(() => {
+					message.isHiddenFromApplicant = true;
+				}).toThrow(PermissionError);
+			});
+
+			Then('a PermissionError should be thrown', () => {
+				// Already checked
+			});
+		},
+	);
+
+	Scenario(
+		'Setting createdAt with isSystemAccount permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I have isSystemAccount permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: true,
+					}),
+				);
+			});
+
+			And('I set the createdAt timestamp', () => {
+				const newDate = new Date('2023-01-01T00:00:00Z');
+				message.createdAt = newDate;
+			});
+
+			Then('the createdAt should be updated', () => {
+				expect(message.createdAt).toEqual(new Date('2023-01-01T00:00:00Z'));
+			});
+		},
+	);
+
+	Scenario(
+		'Setting createdAt without isSystemAccount permission',
+		({ When, Then, And }) => {
+			When('I have a ViolationTicketV1Message instance', () => {
+				message = new ViolationTicketV1Message(props, visa);
+			});
+
+			And('I do not have isSystemAccount permission', () => {
+				vi.mocked(visa.determineIf).mockImplementation((predicate) =>
+					predicate({
+						canCreateTickets: false,
+						canManageTickets: false,
+						canAssignTickets: false,
+						canWorkOnTickets: false,
+						isEditingOwnTicket: false,
+						isEditingAssignedTicket: false,
+						isSystemAccount: false,
+					}),
+				);
+			});
+
+			And('I set the createdAt timestamp', () => {
+				expect(() => {
+					message.createdAt = new Date('2023-01-01T00:00:00Z');
+				}).toThrow(PermissionError);
+			});
+
+			Then('a PermissionError should be thrown', () => {
+				// Already checked
 			});
 		},
 	);
