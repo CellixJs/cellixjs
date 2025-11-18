@@ -397,9 +397,8 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 //#region Exports
 export type { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 export type { ServiceTicketV1UnitOfWork } from './service-ticket-v1.uow.ts';
-// Import and re-export value objects to avoid export *
-import * as ValueObjectsImport from './service-ticket-v1.value-objects.ts';
-export const ValueObjects = ValueObjectsImport;
+// Re-export ValueObjects namespace that's already imported at the top
+export { ValueObjects };
 export type { ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.entity.ts';
 export type { ServiceTicketV1MessageProps } from './service-ticket-v1-message.entity.ts';
 //#endregion
