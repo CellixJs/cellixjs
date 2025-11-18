@@ -2,6 +2,7 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
 import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 type StaffRoleModelType = Models.Role.StaffRole;
@@ -41,7 +42,7 @@ export class StaffRoleRepository
 	): Promise<StaffRole.StaffRole<AdapterType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			StaffRole.StaffRole.getNewInstance(
+			StaffRoleClass.getNewInstance(
 				adapter,
 				this.passport,
 				name,
