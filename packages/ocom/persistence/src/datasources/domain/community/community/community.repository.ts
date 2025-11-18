@@ -4,6 +4,8 @@ import type { CommunityDomainAdapter } from './community.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as EndUser from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime import for class constructor
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 
 type CommunityModelType = Models.Community.Community; // ReturnType<typeof Models.Community.CommunityModelFactory> & Models.Community.Community & { baseModelName: string };
 type PropType = CommunityDomainAdapter;
@@ -39,7 +41,7 @@ export class CommunityRepository //<
 	): Promise<Community.Community<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Community.Community.getNewInstance(
+			CommunityClass.getNewInstance(
 				adapter,
 				name,
 				user,
