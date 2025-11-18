@@ -4,6 +4,8 @@ import type { MemberDomainAdapter } from './member.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as Member from '@ocom/domain/contexts/member';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime import for class constructor
+import { Member as MemberClass } from '@ocom/domain/contexts/member';
 
 type MemberModelType = Models.Member.Member; // ReturnType<typeof Models.Member.MemberModelFactory> & Models.Member.Member & { baseModelName: string };
 type PropType = MemberDomainAdapter;
@@ -49,7 +51,7 @@ export class MemberRepository //<
 	): Promise<Member.Member<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Member.Member.getNewInstance(
+			MemberClass.getNewInstance(
 				adapter,
                 this.passport,
 				name,

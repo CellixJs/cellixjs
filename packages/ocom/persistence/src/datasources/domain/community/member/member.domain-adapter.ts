@@ -10,6 +10,11 @@ import type * as Member from '@ocom/domain/contexts/member';
 import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
 import type * as EndUser from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime imports for class constructors
+import { Member as MemberClass } from '@ocom/domain/contexts/member';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { EndUserRole as EndUserRoleClass } from '@ocom/domain/contexts/end-user-role';
+import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 
 export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Member.Member,
@@ -20,7 +25,7 @@ export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			MemberDomainAdapter,
-			Member.Member<MemberDomainAdapter>
+			MemberClass<MemberDomainAdapter>
 		);
 	}
 }
@@ -77,7 +82,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
   }
   set community(community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>) {
     //check to see if community is derived from MongooseDomainAdapter
-    if (community instanceof Community.Community) {
+    if (community instanceof CommunityClass) {
       this.doc.set('community', community.props.doc);
       return;
     }
@@ -112,7 +117,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     return new EndUserRoleDomainAdapter(this.doc.role as Models.Role.EndUserRole);
   }
   set role(role: EndUserRole.EndUserRoleEntityReference | EndUserRole.EndUserRole<EndUserRoleDomainAdapter>) {
-    if (role instanceof EndUserRole.EndUserRole) {
+    if (role instanceof EndUserRoleClass) {
         this.doc.set('role', role.props.doc);
         return;
     }
@@ -168,7 +173,7 @@ export class MemberAccountDomainAdapter implements Member.MemberAccountProps {
   }
 
   set user(user: EndUser.EndUserEntityReference | EndUser.EndUser<EndUserDomainAdapter>) {
-    if (user instanceof EndUser.EndUser) {
+    if (user instanceof EndUserClass) {
       this.doc.set('user', user.props.doc);
       return;
     }
@@ -197,7 +202,7 @@ export class MemberAccountDomainAdapter implements Member.MemberAccountProps {
     return new EndUserDomainAdapter(this.doc.createdBy as Models.User.EndUser);
   }
   set createdBy(createdBy: EndUser.EndUserEntityReference | EndUser.EndUser<EndUserDomainAdapter>) {
-    if (createdBy instanceof EndUser.EndUser) {
+    if (createdBy instanceof EndUserClass) {
       this.doc.set('createdBy', createdBy.props.doc);
       return;
     }
