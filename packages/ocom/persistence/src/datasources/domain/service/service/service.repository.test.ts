@@ -3,12 +3,18 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { ServiceRepository } from './service.repository.ts';
 import { ServiceConverter } from './service.domain-adapter.ts';
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Service from '@ocom/domain/contexts/service';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { Service as ServiceClass } from '@ocom/domain/contexts/service';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -61,13 +67,13 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repository: ServiceRepository;
   let converter: ServiceConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let mockModel: Models.Service.ServiceModelType;
   let result: unknown;
 
@@ -110,7 +116,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getById('123');
     });
     Then('it should return a Service domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Service.Service);
+      expect(result).toBeInstanceOf((Service.Service);
     });
     And('the model\'s findById method should have been called with "123"', () => {
       expect(mockModel.findById).toHaveBeenCalledWith('123');
@@ -118,7 +124,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a service by ID when the service does not exist', ({ Given, When, Then }) => {
-    let gettingServiceThatDoesNotExist: () => Promise<Domain.Service.Service<Domain.Service.ServiceProps>>;
+    let gettingServiceThatDoesNotExist: () => Promise<Service.Service<Service.ServiceProps>>;
     Given('no service document exists in the database with ID "999"', () => {
       // Mock is set up in BeforeEachScenario
     });
@@ -132,15 +138,15 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a new service instance', ({ Given, When, Then }) => {
-    let communityRef: Domain.Community.CommunityEntityReference;
+    let communityRef: Community.CommunityEntityReference;
     Given('a valid community reference', () => {
-      communityRef = { id: '507f1f77bcf86cd799439012' } as Domain.Community.CommunityEntityReference;
+      communityRef = { id: '507f1f77bcf86cd799439012' } as Community.CommunityEntityReference;
     });
     When('I call getNewInstance with service name "New Service", description "New description", and community reference', async () => {
       result = await repository.getNewInstance('New Service', 'New description', communityRef);
     });
     Then('it should return a new Service domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Service.Service);
+      expect(result).toBeInstanceOf((Service.Service);
     });
   });
 });

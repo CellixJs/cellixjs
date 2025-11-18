@@ -2,9 +2,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { create } from './create.ts';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Service from '@ocom/domain/contexts/service';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { Service as ServiceClass } from '@ocom/domain/contexts/service';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,26 +17,26 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/create.feature')
 );
 
-function makeMockCommunity(overrides: Partial<Domain.Community.CommunityEntityReference> = {}) {
+function makeMockCommunity(overrides: Partial<Community.CommunityEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     name: 'Test Community',
     ...overrides,
-  } as Domain.Community.CommunityEntityReference;
+  } as Community.CommunityEntityReference;
 }
 
-function makeMockService(overrides: Partial<Domain.Service.ServiceEntityReference> = {}) {
+function makeMockService(overrides: Partial<Service.ServiceEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439012',
     serviceName: 'Test Service',
     description: 'Test Description',
     ...overrides,
-  } as Domain.Service.ServiceEntityReference;
+  } as Service.ServiceEntityReference;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let dataSources: DataSources;
-  let createService: (command: { serviceName: string; description: string; communityId: string }) => Promise<Domain.Service.ServiceEntityReference>;
+  let createService: (command: { serviceName: string; description: string; communityId: string }) => Promise<Service.ServiceEntityReference>;
 
   BeforeEachScenario(() => {
     dataSources = {
@@ -59,7 +64,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a service successfully', ({ Given, When, Then }) => {
-    let result: Domain.Service.ServiceEntityReference;
+    let result: Service.ServiceEntityReference;
 
     Given('a valid community exists with id "507f1f77bcf86cd799439011"', () => {
       vi.mocked(dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById).mockResolvedValue(makeMockCommunity({ id: '507f1f77bcf86cd799439011' }));

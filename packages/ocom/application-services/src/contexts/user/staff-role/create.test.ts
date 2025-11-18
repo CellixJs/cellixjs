@@ -1,10 +1,13 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
 import { create, type StaffRoleCreateCommandPermissions } from './create.ts';
+// Direct imports from domain package
+import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,7 +15,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/create.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -31,21 +34,21 @@ function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityRe
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as Domain.StaffRole.StaffRoleEntityReference;
+  } as StaffRole.StaffRoleEntityReference;
 }
 
-function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>> = {}) { 
+function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>> = {}) { 
   return {
     getByRoleName: vi.fn(),
     getNewInstance: vi.fn(),
     save: vi.fn(),
     ...overrides,
-  } as unknown as Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>;
+  } as unknown as StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let dataSources: DataSources;
-  let createStaffRole: (command: { roleName: string; isDefault?: boolean; permissions?: StaffRoleCreateCommandPermissions }) => Promise<Domain.StaffRole.StaffRoleEntityReference>;
+  let createStaffRole: (command: { roleName: string; isDefault?: boolean; permissions?: StaffRoleCreateCommandPermissions }) => Promise<StaffRole.StaffRoleEntityReference>;
 
   BeforeEachScenario(() => {
     dataSources = {
@@ -64,7 +67,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a staff role successfully', ({ Given, When, Then }) => {
-    let result: Domain.StaffRole.StaffRoleEntityReference;
+    let result: StaffRole.StaffRoleEntityReference;
 
     Given('a staff role with name "Test Role" does not exist', () => {
       // Mock will be set up in When step
@@ -92,7 +95,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a staff role with permissions', ({ Given, When, Then }) => {
-    let result: Domain.StaffRole.StaffRoleEntityReference;
+    let result: StaffRole.StaffRoleEntityReference;
 
     Given('a staff role with name "Admin Role" does not exist', () => {
       // Mock will be set up in When step

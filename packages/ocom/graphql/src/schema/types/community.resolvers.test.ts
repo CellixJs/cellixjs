@@ -1,11 +1,14 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import type { GraphContext } from '../../init/context.ts';
 import type { CommunityCreateInput } from '../builder/generated.ts';
 import communityResolvers from './community.resolvers.ts';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+
 
 
 const test = { for: describeFeature };
@@ -15,7 +18,7 @@ const feature = await loadFeature(
 );
 
 // Types for test results
-type CommunityEntity = Domain.Community.CommunityEntityReference;
+type CommunityEntity = Community.CommunityEntityReference;
 
 // Helper function to create mock community
 function createMockCommunity(overrides: Partial<CommunityEntity> = {}): CommunityEntity {

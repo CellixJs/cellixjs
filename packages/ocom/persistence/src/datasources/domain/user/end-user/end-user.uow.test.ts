@@ -2,9 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getEndUserUnitOfWork } from './end-user.uow.ts';
+// Direct imports from domain package
+import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
+
 
 
 const test = { for: describeFeature };
@@ -35,18 +39,18 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let endUserModel: Models.User.EndUserModelType;
-  let passport: Domain.Passport;
-  let result: Domain.EndUser.EndUserUnitOfWork;
+  let passport: Passport;
+  let result: EndUser.EndUserUnitOfWork;
 
   BeforeEachScenario(() => {
     endUserModel = makeMockEndUserModel();
     passport = makeMockPassport();
-    result = {} as Domain.EndUser.EndUserUnitOfWork;
+    result = {} as EndUser.EndUserUnitOfWork;
   });
 
   Background(({ Given, And }) => {

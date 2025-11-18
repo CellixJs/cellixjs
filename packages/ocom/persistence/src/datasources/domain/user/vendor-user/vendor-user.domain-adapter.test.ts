@@ -2,8 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
+// Direct imports from domain package
+import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
+
 
 const test = { for: describeFeature };
 import {
@@ -68,7 +72,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -380,13 +384,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: VendorUserConverter;
   let doc: Models.User.VendorUser;
-  let domainObject: Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
-  let result: Domain.VendorUser.VendorUser<VendorUserDomainAdapter> | Models.User.VendorUser | undefined;
+  let domainObject: VendorUser.VendorUser<VendorUserDomainAdapter>;
+  let result: VendorUser.VendorUser<VendorUserDomainAdapter> | Models.User.VendorUser | undefined;
 
   BeforeEachScenario(() => {
     converter = new VendorUserConverter();
     doc = makeVendorUserDoc();
-    domainObject = {} as Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    domainObject = {} as VendorUser.VendorUser<VendorUserDomainAdapter>;
     result = undefined;
   });
 
@@ -404,11 +408,11 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       converter = new VendorUserConverter();
     });
     When('I call toDomain with the Mongoose VendorUser document', () => {
-      result = converter.toDomain(doc, makeMockPassport()) as Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
+      result = converter.toDomain(doc, makeMockPassport()) as VendorUser.VendorUser<VendorUserDomainAdapter>;
     });
     Then('I should receive a VendorUser domain object', () => {
       expect(result).toBeDefined();
-      expect(result).toBeInstanceOf(Domain.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(VendorUserClass);
     });
     And('the domain object\'s userType should be "vendor-user"', () => {
       expect(result?.userType).toBe('vendor-user');
@@ -443,7 +447,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         accessBlocked: true,
         tags: ['tag3'],
       }));
-      domainObject = new Domain.VendorUser.VendorUser(mockAdapter, makeMockPassport());
+      domainObject = new VendorUserClass(mockAdapter, makeMockPassport());
     });
     When('I call toPersistence with the VendorUser domain object', () => {
       result = converter.toPersistence(domainObject) as Models.User.VendorUser;

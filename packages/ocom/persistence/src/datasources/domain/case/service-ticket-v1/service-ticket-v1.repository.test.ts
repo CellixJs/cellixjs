@@ -2,12 +2,20 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 import { ServiceTicketV1Converter, type ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Member from '@ocom/domain/contexts/member';
+import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { Member as MemberClass } from '@ocom/domain/contexts/member';
+import { ServiceTicketV1 as ServiceTicketV1Class } from '@ocom/domain/contexts/service-ticket/v1';
+
 
 
 const test = { for: describeFeature };
@@ -68,17 +76,17 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: ServiceTicketV1Repository;
   let converter: ServiceTicketV1Converter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let serviceTicketDoc: Models.Case.ServiceTicket;
   let communityDoc: Models.Community.Community;
   let memberDoc: Models.Member.Member;
-  let result: Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
+  let result: ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
   BeforeEachScenario(() => {
     communityDoc = makeCommunityDoc();
@@ -91,7 +99,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     converter = new ServiceTicketV1Converter();
     passport = makeMockPassport();
-    result = {} as Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
+    result = {} as ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
     // Mock the Mongoose model as a constructor function with static methods
     const ModelMock = function (this: Models.Case.ServiceTicket) {
@@ -142,7 +150,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a ServiceTicketV1 domain object', () => {
-      expect(result).toBeInstanceOf(Domain.ServiceTicketV1.ServiceTicketV1);
+      expect(result).toBeInstanceOf((ServiceTicketV1.ServiceTicketV1);
     });
     And('the domain object\'s title should be "Test Ticket"', () => {
       expect(result.title).toBe('Test Ticket');
@@ -153,7 +161,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a service ticket by id that does not exist', ({ When, Then }) => {
-    let gettingServiceTicketThatDoesNotExist: () => Promise<Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>>;
+    let gettingServiceTicketThatDoesNotExist: () => Promise<ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>>;
     When('I call getById with "nonexistent-id"', () => {
       gettingServiceTicketThatDoesNotExist = async () => await repo.getById('nonexistent-id');
     });
@@ -164,13 +172,13 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new service ticket instance', ({ Given, When, Then, And }) => {
-    let communityDomainObject: Domain.Community.CommunityEntityReference;
-    let requestorDomainObject: Domain.Member.MemberEntityReference;
+    let communityDomainObject: Community.CommunityEntityReference;
+    let requestorDomainObject: Member.MemberEntityReference;
     Given('a valid Community domain object as the community', () => {
-      communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Domain.Community.CommunityEntityReference;
+      communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Community.CommunityEntityReference;
     });
     And('a valid Member domain object as the requestor', () => {
-      requestorDomainObject = { id: '507f1f77bcf86cd799439013', memberName: 'Test Member' } as Domain.Member.MemberEntityReference;
+      requestorDomainObject = { id: '507f1f77bcf86cd799439013', memberName: 'Test Member' } as Member.MemberEntityReference;
     });
     When('I call getNewInstance with title "New Ticket", description "New Description", community, and requestor', async () => {
       result = await repo.getNewInstance(
@@ -181,7 +189,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       );
     });
     Then('I should receive a new ServiceTicketV1 domain object', () => {
-      expect(result).toBeInstanceOf(Domain.ServiceTicketV1.ServiceTicketV1);
+      expect(result).toBeInstanceOf((ServiceTicketV1.ServiceTicketV1);
     });
     And('the domain object\'s title should be "New Ticket"', () => {
       expect(result.title).toBe('New Ticket');

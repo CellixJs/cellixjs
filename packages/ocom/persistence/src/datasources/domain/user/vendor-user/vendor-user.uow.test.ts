@@ -2,9 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getVendorUserUnitOfWork } from './vendor-user.uow.ts';
+// Direct imports from domain package
+import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -29,18 +33,18 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let vendorUserModel: Models.User.VendorUserModelType;
-  let passport: Domain.Passport;
-  let result: Domain.VendorUser.VendorUserUnitOfWork;
+  let passport: Passport;
+  let result: VendorUser.VendorUserUnitOfWork;
 
   BeforeEachScenario(() => {
     vendorUserModel = makeMockVendorUserModel();
     passport = makeMockPassport();
-    result = {} as Domain.VendorUser.VendorUserUnitOfWork;
+    result = {} as VendorUser.VendorUserUnitOfWork;
   });
 
   Background(({ Given, And }) => {

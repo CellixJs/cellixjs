@@ -2,9 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getPropertyUnitOfWork } from './property.uow.ts';
+// Direct imports from domain package
+import type * as Property from '@ocom/domain/contexts/property';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { Property as PropertyClass } from '@ocom/domain/contexts/property';
+
 
 
 const test = { for: describeFeature };
@@ -35,18 +39,18 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let propertyModel: Models.Property.PropertyModelType;
-  let passport: Domain.Passport;
-  let result: Domain.Property.PropertyUnitOfWork;
+  let passport: Passport;
+  let result: Property.PropertyUnitOfWork;
 
   BeforeEachScenario(() => {
     propertyModel = makeMockPropertyModel();
     passport = makeMockPassport();
-    result = {} as Domain.Property.PropertyUnitOfWork;
+    result = {} as Property.PropertyUnitOfWork;
   });
 
   Background(({ Given, And }) => {

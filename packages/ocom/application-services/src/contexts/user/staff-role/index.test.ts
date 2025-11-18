@@ -2,7 +2,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
 // Mock the individual service modules
@@ -27,6 +26,10 @@ import { create } from './create.ts';
 import { deleteAndReassign } from './delete-and-reassign.ts';
 import { queryById } from './query-by-id.ts';
 import { queryByRoleName } from './query-by-role-name.ts';
+// Direct imports from domain package
+import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -34,7 +37,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/index.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -53,7 +56,7 @@ function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityRe
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as Domain.StaffRole.StaffRoleEntityReference;
+  } as StaffRole.StaffRoleEntityReference;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
@@ -91,7 +94,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a staff role through the application service', ({ Given, When, Then }) => {
-    let result: Domain.StaffRole.StaffRoleEntityReference;
+    let result: StaffRole.StaffRoleEntityReference;
 
     Given('a staff role application service', () => {
       expect(service).toBeDefined();
@@ -123,7 +126,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by ID through the application service', ({ Given, When, Then }) => {
-    let result: Domain.StaffRole.StaffRoleEntityReference | null;
+    let result: StaffRole.StaffRoleEntityReference | null;
 
     Given('a staff role application service', () => {
       expect(service).toBeDefined();
@@ -140,7 +143,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by name through the application service', ({ Given, When, Then }) => {
-    let result: Domain.StaffRole.StaffRoleEntityReference | null;
+    let result: StaffRole.StaffRoleEntityReference | null;
 
     Given('a staff role application service', () => {
       expect(service).toBeDefined();

@@ -3,7 +3,6 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import {
   ServiceTicketV1Converter,
@@ -13,6 +12,15 @@ import {
 } from './service-ticket-v1.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Member from '@ocom/domain/contexts/member';
+import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { Member as MemberClass } from '@ocom/domain/contexts/member';
+import { ServiceTicketV1 as ServiceTicketV1Class } from '@ocom/domain/contexts/service-ticket/v1';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -102,7 +110,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -453,7 +461,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting activity detail properties', ({ Given, When, Then, And }) => {
-    let activityDetail: Domain.ServiceTicketV1.ServiceTicketV1ActivityDetailProps;
+    let activityDetail: ServiceTicketV1.ServiceTicketV1ActivityDetailProps;
 
     Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document', () => {
       const activityDoc = makeActivityDetailDoc();
@@ -498,7 +506,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting message properties', ({ Given, When, Then, And }) => {
-    let message: Domain.ServiceTicketV1.ServiceTicketV1MessageProps;
+    let message: ServiceTicketV1.ServiceTicketV1MessageProps;
 
     Given('a ServiceTicketV1MessageDomainAdapter for a document', () => {
       const messageDoc = makeMessageDoc();
@@ -544,7 +552,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Loading activityBy when already populated', ({ Given, When, Then }) => {
     let activityDoc: Models.Case.ServiceTicketActivityDetail;
-    let result: Domain.Member.MemberEntityReference;
+    let result: Member.MemberEntityReference;
 
     Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document with populated activityBy', () => {
       const memberDoc = makeMemberDoc();
@@ -558,7 +566,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     Then('it should return a Member entity reference', () => {
-      const memberRef = result as Domain.Member.MemberEntityReference;
+      const memberRef = result as Member.MemberEntityReference;
       expect(memberRef).toBeDefined();
       expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
     });
@@ -566,7 +574,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Loading activityBy when not populated', ({ Given, When, Then }) => {
     let activityDoc: Models.Case.ServiceTicketActivityDetail;
-    let result: Domain.Member.MemberEntityReference;
+    let result: Member.MemberEntityReference;
 
     Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document with activityBy as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
@@ -587,7 +595,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     Then('it should populate and return a Member entity reference', () => {
       expect(activityDoc.populate).toHaveBeenCalledWith('activityBy');
-      const memberRef = result as Domain.Member.MemberEntityReference;
+      const memberRef = result as Member.MemberEntityReference;
       expect(memberRef).toBeDefined();
       expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
     });
@@ -595,7 +603,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Loading initiatedBy when already populated', ({ Given, When, Then }) => {
     let messageDoc: Models.Case.ServiceTicketMessage;
-    let result: Domain.Member.MemberEntityReference;
+    let result: Member.MemberEntityReference;
 
     Given('a ServiceTicketV1MessageDomainAdapter for a document with populated initiatedBy', () => {
       const memberDoc = makeMemberDoc();
@@ -609,7 +617,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     Then('it should return a Member entity reference', () => {
-      const memberRef = result as Domain.Member.MemberEntityReference;
+      const memberRef = result as Member.MemberEntityReference;
       expect(memberRef).toBeDefined();
       expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
     });
@@ -617,7 +625,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Loading initiatedBy when not populated', ({ Given, When, Then }) => {
     let messageDoc: Models.Case.ServiceTicketMessage;
-    let result: Domain.Member.MemberEntityReference;
+    let result: Member.MemberEntityReference;
 
     Given('a ServiceTicketV1MessageDomainAdapter for a document with initiatedBy as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
@@ -638,7 +646,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     Then('it should populate and return a Member entity reference', () => {
       expect(messageDoc.populate).toHaveBeenCalledWith('initiatedBy');
-      const memberRef = result as Domain.Member.MemberEntityReference;
+      const memberRef = result as Member.MemberEntityReference;
       expect(memberRef).toBeDefined();
       expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
     });
@@ -699,7 +707,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Loading the community when already populated', ({ Given, When, Then }) => {
-    let result: Domain.Community.CommunityEntityReference;
+    let result: Community.CommunityEntityReference;
     Given('a ServiceTicketV1DomainAdapter for the document with populated community', () => {
       const communityDoc = makeCommunityDoc();
       doc = makeServiceTicketDoc({ community: communityDoc });
@@ -714,7 +722,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Loading the community when not populated', ({ Given, When, Then }) => {
-    let result: Domain.Community.CommunityEntityReference;
+    let result: Community.CommunityEntityReference;
     Given('a ServiceTicketV1DomainAdapter for the document with community as an ObjectId', () => {
       const communityDoc = makeCommunityDoc();
       doc = makeServiceTicketDoc({ community: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012') });
@@ -736,7 +744,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Loading the requestor when already populated', ({ Given, When, Then }) => {
-    let result: Domain.Member.MemberProps;
+    let result: Member.MemberProps;
     Given('a ServiceTicketV1DomainAdapter for the document with populated requestor', () => {
       const memberDoc = makeMemberDoc();
       doc = makeServiceTicketDoc({ requestor: memberDoc });
@@ -751,7 +759,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Loading the requestor when not populated', ({ Given, When, Then }) => {
-    let result: Domain.Member.MemberProps;
+    let result: Member.MemberProps;
     Given('a ServiceTicketV1DomainAdapter for the document with requestor as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
       doc = makeServiceTicketDoc({ requestor: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
@@ -773,9 +781,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Setting the community property', ({ Given, When, Then }) => {
-    let communityRef: Domain.Community.CommunityEntityReference;
+    let communityRef: Community.CommunityEntityReference;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
-      communityRef = { id: '507f1f77bcf86cd799439012' } as Domain.Community.CommunityEntityReference;
+      communityRef = { id: '507f1f77bcf86cd799439012' } as Community.CommunityEntityReference;
       // Already set up
     });
     When('I set the community property to a Community entity reference', () => {
@@ -787,9 +795,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Setting the requestor property', ({ Given, When, Then }) => {
-    let memberRef: Domain.Member.MemberEntityReference;
+    let memberRef: Member.MemberEntityReference;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
-      memberRef = { id: '507f1f77bcf86cd799439013' } as Domain.Member.MemberEntityReference;
+      memberRef = { id: '507f1f77bcf86cd799439013' } as Member.MemberEntityReference;
       // Already set up
     });
     When('I set the requestor property to a Member entity reference', () => {
@@ -801,11 +809,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Setting the community property with a domain object', ({ Given, When, Then }) => {
-    let communityDomainObj: Domain.Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
       const communityDoc = makeCommunityDoc();
       const communityAdapter = new CommunityDomainAdapter(communityDoc);
-      communityDomainObj = new Domain.Community.Community(communityAdapter, makeMockPassport());
+      communityDomainObj = new CommunityClass(communityAdapter, makeMockPassport());
       // Already set up
     });
     When('I set the community property to a Community domain object', () => {
@@ -817,10 +825,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Setting the community property with missing id', ({ Given, When, Then }) => {
-    let communityRef: Domain.Community.CommunityEntityReference;
+    let communityRef: Community.CommunityEntityReference;
     let setCommunityWithoutId: () => void;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
-      communityRef = { id: '' } as Domain.Community.CommunityEntityReference; // Missing id
+      communityRef = { id: '' } as Community.CommunityEntityReference; // Missing id
       // Already set up
     });
     When('I set the community property to a reference without id', () => {
@@ -839,12 +847,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Setting the requestor property with a domain object', ({ Given, When, Then }) => {
-    let memberDomainObj: Domain.Member.Member<MemberDomainAdapter>;
+    let memberDomainObj: Member.Member<MemberDomainAdapter>;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
       const communityDoc = makeCommunityDoc();
       const memberDoc = makeMemberDoc({ community: communityDoc });
       const memberAdapter = new MemberDomainAdapter(memberDoc);
-      memberDomainObj = new Domain.Member.Member(memberAdapter, makeMockPassport());
+      memberDomainObj = new MemberClass(memberAdapter, makeMockPassport());
       // Already set up
     });
     When('I set the requestor property to a Member domain object', () => {
@@ -856,10 +864,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Setting the requestor property with missing id', ({ Given, When, Then }) => {
-    let memberRef: Domain.Member.MemberEntityReference;
+    let memberRef: Member.MemberEntityReference;
     let setRequestorWithoutId: () => void;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
-      memberRef = { id: '' } as Domain.Member.MemberEntityReference; // Missing id
+      memberRef = { id: '' } as Member.MemberEntityReference; // Missing id
       // Already set up
     });
     When('I set the requestor property to a reference without id', () => {
@@ -965,14 +973,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: ServiceTicketV1Converter;
   let doc: Models.Case.ServiceTicket;
-  let passport: Domain.Passport;
-  let result: Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
+  let passport: Passport;
+  let result: ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
   BeforeEachScenario(() => {
     converter = new ServiceTicketV1Converter();
     doc = makeServiceTicketDoc();
     passport = makeMockPassport();
-    result = {} as Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
+    result = {} as ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
   });
 
   Background(({ Given }) => {
@@ -1001,24 +1009,24 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a ServiceTicketV1 domain object', () => {
-      expect(result).toBeInstanceOf(Domain.ServiceTicketV1.ServiceTicketV1);
+      expect(result).toBeInstanceOf((ServiceTicketV1.ServiceTicketV1);
     });
     And('the domain object\'s title should be "Test Ticket"', () => {
-      expect((result as Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).title).toBe('Test Ticket');
+      expect((result as ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).title).toBe('Test Ticket');
     });
     And('the domain object\'s description should be "Test Description"', () => {
-      expect((result as Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).description).toBe('Test Description');
+      expect((result as ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).description).toBe('Test Description');
     });
     And('the domain object\'s status should be "open"', () => {
-      expect((result as Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).status).toBe('open');
+      expect((result as ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).status).toBe('open');
     });
     And('the domain object\'s priority should be 1', () => {
-      expect((result as Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).priority).toBe(1);
+      expect((result as ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).priority).toBe(1);
     });
   });
 
   Scenario('Converting a domain object to a Mongoose ServiceTicket document', ({ Given, And, When, Then }) => {
-    let domainObj: Domain.ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
+    let domainObj: ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let memberAdapter: MemberDomainAdapter;
     let resultDoc: Models.Case.ServiceTicket;
@@ -1041,7 +1049,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         requestor: memberDoc,
       });
       const adapter = new ServiceTicketV1DomainAdapter(ticketDoc);
-      domainObj = new Domain.ServiceTicketV1.ServiceTicketV1(adapter, passport);
+      domainObj = new ServiceTicketV1Class(adapter, passport);
     });
     When('I call toPersistence with the ServiceTicketV1 domain object', () => {
       resultDoc = converter.toPersistence(domainObj);

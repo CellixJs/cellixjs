@@ -2,8 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
+// Direct imports from domain package
+import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
+
 
 const test = { for: describeFeature };
 import {
@@ -52,7 +56,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -423,7 +427,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.User.EndUser;
   let converter: EndUserConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -450,30 +454,30 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive an EndUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.EndUser.EndUser);
+      expect(result).toBeInstanceOf((EndUser.EndUser);
     });
     And('the domain object\'s userType should be "end-user"', () => {
-      expect((result as Domain.EndUser.EndUser<EndUserDomainAdapter>).userType).toBe('end-user');
+      expect((result as EndUser.EndUser<EndUserDomainAdapter>).userType).toBe('end-user');
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174001"', () => {
-      expect((result as Domain.EndUser.EndUser<EndUserDomainAdapter>).externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
+      expect((result as EndUser.EndUser<EndUserDomainAdapter>).externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
     });
     And('the domain object\'s email should be "user@example.com"', () => {
-      expect((result as Domain.EndUser.EndUser<EndUserDomainAdapter>).email).toBe('user@example.com');
+      expect((result as EndUser.EndUser<EndUserDomainAdapter>).email).toBe('user@example.com');
     });
     And('the domain object\'s displayName should be "Test User"', () => {
-      expect((result as Domain.EndUser.EndUser<EndUserDomainAdapter>).displayName).toBe('Test User');
+      expect((result as EndUser.EndUser<EndUserDomainAdapter>).displayName).toBe('Test User');
     });
     And('the domain object\'s accessBlocked should be false', () => {
-      expect((result as Domain.EndUser.EndUser<EndUserDomainAdapter>).accessBlocked).toBe(false);
+      expect((result as EndUser.EndUser<EndUserDomainAdapter>).accessBlocked).toBe(false);
     });
     And('the domain object\'s tags should be ["tag1", "tag2"]', () => {
-      expect((result as Domain.EndUser.EndUser<EndUserDomainAdapter>).tags).toEqual(['tag1', 'tag2']);
+      expect((result as EndUser.EndUser<EndUserDomainAdapter>).tags).toEqual(['tag1', 'tag2']);
     });
   });
 
   Scenario('Converting a domain object to a Mongoose EndUser document', ({ Given, And, When, Then }) => {
-    let domainObj: Domain.EndUser.EndUser<EndUserDomainAdapter>;
+    let domainObj: EndUser.EndUser<EndUserDomainAdapter>;
     let resultDoc: Models.User.EndUser;
     Given('an EndUserConverter instance', () => {
       converter = new EndUserConverter();
@@ -487,7 +491,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         accessBlocked: true,
         tags: ['admin'],
       }));
-      domainObj = new Domain.EndUser.EndUser(adapter, passport);
+      domainObj = new EndUserClass(adapter, passport);
     });
     When('I call toPersistence with the EndUser domain object', () => {
       resultDoc = converter.toPersistence(domainObj);

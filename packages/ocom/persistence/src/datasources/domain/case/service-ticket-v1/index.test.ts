@@ -2,9 +2,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { ServiceTicketV1Persistence } from './index.ts';
+// Direct imports from domain package
+import type { Passport } from '@ocom/domain/contexts/passport';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -38,12 +40,12 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof ServiceTicketV1Persistence>[0];
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof ServiceTicketV1Persistence>;
 
   BeforeEachScenario(() => {

@@ -3,9 +3,15 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { EndUserRole as EndUserRoleClass } from '@ocom/domain/contexts/end-user-role';
+
 
 const test = { for: describeFeature };
 import {
@@ -94,7 +100,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -193,13 +199,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Setting the community property with a valid Community domain object', ({ Given, And, When, Then }) => {
-    let communityDomainObj: Domain.Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
     Given('an EndUserRoleDomainAdapter for the document', () => {
       adapter = new EndUserRoleDomainAdapter(doc);
     });
     And('a valid Community domain object', () => {
       communityAdapter = new CommunityDomainAdapter(communityDoc);
-      communityDomainObj = new Domain.Community.Community(communityAdapter, makeMockPassport());
+      communityDomainObj = new CommunityClass(communityAdapter, makeMockPassport());
     });
     When('I set the community property to the Community domain object', () => {
       adapter.community = communityDomainObj;
@@ -667,7 +673,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   let doc: Models.Role.EndUserRole;
   let communityDoc: Models.Community.Community;
   let converter: EndUserRoleConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -700,24 +706,24 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive an EndUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.EndUserRole.EndUserRole);
+      expect(result).toBeInstanceOf((EndUserRole.EndUserRole);
     });
     And('the domain object\'s roleName should be "Test Role"', () => {
-      expect((result as Domain.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
+      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
     });
     And('the domain object\'s isDefault should be true', () => {
-      expect((result as Domain.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(true);
+      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(true);
     });
     And('the domain object\'s community should be a Community domain object', () => {
-      const { community } = result as Domain.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
-      expect(community).toBeInstanceOf(Domain.Community.Community);
+      const { community } = result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
+      expect(community).toBeInstanceOf((Community.Community);
     });
   });
 
   Scenario('Converting a domain object to a Mongoose EndUserRole document', ({ Given, And, When, Then }) => {
-    let domainObj: Domain.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
+    let domainObj: EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Domain.Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
     let resultDoc: Models.Role.EndUserRole;
 
     Given('an EndUserRoleConverter instance', () => {
@@ -725,7 +731,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     And('an EndUserRole domain object with roleName "New Role", isDefault false, and valid community', () => {
       communityAdapter = new CommunityDomainAdapter(communityDoc);
-      communityDomainObj = new Domain.Community.Community(communityAdapter, passport);
+      communityDomainObj = new CommunityClass(communityAdapter, passport);
 
       const roleDoc = makeEndUserRoleDoc({
         roleName: 'New Role',
@@ -734,7 +740,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       });
       const adapter = new EndUserRoleDomainAdapter(roleDoc);
       adapter.community = communityDomainObj;
-      domainObj = new Domain.EndUserRole.EndUserRole(adapter, passport);
+      domainObj = new EndUserRoleClass(adapter, passport);
     });
     When('I call toPersistence with the EndUserRole domain object', () => {
       resultDoc = converter.toPersistence(domainObj);

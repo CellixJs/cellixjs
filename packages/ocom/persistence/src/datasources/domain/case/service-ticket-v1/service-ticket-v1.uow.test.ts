@@ -2,9 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getServiceTicketV1UnitOfWork } from './service-ticket-v1.uow.ts';
+// Direct imports from domain package
+import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { ServiceTicketV1 as ServiceTicketV1Class } from '@ocom/domain/contexts/service-ticket/v1';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -34,18 +38,18 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let serviceTicketModel: Models.Case.ServiceTicketModelType;
-  let passport: Domain.Passport;
-  let result: Domain.ServiceTicketV1.ServiceTicketV1UnitOfWork;
+  let passport: Passport;
+  let result: ServiceTicketV1.ServiceTicketV1UnitOfWork;
 
   BeforeEachScenario(() => {
     serviceTicketModel = makeMockServiceTicketModel();
     passport = makeMockPassport();
-    result = {} as Domain.ServiceTicketV1.ServiceTicketV1UnitOfWork;
+    result = {} as ServiceTicketV1.ServiceTicketV1UnitOfWork;
   });
 
   Background(({ Given, And }) => {

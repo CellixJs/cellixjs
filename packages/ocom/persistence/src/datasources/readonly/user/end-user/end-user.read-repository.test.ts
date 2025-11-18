@@ -3,11 +3,13 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { EndUserReadRepositoryImpl } from './end-user.read-repository.ts';
 import { EndUserDataSourceImpl } from './end-user.data.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
+// Direct imports from domain package
+import type { Passport } from '@ocom/domain/contexts/passport';
+
 
 // Mock the data source module
 
@@ -41,7 +43,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 function makeMockEndUserDocument() {
@@ -59,7 +61,7 @@ function makeMockEndUserDocument() {
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let repository: EndUserReadRepositoryImpl;
   let mockEndUserDoc: Models.User.EndUser;
   let mockDataSource: {

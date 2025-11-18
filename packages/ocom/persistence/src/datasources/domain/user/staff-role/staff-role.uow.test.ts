@@ -2,9 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getStaffRoleUnitOfWork } from './staff-role.uow.ts';
+// Direct imports from domain package
+import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -29,18 +33,18 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let staffRoleModel: Models.Role.StaffRoleModelType;
-  let passport: Domain.Passport;
-  let result: Domain.StaffRole.StaffRoleUnitOfWork;
+  let passport: Passport;
+  let result: StaffRole.StaffRoleUnitOfWork;
 
   BeforeEachScenario(() => {
     staffRoleModel = makeMockStaffRoleModel();
     passport = makeMockPassport();
-    result = {} as Domain.StaffRole.StaffRoleUnitOfWork;
+    result = {} as StaffRole.StaffRoleUnitOfWork;
   });
 
   Background(({ Given, And }) => {

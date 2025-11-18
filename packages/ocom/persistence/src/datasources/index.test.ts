@@ -3,9 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../index.ts';
-import type { DomainDataSource } from '@ocom/domain';
 import type { ReadonlyDataSource } from './readonly/index.ts';
 
 // Mock the domain data source implementation
@@ -18,18 +16,20 @@ vi.mock('./readonly/index.ts', () => ({
   ReadonlyDataSourceImplementation: vi.fn(),
 }));
 
-// Mock the Domain module for PassportFactory
-vi.mock('@ocom/domain', () => ({
-  Domain: {
-    PassportFactory: {
-      forSystem: vi.fn(),
-    },
+// Mock PassportFactory
+vi.mock('@ocom/domain/contexts/passport', () => ({
+  PassportFactory: {
+    forSystem: vi.fn(),
   },
 }));
 
 import { DataSourcesFactoryImpl } from './index.ts';
 import { DomainDataSourceImplementation } from './domain/index.ts';
 import { ReadonlyDataSourceImplementation } from './readonly/index.ts';
+// Direct imports from domain package
+import type { Passport } from '@ocom/domain/contexts/passport';
+
+import { PassportFactory } from '@ocom/domain/contexts/passport';
 
 
 const test = { for: describeFeature };
@@ -111,7 +111,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 function makeMockDataSources() {
@@ -167,7 +167,7 @@ function makeMockDataSources() {
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: ModelsContext;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let factory: ReturnType<typeof DataSourcesFactoryImpl>;
   let mockDataSources: ReturnType<typeof makeMockDataSources>;
 
@@ -181,7 +181,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     vi.mocked(ReadonlyDataSourceImplementation).mockReturnValue(mockDataSources.readonlyDataSource);
 
     // Mock the system passport
-    vi.mocked(Domain.PassportFactory.forSystem).mockReturnValue(passport);
+    vi.mocked(PassportFactory.forSystem).mockReturnValue(passport);
 
     factory = DataSourcesFactoryImpl(models);
   });

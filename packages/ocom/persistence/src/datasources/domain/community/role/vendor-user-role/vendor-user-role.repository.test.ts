@@ -3,11 +3,17 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';
 import { VendorUserRoleConverter, type VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 import { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as VendorUserRole from '@ocom/domain/contexts/vendor-user-role';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { VendorUserRole as VendorUserRoleClass } from '@ocom/domain/contexts/vendor-user-role';
+
 
 
 const test = { for: describeFeature };
@@ -82,14 +88,14 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let model: Models.Role.VendorUserRoleModelType;
   let converter: VendorUserRoleConverter;
   let repository: VendorUserRoleRepository;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let communityDoc: Models.Community.Community;
   let result: unknown;
 
@@ -151,10 +157,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a VendorUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.VendorUserRole.VendorUserRole);
+      expect(result).toBeInstanceOf((VendorUserRole.VendorUserRole);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
-      expect((result as Domain.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
+      expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
     });
   });
 
@@ -171,22 +177,22 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new vendor user role instance', ({ Given, When, Then, And }) => {
-    let communityDomainObj: Domain.Community.CommunityEntityReference;
+    let communityDomainObj: Community.CommunityEntityReference;
 
     Given('a valid Community domain object as the community', () => {
-      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Domain.Community.CommunityEntityReference;
+      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Community.CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "New Vendor Role", isDefault false, and the community', async () => {
       result = await repository.getNewInstance('New Vendor Role', false, communityDomainObj);
     });
     Then('I should receive a new VendorUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.VendorUserRole.VendorUserRole);
+      expect(result).toBeInstanceOf((VendorUserRole.VendorUserRole);
     });
     And('the domain object\'s roleName should be "New Vendor Role"', () => {
-      expect((result as Domain.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('New Vendor Role');
+      expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('New Vendor Role');
     });
     And('the domain object\'s isDefault should be false', () => {
-      expect((result as Domain.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(false);
+      expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(false);
     });
   });
 });

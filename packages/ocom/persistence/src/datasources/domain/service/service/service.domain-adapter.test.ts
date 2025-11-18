@@ -3,13 +3,19 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import {
   ServiceConverter,
   ServiceDomainAdapter,
 } from './service.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Service from '@ocom/domain/contexts/service';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { Service as ServiceClass } from '@ocom/domain/contexts/service';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -65,7 +71,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -196,13 +202,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Setting the community property with a valid Community domain object', ({ Given, And, When, Then }) => {
-    let communityDomainObj: Domain.Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
     Given('a ServiceDomainAdapter for the document', () => {
       adapter = new ServiceDomainAdapter(doc);
     });
     And('a valid Community domain object', () => {
       communityAdapter = new CommunityDomainAdapter(communityDoc);
-      communityDomainObj = new Domain.Community.Community(communityAdapter, makeMockPassport());
+      communityDomainObj = new CommunityClass(communityAdapter, makeMockPassport());
     });
     When('I set the community property to the Community domain object', () => {
       adapter.setCommunityRef(communityDomainObj);
@@ -261,7 +267,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   let doc: Models.Service.Service;
   let communityDoc: Models.Community.Community;
   let converter: ServiceConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -294,20 +300,20 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = converter.toDomain(doc, passport);
     });
     Then('I should receive a Service domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Service.Service);
+      expect(result).toBeInstanceOf((Service.Service);
     });
     And('the domain object\'s serviceName should be "Test Service"', () => {
-      expect((result as Domain.Service.Service<ServiceDomainAdapter>).serviceName).toBe('Test Service');
+      expect((result as Service.Service<ServiceDomainAdapter>).serviceName).toBe('Test Service');
     });
     And('the domain object\'s description should be "Test service description"', () => {
-      expect((result as Domain.Service.Service<ServiceDomainAdapter>).description).toBe('Test service description');
+      expect((result as Service.Service<ServiceDomainAdapter>).description).toBe('Test service description');
     });
   });
 
   Scenario('Converting a domain object to a Mongoose Service document', ({ Given, And, When, Then }) => {
-    let domainObj: Domain.Service.Service<ServiceDomainAdapter>;
+    let domainObj: Service.Service<ServiceDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Domain.Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
     let resultDoc: Models.Service.Service;
 
     Given('a ServiceConverter instance', () => {
@@ -315,7 +321,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     And('a Service domain object with serviceName "New Service", description "New description", and valid community', () => {
       communityAdapter = new CommunityDomainAdapter(communityDoc);
-      communityDomainObj = new Domain.Community.Community(communityAdapter, passport);
+      communityDomainObj = new CommunityClass(communityAdapter, passport);
 
       const serviceDoc = makeServiceDoc({
         serviceName: 'New Service',
@@ -324,7 +330,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       });
       const adapter = new ServiceDomainAdapter(serviceDoc);
       adapter.setCommunityRef(communityDomainObj);
-      domainObj = new Domain.Service.Service(adapter, passport);
+      domainObj = new ServiceClass(adapter, passport);
     });
     When('I call toPersistence with the Service domain object', () => {
       resultDoc = converter.toPersistence(domainObj);

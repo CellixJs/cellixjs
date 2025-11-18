@@ -2,12 +2,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { EndUserRepository } from './end-user.repository.ts';
 import { EndUserConverter, type EndUserDomainAdapter } from './end-user.domain-adapter.ts';
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
+// Direct imports from domain package
+import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
+
 
 
 const test = { for: describeFeature };
@@ -50,13 +54,13 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: EndUserRepository<EndUserDomainAdapter>;
   let converter: EndUserConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let endUserDoc: Models.User.EndUser;
   let model: Models.User.EndUserModelType;
   let eventBus: DomainSeedwork.EventBus;
@@ -111,12 +115,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting an end user by externalId', ({ When, Then, And }) => {
-    let result: Domain.EndUser.EndUser<EndUserDomainAdapter>;
+    let result: EndUser.EndUser<EndUserDomainAdapter>;
     When('I call getByExternalId with "123e4567-e89b-12d3-a456-426614174001"', async () => {
       result = await repo.getByExternalId('123e4567-e89b-12d3-a456-426614174001');
     });
     Then('I should receive an EndUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.EndUser.EndUser);
+      expect(result).toBeInstanceOf((EndUser.EndUser);
     });
     And('the domain object\'s email should be "user@example.com"', () => {
       expect(result.email).toBe('user@example.com');
@@ -138,7 +142,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new end user instance', ({ When, Then, And }) => {
-    let result: Domain.EndUser.EndUser<EndUserDomainAdapter>;
+    let result: EndUser.EndUser<EndUserDomainAdapter>;
     When('I call getNewInstance with externalId "123e4567-e89b-12d3-a456-426614174002", lastName "Smith", restOfName "Alice", and email "alice@example.com"', async () => {
       result = await repo.getNewInstance(
         '123e4567-e89b-12d3-a456-426614174002',
@@ -148,7 +152,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       );
     });
     Then('I should receive a new EndUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.EndUser.EndUser);
+      expect(result).toBeInstanceOf((EndUser.EndUser);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174002"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174002');
@@ -162,7 +166,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new end user instance with no restOfName', ({ When, Then, And }) => {
-    let result: Domain.EndUser.EndUser<EndUserDomainAdapter>;
+    let result: EndUser.EndUser<EndUserDomainAdapter>;
     When('I call getNewInstance with externalId "123e4567-e89b-12d3-a456-426614174003", lastName "Smith", restOfName undefined, and email "smith@example.com"', async () => {
       result = await repo.getNewInstance(
         '123e4567-e89b-12d3-a456-426614174003',
@@ -172,14 +176,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       );
     });
     Then('I should receive a new EndUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.EndUser.EndUser);
+      expect(result).toBeInstanceOf((EndUser.EndUser);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174003"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174003');
     });
     And('the domain object\'s displayName should be "Smith"', () => {
       expect(result.displayName).toBe('Smith');
-      expect((result as Domain.EndUser.EndUser<EndUserDomainAdapter>).displayName).toBe('Smith');
+      expect((result as EndUser.EndUser<EndUserDomainAdapter>).displayName).toBe('Smith');
     });
     And('the domain object\'s email should be "smith@example.com"', () => {
       expect(result.personalInformation.contactInformation.email).toBe('smith@example.com');

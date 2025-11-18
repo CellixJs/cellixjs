@@ -3,10 +3,13 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
 import { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
+// Direct imports from domain package
+import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -112,7 +115,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(adapter.role).toBeUndefined();
     });
     When('I set the role reference to a valid role', () => {
-      const roleRef = { id: '507f1f77bcf86cd799439012' } as Domain.StaffRole.StaffRoleEntityReference;
+      const roleRef = { id: '507f1f77bcf86cd799439012' } as StaffRole.StaffRoleEntityReference;
       adapter.setRoleRef(roleRef);
     });
     Then('the document\'s role should be set to the ObjectId', () => {

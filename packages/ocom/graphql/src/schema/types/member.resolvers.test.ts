@@ -2,9 +2,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Domain } from '@ocom/domain';
 import type { GraphContext } from '../../init/context.ts';
 import memberResolvers from './member.resolvers.ts';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as Member from '@ocom/domain/contexts/member';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { Member as MemberClass } from '@ocom/domain/contexts/member';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,8 +19,8 @@ const feature = await loadFeature(
 
 type CommunityEntity = { id: string; name: string };
 type MemberEntity = { id: string; communityId: string };
-type CommunityReference = Domain.Community.CommunityEntityReference;
-type MemberReference = Domain.Member.MemberEntityReference;
+type CommunityReference = Community.CommunityEntityReference;
+type MemberReference = Member.MemberEntityReference;
 
 function createMockCommunity(overrides: Partial<CommunityEntity> = {}): CommunityEntity {
   return {

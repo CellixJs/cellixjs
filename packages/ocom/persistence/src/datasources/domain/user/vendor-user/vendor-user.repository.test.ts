@@ -2,12 +2,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { VendorUserRepository } from './vendor-user.repository.ts';
 import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
+// Direct imports from domain package
+import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -50,13 +54,13 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: VendorUserRepository;
   let converter: VendorUserConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let vendorUserDoc: Models.User.VendorUser;
   let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
 
@@ -113,12 +117,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a VendorUser by ID', ({ When, Then, And }) => {
-    let result: Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: VendorUser.VendorUser<VendorUserDomainAdapter>;
     When('I call getById with ID "507f1f77bcf86cd799439011"', async () => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('it should return the VendorUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(VendorUserClass);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174001"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
@@ -126,12 +130,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a VendorUser by external ID', ({ When, Then, And }) => {
-    let result: Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: VendorUser.VendorUser<VendorUserDomainAdapter>;
     When('I call getByExternalId with externalId "123e4567-e89b-12d3-a456-426614174001"', async () => {
       result = await repo.getByExternalId('123e4567-e89b-12d3-a456-426614174001');
     });
     Then('it should return the VendorUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(VendorUserClass);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174001"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
@@ -148,12 +152,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new VendorUser instance', ({ When, Then, And }) => {
-    let result: Domain.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: VendorUser.VendorUser<VendorUserDomainAdapter>;
     When('I call getNewInstance with externalId "123e4567-e89b-12d3-a456-426614174002", lastName "Smith", and restOfName "John"', async () => {
       result = await repo.getNewInstance('123e4567-e89b-12d3-a456-426614174002', 'Smith', 'John');
     });
     Then('it should return a new VendorUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(VendorUserClass);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174002"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174002');

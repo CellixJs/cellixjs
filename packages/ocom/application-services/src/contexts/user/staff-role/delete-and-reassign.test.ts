@@ -1,10 +1,13 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
 import { deleteAndReassign } from './delete-and-reassign.ts';
+// Direct imports from domain package
+import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,7 +15,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/delete-and-reassign.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference> = {}) {
   const baseRole = {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -37,15 +40,15 @@ function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityRe
   return {
     ...baseRole,
     deleteAndReassignTo: vi.fn(),
-  } as unknown as Domain.StaffRole.StaffRole<Domain.StaffRole.StaffRoleProps>;
+  } as unknown as StaffRole.StaffRole<StaffRole.StaffRoleProps>;
 }
 
-function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>> = {}) { 
+function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>> = {}) { 
   return {
     getById: vi.fn(),
     save: vi.fn(),
     ...overrides,
-  } as unknown as Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>;
+  } as unknown as StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {

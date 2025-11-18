@@ -2,9 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { queryById } from './query-by-id.ts';
+// Direct imports from domain package
+import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,7 +15,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/query-by-id.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -31,19 +34,19 @@ function makeMockStaffRole(overrides: Partial<Domain.StaffRole.StaffRoleEntityRe
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as Domain.StaffRole.StaffRoleEntityReference;
+  } as StaffRole.StaffRoleEntityReference;
 }
 
-function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>> = {}) { 
+function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>> = {}) { 
   return {
     getById: vi.fn(),
     ...overrides,
-  } as unknown as Domain.StaffRole.StaffRoleRepository<Domain.StaffRole.StaffRoleProps>;
+  } as unknown as StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let dataSources: DataSources;
-  let queryStaffRoleById: (command: { roleId: string }) => Promise<Domain.StaffRole.StaffRoleEntityReference | null>;
+  let queryStaffRoleById: (command: { roleId: string }) => Promise<StaffRole.StaffRoleEntityReference | null>;
 
   BeforeEachScenario(() => {
     dataSources = {
@@ -62,7 +65,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by ID successfully', ({ Given, When, Then }) => {
-    let result: Domain.StaffRole.StaffRoleEntityReference | null;
+    let result: StaffRole.StaffRoleEntityReference | null;
 
     Given('a staff role with id "507f1f77bcf86cd799439011" exists', () => {
       // Mock will be set up in When step
@@ -89,7 +92,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by ID that does not exist', ({ Given, When, Then }) => {
-    let result: Domain.StaffRole.StaffRoleEntityReference | null;
+    let result: StaffRole.StaffRoleEntityReference | null;
 
     Given('no staff role with id "507f1f77bcf86cd799439011" exists', () => {
       // Mock will be set up in When step

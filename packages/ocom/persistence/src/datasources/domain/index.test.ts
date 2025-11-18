@@ -2,9 +2,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { DomainDataSourceImplementation } from './index.ts';
+// Direct imports from domain package
+import type { Passport } from '@ocom/domain/contexts/passport';
+
 
 
 const test = { for: describeFeature };
@@ -123,12 +125,12 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof DomainDataSourceImplementation>[0];
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof DomainDataSourceImplementation>;
 
   BeforeEachScenario(() => {

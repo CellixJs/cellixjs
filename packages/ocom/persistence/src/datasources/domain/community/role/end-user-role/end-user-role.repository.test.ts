@@ -3,11 +3,17 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';
 import { EndUserRoleConverter, type EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
+// Direct imports from domain package
+import type * as Community from '@ocom/domain/contexts/community';
+import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
+import type { Passport } from '@ocom/domain/contexts/passport';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
+import { EndUserRole as EndUserRoleClass } from '@ocom/domain/contexts/end-user-role';
+
 
 
 const test = { for: describeFeature };
@@ -82,14 +88,14 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let model: Models.Role.EndUserRoleModelType;
   let converter: EndUserRoleConverter;
   let repository: EndUserRoleRepository;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let communityDoc: Models.Community.Community;
   let result: unknown;
 
@@ -151,10 +157,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repository.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive an EndUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.EndUserRole.EndUserRole);
+      expect(result).toBeInstanceOf((EndUserRole.EndUserRole);
     });
     And('the domain object\'s roleName should be "Test Role"', () => {
-      expect((result as Domain.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
+      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
     });
   });
 
@@ -171,31 +177,31 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new end user role instance', ({ Given, When, Then, And }) => {
-    let communityDomainObj: Domain.Community.CommunityEntityReference;
+    let communityDomainObj: Community.CommunityEntityReference;
 
     Given('a valid Community domain object as the community', () => {
-      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Domain.Community.CommunityEntityReference;
+      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Community.CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "New Role", isDefault false, and the community', async () => {
       result = await repository.getNewInstance('New Role', false, communityDomainObj);
     });
     Then('I should receive a new EndUserRole domain object', () => {
-      expect(result).toBeInstanceOf(Domain.EndUserRole.EndUserRole);
+      expect(result).toBeInstanceOf((EndUserRole.EndUserRole);
     });
     And('the domain object\'s roleName should be "New Role"', () => {
-      expect((result as Domain.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('New Role');
+      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('New Role');
     });
     And('the domain object\'s isDefault should be false', () => {
-      expect((result as Domain.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(false);
+      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(false);
     });
   });
 
   Scenario('Creating a new end user role instance with an invalid community', ({ Given, When, Then }) => {
     let getNewInstanceError: () => Promise<void>;
-    let invalidCommunity: Domain.Community.CommunityEntityReference;
+    let invalidCommunity: Community.CommunityEntityReference;
 
     Given('an invalid community object', () => {
-      invalidCommunity = { id: '' } as Domain.Community.CommunityEntityReference;
+      invalidCommunity = { id: '' } as Community.CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "Invalid Role", isDefault true, and the invalid community', () => {
       getNewInstanceError = async () => {

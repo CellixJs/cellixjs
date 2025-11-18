@@ -2,7 +2,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
 // Mock the create module
@@ -12,6 +11,10 @@ vi.mock('./create.ts', () => ({
 
 import { Service } from './index.ts';
 import { create } from './create.ts';
+// Direct imports from domain package
+import type * as Service from '@ocom/domain/contexts/service';
+import { Service as ServiceClass } from '@ocom/domain/contexts/service';
+
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -19,7 +22,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/index.feature')
 );
 
-function makeMockService(overrides: Partial<Domain.Service.ServiceEntityReference> = {}) {
+function makeMockService(overrides: Partial<Service.ServiceEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     serviceName: 'Test Service',
@@ -29,7 +32,7 @@ function makeMockService(overrides: Partial<Domain.Service.ServiceEntityReferenc
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as Domain.Service.ServiceEntityReference;
+  } as Service.ServiceEntityReference;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
@@ -61,7 +64,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a service through the application service', ({ Given, When, Then }) => {
-    let result: Domain.Service.ServiceEntityReference;
+    let result: Service.ServiceEntityReference;
 
     Given('a service application service', () => {
       expect(service).toBeDefined();
