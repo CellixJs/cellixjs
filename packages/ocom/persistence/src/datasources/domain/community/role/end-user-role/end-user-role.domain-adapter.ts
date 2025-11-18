@@ -4,6 +4,9 @@ import { CommunityDomainAdapter } from '../../community/community.domain-adapter
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime imports for class constructors
+import { EndUserRole as EndUserRoleClass } from '@ocom/domain/contexts/end-user-role';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 
 export class EndUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.EndUserRole,
@@ -14,7 +17,7 @@ export class EndUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			EndUserRoleDomainAdapter,
-            EndUserRole.EndUserRole<EndUserRoleDomainAdapter>
+            EndUserRoleClass<EndUserRoleDomainAdapter>
 		);
 	}
 }
@@ -52,7 +55,7 @@ export class EndUserRoleDomainAdapter
 	set community(
 		community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>,
 	) {
-		if (community instanceof Community.Community) {
+		if (community instanceof CommunityClass) {
 			this.doc.set('community', community.props.doc);
 			return;
 		}

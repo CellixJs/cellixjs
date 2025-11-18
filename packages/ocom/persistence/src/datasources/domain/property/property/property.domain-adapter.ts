@@ -7,6 +7,9 @@ import type * as Community from '@ocom/domain/contexts/community';
 import type * as Member from '@ocom/domain/contexts/member';
 import type * as Property from '@ocom/domain/contexts/property';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime imports for class constructors
+import { Property as PropertyClass } from '@ocom/domain/contexts/property';
+import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 
 export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Property.Property,
@@ -17,7 +20,7 @@ export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			PropertyDomainAdapter,
-			Property.Property
+			PropertyClass
 		);
 	}
 }
@@ -128,7 +131,7 @@ export class PropertyDomainAdapter
 
     set community(community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>) {
         //check to see if community is derived from MongooseDomainAdapter
-        if (community instanceof Community.Community) {
+        if (community instanceof CommunityClass) {
             this.doc.set('community', community.props.doc);
             return;
         }

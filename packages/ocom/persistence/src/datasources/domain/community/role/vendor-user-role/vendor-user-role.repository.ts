@@ -4,6 +4,8 @@ import type { VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adap
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as VendorUserRole from '@ocom/domain/contexts/vendor-user-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime import for class constructor
+import { VendorUserRole as VendorUserRoleClass } from '@ocom/domain/contexts/vendor-user-role';
 
 type VendorUserRoleModelType = Models.Role.VendorUserRole;
 type PropType = VendorUserRoleDomainAdapter;
@@ -37,7 +39,7 @@ export class VendorUserRoleRepository
 	): Promise<VendorUserRole.VendorUserRole<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			VendorUserRole.VendorUserRole.getNewInstance(
+			VendorUserRoleClass.getNewInstance(
 				adapter,
 				this.passport,
 				roleName,

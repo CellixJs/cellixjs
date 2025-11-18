@@ -4,6 +4,8 @@ import type { PropertyDomainAdapter } from './property.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as Property from '@ocom/domain/contexts/property';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime import for class constructor
+import { Property as PropertyClass } from '@ocom/domain/contexts/property';
 
 type PropertyModelType = Models.Property.Property;
 type PropType = PropertyDomainAdapter;
@@ -24,7 +26,7 @@ export class PropertyRepository
 	): Promise<Property.Property<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Property.Property.getNewInstance(
+			PropertyClass.getNewInstance(
 				adapter,
 				propertyName,
 				community,

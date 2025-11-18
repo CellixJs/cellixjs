@@ -4,6 +4,8 @@ import { CommunityDomainAdapter } from '../../community/community/community.doma
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as Service from '@ocom/domain/contexts/service';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime import for class constructor
+import { Service as ServiceClass } from '@ocom/domain/contexts/service';
 
 export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Service.Service,
@@ -14,7 +16,7 @@ export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			ServiceDomainAdapter,
-			Service.Service
+			ServiceClass
 		);
 	}
 }

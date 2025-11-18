@@ -4,6 +4,8 @@ import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
 import type * as Community from '@ocom/domain/contexts/community';
 import type * as Service from '@ocom/domain/contexts/service';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime import for class constructor
+import { Service as ServiceClass } from '@ocom/domain/contexts/service';
 
 type ServiceModelType = Models.Service.Service;
 type PropType = ServiceDomainAdapter;
@@ -32,7 +34,7 @@ export class ServiceRepository
 	): Promise<Service.Service<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Service.Service.getNewInstance(
+			ServiceClass.getNewInstance(
 				adapter,
 				serviceName,
 				description,

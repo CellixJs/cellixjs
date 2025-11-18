@@ -2,6 +2,8 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import type * as EndUser from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime import for class constructor
+import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 
 export class EndUserRepository<
 		PropType extends EndUser.EndUserProps,
@@ -33,7 +35,7 @@ export class EndUserRepository<
 	): Promise<EndUser.EndUser<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			EndUser.EndUser.getNewInstance(
+			EndUserClass.getNewInstance(
 				adapter,
 				this.passport,
 				externalId,

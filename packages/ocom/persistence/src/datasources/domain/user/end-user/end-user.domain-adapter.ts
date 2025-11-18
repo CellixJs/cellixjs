@@ -2,6 +2,8 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type * as EndUser from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
+// Runtime import for class constructor
+import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 
 export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.User.EndUser,
@@ -12,7 +14,7 @@ export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			EndUserDomainAdapter,
-			EndUser.EndUser<EndUserDomainAdapter>
+			EndUserClass<EndUserDomainAdapter>
 		);
 	}
 }
