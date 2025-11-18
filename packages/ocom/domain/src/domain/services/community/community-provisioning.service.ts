@@ -45,5 +45,8 @@ export class CommunityProvisioningService {
             newAccount.user = createdBy;
             await repo.save(newMember);
         });
-    };
+    }
 }
+
+// Export class and singleton instance separately to avoid redeclaration
+export const CommunityProvisioningServiceInstance = new CommunityProvisioningService();

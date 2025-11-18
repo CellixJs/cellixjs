@@ -67,13 +67,25 @@
       "types": "./dist/src/domain/events/index.d.ts",
       "default": "./dist/src/domain/events/index.js"
     },
-    "./events/types": {
-      "types": "./dist/src/domain/events/types/index.d.ts",
-      "default": "./dist/src/domain/events/types/index.js"
+    "./iam/guest": {
+      "types": "./dist/src/domain/iam/guest/guest.passport.d.ts",
+      "default": "./dist/src/domain/iam/guest/guest.passport.js"
     },
-    "./services/community": {
-      "types": "./dist/src/domain/services/community/index.d.ts",
-      "default": "./dist/src/domain/services/community/index.js"
+    "./iam/member": {
+      "types": "./dist/src/domain/iam/member/member.passport.d.ts",
+      "default": "./dist/src/domain/iam/member/member.passport.js"
+    },
+    "./iam/system": {
+      "types": "./dist/src/domain/iam/system/system.passport.d.ts",
+      "default": "./dist/src/domain/iam/system/system.passport.js"
+    },
+    "./iam/staff-user": {
+      "types": "./dist/src/domain/iam/user/staff-user/staff-user.passport.d.ts",
+      "default": "./dist/src/domain/iam/user/staff-user/staff-user.passport.js"
+    },
+    "./services/community-provisioning": {
+      "types": "./dist/src/domain/services/community/community-provisioning.service.d.ts",
+      "default": "./dist/src/domain/services/community/community-provisioning.service.js"
     }
   },
   "scripts": {

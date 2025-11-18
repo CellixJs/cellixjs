@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import { Community } from './index.ts';
+import { CommunityProvisioningServiceInstance } from './community-provisioning.service.ts';
 
 
 const test = { for: describeFeature };
@@ -12,24 +12,22 @@ const feature = await loadFeature(
 );
 
 test.for(feature, ({ Scenario }) => {
-  let communityServices: typeof Community;
-
   Scenario('Exporting CommunityProvisioningService', ({ Given, When, Then, And }) => {
     Given('the community services index module', () => {
       // Module is already imported
     });
 
-    When('I import the Community object', () => {
-      communityServices = Community;
+    When('I import the CommunityProvisioningServiceInstance', () => {
+      // Already imported
     });
 
     Then('it should contain a CommunityProvisioningService instance', () => {
-      expect(communityServices.CommunityProvisioningService).toBeDefined();
-      expect(typeof communityServices.CommunityProvisioningService).toBe('object');
+      expect(CommunityProvisioningServiceInstance).toBeDefined();
+      expect(typeof CommunityProvisioningServiceInstance).toBe('object');
     });
 
     And('the CommunityProvisioningService should have a provisionMemberAndDefaultRole method', () => {
-      expect(typeof communityServices.CommunityProvisioningService.provisionMemberAndDefaultRole).toBe('function');
+      expect(typeof CommunityProvisioningServiceInstance.provisionMemberAndDefaultRole).toBe('function');
     });
   });
 });

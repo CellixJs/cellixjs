@@ -1,4 +1,7 @@
-import { GuestPassport, MemberPassport, StaffUserPassport, SystemPassport } from '../iam/index.ts';
+import { GuestPassport } from '../iam/guest/guest.passport.ts';
+import { MemberPassport } from '../iam/member/member.passport.ts';
+import { StaffUserPassport } from '../iam/user/staff-user/staff-user.passport.ts';
+import { SystemPassport } from '../iam/system/system.passport.ts';
 import type { PermissionsSpec } from '../iam/system/system.passport-base.ts';
 import type * as EndUser from './user/end-user/end-user.ts';
 import type * as Member from './community/member/member.ts';
