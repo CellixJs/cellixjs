@@ -1,23 +1,23 @@
 import type { Passport } from '@ocom/domain/contexts/passport';
 import type { ModelsContext } from '../../index.ts';
-import type * as Community from './community/community/index.ts';
+import type { CommunityReadRepository } from './community/community/community.read-repository.ts';
 import { CommunityContext } from './community/index.ts';
-import type * as Member from './community/member/index.ts';
-import type * as EndUser from './user/end-user/index.ts';
+import type { MemberReadRepository } from './community/member/member.read-repository.ts';
+import type { EndUserReadRepository } from './user/end-user/end-user.read-repository.ts';
 import { UserContext } from './user/index.ts';
 
 export interface ReadonlyDataSource {
     Community: {
         Community: {
-            CommunityReadRepo: Community.CommunityReadRepository;
+            CommunityReadRepo: CommunityReadRepository;
         };
         Member: {
-            MemberReadRepo: Member.MemberReadRepository;
+            MemberReadRepo: MemberReadRepository;
         }
     };
     User: {
         EndUser: {
-            EndUserReadRepo: EndUser.EndUserReadRepository;
+            EndUserReadRepo: EndUserReadRepository;
         }
     }
 }
