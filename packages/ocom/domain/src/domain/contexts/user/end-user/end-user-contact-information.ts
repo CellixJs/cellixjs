@@ -1,9 +1,11 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
 import type { EndUserAggregateRoot } from './end-user.ts';
 import { Email } from './end-user.value-objects.ts';
 export interface EndUserContactInformationProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	email: string;
 }
 
@@ -11,7 +13,7 @@ export interface EndUserContactInformationEntityReference
 	extends Readonly<EndUserContactInformationProps> {}
 
 export class EndUserContactInformation
-	extends DomainSeedwork.ValueObject<EndUserContactInformationProps>
+	extends ValueObject<EndUserContactInformationProps>
 	implements EndUserContactInformationEntityReference
 {
 	private readonly visa: UserVisa;
@@ -33,7 +35,7 @@ export class EndUserContactInformation
 					permissions.isEditingOwnAccount || permissions.canManageEndUsers,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set email');
+			throw new PermissionError('Cannot set email');
 		}
 		this.props.email = new Email(email).valueOf() as string;
 	}

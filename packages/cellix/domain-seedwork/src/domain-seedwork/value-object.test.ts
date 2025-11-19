@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import { ValueObject } from './value-object.ts';
+import { ValueObject, type ValueObjectProps } from './value-object.ts';
 
 
 const test = { for: describeFeature };
@@ -11,7 +11,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/value-object.feature')
 );
 
-interface TestValueObjectProps {
+interface TestValueObjectProps extends ValueObjectProps {
   foo: string;
   bar: number;
 }

@@ -3,8 +3,9 @@ import type { ViolationTicketV1EntityReference } from '../../../contexts/case/vi
 import type { ViolationTicketV1Visa } from '../../../contexts/case/violation-ticket/v1/violation-ticket-v1.visa.ts';
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
 
-export class MemberViolationTicketVisa<root extends ViolationTicketV1EntityReference>
-	implements ViolationTicketV1Visa
+export class MemberViolationTicketVisa<
+	root extends ViolationTicketV1EntityReference,
+> implements ViolationTicketV1Visa
 {
 	private readonly root: root;
 	private readonly member: MemberEntityReference;
@@ -14,9 +15,7 @@ export class MemberViolationTicketVisa<root extends ViolationTicketV1EntityRefer
 		this.member = member;
 	}
 
-	determineIf(
-		func: (permissions: CaseDomainPermissions) => boolean,
-	): boolean {
+	determineIf(func: (permissions: CaseDomainPermissions) => boolean): boolean {
 		//ensure that the member is a member of the community that owns this violation ticket
 		if (this.member.community.id !== this.root.communityId) {
 			console.log(

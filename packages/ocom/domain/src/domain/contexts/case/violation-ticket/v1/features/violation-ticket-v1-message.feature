@@ -21,6 +21,24 @@ Feature: <Entity> ViolationTicketV1Message
     And I set the sent by
     Then a PermissionError should be thrown
 
+  Scenario: Setting sent by with canManageTickets permission
+    When I have a ViolationTicketV1Message instance
+    And I have canManageTickets permission
+    And I set the sent by
+    Then the sent by should be updated
+
+  Scenario: Setting sent by with isSystemAccount permission
+    When I have a ViolationTicketV1Message instance
+    And I have isSystemAccount permission
+    And I set the sent by
+    Then the sent by should be updated
+
+  Scenario: Setting sent by without sufficient permissions
+    When I have a ViolationTicketV1Message instance
+    And I do not have canManageTickets or isSystemAccount permissions
+    And I set the sent by
+    Then a PermissionError should be thrown
+
   Scenario: Setting message with proper permissions
     When I have a ViolationTicketV1Message instance
     And I have proper permissions to modify
@@ -33,17 +51,83 @@ Feature: <Entity> ViolationTicketV1Message
     And I set the message
     Then a PermissionError should be thrown
 
+  Scenario: Setting message with canManageTickets permission
+    When I have a ViolationTicketV1Message instance
+    And I have canManageTickets permission
+    And I set the message
+    Then the message should be updated
+
+  Scenario: Setting message with isSystemAccount permission
+    When I have a ViolationTicketV1Message instance
+    And I have isSystemAccount permission
+    And I set the message
+    Then the message should be updated
+
+  Scenario: Setting message without sufficient permissions
+    When I have a ViolationTicketV1Message instance
+    And I do not have canManageTickets or isSystemAccount permissions
+    And I set the message
+    Then a PermissionError should be thrown
+
   Scenario: Setting embedding with proper permissions
     When I have a ViolationTicketV1Message instance
     And I have proper permissions to modify
     And I set the embedding
     Then the embedding should be updated
 
+  Scenario: Setting embedding with canManageTickets permission
+    When I have a ViolationTicketV1Message instance
+    And I have canManageTickets permission
+    And I set the embedding
+    Then the embedding should be updated
+
+  Scenario: Setting embedding with isSystemAccount permission
+    When I have a ViolationTicketV1Message instance
+    And I have isSystemAccount permission
+    And I set the embedding
+    Then the embedding should be updated
+
+  Scenario: Setting embedding without sufficient permissions
+    When I have a ViolationTicketV1Message instance
+    And I do not have canManageTickets or isSystemAccount permissions
+    And I set the embedding
+    Then a PermissionError should be thrown
+
   Scenario: Setting is hidden from applicant with proper permissions
     When I have a ViolationTicketV1Message instance
     And I have proper permissions to modify
     And I set is hidden from applicant
     Then the visibility should be updated
+
+  Scenario: Setting isHiddenFromApplicant with canManageTickets permission
+    When I have a ViolationTicketV1Message instance
+    And I have canManageTickets permission
+    And I set is hidden from applicant
+    Then the visibility should be updated
+
+  Scenario: Setting isHiddenFromApplicant with isSystemAccount permission
+    When I have a ViolationTicketV1Message instance
+    And I have isSystemAccount permission
+    And I set is hidden from applicant
+    Then the visibility should be updated
+
+  Scenario: Setting isHiddenFromApplicant without sufficient permissions
+    When I have a ViolationTicketV1Message instance
+    And I do not have canManageTickets or isSystemAccount permissions
+    And I set is hidden from applicant
+    Then a PermissionError should be thrown
+
+  Scenario: Setting createdAt with isSystemAccount permission
+    When I have a ViolationTicketV1Message instance
+    And I have isSystemAccount permission
+    And I set the createdAt timestamp
+    Then the createdAt should be updated
+
+  Scenario: Setting createdAt without isSystemAccount permission
+    When I have a ViolationTicketV1Message instance
+    And I do not have isSystemAccount permission
+    And I set the createdAt timestamp
+    Then a PermissionError should be thrown
 
   Scenario: Loading initiated by reference
     When I have a ViolationTicketV1Message instance

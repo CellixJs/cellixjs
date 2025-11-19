@@ -1,14 +1,16 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import {
 	Community,
-	type CommunityProps,
 	type CommunityEntityReference,
+	type CommunityProps,
 } from '../../community/community/community.ts';
-import * as ValueObjects from './service.value-objects.ts';
-import type { ServiceVisa } from '../service.visa.ts';
 import type { Passport } from '../../passport.ts';
+import type { ServiceVisa } from '../service.visa.ts';
+import * as ValueObjects from './service.value-objects.ts';
 
-export interface ServiceProps extends DomainSeedwork.DomainEntityProps {
+export interface ServiceProps extends DomainEntityProps {
 	readonly community: CommunityProps;
 	setCommunityRef(community: CommunityEntityReference): void;
 	serviceName: string;
@@ -26,7 +28,7 @@ export interface ServiceEntityReference
 }
 
 export class Service<props extends ServiceProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements ServiceEntityReference
 {
 	private isNew: boolean = false;
@@ -59,7 +61,7 @@ export class Service<props extends ServiceProps>
 
 	private set community(community: CommunityEntityReference) {
 		if (!this.isNew) {
-			throw new DomainSeedwork.PermissionError('Unauthorized');
+			throw new PermissionError('Unauthorized');
 		}
 		this.props.setCommunityRef(community);
 	}
@@ -70,7 +72,7 @@ export class Service<props extends ServiceProps>
 		if (
 			!this.visa.determineIf((permissions) => permissions.canManageServices)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the service name',
 			);
 		}
@@ -85,7 +87,7 @@ export class Service<props extends ServiceProps>
 		if (
 			!this.visa.determineIf((permissions) => permissions.canManageServices)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the service description',
 			);
 		}
@@ -100,7 +102,7 @@ export class Service<props extends ServiceProps>
 		if (
 			!this.visa.determineIf((permissions) => permissions.canManageServices)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the service status',
 			);
 		}

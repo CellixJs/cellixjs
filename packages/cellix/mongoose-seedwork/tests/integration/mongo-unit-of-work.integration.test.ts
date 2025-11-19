@@ -1,3 +1,5 @@
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 import {
 	describe,
 	it,
@@ -9,7 +11,6 @@ import {
 } from 'vitest';
 import mongoose, { Schema, model, type Model } from 'mongoose';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import {
 	InProcEventBusInstance,
 	NodeEventBusInstance,
@@ -41,7 +42,7 @@ interface TestMongoType extends Base {
 }
 class TestAggregate<
 	props extends TestProps,
-> extends DomainSeedwork.AggregateRoot<props, unknown> {
+> extends AggregateRoot<props, unknown> {
 	static getNewInstance<props extends TestProps>(
 		newProps: props,
 		foo: string,
@@ -143,11 +144,11 @@ class TestTypeConverter extends MongoTypeConverter<
 
 const typeConverter = new TestTypeConverter();
 
-class TestBarDomainEvent extends DomainSeedwork.CustomDomainEventImpl<{
+class TestBarDomainEvent extends CustomDomainEventImpl<{
 	oldBar?: string;
 	bar: string;
 }> {}
-class TestBazDomainEvent extends DomainSeedwork.CustomDomainEventImpl<{
+class TestBazDomainEvent extends CustomDomainEventImpl<{
 	oldBaz?: string;
 	baz: string;
 }> {}

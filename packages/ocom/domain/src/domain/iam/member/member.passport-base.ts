@@ -13,7 +13,7 @@ export abstract class MemberPassportBase {
 		community: CommunityEntityReference,
 	) {
 		if (!user) {
-		  throw new Error("User is required");
+			throw new Error('User is required');
 		}
 		if (!member.accounts.find((account) => account.user.id === user.id)) {
 			throw new Error(

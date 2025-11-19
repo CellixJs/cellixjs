@@ -1,22 +1,33 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-import { CommunityCreatedEvent, type CommunityCreatedProps } from '../../../events/types/community-created.ts';
-import { CommunityDomainUpdatedEvent, type CommunityDomainUpdatedProps } from '../../../events/types/community-domain-updated.ts';
-import { CommunityWhiteLabelDomainUpdatedEvent, type CommunityWhiteLabelDomainUpdatedProps } from '../../../events/types/community-white-label-domain-updated.ts';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import {
+	CommunityCreatedEvent,
+	type CommunityCreatedProps,
+} from '../../../events/types/community-created.ts';
+import {
+	CommunityDomainUpdatedEvent,
+	type CommunityDomainUpdatedProps,
+} from '../../../events/types/community-domain-updated.ts';
+import {
+	CommunityWhiteLabelDomainUpdatedEvent,
+	type CommunityWhiteLabelDomainUpdatedProps,
+} from '../../../events/types/community-white-label-domain-updated.ts';
 import type { Passport } from '../../passport.ts';
 import {
-    EndUser,
-    type EndUserEntityReference,
+	EndUser,
+	type EndUserEntityReference,
 } from '../../user/end-user/end-user.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './community.value-objects.ts';
 
-export interface CommunityProps extends DomainSeedwork.DomainEntityProps {
+export interface CommunityProps extends DomainEntityProps {
 	name: string;
 	domain: string;
 	whiteLabelDomain: string | null;
 	handle: string | null;
 	createdBy: Readonly<EndUserEntityReference>;
-    loadCreatedBy: () => Promise<EndUserEntityReference>;
+	loadCreatedBy: () => Promise<EndUserEntityReference>;
 
 	get createdAt(): Date;
 	get updatedAt(): Date;
@@ -26,7 +37,7 @@ export interface CommunityProps extends DomainSeedwork.DomainEntityProps {
 export interface CommunityEntityReference extends Readonly<CommunityProps> {}
 
 export class Community<props extends CommunityProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements CommunityEntityReference
 {
 	//#region Fields
@@ -59,9 +70,12 @@ export class Community<props extends CommunityProps>
 
 	private markAsNew(): void {
 		this.isNew = true;
-		this.addIntegrationEvent<CommunityCreatedProps, CommunityCreatedEvent>(CommunityCreatedEvent, {
-			communityId: this.props.id,
-		});
+		this.addIntegrationEvent<CommunityCreatedProps, CommunityCreatedEvent>(
+			CommunityCreatedEvent,
+			{
+				communityId: this.props.id,
+			},
+		);
 	}
 	//#endregion Methods
 
@@ -76,7 +90,7 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the name of this community',
 			);
 		}
@@ -93,14 +107,17 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the domain of this community',
 			);
 		}
 		const oldDomain = this.props.domain;
 		if (this.props.domain !== domain) {
 			this.props.domain = new ValueObjects.Domain(domain).valueOf();
-			this.addIntegrationEvent<CommunityDomainUpdatedProps, CommunityDomainUpdatedEvent>(CommunityDomainUpdatedEvent, {
+			this.addIntegrationEvent<
+				CommunityDomainUpdatedProps,
+				CommunityDomainUpdatedEvent
+			>(CommunityDomainUpdatedEvent, {
 				communityId: this.props.id,
 				domain,
 				oldDomain: oldDomain,
@@ -118,19 +135,27 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the white label domain of this community',
 			);
 		}
-        const oldWhiteLabelDomain = this.props.whiteLabelDomain;
-		this.props.whiteLabelDomain = new ValueObjects.WhiteLabelDomain(whiteLabelDomain).valueOf();
-        if (oldWhiteLabelDomain !== this.props.whiteLabelDomain && this.props.whiteLabelDomain !== null) {
-            this.addIntegrationEvent<CommunityWhiteLabelDomainUpdatedProps, CommunityWhiteLabelDomainUpdatedEvent>(CommunityWhiteLabelDomainUpdatedEvent, {
-                communityId: this.props.id,
-                whiteLabelDomain: this.props.whiteLabelDomain,
-                oldWhiteLabelDomain: oldWhiteLabelDomain,
-            });
-        }
+		const oldWhiteLabelDomain = this.props.whiteLabelDomain;
+		this.props.whiteLabelDomain = new ValueObjects.WhiteLabelDomain(
+			whiteLabelDomain,
+		).valueOf();
+		if (
+			oldWhiteLabelDomain !== this.props.whiteLabelDomain &&
+			this.props.whiteLabelDomain !== null
+		) {
+			this.addIntegrationEvent<
+				CommunityWhiteLabelDomainUpdatedProps,
+				CommunityWhiteLabelDomainUpdatedEvent
+			>(CommunityWhiteLabelDomainUpdatedEvent, {
+				communityId: this.props.id,
+				whiteLabelDomain: this.props.whiteLabelDomain,
+				oldWhiteLabelDomain: oldWhiteLabelDomain,
+			});
+		}
 	}
 
 	get handle(): string | null {
@@ -143,7 +168,7 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the handle of this community',
 			);
 		}
@@ -154,9 +179,9 @@ export class Community<props extends CommunityProps>
 		return new EndUser(this.props.createdBy, this.passport);
 	}
 
-    async loadCreatedBy(): Promise<EndUserEntityReference> {
-        return await this.props.loadCreatedBy();
-    }
+	async loadCreatedBy(): Promise<EndUserEntityReference> {
+		return await this.props.loadCreatedBy();
+	}
 
 	private set createdBy(createdBy: EndUserEntityReference | null | undefined) {
 		if (
@@ -165,14 +190,12 @@ export class Community<props extends CommunityProps>
 				(domainPermissions) => domainPermissions.canManageCommunitySettings,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to change the created by of this community',
 			);
 		}
 		if (createdBy === null || createdBy === undefined) {
-			throw new DomainSeedwork.PermissionError(
-				'createdBy cannot be null or undefined',
-			);
+			throw new PermissionError('createdBy cannot be null or undefined');
 		}
 		this.props.createdBy = createdBy;
 	}

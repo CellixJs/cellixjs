@@ -1,4 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
 
 interface StaffRoleViolationTicketPermissionsSpec {
@@ -11,12 +13,12 @@ interface StaffRoleViolationTicketPermissionsSpec {
 
 export interface StaffRoleViolationTicketPermissionsProps
 	extends StaffRoleViolationTicketPermissionsSpec,
-		DomainSeedwork.ValueObjectProps {}
+		ValueObjectProps {}
 export interface StaffRoleViolationTicketPermissionsEntityReference
 	extends Readonly<StaffRoleViolationTicketPermissionsProps> {}
 
 export class StaffRoleViolationTicketPermissions
-	extends DomainSeedwork.ValueObject<StaffRoleViolationTicketPermissionsProps>
+	extends ValueObject<StaffRoleViolationTicketPermissionsProps>
 	implements StaffRoleViolationTicketPermissionsEntityReference
 {
 	private readonly visa: UserVisa;
@@ -48,28 +50,28 @@ export class StaffRoleViolationTicketPermissions
 
 	set canCreateTickets(value: boolean) {
 	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new DomainSeedwork.PermissionError('Cannot set permission');
+	    throw new PermissionError('Cannot set permission');
 	  }
 	  this.props.canCreateTickets = value;
 	}
 
 	set canManageTickets(value: boolean) {
 	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new DomainSeedwork.PermissionError('Cannot set permission');
+	    throw new PermissionError('Cannot set permission');
 	  }
 	  this.props.canManageTickets = value;
 	}
 
 	set canAssignTickets(value: boolean) {
 	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new DomainSeedwork.PermissionError('Cannot set permission');
+	    throw new PermissionError('Cannot set permission');
 	  }
 	  this.props.canAssignTickets = value;
 	}
 
 	set canWorkOnTickets(value: boolean) {
 	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new DomainSeedwork.PermissionError('Cannot set permission');
+	    throw new PermissionError('Cannot set permission');
 	  }
 	  this.props.canWorkOnTickets = value;
 	}

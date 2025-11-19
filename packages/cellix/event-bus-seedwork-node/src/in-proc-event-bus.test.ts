@@ -1,7 +1,7 @@
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
 import { expect, vi } from 'vitest';
 import { InProcEventBusInstance } from './in-proc-event-bus.ts';
 
@@ -13,9 +13,9 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/in-proc-event-bus.feature')
 );
 
-class TestEvent extends DomainSeedwork.CustomDomainEventImpl<{ test: string }> {}
-class TestEventA extends DomainSeedwork.CustomDomainEventImpl<{ testA: string }> {}
-class TestEventB extends DomainSeedwork.CustomDomainEventImpl<{ testB: string }> {}
+class TestEvent extends CustomDomainEventImpl<{ test: string }> {}
+class TestEventA extends CustomDomainEventImpl<{ testA: string }> {}
+class TestEventB extends CustomDomainEventImpl<{ testB: string }> {}
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let handler: ReturnType<typeof vi.fn>;

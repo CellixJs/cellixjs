@@ -1,10 +1,12 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-import * as ValueObjects from './end-user.value-objects.ts';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
 import type { EndUserAggregateRoot } from './end-user.ts';
+import * as ValueObjects from './end-user.value-objects.ts';
 
 export interface EndUserIdentityDetailsProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	lastName: string;
 	legalNameConsistsOfOneName: boolean;
 	restOfName: string | undefined;
@@ -14,7 +16,7 @@ export interface EndUserIdentityDetailsEntityReference
 	extends Readonly<EndUserIdentityDetailsProps> {}
 
 export class EndUserIdentityDetails
-	extends DomainSeedwork.ValueObject<EndUserIdentityDetailsProps>
+	extends ValueObject<EndUserIdentityDetailsProps>
 	implements EndUserIdentityDetailsEntityReference
 {
 	private readonly visa: UserVisa;
@@ -33,7 +35,7 @@ export class EndUserIdentityDetails
 					permissions.isEditingOwnAccount || permissions.canManageEndUsers,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set identity details');
+			throw new PermissionError('Cannot set identity details');
 		}
 	}
 

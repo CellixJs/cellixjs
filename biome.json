@@ -140,7 +140,15 @@
 			}
 		},
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
-        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } }
+        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } },
+		{
+			"includes": ["packages/cellix/domain-seedwork/**/*.ts"],
+			"linter": {
+				"rules": {
+					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
+				}
+			}
+		}
 	],
 	"assist": {
 		"enabled": true,

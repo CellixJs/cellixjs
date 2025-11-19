@@ -1,33 +1,32 @@
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import type { CommunityVisa } from '../../community.visa.ts';
 import {
 	VendorUserRoleCommunityPermissions,
 	type VendorUserRoleCommunityPermissionsEntityReference,
 	type VendorUserRoleCommunityPermissionsProps,
 } from './vendor-user-role-community-permissions.ts';
-import type { CommunityVisa } from '../../community.visa.ts';
 import {
 	VendorUserRolePropertyPermissions,
 	type VendorUserRolePropertyPermissionsEntityReference,
 	type VendorUserRolePropertyPermissionsProps,
 } from './vendor-user-role-property-permissions.ts';
 import {
-	VendorUserRoleServiceTicketPermissions,
-	type VendorUserRoleServiceTicketPermissionsEntityReference,
-	type VendorUserRoleServiceTicketPermissionsProps,
-} from './vendor-user-role-service-ticket-permissions.ts';
-import {
 	VendorUserRoleServicePermissions,
 	type VendorUserRoleServicePermissionsEntityReference,
 	type VendorUserRoleServicePermissionsProps,
 } from './vendor-user-role-service-permissions.ts';
 import {
+	VendorUserRoleServiceTicketPermissions,
+	type VendorUserRoleServiceTicketPermissionsEntityReference,
+	type VendorUserRoleServiceTicketPermissionsProps,
+} from './vendor-user-role-service-ticket-permissions.ts';
+import {
 	VendorUserRoleViolationTicketPermissions,
 	type VendorUserRoleViolationTicketPermissionsEntityReference,
 	type VendorUserRoleViolationTicketPermissionsProps,
 } from './vendor-user-role-violation-ticket-permissions.ts';
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
-export interface VendorUserRolePermissionsProps
-	extends DomainSeedwork.ValueObjectProps {
+export interface VendorUserRolePermissionsProps extends ValueObjectProps {
 	readonly communityPermissions: VendorUserRoleCommunityPermissionsProps;
 	readonly propertyPermissions: VendorUserRolePropertyPermissionsProps;
 	readonly serviceTicketPermissions: VendorUserRoleServiceTicketPermissionsProps;
@@ -54,7 +53,7 @@ export interface VendorUserRolePermissionsEntityReference
 }
 
 export class VendorUserRolePermissions
-	extends DomainSeedwork.ValueObject<VendorUserRolePermissionsProps>
+	extends ValueObject<VendorUserRolePermissionsProps>
 	implements VendorUserRolePermissionsEntityReference
 {
 	private readonly visa: CommunityVisa;

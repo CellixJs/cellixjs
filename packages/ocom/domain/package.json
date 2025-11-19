@@ -41,7 +41,8 @@
     "@serenity-js/core": "^3.32.3",
     "@serenity-js/cucumber": "^3.32.3",
     "@serenity-js/serenity-bdd": "^3.32.3",
-    "rimraf": "^6.0.1",
-    "typescript": "catalog:"
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

@@ -1,15 +1,17 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-import * as ValueObjects from './staff-user.value-objects.ts';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../events/types/staff-user-created.ts';
+import type { Passport } from '../../passport.ts';
 import {
 	StaffRole,
 	type StaffRoleEntityReference,
 	type StaffRoleProps,
 } from '../staff-role/staff-role.ts';
-import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../events/types/staff-user-created.ts';
 import type { UserVisa } from '../user.visa.ts';
-import type { Passport } from '../../passport.ts';
+import * as ValueObjects from './staff-user.value-objects.ts';
 
-export interface StaffUserProps extends DomainSeedwork.DomainEntityProps {
+export interface StaffUserProps extends DomainEntityProps {
 	readonly role?: StaffRoleProps;
 	setRoleRef: (role: StaffRoleEntityReference | undefined) => void;
 	firstName: string;
@@ -32,7 +34,7 @@ export interface StaffUserEntityReference
 }
 
 export class StaffUser<props extends StaffUserProps>
-	extends DomainSeedwork.AggregateRoot<props, Passport>
+	extends AggregateRoot<props, Passport>
 	implements StaffUserEntityReference
 {
 	private isNew: boolean = false;
@@ -77,7 +79,7 @@ export class StaffUser<props extends StaffUserProps>
 				(permissions) => permissions.canManageStaffRolesAndPermissions,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Unauthorized');
+			throw new PermissionError('Unauthorized');
 		}
 	}
 

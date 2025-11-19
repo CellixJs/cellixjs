@@ -1,4 +1,4 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
@@ -187,11 +187,11 @@ export class ServiceTicketV1DomainAdapter
 		}
 	}
 
-	get activityLog(): DomainSeedwork.PropArray<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1ActivityDetailProps> {
+	get activityLog(): PropArray<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1ActivityDetailProps> {
 		return new MongooseSeedwork.MongoosePropArray(this.doc.activityLog, ServiceTicketV1ActivityDetailDomainAdapter);
 	}
 
-	get messages(): DomainSeedwork.PropArray<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1MessageProps> {
+	get messages(): PropArray<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1MessageProps> {
 		return new MongooseSeedwork.MongoosePropArray(this.doc.messages, ServiceTicketV1MessageDomainAdapter);
 	}
 

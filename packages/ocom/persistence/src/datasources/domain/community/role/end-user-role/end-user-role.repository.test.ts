@@ -1,7 +1,7 @@
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
@@ -113,7 +113,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks
-    const eventBus = { publish: vi.fn() } as unknown as DomainSeedwork.EventBus;
+    const eventBus = { publish: vi.fn() } as unknown as EventBus;
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     model = ModelMock as unknown as Models.Role.EndUserRoleModelType;

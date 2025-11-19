@@ -1,4 +1,4 @@
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
@@ -514,7 +514,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 		this.doc.bedrooms = bedrooms;
 	}
 
-	get bedroomDetails(): DomainSeedwork.PropArray<Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps> {
+	get bedroomDetails(): PropArray<Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps> {
 		return new MongooseSeedwork.MongoosePropArray(this.doc.bedroomDetails, PropertyListingDetailBedroomDetailDomainAdapter);
 	}
 
@@ -566,7 +566,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 		this.doc.amenities = amenities;
 	}
 
-	get additionalAmenities(): DomainSeedwork.PropArray<Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps> {
+	get additionalAmenities(): PropArray<Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps> {
 		return new MongooseSeedwork.MongoosePropArray(this.doc.additionalAmenities, PropertyListingDetailAdditionalAmenityDomainAdapter);
 	}
 
