@@ -2,9 +2,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi, type MockedFunction } from 'vitest';
-import type * as Community from '../../contexts/community/community/community.ts';
-import type * as Member from '../../contexts/community/member/member.ts';
-import type * as EndUserRole from '../../contexts/community/role/end-user-role/end-user-role.ts';
+import type { Community, CommunityEntityReference, CommunityProps } from '../../contexts/community/community/community.ts';
+import type { MemberEntityReference, MemberUnitOfWork } from '../../contexts/community/member/member.ts';
+import type { EndUserRoleEntityReference, EndUserRoleUnitOfWork } from '../../contexts/community/role/end-user-role/end-user-role.ts';
 import type { DomainDataSource } from '../../../index.ts';
 import { CommunityProvisioningService } from './community-provisioning.service.ts';
 
@@ -75,7 +75,7 @@ function makeMockDomainDataSource(): DomainDataSource {
   } as unknown as DomainDataSource;
 }
 
-function makeMockCommunity(overrides: Partial<Community.CommunityProps> = {}): Community.CommunityEntityReference {
+function makeMockCommunity(overrides: Partial<CommunityProps> = {}): CommunityEntityReference {
   return {
     id: 'community-123',
     createdBy: {
@@ -89,19 +89,19 @@ function makeMockCommunity(overrides: Partial<Community.CommunityProps> = {}): C
       }
     },
     ...overrides
-  } as unknown as Community.CommunityEntityReference;
+  } as unknown as CommunityEntityReference;
 }
 
-function makeMockRole(): EndUserRole.EndUserRoleEntityReference {
+function makeMockRole(): EndUserRoleEntityReference {
   return {
     id: 'role-123',
     permissions: {
       setDefaultAdminPermissions: vi.fn()
     }
-  } as unknown as EndUserRole.EndUserRoleEntityReference;
+  } as unknown as EndUserRoleEntityReference;
 }
 
-function makeMockMember(): Member.MemberEntityReference {
+function makeMockMember(): MemberEntityReference {
   return {
     role: {
         id: 'role-123',
@@ -113,25 +113,25 @@ function makeMockMember(): Member.MemberEntityReference {
       statusCode: '',
       user: null
     }))
-  } as unknown as Member.MemberEntityReference;
+  } as unknown as MemberEntityReference;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let service: CommunityProvisioningService;
   let mockDomainDataSource: DomainDataSource;
-  let mockCommunity: Community.CommunityEntityReference; 
-  let mockRole: EndUserRole.EndUserRoleEntityReference;
-  let mockMember: Member.MemberEntityReference;
+  let mockCommunity: CommunityEntityReference; 
+  let mockRole: EndUserRoleEntityReference;
+  let mockMember: MemberEntityReference;
   let mockCommunityRepo: {
-    getByIdWithCreatedBy: MockedFunction<(id: string) => Promise<Community.CommunityEntityReference | null>>;
+    getByIdWithCreatedBy: MockedFunction<(id: string) => Promise<CommunityEntityReference | null>>;
   };
   let mockRoleRepo: {
-    getNewInstance: MockedFunction<(name: string, isDefault: boolean, community: Community.CommunityEntityReference) => Promise<EndUserRole.EndUserRoleEntityReference>>;
-    save: MockedFunction<(role: EndUserRole.EndUserRoleEntityReference) => Promise<EndUserRole.EndUserRoleEntityReference | null>>;
+    getNewInstance: MockedFunction<(name: string, isDefault: boolean, community: CommunityEntityReference) => Promise<EndUserRoleEntityReference>>;
+    save: MockedFunction<(role: EndUserRoleEntityReference) => Promise<EndUserRoleEntityReference | null>>;
   };
   let mockMemberRepo: {
-    getNewInstance: MockedFunction<(displayName: string, community: Community.CommunityEntityReference) => Promise<Member.MemberEntityReference>>;
-    save: MockedFunction<(member: Member.MemberEntityReference) => Promise<Member.MemberEntityReference>>;
+    getNewInstance: MockedFunction<(displayName: string, community: CommunityEntityReference) => Promise<MemberEntityReference>>;
+    save: MockedFunction<(member: MemberEntityReference) => Promise<MemberEntityReference>>;
   };
   let thrownError: Error | null = null;
 
@@ -157,11 +157,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     };
 
     mockDomainDataSource = makeMockDomainDataSource();
-    mockDomainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction = 
+    mockDomainDataSource.Community.CommunityUnitOfWork.withScopedTransaction = 
       vi.fn((callback) => callback(mockCommunityRepo));
-    mockDomainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withTransaction = 
+    mockDomainDataSource.Community.Role.EndUserRoleUnitOfWork.withTransaction = 
       vi.fn((_, callback) => callback(mockRoleRepo));
-    mockDomainDataSource.Community.Member.MemberUnitOfWork.withTransaction = 
+    mockDomainDataSource.Community.MemberUnitOfWork.withTransaction = 
       vi.fn((_, callback) => callback(mockMemberRepo));
 
     thrownError = null;
@@ -277,7 +277,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       const communityWithoutCreatedBy = {
         ...mockCommunity,
         createdBy: null
-      } as unknown as Community.CommunityEntityReference;
+      } as unknown as CommunityEntityReference;
       mockCommunityRepo.getByIdWithCreatedBy.mockResolvedValue(communityWithoutCreatedBy);
     });
 

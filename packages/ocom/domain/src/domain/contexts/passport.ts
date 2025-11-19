@@ -3,10 +3,10 @@ import { MemberPassport } from '../iam/member/member.passport.ts';
 import { StaffUserPassport } from '../iam/user/staff-user/staff-user.passport.ts';
 import { SystemPassport } from '../iam/system/system.passport.ts';
 import type { PermissionsSpec } from '../iam/system/system.passport-base.ts';
-import type * as EndUser from './user/end-user/end-user.ts';
-import type * as Member from './community/member/member.ts';
-import type * as Community from './community/community/community.ts';
-import type * as StaffUser from './user/staff-user/staff-user.ts';
+import type { EndUserEntityReference } from './user/end-user/end-user.ts';
+import type { MemberEntityReference } from './community/member/member.ts';
+import type { CommunityEntityReference } from './community/community/community.ts';
+import type { StaffUserEntityReference } from './user/staff-user/staff-user.ts';
 import type { CasePassport } from './case/case.passport.ts';
 import type { CommunityPassport } from './community/community.passport.ts';
 import type { PropertyPassport } from './property/property.passport.ts';
@@ -23,17 +23,17 @@ export interface Passport {
 
 export const PassportFactory = {
     // for logged-in users on account portal not within a community
-    // forEndUser(endUser: EndUser.EndUserEntityReference): Passport {
+    // forEndUser(endUser: EndUserEntityReference): Passport {
     //     return new EndUserPassport(endUser);
     // },
 
     // for logged-in users on account portal within a community
-    forMember(endUser: EndUser.EndUserEntityReference, member: Member.MemberEntityReference, community: Community.CommunityEntityReference): Passport {
+    forMember(endUser: EndUserEntityReference, member: MemberEntityReference, community: CommunityEntityReference): Passport {
         return new MemberPassport(endUser, member, community);
     },
 
     // for logged-in users on staff portal - defers to role permissions for that staff user
-    forStaffUser(staffUser: StaffUser.StaffUserEntityReference): Passport {
+    forStaffUser(staffUser: StaffUserEntityReference): Passport {
         return new StaffUserPassport(staffUser);
     },
 
