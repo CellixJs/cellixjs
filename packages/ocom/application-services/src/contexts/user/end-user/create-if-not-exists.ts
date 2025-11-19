@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { EndUserEntityReference, EndUserUnitOfWork } from '@ocom/domain/contexts/end-user';
 
 export interface EndUserCreateCommand {
     externalId: string;
@@ -13,13 +13,13 @@ export const createIfNotExists = (
 ) => {
     return async (
         command: EndUserCreateCommand,
-    ): Promise<EndUser.EndUserEntityReference> => {
+    ): Promise<EndUserEntityReference> => {
         const existingEndUser = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.externalId);
         if (existingEndUser) {
             return existingEndUser;
         }
-        let endUserToReturn: EndUser.EndUserEntityReference | undefined;
-        await dataSources.domainDataSource.User.EndUser.EndUserUnitOfWork.withScopedTransaction(
+        let endUserToReturn: EndUserEntityReference | undefined;
+        await dataSources.domainDataSource.User.EndUserUnitOfWork.withScopedTransaction(
             async (repo) => {
                 const newEndUser = await repo.getNewInstance(command.externalId, command.lastName, command.restOfName, command.email);
                 endUserToReturn = await repo.save(newEndUser);

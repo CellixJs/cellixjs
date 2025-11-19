@@ -11,9 +11,9 @@ import {
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Member from '@ocom/domain/contexts/member';
-import type * as Property from '@ocom/domain/contexts/property';
+import type { Community } from '@ocom/domain/contexts/community';
+import type { Member, MemberEntityReference } from '@ocom/domain/contexts/member';
+import type { Property } from '@ocom/domain/contexts/property';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { Member as MemberClass } from '@ocom/domain/contexts/member';
@@ -30,7 +30,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/property.type-converter.feature')
 );
 
-function makePropertyDoc(overrides: Partial<Models.Property.Property> = {}) {
+function makePropertyDoc(overrides: Partial<Models.Property> = {}) {
   return {
     propertyName: 'Test Property',
     propertyType: 'house',
@@ -60,9 +60,9 @@ function makePropertyDoc(overrides: Partial<Models.Property.Property> = {}) {
     createdAt: new Date(),
     updatedAt: new Date(),
     schemaVersion: '1.0',
-    set(key: keyof Models.Property.Property, value: unknown) {
+    set(key: keyof Models.Property, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Property.Property)[key] = value as never;
+      (this as Models.Property)[key] = value as never;
     },
     populate(path: string) {
       // Mock populate method for testing
@@ -74,25 +74,25 @@ function makePropertyDoc(overrides: Partial<Models.Property.Property> = {}) {
       return this;
     },
     ...overrides,
-  } as Models.Property.Property;
+  } as Models.Property;
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Models.Community;
   return vi.mocked(base);
 }
 
-function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
+function makeMemberDoc(overrides: Partial<Models.Member> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c698',
     memberName: 'Test Member',
     ...overrides,
-  } as Models.Member.Member;
+  } as Models.Member;
   return vi.mocked(base);
 }
 
@@ -112,12 +112,12 @@ function makeMockPassport() {
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Property.Property;
+  let doc: Models.Property;
   let adapter: PropertyDomainAdapter;
   let communityAdapter: CommunityDomainAdapter;
   let memberAdapter: MemberDomainAdapter;
-  let communityDoc: Models.Community.Community;
-  let memberDoc: Models.Member.Member;
+  let communityDoc: Models.Community;
+  let memberDoc: Models.Member;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -424,7 +424,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Setting the community property with a valid Community domain object', ({ Given, And, When, Then }) => {
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
     Given('a PropertyDomainAdapter for the document', () => {
       adapter = new PropertyDomainAdapter(doc);
     });
@@ -516,7 +516,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Setting the owner property with a valid Member domain object', ({ Given, And, When, Then }) => {
     let memberAdapter: MemberDomainAdapter;
-    let memberDomainObj: Member.Member<MemberDomainAdapter>;
+    let memberDomainObj: Member<MemberDomainAdapter>;
     Given('a PropertyDomainAdapter for the document', () => {
       adapter = new PropertyDomainAdapter(doc);
     });
@@ -542,7 +542,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     When('I try to set the owner property to the invalid object', () => {
       settingOwnerWithInvalidValue = () => {
-        adapter.setOwnerRef(memberAdapter as unknown as Member.MemberEntityReference);
+        adapter.setOwnerRef(memberAdapter as unknown as MemberEntityReference);
       };
     });
     Then('an error should be thrown indicating "owner reference is missing id"', () => {
@@ -1162,9 +1162,9 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Property.Property;
-  let communityDoc: Models.Community.Community;
-  let memberDoc: Models.Member.Member;
+  let doc: Models.Property;
+  let communityDoc: Models.Community;
+  let memberDoc: Models.Member;
   let converter: PropertyConverter;
   let passport: Passport;
   let result: unknown;
@@ -1208,20 +1208,20 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(PropertyClass);
     });
     And('the domain object\'s propertyName should be "Test Property"', () => {
-      expect((result as Property.Property<PropertyDomainAdapter>).propertyName).toBe('Test Property');
+      expect((result as Property<PropertyDomainAdapter>).propertyName).toBe('Test Property');
     });
     And('the domain object\'s propertyType should be "house"', () => {
-      expect((result as Property.Property<PropertyDomainAdapter>).propertyType).toBe('house');
+      expect((result as Property<PropertyDomainAdapter>).propertyType).toBe('house');
     });
   });
 
   Scenario('Converting a domain object to a Mongoose Property document', ({ Given, And, When, Then }) => {
-    let domainObj: Property.Property<PropertyDomainAdapter>;
+    let domainObj: Property<PropertyDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let memberAdapter: MemberDomainAdapter;
-    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
-    let memberDomainObj: Member.Member<MemberDomainAdapter>;
-    let resultDoc: Models.Property.Property;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
+    let memberDomainObj: Member<MemberDomainAdapter>;
+    let resultDoc: Models.Property;
 
     Given('a PropertyConverter instance', () => {
       converter = new PropertyConverter();

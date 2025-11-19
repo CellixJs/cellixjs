@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRole, StaffRoleEntityReference, StaffRoleProps, StaffRoleRepository, StaffRoleUnitOfWork } from '@ocom/domain/contexts/staff-role';
 
 interface StaffRoleCreateCommandCommunityPermissions {
 	canManageStaffRolesAndPermissions?: boolean;
@@ -28,7 +28,7 @@ const isNotFoundError = (error: unknown): boolean => {
 };
 
 const ensureRoleDoesNotExist = async (
-	repository: StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>,
+	repository: StaffRoleRepository<StaffRoleProps>,
 	roleName: string,
 ): Promise<void> => {
 	try {
@@ -43,7 +43,7 @@ const ensureRoleDoesNotExist = async (
 };
 
 const applyCommunityPermissions = (
-	staffRole: StaffRole.StaffRole<StaffRole.StaffRoleProps>,
+	staffRole: StaffRole<StaffRoleProps>,
 	permissions?: StaffRoleCreateCommandCommunityPermissions,
 ) => {
 	if (!permissions) {
@@ -77,12 +77,12 @@ const applyCommunityPermissions = (
 export const create = (dataSources: DataSources) => {
 	return async (
 		command: StaffRoleCreateCommand,
-	): Promise<StaffRole.StaffRoleEntityReference> => {
+	): Promise<StaffRoleEntityReference> => {
 		let createdRole:
-			| StaffRole.StaffRoleEntityReference
+			| StaffRoleEntityReference
 			| undefined;
 
-		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(
+		await dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction(
 			async (repository) => {
 				await ensureRoleDoesNotExist(repository, command.roleName);
 

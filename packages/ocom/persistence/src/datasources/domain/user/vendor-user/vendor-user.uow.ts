@@ -6,13 +6,13 @@ import {
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { VendorUserConverter } from './vendor-user.domain-adapter.ts';
 import { VendorUserRepository } from './vendor-user.repository.ts';
-import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import type { VendorUserUnitOfWork } from '@ocom/domain/contexts/vendor-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 export const getVendorUserUnitOfWork = (
 	vendorUserModel: Models.User.VendorUserModelType,
 	passport: Passport,
-): VendorUser.VendorUserUnitOfWork => {
+): VendorUserUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

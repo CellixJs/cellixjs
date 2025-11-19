@@ -1,13 +1,13 @@
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Service from '@ocom/domain/contexts/service';
+import type { CommunityEntityReference } from '@ocom/domain/contexts/community';
+import type { Service, ServiceRepository } from '@ocom/domain/contexts/service';
 import type { Passport } from '@ocom/domain/contexts/passport';
 // Runtime import for class constructor
 import { Service as ServiceClass } from '@ocom/domain/contexts/service';
 
-type ServiceModelType = Models.Service.Service;
+type ServiceModelType = Models.Service;
 type PropType = ServiceDomainAdapter;
 
 export class ServiceRepository
@@ -15,11 +15,11 @@ export class ServiceRepository
 		ServiceModelType,
 		PropType,
 		Passport,
-		Service.Service<PropType>
+		Service<PropType>
 	>
-	implements Service.ServiceRepository<PropType>
+	implements ServiceRepository<PropType>
 {
-	async getById(id: string): Promise<Service.Service<PropType>> {
+	async getById(id: string): Promise<Service<PropType>> {
 		const mongoService = await this.model.findById(id).exec();
 		if (!mongoService) {
 			throw new Error(`Service with id ${id} not found`);
@@ -30,8 +30,8 @@ export class ServiceRepository
 	getNewInstance(
 		serviceName: string,
 		description: string,
-		community: Community.CommunityEntityReference,
-	): Promise<Service.Service<PropType>> {
+		community: CommunityEntityReference,
+	): Promise<Service<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
 			ServiceClass.getNewInstance(

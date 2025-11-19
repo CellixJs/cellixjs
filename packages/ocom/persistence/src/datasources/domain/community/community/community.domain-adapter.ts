@@ -1,17 +1,17 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
-import type * as Community from '@ocom/domain/contexts/community';
+import type { Community, CommunityProps } from '@ocom/domain/contexts/community';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { EndUser, EndUserEntityReference, EndUserProps } from '@ocom/domain/contexts/end-user';
 import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Community.Community,
+	Models.Community,
 	CommunityDomainAdapter,
 	Passport,
-	Community.Community<CommunityDomainAdapter>
+	Community<CommunityDomainAdapter>
 > {
 	constructor() {
 		super(
@@ -22,8 +22,8 @@ export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
 }
 
 export class CommunityDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Models.Community.Community>
-	implements Community.CommunityProps
+	extends MongooseSeedwork.MongooseDomainAdapter<Models.Community>
+	implements CommunityProps
 {
 	get name() {
 		return this.doc.name;
@@ -53,7 +53,7 @@ export class CommunityDomainAdapter
 		this.doc.handle = handle;
 	}
 
-	get createdBy(): EndUser.EndUserProps {
+	get createdBy(): EndUserProps {
 		if (!this.doc.createdBy) {
 			throw new Error('createdBy is not populated');
 		}
@@ -65,7 +65,7 @@ export class CommunityDomainAdapter
 		return new EndUserDomainAdapter(this.doc.createdBy as Models.User.EndUser);
 	}
 
-    async loadCreatedBy(): Promise<EndUser.EndUserProps> {
+    async loadCreatedBy(): Promise<EndUserProps> {
 		if (!this.doc.createdBy) {
 			throw new Error('createdBy is not populated');
 		}
@@ -75,7 +75,7 @@ export class CommunityDomainAdapter
 		return new EndUserDomainAdapter(this.doc.createdBy as Models.User.EndUser);
 	}
 
-	set createdBy(user: EndUser.EndUserEntityReference | EndUser.EndUser<EndUserDomainAdapter>) {
+	set createdBy(user: EndUserEntityReference | EndUser<EndUserDomainAdapter>) {
 		//check to see if user is derived from MongooseDomainAdapter
 		if (user instanceof EndUserClass) {
             this.doc.set('createdBy', user.props.doc);

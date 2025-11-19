@@ -8,7 +8,7 @@ import { StaffUserRepository } from './staff-user.repository.ts';
 import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
-import type * as StaffUser from '@ocom/domain/contexts/staff-user';
+import type { StaffUser } from '@ocom/domain/contexts/staff-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { StaffUser as StaffUserClass } from '@ocom/domain/contexts/staff-user';
 
@@ -56,14 +56,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: StaffUserConverter;
   let passport: Passport;
   let staffUserDoc: Models.User.StaffUser;
-  let result: StaffUser.StaffUser<StaffUserDomainAdapter>;
+  let result: StaffUser<StaffUserDomainAdapter>;
   let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
 
   BeforeEachScenario(() => {
     staffUserDoc = makeStaffUserDoc();
     converter = new StaffUserConverter();
     passport = makeMockPassport();
-    result = {} as StaffUser.StaffUser<StaffUserDomainAdapter>;
+    result = {} as StaffUser<StaffUserDomainAdapter>;
 
     // Mock the Mongoose model as a constructor function with static methods
     const ModelMock = function (this: Models.User.StaffUser) {

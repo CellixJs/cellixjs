@@ -5,7 +5,7 @@ import { expect, vi } from 'vitest';
 import type { DataSources } from '@ocom/persistence';
 import { queryByRoleName } from './query-by-role-name.ts';
 // Direct imports from domain package
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRoleEntityReference, StaffRoleProps, StaffRoleRepository, StaffRoleUnitOfWork } from '@ocom/domain/contexts/staff-role';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 
 
@@ -15,7 +15,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/query-by-role-name.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<StaffRoleEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -34,19 +34,19 @@ function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as StaffRole.StaffRoleEntityReference;
+  } as StaffRoleEntityReference;
 }
 
-function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>> = {}) { 
+function makeMockRepo(overrides: Partial<Domain.StaffRoleRepository<StaffRoleProps>> = {}) { 
   return {
     getByRoleName: vi.fn(),
     ...overrides,
-  } as unknown as StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>;
+  } as unknown as StaffRoleRepository<StaffRoleProps>;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let dataSources: DataSources;
-  let queryStaffRoleByName: (command: { roleName: string }) => Promise<StaffRole.StaffRoleEntityReference | null>;
+  let queryStaffRoleByName: (command: { roleName: string }) => Promise<StaffRoleEntityReference | null>;
 
   BeforeEachScenario(() => {
     dataSources = {
@@ -65,7 +65,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by role name successfully', ({ Given, When, Then }) => {
-    let result: StaffRole.StaffRoleEntityReference | null;
+    let result: StaffRoleEntityReference | null;
 
     Given('a staff role with name "Test Role" exists', () => {
       // Mock will be set up in When step
@@ -78,7 +78,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         getByRoleName: vi.fn().mockResolvedValue(mockRole),
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 
@@ -92,7 +92,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by role name that does not exist', ({ Given, When, Then }) => {
-    let result: StaffRole.StaffRoleEntityReference | null;
+    let result: StaffRoleEntityReference | null;
 
     Given('no staff role with name "Test Role" exists', () => {
       // Mock will be set up in When step
@@ -103,7 +103,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         getByRoleName: vi.fn().mockRejectedValue(new Error('Not found')),
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 
@@ -127,7 +127,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         getByRoleName: vi.fn().mockRejectedValue(new Error('Database connection failed')),
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 

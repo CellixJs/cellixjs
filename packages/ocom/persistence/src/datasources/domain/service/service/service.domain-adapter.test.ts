@@ -10,8 +10,8 @@ import {
 } from './service.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Service from '@ocom/domain/contexts/service';
+import type { Community } from '@ocom/domain/contexts/community';
+import type { Service } from '@ocom/domain/contexts/service';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { Service as ServiceClass } from '@ocom/domain/contexts/service';
@@ -26,7 +26,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/service.type-converter.feature')
 );
 
-function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
+function makeServiceDoc(overrides: Partial<Models.Service> = {}) {
   return {
     serviceName: 'Test Service',
     description: 'Test service description',
@@ -34,9 +34,9 @@ function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
     community: undefined,
     createdAt: new Date(),
     updatedAt: new Date(),
-    set(key: keyof Models.Service.Service, value: unknown) {
+    set(key: keyof Models.Service, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Service.Service)[key] = value as never;
+      (this as Models.Service)[key] = value as never;
     },
     populate(path: string) {
       // Mock populate method for testing
@@ -46,16 +46,16 @@ function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
       return this;
     },
     ...overrides,
-  } as Models.Service.Service;
+  } as Models.Service;
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Models.Community;
   return vi.mocked(base);
 }
 
@@ -75,10 +75,10 @@ function makeMockPassport() {
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Service.Service;
+  let doc: Models.Service;
   let adapter: ServiceDomainAdapter;
   let communityAdapter: CommunityDomainAdapter;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Models.Community;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -202,7 +202,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Setting the community property with a valid Community domain object', ({ Given, And, When, Then }) => {
-    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
     Given('a ServiceDomainAdapter for the document', () => {
       adapter = new ServiceDomainAdapter(doc);
     });
@@ -264,8 +264,8 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Service.Service;
-  let communityDoc: Models.Community.Community;
+  let doc: Models.Service;
+  let communityDoc: Models.Community;
   let converter: ServiceConverter;
   let passport: Passport;
   let result: unknown;
@@ -303,18 +303,18 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(ServiceClass);
     });
     And('the domain object\'s serviceName should be "Test Service"', () => {
-      expect((result as Service.Service<ServiceDomainAdapter>).serviceName).toBe('Test Service');
+      expect((result as Service<ServiceDomainAdapter>).serviceName).toBe('Test Service');
     });
     And('the domain object\'s description should be "Test service description"', () => {
-      expect((result as Service.Service<ServiceDomainAdapter>).description).toBe('Test service description');
+      expect((result as Service<ServiceDomainAdapter>).description).toBe('Test service description');
     });
   });
 
   Scenario('Converting a domain object to a Mongoose Service document', ({ Given, And, When, Then }) => {
-    let domainObj: Service.Service<ServiceDomainAdapter>;
+    let domainObj: Service<ServiceDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
-    let resultDoc: Models.Service.Service;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
+    let resultDoc: Models.Service;
 
     Given('a ServiceConverter instance', () => {
       converter = new ServiceConverter();

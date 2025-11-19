@@ -1,24 +1,24 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { EndUser, EndUserProps, EndUserRepository } from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 // Runtime import for class constructor
 import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 
 export class EndUserRepository<
-		PropType extends EndUser.EndUserProps,
+		PropType extends EndUserProps,
 	>
 	extends MongooseSeedwork.MongoRepositoryBase<
 		Models.User.EndUser,
 		PropType,
 		Passport,
-		EndUser.EndUser<PropType>
+		EndUser<PropType>
 	>
-	implements EndUser.EndUserRepository<PropType>
+	implements EndUserRepository<PropType>
 {
 	async getByExternalId(
 		externalId: string,
-	): Promise<EndUser.EndUser<PropType>> {
+	): Promise<EndUser<PropType>> {
 		const user = await this.model.findOne({ externalId: externalId }).exec();
 		if (!user) {
 			throw new Error(`User with externalId ${externalId} not found`);
@@ -32,7 +32,7 @@ export class EndUserRepository<
 		lastName: string,
 		restOfName: string | undefined,
 		email: string,
-	): Promise<EndUser.EndUser<PropType>> {
+	): Promise<EndUser<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
 			EndUserClass.getNewInstance(

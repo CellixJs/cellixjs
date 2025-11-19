@@ -10,8 +10,8 @@ import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapte
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
 import type { Passport } from '@ocom/domain/contexts/passport';
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { Community } from '@ocom/domain/contexts/community';
+import type { EndUser, EndUserEntityReference } from '@ocom/domain/contexts/end-user';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 
@@ -22,7 +22,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/community.repository.feature')
 );
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     id: 'community-1',
     name: 'Test Community',
@@ -30,11 +30,11 @@ function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
     whiteLabelDomain: 'white.test.com',
     handle: 'test-handle',
     createdBy: undefined,
-    set(key: keyof Models.Community.Community, value: unknown) {
-      (this as Models.Community.Community)[key] = value as never;
+    set(key: keyof Models.Community, value: unknown) {
+      (this as Models.Community)[key] = value as never;
     },
     ...overrides,
-  } as Models.Community.Community;
+  } as Models.Community;
   return vi.mocked(base);
 }
 
@@ -63,8 +63,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let passport: Passport;
   let userDoc: Models.User.EndUser;
   let userAdapter: EndUserDomainAdapter;
-  let communityDoc: Models.Community.Community;
-  let result: Community.Community<CommunityDomainAdapter>;
+  let communityDoc: Models.Community;
+  let result: Community<CommunityDomainAdapter>;
 
   BeforeEachScenario(() => {
     userDoc = makeUserDoc();
@@ -72,9 +72,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     communityDoc = makeCommunityDoc({ _id: 'community-1', createdBy: userDoc });
     converter = new CommunityConverter();
     passport = makeMockPassport();
-    result = {} as Community.Community<CommunityDomainAdapter>;
+    result = {} as Community<CommunityDomainAdapter>;
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Community.Community) {
+    const ModelMock = function (this: Models.Community) {
       Object.assign(this, makeCommunityDoc());
     }
     // Attach static methods to the constructor
@@ -126,7 +126,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result.name).toBe('Test Community');
     });
     And('the domain object\'s createdBy should be an EndUser domain object with the correct user data', () => {
-      const { createdBy } = result as Community.Community<CommunityDomainAdapter>;
+      const { createdBy } = result as Community<CommunityDomainAdapter>;
       expect(createdBy).toBeInstanceOf(EndUserClass);
       expect(createdBy.id).toBe(userDoc.id);
       expect(createdBy.displayName).toBe(userDoc.displayName);
@@ -134,7 +134,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a community by id that does not exist', ({ When, Then }) => {
-    let gettingCommunityThatDoesNotExist: () => Promise<Community.Community<CommunityDomainAdapter>>;
+    let gettingCommunityThatDoesNotExist: () => Promise<Community<CommunityDomainAdapter>>;
     When('I call getByIdWithCreatedBy with "nonexistent-id"', () => {
       gettingCommunityThatDoesNotExist = async () => await repo.getByIdWithCreatedBy('nonexistent-id');
     });
@@ -145,7 +145,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new community instance', ({ Given, When, Then, And }) => {
-    let userDomainObject: EndUser.EndUser<EndUserDomainAdapter>;
+    let userDomainObject: EndUser<EndUserDomainAdapter>;
     Given('a valid EndUser domain object as the user', () => {
       userDoc = makeUserDoc();
       userAdapter = new EndUserDomainAdapter(userDoc)
@@ -175,7 +175,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       invalidUser = {};
     });
     When('I call getNewInstance with name "Invalid Community" and the invalid user', () => {
-      getNewInstanceWithInvalidUser = () => repo.getNewInstance('Invalid Community', invalidUser as EndUser.EndUserEntityReference);
+      getNewInstanceWithInvalidUser = () => repo.getNewInstance('Invalid Community', invalidUser as EndUserEntityReference);
     });
     Then('an error should be thrown indicating the user is not valid', async () => {
       await expect(getNewInstanceWithInvalidUser).rejects.toThrow();

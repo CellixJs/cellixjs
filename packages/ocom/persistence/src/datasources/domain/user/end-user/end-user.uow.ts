@@ -9,13 +9,13 @@ import {
 	EndUserConverter,
 } from './end-user.domain-adapter.ts';
 import { EndUserRepository } from './end-user.repository.ts';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { EndUserUnitOfWork } from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 export const getEndUserUnitOfWork: (
 	endUserModel: Models.User.EndUserModelType,
 	passport: Passport,
-) => EndUser.EndUserUnitOfWork = (endUserModel: Models.User.EndUserModelType, passport: Passport) => {
+) => EndUserUnitOfWork = (endUserModel: Models.User.EndUserModelType, passport: Passport) => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

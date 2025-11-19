@@ -1,17 +1,17 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Service from '@ocom/domain/contexts/service';
+import type { Community, CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community';
+import type { Service, ServiceProps } from '@ocom/domain/contexts/service';
 import type { Passport } from '@ocom/domain/contexts/passport';
 // Runtime import for class constructor
 import { Service as ServiceClass } from '@ocom/domain/contexts/service';
 
 export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Service.Service,
+	Models.Service,
 	ServiceDomainAdapter,
 	Passport,
-	Service.Service<ServiceDomainAdapter>
+	Service<ServiceDomainAdapter>
 > {
 	constructor() {
 		super(
@@ -22,8 +22,8 @@ export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
 }
 
 export class ServiceDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Models.Service.Service>
-	implements Service.ServiceProps
+	extends MongooseSeedwork.MongooseDomainAdapter<Models.Service>
+	implements ServiceProps
 {
 	get serviceName() {
 		return this.doc.serviceName;
@@ -46,7 +46,7 @@ export class ServiceDomainAdapter
 		this.doc.isActive = isActive;
 	}
 
-	get community(): Community.CommunityProps {
+	get community(): CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -55,20 +55,20 @@ export class ServiceDomainAdapter
 				'community is not populated or is not of the correct type',
 			);
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Models.Community);
 	}
 
-    async loadCommunity(): Promise<Community.CommunityProps> {
+    async loadCommunity(): Promise<CommunityProps> {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
             await this.doc.populate('community');
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Models.Community);
 	}
 
-	setCommunityRef(community: Community.CommunityEntityReference) {
+	setCommunityRef(community: CommunityEntityReference) {
 		if (!community?.id) {
 			throw new Error('community reference is missing id');
 		}

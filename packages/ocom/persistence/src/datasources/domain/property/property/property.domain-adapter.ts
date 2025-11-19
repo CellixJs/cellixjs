@@ -3,19 +3,19 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Member from '@ocom/domain/contexts/member';
-import type * as Property from '@ocom/domain/contexts/property';
+import type { Community, CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community';
+import type { Member, MemberEntityReference, MemberProps } from '@ocom/domain/contexts/member';
+import type { Property, PropertyProps } from '@ocom/domain/contexts/property';
 import type { Passport } from '@ocom/domain/contexts/passport';
 // Runtime imports for class constructors
 import { Property as PropertyClass } from '@ocom/domain/contexts/property';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 
 export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Property.Property,
+	Models.Property,
 	PropertyDomainAdapter,
 	Passport,
-	Property.Property<PropertyDomainAdapter>
+	Property<PropertyDomainAdapter>
 > {
 	constructor() {
 		super(
@@ -26,8 +26,8 @@ export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<
 }
 
 export class PropertyDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Models.Property.Property>
-	implements Property.PropertyProps
+	extends MongooseSeedwork.MongooseDomainAdapter<Models.Property>
+	implements PropertyProps
 {
 	get propertyName() {
 		return this.doc.propertyName;
@@ -107,7 +107,7 @@ export class PropertyDomainAdapter
 		return new PropertyListingDetailDomainAdapter(this.doc.listingDetail);
 	}
 
-	get community(): Community.CommunityProps {
+	get community(): CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -116,20 +116,20 @@ export class PropertyDomainAdapter
 				'community is not populated or is not of the correct type',
 			);
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Models.Community);
 	}
 
-	async loadCommunity(): Promise<Community.CommunityProps> {
+	async loadCommunity(): Promise<CommunityProps> {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
 			await this.doc.populate('community');
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Models.Community);
 	}
 
-    set community(community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>) {
+    set community(community: CommunityEntityReference | Community<CommunityDomainAdapter>) {
         //check to see if community is derived from MongooseDomainAdapter
         if (community instanceof CommunityClass) {
             this.doc.set('community', community.props.doc);
@@ -156,10 +156,10 @@ export class PropertyDomainAdapter
 			return c.toString();
 		}
 		// populated doc case
-		return (c as Models.Community.Community).id.toString();
+		return (c as Models.Community).id.toString();
 	}
 
-	get owner(): Member.MemberEntityReference | null {
+	get owner(): MemberEntityReference | null {
 		if (!this.doc.owner) {
 			return null;
 		}
@@ -170,17 +170,17 @@ export class PropertyDomainAdapter
 		}
         // TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.owner as Models.Member.Member) as unknown as Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.owner as Models.Member) as unknown as MemberEntityReference;
 	}
 
-	async loadOwner(): Promise<Member.MemberProps | null> {
+	async loadOwner(): Promise<MemberProps | null> {
 		if (!this.doc.owner) {
 			return null;
 		}
 		if (this.doc.owner instanceof MongooseSeedwork.ObjectId) {
 			await this.doc.populate('owner');
 		}
-		return new MemberDomainAdapter(this.doc.owner as Models.Member.Member);
+		return new MemberDomainAdapter(this.doc.owner as Models.Member);
 	}
 
 	/**
@@ -196,10 +196,10 @@ export class PropertyDomainAdapter
 			return o.toString();
 		}
 		// populated doc case
-		return (o as Models.Member.Member).id.toString();
+		return (o as Models.Member).id.toString();
 	}
 
-	setOwnerRef(owner: Member.MemberEntityReference | null) {
+	setOwnerRef(owner: MemberEntityReference | null) {
 		if (!owner) {
 			this.doc.set('owner', null);
 			return;

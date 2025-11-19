@@ -5,8 +5,8 @@ import { expect, vi } from 'vitest';
 import type { GraphContext } from '../../init/context.ts';
 import memberResolvers from './member.resolvers.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Member from '@ocom/domain/contexts/member';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
+import type { MemberEntityReference } from '@ocom/domain/contexts/member';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { Member as MemberClass } from '@ocom/domain/contexts/member';
 
@@ -19,8 +19,8 @@ const feature = await loadFeature(
 
 type CommunityEntity = { id: string; name: string };
 type MemberEntity = { id: string; communityId: string };
-type CommunityReference = Community.CommunityEntityReference;
-type MemberReference = Member.MemberEntityReference;
+type CommunityReference = CommunityEntityReference;
+type MemberReference = MemberEntityReference;
 
 function createMockCommunity(overrides: Partial<CommunityEntity> = {}): CommunityEntity {
   return {
@@ -89,7 +89,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     And('the community service can return that community', () => {
       vi
-        .mocked(context.applicationServices.Community.Community.queryById)
+        .mocked(context.applicationServices.Community.queryById)
         .mockResolvedValue(domainCommunity);
     });
 
@@ -103,9 +103,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     Then(
-      "it should call Community.Community.queryById with the member's communityId",
+      "it should call Community.queryById with the member's communityId",
       () => {
-        expect(context.applicationServices.Community.Community.queryById).toHaveBeenCalledWith({
+        expect(context.applicationServices.Community.queryById).toHaveBeenCalledWith({
           id: 'community-123',
         });
       },

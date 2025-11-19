@@ -27,7 +27,7 @@ import { deleteAndReassign } from './delete-and-reassign.ts';
 import { queryById } from './query-by-id.ts';
 import { queryByRoleName } from './query-by-role-name.ts';
 // Direct imports from domain package
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRoleEntityReference } from '@ocom/domain/contexts/staff-role';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 
 
@@ -37,7 +37,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/index.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<StaffRoleEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -56,7 +56,7 @@ function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as StaffRole.StaffRoleEntityReference;
+  } as StaffRoleEntityReference;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
@@ -94,7 +94,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a staff role through the application service', ({ Given, When, Then }) => {
-    let result: StaffRole.StaffRoleEntityReference;
+    let result: StaffRoleEntityReference;
 
     Given('a staff role application service', () => {
       expect(service).toBeDefined();
@@ -126,7 +126,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by ID through the application service', ({ Given, When, Then }) => {
-    let result: StaffRole.StaffRoleEntityReference | null;
+    let result: StaffRoleEntityReference | null;
 
     Given('a staff role application service', () => {
       expect(service).toBeDefined();
@@ -143,7 +143,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Querying a staff role by name through the application service', ({ Given, When, Then }) => {
-    let result: StaffRole.StaffRoleEntityReference | null;
+    let result: StaffRoleEntityReference | null;
 
     Given('a staff role application service', () => {
       expect(service).toBeDefined();

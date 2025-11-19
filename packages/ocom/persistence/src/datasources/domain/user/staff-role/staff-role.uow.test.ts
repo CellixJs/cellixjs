@@ -5,7 +5,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { expect, vi } from 'vitest';
 import { getStaffRoleUnitOfWork } from './staff-role.uow.ts';
 // Direct imports from domain package
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRoleUnitOfWork } from '@ocom/domain/contexts/staff-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 
@@ -39,12 +39,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let staffRoleModel: Models.Role.StaffRoleModelType;
   let passport: Passport;
-  let result: StaffRole.StaffRoleUnitOfWork;
+  let result: StaffRoleUnitOfWork;
 
   BeforeEachScenario(() => {
     staffRoleModel = makeMockStaffRoleModel();
     passport = makeMockPassport();
-    result = {} as StaffRole.StaffRoleUnitOfWork;
+    result = {} as StaffRoleUnitOfWork;
   });
 
   Background(({ Given, And }) => {

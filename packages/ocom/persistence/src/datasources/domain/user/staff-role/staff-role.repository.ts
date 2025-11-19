@@ -1,7 +1,7 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRole, StaffRoleRepository } from '@ocom/domain/contexts/staff-role';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
@@ -13,13 +13,13 @@ export class StaffRoleRepository
 		StaffRoleModelType,
 		AdapterType,
 		Passport,
-		StaffRole.StaffRole<AdapterType>
+		StaffRole<AdapterType>
 	>
-	implements StaffRole.StaffRoleRepository<AdapterType>
+	implements StaffRoleRepository<AdapterType>
 {
 	async getById(
 		id: string,
-	): Promise<StaffRole.StaffRole<AdapterType>> {
+	): Promise<StaffRole<AdapterType>> {
 		const staffRole = await this.model.findById(id).exec();
 		if (!staffRole) {
 			throw new Error(`StaffRole with id ${id} not found`);
@@ -29,7 +29,7 @@ export class StaffRoleRepository
 
 	async getByRoleName(
 		roleName: string,
-	): Promise<StaffRole.StaffRole<AdapterType>> {
+	): Promise<StaffRole<AdapterType>> {
 		const staffRole = await this.model.findOne({ roleName }).exec();
 		if (!staffRole) {
 			throw new Error(`StaffRole with roleName ${roleName} not found`);
@@ -39,7 +39,7 @@ export class StaffRoleRepository
 
 	getNewInstance(
 		name: string,
-	): Promise<StaffRole.StaffRole<AdapterType>> {
+	): Promise<StaffRole<AdapterType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
 			StaffRoleClass.getNewInstance(

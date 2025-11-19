@@ -1,8 +1,8 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
+import type { Community, CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community';
+import type { EndUserRole, EndUserRoleProps } from '@ocom/domain/contexts/end-user-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 // Runtime imports for class constructors
 import { EndUserRole as EndUserRoleClass } from '@ocom/domain/contexts/end-user-role';
@@ -12,7 +12,7 @@ export class EndUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.EndUserRole,
 	EndUserRoleDomainAdapter,
 	Passport,
-	EndUserRole.EndUserRole<EndUserRoleDomainAdapter>
+	EndUserRole<EndUserRoleDomainAdapter>
 > {
 	constructor() {
 		super(
@@ -24,7 +24,7 @@ export class EndUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 
 export class EndUserRoleDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.Role.EndUserRole>
-	implements EndUserRole.EndUserRoleProps
+	implements EndUserRoleProps
 {
 	// roleName
 	get roleName(): string {
@@ -34,26 +34,26 @@ export class EndUserRoleDomainAdapter
 		this.doc.roleName = roleName;
 	}
 
-	get community(): Community.CommunityProps {
+	get community(): CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
 			throw new Error('community is not populated or is not of the correct type');
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Models.Community);
 	}
-    async loadCommunity(): Promise<Community.CommunityProps> {
+    async loadCommunity(): Promise<CommunityProps> {
         if (!this.doc.community) {
             throw new Error('community is not populated');
         }
         if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
             await this.doc.populate('community');
         }
-        return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+        return new CommunityDomainAdapter(this.doc.community as Models.Community);
     }
 	set community(
-		community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>,
+		community: CommunityEntityReference | Community<CommunityDomainAdapter>,
 	) {
 		if (community instanceof CommunityClass) {
 			this.doc.set('community', community.props.doc);

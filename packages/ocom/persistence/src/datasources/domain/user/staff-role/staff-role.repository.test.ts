@@ -8,7 +8,7 @@ import { StaffRoleRepository } from './staff-role.repository.ts';
 import { StaffRoleConverter, type StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRole } from '@ocom/domain/contexts/staff-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 
@@ -126,7 +126,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a staff role by id', ({ When, Then, And }) => {
-    let result: StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    let result: StaffRole<StaffRoleDomainAdapter>;
     When('I call getById with "role-1"', async () => {
       result = await repo.getById('role-1');
     });
@@ -156,7 +156,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a staff role by roleName', ({ When, Then, And }) => {
-    let result: StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    let result: StaffRole<StaffRoleDomainAdapter>;
     When('I call getByRoleName with "Manager"', async () => {
       result = await repo.getByRoleName('Manager');
     });
@@ -186,7 +186,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new staff role instance', ({ When, Then, And }) => {
-    let result: StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    let result: StaffRole<StaffRoleDomainAdapter>;
     When('I call getNewInstance with name "Supervisor"', async () => {
       result = await repo.getNewInstance('Supervisor');
     });

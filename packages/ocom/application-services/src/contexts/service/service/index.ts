@@ -1,12 +1,12 @@
 import type { DataSources } from '@ocom/persistence';
 import { create } from './create.ts';
 import type { ServiceCreateCommand } from './create.ts';
-import type * as Service from '@ocom/domain/contexts/service';
+import type { ServiceEntityReference } from '@ocom/domain/contexts/service';
 
 export interface ServiceApplicationService {
 	create: (
 		command: ServiceCreateCommand,
-	) => Promise<Service.ServiceEntityReference>;
+	) => Promise<ServiceEntityReference>;
 }
 
 export const Service = (

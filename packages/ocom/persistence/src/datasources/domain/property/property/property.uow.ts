@@ -6,13 +6,13 @@ import {
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { PropertyConverter } from './property.domain-adapter.ts';
 import { PropertyRepository } from './property.repository.ts';
-import type * as Property from '@ocom/domain/contexts/property';
+import type { PropertyUnitOfWork } from '@ocom/domain/contexts/property';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 export const getPropertyUnitOfWork = (
 	propertyModel: Models.Property.PropertyModelType,
 	passport: Passport
-): Property.PropertyUnitOfWork => {
+): PropertyUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

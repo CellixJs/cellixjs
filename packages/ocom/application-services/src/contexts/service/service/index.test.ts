@@ -12,7 +12,7 @@ vi.mock('./create.ts', () => ({
 import { Service } from './index.ts';
 import { create } from './create.ts';
 // Direct imports from domain package
-import type * as Service from '@ocom/domain/contexts/service';
+import type { ServiceEntityReference } from '@ocom/domain/contexts/service';
 import { Service as ServiceClass } from '@ocom/domain/contexts/service';
 
 
@@ -22,7 +22,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/index.feature')
 );
 
-function makeMockService(overrides: Partial<Service.ServiceEntityReference> = {}) {
+function makeMockService(overrides: Partial<ServiceEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     serviceName: 'Test Service',
@@ -32,7 +32,7 @@ function makeMockService(overrides: Partial<Service.ServiceEntityReference> = {}
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as Service.ServiceEntityReference;
+  } as ServiceEntityReference;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
@@ -64,7 +64,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a service through the application service', ({ Given, When, Then }) => {
-    let result: Service.ServiceEntityReference;
+    let result: ServiceEntityReference;
 
     Given('a service application service', () => {
       expect(service).toBeDefined();

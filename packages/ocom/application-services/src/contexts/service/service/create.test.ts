@@ -5,8 +5,8 @@ import { expect, vi } from 'vitest';
 import type { DataSources } from '@ocom/persistence';
 import { create } from './create.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Service from '@ocom/domain/contexts/service';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
+import type { Service, ServiceEntityReference } from '@ocom/domain/contexts/service';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { Service as ServiceClass } from '@ocom/domain/contexts/service';
 
@@ -17,26 +17,26 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/create.feature')
 );
 
-function makeMockCommunity(overrides: Partial<Community.CommunityEntityReference> = {}) {
+function makeMockCommunity(overrides: Partial<CommunityEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     name: 'Test Community',
     ...overrides,
-  } as Community.CommunityEntityReference;
+  } as CommunityEntityReference;
 }
 
-function makeMockService(overrides: Partial<Service.ServiceEntityReference> = {}) {
+function makeMockService(overrides: Partial<ServiceEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439012',
     serviceName: 'Test Service',
     description: 'Test Description',
     ...overrides,
-  } as Service.ServiceEntityReference;
+  } as ServiceEntityReference;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let dataSources: DataSources;
-  let createService: (command: { serviceName: string; description: string; communityId: string }) => Promise<Service.ServiceEntityReference>;
+  let createService: (command: { serviceName: string; description: string; communityId: string }) => Promise<ServiceEntityReference>;
 
   BeforeEachScenario(() => {
     dataSources = {
@@ -64,10 +64,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a service successfully', ({ Given, When, Then }) => {
-    let result: Service.ServiceEntityReference;
+    let result: ServiceEntityReference;
 
     Given('a valid community exists with id "507f1f77bcf86cd799439011"', () => {
-      vi.mocked(dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById).mockResolvedValue(makeMockCommunity({ id: '507f1f77bcf86cd799439011' }));
+      vi.mocked(dataSources.readonlyDataSource.Community.CommunityReadRepo.getById).mockResolvedValue(makeMockCommunity({ id: '507f1f77bcf86cd799439011' }));
     });
 
     When('I create a service with name "Test Service", description "Test Description", and communityId "507f1f77bcf86cd799439011"', async () => {
@@ -78,7 +78,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         save: vi.fn().mockResolvedValue(makeMockService({ serviceName: 'Test Service', description: 'Test Description' })),
       };
 
-      vi.mocked(dataSources.domainDataSource.Service.Service.ServiceUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.Service.ServiceUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 
@@ -96,7 +96,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let error: Error;
 
     Given('no community exists with id "507f1f77bcf86cd799439011"', () => {
-      vi.mocked(dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById).mockResolvedValue(null);
+      vi.mocked(dataSources.readonlyDataSource.Community.CommunityReadRepo.getById).mockResolvedValue(null);
     });
 
     When('I create a service with name "Test Service", description "Test Description", and communityId "507f1f77bcf86cd799439011"', async () => {
@@ -117,7 +117,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let error: Error;
 
     Given('a valid community exists with id "507f1f77bcf86cd799439011"', () => {
-      vi.mocked(dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById).mockResolvedValue(makeMockCommunity({ id: '507f1f77bcf86cd799439011' }));
+      vi.mocked(dataSources.readonlyDataSource.Community.CommunityReadRepo.getById).mockResolvedValue(makeMockCommunity({ id: '507f1f77bcf86cd799439011' }));
     });
 
     When('I create a service but save fails', async () => {
@@ -128,7 +128,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         save: vi.fn().mockResolvedValue(undefined), // Simulate save failure
       };
 
-      vi.mocked(dataSources.domainDataSource.Service.Service.ServiceUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.Service.ServiceUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 

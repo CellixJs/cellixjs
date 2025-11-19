@@ -7,8 +7,8 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityConverter, CommunityDomainAdapter } from './community.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { Community } from '@ocom/domain/contexts/community';
+import type { EndUser } from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
@@ -25,19 +25,19 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/community.type-converter.feature')
 );
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     name: 'Test Community',
     domain: 'test.com',
     whiteLabelDomain: 'white.test.com',
     handle: 'test-handle',
     createdBy: undefined,
-    set(key: keyof Models.Community.Community, value: unknown) {
+    set(key: keyof Models.Community, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Community.Community)[key] = value as never;
+      (this as Models.Community)[key] = value as never;
     },
     ...overrides,
-  } as Models.Community.Community;
+  } as Models.Community;
   return vi.mocked(base);
 }
 
@@ -62,7 +62,7 @@ function makeMockPassport() {
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Community.Community;
+  let doc: Models.Community;
   let adapter: CommunityDomainAdapter;
   let userDoc: Models.User.EndUser;
   let userAdapter: EndUserDomainAdapter;
@@ -241,7 +241,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Community.Community;
+  let doc: Models.Community;
   let userDoc: Models.User.EndUser;
   let converter: CommunityConverter;
   let passport: Passport;
@@ -276,19 +276,19 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(CommunityClass);
     });
     And('the domain object\'s name should be "Test Community"', () => {
-      expect((result as Community.Community<CommunityDomainAdapter>).name).toBe('Test Community');
+      expect((result as Community<CommunityDomainAdapter>).name).toBe('Test Community');
     });
     And('the domain object\'s domain should be "test.com"', () => {
-      expect((result as Community.Community<CommunityDomainAdapter>).domain).toBe('test.com');
+      expect((result as Community<CommunityDomainAdapter>).domain).toBe('test.com');
     });
     And('the domain object\'s whiteLabelDomain should be "white.test.com"', () => {
-      expect((result as Community.Community<CommunityDomainAdapter>).whiteLabelDomain).toBe('white.test.com');
+      expect((result as Community<CommunityDomainAdapter>).whiteLabelDomain).toBe('white.test.com');
     });
     And('the domain object\'s handle should be "test-handle"', () => {
-      expect((result as Community.Community<CommunityDomainAdapter>).handle).toBe('test-handle');
+      expect((result as Community<CommunityDomainAdapter>).handle).toBe('test-handle');
     });
     And('the domain object\'s createdBy should be an EndUser domain object with the correct user data', () => {
-      const { createdBy } = result as Community.Community<CommunityDomainAdapter>;
+      const { createdBy } = result as Community<CommunityDomainAdapter>;
       expect(createdBy).toBeInstanceOf(EndUserClass);
       expect(createdBy.id).toBe(userDoc.id);
       expect(createdBy.displayName).toBe(userDoc.displayName);
@@ -296,11 +296,11 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Converting a domain object to a Mongoose Community document', ({ Given, And, When, Then }) => {
-    let domainObj: Community.Community<CommunityDomainAdapter>;
+    let domainObj: Community<CommunityDomainAdapter>;
     let userAdapter: EndUserDomainAdapter;
-    let userDomainObj: EndUser.EndUser<EndUserDomainAdapter>;
+    let userDomainObj: EndUser<EndUserDomainAdapter>;
     let userDoc: Models.User.EndUser;
-    let resultDoc: Models.Community.Community;
+    let resultDoc: Models.Community;
     Given('a CommunityConverter instance', () => {
       converter = new CommunityConverter();
     });

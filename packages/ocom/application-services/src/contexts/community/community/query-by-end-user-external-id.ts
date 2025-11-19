@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import type * as Community from '@ocom/domain/contexts/community';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
 
 export interface CommunityQueryByEndUserExternalIdCommand {
     externalId: string;
@@ -11,8 +11,8 @@ export const queryByEndUserExternalId = (
 ) => {
     return async (
         command: CommunityQueryByEndUserExternalIdCommand,
-    ): Promise<Community.CommunityEntityReference[]> => {
-        return await dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getByEndUserExternalId(
+    ): Promise<CommunityEntityReference[]> => {
+        return await dataSources.readonlyDataSource.Community.CommunityReadRepo.getByEndUserExternalId(
             command.externalId,
         )
     }

@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import type { VendorUser, VendorUserProps } from '@ocom/domain/contexts/vendor-user';
 import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
@@ -8,7 +8,7 @@ export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.User.VendorUser,
 	VendorUserDomainAdapter,
 	Passport,
-	VendorUser.VendorUser<VendorUserDomainAdapter>
+	VendorUser<VendorUserDomainAdapter>
 > {
 	constructor() {
 		super(
@@ -20,7 +20,7 @@ export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
 
 export class VendorUserDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.User.VendorUser>
-	implements VendorUser.VendorUserProps
+	implements VendorUserProps
 {
 	get personalInformation(): VendorUser.VendorUserPersonalInformationProps {
 		if (!this.doc.personalInformation) {

@@ -5,10 +5,10 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
 import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Member from '@ocom/domain/contexts/member';
-import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { Community, CommunityEntityReference, CommunityProps } from '@ocom/domain/contexts/community';
+import type { Member, MemberAccountEntityReference, MemberAccountProps, MemberCustomViewEntityReference, MemberCustomViewProps, MemberProfileProps, MemberProps } from '@ocom/domain/contexts/member';
+import type { EndUserRole, EndUserRoleEntityReference, EndUserRoleProps } from '@ocom/domain/contexts/end-user-role';
+import type { EndUser, EndUserEntityReference, EndUserProps } from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 // Runtime imports for class constructors
 import { Member as MemberClass } from '@ocom/domain/contexts/member';
@@ -17,10 +17,10 @@ import { EndUserRole as EndUserRoleClass } from '@ocom/domain/contexts/end-user-
 import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 
 export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Member.Member,
+	Models.Member,
 	MemberDomainAdapter,
 	Passport,
-	Member.Member<MemberDomainAdapter>
+	Member<MemberDomainAdapter>
 > {
 	constructor() {
 		super(
@@ -30,7 +30,7 @@ export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<
 	}
 }
 
-export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<Models.Member.Member> implements Member.MemberProps {
+export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<Models.Member> implements MemberProps {
   get memberName() {
     return this.doc.memberName;
   }
@@ -59,28 +59,28 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
       return c.toString();
     }
     // populated doc case
-    return (c as Models.Community.Community).id.toString();
+    return (c as Models.Community).id.toString();
   }
 
-  get community(): Community.CommunityProps {
+  get community(): CommunityProps {
     if (!this.doc.community) {
       throw new Error('community is not populated');
     }
     if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
         throw new Error('community is not populated or is not of the correct type');
     }
-    return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+    return new CommunityDomainAdapter(this.doc.community as Models.Community);
   }
-  async loadCommunity(): Promise<Community.CommunityProps> {
+  async loadCommunity(): Promise<CommunityProps> {
     if (!this.doc.community) {
       throw new Error('community is not populated');
     }
     if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
       await this.doc.populate('community');
     }
-    return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+    return new CommunityDomainAdapter(this.doc.community as Models.Community);
   }
-  set community(community: Community.CommunityEntityReference | Community.Community<CommunityDomainAdapter>) {
+  set community(community: CommunityEntityReference | Community<CommunityDomainAdapter>) {
     //check to see if community is derived from MongooseDomainAdapter
     if (community instanceof CommunityClass) {
       this.doc.set('community', community.props.doc);
@@ -94,11 +94,11 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     this.doc.set('community', community);
   }
 
-  get accounts(): DomainSeedwork.PropArray<Member.MemberAccountEntityReference> {
+  get accounts(): DomainSeedwork.PropArray<MemberAccountEntityReference> {
     return new MongooseSeedwork.MongoosePropArray(this.doc.accounts, MemberAccountDomainAdapter);
   }
 
-  get role(): EndUserRole.EndUserRoleProps {
+  get role(): EndUserRoleProps {
     if (!this.doc.role) {
       throw new Error('role is not populated');
     }
@@ -107,7 +107,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     }
     return new EndUserRoleDomainAdapter(this.doc.role as Models.Role.EndUserRole);
   }
-  async loadRole(): Promise<EndUserRole.EndUserRoleProps> {
+  async loadRole(): Promise<EndUserRoleProps> {
     if (!this.doc.role) {
       throw new Error('role is not populated');
     }
@@ -116,7 +116,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     }
     return new EndUserRoleDomainAdapter(this.doc.role as Models.Role.EndUserRole);
   }
-  set role(role: EndUserRole.EndUserRoleEntityReference | EndUserRole.EndUserRole<EndUserRoleDomainAdapter>) {
+  set role(role: EndUserRoleEntityReference | EndUserRole<EndUserRoleDomainAdapter>) {
     if (role instanceof EndUserRoleClass) {
         this.doc.set('role', role.props.doc);
         return;
@@ -134,12 +134,12 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     return new MemberProfileDomainAdapter(this.doc.profile);
   }
 
-  get customViews(): DomainSeedwork.PropArray<Member.MemberCustomViewEntityReference> {
+  get customViews(): DomainSeedwork.PropArray<MemberCustomViewEntityReference> {
     return new MongooseSeedwork.MongoosePropArray(this.doc.customViews, MemberCustomViewDomainAdapter);
   }
 }
 
-export class MemberAccountDomainAdapter implements Member.MemberAccountProps {
+export class MemberAccountDomainAdapter implements MemberAccountProps {
   public readonly doc: Models.Member.MemberAccount;
   constructor(doc: Models.Member.MemberAccount) {
     this.doc = doc;
@@ -162,7 +162,7 @@ export class MemberAccountDomainAdapter implements Member.MemberAccountProps {
     this.doc.lastName = lastName;
   }
 
-  get user(): EndUser.EndUserProps {
+  get user(): EndUserProps {
     if (!this.doc.user) {
         throw new Error('User is not populated');
     }
@@ -172,7 +172,7 @@ export class MemberAccountDomainAdapter implements Member.MemberAccountProps {
     return new EndUserDomainAdapter(this.doc.user as Models.User.EndUser);
   }
 
-  set user(user: EndUser.EndUserEntityReference | EndUser.EndUser<EndUserDomainAdapter>) {
+  set user(user: EndUserEntityReference | EndUser<EndUserDomainAdapter>) {
     if (user instanceof EndUserClass) {
       this.doc.set('user', user.props.doc);
       return;
@@ -192,7 +192,7 @@ export class MemberAccountDomainAdapter implements Member.MemberAccountProps {
     this.doc.statusCode = statusCode;
   }
 
-  get createdBy(): EndUser.EndUserProps {
+  get createdBy(): EndUserProps {
     if (!this.doc.createdBy) {
       throw new Error('createdBy is not populated');
     }
@@ -201,7 +201,7 @@ export class MemberAccountDomainAdapter implements Member.MemberAccountProps {
     }
     return new EndUserDomainAdapter(this.doc.createdBy as Models.User.EndUser);
   }
-  set createdBy(createdBy: EndUser.EndUserEntityReference | EndUser.EndUser<EndUserDomainAdapter>) {
+  set createdBy(createdBy: EndUserEntityReference | EndUser<EndUserDomainAdapter>) {
     if (createdBy instanceof EndUserClass) {
       this.doc.set('createdBy', createdBy.props.doc);
       return;
@@ -215,7 +215,7 @@ export class MemberAccountDomainAdapter implements Member.MemberAccountProps {
   }
 }
 
-export class MemberCustomViewDomainAdapter implements Member.MemberCustomViewProps {
+export class MemberCustomViewDomainAdapter implements MemberCustomViewProps {
   public readonly doc: Models.Member.MemberCustomView;
   constructor(doc: Models.Member.MemberCustomView) {
     this.doc = doc;
@@ -260,7 +260,7 @@ export class MemberCustomViewDomainAdapter implements Member.MemberCustomViewPro
   }
 }
 
-export class MemberProfileDomainAdapter implements Member.MemberProfileProps {
+export class MemberProfileDomainAdapter implements MemberProfileProps {
   public readonly props: Models.Member.MemberProfile;
   constructor(props: Models.Member.MemberProfile) {
     this.props = props;

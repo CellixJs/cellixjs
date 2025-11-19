@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { EndUserEntityReference } from '@ocom/domain/contexts/end-user';
 
 export interface EndUserQueryByNameCommand {
     displayName: string;
@@ -11,7 +11,7 @@ export const queryByName = (
 ) => {
     return async (
         command: EndUserQueryByNameCommand,
-    ): Promise<EndUser.EndUserEntityReference[]> => {
+    ): Promise<EndUserEntityReference[]> => {
         return await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByName(
             command.displayName,
             {

@@ -8,7 +8,7 @@ import { EndUserRepository } from './end-user.repository.ts';
 import { EndUserConverter, type EndUserDomainAdapter } from './end-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { EndUser } from '@ocom/domain/contexts/end-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 
@@ -115,7 +115,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting an end user by externalId', ({ When, Then, And }) => {
-    let result: EndUser.EndUser<EndUserDomainAdapter>;
+    let result: EndUser<EndUserDomainAdapter>;
     When('I call getByExternalId with "123e4567-e89b-12d3-a456-426614174001"', async () => {
       result = await repo.getByExternalId('123e4567-e89b-12d3-a456-426614174001');
     });
@@ -142,7 +142,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new end user instance', ({ When, Then, And }) => {
-    let result: EndUser.EndUser<EndUserDomainAdapter>;
+    let result: EndUser<EndUserDomainAdapter>;
     When('I call getNewInstance with externalId "123e4567-e89b-12d3-a456-426614174002", lastName "Smith", restOfName "Alice", and email "alice@example.com"', async () => {
       result = await repo.getNewInstance(
         '123e4567-e89b-12d3-a456-426614174002',
@@ -166,7 +166,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new end user instance with no restOfName', ({ When, Then, And }) => {
-    let result: EndUser.EndUser<EndUserDomainAdapter>;
+    let result: EndUser<EndUserDomainAdapter>;
     When('I call getNewInstance with externalId "123e4567-e89b-12d3-a456-426614174003", lastName "Smith", restOfName undefined, and email "smith@example.com"', async () => {
       result = await repo.getNewInstance(
         '123e4567-e89b-12d3-a456-426614174003',
@@ -183,7 +183,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     And('the domain object\'s displayName should be "Smith"', () => {
       expect(result.displayName).toBe('Smith');
-      expect((result as EndUser.EndUser<EndUserDomainAdapter>).displayName).toBe('Smith');
+      expect((result as EndUser<EndUserDomainAdapter>).displayName).toBe('Smith');
     });
     And('the domain object\'s email should be "smith@example.com"', () => {
       expect(result.personalInformation.contactInformation.email).toBe('smith@example.com');

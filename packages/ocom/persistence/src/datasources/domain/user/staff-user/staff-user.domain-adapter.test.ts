@@ -7,7 +7,7 @@ import { expect, vi } from 'vitest';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
 import { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
 // Direct imports from domain package
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRoleEntityReference } from '@ocom/domain/contexts/staff-role';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 
 
@@ -115,7 +115,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(adapter.role).toBeUndefined();
     });
     When('I set the role reference to a valid role', () => {
-      const roleRef = { id: '507f1f77bcf86cd799439012' } as StaffRole.StaffRoleEntityReference;
+      const roleRef = { id: '507f1f77bcf86cd799439012' } as StaffRoleEntityReference;
       adapter.setRoleRef(roleRef);
     });
     Then('the document\'s role should be set to the ObjectId', () => {

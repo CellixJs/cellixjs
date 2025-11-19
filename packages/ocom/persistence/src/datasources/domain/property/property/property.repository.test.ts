@@ -8,8 +8,8 @@ import { PropertyRepository } from './property.repository.ts';
 import { PropertyConverter, type PropertyDomainAdapter } from './property.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Property from '@ocom/domain/contexts/property';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
+import type { Property } from '@ocom/domain/contexts/property';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { Property as PropertyClass } from '@ocom/domain/contexts/property';
@@ -22,21 +22,21 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/property.repository.feature')
 );
 
-function makePropertyDoc(overrides: Partial<Models.Property.Property> = {}) {
+function makePropertyDoc(overrides: Partial<Models.Property> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011', // Valid ObjectId string
     propertyName: 'Test Property',
     community: makeCommunityDoc(),
-    set(key: keyof Models.Property.Property, value: unknown) {
-      (this as Models.Property.Property)[key] = value as never;
+    set(key: keyof Models.Property, value: unknown) {
+      (this as Models.Property)[key] = value as never;
     },
     ...overrides,
-  } as Models.Property.Property;
+  } as Models.Property;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community.Community; // Valid ObjectId string
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
+  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community; // Valid ObjectId string
 }
 
 function makeMockPassport() {
@@ -58,21 +58,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: PropertyRepository;
   let converter: PropertyConverter;
   let passport: Passport;
-  let propertyDoc: Models.Property.Property;
-  let communityDoc: Models.Community.Community;
-  let result: Property.Property<PropertyDomainAdapter>;
-  let results: ReadonlyArray<Property.Property<PropertyDomainAdapter>>;
+  let propertyDoc: Models.Property;
+  let communityDoc: Models.Community;
+  let result: Property<PropertyDomainAdapter>;
+  let results: ReadonlyArray<Property<PropertyDomainAdapter>>;
 
   BeforeEachScenario(() => {
     propertyDoc = makePropertyDoc();
     communityDoc = makeCommunityDoc();
     converter = new PropertyConverter();
     passport = makeMockPassport();
-    result = {} as Property.Property<PropertyDomainAdapter>;
+    result = {} as Property<PropertyDomainAdapter>;
     results = [];
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Property.Property) {
+    const ModelMock = function (this: Models.Property) {
       Object.assign(this, makePropertyDoc());
     }
     // Attach static methods to the constructor
@@ -129,7 +129,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a property by id that does not exist', ({ When, Then }) => {
-    let gettingPropertyThatDoesNotExist: () => Promise<Property.Property<PropertyDomainAdapter>>;
+    let gettingPropertyThatDoesNotExist: () => Promise<Property<PropertyDomainAdapter>>;
     When('I call getById with "nonexistent-id"', () => {
       gettingPropertyThatDoesNotExist = async () => await repo.getById('nonexistent-id');
     });
@@ -155,9 +155,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new property instance', ({ Given, When, Then, And }) => {
-    let communityDomainObject: Community.CommunityEntityReference;
+    let communityDomainObject: CommunityEntityReference;
     Given('a valid Community domain object as the community', () => {
-            communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Community.CommunityEntityReference;
+            communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as CommunityEntityReference;
     });
     When('I call getNewInstance with name "New Property" and the community', async () => {
       result = await repo.getNewInstance('New Property', communityDomainObject);
@@ -180,7 +180,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       invalidCommunity = undefined;
     });
     When('I call getNewInstance with name "Invalid Property" and the invalid community', () => {
-      getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Property', invalidCommunity as Community.CommunityEntityReference);
+      getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Property', invalidCommunity as CommunityEntityReference);
     });
     Then('an error should be thrown indicating the community is not valid', async () => {
       await expect(getNewInstanceWithInvalidCommunity).rejects.toThrow();

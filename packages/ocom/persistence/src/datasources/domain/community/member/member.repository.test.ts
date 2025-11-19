@@ -8,8 +8,8 @@ import { MemberRepository } from './member.repository.ts';
 import { MemberConverter, type MemberDomainAdapter } from './member.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Member from '@ocom/domain/contexts/member';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
+import type { Member } from '@ocom/domain/contexts/member';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { Member as MemberClass } from '@ocom/domain/contexts/member';
@@ -22,21 +22,21 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/member.repository.feature')
 );
 
-function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
+function makeMemberDoc(overrides: Partial<Models.Member> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011', // Valid ObjectId string
     memberName: 'Test Member',
     community: makeCommunityDoc(),
-    set(key: keyof Models.Member.Member, value: unknown) {
-      (this as Models.Member.Member)[key] = value as never;
+    set(key: keyof Models.Member, value: unknown) {
+      (this as Models.Member)[key] = value as never;
     },
     ...overrides,
-  } as Models.Member.Member;
+  } as Models.Member;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community.Community; // Valid ObjectId string
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
+  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community; // Valid ObjectId string
 }
 
 function makeMockPassport() {
@@ -58,21 +58,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: MemberRepository;
   let converter: MemberConverter;
   let passport: Passport;
-  let memberDoc: Models.Member.Member;
-  let communityDoc: Models.Community.Community;
-  let result: Member.Member<MemberDomainAdapter>;
-  let results: Member.Member<MemberDomainAdapter>[];
+  let memberDoc: Models.Member;
+  let communityDoc: Models.Community;
+  let result: Member<MemberDomainAdapter>;
+  let results: Member<MemberDomainAdapter>[];
 
   BeforeEachScenario(() => {
     memberDoc = makeMemberDoc();
     communityDoc = makeCommunityDoc();
     converter = new MemberConverter();
     passport = makeMockPassport();
-    result = {} as Member.Member<MemberDomainAdapter>;
+    result = {} as Member<MemberDomainAdapter>;
     results = [];
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Member.Member) {
+    const ModelMock = function (this: Models.Member) {
       Object.assign(this, makeMemberDoc());
     }
     // Attach static methods to the constructor
@@ -129,7 +129,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a member by id that does not exist', ({ When, Then }) => {
-    let gettingMemberThatDoesNotExist: () => Promise<Member.Member<MemberDomainAdapter>>;
+    let gettingMemberThatDoesNotExist: () => Promise<Member<MemberDomainAdapter>>;
     When('I call getById with "nonexistent-id"', () => {
       gettingMemberThatDoesNotExist = async () => await repo.getById('nonexistent-id');
     });
@@ -159,7 +159,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Given('a role with id "507f1f77bcf86cd799439013"', () => {
       roleId = '507f1f77bcf86cd799439013'; // Valid ObjectId string // Valid ObjectId string
       // Mock the find method to return members with the specified role
-      const ModelMock = (repo as unknown as { model: unknown }).model as { find: (query: { role: unknown }) => { populate: () => { exec: () => Promise<Models.Member.Member[]> } } };
+      const ModelMock = (repo as unknown as { model: unknown }).model as { find: (query: { role: unknown }) => { populate: () => { exec: () => Promise<Models.Member[]> } } };
       ModelMock.find = vi.fn((query: { role: unknown }) => ({
         populate: vi.fn().mockReturnThis(),
         exec: vi.fn(() => {
@@ -185,9 +185,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new member instance', ({ Given, When, Then, And }) => {
-    let communityDomainObject: Community.CommunityEntityReference;
+    let communityDomainObject: CommunityEntityReference;
     Given('a valid Community domain object as the community', () => {
-            communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Community.CommunityEntityReference;
+            communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as CommunityEntityReference;
     });
     When('I call getNewInstance with name "New Member" and the community', async () => {
       result = await repo.getNewInstance('New Member', communityDomainObject);
@@ -210,7 +210,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       invalidCommunity = {};
     });
     When('I call getNewInstance with name "Invalid Member" and the invalid community', () => {
-      getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Member', invalidCommunity as Community.CommunityEntityReference);
+      getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Member', invalidCommunity as CommunityEntityReference);
     });
     Then('an error should be thrown indicating the community is not valid', async () => {
       await expect(getNewInstanceWithInvalidCommunity).rejects.toThrow();

@@ -6,8 +6,8 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
+import type { Community } from '@ocom/domain/contexts/community';
+import type { EndUserRole } from '@ocom/domain/contexts/end-user-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { EndUserRole as EndUserRoleClass } from '@ocom/domain/contexts/end-user-role';
@@ -78,13 +78,13 @@ function makeEndUserRoleDoc(overrides: Partial<Models.Role.EndUserRole> = {}) {
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Models.Community;
   return vi.mocked(base);
 }
 
@@ -106,7 +106,7 @@ function makeMockPassport() {
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.Role.EndUserRole;
   let adapter: EndUserRoleDomainAdapter;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Models.Community;
   let communityAdapter: CommunityDomainAdapter;
   let result: unknown;
 
@@ -199,7 +199,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Setting the community property with a valid Community domain object', ({ Given, And, When, Then }) => {
-    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
     Given('an EndUserRoleDomainAdapter for the document', () => {
       adapter = new EndUserRoleDomainAdapter(doc);
     });
@@ -671,7 +671,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.Role.EndUserRole;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Models.Community;
   let converter: EndUserRoleConverter;
   let passport: Passport;
   let result: unknown;
@@ -709,21 +709,21 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(EndUserRoleClass);
     });
     And('the domain object\'s roleName should be "Test Role"', () => {
-      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
+      expect((result as EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
     });
     And('the domain object\'s isDefault should be true', () => {
-      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(true);
+      expect((result as EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(true);
     });
     And('the domain object\'s community should be a Community domain object', () => {
-      const { community } = result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
+      const { community } = result as EndUserRole<EndUserRoleDomainAdapter>;
       expect(community).toBeInstanceOf(CommunityClass);
     });
   });
 
   Scenario('Converting a domain object to a Mongoose EndUserRole document', ({ Given, And, When, Then }) => {
-    let domainObj: EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
+    let domainObj: EndUserRole<EndUserRoleDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
     let resultDoc: Models.Role.EndUserRole;
 
     Given('an EndUserRoleConverter instance', () => {

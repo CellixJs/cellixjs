@@ -5,7 +5,7 @@ import { expect, vi } from 'vitest';
 import type { GraphContext } from '../../init/context.ts';
 import endUserResolvers from './end-user.resolvers.ts';
 // Direct imports from domain package
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { EndUserEntityReference } from '@ocom/domain/contexts/end-user';
 import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
 
 
@@ -22,7 +22,7 @@ const feature = await loadFeature(
 );
 
 // Types for test results
-type EndUserEntity = EndUser.EndUserEntityReference;
+type EndUserEntity = EndUserEntityReference;
 
 // Helper function to create mock end user
 function createMockEndUser(overrides: Partial<EndUserEntity> = {}): EndUserEntity {

@@ -5,7 +5,7 @@ import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
 import { deleteAndReassign } from './delete-and-reassign.ts';
 // Direct imports from domain package
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRole, StaffRoleEntityReference, StaffRoleProps, StaffRoleRepository, StaffRoleUnitOfWork } from '@ocom/domain/contexts/staff-role';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 
 
@@ -15,7 +15,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/delete-and-reassign.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<StaffRoleEntityReference> = {}) {
   const baseRole = {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -40,15 +40,15 @@ function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference
   return {
     ...baseRole,
     deleteAndReassignTo: vi.fn(),
-  } as unknown as StaffRole.StaffRole<StaffRole.StaffRoleProps>;
+  } as unknown as StaffRole<StaffRoleProps>;
 }
 
-function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>> = {}) { 
+function makeMockRepo(overrides: Partial<Domain.StaffRoleRepository<StaffRoleProps>> = {}) { 
   return {
     getById: vi.fn(),
     save: vi.fn(),
     ...overrides,
-  } as unknown as StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>;
+  } as unknown as StaffRoleRepository<StaffRoleProps>;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
@@ -91,7 +91,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         save: vi.fn().mockResolvedValue(roleToDelete),
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 
@@ -116,7 +116,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         getById: vi.fn().mockRejectedValue(new Error('Not found')),
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 
@@ -153,7 +153,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
           .mockRejectedValueOnce(new Error('Not found')),
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 

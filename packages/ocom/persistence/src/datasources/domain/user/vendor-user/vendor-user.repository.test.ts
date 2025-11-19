@@ -8,7 +8,7 @@ import { VendorUserRepository } from './vendor-user.repository.ts';
 import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
-import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import type { VendorUser } from '@ocom/domain/contexts/vendor-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
 
@@ -117,7 +117,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a VendorUser by ID', ({ When, Then, And }) => {
-    let result: VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: VendorUser<VendorUserDomainAdapter>;
     When('I call getById with ID "507f1f77bcf86cd799439011"', async () => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
@@ -130,7 +130,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a VendorUser by external ID', ({ When, Then, And }) => {
-    let result: VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: VendorUser<VendorUserDomainAdapter>;
     When('I call getByExternalId with externalId "123e4567-e89b-12d3-a456-426614174001"', async () => {
       result = await repo.getByExternalId('123e4567-e89b-12d3-a456-426614174001');
     });
@@ -152,7 +152,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new VendorUser instance', ({ When, Then, And }) => {
-    let result: VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: VendorUser<VendorUserDomainAdapter>;
     When('I call getNewInstance with externalId "123e4567-e89b-12d3-a456-426614174002", lastName "Smith", and restOfName "John"', async () => {
       result = await repo.getNewInstance('123e4567-e89b-12d3-a456-426614174002', 'Smith', 'John');
     });

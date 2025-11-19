@@ -5,7 +5,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { expect, vi } from 'vitest';
 import { getEndUserRoleUnitOfWork } from './end-user-role.uow.ts';
 // Direct imports from domain package
-import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
+import type { EndUserRoleUnitOfWork } from '@ocom/domain/contexts/end-user-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { EndUserRole as EndUserRoleClass } from '@ocom/domain/contexts/end-user-role';
 
@@ -45,12 +45,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let endUserRoleModel: Models.Role.EndUserRoleModelType;
   let passport: Passport;
-  let result: EndUserRole.EndUserRoleUnitOfWork;
+  let result: EndUserRoleUnitOfWork;
 
   BeforeEachScenario(() => {
     endUserRoleModel = makeMockEndUserRoleModel();
     passport = makeMockPassport();
-    result = {} as EndUserRole.EndUserRoleUnitOfWork;
+    result = {} as EndUserRoleUnitOfWork;
   });
 
   Background(({ Given, And }) => {

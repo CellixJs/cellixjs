@@ -9,8 +9,8 @@ import { ServiceRepository } from './service.repository.ts';
 import { ServiceConverter } from './service.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Service from '@ocom/domain/contexts/service';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
+import type { Service, ServiceProps } from '@ocom/domain/contexts/service';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { Service as ServiceClass } from '@ocom/domain/contexts/service';
@@ -22,7 +22,7 @@ const repositoryFeature = await loadFeature(
   path.resolve(__dirname, 'features/service.repository.feature')
 );
 
-function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
+function makeServiceDoc(overrides: Partial<Models.Service> = {}) {
   return {
     serviceName: 'Test Service',
     description: 'Test service description',
@@ -30,9 +30,9 @@ function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
     community: undefined,
     createdAt: new Date(),
     updatedAt: new Date(),
-    set(key: keyof Models.Service.Service, value: unknown) {
+    set(key: keyof Models.Service, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Service.Service)[key] = value as never;
+      (this as Models.Service)[key] = value as never;
     },
     populate(path: string) {
       // Mock populate method for testing
@@ -42,16 +42,16 @@ function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
       return this;
     },
     ...overrides,
-  } as Models.Service.Service;
+  } as Models.Service;
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Models.Community;
   return vi.mocked(base);
 }
 
@@ -82,7 +82,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
     passport = makeMockPassport();
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Service.Service) {
+    const ModelMock = function (this: Models.Service) {
       Object.assign(this, makeServiceDoc());
     };
     // Attach static methods to the constructor
@@ -124,7 +124,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a service by ID when the service does not exist', ({ Given, When, Then }) => {
-    let gettingServiceThatDoesNotExist: () => Promise<Service.Service<Service.ServiceProps>>;
+    let gettingServiceThatDoesNotExist: () => Promise<Service<ServiceProps>>;
     Given('no service document exists in the database with ID "999"', () => {
       // Mock is set up in BeforeEachScenario
     });
@@ -138,9 +138,9 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a new service instance', ({ Given, When, Then }) => {
-    let communityRef: Community.CommunityEntityReference;
+    let communityRef: CommunityEntityReference;
     Given('a valid community reference', () => {
-      communityRef = { id: '507f1f77bcf86cd799439012' } as Community.CommunityEntityReference;
+      communityRef = { id: '507f1f77bcf86cd799439012' } as CommunityEntityReference;
     });
     When('I call getNewInstance with service name "New Service", description "New description", and community reference', async () => {
       result = await repository.getNewInstance('New Service', 'New description', communityRef);

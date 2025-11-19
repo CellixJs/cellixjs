@@ -15,10 +15,10 @@ import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts
 import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
-import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
-import type * as Member from '@ocom/domain/contexts/member';
+import type { Community } from '@ocom/domain/contexts/community';
+import type { EndUser } from '@ocom/domain/contexts/end-user';
+import type { EndUserRole } from '@ocom/domain/contexts/end-user-role';
+import type { Member } from '@ocom/domain/contexts/member';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { EndUser as EndUserClass } from '@ocom/domain/contexts/end-user';
@@ -36,7 +36,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/member.type-converter.feature')
 );
 
-function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
+function makeMemberDoc(overrides: Partial<Models.Member> = {}) {
   const base = {
     memberName: 'Test Member',
     cybersourceCustomerId: 'test-customer-id',
@@ -45,22 +45,22 @@ function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
     profile: undefined,
     accounts: [],
     customViews: [],
-    set(key: keyof Models.Member.Member, value: unknown) {
+    set(key: keyof Models.Member, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Member.Member)[key] = value as never;
+      (this as Models.Member)[key] = value as never;
     },
     ...overrides,
-  } as Models.Member.Member;
+  } as Models.Member;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Models.Community;
   return vi.mocked(base);
 }
 
@@ -154,9 +154,9 @@ function makeMockPassport() {
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Member.Member;
+  let doc: Models.Member;
   let adapter: MemberDomainAdapter;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Models.Community;
   let communityAdapter: CommunityDomainAdapter;
   let roleDoc: Models.Role.EndUserRole;
   let roleAdapter: EndUserRoleDomainAdapter;
@@ -273,7 +273,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Setting the community property with a valid Community domain object', ({ Given, And, When, Then }) => {
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
     Given('a MemberDomainAdapter for the document', () => {
       adapter = new MemberDomainAdapter(doc);
     });
@@ -340,7 +340,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Setting the role property with a valid EndUserRole domain object', ({ Given, And, When, Then }) => {
     let roleAdapter: EndUserRoleDomainAdapter;
-    let roleDomainObj: EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
+    let roleDomainObj: EndUserRole<EndUserRoleDomainAdapter>;
     Given('a MemberDomainAdapter for the document', () => {
       adapter = new MemberDomainAdapter(doc);
     });
@@ -478,7 +478,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let accountDoc: Models.Member.MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
     let userAdapter: EndUserDomainAdapter;
-    let userDomainObj: EndUser.EndUser<EndUserDomainAdapter>;
+    let userDomainObj: EndUser<EndUserDomainAdapter>;
 
     Given('a MemberAccountDomainAdapter for a member account document', () => {
       accountDoc = makeMemberAccountDoc();
@@ -542,7 +542,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let accountDoc: Models.Member.MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
     let userAdapter: EndUserDomainAdapter;
-    let userDomainObj: EndUser.EndUser<EndUserDomainAdapter>;
+    let userDomainObj: EndUser<EndUserDomainAdapter>;
 
     Given('a MemberAccountDomainAdapter for a member account document', () => {
       accountDoc = makeMemberAccountDoc();
@@ -899,8 +899,8 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Member.Member;
-  let communityDoc: Models.Community.Community;
+  let doc: Models.Member;
+  let communityDoc: Models.Community;
   let roleDoc: Models.Role.EndUserRole;
   let profileDoc: Models.Member.MemberProfile;
   let converter: MemberConverter;
@@ -948,32 +948,32 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(MemberClass);
     });
     And('the domain object\'s memberName should be "Test Member"', () => {
-      expect((result as Member.Member<MemberDomainAdapter>).memberName).toBe('Test Member');
+      expect((result as Member<MemberDomainAdapter>).memberName).toBe('Test Member');
     });
     And('the domain object\'s cybersourceCustomerId should be "test-customer-id"', () => {
-      expect((result as Member.Member<MemberDomainAdapter>).cybersourceCustomerId).toBe('test-customer-id');
+      expect((result as Member<MemberDomainAdapter>).cybersourceCustomerId).toBe('test-customer-id');
     });
     And('the domain object\'s community should be a Community domain object', () => {
-      const { community } = result as Member.Member<MemberDomainAdapter>;
+      const { community } = result as Member<MemberDomainAdapter>;
       expect(community).toBeInstanceOf(CommunityClass);
     });
     And('the domain object\'s role should be an EndUserRole domain object', () => {
-      const { role } = result as Member.Member<MemberDomainAdapter>;
+      const { role } = result as Member<MemberDomainAdapter>;
       expect(role).toBeInstanceOf(EndUserRoleClass);
     });
     And('the domain object\'s profile should be a MemberProfile domain object', () => {
-      const { profile } = result as Member.Member<MemberDomainAdapter>;
+      const { profile } = result as Member<MemberDomainAdapter>;
       expect(profile).toBeDefined();
     });
   });
 
   Scenario('Converting a domain object to a Mongoose Member document', ({ Given, And, When, Then }) => {
-    let domainObj: Member.Member<MemberDomainAdapter>;
+    let domainObj: Member<MemberDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let roleAdapter: EndUserRoleDomainAdapter;
-    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
-    let roleDomainObj: EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
-    let resultDoc: Models.Member.Member;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
+    let roleDomainObj: EndUserRole<EndUserRoleDomainAdapter>;
+    let resultDoc: Models.Member;
 
     Given('a MemberConverter instance', () => {
       converter = new MemberConverter();

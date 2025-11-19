@@ -8,8 +8,8 @@ import { expect, vi } from 'vitest';
 import { VendorUserRoleConverter, type VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 import { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as VendorUserRole from '@ocom/domain/contexts/vendor-user-role';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
+import type { VendorUserRole } from '@ocom/domain/contexts/vendor-user-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { VendorUserRole as VendorUserRoleClass } from '@ocom/domain/contexts/vendor-user-role';
@@ -66,13 +66,13 @@ function makeVendorUserRoleDoc(overrides: Partial<Models.Role.VendorUserRole> = 
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Models.Community;
   return vi.mocked(base);
 }
 
@@ -96,7 +96,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: VendorUserRoleConverter;
   let repository: VendorUserRoleRepository;
   let passport: Passport;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Models.Community;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -160,7 +160,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result).toBeInstanceOf(VendorUserRoleClass);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
-      expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
     });
   });
 
@@ -177,10 +177,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new vendor user role instance', ({ Given, When, Then, And }) => {
-    let communityDomainObj: Community.CommunityEntityReference;
+    let communityDomainObj: CommunityEntityReference;
 
     Given('a valid Community domain object as the community', () => {
-      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Community.CommunityEntityReference;
+      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "New Vendor Role", isDefault false, and the community', async () => {
       result = await repository.getNewInstance('New Vendor Role', false, communityDomainObj);
@@ -189,10 +189,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result).toBeInstanceOf(VendorUserRoleClass);
     });
     And('the domain object\'s roleName should be "New Vendor Role"', () => {
-      expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('New Vendor Role');
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('New Vendor Role');
     });
     And('the domain object\'s isDefault should be false', () => {
-      expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(false);
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(false);
     });
   });
 });

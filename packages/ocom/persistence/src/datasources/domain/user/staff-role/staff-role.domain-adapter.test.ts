@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 // Direct imports from domain package
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRole } from '@ocom/domain/contexts/staff-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 
@@ -514,13 +514,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: StaffRoleConverter;
   let doc: Models.Role.StaffRole;
-  let domainObject: StaffRole.StaffRole<StaffRoleDomainAdapter>;
-  let result: StaffRole.StaffRole<StaffRoleDomainAdapter> | Models.Role.StaffRole | undefined;
+  let domainObject: StaffRole<StaffRoleDomainAdapter>;
+  let result: StaffRole<StaffRoleDomainAdapter> | Models.Role.StaffRole | undefined;
 
   BeforeEachScenario(() => {
     converter = new StaffRoleConverter();
     doc = makeStaffRoleDoc();
-    domainObject = {} as StaffRole.StaffRole<StaffRoleDomainAdapter>;
+    domainObject = {} as StaffRole<StaffRoleDomainAdapter>;
     result = undefined;
   });
 
@@ -538,7 +538,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       converter = new StaffRoleConverter();
     });
     When('I call toDomain with the Mongoose StaffRole document', () => {
-      result = converter.toDomain(doc, makeMockPassport()) as StaffRole.StaffRole<StaffRoleDomainAdapter>;
+      result = converter.toDomain(doc, makeMockPassport()) as StaffRole<StaffRoleDomainAdapter>;
     });
     Then('I should receive a StaffRole domain object', () => {
       expect(result).toBeDefined();

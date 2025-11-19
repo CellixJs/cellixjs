@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import type * as EndUser from '@ocom/domain/contexts/end-user';
+import type { EndUserEntityReference } from '@ocom/domain/contexts/end-user';
 
 export interface EndUserQueryByIdCommand {
     id: string;
@@ -11,7 +11,7 @@ export const queryById = (
 ) => {
     return async (
         command: EndUserQueryByIdCommand,
-    ): Promise<EndUser.EndUserEntityReference | null> => {
+    ): Promise<EndUserEntityReference | null> => {
         return await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getById(
             command.id, 
             { fields: command.fields }

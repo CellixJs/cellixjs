@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import type * as Community from '@ocom/domain/contexts/community';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
 
 export interface CommunityCreateCommand {
 	name: string;
@@ -11,13 +11,13 @@ export const create = (
 ) => {
 	return async (
 		command: CommunityCreateCommand,
-	): Promise<Community.CommunityEntityReference> => {
+	): Promise<CommunityEntityReference> => {
         const createdBy = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.endUserExternalId);
         if (!createdBy) {
             throw new Error(`End user not found for external id ${command.endUserExternalId}`);
         }
-        let communityToReturn: Community.CommunityEntityReference | undefined;
-		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(
+        let communityToReturn: CommunityEntityReference | undefined;
+		await dataSources.domainDataSource.Community.CommunityUnitOfWork.withScopedTransaction(
 			async (repo) => {
                 const newCommunity = await repo.getNewInstance(command.name, createdBy);
                 communityToReturn = await repo.save(newCommunity);

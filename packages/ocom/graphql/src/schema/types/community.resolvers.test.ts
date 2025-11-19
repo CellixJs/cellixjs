@@ -6,7 +6,7 @@ import type { GraphContext } from '../../init/context.ts';
 import type { CommunityCreateInput } from '../builder/generated.ts';
 import communityResolvers from './community.resolvers.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 
 
@@ -18,7 +18,7 @@ const feature = await loadFeature(
 );
 
 // Types for test results
-type CommunityEntity = Community.CommunityEntityReference;
+type CommunityEntity = CommunityEntityReference;
 
 // Helper function to create mock community
 function createMockCommunity(overrides: Partial<CommunityEntity> = {}): CommunityEntity {
@@ -134,12 +134,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the currentCommunity query is executed', async () => {
-      vi.mocked(context.applicationServices.Community.Community.queryById).mockResolvedValue(mockCommunity);
+      vi.mocked(context.applicationServices.Community.queryById).mockResolvedValue(mockCommunity);
       result = await (communityResolvers.Query?.currentCommunity as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<CommunityEntity | null>)(null, {}, context, {});
     });
 
-    Then('it should call Community.Community.queryById with the user\'s communityId', () => {
-      expect(context.applicationServices.Community.Community.queryById).toHaveBeenCalledWith({
+    Then('it should call Community.queryById with the user\'s communityId', () => {
+      expect(context.applicationServices.Community.queryById).toHaveBeenCalledWith({
         id: 'default-community-id',
       });
     });
@@ -158,12 +158,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the communityById query is executed with that ID', async () => {
-      vi.mocked(context.applicationServices.Community.Community.queryById).mockResolvedValue(mockCommunity);
+      vi.mocked(context.applicationServices.Community.queryById).mockResolvedValue(mockCommunity);
       result = await (communityResolvers.Query?.communityById as unknown as (parent: unknown, args: { id: string }, context: GraphContext, info: unknown) => Promise<CommunityEntity | null>)(null, { id: communityId }, context, {});
     });
 
-    Then('it should call Community.Community.queryById with the provided ID', () => {
-      expect(context.applicationServices.Community.Community.queryById).toHaveBeenCalledWith({
+    Then('it should call Community.queryById with the provided ID', () => {
+      expect(context.applicationServices.Community.queryById).toHaveBeenCalledWith({
         id: communityId,
       });
     });
@@ -181,12 +181,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the communitiesForCurrentEndUser query is executed', async () => {
-      vi.mocked(context.applicationServices.Community.Community.queryByEndUserExternalId).mockResolvedValue(mockCommunities);
+      vi.mocked(context.applicationServices.Community.queryByEndUserExternalId).mockResolvedValue(mockCommunities);
       result = await (communityResolvers.Query?.communitiesForCurrentEndUser as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<CommunityEntity[]>)(null, {}, context, {});
     });
 
-    Then('it should call Community.Community.queryByEndUserExternalId with the user\'s sub', () => {
-      expect(context.applicationServices.Community.Community.queryByEndUserExternalId).toHaveBeenCalledWith({
+    Then('it should call Community.queryByEndUserExternalId with the user\'s sub', () => {
+      expect(context.applicationServices.Community.queryByEndUserExternalId).toHaveBeenCalledWith({
         externalId: 'default-user-sub',
       });
     });
@@ -209,12 +209,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the communityCreate mutation is executed with the input', async () => {
-      vi.mocked(context.applicationServices.Community.Community.create).mockResolvedValue(mockCreatedCommunity);
+      vi.mocked(context.applicationServices.Community.create).mockResolvedValue(mockCreatedCommunity);
       result = await (communityResolvers.Mutation?.communityCreate as unknown as (parent: unknown, args: { input: CommunityCreateInput }, context: GraphContext, info?: unknown) => Promise<{ status: { success: boolean }; community?: CommunityEntity } | null>)(null, { input }, context);
     });
 
-    Then('it should call Community.Community.create with the input name and the user\'s sub', () => {
-      expect(context.applicationServices.Community.Community.create).toHaveBeenCalledWith({
+    Then('it should call Community.create with the input name and the user\'s sub', () => {
+      expect(context.applicationServices.Community.create).toHaveBeenCalledWith({
         name: input.name,
         endUserExternalId: 'default-user-sub',
       });
@@ -284,8 +284,8 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       // Already set up
     });
 
-    And('Community.Community.create throws an error', () => {
-      vi.mocked(context.applicationServices.Community.Community.create).mockRejectedValue(new Error(errorMessage));
+    And('Community.create throws an error', () => {
+      vi.mocked(context.applicationServices.Community.create).mockRejectedValue(new Error(errorMessage));
     });
 
     When('the communityCreate mutation is executed', async () => {

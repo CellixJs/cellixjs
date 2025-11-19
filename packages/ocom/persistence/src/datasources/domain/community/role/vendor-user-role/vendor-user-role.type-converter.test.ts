@@ -9,8 +9,8 @@ const test = { for: describeFeature };
 
 import { VendorUserRoleConverter, VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as VendorUserRole from '@ocom/domain/contexts/vendor-user-role';
+import type { Community } from '@ocom/domain/contexts/community';
+import type { VendorUserRole } from '@ocom/domain/contexts/vendor-user-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { VendorUserRole as VendorUserRoleClass } from '@ocom/domain/contexts/vendor-user-role';
@@ -69,14 +69,14 @@ function makeVendorUserRoleDoc(overrides: Partial<Models.Role.VendorUserRole> = 
   return vi.mocked(merged as unknown as Models.Role.VendorUserRole);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439012',
     name: 'Test Community',
     description: 'A test community',
     settings: {},
   };
-  return { ...base, ...overrides } as Models.Community.Community;
+  return { ...base, ...overrides } as Models.Community;
 }
 
 function makeMockPassport(): Passport {
@@ -106,7 +106,7 @@ function makeMockPassport(): Passport {
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let doc: Models.Role.VendorUserRole;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Models.Community;
   let converter: VendorUserRoleConverter;
   let passport: Passport;
   let result: unknown;
@@ -144,21 +144,21 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(VendorUserRoleClass);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
-      expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
     });
     And('the domain object\'s isDefault should be true', () => {
-      expect((result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(true);
+      expect((result as VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(true);
     });
     And('the domain object\'s community should be a Community domain object', () => {
-      const { community } = result as VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>;
+      const { community } = result as VendorUserRole<VendorUserRoleDomainAdapter>;
       expect(community).toBeInstanceOf(CommunityClass);
     });
   });
 
   Scenario('Converting a domain object to a Mongoose VendorUserRole document', ({ Given, And, When, Then }) => {
-    let domainObj: VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>;
+    let domainObj: VendorUserRole<VendorUserRoleDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
-    let communityDomainObj: Community.Community<CommunityDomainAdapter>;
+    let communityDomainObj: Community<CommunityDomainAdapter>;
     let resultDoc: Models.Role.VendorUserRole;
 
     Given('a VendorUserRoleConverter instance', () => {

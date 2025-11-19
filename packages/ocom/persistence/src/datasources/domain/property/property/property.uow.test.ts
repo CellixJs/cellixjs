@@ -5,7 +5,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { expect, vi } from 'vitest';
 import { getPropertyUnitOfWork } from './property.uow.ts';
 // Direct imports from domain package
-import type * as Property from '@ocom/domain/contexts/property';
+import type { PropertyUnitOfWork } from '@ocom/domain/contexts/property';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Property as PropertyClass } from '@ocom/domain/contexts/property';
 
@@ -45,12 +45,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let propertyModel: Models.Property.PropertyModelType;
   let passport: Passport;
-  let result: Property.PropertyUnitOfWork;
+  let result: PropertyUnitOfWork;
 
   BeforeEachScenario(() => {
     propertyModel = makeMockPropertyModel();
     passport = makeMockPassport();
-    result = {} as Property.PropertyUnitOfWork;
+    result = {} as PropertyUnitOfWork;
   });
 
   Background(({ Given, And }) => {

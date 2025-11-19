@@ -5,7 +5,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { expect, vi } from 'vitest';
 import { getVendorUserUnitOfWork } from './vendor-user.uow.ts';
 // Direct imports from domain package
-import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import type { VendorUserUnitOfWork } from '@ocom/domain/contexts/vendor-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
 
@@ -39,12 +39,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let vendorUserModel: Models.User.VendorUserModelType;
   let passport: Passport;
-  let result: VendorUser.VendorUserUnitOfWork;
+  let result: VendorUserUnitOfWork;
 
   BeforeEachScenario(() => {
     vendorUserModel = makeMockVendorUserModel();
     passport = makeMockPassport();
-    result = {} as VendorUser.VendorUserUnitOfWork;
+    result = {} as VendorUserUnitOfWork;
   });
 
   Background(({ Given, And }) => {

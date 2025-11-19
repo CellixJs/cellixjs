@@ -6,13 +6,13 @@ import {
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { StaffUserConverter } from './staff-user.domain-adapter.ts';
 import { StaffUserRepository } from './staff-user.repository.ts';
-import type * as StaffUser from '@ocom/domain/contexts/staff-user';
+import type { StaffUserUnitOfWork } from '@ocom/domain/contexts/staff-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 export const getStaffUserUnitOfWork = (
 	staffUserModel: Models.User.StaffUserModelType,
 	passport: Passport,
-): StaffUser.StaffUserUnitOfWork => {
+): StaffUserUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

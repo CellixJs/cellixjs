@@ -5,7 +5,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { expect, vi } from 'vitest';
 import { getMemberUnitOfWork } from './member.uow.ts';
 // Direct imports from domain package
-import type * as Member from '@ocom/domain/contexts/member';
+import type { MemberUnitOfWork } from '@ocom/domain/contexts/member';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Member as MemberClass } from '@ocom/domain/contexts/member';
 
@@ -45,12 +45,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let memberModel: Models.Member.MemberModelType;
   let passport: Passport;
-  let result: Member.MemberUnitOfWork;
+  let result: MemberUnitOfWork;
 
   BeforeEachScenario(() => {
     memberModel = makeMockMemberModel();
     passport = makeMockPassport();
-    result = {} as Member.MemberUnitOfWork;
+    result = {} as MemberUnitOfWork;
   });
 
   Background(({ Given, And }) => {

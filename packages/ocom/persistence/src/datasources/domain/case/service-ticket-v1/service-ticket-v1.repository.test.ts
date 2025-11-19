@@ -8,9 +8,9 @@ import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 import { ServiceTicketV1Converter, type ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as Member from '@ocom/domain/contexts/member';
-import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
+import type { Member, MemberEntityReference } from '@ocom/domain/contexts/member';
+import type { ServiceTicketV1 } from '@ocom/domain/contexts/service-ticket/v1';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { Member as MemberClass } from '@ocom/domain/contexts/member';
@@ -51,12 +51,12 @@ function makeServiceTicketDoc(overrides: Partial<Models.Case.ServiceTicket> = {}
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community.Community;
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
+  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community;
 }
 
-function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
-  return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Models.Member.Member;
+function makeMemberDoc(overrides: Partial<Models.Member> = {}) {
+  return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Models.Member;
 }
 
 function makeMockPassport() {
@@ -84,9 +84,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: ServiceTicketV1Converter;
   let passport: Passport;
   let serviceTicketDoc: Models.Case.ServiceTicket;
-  let communityDoc: Models.Community.Community;
-  let memberDoc: Models.Member.Member;
-  let result: ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
+  let communityDoc: Models.Community;
+  let memberDoc: Models.Member;
+  let result: ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
   BeforeEachScenario(() => {
     communityDoc = makeCommunityDoc();
@@ -99,7 +99,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     converter = new ServiceTicketV1Converter();
     passport = makeMockPassport();
-    result = {} as ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
+    result = {} as ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
     // Mock the Mongoose model as a constructor function with static methods
     const ModelMock = function (this: Models.Case.ServiceTicket) {
@@ -161,7 +161,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a service ticket by id that does not exist', ({ When, Then }) => {
-    let gettingServiceTicketThatDoesNotExist: () => Promise<ServiceTicketV1.ServiceTicketV1<ServiceTicketV1DomainAdapter>>;
+    let gettingServiceTicketThatDoesNotExist: () => Promise<ServiceTicketV1<ServiceTicketV1DomainAdapter>>;
     When('I call getById with "nonexistent-id"', () => {
       gettingServiceTicketThatDoesNotExist = async () => await repo.getById('nonexistent-id');
     });
@@ -172,13 +172,13 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new service ticket instance', ({ Given, When, Then, And }) => {
-    let communityDomainObject: Community.CommunityEntityReference;
-    let requestorDomainObject: Member.MemberEntityReference;
+    let communityDomainObject: CommunityEntityReference;
+    let requestorDomainObject: MemberEntityReference;
     Given('a valid Community domain object as the community', () => {
-      communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Community.CommunityEntityReference;
+      communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as CommunityEntityReference;
     });
     And('a valid Member domain object as the requestor', () => {
-      requestorDomainObject = { id: '507f1f77bcf86cd799439013', memberName: 'Test Member' } as Member.MemberEntityReference;
+      requestorDomainObject = { id: '507f1f77bcf86cd799439013', memberName: 'Test Member' } as MemberEntityReference;
     });
     When('I call getNewInstance with title "New Ticket", description "New Description", community, and requestor', async () => {
       result = await repo.getNewInstance(

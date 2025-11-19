@@ -8,8 +8,8 @@ import { expect, vi } from 'vitest';
 import { EndUserRoleConverter, type EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
-import type * as EndUserRole from '@ocom/domain/contexts/end-user-role';
+import type { Community, CommunityEntityReference } from '@ocom/domain/contexts/community';
+import type { EndUserRole } from '@ocom/domain/contexts/end-user-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 import { EndUserRole as EndUserRoleClass } from '@ocom/domain/contexts/end-user-role';
@@ -66,13 +66,13 @@ function makeEndUserRoleDoc(overrides: Partial<Models.Role.EndUserRole> = {}) {
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Models.Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Models.Community;
   return vi.mocked(base);
 }
 
@@ -96,7 +96,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: EndUserRoleConverter;
   let repository: EndUserRoleRepository;
   let passport: Passport;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Models.Community;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -160,7 +160,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result).toBeInstanceOf(EndUserRoleClass);
     });
     And('the domain object\'s roleName should be "Test Role"', () => {
-      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
+      expect((result as EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
     });
   });
 
@@ -177,10 +177,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new end user role instance', ({ Given, When, Then, And }) => {
-    let communityDomainObj: Community.CommunityEntityReference;
+    let communityDomainObj: CommunityEntityReference;
 
     Given('a valid Community domain object as the community', () => {
-      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Community.CommunityEntityReference;
+      communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "New Role", isDefault false, and the community', async () => {
       result = await repository.getNewInstance('New Role', false, communityDomainObj);
@@ -189,19 +189,19 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result).toBeInstanceOf(EndUserRoleClass);
     });
     And('the domain object\'s roleName should be "New Role"', () => {
-      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('New Role');
+      expect((result as EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('New Role');
     });
     And('the domain object\'s isDefault should be false', () => {
-      expect((result as EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(false);
+      expect((result as EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(false);
     });
   });
 
   Scenario('Creating a new end user role instance with an invalid community', ({ Given, When, Then }) => {
     let getNewInstanceError: () => Promise<void>;
-    let invalidCommunity: Community.CommunityEntityReference;
+    let invalidCommunity: CommunityEntityReference;
 
     Given('an invalid community object', () => {
-      invalidCommunity = { id: '' } as Community.CommunityEntityReference;
+      invalidCommunity = { id: '' } as CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "Invalid Role", isDefault true, and the invalid community', () => {
       getNewInstanceError = async () => {

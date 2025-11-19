@@ -5,7 +5,7 @@ import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
 import { create, type StaffRoleCreateCommandPermissions } from './create.ts';
 // Direct imports from domain package
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRoleEntityReference, StaffRoleProps, StaffRoleRepository, StaffRoleUnitOfWork } from '@ocom/domain/contexts/staff-role';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 
 
@@ -15,7 +15,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/create.feature')
 );
 
-function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference> = {}) {
+function makeMockStaffRole(overrides: Partial<StaffRoleEntityReference> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -34,21 +34,21 @@ function makeMockStaffRole(overrides: Partial<StaffRole.StaffRoleEntityReference
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
-  } as StaffRole.StaffRoleEntityReference;
+  } as StaffRoleEntityReference;
 }
 
-function makeMockRepo(overrides: Partial<Domain.StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>> = {}) { 
+function makeMockRepo(overrides: Partial<Domain.StaffRoleRepository<StaffRoleProps>> = {}) { 
   return {
     getByRoleName: vi.fn(),
     getNewInstance: vi.fn(),
     save: vi.fn(),
     ...overrides,
-  } as unknown as StaffRole.StaffRoleRepository<StaffRole.StaffRoleProps>;
+  } as unknown as StaffRoleRepository<StaffRoleProps>;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let dataSources: DataSources;
-  let createStaffRole: (command: { roleName: string; isDefault?: boolean; permissions?: StaffRoleCreateCommandPermissions }) => Promise<StaffRole.StaffRoleEntityReference>;
+  let createStaffRole: (command: { roleName: string; isDefault?: boolean; permissions?: StaffRoleCreateCommandPermissions }) => Promise<StaffRoleEntityReference>;
 
   BeforeEachScenario(() => {
     dataSources = {
@@ -67,7 +67,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a staff role successfully', ({ Given, When, Then }) => {
-    let result: StaffRole.StaffRoleEntityReference;
+    let result: StaffRoleEntityReference;
 
     Given('a staff role with name "Test Role" does not exist', () => {
       // Mock will be set up in When step
@@ -80,7 +80,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         save: vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Test Role', isDefault: false })),
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 
@@ -95,7 +95,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a staff role with permissions', ({ Given, When, Then }) => {
-    let result: StaffRole.StaffRoleEntityReference;
+    let result: StaffRoleEntityReference;
 
     Given('a staff role with name "Admin Role" does not exist', () => {
       // Mock will be set up in When step
@@ -108,7 +108,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         save: vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Admin Role', isDefault: true })),
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 
@@ -146,7 +146,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         getByRoleName: vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Test Role' })),
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 
@@ -177,7 +177,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         save: vi.fn().mockResolvedValue(undefined), // Simulate save failure
       });
 
-      vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+      vi.mocked(dataSources.domainDataSource.User.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
         await callback(mockRepo);
       });
 

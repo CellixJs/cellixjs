@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 // Direct imports from domain package
-import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import type { VendorUser } from '@ocom/domain/contexts/vendor-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
 
@@ -384,13 +384,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: VendorUserConverter;
   let doc: Models.User.VendorUser;
-  let domainObject: VendorUser.VendorUser<VendorUserDomainAdapter>;
-  let result: VendorUser.VendorUser<VendorUserDomainAdapter> | Models.User.VendorUser | undefined;
+  let domainObject: VendorUser<VendorUserDomainAdapter>;
+  let result: VendorUser<VendorUserDomainAdapter> | Models.User.VendorUser | undefined;
 
   BeforeEachScenario(() => {
     converter = new VendorUserConverter();
     doc = makeVendorUserDoc();
-    domainObject = {} as VendorUser.VendorUser<VendorUserDomainAdapter>;
+    domainObject = {} as VendorUser<VendorUserDomainAdapter>;
     result = undefined;
   });
 
@@ -408,7 +408,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       converter = new VendorUserConverter();
     });
     When('I call toDomain with the Mongoose VendorUser document', () => {
-      result = converter.toDomain(doc, makeMockPassport()) as VendorUser.VendorUser<VendorUserDomainAdapter>;
+      result = converter.toDomain(doc, makeMockPassport()) as VendorUser<VendorUserDomainAdapter>;
     });
     Then('I should receive a VendorUser domain object', () => {
       expect(result).toBeDefined();

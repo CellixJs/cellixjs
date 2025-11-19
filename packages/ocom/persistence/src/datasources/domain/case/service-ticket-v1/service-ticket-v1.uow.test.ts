@@ -5,7 +5,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { expect, vi } from 'vitest';
 import { getServiceTicketV1UnitOfWork } from './service-ticket-v1.uow.ts';
 // Direct imports from domain package
-import type * as ServiceTicketV1 from '@ocom/domain/contexts/service-ticket/v1';
+import type { ServiceTicketV1UnitOfWork } from '@ocom/domain/contexts/service-ticket/v1';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { ServiceTicketV1 as ServiceTicketV1Class } from '@ocom/domain/contexts/service-ticket/v1';
 
@@ -44,12 +44,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let serviceTicketModel: Models.Case.ServiceTicketModelType;
   let passport: Passport;
-  let result: ServiceTicketV1.ServiceTicketV1UnitOfWork;
+  let result: ServiceTicketV1UnitOfWork;
 
   BeforeEachScenario(() => {
     serviceTicketModel = makeMockServiceTicketModel();
     passport = makeMockPassport();
-    result = {} as ServiceTicketV1.ServiceTicketV1UnitOfWork;
+    result = {} as ServiceTicketV1UnitOfWork;
   });
 
   Background(({ Given, And }) => {

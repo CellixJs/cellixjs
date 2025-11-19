@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
-import type * as StaffRole from '@ocom/domain/contexts/staff-role';
+import type { StaffRole, StaffRoleProps } from '@ocom/domain/contexts/staff-role';
 import { StaffRole as StaffRoleClass } from '@ocom/domain/contexts/staff-role';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
@@ -8,7 +8,7 @@ export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	Models.Role.StaffRole,
 	StaffRoleDomainAdapter,
 	Passport,
-	StaffRole.StaffRole<StaffRoleDomainAdapter>
+	StaffRole<StaffRoleDomainAdapter>
 > {
 	constructor() {
 		super(StaffRoleDomainAdapter, StaffRoleClass);
@@ -17,7 +17,7 @@ export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 
 export class StaffRoleDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Models.Role.StaffRole>
-	implements StaffRole.StaffRoleProps
+	implements StaffRoleProps
 {
 	get roleName(): string {
 		return this.doc.roleName;

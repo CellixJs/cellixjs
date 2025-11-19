@@ -5,7 +5,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { expect, vi } from 'vitest';
 import { getStaffUserUnitOfWork } from './staff-user.uow.ts';
 // Direct imports from domain package
-import type * as StaffUser from '@ocom/domain/contexts/staff-user';
+import type { StaffUserUnitOfWork } from '@ocom/domain/contexts/staff-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { StaffUser as StaffUserClass } from '@ocom/domain/contexts/staff-user';
 
@@ -39,7 +39,7 @@ test.for(feature, ({ Scenario }) => {
   Scenario('Creating a staff user unit of work', ({ Given, When, Then, And }) => {
     let model: Models.User.StaffUserModelType;
     let passport: Passport;
-    let result: StaffUser.StaffUserUnitOfWork;
+    let result: StaffUserUnitOfWork;
 
     Given('a valid StaffUser model and passport', () => {
       model = makeStaffUserModel();

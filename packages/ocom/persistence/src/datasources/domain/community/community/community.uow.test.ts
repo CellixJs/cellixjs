@@ -5,7 +5,7 @@ import type { Models } from '@ocom/data-sources-mongoose-models';
 import { expect, vi } from 'vitest';
 import { getCommunityUnitOfWork } from './community.uow.ts';
 // Direct imports from domain package
-import type * as Community from '@ocom/domain/contexts/community';
+import type { CommunityUnitOfWork } from '@ocom/domain/contexts/community';
 import type { Passport } from '@ocom/domain/contexts/passport';
 import { Community as CommunityClass } from '@ocom/domain/contexts/community';
 
@@ -45,12 +45,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let communityModel: Models.Community.CommunityModelType;
   let passport: Passport;
-  let result: Community.CommunityUnitOfWork;
+  let result: CommunityUnitOfWork;
 
   BeforeEachScenario(() => {
     communityModel = makeMockCommunityModel();
     passport = makeMockPassport();
-    result = {} as Community.CommunityUnitOfWork;
+    result = {} as CommunityUnitOfWork;
   });
 
   Background(({ Given, And }) => {

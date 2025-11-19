@@ -1,13 +1,13 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import type { VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
-import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
+import type { VendorUser, VendorUserRepository } from '@ocom/domain/contexts/vendor-user';
 import { VendorUser as VendorUserClass } from '@ocom/domain/contexts/vendor-user';
 import type { Passport } from '@ocom/domain/contexts/passport';
 
 type VendorUserDocument = Models.User.VendorUser;
-type VendorUserAggregate = VendorUser.VendorUser<VendorUserDomainAdapter>;
-type VendorUserRepositoryContract = VendorUser.VendorUserRepository<VendorUserDomainAdapter>;
+type VendorUserAggregate = VendorUser<VendorUserDomainAdapter>;
+type VendorUserRepositoryContract = VendorUserRepository<VendorUserDomainAdapter>;
 
 export class VendorUserRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
