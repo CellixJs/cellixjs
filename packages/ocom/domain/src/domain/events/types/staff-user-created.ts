@@ -1,7 +1,6 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
-
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 export interface StaffUserCreatedProps {
 	externalId: string;
 }
 
-export class StaffUserCreatedEvent extends DomainSeedwork.CustomDomainEventImpl<StaffUserCreatedProps> {}
+export class StaffUserCreatedEvent extends CustomDomainEventImpl<StaffUserCreatedProps> {}

@@ -1,5 +1,9 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { PropertyVisa } from '../property.visa.ts';
+import type * as ValueObjects from './property-listing-detail.value-objects.ts';
 import {
 	PropertyListingDetailAdditionalAmenity,
 	type PropertyListingDetailAdditionalAmenityEntityReference,
@@ -10,24 +14,22 @@ import {
 	type PropertyListingDetailBedroomDetailEntityReference,
 	type PropertyListingDetailBedroomDetailProps,
 } from './property-listing-detail-bedroom-detail.entity.ts';
-import type * as ValueObjects from './property-listing-detail.value-objects.ts';
 
-export interface PropertyListingDetailProps
-	extends DomainSeedwork.ValueObjectProps {
+export interface PropertyListingDetailProps extends ValueObjectProps {
 	price: number | null;
 	rentHigh: number | null;
 	rentLow: number | null;
 	lease: number | null;
 	maxGuests: number | null;
 	bedrooms: number | null;
-	readonly bedroomDetails: DomainSeedwork.PropArray<PropertyListingDetailBedroomDetailProps>;
+	readonly bedroomDetails: PropArray<PropertyListingDetailBedroomDetailProps>;
 	bathrooms: number | null;
 	squareFeet: number | null;
 	yearBuilt: number | null;
 	lotSize: number | null;
 	description: string | null;
 	amenities: string[] | null;
-	readonly additionalAmenities: DomainSeedwork.PropArray<PropertyListingDetailAdditionalAmenityProps>;
+	readonly additionalAmenities: PropArray<PropertyListingDetailAdditionalAmenityProps>;
 	images: string[] | null;
 	video: string | null;
 	floorPlan: string | null;
@@ -45,17 +47,14 @@ export interface PropertyListingDetailProps
 
 export interface PropertyListingDetailEntityReference
 	extends Readonly<
-	Omit<
-		PropertyListingDetailProps,
-		'bedroomDetails' | 'additionalAmenities'
-	>
-> {
+		Omit<PropertyListingDetailProps, 'bedroomDetails' | 'additionalAmenities'>
+	> {
 	readonly bedroomDetails: ReadonlyArray<PropertyListingDetailBedroomDetailEntityReference>;
 	readonly additionalAmenities: ReadonlyArray<PropertyListingDetailAdditionalAmenityEntityReference>;
 }
 
 export class PropertyListingDetail
-	extends DomainSeedwork.ValueObject<PropertyListingDetailProps>
+	extends ValueObject<PropertyListingDetailProps>
 	implements PropertyListingDetailEntityReference
 {
 	private readonly visa: PropertyVisa;
@@ -285,7 +284,9 @@ export class PropertyListingDetail
 		);
 	}
 
-	public requestRemoveBedroom(detail: PropertyListingDetailBedroomDetailProps): void {
+	public requestRemoveBedroom(
+		detail: PropertyListingDetailBedroomDetailProps,
+	): void {
 		this.ensureCanModifyListing();
 		this.props.bedroomDetails.removeItem(detail);
 	}
@@ -307,10 +308,10 @@ export class PropertyListingDetail
 
 	public requestRemoveImage(blobName: string): void {
 		this.ensureCanModifyListing();
-		this.props.images = this.props.images?.filter((image) => image !== blobName) || null;
-		this.props.floorPlanImages = this.props.floorPlanImages?.filter(
-			(image) => image !== blobName,
-		) || null;
+		this.props.images =
+			this.props.images?.filter((image) => image !== blobName) || null;
+		this.props.floorPlanImages =
+			this.props.floorPlanImages?.filter((image) => image !== blobName) || null;
 	}
 
 	private ensureCanModifyListing(): void {
@@ -322,7 +323,7 @@ export class PropertyListingDetail
 					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
 			)
 		) {
-			throw new DomainSeedwork.PermissionError(
+			throw new PermissionError(
 				'You do not have permission to update this property listing',
 			);
 		}

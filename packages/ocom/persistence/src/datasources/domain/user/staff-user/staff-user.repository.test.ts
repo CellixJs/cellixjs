@@ -1,3 +1,4 @@
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
@@ -5,7 +6,6 @@ import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { StaffUserRepository } from './staff-user.repository.ts';
 import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
 import type * as StaffUser from '@ocom/domain/contexts/staff-user';
@@ -91,7 +91,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks
-    const eventBus = { publish: vi.fn() } as unknown as DomainSeedwork.EventBus;
+    const eventBus = { publish: vi.fn() } as unknown as EventBus;
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     // Create repository with correct constructor parameters

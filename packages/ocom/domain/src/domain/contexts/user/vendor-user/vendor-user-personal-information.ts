@@ -1,4 +1,5 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
 import {
 	VendorUserContactInformation,
@@ -12,7 +13,7 @@ import {
 } from './vendor-user-identity-details.ts';
 
 export interface VendorUserPersonalInformationProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	readonly identityDetails: VendorUserIdentityDetailsProps;
 	readonly contactInformation: VendorUserContactInformationProps;
 }
@@ -29,7 +30,7 @@ export interface VendorUserPersonalInformationEntityReference
 }
 
 export class VendorUserPersonalInformation
-	extends DomainSeedwork.ValueObject<VendorUserPersonalInformationProps>
+	extends ValueObject<VendorUserPersonalInformationProps>
 	implements VendorUserPersonalInformationEntityReference
 {
     private readonly visa: UserVisa;

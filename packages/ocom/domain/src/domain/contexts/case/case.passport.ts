@@ -4,5 +4,5 @@ import type { ViolationTicketV1EntityReference } from './violation-ticket/v1/vio
 
 export interface CasePassport {
 	forServiceTicketV1(root: ServiceTicketV1EntityReference): CaseVisa;
-    forViolationTicketV1(root: ViolationTicketV1EntityReference): CaseVisa;
+	forViolationTicketV1(root: ViolationTicketV1EntityReference): CaseVisa;
 }

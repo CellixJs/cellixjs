@@ -1,3 +1,4 @@
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
@@ -5,7 +6,6 @@ import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { EndUserRepository } from './end-user.repository.ts';
 import { EndUserConverter, type EndUserDomainAdapter } from './end-user.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
 import type * as EndUser from '@ocom/domain/contexts/end-user';
@@ -63,7 +63,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let passport: Passport;
   let endUserDoc: Models.User.EndUser;
   let model: Models.User.EndUserModelType;
-  let eventBus: DomainSeedwork.EventBus;
+  let eventBus: EventBus;
   let session: ClientSession;
 
   BeforeEachScenario(() => {
@@ -85,7 +85,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       prototype: {},
     });
 
-    eventBus = { publish: vi.fn() } as unknown as DomainSeedwork.EventBus;
+    eventBus = { publish: vi.fn() } as unknown as EventBus;
     session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     repo = new EndUserRepository(

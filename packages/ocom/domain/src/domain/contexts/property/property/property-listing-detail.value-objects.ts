@@ -1,4 +1,10 @@
-import { VOArray, VOFloat, VOInteger, VOOptional, VOString } from '@lucaspaganini/value-objects';
+import {
+	VOArray,
+	VOFloat,
+	VOInteger,
+	VOOptional,
+	VOString,
+} from '@lucaspaganini/value-objects';
 import { Email } from '../../value-objects.ts';
 
 class PriceBase extends VOFloat({ min: 0 }) {}
@@ -57,21 +63,51 @@ export class ListingAgent extends VOOptional(ListingAgentBase, [null]) {}
 export class ListingAgentEmail extends VOOptional(Email, [null]) {}
 
 class ListingAgentPhoneBase extends VOString({ trim: true, maxLength: 100 }) {}
-export class ListingAgentPhone extends VOOptional(ListingAgentPhoneBase, [null]) {}
+export class ListingAgentPhone extends VOOptional(ListingAgentPhoneBase, [
+	null,
+]) {}
 
-class ListingAgentWebsiteBase extends VOString({ trim: true, maxLength: 1000 }) {}
-export class ListingAgentWebsite extends VOOptional(ListingAgentWebsiteBase, [null]) {}
+class ListingAgentWebsiteBase extends VOString({
+	trim: true,
+	maxLength: 1000,
+}) {}
+export class ListingAgentWebsite extends VOOptional(ListingAgentWebsiteBase, [
+	null,
+]) {}
 
-class ListingAgentCompanyBase extends VOString({ trim: true, maxLength: 500 }) {}
-export class ListingAgentCompany extends VOOptional(ListingAgentCompanyBase, [null]) {}
+class ListingAgentCompanyBase extends VOString({
+	trim: true,
+	maxLength: 500,
+}) {}
+export class ListingAgentCompany extends VOOptional(ListingAgentCompanyBase, [
+	null,
+]) {}
 
 export class ListingAgentCompanyEmail extends VOOptional(Email, [null]) {}
 
-class ListingAgentCompanyPhoneBase extends VOString({ trim: true, maxLength: 100 }) {}
-export class ListingAgentCompanyPhone extends VOOptional(ListingAgentCompanyPhoneBase, [null]) {}
+class ListingAgentCompanyPhoneBase extends VOString({
+	trim: true,
+	maxLength: 100,
+}) {}
+export class ListingAgentCompanyPhone extends VOOptional(
+	ListingAgentCompanyPhoneBase,
+	[null],
+) {}
 
-class ListingAgentCompanyWebsiteBase extends VOString({ trim: true, maxLength: 1000 }) {}
-export class ListingAgentCompanyWebsite extends VOOptional(ListingAgentCompanyWebsiteBase, [null]) {}
+class ListingAgentCompanyWebsiteBase extends VOString({
+	trim: true,
+	maxLength: 1000,
+}) {}
+export class ListingAgentCompanyWebsite extends VOOptional(
+	ListingAgentCompanyWebsiteBase,
+	[null],
+) {}
 
-class ListingAgentCompanyAddressBase extends VOString({ trim: true, maxLength: 1000 }) {}
-export class ListingAgentCompanyAddress extends VOOptional(ListingAgentCompanyAddressBase, [null]) {}
+class ListingAgentCompanyAddressBase extends VOString({
+	trim: true,
+	maxLength: 1000,
+}) {}
+export class ListingAgentCompanyAddress extends VOOptional(
+	ListingAgentCompanyAddressBase,
+	[null],
+) {}

@@ -1,3 +1,4 @@
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
@@ -5,7 +6,6 @@ import { expect, vi } from 'vitest';
 import type { Models } from '@ocom/data-sources-mongoose-models';
 import { VendorUserRepository } from './vendor-user.repository.ts';
 import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
-import type { DomainSeedwork } from '@cellix/domain-seedwork';
 import type { ClientSession } from 'mongoose';
 // Direct imports from domain package
 import type * as VendorUser from '@ocom/domain/contexts/vendor-user';
@@ -89,7 +89,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       findByIdAndDelete: findByIdAndDeleteMock,
     });
 
-    const eventBus = { publish: vi.fn() } as unknown as DomainSeedwork.EventBus;
+    const eventBus = { publish: vi.fn() } as unknown as EventBus;
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     repo = new VendorUserRepository(

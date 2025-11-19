@@ -1,33 +1,33 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import type { CommunityVisa } from '../../community.visa.ts';
 import {
 	EndUserRoleCommunityPermissions,
 	type EndUserRoleCommunityPermissionsEntityReference,
 	type EndUserRoleCommunityPermissionsProps,
 } from './end-user-role-community-permissions.ts';
-import type { CommunityVisa } from '../../community.visa.ts';
 import {
 	EndUserRolePropertyPermissions,
 	type EndUserRolePropertyPermissionsEntityReference,
 	type EndUserRolePropertyPermissionsProps,
 } from './end-user-role-property-permissions.ts';
 import {
-	EndUserRoleServiceTicketPermissions,
-	type EndUserRoleServiceTicketPermissionsEntityReference,
-	type EndUserRoleServiceTicketPermissionsProps,
-} from './end-user-role-service-ticket-permissions.ts';
-import {
 	EndUserRoleServicePermissions,
 	type EndUserRoleServicePermissionsEntityReference,
 	type EndUserRoleServicePermissionsProps,
 } from './end-user-role-service-permissions.ts';
+import {
+	EndUserRoleServiceTicketPermissions,
+	type EndUserRoleServiceTicketPermissionsEntityReference,
+	type EndUserRoleServiceTicketPermissionsProps,
+} from './end-user-role-service-ticket-permissions.ts';
 import {
 	EndUserRoleViolationTicketPermissions,
 	type EndUserRoleViolationTicketPermissionsEntityReference,
 	type EndUserRoleViolationTicketPermissionsProps,
 } from './end-user-role-violation-ticket-permissions.ts';
 
-export interface EndUserRolePermissionsProps
-	extends DomainSeedwork.ValueObjectProps {
+export interface EndUserRolePermissionsProps extends ValueObjectProps {
 	readonly communityPermissions: EndUserRoleCommunityPermissionsProps;
 	readonly propertyPermissions: EndUserRolePropertyPermissionsProps;
 	readonly serviceTicketPermissions: EndUserRoleServiceTicketPermissionsProps;
@@ -54,7 +54,7 @@ export interface EndUserRolePermissionsEntityReference
 }
 
 export class EndUserRolePermissions
-	extends DomainSeedwork.ValueObject<EndUserRolePermissionsProps>
+	extends ValueObject<EndUserRolePermissionsProps>
 	implements EndUserRolePermissionsEntityReference
 {
 	private readonly visa: CommunityVisa;
@@ -63,28 +63,32 @@ export class EndUserRolePermissions
 		this.visa = visa;
 	}
 
-    public setDefaultAdminPermissions(): void {
-        if (!this.visa.determineIf((permissions) => permissions.canManageEndUserRolesAndPermissions)) {
-            throw new Error('Cannot set default admin permissions');
-        }
-        this.communityPermissions.canManageEndUserRolesAndPermissions = true;
-        this.communityPermissions.canManageCommunitySettings = true;
-        this.communityPermissions.canManageMembers = true;
-        this.communityPermissions.canManageSiteContent = true;
-        this.communityPermissions.canEditOwnMemberAccounts = true;
-        this.communityPermissions.canEditOwnMemberProfile = true;
-        this.propertyPermissions.canManageProperties = true;
-        this.propertyPermissions.canEditOwnProperty = true;
-        this.servicePermissions.canManageServices = true;
-        this.serviceTicketPermissions.canAssignTickets = true;
-        this.serviceTicketPermissions.canCreateTickets = true;
-        this.serviceTicketPermissions.canManageTickets = true;
-        this.serviceTicketPermissions.canWorkOnTickets = true;
-        this.violationTicketPermissions.canAssignTickets = true;
-        this.violationTicketPermissions.canCreateTickets = true;
-        this.violationTicketPermissions.canManageTickets = true;
-        this.violationTicketPermissions.canWorkOnTickets = true;
-    }
+	public setDefaultAdminPermissions(): void {
+		if (
+			!this.visa.determineIf(
+				(permissions) => permissions.canManageEndUserRolesAndPermissions,
+			)
+		) {
+			throw new Error('Cannot set default admin permissions');
+		}
+		this.communityPermissions.canManageEndUserRolesAndPermissions = true;
+		this.communityPermissions.canManageCommunitySettings = true;
+		this.communityPermissions.canManageMembers = true;
+		this.communityPermissions.canManageSiteContent = true;
+		this.communityPermissions.canEditOwnMemberAccounts = true;
+		this.communityPermissions.canEditOwnMemberProfile = true;
+		this.propertyPermissions.canManageProperties = true;
+		this.propertyPermissions.canEditOwnProperty = true;
+		this.servicePermissions.canManageServices = true;
+		this.serviceTicketPermissions.canAssignTickets = true;
+		this.serviceTicketPermissions.canCreateTickets = true;
+		this.serviceTicketPermissions.canManageTickets = true;
+		this.serviceTicketPermissions.canWorkOnTickets = true;
+		this.violationTicketPermissions.canAssignTickets = true;
+		this.violationTicketPermissions.canCreateTickets = true;
+		this.violationTicketPermissions.canManageTickets = true;
+		this.violationTicketPermissions.canWorkOnTickets = true;
+	}
 
 	get communityPermissions(): EndUserRoleCommunityPermissions {
 		return new EndUserRoleCommunityPermissions(

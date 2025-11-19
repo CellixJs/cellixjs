@@ -1,5 +1,5 @@
-import type { CaseVisa } from '../../../../contexts/case/case.visa.ts';
 import type { CaseDomainPermissions } from '../../../../contexts/case/case.domain-permissions.ts';
+import type { CaseVisa } from '../../../../contexts/case/case.visa.ts';
 
 export class StaffUserServiceTicketVisa implements CaseVisa {
 	determineIf(

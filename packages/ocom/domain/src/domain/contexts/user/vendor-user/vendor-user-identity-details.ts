@@ -1,9 +1,11 @@
-import { DomainSeedwork } from '@cellix/domain-seedwork';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './vendor-user.value-objects.ts';
 
 export interface VendorUserIdentityDetailsProps
-	extends DomainSeedwork.ValueObjectProps {
+	extends ValueObjectProps {
 	lastName: string;
 	legalNameConsistsOfOneName: boolean;
 	restOfName: string | undefined;
@@ -13,7 +15,7 @@ export interface VendorUserIdentityDetailsEntityReference
 	extends Readonly<VendorUserIdentityDetailsProps> {}
 
 export class VendorUserIdentityDetails
-	extends DomainSeedwork.ValueObject<VendorUserIdentityDetailsProps>
+	extends ValueObject<VendorUserIdentityDetailsProps>
 	implements VendorUserIdentityDetailsEntityReference
 {
     private isNew: boolean = false;
@@ -51,7 +53,7 @@ export class VendorUserIdentityDetails
 					permissions.isEditingOwnAccount || permissions.canManageVendorUsers,
 			)
 		) {
-			throw new DomainSeedwork.PermissionError('Cannot set identity details');
+			throw new PermissionError('Cannot set identity details');
 		}
 	}
 

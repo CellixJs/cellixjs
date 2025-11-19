@@ -1,32 +1,39 @@
 import { expect, vi } from 'vitest';
 import { loadFeature, describeFeature } from '@amiceli/vitest-cucumber';
-import { AggregateRoot } from './aggregate-root.ts';
-import { DomainSeedwork } from '../index.ts';
+import { AggregateRoot, type RootEventRegistry } from './aggregate-root.ts';
+import { CustomDomainEventImpl } from './domain-event.ts';
+import type { DomainEntityProps } from './domain-entity.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 
 const test = { for: describeFeature };
-class TestDomainEvent extends DomainSeedwork.CustomDomainEventImpl<TestAggregateCreatedProps> {}
+
+// Test interface to verify RootEventRegistry export
+export interface TestRegistry extends RootEventRegistry {
+	testMethod(): void;
+}
+
+class TestDomainEvent extends CustomDomainEventImpl<TestAggregateCreatedProps> {}
 
 interface TestAggregateUpdatedProps {
 	testAggregateId: string;
 	foo: string;
 }
 
-class TestAggregateUpdatedEvent extends DomainSeedwork.CustomDomainEventImpl<TestAggregateUpdatedProps> {}
+class TestAggregateUpdatedEvent extends CustomDomainEventImpl<TestAggregateUpdatedProps> {}
 
 interface TestAggregateCreatedProps {
 	foo: string;
 }
-class TestAggregateCreatedEvent extends DomainSeedwork.CustomDomainEventImpl<TestAggregateCreatedProps> {}
+class TestAggregateCreatedEvent extends CustomDomainEventImpl<TestAggregateCreatedProps> {}
 
 interface TestAggregateDeletedProps {
 	testAggregateId: string;
 }
-class TestAggregateDeletedEvent extends DomainSeedwork.CustomDomainEventImpl<TestAggregateDeletedProps> {}
+class TestAggregateDeletedEvent extends CustomDomainEventImpl<TestAggregateDeletedProps> {}
 
-interface TestAggregateProps extends DomainSeedwork.DomainEntityProps {
+interface TestAggregateProps extends DomainEntityProps {
 	foo: string;
 	bar?: string | undefined;
 }

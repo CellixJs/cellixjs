@@ -7,7 +7,7 @@ export class MemberUserEndUserVisa<root extends EndUserEntityReference>
 	implements UserVisa
 {
 	private readonly root: root;
-    private readonly member: MemberEntityReference;
+	private readonly member: MemberEntityReference;
 
 	constructor(root: root, member: MemberEntityReference) {
 		this.root = root;
@@ -23,8 +23,8 @@ export class MemberUserEndUserVisa<root extends EndUserEntityReference>
 			canManageStaffUsers: false,
 			canManageVendorUsers: false,
 			isEditingOwnAccount: this.member.accounts.some(
-                (account) => account.user.id === this.root.id,
-            ),
+				(account) => account.user.id === this.root.id,
+			),
 			isSystemAccount: false,
 		};
 
