@@ -35,23 +35,22 @@ jobs:
           node-version: "22"
           cache: "npm"
 
-      - name: Cache node modules
-        id: npm-cache
+      - name: Cache pnpm store
+        id: pnpm-cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
-            ~/.cache
+            ~/.pnpm-store
             node_modules
             packages/*/node_modules
             apps/*/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-pnpm-
 
       - name: Install JavaScript dependencies
-        run: npm ci
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+        if: steps.pnpm-cache.outputs.cache-hit != 'true'
 
       - name: Cache Playwright browsers
         id: playwright-cache
@@ -65,7 +64,7 @@ jobs:
       - name: Install Playwright browsers
         run: |
           echo "Installing Playwright browsers for UI testing..."
-          npx playwright install --with-deps
+          pnpm exec playwright install --with-deps
         env:
           PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
         if: steps.playwright-cache.outputs.cache-hit != 'true'
