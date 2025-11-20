@@ -1,6 +1,6 @@
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
 export interface ViolationTicketV1RevisionRequestProps

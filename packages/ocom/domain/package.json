@@ -10,6 +10,46 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./case": {
+      "types": "./dist/src/domain/contexts/case.d.ts",
+      "default": "./dist/src/domain/contexts/case.js"
+    },
+    "./community": {
+      "types": "./dist/src/domain/contexts/community.d.ts",
+      "default": "./dist/src/domain/contexts/community.js"
+    },
+    "./property": {
+      "types": "./dist/src/domain/contexts/property.d.ts",
+      "default": "./dist/src/domain/contexts/property.js"
+    },
+    "./service": {
+      "types": "./dist/src/domain/contexts/service.d.ts",
+      "default": "./dist/src/domain/contexts/service.js"
+    },
+    "./user": {
+      "types": "./dist/src/domain/contexts/user.d.ts",
+      "default": "./dist/src/domain/contexts/user.js"
+    },
+    "./events": {
+      "types": "./dist/src/domain/events.d.ts",
+      "default": "./dist/src/domain/events.js"
+    },
+    "./services": {
+      "types": "./dist/src/domain/services.d.ts",
+      "default": "./dist/src/domain/services.js"
+    },
+    "./passport": {
+      "types": "./dist/src/domain/contexts/passport.d.ts",
+      "default": "./dist/src/domain/contexts/passport.js"
+    },
+    "./value-objects": {
+      "types": "./dist/src/domain/contexts/value-objects.d.ts",
+      "default": "./dist/src/domain/contexts/value-objects.js"
+    },
+    "./domain-execution-context": {
+      "types": "./dist/src/domain/domain-execution-context.d.ts",
+      "default": "./dist/src/domain/domain-execution-context.js"
     }
   },
   "scripts": {

@@ -1,7 +1,11 @@
 import type { DomainDataSource } from '../../../index.ts';
-import type { Community } from '../../contexts/community/index.ts';
-import * as Member from '../../contexts/community/member/index.ts';
-import type * as Role from '../../contexts/community/role/index.ts';
+import type {
+	Community,
+	CommunityEntityReference,
+	CommunityProps,
+	EndUserRoleEntityReference,
+} from '../../contexts/community.ts';
+import { MemberAccountStatusCodes } from '../../contexts/community.ts';
 import { PassportFactory } from '../../contexts/passport.ts';
 
 export class CommunityProvisioningService {
@@ -9,8 +13,7 @@ export class CommunityProvisioningService {
 		communityId: string,
 		domainDataSource: DomainDataSource,
 	): Promise<void> {
-		let communityDo: Community.Community<Community.CommunityProps> | null =
-			null;
+		let communityDo: Community<CommunityProps> | null = null;
 		await domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(
 			async (repo) => {
 				communityDo = await repo.getByIdWithCreatedBy(communityId);
@@ -24,22 +27,21 @@ export class CommunityProvisioningService {
 			canManageEndUserRolesAndPermissions: true,
 		});
 		// create the default admin role for the community
-		let role: Role.EndUserRole.EndUserRoleEntityReference | null = null;
+		let role: EndUserRoleEntityReference | null = null;
 		await domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withTransaction(
 			systemPassportForEndUserRole,
 			async (repo) => {
 				const newRole = await repo.getNewInstance(
 					'admin',
 					true,
-					communityDo as Community.CommunityEntityReference,
+					communityDo as CommunityEntityReference,
 				);
 				newRole.permissions.setDefaultAdminPermissions();
 				role = await repo.save(newRole);
 			},
 		);
 
-		const { createdBy } =
-			communityDo as Community.Community<Community.CommunityProps>;
+		const { createdBy } = communityDo as Community<CommunityProps>;
 
 		if (!role) {
 			throw new Error(
@@ -60,16 +62,16 @@ export class CommunityProvisioningService {
 			async (repo) => {
 				const newMember = await repo.getNewInstance(
 					createdBy.displayName,
-					communityDo as Community.CommunityEntityReference,
+					communityDo as CommunityEntityReference,
 				);
-				newMember.role = role as Role.EndUserRole.EndUserRoleEntityReference;
+				newMember.role = role as EndUserRoleEntityReference;
 				const newAccount = newMember.requestNewAccount();
 				newAccount.createdBy = createdBy;
 				newAccount.firstName =
 					createdBy.personalInformation.identityDetails?.restOfName ?? '';
 				newAccount.lastName =
 					createdBy.personalInformation.identityDetails?.lastName;
-				newAccount.statusCode = Member.MemberAccountStatusCodes.Accepted;
+				newAccount.statusCode = MemberAccountStatusCodes.Accepted;
 				newAccount.user = createdBy;
 				await repo.save(newMember);
 			},
