@@ -98,4 +98,4 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Authenticate Snyk CLI
-        run: snyk auth $SNYK_TOKEN
+        run: pnpm exec snyk auth $SNYK_TOKEN
