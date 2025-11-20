@@ -7,15 +7,15 @@ import { expect, vi } from 'vitest';
 import type {
 	CommunityEntityReference,
 	CommunityProps,
-} from '../../community/community/community.ts';
-import type { MemberEntityReference } from '../../community/member/member.ts';
-import type { MemberAccountEntityReference } from '../../community/member/member-account.ts';
-import type { MemberCustomViewEntityReference } from '../../community/member/member-custom-view.ts';
-import type { MemberProfileProps } from '../../community/member/member-profile.ts';
-import type { EndUserRoleEntityReference } from '../../community/role/end-user-role/end-user-role.ts';
+	MemberEntityReference,
+	MemberAccountEntityReference,
+	MemberCustomViewEntityReference,
+	MemberProfileProps,
+	EndUserRoleEntityReference,
+} from '../../community.ts';
 import type { Passport } from '../../passport.ts';
-import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
-import type { PropertyLocationAddressProps } from './index.ts';
+import type { EndUserEntityReference } from '../../user.ts';
+import type { PropertyLocationAddressProps } from '../../property.ts';
 import { Property, type PropertyProps } from './property.aggregate.ts';
 import type { PropertyListingDetailProps } from './property-listing-detail.entity.ts';
 import type { PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';

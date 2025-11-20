@@ -1,0 +1,86 @@
+/**
+ * User Context - Aggregate Exports
+ * 
+ * This file serves as the single entry point for all exports from the User bounded context.
+ * It consolidates exports from EndUser, StaffUser, VendorUser, and StaffRole aggregates,
+ * along with their repositories, unit of work, and related types.
+ */
+
+//#region Exports
+
+// EndUser aggregate, types, and contracts
+export type { EndUserRepository } from './user/end-user/end-user.repository.ts';
+export type { EndUserEntityReference, EndUserProps } from './user/end-user/end-user.ts';
+export { EndUser } from './user/end-user/end-user.ts';
+export type { EndUserUnitOfWork } from './user/end-user/end-user.uow.ts';
+export type { EndUserContactInformationProps } from './user/end-user/end-user-contact-information.ts';
+export type { EndUserIdentityDetailsProps } from './user/end-user/end-user-identity-details.ts';
+export type { EndUserPersonalInformationProps } from './user/end-user/end-user-personal-information.ts';
+
+// StaffUser aggregate, types, and contracts
+export type { StaffUserRepository } from './user/staff-user/staff-user.repository.ts';
+export {
+	StaffUser,
+	type StaffUserEntityReference,
+	type StaffUserProps,
+} from './user/staff-user/staff-user.ts';
+export type { StaffUserUnitOfWork } from './user/staff-user/staff-user.uow.ts';
+
+// StaffRole aggregate, types, and contracts
+export type { StaffRoleRepository } from './user/staff-role/staff-role.repository.ts';
+export type {
+	StaffRoleEntityReference,
+	StaffRoleProps,
+} from './user/staff-role/staff-role.ts';
+export { StaffRole } from './user/staff-role/staff-role.ts';
+export type { StaffRoleUnitOfWork } from './user/staff-role/staff-role.uow.ts';
+export type {
+	StaffRoleCommunityPermissionsEntityReference,
+	StaffRoleCommunityPermissionsProps,
+} from './user/staff-role/staff-role-community-permissions.ts';
+export type {
+	StaffRolePermissionsEntityReference,
+	StaffRolePermissionsProps,
+} from './user/staff-role/staff-role-permissions.ts';
+export type {
+	StaffRolePropertyPermissionsEntityReference,
+	StaffRolePropertyPermissionsProps,
+} from './user/staff-role/staff-role-property-permissions.ts';
+export type {
+	StaffRoleServicePermissionsEntityReference,
+	StaffRoleServicePermissionsProps,
+} from './user/staff-role/staff-role-service-permissions.ts';
+export type {
+	StaffRoleServiceTicketPermissionsEntityReference,
+	StaffRoleServiceTicketPermissionsProps,
+} from './user/staff-role/staff-role-service-ticket-permissions.ts';
+export type {
+	StaffRoleViolationTicketPermissionsEntityReference,
+	StaffRoleViolationTicketPermissionsProps,
+} from './user/staff-role/staff-role-violation-ticket-permissions.ts';
+
+// VendorUser aggregate, types, and contracts
+export type { VendorUserRepository } from './user/vendor-user/vendor-user.repository.ts';
+export {
+	VendorUser,
+	type VendorUserEntityReference,
+	type VendorUserProps,
+} from './user/vendor-user/vendor-user.ts';
+export type { VendorUserUnitOfWork } from './user/vendor-user/vendor-user.uow.ts';
+export type {
+	VendorUserContactInformationEntityReference,
+	VendorUserContactInformationProps,
+} from './user/vendor-user/vendor-user-contact-information.ts';
+export type {
+	VendorUserIdentityDetailsEntityReference,
+	VendorUserIdentityDetailsProps,
+} from './user/vendor-user/vendor-user-identity-details.ts';
+export type {
+	VendorUserPersonalInformationEntityReference,
+	VendorUserPersonalInformationProps,
+} from './user/vendor-user/vendor-user-personal-information.ts';
+
+// User context passport
+export type { UserPassport } from './user/user.passport.ts';
+
+//#endregion Exports

@@ -1,6 +1,7 @@
 import { VOArray, VOString } from '@lucaspaganini/value-objects';
+import { NullableEmail as NullableEmailBase } from '../../value-objects.ts';
 
-export { NullableEmail } from '../../value-objects.ts';
+export class NullableEmail extends NullableEmailBase {}
 
 export class Name extends VOString({
 	trim: true,

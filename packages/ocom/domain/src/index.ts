@@ -1,53 +1,79 @@
-import type { Contexts } from './domain/index.ts';
+/**
+ * @ocom/domain - Main exports
+ * 
+ * This is the main entry point for the domain package.
+ * All exports are direct from aggregate files, not from barrel files.
+ */
 
-export * as Domain from './domain/index.ts';
+// Domain contexts - aggregate exports
+export * as Case from './domain/contexts/case.ts';
+export * as Community from './domain/contexts/community.ts';
+export * as Property from './domain/contexts/property.ts';
+export * as Service from './domain/contexts/service.ts';
+export * as User from './domain/contexts/user.ts';
 
+// Passport factory and types
+export { type Passport, PassportFactory } from './domain/contexts/passport.ts';
+
+// Domain execution context
+export type { DomainExecutionContext } from './domain/domain-execution-context.ts';
+
+// Domain events
+export * as Events from './domain/events/index.ts';
+
+// Domain services
+export * as Services from './domain/services/index.ts';
+
+// IAM (Identity and Access Management)
+export * as IAM from './domain/iam/index.ts';
+
+// Domain data source interface for unit of work types
 export interface DomainDataSource {
 	Case: {
 		ServiceTicket: {
 			V1: {
-				ServiceTicketV1UnitOfWork: Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
+				ServiceTicketV1UnitOfWork: import('./domain/contexts/case.ts').ServiceTicketV1UnitOfWork;
 			};
 		};
 	};
 	Community: {
 		Community: {
-			CommunityUnitOfWork: Contexts.Community.Community.CommunityUnitOfWork;
+			CommunityUnitOfWork: import('./domain/contexts/community.ts').CommunityUnitOfWork;
 		};
 		Member: {
-			MemberUnitOfWork: Contexts.Community.Member.MemberUnitOfWork;
+			MemberUnitOfWork: import('./domain/contexts/community.ts').MemberUnitOfWork;
 		};
 		Role: {
 			EndUserRole: {
-				EndUserRoleUnitOfWork: Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+				EndUserRoleUnitOfWork: import('./domain/contexts/community.ts').EndUserRoleUnitOfWork;
 			};
 			VendorUserRole: {
-				VendorUserRoleUnitOfWork: Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork;
+				VendorUserRoleUnitOfWork: import('./domain/contexts/community.ts').VendorUserRoleUnitOfWork;
 			};
 		};
 	};
 	Property: {
 		Property: {
-			PropertyUnitOfWork: Contexts.Property.Property.PropertyUnitOfWork;
+			PropertyUnitOfWork: import('./domain/contexts/property.ts').PropertyUnitOfWork;
 		};
 	};
 	User: {
 		EndUser: {
-			EndUserUnitOfWork: Contexts.User.EndUser.EndUserUnitOfWork;
+			EndUserUnitOfWork: import('./domain/contexts/user.ts').EndUserUnitOfWork;
 		};
 		StaffRole: {
-			StaffRoleUnitOfWork: Contexts.User.StaffRole.StaffRoleUnitOfWork;
+			StaffRoleUnitOfWork: import('./domain/contexts/user.ts').StaffRoleUnitOfWork;
 		};
 		StaffUser: {
-			StaffUserUnitOfWork: Contexts.User.StaffUser.StaffUserUnitOfWork;
+			StaffUserUnitOfWork: import('./domain/contexts/user.ts').StaffUserUnitOfWork;
 		};
 		VendorUser: {
-			VendorUserUnitOfWork: Contexts.User.VendorUser.VendorUserUnitOfWork;
+			VendorUserUnitOfWork: import('./domain/contexts/user.ts').VendorUserUnitOfWork;
 		};
 	};
 	Service: {
 		Service: {
-			ServiceUnitOfWork: Contexts.Service.Service.ServiceUnitOfWork;
+			ServiceUnitOfWork: import('./domain/contexts/service.ts').ServiceUnitOfWork;
 		};
 	};
 }

@@ -1,7 +1,7 @@
 import { VOOptional, VOString } from '@lucaspaganini/value-objects';
-import { Email as EmailBase } from '../../value-objects.ts';
+import { Email as EmailBase, ExternalId as ExternalIdBase } from '../../value-objects.ts';
 
-export { ExternalId } from '../../value-objects.ts';
+export class ExternalId extends ExternalIdBase {}
 
 class RestOfNameBase extends VOString({
 	trim: true,

@@ -5,12 +5,13 @@ import {
 	SystemPassport,
 } from '../iam/index.ts';
 import type { PermissionsSpec } from '../iam/system/system.passport-base.ts';
-import type { Contexts } from '../index.ts';
 import type { CasePassport } from './case/case.passport.ts';
 import type { CommunityPassport } from './community/community.passport.ts';
 import type { PropertyPassport } from './property/property.passport.ts';
 import type { ServicePassport } from './service/service.passport.ts';
 import type { UserPassport } from './user/user.passport.ts';
+import type { CommunityEntityReference, MemberEntityReference } from './community.ts';
+import type { EndUserEntityReference, StaffUserEntityReference } from './user.ts';
 
 export interface Passport {
 	get case(): CasePassport;
@@ -28,16 +29,16 @@ export const PassportFactory = {
 
 	// for logged-in users on account portal within a community
 	forMember(
-		endUser: Contexts.User.EndUser.EndUserEntityReference,
-		member: Contexts.Community.Member.MemberEntityReference,
-		community: Contexts.Community.Community.CommunityEntityReference,
+		endUser: EndUserEntityReference,
+		member: MemberEntityReference,
+		community: CommunityEntityReference,
 	): Passport {
 		return new MemberPassport(endUser, member, community);
 	},
 
 	// for logged-in users on staff portal - defers to role permissions for that staff user
 	forStaffUser(
-		staffUser: Contexts.User.StaffUser.StaffUserEntityReference,
+		staffUser: StaffUserEntityReference,
 	): Passport {
 		return new StaffUserPassport(staffUser);
 	},

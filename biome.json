@@ -148,6 +148,19 @@
 					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
 				}
 			}
+		},
+		{
+			"includes": [
+				"packages/ocom/domain/src/domain/contexts/**/*.ts",
+				"!packages/ocom/domain/src/domain/contexts/*.ts",
+				"!packages/ocom/domain/src/domain/contexts/index.ts",
+				"!packages/ocom/domain/src/domain/contexts/passport.ts"
+			],
+			"linter": {
+				"rules": {
+					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
+				}
+			}
 		}
 	],
 	"assist": {
