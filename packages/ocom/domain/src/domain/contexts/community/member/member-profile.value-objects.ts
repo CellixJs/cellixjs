@@ -1,5 +1,6 @@
 import { VOArray, VOString } from '@lucaspaganini/value-objects';
 
+// biome-ignore lint/performance/noBarrelFile: Re-exporting shared value object for convenience
 export { NullableEmail } from '../../value-objects.ts';
 
 export class Name extends VOString({

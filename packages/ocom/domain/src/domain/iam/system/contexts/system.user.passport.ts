@@ -1,6 +1,6 @@
-import type { EndUserEntityReference } from '../../../contexts/user/end-user/index.ts';
+import type { EndUserEntityReference } from '../../../contexts/user/end-user.ts';
 import type { StaffRoleEntityReference } from '../../../contexts/user/staff-role/staff-role.ts';
-import type { StaffUserEntityReference } from '../../../contexts/user/staff-user/index.ts';
+import type { StaffUserEntityReference } from '../../../contexts/user/staff-user.ts';
 import type { UserDomainPermissions } from '../../../contexts/user/user.domain-permissions.ts';
 import type { UserPassport } from '../../../contexts/user/user.passport.ts';
 import type { UserVisa } from '../../../contexts/user/user.visa.ts';

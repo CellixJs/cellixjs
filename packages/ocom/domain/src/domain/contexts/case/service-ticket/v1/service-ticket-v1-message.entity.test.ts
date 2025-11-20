@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { expect, vi } from 'vitest';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member.ts';
 import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.ts';
 import {
 	ServiceTicketV1Message,

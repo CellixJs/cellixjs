@@ -2,8 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { ServiceTicketV1EntityReference } from '../../../contexts/case/service-ticket/v1/index.ts';
-import type { ViolationTicketV1EntityReference } from '../../../contexts/case/violation-ticket/v1/index.ts';
+import type { ServiceTicketV1EntityReference } from '../../../contexts/case/service-ticket-v1.ts';
+import type { ViolationTicketV1EntityReference } from '../../../contexts/case/violation-ticket-v1.ts';
 import { GuestCasePassport } from './guest.case.passport.ts';
 
 const test = { for: describeFeature };

@@ -148,6 +148,14 @@
 					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
 				}
 			}
+		},
+		{
+			"includes": ["packages/ocom/domain/src/**/*.ts"],
+			"linter": {
+				"rules": {
+					"performance": { "noBarrelFile": "warn", "noReExportAll": "warn" }
+				}
+			}
 		}
 	],
 	"assist": {

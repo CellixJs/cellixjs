@@ -10,6 +10,34 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./domain": {
+      "types": "./dist/src/domain/index.d.ts",
+      "default": "./dist/src/domain/index.js"
+    },
+    "./domain/contexts": {
+      "types": "./dist/src/domain/contexts/contexts.d.ts",
+      "default": "./dist/src/domain/contexts/contexts.js"
+    },
+    "./domain/contexts/case": {
+      "types": "./dist/src/domain/contexts/case/case.d.ts",
+      "default": "./dist/src/domain/contexts/case/case.js"
+    },
+    "./domain/contexts/community": {
+      "types": "./dist/src/domain/contexts/community/community.d.ts",
+      "default": "./dist/src/domain/contexts/community/community.js"
+    },
+    "./domain/contexts/property": {
+      "types": "./dist/src/domain/contexts/property/property.d.ts",
+      "default": "./dist/src/domain/contexts/property/property.js"
+    },
+    "./domain/contexts/service": {
+      "types": "./dist/src/domain/contexts/service/service.d.ts",
+      "default": "./dist/src/domain/contexts/service/service.js"
+    },
+    "./domain/contexts/user": {
+      "types": "./dist/src/domain/contexts/user/user.d.ts",
+      "default": "./dist/src/domain/contexts/user/user.js"
     }
   },
   "scripts": {

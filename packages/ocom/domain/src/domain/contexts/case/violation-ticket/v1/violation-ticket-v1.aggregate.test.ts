@@ -6,7 +6,7 @@ import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 
 import { expect, vi } from 'vitest';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
+import type { MemberEntityReference } from '../../../community/member.ts';
 import type { Passport } from '../../../passport.ts';
 import * as ActivityDetailValueObjects from './violation-ticket-v1-activity-detail.value-objects.ts';
 import {

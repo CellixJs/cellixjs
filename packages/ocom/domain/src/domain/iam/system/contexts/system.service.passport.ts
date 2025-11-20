@@ -1,4 +1,4 @@
-import type { ServiceEntityReference } from '../../../contexts/service/service/index.ts';
+import type { ServiceEntityReference } from '../../../contexts/service/service-aggregate.ts';
 import type { ServiceDomainPermissions } from '../../../contexts/service/service.domain-permissions.ts';
 import type { ServicePassport } from '../../../contexts/service/service.passport.ts';
 import type { ServiceVisa } from '../../../contexts/service/service.visa.ts';

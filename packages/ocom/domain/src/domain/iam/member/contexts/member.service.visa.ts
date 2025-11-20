@@ -1,5 +1,5 @@
-import type { MemberEntityReference } from '../../../contexts/community/member/index.ts';
-import type { ServiceEntityReference } from '../../../contexts/service/service/index.ts';
+import type { MemberEntityReference } from '../../../contexts/community/member.ts';
+import type { ServiceEntityReference } from '../../../contexts/service/service-aggregate.ts';
 import type { ServiceDomainPermissions } from '../../../contexts/service/service.domain-permissions.ts';
 import type { ServiceVisa } from '../../../contexts/service/service.visa.ts';
 

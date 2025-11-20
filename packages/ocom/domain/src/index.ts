@@ -1,5 +1,10 @@
+/**
+ * @ocom/domain Package Public API
+ */
+
 import type { Contexts } from './domain/index.ts';
 
+// biome-ignore lint/performance/noReExportAll: Intentional namespace export for package API
 export * as Domain from './domain/index.ts';
 
 export interface DomainDataSource {
