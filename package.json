@@ -46,7 +46,7 @@
     "snyk:iac": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs",
     "snyk:iac:report": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --target-name=cellixjs-iac --report",
     "analyze": "pnpm -r exec -- pnpm dlx @e18e/cli analyze",
-    "prepare": "husky"
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",
