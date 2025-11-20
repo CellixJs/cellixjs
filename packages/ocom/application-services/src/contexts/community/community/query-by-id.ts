@@ -1,4 +1,4 @@
-import type { Domain } from '@ocom/domain';
+import type { CommunityEntityReference } from '@ocom/domain/community';
 import type { DataSources } from '@ocom/persistence';
 
 export interface CommunityQueryByIdCommand {
@@ -11,7 +11,7 @@ export const queryById = (
 ) => {
     return async (
         command: CommunityQueryByIdCommand,
-    ): Promise<Domain.Contexts.Community.Community.CommunityEntityReference | null> => {
+    ): Promise<CommunityEntityReference | null> => {
         return await dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById(
             command.id, 
             { fields: command.fields }
