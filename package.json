@@ -45,7 +45,8 @@
     "snyk:code:report": "snyk code test --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --project-name=cellixjs-code --report",
     "snyk:iac": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs",
     "snyk:iac:report": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --target-name=cellixjs-iac --report",
-    "analyze": "pnpm -r exec -- pnpm dlx @e18e/cli analyze"
+    "analyze": "pnpm -r exec -- pnpm dlx @e18e/cli analyze",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",
@@ -63,6 +64,7 @@
     "@vitest/coverage-v8": "^3.2.4",
     "azurite": "^3.35.0",
     "concurrently": "^9.1.2",
+    "husky": "^9.1.7",
     "knip": "^5.64.2",
     "rimraf": "^6.0.1",
     "snyk": "^1.1300.2",
