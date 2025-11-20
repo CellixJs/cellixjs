@@ -33,10 +33,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
+          cache: "pnpm"
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.2
+
 
       - name: Cache pnpm store
-        id: pnpm-cache
         uses: actions/cache@v4
         with:
           path: |
@@ -50,7 +55,6 @@ jobs:
 
       - name: Install JavaScript dependencies
         run: pnpm install --frozen-lockfile
-        if: steps.pnpm-cache.outputs.cache-hit != 'true'
 
       - name: Cache Playwright browsers
         id: playwright-cache
