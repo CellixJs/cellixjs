@@ -4,8 +4,11 @@
 
 import type { Contexts } from './domain/index.ts';
 
+//#region Exports
+// biome-ignore lint/performance/noBarrelFile: Intentional aggregate export file per DDD pattern
 // biome-ignore lint/performance/noReExportAll: Intentional namespace export for package API
 export * as Domain from './domain/index.ts';
+//#endregion Exports
 
 export interface DomainDataSource {
 	Case: {

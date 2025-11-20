@@ -8,10 +8,10 @@
 import type { ServicePassport } from './service.passport.ts';
 import type { ServiceVisa } from './service.visa.ts';
 
-// Re-export Service subdirectory as namespace to maintain structure
+//#region Exports
+// biome-ignore lint/performance/noBarrelFile: Intentional aggregate export file per DDD pattern
 // biome-ignore lint/performance/noReExportAll: Intentional namespace export for DDD aggregate
 export * as Service from './service-aggregate.ts';
-
-//#region Exports
+// biome-ignore lint/performance/noBarrelFile: Intentional aggregate export file per DDD pattern
 export type { ServicePassport, ServiceVisa };
 //#endregion Exports

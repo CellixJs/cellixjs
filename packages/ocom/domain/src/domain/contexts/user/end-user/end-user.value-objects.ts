@@ -1,6 +1,7 @@
 import { VOOptional, VOString } from '@lucaspaganini/value-objects';
 import { Email as EmailBase } from '../../value-objects.ts';
 
+// biome-ignore lint/performance/noBarrelFile: Re-exporting shared value object for convenience
 export { ExternalId } from '../../value-objects.ts';
 
 class RestOfNameBase extends VOString({

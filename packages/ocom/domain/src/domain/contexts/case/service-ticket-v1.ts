@@ -9,6 +9,8 @@ export {
 } from './service-ticket/v1/service-ticket-v1.aggregate.ts';
 export type { ServiceTicketV1Repository } from './service-ticket/v1/service-ticket-v1.repository.ts';
 export type { ServiceTicketV1UnitOfWork } from './service-ticket/v1/service-ticket-v1.uow.ts';
+// biome-ignore lint/performance/noReExportAll: Intentional namespace export for value objects
+export * as ValueObjects from './service-ticket/v1/service-ticket-v1.value-objects.ts';
 export type { ServiceTicketV1ActivityDetailProps } from './service-ticket/v1/service-ticket-v1-activity-detail.entity.ts';
 export type { ServiceTicketV1MessageProps } from './service-ticket/v1/service-ticket-v1-message.entity.ts';
 

@@ -3,7 +3,7 @@ import {
 	MemberPassport,
 	StaffUserPassport,
 	SystemPassport,
-} from '../iam/index.ts';
+} from '../iam/iam.ts';
 import type { PermissionsSpec } from '../iam/system/system.passport-base.ts';
 import type { Contexts } from '../index.ts';
 import type { CasePassport } from './case/case.passport.ts';
