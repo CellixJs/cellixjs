@@ -104,4 +104,4 @@ generates:
 
 hooks:
   afterAllFileWrite:
-    - npx prettier --write
+    - pnpm exec biome format --write
