@@ -33,25 +33,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
 
-      - name: Cache node modules
-        id: npm-cache
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.2
+
+      - name: Cache pnpm store
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
-            ~/.cache
+            ~/.pnpm-store
             node_modules
             packages/*/node_modules
             apps/*/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-pnpm-
 
       - name: Install JavaScript dependencies
-        run: npm ci
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
 
       - name: Cache Playwright browsers
         id: playwright-cache
@@ -65,7 +66,7 @@ jobs:
       - name: Install Playwright browsers
         run: |
           echo "Installing Playwright browsers for UI testing..."
-          npx playwright install --with-deps
+          pnpm exec playwright install --with-deps
         env:
           PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
         if: steps.playwright-cache.outputs.cache-hit != 'true'
@@ -86,7 +87,12 @@ jobs:
             echo "Error: GH_TOKEN is not set."
             exit 1
           fi
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "Error: SNYK_TOKEN is not set."
+            exit 1
+          fi
           echo "All required environment variables are set."
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
