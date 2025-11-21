@@ -15,7 +15,7 @@
     "typecheck": "tsc",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest --silent --reporter=dot"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@docusaurus/core": "3.9.2",

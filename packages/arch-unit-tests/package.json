@@ -7,7 +7,7 @@
   "scripts": {
     "test": "pnpm run test:coverage --silent",
     "test:coverage": "vitest run --silent --reporter=dot",
-    "test:watch": "vitest --silent --reporter=dot"
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
