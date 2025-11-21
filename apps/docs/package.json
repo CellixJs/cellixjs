@@ -13,9 +13,9 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest"
+    "test": "vitest run --silent --reporter=dot",
+    "test:coverage": "vitest run --coverage --silent --reporter=dot",
+    "test:watch": "vitest --silent --reporter=dot"
   },
   "dependencies": {
     "@docusaurus/core": "3.9.2",

@@ -5,9 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "pnpm run test:coverage",
-    "test:coverage": "vitest run",
-    "test:watch": "vitest"
+    "test": "pnpm run test:coverage --silent",
+    "test:coverage": "vitest run --silent --reporter=dot",
+    "test:watch": "vitest --silent --reporter=dot"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",

@@ -24,7 +24,7 @@
     "start-emulator:auth-server": "pnpm --filter @cellix/mock-oauth2-server start",
     "test:all": "turbo run test:all",
     "test:coverage": "turbo run test:coverage",
-    "test:coverage:merge": "pnpm run test:coverage && pnpm run merge-lcov-reports",
+    "test:coverage:merge": "pnpm run test:coverage --silent && pnpm run merge-lcov-reports",
     "merge-lcov-reports": "node build-pipeline/scripts/merge-coverage.js",
     "test:integration": "turbo run test:integration",
     "test:serenity": "turbo run test:serenity",
@@ -46,7 +46,7 @@
     "snyk:iac": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs",
     "snyk:iac:report": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --target-name=cellixjs-iac --report",
     "analyze": "pnpm -r exec -- pnpm dlx @e18e/cli analyze",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",

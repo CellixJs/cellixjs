@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build",
+    "build": "tsc --build && vite build",
     "start": "vite",
     "lint": "biome lint",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest",
+    "test": "vitest run --silent --reporter=dot",
+    "test:coverage": "vitest run --coverage --silent --reporter=dot",
+    "test:watch": "vitest --silent --reporter=dot",
     "storybook": "storybook dev -p 6008",
     "build-storybook": "storybook build"
   },
