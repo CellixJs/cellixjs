@@ -24,7 +24,7 @@
     "start-emulator:auth-server": "pnpm --filter @cellix/mock-oauth2-server start",
     "test:all": "turbo run test:all",
     "test:coverage": "turbo run test:coverage",
-    "test:coverage:merge": "pnpm run test:coverage --silent && pnpm run merge-lcov-reports",
+    "test:coverage:merge": "pnpm run test:coverage && pnpm run merge-lcov-reports",
     "merge-lcov-reports": "node build-pipeline/scripts/merge-coverage.js",
     "test:integration": "turbo run test:integration",
     "test:serenity": "turbo run test:serenity",
