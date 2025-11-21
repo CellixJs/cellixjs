@@ -2,7 +2,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import { Community } from './index.ts';
+import { CommunityProvisioningService } from './community/community-provisioning.service.ts';
+
+const Community = {
+	CommunityProvisioningService: new CommunityProvisioningService(),
+};
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -1,53 +1,53 @@
-import type { Contexts } from './domain/index.ts';
+// Re-export all domain exports
+export * from './domain.ts';
 
-export * as Domain from './domain/index.ts';
-
+// DomainDataSource interface for persistence layer integration
 export interface DomainDataSource {
 	Case: {
 		ServiceTicket: {
 			V1: {
-				ServiceTicketV1UnitOfWork: Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
+				ServiceTicketV1UnitOfWork: import('./domain.ts').ServiceTicketV1UnitOfWork;
 			};
 		};
 	};
 	Community: {
 		Community: {
-			CommunityUnitOfWork: Contexts.Community.Community.CommunityUnitOfWork;
+			CommunityUnitOfWork: import('./domain.ts').CommunityUnitOfWork;
 		};
 		Member: {
-			MemberUnitOfWork: Contexts.Community.Member.MemberUnitOfWork;
+			MemberUnitOfWork: import('./domain.ts').MemberUnitOfWork;
 		};
 		Role: {
 			EndUserRole: {
-				EndUserRoleUnitOfWork: Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+				EndUserRoleUnitOfWork: import('./domain.ts').EndUserRoleUnitOfWork;
 			};
 			VendorUserRole: {
-				VendorUserRoleUnitOfWork: Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork;
+				VendorUserRoleUnitOfWork: import('./domain.ts').VendorUserRoleUnitOfWork;
 			};
 		};
 	};
 	Property: {
 		Property: {
-			PropertyUnitOfWork: Contexts.Property.Property.PropertyUnitOfWork;
+			PropertyUnitOfWork: import('./domain.ts').PropertyUnitOfWork;
 		};
 	};
 	User: {
 		EndUser: {
-			EndUserUnitOfWork: Contexts.User.EndUser.EndUserUnitOfWork;
+			EndUserUnitOfWork: import('./domain.ts').EndUserUnitOfWork;
 		};
 		StaffRole: {
-			StaffRoleUnitOfWork: Contexts.User.StaffRole.StaffRoleUnitOfWork;
+			StaffRoleUnitOfWork: import('./domain.ts').StaffRoleUnitOfWork;
 		};
 		StaffUser: {
-			StaffUserUnitOfWork: Contexts.User.StaffUser.StaffUserUnitOfWork;
+			StaffUserUnitOfWork: import('./domain.ts').StaffUserUnitOfWork;
 		};
 		VendorUser: {
-			VendorUserUnitOfWork: Contexts.User.VendorUser.VendorUserUnitOfWork;
+			VendorUserUnitOfWork: import('./domain.ts').VendorUserUnitOfWork;
 		};
 	};
 	Service: {
 		Service: {
-			ServiceUnitOfWork: Contexts.Service.Service.ServiceUnitOfWork;
+			ServiceUnitOfWork: import('./domain.ts').ServiceUnitOfWork;
 		};
 	};
 }

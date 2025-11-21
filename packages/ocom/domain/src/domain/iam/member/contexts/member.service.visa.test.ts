@@ -2,8 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import type { MemberEntityReference } from '../../../contexts/community/member/index.ts';
-import type { ServiceEntityReference } from '../../../contexts/service/service/index.ts';
+import type { MemberEntityReference } from '../../../contexts/community.ts';
+import type { ServiceEntityReference } from '../../../contexts/service.ts';
 import { MemberServiceVisa } from './member.service.visa.ts';
 
 const test = { for: describeFeature };

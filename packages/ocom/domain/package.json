@@ -10,6 +10,30 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./domain": {
+      "types": "./dist/src/domain.d.ts",
+      "default": "./dist/src/domain.js"
+    },
+    "./contexts/case": {
+      "types": "./dist/src/domain/contexts/case.d.ts",
+      "default": "./dist/src/domain/contexts/case.js"
+    },
+    "./contexts/community": {
+      "types": "./dist/src/domain/contexts/community.d.ts",
+      "default": "./dist/src/domain/contexts/community.js"
+    },
+    "./contexts/property": {
+      "types": "./dist/src/domain/contexts/property.d.ts",
+      "default": "./dist/src/domain/contexts/property.js"
+    },
+    "./contexts/service": {
+      "types": "./dist/src/domain/contexts/service.d.ts",
+      "default": "./dist/src/domain/contexts/service.js"
+    },
+    "./contexts/user": {
+      "types": "./dist/src/domain/contexts/user.d.ts",
+      "default": "./dist/src/domain/contexts/user.js"
     }
   },
   "scripts": {

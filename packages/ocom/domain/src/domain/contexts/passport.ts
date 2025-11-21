@@ -1,11 +1,11 @@
-import {
-	GuestPassport,
-	MemberPassport,
-	StaffUserPassport,
-	SystemPassport,
-} from '../iam/index.ts';
+import { GuestPassport } from '../iam/guest/guest.passport.ts';
+import { MemberPassport } from '../iam/member/member.passport.ts';
+import { StaffUserPassport } from '../iam/user/staff-user/staff-user.passport.ts';
+import { SystemPassport } from '../iam/system/system.passport.ts';
 import type { PermissionsSpec } from '../iam/system/system.passport-base.ts';
-import type { Contexts } from '../index.ts';
+import type { EndUserEntityReference } from './user.ts';
+import type { MemberEntityReference, CommunityEntityReference } from './community.ts';
+import type { StaffUserEntityReference } from './user.ts';
 import type { CasePassport } from './case/case.passport.ts';
 import type { CommunityPassport } from './community/community.passport.ts';
 import type { PropertyPassport } from './property/property.passport.ts';
@@ -28,17 +28,15 @@ export const PassportFactory = {
 
 	// for logged-in users on account portal within a community
 	forMember(
-		endUser: Contexts.User.EndUser.EndUserEntityReference,
-		member: Contexts.Community.Member.MemberEntityReference,
-		community: Contexts.Community.Community.CommunityEntityReference,
+		endUser: EndUserEntityReference,
+		member: MemberEntityReference,
+		community: CommunityEntityReference,
 	): Passport {
 		return new MemberPassport(endUser, member, community);
 	},
 
 	// for logged-in users on staff portal - defers to role permissions for that staff user
-	forStaffUser(
-		staffUser: Contexts.User.StaffUser.StaffUserEntityReference,
-	): Passport {
+	forStaffUser(staffUser: StaffUserEntityReference): Passport {
 		return new StaffUserPassport(staffUser);
 	},
 

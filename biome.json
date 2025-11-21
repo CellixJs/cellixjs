@@ -148,6 +148,28 @@
 					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
 				}
 			}
+		},
+		{
+			"includes": ["packages/ocom/domain/**/*.ts"],
+			"linter": {
+				"rules": {
+					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
+				}
+			}
+		},
+		{
+			"includes": [
+				"packages/ocom/domain/src/index.ts",
+				"packages/ocom/domain/src/domain.ts",
+				"packages/ocom/domain/src/domain/contexts/*.ts",
+				"packages/ocom/domain/src/domain/contexts/**/*.value-objects.ts",
+				"packages/ocom/domain/tests/**/*.ts"
+			],
+			"linter": {
+				"rules": {
+					"performance": { "noBarrelFile": "off", "noReExportAll": "off" }
+				}
+			}
 		}
 	],
 	"assist": {

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, type MockedFunction, vi } from 'vitest';
-import type { Domain, DomainDataSource } from '../../../index.ts';
+import type { DomainDataSource } from '../../../index.ts';
 import { CommunityProvisioningService } from './community-provisioning.service.ts';
 
 const test = { for: describeFeature };
