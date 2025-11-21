@@ -1,8 +1,8 @@
 import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Models } from '@ocom/data-sources-mongoose-models';
+import { mongooseContextBuilder } from '@ocom/data-sources-mongoose-models';
 import { DataSourcesFactoryImpl } from './datasources/index.ts';
 
-export type ModelsContext = ReturnType<typeof Models.mongooseContextBuilder>;
+export type ModelsContext = ReturnType<typeof mongooseContextBuilder>;
 export type { DataSources, DataSourcesFactory } from './datasources/index.ts';
 
 export const Persistence = (
@@ -13,7 +13,7 @@ export const Persistence = (
 	}
 
 	const models: ModelsContext = {
-		...Models.mongooseContextBuilder(initializedService),
+		...mongooseContextBuilder(initializedService),
 	};
 
 	return DataSourcesFactoryImpl(models);

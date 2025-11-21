@@ -1,9 +1,9 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { type Model, type PopulatedDoc, Schema, type SchemaDefinition, type Types } from 'mongoose';
-import * as Community from '../community/index.ts';
-import * as Member from '../member/index.ts';
-import * as Property from '../property/index.ts';
-import * as Service from '../service/index.ts';
+import * as Community from '../community/community.model.ts';
+import * as Member from '../member/member.model.ts';
+import * as Property from '../property/property.model.ts';
+import * as Service from '../service/service.model.ts';
 import { type Ticket, type TicketModelType, ticketOptions } from './ticket.model.ts';
 
 // Finance Details Subdocuments

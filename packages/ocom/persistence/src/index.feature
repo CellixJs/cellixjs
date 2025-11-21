@@ -2,7 +2,7 @@ Feature: Persistence Factory
 
   Background:
     Given a valid Mongoose context factory with service
-    And the Models.mongooseContextBuilder is available
+    And the mongooseContextBuilder is available
 
   Scenario: Creating Persistence factory with valid service
     When I call Persistence with a valid MongooseContextFactory

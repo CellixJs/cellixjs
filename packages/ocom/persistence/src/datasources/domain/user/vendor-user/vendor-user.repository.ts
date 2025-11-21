@@ -1,18 +1,20 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { VendorUser } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import type { VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
 
-type VendorUserDocument = Models.User.VendorUser;
-type VendorUserAggregate = Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
-type VendorUserRepositoryContract = Domain.Contexts.User.VendorUser.VendorUserRepository<VendorUserDomainAdapter>;
+type VendorUserDocument = VendorUser;
+type VendorUserAggregate =
+	Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+type VendorUserRepositoryContract =
+	Domain.Contexts.User.VendorUser.VendorUserRepository<VendorUserDomainAdapter>;
 
 export class VendorUserRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
-	VendorUserDocument,
-	VendorUserDomainAdapter,
-	Domain.Passport,
-	VendorUserAggregate
+		VendorUserDocument,
+		VendorUserDomainAdapter,
+		Domain.Passport,
+		VendorUserAggregate
 	>
 	implements VendorUserRepositoryContract
 {
@@ -29,13 +31,9 @@ export class VendorUserRepository
 	}
 
 	async getByExternalId(externalId: string): Promise<VendorUserAggregate> {
-		const vendorUser = await this.model
-			.findOne({ externalId })
-			.exec();
+		const vendorUser = await this.model.findOne({ externalId }).exec();
 		if (!vendorUser) {
-			throw new Error(
-				`VendorUser with externalId ${externalId} not found`,
-			);
+			throw new Error(`VendorUser with externalId ${externalId} not found`);
 		}
 		return this.typeConverter.toDomain(vendorUser, this.passport);
 	}

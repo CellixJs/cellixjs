@@ -1,6 +1,11 @@
-import type { Models } from "@ocom/data-sources-mongoose-models";
-import { MongoDataSourceImpl, type MongoDataSource } from "../../mongo-data-source.ts";
+import type { Member } from '@ocom/data-sources-mongoose-models';
+import {
+	type MongoDataSource,
+	MongoDataSourceImpl,
+} from '../../mongo-data-source.ts';
 
-export interface MemberDataSource extends MongoDataSource<Models.Member.Member> {}
+export interface MemberDataSource extends MongoDataSource<Member> {}
 
-export class MemberDataSourceImpl extends MongoDataSourceImpl<Models.Member.Member> implements MemberDataSource {}
+export class MemberDataSourceImpl
+	extends MongoDataSourceImpl<Member>
+	implements MemberDataSource {}

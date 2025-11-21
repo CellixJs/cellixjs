@@ -148,6 +148,19 @@
 					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
 				}
 			}
+		},
+		{
+			"includes": [
+				"packages/ocom/persistence/**/*.ts",
+				"!packages/ocom/persistence/src/index.ts",
+				"packages/ocom/data-sources-mongoose-models/**/*.ts",
+				"!packages/ocom/data-sources-mongoose-models/src/index.ts"
+			],
+			"linter": {
+				"rules": {
+					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
+				}
+			}
 		}
 	],
 	"assist": {

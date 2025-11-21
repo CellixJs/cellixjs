@@ -1,9 +1,9 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { EndUserRole } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import type { EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 
-type EndUserRoleModelType = Models.Role.EndUserRole; // ReturnType<typeof Models.EndUserRole.EndUserRoleModelFactory> & Models.EndUserRole.EndUserRole & { baseModelName: string };
+type EndUserRoleModelType = EndUserRole; // ReturnType<typeof EndUserRoleModelFactory> & EndUserRole & { baseModelName: string };
 type PropType = EndUserRoleDomainAdapter;
 
 export class EndUserRoleRepository //<
@@ -15,14 +15,13 @@ export class EndUserRoleRepository //<
 		Domain.Passport,
 		Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>
 	>
-	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRoleRepository<PropType>
+	implements
+		Domain.Contexts.Community.Role.EndUserRole.EndUserRoleRepository<PropType>
 {
 	async getById(
 		id: string,
 	): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>> {
-		const mongoEndUserRole = await this.model
-			.findById(id)
-			.exec();
+		const mongoEndUserRole = await this.model.findById(id).exec();
 		if (!mongoEndUserRole) {
 			throw new Error(`EndUserRole with id ${id} not found`);
 		}
@@ -31,16 +30,16 @@ export class EndUserRoleRepository //<
 	// biome-ignore lint:noRequireAwait
 	async getNewInstance(
 		roleName: string,
-        isDefault: boolean,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference
+		isDefault: boolean,
+		community: Domain.Contexts.Community.Community.CommunityEntityReference,
 	): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
 			Domain.Contexts.Community.Role.EndUserRole.EndUserRole.getNewInstance(
 				adapter,
-                this.passport,
+				this.passport,
 				roleName,
-                isDefault,
+				isDefault,
 				community,
 			),
 		);

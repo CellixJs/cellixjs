@@ -1,9 +1,14 @@
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type {
+	EndUser,
+	EndUserContactInformation,
+	EndUserIdentityDetails,
+	EndUserPersonalInformation,
+} from '@ocom/data-sources-mongoose-models';
+import { Domain } from '@ocom/domain';
 
 export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.User.EndUser,
+	EndUser,
 	EndUserDomainAdapter,
 	Domain.Passport,
 	Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>
@@ -11,13 +16,13 @@ export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			EndUserDomainAdapter,
-			Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>
+			Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>,
 		);
 	}
 }
 
 export class EndUserDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Models.User.EndUser>
+	extends MongooseSeedwork.MongooseDomainAdapter<EndUser>
 	implements Domain.Contexts.User.EndUser.EndUserProps
 {
 	get userType() {
@@ -33,7 +38,7 @@ export class EndUserDomainAdapter
 
 	get personalInformation() {
 		if (!this.doc.personalInformation) {
-		  this.doc.set('personalInformation', {});
+			this.doc.set('personalInformation', {});
 		}
 		return new EndUserPersonalInformationDomainAdapter(
 			this.doc.personalInformation,
@@ -72,21 +77,21 @@ export class EndUserDomainAdapter
 export class EndUserPersonalInformationDomainAdapter
 	implements Domain.Contexts.User.EndUser.EndUserPersonalInformationProps
 {
-	private readonly props: Models.User.EndUserPersonalInformation;
-	constructor(props: Models.User.EndUserPersonalInformation) {
+	private readonly props: EndUserPersonalInformation;
+	constructor(props: EndUserPersonalInformation) {
 		this.props = props;
 	}
 
 	get identityDetails() {
 		if (!this.props.identityDetails) {
-		  this.props.set('identityDetails', {});
+			this.props.set('identityDetails', {});
 		}
 		return new EndUserIdentityDetailsDomainAdapter(this.props.identityDetails);
 	}
 
 	get contactInformation() {
 		if (!this.props.contactInformation) {
-		  this.props.set('contactInformation', {});
+			this.props.set('contactInformation', {});
 		}
 		return new EndUserContactInformationDomainAdapter(
 			this.props.contactInformation,
@@ -97,8 +102,8 @@ export class EndUserPersonalInformationDomainAdapter
 export class EndUserIdentityDetailsDomainAdapter
 	implements Domain.Contexts.User.EndUser.EndUserIdentityDetailsProps
 {
-	private readonly props: Models.User.EndUserIdentityDetails;
-	constructor(props: Models.User.EndUserIdentityDetails) {
+	private readonly props: EndUserIdentityDetails;
+	constructor(props: EndUserIdentityDetails) {
 		this.props = props;
 	}
 
@@ -127,8 +132,8 @@ export class EndUserIdentityDetailsDomainAdapter
 export class EndUserContactInformationDomainAdapter
 	implements Domain.Contexts.User.EndUser.EndUserContactInformationProps
 {
-	private readonly props: Models.User.EndUserContactInformation;
-	constructor(props: Models.User.EndUserContactInformation) {
+	private readonly props: EndUserContactInformation;
+	constructor(props: EndUserContactInformation) {
 		this.props = props;
 	}
 

@@ -1,24 +1,21 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { Community, Service } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 
 export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Service.Service,
+	Service,
 	ServiceDomainAdapter,
 	Domain.Passport,
 	Domain.Contexts.Service.Service.Service<ServiceDomainAdapter>
 > {
 	constructor() {
-		super(
-			ServiceDomainAdapter,
-			Domain.Contexts.Service.Service.Service
-		);
+		super(ServiceDomainAdapter, Domain.Contexts.Service.Service.Service);
 	}
 }
 
 export class ServiceDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Models.Service.Service>
+	extends MongooseSeedwork.MongooseDomainAdapter<Service>
 	implements Domain.Contexts.Service.Service.ServiceProps
 {
 	get serviceName() {
@@ -51,20 +48,22 @@ export class ServiceDomainAdapter
 				'community is not populated or is not of the correct type',
 			);
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
-    async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
+	async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-            await this.doc.populate('community');
+			await this.doc.populate('community');
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
-	setCommunityRef(community: Domain.Contexts.Community.Community.CommunityEntityReference) {
+	setCommunityRef(
+		community: Domain.Contexts.Community.Community.CommunityEntityReference,
+	) {
 		if (!community?.id) {
 			throw new Error('community reference is missing id');
 		}

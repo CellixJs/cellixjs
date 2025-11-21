@@ -1,9 +1,9 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { StaffRole } from '@ocom/data-sources-mongoose-models';
 import { Domain } from '@ocom/domain';
 import type { StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
 
-type StaffRoleModelType = Models.Role.StaffRole;
+type StaffRoleModelType = StaffRole;
 type AdapterType = StaffRoleDomainAdapter;
 
 export class StaffRoleRepository
