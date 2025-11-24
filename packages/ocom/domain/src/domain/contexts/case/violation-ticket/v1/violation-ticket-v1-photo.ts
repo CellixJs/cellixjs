@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
-import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
+import { DomainEntity, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
 export interface ViolationTicketV1PhotoProps extends DomainEntityProps {
@@ -36,7 +36,7 @@ export class ViolationTicketV1Photo
 
     getNewDocumentId(): string {
 		// Generate a new document ID - implementation can be customized
-		return `photo-${Date.now()}-${randomBytes(5).toString('hex').substr(0, 9)}`;
+		return `photo-${Date.now()}-${randomBytes(5).toString('hex').slice(0, 9)}`;
 	}
 
 	get documentId(): string {
