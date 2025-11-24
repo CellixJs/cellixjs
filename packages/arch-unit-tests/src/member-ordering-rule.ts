@@ -1,4 +1,3 @@
-// archunit/memberOrderingRule.ts
 import type { FileInfo } from 'archunit';
 import ts from 'typescript';
 
@@ -136,13 +135,8 @@ export function checkMemberOrdering(
 
 		let maxSoFar = -1;
 		for (let i = 0; i < relevantMembers.length; i++) {
-			const idx = groupIndexes[i];
-			const member = relevantMembers[i];
-
-			// Guard against undefined idx and member
-			if (typeof idx !== 'number' || member === undefined) {
-				continue;
-			}
+			const idx = groupIndexes[i] as number;
+			const member = relevantMembers[i] as ts.ClassElement;
 
 			if (idx < maxSoFar) {
 				const memberName = getMemberName(member);
@@ -153,8 +147,7 @@ export function checkMemberOrdering(
 					`Class ${className}: member "${memberName}" (group: ${offendingGroup}) appears after a member from later group (${previousGroup}).`,
 				);
 			} else {
-				// Only assign if idx is a number
-				maxSoFar = typeof idx === 'number' ? idx : maxSoFar;
+				maxSoFar = idx;
 			}
 		}
 	};
