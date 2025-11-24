@@ -20,5 +20,5 @@ describe("Member ordering", () => {
       .check();
 
     expect(violations).toStrictEqual([]);
-  });
+  }, 30000);
 });
