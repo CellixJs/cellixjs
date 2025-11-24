@@ -1,16 +1,16 @@
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
-import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { PropertyVisa } from '../property.visa.ts';
 import {
-	PropertyLocationAddress,
-	type PropertyLocationAddressEntityReference,
-	type PropertyLocationAddressProps,
+    PropertyLocationAddress,
+    type PropertyLocationAddressEntityReference,
+    type PropertyLocationAddressProps,
 } from './property-location-address.entity.ts';
 import {
-	PropertyLocationPosition,
-	type PropertyLocationPositionEntityReference,
-	type PropertyLocationPositionProps,
+    PropertyLocationPosition,
+    type PropertyLocationPositionEntityReference,
+    type PropertyLocationPositionProps,
 } from './property-location-position.entity.ts';
 
 export interface PropertyLocationProps extends ValueObjectProps {
@@ -35,7 +35,7 @@ export class PropertyLocation
 		this.visa = visa;
 	}
 
-    private validateVisa(): void {
+	private validateVisa(): void {
 		if (
 			!this.visa.determineIf(
 				(permissions) =>
