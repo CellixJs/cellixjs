@@ -1,7 +1,7 @@
 import type { FileInfo } from 'archunit';
 import ts from 'typescript';
 
-export interface MemberOrderGroup {
+interface MemberOrderGroup {
 	name: string;
 	match(member: ts.ClassElement): boolean;
 }
