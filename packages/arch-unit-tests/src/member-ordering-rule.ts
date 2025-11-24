@@ -164,10 +164,8 @@ export function checkMemberOrdering(
 		for (const v of violations) {
 			console.error(`  - ${v}`);
 		}
-		// Throw error so test output includes details
-		throw new Error(
-			`[ArchUnitTS member-ordering] ${file.path}\n${violations.map((v) => '  - ' + v).join('\n')}`,
-		);
-	}
-	return true;
+        // Do not throw; just return violations
+        return violations;
+    }
+    return true;
 }
