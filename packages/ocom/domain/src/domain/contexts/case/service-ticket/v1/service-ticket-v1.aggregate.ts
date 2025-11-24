@@ -73,6 +73,52 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 	//#region Fields
 	private readonly visa: ServiceTicketV1Visa;
 	private isNew: boolean = false;
+    private readonly validStatusTransitions = new Map<string, string[]>([
+		[ValueObjects.StatusCodes.Draft, [ValueObjects.StatusCodes.Submitted]],
+		[
+			ValueObjects.StatusCodes.Submitted,
+			[ValueObjects.StatusCodes.Draft, ValueObjects.StatusCodes.Assigned],
+		],
+		[
+			ValueObjects.StatusCodes.Assigned,
+			[ValueObjects.StatusCodes.Submitted, ValueObjects.StatusCodes.InProgress],
+		],
+		[
+			ValueObjects.StatusCodes.InProgress,
+			[ValueObjects.StatusCodes.Assigned, ValueObjects.StatusCodes.Completed],
+		],
+		[
+			ValueObjects.StatusCodes.Completed,
+			[ValueObjects.StatusCodes.InProgress, ValueObjects.StatusCodes.Closed],
+		],
+		[ValueObjects.StatusCodes.Closed, [ValueObjects.StatusCodes.InProgress]],
+	]);
+	private readonly statusMappings = new Map<string, string>([
+		[
+			ValueObjects.StatusCodes.Draft,
+			ActivityDetailValueObjects.ActivityTypeCodes.Created,
+		],
+		[
+			ValueObjects.StatusCodes.Submitted,
+			ActivityDetailValueObjects.ActivityTypeCodes.Submitted,
+		],
+		[
+			ValueObjects.StatusCodes.Assigned,
+			ActivityDetailValueObjects.ActivityTypeCodes.Assigned,
+		],
+		[
+			ValueObjects.StatusCodes.InProgress,
+			ActivityDetailValueObjects.ActivityTypeCodes.InProgress,
+		],
+		[
+			ValueObjects.StatusCodes.Completed,
+			ActivityDetailValueObjects.ActivityTypeCodes.Completed,
+		],
+		[
+			ValueObjects.StatusCodes.Closed,
+			ActivityDetailValueObjects.ActivityTypeCodes.Closed,
+		],
+	]);
 	//#endregion Fields
 
 	//#region Constructor
@@ -186,53 +232,6 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 			this.statusMappings.get(newStatus.valueOf()) ||
 			ActivityDetailValueObjects.ActivityTypeCodes.Updated;
 	}
-
-	private readonly validStatusTransitions = new Map<string, string[]>([
-		[ValueObjects.StatusCodes.Draft, [ValueObjects.StatusCodes.Submitted]],
-		[
-			ValueObjects.StatusCodes.Submitted,
-			[ValueObjects.StatusCodes.Draft, ValueObjects.StatusCodes.Assigned],
-		],
-		[
-			ValueObjects.StatusCodes.Assigned,
-			[ValueObjects.StatusCodes.Submitted, ValueObjects.StatusCodes.InProgress],
-		],
-		[
-			ValueObjects.StatusCodes.InProgress,
-			[ValueObjects.StatusCodes.Assigned, ValueObjects.StatusCodes.Completed],
-		],
-		[
-			ValueObjects.StatusCodes.Completed,
-			[ValueObjects.StatusCodes.InProgress, ValueObjects.StatusCodes.Closed],
-		],
-		[ValueObjects.StatusCodes.Closed, [ValueObjects.StatusCodes.InProgress]],
-	]);
-	private readonly statusMappings = new Map<string, string>([
-		[
-			ValueObjects.StatusCodes.Draft,
-			ActivityDetailValueObjects.ActivityTypeCodes.Created,
-		],
-		[
-			ValueObjects.StatusCodes.Submitted,
-			ActivityDetailValueObjects.ActivityTypeCodes.Submitted,
-		],
-		[
-			ValueObjects.StatusCodes.Assigned,
-			ActivityDetailValueObjects.ActivityTypeCodes.Assigned,
-		],
-		[
-			ValueObjects.StatusCodes.InProgress,
-			ActivityDetailValueObjects.ActivityTypeCodes.InProgress,
-		],
-		[
-			ValueObjects.StatusCodes.Completed,
-			ActivityDetailValueObjects.ActivityTypeCodes.Completed,
-		],
-		[
-			ValueObjects.StatusCodes.Closed,
-			ActivityDetailValueObjects.ActivityTypeCodes.Closed,
-		],
-	]);
 
 	public requestDelete(): void {
 		if (

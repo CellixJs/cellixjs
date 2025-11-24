@@ -106,6 +106,46 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 	//#region Fields
 	private readonly visa: ViolationTicketV1Visa;
 	private isNew: boolean = false;
+    	private readonly validStatusTransitions = new Map<string, string[]>([
+		[ValueObjects.StatusCodes.Draft, [ValueObjects.StatusCodes.Submitted]],
+		[
+			ValueObjects.StatusCodes.Submitted,
+			[ValueObjects.StatusCodes.Draft, ValueObjects.StatusCodes.Assigned],
+		],
+		[
+			ValueObjects.StatusCodes.Assigned,
+			[ValueObjects.StatusCodes.Submitted, ValueObjects.StatusCodes.Paid],
+		],
+		[
+			ValueObjects.StatusCodes.Paid,
+			[ValueObjects.StatusCodes.Assigned, ValueObjects.StatusCodes.Closed],
+		],
+		[ValueObjects.StatusCodes.Closed, [ValueObjects.StatusCodes.Assigned]],
+	]);
+
+	private readonly statusMappings = new Map<string, string>([
+		[
+			ValueObjects.StatusCodes.Draft,
+			ActivityDetailValueObjects.ActivityTypeCodes.Created,
+		],
+		[
+			ValueObjects.StatusCodes.Submitted,
+			ActivityDetailValueObjects.ActivityTypeCodes.Submitted,
+		],
+		[
+			ValueObjects.StatusCodes.Assigned,
+			ActivityDetailValueObjects.ActivityTypeCodes.Assigned,
+		],
+		[
+			ValueObjects.StatusCodes.Paid,
+			ActivityDetailValueObjects.ActivityTypeCodes.Paid,
+		],
+		[
+			ValueObjects.StatusCodes.Closed,
+			ActivityDetailValueObjects.ActivityTypeCodes.Closed,
+		],
+	]);
+
 	//#endregion Fields
 
 	//#region Constructor
@@ -298,46 +338,6 @@ export class ViolationTicketV1<props extends ViolationTicketV1Props>
 			this.statusMappings.get(newStatus.valueOf()) ||
 			ActivityDetailValueObjects.ActivityTypeCodes.Updated;
 	}
-
-	private readonly validStatusTransitions = new Map<string, string[]>([
-		[ValueObjects.StatusCodes.Draft, [ValueObjects.StatusCodes.Submitted]],
-		[
-			ValueObjects.StatusCodes.Submitted,
-			[ValueObjects.StatusCodes.Draft, ValueObjects.StatusCodes.Assigned],
-		],
-		[
-			ValueObjects.StatusCodes.Assigned,
-			[ValueObjects.StatusCodes.Submitted, ValueObjects.StatusCodes.Paid],
-		],
-		[
-			ValueObjects.StatusCodes.Paid,
-			[ValueObjects.StatusCodes.Assigned, ValueObjects.StatusCodes.Closed],
-		],
-		[ValueObjects.StatusCodes.Closed, [ValueObjects.StatusCodes.Assigned]],
-	]);
-
-	private readonly statusMappings = new Map<string, string>([
-		[
-			ValueObjects.StatusCodes.Draft,
-			ActivityDetailValueObjects.ActivityTypeCodes.Created,
-		],
-		[
-			ValueObjects.StatusCodes.Submitted,
-			ActivityDetailValueObjects.ActivityTypeCodes.Submitted,
-		],
-		[
-			ValueObjects.StatusCodes.Assigned,
-			ActivityDetailValueObjects.ActivityTypeCodes.Assigned,
-		],
-		[
-			ValueObjects.StatusCodes.Paid,
-			ActivityDetailValueObjects.ActivityTypeCodes.Paid,
-		],
-		[
-			ValueObjects.StatusCodes.Closed,
-			ActivityDetailValueObjects.ActivityTypeCodes.Closed,
-		],
-	]);
 
 	public override onSave(isModified: boolean): void {
 		if (isModified && !super.isDeleted) {
