@@ -8,15 +8,17 @@ describe("Member ordering", () => {
       "Classes must use member ordering: static fields → instance fields → constructor → static methods → instance methods";
 
     const violations = await projectFiles()
-    .inFolder("../ocom/domain/src/**")
-    .withName("*.ts")
-    .should()
-    .adhereTo((file) => {
-        // optionally still skip dist/tests here if you want
-        return checkMemberOrdering(file, defaultMemberOrder);
-    }, ruleDesc)
-    .check();
+      .inFolder("../ocom/domain/src/**")
+      .withName("*.ts")
+      .should()
+      .adhereTo((file) => {
+        if (file.name.includes('.test')) {
+            return true; // Skip test files
+        }
+        return checkMemberOrdering(file, defaultMemberOrder) === true;
+      }, ruleDesc)
+      .check();
 
     expect(violations).toStrictEqual([]);
-  }, 10000);
+  });
 });

@@ -35,12 +35,27 @@ export class PropertyLocation
 		this.visa = visa;
 	}
 
+    private validateVisa(): void {
+		if (
+			!this.visa.determineIf(
+				(permissions) =>
+					permissions.isSystemAccount ||
+					permissions.canManageProperties ||
+					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
+			)
+		) {
+			throw new PermissionError(
+				'You do not have permission to update this property location',
+			);
+		}
+	}
+
 	get address(): PropertyLocationAddressEntityReference {
 		return new PropertyLocationAddress(this.props.address);
 	}
 
 	set address(address: PropertyLocationAddressProps) {
-		this.ensureCanModify();
+		this.validateVisa();
 
 		this.props.address.country = address.country;
 		this.props.address.countryCode = address.countryCode;
@@ -70,25 +85,10 @@ export class PropertyLocation
 	}
 
 	set position(position: PropertyLocationPositionProps) {
-		this.ensureCanModify();
+		this.validateVisa();
 		this.props.position.type = position.type;
 		this.props.position.coordinates = position.coordinates
 			? [...position.coordinates]
 			: null;
-	}
-
-	private ensureCanModify(): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageProperties ||
-					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this property location',
-			);
-		}
 	}
 }

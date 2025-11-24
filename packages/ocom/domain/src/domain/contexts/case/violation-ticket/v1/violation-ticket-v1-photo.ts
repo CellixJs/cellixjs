@@ -34,6 +34,11 @@ export class ViolationTicketV1Photo
 		return photo;
 	}
 
+    getNewDocumentId(): string {
+		// Generate a new document ID - implementation can be customized
+		return `photo-${Date.now()}-${randomBytes(5).toString('hex').substr(0, 9)}`;
+	}
+
 	get documentId(): string {
 		return this.props.documentId;
 	}
@@ -58,10 +63,5 @@ export class ViolationTicketV1Photo
 			);
 		}
 		this.props.description = value;
-	}
-
-	getNewDocumentId(): string {
-		// Generate a new document ID - implementation can be customized
-		return `photo-${Date.now()}-${randomBytes(5).toString('hex').substr(0, 9)}`;
 	}
 }

@@ -57,13 +57,73 @@ export class PropertyListingDetail
 	extends ValueObject<PropertyListingDetailProps>
 	implements PropertyListingDetailEntityReference
 {
+	//#region Fields
 	private readonly visa: PropertyVisa;
+	//#endregion Fields
 
+	//#region Constructors
 	constructor(props: PropertyListingDetailProps, visa: PropertyVisa) {
 		super(props);
 		this.visa = visa;
 	}
+	//#endregion Constructors
 
+	//#region Methods
+	public requestNewBedroom(): PropertyListingDetailBedroomDetail {
+		this.ensureCanModifyListing();
+		return new PropertyListingDetailBedroomDetail(
+			this.props.bedroomDetails.getNewItem(),
+			this.visa,
+		);
+	}
+
+	public requestRemoveBedroom(
+		detail: PropertyListingDetailBedroomDetailProps,
+	): void {
+		this.ensureCanModifyListing();
+		this.props.bedroomDetails.removeItem(detail);
+	}
+
+	public requestNewAdditionalAmenity(): PropertyListingDetailAdditionalAmenity {
+		this.ensureCanModifyListing();
+		return new PropertyListingDetailAdditionalAmenity(
+			this.props.additionalAmenities.getNewItem(),
+			this.visa,
+		);
+	}
+
+	public requestRemoveAdditionalAmenity(
+		amenity: PropertyListingDetailAdditionalAmenityProps,
+	): void {
+		this.ensureCanModifyListing();
+		this.props.additionalAmenities.removeItem(amenity);
+	}
+
+	public requestRemoveImage(blobName: string): void {
+		this.ensureCanModifyListing();
+		this.props.images =
+			this.props.images?.filter((image) => image !== blobName) || null;
+		this.props.floorPlanImages =
+			this.props.floorPlanImages?.filter((image) => image !== blobName) || null;
+	}
+
+	private ensureCanModifyListing(): void {
+		if (
+			!this.visa.determineIf(
+				(permissions) =>
+					permissions.isSystemAccount ||
+					permissions.canManageProperties ||
+					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
+			)
+		) {
+			throw new PermissionError(
+				'You do not have permission to update this property listing',
+			);
+		}
+	}
+	//#endregion Methods
+
+	//#region Properties
 	get price(): number | null {
 		return this.props.price;
 	}
@@ -275,57 +335,5 @@ export class PropertyListingDetail
 		this.ensureCanModifyListing();
 		this.props.listingAgentCompanyAddress = value.valueOf();
 	}
-
-	public requestNewBedroom(): PropertyListingDetailBedroomDetail {
-		this.ensureCanModifyListing();
-		return new PropertyListingDetailBedroomDetail(
-			this.props.bedroomDetails.getNewItem(),
-			this.visa,
-		);
-	}
-
-	public requestRemoveBedroom(
-		detail: PropertyListingDetailBedroomDetailProps,
-	): void {
-		this.ensureCanModifyListing();
-		this.props.bedroomDetails.removeItem(detail);
-	}
-
-	public requestNewAdditionalAmenity(): PropertyListingDetailAdditionalAmenity {
-		this.ensureCanModifyListing();
-		return new PropertyListingDetailAdditionalAmenity(
-			this.props.additionalAmenities.getNewItem(),
-			this.visa,
-		);
-	}
-
-	public requestRemoveAdditionalAmenity(
-		amenity: PropertyListingDetailAdditionalAmenityProps,
-	): void {
-		this.ensureCanModifyListing();
-		this.props.additionalAmenities.removeItem(amenity);
-	}
-
-	public requestRemoveImage(blobName: string): void {
-		this.ensureCanModifyListing();
-		this.props.images =
-			this.props.images?.filter((image) => image !== blobName) || null;
-		this.props.floorPlanImages =
-			this.props.floorPlanImages?.filter((image) => image !== blobName) || null;
-	}
-
-	private ensureCanModifyListing(): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageProperties ||
-					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this property listing',
-			);
-		}
-	}
+	//#endregion Properties
 }

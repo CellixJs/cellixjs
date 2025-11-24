@@ -73,7 +73,7 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 	//#region Fields
 	private readonly visa: ServiceTicketV1Visa;
 	private isNew: boolean = false;
-    private readonly validStatusTransitions = new Map<string, string[]>([
+	private readonly validStatusTransitions = new Map<string, string[]>([
 		[ValueObjects.StatusCodes.Draft, [ValueObjects.StatusCodes.Submitted]],
 		[
 			ValueObjects.StatusCodes.Submitted,

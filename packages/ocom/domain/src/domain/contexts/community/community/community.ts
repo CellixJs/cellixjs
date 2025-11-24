@@ -77,6 +77,10 @@ export class Community<props extends CommunityProps>
 			},
 		);
 	}
+
+	async loadCreatedBy(): Promise<EndUserEntityReference> {
+		return await this.props.loadCreatedBy();
+	}
 	//#endregion Methods
 
 	//#region Properties
@@ -177,10 +181,6 @@ export class Community<props extends CommunityProps>
 
 	get createdBy(): EndUserEntityReference {
 		return new EndUser(this.props.createdBy, this.passport);
-	}
-
-	async loadCreatedBy(): Promise<EndUserEntityReference> {
-		return await this.props.loadCreatedBy();
 	}
 
 	private set createdBy(createdBy: EndUserEntityReference | null | undefined) {
