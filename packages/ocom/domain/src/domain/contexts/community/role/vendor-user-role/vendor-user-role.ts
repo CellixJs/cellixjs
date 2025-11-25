@@ -46,18 +46,6 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 	private isNew: boolean = false;
 	private _visa?: CommunityVisa;
 
-	private get visa(): CommunityVisa {
-		if (!this._visa) {
-			if (!this.props.community) {
-				throw new Error(
-					'Community must be set before computing a visa for VendorUserRole',
-				);
-			}
-			this._visa = this.passport.community.forCommunity(this.community);
-		}
-		return this._visa;
-	}
-
 	public static getNewInstance<props extends VendorUserRoleProps>(
 		newProps: props,
 		passport: Passport,
@@ -96,6 +84,18 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});
+	}
+
+    private get visa(): CommunityVisa {
+		if (!this._visa) {
+			if (!this.props.community) {
+				throw new Error(
+					'Community must be set before computing a visa for VendorUserRole',
+				);
+			}
+			this._visa = this.passport.community.forCommunity(this.community);
+		}
+		return this._visa;
 	}
 
 	get community(): CommunityEntityReference {
