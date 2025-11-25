@@ -29,9 +29,7 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    User: {
-      EndUser: {} as unknown as EndUserModelType,
-    },
+    EndUser: {} as unknown as EndUserModelType,
   } as ModelsContext;
 }
 

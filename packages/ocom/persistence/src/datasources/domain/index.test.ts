@@ -26,29 +26,22 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Case: {
-        ServiceTicket: {
-            findById: vi.fn(),
-            find: vi.fn(),
-            create: vi.fn(),
-        } as unknown as ServiceTicketModelType,
-    },
+    ServiceTicket: {
+      findById: vi.fn(),
+      find: vi.fn(),
+      create: vi.fn(),
+    } as unknown as ServiceTicketModelType,
     Community: {
-      Community: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as CommunityModelType,
-    },
     Member: {
-      Member: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as MemberModelType,
-    },
-    Role: {
-      EndUserRole: {
+    EndUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
@@ -63,9 +56,7 @@ function makeMockModelsContext() {
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as VendorUserRoleModelType,
-    },
-    User: {
-      EndUser: {
+    EndUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
@@ -75,31 +66,21 @@ function makeMockModelsContext() {
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as StaffUserModelType,
-      StaffRole: {
-        findById: vi.fn(),
-        find: vi.fn(),
-        create: vi.fn(),
-      } as unknown as StaffRoleModelType,
       VendorUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as VendorUserModelType,
-    },
     Property: {
-        Property: {
             findById: vi.fn(),
             find: vi.fn(),
             create: vi.fn(),
         } as unknown as PropertyModelType,
-    },
     Service: {
-        Service: {
             findById: vi.fn(),
             find: vi.fn(),
             create: vi.fn(),
         } as unknown as ServiceModelType,
-    }
   } as Parameters<typeof DomainDataSourceImplementation>[0];
 }
 

@@ -41,12 +41,8 @@ function makeMockMongooseContextFactory(service: mongoose.Mongoose | null | 'inv
 
 function makeMockModelsContext(): ModelsContext {
   return {
-    Community: {
-      Community: {} as unknown,
-    },
-    User: {
-      EndUser: {} as unknown,
-    },
+    Community: {} as unknown,
+    EndUser: {} as unknown,
   } as ModelsContext;
 }
 

@@ -24,7 +24,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
      * @param passport - The passport object for domain access.
      */
     constructor(models: ModelsContext, passport: Domain.Passport) {
-        this.mongoDataSource = new CommunityDataSourceImpl(models.Community.Community);
+        this.mongoDataSource = new CommunityDataSourceImpl(models.Community);
         this.converter = new CommunityConverter();
         this.passport = passport;
     }

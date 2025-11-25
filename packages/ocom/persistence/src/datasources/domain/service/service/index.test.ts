@@ -16,14 +16,12 @@ const indexFeature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Service: {
-      Service: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         updateOne: vi.fn(),
         deleteOne: vi.fn(),
       } as unknown as ServiceModelType,
-    },
   } as unknown as Parameters<typeof ServicePersistence>[0];
 }
 

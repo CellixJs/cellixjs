@@ -23,9 +23,7 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Community: {
-      Community: {} as unknown as CommunityModelType,
-    },
+    Community: {} as unknown as CommunityModelType,
   } as ModelsContext;
 }
 

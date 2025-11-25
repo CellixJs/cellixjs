@@ -20,18 +20,10 @@ vi.mock('./member.data.ts', () => ({
 
 function makeMockModelsContext() {
   return {
-    Community: {
-      Community: {} as unknown,
-    },
-    Member: {
-      Member: {} as unknown,
-    },
-    Role: {
-        EndUserRole: {} as unknown
-    },
-    User: {
-      EndUser: {} as unknown,
-    },
+    Community: {} as unknown,
+    Member: {} as unknown,
+    EndUserRole: {} as unknown,
+    EndUser: {} as unknown,
   } as unknown as Parameters<typeof MemberReadRepositoryImpl>[0];
 }
 

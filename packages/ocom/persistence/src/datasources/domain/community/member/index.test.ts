@@ -17,14 +17,12 @@ const feature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Member: {
-      Member: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         updateOne: vi.fn(),
         deleteOne: vi.fn(),
       } as unknown as MemberModelType,
-    },
   } as unknown as Parameters<typeof MemberPersistence>[0];
 }
 

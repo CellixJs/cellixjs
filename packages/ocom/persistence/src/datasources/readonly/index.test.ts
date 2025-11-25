@@ -19,28 +19,22 @@ const feature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Community: {
-      Community: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         aggregate: vi.fn(),
       } as unknown as CommunityModelType,
-    },
     Member: {
-      Member: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as MemberModelType,
-    },
-    User: {
-      EndUser: {
+    EndUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         aggregate: vi.fn(),
       } as unknown as EndUserModelType,
-    },
   } as unknown as Parameters<typeof ReadonlyDataSourceImplementation>[0];
 }
 

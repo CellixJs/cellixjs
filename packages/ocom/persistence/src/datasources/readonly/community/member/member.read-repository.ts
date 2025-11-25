@@ -33,7 +33,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
      * @param passport - The passport object for domain access.
      */
     constructor(models: ModelsContext, passport: Domain.Passport) {
-        this.mongoDataSource = new MemberDataSourceImpl(models.Member.Member);
+        this.mongoDataSource = new MemberDataSourceImpl(models.Member);
         this.converter = new MemberConverter();
         this.passport = passport;
     }

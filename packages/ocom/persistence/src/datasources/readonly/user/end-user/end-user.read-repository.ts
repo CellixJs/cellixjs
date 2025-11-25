@@ -17,7 +17,7 @@ export class EndUserReadRepositoryImpl implements EndUserReadRepository {
     private readonly passport: Domain.Passport;
 
     constructor(models: ModelsContext, passport: Domain.Passport) {
-        this.mongoDataSource = new EndUserDataSourceImpl(models.User.EndUser);
+        this.mongoDataSource = new EndUserDataSourceImpl(models.EndUser);
         this.converter = new EndUserConverter();
         this.passport = passport;
     }

@@ -49,22 +49,17 @@ const feature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Community: {
-      Community: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         aggregate: vi.fn(),
       } as unknown as CommunityModelType,
-    },
     Member: {
-      Member: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as MemberModelType,
-    },
-    Role: {
-      EndUserRole: {
+    EndUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
@@ -79,9 +74,7 @@ function makeMockModelsContext() {
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as VendorUserRoleModelType,
-    },
-    User: {
-      EndUser: {
+    EndUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
@@ -97,7 +90,6 @@ function makeMockModelsContext() {
         find: vi.fn(),
         create: vi.fn(),
       } as unknown as VendorUserModelType,
-    },
   } as ModelsContext;
 }
 
@@ -126,17 +118,14 @@ function makeMockDataSources() {
   return {
     domainDataSource: {
       Community: {
-        Community: {
           CommunityUnitOfWork: {},
         },
         Member: {},
         Role: { EndUserRole: {}, VendorUserRole: {} },
-      },
   User: { EndUser: {}, StaffRole: {}, StaffUser: {}, VendorUser: {} },
     } as unknown as DomainDataSource,
     readonlyDataSource: {
       Community: {
-        Community: {
           CommunityReadRepo: {
             getAll: vi.fn(),
             getById: vi.fn(),
@@ -153,9 +142,7 @@ function makeMockDataSources() {
             isAdmin: vi.fn(),
           },
         },
-      },
-      User: {
-        EndUser: {
+      EndUser: {
           EndUserReadRepo: {
             getById: vi.fn(),
             getByExternalId: vi.fn(),
@@ -168,7 +155,6 @@ function makeMockDataSources() {
             getByRoleName: vi.fn(),
           },
         },
-      },
     } as unknown as ReadonlyDataSource,
   };
 }

@@ -16,15 +16,13 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Role: {
-      VendorUserRole: {
+    VendorUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         updateOne: vi.fn(),
         deleteOne: vi.fn(),
       } as unknown as VendorUserRoleModelType,
-    },
   } as unknown as Parameters<typeof VendorUserRolePersistence>[0];
 }
 

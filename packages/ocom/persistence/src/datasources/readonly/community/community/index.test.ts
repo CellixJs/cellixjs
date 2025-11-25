@@ -18,13 +18,11 @@ const feature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Community: {
-      Community: {
-        findById: vi.fn(),
-        find: vi.fn(),
-        create: vi.fn(),
-        aggregate: vi.fn(),
-      } as unknown as CommunityModelType,
-    },
+      findById: vi.fn(),
+      find: vi.fn(),
+      create: vi.fn(),
+      aggregate: vi.fn(),
+    } as unknown as CommunityModelType,
   } as ModelsContext;
 }
 

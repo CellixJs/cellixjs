@@ -152,9 +152,7 @@
 		{
 			"includes": [
 				"packages/ocom/persistence/**/*.ts",
-				"!packages/ocom/persistence/src/index.ts",
-				"packages/ocom/data-sources-mongoose-models/**/*.ts",
-				"!packages/ocom/data-sources-mongoose-models/src/index.ts"
+				"packages/ocom/data-sources-mongoose-models/**/*.ts"
 			],
 			"linter": {
 				"rules": {

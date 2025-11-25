@@ -15,36 +15,22 @@ import { PropertyModelFactory } from './models/property/property.model.ts';
 import { ServiceModelFactory } from './models/service/service.model.ts';
 
 export const mongooseContextBuilder = (
-initializedService: MongooseSeedwork.MongooseContextFactory,
+	initializedService: MongooseSeedwork.MongooseContextFactory,
 ) => {
-const roleModel = RoleModelFactory(initializedService);
-const userModel = UserModelFactory(initializedService);
-    const ticketModel = TicketModelFactory(initializedService);
-return {
-        Case: {
-ServiceTicket: ServiceTicketModelFactory(ticketModel),
-},
-Community: {
-Community: CommunityModelFactory(initializedService),
-},
-        Member: {
-           Member: MemberModelFactory(initializedService),
-        },
-        Property: {
-Property: PropertyModelFactory(initializedService),
-},
-        Role: {
-            EndUserRole: EndUserRoleModelFactory(roleModel),
-StaffRole: StaffRoleModelFactory(roleModel),
-VendorUserRole: VendorUserRoleModelFactory(roleModel),
-        },
-        Service: {
-Service: ServiceModelFactory(initializedService),
-},
-User: {
-EndUser: EndUserModelFactory(userModel),
-StaffUser: StaffUserModelFactory(userModel),
-VendorUser: VendorUserModelFactory(userModel),
-},
-};
+	const roleModel = RoleModelFactory(initializedService);
+	const userModel = UserModelFactory(initializedService);
+	const ticketModel = TicketModelFactory(initializedService);
+	return {
+		Community: CommunityModelFactory(initializedService),
+		Member: MemberModelFactory(initializedService),
+		Property: PropertyModelFactory(initializedService),
+		Service: ServiceModelFactory(initializedService),
+		ServiceTicket: ServiceTicketModelFactory(ticketModel),
+		EndUserRole: EndUserRoleModelFactory(roleModel),
+		StaffRole: StaffRoleModelFactory(roleModel),
+		VendorUserRole: VendorUserRoleModelFactory(roleModel),
+		EndUser: EndUserModelFactory(userModel),
+		StaffUser: StaffUserModelFactory(userModel),
+		VendorUser: VendorUserModelFactory(userModel),
+	};
 };

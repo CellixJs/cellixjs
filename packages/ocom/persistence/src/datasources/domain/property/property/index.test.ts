@@ -17,7 +17,6 @@ const feature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Property: {
-      Property: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
@@ -26,7 +25,6 @@ function makeMockModelsContext() {
         findByIdAndDelete: vi.fn(),
         findOne: vi.fn(),
       } as unknown as PropertyModelType,
-    },
   } as unknown as Parameters<typeof PropertyPersistence>[0];
 }
 

@@ -15,15 +15,13 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Case: {
-      ServiceTicket: {
-        findById: vi.fn(),
-        find: vi.fn(),
-        create: vi.fn(),
-        updateOne: vi.fn(),
-        deleteOne: vi.fn(),
-      } as unknown as ServiceTicketModelType,
-    },
+    ServiceTicket: {
+      findById: vi.fn(),
+      find: vi.fn(),
+      create: vi.fn(),
+      updateOne: vi.fn(),
+      deleteOne: vi.fn(),
+    } as unknown as ServiceTicketModelType,
   } as unknown as Parameters<typeof ServiceTicketV1Persistence>[0];
 }
 
