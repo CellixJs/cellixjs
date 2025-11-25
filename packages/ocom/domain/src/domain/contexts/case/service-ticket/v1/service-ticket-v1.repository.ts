@@ -1,7 +1,7 @@
 import type { Repository } from '@cellix/domain-seedwork/repository';
-import type { CommunityEntityReference } from '../../../community/community/index.ts';
-import type { MemberEntityReference } from '../../../community/member/index.ts';
-import type { PropertyEntityReference } from '../../../property/property/index.ts';
+import type { CommunityEntityReference } from '../../../community.ts';
+import type { MemberEntityReference } from '../../../community.ts';
+import type { PropertyEntityReference } from '../../../property.ts';
 import type {
 	ServiceTicketV1,
 	ServiceTicketV1Props,
