@@ -1,10 +1,11 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { ServiceTicketV1Persistence } from './index.ts';
+import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,15 +15,13 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Case: {
-      ServiceTicket: {
-        findById: vi.fn(),
-        find: vi.fn(),
-        create: vi.fn(),
-        updateOne: vi.fn(),
-        deleteOne: vi.fn(),
-      } as unknown as Models.Case.ServiceTicketModelType,
-    },
+    ServiceTicket: {
+      findById: vi.fn(),
+      find: vi.fn(),
+      create: vi.fn(),
+      updateOne: vi.fn(),
+      deleteOne: vi.fn(),
+    } as unknown as ServiceTicketModelType,
   } as unknown as Parameters<typeof ServiceTicketV1Persistence>[0];
 }
 

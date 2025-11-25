@@ -4,10 +4,11 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { EndUserRepository } from './end-user.repository.ts';
 import { EndUserConverter, type EndUserDomainAdapter } from './end-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
+import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 const test = { for: describeFeature };
@@ -16,7 +17,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/end-user.repository.feature')
 );
 
-function makeEndUserDoc(overrides: Partial<Models.User.EndUser> = {}) {
+function makeEndUserDoc(overrides: Partial<EndUser> = {}) {
   const base = {
     id:'user-1',
     externalId: '123e4567-e89b-12d3-a456-426614174001',
@@ -35,11 +36,11 @@ function makeEndUserDoc(overrides: Partial<Models.User.EndUser> = {}) {
         email: 'user@example.com',
       },
     },
-    set(key: keyof Models.User.EndUser, value: unknown) {
-      (this as Models.User.EndUser)[key] = value as never;
+    set(key: keyof EndUser, value: unknown) {
+      (this as EndUser)[key] = value as never;
     },
     ...overrides,
-  } as Models.User.EndUser;
+  } as EndUser;
   return vi.mocked(base);
 }
 
@@ -57,8 +58,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: EndUserRepository<EndUserDomainAdapter>;
   let converter: EndUserConverter;
   let passport: Domain.Passport;
-  let endUserDoc: Models.User.EndUser;
-  let model: Models.User.EndUserModelType;
+  let endUserDoc: EndUser;
+  let model: EndUserModelType;
   let eventBus: EventBus;
   let session: ClientSession;
 
@@ -68,7 +69,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     passport = makeMockPassport();
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.User.EndUser) {
+    const ModelMock = function (this: EndUser) {
       Object.assign(this, makeEndUserDoc());
     }
     Object.assign(ModelMock, {
@@ -86,13 +87,13 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     repo = new EndUserRepository(
       passport,
-      ModelMock as unknown as Models.User.EndUserModelType,
+      ModelMock as unknown as EndUserModelType,
       converter,
       eventBus,
       session
     );
 
-    model = ModelMock as unknown as Models.User.EndUserModelType;
+    model = ModelMock as unknown as EndUserModelType;
   });
 
   Background(({ Given, And }) => {

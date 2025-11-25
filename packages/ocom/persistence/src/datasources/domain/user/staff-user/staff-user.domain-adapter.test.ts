@@ -2,11 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
 import { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
+import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,7 +16,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/staff-user.domain-adapter.feature')
 );
 
-function makeStaffUserDoc(overrides: Partial<Models.User.StaffUser> = {}) {
+function makeStaffUserDoc(overrides: Partial<StaffUser> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011',
     firstName: 'John',
@@ -28,15 +30,15 @@ function makeStaffUserDoc(overrides: Partial<Models.User.StaffUser> = {}) {
     createdAt: new Date(),
     updatedAt: new Date(),
     schemaVersion: '1.0.0',
-    set(key: keyof Models.User.StaffUser, value: unknown) {
-      (this as Models.User.StaffUser)[key] = value as never;
+    set(key: keyof StaffUser, value: unknown) {
+      (this as StaffUser)[key] = value as never;
     },
     ...overrides,
-  } as Models.User.StaffUser;
+  } as StaffUser;
   return vi.mocked(base);
 }
 
-function makeStaffRoleDoc(overrides: Partial<Models.Role.StaffRole> = {}) {
+function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
   return {
     id: '507f1f77bcf86cd799439012',
     roleName: 'Admin',
@@ -71,12 +73,12 @@ function makeStaffRoleDoc(overrides: Partial<Models.Role.StaffRole> = {}) {
     },
     roleType: 'admin',
     ...overrides,
-  } as Models.Role.StaffRole;
+  } as StaffRole;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let adapter: StaffUserDomainAdapter;
-  let doc: Models.User.StaffUser;
+  let doc: StaffUser;
 
   BeforeEachScenario(() => {
     doc = makeStaffUserDoc();

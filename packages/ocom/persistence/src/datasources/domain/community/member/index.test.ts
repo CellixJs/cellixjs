@@ -2,9 +2,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import { MemberPersistence } from './index.ts';
+import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
 
 
 const test = { for: describeFeature };
@@ -16,14 +17,12 @@ const feature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Member: {
-      Member: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         updateOne: vi.fn(),
         deleteOne: vi.fn(),
-      } as unknown as Models.Member.MemberModelType,
-    },
+      } as unknown as MemberModelType,
   } as unknown as Parameters<typeof MemberPersistence>[0];
 }
 

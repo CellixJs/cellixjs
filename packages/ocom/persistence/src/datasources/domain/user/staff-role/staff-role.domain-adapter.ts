@@ -1,9 +1,10 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { Domain } from '@ocom/domain';
+import type { StaffRole, StaffRoleCommunityPermissions, StaffRolePermissions, StaffRolePropertyPermissions, StaffRoleServicePermissions, StaffRoleServiceTicketPermissions, StaffRoleViolationTicketPermissions } from '@ocom/data-sources-mongoose-models/role/staff-role';
 
 export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Role.StaffRole,
+	StaffRole,
 	StaffRoleDomainAdapter,
 	Domain.Passport,
 	Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>
@@ -14,7 +15,7 @@ export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 }
 
 export class StaffRoleDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Models.Role.StaffRole>
+	extends MongooseSeedwork.MongooseDomainAdapter<StaffRole>
 	implements Domain.Contexts.User.StaffRole.StaffRoleProps
 {
 	get roleName(): string {
@@ -38,7 +39,7 @@ export class StaffRoleDomainAdapter
 			this.doc.set('permissions', {});
 		}
 		return new StaffRolePermissionsAdapter(
-			this.doc.permissions as Models.Role.StaffRolePermissions,
+			this.doc.permissions as StaffRolePermissions,
 		);
 	}
 
@@ -50,9 +51,9 @@ export class StaffRoleDomainAdapter
 export class StaffRolePermissionsAdapter
 	implements Domain.Contexts.User.StaffRole.StaffRolePermissionsProps
 {
-	private readonly doc: Models.Role.StaffRolePermissions;
+	private readonly doc: StaffRolePermissions;
 
-	constructor(permissions: Models.Role.StaffRolePermissions) {
+	constructor(permissions: StaffRolePermissions) {
 		this.doc = permissions;
 	}
 
@@ -126,9 +127,9 @@ export class StaffRolePermissionsAdapter
 export class StaffRoleCommunityPermissionsAdapter
 	implements Domain.Contexts.User.StaffRole.StaffRoleCommunityPermissionsProps
 {
-	public readonly doc: Models.Role.StaffRoleCommunityPermissions;
+	public readonly doc: StaffRoleCommunityPermissions;
 
-	constructor(permissions: Models.Role.StaffRoleCommunityPermissions) {
+	constructor(permissions: StaffRoleCommunityPermissions) {
 		this.doc = permissions;
 	}
 
@@ -181,9 +182,9 @@ export class StaffRoleCommunityPermissionsAdapter
 export class StaffRolePropertyPermissionsAdapter
 	implements Domain.Contexts.User.StaffRole.StaffRolePropertyPermissionsProps
 {
-	public readonly doc: Models.Role.StaffRolePropertyPermissions;
+	public readonly doc: StaffRolePropertyPermissions;
 
-	constructor(permissions: Models.Role.StaffRolePropertyPermissions) {
+	constructor(permissions: StaffRolePropertyPermissions) {
 		this.doc = permissions;
 	}
 
@@ -209,9 +210,9 @@ export class StaffRolePropertyPermissionsAdapter
 export class StaffRoleServicePermissionsAdapter
 	implements Domain.Contexts.User.StaffRole.StaffRoleServicePermissionsProps
 {
-	private readonly doc: Models.Role.StaffRoleServicePermissions;
+	private readonly doc: StaffRoleServicePermissions;
 
-	constructor(permissions: Models.Role.StaffRoleServicePermissions) {
+	constructor(permissions: StaffRoleServicePermissions) {
 		this.doc = permissions;
 	}
 
@@ -227,9 +228,9 @@ export class StaffRoleServicePermissionsAdapter
 export class StaffRoleServiceTicketPermissionsAdapter
 	implements Domain.Contexts.User.StaffRole.StaffRoleServiceTicketPermissionsProps
 {
-	private readonly doc: Models.Role.StaffRoleServiceTicketPermissions;
+	private readonly doc: StaffRoleServiceTicketPermissions;
 
-	constructor(permissions: Models.Role.StaffRoleServiceTicketPermissions) {
+	constructor(permissions: StaffRoleServiceTicketPermissions) {
 		this.doc = permissions;
 	}
 
@@ -257,9 +258,9 @@ export class StaffRoleServiceTicketPermissionsAdapter
 export class StaffRoleViolationTicketPermissionsAdapter
 	implements Domain.Contexts.User.StaffRole.StaffRoleViolationTicketPermissionsProps
 {
-	private readonly doc: Models.Role.StaffRoleViolationTicketPermissions;
+	private readonly doc: StaffRoleViolationTicketPermissions;
 
-	constructor(permissions: Models.Role.StaffRoleViolationTicketPermissions) {
+	constructor(permissions: StaffRoleViolationTicketPermissions) {
 		this.doc = permissions;
 	}
 

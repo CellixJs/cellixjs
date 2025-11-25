@@ -1,9 +1,10 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { Domain } from '@ocom/domain';
 import type { VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
+import type { VendorUser } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
-type VendorUserDocument = Models.User.VendorUser;
+type VendorUserDocument = VendorUser;
 type VendorUserAggregate = Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
 type VendorUserRepositoryContract = Domain.Contexts.User.VendorUser.VendorUserRepository<VendorUserDomainAdapter>;
 

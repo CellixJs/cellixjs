@@ -2,12 +2,14 @@ import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';
 import { VendorUserRoleConverter, type VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 import { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { VendorUserRole, VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 
 const test = { for: describeFeature };
@@ -16,7 +18,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user-role.repository.feature')
 );
 
-function makeVendorUserRoleDoc(overrides: Partial<Models.Role.VendorUserRole> = {}) {
+function makeVendorUserRoleDoc(overrides: Partial<VendorUserRole> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Vendor Role',
@@ -51,22 +53,22 @@ function makeVendorUserRoleDoc(overrides: Partial<Models.Role.VendorUserRole> = 
         canWorkOnTickets: true,
       },
     },
-    set(key: keyof Models.Role.VendorUserRole, value: unknown) {
+    set(key: keyof VendorUserRole, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Role.VendorUserRole)[key] = value as never;
+      (this as VendorUserRole)[key] = value as never;
     },
     ...overrides,
-  } as Models.Role.VendorUserRole;
+  } as VendorUserRole;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
@@ -86,11 +88,11 @@ function makeMockPassport() {
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let model: Models.Role.VendorUserRoleModelType;
+  let model: VendorUserRoleModelType;
   let converter: VendorUserRoleConverter;
   let repository: VendorUserRoleRepository;
   let passport: Domain.Passport;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Community;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -98,7 +100,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     const vendorUserRoleDoc = makeVendorUserRoleDoc({ community: communityDoc });
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Role.VendorUserRole) {
+    const ModelMock = function (this: VendorUserRole) {
       Object.assign(this, makeVendorUserRoleDoc());
     };
     // Attach static methods to the constructor
@@ -116,7 +118,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
-    model = ModelMock as unknown as Models.Role.VendorUserRoleModelType;
+    model = ModelMock as unknown as VendorUserRoleModelType;
     converter = new VendorUserRoleConverter();
     passport = makeMockPassport();
 

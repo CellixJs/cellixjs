@@ -2,12 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { MemberReadRepositoryImpl } from './member.read-repository.ts';
 import { MemberDataSourceImpl } from './member.data.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
 // Mock the data source module
 
@@ -35,15 +36,9 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Community: {
-      Community: {} as unknown,
-    },
-    Member: {
-      Member: {} as unknown,
-    },
-    User: {
-      EndUser: {} as unknown,
-    },
+    Community: {} as unknown,
+    Member: {} as unknown,
+    EndUser: {} as unknown,
   } as ModelsContext;
 }
 
@@ -68,14 +63,14 @@ function makeMockMemberDocument() {
     createdAt: new Date(),
     updatedAt: new Date(),
     id: 'member-123',
-  } as unknown as Models.Member.Member;
+  } as unknown as Member;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
   let passport: Domain.Passport;
   let repository: MemberReadRepositoryImpl;
-  let mockMemberDoc: Models.Member.Member;
+  let mockMemberDoc: Member;
   let mockDataSource: {
     find: ReturnType<typeof vi.fn>;
     findById: ReturnType<typeof vi.fn>;
@@ -227,7 +222,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
             }
           }
         }
-      } as unknown as Models.Member.Member);
+      } as unknown as Member);
       mockConverter.toDomain.mockReturnValueOnce({
         id: 'admin-member',
         role: {

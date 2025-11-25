@@ -3,13 +3,14 @@ import {
     NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import { ServiceTicketV1Converter } from './service-ticket-v1.domain-adapter.ts';
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
+import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 
 export const getServiceTicketV1UnitOfWork = (
-    serviceTicketModel: Models.Case.ServiceTicketModelType,
+    serviceTicketModel: ServiceTicketModelType,
     passport: Domain.Passport
 ): Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(

@@ -1,10 +1,11 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getServiceTicketV1UnitOfWork } from './service-ticket-v1.uow.ts';
+import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -19,7 +20,7 @@ function makeMockServiceTicketModel() {
     create: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
-  } as unknown as Models.Case.ServiceTicketModelType;
+  } as unknown as ServiceTicketModelType;
 }
 
 function makeMockPassport() {
@@ -38,7 +39,7 @@ function makeMockPassport() {
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let serviceTicketModel: Models.Case.ServiceTicketModelType;
+  let serviceTicketModel: ServiceTicketModelType;
   let passport: Domain.Passport;
   let result: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
 

@@ -4,10 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { PropertyRepository } from './property.repository.ts';
 import { PropertyConverter, type PropertyDomainAdapter } from './property.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Property, PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
 
 
 const test = { for: describeFeature };
@@ -16,21 +18,21 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/property.repository.feature')
 );
 
-function makePropertyDoc(overrides: Partial<Models.Property.Property> = {}) {
+function makePropertyDoc(overrides: Partial<Property> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011', // Valid ObjectId string
     propertyName: 'Test Property',
     community: makeCommunityDoc(),
-    set(key: keyof Models.Property.Property, value: unknown) {
-      (this as Models.Property.Property)[key] = value as never;
+    set(key: keyof Property, value: unknown) {
+      (this as Property)[key] = value as never;
     },
     ...overrides,
-  } as Models.Property.Property;
+  } as Property;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community.Community; // Valid ObjectId string
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
+  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community; // Valid ObjectId string
 }
 
 function makeMockPassport() {
@@ -52,8 +54,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: PropertyRepository;
   let converter: PropertyConverter;
   let passport: Domain.Passport;
-  let propertyDoc: Models.Property.Property;
-  let communityDoc: Models.Community.Community;
+  let propertyDoc: Property;
+  let communityDoc: Community;
   let result: Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>;
   let results: ReadonlyArray<Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>>;
 
@@ -66,7 +68,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     results = [];
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Property.Property) {
+    const ModelMock = function (this: Property) {
       Object.assign(this, makePropertyDoc());
     }
     // Attach static methods to the constructor
@@ -88,7 +90,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     // Create repository with correct constructor parameters
     repo = new PropertyRepository(
       passport,
-      ModelMock as unknown as Models.Property.PropertyModelType,
+      ModelMock as unknown as PropertyModelType,
       converter,
       eventBus,
       session

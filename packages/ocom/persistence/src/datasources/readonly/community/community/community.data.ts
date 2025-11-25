@@ -1,6 +1,6 @@
-import type { Models } from "@ocom/data-sources-mongoose-models";
+import type { Community } from "@ocom/data-sources-mongoose-models/community";
 import { MongoDataSourceImpl, type MongoDataSource } from "../../mongo-data-source.ts";
 
-export interface CommunityDataSource extends MongoDataSource<Models.Community.Community> {}
+export interface CommunityDataSource extends MongoDataSource<Community> {}
 
-export class CommunityDataSourceImpl extends MongoDataSourceImpl<Models.Community.Community> implements CommunityDataSource {}
+export class CommunityDataSourceImpl extends MongoDataSourceImpl<Community> implements CommunityDataSource {}

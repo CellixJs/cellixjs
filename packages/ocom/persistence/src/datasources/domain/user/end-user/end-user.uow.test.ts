@@ -1,10 +1,11 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getEndUserUnitOfWork } from './end-user.uow.ts';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 const test = { for: describeFeature };
@@ -20,7 +21,7 @@ function makeMockEndUserModel() {
     create: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
-  } as unknown as Models.User.EndUserModelType;
+  } as unknown as EndUserModelType;
 }
 
 function makeMockPassport() {
@@ -39,7 +40,7 @@ function makeMockPassport() {
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let endUserModel: Models.User.EndUserModelType;
+  let endUserModel: EndUserModelType;
   let passport: Domain.Passport;
   let result: Domain.Contexts.User.EndUser.EndUserUnitOfWork;
 

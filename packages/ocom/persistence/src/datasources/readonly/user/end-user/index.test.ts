@@ -20,19 +20,15 @@ vi.mock('./end-user.data.ts', () => ({
 
 function makeMockModelsContext() {
   return {
-    Community: {
-      Community: {} as unknown,
-      Member: {} as unknown,
-      EndUserRole: {} as unknown,
-    },
-    User: {
-      EndUser: {
-        findById: vi.fn(),
-        find: vi.fn(),
-        create: vi.fn(),
-        aggregate: vi.fn(),
+    Community: {} as unknown,
+    Member: {} as unknown,
+    EndUserRole: {} as unknown,
+    EndUser: {
+      findById: vi.fn(),
+      find: vi.fn(),
+      create: vi.fn(),
+      aggregate: vi.fn(),
       },
-    },
   } as unknown as Parameters<typeof EndUserReadRepositoryImpl>[0];
 }
 

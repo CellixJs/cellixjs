@@ -1,10 +1,12 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 const test = { for: describeFeature };
 import {
@@ -21,7 +23,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user-role.type-converter.feature')
 );
 
-function makeVendorUserRoleDoc(overrides: Partial<Models.Role.VendorUserRole> = {}) {
+function makeVendorUserRoleDoc(overrides: Partial<VendorUserRole> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Vendor Role',
@@ -57,21 +59,21 @@ function makeVendorUserRoleDoc(overrides: Partial<Models.Role.VendorUserRole> = 
         canWorkOnTickets: true,
       },
     },
-    set(key: keyof Models.Role.VendorUserRole, value: unknown) {
-      (this as Models.Role.VendorUserRole)[key] = value as never;
+    set(key: keyof VendorUserRole, value: unknown) {
+      (this as VendorUserRole)[key] = value as never;
     },
     ...overrides,
-  } as Models.Role.VendorUserRole;
+  } as VendorUserRole;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
@@ -86,8 +88,8 @@ function makeMockPassport() {
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let vendorUserRoleDoc: Models.Role.VendorUserRole;
-  let communityDoc: Models.Community.Community;
+  let vendorUserRoleDoc: VendorUserRole;
+  let communityDoc: Community;
   let adapter: VendorUserRoleDomainAdapter;
   let result: unknown;
 
@@ -412,8 +414,8 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Role.VendorUserRole;
-  let communityDoc: Models.Community.Community;
+  let doc: VendorUserRole;
+  let communityDoc: Community;
   let converter: VendorUserRoleConverter;
   let passport: Domain.Passport;
   let result: unknown;
@@ -466,7 +468,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let domainObj: Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
-    let resultDoc: Models.Role.VendorUserRole;
+    let resultDoc: VendorUserRole;
 
     Given('a VendorUserRoleConverter instance', () => {
       converter = new VendorUserRoleConverter();

@@ -4,13 +4,11 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type mongoose from 'mongoose';
-import { Models } from '@ocom/data-sources-mongoose-models';
 
-// Mock the Models module
+
+// Mock the mongooseContextBuilder function
 vi.mock('@ocom/data-sources-mongoose-models', () => ({
-  Models: {
-    mongooseContextBuilder: vi.fn(),
-  },
+  mongooseContextBuilder: vi.fn(),
 }));
 
 // Mock the DataSourcesFactoryImpl
@@ -20,6 +18,7 @@ vi.mock('./datasources/index.ts', () => ({
 
 import { Persistence, type ModelsContext } from './index.ts';
 import { DataSourcesFactoryImpl } from './datasources/index.ts';
+import { mongooseContextBuilder } from '@ocom/data-sources-mongoose-models';
 
 
 const test = { for: describeFeature };
@@ -42,12 +41,8 @@ function makeMockMongooseContextFactory(service: mongoose.Mongoose | null | 'inv
 
 function makeMockModelsContext(): ModelsContext {
   return {
-    Community: {
-      Community: {} as unknown,
-    },
-    User: {
-      EndUser: {} as unknown,
-    },
+    Community: {} as unknown,
+    EndUser: {} as unknown,
   } as ModelsContext;
 }
 
@@ -72,7 +67,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     vi.clearAllMocks();
 
     // Setup default mocks
-    vi.mocked(Models.mongooseContextBuilder).mockReturnValue(mockModelsContext);
+    vi.mocked(mongooseContextBuilder).mockReturnValue(mockModelsContext);
     vi.mocked(DataSourcesFactoryImpl).mockReturnValue(mockFactory);
   });
 
@@ -81,7 +76,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       // Setup is done in BeforeEachScenario
     });
 
-    And('the Models.mongooseContextBuilder is available', () => {
+    And('the mongooseContextBuilder is available', () => {
       // Setup is done in BeforeEachScenario
     });
   });

@@ -4,11 +4,13 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { CommunityRepository } from './community.repository.ts';
 import { CommunityConverter, type CommunityDomainAdapter } from './community.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
+import type { Community, CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 const test = { for: describeFeature };
@@ -17,7 +19,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/community.repository.feature')
 );
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: 'community-1',
     name: 'Test Community',
@@ -25,16 +27,16 @@ function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
     whiteLabelDomain: 'white.test.com',
     handle: 'test-handle',
     createdBy: undefined,
-    set(key: keyof Models.Community.Community, value: unknown) {
-      (this as Models.Community.Community)[key] = value as never;
+    set(key: keyof Community, value: unknown) {
+      (this as Community)[key] = value as never;
     },
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
-function makeUserDoc(overrides: Partial<Models.User.EndUser> = {}) {
-  return { id: 'user-1', displayName: 'Test User', ...overrides } as Models.User.EndUser;
+function makeUserDoc(overrides: Partial<EndUser> = {}) {
+  return { id: 'user-1', displayName: 'Test User', ...overrides } as EndUser;
 }
 
 function makeMockPassport() {
@@ -56,9 +58,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: CommunityRepository;
   let converter: CommunityConverter;
   let passport: Domain.Passport;
-  let userDoc: Models.User.EndUser;
+  let userDoc: EndUser;
   let userAdapter: EndUserDomainAdapter;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Community;
   let result: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
 
   BeforeEachScenario(() => {
@@ -69,7 +71,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     passport = makeMockPassport();
     result = {} as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Community.Community) {
+    const ModelMock = function (this: Community) {
       Object.assign(this, makeCommunityDoc());
     }
     // Attach static methods to the constructor
@@ -87,7 +89,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     repo = new CommunityRepository(
       passport,
-      ModelMock as unknown as Models.Community.CommunityModelType,
+      ModelMock as unknown as CommunityModelType,
       converter,
       eventBus,
       session

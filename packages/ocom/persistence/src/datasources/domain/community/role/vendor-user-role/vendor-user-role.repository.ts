@@ -1,9 +1,10 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { Domain } from '@ocom/domain';
 import type { VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
+import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
-type VendorUserRoleModelType = Models.Role.VendorUserRole;
+type VendorUserRoleModelType = VendorUserRole;
 type PropType = VendorUserRoleDomainAdapter;
 
 export class VendorUserRoleRepository

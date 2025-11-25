@@ -4,10 +4,11 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { StaffRoleRepository } from './staff-role.repository.ts';
 import { StaffRoleConverter, type StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
+import type { StaffRole, StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,7 +16,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/staff-role.repository.feature')
 );
 
-function makeStaffRoleDoc(overrides: Partial<Models.Role.StaffRole> = {}) {
+function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
   const base = {
     _id: 'role-1',
     roleName: 'Manager',
@@ -49,11 +50,11 @@ function makeStaffRoleDoc(overrides: Partial<Models.Role.StaffRole> = {}) {
         canWorkOnTickets: false,
       },
     },
-    set(key: keyof Models.Role.StaffRole, value: unknown) {
-      (this as Models.Role.StaffRole)[key] = value as never;
+    set(key: keyof StaffRole, value: unknown) {
+      (this as StaffRole)[key] = value as never;
     },
     ...overrides,
-  } as Models.Role.StaffRole;
+  } as StaffRole;
   return vi.mocked(base);
 }
 
@@ -71,7 +72,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: StaffRoleRepository;
   let converter: StaffRoleConverter;
   let passport: Domain.Passport;
-  let staffRoleDoc: Models.Role.StaffRole;
+  let staffRoleDoc: StaffRole;
   let eventBus: EventBus;
   let session: ClientSession;
 
@@ -81,7 +82,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     passport = makeMockPassport();
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Role.StaffRole) {
+    const ModelMock = function (this: StaffRole) {
       Object.assign(this, makeStaffRoleDoc());
     }
     Object.assign(ModelMock, {
@@ -99,7 +100,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     repo = new StaffRoleRepository(
       passport,
-      ModelMock as unknown as Models.Role.StaffRoleModelType,
+      ModelMock as unknown as StaffRoleModelType,
       converter,
       eventBus,
       session

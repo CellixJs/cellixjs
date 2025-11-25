@@ -2,9 +2,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import { VendorUserPersistence } from './index.ts';
+import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,15 +15,13 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    User: {
-      VendorUser: {
+    VendorUser: {
         findById: vi.fn(),
         findOne: vi.fn(),
         create: vi.fn(),
         updateOne: vi.fn(),
         deleteOne: vi.fn(),
-      } as unknown as Models.User.VendorUserModelType,
-    },
+      } as unknown as VendorUserModelType,
   } as unknown as Parameters<typeof VendorUserPersistence>[0];
 }
 

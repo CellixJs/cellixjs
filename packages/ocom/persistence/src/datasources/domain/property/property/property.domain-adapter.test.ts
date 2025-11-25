@@ -4,13 +4,16 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import {
   PropertyConverter,
   PropertyDomainAdapter,
 } from './property.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
+import type { Property } from '@ocom/data-sources-mongoose-models/property';
 
 
 const test = { for: describeFeature };
@@ -22,7 +25,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/property.type-converter.feature')
 );
 
-function makePropertyDoc(overrides: Partial<Models.Property.Property> = {}) {
+function makePropertyDoc(overrides: Partial<Property> = {}) {
   return {
     propertyName: 'Test Property',
     propertyType: 'house',
@@ -52,9 +55,9 @@ function makePropertyDoc(overrides: Partial<Models.Property.Property> = {}) {
     createdAt: new Date(),
     updatedAt: new Date(),
     schemaVersion: '1.0',
-    set(key: keyof Models.Property.Property, value: unknown) {
+    set(key: keyof Property, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Property.Property)[key] = value as never;
+      (this as Property)[key] = value as never;
     },
     populate(path: string) {
       // Mock populate method for testing
@@ -66,25 +69,25 @@ function makePropertyDoc(overrides: Partial<Models.Property.Property> = {}) {
       return this;
     },
     ...overrides,
-  } as Models.Property.Property;
+  } as Property;
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
-function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
+function makeMemberDoc(overrides: Partial<Member> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c698',
     memberName: 'Test Member',
     ...overrides,
-  } as Models.Member.Member;
+  } as Member;
   return vi.mocked(base);
 }
 
@@ -104,12 +107,12 @@ function makeMockPassport() {
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Property.Property;
+  let doc: Property;
   let adapter: PropertyDomainAdapter;
   let communityAdapter: CommunityDomainAdapter;
   let memberAdapter: MemberDomainAdapter;
-  let communityDoc: Models.Community.Community;
-  let memberDoc: Models.Member.Member;
+  let communityDoc: Community;
+  let memberDoc: Member;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -1154,9 +1157,9 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Property.Property;
-  let communityDoc: Models.Community.Community;
-  let memberDoc: Models.Member.Member;
+  let doc: Property;
+  let communityDoc: Community;
+  let memberDoc: Member;
   let converter: PropertyConverter;
   let passport: Domain.Passport;
   let result: unknown;
@@ -1213,7 +1216,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let memberAdapter: MemberDomainAdapter;
     let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
     let memberDomainObj: Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
-    let resultDoc: Models.Property.Property;
+    let resultDoc: Property;
 
     Given('a PropertyConverter instance', () => {
       converter = new PropertyConverter();

@@ -1,9 +1,10 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { Domain } from '@ocom/domain';
 import type { PropertyDomainAdapter } from './property.domain-adapter.ts';
+import type { Property } from '@ocom/data-sources-mongoose-models/property';
 
-type PropertyModelType = Models.Property.Property;
+type PropertyModelType = Property;
 type PropType = PropertyDomainAdapter;
 
 export class PropertyRepository

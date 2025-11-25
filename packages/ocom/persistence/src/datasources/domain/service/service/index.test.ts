@@ -1,10 +1,11 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { ServicePersistence } from './index.ts';
+import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,14 +16,12 @@ const indexFeature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Service: {
-      Service: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         updateOne: vi.fn(),
         deleteOne: vi.fn(),
-      } as unknown as Models.Service.ServiceModelType,
-    },
+      } as unknown as ServiceModelType,
   } as unknown as Parameters<typeof ServicePersistence>[0];
 }
 

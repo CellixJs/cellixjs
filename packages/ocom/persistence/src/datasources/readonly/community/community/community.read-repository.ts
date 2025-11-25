@@ -1,9 +1,10 @@
 import type { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { ModelsContext } from '../../../../index.ts';
 import { CommunityDataSourceImpl, type CommunityDataSource } from './community.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { CommunityConverter } from '../../../domain/community/community/community.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
 
 export interface CommunityReadRepository {
     getAll: (options?: FindOptions) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference[]>;
@@ -23,7 +24,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
      * @param passport - The passport object for domain access.
      */
     constructor(models: ModelsContext, passport: Domain.Passport) {
-        this.mongoDataSource = new CommunityDataSourceImpl(models.Community.Community);
+        this.mongoDataSource = new CommunityDataSourceImpl(models.Community);
         this.converter = new CommunityConverter();
         this.passport = passport;
     }
@@ -119,7 +120,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
             { $project: { m: 0, accountUsers: 0, matchedEndUsers: 0 } },
         ];
         const result = await this.mongoDataSource.aggregate(pipeline);
-        return result.map((doc: Readonly<Models.Community.Community>) => this.converter.toDomain(doc, this.passport));
+        return result.map((doc: Readonly<Community>) => this.converter.toDomain(doc, this.passport));
     }
 }
 

@@ -1,14 +1,18 @@
 
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { Domain } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
 import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Member, MemberAccount, MemberCustomView, MemberProfile } from '@ocom/data-sources-mongoose-models/member';
+import type { EndUserRole } from '@ocom/data-sources-mongoose-models/role/end-user-role';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Member.Member,
+	Member,
 	MemberDomainAdapter,
 	Domain.Passport,
 	Domain.Contexts.Community.Member.Member<MemberDomainAdapter>
@@ -21,7 +25,7 @@ export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<
 	}
 }
 
-export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<Models.Member.Member> implements Domain.Contexts.Community.Member.MemberProps {
+export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<Member> implements Domain.Contexts.Community.Member.MemberProps {
   get memberName() {
     return this.doc.memberName;
   }
@@ -50,7 +54,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
       return c.toString();
     }
     // populated doc case
-    return (c as Models.Community.Community).id.toString();
+    return (c as Community).id.toString();
   }
 
   get community(): Domain.Contexts.Community.Community.CommunityProps {
@@ -60,7 +64,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
         throw new Error('community is not populated or is not of the correct type');
     }
-    return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+    return new CommunityDomainAdapter(this.doc.community as Community);
   }
   async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
     if (!this.doc.community) {
@@ -69,7 +73,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
       await this.doc.populate('community');
     }
-    return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+    return new CommunityDomainAdapter(this.doc.community as Community);
   }
   set community(community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>) {
     //check to see if community is derived from MongooseDomainAdapter
@@ -96,7 +100,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     if (this.doc.role instanceof MongooseSeedwork.ObjectId) {
       throw new Error('role is not populated or is not of the correct type');
     }
-    return new EndUserRoleDomainAdapter(this.doc.role as Models.Role.EndUserRole);
+    return new EndUserRoleDomainAdapter(this.doc.role as EndUserRole);
   }
   async loadRole(): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRoleProps> {
     if (!this.doc.role) {
@@ -105,7 +109,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     if (this.doc.role instanceof MongooseSeedwork.ObjectId) {
       await this.doc.populate('role');
     }
-    return new EndUserRoleDomainAdapter(this.doc.role as Models.Role.EndUserRole);
+    return new EndUserRoleDomainAdapter(this.doc.role as EndUserRole);
   }
   set role(role: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference | Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>) {
     if (role instanceof Domain.Contexts.Community.Role.EndUserRole.EndUserRole) {
@@ -131,8 +135,8 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
 }
 
 export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Member.MemberAccountProps {
-  public readonly doc: Models.Member.MemberAccount;
-  constructor(doc: Models.Member.MemberAccount) {
+  public readonly doc: MemberAccount;
+  constructor(doc: MemberAccount) {
     this.doc = doc;
   }
   public get id(): string {
@@ -160,7 +164,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
     if (this.doc.user instanceof MongooseSeedwork.ObjectId) {
       throw new Error('User is not populated or is not of the correct type');
     }
-    return new EndUserDomainAdapter(this.doc.user as Models.User.EndUser);
+    return new EndUserDomainAdapter(this.doc.user as EndUser);
   }
 
   set user(user: Domain.Contexts.User.EndUser.EndUserEntityReference | Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>) {
@@ -190,7 +194,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
     if (this.doc.createdBy instanceof MongooseSeedwork.ObjectId) {
       throw new Error('createdBy is not populated or is not of the correct type');
     }
-    return new EndUserDomainAdapter(this.doc.createdBy as Models.User.EndUser);
+    return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
   }
   set createdBy(createdBy: Domain.Contexts.User.EndUser.EndUserEntityReference | Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>) {
     if (createdBy instanceof Domain.Contexts.User.EndUser.EndUser) {
@@ -207,8 +211,8 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
 }
 
 export class MemberCustomViewDomainAdapter implements Domain.Contexts.Community.Member.MemberCustomViewProps {
-  public readonly doc: Models.Member.MemberCustomView;
-  constructor(doc: Models.Member.MemberCustomView) {
+  public readonly doc: MemberCustomView;
+  constructor(doc: MemberCustomView) {
     this.doc = doc;
   }
   public get id(): string {
@@ -252,8 +256,8 @@ export class MemberCustomViewDomainAdapter implements Domain.Contexts.Community.
 }
 
 export class MemberProfileDomainAdapter implements Domain.Contexts.Community.Member.MemberProfileProps {
-  public readonly props: Models.Member.MemberProfile;
-  constructor(props: Models.Member.MemberProfile) {
+  public readonly props: MemberProfile;
+  constructor(props: MemberProfile) {
     this.props = props;
   }
 

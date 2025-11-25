@@ -2,11 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { CommunityReadRepositoryImpl } from './community.read-repository.ts';
 import { CommunityDataSourceImpl } from './community.data.ts';
+import type { Community, CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 
 // Mock the data source module
 
@@ -22,9 +23,7 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Community: {
-      Community: {} as unknown as Models.Community.CommunityModelType,
-    },
+    Community: {} as unknown as CommunityModelType,
   } as ModelsContext;
 }
 
@@ -47,14 +46,14 @@ function makeMockCommunityDocument() {
     createdAt: new Date(),
     updatedAt: new Date(),
     id: 'test-id',
-  } as unknown as Models.Community.Community;
+  } as unknown as Community;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
   let passport: Domain.Passport;
   let repository: CommunityReadRepositoryImpl;
-  let mockCommunityDoc: Models.Community.Community;
+  let mockCommunityDoc: Community;
   let mockDataSource: {
     find: ReturnType<typeof vi.fn>;
     findById: ReturnType<typeof vi.fn>;

@@ -2,10 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { EndUserRole } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 
 const test = { for: describeFeature };
 import {
@@ -27,7 +29,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/end-user-role.type-converter.feature')
 );
 
-function makeEndUserRoleDoc(overrides: Partial<Models.Role.EndUserRole> = {}) {
+function makeEndUserRoleDoc(overrides: Partial<EndUserRole> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -63,22 +65,22 @@ function makeEndUserRoleDoc(overrides: Partial<Models.Role.EndUserRole> = {}) {
         canWorkOnTickets: true,
       },
     },
-    set(key: keyof Models.Role.EndUserRole, value: unknown) {
+    set(key: keyof EndUserRole, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Role.EndUserRole)[key] = value as never;
+      (this as EndUserRole)[key] = value as never;
     },
     ...overrides,
-  } as Models.Role.EndUserRole;
+  } as EndUserRole;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
@@ -98,9 +100,9 @@ function makeMockPassport() {
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Role.EndUserRole;
+  let doc: EndUserRole;
   let adapter: EndUserRoleDomainAdapter;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Community;
   let communityAdapter: CommunityDomainAdapter;
   let result: unknown;
 
@@ -664,8 +666,8 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Role.EndUserRole;
-  let communityDoc: Models.Community.Community;
+  let doc: EndUserRole;
+  let communityDoc: Community;
   let converter: EndUserRoleConverter;
   let passport: Domain.Passport;
   let result: unknown;
@@ -718,7 +720,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let domainObj: Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
-    let resultDoc: Models.Role.EndUserRole;
+    let resultDoc: EndUserRole;
 
     Given('an EndUserRoleConverter instance', () => {
       converter = new EndUserRoleConverter();

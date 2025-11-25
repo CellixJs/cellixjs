@@ -3,7 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { VendorUser, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user/vendor-user';
+
 
 const test = { for: describeFeature };
 import {
@@ -23,7 +24,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user.type-converter.feature')
 );
 
-function makeVendorUserDoc(overrides: Partial<Models.User.VendorUser> = {}) {
+function makeVendorUserDoc(overrides: Partial<VendorUser> = {}) {
   const personalInfoMock = {
     identityDetails: {
       lastName: 'Doe',
@@ -51,7 +52,7 @@ function makeVendorUserDoc(overrides: Partial<Models.User.VendorUser> = {}) {
     schemaVersion: '1.0.0',
     set: vi.fn(),
     ...overrides,
-  } as Models.User.VendorUser;
+  } as VendorUser;
 
   // If personalInformation was overridden, ensure it has the set spy
   if (overrides.personalInformation && typeof overrides.personalInformation.set !== 'function') {
@@ -72,7 +73,7 @@ function makeMockPassport() {
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.User.VendorUser;
+  let doc: VendorUser;
   let adapter: VendorUserDomainAdapter;
   let result: unknown;
 
@@ -207,9 +208,9 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Getting the personalInformation property when not defined on the document', ({ Given, When, Then }) => {
-    let docWithoutPersonalInfo: Models.User.VendorUser;
+    let docWithoutPersonalInfo: VendorUser;
     Given('a VendorUserDomainAdapter for a document with no personalInformation', () => {
-      docWithoutPersonalInfo = makeVendorUserDoc({ personalInformation: {} } as Partial<Models.User.VendorUser>);
+      docWithoutPersonalInfo = makeVendorUserDoc({ personalInformation: {} } as Partial<VendorUser>);
       adapter = new VendorUserDomainAdapter(docWithoutPersonalInfo);
     });
     When('I get the personalInformation property', () => {
@@ -221,12 +222,12 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Getting the identityDetails property from personalInformation', ({ Given, When, And, Then }) => {
-    let personalInformation: Models.User.VendorUserPersonalInformation;
+    let personalInformation: VendorUserPersonalInformation;
     Given('a VendorUserDomainAdapter for the document', () => {
       adapter = new VendorUserDomainAdapter(doc);
     });
     When('I get the personalInformation property', () => {
-      personalInformation = adapter.personalInformation as Models.User.VendorUserPersonalInformation;
+      personalInformation = adapter.personalInformation as VendorUserPersonalInformation;
     });
     And('I get the identityDetails property', () => {
       result = personalInformation.identityDetails;
@@ -331,12 +332,12 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Getting the contactInformation property when not defined on personalInformation', ({ Given, When, And, Then }) => {
-    let docWithoutContactInfo: Models.User.VendorUser;
+    let docWithoutContactInfo: VendorUser;
     let personalInformation: VendorUserPersonalInformationDomainAdapter;
     Given('a VendorUserDomainAdapter for a document with no contactInformation', () => {
       docWithoutContactInfo = makeVendorUserDoc({
         personalInformation: { identityDetails: { lastName: 'Doe' }, contactInformation: {} }
-      } as Partial<Models.User.VendorUser>);
+      } as Partial<VendorUser>);
       adapter = new VendorUserDomainAdapter(docWithoutContactInfo);
     });
     When('I get the personalInformation property', () => {
@@ -379,9 +380,9 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: VendorUserConverter;
-  let doc: Models.User.VendorUser;
+  let doc: VendorUser;
   let domainObject: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
-  let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter> | Models.User.VendorUser | undefined;
+  let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter> | VendorUser | undefined;
 
   BeforeEachScenario(() => {
     converter = new VendorUserConverter();
@@ -446,7 +447,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       domainObject = new Domain.Contexts.User.VendorUser.VendorUser(mockAdapter, makeMockPassport());
     });
     When('I call toPersistence with the VendorUser domain object', () => {
-      result = converter.toPersistence(domainObject) as Models.User.VendorUser;
+      result = converter.toPersistence(domainObject) as VendorUser;
     });
     Then('I should receive a Mongoose VendorUser document', () => {
       expect(result).toBeDefined();

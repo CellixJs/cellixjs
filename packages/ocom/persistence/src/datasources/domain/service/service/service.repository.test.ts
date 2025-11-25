@@ -5,10 +5,12 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+
 import { ServiceRepository } from './service.repository.ts';
 import { ServiceConverter } from './service.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Service, ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,7 +18,7 @@ const repositoryFeature = await loadFeature(
   path.resolve(__dirname, 'features/service.repository.feature')
 );
 
-function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
+function makeServiceDoc(overrides: Partial<Service> = {}) {
   return {
     serviceName: 'Test Service',
     description: 'Test service description',
@@ -24,9 +26,9 @@ function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
     community: undefined,
     createdAt: new Date(),
     updatedAt: new Date(),
-    set(key: keyof Models.Service.Service, value: unknown) {
+    set(key: keyof Service, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Service.Service)[key] = value as never;
+      (this as Service)[key] = value as never;
     },
     populate(path: string) {
       // Mock populate method for testing
@@ -36,16 +38,16 @@ function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
       return this;
     },
     ...overrides,
-  } as Models.Service.Service;
+  } as Service;
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
@@ -68,7 +70,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repository: ServiceRepository;
   let converter: ServiceConverter;
   let passport: Domain.Passport;
-  let mockModel: Models.Service.ServiceModelType;
+  let mockModel: ServiceModelType;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -76,7 +78,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
     passport = makeMockPassport();
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Service.Service) {
+    const ModelMock = function (this: Service) {
       Object.assign(this, makeServiceDoc());
     };
     // Attach static methods to the constructor
@@ -91,7 +93,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
-    mockModel = ModelMock as unknown as Models.Service.ServiceModelType;
+    mockModel = ModelMock as unknown as ServiceModelType;
     repository = new ServiceRepository(passport, mockModel, converter, eventBus, session);
     result = undefined;
   });
