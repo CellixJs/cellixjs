@@ -1,14 +1,7 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type {
-	StaffRole,
-	StaffRoleCommunityPermissions,
-	StaffRolePermissions,
-	StaffRolePropertyPermissions,
-	StaffRoleServicePermissions,
-	StaffRoleServiceTicketPermissions,
-	StaffRoleViolationTicketPermissions,
-} from '@ocom/data-sources-mongoose-models/role';
+
 import { Domain } from '@ocom/domain';
+import type { StaffRole, StaffRoleCommunityPermissions, StaffRolePermissions, StaffRolePropertyPermissions, StaffRoleServicePermissions, StaffRoleServiceTicketPermissions, StaffRoleViolationTicketPermissions } from '@ocom/data-sources-mongoose-models/role';
 
 export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	StaffRole,
@@ -82,9 +75,9 @@ export class StaffRolePermissionsAdapter
 	get propertyPermissions(): Domain.Contexts.User.StaffRole.StaffRolePropertyPermissionsProps {
 		if (!this.doc.propertyPermissions) {
 			this.doc.propertyPermissions = {
-				canEditOwnProperty: false,
-				canManageProperties: false,
-			};
+                canEditOwnProperty: false,
+                canManageProperties: false
+            };
 		}
 		return new StaffRolePropertyPermissionsAdapter(
 			this.doc.propertyPermissions,
@@ -94,20 +87,22 @@ export class StaffRolePermissionsAdapter
 	get servicePermissions(): Domain.Contexts.User.StaffRole.StaffRoleServicePermissionsProps {
 		if (!this.doc.servicePermissions) {
 			this.doc.servicePermissions = {
-				canManageServices: false,
-			};
+                canManageServices: false
+            };
 		}
-		return new StaffRoleServicePermissionsAdapter(this.doc.servicePermissions);
+		return new StaffRoleServicePermissionsAdapter(
+			this.doc.servicePermissions,
+		);
 	}
 
 	get serviceTicketPermissions(): Domain.Contexts.User.StaffRole.StaffRoleServiceTicketPermissionsProps {
 		if (!this.doc.serviceTicketPermissions) {
 			this.doc.serviceTicketPermissions = {
-				canCreateTickets: false,
-				canManageTickets: false,
-				canAssignTickets: false,
-				canWorkOnTickets: false,
-			};
+                canCreateTickets: false,
+                canManageTickets: false,
+                canAssignTickets: false,
+                canWorkOnTickets: false,
+            };
 		}
 		return new StaffRoleServiceTicketPermissionsAdapter(
 			this.doc.serviceTicketPermissions,
@@ -117,11 +112,11 @@ export class StaffRolePermissionsAdapter
 	get violationTicketPermissions(): Domain.Contexts.User.StaffRole.StaffRoleViolationTicketPermissionsProps {
 		if (!this.doc.violationTicketPermissions) {
 			this.doc.violationTicketPermissions = {
-				canCreateTickets: false,
-				canManageTickets: false,
-				canAssignTickets: false,
-				canWorkOnTickets: false,
-			};
+                canCreateTickets: false,
+                canManageTickets: false,
+                canAssignTickets: false,
+                canWorkOnTickets: false,
+            };
 		}
 		return new StaffRoleViolationTicketPermissionsAdapter(
 			this.doc.violationTicketPermissions,
@@ -147,7 +142,9 @@ export class StaffRoleCommunityPermissionsAdapter
 	}
 
 	get canManageStaffRolesAndPermissions(): boolean {
-		return this.ensureValue(this.doc.canManageStaffRolesAndPermissions);
+		return this.ensureValue(
+			this.doc.canManageStaffRolesAndPermissions,
+		);
 	}
 	set canManageStaffRolesAndPermissions(value: boolean) {
 		this.doc.canManageStaffRolesAndPermissions = value;
@@ -195,19 +192,19 @@ export class StaffRolePropertyPermissionsAdapter
 		return this.doc.id?.toString();
 	}
 
-	get canManageProperties(): boolean {
-		return this.doc.canManageProperties;
-	}
-	set canManageProperties(value: boolean) {
-		this.doc.canManageProperties = value;
-	}
+    get canManageProperties(): boolean {
+        return this.doc.canManageProperties;
+    }
+    set canManageProperties(value: boolean) {
+        this.doc.canManageProperties = value;
+    }
 
-	get canEditOwnProperty(): boolean {
-		return this.doc.canEditOwnProperty;
-	}
-	set canEditOwnProperty(value: boolean) {
-		this.doc.canEditOwnProperty = value;
-	}
+    get canEditOwnProperty(): boolean {
+        return this.doc.canEditOwnProperty;
+    }
+    set canEditOwnProperty(value: boolean) {
+        this.doc.canEditOwnProperty = value;
+    }
 }
 
 export class StaffRoleServicePermissionsAdapter
@@ -223,14 +220,13 @@ export class StaffRoleServicePermissionsAdapter
 		return this.doc.id?.toString();
 	}
 
-	get canManageServices(): boolean {
-		return this.doc.canManageServices;
-	}
+    get canManageServices(): boolean {
+        return this.doc.canManageServices;
+    }
 }
 
 export class StaffRoleServiceTicketPermissionsAdapter
-	implements
-		Domain.Contexts.User.StaffRole.StaffRoleServiceTicketPermissionsProps
+	implements Domain.Contexts.User.StaffRole.StaffRoleServiceTicketPermissionsProps
 {
 	private readonly doc: StaffRoleServiceTicketPermissions;
 
@@ -242,26 +238,25 @@ export class StaffRoleServiceTicketPermissionsAdapter
 		return this.doc.id?.toString();
 	}
 
-	get canCreateTickets(): boolean {
-		return this.doc.canCreateTickets;
-	}
+    get canCreateTickets(): boolean {
+        return this.doc.canCreateTickets;
+    }
 
-	get canManageTickets(): boolean {
-		return this.doc.canManageTickets;
-	}
+    get canManageTickets(): boolean {
+        return this.doc.canManageTickets;
+    }
 
-	get canAssignTickets(): boolean {
-		return this.doc.canAssignTickets;
-	}
+    get canAssignTickets(): boolean {
+        return this.doc.canAssignTickets;
+    }
 
-	get canWorkOnTickets(): boolean {
-		return this.doc.canWorkOnTickets;
-	}
+    get canWorkOnTickets(): boolean {
+        return this.doc.canWorkOnTickets;
+    }
 }
 
 export class StaffRoleViolationTicketPermissionsAdapter
-	implements
-		Domain.Contexts.User.StaffRole.StaffRoleViolationTicketPermissionsProps
+	implements Domain.Contexts.User.StaffRole.StaffRoleViolationTicketPermissionsProps
 {
 	private readonly doc: StaffRoleViolationTicketPermissions;
 
@@ -273,30 +268,32 @@ export class StaffRoleViolationTicketPermissionsAdapter
 		return this.doc.id?.toString();
 	}
 
-	get canAssignTickets(): boolean {
-		return this.doc.canAssignTickets;
-	}
-	set canAssignTickets(value: boolean) {
-		this.doc.canAssignTickets = value;
-	}
-	get canCreateTickets(): boolean {
-		return this.doc.canCreateTickets;
-	}
-	set canCreateTickets(value: boolean) {
-		this.doc.canCreateTickets = value;
-	}
+    get canAssignTickets(): boolean {
+        return this.doc.canAssignTickets;
+    }
+    set canAssignTickets(value: boolean) {
+        this.doc.canAssignTickets = value;
+    }
+    get canCreateTickets(): boolean {
+        return this.doc.canCreateTickets;
+    }
+    set canCreateTickets(value: boolean) {
+        this.doc.canCreateTickets = value;
+    }
 
-	get canManageTickets(): boolean {
-		return this.doc.canManageTickets;
-	}
-	set canManageTickets(value: boolean) {
-		this.doc.canManageTickets = value;
-	}
+    get canManageTickets(): boolean {
+        return this.doc.canManageTickets;
+    }
+    set canManageTickets(value: boolean) {
+        this.doc.canManageTickets = value;
+    }
 
-	get canWorkOnTickets(): boolean {
-		return this.doc.canWorkOnTickets;
-	}
-	set canWorkOnTickets(value: boolean) {
-		this.doc.canWorkOnTickets = value;
-	}
+    get canWorkOnTickets(): boolean {
+        return this.doc.canWorkOnTickets;
+    }
+    set canWorkOnTickets(value: boolean) {
+        this.doc.canWorkOnTickets = value;
+    }
+
 }
+

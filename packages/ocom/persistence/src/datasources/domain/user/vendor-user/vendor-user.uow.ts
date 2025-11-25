@@ -1,12 +1,13 @@
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import {
 	InProcEventBusInstance,
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user';
+
 import type { Domain } from '@ocom/domain';
 import { VendorUserConverter } from './vendor-user.domain-adapter.ts';
 import { VendorUserRepository } from './vendor-user.repository.ts';
+import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user';
 
 export const getVendorUserUnitOfWork = (
 	vendorUserModel: VendorUserModelType,

@@ -1,8 +1,9 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import { Domain } from '@ocom/domain';
+
+import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user';
-import { Domain } from '@ocom/domain';
-import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 
 export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
 	Community,
@@ -13,7 +14,7 @@ export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			CommunityDomainAdapter,
-			Domain.Contexts.Community.Community.Community,
+			Domain.Contexts.Community.Community.Community
 		);
 	}
 }
@@ -62,28 +63,26 @@ export class CommunityDomainAdapter
 		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}
 
-	async loadCreatedBy(): Promise<Domain.Contexts.User.EndUser.EndUserProps> {
+    async loadCreatedBy(): Promise<Domain.Contexts.User.EndUser.EndUserProps> {
 		if (!this.doc.createdBy) {
 			throw new Error('createdBy is not populated');
 		}
 		if (this.doc.createdBy instanceof MongooseSeedwork.ObjectId) {
-			await this.doc.populate('createdBy');
+            await this.doc.populate('createdBy');
 		}
 		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}
 
-	set createdBy(user:
-		| Domain.Contexts.User.EndUser.EndUserEntityReference
-		| Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>) {
+	set createdBy(user: Domain.Contexts.User.EndUser.EndUserEntityReference | Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>) {
 		//check to see if user is derived from MongooseDomainAdapter
 		if (user instanceof Domain.Contexts.User.EndUser.EndUser) {
-			this.doc.set('createdBy', user.props.doc);
-			return;
+            this.doc.set('createdBy', user.props.doc);
+            return;
 		}
 
-		if (!user?.id) {
-			throw new Error('user reference is missing id');
-		}
+        if (!user?.id) {
+            throw new Error('user reference is missing id');
+        }
 
 		this.doc.set('createdBy', user);
 	}

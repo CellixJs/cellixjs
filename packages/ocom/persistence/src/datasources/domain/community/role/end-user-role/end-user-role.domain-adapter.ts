@@ -1,16 +1,9 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Community } from '@ocom/data-sources-mongoose-models/community';
-import type {
-	EndUserRole,
-	EndUserRoleCommunityPermissions,
-	EndUserRolePermissions,
-	EndUserRolePropertyPermissions,
-	EndUserRoleServicePermissions,
-	EndUserRoleServiceTicketPermissions,
-	EndUserRoleViolationTicketPermissions,
-} from '@ocom/data-sources-mongoose-models/role';
+
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { EndUserRole, EndUserRoleCommunityPermissions, EndUserRolePermissions, EndUserRolePropertyPermissions, EndUserRoleServicePermissions, EndUserRoleServiceTicketPermissions, EndUserRoleViolationTicketPermissions } from '@ocom/data-sources-mongoose-models/role';
 
 export class EndUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	EndUserRole,
@@ -21,8 +14,7 @@ export class EndUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			EndUserRoleDomainAdapter,
-			Domain.Contexts.Community.Role.EndUserRole
-				.EndUserRole<EndUserRoleDomainAdapter>,
+            Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>
 		);
 	}
 }
@@ -44,24 +36,22 @@ export class EndUserRoleDomainAdapter
 			throw new Error('community is not populated');
 		}
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-			throw new Error(
-				'community is not populated or is not of the correct type',
-			);
+			throw new Error('community is not populated or is not of the correct type');
 		}
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
-	async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
-		if (!this.doc.community) {
-			throw new Error('community is not populated');
-		}
-		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-			await this.doc.populate('community');
-		}
-		return new CommunityDomainAdapter(this.doc.community as Community);
-	}
-	set community(community:
-		| Domain.Contexts.Community.Community.CommunityEntityReference
-		| Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>,) {
+    async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
+        if (!this.doc.community) {
+            throw new Error('community is not populated');
+        }
+        if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
+            await this.doc.populate('community');
+        }
+        return new CommunityDomainAdapter(this.doc.community as Community);
+    }
+	set community(
+		community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>,
+	) {
 		if (community instanceof Domain.Contexts.Community.Community.Community) {
 			this.doc.set('community', community.props.doc);
 			return;
@@ -79,25 +69,24 @@ export class EndUserRoleDomainAdapter
 		this.doc.isDefault = value;
 	}
 
-	get permissions(): Domain.Contexts.Community.Role.EndUserRole.EndUserRolePermissionsProps {
-		if (!this.doc.permissions) {
-			// ensure subdocument exists
-			this.doc.set('permissions', {} as EndUserRolePermissions);
-		}
-		return new EndUserRolePermissionsDomainAdapter(
-			this.doc.permissions as EndUserRolePermissions,
-		);
+    get permissions(): Domain.Contexts.Community.Role.EndUserRole.EndUserRolePermissionsProps {
+        if (!this.doc.permissions) {
+            // ensure subdocument exists
+            this.doc.set('permissions', {} as EndUserRolePermissions);
+        }
+        return new EndUserRolePermissionsDomainAdapter(
+            this.doc.permissions as EndUserRolePermissions,
+        );
 	}
 
-	get roleType(): string | undefined {
-		return this.doc.roleType;
-	}
+    get roleType(): string | undefined {
+        return this.doc.roleType;
+    }
 }
 
 // Permissions adapter tree
 export class EndUserRolePermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.EndUserRole.EndUserRolePermissionsProps
+	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRolePermissionsProps
 {
 	public readonly props: EndUserRolePermissions;
 	constructor(props: EndUserRolePermissions) {
@@ -108,51 +97,40 @@ export class EndUserRolePermissionsDomainAdapter
 		if (!this.props.communityPermissions) {
 			this.props.set('communityPermissions', {});
 		}
-		return new EndUserRoleCommunityPermissionsDomainAdapter(
-			this.props.communityPermissions,
-		);
+		return new EndUserRoleCommunityPermissionsDomainAdapter(this.props.communityPermissions);
 	}
 
 	get propertyPermissions(): Domain.Contexts.Community.Role.EndUserRole.EndUserRolePropertyPermissionsProps {
 		if (!this.props.propertyPermissions) {
-			this.props.set('propertyPermissions', {});
+            this.props.set('propertyPermissions', {});
 		}
-		return new EndUserRolePropertyPermissionsDomainAdapter(
-			this.props.propertyPermissions,
-		);
+		return new EndUserRolePropertyPermissionsDomainAdapter(this.props.propertyPermissions);
 	}
 
 	get serviceTicketPermissions(): Domain.Contexts.Community.Role.EndUserRole.EndUserRoleServiceTicketPermissionsProps {
 		if (!this.props.serviceTicketPermissions) {
-			this.props.set('serviceTicketPermissions', {});
+            this.props.set('serviceTicketPermissions', {});
 		}
-		return new EndUserRoleServiceTicketPermissionsDomainAdapter(
-			this.props.serviceTicketPermissions,
-		);
+		return new EndUserRoleServiceTicketPermissionsDomainAdapter(this.props.serviceTicketPermissions);
 	}
 
 	get servicePermissions(): Domain.Contexts.Community.Role.EndUserRole.EndUserRoleServicePermissionsProps {
 		if (!this.props.servicePermissions) {
 			this.props.set('servicePermissions', {});
 		}
-		return new EndUserRoleServicePermissionsDomainAdapter(
-			this.props.servicePermissions,
-		);
+		return new EndUserRoleServicePermissionsDomainAdapter(this.props.servicePermissions);
 	}
 
 	get violationTicketPermissions(): Domain.Contexts.Community.Role.EndUserRole.EndUserRoleViolationTicketPermissionsProps {
 		if (!this.props.violationTicketPermissions) {
 			this.props.set('violationTicketPermissions', {});
 		}
-		return new EndUserRoleViolationTicketPermissionsDomainAdapter(
-			this.props.violationTicketPermissions,
-		);
+		return new EndUserRoleViolationTicketPermissionsDomainAdapter(this.props.violationTicketPermissions);
 	}
 }
 
 export class EndUserRoleServicePermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.EndUserRole.EndUserRoleServicePermissionsProps
+	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRoleServicePermissionsProps
 {
 	public readonly props: EndUserRoleServicePermissions;
 	constructor(props: EndUserRoleServicePermissions) {
@@ -167,8 +145,7 @@ export class EndUserRoleServicePermissionsDomainAdapter
 }
 
 export class EndUserRoleServiceTicketPermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.EndUserRole.EndUserRoleServiceTicketPermissionsProps
+	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRoleServiceTicketPermissionsProps
 {
 	public readonly props: EndUserRoleServiceTicketPermissions;
 	constructor(props: EndUserRoleServiceTicketPermissions) {
@@ -201,8 +178,7 @@ export class EndUserRoleServiceTicketPermissionsDomainAdapter
 }
 
 export class EndUserRoleViolationTicketPermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.EndUserRole.EndUserRoleViolationTicketPermissionsProps
+	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRoleViolationTicketPermissionsProps
 {
 	public readonly props: EndUserRoleViolationTicketPermissions;
 	constructor(props: EndUserRoleViolationTicketPermissions) {
@@ -235,8 +211,7 @@ export class EndUserRoleViolationTicketPermissionsDomainAdapter
 }
 
 export class EndUserRolePropertyPermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.EndUserRole.EndUserRolePropertyPermissionsProps
+	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRolePropertyPermissionsProps
 {
 	public readonly props: EndUserRolePropertyPermissions;
 	constructor(props: EndUserRolePropertyPermissions) {
@@ -257,8 +232,7 @@ export class EndUserRolePropertyPermissionsDomainAdapter
 }
 
 export class EndUserRoleCommunityPermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.EndUserRole.EndUserRoleCommunityPermissionsProps
+	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRoleCommunityPermissionsProps
 {
 	public readonly props: EndUserRoleCommunityPermissions;
 	constructor(props: EndUserRoleCommunityPermissions) {
@@ -307,3 +281,4 @@ export class EndUserRoleCommunityPermissionsDomainAdapter
 		this.props.canEditOwnMemberAccounts = value;
 	}
 }
+

@@ -1,16 +1,9 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Community } from '@ocom/data-sources-mongoose-models/community';
-import type {
-	VendorUserRole,
-	VendorUserRoleCommunityPermissions,
-	VendorUserRolePermissions,
-	VendorUserRolePropertyPermissions,
-	VendorUserRoleServicePermissions,
-	VendorUserRoleServiceTicketPermissions,
-	VendorUserRoleViolationTicketPermissions,
-} from '@ocom/data-sources-mongoose-models/role';
+
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { VendorUserRole, VendorUserRoleCommunityPermissions, VendorUserRolePermissions, VendorUserRolePropertyPermissions, VendorUserRoleServicePermissions, VendorUserRoleServiceTicketPermissions, VendorUserRoleViolationTicketPermissions } from '@ocom/data-sources-mongoose-models/role';
 
 export class VendorUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	VendorUserRole,
@@ -21,8 +14,7 @@ export class VendorUserRoleConverter extends MongooseSeedwork.MongoTypeConverter
 	constructor() {
 		super(
 			VendorUserRoleDomainAdapter,
-			Domain.Contexts.Community.Role.VendorUserRole
-				.VendorUserRole<VendorUserRoleDomainAdapter>,
+            Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>
 		);
 	}
 }
@@ -39,29 +31,27 @@ export class VendorUserRoleDomainAdapter
 		this.doc.roleName = roleName;
 	}
 
-	get community(): Domain.Contexts.Community.Community.CommunityProps {
+    get community(): Domain.Contexts.Community.Community.CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-			throw new Error(
-				'community is not populated or is not of the correct type',
-			);
+			throw new Error('community is not populated or is not of the correct type');
 		}
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
-	async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
-		if (!this.doc.community) {
-			throw new Error('community is not populated');
-		}
-		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-			await this.doc.populate('community');
-		}
-		return new CommunityDomainAdapter(this.doc.community as Community);
-	}
-	set community(community:
-		| Domain.Contexts.Community.Community.CommunityEntityReference
-		| Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>,) {
+    async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
+        if (!this.doc.community) {
+            throw new Error('community is not populated');
+        }
+        if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
+            await this.doc.populate('community');
+        }
+        return new CommunityDomainAdapter(this.doc.community as Community);
+    }
+	set community(
+		community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>,
+	) {
 		if (community instanceof Domain.Contexts.Community.Community.Community) {
 			this.doc.set('community', community.props.doc);
 			return;
@@ -79,25 +69,24 @@ export class VendorUserRoleDomainAdapter
 		this.doc.isDefault = value;
 	}
 
-	get permissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePermissionsProps {
-		if (!this.doc.permissions) {
-			// ensure subdocument exists
-			this.doc.set('permissions', {} as VendorUserRolePermissions);
-		}
-		return new VendorUserRolePermissionsDomainAdapter(
-			this.doc.permissions as VendorUserRolePermissions,
-		);
+    get permissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePermissionsProps {
+        if (!this.doc.permissions) {
+            // ensure subdocument exists
+            this.doc.set('permissions', {} as VendorUserRolePermissions);
+        }
+        return new VendorUserRolePermissionsDomainAdapter(
+            this.doc.permissions as VendorUserRolePermissions,
+        );
 	}
 
-	get roleType(): string | undefined {
-		return this.doc.roleType;
-	}
+    get roleType(): string | undefined {
+        return this.doc.roleType;
+    }
 }
 
 // Permissions adapter tree
 export class VendorUserRolePermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePermissionsProps
+	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePermissionsProps
 {
 	public readonly props: VendorUserRolePermissions;
 	constructor(props: VendorUserRolePermissions) {
@@ -108,51 +97,40 @@ export class VendorUserRolePermissionsDomainAdapter
 		if (!this.props.communityPermissions) {
 			this.props.set('communityPermissions', {});
 		}
-		return new VendorUserRoleCommunityPermissionsDomainAdapter(
-			this.props.communityPermissions,
-		);
+		return new VendorUserRoleCommunityPermissionsDomainAdapter(this.props.communityPermissions);
 	}
 
 	get propertyPermissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePropertyPermissionsProps {
 		if (!this.props.propertyPermissions) {
-			this.props.set('propertyPermissions', {});
+            this.props.set('propertyPermissions', {});
 		}
-		return new VendorUserRolePropertyPermissionsDomainAdapter(
-			this.props.propertyPermissions,
-		);
+		return new VendorUserRolePropertyPermissionsDomainAdapter(this.props.propertyPermissions);
 	}
 
 	get serviceTicketPermissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServiceTicketPermissionsProps {
 		if (!this.props.serviceTicketPermissions) {
-			this.props.set('serviceTicketPermissions', {});
+            this.props.set('serviceTicketPermissions', {});
 		}
-		return new VendorUserRoleServiceTicketPermissionsDomainAdapter(
-			this.props.serviceTicketPermissions,
-		);
+		return new VendorUserRoleServiceTicketPermissionsDomainAdapter(this.props.serviceTicketPermissions);
 	}
 
 	get servicePermissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServicePermissionsProps {
 		if (!this.props.servicePermissions) {
 			this.props.set('servicePermissions', {});
 		}
-		return new VendorUserRoleServicePermissionsDomainAdapter(
-			this.props.servicePermissions,
-		);
+		return new VendorUserRoleServicePermissionsDomainAdapter(this.props.servicePermissions);
 	}
 
 	get violationTicketPermissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleViolationTicketPermissionsProps {
 		if (!this.props.violationTicketPermissions) {
 			this.props.set('violationTicketPermissions', {});
 		}
-		return new VendorUserRoleViolationTicketPermissionsDomainAdapter(
-			this.props.violationTicketPermissions,
-		);
+		return new VendorUserRoleViolationTicketPermissionsDomainAdapter(this.props.violationTicketPermissions);
 	}
 }
 
 class VendorUserRoleServicePermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServicePermissionsProps
+	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServicePermissionsProps
 {
 	public readonly props: VendorUserRoleServicePermissions;
 	constructor(props: VendorUserRoleServicePermissions) {
@@ -167,8 +145,7 @@ class VendorUserRoleServicePermissionsDomainAdapter
 }
 
 class VendorUserRoleServiceTicketPermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServiceTicketPermissionsProps
+	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServiceTicketPermissionsProps
 {
 	public readonly props: VendorUserRoleServiceTicketPermissions;
 	constructor(props: VendorUserRoleServiceTicketPermissions) {
@@ -201,8 +178,7 @@ class VendorUserRoleServiceTicketPermissionsDomainAdapter
 }
 
 class VendorUserRoleViolationTicketPermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleViolationTicketPermissionsProps
+	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleViolationTicketPermissionsProps
 {
 	public readonly props: VendorUserRoleViolationTicketPermissions;
 	constructor(props: VendorUserRoleViolationTicketPermissions) {
@@ -235,8 +211,7 @@ class VendorUserRoleViolationTicketPermissionsDomainAdapter
 }
 
 class VendorUserRolePropertyPermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePropertyPermissionsProps
+	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePropertyPermissionsProps
 {
 	public readonly props: VendorUserRolePropertyPermissions;
 	constructor(props: VendorUserRolePropertyPermissions) {
@@ -257,8 +232,7 @@ class VendorUserRolePropertyPermissionsDomainAdapter
 }
 
 class VendorUserRoleCommunityPermissionsDomainAdapter
-	implements
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleCommunityPermissionsProps
+	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleCommunityPermissionsProps
 {
 	public readonly props: VendorUserRoleCommunityPermissions;
 	constructor(props: VendorUserRoleCommunityPermissions) {

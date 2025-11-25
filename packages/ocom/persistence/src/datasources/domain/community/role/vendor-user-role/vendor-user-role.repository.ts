@@ -1,7 +1,8 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/user';
+
 import { Domain } from '@ocom/domain';
 import type { VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
+import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/role';
 
 type VendorUserRoleModelType = VendorUserRole;
 type PropType = VendorUserRoleDomainAdapter;
@@ -13,15 +14,14 @@ export class VendorUserRoleRepository
 		Domain.Passport,
 		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<PropType>
 	>
-	implements
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleRepository<PropType>
+	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleRepository<PropType>
 {
 	async getById(
 		id: string,
-	): Promise<
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<PropType>
-	> {
-		const mongoVendorUserRole = await this.model.findById(id).exec();
+	): Promise<Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<PropType>> {
+		const mongoVendorUserRole = await this.model
+			.findById(id)
+			.exec();
 		if (!mongoVendorUserRole) {
 			throw new Error(`VendorUserRole with id ${id} not found`);
 		}
@@ -32,10 +32,8 @@ export class VendorUserRoleRepository
 	async getNewInstance(
 		roleName: string,
 		isDefault: boolean,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference,
-	): Promise<
-		Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<PropType>
-	> {
+		community: Domain.Contexts.Community.Community.CommunityEntityReference
+	): Promise<Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
 			Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole.getNewInstance(

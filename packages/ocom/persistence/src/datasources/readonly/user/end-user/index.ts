@@ -4,11 +4,8 @@ import { getEndUserReadRepository } from './end-user.read-repository.ts';
 
 export type { EndUserReadRepository } from './end-user.read-repository.ts';
 
-export const EndUserReadRepositoryImpl = (
-	models: ModelsContext,
-	passport: Domain.Passport,
-) => {
-	return {
-		EndUserReadRepo: getEndUserReadRepository(models, passport),
-	};
+export const EndUserReadRepositoryImpl = (models: ModelsContext, passport: Domain.Passport) => {
+    return {
+        EndUserReadRepo: getEndUserReadRepository(models, passport),
+    };
 };

@@ -1,7 +1,8 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Property } from '@ocom/data-sources-mongoose-models/property';
+
 import { Domain } from '@ocom/domain';
 import type { PropertyDomainAdapter } from './property.domain-adapter.ts';
+import type { Property } from '@ocom/data-sources-mongoose-models/property';
 
 type PropertyModelType = Property;
 type PropType = PropertyDomainAdapter;
@@ -31,9 +32,7 @@ export class PropertyRepository
 		);
 	}
 
-	async getById(
-		id: string,
-	): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
+	async getById(id: string): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
 		const mongoProperty = await this.model.findById(id).exec();
 		if (!mongoProperty) {
 			throw new Error(`Property with id ${id} not found`);
@@ -41,9 +40,7 @@ export class PropertyRepository
 		return this.typeConverter.toDomain(mongoProperty, this.passport);
 	}
 
-	async getAll(): Promise<
-		ReadonlyArray<Domain.Contexts.Property.Property.Property<PropType>>
-	> {
+	async getAll(): Promise<ReadonlyArray<Domain.Contexts.Property.Property.Property<PropType>>> {
 		const mongoProperties = await this.model.find().exec();
 		return Promise.all(
 			mongoProperties.map((mongoProperty) =>

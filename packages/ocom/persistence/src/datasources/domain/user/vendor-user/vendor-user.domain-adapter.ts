@@ -1,11 +1,7 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type {
-	VendorUser,
-	VendorUserContactInformation,
-	VendorUserIdentityDetails,
-	VendorUserPersonalInformation,
-} from '@ocom/data-sources-mongoose-models/user';
+
 import { Domain } from '@ocom/domain';
+import type { VendorUser, VendorUserContactInformation, VendorUserIdentityDetails, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user';
 
 export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	VendorUser,
@@ -14,7 +10,10 @@ export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>
 > {
 	constructor() {
-		super(VendorUserDomainAdapter, Domain.Contexts.User.VendorUser.VendorUser);
+		super(
+			VendorUserDomainAdapter,
+			Domain.Contexts.User.VendorUser.VendorUser,
+		);
 	}
 }
 
@@ -24,7 +23,10 @@ export class VendorUserDomainAdapter
 {
 	get personalInformation(): Domain.Contexts.User.VendorUser.VendorUserPersonalInformationProps {
 		if (!this.doc.personalInformation) {
-			this.doc.set('personalInformation', {} as VendorUserPersonalInformation);
+			this.doc.set(
+				'personalInformation',
+				{} as VendorUserPersonalInformation,
+			);
 		}
 		return new VendorUserPersonalInformationDomainAdapter(
 			this.doc.personalInformation as VendorUserPersonalInformation,
@@ -142,7 +144,10 @@ export class VendorUserPersonalInformationDomainAdapter
 
 	get identityDetails(): Domain.Contexts.User.VendorUser.VendorUserIdentityDetailsProps {
 		if (!this.props.identityDetails) {
-			this.props.set('identityDetails', {} as VendorUserIdentityDetails);
+			this.props.set(
+				'identityDetails',
+				{} as VendorUserIdentityDetails,
+			);
 		}
 		return new VendorUserIdentityDetailsDomainAdapter(
 			this.props.identityDetails as VendorUserIdentityDetails,
@@ -151,7 +156,10 @@ export class VendorUserPersonalInformationDomainAdapter
 
 	get contactInformation(): Domain.Contexts.User.VendorUser.VendorUserContactInformationProps {
 		if (!this.props.contactInformation) {
-			this.props.set('contactInformation', {} as VendorUserContactInformation);
+			this.props.set(
+				'contactInformation',
+				{} as VendorUserContactInformation,
+			);
 		}
 		return new VendorUserContactInformationDomainAdapter(
 			this.props.contactInformation as VendorUserContactInformation,

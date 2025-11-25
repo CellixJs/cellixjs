@@ -1,11 +1,7 @@
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type {
-	EndUser,
-	EndUserContactInformation,
-	EndUserIdentityDetails,
-	EndUserPersonalInformation,
-} from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
+
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { EndUser, EndUserContactInformation, EndUserIdentityDetails, EndUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user';
 
 export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	EndUser,
@@ -16,7 +12,7 @@ export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	constructor() {
 		super(
 			EndUserDomainAdapter,
-			Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>,
+			Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>
 		);
 	}
 }
@@ -38,7 +34,7 @@ export class EndUserDomainAdapter
 
 	get personalInformation() {
 		if (!this.doc.personalInformation) {
-			this.doc.set('personalInformation', {});
+		  this.doc.set('personalInformation', {});
 		}
 		return new EndUserPersonalInformationDomainAdapter(
 			this.doc.personalInformation,
@@ -84,14 +80,14 @@ export class EndUserPersonalInformationDomainAdapter
 
 	get identityDetails() {
 		if (!this.props.identityDetails) {
-			this.props.set('identityDetails', {});
+		  this.props.set('identityDetails', {});
 		}
 		return new EndUserIdentityDetailsDomainAdapter(this.props.identityDetails);
 	}
 
 	get contactInformation() {
 		if (!this.props.contactInformation) {
-			this.props.set('contactInformation', {});
+		  this.props.set('contactInformation', {});
 		}
 		return new EndUserContactInformationDomainAdapter(
 			this.props.contactInformation,

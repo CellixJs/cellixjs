@@ -1,9 +1,10 @@
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import { Domain } from '@ocom/domain';
-import type { CommunityDomainAdapter } from './community.domain-adapter.ts';
 
-type CommunityModelType = Community; // ReturnType<typeof CommunityModelFactory> & Community & { baseModelName: string };
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { CommunityDomainAdapter } from './community.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+
+type CommunityModelType = Community; // ReturnType<typeof Models.Community.CommunityModelFactory> & Community & { baseModelName: string };
 type PropType = CommunityDomainAdapter;
 
 export class CommunityRepository //<

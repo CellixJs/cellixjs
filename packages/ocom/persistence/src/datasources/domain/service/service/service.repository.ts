@@ -1,7 +1,8 @@
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Service } from '@ocom/data-sources-mongoose-models/service';
 import { Domain } from '@ocom/domain';
+
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
+import type { Service } from '@ocom/data-sources-mongoose-models/service';
 
 type ServiceModelType = Service;
 type PropType = ServiceDomainAdapter;
@@ -15,9 +16,7 @@ export class ServiceRepository
 	>
 	implements Domain.Contexts.Service.Service.ServiceRepository<PropType>
 {
-	async getById(
-		id: string,
-	): Promise<Domain.Contexts.Service.Service.Service<PropType>> {
+	async getById(id: string): Promise<Domain.Contexts.Service.Service.Service<PropType>> {
 		const mongoService = await this.model.findById(id).exec();
 		if (!mongoService) {
 			throw new Error(`Service with id ${id} not found`);

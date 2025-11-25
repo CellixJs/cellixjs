@@ -1,7 +1,8 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { ServiceTicket } from '@ocom/data-sources-mongoose-models/service';
+
 import { Domain } from '@ocom/domain';
 import type { ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
+import type { ServiceTicket } from '@ocom/data-sources-mongoose-models/case';
 
 type ServiceTicketModelType = ServiceTicket; // ReturnType<typeof models.Case.ServiceTicketModelFactory> & models.Case.ServiceTicket & { baseModelName: string };
 type PropType = ServiceTicketV1DomainAdapter;
@@ -15,8 +16,7 @@ export class ServiceTicketV1Repository //<
 		Domain.Passport,
 		Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>
 	>
-	implements
-		Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Repository<PropType>
+	implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Repository<PropType>
 {
 	getNewInstance(
 		title: Domain.Contexts.Case.ServiceTicket.V1.ValueObjects.Title,
@@ -30,7 +30,7 @@ export class ServiceTicketV1Repository //<
 			Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1.getNewInstance(
 				adapter,
 				this.passport,
-				title,
+                title,
 				description,
 				community.id,
 				requestor.id,
@@ -39,9 +39,7 @@ export class ServiceTicketV1Repository //<
 		);
 	}
 
-	async getById(
-		id: string,
-	): Promise<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>> {
+	async getById(id: string): Promise<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>> {
 		const mongoServiceTicket = await this.model.findById(id).exec();
 		if (!mongoServiceTicket) {
 			throw new Error(`ServiceTicket with id ${id} not found`);
