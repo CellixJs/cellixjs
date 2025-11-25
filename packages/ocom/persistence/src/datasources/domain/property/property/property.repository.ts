@@ -1,16 +1,17 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
-import type { PropertyDomainAdapter } from './property.domain-adapter.ts';
 
-type PropertyModelType = Models.Property.Property;
+import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { PropertyDomainAdapter } from './property.domain-adapter.ts';
+import type { Property } from '@ocom/data-sources-mongoose-models/property';
+
+type PropertyModelType = Property;
 type PropType = PropertyDomainAdapter;
 
 export class PropertyRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
 		PropertyModelType,
 		PropType,
-		Domain.Passport,
+		Passport,
 		Domain.Contexts.Property.Property.Property<PropType>
 	>
 	implements Domain.Contexts.Property.Property.PropertyRepository<PropType>

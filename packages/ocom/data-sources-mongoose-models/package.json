@@ -8,6 +8,54 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./community": {
+      "types": "./dist/src/models/community/community.model.d.ts",
+      "default": "./dist/src/models/community/community.model.js"
+    },
+    "./member": {
+      "types": "./dist/src/models/member/member.model.d.ts",
+      "default": "./dist/src/models/member/member.model.js"
+    },
+    "./user/end-user": {
+      "types": "./dist/src/models/user/end-user.model.d.ts",
+      "default": "./dist/src/models/user/end-user.model.js"
+    },
+    "./user/staff-user": {
+      "types": "./dist/src/models/user/staff-user.model.d.ts",
+      "default": "./dist/src/models/user/staff-user.model.js"
+    },
+    "./user/vendor-user": {
+      "types": "./dist/src/models/user/vendor-user.model.d.ts",
+      "default": "./dist/src/models/user/vendor-user.model.js"
+    },
+    "./role/end-user-role": {
+      "types": "./dist/src/models/role/end-user-role.model.d.ts",
+      "default": "./dist/src/models/role/end-user-role.model.js"
+    },
+    "./role/staff-role": {
+      "types": "./dist/src/models/role/staff-role.model.d.ts",
+      "default": "./dist/src/models/role/staff-role.model.js"
+    },
+    "./role/vendor-user-role": {
+      "types": "./dist/src/models/role/vendor-user-role.model.d.ts",
+      "default": "./dist/src/models/role/vendor-user-role.model.js"
+    },
+    "./case/service-ticket": {
+      "types": "./dist/src/models/case/service-ticket.model.d.ts",
+      "default": "./dist/src/models/case/service-ticket.model.js"
+    },
+    "./case/violation-ticket": {
+      "types": "./dist/src/models/case/violation-ticket.model.d.ts",
+      "default": "./dist/src/models/case/violation-ticket.model.js"
+    },
+    "./property": {
+      "types": "./dist/src/models/property/property.model.d.ts",
+      "default": "./dist/src/models/property/property.model.js"
+    },
+    "./service": {
+      "types": "./dist/src/models/service/service.model.d.ts",
+      "default": "./dist/src/models/service/service.model.js"
     }
   },
   "scripts": {

@@ -2,12 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { EndUserReadRepositoryImpl } from './end-user.read-repository.ts';
 import { EndUserDataSourceImpl } from './end-user.data.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
+import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 // Mock the data source module
 
@@ -28,9 +29,7 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    User: {
-      EndUser: {} as unknown as Models.User.EndUserModelType,
-    },
+    EndUser: {} as unknown as EndUserModelType,
   } as ModelsContext;
 }
 
@@ -41,7 +40,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 function makeMockEndUserDocument() {
@@ -54,14 +53,14 @@ function makeMockEndUserDocument() {
     createdAt: new Date(),
     updatedAt: new Date(),
     id: 'test-id',
-  } as unknown as Models.User.EndUser;
+  } as unknown as EndUser;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let models: ModelsContext;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let repository: EndUserReadRepositoryImpl;
-  let mockEndUserDoc: Models.User.EndUser;
+  let mockEndUserDoc: EndUser;
   let mockDataSource: {
     find: ReturnType<typeof vi.fn>;
     findById: ReturnType<typeof vi.fn>;
@@ -81,7 +80,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     mockDataSource = {
       find: vi.fn(async () => [mockEndUserDoc]),
       findById: vi.fn(async (id: string) => id === 'test-id' ? mockEndUserDoc : null),
-      findOne: vi.fn(async (filter: Partial<Models.User.EndUser>) => filter.externalId === 'ext-123' ? mockEndUserDoc : null),
+      findOne: vi.fn(async (filter: Partial<EndUser>) => filter.externalId === 'ext-123' ? mockEndUserDoc : null),
       aggregate: vi.fn(async () => []),
     };
 

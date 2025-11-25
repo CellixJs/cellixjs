@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import {
   MemberConverter,
   MemberDomainAdapter,
@@ -15,6 +15,10 @@ import {
 import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
 import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Member, MemberAccount, MemberCustomView, MemberProfile } from '@ocom/data-sources-mongoose-models/member';
+import type { EndUserRole } from '@ocom/data-sources-mongoose-models/role/end-user-role';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 const test = { for: describeFeature };
@@ -26,7 +30,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/member.type-converter.feature')
 );
 
-function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
+function makeMemberDoc(overrides: Partial<Member> = {}) {
   const base = {
     memberName: 'Test Member',
     cybersourceCustomerId: 'test-customer-id',
@@ -35,35 +39,35 @@ function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
     profile: undefined,
     accounts: [],
     customViews: [],
-    set(key: keyof Models.Member.Member, value: unknown) {
+    set(key: keyof Member, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Member.Member)[key] = value as never;
+      (this as Member)[key] = value as never;
     },
     ...overrides,
-  } as Models.Member.Member;
+  } as Member;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
-function makeEndUserRoleDoc(overrides: Partial<Models.Role.EndUserRole> = {}) {
+function makeEndUserRoleDoc(overrides: Partial<EndUserRole> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c698',
     roleName: 'Test Role',
     ...overrides,
-  } as Models.Role.EndUserRole;
+  } as EndUserRole;
   return vi.mocked(base);
 }
 
-function makeMemberAccountDoc(overrides: Partial<Models.Member.MemberAccount> = {}) {
+function makeMemberAccountDoc(overrides: Partial<MemberAccount> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c698',
     firstName: 'John',
@@ -71,16 +75,16 @@ function makeMemberAccountDoc(overrides: Partial<Models.Member.MemberAccount> = 
     user: undefined,
     statusCode: 'active',
     createdBy: undefined,
-    set(key: keyof Models.Member.MemberAccount, value: unknown) {
+    set(key: keyof MemberAccount, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Member.MemberAccount)[key] = value as never;
+      (this as MemberAccount)[key] = value as never;
     },
     ...overrides,
-  } as Models.Member.MemberAccount;
+  } as MemberAccount;
   return vi.mocked(base);
 }
 
-function makeMemberCustomViewDoc(overrides: Partial<Models.Member.MemberCustomView> = {}) {
+function makeMemberCustomViewDoc(overrides: Partial<MemberCustomView> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c699',
     name: 'My Custom View',
@@ -88,16 +92,16 @@ function makeMemberCustomViewDoc(overrides: Partial<Models.Member.MemberCustomVi
     filters: ['status:active'],
     sortOrder: 'asc',
     columnsToDisplay: ['name', 'email', 'status'],
-    set(key: keyof Models.Member.MemberCustomView, value: unknown) {
+    set(key: keyof MemberCustomView, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Member.MemberCustomView)[key] = value as never;
+      (this as MemberCustomView)[key] = value as never;
     },
     ...overrides,
-  } as Models.Member.MemberCustomView;
+  } as MemberCustomView;
   return vi.mocked(base);
 }
 
-function makeMemberProfileDoc(overrides: Partial<Models.Member.MemberProfile> = {}) {
+function makeMemberProfileDoc(overrides: Partial<MemberProfile> = {}) {
   const base = {
     name: 'John Doe',
     email: 'john@example.com',
@@ -109,22 +113,22 @@ function makeMemberProfileDoc(overrides: Partial<Models.Member.MemberProfile> = 
     showProfile: true,
     showLocation: true,
     showProperties: true,
-    set(key: keyof Models.Member.MemberProfile, value: unknown) {
+    set(key: keyof MemberProfile, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Member.MemberProfile)[key] = value as never;
+      (this as MemberProfile)[key] = value as never;
     },
     ...overrides,
-  } as Models.Member.MemberProfile;
+  } as MemberProfile;
   return vi.mocked(base);
 }
 
-function makeUserDoc(overrides: Partial<Models.User.EndUser> = {}) {
+function makeUserDoc(overrides: Partial<EndUser> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     displayName: 'Test User',
     email: 'test@example.com',
     ...overrides,
-  } as Models.User.EndUser;
+  } as EndUser;
   return vi.mocked(base);
 }
 
@@ -140,17 +144,17 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Member.Member;
+  let doc: Member;
   let adapter: MemberDomainAdapter;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Community;
   let communityAdapter: CommunityDomainAdapter;
-  let roleDoc: Models.Role.EndUserRole;
+  let roleDoc: EndUserRole;
   let roleAdapter: EndUserRoleDomainAdapter;
-  let profileDoc: Models.Member.MemberProfile;
+  let profileDoc: MemberProfile;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -402,7 +406,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberAccountDomainAdapter getting and setting firstName property', ({ Given, When, Then }) => {
-    let accountDoc: Models.Member.MemberAccount;
+    let accountDoc: MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
 
     Given('a MemberAccountDomainAdapter for a member account document', () => {
@@ -424,7 +428,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberAccountDomainAdapter getting and setting lastName property', ({ Given, When, Then }) => {
-    let accountDoc: Models.Member.MemberAccount;
+    let accountDoc: MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
 
     Given('a MemberAccountDomainAdapter for a member account document', () => {
@@ -446,9 +450,9 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberAccountDomainAdapter getting user property when populated', ({ Given, When, Then }) => {
-    let accountDoc: Models.Member.MemberAccount;
+    let accountDoc: MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
-    let userDoc: Models.User.EndUser;
+    let userDoc: EndUser;
 
     Given('a MemberAccountDomainAdapter for a member account document with populated user', () => {
       userDoc = makeUserDoc();
@@ -465,7 +469,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberAccountDomainAdapter setting user property with valid EndUser domain object', ({ Given, And, When, Then }) => {
-    let accountDoc: Models.Member.MemberAccount;
+    let accountDoc: MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
     let userAdapter: EndUserDomainAdapter;
     let userDomainObj: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
@@ -488,7 +492,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberAccountDomainAdapter getting and setting statusCode property', ({ Given, When, Then }) => {
-    let accountDoc: Models.Member.MemberAccount;
+    let accountDoc: MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
 
     Given('a MemberAccountDomainAdapter for a member account document', () => {
@@ -510,9 +514,9 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberAccountDomainAdapter getting createdBy property when populated', ({ Given, When, Then }) => {
-    let accountDoc: Models.Member.MemberAccount;
+    let accountDoc: MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
-    let userDoc: Models.User.EndUser;
+    let userDoc: EndUser;
 
     Given('a MemberAccountDomainAdapter for a member account document with populated createdBy', () => {
       userDoc = makeUserDoc();
@@ -529,7 +533,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberAccountDomainAdapter setting createdBy property with valid EndUser domain object', ({ Given, And, When, Then }) => {
-    let accountDoc: Models.Member.MemberAccount;
+    let accountDoc: MemberAccount;
     let accountAdapter: MemberAccountDomainAdapter;
     let userAdapter: EndUserDomainAdapter;
     let userDomainObj: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
@@ -552,7 +556,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberCustomViewDomainAdapter getting and setting name property', ({ Given, When, Then }) => {
-    let viewDoc: Models.Member.MemberCustomView;
+    let viewDoc: MemberCustomView;
     let viewAdapter: MemberCustomViewDomainAdapter;
 
     Given('a MemberCustomViewDomainAdapter for a custom view document', () => {
@@ -574,7 +578,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberCustomViewDomainAdapter getting and setting type property', ({ Given, When, Then }) => {
-    let viewDoc: Models.Member.MemberCustomView;
+    let viewDoc: MemberCustomView;
     let viewAdapter: MemberCustomViewDomainAdapter;
 
     Given('a MemberCustomViewDomainAdapter for a custom view document', () => {
@@ -596,7 +600,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberCustomViewDomainAdapter getting and setting filters property', ({ Given, When, Then }) => {
-    let viewDoc: Models.Member.MemberCustomView;
+    let viewDoc: MemberCustomView;
     let viewAdapter: MemberCustomViewDomainAdapter;
     const expectedFilters = ['status:active'];
     const newFilters = ['status:inactive', 'priority:high'];
@@ -620,7 +624,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberCustomViewDomainAdapter getting and setting sortOrder property', ({ Given, When, Then }) => {
-    let viewDoc: Models.Member.MemberCustomView;
+    let viewDoc: MemberCustomView;
     let viewAdapter: MemberCustomViewDomainAdapter;
 
     Given('a MemberCustomViewDomainAdapter for a custom view document', () => {
@@ -642,7 +646,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberCustomViewDomainAdapter getting and setting columnsToDisplay property', ({ Given, When, Then }) => {
-    let viewDoc: Models.Member.MemberCustomView;
+    let viewDoc: MemberCustomView;
     let viewAdapter: MemberCustomViewDomainAdapter;
     const expectedColumns = ['name', 'email', 'status'];
     const newColumns = ['name', 'email', 'status', 'priority'];
@@ -666,7 +670,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting name property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
 
     Given('a MemberProfileDomainAdapter for a profile document', () => {
@@ -688,7 +692,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting email property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
 
     Given('a MemberProfileDomainAdapter for a profile document', () => {
@@ -710,7 +714,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting bio property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
 
     Given('a MemberProfileDomainAdapter for a profile document', () => {
@@ -732,7 +736,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting avatarDocumentId property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
 
     Given('a MemberProfileDomainAdapter for a profile document', () => {
@@ -754,7 +758,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting interests property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
     const expectedInterests = ['coding', 'music'];
     const newInterests = ['coding', 'music', 'art'];
@@ -778,7 +782,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting showInterests property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
 
     Given('a MemberProfileDomainAdapter for a profile document', () => {
@@ -800,7 +804,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting showEmail property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
 
     Given('a MemberProfileDomainAdapter for a profile document', () => {
@@ -822,7 +826,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting showProfile property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
 
     Given('a MemberProfileDomainAdapter for a profile document', () => {
@@ -844,7 +848,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting showLocation property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
 
     Given('a MemberProfileDomainAdapter for a profile document', () => {
@@ -866,7 +870,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('MemberProfileDomainAdapter getting and setting showProperties property', ({ Given, When, Then }) => {
-    let profileDoc: Models.Member.MemberProfile;
+    let profileDoc: MemberProfile;
     let profileAdapter: MemberProfileDomainAdapter;
 
     Given('a MemberProfileDomainAdapter for a profile document', () => {
@@ -889,12 +893,12 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Member.Member;
-  let communityDoc: Models.Community.Community;
-  let roleDoc: Models.Role.EndUserRole;
-  let profileDoc: Models.Member.MemberProfile;
+  let doc: Member;
+  let communityDoc: Community;
+  let roleDoc: EndUserRole;
+  let profileDoc: MemberProfile;
   let converter: MemberConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -963,7 +967,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let roleAdapter: EndUserRoleDomainAdapter;
     let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
     let roleDomainObj: Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
-    let resultDoc: Models.Member.Member;
+    let resultDoc: Member;
 
     Given('a MemberConverter instance', () => {
       converter = new MemberConverter();

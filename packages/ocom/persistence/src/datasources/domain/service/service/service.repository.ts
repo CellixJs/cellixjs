@@ -1,16 +1,17 @@
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
+import type { Service } from '@ocom/data-sources-mongoose-models/service';
 
-type ServiceModelType = Models.Service.Service;
+type ServiceModelType = Service;
 type PropType = ServiceDomainAdapter;
 
 export class ServiceRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
 		ServiceModelType,
 		PropType,
-		Domain.Passport,
+		Passport,
 		Domain.Contexts.Service.Service.Service<PropType>
 	>
 	implements Domain.Contexts.Service.Service.ServiceRepository<PropType>

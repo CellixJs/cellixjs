@@ -1,10 +1,21 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { DomainDataSourceImplementation } from './index.ts';
+import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
+import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
+import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
+import type { PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
+import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
+import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
+import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
+import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 
 const test = { for: describeFeature };
@@ -15,80 +26,61 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Case: {
-        ServiceTicket: {
-            findById: vi.fn(),
-            find: vi.fn(),
-            create: vi.fn(),
-        } as unknown as Models.Case.ServiceTicketModelType,
-    },
+    ServiceTicket: {
+      findById: vi.fn(),
+      find: vi.fn(),
+      create: vi.fn(),
+    } as unknown as ServiceTicketModelType,
     Community: {
-      Community: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.Community.CommunityModelType,
-    },
+      } as unknown as CommunityModelType,
     Member: {
-      Member: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.Member.MemberModelType,
-    },
-    Role: {
-      EndUserRole: {
+      } as unknown as MemberModelType,
+    EndUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.Role.EndUserRoleModelType,
+      } as unknown as EndUserRoleModelType,
       StaffRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.Role.StaffRoleModelType,
+      } as unknown as StaffRoleModelType,
       VendorUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.Role.VendorUserRoleModelType,
-    },
-    User: {
-      EndUser: {
+      } as unknown as VendorUserRoleModelType,
+    EndUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.User.EndUserModelType,
+      } as unknown as EndUserModelType,
       StaffUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.User.StaffUserModelType,
-      StaffRole: {
-        findById: vi.fn(),
-        find: vi.fn(),
-        create: vi.fn(),
-      } as unknown as Models.Role.StaffRoleModelType,
+      } as unknown as StaffUserModelType,
       VendorUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.User.VendorUserModelType,
-    },
+      } as unknown as VendorUserModelType,
     Property: {
-        Property: {
             findById: vi.fn(),
             find: vi.fn(),
             create: vi.fn(),
-        } as unknown as Models.Property.PropertyModelType,
-    },
+        } as unknown as PropertyModelType,
     Service: {
-        Service: {
             findById: vi.fn(),
             find: vi.fn(),
             create: vi.fn(),
-        } as unknown as Models.Service.ServiceModelType,
-    }
+        } as unknown as ServiceModelType,
   } as Parameters<typeof DomainDataSourceImplementation>[0];
 }
 
@@ -123,12 +115,12 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof DomainDataSourceImplementation>[0];
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof DomainDataSourceImplementation>;
 
   BeforeEachScenario(() => {

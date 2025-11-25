@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import {
   ServiceTicketV1Converter,
   ServiceTicketV1DomainAdapter,
@@ -13,6 +13,9 @@ import {
 } from './service-ticket-v1.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
+import type { ServiceTicket, ServiceTicketActivityDetail, ServiceTicketMessage } from '@ocom/data-sources-mongoose-models/case/service-ticket';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,7 +26,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/service-ticket-v1.type-converter.feature')
 );
 
-function makeServiceTicketDoc(overrides: Partial<Models.Case.ServiceTicket> = {}) {
+function makeServiceTicketDoc(overrides: Partial<ServiceTicket> = {}) {
   return {
     id: '507f1f77bcf86cd799439011',
     title: 'Test Ticket',
@@ -49,18 +52,18 @@ function makeServiceTicketDoc(overrides: Partial<Models.Case.ServiceTicket> = {}
     },
     populate: vi.fn(),
     ...overrides,
-  } as Models.Case.ServiceTicket;
+  } as ServiceTicket;
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community.Community;
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
+  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community;
 }
 
-function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
-  return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Models.Member.Member;
+function makeMemberDoc(overrides: Partial<Member> = {}) {
+  return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Member;
 }
 
-function makeActivityDetailDoc(overrides: Partial<Models.Case.ServiceTicketActivityDetail> = {}) {
+function makeActivityDetailDoc(overrides: Partial<ServiceTicketActivityDetail> = {}) {
   return {
     id: '507f1f77bcf86cd799439014',
     activityType: 'created',
@@ -68,10 +71,10 @@ function makeActivityDetailDoc(overrides: Partial<Models.Case.ServiceTicketActiv
     activityBy: makeMemberDoc(),
     populate: vi.fn(),
     ...overrides,
-  } as Models.Case.ServiceTicketActivityDetail;
+  } as ServiceTicketActivityDetail;
 }
 
-function makeMessageDoc(overrides: Partial<Models.Case.ServiceTicketMessage> = {}) {
+function makeMessageDoc(overrides: Partial<ServiceTicketMessage> = {}) {
   return {
     id: '507f1f77bcf86cd799439015',
     sentBy: 'test@example.com',
@@ -82,7 +85,7 @@ function makeMessageDoc(overrides: Partial<Models.Case.ServiceTicketMessage> = {
     embedding: '',
     populate: vi.fn(),
     ...overrides,
-  } as Models.Case.ServiceTicketMessage;
+  } as ServiceTicketMessage;
 }
 
 function makeMockPassport() {
@@ -102,12 +105,12 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let adapter: ServiceTicketV1DomainAdapter;
-  let doc: Models.Case.ServiceTicket;
+  let doc: ServiceTicket;
 
   BeforeEachScenario(() => {
     doc = makeServiceTicketDoc();
@@ -480,7 +483,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Setting activity detail properties', ({ Given, When, Then }) => {
-    let activityDoc: Models.Case.ServiceTicketActivityDetail;
+    let activityDoc: ServiceTicketActivityDetail;
 
     Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document', () => {
       activityDoc = makeActivityDetailDoc();
@@ -525,7 +528,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Setting message properties', ({ Given, When, Then }) => {
-    let messageDoc: Models.Case.ServiceTicketMessage;
+    let messageDoc: ServiceTicketMessage;
 
     Given('a ServiceTicketV1MessageDomainAdapter for a document', () => {
       messageDoc = makeMessageDoc();
@@ -543,7 +546,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Loading activityBy when already populated', ({ Given, When, Then }) => {
-    let activityDoc: Models.Case.ServiceTicketActivityDetail;
+    let activityDoc: ServiceTicketActivityDetail;
     let result: Domain.Contexts.Community.Member.MemberEntityReference;
 
     Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document with populated activityBy', () => {
@@ -565,7 +568,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Loading activityBy when not populated', ({ Given, When, Then }) => {
-    let activityDoc: Models.Case.ServiceTicketActivityDetail;
+    let activityDoc: ServiceTicketActivityDetail;
     let result: Domain.Contexts.Community.Member.MemberEntityReference;
 
     Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document with activityBy as an ObjectId', () => {
@@ -594,7 +597,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Loading initiatedBy when already populated', ({ Given, When, Then }) => {
-    let messageDoc: Models.Case.ServiceTicketMessage;
+    let messageDoc: ServiceTicketMessage;
     let result: Domain.Contexts.Community.Member.MemberEntityReference;
 
     Given('a ServiceTicketV1MessageDomainAdapter for a document with populated initiatedBy', () => {
@@ -616,7 +619,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Loading initiatedBy when not populated', ({ Given, When, Then }) => {
-    let messageDoc: Models.Case.ServiceTicketMessage;
+    let messageDoc: ServiceTicketMessage;
     let result: Domain.Contexts.Community.Member.MemberEntityReference;
 
     Given('a ServiceTicketV1MessageDomainAdapter for a document with initiatedBy as an ObjectId', () => {
@@ -964,8 +967,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: ServiceTicketV1Converter;
-  let doc: Models.Case.ServiceTicket;
-  let passport: Domain.Passport;
+  let doc: ServiceTicket;
+  let passport: Passport;
   let result: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
   BeforeEachScenario(() => {
@@ -1021,7 +1024,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let domainObj: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let memberAdapter: MemberDomainAdapter;
-    let resultDoc: Models.Case.ServiceTicket;
+    let resultDoc: ServiceTicket;
 
     Given('a ServiceTicketV1Converter instance', () => {
       // Already set up

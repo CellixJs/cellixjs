@@ -3,11 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import { VendorUserRepository } from './vendor-user.repository.ts';
 import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
+import type { VendorUser, VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,7 +16,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user.repository.feature')
 );
 
-function makeVendorUserDoc(overrides: Partial<Models.User.VendorUser> = {}) {
+function makeVendorUserDoc(overrides: Partial<VendorUser> = {}) {
   const base = {
     _id: '507f1f77bcf86cd799439011',
     id: '507f1f77bcf86cd799439011',
@@ -35,11 +36,11 @@ function makeVendorUserDoc(overrides: Partial<Models.User.VendorUser> = {}) {
         email: 'vendor@example.com',
       },
     },
-    set(key: keyof Models.User.VendorUser, value: unknown) {
-      (this as Models.User.VendorUser)[key] = value as never;
+    set(key: keyof VendorUser, value: unknown) {
+      (this as VendorUser)[key] = value as never;
     },
     ...overrides,
-  } as Models.User.VendorUser;
+  } as VendorUser;
   return vi.mocked(base);
 }
 
@@ -50,14 +51,14 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: VendorUserRepository;
   let converter: VendorUserConverter;
-  let passport: Domain.Passport;
-  let vendorUserDoc: Models.User.VendorUser;
+  let passport: Passport;
+  let vendorUserDoc: VendorUser;
   let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
 
   BeforeEachScenario(() => {
@@ -66,7 +67,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     passport = makeMockPassport();
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.User.VendorUser) {
+    const ModelMock = function (this: VendorUser) {
       Object.assign(this, makeVendorUserDoc());
     };
 
@@ -90,7 +91,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     repo = new VendorUserRepository(
       passport,
-      ModelMock as unknown as Models.User.VendorUserModelType,
+      ModelMock as unknown as VendorUserModelType,
       converter,
       eventBus,
       session

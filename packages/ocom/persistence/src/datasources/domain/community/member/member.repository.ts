@@ -1,9 +1,10 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
-import type { MemberDomainAdapter } from './member.domain-adapter.ts';
 
-type MemberModelType = Models.Member.Member; // ReturnType<typeof Models.Member.MemberModelFactory> & Models.Member.Member & { baseModelName: string };
+import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { MemberDomainAdapter } from './member.domain-adapter.ts';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
+
+type MemberModelType = Member; // ReturnType<typeof Models.Member.MemberModelFactory> & Member & { baseModelName: string };
 type PropType = MemberDomainAdapter;
 
 export class MemberRepository //<
@@ -12,7 +13,7 @@ export class MemberRepository //<
 	extends MongooseSeedwork.MongoRepositoryBase<
 		MemberModelType,
 		PropType,
-		Domain.Passport,
+		Passport,
 		Domain.Contexts.Community.Member.Member<PropType>
 	>
 	implements Domain.Contexts.Community.Member.MemberRepository<PropType>

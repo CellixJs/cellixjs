@@ -2,10 +2,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { CommunityReadRepositoryImpl } from './index.ts';
+import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 
 
 const test = { for: describeFeature };
@@ -17,13 +18,11 @@ const feature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Community: {
-      Community: {
-        findById: vi.fn(),
-        find: vi.fn(),
-        create: vi.fn(),
-        aggregate: vi.fn(),
-      } as unknown as Models.Community.CommunityModelType,
-    },
+      findById: vi.fn(),
+      find: vi.fn(),
+      create: vi.fn(),
+      aggregate: vi.fn(),
+    } as unknown as CommunityModelType,
   } as ModelsContext;
 }
 
@@ -34,12 +33,12 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: ModelsContext;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof CommunityReadRepositoryImpl>;
 
   BeforeEachScenario(() => {

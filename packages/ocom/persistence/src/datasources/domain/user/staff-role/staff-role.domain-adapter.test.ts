@@ -2,8 +2,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
+
 
 const test = { for: describeFeature };
 import {
@@ -25,7 +26,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/staff-role.type-converter.feature')
 );
 
-function makeStaffRoleDoc(overrides: Partial<Models.Role.StaffRole> = {}) {
+function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
   const base = {
     roleName: 'Manager',
     isDefault: false,
@@ -59,7 +60,7 @@ function makeStaffRoleDoc(overrides: Partial<Models.Role.StaffRole> = {}) {
       },
     },
     ...overrides,
-  } as Models.Role.StaffRole;
+  } as StaffRole;
   return vi.mocked(base);
 }
 
@@ -70,11 +71,11 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Role.StaffRole;
+  let doc: StaffRole;
   let adapter: StaffRoleDomainAdapter;
   let result: unknown;
 
@@ -509,9 +510,9 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: StaffRoleConverter;
-  let doc: Models.Role.StaffRole;
+  let doc: StaffRole;
   let domainObject: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
-  let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter> | Models.Role.StaffRole | undefined;
+  let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter> | StaffRole | undefined;
 
   BeforeEachScenario(() => {
     converter = new StaffRoleConverter();
@@ -565,7 +566,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       domainObject = new Domain.Contexts.User.StaffRole.StaffRole(mockAdapter, makeMockPassport());
     });
     When('I call toPersistence with the StaffRole domain object', () => {
-      result = converter.toPersistence(domainObject) as Models.Role.StaffRole;
+      result = converter.toPersistence(domainObject) as StaffRole;
     });
     Then('I should receive a Mongoose StaffRole document', () => {
       expect(result).toBeDefined();

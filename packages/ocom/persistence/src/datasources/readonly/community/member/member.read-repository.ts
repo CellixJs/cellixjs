@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork'; 
-import type { Domain } from '@ocom/domain';
+import type { MemberEntityReference, Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
@@ -8,9 +8,9 @@ import { type MemberDataSource, MemberDataSourceImpl } from './member.data.ts';
 
 
 export interface MemberReadRepository {
-    getByCommunityId: (communityId: string, options?: FindOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
-    getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
-    getByIdWithRole: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
+    getByCommunityId: (communityId: string, options?: FindOptions) => Promise<MemberEntityReference[]>;
+    getById: (id: string, options?: FindOneOptions) => Promise<MemberEntityReference | null>;
+    getByIdWithRole: (id: string, options?: FindOneOptions) => Promise<MemberEntityReference | null>;
      /**
      * Retrieves all Member entities for a given end-user external ID.
      * Finds members whose accounts reference a user with the specified external ID.
@@ -18,22 +18,22 @@ export interface MemberReadRepository {
      * @param externalId - The external ID of the end user to match.
      * @returns A promise that resolves to an array of MemberEntityReference objects for the matching end user.
      */
-    getMembersForEndUserExternalId: (externalId: string) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
+    getMembersForEndUserExternalId: (externalId: string) => Promise<MemberEntityReference[]>;
     isAdmin: (id: string) => Promise<boolean>;
 }
 
 export class MemberReadRepositoryImpl implements MemberReadRepository {
     private readonly mongoDataSource: MemberDataSource;
     private readonly converter: MemberConverter;
-    private readonly passport: Domain.Passport;
+    private readonly passport: Passport;
 
     /**
      * Constructs a new MemberReadRepositoryImpl.
      * @param models - The models context containing the Member model.
      * @param passport - The passport object for domain access.
      */
-    constructor(models: ModelsContext, passport: Domain.Passport) {
-        this.mongoDataSource = new MemberDataSourceImpl(models.Member.Member);
+    constructor(models: ModelsContext, passport: Passport) {
+        this.mongoDataSource = new MemberDataSourceImpl(models.Member);
         this.converter = new MemberConverter();
         this.passport = passport;
     }
@@ -44,7 +44,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to an array of MemberEntityReference objects that belong to the specified community.
      */
-    async getByCommunityId(communityId: string, options?: FindOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {
+    async getByCommunityId(communityId: string, options?: FindOptions): Promise<MemberEntityReference[]> {
         const result = await this.mongoDataSource.find({ community: new MongooseSeedwork.ObjectId(communityId) }, options);
         return result.map(doc => this.converter.toDomain(doc, this.passport));
     }
@@ -55,7 +55,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to a MemberEntityReference object or null if not found.
      */
-    async getById(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
+    async getById(id: string, options?: FindOneOptions): Promise<MemberEntityReference | null> {
         const result = await this.mongoDataSource.findById(id, options);
         if (!result) { return null; }
         return this.converter.toDomain(result, this.passport);
@@ -67,7 +67,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to a MemberEntityReference object or null if not found.
      */
-    async getByIdWithRole(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
+    async getByIdWithRole(id: string, options?: FindOneOptions): Promise<MemberEntityReference | null> {
         const finalOptions: FindOneOptions = {
             ...options,
             populateFields: ['role']
@@ -77,7 +77,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
         return this.converter.toDomain(result, this.passport);
     }
 
-    async getMembersForEndUserExternalId(externalId: string): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {
+    async getMembersForEndUserExternalId(externalId: string): Promise<MemberEntityReference[]> {
         // Goal: Given an EndUser's externalId (unique in `users` where userType === 'end-users'),
         // return Members whose accounts reference that EndUser's _id.
         // We handle both schemas:
@@ -143,7 +143,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
 
 export const getMemberReadRepository = (
     models: ModelsContext,
-    passport: Domain.Passport
+    passport: Passport
 ) => {
     return new MemberReadRepositoryImpl(models, passport);
 };

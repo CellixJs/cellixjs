@@ -3,11 +3,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import { MemberRepository } from './member.repository.ts';
 import { MemberConverter, type MemberDomainAdapter } from './member.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Member, MemberModelType } from '@ocom/data-sources-mongoose-models/member';
 
 
 const test = { for: describeFeature };
@@ -16,21 +18,21 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/member.repository.feature')
 );
 
-function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
+function makeMemberDoc(overrides: Partial<Member> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011', // Valid ObjectId string
     memberName: 'Test Member',
     community: makeCommunityDoc(),
-    set(key: keyof Models.Member.Member, value: unknown) {
-      (this as Models.Member.Member)[key] = value as never;
+    set(key: keyof Member, value: unknown) {
+      (this as Member)[key] = value as never;
     },
     ...overrides,
-  } as Models.Member.Member;
+  } as Member;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community.Community; // Valid ObjectId string
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
+  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community; // Valid ObjectId string
 }
 
 function makeMockPassport() {
@@ -45,15 +47,15 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: MemberRepository;
   let converter: MemberConverter;
-  let passport: Domain.Passport;
-  let memberDoc: Models.Member.Member;
-  let communityDoc: Models.Community.Community;
+  let passport: Passport;
+  let memberDoc: Member;
+  let communityDoc: Community;
   let result: Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
   let results: Domain.Contexts.Community.Member.Member<MemberDomainAdapter>[];
 
@@ -66,7 +68,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     results = [];
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Member.Member) {
+    const ModelMock = function (this: Member) {
       Object.assign(this, makeMemberDoc());
     }
     // Attach static methods to the constructor
@@ -88,7 +90,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     // Create repository with correct constructor parameters
     repo = new MemberRepository(
       passport,
-      ModelMock as unknown as Models.Member.MemberModelType,
+      ModelMock as unknown as MemberModelType,
       converter,
       eventBus,
       session
@@ -153,7 +155,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Given('a role with id "507f1f77bcf86cd799439013"', () => {
       roleId = '507f1f77bcf86cd799439013'; // Valid ObjectId string // Valid ObjectId string
       // Mock the find method to return members with the specified role
-      const ModelMock = (repo as unknown as { model: unknown }).model as { find: (query: { role: unknown }) => { populate: () => { exec: () => Promise<Models.Member.Member[]> } } };
+      const ModelMock = (repo as unknown as { model: unknown }).model as { find: (query: { role: unknown }) => { populate: () => { exec: () => Promise<Member[]> } } };
       ModelMock.find = vi.fn((query: { role: unknown }) => ({
         populate: vi.fn().mockReturnThis(),
         exec: vi.fn(() => {

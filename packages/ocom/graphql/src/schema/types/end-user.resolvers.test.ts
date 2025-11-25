@@ -19,7 +19,7 @@ const feature = await loadFeature(
 );
 
 // Types for test results
-type EndUserEntity = Domain.Contexts.User.EndUser.EndUserEntityReference;
+type EndUserEntity = import('@ocom/domain').EndUserEntityReference;
 
 // Helper function to create mock end user
 function createMockEndUser(overrides: Partial<EndUserEntity> = {}): EndUserEntity {

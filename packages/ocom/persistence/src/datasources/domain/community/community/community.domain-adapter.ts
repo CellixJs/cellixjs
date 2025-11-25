@@ -1,12 +1,14 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Community.Community,
+	Community,
 	CommunityDomainAdapter,
-	Domain.Passport,
+	Passport,
 	Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>
 > {
 	constructor() {
@@ -18,7 +20,7 @@ export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
 }
 
 export class CommunityDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Models.Community.Community>
+	extends MongooseSeedwork.MongooseDomainAdapter<Community>
 	implements Domain.Contexts.Community.Community.CommunityProps
 {
 	get name() {
@@ -58,7 +60,7 @@ export class CommunityDomainAdapter
 				'createdBy is not populated or is not of the correct type',
 			);
 		}
-		return new EndUserDomainAdapter(this.doc.createdBy as Models.User.EndUser);
+		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}
 
     async loadCreatedBy(): Promise<Domain.Contexts.User.EndUser.EndUserProps> {
@@ -68,7 +70,7 @@ export class CommunityDomainAdapter
 		if (this.doc.createdBy instanceof MongooseSeedwork.ObjectId) {
             await this.doc.populate('createdBy');
 		}
-		return new EndUserDomainAdapter(this.doc.createdBy as Models.User.EndUser);
+		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}
 
 	set createdBy(user: Domain.Contexts.User.EndUser.EndUserEntityReference | Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>) {

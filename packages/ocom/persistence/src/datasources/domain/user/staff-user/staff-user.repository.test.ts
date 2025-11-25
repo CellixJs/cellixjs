@@ -3,11 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import { StaffUserRepository } from './staff-user.repository.ts';
 import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
+import type { StaffUser, StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,7 +16,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/staff-user.repository.feature')
 );
 
-function makeStaffUserDoc(overrides: Partial<Models.User.StaffUser> = {}) {
+function makeStaffUserDoc(overrides: Partial<StaffUser> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011',
     firstName: 'John',
@@ -29,11 +30,11 @@ function makeStaffUserDoc(overrides: Partial<Models.User.StaffUser> = {}) {
     createdAt: new Date(),
     updatedAt: new Date(),
     schemaVersion: '1.0.0',
-    set(key: keyof Models.User.StaffUser, value: unknown) {
-      (this as Models.User.StaffUser)[key] = value as never;
+    set(key: keyof StaffUser, value: unknown) {
+      (this as StaffUser)[key] = value as never;
     },
     ...overrides,
-  } as Models.User.StaffUser;
+  } as StaffUser;
   return vi.mocked(base);
 }
 
@@ -44,14 +45,14 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: StaffUserRepository;
   let converter: StaffUserConverter;
-  let passport: Domain.Passport;
-  let staffUserDoc: Models.User.StaffUser;
+  let passport: Passport;
+  let staffUserDoc: StaffUser;
   let result: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
   let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
 
@@ -62,7 +63,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     result = {} as Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.User.StaffUser) {
+    const ModelMock = function (this: StaffUser) {
       Object.assign(this, makeStaffUserDoc());
     };
 
@@ -93,7 +94,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     // Create repository with correct constructor parameters
     repo = new StaffUserRepository(
       passport,
-      ModelMock as unknown as Models.User.StaffUserModelType,
+      ModelMock as unknown as StaffUserModelType,
       converter,
       eventBus,
       session

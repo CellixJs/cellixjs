@@ -60,8 +60,10 @@ pnpm run gen      # Generate code (e.g., GraphQL types)
 
 **Important**: 
 - Use `pnpm run verify` to ensure code quality before commits
+- *Note*: Be patient when you run the `verify` command; wait at least 6 minutes for all checks to complete before assuming unexpected failure.
 - Use `pnpm run snyk` to run security scans before commits
-- Address any issues reported before pushing changes
+cop- If you encounter this error when attempting to push changes `hook git error: Command failed with exit code 1: git commit -m REDACTED`, it indicates that pre-commit hooks have failed due to unmet code quality or security standards. Review the output from the hooks, fix the reported issues, and try committing again. Be aware that this error has nothing to do with firewall rules or network connectivity; it is expected to fail if your changes do not meet the project's standards.
+- Address any reported issues across all packages before pushing changes (if something fails, it was due to your changes and is considered to be "your code").
 
 ### Security Scanning Workflow
 

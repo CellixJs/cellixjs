@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Domain } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { EndUserReadRepositoryImpl } from './index.ts';
 import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.ts';
 
@@ -20,19 +20,15 @@ vi.mock('./end-user.data.ts', () => ({
 
 function makeMockModelsContext() {
   return {
-    Community: {
-      Community: {} as unknown,
-      Member: {} as unknown,
-      EndUserRole: {} as unknown,
-    },
-    User: {
-      EndUser: {
-        findById: vi.fn(),
-        find: vi.fn(),
-        create: vi.fn(),
-        aggregate: vi.fn(),
+    Community: {} as unknown,
+    Member: {} as unknown,
+    EndUserRole: {} as unknown,
+    EndUser: {
+      findById: vi.fn(),
+      find: vi.fn(),
+      create: vi.fn(),
+      aggregate: vi.fn(),
       },
-    },
   } as unknown as Parameters<typeof EndUserReadRepositoryImpl>[0];
 }
 
@@ -43,12 +39,12 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof EndUserReadRepositoryImpl>[0];
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof EndUserReadRepositoryImpl>;
   let mockDataSource: EndUserDataSource;
 

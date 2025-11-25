@@ -3,11 +3,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 import { ServiceTicketV1Converter, type ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
+import type { ServiceTicket, ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
 
 const test = { for: describeFeature };
@@ -16,7 +19,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/service-ticket-v1.repository.feature')
 );
 
-function makeServiceTicketDoc(overrides: Partial<Models.Case.ServiceTicket> = {}) {
+function makeServiceTicketDoc(overrides: Partial<ServiceTicket> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011', // Valid ObjectId string
     title: 'Test Ticket',
@@ -35,20 +38,20 @@ function makeServiceTicketDoc(overrides: Partial<Models.Case.ServiceTicket> = {}
     updatedAt: new Date(),
     schemaVersion: '1.0.0',
     hash: '',
-    set(key: keyof Models.Case.ServiceTicket, value: unknown) {
-      (this as Models.Case.ServiceTicket)[key] = value as never;
+    set(key: keyof ServiceTicket, value: unknown) {
+      (this as ServiceTicket)[key] = value as never;
     },
     ...overrides,
-  } as Models.Case.ServiceTicket;
+  } as ServiceTicket;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Models.Community.Community;
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
+  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community;
 }
 
-function makeMemberDoc(overrides: Partial<Models.Member.Member> = {}) {
-  return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Models.Member.Member;
+function makeMemberDoc(overrides: Partial<Member> = {}) {
+  return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Member;
 }
 
 function makeMockPassport() {
@@ -68,16 +71,16 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: ServiceTicketV1Repository;
   let converter: ServiceTicketV1Converter;
-  let passport: Domain.Passport;
-  let serviceTicketDoc: Models.Case.ServiceTicket;
-  let communityDoc: Models.Community.Community;
-  let memberDoc: Models.Member.Member;
+  let passport: Passport;
+  let serviceTicketDoc: ServiceTicket;
+  let communityDoc: Community;
+  let memberDoc: Member;
   let result: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
   BeforeEachScenario(() => {
@@ -94,7 +97,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     result = {} as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Case.ServiceTicket) {
+    const ModelMock = function (this: ServiceTicket) {
       Object.assign(this, makeServiceTicketDoc());
     }
     // Attach static methods to the constructor
@@ -111,7 +114,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     // Create repository with correct constructor parameters
     repo = new ServiceTicketV1Repository(
       passport,
-      ModelMock as unknown as Models.Case.ServiceTicketModelType,
+      ModelMock as unknown as ServiceTicketModelType,
       converter,
       eventBus,
       session

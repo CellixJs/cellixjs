@@ -1,9 +1,10 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
-import type { ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
 
-type ServiceTicketModelType = Models.Case.ServiceTicket; // ReturnType<typeof models.Case.ServiceTicketModelFactory> & models.Case.ServiceTicket & { baseModelName: string };
+import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
+import type { ServiceTicket } from '@ocom/data-sources-mongoose-models/case/service-ticket';
+
+type ServiceTicketModelType = ServiceTicket;
 type PropType = ServiceTicketV1DomainAdapter;
 
 export class ServiceTicketV1Repository //<
@@ -12,7 +13,7 @@ export class ServiceTicketV1Repository //<
 	extends MongooseSeedwork.MongoRepositoryBase<
 		ServiceTicketModelType,
 		PropType,
-		Domain.Passport,
+		Passport,
 		Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>
 	>
 	implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Repository<PropType>

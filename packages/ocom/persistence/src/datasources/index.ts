@@ -9,12 +9,12 @@ export type DataSources = {
 }
 
 export type DataSourcesFactory = {
-    withPassport: (passport: Domain.Passport) => DataSources,
+    withPassport: (passport: Passport) => DataSources,
     withSystemPassport: () => DataSources
 }
 
 export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactory => {
-    const withPassport = (passport: Domain.Passport): DataSources => {
+    const withPassport = (passport: Passport): DataSources => {
         return {
             domainDataSource: DomainDataSourceImplementation(models, passport),
             readonlyDataSource: ReadonlyDataSourceImplementation(models, passport)
@@ -22,7 +22,7 @@ export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactor
     };
 
     const withSystemPassport = (): DataSources => {
-        const systemPassport = Domain.PassportFactory.forSystem({
+        const systemPassport = PassportFactory.forSystem({
             canManageMembers: true,
             canManageEndUserRolesAndPermissions: true,
             canManageServices: true,

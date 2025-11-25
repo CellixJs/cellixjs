@@ -1,21 +1,23 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 
 const test = { for: describeFeature };
 
 import { VendorUserRoleConverter, VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user-role.type-converter.feature')
 );
 
-function makeVendorUserRoleDoc(overrides: Partial<Models.Role.VendorUserRole> = {}) {
+function makeVendorUserRoleDoc(overrides: Partial<VendorUserRole> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Vendor Role',
@@ -51,29 +53,29 @@ function makeVendorUserRoleDoc(overrides: Partial<Models.Role.VendorUserRole> = 
         canWorkOnTickets: true,
       },
     },
-    set(key: keyof Models.Role.VendorUserRole, value: unknown) {
+    set(key: keyof VendorUserRole, value: unknown) {
       // Type-safe property assignment
-      (this as unknown as Models.Role.VendorUserRole)[key] = value as never;
+      (this as unknown as VendorUserRole)[key] = value as never;
     },
     toObject() {
       return this;
     },
   };
   const merged = { ...base, ...overrides };
-  return vi.mocked(merged as unknown as Models.Role.VendorUserRole);
+  return vi.mocked(merged as unknown as VendorUserRole);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439012',
     name: 'Test Community',
     description: 'A test community',
     settings: {},
   };
-  return { ...base, ...overrides } as Models.Community.Community;
+  return { ...base, ...overrides } as Community;
 }
 
-function makeMockPassport(): Domain.Passport {
+function makeMockPassport(): Passport {
   return {
     community: {
       forCommunity: vi.fn(() => ({
@@ -95,14 +97,14 @@ function makeMockPassport(): Domain.Passport {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Role.VendorUserRole;
-  let communityDoc: Models.Community.Community;
+  let doc: VendorUserRole;
+  let communityDoc: Community;
   let converter: VendorUserRoleConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -153,7 +155,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let domainObj: Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
-    let resultDoc: Models.Role.VendorUserRole;
+    let resultDoc: VendorUserRole;
 
     Given('a VendorUserRoleConverter instance', () => {
       converter = new VendorUserRoleConverter();

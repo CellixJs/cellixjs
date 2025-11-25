@@ -3,10 +3,12 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import { CommunityConverter, CommunityDomainAdapter } from './community.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 
@@ -19,25 +21,25 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/community.type-converter.feature')
 );
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     name: 'Test Community',
     domain: 'test.com',
     whiteLabelDomain: 'white.test.com',
     handle: 'test-handle',
     createdBy: undefined,
-    set(key: keyof Models.Community.Community, value: unknown) {
+    set(key: keyof Community, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Community.Community)[key] = value as never;
+      (this as Community)[key] = value as never;
     },
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
 
-function makeUserDoc(overrides: Partial<Models.User.EndUser> = {}) {
-  return { id: '6898b0c34b4a2fbc01e9c697', displayName: 'Test User', ...overrides } as Models.User.EndUser;
+function makeUserDoc(overrides: Partial<EndUser> = {}) {
+  return { id: '6898b0c34b4a2fbc01e9c697', displayName: 'Test User', ...overrides } as EndUser;
 }
 
 function makeMockPassport() {
@@ -52,13 +54,13 @@ function makeMockPassport() {
                 determineIf: vi.fn(() => true),
             })),
         },
-    } as unknown as Domain.Passport;
+    } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Community.Community;
+  let doc: Community;
   let adapter: CommunityDomainAdapter;
-  let userDoc: Models.User.EndUser;
+  let userDoc: EndUser;
   let userAdapter: EndUserDomainAdapter;
   let result: unknown;
 
@@ -235,10 +237,10 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Community.Community;
-  let userDoc: Models.User.EndUser;
+  let doc: Community;
+  let userDoc: EndUser;
   let converter: CommunityConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -293,8 +295,8 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let domainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
     let userAdapter: EndUserDomainAdapter;
     let userDomainObj: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
-    let userDoc: Models.User.EndUser;
-    let resultDoc: Models.Community.Community;
+    let userDoc: EndUser;
+    let resultDoc: Community;
     Given('a CommunityConverter instance', () => {
       converter = new CommunityConverter();
     });

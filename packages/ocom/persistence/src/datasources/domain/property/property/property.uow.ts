@@ -3,14 +3,15 @@ import {
 	InProcEventBusInstance,
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import { PropertyConverter } from './property.domain-adapter.ts';
 import { PropertyRepository } from './property.repository.ts';
+import type { PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
 
 export const getPropertyUnitOfWork = (
-	propertyModel: Models.Property.PropertyModelType,
-	passport: Domain.Passport
+	propertyModel: PropertyModelType,
+	passport: Passport
 ): Domain.Contexts.Property.Property.PropertyUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,

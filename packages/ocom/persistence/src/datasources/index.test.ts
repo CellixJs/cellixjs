@@ -2,10 +2,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import type { ModelsContext } from '../index.ts';
-import type { DomainDataSource } from '@ocom/domain';
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import type { ReadonlyDataSource } from './readonly/index.ts';
 
 // Mock the domain data source implementation
@@ -30,6 +30,14 @@ vi.mock('@ocom/domain', () => ({
 import { DataSourcesFactoryImpl } from './index.ts';
 import { DomainDataSourceImplementation } from './domain/index.ts';
 import { ReadonlyDataSourceImplementation } from './readonly/index.ts';
+import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
+import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
+import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
+import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
+import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 
 const test = { for: describeFeature };
@@ -41,55 +49,47 @@ const feature = await loadFeature(
 function makeMockModelsContext() {
   return {
     Community: {
-      Community: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         aggregate: vi.fn(),
-      } as unknown as Models.Community.CommunityModelType,
-    },
+      } as unknown as CommunityModelType,
     Member: {
-      Member: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.Member.MemberModelType,
-    },
-    Role: {
-      EndUserRole: {
+      } as unknown as MemberModelType,
+    EndUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.Role.EndUserRoleModelType,
+      } as unknown as EndUserRoleModelType,
       StaffRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.Role.StaffRoleModelType,
+      } as unknown as StaffRoleModelType,
       VendorUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.Role.VendorUserRoleModelType,
-    },
-    User: {
-      EndUser: {
+      } as unknown as VendorUserRoleModelType,
+    EndUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         aggregate: vi.fn(),
-      } as unknown as Models.User.EndUserModelType,
+      } as unknown as EndUserModelType,
       StaffUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.User.StaffUserModelType,
+      } as unknown as StaffUserModelType,
       VendorUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
-      } as unknown as Models.User.VendorUserModelType,
-    },
+      } as unknown as VendorUserModelType,
   } as ModelsContext;
 }
 
@@ -111,24 +111,21 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 function makeMockDataSources() {
   return {
     domainDataSource: {
       Community: {
-        Community: {
           CommunityUnitOfWork: {},
         },
         Member: {},
         Role: { EndUserRole: {}, VendorUserRole: {} },
-      },
   User: { EndUser: {}, StaffRole: {}, StaffUser: {}, VendorUser: {} },
     } as unknown as DomainDataSource,
     readonlyDataSource: {
       Community: {
-        Community: {
           CommunityReadRepo: {
             getAll: vi.fn(),
             getById: vi.fn(),
@@ -145,9 +142,7 @@ function makeMockDataSources() {
             isAdmin: vi.fn(),
           },
         },
-      },
-      User: {
-        EndUser: {
+      EndUser: {
           EndUserReadRepo: {
             getById: vi.fn(),
             getByExternalId: vi.fn(),
@@ -160,14 +155,13 @@ function makeMockDataSources() {
             getByRoleName: vi.fn(),
           },
         },
-      },
     } as unknown as ReadonlyDataSource,
   };
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: ModelsContext;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let factory: ReturnType<typeof DataSourcesFactoryImpl>;
   let mockDataSources: ReturnType<typeof makeMockDataSources>;
 
@@ -181,7 +175,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     vi.mocked(ReadonlyDataSourceImplementation).mockReturnValue(mockDataSources.readonlyDataSource);
 
     // Mock the system passport
-    vi.mocked(Domain.PassportFactory.forSystem).mockReturnValue(passport);
+    vi.mocked(PassportFactory.forSystem).mockReturnValue(passport);
 
     factory = DataSourcesFactoryImpl(models);
   });

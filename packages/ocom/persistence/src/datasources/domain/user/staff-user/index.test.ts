@@ -2,9 +2,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import { StaffUserPersistence } from './index.ts';
+import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 
 const test = { for: describeFeature };
@@ -15,8 +16,7 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    User: {
-      StaffUser: {
+    StaffUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
@@ -24,8 +24,7 @@ function makeMockModelsContext() {
         deleteOne: vi.fn(),
         findByIdAndDelete: vi.fn(),
         findOne: vi.fn(),
-      } as unknown as Models.User.StaffUserModelType,
-    },
+      } as unknown as StaffUserModelType,
   } as unknown as Parameters<typeof StaffUserPersistence>[0];
 }
 
@@ -44,12 +43,12 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof StaffUserPersistence>[0];
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof StaffUserPersistence>;
 
   BeforeEachScenario(() => {

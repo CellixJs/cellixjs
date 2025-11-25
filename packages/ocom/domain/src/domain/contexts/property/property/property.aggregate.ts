@@ -102,6 +102,58 @@ export class Property<props extends PropertyProps>
 		return property;
 	}
 
+    	public requestDelete(): void {
+		this.ensureCanManage('You do not have permission to delete this property');
+		if (!this.isDeleted) {
+			this.isDeleted = true;
+			this.addIntegrationEvent<PropertyDeletedEventProps, PropertyDeletedEvent>(
+				PropertyDeletedEvent,
+				{ id: this.props.id },
+			);
+		}
+	}
+
+	public override onSave(isModified: boolean): void {
+		super.onSave(isModified);
+		if (isModified && !this.isDeleted) {
+			this.addIntegrationEvent<PropertyUpdatedProps, PropertyUpdatedEvent>(
+				PropertyUpdatedEvent,
+				{ id: this.props.id },
+			);
+		}
+	}
+
+	private ensureCanManage(message: string): void {
+		if (
+			!this.visa.determineIf(
+				(permissions) =>
+					permissions.isSystemAccount || permissions.canManageProperties,
+			)
+		) {
+			throw new PermissionError(message);
+		}
+	}
+
+	private ensureCanManageOrEditOwn(message: string): void {
+		if (
+			!this.visa.determineIf(
+				(permissions) =>
+					permissions.isSystemAccount ||
+					permissions.canManageProperties ||
+					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
+			)
+		) {
+			throw new PermissionError(message);
+		}
+	}
+
+	private normalizeTags(tags: string[]): string[] {
+		return tags
+			.map((tag) => tag.trim())
+			.filter((tag) => tag.length > 0)
+			.slice(0, 50);
+	}
+
 	private get visa(): PropertyVisa {
 		const visa = this.visaCache ?? this.passport.property.forProperty(this);
 		this.visaCache = visa;
@@ -283,57 +335,5 @@ export class Property<props extends PropertyProps>
 
 	get schemaVersion(): string {
 		return this.props.schemaVersion;
-	}
-
-	public requestDelete(): void {
-		this.ensureCanManage('You do not have permission to delete this property');
-		if (!this.isDeleted) {
-			this.isDeleted = true;
-			this.addIntegrationEvent<PropertyDeletedEventProps, PropertyDeletedEvent>(
-				PropertyDeletedEvent,
-				{ id: this.props.id },
-			);
-		}
-	}
-
-	public override onSave(isModified: boolean): void {
-		super.onSave(isModified);
-		if (isModified && !this.isDeleted) {
-			this.addIntegrationEvent<PropertyUpdatedProps, PropertyUpdatedEvent>(
-				PropertyUpdatedEvent,
-				{ id: this.props.id },
-			);
-		}
-	}
-
-	private ensureCanManage(message: string): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount || permissions.canManageProperties,
-			)
-		) {
-			throw new PermissionError(message);
-		}
-	}
-
-	private ensureCanManageOrEditOwn(message: string): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageProperties ||
-					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
-			)
-		) {
-			throw new PermissionError(message);
-		}
-	}
-
-	private normalizeTags(tags: string[]): string[] {
-		return tags
-			.map((tag) => tag.trim())
-			.filter((tag) => tag.length > 0)
-			.slice(0, 50);
 	}
 }

@@ -1,5 +1,6 @@
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import { type MongoDataSource, MongoDataSourceImpl } from '../../mongo-data-source.ts';
 
-export interface EndUserDataSource extends MongoDataSource<Models.User.EndUser> {}
-export class EndUserDataSourceImpl extends MongoDataSourceImpl<Models.User.EndUser> implements EndUserDataSource {}
+import { type MongoDataSource, MongoDataSourceImpl } from '../../mongo-data-source.ts';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
+
+export interface EndUserDataSource extends MongoDataSource<EndUser> {}
+export class EndUserDataSourceImpl extends MongoDataSourceImpl<EndUser> implements EndUserDataSource {}

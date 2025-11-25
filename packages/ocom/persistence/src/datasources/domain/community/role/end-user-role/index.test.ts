@@ -2,9 +2,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import { EndUserRolePersistence } from './index.ts';
+import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 
 
 const test = { for: describeFeature };
@@ -15,15 +16,13 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Role: {
-      EndUserRole: {
+    EndUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         updateOne: vi.fn(),
         deleteOne: vi.fn(),
-      } as unknown as Models.Role.EndUserRoleModelType,
-    },
+      } as unknown as EndUserRoleModelType,
   } as unknown as Parameters<typeof EndUserRolePersistence>[0];
 }
 
@@ -39,12 +38,12 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof EndUserRolePersistence>[0];
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof EndUserRolePersistence>;
 
   BeforeEachScenario(() => {

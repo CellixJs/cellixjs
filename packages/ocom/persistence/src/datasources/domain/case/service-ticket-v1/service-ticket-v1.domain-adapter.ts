@@ -1,14 +1,17 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
+import type { ServiceTicket, ServiceTicketActivityDetail, ServiceTicketMessage } from '@ocom/data-sources-mongoose-models/case/service-ticket';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
 export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Case.ServiceTicket,
+	ServiceTicket,
 	ServiceTicketV1DomainAdapter,
-	Domain.Passport,
+	Passport,
 	Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>
 > {
 	constructor() {
@@ -20,7 +23,7 @@ export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverte
 }
 
 export class ServiceTicketV1DomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Models.Case.ServiceTicket>
+	extends MongooseSeedwork.MongooseDomainAdapter<ServiceTicket>
 	implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Props
 {
 	get title(): string {
@@ -102,7 +105,7 @@ export class ServiceTicketV1DomainAdapter
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
 			throw new Error('community is not populated');
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
 	async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
@@ -112,7 +115,7 @@ export class ServiceTicketV1DomainAdapter
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
 			await this.doc.populate('community');
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
 	set community(community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>) {
@@ -136,7 +139,7 @@ export class ServiceTicketV1DomainAdapter
 		if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
 			throw new Error('requestor is not populated');
 		}
-		return new MemberDomainAdapter(this.doc.requestor as Models.Member.Member);
+		return new MemberDomainAdapter(this.doc.requestor as Member);
 	}
 
 	async loadRequestor(): Promise<Domain.Contexts.Community.Member.MemberProps> {
@@ -146,7 +149,7 @@ export class ServiceTicketV1DomainAdapter
 		if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
 			await this.doc.populate('requestor');
 		}
-		return new MemberDomainAdapter(this.doc.requestor as Models.Member.Member);
+		return new MemberDomainAdapter(this.doc.requestor as Member);
 	}
 
 	set requestor(member: Domain.Contexts.Community.Member.MemberEntityReference | Domain.Contexts.Community.Member.Member<MemberDomainAdapter>) {
@@ -235,9 +238,9 @@ export class ServiceTicketV1DomainAdapter
 export { ServiceTicketV1ActivityDetailDomainAdapter, ServiceTicketV1MessageDomainAdapter };
 
 class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1ActivityDetailProps {
-	public readonly doc: Models.Case.ServiceTicketActivityDetail;
+	public readonly doc: ServiceTicketActivityDetail;
 	
-	constructor(doc: Models.Case.ServiceTicketActivityDetail) {
+	constructor(doc: ServiceTicketActivityDetail) {
 		this.doc = doc;
 	}
 	
@@ -270,7 +273,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.activityBy as Models.Member.Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.activityBy as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 
 	async loadActivityBy(): Promise<Domain.Contexts.Community.Member.MemberEntityReference> {
@@ -282,7 +285,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.activityBy as Models.Member.Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.activityBy as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 
 	set activityBy(member: Domain.Contexts.Community.Member.MemberEntityReference | Domain.Contexts.Community.Member.Member<MemberDomainAdapter>) {
@@ -301,9 +304,9 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 }
 
 class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1MessageProps {
-	public readonly doc: Models.Case.ServiceTicketMessage;
+	public readonly doc: ServiceTicketMessage;
 	
-	constructor(doc: Models.Case.ServiceTicketMessage) {
+	constructor(doc: ServiceTicketMessage) {
 		this.doc = doc;
 	}
 	
@@ -328,7 +331,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.initiatedBy as Models.Member.Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.initiatedBy as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 
 	async loadInitiatedBy(): Promise<Domain.Contexts.Community.Member.MemberEntityReference> {
@@ -340,7 +343,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
-		return new MemberDomainAdapter(this.doc.initiatedBy as Models.Member.Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
+		return new MemberDomainAdapter(this.doc.initiatedBy as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 
 	set initiatedBy(member: Domain.Contexts.Community.Member.MemberEntityReference | Domain.Contexts.Community.Member.Member<MemberDomainAdapter>) {

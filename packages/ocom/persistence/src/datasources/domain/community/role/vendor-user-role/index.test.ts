@@ -2,9 +2,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import { VendorUserRolePersistence } from './index.ts';
+import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 
 const test = { for: describeFeature };
@@ -15,15 +16,13 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
-    Role: {
-      VendorUserRole: {
+    VendorUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         updateOne: vi.fn(),
         deleteOne: vi.fn(),
-      } as unknown as Models.Role.VendorUserRoleModelType,
-    },
+      } as unknown as VendorUserRoleModelType,
   } as unknown as Parameters<typeof VendorUserRolePersistence>[0];
 }
 
@@ -39,12 +38,12 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let models: Parameters<typeof VendorUserRolePersistence>[0];
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: ReturnType<typeof VendorUserRolePersistence>;
 
   BeforeEachScenario(() => {

@@ -68,9 +68,9 @@ generates:
         Void: any
 
       mappers:
-        Member: "import('@ocom/domain').Domain.Contexts.Community.Member.MemberEntityReference"
-        Community: "import('@ocom/domain').Domain.Contexts.Community.Community.CommunityEntityReference"
-        EndUser: "import('@ocom/domain').Domain.Contexts.User.EndUser.EndUserEntityReference"
+        Member: "import('@ocom/domain').MemberEntityReference"
+        Community: "import('@ocom/domain').CommunityEntityReference"
+        EndUser: "import('@ocom/domain').EndUserEntityReference"
     plugins:
       - 'typescript'
       - 'typescript-resolvers'

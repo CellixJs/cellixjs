@@ -3,13 +3,15 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import {
   ServiceConverter,
   ServiceDomainAdapter,
 } from './service.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Service } from '@ocom/data-sources-mongoose-models/service';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -20,7 +22,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/service.type-converter.feature')
 );
 
-function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
+function makeServiceDoc(overrides: Partial<Service> = {}) {
   return {
     serviceName: 'Test Service',
     description: 'Test service description',
@@ -28,9 +30,9 @@ function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
     community: undefined,
     createdAt: new Date(),
     updatedAt: new Date(),
-    set(key: keyof Models.Service.Service, value: unknown) {
+    set(key: keyof Service, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Service.Service)[key] = value as never;
+      (this as Service)[key] = value as never;
     },
     populate(path: string) {
       // Mock populate method for testing
@@ -40,16 +42,16 @@ function makeServiceDoc(overrides: Partial<Models.Service.Service> = {}) {
       return this;
     },
     ...overrides,
-  } as Models.Service.Service;
+  } as Service;
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
@@ -65,14 +67,14 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Service.Service;
+  let doc: Service;
   let adapter: ServiceDomainAdapter;
   let communityAdapter: CommunityDomainAdapter;
-  let communityDoc: Models.Community.Community;
+  let communityDoc: Community;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -258,10 +260,10 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.Service.Service;
-  let communityDoc: Models.Community.Community;
+  let doc: Service;
+  let communityDoc: Community;
   let converter: ServiceConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -308,7 +310,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     let domainObj: Domain.Contexts.Service.Service.Service<ServiceDomainAdapter>;
     let communityAdapter: CommunityDomainAdapter;
     let communityDomainObj: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
-    let resultDoc: Models.Service.Service;
+    let resultDoc: Service;
 
     Given('a ServiceConverter instance', () => {
       converter = new ServiceConverter();

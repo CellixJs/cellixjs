@@ -1,9 +1,10 @@
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { CommunityDomainAdapter } from './community.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
 
-type CommunityModelType = Models.Community.Community; // ReturnType<typeof Models.Community.CommunityModelFactory> & Models.Community.Community & { baseModelName: string };
+type CommunityModelType = Community; // ReturnType<typeof Models.Community.CommunityModelFactory> & Community & { baseModelName: string };
 type PropType = CommunityDomainAdapter;
 
 export class CommunityRepository //<
@@ -12,7 +13,7 @@ export class CommunityRepository //<
 	extends MongooseSeedwork.MongoRepositoryBase<
 		CommunityModelType,
 		PropType,
-		Domain.Passport,
+		Passport,
 		Domain.Contexts.Community.Community.Community<PropType>
 	>
 	implements Domain.Contexts.Community.Community.CommunityRepository<PropType>

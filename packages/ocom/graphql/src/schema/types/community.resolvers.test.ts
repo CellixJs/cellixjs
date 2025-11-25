@@ -15,7 +15,7 @@ const feature = await loadFeature(
 );
 
 // Types for test results
-type CommunityEntity = Domain.Contexts.Community.Community.CommunityEntityReference;
+type CommunityEntity = import('@ocom/domain').CommunityEntityReference;
 
 // Helper function to create mock community
 function createMockCommunity(overrides: Partial<CommunityEntity> = {}): CommunityEntity {

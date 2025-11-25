@@ -1,12 +1,14 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Service } from '@ocom/data-sources-mongoose-models/service';
 
 export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
-	Models.Service.Service,
+	Service,
 	ServiceDomainAdapter,
-	Domain.Passport,
+	Passport,
 	Domain.Contexts.Service.Service.Service<ServiceDomainAdapter>
 > {
 	constructor() {
@@ -18,7 +20,7 @@ export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
 }
 
 export class ServiceDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Models.Service.Service>
+	extends MongooseSeedwork.MongooseDomainAdapter<Service>
 	implements Domain.Contexts.Service.Service.ServiceProps
 {
 	get serviceName() {
@@ -51,7 +53,7 @@ export class ServiceDomainAdapter
 				'community is not populated or is not of the correct type',
 			);
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
     async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
@@ -61,7 +63,7 @@ export class ServiceDomainAdapter
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
             await this.doc.populate('community');
 		}
-		return new CommunityDomainAdapter(this.doc.community as Models.Community.Community);
+		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
 	setCommunityRef(community: Domain.Contexts.Community.Community.CommunityEntityReference) {

@@ -1,9 +1,9 @@
-import type { Domain } from '@ocom/domain';
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { getVendorUserUnitOfWork } from './vendor-user.uow.ts';
 
-export const VendorUserPersistence = (models: ModelsContext, passport: Domain.Passport) => {
-	const vendorUserModel = models.User?.VendorUser;
+export const VendorUserPersistence = (models: ModelsContext, passport: Passport) => {
+	const vendorUserModel = models.VendorUser;
 	if (!vendorUserModel) {
 		throw new Error('VendorUser model is not available in the mongoose context');
 	}

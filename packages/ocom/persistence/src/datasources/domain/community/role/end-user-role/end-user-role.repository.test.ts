@@ -2,12 +2,14 @@ import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';
 import { EndUserRoleConverter, type EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { EndUserRole, EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 
 
 const test = { for: describeFeature };
@@ -16,7 +18,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/end-user-role.repository.feature')
 );
 
-function makeEndUserRoleDoc(overrides: Partial<Models.Role.EndUserRole> = {}) {
+function makeEndUserRoleDoc(overrides: Partial<EndUserRole> = {}) {
   const base = {
     id: '507f1f77bcf86cd799439011',
     roleName: 'Test Role',
@@ -51,22 +53,22 @@ function makeEndUserRoleDoc(overrides: Partial<Models.Role.EndUserRole> = {}) {
         canWorkOnTickets: true,
       },
     },
-    set(key: keyof Models.Role.EndUserRole, value: unknown) {
+    set(key: keyof EndUserRole, value: unknown) {
       // Type-safe property assignment
-      (this as Models.Role.EndUserRole)[key] = value as never;
+      (this as EndUserRole)[key] = value as never;
     },
     ...overrides,
-  } as Models.Role.EndUserRole;
+  } as EndUserRole;
   return vi.mocked(base);
 }
 
-function makeCommunityDoc(overrides: Partial<Models.Community.Community> = {}) {
+function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
     id: '6898b0c34b4a2fbc01e9c697',
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
-  } as Models.Community.Community;
+  } as Community;
   return vi.mocked(base);
 }
 
@@ -82,15 +84,15 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let model: Models.Role.EndUserRoleModelType;
+  let model: EndUserRoleModelType;
   let converter: EndUserRoleConverter;
   let repository: EndUserRoleRepository;
-  let passport: Domain.Passport;
-  let communityDoc: Models.Community.Community;
+  let passport: Passport;
+  let communityDoc: Community;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -98,7 +100,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     const endUserRoleDoc = makeEndUserRoleDoc({ community: communityDoc });
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: Models.Role.EndUserRole) {
+    const ModelMock = function (this: EndUserRole) {
       Object.assign(this, makeEndUserRoleDoc());
     };
     // Attach static methods to the constructor
@@ -116,7 +118,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
-    model = ModelMock as unknown as Models.Role.EndUserRoleModelType;
+    model = ModelMock as unknown as EndUserRoleModelType;
     converter = new EndUserRoleConverter();
     passport = makeMockPassport();
 

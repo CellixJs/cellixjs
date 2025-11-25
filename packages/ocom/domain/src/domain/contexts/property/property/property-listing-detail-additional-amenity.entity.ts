@@ -26,25 +26,7 @@ export class PropertyListingDetailAdditionalAmenity
 		this.visa = visa;
 	}
 
-	get category(): string {
-		return this.props.category;
-	}
-
-	set category(category: ValueObjects.Category) {
-		this.ensureCanModify();
-		this.props.category = category.valueOf();
-	}
-
-	get amenities(): string[] {
-		return [...this.props.amenities];
-	}
-
-	set amenities(amenities: ValueObjects.Amenities) {
-		this.ensureCanModify();
-		this.props.amenities = amenities.valueOf();
-	}
-
-	private ensureCanModify(): void {
+    private validateVisa(): void {
 		if (
 			!this.visa.determineIf(
 				(permissions) =>
@@ -57,5 +39,23 @@ export class PropertyListingDetailAdditionalAmenity
 				'You do not have permission to update property amenities',
 			);
 		}
+	}
+
+	get category(): string {
+		return this.props.category;
+	}
+
+	set category(category: ValueObjects.Category) {
+		this.validateVisa();
+		this.props.category = category.valueOf();
+	}
+
+	get amenities(): string[] {
+		return [...this.props.amenities];
+	}
+
+	set amenities(amenities: ValueObjects.Amenities) {
+		this.validateVisa();
+		this.props.amenities = amenities.valueOf();
 	}
 }

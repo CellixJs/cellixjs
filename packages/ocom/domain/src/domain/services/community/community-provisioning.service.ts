@@ -4,6 +4,7 @@ import {
 	MemberAccountStatusCodes,
 	type EndUserRoleEntityReference,
 } from '../../contexts/community.ts';
+import type { EndUserEntityReference } from '../../contexts/user.ts';
 import { PassportFactory } from '../../contexts/passport.ts';
 
 export class CommunityProvisioningService {
@@ -21,6 +22,9 @@ export class CommunityProvisioningService {
 			throw new Error('Community not found');
 		}
 
+		// Type assertion after null check
+		const community: CommunityEntityReference = communityDo;
+
 		const systemPassportForEndUserRole = PassportFactory.forSystem({
 			canManageEndUserRolesAndPermissions: true,
 		});
@@ -32,14 +36,14 @@ export class CommunityProvisioningService {
 				const newRole = await repo.getNewInstance(
 					'admin',
 					true,
-					communityDo as CommunityEntityReference,
+					community,
 				);
 				newRole.permissions.setDefaultAdminPermissions();
 				role = await repo.save(newRole);
 			},
 		);
 
-		const { createdBy } = communityDo;
+		const createdBy: Readonly<EndUserEntityReference> = community.createdBy;
 
 		if (!role) {
 			throw new Error(
@@ -60,7 +64,7 @@ export class CommunityProvisioningService {
 			async (repo) => {
 				const newMember = await repo.getNewInstance(
 					createdBy.displayName,
-					communityDo as CommunityEntityReference,
+					community,
 				);
 				newMember.role = role as EndUserRoleEntityReference;
 				const newAccount = newMember.requestNewAccount();

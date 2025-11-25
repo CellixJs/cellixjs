@@ -3,14 +3,15 @@ import {
 	InProcEventBusInstance,
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
-import type { Models } from '@ocom/data-sources-mongoose-models';
-import type { Domain } from '@ocom/domain';
+
+import type { DomainDataSource, Passport } from '@ocom/domain';
 import { CommunityConverter } from './community.domain-adapter.ts';
 import { CommunityRepository } from './community.repository.ts';
+import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 
 export const getCommunityUnitOfWork = (
-    endUserModel: Models.Community.CommunityModelType,
-    passport: Domain.Passport
+    endUserModel: CommunityModelType,
+    passport: Passport
 ): Domain.Contexts.Community.Community.CommunityUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,

@@ -2,8 +2,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-import type { Models } from '@ocom/data-sources-mongoose-models';
+import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { EndUser, EndUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user/end-user';
+
 
 const test = { for: describeFeature };
 import {
@@ -22,7 +23,7 @@ const typeConverterFeature = await loadFeature(
   path.resolve(__dirname, 'features/end-user.type-converter.feature')
 );
 
-function makeEndUserDoc(overrides: Partial<Models.User.EndUser> = {}) {
+function makeEndUserDoc(overrides: Partial<EndUser> = {}) {
   const base = {
     userType: 'end-user',
     externalId: '123e4567-e89b-12d3-a456-426614174001',
@@ -41,7 +42,7 @@ function makeEndUserDoc(overrides: Partial<Models.User.EndUser> = {}) {
       },
     },
     ...overrides,
-  } as Models.User.EndUser;
+  } as EndUser;
   return vi.mocked(base);
 }
 
@@ -52,11 +53,11 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
-  } as unknown as Domain.Passport;
+  } as unknown as Passport;
 }
 
 test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.User.EndUser;
+  let doc: EndUser;
   let adapter: EndUserDomainAdapter;
   let result: unknown;
 
@@ -192,18 +193,18 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
     Scenario('Getting the personalInformation property when not defined on the document', ({ Given, When, Then, And }) => {
-    let docWithNoPersonalInfo: Models.User.EndUser;
+    let docWithNoPersonalInfo: EndUser;
     let adapterWithNoPersonalInfo: EndUserDomainAdapter;
     let setCalled = false;
     Given('an EndUserDomainAdapter for a document with no personalInformation', () => {
       docWithNoPersonalInfo = {
         ...makeEndUserDoc(),
         personalInformation: undefined,
-        set: (key: keyof Models.User.EndUser, value: unknown) => {
+        set: (key: keyof EndUser, value: unknown) => {
           if (key === 'personalInformation') { setCalled = true };
-          (docWithNoPersonalInfo as Models.User.EndUser)[key] = value as never;
+          (docWithNoPersonalInfo as EndUser)[key] = value as never;
         },
-      } as unknown as Models.User.EndUser;
+      } as unknown as EndUser;
       adapterWithNoPersonalInfo = new EndUserDomainAdapter(docWithNoPersonalInfo);
     });
     When('I get the personalInformation property', () => {
@@ -235,7 +236,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
     Scenario('Getting the identityDetails property when not defined on personalInformation', ({ Given, When, And, Then }) => {
-    let docWithNoIdentityDetails: Models.User.EndUser;
+    let docWithNoIdentityDetails: EndUser;
     let adapterWithNoIdentityDetails: EndUserDomainAdapter;
     let setCalled = false;
     let personalInfo: EndUserPersonalInformationDomainAdapter;
@@ -244,12 +245,12 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         personalInformation: {
           identityDetails: undefined,
           contactInformation: { email: 'user@example.com' },
-          set: (key: keyof Models.User.EndUserPersonalInformation, value: unknown) => {
+          set: (key: keyof EndUserPersonalInformation, value: unknown) => {
             if (key === 'identityDetails') { setCalled = true; }
-            (docWithNoIdentityDetails.personalInformation as Models.User.EndUserPersonalInformation)[key] = value as never;
+            (docWithNoIdentityDetails.personalInformation as EndUserPersonalInformation)[key] = value as never;
           },
         },
-      } as unknown as Models.User.EndUser);
+      } as unknown as EndUser);
       adapterWithNoIdentityDetails = new EndUserDomainAdapter(docWithNoIdentityDetails);
     });
     When('I get the personalInformation property', () => {
@@ -362,7 +363,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
     Scenario('Getting the contactInformation property when not defined on personalInformation', ({ Given, When, And, Then }) => {
-    let docWithNoContactInfo: Models.User.EndUser;
+    let docWithNoContactInfo: EndUser;
     let adapterWithNoContactInfo: EndUserDomainAdapter;
     let setCalled = false;
     let personalInfo: EndUserPersonalInformationDomainAdapter;
@@ -371,12 +372,12 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         personalInformation: {
           identityDetails: { lastName: 'Doe', legalNameConsistsOfOneName: false, restOfName: 'John' },
           contactInformation: undefined,
-          set: (key: keyof Models.User.EndUserPersonalInformation, value: unknown) => {
+          set: (key: keyof EndUserPersonalInformation, value: unknown) => {
             if (key === 'contactInformation') { setCalled = true; }
-            (docWithNoContactInfo.personalInformation as Models.User.EndUserPersonalInformation)[key] = value as never;
+            (docWithNoContactInfo.personalInformation as EndUserPersonalInformation)[key] = value as never;
           },
         },
-      } as unknown as Models.User.EndUser);
+      } as unknown as EndUser);
       adapterWithNoContactInfo = new EndUserDomainAdapter(docWithNoContactInfo);
     });
     When('I get the personalInformation property', () => {
@@ -421,9 +422,9 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let doc: Models.User.EndUser;
+  let doc: EndUser;
   let converter: EndUserConverter;
-  let passport: Domain.Passport;
+  let passport: Passport;
   let result: unknown;
 
   BeforeEachScenario(() => {
@@ -474,7 +475,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Converting a domain object to a Mongoose EndUser document', ({ Given, And, When, Then }) => {
     let domainObj: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
-    let resultDoc: Models.User.EndUser;
+    let resultDoc: EndUser;
     Given('an EndUserConverter instance', () => {
       converter = new EndUserConverter();
     });
