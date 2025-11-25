@@ -5,13 +5,17 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { DomainDataSourceImplementation } from './index.ts';
-import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case';
+import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
 import type { PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
-import type { EndUserRoleModelType, StaffRoleModelType, VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
+import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
-import type { EndUserModelType, StaffUserModelType, VendorUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
+import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 
 const test = { for: describeFeature };

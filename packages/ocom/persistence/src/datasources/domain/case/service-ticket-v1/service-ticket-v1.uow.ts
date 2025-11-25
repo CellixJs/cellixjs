@@ -7,7 +7,7 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Domain } from '@ocom/domain';
 import { ServiceTicketV1Converter } from './service-ticket-v1.domain-adapter.ts';
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
-import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case';
+import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 
 export const getServiceTicketV1UnitOfWork = (
     serviceTicketModel: ServiceTicketModelType,

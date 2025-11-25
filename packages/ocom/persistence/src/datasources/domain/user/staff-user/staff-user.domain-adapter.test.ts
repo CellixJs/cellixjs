@@ -7,8 +7,8 @@ import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
 import { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
-import type { StaffRole } from '@ocom/data-sources-mongoose-models/role';
-import type { StaffUser } from '@ocom/data-sources-mongoose-models/user';
+import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -154,14 +154,7 @@
 				"packages/ocom/persistence/**/*.ts",
 				"!packages/ocom/persistence/src/index.ts",
 				"packages/ocom/data-sources-mongoose-models/**/*.ts",
-				"!packages/ocom/data-sources-mongoose-models/src/index.ts",
-				"!packages/ocom/data-sources-mongoose-models/src/community.ts",
-				"!packages/ocom/data-sources-mongoose-models/src/member.ts",
-				"!packages/ocom/data-sources-mongoose-models/src/user.ts",
-				"!packages/ocom/data-sources-mongoose-models/src/role.ts",
-				"!packages/ocom/data-sources-mongoose-models/src/case.ts",
-				"!packages/ocom/data-sources-mongoose-models/src/property.ts",
-				"!packages/ocom/data-sources-mongoose-models/src/service.ts"
+				"!packages/ocom/data-sources-mongoose-models/src/index.ts"
 			],
 			"linter": {
 				"rules": {

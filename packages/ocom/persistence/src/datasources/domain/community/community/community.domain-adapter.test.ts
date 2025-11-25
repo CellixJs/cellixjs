@@ -8,7 +8,7 @@ import { Domain } from '@ocom/domain';
 import { CommunityConverter, CommunityDomainAdapter } from './community.domain-adapter.ts';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
-import type { EndUser } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 

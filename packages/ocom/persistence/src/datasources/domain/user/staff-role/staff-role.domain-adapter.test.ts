@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Domain } from '@ocom/domain';
-import type { StaffRole } from '@ocom/data-sources-mongoose-models/role';
+import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
 
 
 const test = { for: describeFeature };

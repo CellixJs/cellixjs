@@ -2,7 +2,7 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 import { Domain } from '@ocom/domain';
 import type { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
-import type { StaffUser } from '@ocom/data-sources-mongoose-models/user';
+import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 type StaffUserDocument = StaffUser;
 type StaffUserAggregate = Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;

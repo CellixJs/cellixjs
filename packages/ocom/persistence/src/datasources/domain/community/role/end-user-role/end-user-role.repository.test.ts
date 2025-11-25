@@ -9,7 +9,7 @@ import { expect, vi } from 'vitest';
 import { EndUserRoleConverter, type EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
-import type { EndUserRole, EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { EndUserRole, EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 
 
 const test = { for: describeFeature };

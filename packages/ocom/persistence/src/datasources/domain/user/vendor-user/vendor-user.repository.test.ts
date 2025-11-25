@@ -8,7 +8,7 @@ import { Domain } from '@ocom/domain';
 import { VendorUserRepository } from './vendor-user.repository.ts';
 import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
-import type { VendorUser, VendorUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { VendorUser, VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

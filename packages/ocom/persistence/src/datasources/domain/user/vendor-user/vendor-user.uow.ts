@@ -7,7 +7,7 @@ import {
 import type { Domain } from '@ocom/domain';
 import { VendorUserConverter } from './vendor-user.domain-adapter.ts';
 import { VendorUserRepository } from './vendor-user.repository.ts';
-import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 export const getVendorUserUnitOfWork = (
 	vendorUserModel: VendorUserModelType,

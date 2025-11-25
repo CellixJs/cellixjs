@@ -2,7 +2,7 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 import { Domain } from '@ocom/domain';
 import type { VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
-import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/role';
+import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 type VendorUserRoleModelType = VendorUserRole;
 type PropType = VendorUserRoleDomainAdapter;

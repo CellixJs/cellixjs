@@ -8,7 +8,7 @@ import { Domain } from '@ocom/domain';
 import { StaffUserRepository } from './staff-user.repository.ts';
 import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
-import type { StaffUser, StaffUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { StaffUser, StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -9,7 +9,7 @@ import { expect, vi } from 'vitest';
 import { VendorUserRoleConverter, type VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 import { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
-import type { VendorUserRole, VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { VendorUserRole, VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 
 const test = { for: describeFeature };

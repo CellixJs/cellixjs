@@ -5,7 +5,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { ServiceTicketV1Persistence } from './index.ts';
-import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case';
+import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -3,7 +3,7 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
-import type { VendorUserRole, VendorUserRoleCommunityPermissions, VendorUserRolePermissions, VendorUserRolePropertyPermissions, VendorUserRoleServicePermissions, VendorUserRoleServiceTicketPermissions, VendorUserRoleViolationTicketPermissions } from '@ocom/data-sources-mongoose-models/role';
+import type { VendorUserRole, VendorUserRoleCommunityPermissions, VendorUserRolePermissions, VendorUserRolePropertyPermissions, VendorUserRoleServicePermissions, VendorUserRoleServiceTicketPermissions, VendorUserRoleViolationTicketPermissions } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 export class VendorUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	VendorUserRole,

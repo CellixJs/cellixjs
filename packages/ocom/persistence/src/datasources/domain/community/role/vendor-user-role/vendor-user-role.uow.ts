@@ -7,7 +7,7 @@ import {
 import type { Domain } from '@ocom/domain';
 import { VendorUserRoleConverter } from './vendor-user-role.domain-adapter.ts';
 import { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
-import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 export const getVendorUserRoleUnitOfWork = (
     vendorUserRoleModel: VendorUserRoleModelType,

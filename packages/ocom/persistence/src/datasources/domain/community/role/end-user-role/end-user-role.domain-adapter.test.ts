@@ -7,7 +7,7 @@ import { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
-import type { EndUserRole } from '@ocom/data-sources-mongoose-models/role';
+import type { EndUserRole } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 
 const test = { for: describeFeature };
 import {

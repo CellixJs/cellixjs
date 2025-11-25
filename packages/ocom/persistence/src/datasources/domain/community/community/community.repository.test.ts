@@ -10,7 +10,7 @@ import { CommunityConverter, type CommunityDomainAdapter } from './community.dom
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 import type { Community, CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
-import type { EndUser } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 const test = { for: describeFeature };

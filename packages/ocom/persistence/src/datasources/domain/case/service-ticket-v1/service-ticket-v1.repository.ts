@@ -2,7 +2,7 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 import { Domain } from '@ocom/domain';
 import type { ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
-import type { ServiceTicket } from '@ocom/data-sources-mongoose-models/case';
+import type { ServiceTicket } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 
 type ServiceTicketModelType = ServiceTicket; // ReturnType<typeof models.Case.ServiceTicketModelFactory> & models.Case.ServiceTicket & { baseModelName: string };
 type PropType = ServiceTicketV1DomainAdapter;

@@ -5,7 +5,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getVendorUserRoleUnitOfWork } from './vendor-user-role.uow.ts';
-import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 
 const test = { for: describeFeature };

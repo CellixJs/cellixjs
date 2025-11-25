@@ -10,32 +10,52 @@
       "default": "./dist/src/index.js"
     },
     "./community": {
-      "types": "./dist/src/community.d.ts",
-      "default": "./dist/src/community.js"
+      "types": "./dist/src/models/community/community.model.d.ts",
+      "default": "./dist/src/models/community/community.model.js"
     },
     "./member": {
-      "types": "./dist/src/member.d.ts",
-      "default": "./dist/src/member.js"
+      "types": "./dist/src/models/member/member.model.d.ts",
+      "default": "./dist/src/models/member/member.model.js"
     },
-    "./user": {
-      "types": "./dist/src/user.d.ts",
-      "default": "./dist/src/user.js"
+    "./user/end-user": {
+      "types": "./dist/src/models/user/end-user.model.d.ts",
+      "default": "./dist/src/models/user/end-user.model.js"
     },
-    "./role": {
-      "types": "./dist/src/role.d.ts",
-      "default": "./dist/src/role.js"
+    "./user/staff-user": {
+      "types": "./dist/src/models/user/staff-user.model.d.ts",
+      "default": "./dist/src/models/user/staff-user.model.js"
     },
-    "./case": {
-      "types": "./dist/src/case.d.ts",
-      "default": "./dist/src/case.js"
+    "./user/vendor-user": {
+      "types": "./dist/src/models/user/vendor-user.model.d.ts",
+      "default": "./dist/src/models/user/vendor-user.model.js"
+    },
+    "./role/end-user-role": {
+      "types": "./dist/src/models/role/end-user-role.model.d.ts",
+      "default": "./dist/src/models/role/end-user-role.model.js"
+    },
+    "./role/staff-role": {
+      "types": "./dist/src/models/role/staff-role.model.d.ts",
+      "default": "./dist/src/models/role/staff-role.model.js"
+    },
+    "./role/vendor-user-role": {
+      "types": "./dist/src/models/role/vendor-user-role.model.d.ts",
+      "default": "./dist/src/models/role/vendor-user-role.model.js"
+    },
+    "./case/service-ticket": {
+      "types": "./dist/src/models/case/service-ticket.model.d.ts",
+      "default": "./dist/src/models/case/service-ticket.model.js"
+    },
+    "./case/violation-ticket": {
+      "types": "./dist/src/models/case/violation-ticket.model.d.ts",
+      "default": "./dist/src/models/case/violation-ticket.model.js"
     },
     "./property": {
-      "types": "./dist/src/property.d.ts",
-      "default": "./dist/src/property.js"
+      "types": "./dist/src/models/property/property.model.d.ts",
+      "default": "./dist/src/models/property/property.model.js"
     },
     "./service": {
-      "types": "./dist/src/service.d.ts",
-      "default": "./dist/src/service.js"
+      "types": "./dist/src/models/service/service.model.d.ts",
+      "default": "./dist/src/models/service/service.model.js"
     }
   },
   "scripts": {

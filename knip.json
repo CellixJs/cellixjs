@@ -30,6 +30,13 @@
       "entry": ["src/index.ts"],
       "project": ["src/**/*.{ts,tsx}"]
     },
+    "packages/ocom/data-sources-mongoose-models": {
+      "entry": [
+        "src/index.ts",
+        "src/models/**/*.model.ts"
+      ],
+      "project": ["src/**/*.ts"]
+    },
     "packages/ocom/*": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"],

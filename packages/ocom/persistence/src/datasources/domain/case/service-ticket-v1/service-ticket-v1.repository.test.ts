@@ -8,7 +8,7 @@ import { Domain } from '@ocom/domain';
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 import { ServiceTicketV1Converter, type ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
-import type { ServiceTicket, ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case';
+import type { ServiceTicket, ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 

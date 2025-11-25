@@ -8,7 +8,7 @@ import { Domain } from '@ocom/domain';
 import { EndUserRepository } from './end-user.repository.ts';
 import { EndUserConverter, type EndUserDomainAdapter } from './end-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
-import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 const test = { for: describeFeature };

@@ -8,7 +8,7 @@ import { Domain } from '@ocom/domain';
 import { StaffRoleRepository } from './staff-role.repository.ts';
 import { StaffRoleConverter, type StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
-import type { StaffRole, StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { StaffRole, StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -5,7 +5,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getStaffRoleUnitOfWork } from './staff-role.uow.ts';
-import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

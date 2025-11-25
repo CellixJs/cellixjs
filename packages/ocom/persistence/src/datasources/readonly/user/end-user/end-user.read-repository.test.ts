@@ -8,7 +8,7 @@ import type { ModelsContext } from '../../../../index.ts';
 import { EndUserReadRepositoryImpl } from './end-user.read-repository.ts';
 import { EndUserDataSourceImpl } from './end-user.data.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
-import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 // Mock the data source module
 

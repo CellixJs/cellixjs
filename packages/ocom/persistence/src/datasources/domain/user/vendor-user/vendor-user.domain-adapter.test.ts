@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { Domain } from '@ocom/domain';
-import type { VendorUser, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user';
+import type { VendorUser, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 
 const test = { for: describeFeature };

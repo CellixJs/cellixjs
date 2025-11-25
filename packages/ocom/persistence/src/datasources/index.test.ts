@@ -32,8 +32,12 @@ import { DomainDataSourceImplementation } from './domain/index.ts';
 import { ReadonlyDataSourceImplementation } from './readonly/index.ts';
 import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
-import type { EndUserRoleModelType, StaffRoleModelType, VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role';
-import type { EndUserModelType, StaffUserModelType, VendorUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
+import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
+import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 
 const test = { for: describeFeature };

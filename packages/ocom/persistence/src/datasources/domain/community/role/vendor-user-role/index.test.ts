@@ -5,7 +5,7 @@ import { expect, vi } from 'vitest';
 
 import type { Domain } from '@ocom/domain';
 import { VendorUserRolePersistence } from './index.ts';
-import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 
 const test = { for: describeFeature };

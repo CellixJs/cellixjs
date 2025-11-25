@@ -7,7 +7,7 @@ import {
 import type { Domain } from '@ocom/domain';
 import { StaffRoleConverter } from './staff-role.domain-adapter.ts';
 import { StaffRoleRepository } from './staff-role.repository.ts';
-import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
 
 export const getStaffRoleUnitOfWork = (
 	staffRoleModel: StaffRoleModelType,

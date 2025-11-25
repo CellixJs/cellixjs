@@ -1,7 +1,7 @@
 import { Domain } from '@ocom/domain';
 
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { EndUser, EndUserContactInformation, EndUserIdentityDetails, EndUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUser, EndUserContactInformation, EndUserIdentityDetails, EndUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	EndUser,

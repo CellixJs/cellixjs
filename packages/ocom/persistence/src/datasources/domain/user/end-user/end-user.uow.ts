@@ -10,7 +10,7 @@ import {
 	EndUserConverter,
 } from './end-user.domain-adapter.ts';
 import { EndUserRepository } from './end-user.repository.ts';
-import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 export const getEndUserUnitOfWork: (
 	endUserModel: EndUserModelType,

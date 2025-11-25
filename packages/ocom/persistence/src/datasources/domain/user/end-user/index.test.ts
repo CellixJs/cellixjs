@@ -5,7 +5,7 @@ import { expect, vi } from 'vitest';
 
 import type { Domain } from '@ocom/domain';
 import { EndUserPersistence } from './index.ts';
-import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 const test = { for: describeFeature };

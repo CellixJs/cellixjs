@@ -10,7 +10,7 @@ const test = { for: describeFeature };
 
 import { VendorUserRoleConverter, VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
-import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/role';
+import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const typeConverterFeature = await loadFeature(

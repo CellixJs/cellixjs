@@ -5,7 +5,7 @@ import { expect, vi } from 'vitest';
 
 import type { Domain } from '@ocom/domain';
 import { VendorUserPersistence } from './index.ts';
-import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

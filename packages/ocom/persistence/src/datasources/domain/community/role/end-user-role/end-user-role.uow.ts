@@ -7,7 +7,7 @@ import {
 import type { Domain } from '@ocom/domain';
 import { EndUserRoleConverter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
-import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role';
+import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 
 export const getEndUserRoleUnitOfWork = (
     endUserRoleModel: EndUserRoleModelType,

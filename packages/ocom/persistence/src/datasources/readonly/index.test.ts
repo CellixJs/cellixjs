@@ -7,7 +7,7 @@ import type { Domain } from '@ocom/domain';
 import { ReadonlyDataSourceImplementation } from './index.ts';
 import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
-import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 
 const test = { for: describeFeature };

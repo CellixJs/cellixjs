@@ -4,7 +4,7 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
-import type { ServiceTicket, ServiceTicketActivityDetail, ServiceTicketMessage } from '@ocom/data-sources-mongoose-models/case';
+import type { ServiceTicket, ServiceTicketActivityDetail, ServiceTicketMessage } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 

@@ -1,7 +1,7 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 import { Domain } from '@ocom/domain';
-import type { StaffRole, StaffRoleCommunityPermissions, StaffRolePermissions, StaffRolePropertyPermissions, StaffRoleServicePermissions, StaffRoleServiceTicketPermissions, StaffRoleViolationTicketPermissions } from '@ocom/data-sources-mongoose-models/role';
+import type { StaffRole, StaffRoleCommunityPermissions, StaffRolePermissions, StaffRolePropertyPermissions, StaffRoleServicePermissions, StaffRoleServiceTicketPermissions, StaffRoleViolationTicketPermissions } from '@ocom/data-sources-mongoose-models/role/staff-role';
 
 export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	StaffRole,

@@ -1,7 +1,7 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 import { Domain } from '@ocom/domain';
-import type { VendorUser, VendorUserContactInformation, VendorUserIdentityDetails, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user';
+import type { VendorUser, VendorUserContactInformation, VendorUserIdentityDetails, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
 	VendorUser,

@@ -5,7 +5,7 @@ import { expect, vi } from 'vitest';
 
 import type { Domain } from '@ocom/domain';
 import { StaffUserPersistence } from './index.ts';
-import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user';
+import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 
 const test = { for: describeFeature };
