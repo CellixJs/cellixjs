@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 import { ServiceTicketV1Converter, type ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
@@ -81,7 +81,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let serviceTicketDoc: ServiceTicket;
   let communityDoc: Community;
   let memberDoc: Member;
-  let result: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
+  let result: ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
   BeforeEachScenario(() => {
     communityDoc = makeCommunityDoc();
@@ -94,7 +94,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     converter = new ServiceTicketV1Converter();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
+    result = {} as ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
     // Mock the Mongoose model as a constructor function with static methods
     const ModelMock = function (this: ServiceTicket) {
@@ -145,7 +145,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('I should receive a ServiceTicketV1 domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1);
+      expect(result).toBeInstanceOf(ServiceTicketV1);
     });
     And('the domain object\'s title should be "Test Ticket"', () => {
       expect(result.title).toBe('Test Ticket');
@@ -156,7 +156,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a service ticket by id that does not exist', ({ When, Then }) => {
-    let gettingServiceTicketThatDoesNotExist: () => Promise<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>>;
+    let gettingServiceTicketThatDoesNotExist: () => Promise<ServiceTicketV1<ServiceTicketV1DomainAdapter>>;
     When('I call getById with "nonexistent-id"', () => {
       gettingServiceTicketThatDoesNotExist = async () => await repo.getById('nonexistent-id');
     });
@@ -167,13 +167,13 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new service ticket instance', ({ Given, When, Then, And }) => {
-    let communityDomainObject: Domain.Contexts.Community.Community.CommunityEntityReference;
-    let requestorDomainObject: Domain.Contexts.Community.Member.MemberEntityReference;
+    let communityDomainObject: CommunityEntityReference;
+    let requestorDomainObject: MemberEntityReference;
     Given('a valid Community domain object as the community', () => {
-      communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
+      communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as CommunityEntityReference;
     });
     And('a valid Member domain object as the requestor', () => {
-      requestorDomainObject = { id: '507f1f77bcf86cd799439013', memberName: 'Test Member' } as Domain.Contexts.Community.Member.MemberEntityReference;
+      requestorDomainObject = { id: '507f1f77bcf86cd799439013', memberName: 'Test Member' } as MemberEntityReference;
     });
     When('I call getNewInstance with title "New Ticket", description "New Description", community, and requestor', async () => {
       result = await repo.getNewInstance(
@@ -184,7 +184,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       );
     });
     Then('I should receive a new ServiceTicketV1 domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1);
+      expect(result).toBeInstanceOf(ServiceTicketV1);
     });
     And('the domain object\'s title should be "New Ticket"', () => {
       expect(result.title).toBe('New Ticket');

@@ -1,12 +1,12 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import { VendorUser, type VendorUserRepository as VendorUserRepositoryInterface, type Passport } from '@ocom/domain';
 import type { VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
-import type { VendorUser } from '@ocom/data-sources-mongoose-models/user/vendor-user';
+import type { VendorUser as VendorUserModel } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
-type VendorUserDocument = VendorUser;
-type VendorUserAggregate = Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
-type VendorUserRepositoryContract = Domain.Contexts.User.VendorUser.VendorUserRepository<VendorUserDomainAdapter>;
+type VendorUserDocument = VendorUserModel;
+type VendorUserAggregate = VendorUser<VendorUserDomainAdapter>;
+type VendorUserRepositoryContract = VendorUserRepositoryInterface<VendorUserDomainAdapter>;
 
 export class VendorUserRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
@@ -50,7 +50,7 @@ export class VendorUserRepository
 		adapter.tags = [];
 		adapter.accessBlocked = false;
 		return Promise.resolve(
-			Domain.Contexts.User.VendorUser.VendorUser.getNewUser(
+			VendorUser.getNewUser(
 				adapter,
 				this.passport,
 				externalId,

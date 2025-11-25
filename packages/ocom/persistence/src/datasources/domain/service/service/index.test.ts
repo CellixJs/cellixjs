@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { ServicePersistence } from './index.ts';
 import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/service';

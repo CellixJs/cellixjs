@@ -2,8 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { DomainDataSource, Passport } from '@ocom/domain';
-import type { VendorUser, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user/vendor-user';
+import { VendorUser, type Passport } from '@ocom/domain';
+import type { VendorUser as VendorUserModel, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 
 const test = { for: describeFeature };
@@ -381,13 +381,13 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let converter: VendorUserConverter;
   let doc: VendorUser;
-  let domainObject: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
-  let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter> | VendorUser | undefined;
+  let domainObject: VendorUser<VendorUserDomainAdapter>;
+  let result: VendorUser<VendorUserDomainAdapter> | VendorUser | undefined;
 
   BeforeEachScenario(() => {
     converter = new VendorUserConverter();
     doc = makeVendorUserDoc();
-    domainObject = {} as Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    domainObject = {} as VendorUser<VendorUserDomainAdapter>;
     result = undefined;
   });
 
@@ -405,11 +405,11 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       converter = new VendorUserConverter();
     });
     When('I call toDomain with the Mongoose VendorUser document', () => {
-      result = converter.toDomain(doc, makeMockPassport()) as Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+      result = converter.toDomain(doc, makeMockPassport()) as VendorUser<VendorUserDomainAdapter>;
     });
     Then('I should receive a VendorUser domain object', () => {
       expect(result).toBeDefined();
-      expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(VendorUser);
     });
     And('the domain object\'s userType should be "vendor-user"', () => {
       expect(result?.userType).toBe('vendor-user');
@@ -444,7 +444,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         accessBlocked: true,
         tags: ['tag3'],
       }));
-      domainObject = new Domain.Contexts.User.VendorUser.VendorUser(mockAdapter, makeMockPassport());
+      domainObject = new VendorUser(mockAdapter, makeMockPassport());
     });
     When('I call toPersistence with the VendorUser domain object', () => {
       result = converter.toPersistence(domainObject) as VendorUser;

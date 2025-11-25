@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
@@ -9,19 +9,19 @@ export class ServiceConverter extends MongooseSeedwork.MongoTypeConverter<
 	Service,
 	ServiceDomainAdapter,
 	Passport,
-	Domain.Contexts.Service.Service.Service<ServiceDomainAdapter>
+	Service<ServiceDomainAdapter>
 > {
 	constructor() {
 		super(
 			ServiceDomainAdapter,
-			Domain.Contexts.Service.Service.Service
+			Service
 		);
 	}
 }
 
 export class ServiceDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Service>
-	implements Domain.Contexts.Service.Service.ServiceProps
+	implements ServiceProps
 {
 	get serviceName() {
 		return this.doc.serviceName;
@@ -44,7 +44,7 @@ export class ServiceDomainAdapter
 		this.doc.isActive = isActive;
 	}
 
-	get community(): Domain.Contexts.Community.Community.CommunityProps {
+	get community(): CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -56,7 +56,7 @@ export class ServiceDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
-    async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
+    async loadCommunity(): Promise<CommunityProps> {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -66,7 +66,7 @@ export class ServiceDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
-	setCommunityRef(community: Domain.Contexts.Community.Community.CommunityEntityReference) {
+	setCommunityRef(community: CommunityEntityReference) {
 		if (!community?.id) {
 			throw new Error('community reference is missing id');
 		}

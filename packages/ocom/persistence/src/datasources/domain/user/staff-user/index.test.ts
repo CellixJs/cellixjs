@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { StaffUserPersistence } from './index.ts';
 import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 

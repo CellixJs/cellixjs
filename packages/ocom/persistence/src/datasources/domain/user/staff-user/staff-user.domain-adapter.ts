@@ -1,28 +1,28 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import { StaffUser, StaffRole, type StaffUserProps, type StaffRoleProps, type StaffRoleEntityReference, type Passport } from '@ocom/domain';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
-import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
-import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import type { StaffRole as StaffRoleModel } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import type { StaffUser as StaffUserModel } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 export class StaffUserDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<StaffUser>
-	implements Domain.Contexts.User.StaffUser.StaffUserProps
+	extends MongooseSeedwork.MongooseDomainAdapter<StaffUserModel>
+	implements StaffUserProps
 {
-	get role(): Domain.Contexts.User.StaffRole.StaffRoleProps {
+	get role(): StaffRoleProps {
 		if (!this.doc.role) {
-			return undefined as unknown as Domain.Contexts.User.StaffRole.StaffRoleProps;
+			return undefined as unknown as StaffRoleProps;
 		}
 		if (this.doc.role instanceof MongooseSeedwork.ObjectId) {
-			return undefined as unknown as Domain.Contexts.User.StaffRole.StaffRoleProps;
+			return undefined as unknown as StaffRoleProps;
 		}
-		return new StaffRoleDomainAdapter(this.doc.role as StaffRole);
+		return new StaffRoleDomainAdapter(this.doc.role as StaffRoleModel);
 	}
 
 	setRoleRef(
 		role:
-			| Domain.Contexts.User.StaffRole.StaffRoleEntityReference
-			| Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>
+			| StaffRoleEntityReference
+			| StaffRole<StaffRoleDomainAdapter>
 			| undefined,
 	): void {
 		if (!role) {
@@ -30,7 +30,7 @@ export class StaffUserDomainAdapter
 			return;
 		}
 
-		if (role instanceof Domain.Contexts.User.StaffRole.StaffRole) {
+		if (role instanceof StaffRole) {
 			this.doc.set('role', role.props.doc);
 			return;
 		}
@@ -112,15 +112,15 @@ export class StaffUserDomainAdapter
 }
 
 export class StaffUserConverter extends MongooseSeedwork.MongoTypeConverter<
-	StaffUser,
+	StaffUserModel,
 	StaffUserDomainAdapter,
 	Passport,
-	Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>
+	StaffUser<StaffUserDomainAdapter>
 > {
 	constructor() {
 		super(
 			StaffUserDomainAdapter,
-			Domain.Contexts.User.StaffUser.StaffUser,
+			StaffUser,
 		);
 	}
 }

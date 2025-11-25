@@ -4,7 +4,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { EndUserRoleConverter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
 import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
@@ -12,7 +12,7 @@ import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/ro
 export const getEndUserRoleUnitOfWork = (
     endUserRoleModel: EndUserRoleModelType,
     passport: Passport
-): Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork => {
+): EndUserRoleUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

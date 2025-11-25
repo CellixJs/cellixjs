@@ -1,22 +1,22 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 export class EndUserRepository<
-		PropType extends Domain.Contexts.User.EndUser.EndUserProps,
+		PropType extends EndUserProps,
 	>
 	extends MongooseSeedwork.MongoRepositoryBase<
 		EndUser,
 		PropType,
 		Passport,
-		Domain.Contexts.User.EndUser.EndUser<PropType>
+		EndUser<PropType>
 	>
-	implements Domain.Contexts.User.EndUser.EndUserRepository<PropType>
+	implements EndUserRepository<PropType>
 {
 	async getByExternalId(
 		externalId: string,
-	): Promise<Domain.Contexts.User.EndUser.EndUser<PropType>> {
+	): Promise<EndUser<PropType>> {
 		const user = await this.model.findOne({ externalId: externalId }).exec();
 		if (!user) {
 			throw new Error(`User with externalId ${externalId} not found`);
@@ -30,10 +30,10 @@ export class EndUserRepository<
 		lastName: string,
 		restOfName: string | undefined,
 		email: string,
-	): Promise<Domain.Contexts.User.EndUser.EndUser<PropType>> {
+	): Promise<EndUser<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.User.EndUser.EndUser.getNewInstance(
+			EndUser.getNewInstance(
 				adapter,
 				this.passport,
 				externalId,

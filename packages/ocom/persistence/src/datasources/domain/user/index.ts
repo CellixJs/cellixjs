@@ -1,4 +1,4 @@
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../index.ts';
 import * as EndUser from './end-user/index.ts';
 import * as StaffRole from './staff-role/index.ts';

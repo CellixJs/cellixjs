@@ -4,7 +4,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { StaffRoleConverter } from './staff-role.domain-adapter.ts';
 import { StaffRoleRepository } from './staff-role.repository.ts';
 import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
@@ -12,7 +12,7 @@ import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role
 export const getStaffRoleUnitOfWork = (
 	staffRoleModel: StaffRoleModelType,
 	passport: Passport,
-): Domain.Contexts.User.StaffRole.StaffRoleUnitOfWork => {
+): StaffRoleUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getEndUserUnitOfWork } from './end-user.uow.ts';
 import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
@@ -42,12 +42,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let endUserModel: EndUserModelType;
   let passport: Passport;
-  let result: Domain.Contexts.User.EndUser.EndUserUnitOfWork;
+  let result: EndUserUnitOfWork;
 
   BeforeEachScenario(() => {
     endUserModel = makeMockEndUserModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.User.EndUser.EndUserUnitOfWork;
+    result = {} as EndUserUnitOfWork;
   });
 
   Background(({ Given, And }) => {

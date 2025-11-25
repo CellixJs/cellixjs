@@ -1,12 +1,12 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import { StaffUser, type StaffUserRepository as StaffUserRepositoryInterface, type Passport } from '@ocom/domain';
 import type { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
-import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import type { StaffUser as StaffUserModel } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
-type StaffUserDocument = StaffUser;
-type StaffUserAggregate = Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
-type StaffUserRepositoryContract = Domain.Contexts.User.StaffUser.StaffUserRepository<StaffUserDomainAdapter>;
+type StaffUserDocument = StaffUserModel;
+type StaffUserAggregate = StaffUser<StaffUserDomainAdapter>;
+type StaffUserRepositoryContract = StaffUserRepositoryInterface<StaffUserDomainAdapter>;
 
 export class StaffUserRepository
 	extends MongooseSeedwork.MongoRepositoryBase<
@@ -50,7 +50,7 @@ export class StaffUserRepository
 		adapter.tags = [];
 		adapter.accessBlocked = false;
 		return Promise.resolve(
-			Domain.Contexts.User.StaffUser.StaffUser.getNewUser(
+			StaffUser.getNewUser(
 				adapter,
 				this.passport,
 				externalId,

@@ -1,27 +1,27 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
-import type { VendorUser, VendorUserContactInformation, VendorUserIdentityDetails, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user/vendor-user';
+import { VendorUser, type VendorUserProps, type Passport, type VendorUserIdentityDetailsProps, type VendorUserContactInformationProps, type VendorUserPersonalInformationProps } from '@ocom/domain';
+import type { VendorUser as VendorUserModel, VendorUserContactInformation, VendorUserIdentityDetails, VendorUserPersonalInformation } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<
-	VendorUser,
+	VendorUserModel,
 	VendorUserDomainAdapter,
 	Passport,
-	Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>
+	VendorUser<VendorUserDomainAdapter>
 > {
 	constructor() {
 		super(
 			VendorUserDomainAdapter,
-			Domain.Contexts.User.VendorUser.VendorUser,
+			VendorUser,
 		);
 	}
 }
 
 export class VendorUserDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<VendorUser>
-	implements Domain.Contexts.User.VendorUser.VendorUserProps
+	extends MongooseSeedwork.MongooseDomainAdapter<VendorUserModel>
+	implements VendorUserProps
 {
-	get personalInformation(): Domain.Contexts.User.VendorUser.VendorUserPersonalInformationProps {
+	get personalInformation(): VendorUserPersonalInformationProps {
 		if (!this.doc.personalInformation) {
 			this.doc.set(
 				'personalInformation',
@@ -86,7 +86,7 @@ export class VendorUserDomainAdapter
 }
 
 export class VendorUserIdentityDetailsDomainAdapter
-	implements Domain.Contexts.User.VendorUser.VendorUserIdentityDetailsProps
+	implements VendorUserIdentityDetailsProps
 {
 	private readonly props: VendorUserIdentityDetails;
 
@@ -117,7 +117,7 @@ export class VendorUserIdentityDetailsDomainAdapter
 }
 
 export class VendorUserContactInformationDomainAdapter
-	implements Domain.Contexts.User.VendorUser.VendorUserContactInformationProps
+	implements VendorUserContactInformationProps
 {
 	private readonly props: VendorUserContactInformation;
 
@@ -134,7 +134,7 @@ export class VendorUserContactInformationDomainAdapter
 }
 
 export class VendorUserPersonalInformationDomainAdapter
-	implements Domain.Contexts.User.VendorUser.VendorUserPersonalInformationProps
+	implements VendorUserPersonalInformationProps
 {
 	private readonly props: VendorUserPersonalInformation;
 
@@ -142,7 +142,7 @@ export class VendorUserPersonalInformationDomainAdapter
 		this.props = props;
 	}
 
-	get identityDetails(): Domain.Contexts.User.VendorUser.VendorUserIdentityDetailsProps {
+	get identityDetails(): VendorUserIdentityDetailsProps {
 		if (!this.props.identityDetails) {
 			this.props.set(
 				'identityDetails',
@@ -154,7 +154,7 @@ export class VendorUserPersonalInformationDomainAdapter
 		);
 	}
 
-	get contactInformation(): Domain.Contexts.User.VendorUser.VendorUserContactInformationProps {
+	get contactInformation(): VendorUserContactInformationProps {
 		if (!this.props.contactInformation) {
 			this.props.set(
 				'contactInformation',

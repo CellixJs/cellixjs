@@ -1,4 +1,4 @@
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../../index.ts';
 import { getVendorUserRoleUnitOfWork } from './vendor-user-role.uow.ts';
 

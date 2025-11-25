@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getServiceUnitOfWork } from './service.uow.ts';
 import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
@@ -41,12 +41,12 @@ function makeMockPassport() {
 test.for(uowFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   let serviceModel: ServiceModelType;
   let passport: Passport;
-  let result: Domain.Contexts.Service.Service.ServiceUnitOfWork;
+  let result: ServiceUnitOfWork;
 
   BeforeEachScenario(() => {
     serviceModel = makeMockServiceModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Service.Service.ServiceUnitOfWork;
+    result = {} as ServiceUnitOfWork;
   });
 
   Background(({ Given, And }) => {

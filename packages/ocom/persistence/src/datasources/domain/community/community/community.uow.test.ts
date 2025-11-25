@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getCommunityUnitOfWork } from './community.uow.ts';
 import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
@@ -42,12 +42,12 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let communityModel: CommunityModelType;
   let passport: Passport;
-  let result: Domain.Contexts.Community.Community.CommunityUnitOfWork;
+  let result: CommunityUnitOfWork;
 
   BeforeEachScenario(() => {
     communityModel = makeMockCommunityModel();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Community.Community.CommunityUnitOfWork;
+    result = {} as CommunityUnitOfWork;
   });
 
   Background(({ Given, And }) => {

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 
 import { CommunityRepository } from './community.repository.ts';
 import { CommunityConverter, type CommunityDomainAdapter } from './community.domain-adapter.ts';
@@ -61,7 +61,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let userDoc: EndUser;
   let userAdapter: EndUserDomainAdapter;
   let communityDoc: Community;
-  let result: Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
+  let result: Community<CommunityDomainAdapter>;
 
   BeforeEachScenario(() => {
     userDoc = makeUserDoc();
@@ -69,7 +69,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     communityDoc = makeCommunityDoc({ _id: 'community-1', createdBy: userDoc });
     converter = new CommunityConverter();
     passport = makeMockPassport();
-    result = {} as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
+    result = {} as Community<CommunityDomainAdapter>;
     // Mock the Mongoose model as a constructor function with static methods
     const ModelMock = function (this: Community) {
       Object.assign(this, makeCommunityDoc());
@@ -117,21 +117,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       result = await repo.getByIdWithCreatedBy('community-1');
     });
     Then('I should receive a Community domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
+      expect(result).toBeInstanceOf(Community);
     });
     And('the domain object\'s name should be "Test Community"', () => {
       expect(result.name).toBe('Test Community');
     });
     And('the domain object\'s createdBy should be an EndUser domain object with the correct user data', () => {
-      const { createdBy } = result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
-      expect(createdBy).toBeInstanceOf(Domain.Contexts.User.EndUser.EndUser);
+      const { createdBy } = result as Community<CommunityDomainAdapter>;
+      expect(createdBy).toBeInstanceOf(EndUser);
       expect(createdBy.id).toBe(userDoc.id);
       expect(createdBy.displayName).toBe(userDoc.displayName);
     });
   });
 
   Scenario('Getting a community by id that does not exist', ({ When, Then }) => {
-    let gettingCommunityThatDoesNotExist: () => Promise<Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>>;
+    let gettingCommunityThatDoesNotExist: () => Promise<Community<CommunityDomainAdapter>>;
     When('I call getByIdWithCreatedBy with "nonexistent-id"', () => {
       gettingCommunityThatDoesNotExist = async () => await repo.getByIdWithCreatedBy('nonexistent-id');
     });
@@ -142,24 +142,24 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new community instance', ({ Given, When, Then, And }) => {
-    let userDomainObject: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
+    let userDomainObject: EndUser<EndUserDomainAdapter>;
     Given('a valid EndUser domain object as the user', () => {
       userDoc = makeUserDoc();
       userAdapter = new EndUserDomainAdapter(userDoc)
-      userDomainObject = new Domain.Contexts.User.EndUser.EndUser(userAdapter, passport);
+      userDomainObject = new EndUser(userAdapter, passport);
     });
     When('I call getNewInstance with name "New Community" and the user', async () => {
       result = await repo.getNewInstance('New Community', userDomainObject);
     });
     Then('I should receive a new Community domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
+      expect(result).toBeInstanceOf(Community);
     });
     And('the domain object\'s name should be "New Community"', () => {
       expect(result.name).toBe('New Community');
     });
     And('the domain object\'s createdBy should be the given user', () => {
       const { createdBy } = result;
-      expect(createdBy).toBeInstanceOf(Domain.Contexts.User.EndUser.EndUser);
+      expect(createdBy).toBeInstanceOf(EndUser);
       expect(createdBy.id).toBe(userDoc.id);
       expect(createdBy.displayName).toBe(userDoc.displayName);
     });
@@ -172,7 +172,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       invalidUser = {};
     });
     When('I call getNewInstance with name "Invalid Community" and the invalid user', () => {
-      getNewInstanceWithInvalidUser = () => repo.getNewInstance('Invalid Community', invalidUser as Domain.Contexts.User.EndUser.EndUserEntityReference);
+      getNewInstanceWithInvalidUser = () => repo.getNewInstance('Invalid Community', invalidUser as EndUserEntityReference);
     });
     Then('an error should be thrown indicating the user is not valid', async () => {
       await expect(getNewInstanceWithInvalidUser).rejects.toThrow();

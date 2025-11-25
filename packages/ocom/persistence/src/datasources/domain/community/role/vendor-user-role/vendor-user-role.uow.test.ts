@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getVendorUserRoleUnitOfWork } from './vendor-user-role.uow.ts';
 import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
@@ -42,7 +42,7 @@ function makeMockPassport() {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let vendorUserRoleModel: VendorUserRoleModelType;
   let passport: Passport;
-  let result: Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork;
+  let result: VendorUserRoleUnitOfWork;
 
   BeforeEachScenario(() => {
     vendorUserRoleModel = makeMockVendorUserRoleModel();

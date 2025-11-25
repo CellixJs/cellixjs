@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { StaffUserUnitOfWork, Passport } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getStaffUserUnitOfWork } from './staff-user.uow.ts';
 import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
@@ -36,7 +36,7 @@ test.for(feature, ({ Scenario }) => {
   Scenario('Creating a staff user unit of work', ({ Given, When, Then, And }) => {
     let model: StaffUserModelType;
     let passport: Passport;
-    let result: Domain.Contexts.User.StaffUser.StaffUserUnitOfWork;
+    let result: StaffUserUnitOfWork;
 
     Given('a valid StaffUser model and passport', () => {
       model = makeStaffUserModel();

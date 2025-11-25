@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
@@ -9,19 +9,19 @@ export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<
 	Community,
 	CommunityDomainAdapter,
 	Passport,
-	Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>
+	Community<CommunityDomainAdapter>
 > {
 	constructor() {
 		super(
 			CommunityDomainAdapter,
-			Domain.Contexts.Community.Community.Community
+			Community
 		);
 	}
 }
 
 export class CommunityDomainAdapter
 	extends MongooseSeedwork.MongooseDomainAdapter<Community>
-	implements Domain.Contexts.Community.Community.CommunityProps
+	implements CommunityProps
 {
 	get name() {
 		return this.doc.name;
@@ -51,7 +51,7 @@ export class CommunityDomainAdapter
 		this.doc.handle = handle;
 	}
 
-	get createdBy(): Domain.Contexts.User.EndUser.EndUserProps {
+	get createdBy(): EndUserProps {
 		if (!this.doc.createdBy) {
 			throw new Error('createdBy is not populated');
 		}
@@ -63,7 +63,7 @@ export class CommunityDomainAdapter
 		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}
 
-    async loadCreatedBy(): Promise<Domain.Contexts.User.EndUser.EndUserProps> {
+    async loadCreatedBy(): Promise<EndUserProps> {
 		if (!this.doc.createdBy) {
 			throw new Error('createdBy is not populated');
 		}
@@ -73,9 +73,9 @@ export class CommunityDomainAdapter
 		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}
 
-	set createdBy(user: Domain.Contexts.User.EndUser.EndUserEntityReference | Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>) {
+	set createdBy(user: EndUserEntityReference | EndUser<EndUserDomainAdapter>) {
 		//check to see if user is derived from MongooseDomainAdapter
-		if (user instanceof Domain.Contexts.User.EndUser.EndUser) {
+		if (user instanceof EndUser) {
             this.doc.set('createdBy', user.props.doc);
             return;
 		}

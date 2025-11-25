@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { MemberDomainAdapter } from './member.domain-adapter.ts';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
@@ -14,13 +14,13 @@ export class MemberRepository //<
 		MemberModelType,
 		PropType,
 		Passport,
-		Domain.Contexts.Community.Member.Member<PropType>
+		Member<PropType>
 	>
-	implements Domain.Contexts.Community.Member.MemberRepository<PropType>
+	implements MemberRepository<PropType>
 {
 	async getById(
 		id: string,
-	): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
+	): Promise<Member<PropType>> {
 		const mongoMember = await this.model
 			.findById(id)
 			.populate(['community'])
@@ -31,12 +31,12 @@ export class MemberRepository //<
 		return this.typeConverter.toDomain(mongoMember, this.passport);
 	}
 
-    async getAll(): Promise<Domain.Contexts.Community.Member.Member<PropType>[]> {
+    async getAll(): Promise<Member<PropType>[]> {
         const mongoMembers = await this.model.find().populate(['community']).exec();
         return mongoMembers.map(member => this.typeConverter.toDomain(member, this.passport));
     }
 
-    async getAssignedToRole(roleId: string): Promise<Domain.Contexts.Community.Member.Member<MemberDomainAdapter>[]> {
+    async getAssignedToRole(roleId: string): Promise<Member<MemberDomainAdapter>[]> {
         const mongoMembers = await this.model.find({ role: new MongooseSeedwork.ObjectId(roleId) }).populate(['community', 'role']).exec();
         return mongoMembers.map(member => this.typeConverter.toDomain(member, this.passport));
     }
@@ -44,11 +44,11 @@ export class MemberRepository //<
 	// biome-ignore lint:noRequireAwait
 	async getNewInstance(
 		name: string,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference
-	): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
+		community: CommunityEntityReference
+	): Promise<Member<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.Community.Member.Member.getNewInstance(
+			Member.getNewInstance(
 				adapter,
                 this.passport,
 				name,

@@ -3,12 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import { VendorUser, type Passport } from '@ocom/domain';
 
 import { VendorUserRepository } from './vendor-user.repository.ts';
 import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
-import type { VendorUser, VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
+import type { VendorUser as VendorUserModel, VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,7 +16,7 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user.repository.feature')
 );
 
-function makeVendorUserDoc(overrides: Partial<VendorUser> = {}) {
+function makeVendorUserDoc(overrides: Partial<VendorUserModel> = {}) {
   const base = {
     _id: '507f1f77bcf86cd799439011',
     id: '507f1f77bcf86cd799439011',
@@ -36,11 +36,11 @@ function makeVendorUserDoc(overrides: Partial<VendorUser> = {}) {
         email: 'vendor@example.com',
       },
     },
-    set(key: keyof VendorUser, value: unknown) {
-      (this as VendorUser)[key] = value as never;
+    set(key: keyof VendorUserModel, value: unknown) {
+      (this as VendorUserModel)[key] = value as never;
     },
     ...overrides,
-  } as VendorUser;
+  } as VendorUserModel;
   return vi.mocked(base);
 }
 
@@ -58,7 +58,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let repo: VendorUserRepository;
   let converter: VendorUserConverter;
   let passport: Passport;
-  let vendorUserDoc: VendorUser;
+  let vendorUserDoc: VendorUserModel;
   let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
 
   BeforeEachScenario(() => {
@@ -67,7 +67,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     passport = makeMockPassport();
 
     // Mock the Mongoose model as a constructor function with static methods
-    const ModelMock = function (this: VendorUser) {
+    const ModelMock = function (this: VendorUserModel) {
       Object.assign(this, makeVendorUserDoc());
     };
 
@@ -114,12 +114,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a VendorUser by ID', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: VendorUser<VendorUserDomainAdapter>;
     When('I call getById with ID "507f1f77bcf86cd799439011"', async () => {
       result = await repo.getById('507f1f77bcf86cd799439011');
     });
     Then('it should return the VendorUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(VendorUser);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174001"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
@@ -127,12 +127,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a VendorUser by external ID', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: VendorUser<VendorUserDomainAdapter>;
     When('I call getByExternalId with externalId "123e4567-e89b-12d3-a456-426614174001"', async () => {
       result = await repo.getByExternalId('123e4567-e89b-12d3-a456-426614174001');
     });
     Then('it should return the VendorUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(VendorUser);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174001"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
@@ -149,12 +149,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Creating a new VendorUser instance', ({ When, Then, And }) => {
-    let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
+    let result: VendorUser<VendorUserDomainAdapter>;
     When('I call getNewInstance with externalId "123e4567-e89b-12d3-a456-426614174002", lastName "Smith", and restOfName "John"', async () => {
       result = await repo.getNewInstance('123e4567-e89b-12d3-a456-426614174002', 'Smith', 'John');
     });
     Then('it should return a new VendorUser domain object', () => {
-      expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
+      expect(result).toBeInstanceOf(VendorUser);
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174002"', () => {
       expect(result.externalId).toBe('123e4567-e89b-12d3-a456-426614174002');

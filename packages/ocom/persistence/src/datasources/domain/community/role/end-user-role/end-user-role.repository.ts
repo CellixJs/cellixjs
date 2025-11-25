@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 import type { EndUserRole } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 
@@ -14,13 +14,13 @@ export class EndUserRoleRepository //<
 		EndUserRoleModelType,
 		PropType,
 		Passport,
-		Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>
+		EndUserRole<PropType>
 	>
-	implements Domain.Contexts.Community.Role.EndUserRole.EndUserRoleRepository<PropType>
+	implements EndUserRoleRepository<PropType>
 {
 	async getById(
 		id: string,
-	): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>> {
+	): Promise<EndUserRole<PropType>> {
 		const mongoEndUserRole = await this.model
 			.findById(id)
 			.exec();
@@ -33,11 +33,11 @@ export class EndUserRoleRepository //<
 	async getNewInstance(
 		roleName: string,
         isDefault: boolean,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference
-	): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>> {
+		community: CommunityEntityReference
+	): Promise<EndUserRole<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(
-			Domain.Contexts.Community.Role.EndUserRole.EndUserRole.getNewInstance(
+			EndUserRole.getNewInstance(
 				adapter,
                 this.passport,
 				roleName,

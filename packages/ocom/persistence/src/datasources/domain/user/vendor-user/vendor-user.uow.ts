@@ -4,7 +4,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { VendorUserUnitOfWork, Passport } from '@ocom/domain';
 import { VendorUserConverter } from './vendor-user.domain-adapter.ts';
 import { VendorUserRepository } from './vendor-user.repository.ts';
 import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
@@ -12,7 +12,7 @@ import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/use
 export const getVendorUserUnitOfWork = (
 	vendorUserModel: VendorUserModelType,
 	passport: Passport,
-): Domain.Contexts.User.VendorUser.VendorUserUnitOfWork => {
+): VendorUserUnitOfWork => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

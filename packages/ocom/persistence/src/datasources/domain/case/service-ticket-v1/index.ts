@@ -1,4 +1,4 @@
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { getServiceTicketV1UnitOfWork } from './service-ticket-v1.uow.ts';
 

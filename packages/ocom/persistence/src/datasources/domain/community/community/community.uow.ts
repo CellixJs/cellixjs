@@ -4,7 +4,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { CommunityConverter } from './community.domain-adapter.ts';
 import { CommunityRepository } from './community.repository.ts';
 import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
@@ -12,7 +12,7 @@ import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/comm
 export const getCommunityUnitOfWork = (
     endUserModel: CommunityModelType,
     passport: Passport
-): Domain.Contexts.Community.Community.CommunityUnitOfWork => {
+): CommunityUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

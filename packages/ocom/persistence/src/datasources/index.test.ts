@@ -3,9 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import { PassportFactory, type DomainDataSource, type Passport } from '@ocom/domain';
 import type { ModelsContext } from '../index.ts';
-import type { DomainDataSource, Passport } from '@ocom/domain';
 import type { ReadonlyDataSource } from './readonly/index.ts';
 
 // Mock the domain data source implementation
@@ -18,12 +17,10 @@ vi.mock('./readonly/index.ts', () => ({
   ReadonlyDataSourceImplementation: vi.fn(),
 }));
 
-// Mock the Domain module for PassportFactory
+// Mock the PassportFactory
 vi.mock('@ocom/domain', () => ({
-  Domain: {
-    PassportFactory: {
-      forSystem: vi.fn(),
-    },
+  PassportFactory: {
+    forSystem: vi.fn(),
   },
 }));
 

@@ -4,7 +4,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 
-import type { DomainDataSource, Passport } from '@ocom/domain';
+import type { Passport } from '@ocom/domain';
 import { ServiceConverter } from './service.domain-adapter.ts';
 import { ServiceRepository } from './service.repository.ts';
 import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
@@ -12,7 +12,7 @@ import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/servic
 export const getServiceUnitOfWork = (
     serviceModel: ServiceModelType,
     passport: Passport
-): Domain.Contexts.Service.Service.ServiceUnitOfWork => {
+): ServiceUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,
