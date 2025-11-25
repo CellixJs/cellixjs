@@ -38,19 +38,19 @@ export class ViolationTicketV1FinanceDetailsTransactions
 		this.visa = visa;
 	}
 
+    public requestAddNewAdhocTransaction(): ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference {
+		const adhocTransaction = this.props.adhocTransactions.getNewItem();
+		return new ViolationTicketV1FinanceDetailsAdhocTransactions(
+			adhocTransaction,
+			this.visa,
+		);
+	}
+
 	get submission(): ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference {
 		return this.props.submission;
 	}
 
 	get adhocTransactions(): ReadonlyArray<ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference> {
 		return this.props.adhocTransactions.items;
-	}
-
-	public requestAddNewAdhocTransaction(): ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference {
-		const adhocTransaction = this.props.adhocTransactions.getNewItem();
-		return new ViolationTicketV1FinanceDetailsAdhocTransactions(
-			adhocTransaction,
-			this.visa,
-		);
 	}
 }

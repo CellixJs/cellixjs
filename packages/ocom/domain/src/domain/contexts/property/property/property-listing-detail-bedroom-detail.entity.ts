@@ -26,25 +26,7 @@ export class PropertyListingDetailBedroomDetail
 		this.visa = visa;
 	}
 
-	get roomName(): string {
-		return this.props.roomName;
-	}
-
-	set roomName(roomName: ValueObjects.RoomName) {
-		this.ensureCanModify();
-		this.props.roomName = roomName.valueOf();
-	}
-
-	get bedDescriptions(): string[] {
-		return [...this.props.bedDescriptions];
-	}
-
-	set bedDescriptions(descriptions: ValueObjects.BedDescriptions) {
-		this.ensureCanModify();
-		this.props.bedDescriptions = descriptions.valueOf();
-	}
-
-	private ensureCanModify(): void {
+    private validateVisa(): void {
 		if (
 			!this.visa.determineIf(
 				(permissions) =>
@@ -57,5 +39,23 @@ export class PropertyListingDetailBedroomDetail
 				'You do not have permission to update bedroom details for this property',
 			);
 		}
+	}
+
+	get roomName(): string {
+		return this.props.roomName;
+	}
+
+	set roomName(roomName: ValueObjects.RoomName) {
+		this.validateVisa();
+		this.props.roomName = roomName.valueOf();
+	}
+
+	get bedDescriptions(): string[] {
+		return [...this.props.bedDescriptions];
+	}
+
+	set bedDescriptions(descriptions: ValueObjects.BedDescriptions) {
+		this.validateVisa();
+		this.props.bedDescriptions = descriptions.valueOf();
 	}
 }
