@@ -3,7 +3,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { PropertyModelType } from '@ocom/data-sources-mongoose-models';
+import type { PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
 import type { Domain } from '@ocom/domain';
 import { PropertyConverter } from './property.domain-adapter.ts';
 import { PropertyRepository } from './property.repository.ts';

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { MemberModelType } from '@ocom/data-sources-mongoose-models';
+import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getMemberUnitOfWork } from './member.uow.ts';

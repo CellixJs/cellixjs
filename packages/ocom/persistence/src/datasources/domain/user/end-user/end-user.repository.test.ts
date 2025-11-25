@@ -5,7 +5,7 @@ import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type {
 	EndUser,
 	EndUserModelType,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';

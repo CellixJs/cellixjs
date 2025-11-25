@@ -1,4 +1,4 @@
-import type { Community } from '@ocom/data-sources-mongoose-models';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import {
 	type MongoDataSource,
 	MongoDataSourceImpl,

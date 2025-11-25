@@ -7,7 +7,7 @@ import type {
 	StaffRoleServicePermissions,
 	StaffRoleServiceTicketPermissions,
 	StaffRoleViolationTicketPermissions,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/role';
 import { Domain } from '@ocom/domain';
 
 export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<

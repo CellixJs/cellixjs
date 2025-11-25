@@ -4,7 +4,7 @@ import type {
 	EndUserContactInformation,
 	EndUserIdentityDetails,
 	EndUserPersonalInformation,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
 
 export class EndUserConverter extends MongooseSeedwork.MongoTypeConverter<

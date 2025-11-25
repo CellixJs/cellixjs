@@ -1,4 +1,4 @@
-import type { Member } from '@ocom/data-sources-mongoose-models';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import {
 	type MongoDataSource,
 	MongoDataSourceImpl,

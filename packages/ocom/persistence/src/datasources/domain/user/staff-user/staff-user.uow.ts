@@ -3,7 +3,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models';
+import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user';
 import type { Domain } from '@ocom/domain';
 import { StaffUserConverter } from './staff-user.domain-adapter.ts';
 import { StaffUserRepository } from './staff-user.repository.ts';

@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type {
-	Community,
 	EndUserRole,
 	EndUserRoleCommunityPermissions,
 	EndUserRolePermissions,
@@ -8,7 +8,7 @@ import type {
 	EndUserRoleServicePermissions,
 	EndUserRoleServiceTicketPermissions,
 	EndUserRoleViolationTicketPermissions,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/role';
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 

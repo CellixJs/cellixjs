@@ -1,14 +1,14 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type {
-	Community,
-	EndUser,
-	EndUserRole,
 	Member,
 	MemberAccount,
 	MemberCustomView,
 	MemberProfile,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/member';
+import type { EndUserRole } from '@ocom/data-sources-mongoose-models/role';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';

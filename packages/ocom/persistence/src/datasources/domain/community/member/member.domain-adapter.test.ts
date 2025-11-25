@@ -10,7 +10,7 @@ import type {
 	MemberAccount,
 	MemberCustomView,
 	MemberProfile,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/community';
 import { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';

@@ -3,7 +3,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models';
+import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/user';
 import type { Domain } from '@ocom/domain';
 import { EndUserRoleConverter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';

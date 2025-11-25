@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { PropertyModelType } from '@ocom/data-sources-mongoose-models';
+import type { PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getPropertyUnitOfWork } from './property.uow.ts';

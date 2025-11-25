@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Member } from '@ocom/data-sources-mongoose-models';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import { Domain } from '@ocom/domain';
 import type { MemberDomainAdapter } from './member.domain-adapter.ts';
 

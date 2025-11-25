@@ -1,4 +1,4 @@
-import type { Community } from '@ocom/data-sources-mongoose-models';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
 import { CommunityConverter } from '../../../domain/community/community/community.domain-adapter.ts';

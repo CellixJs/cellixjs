@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { EndUser } from '@ocom/data-sources-mongoose-models';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
 
 export class EndUserRepository<

@@ -1,4 +1,4 @@
-import type { EndUser } from '@ocom/data-sources-mongoose-models';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user';
 import {
 	type MongoDataSource,
 	MongoDataSourceImpl,

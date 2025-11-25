@@ -2,7 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Community, Service } from '@ocom/data-sources-mongoose-models';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Service } from '@ocom/data-sources-mongoose-models/service';
 import { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
@@ -28,7 +29,8 @@ function makeServiceDoc(overrides: Partial<Service> = {}) {
 		community: undefined,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		set(key: keyof Service, value: unknown) {
+		set(key: keyof Service } from '@ocom/data-sources-mongoose-models/service';
+import type {  value: unknown) {
 			// Type-safe property assignment
 			(this as Service)[key] = value as never;
 		},
@@ -365,7 +367,8 @@ test.for(
 				});
 				Then('I should receive a Service domain object', () => {
 					expect(result).toBeInstanceOf(
-						Domain.Contexts.Service.Service.Service,
+						Domain.Contexts.Service.Service.Service } from '@ocom/data-sources-mongoose-models/service';
+import type { 
 					);
 				});
 				And('the domain object\'s serviceName should be "Test Service"', () => {

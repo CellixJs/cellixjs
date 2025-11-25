@@ -11,7 +11,7 @@ const test = { for: describeFeature };
 import type {
 	Community,
 	EndUserRole,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/community';
 import {
 	EndUserRoleCommunityPermissionsDomainAdapter,
 	EndUserRoleConverter,

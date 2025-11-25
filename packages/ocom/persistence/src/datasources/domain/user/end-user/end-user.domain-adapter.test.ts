@@ -9,7 +9,7 @@ const test = { for: describeFeature };
 import type {
 	EndUser,
 	EndUserPersonalInformation,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/user';
 import {
 	EndUserContactInformationDomainAdapter,
 	EndUserConverter,

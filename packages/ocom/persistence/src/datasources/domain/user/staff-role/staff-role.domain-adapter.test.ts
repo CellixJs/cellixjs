@@ -6,7 +6,7 @@ import { expect, vi } from 'vitest';
 
 const test = { for: describeFeature };
 
-import type { StaffRole } from '@ocom/data-sources-mongoose-models';
+import type { StaffRole } from '@ocom/data-sources-mongoose-models/role';
 import {
 	StaffRoleCommunityPermissionsAdapter,
 	StaffRoleConverter,
@@ -462,7 +462,7 @@ test.for(
 					"the propertyPermissions' canEditOwnProperty should be true",
 					() => {
 						expect(
-							doc.permissions?.propertyPermissions?.canEditOwnProperty,
+							doc.permissions?.propertyPermissions?.canEditOwnProperty } from '@ocom/data-sources-mongoose-models/property';
 						).toBe(true);
 					},
 				);

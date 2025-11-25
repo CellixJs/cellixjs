@@ -8,7 +8,7 @@ import type {
 	ServiceTicket,
 	ServiceTicketActivityDetail,
 	ServiceTicketMessage,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/community';
 import { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';

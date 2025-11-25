@@ -3,7 +3,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { CommunityModelType } from '@ocom/data-sources-mongoose-models';
+import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 import type { Domain } from '@ocom/domain';
 import { CommunityConverter } from './community.domain-adapter.ts';
 import { CommunityRepository } from './community.repository.ts';

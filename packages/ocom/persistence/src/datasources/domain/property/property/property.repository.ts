@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Property } from '@ocom/data-sources-mongoose-models';
+import type { Property } from '@ocom/data-sources-mongoose-models/property';
 import { Domain } from '@ocom/domain';
 import type { PropertyDomainAdapter } from './property.domain-adapter.ts';
 

@@ -1,19 +1,20 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type {
-	CommunityModelType,
-	EndUserModelType,
-	EndUserRoleModelType,
-	MemberModelType,
-	PropertyModelType,
+import type { 
 	ServiceModelType,
 	ServiceTicketModelType,
 	StaffRoleModelType,
 	StaffUserModelType,
 	VendorUserModelType,
 	VendorUserRoleModelType,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/community';
+import type {
+	CommunityModelType,
+	EndUserModelType,
+	EndUserRoleModelType,
+	MemberModelType,
+	PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { DomainDataSourceImplementation } from './index.ts';
@@ -89,15 +90,11 @@ function makeMockModelsContext() {
 				findById: vi.fn(),
 				find: vi.fn(),
 				create: vi.fn(),
-			} as unknown as PropertyModelType,
-		},
-		Service: {
-			Service: {
+			} as unknown as PropertyModelType } from '@ocom/data-sources-mongoose-models/property';,
+		Service: 
 				findById: vi.fn(),
 				find: vi.fn(),
-				create: vi.fn(),
-			} as unknown as ServiceModelType,
-		},
+				create: vi.fn(),as unknown as ServiceModelType,,
 	} as Parameters<typeof DomainDataSourceImplementation>[0];
 }
 

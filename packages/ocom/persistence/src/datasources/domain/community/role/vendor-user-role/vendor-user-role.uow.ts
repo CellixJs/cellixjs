@@ -3,7 +3,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models';
+import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/user';
 import type { Domain } from '@ocom/domain';
 import { VendorUserRoleConverter } from './vendor-user-role.domain-adapter.ts';
 import { VendorUserRoleRepository } from './vendor-user-role.repository.ts';

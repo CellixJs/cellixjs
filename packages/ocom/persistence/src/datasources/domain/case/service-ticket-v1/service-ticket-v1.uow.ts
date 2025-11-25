@@ -3,7 +3,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models';
+import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/service';
 import type { Domain } from '@ocom/domain';
 import { ServiceTicketV1Converter } from './service-ticket-v1.domain-adapter.ts';
 import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';

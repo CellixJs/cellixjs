@@ -8,6 +8,34 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./community": {
+      "types": "./dist/src/community.d.ts",
+      "default": "./dist/src/community.js"
+    },
+    "./member": {
+      "types": "./dist/src/member.d.ts",
+      "default": "./dist/src/member.js"
+    },
+    "./user": {
+      "types": "./dist/src/user.d.ts",
+      "default": "./dist/src/user.js"
+    },
+    "./role": {
+      "types": "./dist/src/role.d.ts",
+      "default": "./dist/src/role.js"
+    },
+    "./case": {
+      "types": "./dist/src/case.d.ts",
+      "default": "./dist/src/case.js"
+    },
+    "./property": {
+      "types": "./dist/src/property.d.ts",
+      "default": "./dist/src/property.js"
+    },
+    "./service": {
+      "types": "./dist/src/service.d.ts",
+      "default": "./dist/src/service.js"
     }
   },
   "scripts": {

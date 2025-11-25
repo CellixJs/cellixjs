@@ -9,7 +9,7 @@ const test = { for: describeFeature };
 import type {
 	VendorUser,
 	VendorUserPersonalInformation,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/user';
 import {
 	VendorUserContactInformationDomainAdapter,
 	VendorUserConverter,

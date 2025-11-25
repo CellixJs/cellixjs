@@ -5,7 +5,7 @@ import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type {
 	StaffUser,
 	StaffUserModelType,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';
@@ -89,7 +89,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			findOne: vi.fn((query: Record<string, unknown>) => ({
 				populate: vi.fn(() => ({
 					exec: vi.fn(async () =>
-						query['externalId'] === '12345678-1234-1234-8123-123456789012'
+						query.externalId === '12345678-1234-1234-8123-123456789012'
 							? staffUserDoc
 							: null,
 					),

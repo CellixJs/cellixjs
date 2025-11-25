@@ -1,5 +1,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Community, EndUser } from '@ocom/data-sources-mongoose-models';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 

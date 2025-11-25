@@ -4,9 +4,11 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type {
 	Community,
-	Property,
-	PropertyModelType,
-} from '@ocom/data-sources-mongoose-models';
+	Property } from '@ocom/data-sources-mongoose-models/property';
+import type { 
+	PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
+import type { 
+} from '@ocom/data-sources-mongoose-models/community';
 import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';
@@ -27,7 +29,8 @@ function makePropertyDoc(overrides: Partial<Property> = {}) {
 		id: '507f1f77bcf86cd799439011', // Valid ObjectId string
 		propertyName: 'Test Property',
 		community: makeCommunityDoc(),
-		set(key: keyof Property, value: unknown) {
+		set(key: keyof Property } from '@ocom/data-sources-mongoose-models/property';
+import type {  value: unknown) {
 			(this as Property)[key] = value as never;
 		},
 		...overrides,
@@ -106,7 +109,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		// Create repository with correct constructor parameters
 		repo = new PropertyRepository(
 			passport,
-			ModelMock as unknown as PropertyModelType,
+			ModelMock as unknown as PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
+import type { 
 			converter,
 			eventBus,
 			session,
@@ -171,7 +175,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(Array.isArray(results)).toBe(true);
 			expect(results.length).toBeGreaterThan(0);
 			expect(results[0]).toBeInstanceOf(
-				Domain.Contexts.Property.Property.Property,
+				Domain.Contexts.Property.Property.Property } from '@ocom/data-sources-mongoose-models/property';
+import type { 
 			);
 		});
 		And(

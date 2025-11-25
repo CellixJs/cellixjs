@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { EndUserRole } from '@ocom/data-sources-mongoose-models';
+import type { EndUserRole } from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
 import type { EndUserRoleDomainAdapter } from './end-user-role.domain-adapter.ts';
 

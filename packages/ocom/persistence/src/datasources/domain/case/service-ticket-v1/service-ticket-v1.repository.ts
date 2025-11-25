@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { ServiceTicket } from '@ocom/data-sources-mongoose-models';
+import type { ServiceTicket } from '@ocom/data-sources-mongoose-models/service';
 import { Domain } from '@ocom/domain';
 import type { ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
 

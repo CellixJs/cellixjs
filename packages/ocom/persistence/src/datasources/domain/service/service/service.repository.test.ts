@@ -3,11 +3,9 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type {
-	Community,
-	Service,
-	ServiceModelType,
-} from '@ocom/data-sources-mongoose-models';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Service } from '@ocom/data-sources-mongoose-models/service';
+import type {  ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
 import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';
@@ -28,7 +26,8 @@ function makeServiceDoc(overrides: Partial<Service> = {}) {
 		community: undefined,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		set(key: keyof Service, value: unknown) {
+		set(key: keyof Service } from '@ocom/data-sources-mongoose-models/service';
+import type {  value: unknown) {
 			// Type-safe property assignment
 			(this as Service)[key] = value as never;
 		},

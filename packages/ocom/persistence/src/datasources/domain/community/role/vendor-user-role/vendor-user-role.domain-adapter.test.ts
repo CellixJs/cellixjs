@@ -10,7 +10,7 @@ const test = { for: describeFeature };
 import type {
 	Community,
 	VendorUserRole,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/community';
 import {
 	VendorUserRoleConverter,
 	VendorUserRoleDomainAdapter,
@@ -507,7 +507,7 @@ test.for(
 				'permissions.propertyPermissions.canEditOwnProperty should be false',
 				() => {
 					expect(
-						adapter.permissions.propertyPermissions.canEditOwnProperty,
+						adapter.permissions.propertyPermissions.canEditOwnProperty } from '@ocom/data-sources-mongoose-models/property';
 					).toBe(false);
 				},
 			);

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { EndUserModelType } from '@ocom/data-sources-mongoose-models';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { getEndUserUnitOfWork } from './end-user.uow.ts';

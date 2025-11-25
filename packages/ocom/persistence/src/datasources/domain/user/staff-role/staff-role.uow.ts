@@ -3,7 +3,7 @@ import {
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models';
+import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role';
 import type { Domain } from '@ocom/domain';
 import { StaffRoleConverter } from './staff-role.domain-adapter.ts';
 import { StaffRoleRepository } from './staff-role.repository.ts';

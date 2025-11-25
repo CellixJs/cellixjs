@@ -1,11 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type {
-	CommunityModelType,
-	EndUserModelType,
-	MemberModelType,
-} from '@ocom/data-sources-mongoose-models';
+import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
+import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
+import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { ReadonlyDataSourceImplementation } from './index.ts';

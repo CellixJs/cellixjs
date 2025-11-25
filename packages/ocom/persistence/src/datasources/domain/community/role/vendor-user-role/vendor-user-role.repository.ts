@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { VendorUserRole } from '@ocom/data-sources-mongoose-models';
+import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
 import type { VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 

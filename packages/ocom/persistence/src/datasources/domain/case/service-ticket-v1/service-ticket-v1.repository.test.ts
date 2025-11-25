@@ -7,7 +7,7 @@ import type {
 	Member,
 	ServiceTicket,
 	ServiceTicketModelType,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/community';
 import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';

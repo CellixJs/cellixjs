@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type {
 	Community,
 	CommunityModelType,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/community';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import type { ModelsContext } from '../../../../index.ts';

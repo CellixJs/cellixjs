@@ -10,7 +10,7 @@ const test = { for: describeFeature };
 import type {
 	Community,
 	VendorUserRole,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/community';
 import {
 	VendorUserRoleConverter,
 	VendorUserRoleDomainAdapter,

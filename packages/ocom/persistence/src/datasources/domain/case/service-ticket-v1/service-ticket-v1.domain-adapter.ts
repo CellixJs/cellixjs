@@ -1,12 +1,12 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type {
-	Community,
-	Member,
 	ServiceTicket,
 	ServiceTicketActivityDetail,
 	ServiceTicketMessage,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/case';
+import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';

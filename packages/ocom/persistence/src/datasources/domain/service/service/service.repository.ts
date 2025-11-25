@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Service } from '@ocom/data-sources-mongoose-models';
+import type { Service } from '@ocom/data-sources-mongoose-models/service';
 import { Domain } from '@ocom/domain';
 import type { ServiceDomainAdapter } from './service.domain-adapter.ts';
 

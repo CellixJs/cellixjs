@@ -5,7 +5,7 @@ import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type {
 	StaffRole,
 	StaffRoleModelType,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/role';
 import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
 import { expect, vi } from 'vitest';

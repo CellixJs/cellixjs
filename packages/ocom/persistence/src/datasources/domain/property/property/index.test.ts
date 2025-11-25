@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { PropertyModelType } from '@ocom/data-sources-mongoose-models';
+import type { PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { PropertyPersistence } from './index.ts';
@@ -23,8 +23,7 @@ function makeMockModelsContext() {
 				deleteOne: vi.fn(),
 				findByIdAndDelete: vi.fn(),
 				findOne: vi.fn(),
-			} as unknown as PropertyModelType,
-		},
+			} as unknown as PropertyModelType } from '@ocom/data-sources-mongoose-models/property';,
 	} as unknown as Parameters<typeof PropertyPersistence>[0];
 }
 

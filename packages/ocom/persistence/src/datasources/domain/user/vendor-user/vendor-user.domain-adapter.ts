@@ -4,7 +4,7 @@ import type {
 	VendorUserContactInformation,
 	VendorUserIdentityDetails,
 	VendorUserPersonalInformation,
-} from '@ocom/data-sources-mongoose-models';
+} from '@ocom/data-sources-mongoose-models/user';
 import { Domain } from '@ocom/domain';
 
 export class VendorUserConverter extends MongooseSeedwork.MongoTypeConverter<

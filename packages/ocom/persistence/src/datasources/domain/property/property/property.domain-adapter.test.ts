@@ -5,8 +5,9 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type {
 	Community,
 	Member,
-	Property,
-} from '@ocom/data-sources-mongoose-models';
+	Property } from '@ocom/data-sources-mongoose-models/property';
+import type { 
+} from '@ocom/data-sources-mongoose-models/community';
 import { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
@@ -55,7 +56,8 @@ function makePropertyDoc(overrides: Partial<Property> = {}) {
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0',
-		set(key: keyof Property, value: unknown) {
+		set(key: keyof Property } from '@ocom/data-sources-mongoose-models/property';
+import type {  value: unknown) {
 			// Type-safe property assignment
 			(this as Property)[key] = value as never;
 		},
@@ -1533,7 +1535,8 @@ test.for(
 						});
 						Then('I should receive a Property domain object', () => {
 							expect(result).toBeInstanceOf(
-								Domain.Contexts.Property.Property.Property,
+								Domain.Contexts.Property.Property.Property } from '@ocom/data-sources-mongoose-models/property';
+import type { 
 							);
 						});
 						And(
