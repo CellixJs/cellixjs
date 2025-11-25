@@ -37,6 +37,13 @@
       ],
       "project": ["src/**/*.ts"]
     },
+    "packages/ocom/persistence": {
+      "entry": [
+        "src/index.ts",
+        "src/datasources/**/index.ts"
+      ],
+      "project": ["src/**/*.ts"]
+    },
     "packages/ocom/*": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"],
