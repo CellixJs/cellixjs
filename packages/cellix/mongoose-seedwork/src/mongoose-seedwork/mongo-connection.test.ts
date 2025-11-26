@@ -1,10 +1,10 @@
-import type { Model, Schema } from 'mongoose';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import type { Model, Schema } from 'mongoose';
 import { expect, vi } from 'vitest';
 import type { Base } from './base.ts';
-import { modelFactory, type MongooseContextFactory } from './mongo-connection.ts';
+import { modelFactory } from './mongo-connection.ts';
 
 
 const test = { for: describeFeature };
@@ -13,23 +13,27 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/mongo-connection.feature')
 );
 
+
+interface MinimalMongooseService {
+  models: Record<string, Model<TestDoc>>;
+  model: (name: string, schema: Schema<TestDoc, Model<TestDoc>, TestDoc>) => Model<TestDoc>;
+}
+
 interface TestDoc extends Base {
   foo: string;
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
-  let mockService: {
-    models: Record<string, unknown>;
-    model: ReturnType<typeof vi.fn>;
-  };
-  let contextFactory: MongooseContextFactory;
+  let mockService: MinimalMongooseService;
+  let contextFactory: { service: MinimalMongooseService };
   let schema: Schema<TestDoc, Model<TestDoc>, TestDoc>;
   let returnedModel: Model<TestDoc>;
   let fakeModel: Model<TestDoc>;
 
   BeforeEachScenario(() => {
-    schema = {} as Schema<TestDoc, Model<TestDoc>, TestDoc>;
-    fakeModel = {} as Model<TestDoc>;
+    schema = Object.create({});
+    // Minimal mock for Model<TestDoc>
+    fakeModel = Object.create({});
   });
 
   Scenario('Returning an existing model', ({ Given, When, Then }) => {
@@ -38,7 +42,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         models: { TestModel: fakeModel },
         model: vi.fn(),
       };
-      contextFactory = { service: mockService as unknown as MongooseContextFactory['service'] };
+      contextFactory = { service: mockService };
     });
     When('modelFactory is called with the model name and schema', () => {
       returnedModel = modelFactory<TestDoc>('TestModel', schema)(contextFactory);
@@ -55,7 +59,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         models: {},
         model: vi.fn().mockReturnValue(fakeModel),
       };
-      contextFactory = { service: mockService as unknown as MongooseContextFactory['service'] };
+      contextFactory = { service: mockService };
     });
     When('modelFactory is called with the model name and schema', () => {
       returnedModel = modelFactory<TestDoc>('TestModel', schema)(contextFactory);

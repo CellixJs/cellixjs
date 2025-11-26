@@ -1,13 +1,14 @@
 import type { ServiceBase } from '@cellix/api-services-spec';
+import type { JWTPayload } from 'jose';
 import { type OpenIdConfig, VerifiedTokenService } from './verified-token-service.ts';
 
 export interface TokenValidation {
-	verifyJwt<ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null>;
+	verifyJwt(token: string): Promise<TokenValidationResult | null>;
 }
 
-export interface TokenValidationResult<ClaimsType> {
-    verifiedJwt: ClaimsType
-    openIdConfigKey: string;
+export interface TokenValidationResult {
+	verifiedJwt: JWTPayload;
+	openIdConfigKey: string;
 }
 
 export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
@@ -28,7 +29,7 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 					audience: this.tryGetConfigValue(`${envPrefix}_OIDC_AUDIENCE`),
 					issuerUrl: this.tryGetConfigValue(`${envPrefix}_OIDC_ISSUER`),
 					ignoreIssuer: this.tryGetConfigValueWithDefault(`${envPrefix}_OIDC_IGNORE_ISSUER`, 'false') === 'true',
-				} as OpenIdConfig
+				}
 			);
 		}
 		this.tokenVerifier = new VerifiedTokenService(this.tokenSettings, this.refreshInterval);
@@ -39,19 +40,19 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 		return Promise.resolve(this);
 	}
 
-	async verifyJwt<ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null> {
-		// Try each config key for verification
-		for (const configKey of this.tokenSettings.keys()) {
-			const result = await this.tokenVerifier.getVerifiedJwt(token, configKey);
-			if (result?.payload) {
-				return {
-                    verifiedJwt: result.payload as ClaimsType,
-                    openIdConfigKey: configKey,
-                }
-			}
-		}
-		return null;
-	}
+	   async verifyJwt(token: string): Promise<TokenValidationResult | null> {
+		   // Try each config key for verification
+		   for (const configKey of this.tokenSettings.keys()) {
+			   const result = await this.tokenVerifier.getVerifiedJwt(token, configKey);
+			   if (result?.payload) {
+				   return {
+					   verifiedJwt: result.payload,
+					   openIdConfigKey: configKey,
+				   };
+			   }
+		   }
+		   return null;
+	   }
 
 	shutDown(): Promise<void> {
 		// Optionally clear interval or cleanup if needed
@@ -62,17 +63,19 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
         return Promise.resolve();
 	}
 
-	private tryGetConfigValue(configKey: string) {
-		if (Object.hasOwn(process.env, configKey)) {
-			return process.env[configKey];
+	private tryGetConfigValue(configKey: string): string {
+		const value = process.env[configKey];
+		if (typeof value === 'string') {
+			return value;
 		} else {
 			throw new Error(`Environment variable ${configKey} not set`);
 		}
 	}
 
-	private tryGetConfigValueWithDefault(configKey: string, defaultValue: string) {
-		if (Object.hasOwn(process.env, configKey)) {
-			return process.env[configKey];
+	private tryGetConfigValueWithDefault(configKey: string, defaultValue: string): string {
+		const value = process.env[configKey];
+		if (typeof value === 'string') {
+			return value;
 		} else {
 			return defaultValue;
 		}

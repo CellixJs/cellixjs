@@ -3,7 +3,20 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Base } from './base.ts';
+
 import { MongooseDomainAdapter } from './mongo-domain-adapter.ts';
+
+interface TestDoc extends Base {
+  schemaVersion: string;
+}
+
+
+function isTestDoc(obj: unknown): obj is TestDoc {
+  return (
+    typeof obj === 'object' && obj !== null &&
+    'id' in obj && 'createdAt' in obj && 'updatedAt' in obj && 'schemaVersion' in obj && 'version' in obj
+  );
+}
 
 
 
@@ -14,26 +27,34 @@ const feature = await loadFeature(
 );
 
 test.for(feature, ({ Scenario }) => {
-  interface TestDoc extends Base {
-    schemaVersion: string;
-  }
-
   class TestAdapter extends MongooseDomainAdapter<TestDoc> {}
 
-  let doc: TestDoc;
+  let doc: unknown;
   let adapter: TestAdapter;
   Scenario('Constructing a MongooseDomainAdapter', ({ Given, When, Then }) => {
     Given('a Mongoose document with id, createdAt, updatedAt, and schemaVersion', () => {
-      doc = vi.mocked({
-        id: { toString: () => 'abc123' },
+      const mockObjectId = {
+        _bsontype: 'ObjectId' as const,
+        id: new Uint8Array(12),
+        toHexString: () => 'hex123',
+        toJSON: () => 'json123',
+        toString: () => 'abc123',
+        equals: () => false,
+        getTimestamp: () => new Date(),
+        inspect: () => 'inspect',
+      };
+      doc = {
+        id: mockObjectId,
         createdAt: new Date('2023-01-01T00:00:00Z'),
         updatedAt: new Date('2023-01-02T00:00:00Z'),
         schemaVersion: 'v1',
         version: 1,
-      } as TestDoc);
+      };
     });
     When('a domain adapter is constructed with the document', () => {
-      adapter = new TestAdapter(doc);
+      if (isTestDoc(doc)) {
+        adapter = new TestAdapter(doc);
+      }
     });
     Then('the doc property should reference the document', () => {
       expect(adapter.doc).toBe(doc);
@@ -44,14 +65,26 @@ test.for(feature, ({ Scenario }) => {
     let toStringMock: () => string;
     Given('a domain adapter constructed with a document with an ObjectId', () => {
       toStringMock = vi.fn(() => 'objectid123');
-      doc = vi.mocked({
-        id: { toString: toStringMock },
+      const mockObjectId = {
+        _bsontype: 'ObjectId' as const,
+        id: new Uint8Array(12),
+        toHexString: () => 'hex123',
+        toJSON: () => 'json123',
+        toString: toStringMock,
+        equals: () => false,
+        getTimestamp: () => new Date(),
+        inspect: () => 'inspect',
+      };
+      doc = {
+        id: mockObjectId,
         createdAt: new Date(),
         updatedAt: new Date(),
         schemaVersion: 'v2',
         version: 2,
-      }) as TestDoc;
-      adapter = new TestAdapter(doc);
+      };
+      if (isTestDoc(doc)) {
+        adapter = new TestAdapter(doc);
+      }
     });
     When('I access the id property', () => {
       // Access happens in Then
@@ -66,14 +99,26 @@ test.for(feature, ({ Scenario }) => {
     const created = new Date('2022-01-01T00:00:00Z');
     const updated = new Date('2022-01-02T00:00:00Z');
     Given('a domain adapter constructed with a document with createdAt, updatedAt, and schemaVersion', () => {
-      doc = vi.mocked({
-        id: { toString: () => 'id' },
+      const mockObjectId = {
+        _bsontype: 'ObjectId' as const,
+        id: new Uint8Array(12),
+        toHexString: () => 'hex123',
+        toJSON: () => 'json123',
+        toString: () => 'id',
+        equals: () => false,
+        getTimestamp: () => new Date(),
+        inspect: () => 'inspect',
+      };
+      doc = {
+        id: mockObjectId,
         createdAt: created,
         updatedAt: updated,
         schemaVersion: 'v3',
         version: 3,
-      } as TestDoc);
-      adapter = new TestAdapter(doc);
+      };
+      if (isTestDoc(doc)) {
+        adapter = new TestAdapter(doc);
+      }
     });
     When('I access the createdAt, updatedAt, and schemaVersion properties', () => {
       // Access happens in Then

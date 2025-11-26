@@ -34,8 +34,12 @@ function makePassport(
 		canEditOwnProperty: boolean;
 		isEditingOwnProperty: boolean;
 	}> = {},
-) {
+): Passport {
 	return vi.mocked({
+        case: {
+            forServiceTicketV1: vi.fn(),
+            forViolationTicketV1: vi.fn(),
+        },
 		community: {
 			forCommunity: vi.fn(),
 		},
@@ -57,7 +61,17 @@ function makePassport(
 					}),
 			})),
 		},
-	} as unknown as Passport);
+        service: {
+            forService: vi.fn(),
+        },
+        user: {
+            forEndUser: vi.fn(),
+            forStaffRole: vi.fn(),
+            forStaffUser: vi.fn(),
+            forVendorUser: vi.fn(),
+        }
+        
+	});
 }
 
 function makeCommunityEntityReference(
@@ -69,7 +83,8 @@ function makeCommunityEntityReference(
 		domain: 'test.com',
 		whiteLabelDomain: null,
 		handle: null,
-		createdBy: {} as EndUserEntityReference,
+ 		// biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
+ 		createdBy: {} as EndUserEntityReference,
 		loadCreatedBy: vi.fn(),
 		createdAt: new Date(),
 		updatedAt: new Date(),
@@ -85,11 +100,15 @@ function makeMemberEntityReference(id = 'member-1'): MemberEntityReference {
 		communityId: 'community-1',
 		community: makeCommunityEntityReference(),
 		loadCommunity: vi.fn(),
-		accounts: [] as ReadonlyArray<MemberAccountEntityReference>,
-		role: {} as EndUserRoleEntityReference,
+ 		// biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
+ 		accounts: [] as ReadonlyArray<MemberAccountEntityReference>,
+ 		// biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
+ 		role: {} as EndUserRoleEntityReference,
 		loadRole: vi.fn(),
-		customViews: [] as ReadonlyArray<MemberCustomViewEntityReference>,
-		profile: {} as MemberProfileProps,
+ 		// biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
+ 		customViews: [] as ReadonlyArray<MemberCustomViewEntityReference>,
+ 		// biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
+ 		profile: {} as MemberProfileProps,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0.0',
@@ -98,15 +117,16 @@ function makeMemberEntityReference(id = 'member-1'): MemberEntityReference {
 
 function makePropertyLocationProps(): PropertyLocationProps {
 	return {
-		address: {
-			streetNumber: '123',
-			streetName: 'Main St',
-			localName: 'Downtown',
-			municipalitySubdivision: 'Test City',
-			municipality: 'TS',
-			postalCode: '12345',
-			country: 'USA',
-		} as unknown as PropertyLocationAddressProps,
+ 		// biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
+ 		address: {
+ 			streetNumber: '123',
+ 			streetName: 'Main St',
+ 			localName: 'Downtown',
+ 			municipalitySubdivision: 'Test City',
+ 			municipality: 'TS',
+ 			postalCode: '12345',
+ 			country: 'USA',
+ 		} as unknown as PropertyLocationAddressProps,
 		position: {
 			type: 'Point',
 			coordinates: [-122.4194, 37.7749],
@@ -122,15 +142,17 @@ function makePropertyListingDetailProps(): PropertyListingDetailProps {
 		lease: null,
 		maxGuests: 4,
 		bedrooms: 2,
-		bedroomDetails: {} as PropArray<PropertyListingDetailBedroomDetailProps>,
+ 		// biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
+ 		bedroomDetails: {} as PropArray<PropertyListingDetailBedroomDetailProps>,
 		bathrooms: 2,
 		squareFeet: 1200,
 		yearBuilt: 2020,
 		lotSize: null,
 		description: 'A nice property',
 		amenities: ['pool', 'gym'],
-		additionalAmenities:
-			{} as PropArray<PropertyListingDetailAdditionalAmenityProps>,
+ 		additionalAmenities:
+ 			// biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
+ 			{} as PropArray<PropertyListingDetailAdditionalAmenityProps>,
 		images: ['image1.jpg'],
 		video: null,
 		floorPlan: null,
@@ -183,7 +205,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		communityRef = makeCommunityEntityReference();
 		baseProps = makeBaseProps();
 		property = new Property(baseProps, passport);
-		newProperty = undefined as unknown as Property<PropertyProps>;
+	 	// biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
+	 	newProperty = undefined as unknown as Property<PropertyProps>;
 	});
 
 	Background(({ Given, And }) => {

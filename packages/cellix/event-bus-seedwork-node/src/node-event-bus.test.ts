@@ -1,12 +1,12 @@
-import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
-import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
+import { expect, vi } from 'vitest';
 import { NodeEventBusInstance } from './node-event-bus.ts';
-// --- Mocks for OpenTelemetry and performance ---
 
 const test = { for: describeFeature };
+// --- Mocks for OpenTelemetry and performance ---
 vi.mock('@opentelemetry/api', () => {
   const propagation = {
     inject: vi.fn(),
@@ -236,6 +236,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       }));
 
       // Patch the broadcaster to throw synchronously
+      // biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
       const bus = NodeEventBusInstance as unknown as { broadcaster: { broadcast: (event: string, data: unknown) => void } };
       const originalBroadcast = bus.broadcaster.broadcast;
       const spy = vi.spyOn(bus.broadcaster, 'broadcast').mockImplementation(() => {

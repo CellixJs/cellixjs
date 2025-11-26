@@ -46,10 +46,20 @@ export abstract class MongoTypeConverter<
 		return domainType.props.doc;
 	}
 
-	toAdapter(mongoType: MongooseModelType | DomainType): DomainPropInterface {
-		if (mongoType instanceof this.domainObject) {
-			return mongoType.props;
-		}
-		return new this.adapter(mongoType as MongooseModelType);
-	}
+	 toAdapter(mongoType: MongooseModelType | DomainType): DomainPropInterface {
+	 	if (mongoType instanceof this.domainObject) {
+	 		return mongoType.props;
+	 	}
+	 	// Use a type guard to ensure correct type without assertion
+	 	if (this.isMongooseModelType(mongoType)) {
+	 		return new this.adapter(mongoType);
+	 	}
+	 	throw new Error('Invalid type passed to toAdapter');
+	 }
+
+	 private isMongooseModelType(obj: unknown): obj is MongooseModelType {
+	 	// Basic type guard: check for a property unique to MongooseModelType
+	 	// You may need to refine this based on your actual model
+	 	return typeof obj === 'object' && obj !== null && 'constructor' in obj;
+	 }
 }

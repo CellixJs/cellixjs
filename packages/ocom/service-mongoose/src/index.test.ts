@@ -41,8 +41,10 @@ test.for(
 			options = { user: 'test', pass: 'test' };
 			// Get the actual mocked connect function from the mocked module
 			const mongooseModule = await import('mongoose');
+            // biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
 			connectMock = mongooseModule.connect as ReturnType<typeof vi.fn>;
 			disconnectMock = vi.fn().mockResolvedValue(undefined);
+            // biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
 			mockMongooseInstance = {
 				disconnect: disconnectMock,
 			} as unknown as Mongoose;

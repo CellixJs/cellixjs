@@ -19,7 +19,7 @@ test.for(feature, ({ Scenario }) => {
       try {
         throw new NotFoundError('Item not found');
       } catch (e) {
-        error = e as Error;
+        error = e instanceof Error ? e : undefined;
       }
     });
     Then('it should be an instance of Error with the correct name and message', () => {
