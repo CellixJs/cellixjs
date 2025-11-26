@@ -36,9 +36,13 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Community: {} as unknown,
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Member: {} as unknown,
+    // biome-ignore lint/plugin/no-type-assertion: test file
     EndUser: {} as unknown,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as ModelsContext;
 }
 
@@ -49,6 +53,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -63,6 +68,7 @@ function makeMockMemberDocument() {
     createdAt: new Date(),
     updatedAt: new Date(),
     id: 'member-123',
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Member;
 }
 
@@ -106,7 +112,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     };
 
     // Mock the constructors
+    // biome-ignore lint/plugin/no-type-assertion: test file
     vi.mocked(MemberDataSourceImpl).mockImplementation(() => mockDataSource as unknown as InstanceType<typeof MemberDataSourceImpl>);
+    // biome-ignore lint/plugin/no-type-assertion: test file
     vi.mocked(MemberConverter).mockImplementation(() => mockConverter as unknown as MemberConverter);
 
     repository = new MemberReadRepositoryImpl(models, passport);
@@ -222,6 +230,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
             }
           }
         }
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as Member);
       mockConverter.toDomain.mockReturnValueOnce({
         id: 'admin-member',

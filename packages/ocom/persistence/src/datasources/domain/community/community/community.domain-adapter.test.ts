@@ -30,15 +30,18 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     createdBy: undefined,
     set(key: keyof Community, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as Community)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Community;
   return vi.mocked(base);
 }
 
 
 function makeUserDoc(overrides: Partial<EndUser> = {}) {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return { id: '6898b0c34b4a2fbc01e9c697', displayName: 'Test User', ...overrides } as EndUser;
 }
 
@@ -54,6 +57,7 @@ function makeMockPassport() {
                 determineIf: vi.fn(() => true),
             })),
         },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as Domain.Passport;
 }
 
@@ -163,6 +167,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return an EndUserDomainAdapter instance with the correct user data', () => {
       expect(result).toBeInstanceOf(EndUserDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as EndUserDomainAdapter).doc).toBe(userDoc);
     });
   });
@@ -186,6 +191,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Getting the createdBy property when it is an ObjectId', ({ Given, When, Then }) => {
     let gettingCreatedByWhenObjectId: () => void;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a CommunityDomainAdapter for a document with createdBy as an ObjectId', () => {
       doc = makeCommunityDoc({ createdBy: new MongooseSeedwork.ObjectId() });
       adapter = new CommunityDomainAdapter(doc);
@@ -222,6 +228,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new CommunityDomainAdapter(doc);
     });
     And('an object that is not an EndUserDomainAdapter', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       userAdapter = {} as EndUserDomainAdapter;
     });
     When('I try to set the createdBy property to the invalid object', () => {
@@ -272,18 +279,23 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
     });
     And('the domain object\'s name should be "Test Community"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>).name).toBe('Test Community');
     });
     And('the domain object\'s domain should be "test.com"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>).domain).toBe('test.com');
     });
     And('the domain object\'s whiteLabelDomain should be "white.test.com"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>).whiteLabelDomain).toBe('white.test.com');
     });
     And('the domain object\'s handle should be "test-handle"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>).handle).toBe('test-handle');
     });
     And('the domain object\'s createdBy should be an EndUser domain object with the correct user data', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const { createdBy } = result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
       expect(createdBy).toBeInstanceOf(Domain.Contexts.User.EndUser.EndUser);
       expect(createdBy.id).toBe(userDoc.id);

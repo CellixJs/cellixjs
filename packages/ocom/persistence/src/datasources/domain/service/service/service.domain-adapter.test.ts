@@ -32,6 +32,7 @@ function makeServiceDoc(overrides: Partial<Service> = {}) {
     updatedAt: new Date(),
     set(key: keyof Service, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as Service)[key] = value as never;
     },
     populate(path: string) {
@@ -42,6 +43,7 @@ function makeServiceDoc(overrides: Partial<Service> = {}) {
       return this;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Service;
 }
 
@@ -51,6 +53,7 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Community;
   return vi.mocked(base);
 }
@@ -67,6 +70,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -163,12 +167,14 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return a CommunityDomainAdapter instance with the correct community data', () => {
       expect(result).toBeInstanceOf(CommunityDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as CommunityDomainAdapter).doc).toBe(communityDoc);
     });
   });
 
   Scenario('Getting the community property when not populated', ({ Given, When, Then }) => {
     let gettingCommunityWhenNotPopulated: () => void;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceDomainAdapter for a document with community as an ObjectId', () => {
       doc = makeServiceDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new ServiceDomainAdapter(doc);
@@ -185,6 +191,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Loading the community', ({ Given, When, Then }) => {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceDomainAdapter for a document with community as an ObjectId', () => {
       doc = makeServiceDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new ServiceDomainAdapter(doc);
@@ -209,8 +216,10 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     When('I set the community property to the Community domain object', () => {
       adapter.setCommunityRef(communityDomainObj);
     });
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('the document\'s community should be set to the community\'s id as ObjectId', () => {
       expect(doc.community).toBeInstanceOf(MongooseSeedwork.ObjectId);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((doc.community as MongooseSeedwork.ObjectId).toString()).toBe(communityDomainObj.id);
     });
   });
@@ -221,6 +230,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new ServiceDomainAdapter(doc);
     });
     And('an object that is not a Community domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityAdapter = {} as CommunityDomainAdapter;
     });
     When('I try to set the community property to the invalid object', () => {
@@ -299,9 +309,11 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(Domain.Contexts.Service.Service.Service);
     });
     And('the domain object\'s serviceName should be "Test Service"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Service.Service.Service<ServiceDomainAdapter>).serviceName).toBe('Test Service');
     });
     And('the domain object\'s description should be "Test service description"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Service.Service.Service<ServiceDomainAdapter>).description).toBe('Test service description');
     });
   });

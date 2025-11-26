@@ -37,9 +37,11 @@ function makeVendorUserDoc(overrides: Partial<VendorUser> = {}) {
       },
     },
     set(key: keyof VendorUser, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as VendorUser)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as VendorUser;
   return vi.mocked(base);
 }
@@ -51,6 +53,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -86,11 +89,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       findByIdAndDelete: findByIdAndDeleteMock,
     });
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     repo = new VendorUserRepository(
       passport,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       ModelMock as unknown as VendorUserModelType,
       converter,
       eventBus,

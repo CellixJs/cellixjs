@@ -25,6 +25,7 @@ test.for(feature, ({ Scenario }) => {
 			});
 
 			And('I have a property entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				propertyRef = { id: 'property-123' } as PropertyEntityReference;
 			});
 

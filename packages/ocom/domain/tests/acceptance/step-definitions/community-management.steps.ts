@@ -44,12 +44,15 @@ class SerenityCommunityWorld {
       domain: '',
       whiteLabelDomain: null,
       handle: null,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       createdBy: {} as EndUserEntityReference,
       createdAt: new Date(),
       updatedAt: new Date(),
       schemaVersion: '1.0.0',
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as CommunityProps;
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     this.createdBy = {} as EndUserEntityReference;
     this.passport = createMockPassport({ canManageCommunitySettings: true });
     this.communityName = '';
@@ -108,6 +111,7 @@ When('I try to create a community with a name longer than {int} characters',
     this.syncResultsFromScreenplay();
     
     if (this.creationError) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       console.log(`✓ Community creation failed as expected: ${this.creationError.message}`);
     } else {
       console.log(`✗ Unexpected success: Community was created despite invalid name length`);

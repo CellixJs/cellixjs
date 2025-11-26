@@ -23,6 +23,7 @@ function makeCommunityProps(id = 'community-1') {
 		id,
 		name: 'Test Community',
 		// ...other required fields
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as CommunityProps;
 }
 
@@ -48,6 +49,7 @@ function makePassport(
 					}),
 			})),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Passport);
 }
 
@@ -65,6 +67,7 @@ function makeBaseProps(
 			serviceTicketPermissions: {},
 			servicePermissions: {},
 			violationTicketPermissions: {},
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as VendorUserRolePermissions,
 		roleType: 'vendor-user-role',
 		createdAt: new Date('2020-01-01T00:00:00Z'),
@@ -78,6 +81,7 @@ function getIntegrationEvent<T>(
 	events: readonly unknown[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
@@ -93,6 +97,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		communityRef = makeCommunityProps();
 		baseProps = makeBaseProps();
 		role = new VendorUserRole(baseProps, passport);
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		newRole = undefined as unknown as VendorUserRole<VendorUserRoleProps>;
 	});
 
@@ -309,6 +314,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					role.deleteAndReassignTo(reassignedRole);
 				},
 			);
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the role should be marked as deleted', () => {
 				expect(role.isDeleted).toBe(true);
 			});

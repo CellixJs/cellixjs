@@ -50,6 +50,7 @@ export abstract class MongoTypeConverter<
 		if (mongoType instanceof this.domainObject) {
 			return mongoType.props;
 		}
+		// biome-ignore lint/plugin/no-type-assertion: At this point, mongoType must be MongooseModelType since it's not an instance of domainObject
 		return new this.adapter(mongoType as MongooseModelType);
 	}
 }

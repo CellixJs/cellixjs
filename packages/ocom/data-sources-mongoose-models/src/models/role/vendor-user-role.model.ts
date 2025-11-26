@@ -84,6 +84,7 @@ const VendorUserRoleSchema = new Schema<
 		permissions: {
 			servicePermissions: {
 				canManageServices: { type: Boolean, required: true, default: false },
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<VendorUserRoleServicePermissions>,
 			serviceTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
@@ -95,6 +96,7 @@ const VendorUserRoleSchema = new Schema<
 					default: false,
 					index: true,
 				},
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<VendorUserRoleServiceTicketPermissions>,
 			violationTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
@@ -106,6 +108,7 @@ const VendorUserRoleSchema = new Schema<
 					default: false,
 					index: true,
 				},
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<VendorUserRoleViolationTicketPermissions>,
 			communityPermissions: {
 				canManageRolesAndPermissions: {
@@ -130,11 +133,14 @@ const VendorUserRoleSchema = new Schema<
 					required: true,
 					default: false,
 				},
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<VendorUserRoleCommunityPermissions>,
 			propertyPermissions: {
 				canManageProperties: { type: Boolean, required: true, default: false },
 				canEditOwnProperty: { type: Boolean, required: true, default: false },
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<VendorUserRolePropertyPermissions>,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as SchemaDefinition<VendorUserRolePermissions>,
 		schemaVersion: { type: String, default: '1.0.0' },
 		roleName: { type: String, required: true, maxlength: 50 },

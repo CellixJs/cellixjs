@@ -31,9 +31,11 @@ function makeStaffUserDoc(overrides: Partial<StaffUser> = {}) {
     updatedAt: new Date(),
     schemaVersion: '1.0.0',
     set(key: keyof StaffUser, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as StaffUser)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as StaffUser;
   return vi.mocked(base);
 }
@@ -73,6 +75,7 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
     },
     roleType: 'admin',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as StaffRole;
 }
 
@@ -114,6 +117,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(adapter.role).toBeUndefined();
     });
     When('I set the role reference to a valid role', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const roleRef = { id: '507f1f77bcf86cd799439012' } as Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
       adapter.setRoleRef(roleRef);
     });
@@ -307,6 +311,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting role when role is ObjectId', ({ Given, When, Then }) => {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a StaffUserDomainAdapter for the document with role as ObjectId', () => {
       doc.role = new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012');
       adapter = new StaffUserDomainAdapter(doc);

@@ -31,6 +31,7 @@ function makeMockStaffRole(overrides: Partial<Domain.Contexts.User.StaffRole.Sta
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
 }
 
@@ -40,6 +41,7 @@ function makeMockRepo(overrides: Partial<Domain.Contexts.User.StaffRole.StaffRol
     getNewInstance: vi.fn(),
     save: vi.fn(),
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 }
 
@@ -58,6 +60,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
           },
         },
       },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as DataSources;
 
     createStaffRole = create(dataSources);
@@ -150,6 +153,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       try {
         await createStaffRole({ roleName: 'Test Role', isDefault: false });
       } catch (err) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         error = err as Error;
       }
     });
@@ -181,6 +185,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       try {
         await createStaffRole({ roleName: 'Test Role', isDefault: false });
       } catch (err) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         error = err as Error;
       }
     });

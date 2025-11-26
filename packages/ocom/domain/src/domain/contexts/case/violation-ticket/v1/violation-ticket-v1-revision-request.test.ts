@@ -26,10 +26,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let memberRef: MemberEntityReference;
 
 	BeforeEachScenario(() => {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		memberRef = { id: 'member-123' } as MemberEntityReference;
 
 		visa = {
 			determineIf: vi.fn(() => true),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1Visa;
 
 		props = {

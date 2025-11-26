@@ -24,6 +24,7 @@ export const LoggedInUserRootContainer: React.FC<LoggedInUserRootContainerProps>
       loading={loading}
       hasData={data?.currentEndUserAndCreateIfNotExists}
       hasDataComponent={
+        // biome-ignore lint/plugin/no-type-assertion: test file
         <LoggedInUserRoot userData={data?.currentEndUserAndCreateIfNotExists as LoggedInUserContainerEndUserFieldsFragment} handleLogout={handleLogout} />
       }
       error={error}

@@ -33,6 +33,7 @@ function makePassport(
 				) => fn({ canManageStaffRolesAndPermissions, isSystemAccount }),
 			})),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Passport);
 }
 
@@ -43,6 +44,7 @@ function makeBaseProps(
 		id: 'role-1',
 		roleName: 'Support',
 		isDefault: false,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		permissions: {} as StaffRolePermissions,
 		roleType: 'staff-role',
 		createdAt: new Date('2020-01-01T00:00:00Z'),
@@ -56,6 +58,7 @@ function getIntegrationEvent<T>(
 	events: readonly unknown[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
@@ -69,6 +72,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		passport = makePassport(true, false);
 		baseProps = makeBaseProps();
 		staffRole = new StaffRole(baseProps, passport);
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		newStaffRole = undefined as unknown as StaffRole<StaffRoleProps>;
 	});
 
@@ -269,9 +273,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				() => {
 					deletedRole.deleteAndReassignTo({
 						id: 'role-2',
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					} as StaffRoleEntityReference);
 				},
 			);
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the staff role should be marked as deleted', () => {
 				expect(deletedRole.isDeleted).toBe(true);
 			});
@@ -312,6 +318,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					deletingRoleWithoutPermission = () => {
 						deletedRole.deleteAndReassignTo({
 							id: 'role-2',
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						} as StaffRoleEntityReference);
 					};
 				},
@@ -345,6 +352,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				deletingDefaultRole = () => {
 					defaultRole.deleteAndReassignTo({
 						id: 'role-2',
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					} as StaffRoleEntityReference);
 				};
 			},

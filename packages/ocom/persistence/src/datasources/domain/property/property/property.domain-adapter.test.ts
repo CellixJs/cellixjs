@@ -57,6 +57,7 @@ function makePropertyDoc(overrides: Partial<Property> = {}) {
     schemaVersion: '1.0',
     set(key: keyof Property, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as Property)[key] = value as never;
     },
     populate(path: string) {
@@ -69,6 +70,7 @@ function makePropertyDoc(overrides: Partial<Property> = {}) {
       return this;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Property;
 }
 
@@ -78,6 +80,7 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Community;
   return vi.mocked(base);
 }
@@ -87,6 +90,7 @@ function makeMemberDoc(overrides: Partial<Member> = {}) {
     id: '6898b0c34b4a2fbc01e9c698',
     memberName: 'Test Member',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Member;
   return vi.mocked(base);
 }
@@ -103,6 +107,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -369,6 +374,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     When('I get the communityId property', () => {
       result = adapter.communityId;
     });
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the community\'s id as a string', () => {
       expect(result).toBe(communityDoc.id);
     });
@@ -383,12 +389,14 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return a CommunityDomainAdapter instance with the correct community data', () => {
       expect(result).toBeInstanceOf(CommunityDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as CommunityDomainAdapter).doc).toBe(communityDoc);
     });
   });
 
   Scenario('Getting the community property when not populated', ({ Given, When, Then }) => {
     let gettingCommunityWhenNotPopulated: () => void;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a PropertyDomainAdapter for a document with community as an ObjectId', () => {
       doc = makePropertyDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new PropertyDomainAdapter(doc);
@@ -405,6 +413,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Loading the community', ({ Given, When, Then }) => {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a PropertyDomainAdapter for a document with community as an ObjectId', () => {
       doc = makePropertyDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new PropertyDomainAdapter(doc);
@@ -441,6 +450,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new PropertyDomainAdapter(doc);
     });
     And('an object that is not a Community domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityAdapter = {} as CommunityDomainAdapter;
     });
     When('I try to set the community property to the invalid object', () => {
@@ -461,6 +471,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     When('I get the ownerId property', () => {
       result = adapter.ownerId;
     });
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the owner\'s id as a string', () => {
       expect(result).toBe(memberDoc.id);
     });
@@ -481,6 +492,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Getting the owner property when not populated', ({ Given, When, Then }) => {
     let gettingOwnerWhenNotPopulated: () => void;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a PropertyDomainAdapter for a document with owner as an ObjectId', () => {
       doc = makePropertyDoc({ owner: new MongooseSeedwork.ObjectId() });
       adapter = new PropertyDomainAdapter(doc);
@@ -497,6 +509,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Loading the owner', ({ Given, When, Then }) => {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a PropertyDomainAdapter for a document with owner as an ObjectId', () => {
       doc = makePropertyDoc({ owner: new MongooseSeedwork.ObjectId() });
       adapter = new PropertyDomainAdapter(doc);
@@ -533,10 +546,12 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new PropertyDomainAdapter(doc);
     });
     And('an object that is not a Member domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       memberAdapter = {} as MemberDomainAdapter;
     });
     When('I try to set the owner property to the invalid object', () => {
       settingOwnerWithInvalidValue = () => {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         adapter.setOwnerRef(memberAdapter as unknown as Domain.Contexts.Community.Member.MemberEntityReference);
       };
     });
@@ -1203,9 +1218,11 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(Domain.Contexts.Property.Property.Property);
     });
     And('the domain object\'s propertyName should be "Test Property"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>).propertyName).toBe('Test Property');
     });
     And('the domain object\'s propertyType should be "house"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>).propertyType).toBe('house');
     });
   });

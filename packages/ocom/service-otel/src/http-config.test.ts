@@ -18,6 +18,7 @@ test.for(feature, ({ Scenario }) => {
     let result: boolean;
 
     Given('an incoming HTTP request with method OPTIONS', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       request = vi.mocked({ method: 'OPTIONS' } as IncomingMessage);
     });
 
@@ -35,6 +36,7 @@ test.for(feature, ({ Scenario }) => {
     let result: boolean;
 
     Given('an incoming HTTP request with method GET', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       request = vi.mocked({ method: 'GET' } as IncomingMessage);
     });
 

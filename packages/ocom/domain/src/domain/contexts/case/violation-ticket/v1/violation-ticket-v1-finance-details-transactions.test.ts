@@ -45,6 +45,7 @@ class MockPropArray<T extends DomainEntityProps> implements PropArray<T> {
 
 	getNewItem(): T {
 		// Return a mock item - in real usage this would create a new item
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return { id: 'new-item' } as T;
 	}
 
@@ -79,11 +80,13 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	BeforeEachScenario(() => {
 		submission = {
 			id: 'submission-123',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference;
 		adhocTransactions = new MockPropArray([]);
 
 		visa = {
 			determineIf: vi.fn(() => true),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1Visa;
 
 		props = {

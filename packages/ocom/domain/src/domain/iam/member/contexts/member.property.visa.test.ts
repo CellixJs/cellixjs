@@ -21,6 +21,7 @@ function makeProperty(
 		id,
 		community: { id: communityId },
 		owner: { id: ownerId },
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as PropertyEntityReference;
 }
 
@@ -41,6 +42,7 @@ function makeMember(
 				},
 			},
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as MemberEntityReference;
 }
 
@@ -52,6 +54,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	BeforeEachScenario(() => {
 		property = makeProperty();
 		member = makeMember();
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		visa = undefined as unknown as MemberPropertyVisa<PropertyEntityReference>;
 	});
 

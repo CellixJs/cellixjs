@@ -60,6 +60,7 @@ export class CommunityDomainAdapter
 				'createdBy is not populated or is not of the correct type',
 			);
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}
 
@@ -70,6 +71,7 @@ export class CommunityDomainAdapter
 		if (this.doc.createdBy instanceof MongooseSeedwork.ObjectId) {
             await this.doc.populate('createdBy');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}
 

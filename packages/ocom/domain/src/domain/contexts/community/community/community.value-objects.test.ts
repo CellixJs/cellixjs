@@ -232,6 +232,7 @@ test.for(feature, ({ Scenario }) => {
 			When('I create a white label domain with "whitelabel.cellix.com"', () => {
 				value = new ValueObjects.WhiteLabelDomain(
 					'whitelabel.cellix.com',
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				).valueOf() as string;
 			});
 			Then('the value should be "whitelabel.cellix.com"', () => {
@@ -249,6 +250,7 @@ test.for(feature, ({ Scenario }) => {
 				() => {
 					value = new ValueObjects.WhiteLabelDomain(
 						'  whitelabel.cellix.com  ',
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					).valueOf() as string;
 				},
 			);
@@ -267,6 +269,7 @@ test.for(feature, ({ Scenario }) => {
 				() => {
 					value = new ValueObjects.WhiteLabelDomain(
 						'a'.repeat(500),
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					).valueOf() as string;
 				},
 			);
@@ -302,6 +305,7 @@ test.for(feature, ({ Scenario }) => {
 		({ When, Then }) => {
 			let value: string;
 			When('I create a white label domain with a string of 1 character', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				value = new ValueObjects.WhiteLabelDomain('b').valueOf() as string;
 			});
 			Then('the value should be the 1 character string', () => {
@@ -360,6 +364,7 @@ test.for(feature, ({ Scenario }) => {
 	Scenario('Creating a handle with valid value', ({ When, Then }) => {
 		let value: string;
 		When('I create a handle with "cellix"', () => {
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			value = new ValueObjects.Handle('cellix').valueOf() as string;
 		});
 		Then('the value should be "cellix"', () => {
@@ -372,6 +377,7 @@ test.for(feature, ({ Scenario }) => {
 		({ When, Then }) => {
 			let value: string;
 			When('I create a handle with "  cellix  "', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				value = new ValueObjects.Handle('  cellix  ').valueOf() as string;
 			});
 			Then('the value should be "cellix"', () => {
@@ -385,6 +391,7 @@ test.for(feature, ({ Scenario }) => {
 		({ When, Then }) => {
 			let value: string;
 			When('I create a handle with a string of 50 characters', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				value = new ValueObjects.Handle('a'.repeat(50)).valueOf() as string;
 			});
 			Then('the value should be the 50 character string', () => {
@@ -416,6 +423,7 @@ test.for(feature, ({ Scenario }) => {
 		({ When, Then }) => {
 			let value: string;
 			When('I create a handle with a string of 1 character', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				value = new ValueObjects.Handle('b').valueOf() as string;
 			});
 			Then('the value should be the 1 character string', () => {

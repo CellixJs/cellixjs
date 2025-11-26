@@ -11,6 +11,7 @@ const CommunityMutationResolver = async (getCommunity: Promise<Domain.Contexts.C
     };
   } catch (error) {
     console.error('Community > Mutation  : ', error);
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const { message } = error as Error;
     return {
       status: { success: false, errorMessage: message },

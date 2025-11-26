@@ -42,6 +42,7 @@ function makeEndUserDoc(overrides: Partial<EndUser> = {}) {
       },
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as EndUser;
   return vi.mocked(base);
 }
@@ -53,6 +54,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -188,6 +190,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return an EndUserPersonalInformationDomainAdapter instance with the correct data', () => {
       expect(result).toBeInstanceOf(EndUserPersonalInformationDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as EndUserPersonalInformationDomainAdapter).identityDetails.lastName).toBe('Doe');
     });
   });
@@ -202,8 +205,10 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
         personalInformation: undefined,
         set: (key: keyof EndUser, value: unknown) => {
           if (key === 'personalInformation') { setCalled = true };
+          // biome-ignore lint/plugin/no-type-assertion: test file
           (docWithNoPersonalInfo as EndUser)[key] = value as never;
         },
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as EndUser;
       adapterWithNoPersonalInfo = new EndUserDomainAdapter(docWithNoPersonalInfo);
     });
@@ -231,6 +236,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return an EndUserIdentityDetailsDomainAdapter instance with the correct data', () => {
       expect(result).toBeInstanceOf(EndUserIdentityDetailsDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as EndUserIdentityDetailsDomainAdapter).lastName).toBe('Doe');
     });
   });
@@ -247,9 +253,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
           contactInformation: { email: 'user@example.com' },
           set: (key: keyof EndUserPersonalInformation, value: unknown) => {
             if (key === 'identityDetails') { setCalled = true; }
+            // biome-ignore lint/plugin/no-type-assertion: test file
             (docWithNoIdentityDetails.personalInformation as EndUserPersonalInformation)[key] = value as never;
           },
         },
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as EndUser);
       adapterWithNoIdentityDetails = new EndUserDomainAdapter(docWithNoIdentityDetails);
     });
@@ -276,6 +284,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = adapter.personalInformation;
     });
     And('I get the identityDetails property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       identityDetails = (result as EndUserPersonalInformationDomainAdapter).identityDetails;
     });
     And('I get the lastName property', () => {
@@ -302,6 +311,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = adapter.personalInformation;
     });
     And('I get the identityDetails property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       identityDetails = (result as EndUserPersonalInformationDomainAdapter).identityDetails;
     });
     And('I get the legalNameConsistsOfOneName property', () => {
@@ -328,6 +338,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = adapter.personalInformation;
     });
     And('I get the identityDetails property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       identityDetails = (result as EndUserPersonalInformationDomainAdapter).identityDetails;
     });
     And('I get the restOfName property', () => {
@@ -358,6 +369,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return an EndUserContactInformationDomainAdapter instance with the correct data', () => {
       expect(result).toBeInstanceOf(EndUserContactInformationDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as EndUserContactInformationDomainAdapter).email).toBe('user@example.com');
     });
   });
@@ -374,9 +386,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
           contactInformation: undefined,
           set: (key: keyof EndUserPersonalInformation, value: unknown) => {
             if (key === 'contactInformation') { setCalled = true; }
+            // biome-ignore lint/plugin/no-type-assertion: test file
             (docWithNoContactInfo.personalInformation as EndUserPersonalInformation)[key] = value as never;
           },
         },
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as EndUser);
       adapterWithNoContactInfo = new EndUserDomainAdapter(docWithNoContactInfo);
     });
@@ -403,6 +417,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       result = adapter.personalInformation;
     });
     And('I get the contactInformation property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       contactInfo = (result as EndUserPersonalInformationDomainAdapter).contactInformation;
     });
     And('I get the email property', () => {
@@ -454,21 +469,27 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(Domain.Contexts.User.EndUser.EndUser);
     });
     And('the domain object\'s userType should be "end-user"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).userType).toBe('end-user');
     });
     And('the domain object\'s externalId should be "123e4567-e89b-12d3-a456-426614174001"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).externalId).toBe('123e4567-e89b-12d3-a456-426614174001');
     });
     And('the domain object\'s email should be "user@example.com"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).email).toBe('user@example.com');
     });
     And('the domain object\'s displayName should be "Test User"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).displayName).toBe('Test User');
     });
     And('the domain object\'s accessBlocked should be false', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).accessBlocked).toBe(false);
     });
     And('the domain object\'s tags should be ["tag1", "tag2"]', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).tags).toEqual(['tag1', 'tag2']);
     });
   });

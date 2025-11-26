@@ -20,6 +20,7 @@ function makeMockVendorUserModel() {
     create: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as VendorUserModelType;
 }
 
@@ -30,6 +31,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -41,6 +43,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     vendorUserModel = makeMockVendorUserModel();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as Domain.Contexts.User.VendorUser.VendorUserUnitOfWork;
   });
 

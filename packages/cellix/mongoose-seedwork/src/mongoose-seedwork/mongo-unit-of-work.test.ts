@@ -69,6 +69,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let domainOperation: ReturnType<typeof vi.fn>;
 
   BeforeEachScenario(() => {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     session = {} as ClientSession;
     mockModel = {
       findById: vi.fn().mockReturnValue({
@@ -77,6 +78,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
           foo: 'old-foo',
         }),
       }),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as Model<MongoType>;
     typeConverter = vi.mocked({
       toAdapter: vi.fn(),
@@ -89,18 +91,23 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       })),
       toDomain: vi.fn().mockResolvedValue(
         new AggregateRootMock(
+          // biome-ignore lint/plugin/no-type-assertion: test file
           vi.mocked({ id: 'agg-1', foo: 'old-foo' } as PropType),
+          // biome-ignore lint/plugin/no-type-assertion: test file
           vi.mocked({} as typeof Passport)
         )
       ),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     }) as TypeConverter<MongoType, PropType, unknown, AggregateRootMock>;
     eventBus = vi.mocked({
       dispatch: vi.fn(),
       register: vi.fn(),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     }) as EventBus;
     integrationEventBus = vi.mocked({
       dispatch: vi.fn(),
       register: vi.fn(),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     }) as EventBus;
     repoInstance = new RepoMock(
       vi.mocked({}),
@@ -123,6 +130,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
     vi.spyOn(mongoose.connection, 'transaction').mockImplementation(
       async (cb: (session: ClientSession) => Promise<unknown>) => {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         await cb({} as ClientSession);
       },
     );
@@ -187,6 +195,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       repoInstance.getIntegrationEvents = vi.fn(() => [event1, event2]);
     });
     When('the transaction completes successfully', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (integrationEventBus.dispatch as Mock)
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce(undefined);
@@ -218,6 +227,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       repoInstance.getIntegrationEvents = vi.fn(() => [event1, event2]);
     });
     When('integration event dispatch fails', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (integrationEventBus.dispatch as Mock)
         .mockRejectedValueOnce(new Error('fail1'))
         .mockResolvedValueOnce(undefined);
@@ -241,6 +251,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       repoInstance.getIntegrationEvents = vi.fn(() => [event1, event2]);
     });
     When('multiple integration events are emitted and all succeed', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (integrationEventBus.dispatch as Mock)
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce(undefined);
@@ -259,6 +270,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('getInitializedUnitOfWork is called with passport', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
     });
 
@@ -275,6 +287,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let transactionCallback: Mock;
 
     Given('an initialized unit of work', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
       transactionCallback = vi.fn();
     });
@@ -293,6 +306,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let transactionCallback: Mock;
 
     Given('an initialized unit of work', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
       transactionCallback = vi.fn();
     });
@@ -312,6 +326,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let transactionCallback: Mock;
 
     Given('an initialized unit of work and an existing item', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
       transactionCallback = vi.fn();
     });
@@ -331,8 +346,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
 
     Given('an initialized unit of work', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
       // Mock repo.get to return null for non-existing item
+      // biome-ignore lint/plugin/no-type-assertion: test file
       vi.spyOn(repoInstance, 'get').mockResolvedValue(null as unknown as AggregateRootMock);
     });
 
@@ -352,6 +369,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let callbackError: Error;
 
     Given('an initialized unit of work and an existing item', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
       callbackError = new Error('Callback failed');
     });

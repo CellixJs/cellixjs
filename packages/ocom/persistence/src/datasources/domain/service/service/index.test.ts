@@ -21,7 +21,9 @@ function makeMockModelsContext() {
         create: vi.fn(),
         updateOne: vi.fn(),
         deleteOne: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as ServiceModelType,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Parameters<typeof ServicePersistence>[0];
 }
 
@@ -37,6 +39,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -48,6 +51,7 @@ test.for(indexFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     models = makeMockModelsContext();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as ReturnType<typeof ServicePersistence>;
   });
 

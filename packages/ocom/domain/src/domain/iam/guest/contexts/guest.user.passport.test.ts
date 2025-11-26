@@ -32,6 +32,7 @@ test.for(feature, ({ Scenario }) => {
 			});
 
 			And('I have an end user entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				endUserRef = { id: 'end-user-123' } as EndUserEntityReference;
 			});
 
@@ -58,6 +59,7 @@ test.for(feature, ({ Scenario }) => {
 			});
 
 			And('I have a staff user entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				staffUserRef = { id: 'staff-user-123' } as StaffUserEntityReference;
 			});
 
@@ -84,6 +86,7 @@ test.for(feature, ({ Scenario }) => {
 			});
 
 			And('I have a staff role entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				staffRoleRef = { id: 'staff-role-123' } as StaffRoleEntityReference;
 			});
 
@@ -110,6 +113,7 @@ test.for(feature, ({ Scenario }) => {
 			});
 
 			And('I have a vendor user entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				vendorUserRef = { id: 'vendor-user-123' } as VendorUserEntityReference;
 			});
 
@@ -134,6 +138,7 @@ test.for(feature, ({ Scenario }) => {
 		});
 
 		And('I have an end user entity reference', () => {
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			endUserRef = { id: 'end-user-123' } as EndUserEntityReference;
 		});
 

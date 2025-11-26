@@ -34,6 +34,7 @@ function makePassport(canManageStaffRolesAndPermissions = true): Passport {
 				) => fn({ canManageStaffRolesAndPermissions }),
 			})),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Passport);
 }
 
@@ -47,6 +48,7 @@ function makeBaseProps(
 	let _role: StaffRoleEntityReference | undefined = vi.mocked({
 		roleName: 'test role',
 		roleType: 'staff-role',
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as StaffRoleProps);
 	return {
 		id: 'staff-1',
@@ -62,6 +64,7 @@ function makeBaseProps(
 		updatedAt: new Date('2020-01-02T00:00:00Z'),
 		schemaVersion: '1.0.0',
 		get role() {
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			return _role as StaffRoleEntityReference;
 		},
 		setRoleRef: (role: StaffRoleEntityReference | undefined) => {
@@ -75,6 +78,7 @@ function getIntegrationEvent<T>(
 	events: readonly CustomDomainEvent<unknown>[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
@@ -88,6 +92,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		passport = makePassport(true);
 		baseProps = makeBaseProps();
 		staffUser = new StaffUser(baseProps, passport);
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		newStaffUser = undefined as unknown as StaffUser<StaffUserProps>;
 	});
 
@@ -599,6 +604,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				id: 'role-1',
 				roleName: 'New Role',
 				roleType: 'staff-role',
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as StaffRoleEntityReference);
 			staffUser.role = newRole;
 		});
@@ -622,6 +628,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				id: 'role-1',
 				roleName: 'New Role',
 				roleType: 'staff-role',
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as StaffRoleEntityReference;
 			changingRoleWithoutPermission = () => {
 				staffUser.role = newRole;

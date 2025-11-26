@@ -49,6 +49,7 @@ export function startServerAndCreateHandler<TContext extends BaseContext>(
 
 			const { body, headers, status } = await server.executeHTTPGraphQLRequest({
 				httpGraphQLRequest: normalizedRequest,
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				context: () => contextFunction({ context, req }) as Promise<TContext>,
 			});
 
@@ -66,6 +67,7 @@ export function startServerAndCreateHandler<TContext extends BaseContext>(
 							},
 						],
 					}),
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				} as HttpResponseInit;
 			}
 
@@ -76,12 +78,15 @@ export function startServerAndCreateHandler<TContext extends BaseContext>(
 					'content-length': Buffer.byteLength(body.string).toString(),
 				},
 				body: body.string,
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as HttpResponseInit;
 		} catch (e) {
 			context.error('Failure processing GraphQL request', e);
 			return {
 				status: 400,
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				body: (e as Error).message,
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as HttpResponseInit;
 		}
 	};

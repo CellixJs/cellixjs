@@ -47,6 +47,7 @@ function makePassport(
 					}),
 			})),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Passport);
 }
 
@@ -56,6 +57,7 @@ function makeCommunityEntityReference(
 	return vi.mocked({
 		id,
 		name: 'Test Community',
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as CommunityProps);
 }
 
@@ -64,6 +66,7 @@ function makeRoleEntityReference(id = 'role-1'): EndUserRoleEntityReference {
 		id,
 		roleName: 'Member',
 		isDefault: false,
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as EndUserRoleProps);
 }
 
@@ -72,6 +75,7 @@ function makeBaseProps(overrides: Partial<MemberProps> = {}): MemberProps {
 		return vi.mocked({
 			id,
 			lastName: 'Account',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as MemberAccountProps);
 	};
 	const makeCustomViewProps = (id = 'view-1') => {
@@ -79,6 +83,7 @@ function makeBaseProps(overrides: Partial<MemberProps> = {}): MemberProps {
 			id,
 			name: 'Default View',
 			// ...other required fields
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as MemberCustomViewProps);
 	};
 	let _role = makeRoleEntityReference();
@@ -114,6 +119,7 @@ function makeBaseProps(overrides: Partial<MemberProps> = {}): MemberProps {
 			removeItem: vi.fn(),
 			removeAll: vi.fn(),
 		},
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		profile: {} as MemberProfileProps,
 		createdAt: new Date('2020-01-01T00:00:00Z'),
 		updatedAt: new Date('2020-01-02T00:00:00Z'),
@@ -134,6 +140,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		communityRef = makeCommunityEntityReference();
 		baseProps = makeBaseProps();
 		member = new Member(baseProps, passport);
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		newMember = undefined as unknown as Member<MemberProps>;
 	});
 
@@ -642,6 +649,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					passport = makePassport({ canManageMembers: true });
 					baseProps = makeBaseProps();
 					member = new Member(baseProps, passport);
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					accountRef = baseProps.accounts.items[0] as MemberAccountProps;
 				},
 			);
@@ -670,6 +678,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					});
 					baseProps = makeBaseProps();
 					member = new Member(baseProps, passport);
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					accountRef = baseProps.accounts.items[0] as MemberAccountProps;
 				},
 			);
@@ -699,6 +708,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					});
 					baseProps = makeBaseProps();
 					member = new Member(baseProps, passport);
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					accountRef = baseProps.accounts.items[0] as MemberAccountProps;
 				},
 			);
@@ -794,7 +804,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					member = new Member(baseProps, passport);
 					customView = {
 						name: 'View1',
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						props: baseProps.customViews.items[0] as MemberCustomViewProps,
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					} as MemberCustomView;
 				},
 			);
@@ -830,7 +842,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					member = new Member(baseProps, passport);
 					customView = {
 						name: 'View1',
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						props: baseProps.customViews.items[0] as MemberCustomViewProps,
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					} as MemberCustomView;
 				},
 			);
@@ -867,7 +881,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					member = new Member(baseProps, passport);
 					customView = {
 						name: 'View1',
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						props: baseProps.customViews.items[0] as MemberCustomViewProps,
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					} as MemberCustomView;
 				},
 			);

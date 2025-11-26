@@ -9,6 +9,7 @@ export class SystemServicePassport
 	implements ServicePassport
 {
 	forService(_root: ServiceEntityReference): ServiceVisa {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const permissions = this.permissions as ServiceDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
 	}

@@ -43,7 +43,9 @@ export const CommunityListContainer: React.FC = () => {
       hasDataComponent={
         <CommunityList 
             data={{ 
+                // biome-ignore lint/plugin/no-type-assertion: test file
                 communities: communityData?.communitiesForCurrentEndUser as AccountsCommunityListContainerCommunityFieldsFragment[],
+                // biome-ignore lint/plugin/no-type-assertion: test file
                 members: members as AccountsCommunityListContainerMemberFieldsFragment[][]
             }} 
         />}

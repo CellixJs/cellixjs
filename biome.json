@@ -3,6 +3,7 @@
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
 	"files": { "ignoreUnknown": false },
     "css": { "parser": { "cssModules": true } },
+	"plugins": ["node_modules/biome-plugin-no-type-assertion/no-type-assertion.grit"],
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",

@@ -105,6 +105,7 @@ export class ServiceTicketV1DomainAdapter
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
 			throw new Error('community is not populated');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
@@ -115,6 +116,7 @@ export class ServiceTicketV1DomainAdapter
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
 			await this.doc.populate('community');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
@@ -139,6 +141,7 @@ export class ServiceTicketV1DomainAdapter
 		if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
 			throw new Error('requestor is not populated');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new MemberDomainAdapter(this.doc.requestor as Member);
 	}
 
@@ -149,6 +152,7 @@ export class ServiceTicketV1DomainAdapter
 		if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
 			await this.doc.populate('requestor');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new MemberDomainAdapter(this.doc.requestor as Member);
 	}
 
@@ -245,6 +249,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 	}
 	
 	public get id(): string {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return this.doc.id?.valueOf() as string;
 	}
 
@@ -273,6 +278,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new MemberDomainAdapter(this.doc.activityBy as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 
@@ -285,6 +291,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new MemberDomainAdapter(this.doc.activityBy as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 
@@ -311,6 +318,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 	}
 	
 	public get id(): string {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return this.doc.id?.valueOf() as string;
 	}
 
@@ -331,6 +339,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new MemberDomainAdapter(this.doc.initiatedBy as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 
@@ -343,6 +352,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 		}
 		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new MemberDomainAdapter(this.doc.initiatedBy as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 

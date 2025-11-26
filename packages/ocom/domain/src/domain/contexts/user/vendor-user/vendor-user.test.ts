@@ -28,6 +28,7 @@ function makePassport(
 				) => fn({ canManageVendorUsers, isEditingOwnAccount }),
 			})),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Passport);
 }
 
@@ -63,6 +64,7 @@ function getIntegrationEvent<T>(
 	events: readonly unknown[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
@@ -76,6 +78,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		passport = makePassport(true, true);
 		baseProps = makeBaseProps();
 		vendorUser = new VendorUser(baseProps, passport);
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		newVendorUser = undefined as unknown as VendorUser<VendorUserProps>;
 	});
 

@@ -29,7 +29,9 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     EndUser: {} as unknown as EndUserModelType,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as ModelsContext;
 }
 
@@ -40,6 +42,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -53,6 +56,7 @@ function makeMockEndUserDocument() {
     createdAt: new Date(),
     updatedAt: new Date(),
     id: 'test-id',
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as EndUser;
 }
 
@@ -97,7 +101,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     };
 
     // Mock the constructors
+    // biome-ignore lint/plugin/no-type-assertion: test file
     vi.mocked(EndUserDataSourceImpl).mockImplementation(() => mockDataSource as unknown as InstanceType<typeof EndUserDataSourceImpl>);
+    // biome-ignore lint/plugin/no-type-assertion: test file
     vi.mocked(EndUserConverter).mockImplementation(() => mockConverter as unknown as EndUserConverter);
 
     repository = new EndUserReadRepositoryImpl(models, passport);

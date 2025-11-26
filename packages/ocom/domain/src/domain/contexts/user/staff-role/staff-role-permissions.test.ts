@@ -23,10 +23,15 @@ function makeVisa() {
 
 function makeProps() {
 	return {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		communityPermissions: {} as StaffRoleCommunityPermissions,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		propertyPermissions: {} as StaffRolePropertyPermissions,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		serviceTicketPermissions: {} as StaffRoleServiceTicketPermissions,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		servicePermissions: {} as StaffRoleServicePermissions,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		violationTicketPermissions: {} as StaffRoleViolationTicketPermissions,
 	};
 }

@@ -60,6 +60,7 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
       },
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as StaffRole;
   return vi.mocked(base);
 }
@@ -71,6 +72,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -173,6 +175,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the communityPermissions property', () => {
@@ -190,9 +193,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the communityPermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityPermissions = permissions.communityPermissions as StaffRoleCommunityPermissionsAdapter;
     });
     And('I get the canManageStaffRolesAndPermissions property', () => {
@@ -216,9 +221,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the communityPermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityPermissions = permissions.communityPermissions as StaffRoleCommunityPermissionsAdapter;
     });
     And('I get the canManageAllCommunities property', () => {
@@ -242,9 +249,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the communityPermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityPermissions = permissions.communityPermissions as StaffRoleCommunityPermissionsAdapter;
     });
     And('I get the canDeleteCommunities property', () => {
@@ -268,9 +277,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the communityPermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityPermissions = permissions.communityPermissions as StaffRoleCommunityPermissionsAdapter;
     });
     And('I get the canChangeCommunityOwner property', () => {
@@ -294,9 +305,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the communityPermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityPermissions = permissions.communityPermissions as StaffRoleCommunityPermissionsAdapter;
     });
     And('I get the canReIndexSearchCollections property', () => {
@@ -319,6 +332,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the propertyPermissions property', () => {
@@ -336,9 +350,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the propertyPermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       propertyPermissions = permissions.propertyPermissions as StaffRolePropertyPermissionsAdapter;
     });
     And('I get the canManageProperties property', () => {
@@ -362,9 +378,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the propertyPermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       propertyPermissions = permissions.propertyPermissions as StaffRolePropertyPermissionsAdapter;
     });
     And('I get the canEditOwnProperty property', () => {
@@ -387,6 +405,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the servicePermissions property', () => {
@@ -404,9 +423,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the servicePermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       servicePermissions = permissions.servicePermissions as StaffRoleServicePermissionsAdapter;
     });
     And('I get the canManageServices property', () => {
@@ -423,6 +444,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the serviceTicketPermissions property', () => {
@@ -440,9 +462,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the serviceTicketPermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       serviceTicketPermissions = permissions.serviceTicketPermissions as StaffRoleServiceTicketPermissionsAdapter;
     });
     Then('the canCreateTickets property should return false', () => {
@@ -465,6 +489,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the violationTicketPermissions property', () => {
@@ -482,9 +507,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new StaffRoleDomainAdapter(doc);
     });
     When('I get the permissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       permissions = adapter.permissions as StaffRolePermissionsAdapter;
     });
     And('I get the violationTicketPermissions property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       violationTicketPermissions = permissions.violationTicketPermissions as StaffRoleViolationTicketPermissionsAdapter;
     });
     Then('the canCreateTickets property should return false', () => {
@@ -517,6 +544,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   BeforeEachScenario(() => {
     converter = new StaffRoleConverter();
     doc = makeStaffRoleDoc();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     domainObject = {} as Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
     result = undefined;
   });
@@ -535,6 +563,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       converter = new StaffRoleConverter();
     });
     When('I call toDomain with the Mongoose StaffRole document', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = converter.toDomain(doc, makeMockPassport()) as Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
     });
     Then('I should receive a StaffRole domain object', () => {
@@ -566,6 +595,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       domainObject = new Domain.Contexts.User.StaffRole.StaffRole(mockAdapter, makeMockPassport());
     });
     When('I call toPersistence with the StaffRole domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = converter.toPersistence(domainObject) as StaffRole;
     });
     Then('I should receive a Mongoose StaffRole document', () => {

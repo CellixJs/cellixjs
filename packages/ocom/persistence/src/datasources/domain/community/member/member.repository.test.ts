@@ -24,14 +24,17 @@ function makeMemberDoc(overrides: Partial<Member> = {}) {
     memberName: 'Test Member',
     community: makeCommunityDoc(),
     set(key: keyof Member, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as Member)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Member;
   return vi.mocked(base);
 }
 
 function makeCommunityDoc(overrides: Partial<Community> = {}) {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community; // Valid ObjectId string
 }
 
@@ -47,6 +50,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -64,6 +68,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     communityDoc = makeCommunityDoc();
     converter = new MemberConverter();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
     results = [];
 
@@ -84,12 +89,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks (not used in constructor)
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     // Create repository with correct constructor parameters
     repo = new MemberRepository(
       passport,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       ModelMock as unknown as MemberModelType,
       converter,
       eventBus,
@@ -155,10 +163,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Given('a role with id "507f1f77bcf86cd799439013"', () => {
       roleId = '507f1f77bcf86cd799439013'; // Valid ObjectId string // Valid ObjectId string
       // Mock the find method to return members with the specified role
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const ModelMock = (repo as unknown as { model: unknown }).model as { find: (query: { role: unknown }) => { populate: () => { exec: () => Promise<Member[]> } } };
       ModelMock.find = vi.fn((query: { role: unknown }) => ({
         populate: vi.fn().mockReturnThis(),
         exec: vi.fn(() => {
+          // biome-ignore lint/plugin/no-type-assertion: test file
           if (query.role && (query.role as { toString: () => string }).toString() === roleId) {
             return Promise.resolve([memberDoc]);
           }
@@ -182,7 +192,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Creating a new member instance', ({ Given, When, Then, And }) => {
     let communityDomainObject: Domain.Contexts.Community.Community.CommunityEntityReference;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a valid Community domain object as the community', () => {
+            // biome-ignore lint/plugin/no-type-assertion: test file
             communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
     });
     When('I call getNewInstance with name "New Member" and the community', async () => {
@@ -206,6 +218,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       invalidCommunity = {};
     });
     When('I call getNewInstance with name "Invalid Member" and the invalid community', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Member', invalidCommunity as Domain.Contexts.Community.Community.CommunityEntityReference);
     });
     Then('an error should be thrown indicating the community is not valid', async () => {

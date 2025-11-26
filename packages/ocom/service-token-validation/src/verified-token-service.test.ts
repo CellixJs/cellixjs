@@ -46,6 +46,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     ]);
 
     // Setup default mock implementations
+    // biome-ignore lint/plugin/no-type-assertion: test file
     vi.mocked(createRemoteJWKSet).mockReturnValue(vi.fn() as unknown as ReturnType<typeof createRemoteJWKSet>);
     vi.mocked(jwtVerify).mockResolvedValue({
       payload: { sub: 'user123', aud: 'audience1', iss: 'https://provider1.com' },
@@ -146,6 +147,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       expect(vi.mocked(createRemoteJWKSet)).toHaveBeenCalledTimes(2);
       expect(vi.mocked(createRemoteJWKSet)).toHaveBeenCalledWith(new URL('https://provider1.com/.well-known/jwks.json'));
       expect(vi.mocked(createRemoteJWKSet)).toHaveBeenCalledWith(new URL('https://provider2.com/.well-known/jwks.json'));
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const { keyStoreCollection } = service as unknown as { keyStoreCollection: Map<string, unknown> };
       expect(keyStoreCollection.size).toBe(2);
       expect(keyStoreCollection.has('provider1')).toBe(true);
