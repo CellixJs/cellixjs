@@ -23,6 +23,10 @@ export abstract class CustomDomainEventImpl<T>
 	implements CustomDomainEvent<T>
 {
 	private _payload?: T;
+    constructor(aggregateId: string, payload: T) {
+        super(aggregateId);
+        this._payload = payload;
+    }
 	get payload(): T {
 		if (this._payload === undefined) {
 			throw new Error('Payload is not set');

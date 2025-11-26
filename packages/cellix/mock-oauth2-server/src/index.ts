@@ -154,7 +154,7 @@ async function main() {
   if (!family_name) { throw new Error('Family_Name is not defined in .env.local'); }
   // biome-ignore lint:useLiteralKeys
   const sub = process.env['Sub'] ?? crypto.randomUUID();
-    const { tid, refresh_token } = req.body as { tid?: string; refresh_token?: string };
+    const { tid, refresh_token } = req.body;
 
     const profile: TokenProfile = {
       aud: aud,
@@ -191,7 +191,7 @@ async function main() {
   });
 
   app.get('/authorize', (req, res) => {
-    const { state } = req.query as { state?: string };
+    const { state } = req.query;
 
     // Always use the trusted, server-configured redirect URI
     const code = crypto.randomUUID();

@@ -67,17 +67,18 @@ export class VerifiedTokenService {
   refreshCollection() {
     if (!this.openIdConfigs) { return }
     for (const configKey of [...this.openIdConfigs.keys()]) {
-    const openIdConfig = this.openIdConfigs.get(configKey) as OpenIdConfig;
-      const newKeyStore = {
-        keyStore: createRemoteJWKSet(new URL(openIdConfig.oidcEndpoint)),
-        issuerUrl: openIdConfig.issuerUrl
-      }
-      if (newKeyStore) {
+        const openIdConfig = this.openIdConfigs.get(configKey);
+        if (!openIdConfig) { continue; }
+        const newKeyStore = {
+            keyStore: createRemoteJWKSet(new URL(openIdConfig.oidcEndpoint)),
+            issuerUrl: openIdConfig.issuerUrl
+        }
+        if (newKeyStore) {
         if (this.keyStoreCollection.has(configKey)) {
-          this.keyStoreCollection.delete(configKey); // remove old keystore if it exists
+            this.keyStoreCollection.delete(configKey); // remove old keystore if it exists
         }
         this.keyStoreCollection.set(configKey, newKeyStore); //Update keystore with new one or add it if it doesn't exist
-      }
+        }
     }
   }
 
@@ -99,8 +100,10 @@ export class VerifiedTokenService {
     if (!this.keyStoreCollection.has(configKey)) {
       throw new Error('Invalid OpenIdConfig Key');
     }
-    const openIdConfig = this.openIdConfigs.get(configKey) as OpenIdConfig;
-
+    const openIdConfig = this.openIdConfigs.get(configKey);
+    if (!openIdConfig) {
+      throw new Error('Invalid OpenIdConfig Key');
+    }
     const jwtVerifyOptions: JWTVerifyOptions = {
       audience: openIdConfig.audience,
       clockTolerance: openIdConfig.clockTolerance ?? '5 minutes',
@@ -110,9 +113,12 @@ export class VerifiedTokenService {
     }
 
     const keyStoreEntry = this.keyStoreCollection.get(configKey)?.keyStore;
+    if (!keyStoreEntry) {
+      throw new Error(`KeyStore entry is undefined for configKey: ${configKey}`);
+    }
     return await jwtVerify(
       bearerToken,
-      keyStoreEntry as GetKeyFunction<JWSHeaderParameters, FlattenedJWSInput>,
+      keyStoreEntry,
       jwtVerifyOptions
     );
   }

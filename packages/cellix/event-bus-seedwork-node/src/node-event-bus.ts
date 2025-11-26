@@ -1,8 +1,9 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
-import type { CustomDomainEvent, DomainEvent } from '@cellix/domain-seedwork/domain-event';
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
-import api, { trace, type TimeInput, SpanStatusCode } from '@opentelemetry/api';
+import type { CustomDomainEvent, DomainEvent } from '@cellix/domain-seedwork/domain-event';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import api, { SpanStatusCode, trace } from '@opentelemetry/api';
+
 // import { SEMATTRS_DB_SYSTEM, SEMATTRS_DB_NAME, SEMATTRS_DB_STATEMENT } from '@opentelemetry/semantic-conventions';
 // not sure where to import these from, see link below
 // https://github.com/open-telemetry/opentelemetry-js/blob/main/semantic-conventions/README.md#migrated-usage
@@ -19,9 +20,7 @@ class BroadCaster {
 
 	public broadcast(event: string, data: unknown): void {
 		// Collect all listeners for the event
-		const listeners = this.eventEmitter.listeners(event) as Array<
-			(data: unknown) => Promise<void> | void
-		>;
+		const listeners = this.eventEmitter.listeners(event);
 		// Fire and forget for each listener
 		for (const listener of listeners) {
 			void listener(data);
@@ -29,7 +28,7 @@ class BroadCaster {
 	}
 	public on(
 		event: string,
-		listener: (rawPayload: unknown) => Promise<void> | void,
+		listener: (rawPayload: RawPayload) => Promise<void> | void,
 	) {
 		this.eventEmitter.on(event, (data) => {
 			// Call the listener and ignore any returned Promise
@@ -94,7 +93,10 @@ class NodeEventBusImpl implements EventBus {
 				});
 			} catch (err) {
 				span.setStatus({ code: SpanStatusCode.ERROR });
-				span.recordException(err as Error);
+				span.recordException({
+                    name: 'NodeEventBusError',
+                    message: `Error dispatching node event ${err}`,
+                });
 			} finally {
 				span.end();
 			}
@@ -107,8 +109,8 @@ class NodeEventBusImpl implements EventBus {
 	): void {
 		console.log(`custom-log | registering-node-event-handler | ${event.name}`);
 
-		this.broadcaster.on(event.name, async (rawPayload: unknown) => {
-			const payload = rawPayload as RawPayload;
+		this.broadcaster.on(event.name, async (rawPayload: RawPayload) => {
+			const payload = rawPayload;
 			console.log(
 				`Received node event ${event.name} with data ${JSON.stringify(payload)}`,
 			);
@@ -142,16 +144,19 @@ class NodeEventBusImpl implements EventBus {
 					span.addEvent(
 						`NodeEventBus: Executing ${event.name}`,
 						{ data: payload.data },
-						performance.now() as TimeInput,
+						performance.now(),
 					);
 					try {
-						await func(JSON.parse(payload.data) as T['payload']);
+						await func(JSON.parse(payload.data));
 						span.setStatus({
 							code: SpanStatusCode.OK,
 							message: `NodeEventBus: Executed ${event.name}`,
 						});
 					} catch (e) {
-						span.recordException(e as Error);
+						span.recordException({
+                            name: 'NodeEventBusHandlerError',
+                            message: `Error executing handler for event ${event.name}: ${e}`,
+                        });
 						span.setStatus({
 							code: SpanStatusCode.ERROR,
 							message: `NodeEventBus: Error executing ${event.name}`,
@@ -159,7 +164,7 @@ class NodeEventBusImpl implements EventBus {
 						console.error(
 							`Error handling node event ${event.name} with data ${JSON.stringify(payload)}`,
 						);
-						console.error(e as Error);
+						console.error(e);
 					} finally {
 						span.end();
 					}

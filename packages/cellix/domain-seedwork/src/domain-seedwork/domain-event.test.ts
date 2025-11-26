@@ -23,7 +23,7 @@ test.for(feature, ({ Scenario }) => {
 			aggregateId = 'agg-123';
 		});
 		When('a domain event is constructed with the aggregate id', () => {
-			event = new TestDomainEvent(aggregateId);
+			event = new TestDomainEvent(aggregateId, { foo: 'initial' });
 		});
 		Then('it should return the correct aggregate id', () => {
 			expect(event.aggregateId).toBe(aggregateId);
@@ -32,7 +32,7 @@ test.for(feature, ({ Scenario }) => {
 
 	Scenario('Setting a payload on a Domain Event', ({ Given, When, Then }) => {
 		Given('a new domain event', () => {
-			event = new TestDomainEvent('agg-456');
+			event = new TestDomainEvent('agg-456', { foo: 'initial' });
 		});
 		When('I set the payload to a value', () => {
 			event.payload = { foo: 'bar' };
@@ -46,13 +46,13 @@ test.for(feature, ({ Scenario }) => {
 		'Accessing a payload on a Domain Event before it is set',
 		({ Given, When, Then }) => {
 			Given('a new domain event', () => {
-				event = new TestDomainEvent('agg-789');
+				event = new TestDomainEvent('agg-789', { foo: 'initial' });
 			});
 			When('I try to get the payload before setting it', () => {
 				try {
 					console.log(event.payload);
 				} catch (e) {
-					error = e as Error;
+					error = e instanceof Error ? e : undefined;
 				}
 			});
 			Then('it should throw an error indicating the payload is not set', () => {

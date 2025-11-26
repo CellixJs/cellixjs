@@ -1,5 +1,6 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { CustomDomainEvent, DomainEvent } from '@cellix/domain-seedwork/domain-event';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+
 class InProcEventBusImpl implements EventBus {
 	private eventSubscribers: {
 		[eventType: string]: Array<(rawpayload: string) => Promise<void>>;
@@ -28,18 +29,12 @@ class InProcEventBusImpl implements EventBus {
 		func: (payload: T['payload']) => Promise<void>,
 	): void {
 		console.log(`Registering in-proc event handler for: ${event.name}`);
-		this.eventSubscribers[event.name] ??= [] as Array<
-			(rawpayload: string) => Promise<void>
-		>; // Ensure the array exists
-		(
-			this.eventSubscribers[event.name] as Array<
-				(rawpayload: string) => Promise<void>
-			>
-		).push(async (rawpayload: string) => {
+		this.eventSubscribers[event.name] ??= [];
+		this.eventSubscribers[event.name]?.push(async (rawpayload: string) => {
 			console.log(
 				`Received in-proc event ${event.name} with data ${rawpayload}`,
 			);
-			await func(JSON.parse(rawpayload) as T['payload']);
+			await func(JSON.parse(rawpayload));
 		});
 	}
 

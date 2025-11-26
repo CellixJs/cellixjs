@@ -39,7 +39,7 @@ test.for(feature, ({ Scenario }) => {
       try {
         console.log(event.payload);
       } catch (e) {
-        error = e as Error;
+        error = e instanceof Error ? e : undefined;
       }
     });
     Then('it should throw an error indicating the payload is not set', () => {

@@ -16,7 +16,7 @@ class TestEvent extends DomainEventBase {}
 
 test.for(feature, ({ Scenario }) => {
   let handlerFn: ReturnType<typeof vi.fn>;
-  let handler: HandleEvent<TestEvent>   ;
+  let handler: HandleEvent<TestEvent>;
   let event: TestEvent;
 
   Scenario('Handling a domain event with a registered handler', ({ Given, When, Then }) => {
@@ -40,7 +40,7 @@ test.for(feature, ({ Scenario }) => {
       event = new TestEvent('agg-2');
     });
     When('I register the function using the static register method', () => {
-      handler = HandleEventImpl.register<TestEvent>(handlerFn) as HandleEventImpl<TestEvent>;
+      handler = HandleEventImpl.register<TestEvent>(handlerFn);
     });
     Then('I should get a handler that calls the function when handling an event', () => {
       handler.handle(event);
@@ -54,7 +54,7 @@ test.for(feature, ({ Scenario }) => {
     let handlerFn2: ReturnType<typeof vi.fn>;
     let handler1: HandleEventImpl<TestEvent>;
     let handler2: HandleEventImpl<TestEvent>;
-    let combinedHandler: HandleEventImpl<TestEvent>;
+    let combinedHandler: HandleEvent<TestEvent>;
 
     Given('multiple handlers for a domain event', () => {
       handlerFn1 = vi.fn();
@@ -64,7 +64,7 @@ test.for(feature, ({ Scenario }) => {
       event = new TestEvent('agg-3');
     });
     When('I register them all using registerAll', () => {
-      combinedHandler = handler1.registerAll([handler1, handler2]) as HandleEventImpl<TestEvent>;
+      combinedHandler = handler1.registerAll([handler1, handler2]);
     });
     Then('all handlers should be called when the event is handled', () => {
       combinedHandler.handle(event);

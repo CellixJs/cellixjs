@@ -62,7 +62,7 @@ export abstract class MongoRepositoryBase<
 			console.log(`Repo dispatching DomainEvent : ${JSON.stringify(event)}`);
 			// [NN] [ESLINT] will come back to this with refactoring and unit tests to implement similar to QueueSenderApi<T>
 			await this.bus.dispatch(
-				event.constructor as new (aggregateId: string) => typeof event,
+				event.constructor,
 				event.payload,
 			);
 		}

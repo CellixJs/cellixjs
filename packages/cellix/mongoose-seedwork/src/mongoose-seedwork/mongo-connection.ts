@@ -1,12 +1,11 @@
-import type mongoose from 'mongoose';
 import type {
-	Model,
-	DefaultSchemaOptions,
-	ObtainDocumentType,
-	ResolveSchemaOptions,
-    Schema,
-	SchemaDefinition,
-	SchemaDefinitionType
+  DefaultSchemaOptions,
+  Model,
+  ObtainDocumentType,
+  ResolveSchemaOptions,
+  Schema,
+  SchemaDefinition,
+  SchemaDefinitionType
 } from 'mongoose';
 import type { Base } from './base.ts';
 
@@ -27,28 +26,31 @@ export type GetModelFunctionWithSchema = <ModelType extends Base>(
 ) => Model<ModelType>;
 export type { Schema } from 'mongoose';
 
-export interface MongooseContextFactory {
-	//  GetModel: GetModelFunctionWithSchema;
 
-	readonly service: mongoose.Mongoose;
+export interface MinimalMongooseService<ModelType extends Base> {
+	models: Record<string, Model<ModelType>>;
+	model: (name: string, schema: Schema<ModelType, Model<ModelType>, ModelType>) => Model<ModelType>;
 }
 
-export function modelFactory<ModelType extends Base>(
-	modelName: string,
-	schema: Schema<ModelType, Model<ModelType>, ModelType>,
-): (initializedService: MongooseContextFactory) => Model<ModelType> {
-	return (initializedService: MongooseContextFactory) => {
-		// [NN] [ESLINT] commenting this out to avoid @typescript-eslint/no-unnecessary-condition
-		// if (!initializedService || !initializedService.service) {
-		//   throw new Error('MongooseContextFactory is not initialized');
-		// }
+export interface MongooseContextFactory<ModelType extends Base> {
+	readonly service: MinimalMongooseService<ModelType>;
+}
 
-		//return initializedService.GetModel(modelName, schema);
-		if (initializedService.service.models[modelName]) {
-			return initializedService.service.models[modelName] as Model<ModelType>;
-		}
-		console.log('ServiceMongoose | registering model > ', modelName);
-		return initializedService.service.model<ModelType>(modelName, schema);
-		//return mongoose.model<ModelType>(modelName, schema);
-	};
+
+export function modelFactory<ModelType extends Base>(
+  modelName: string,
+  schema: Schema<ModelType, Model<ModelType>, ModelType>
+): (initializedService: MongooseContextFactory<ModelType>) => Model<ModelType> {
+  return (initializedService: MongooseContextFactory<ModelType>) => {
+    const model = initializedService.service.models[modelName];
+    if (model && isModel<ModelType>(model)) {
+      return model;
+    }
+    console.log('ServiceMongoose | registering model > ', modelName);
+    return initializedService.service.model(modelName, schema);
+  };
+}
+
+function isModel<T>(model: unknown): model is Model<T> {
+	return typeof model === 'object' && model !== null && 'base' in model;
 }

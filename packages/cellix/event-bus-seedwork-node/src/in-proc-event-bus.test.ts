@@ -1,11 +1,9 @@
-import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 import { expect, vi } from 'vitest';
 import { InProcEventBusInstance } from './in-proc-event-bus.ts';
-
-
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,10 +21,11 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let handler2: ReturnType<typeof vi.fn>;
   let handlerA: ReturnType<typeof vi.fn>;
   let handlerB: ReturnType<typeof vi.fn>;
-  let error: unknown;
+  let error: Error | undefined;
 
   // Reset the singleton's subscribers for isolation before each scenario
   BeforeEachScenario(() => {
+    // biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
     (InProcEventBusInstance as unknown as { eventSubscribers: Record<string, Array<(rawpayload: string) => Promise<void>> | undefined> }).eventSubscribers = {};
     handler = vi.fn().mockResolvedValue(undefined);
     handler1 = vi.fn().mockResolvedValue(undefined);
@@ -112,16 +111,16 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       try {
         await InProcEventBusInstance.dispatch(TestEvent, { test: 'data' });
       } catch (e) {
-        error = e;
+        error = e instanceof Error ? e : undefined;
       }
     });
     Then('the other handler after the throwing one should NOT be called', () => {
       expect(handler1).toHaveBeenCalledWith({ test: 'data' });
       expect(handler2).not.toHaveBeenCalled();
     });
-    And('the error should be propagated', () => {
-      expect(error).toBeInstanceOf(Error);
-      expect((error as Error).message).toBe('handler1 error');
+      And('the error should be propagated', () => {
+        expect(error).toBeInstanceOf(Error);
+        expect(error?.message).toBe('handler1 error');
     });
   });
 

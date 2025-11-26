@@ -69,6 +69,7 @@ function findEvent<T>(
 	events: readonly unknown[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
+    // biome-ignore lint/plugin/no-type-assertion: test file, type assertion required for mock/test
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
@@ -80,8 +81,9 @@ function expectEventEmitted<T>(
 	const event = findEvent(events, eventClass);
 	expect(event).toBeDefined();
 	expect(event).toBeInstanceOf(eventClass);
+    if (!event) { return; } // to satisfy TypeScript that event is defined
 	if (payloadMatcher) {
-		payloadMatcher(event as T);
+		payloadMatcher(event);
 	}
 }
 
@@ -103,7 +105,7 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 
 	BeforeEachScenario(() => {
 		baseProps = { id: 'agg-1', foo: 'bar' };
-		mockedPassport = vi.mocked({} as unknown);
+		mockedPassport = vi.mocked({});
 	});
 
 	Background(({ Given }) => {
@@ -115,7 +117,7 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 	Scenario('Constructing an Aggregate Root', ({ Given, When, Then }) => {
 		Given('a set of initial properties and some type of passport', () => {
 			baseProps = { id: 'agg-1', foo: 'bar' };
-			mockedPassport = vi.mocked({} as unknown);
+			mockedPassport = vi.mocked({});
 		});
 		When('the aggregate root is constructed', () => {
 			aggregate = new TestAggregate(baseProps, mockedPassport);
