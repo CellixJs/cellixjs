@@ -224,7 +224,7 @@ stages:
 
           # Audit pnpm packages for vulnerabilities
           echo "Running pnpm audit for vulnerabilities..."
-          pnpm audit --audit-level=high --prod
+          pnpm run audit
 
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
