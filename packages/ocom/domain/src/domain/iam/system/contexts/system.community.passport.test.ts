@@ -39,6 +39,7 @@ test.for(feature, ({ Scenario, Background }) => {
 			});
 
 			And('I have a community entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				communityRef = { id: 'community-123' } as CommunityEntityReference;
 			});
 
@@ -70,6 +71,7 @@ test.for(feature, ({ Scenario, Background }) => {
 			});
 
 			And('I have a community entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				communityRef = { id: 'community-123' } as CommunityEntityReference;
 			});
 
@@ -98,6 +100,7 @@ test.for(feature, ({ Scenario, Background }) => {
 			);
 
 			And('I have a community entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				communityRef = { id: 'community-123' } as CommunityEntityReference;
 			});
 

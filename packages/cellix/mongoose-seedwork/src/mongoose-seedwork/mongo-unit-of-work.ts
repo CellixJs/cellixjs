@@ -109,6 +109,7 @@ export class MongoUnitOfWork<
 		//Send integration events after transaction is completed
 		for (const event of repoEvents) {
 			await this.integrationEventBus.dispatch(
+				// biome-ignore lint/plugin/no-type-assertion: event.constructor is guaranteed to be the correct type since all integration events extend CustomDomainEventImpl
 				event.constructor as new (
 					aggregateId: string,
 				) => typeof event,

@@ -17,6 +17,7 @@ function makeMockApolloServer() {
   return {
     startInBackgroundHandlingStartupErrorsByLoggingAndFailingAllRequests: vi.fn(),
     executeHTTPGraphQLRequest: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as ApolloServer<BaseContext>;
 }
 
@@ -30,12 +31,14 @@ function makeMockHttpRequest(method: string, url: string, headers?: Record<strin
       entries: () => headerMap.entries(),
     },
     json: async () => body,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as HttpRequest;
 }
 
 function makeMockInvocationContext() {
   return {
     error: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as InvocationContext;
 }
 
@@ -67,6 +70,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     When('the Azure Functions handler is invoked', async () => {
       vi.mocked(server).executeHTTPGraphQLRequest.mockResolvedValue({
         body: { kind: 'complete', string: resultBody },
+        // biome-ignore lint/plugin/no-type-assertion: test file
         headers: Object.assign(new Map([['content-type', 'application/json']]), { __identity: 'HeaderMap' }) as unknown as HeaderMap,
         status: 200,
       });
@@ -105,6 +109,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     When('the Azure Functions handler is invoked', async () => {
       vi.mocked(server).executeHTTPGraphQLRequest.mockResolvedValue({
         body: { kind: 'complete', string: resultBody },
+        // biome-ignore lint/plugin/no-type-assertion: test file
         headers: Object.assign(new Map([['content-type', 'application/json']]), { __identity: 'HeaderMap' }) as unknown as HeaderMap,
         status: 200,
       });
@@ -135,9 +140,11 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       const dummyIterator = {
         next: vi.fn().mockResolvedValue({ done: true, value: undefined }),
         [Symbol.asyncIterator]: function() { return this; }
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as AsyncIterableIterator<string>;
       vi.mocked(server).executeHTTPGraphQLRequest.mockResolvedValue({
         body: { kind: 'chunked', asyncIterator: dummyIterator },
+        // biome-ignore lint/plugin/no-type-assertion: test file
         headers: Object.assign(new Map([['content-type', 'application/json']]), { __identity: 'HeaderMap' }) as unknown as HeaderMap,
         status: 200,
       });
@@ -158,6 +165,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let response: HttpResponseInit;
 
     Given('an HttpRequest with no method property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       req = makeMockHttpRequest(undefined as unknown as string, 'http://localhost/graphql', { 'content-type': 'application/json' }, { query: '{ hello }' });
     });
 

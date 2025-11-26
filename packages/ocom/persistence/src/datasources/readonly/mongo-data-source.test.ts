@@ -34,6 +34,7 @@ function makeMockModel() {
     findOne: vi.fn(),
     findById: vi.fn(),
     aggregate: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Model<TestDocument>;
 }
 
@@ -44,6 +45,7 @@ function makeMockLeanDocument(): TestDocument & { _id: string } {
     value: 42,
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-02'),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as TestDocument & { _id: string };
 }
 
@@ -56,6 +58,7 @@ function makeMockLeanDocuments(): (TestDocument & { _id: string })[] {
       value: 24,
       createdAt: new Date('2023-01-02'),
       updatedAt: new Date('2023-01-03'),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as TestDocument & { _id: string },
   ];
 }
@@ -99,6 +102,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Mongoose model with find method', () => {
       vi.mocked(model.find).mockReturnValue({
         lean: vi.fn().mockResolvedValue([mockLeanDoc]),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as ReturnType<Model<TestDocument>['find']>);
     });
 
@@ -121,11 +125,13 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Mongoose model with find method', () => {
       vi.mocked(model.find).mockReturnValue({
         lean: vi.fn().mockResolvedValue(mockLeanDocs),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as ReturnType<Model<TestDocument>['find']>);
     });
 
     When('I call find with filter and options including limit, skip, and sort', async () => {
       await dataSource.find(
+        // biome-ignore lint/plugin/no-type-assertion: test file
         { value: { $gt: 20 } } as unknown as Partial<TestDocument>,
         {
           limit: 10,
@@ -137,6 +143,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     Then('I should receive filtered and sorted documents', async () => {
       const result = await dataSource.find(
+        // biome-ignore lint/plugin/no-type-assertion: test file
         { value: { $gt: 20 } } as unknown as Partial<TestDocument>,
         {
           limit: 10,
@@ -148,6 +155,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       expect(result[0]).toBeDefined();
       expect(result[1]).toBeDefined();
       // TypeScript knows result has 2 elements after toHaveLength(2)
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const typedResult = result as Array<{ id: string; _id: string }>;
       expect(typedResult[0]?.id).toBe(mockLeanDocs[0]?._id);
       expect(typedResult[1]?.id).toBe(mockLeanDocs[1]?._id);
@@ -163,6 +171,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Mongoose model with find method', () => {
       vi.mocked(model.find).mockReturnValue({
         lean: vi.fn().mockResolvedValue([mockLeanDoc]),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as ReturnType<Model<TestDocument>['find']>);
     });
 
@@ -197,6 +206,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Mongoose model with findOne method', () => {
       vi.mocked(model.findOne).mockReturnValue({
         lean: vi.fn().mockResolvedValue(mockLeanDoc),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as ReturnType<Model<TestDocument>['findOne']>);
     });
 
@@ -219,6 +229,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       vi.mocked(model.findOne).mockReturnValue({
         populate: vi.fn().mockReturnThis(),
         lean: vi.fn().mockResolvedValue(mockLeanDoc),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as ReturnType<Model<TestDocument>['findOne']>);
     });
 
@@ -246,6 +257,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Mongoose model with findById method', () => {
       vi.mocked(model.findById).mockReturnValue({
         lean: vi.fn().mockResolvedValue(mockLeanDoc),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as ReturnType<Model<TestDocument>['findById']>);
     });
 
@@ -284,6 +296,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       vi.mocked(model.findById).mockReturnValue({
         populate: vi.fn().mockReturnThis(),
         lean: vi.fn().mockResolvedValue(mockLeanDoc),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as ReturnType<Model<TestDocument>['findById']>);
     });
 
@@ -309,6 +322,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Mongoose model with aggregate method', () => {
       vi.mocked(model.aggregate).mockReturnValue({
         exec: vi.fn().mockResolvedValue([mockLeanDoc]),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as ReturnType<Model<TestDocument>['aggregate']>);
     });
 

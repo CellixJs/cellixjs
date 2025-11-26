@@ -24,14 +24,17 @@ function makePropertyDoc(overrides: Partial<Property> = {}) {
     propertyName: 'Test Property',
     community: makeCommunityDoc(),
     set(key: keyof Property, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as Property)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Property;
   return vi.mocked(base);
 }
 
 function makeCommunityDoc(overrides: Partial<Community> = {}) {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community; // Valid ObjectId string
 }
 
@@ -47,6 +50,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -64,6 +68,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     communityDoc = makeCommunityDoc();
     converter = new PropertyConverter();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>;
     results = [];
 
@@ -84,12 +89,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks (not used in constructor)
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     // Create repository with correct constructor parameters
     repo = new PropertyRepository(
       passport,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       ModelMock as unknown as PropertyModelType,
       converter,
       eventBus,
@@ -152,7 +160,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Creating a new property instance', ({ Given, When, Then, And }) => {
     let communityDomainObject: Domain.Contexts.Community.Community.CommunityEntityReference;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a valid Community domain object as the community', () => {
+            // biome-ignore lint/plugin/no-type-assertion: test file
             communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
     });
     When('I call getNewInstance with name "New Property" and the community', async () => {
@@ -176,6 +186,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       invalidCommunity = undefined;
     });
     When('I call getNewInstance with name "Invalid Property" and the invalid community', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Property', invalidCommunity as Domain.Contexts.Community.Community.CommunityEntityReference);
     });
     Then('an error should be thrown indicating the community is not valid', async () => {

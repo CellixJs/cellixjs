@@ -28,14 +28,17 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     handle: 'test-handle',
     createdBy: undefined,
     set(key: keyof Community, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as Community)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Community;
   return vi.mocked(base);
 }
 
 function makeUserDoc(overrides: Partial<EndUser> = {}) {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return { id: 'user-1', displayName: 'Test User', ...overrides } as EndUser;
 }
 
@@ -51,6 +54,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -69,6 +73,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     communityDoc = makeCommunityDoc({ _id: 'community-1', createdBy: userDoc });
     converter = new CommunityConverter();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
     // Mock the Mongoose model as a constructor function with static methods
     const ModelMock = function (this: Community) {
@@ -84,11 +89,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     repo = new CommunityRepository(
       passport,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       ModelMock as unknown as CommunityModelType,
       converter,
       eventBus,
@@ -123,6 +131,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result.name).toBe('Test Community');
     });
     And('the domain object\'s createdBy should be an EndUser domain object with the correct user data', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const { createdBy } = result as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
       expect(createdBy).toBeInstanceOf(Domain.Contexts.User.EndUser.EndUser);
       expect(createdBy.id).toBe(userDoc.id);
@@ -143,6 +152,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Creating a new community instance', ({ Given, When, Then, And }) => {
     let userDomainObject: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a valid EndUser domain object as the user', () => {
       userDoc = makeUserDoc();
       userAdapter = new EndUserDomainAdapter(userDoc)
@@ -172,6 +182,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       invalidUser = {};
     });
     When('I call getNewInstance with name "Invalid Community" and the invalid user', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       getNewInstanceWithInvalidUser = () => repo.getNewInstance('Invalid Community', invalidUser as Domain.Contexts.User.EndUser.EndUserEntityReference);
     });
     Then('an error should be thrown indicating the user is not valid', async () => {

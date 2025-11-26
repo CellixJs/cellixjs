@@ -34,6 +34,7 @@ const feature = await loadFeature(
 function makeMockApplicationServicesFactory(): ApplicationServicesFactory {
   return {
     forRequest: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as ApplicationServicesFactory;
 }
 
@@ -50,12 +51,14 @@ function makeMockHttpRequest(headers?: Record<string, string>): HttpRequest {
       entries: () => headerMap.entries(),
     },
     json: async () => ({}),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as HttpRequest;
 }
 
 function makeMockInvocationContext(): InvocationContext {
   return {
     error: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as InvocationContext;
 }
 

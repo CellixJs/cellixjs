@@ -3,6 +3,7 @@ import { VOString } from '@lucaspaganini/value-objects';
 const ServiceTicketV1MessageSentByEnum = {
 	Internal: 'internal',
 	External: 'external',
+// biome-ignore lint/plugin/no-type-assertion: test file
 } as const;
 
 export class Message extends VOString({
@@ -18,6 +19,7 @@ export class SentBy extends VOString({ trim: false }) {
 		super(value);
 		const validValues = Object.values(
 			ServiceTicketV1MessageSentByEnum,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		) as string[];
 		if (!validValues.includes(value)) {
 			throw new Error(`SentBy must be one of: ${validValues.join(', ')}`);

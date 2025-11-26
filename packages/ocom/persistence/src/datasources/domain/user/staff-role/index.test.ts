@@ -24,7 +24,9 @@ function makeMockModelsContext() {
         deleteOne: vi.fn(),
         findByIdAndDelete: vi.fn(),
         findOne: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as StaffRoleModelType,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Parameters<typeof StaffRolePersistence>[0];
 }
 
@@ -33,6 +35,7 @@ function makeMockModelsContextWithoutStaffRole() {
     Role: {
       // StaffRole is intentionally missing
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Parameters<typeof StaffRolePersistence>[0];
 }
 
@@ -43,6 +46,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -54,6 +58,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     models = makeMockModelsContext();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as ReturnType<typeof StaffRolePersistence>;
   });
 
@@ -98,6 +103,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       try {
         result = StaffRolePersistence(models, passport);
       } catch (error) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         caughtError = error as Error;
       }
     });

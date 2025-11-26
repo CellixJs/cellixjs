@@ -60,9 +60,11 @@ function makeVendorUserRoleDoc(overrides: Partial<VendorUserRole> = {}) {
       },
     },
     set(key: keyof VendorUserRole, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as VendorUserRole)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as VendorUserRole;
   return vi.mocked(base);
 }
@@ -73,6 +75,7 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Community;
   return vi.mocked(base);
 }
@@ -84,6 +87,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -453,12 +457,15 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
     });
     And('the domain object\'s isDefault should be true', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(true);
     });
     And('the domain object\'s community should be a Community domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const { community } = result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>;
       expect(community).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
     });

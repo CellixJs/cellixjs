@@ -15,6 +15,7 @@ test.for(feature, ({ Scenario }) => {
 
   Scenario('Responding with hello world', ({ When, Then }) => {
     When('the hello query is executed', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = (testResolvers.Query?.hello as () => string)();
     });
 

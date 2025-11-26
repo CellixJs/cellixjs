@@ -25,10 +25,12 @@ export class VendorUserDomainAdapter
 		if (!this.doc.personalInformation) {
 			this.doc.set(
 				'personalInformation',
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				{} as VendorUserPersonalInformation,
 			);
 		}
 		return new VendorUserPersonalInformationDomainAdapter(
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			this.doc.personalInformation as VendorUserPersonalInformation,
 		);
 	}
@@ -62,6 +64,7 @@ export class VendorUserDomainAdapter
 	}
 
 	get tags(): string[] | undefined {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return (this.doc.tags as string[] | undefined) ?? undefined;
 	}
 	set tags(tags: string[] | undefined) {
@@ -73,10 +76,12 @@ export class VendorUserDomainAdapter
 	}
 
 	override get createdAt(): Date {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return this.doc.createdAt as Date;
 	}
 
 	override get updatedAt(): Date {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return this.doc.updatedAt as Date;
 	}
 
@@ -146,10 +151,12 @@ export class VendorUserPersonalInformationDomainAdapter
 		if (!this.props.identityDetails) {
 			this.props.set(
 				'identityDetails',
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				{} as VendorUserIdentityDetails,
 			);
 		}
 		return new VendorUserIdentityDetailsDomainAdapter(
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			this.props.identityDetails as VendorUserIdentityDetails,
 		);
 	}
@@ -158,10 +165,12 @@ export class VendorUserPersonalInformationDomainAdapter
 		if (!this.props.contactInformation) {
 			this.props.set(
 				'contactInformation',
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				{} as VendorUserContactInformation,
 			);
 		}
 		return new VendorUserContactInformationDomainAdapter(
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			this.props.contactInformation as VendorUserContactInformation,
 		);
 	}

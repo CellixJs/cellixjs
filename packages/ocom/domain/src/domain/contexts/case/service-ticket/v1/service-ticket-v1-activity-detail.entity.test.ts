@@ -25,6 +25,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	BeforeEachScenario(() => {
 		// Mock member reference
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		memberRef = { id: 'member-123' } as MemberEntityReference;
 
 		// Mock props
@@ -34,6 +35,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			activityDescription: 'Test activity',
 			activityBy: memberRef,
 			loadActivityBy: vi.fn(() => Promise.resolve(memberRef)),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as ServiceTicketV1ActivityDetailProps;
 	});
 

@@ -23,6 +23,7 @@ interface TestProps {
 	id: string;
 	foo: string;
 }
+// biome-ignore lint/plugin/no-type-assertion: test file
 const passport = vi.mocked({} as unknown);
 // Minimal concrete AggregateRoot for testing
 class DummyAggregateRoot extends AggregateRoot<
@@ -67,11 +68,13 @@ const model = {
 	deleteOne: vi.fn().mockReturnValue({
 		exec: vi.fn().mockResolvedValue({}),
 	}),
+// biome-ignore lint/plugin/no-type-assertion: test file
 } as unknown as mongoose.Model<TestMongoType>;
 const typeConverter = vi.mocked({
 	toDomain: vi.fn(),
 	toAdapter: vi.fn(),
 	toPersistence: vi.fn(),
+// biome-ignore lint/plugin/no-type-assertion: test file
 } as TypeConverter<
 	TestMongoType,
 	TestProps,
@@ -81,7 +84,9 @@ const typeConverter = vi.mocked({
 const eventBus = vi.mocked({
 	dispatch: vi.fn(),
 	register: vi.fn(),
+// biome-ignore lint/plugin/no-type-assertion: test file
 } as EventBus);
+// biome-ignore lint/plugin/no-type-assertion: test file
 const session = vi.mocked({} as mongoose.ClientSession);
 
 // Concrete repository for testing
@@ -205,6 +210,7 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 		isModified: () => true,
 		save: vi.fn().mockResolvedValue({ _id: 'save-id', foo: 'bar' }),
 	  };
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  typeConverter.toPersistence.mockReturnValue(mongoObj as unknown as TestMongoType);
 	  domainObj = new DummyAggregateRoot(props, passport);
 	  typeConverter.toDomain.mockResolvedValueOnce(domainObj);
@@ -215,10 +221,12 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 	  expect(dispatchSpy).toHaveBeenCalledTimes(2);
 	  expect(dispatchSpy).toHaveBeenNthCalledWith(1, TestDomainEvent1, domainEvent1?.payload);
 	  expect(dispatchSpy).toHaveBeenNthCalledWith(2, TestDomainEvent2, domainEvent2?.payload);
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  const clearDomainEventsSpy = aggregate.clearDomainEvents as unknown as Mock;
 	  if (clearDomainEventsSpy && dispatchSpy.mock) {
 		const lastDispatchCallOrder = dispatchSpy.mock.invocationCallOrder[1];
 		const clearCallOrder = clearDomainEventsSpy.mock.invocationCallOrder[0];
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		expect(clearCallOrder).toBeGreaterThan(lastDispatchCallOrder as number);
 	  }
 	});
@@ -248,8 +256,10 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 		isModified: () => true,
 		save: vi.fn(),
 	  };
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  typeConverter.toPersistence.mockReturnValue(mongoObj as unknown as TestMongoType);
 	  execSpy = vi.fn().mockResolvedValue({});
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  (model.deleteOne as unknown as Mock).mockReturnValueOnce({ exec: execSpy });
 	  result = await repo.save(aggregate);
 	});
@@ -275,12 +285,14 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 		isModified: () => true,
 		save: vi.fn().mockRejectedValue(error),
 	  };
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  typeConverter.toPersistence.mockReturnValue(mongoObj as unknown as TestMongoType);
 	  vi.spyOn(aggregate, 'getDomainEvents').mockReturnValue([]);
 	  vi.spyOn(aggregate, 'clearDomainEvents').mockImplementation(() => []);
 	  try {
 		await repo.save(aggregate);
 	  } catch (err: unknown) {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		thrownError = err as Error;
 	  }
 	});
@@ -302,6 +314,7 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 		isModified: () => true,
 		save: vi.fn().mockResolvedValue({ _id: 'event-id', foo: 'bar' }),
 	  };
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  typeConverter.toPersistence.mockReturnValue(mongoObj as unknown as TestMongoType);
 	  domainObj = new DummyAggregateRoot(props, passport);
 	  typeConverter.toDomain.mockResolvedValueOnce(domainObj);
@@ -326,8 +339,10 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 		isModified: () => true,
 		save: vi.fn().mockResolvedValueOnce({ _id: 'fail-event-id', foo: 'bar' }),
 	  };
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  (typeConverter.toPersistence as unknown as Mock).mockReturnValueOnce(mongoObj);
 	  domainObj = new DummyAggregateRoot(props, passport);
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  (typeConverter.toDomain as unknown as Mock).mockResolvedValueOnce(domainObj);
 	});
 	And('a domain event handler that throws an error', () => {
@@ -338,6 +353,7 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 	  try {
 		await repo.save(aggregate);
 	  } catch (err) {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		thrownError = err as Error;
 	  }
 	});
@@ -352,11 +368,13 @@ Scenario('Getting an aggregate that exists', ({ When, Then }) => {
     vi.resetAllMocks();
     const testId = 'test-id';
     const mongoDoc = { _id: testId, foo: 'test-foo' };
+    // biome-ignore lint/plugin/no-type-assertion: test file
     (model.findById as unknown as Mock).mockReturnValueOnce({
       exec: vi.fn().mockResolvedValue(mongoDoc),
     });
     // Create a new instance for this scenario
     domainObj = new DummyAggregateRoot({ id: testId, foo: 'test-foo' }, passport);
+    // biome-ignore lint/plugin/no-type-assertion: test file
     (typeConverter.toDomain as unknown as Mock).mockResolvedValueOnce(domainObj);
     result = await repo.get(testId);
   });
@@ -368,12 +386,14 @@ Scenario('Getting an aggregate that exists', ({ When, Then }) => {
   Scenario('Getting an aggregate that does not exist', ({ When, Then }) => {
 	When('the repository gets an aggregate that does not exist', async () => {
 	  const testId = 'not-found-id';
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  (model.findById as unknown as Mock).mockReturnValueOnce({
 		exec: vi.fn().mockResolvedValue(null),
 	  });
 	  try {
 		await repo.get(testId);
 	  } catch (err) {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		thrownError = err as Error;
 	  }
 	});
@@ -387,6 +407,7 @@ Scenario('Getting an aggregate that exists', ({ When, Then }) => {
 	When('the repository gets an aggregate root and the domain conversion fails', async () => {
 	  const testId = 'test-id';
 	  const mongoDoc = { _id: testId, foo: 'test-foo' };
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  (model.findById as unknown as Mock).mockReturnValueOnce({
 		exec: vi.fn().mockResolvedValue(mongoDoc),
 	  });
@@ -395,6 +416,7 @@ Scenario('Getting an aggregate that exists', ({ When, Then }) => {
 	  try {
 		await repo.get(testId);
 	  } catch (err) {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		thrownError = err as Error;
 	  }
 	});
@@ -407,12 +429,14 @@ Scenario('Getting an aggregate that exists', ({ When, Then }) => {
 	When('the repository gets an aggregate root that does exist and the persistence layer fails', async () => {
 	  const testId = 'error-id';
 	  error = new Error('db error');
+	  // biome-ignore lint/plugin/no-type-assertion: test file
 	  (model.findById as unknown as Mock).mockReturnValueOnce({
 		exec: vi.fn().mockRejectedValue(error),
 	  });
 	  try {
 		await repo.get(testId);
 	  } catch (err) {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		thrownError = err as Error;
 	  }
 	});

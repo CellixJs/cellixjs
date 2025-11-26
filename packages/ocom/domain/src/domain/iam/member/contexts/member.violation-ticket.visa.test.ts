@@ -23,6 +23,7 @@ function makeViolationTicket(
 		communityId,
 		requestorId,
 		assignedToId,
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as ViolationTicketV1EntityReference;
 }
 
@@ -44,6 +45,7 @@ function makeMember(
 				},
 			},
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as MemberEntityReference;
 }
 
@@ -56,6 +58,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		ticket = makeViolationTicket();
 		member = makeMember();
 		visa =
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			undefined as unknown as MemberViolationTicketVisa<ViolationTicketV1EntityReference>;
 	});
 

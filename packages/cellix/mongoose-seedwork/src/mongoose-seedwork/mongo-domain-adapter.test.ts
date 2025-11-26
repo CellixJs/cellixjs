@@ -30,6 +30,7 @@ test.for(feature, ({ Scenario }) => {
         updatedAt: new Date('2023-01-02T00:00:00Z'),
         schemaVersion: 'v1',
         version: 1,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
     });
     When('a domain adapter is constructed with the document', () => {
@@ -50,6 +51,7 @@ test.for(feature, ({ Scenario }) => {
         updatedAt: new Date(),
         schemaVersion: 'v2',
         version: 2,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       }) as TestDoc;
       adapter = new TestAdapter(doc);
     });
@@ -72,6 +74,7 @@ test.for(feature, ({ Scenario }) => {
         updatedAt: updated,
         schemaVersion: 'v3',
         version: 3,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       adapter = new TestAdapter(doc);
     });

@@ -11,11 +11,14 @@ export class StaffUserDomainAdapter
 {
 	get role(): Domain.Contexts.User.StaffRole.StaffRoleProps {
 		if (!this.doc.role) {
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			return undefined as unknown as Domain.Contexts.User.StaffRole.StaffRoleProps;
 		}
 		if (this.doc.role instanceof MongooseSeedwork.ObjectId) {
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			return undefined as unknown as Domain.Contexts.User.StaffRole.StaffRoleProps;
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new StaffRoleDomainAdapter(this.doc.role as StaffRole);
 	}
 
@@ -88,6 +91,7 @@ export class StaffUserDomainAdapter
 		if (!this.doc.tags) {
 			this.doc.set('tags', []);
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return this.doc.tags as string[];
 	}
 	set tags(tags: string[]) {
@@ -99,10 +103,12 @@ export class StaffUserDomainAdapter
 	}
 
 	override get createdAt(): Date {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return this.doc.createdAt as Date;
 	}
 
 	override get updatedAt(): Date {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return this.doc.updatedAt as Date;
 	}
 

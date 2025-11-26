@@ -12,21 +12,25 @@ export class SystemUserPassport
 	implements UserPassport
 {
 	forEndUser(_root: EndUserEntityReference): UserVisa {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const permissions = this.permissions as UserDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
 	}
 
 	forStaffUser(_root: StaffUserEntityReference): UserVisa {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const permissions = this.permissions as UserDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
 	}
 
 	forStaffRole(_root: StaffRoleEntityReference): UserVisa {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const permissions = this.permissions as UserDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
 	}
 
 	forVendorUser(_root: VendorUserEntityReference): UserVisa {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const permissions = this.permissions as UserDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
 	}

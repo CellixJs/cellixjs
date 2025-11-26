@@ -31,9 +31,11 @@ function makeStaffUserDoc(overrides: Partial<StaffUser> = {}) {
     updatedAt: new Date(),
     schemaVersion: '1.0.0',
     set(key: keyof StaffUser, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as StaffUser)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as StaffUser;
   return vi.mocked(base);
 }
@@ -45,6 +47,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -60,6 +63,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     staffUserDoc = makeStaffUserDoc();
     converter = new StaffUserConverter();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
 
     // Mock the Mongoose model as a constructor function with static methods
@@ -88,12 +92,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     // Create repository with correct constructor parameters
     repo = new StaffUserRepository(
       passport,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       ModelMock as unknown as StaffUserModelType,
       converter,
       eventBus,

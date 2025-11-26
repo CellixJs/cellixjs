@@ -96,6 +96,7 @@ const MemberSchema = new Schema<Member, Model<Member>, Member>(
       showProfile: { type: Boolean, required: false, default: false },
       showLocation: { type: Boolean, required: false, default: false },
       showProperties: { type: Boolean, required: false, default: false },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as SchemaDefinition<MemberProfile>,
   },
   {

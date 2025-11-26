@@ -29,6 +29,7 @@ function makePassport(overrides: Partial<{ canManageServices: boolean }> = {}) {
 					}),
 			})),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Passport);
 }
 
@@ -38,6 +39,7 @@ function makeCommunityEntityReference(
 	return {
 		id,
 		name: 'Test Community',
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as CommunityProps;
 }
 
@@ -68,6 +70,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		communityRef = makeCommunityEntityReference();
 		baseProps = makeBaseProps();
 		service = new Service(baseProps, passport);
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		newService = undefined as unknown as Service<ServiceProps>;
 	});
 

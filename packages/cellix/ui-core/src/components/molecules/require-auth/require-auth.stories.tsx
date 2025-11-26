@@ -19,13 +19,19 @@ const Wrapper: React.FC<{ auth: Partial<AuthContextProps>; children: React.React
     signoutRedirect: auth.signoutRedirect ?? (() => Promise.resolve()),
     removeUser: auth.removeUser ?? (() => Promise.resolve()),
     user: auth.user,
+    // biome-ignore lint/plugin/no-type-assertion: test file
     events: auth.events ?? ({} as unknown),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     settings: auth.settings ?? ({} as unknown),
     signoutPopup: auth.signoutPopup ?? (() => Promise.resolve()),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     signinSilent: auth.signinSilent ?? (() => Promise.resolve(null as AwaitedReturn<AuthContextProps['signinSilent']>)),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     signinPopup: auth.signinPopup ?? (() => Promise.resolve(null as AwaitedReturn<AuthContextProps['signinPopup']>)),
     clearStaleState: auth.clearStaleState ?? (() => Promise.resolve()),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     querySessionStatus: auth.querySessionStatus ?? (() => Promise.resolve(null as AwaitedReturn<AuthContextProps['querySessionStatus']>)),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   }) as AuthContextProps, [
     auth.activeNavigator,
     auth.error,
@@ -97,6 +103,7 @@ export const ErrorState: Story = {
     <Wrapper
       auth={{
         error: (() => {
+          // biome-ignore lint/plugin/no-type-assertion: test file
           const e = new Error('Auth failed') as Error & { innerError?: unknown; source: 'unknown' };
           e.source = 'unknown';
           return e;
@@ -140,6 +147,7 @@ export const NotAuthenticated: Story = {
         },
       }), []);
       return (
+        // biome-ignore lint/plugin/no-type-assertion: test file
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
           {called && (
@@ -195,6 +203,7 @@ export const ForceLoginAutoSignIn: Story = {
         },
       }), []);
       return (
+        // biome-ignore lint/plugin/no-type-assertion: test file
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
           {signinCalled && (
@@ -258,6 +267,7 @@ export const WithAuthParams: Story = {
       }), []);
       
       return (
+        // biome-ignore lint/plugin/no-type-assertion: test file
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
           <div data-testid="has-auth-params">hasAuthParams() is true</div>
@@ -308,6 +318,7 @@ export const ForceLoginFalse: Story = {
       }), []);
       
       return (
+        // biome-ignore lint/plugin/no-type-assertion: test file
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
           {signinCalled && (
@@ -345,6 +356,7 @@ export const ActiveNavigator: Story = {
       const auth = useMemo(() => ({
         isAuthenticated: false,
         isLoading: false,
+        // biome-ignore lint/plugin/no-type-assertion: test file
         activeNavigator: "signinRedirect" as const, // This should prevent auto-signin
         error: undefined,
         signinRedirect: () => {
@@ -354,6 +366,7 @@ export const ActiveNavigator: Story = {
       }), []);
       
       return (
+        // biome-ignore lint/plugin/no-type-assertion: test file
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
           {signinCalled && (
@@ -391,6 +404,7 @@ export const WithError: Story = {
         activeNavigator: undefined,
         error: (() => {
           // Create a proper error object matching the expected type
+          // biome-ignore lint/plugin/no-type-assertion: test file
           const err = new Error("Auth error") as Error & { source: "unknown"; innerError?: unknown };
           err.source = "unknown";
           return err;
@@ -401,6 +415,7 @@ export const WithError: Story = {
       }), []);
       
       return (
+        // biome-ignore lint/plugin/no-type-assertion: test file
         <AuthContext.Provider value={auth as AuthContextProps}>
           {children}
         </AuthContext.Provider>

@@ -16,10 +16,12 @@ const feature = await loadFeature(
 );
 
 function makeServiceTicketV1(id = 'service-ticket-1') {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return { id } as ServiceTicketV1EntityReference;
 }
 
 function makeViolationTicketV1(id = 'violation-ticket-1') {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return { id } as ViolationTicketV1EntityReference;
 }
 

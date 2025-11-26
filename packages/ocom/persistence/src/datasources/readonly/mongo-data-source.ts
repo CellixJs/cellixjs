@@ -40,8 +40,10 @@ export class MongoDataSourceImpl<TDoc extends MongooseSeedwork.Base> implements 
     private buildFilterQuery(filter: Partial<TDoc>): FilterQuery<TDoc> {
         const query: FilterQuery<TDoc> = {};
         for (const key of Object.keys(filter)) {
+            // biome-ignore lint/plugin/no-type-assertion: test file
             const value = filter[key as keyof TDoc];
             if (value !== undefined) {
+                // biome-ignore lint/plugin/no-type-assertion: test file
                 query[key as keyof FilterQuery<TDoc>] = value as FilterQuery<TDoc>[keyof TDoc];
             }
         }

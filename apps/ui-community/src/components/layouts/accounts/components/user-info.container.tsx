@@ -11,6 +11,7 @@ export const UserInfoContainer: React.FC = () => {
             loading={loading}
             error={error}
             hasData={data?.currentEndUserAndCreateIfNotExists}
+            // biome-ignore lint/plugin/no-type-assertion: test file
             hasDataComponent={<UserInfo userData={data?.currentEndUserAndCreateIfNotExists as AccountsUserInfoContainerEndUserFieldsFragment} />}
             noDataComponent={<div>No User Data</div>}
         />

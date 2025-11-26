@@ -42,6 +42,7 @@ function makeProps() {
 	return {
 		canManageProperties: false,
 		canEditOwnProperty: false,
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as EndUserRolePropertyPermissionsProps;
 }
 

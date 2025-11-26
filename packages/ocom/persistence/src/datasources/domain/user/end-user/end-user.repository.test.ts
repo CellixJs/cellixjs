@@ -37,9 +37,11 @@ function makeEndUserDoc(overrides: Partial<EndUser> = {}) {
       },
     },
     set(key: keyof EndUser, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as EndUser)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as EndUser;
   return vi.mocked(base);
 }
@@ -51,6 +53,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -82,17 +85,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       prototype: {},
     });
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     repo = new EndUserRepository(
       passport,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       ModelMock as unknown as EndUserModelType,
       converter,
       eventBus,
       session
     );
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     model = ModelMock as unknown as EndUserModelType;
   });
 
@@ -180,6 +187,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     And('the domain object\'s displayName should be "Smith"', () => {
       expect(result.displayName).toBe('Smith');
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>).displayName).toBe('Smith');
     });
     And('the domain object\'s email should be "smith@example.com"', () => {

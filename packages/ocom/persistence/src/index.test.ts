@@ -27,11 +27,14 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'index.feature')
 );
 
+// biome-ignore lint/plugin/no-type-assertion: test file
 function makeMockMongooseContextFactory(service: mongoose.Mongoose | null | 'invalid' = {} as mongoose.Mongoose): MongooseSeedwork.MongooseContextFactory {
   if (service === null) {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return { service: null as unknown as mongoose.Mongoose };
   }
   if (service === 'invalid') {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return { service: undefined as unknown as mongoose.Mongoose };
   }
   return {
@@ -41,8 +44,11 @@ function makeMockMongooseContextFactory(service: mongoose.Mongoose | null | 'inv
 
 function makeMockModelsContext(): ModelsContext {
   return {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Community: {} as unknown,
+    // biome-ignore lint/plugin/no-type-assertion: test file
     EndUser: {} as unknown,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as ModelsContext;
 }
 

@@ -47,6 +47,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
         // 2. check for string name of the query if it is named: (operation) => operation.operationName === "CountryDetails",
         (operation) => operation.operationName in linkMap,  
         new ApolloLink((operation, forward) => {  
+          // biome-ignore lint/plugin/no-type-assertion: test file
           const link = linkMap[operation.operationName as keyof typeof linkMap] || linkMap.default;  
           return link.request(operation, forward);  
         }),  

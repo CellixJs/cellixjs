@@ -28,6 +28,7 @@ function makeServiceDoc(overrides: Partial<Service> = {}) {
     updatedAt: new Date(),
     set(key: keyof Service, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as Service)[key] = value as never;
     },
     populate(path: string) {
@@ -38,6 +39,7 @@ function makeServiceDoc(overrides: Partial<Service> = {}) {
       return this;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Service;
 }
 
@@ -47,6 +49,7 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Community;
   return vi.mocked(base);
 }
@@ -63,6 +66,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -90,9 +94,12 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     mockModel = ModelMock as unknown as ServiceModelType;
     repository = new ServiceRepository(passport, mockModel, converter, eventBus, session);
     result = undefined;
@@ -136,6 +143,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   Scenario('Getting a new service instance', ({ Given, When, Then }) => {
     let communityRef: Domain.Contexts.Community.Community.CommunityEntityReference;
     Given('a valid community reference', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityRef = { id: '507f1f77bcf86cd799439012' } as Domain.Contexts.Community.Community.CommunityEntityReference;
     });
     When('I call getNewInstance with service name "New Service", description "New description", and community reference', async () => {

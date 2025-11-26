@@ -82,6 +82,7 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
       ...overrides.applicationServices,
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as GraphContext;
 }
 
@@ -103,6 +104,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     When('the currentEndUserAndCreateIfNotExists query is executed', async () => {
       vi.mocked(context.applicationServices.User.EndUser.createIfNotExists).mockResolvedValue(mockEndUser);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = await (endUserResolvers.Query?.currentEndUserAndCreateIfNotExists as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<EndUserEntity | null>)(null, {}, context, {});
     });
 
@@ -130,6 +132,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     When('the endUserById query is executed with that ID', async () => {
       vi.mocked(context.applicationServices.User.EndUser.queryById).mockResolvedValue(mockEndUser);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = await (endUserResolvers.Query?.endUserById as unknown as (parent: unknown, args: { id: string }, context: GraphContext, info: unknown) => Promise<EndUserEntity | null>)(null, { id: endUserId }, context, {});
     });
 
@@ -153,6 +156,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the currentEndUserAndCreateIfNotExists query is executed', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       await expect((endUserResolvers.Query?.currentEndUserAndCreateIfNotExists as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<EndUserEntity | null>)(null, {}, context, {})).rejects.toThrow('Unauthorized');
     });
 

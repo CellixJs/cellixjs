@@ -77,6 +77,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   BeforeEachScenario(async () => {
     // biome-ignore lint/suspicious/noExplicitAny: test code, dynamic property access
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const sdkNodeModule = await import('@opentelemetry/sdk-node') as any;
     getLastConfig = sdkNodeModule.NodeSDK.getLastConfig;
     logSpy = vi.spyOn(console, 'log').mockImplementation(() => { /* no-op */ });
@@ -132,6 +133,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       service.startUp();
     });
     Then('it should start the OpenTelemetry NodeSDK', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((service as unknown as { sdk: { start: () => void } }).sdk.start).toHaveBeenCalled();
     });
   });
@@ -144,6 +146,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       service.shutDown();
     });
     Then('it should shut down the OpenTelemetry NodeSDK and log that the service stopped', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((service as unknown as { sdk: { shutdown: () => void } }).sdk.shutdown).toHaveBeenCalled();
       expect(logSpy).toHaveBeenCalledWith('ServiceOtel stopped');
     });

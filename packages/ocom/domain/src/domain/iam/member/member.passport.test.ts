@@ -36,10 +36,12 @@ const feature = await loadFeature(
 
 // Helper factories for entity references
 function makeUser(id = 'user-1') {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return { id } as EndUserEntityReference;
 }
 
 function makeCommunity(id = 'community-1') {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return { id, name: 'Test Community' } as CommunityEntityReference;
 }
 
@@ -52,6 +54,7 @@ function makeMember(
 		id: 'member-1',
 		community: makeCommunity(communityId),
 		accounts: accountsOverride ?? [{ id: 'account-1', user: makeUser(userId) }],
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as MemberEntityReference;
 }
 
@@ -65,6 +68,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		user = makeUser();
 		member = makeMember();
 		community = makeCommunity();
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		passport = undefined as unknown as MemberPassport;
 	});
 
@@ -170,6 +174,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			() => {
 				expect(communityPassport).toBeInstanceOf(MemberCommunityPassport);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(communityPassport as MemberCommunityPassport).forCommunity(
 						community,
 					),
@@ -194,7 +199,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			() => {
 				expect(servicePassport).toBeInstanceOf(MemberServicePassport);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(servicePassport as MemberServicePassport).forService(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						{} as ServiceEntityReference,
 					),
 				).toBeInstanceOf(MemberServiceVisa);
@@ -218,20 +225,27 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			() => {
 				expect(userPassport).toBeInstanceOf(MemberUserPassport);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(userPassport as MemberUserPassport).forStaffUser(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						{} as StaffUserEntityReference,
 					),
 				).toBeInstanceOf(MemberUserStaffUserVisa);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(userPassport as MemberUserPassport).forStaffRole(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						{} as StaffRoleEntityReference,
 					),
 				).toBeInstanceOf(MemberUserStaffRoleVisa);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(userPassport as MemberUserPassport).forEndUser(user),
 				).toBeInstanceOf(MemberUserEndUserVisa);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(userPassport as MemberUserPassport).forVendorUser(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						{} as VendorUserEntityReference,
 					),
 				).toBeInstanceOf(MemberUserVendorUserVisa);
@@ -255,7 +269,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			() => {
 				expect(propertyPassport).toBeInstanceOf(MemberPropertyPassport);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(propertyPassport as MemberPropertyPassport).forProperty(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						{} as PropertyEntityReference,
 					),
 				).toBeInstanceOf(MemberPropertyVisa);
@@ -279,12 +295,16 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			() => {
 				expect(casePassport).toBeInstanceOf(MemberCasePassport);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(casePassport as MemberCasePassport).forServiceTicketV1(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						{} as ServiceTicketV1EntityReference,
 					),
 				).toBeInstanceOf(MemberServiceTicketVisa);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(casePassport as MemberCasePassport).forViolationTicketV1(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						{} as ViolationTicketV1EntityReference,
 					),
 				).toBeInstanceOf(MemberViolationTicketVisa);

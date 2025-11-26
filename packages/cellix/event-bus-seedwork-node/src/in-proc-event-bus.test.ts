@@ -27,6 +27,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   // Reset the singleton's subscribers for isolation before each scenario
   BeforeEachScenario(() => {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     (InProcEventBusInstance as unknown as { eventSubscribers: Record<string, Array<(rawpayload: string) => Promise<void>> | undefined> }).eventSubscribers = {};
     handler = vi.fn().mockResolvedValue(undefined);
     handler1 = vi.fn().mockResolvedValue(undefined);
@@ -121,6 +122,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
     And('the error should be propagated', () => {
       expect(error).toBeInstanceOf(Error);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((error as Error).message).toBe('handler1 error');
     });
   });

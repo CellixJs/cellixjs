@@ -111,6 +111,7 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
       ...overrides.applicationServices,
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as GraphContext;
 }
 
@@ -132,6 +133,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     When('the currentCommunity query is executed', async () => {
       vi.mocked(context.applicationServices.Community.Community.queryById).mockResolvedValue(mockCommunity);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = await (communityResolvers.Query?.currentCommunity as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<CommunityEntity | null>)(null, {}, context, {});
     });
 
@@ -156,6 +158,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     When('the communityById query is executed with that ID', async () => {
       vi.mocked(context.applicationServices.Community.Community.queryById).mockResolvedValue(mockCommunity);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = await (communityResolvers.Query?.communityById as unknown as (parent: unknown, args: { id: string }, context: GraphContext, info: unknown) => Promise<CommunityEntity | null>)(null, { id: communityId }, context, {});
     });
 
@@ -179,6 +182,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     When('the communitiesForCurrentEndUser query is executed', async () => {
       vi.mocked(context.applicationServices.Community.Community.queryByEndUserExternalId).mockResolvedValue(mockCommunities);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = await (communityResolvers.Query?.communitiesForCurrentEndUser as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<CommunityEntity[]>)(null, {}, context, {});
     });
 
@@ -207,6 +211,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     When('the communityCreate mutation is executed with the input', async () => {
       vi.mocked(context.applicationServices.Community.Community.create).mockResolvedValue(mockCreatedCommunity);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = await (communityResolvers.Mutation?.communityCreate as unknown as (parent: unknown, args: { input: CommunityCreateInput }, context: GraphContext, info?: unknown) => Promise<{ status: { success: boolean }; community?: CommunityEntity } | null>)(null, { input }, context);
     });
 
@@ -233,6 +238,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the currentCommunity query is executed', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       await expect((communityResolvers.Query?.currentCommunity as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<CommunityEntity | null>)(null, {}, context, {})).rejects.toThrow('Unauthorized');
     });
 
@@ -249,6 +255,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the communitiesForCurrentEndUser query is executed', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       await expect((communityResolvers.Query?.communitiesForCurrentEndUser as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<CommunityEntity[]>)(null, {}, context, {})).rejects.toThrow('Unauthorized');
     });
 
@@ -265,6 +272,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the communityCreate mutation is executed', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       await expect((communityResolvers.Mutation?.communityCreate as unknown as (parent: unknown, args: { input: CommunityCreateInput }, context: GraphContext, info?: unknown) => Promise<{ status: { success: boolean }; community?: CommunityEntity } | null>)(null, { input: { name: 'Test' } }, context)).rejects.toThrow('Unauthorized');
     });
 
@@ -286,6 +294,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the communityCreate mutation is executed', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = await (communityResolvers.Mutation?.communityCreate as unknown as (parent: unknown, args: { input: CommunityCreateInput }, context: GraphContext, info?: unknown) => Promise<{ status: { success: boolean; errorMessage?: string } } | null>)(null, { input }, context);
     });
 

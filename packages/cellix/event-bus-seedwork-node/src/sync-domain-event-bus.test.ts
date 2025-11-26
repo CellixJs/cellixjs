@@ -39,6 +39,7 @@ test.for(feature, ({ Scenario }) => {
       try {
         console.log(event.payload);
       } catch (e) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         error = e as Error;
       }
     });

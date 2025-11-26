@@ -21,6 +21,7 @@ function makeMockCommunityModel() {
     create: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as CommunityModelType;
 }
 
@@ -36,6 +37,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -47,6 +49,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     communityModel = makeMockCommunityModel();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as Domain.Contexts.Community.Community.CommunityUnitOfWork;
   });
 

@@ -154,7 +154,9 @@ async function main() {
   if (!family_name) { throw new Error('Family_Name is not defined in .env.local'); }
   // biome-ignore lint:useLiteralKeys
   const sub = process.env['Sub'] ?? crypto.randomUUID();
-    const { tid, refresh_token } = req.body as { tid?: string; refresh_token?: string };
+    const body = req.body;
+    const tid = typeof body === 'object' && body !== null && 'tid' in body && typeof body.tid === 'string' ? body.tid : undefined;
+    const refresh_token = typeof body === 'object' && body !== null && 'refresh_token' in body && typeof body.refresh_token === 'string' ? body.refresh_token : undefined;
 
     const profile: TokenProfile = {
       aud: aud,
@@ -191,7 +193,9 @@ async function main() {
   });
 
   app.get('/authorize', (req, res) => {
-    const { state } = req.query as { state?: string };
+    const query = req.query;
+    // biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+    const state = typeof query === 'object' && query !== null && 'state' in query && typeof query['state'] === 'string' ? query['state'] : undefined;
 
     // Always use the trusted, server-configured redirect URI
     const code = crypto.randomUUID();

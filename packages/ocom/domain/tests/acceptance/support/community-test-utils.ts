@@ -9,11 +9,13 @@ import type { Passport } from '../../../src/domain/contexts/passport.ts';
  */
 export function createMockVisa(partialPermissions: Partial<CommunityDomainPermissions>): CommunityVisa {
 	const determineIfFn = (fn: (permissions: Readonly<CommunityDomainPermissions>) => boolean) => {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return fn(partialPermissions as CommunityDomainPermissions);
 	};
 
 	return {
 		determineIf: determineIfFn,
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as CommunityVisa;
 }
 
@@ -26,10 +28,12 @@ export function createMockPassport(partialPermissions: Partial<CommunityDomainPe
 
 	const mockCommunityPassport = {
 		forCommunity: forCommunityFn,
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as CommunityPassport;
 
 	return {
 		community: mockCommunityPassport,
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as Passport;
 }
 

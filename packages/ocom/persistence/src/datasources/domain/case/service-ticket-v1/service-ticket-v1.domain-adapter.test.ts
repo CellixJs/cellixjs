@@ -48,18 +48,22 @@ function makeServiceTicketDoc(overrides: Partial<ServiceTicket> = {}) {
     lastIndexed: undefined,
     updateIndexFailedDate: undefined,
     set(key: string, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as unknown as Record<string, unknown>)[key] = value;
     },
     populate: vi.fn(),
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as ServiceTicket;
 }
 
 function makeCommunityDoc(overrides: Partial<Community> = {}) {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community;
 }
 
 function makeMemberDoc(overrides: Partial<Member> = {}) {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Member;
 }
 
@@ -71,6 +75,7 @@ function makeActivityDetailDoc(overrides: Partial<ServiceTicketActivityDetail> =
     activityBy: makeMemberDoc(),
     populate: vi.fn(),
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as ServiceTicketActivityDetail;
 }
 
@@ -85,6 +90,7 @@ function makeMessageDoc(overrides: Partial<ServiceTicketMessage> = {}) {
     embedding: '',
     populate: vi.fn(),
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as ServiceTicketMessage;
 }
 
@@ -105,6 +111,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -225,12 +232,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     When('I get the communityId property', () => {
       // Test will check the value
     });
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the community\'s id as a string', () => {
       expect(adapter.communityId).toBe('507f1f77bcf86cd799439012');
     });
   });
 
   Scenario('Getting the communityId property when not populated', ({ Given, When, Then }) => {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1DomainAdapter for a document with community as an ObjectId', () => {
       doc.community = new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012');
       adapter = new ServiceTicketV1DomainAdapter(doc);
@@ -263,12 +272,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     When('I get the requestorId property', () => {
       // Test will check the value
     });
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the requestor\'s id as a string', () => {
       expect(adapter.requestorId).toBe('507f1f77bcf86cd799439013');
     });
   });
 
   Scenario('Getting the requestorId property when not populated', ({ Given, When, Then }) => {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1DomainAdapter for a document with requestor as an ObjectId', () => {
       doc.requestor = new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013');
       adapter = new ServiceTicketV1DomainAdapter(doc);
@@ -561,6 +572,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     Then('it should return a Member entity reference', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const memberRef = result as Domain.Contexts.Community.Member.MemberEntityReference;
       expect(memberRef).toBeDefined();
       expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
@@ -571,6 +583,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     let activityDoc: ServiceTicketActivityDetail;
     let result: Domain.Contexts.Community.Member.MemberEntityReference;
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document with activityBy as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
       activityDoc = makeActivityDetailDoc({ activityBy: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
@@ -590,6 +603,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     Then('it should populate and return a Member entity reference', () => {
       expect(activityDoc.populate).toHaveBeenCalledWith('activityBy');
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const memberRef = result as Domain.Contexts.Community.Member.MemberEntityReference;
       expect(memberRef).toBeDefined();
       expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
@@ -612,6 +626,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     Then('it should return a Member entity reference', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const memberRef = result as Domain.Contexts.Community.Member.MemberEntityReference;
       expect(memberRef).toBeDefined();
       expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
@@ -622,6 +637,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     let messageDoc: ServiceTicketMessage;
     let result: Domain.Contexts.Community.Member.MemberEntityReference;
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1MessageDomainAdapter for a document with initiatedBy as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
       messageDoc = makeMessageDoc({ initiatedBy: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
@@ -641,6 +657,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     Then('it should populate and return a Member entity reference', () => {
       expect(messageDoc.populate).toHaveBeenCalledWith('initiatedBy');
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const memberRef = result as Domain.Contexts.Community.Member.MemberEntityReference;
       expect(memberRef).toBeDefined();
       expect(memberRef.id).toBe('507f1f77bcf86cd799439013');
@@ -718,6 +735,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Loading the community when not populated', ({ Given, When, Then }) => {
     let result: Domain.Contexts.Community.Community.CommunityEntityReference;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1DomainAdapter for the document with community as an ObjectId', () => {
       const communityDoc = makeCommunityDoc();
       doc = makeServiceTicketDoc({ community: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012') });
@@ -755,6 +773,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Loading the requestor when not populated', ({ Given, When, Then }) => {
     let result: Domain.Contexts.Community.Member.MemberProps;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1DomainAdapter for the document with requestor as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
       doc = makeServiceTicketDoc({ requestor: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
@@ -778,6 +797,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   Scenario('Setting the community property', ({ Given, When, Then }) => {
     let communityRef: Domain.Contexts.Community.Community.CommunityEntityReference;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityRef = { id: '507f1f77bcf86cd799439012' } as Domain.Contexts.Community.Community.CommunityEntityReference;
       // Already set up
     });
@@ -792,6 +812,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   Scenario('Setting the requestor property', ({ Given, When, Then }) => {
     let memberRef: Domain.Contexts.Community.Member.MemberEntityReference;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       memberRef = { id: '507f1f77bcf86cd799439013' } as Domain.Contexts.Community.Member.MemberEntityReference;
       // Already set up
     });
@@ -823,6 +844,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     let communityRef: Domain.Contexts.Community.Community.CommunityEntityReference;
     let setCommunityWithoutId: () => void;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityRef = { id: '' } as Domain.Contexts.Community.Community.CommunityEntityReference; // Missing id
       // Already set up
     });
@@ -836,6 +858,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         setCommunityWithoutId();
         throw new Error('Expected error was not thrown');
       } catch (error) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         expect((error as Error).message).toBe('community reference is missing id');
       }
     });
@@ -862,6 +885,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     let memberRef: Domain.Contexts.Community.Member.MemberEntityReference;
     let setRequestorWithoutId: () => void;
     Given('a ServiceTicketV1DomainAdapter for the document', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       memberRef = { id: '' } as Domain.Contexts.Community.Member.MemberEntityReference; // Missing id
       // Already set up
     });
@@ -875,6 +899,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         setRequestorWithoutId();
         throw new Error('Expected error was not thrown');
       } catch (error) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         expect((error as Error).message).toBe('member reference is missing id');
       }
     });
@@ -896,6 +921,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         setCommunityWithNull();
         throw new Error('Expected error was not thrown');
       } catch (error) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         expect((error as Error).message).toBe('community reference is missing id');
       }
     });
@@ -917,6 +943,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         setRequestorWithNull();
         throw new Error('Expected error was not thrown');
       } catch (error) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         expect((error as Error).message).toBe('member reference is missing id');
       }
     });
@@ -938,6 +965,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         setCommunityWithUndefined();
         throw new Error('Expected error was not thrown');
       } catch (error) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         expect((error as Error).message).toBe('community reference is missing id');
       }
     });
@@ -959,6 +987,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
         setRequestorWithUndefined();
         throw new Error('Expected error was not thrown');
       } catch (error) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         expect((error as Error).message).toBe('member reference is missing id');
       }
     });
@@ -975,6 +1004,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     converter = new ServiceTicketV1Converter();
     doc = makeServiceTicketDoc();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
   });
 
@@ -1007,15 +1037,19 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1);
     });
     And('the domain object\'s title should be "Test Ticket"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).title).toBe('Test Ticket');
     });
     And('the domain object\'s description should be "Test Description"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).description).toBe('Test Description');
     });
     And('the domain object\'s status should be "open"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).status).toBe('open');
     });
     And('the domain object\'s priority should be 1', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>).priority).toBe(1);
     });
   });

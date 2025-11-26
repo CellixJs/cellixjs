@@ -14,6 +14,7 @@ const feature = await loadFeature(
 );
 
 function makeStaffUserModel() {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return {} as StaffUserModelType;
 }
 
@@ -29,6 +30,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 

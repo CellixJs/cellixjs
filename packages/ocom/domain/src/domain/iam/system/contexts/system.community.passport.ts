@@ -9,6 +9,7 @@ export class SystemCommunityPassport
 	implements CommunityPassport
 {
 	forCommunity(_root: CommunityEntityReference): CommunityVisa {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const permissions = this.permissions as CommunityDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
 	}

@@ -20,6 +20,7 @@ function makeMockServiceTicketModel() {
     create: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as ServiceTicketModelType;
 }
 
@@ -35,6 +36,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -46,6 +48,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     serviceTicketModel = makeMockServiceTicketModel();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
   });
 

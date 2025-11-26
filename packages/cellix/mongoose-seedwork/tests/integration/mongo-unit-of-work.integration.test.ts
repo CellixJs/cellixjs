@@ -236,6 +236,7 @@ describe('MongoUnitOfWork:Integration', () => {
 					const result = await TestModel.findOne({ foo: 'bar' }).exec();
 					expect(result).not.toBeNull();
 					expect(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						typeConverter.toDomain(result as TestMongoType, {} as unknown),
 					).toBeInstanceOf(TestAggregate);
 				});
@@ -265,7 +266,9 @@ describe('MongoUnitOfWork:Integration', () => {
 					// Assert
 					const updatedDoc = await TestModel.findById(id).exec();
 					const updatedAggregate = typeConverter.toDomain(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						updatedDoc as TestMongoType,
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						{} as unknown,
 					);
 					expect(updatedDoc).not.toBeNull();

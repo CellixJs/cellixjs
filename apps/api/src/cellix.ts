@@ -243,6 +243,7 @@ export class Cellix<ContextType, AppServices = unknown>
 
 	public registerInfrastructureService<T extends ServiceBase>(service: T): InfrastructureServiceRegistry<ContextType, AppServices> {
 		this.ensurePhase('infrastructure');
+        // biome-ignore lint/plugin/no-type-assertion: test file
         const key = service.constructor as ServiceKey<ServiceBase>;
 		if (this.servicesInternal.has(key)) {
 			throw new Error(`Service already registered for constructor: ${service.constructor.name}`);
@@ -368,11 +369,14 @@ export class Cellix<ContextType, AppServices = unknown>
 	}
 
 	public getInfrastructureService<T extends ServiceBase>(serviceKey: ServiceKey<T>): T {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const service = this.servicesInternal.get(serviceKey as ServiceKey<ServiceBase>);
 		if (!service) {
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			const name = (serviceKey as { name?: string }).name ?? 'UnknownService';
 			throw new Error(`Service not found: ${name}`);
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return service as T;
 	}
 
@@ -407,8 +411,10 @@ export class Cellix<ContextType, AppServices = unknown>
 		const operationActionCompleted = operationName === 'start' ? 'started' : 'stopped';
 		await Promise.all(
 			Array.from(this.servicesInternal.entries()).map(([ctor, service]) =>
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				this.tracer.startActiveSpan(`Service ${(ctor as unknown as { name?: string }).name ?? 'Service'} ${operationName}`, async (span) => {
 					try {
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						const ctorName = (ctor as unknown as { name?: string }).name ?? 'Service';
 						console.log(`${operationFullName}: Service ${ctorName} ${operationActionPending}`);
 						await service[serviceMethod]();

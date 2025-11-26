@@ -67,18 +67,21 @@ const StaffRoleSchema = new Schema<
 		permissions: {
 			servicePermissions: {
 				canManageServices: { type: Boolean, required: true, default: false },
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<StaffRoleServicePermissions>,
 			serviceTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
 				canManageTickets: { type: Boolean, required: true, default: false },
 				canAssignTickets: { type: Boolean, required: true, default: false },
 				canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<StaffRoleServiceTicketPermissions>,
 			violationTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
 				canManageTickets: { type: Boolean, required: true, default: false },
 				canAssignTickets: { type: Boolean, required: true, default: false },
 				canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<StaffRoleViolationTicketPermissions>,
 			communityPermissions: {
 				canManageStaffRolesAndPermissions: {
@@ -102,11 +105,14 @@ const StaffRoleSchema = new Schema<
 					required: true,
 					default: false,
 				},
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<StaffRoleCommunityPermissions>,
 			propertyPermissions: {
 				// canManageProperties: { type: Boolean, required: true, default: false },
 				// canEditOwnProperty: { type: Boolean, required: true, default: false },
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<StaffRolePropertyPermissions>,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as SchemaDefinition<StaffRolePermissions>,
 		schemaVersion: { type: String, default: '1.0.0' },
 		roleName: { type: String, required: true, maxlength: 50 },

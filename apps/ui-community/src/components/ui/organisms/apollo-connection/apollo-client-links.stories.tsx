@@ -165,6 +165,7 @@ export const AuthHeaderLinkDemo: Story = {
     const result = authButton.getAttribute('data-result');
     expect(result).toBeTruthy();
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const parsedResult = JSON.parse(result as string);
     // The test should either succeed or fail with a network error (both indicate the link is working)
     expect(typeof parsedResult.success).toBe('boolean');
@@ -189,6 +190,7 @@ export const CustomHeaderLinkDemo: Story = {
     const result = headersButton.getAttribute('data-result');
     expect(result).toBeTruthy();
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const parsedResult = JSON.parse(result as string);
     expect(parsedResult).toHaveProperty('linkType');
   },

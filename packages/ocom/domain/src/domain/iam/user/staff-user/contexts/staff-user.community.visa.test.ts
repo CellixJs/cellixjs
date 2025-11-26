@@ -13,6 +13,7 @@ const feature = await loadFeature(
 );
 
 function makeCommunity(id = 'community-1') {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return { id, name: 'Test Community' } as CommunityEntityReference;
 }
 
@@ -33,6 +34,7 @@ function makeStaffUser(
 				},
 			},
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as StaffUserEntityReference;
 }
 
@@ -44,6 +46,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	BeforeEachScenario(() => {
 		community = makeCommunity();
 		staffUser = makeStaffUser();
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		visa = undefined as unknown as StaffUserCommunityVisa<typeof community>;
 	});
 
@@ -121,6 +124,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		({ Given, And, When, Then }) => {
 			let result: boolean;
 			Given('a StaffUserEntityReference with no role', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				staffUser = { id: 'staff-1' } as StaffUserEntityReference;
 			});
 			And('a CommunityEntityReference with id "community-1"', () => {

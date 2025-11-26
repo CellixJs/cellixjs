@@ -67,6 +67,7 @@ export class VerifiedTokenService {
   refreshCollection() {
     if (!this.openIdConfigs) { return }
     for (const configKey of [...this.openIdConfigs.keys()]) {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const openIdConfig = this.openIdConfigs.get(configKey) as OpenIdConfig;
       const newKeyStore = {
         keyStore: createRemoteJWKSet(new URL(openIdConfig.oidcEndpoint)),
@@ -99,6 +100,7 @@ export class VerifiedTokenService {
     if (!this.keyStoreCollection.has(configKey)) {
       throw new Error('Invalid OpenIdConfig Key');
     }
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const openIdConfig = this.openIdConfigs.get(configKey) as OpenIdConfig;
 
     const jwtVerifyOptions: JWTVerifyOptions = {
@@ -112,6 +114,7 @@ export class VerifiedTokenService {
     const keyStoreEntry = this.keyStoreCollection.get(configKey)?.keyStore;
     return await jwtVerify(
       bearerToken,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       keyStoreEntry as GetKeyFunction<JWSHeaderParameters, FlattenedJWSInput>,
       jwtVerifyOptions
     );

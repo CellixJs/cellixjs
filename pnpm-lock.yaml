@@ -72,6 +72,9 @@ importers:
       azurite:
         specifier: ^3.35.0
         version: 3.35.0
+      biome-plugin-no-type-assertion:
+        specifier: ^1.0.2
+        version: 1.0.2
       concurrently:
         specifier: ^9.1.2
         version: 9.2.1
@@ -5035,6 +5038,9 @@ packages:
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
+
+  biome-plugin-no-type-assertion@1.0.2:
+    resolution: {integrity: sha512-YGVXDQ67cOM79gA/lPdyndMYZ/vKO39T0rv8DYKsiKwr3bAPZy0PdbC834tvlOXzgRJf2ie6rEFwBg7axdJnEg==}
 
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
@@ -16527,6 +16533,8 @@ snapshots:
   big.js@5.2.2: {}
 
   binary-extensions@2.3.0: {}
+
+  biome-plugin-no-type-assertion@1.0.2: {}
 
   bl@4.1.0:
     dependencies:

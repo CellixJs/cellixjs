@@ -57,6 +57,7 @@ function makePassport(
 					}),
 			})),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Passport);
 }
 
@@ -69,11 +70,13 @@ function makeCommunityEntityReference(
 		domain: 'test.com',
 		whiteLabelDomain: null,
 		handle: null,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		createdBy: {} as EndUserEntityReference,
 		loadCreatedBy: vi.fn(),
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0.0',
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as CommunityProps;
 }
 
@@ -85,14 +88,19 @@ function makeMemberEntityReference(id = 'member-1'): MemberEntityReference {
 		communityId: 'community-1',
 		community: makeCommunityEntityReference(),
 		loadCommunity: vi.fn(),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		accounts: [] as ReadonlyArray<MemberAccountEntityReference>,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		role: {} as EndUserRoleEntityReference,
 		loadRole: vi.fn(),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		customViews: [] as ReadonlyArray<MemberCustomViewEntityReference>,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		profile: {} as MemberProfileProps,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0.0',
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as MemberEntityReference;
 }
 
@@ -106,6 +114,7 @@ function makePropertyLocationProps(): PropertyLocationProps {
 			municipality: 'TS',
 			postalCode: '12345',
 			country: 'USA',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as PropertyLocationAddressProps,
 		position: {
 			type: 'Point',
@@ -122,6 +131,7 @@ function makePropertyListingDetailProps(): PropertyListingDetailProps {
 		lease: null,
 		maxGuests: 4,
 		bedrooms: 2,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		bedroomDetails: {} as PropArray<PropertyListingDetailBedroomDetailProps>,
 		bathrooms: 2,
 		squareFeet: 1200,
@@ -130,6 +140,7 @@ function makePropertyListingDetailProps(): PropertyListingDetailProps {
 		description: 'A nice property',
 		amenities: ['pool', 'gym'],
 		additionalAmenities:
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			{} as PropArray<PropertyListingDetailAdditionalAmenityProps>,
 		images: ['image1.jpg'],
 		video: null,
@@ -183,6 +194,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		communityRef = makeCommunityEntityReference();
 		baseProps = makeBaseProps();
 		property = new Property(baseProps, passport);
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		newProperty = undefined as unknown as Property<PropertyProps>;
 	});
 
@@ -574,6 +586,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			When('I request to delete the property', () => {
 				property.requestDelete();
 			});
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the property should be marked as deleted', () => {
 				expect(property.isDeleted).toBe(true);
 			});

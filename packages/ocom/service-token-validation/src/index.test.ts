@@ -44,6 +44,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       timerInstance: setInterval(() => undefined, 1000),
     };
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     (VerifiedTokenService as ReturnType<typeof vi.fn>).mockImplementation(() => mockVerifiedTokenService);
   });
 
@@ -142,7 +143,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       // Verify that the config was created with default values
       const callArgs = vi.mocked(VerifiedTokenService).mock.calls[0];
       if (callArgs) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         const configs = callArgs[0] as Map<string, unknown>;
+        // biome-ignore lint/plugin/no-type-assertion: test file
         const config = configs.get('portal1') as { clockTolerance: string; ignoreIssuer: boolean };
         expect(config.clockTolerance).toBe('5 minutes'); // default value
         expect(config.ignoreIssuer).toBe(false); // 'false' === 'true' is false

@@ -39,6 +39,7 @@ test.for(feature, ({ Scenario, Background }) => {
 			});
 
 			And('I have a service entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				serviceRef = { id: 'service-123' } as ServiceEntityReference;
 			});
 
@@ -70,6 +71,7 @@ test.for(feature, ({ Scenario, Background }) => {
 			});
 
 			And('I have a service entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				serviceRef = { id: 'service-123' } as ServiceEntityReference;
 			});
 
@@ -98,6 +100,7 @@ test.for(feature, ({ Scenario, Background }) => {
 			);
 
 			And('I have a service entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				serviceRef = { id: 'service-123' } as ServiceEntityReference;
 			});
 

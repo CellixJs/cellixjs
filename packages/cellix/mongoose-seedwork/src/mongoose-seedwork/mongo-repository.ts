@@ -62,6 +62,7 @@ export abstract class MongoRepositoryBase<
 			console.log(`Repo dispatching DomainEvent : ${JSON.stringify(event)}`);
 			// [NN] [ESLINT] will come back to this with refactoring and unit tests to implement similar to QueueSenderApi<T>
 			await this.bus.dispatch(
+				// biome-ignore lint/plugin/no-type-assertion: event.constructor is guaranteed to be the correct type since all domain events extend CustomDomainEventImpl
 				event.constructor as new (aggregateId: string) => typeof event,
 				event.payload,
 			);

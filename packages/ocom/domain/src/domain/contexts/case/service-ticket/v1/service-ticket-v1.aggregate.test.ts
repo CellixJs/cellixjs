@@ -38,6 +38,7 @@ class MockPropArray<T extends DomainEntityProps> implements PropArray<T> {
 
 	getNewItem(): T {
 		// For testing, just create a basic object with required fields
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const newItem = {} as T;
 		this._items.push(newItem);
 		return newItem;
@@ -69,6 +70,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 					determineIf: vi.fn(() => true), // Default to true, override in scenarios
 				})),
 			},
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as Passport;
 
 		// Mock props
@@ -124,8 +126,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			hash: 'test-hash',
 			lastIndexed: undefined,
 			updateIndexFailedDate: undefined,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ServiceTicketV1Props;
 
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		memberRef = { id: 'member-123' } as MemberEntityReference;
 	});
 
@@ -178,6 +182,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				serviceTicket.requestDelete();
 			});
 
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the ticket should be marked as deleted', () => {
 				expect(serviceTicket.isDeleted).toBe(true);
 			});

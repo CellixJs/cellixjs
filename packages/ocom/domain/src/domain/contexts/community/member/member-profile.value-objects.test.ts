@@ -267,6 +267,7 @@ test.for(feature, ({ Scenario }) => {
 						if (
 							Array.isArray(e) &&
 							e.length > 0 &&
+							// biome-ignore lint/plugin/no-type-assertion: test file
 							(e[0] as VOError).message === 'Too long'
 						) {
 							return;

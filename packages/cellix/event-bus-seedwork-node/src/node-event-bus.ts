@@ -2,7 +2,7 @@ import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { CustomDomainEvent, DomainEvent } from '@cellix/domain-seedwork/domain-event';
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
-import api, { trace, type TimeInput, SpanStatusCode } from '@opentelemetry/api';
+import api, { trace, SpanStatusCode } from '@opentelemetry/api';
 // import { SEMATTRS_DB_SYSTEM, SEMATTRS_DB_NAME, SEMATTRS_DB_STATEMENT } from '@opentelemetry/semantic-conventions';
 // not sure where to import these from, see link below
 // https://github.com/open-telemetry/opentelemetry-js/blob/main/semantic-conventions/README.md#migrated-usage
@@ -19,12 +19,12 @@ class BroadCaster {
 
 	public broadcast(event: string, data: unknown): void {
 		// Collect all listeners for the event
-		const listeners = this.eventEmitter.listeners(event) as Array<
-			(data: unknown) => Promise<void> | void
-		>;
+		const listeners = this.eventEmitter.listeners(event);
 		// Fire and forget for each listener
 		for (const listener of listeners) {
-			void listener(data);
+			if (typeof listener === 'function') {
+				void listener(data);
+			}
 		}
 	}
 	public on(
@@ -41,11 +41,6 @@ class BroadCaster {
 		this.eventEmitter.removeAllListeners();
 		console.log('All listeners removed');
 	}
-}
-
-interface RawPayload {
-	data: string;
-	context: Record<string, unknown>; // Or a more specific type if known
 }
 
 class NodeEventBusImpl implements EventBus {
@@ -94,7 +89,11 @@ class NodeEventBusImpl implements EventBus {
 				});
 			} catch (err) {
 				span.setStatus({ code: SpanStatusCode.ERROR });
-				span.recordException(err as Error);
+				if (err instanceof Error) {
+					span.recordException(err);
+				} else {
+					span.recordException(new Error(String(err)));
+				}
 			} finally {
 				span.end();
 			}
@@ -108,13 +107,18 @@ class NodeEventBusImpl implements EventBus {
 		console.log(`custom-log | registering-node-event-handler | ${event.name}`);
 
 		this.broadcaster.on(event.name, async (rawPayload: unknown) => {
-			const payload = rawPayload as RawPayload;
+			if (typeof rawPayload !== 'object' || rawPayload === null || !('data' in rawPayload) || !('context' in rawPayload)) {
+				console.error(`Invalid payload for event ${event.name}`);
+				return;
+			}
+			const payload = rawPayload;
 			console.log(
 				`Received node event ${event.name} with data ${JSON.stringify(payload)}`,
 			);
+			const payloadContext = 'context' in payload && typeof payload.context === 'object' && payload.context !== null ? payload.context : {};
 			const activeContext = api.propagation.extract(
 				api.context.active(),
-				payload.context,
+				payloadContext,
 			);
 			await api.context.with(activeContext, async () => {
 				// all descendants of this context will have the active context set
@@ -128,7 +132,8 @@ class NodeEventBusImpl implements EventBus {
 						code: SpanStatusCode.UNSET,
 						message: `NodeEventBus: Executing ${event.name}`,
 					});
-					span.setAttribute('data', payload.data);
+					const payloadData = 'data' in payload && typeof payload.data === 'string' ? payload.data : '';
+					span.setAttribute('data', payloadData);
 
 					// hack to create dependency title in App Insights to show up nicely in trace details
 					// see : https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/monitor/monitor-opentelemetry-exporter/src/utils/spanUtils.ts#L191
@@ -136,22 +141,27 @@ class NodeEventBusImpl implements EventBus {
 					span.setAttribute(ATTR_DB_NAME, event.name); // hack
 					span.setAttribute(
 						ATTR_DB_STATEMENT,
-						`handling event: ${event.name} with payload: ${payload.data}`,
+						`handling event: ${event.name} with payload: ${payloadData}`,
 					); // hack - dumps payload in command
 
 					span.addEvent(
 						`NodeEventBus: Executing ${event.name}`,
-						{ data: payload.data },
-						performance.now() as TimeInput,
+						{ data: payloadData },
+						performance.now(),
 					);
 					try {
-						await func(JSON.parse(payload.data) as T['payload']);
+						const parsed = JSON.parse(payloadData);
+						await func(parsed);
 						span.setStatus({
 							code: SpanStatusCode.OK,
 							message: `NodeEventBus: Executed ${event.name}`,
 						});
 					} catch (e) {
-						span.recordException(e as Error);
+						if (e instanceof Error) {
+							span.recordException(e);
+						} else {
+							span.recordException(new Error(String(e)));
+						}
 						span.setStatus({
 							code: SpanStatusCode.ERROR,
 							message: `NodeEventBus: Error executing ${event.name}`,
@@ -159,7 +169,11 @@ class NodeEventBusImpl implements EventBus {
 						console.error(
 							`Error handling node event ${event.name} with data ${JSON.stringify(payload)}`,
 						);
-						console.error(e as Error);
+						if (e instanceof Error) {
+							console.error(e);
+						} else {
+							console.error(new Error(String(e)));
+						}
 					} finally {
 						span.end();
 					}

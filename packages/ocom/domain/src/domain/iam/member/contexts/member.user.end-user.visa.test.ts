@@ -13,6 +13,7 @@ const feature = await loadFeature(
 );
 
 function makeEndUser(id = 'user-1') {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return { id } as EndUserEntityReference;
 }
 
@@ -23,6 +24,7 @@ function makeMember(id = 'member-1', accountUserIds: string[] = ['user-1']) {
 			id: userId,
 			user: { id: userId },
 		})),
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as MemberEntityReference;
 }
 
@@ -35,6 +37,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		endUser = makeEndUser();
 		member = makeMember();
 		visa =
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			undefined as unknown as MemberUserEndUserVisa<EndUserEntityReference>;
 	});
 

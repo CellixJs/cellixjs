@@ -14,6 +14,7 @@ const feature = await loadFeature(
 );
 
 function makeService(id = 'service-1', communityId = 'community-1') {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return { id, community: { id: communityId } } as ServiceEntityReference;
 }
 
@@ -33,6 +34,7 @@ function makeMember(
 				},
 			},
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as MemberEntityReference;
 }
 
@@ -44,6 +46,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	BeforeEachScenario(() => {
 		service = makeService();
 		member = makeMember();
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		visa = undefined as unknown as MemberServiceVisa<ServiceEntityReference>;
 	});
 

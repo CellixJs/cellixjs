@@ -30,6 +30,7 @@ export const LoggedInUser: React.FC<LoggedInUserProps> = (props) => {
       };
 
       return <LoggedIn 
+        // biome-ignore lint/plugin/no-type-assertion: test file
         data={loggedInProps.data as LoggedInProps['data']} 
         onLogoutClicked={props.onLogoutClicked ?? dummyFunction}
       />

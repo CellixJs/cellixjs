@@ -77,7 +77,8 @@
     "@serenity-js/cucumber",
     "@serenity-js/serenity-bdd",
     "@graphql-typed-document-node/core",
-    "ts-scope-trimmer-plugin"
+    "ts-scope-trimmer-plugin",
+    "biome-plugin-no-type-assertion"
   ],
   "ignoreBinaries": ["func"]
 }

@@ -39,18 +39,22 @@ function makeServiceTicketDoc(overrides: Partial<ServiceTicket> = {}) {
     schemaVersion: '1.0.0',
     hash: '',
     set(key: keyof ServiceTicket, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as ServiceTicket)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as ServiceTicket;
   return vi.mocked(base);
 }
 
 function makeCommunityDoc(overrides: Partial<Community> = {}) {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community;
 }
 
 function makeMemberDoc(overrides: Partial<Member> = {}) {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Member;
 }
 
@@ -71,6 +75,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -94,6 +99,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
     converter = new ServiceTicketV1Converter();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>;
 
     // Mock the Mongoose model as a constructor function with static methods
@@ -108,12 +114,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks (not used in constructor)
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     // Create repository with correct constructor parameters
     repo = new ServiceTicketV1Repository(
       passport,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       ModelMock as unknown as ServiceTicketModelType,
       converter,
       eventBus,
@@ -169,10 +178,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   Scenario('Creating a new service ticket instance', ({ Given, When, Then, And }) => {
     let communityDomainObject: Domain.Contexts.Community.Community.CommunityEntityReference;
     let requestorDomainObject: Domain.Contexts.Community.Member.MemberEntityReference;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a valid Community domain object as the community', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
     });
+    // biome-ignore lint/plugin/no-type-assertion: test file
     And('a valid Member domain object as the requestor', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       requestorDomainObject = { id: '507f1f77bcf86cd799439013', memberName: 'Test Member' } as Domain.Contexts.Community.Member.MemberEntityReference;
     });
     When('I call getNewInstance with title "New Ticket", description "New Description", community, and requestor', async () => {

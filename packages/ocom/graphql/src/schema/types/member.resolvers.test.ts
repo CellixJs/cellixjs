@@ -53,6 +53,7 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
       ...overrides.applicationServices,
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as GraphContext;
 
   return context;
@@ -76,6 +77,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Resolving the community for a member', ({ Given, And, When, Then }) => {
   const resolvedCommunity = createMockCommunity();
+  // biome-ignore lint/plugin/no-type-assertion: test file
   const domainCommunity = resolvedCommunity as unknown as CommunityReference;
 
     Given('a member with communityId "community-123"', () => {
@@ -89,6 +91,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the Member.community resolver is executed', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityResult = await (memberResolvers.Member?.community as unknown as (
         parent: MemberEntity,
         args: Record<string, never>,
@@ -107,6 +110,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     );
 
     And('it should return the resolved community', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect(communityResult as CommunityEntity).toEqual(resolvedCommunity);
     });
   });
@@ -123,6 +127,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the Member.isAdmin resolver is executed', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       booleanResult = await (memberResolvers.Member?.isAdmin as unknown as (
         parent: MemberEntity,
         args: Record<string, never>,
@@ -147,6 +152,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Querying members for the current end user', ({ Given, And, When, Then }) => {
   const resolvedMembers = [createMockMember({ id: 'member-42' })];
+  // biome-ignore lint/plugin/no-type-assertion: test file
   const domainMembers = resolvedMembers as unknown as MemberReference[];
 
     Given('a signed in user with subject "user-sub-123"', () => {
@@ -162,6 +168,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the membersForCurrentEndUser query is executed', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       membersResult = await (memberResolvers.Query?.membersForCurrentEndUser as unknown as (
         parent: unknown,
         args: Record<string, never>,
@@ -180,6 +187,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     );
 
     And('it should return the list of members', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect(membersResult as MemberEntity[]).toEqual(resolvedMembers);
     });
   });
@@ -195,6 +203,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
       When('the membersForCurrentEndUser query is executed', async () => {
         await expect(
+          // biome-ignore lint/plugin/no-type-assertion: test file
           (memberResolvers.Query?.membersForCurrentEndUser as unknown as (
             parent: unknown,
             args: Record<string, never>,

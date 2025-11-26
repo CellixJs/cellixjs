@@ -67,9 +67,11 @@ function makeEndUserRoleDoc(overrides: Partial<EndUserRole> = {}) {
     },
     set(key: keyof EndUserRole, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as EndUserRole)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as EndUserRole;
   return vi.mocked(base);
 }
@@ -80,6 +82,7 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Community;
   return vi.mocked(base);
 }
@@ -96,6 +99,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -173,12 +177,14 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return a CommunityDomainAdapter instance with the correct community data', () => {
       expect(result).toBeInstanceOf(CommunityDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as CommunityDomainAdapter).doc).toBe(communityDoc);
     });
   });
 
   Scenario('Getting the community property when not populated', ({ Given, When, Then }) => {
     let gettingCommunityWhenNotPopulated: () => void;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('an EndUserRoleDomainAdapter for a document with community as an ObjectId', () => {
       doc = makeEndUserRoleDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new EndUserRoleDomainAdapter(doc);
@@ -217,6 +223,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new EndUserRoleDomainAdapter(doc);
     });
     And('an object that is not a Community domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityAdapter = {} as CommunityDomainAdapter;
     });
     When('I try to set the community property to the invalid object', () => {
@@ -705,12 +712,15 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.EndUserRole.EndUserRole);
     });
     And('the domain object\'s roleName should be "Test Role"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).roleName).toBe('Test Role');
     });
     And('the domain object\'s isDefault should be true', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>).isDefault).toBe(true);
     });
     And('the domain object\'s community should be a Community domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const { community } = result as Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>;
       expect(community).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
     });

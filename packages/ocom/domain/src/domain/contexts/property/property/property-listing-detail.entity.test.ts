@@ -40,6 +40,7 @@ test.for(feature, ({ Scenario }) => {
 				bedDescriptions: [],
 			})),
 			removeItem: vi.fn(),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as PropArray<PropertyListingDetailBedroomDetailProps>,
 		bathrooms: 2,
 		squareFeet: null,
@@ -55,6 +56,7 @@ test.for(feature, ({ Scenario }) => {
 				amenities: ['pool'],
 			})),
 			removeItem: vi.fn(),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as PropArray<PropertyListingDetailAdditionalAmenity>,
 		images: ['image1.jpg'],
 		video: null,
@@ -1395,6 +1397,7 @@ test.for(feature, ({ Scenario }) => {
 			When('I request to remove a bedroom with proper permissions', () => {
 				mockVisa.determineIf.mockReturnValue(true);
 				const bedroomProps = validProps.bedroomDetails
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					.items[0] as PropertyListingDetailBedroomDetailProps;
 				listing.requestRemoveBedroom(bedroomProps);
 			});
@@ -1420,6 +1423,7 @@ test.for(feature, ({ Scenario }) => {
 				() => {
 					mockVisa.determineIf.mockReturnValue(false);
 					const bedroomProps = validProps.bedroomDetails
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						.items[0] as PropertyListingDetailBedroomDetailProps;
 					expect(() => {
 						listing.requestRemoveBedroom(bedroomProps);
@@ -1449,6 +1453,7 @@ test.for(feature, ({ Scenario }) => {
 				() => {
 					mockVisa.determineIf.mockReturnValue(true);
 					const amenityProps = validProps.additionalAmenities
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						.items[0] as PropertyListingDetailAdditionalAmenityProps;
 					listing.requestRemoveAdditionalAmenity(amenityProps);
 				},
@@ -1475,6 +1480,7 @@ test.for(feature, ({ Scenario }) => {
 				() => {
 					mockVisa.determineIf.mockReturnValue(false);
 					const amenityProps = validProps.additionalAmenities
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						.items[0] as PropertyListingDetailAdditionalAmenityProps;
 					expect(() => {
 						listing.requestRemoveAdditionalAmenity(amenityProps);

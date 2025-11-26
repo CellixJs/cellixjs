@@ -46,6 +46,7 @@ export const WithMissingAvatarAndName: Story = {
     args: {
         data: {
             communityId: '65e2b5f8c9a1e2a7b4d3f2c1',
+        // biome-ignore lint/plugin/no-type-assertion: test file
         } as unknown as LoggedInUserCommunityProps['data'], // Partial data to test defaults
         handleLogout: fn(),
     },

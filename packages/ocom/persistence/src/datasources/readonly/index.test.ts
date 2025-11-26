@@ -23,18 +23,22 @@ function makeMockModelsContext() {
         find: vi.fn(),
         create: vi.fn(),
         aggregate: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as CommunityModelType,
     Member: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as MemberModelType,
     EndUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         aggregate: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as EndUserModelType,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Parameters<typeof ReadonlyDataSourceImplementation>[0];
 }
 
@@ -50,6 +54,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -61,6 +66,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     models = makeMockModelsContext();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as ReturnType<typeof ReadonlyDataSourceImplementation>;
   });
 

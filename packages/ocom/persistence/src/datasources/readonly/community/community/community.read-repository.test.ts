@@ -23,7 +23,9 @@ const feature = await loadFeature(
 
 function makeMockModelsContext() {
   return {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Community: {} as unknown as CommunityModelType,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as ModelsContext;
 }
 
@@ -34,6 +36,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -46,6 +49,7 @@ function makeMockCommunityDocument() {
     createdAt: new Date(),
     updatedAt: new Date(),
     id: 'test-id',
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Community;
 }
 
@@ -73,6 +77,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     };
 
     // Mock the CommunityDataSourceImpl constructor
+    // biome-ignore lint/plugin/no-type-assertion: test file
     vi.mocked(CommunityDataSourceImpl).mockImplementation(() => mockDataSource as unknown as InstanceType<typeof CommunityDataSourceImpl>);
 
     repository = new CommunityReadRepositoryImpl(models, passport);

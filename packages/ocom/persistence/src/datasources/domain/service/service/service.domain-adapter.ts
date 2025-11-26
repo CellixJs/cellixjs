@@ -53,6 +53,7 @@ export class ServiceDomainAdapter
 				'community is not populated or is not of the correct type',
 			);
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
@@ -63,6 +64,7 @@ export class ServiceDomainAdapter
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
             await this.doc.populate('community');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 

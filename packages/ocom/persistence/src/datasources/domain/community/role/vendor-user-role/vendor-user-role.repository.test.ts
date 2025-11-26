@@ -55,9 +55,11 @@ function makeVendorUserRoleDoc(overrides: Partial<VendorUserRole> = {}) {
     },
     set(key: keyof VendorUserRole, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as VendorUserRole)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as VendorUserRole;
   return vi.mocked(base);
 }
@@ -68,6 +70,7 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Community;
   return vi.mocked(base);
 }
@@ -84,6 +87,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -115,9 +119,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     });
 
     // Provide minimal eventBus and session mocks
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     model = ModelMock as unknown as VendorUserRoleModelType;
     converter = new VendorUserRoleConverter();
     passport = makeMockPassport();
@@ -156,6 +163,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
     });
   });
@@ -175,7 +183,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   Scenario('Creating a new vendor user role instance', ({ Given, When, Then, And }) => {
     let communityDomainObj: Domain.Contexts.Community.Community.CommunityEntityReference;
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a valid Community domain object as the community', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
     });
     When('I call getNewInstance with roleName "New Vendor Role", isDefault false, and the community', async () => {
@@ -185,9 +195,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole);
     });
     And('the domain object\'s roleName should be "New Vendor Role"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('New Vendor Role');
     });
     And('the domain object\'s isDefault should be false', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(false);
     });
   });

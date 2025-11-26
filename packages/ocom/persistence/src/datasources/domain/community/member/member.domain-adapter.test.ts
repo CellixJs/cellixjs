@@ -41,9 +41,11 @@ function makeMemberDoc(overrides: Partial<Member> = {}) {
     customViews: [],
     set(key: keyof Member, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as Member)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Member;
   return vi.mocked(base);
 }
@@ -54,6 +56,7 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Community;
   return vi.mocked(base);
 }
@@ -63,6 +66,7 @@ function makeEndUserRoleDoc(overrides: Partial<EndUserRole> = {}) {
     id: '6898b0c34b4a2fbc01e9c698',
     roleName: 'Test Role',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as EndUserRole;
   return vi.mocked(base);
 }
@@ -77,9 +81,11 @@ function makeMemberAccountDoc(overrides: Partial<MemberAccount> = {}) {
     createdBy: undefined,
     set(key: keyof MemberAccount, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as MemberAccount)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as MemberAccount;
   return vi.mocked(base);
 }
@@ -94,9 +100,11 @@ function makeMemberCustomViewDoc(overrides: Partial<MemberCustomView> = {}) {
     columnsToDisplay: ['name', 'email', 'status'],
     set(key: keyof MemberCustomView, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as MemberCustomView)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as MemberCustomView;
   return vi.mocked(base);
 }
@@ -115,9 +123,11 @@ function makeMemberProfileDoc(overrides: Partial<MemberProfile> = {}) {
     showProperties: true,
     set(key: keyof MemberProfile, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as MemberProfile)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as MemberProfile;
   return vi.mocked(base);
 }
@@ -128,6 +138,7 @@ function makeUserDoc(overrides: Partial<EndUser> = {}) {
     displayName: 'Test User',
     email: 'test@example.com',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as EndUser;
   return vi.mocked(base);
 }
@@ -144,6 +155,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -230,6 +242,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     When('I get the communityId property', () => {
       result = adapter.communityId;
     });
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the community\'s id as a string', () => {
       expect(result).toBe(communityDoc.id);
     });
@@ -244,12 +257,14 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return a CommunityDomainAdapter instance with the correct community data', () => {
       expect(result).toBeInstanceOf(CommunityDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as CommunityDomainAdapter).doc).toBe(communityDoc);
     });
   });
 
   Scenario('Getting the community property when not populated', ({ Given, When, Then }) => {
     let gettingCommunityWhenNotPopulated: () => void;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a MemberDomainAdapter for a document with community as an ObjectId', () => {
       doc = makeMemberDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new MemberDomainAdapter(doc);
@@ -289,6 +304,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new MemberDomainAdapter(doc);
     });
     And('an object that is not a Community domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       communityAdapter = {} as CommunityDomainAdapter;
     });
     When('I try to set the community property to the invalid object', () => {
@@ -311,12 +327,14 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return an EndUserRoleDomainAdapter instance with the correct role data', () => {
       expect(result).toBeInstanceOf(EndUserRoleDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as EndUserRoleDomainAdapter).doc).toBe(roleDoc);
     });
   });
 
   Scenario('Getting the role property when not populated', ({ Given, When, Then }) => {
     let gettingRoleWhenNotPopulated: () => void;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a MemberDomainAdapter for a document with role as an ObjectId', () => {
       doc = makeMemberDoc({ role: new MongooseSeedwork.ObjectId() });
       adapter = new MemberDomainAdapter(doc);
@@ -356,6 +374,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new MemberDomainAdapter(doc);
     });
     And('an object that is not an EndUserRole domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       roleAdapter = {} as EndUserRoleDomainAdapter;
     });
     When('I try to set the role property to the invalid object', () => {
@@ -464,6 +483,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return an EndUserDomainAdapter instance with the correct user data', () => {
       expect(result).toBeInstanceOf(EndUserDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as EndUserDomainAdapter).doc).toBe(userDoc);
     });
   });
@@ -528,6 +548,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     });
     Then('it should return an EndUserDomainAdapter instance with the correct user data', () => {
       expect(result).toBeInstanceOf(EndUserDomainAdapter);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as EndUserDomainAdapter).doc).toBe(userDoc);
     });
   });
@@ -942,20 +963,25 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(Domain.Contexts.Community.Member.Member);
     });
     And('the domain object\'s memberName should be "Test Member"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>).memberName).toBe('Test Member');
     });
     And('the domain object\'s cybersourceCustomerId should be "test-customer-id"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>).cybersourceCustomerId).toBe('test-customer-id');
     });
     And('the domain object\'s community should be a Community domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const { community } = result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
       expect(community).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
     });
     And('the domain object\'s role should be an EndUserRole domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const { role } = result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
       expect(role).toBeInstanceOf(Domain.Contexts.Community.Role.EndUserRole.EndUserRole);
     });
     And('the domain object\'s profile should be a MemberProfile domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const { profile } = result as Domain.Contexts.Community.Member.Member<MemberDomainAdapter>;
       expect(profile).toBeDefined();
     });

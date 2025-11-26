@@ -21,6 +21,7 @@ function makeMockVendorUserRoleModel() {
     create: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as VendorUserRoleModelType;
 }
 
@@ -36,6 +37,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 

@@ -37,6 +37,7 @@ function makeMockStaffRole(overrides: Partial<Domain.Contexts.User.StaffRole.Sta
   return {
     ...baseRole,
     deleteAndReassignTo: vi.fn(),
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 }
 
@@ -45,6 +46,7 @@ function makeMockRepo(overrides: Partial<Domain.Contexts.User.StaffRole.StaffRol
     getById: vi.fn(),
     save: vi.fn(),
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 }
 
@@ -63,6 +65,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
           },
         },
       },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as DataSources;
 
     deleteAndReassignRole = deleteAndReassign(dataSources);
@@ -120,6 +123,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       try {
         await deleteAndReassignRole({ roleId: '507f1f77bcf86cd799439011', reassignToRoleId: '507f1f77bcf86cd799439012' });
       } catch (err) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         error = err as Error;
       }
     });
@@ -157,6 +161,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       try {
         await deleteAndReassignRole({ roleId: '507f1f77bcf86cd799439011', reassignToRoleId: '507f1f77bcf86cd799439012' });
       } catch (err) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         error = err as Error;
       }
     });

@@ -53,43 +53,52 @@ function makeMockModelsContext() {
         find: vi.fn(),
         create: vi.fn(),
         aggregate: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as CommunityModelType,
     Member: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as MemberModelType,
     EndUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as EndUserRoleModelType,
       StaffRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as StaffRoleModelType,
       VendorUserRole: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as VendorUserRoleModelType,
     EndUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         aggregate: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as EndUserModelType,
       StaffUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as StaffUserModelType,
       VendorUser: {
         findById: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as VendorUserModelType,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as ModelsContext;
 }
 
@@ -111,6 +120,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -123,6 +133,7 @@ function makeMockDataSources() {
         Member: {},
         Role: { EndUserRole: {}, VendorUserRole: {} },
   User: { EndUser: {}, StaffRole: {}, StaffUser: {}, VendorUser: {} },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as DomainDataSource,
     readonlyDataSource: {
       Community: {
@@ -155,6 +166,7 @@ function makeMockDataSources() {
             getByRoleName: vi.fn(),
           },
         },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as ReadonlyDataSource,
   };
 }

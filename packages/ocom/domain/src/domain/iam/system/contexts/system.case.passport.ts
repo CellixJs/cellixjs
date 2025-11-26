@@ -9,6 +9,7 @@ export class SystemCasePassport
 	implements CasePassport
 {
 	forServiceTicketV1(_root: ServiceTicketV1EntityReference) {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const permissions = this.permissions as CaseDomainPermissions;
 		return {
 			determineIf: (
@@ -18,6 +19,7 @@ export class SystemCasePassport
 	}
 
 	forViolationTicketV1(_root: ViolationTicketV1EntityReference) {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const permissions = this.permissions as CaseDomainPermissions;
 		return {
 			determineIf: (

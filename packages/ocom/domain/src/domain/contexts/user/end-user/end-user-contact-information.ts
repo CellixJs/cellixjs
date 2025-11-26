@@ -37,6 +37,7 @@ export class EndUserContactInformation
 		) {
 			throw new PermissionError('Cannot set email');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		this.props.email = new Email(email).valueOf() as string;
 	}
 }

@@ -13,10 +13,12 @@ const feature = await loadFeature(
 );
 
 function makeVendorUser(id = 'role-1') {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return { id } as VendorUserEntityReference;
 }
 
 function makeMember(id = 'member-1') {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return { id } as MemberEntityReference;
 }
 
@@ -28,6 +30,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	BeforeEachScenario(() => {
 		VendorUser = makeVendorUser();
 		member = makeMember();
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		visa = undefined as unknown as MemberUserVendorUserVisa<
 			ReturnType<typeof makeVendorUser>
 		>;
@@ -93,6 +96,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	);
 
 	Scenario(
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		'determineIf always receives all permissions as false',
 		({ Given, When, Then }) => {
 			let result: boolean;

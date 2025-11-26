@@ -28,6 +28,7 @@ function makePassport(
 				) => fn({ canManageEndUsers, isEditingOwnAccount }),
 			})),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Passport);
 }
 
@@ -61,6 +62,7 @@ function getIntegrationEvent<T>(
 	events: readonly unknown[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
@@ -74,6 +76,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		passport = makePassport(true, true);
 		baseProps = makeBaseProps();
 		endUser = new EndUser(baseProps, passport);
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		newEndUser = undefined as unknown as EndUser<EndUserProps>;
 	});
 

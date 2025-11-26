@@ -22,6 +22,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let userPassport: UserPassport;
 
 	BeforeEachScenario(() => {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		passport = undefined as unknown as SystemPassport;
 	});
 

@@ -27,6 +27,7 @@ export const Default: Story = {
 				__typename: 'EndUserPersonalInformation',
 			},
 			__typename: 'EndUser',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as LoggedInUserContainerEndUserFieldsFragment,
         handleLogout: fn(),
 	},
@@ -51,6 +52,7 @@ export const WithMissingName: Story = {
 				__typename: 'EndUserPersonalInformation',
 			},
 			__typename: 'EndUser',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as LoggedInUserContainerEndUserFieldsFragment,
         handleLogout: fn(),
 	},
@@ -68,6 +70,7 @@ export const WithNullPersonalInfo: Story = {
 			id: 'user-1',
 			personalInformation: null,
 			__typename: 'EndUser',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as LoggedInUserContainerEndUserFieldsFragment,
         handleLogout: fn(),
 	},

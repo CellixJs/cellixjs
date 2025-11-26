@@ -40,6 +40,7 @@ test.for(feature, ({ Scenario }) => {
       event = new TestEvent('agg-2');
     });
     When('I register the function using the static register method', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       handler = HandleEventImpl.register<TestEvent>(handlerFn) as HandleEventImpl<TestEvent>;
     });
     Then('I should get a handler that calls the function when handling an event', () => {
@@ -64,6 +65,7 @@ test.for(feature, ({ Scenario }) => {
       event = new TestEvent('agg-3');
     });
     When('I register them all using registerAll', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       combinedHandler = handler1.registerAll([handler1, handler2]) as HandleEventImpl<TestEvent>;
     });
     Then('all handlers should be called when the event is handled', () => {

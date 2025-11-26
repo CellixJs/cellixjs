@@ -25,6 +25,7 @@ function makeStaffUser(id = 'staff-1') {
 				},
 			},
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as StaffUserEntityReference;
 }
 
@@ -35,7 +36,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	BeforeEachScenario(() => {
 		staffUser = makeStaffUser();
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		passport = undefined as unknown as StaffUserPassport;
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		communityPassport = undefined as unknown as StaffUserCommunityPassport;
 	});
 
@@ -70,8 +73,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			() => {
 				expect(communityPassport).toBeInstanceOf(StaffUserCommunityPassport);
 				expect(
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					(communityPassport as StaffUserCommunityPassport).forCommunity({
 						id: 'community-1',
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					} as CommunityEntityReference),
 				).toBeInstanceOf(StaffUserCommunityVisa);
 				// Add more assertions for visas if needed

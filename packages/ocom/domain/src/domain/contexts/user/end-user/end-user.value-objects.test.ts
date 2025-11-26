@@ -16,6 +16,7 @@ test.for(feature, ({ Scenario }) => {
 	Scenario('Creating a rest of name with valid value', ({ When, Then }) => {
 		let value: string;
 		When('I create a rest of name with "Alice"', () => {
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			value = new ValueObjects.RestOfName('Alice').valueOf() as string;
 		});
 		Then('the value should be "Alice"', () => {
@@ -28,6 +29,7 @@ test.for(feature, ({ Scenario }) => {
 		({ When, Then }) => {
 			let value: string;
 			When('I create a rest of name with "  Alice  "', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				value = new ValueObjects.RestOfName('  Alice  ').valueOf() as string;
 			});
 			Then('the value should be "Alice"', () => {
@@ -41,6 +43,7 @@ test.for(feature, ({ Scenario }) => {
 		({ When, Then }) => {
 			let value: string;
 			When('I create a rest of name with a string of 50 characters', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				value = new ValueObjects.RestOfName('a'.repeat(50)).valueOf() as string;
 			});
 			Then('the value should be the 50 character string', () => {

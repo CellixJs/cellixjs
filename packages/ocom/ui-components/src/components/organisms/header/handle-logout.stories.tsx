@@ -13,6 +13,7 @@ type HarnessProps = {
 
 const LogoutTestHarness: React.FC<HarnessProps> = ({ auth, client, redirect }) => {
   return (
+    // biome-ignore lint/plugin/no-type-assertion: test file
     <button type="button" onClick={() => HandleLogout(auth as AuthContextProps, client as ApolloClient<object>, redirect)}>
       Trigger Logout
     </button>

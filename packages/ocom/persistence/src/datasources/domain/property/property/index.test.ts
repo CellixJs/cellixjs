@@ -24,7 +24,9 @@ function makeMockModelsContext() {
         deleteOne: vi.fn(),
         findByIdAndDelete: vi.fn(),
         findOne: vi.fn(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as unknown as PropertyModelType,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Parameters<typeof PropertyPersistence>[0];
 }
 
@@ -35,6 +37,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -46,6 +49,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     models = makeMockModelsContext();
     passport = makeMockPassport();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     result = {} as ReturnType<typeof PropertyPersistence>;
   });
 

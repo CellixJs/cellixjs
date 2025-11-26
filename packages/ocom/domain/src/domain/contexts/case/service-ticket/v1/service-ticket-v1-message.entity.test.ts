@@ -30,6 +30,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		};
 
 		// Mock member reference
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		memberRef = { id: 'member-123' } as MemberEntityReference;
 
 		// Mock props
@@ -42,6 +43,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			embedding: 'test-embedding',
 			createdAt: new Date(),
 			isHiddenFromApplicant: false,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as ServiceTicketV1MessageProps;
 	});
 

@@ -18,6 +18,7 @@ describe('Community Management - Cucumber Integration Tests', () => {
       domain: '',
       whiteLabelDomain: null,
       handle: null,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       createdBy: {} as EndUserEntityReference,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -44,6 +45,7 @@ describe('Community Management - Cucumber Integration Tests', () => {
       // Arrange
       const validCommunityData = createValidCommunityData();
       const passport = createMockPassport({ canManageCommunitySettings: true });
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const createdBy = {} as EndUserEntityReference;
 
       // Create a name longer than 200 characters (201 characters)
@@ -61,6 +63,7 @@ describe('Community Management - Cucumber Integration Tests', () => {
           passport,
         );
       } catch (error) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         creationError = error as Error;
       }
 
@@ -96,6 +99,7 @@ describe('Community Management - Cucumber Integration Tests', () => {
       // Arrange
       const validCommunityData = createValidCommunityData();
       const passport = createMockPassport({ canManageCommunitySettings: true });
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const createdBy = {} as EndUserEntityReference;
 
       // Create a valid community name
@@ -111,6 +115,7 @@ describe('Community Management - Cucumber Integration Tests', () => {
           passport,
         );
       } catch (error) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         creationError = error as Error;
       }
 

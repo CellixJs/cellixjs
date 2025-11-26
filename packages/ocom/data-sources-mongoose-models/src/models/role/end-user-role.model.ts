@@ -84,6 +84,7 @@ const EndUserRoleSchema = new Schema<
 		permissions: {
 			servicePermissions: {
 				canManageServices: { type: Boolean, required: true, default: false },
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<EndUserRoleServicePermissions>,
 			serviceTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
@@ -95,6 +96,7 @@ const EndUserRoleSchema = new Schema<
 					default: false,
 					index: true,
 				},
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<EndUserRoleServiceTicketPermissions>,
 			violationTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
@@ -106,6 +108,7 @@ const EndUserRoleSchema = new Schema<
 					default: false,
 					index: true,
 				},
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<EndUserRoleViolationTicketPermissions>,
 			communityPermissions: {
 				canManageRolesAndPermissions: {
@@ -130,11 +133,14 @@ const EndUserRoleSchema = new Schema<
 					required: true,
 					default: false,
 				},
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<EndUserRoleCommunityPermissions>,
 			propertyPermissions: {
 				canManageProperties: { type: Boolean, required: true, default: false },
 				canEditOwnProperty: { type: Boolean, required: true, default: false },
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			} as SchemaDefinition<EndUserRolePropertyPermissions>,
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as SchemaDefinition<EndUserRolePermissions>,
 		schemaVersion: { type: String, default: '1.0.0' },
 		roleName: { type: String, required: true, maxlength: 50 },

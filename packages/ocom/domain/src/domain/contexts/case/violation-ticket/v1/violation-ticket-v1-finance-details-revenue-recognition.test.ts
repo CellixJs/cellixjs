@@ -26,9 +26,11 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	BeforeEachScenario(() => {
 		submission = {
 			id: 'submission-123',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1FinanceDetailsGlTransactionEntityReference;
 		recognition = {
 			id: 'recognition-123',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1FinanceDetailsGlTransactionEntityReference;
 
 		props = {

@@ -51,6 +51,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v1',
         version: 1,
         id: new Types.ObjectId(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       // @ts-expect-error: for test, treat as DocumentArray
       propArray = new MongoosePropArray(docArray, TestAdapter);
@@ -77,6 +78,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v1',
         version: 1,
         id: new Types.ObjectId(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       docArray = [doc1];
       // @ts-expect-error: for test, treat as DocumentArray
@@ -108,6 +110,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v1',
         version: 1,
         id: new Types.ObjectId(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       doc2 = vi.mocked({
         _id: new Types.ObjectId(),
@@ -117,6 +120,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v1',
         version: 1,
         id: new Types.ObjectId(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       docArray = [doc1, doc2];
       // @ts-expect-error: for test, treat as DocumentArray
@@ -150,6 +154,7 @@ test.for(feature, ({ Scenario }) => {
       // biome-ignore lint:useLiteralKeys
       propArray['docArray'].create = (doc: Partial<TestDoc>) => {
         return vi.mocked({
+          // biome-ignore lint/plugin/no-type-assertion: test file
           _id: doc._id as Types.ObjectId,
           foo: '',
           createdAt: new Date(),
@@ -157,6 +162,7 @@ test.for(feature, ({ Scenario }) => {
           schemaVersion: 'v1',
           version: 1,
           id: new Types.ObjectId(),
+        // biome-ignore lint/plugin/no-type-assertion: test file
         } as TestDoc);
       };
     });
@@ -170,6 +176,7 @@ test.for(feature, ({ Scenario }) => {
     });
   });
 
+  // biome-ignore lint/plugin/no-type-assertion: test file
   Scenario('Accessing items returns all items as adapters', ({ Given, When, Then }) => {
     Given('a mongoose prop array with a document array containing multiple documents', () => {
       doc1 = vi.mocked({
@@ -180,6 +187,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v1',
         version: 1,
         id: new Types.ObjectId(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       doc2 = vi.mocked({
         _id: new Types.ObjectId(),
@@ -189,6 +197,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v1',
         version: 1,
         id: new Types.ObjectId(),
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       docArray = [doc1, doc2];
       // @ts-expect-error: for test, treat as DocumentArray

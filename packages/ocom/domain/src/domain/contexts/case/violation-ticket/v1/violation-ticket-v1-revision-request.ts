@@ -48,6 +48,7 @@ export class ViolationTicketV1RevisionRequest
 	): ViolationTicketV1RevisionRequest {
 		const instance = new ViolationTicketV1RevisionRequest(
 			newProps,
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			{} as ViolationTicketV1Visa,
 		);
 		instance.requestedAt = new Date();
