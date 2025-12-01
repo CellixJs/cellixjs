@@ -99,7 +99,18 @@ stages:
           corepack prepare pnpm@latest-10 --activate
           pnpm config set store-dir ${{parameters.pnpm_config_cache}}
           pnpm --version
-        workingDirectory: ''
+
+    # Set PLAYWRIGHT_VERSION variable for cache key
+    - task: Bash@3
+      displayName: 'Detect Playwright version for cache key'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          version=$(pnpm exec playwright --version | awk '{print $2}')
+          echo "Detected Playwright version: $version"
+          echo "##vso[task.setvariable variable=PLAYWRIGHT_VERSION]$version"
+      workingDirectory: ''
 
     # Install dependencies
     - task: Bash@3
@@ -126,9 +137,9 @@ stages:
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
       inputs:
-        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v4'
+        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | $(PLAYWRIGHT_VERSION)'
         restoreKeys: |
-          playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v4
+          playwright | "$(Agent.OS)" | ubuntu-latest | node-22
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
         cacheHitVar: PW_CACHE_HIT
 
