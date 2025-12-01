@@ -133,13 +133,13 @@ stages:
           echo "##vso[task.setvariable variable=PLAYWRIGHT_VERSION]$version"
         workingDirectory: ''
 
-        # Playwright: Restore browsers cache
+    # Playwright: Restore browsers cache
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
       inputs:
         key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | $(PLAYWRIGHT_VERSION)'
         restoreKeys: |
-          playwright | "$(Agent.OS)" | ubuntu-latest | node-22
+          playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | $(PLAYWRIGHT_VERSION)
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
         cacheHitVar: PW_CACHE_HIT
 
