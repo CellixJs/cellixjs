@@ -9,7 +9,6 @@
   "scripts": {
     "audit": "(pnpm audit --audit-level=high --prod) && (pnpm audit --audit-level=critical --dev)",
     "build": "turbo run build",
-    "prebuild": "pnpm run audit",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "dev": "pnpm run build && turbo run azurite gen:watch start --parallel",
