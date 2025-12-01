@@ -161,6 +161,7 @@ stages:
     # Playwright: Ensure browsers are available for packages that need them
     - task: Bash@3
       displayName: 'Playwright: Verify browser installation'
+      condition: always()
       inputs:
         targetType: 'inline'
         script: |
