@@ -8,5 +8,21 @@ ignore:
   'SNYK-JS-JSYAML-13961110':
     - '* > js-yaml':
         reason: 'Transitive dependency in Docusaurus; upgrade path blocked until https://github.com/jonschlinkert/gray-matter/pull/137#issuecomment-3533768351 is merged and transitive deps are updated. Not exploitable in current usage.'
-        expires: '2025-11-30T00:00:00.000Z'
+        expires: '2025-12-07T00:00:00.000Z'
         created: '2025-11-17T09:06:00.000Z'
+  'SNYK-JS-NODEFORGE-14114940':
+    - '* > node-forge':
+        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage; blocked until https://github.com/jfromaniello/selfsigned/issues/78 is resolved'
+        expires: '2025-12-15T00:00:00.000Z'
+        created: '2025-12-01T11:40:00.000Z'
+  'SNYK-JS-NODEFORGE-14125097':
+    - '* > node-forge':
+        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage; blocked for same issue as SNYK-JS-NODEFORGE-14114940'
+        expires: '2025-12-15T00:00:00.000Z'
+        created: '2025-12-01T11:40:00.000Z'
+  'SNYK-JS-NODEFORGE-14125745':
+    - '* > node-forge':
+        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage; blocked for same issue as SNYK-JS-NODEFORGE-14114940'
+        expires: '2025-12-15T00:00:00.000Z'
+        created: '2025-12-01T11:40:00.000Z'
+    
