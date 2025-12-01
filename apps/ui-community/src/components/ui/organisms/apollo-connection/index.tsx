@@ -34,7 +34,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
     })
   ]);
 
-  const linkMap = {  
+  const linkMap: Record<string, ApolloLink> = {  
     CountryDetails: apolloLinkChainForCountryDataSource,  
     default: apolloLinkChainForGraphqlDataSource  
   };  
@@ -47,8 +47,10 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
         // 2. check for string name of the query if it is named: (operation) => operation.operationName === "CountryDetails",
         (operation) => operation.operationName in linkMap,  
         new ApolloLink((operation, forward) => {  
-          // biome-ignore lint/plugin/no-type-assertion: test file
-          const link = linkMap[operation.operationName as keyof typeof linkMap] || linkMap.default;  
+          const link = linkMap[operation.operationName] || linkMap['default'];  
+          if (!link) {
+            throw new Error('No link found for operation');
+          }
           return link.request(operation, forward);  
         }),  
         apolloLinkChainForGraphqlDataSource  

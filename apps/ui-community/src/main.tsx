@@ -22,10 +22,8 @@ const ConfigProviderWrapper = () => {
 			theme={{
 				token: {
 					...currentTokens?.token,
-					// biome-ignore lint/plugin/no-type-assertion: test file
-					colorBgBase: currentTokens?.hardCodedTokens.backgroundColor as string,
-					// biome-ignore lint/plugin/no-type-assertion: test file
-					colorPrimaryText: currentTokens?.hardCodedTokens.textColor as string,
+					colorBgBase: currentTokens?.hardCodedTokens.backgroundColor ?? '#ffffff',
+					colorPrimaryText: currentTokens?.hardCodedTokens.textColor ?? '#000000',
 				},
 			}}
 		>

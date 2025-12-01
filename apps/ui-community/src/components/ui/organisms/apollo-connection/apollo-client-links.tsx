@@ -97,10 +97,9 @@ export const ApolloLinkToAddCustomHeader = (headerName: string, headerValue: str
 
 // apollo link to batch graphql requests
 // includes removeTypenameFromVariables link
-export const TerminatingApolloLinkForGraphqlServer= (config: BatchHttpLink.Options) => {
+export const TerminatingApolloLinkForGraphqlServer= (config: { uri: string | UriFunction; batchMax?: number; batchInterval?: number }) => {
   const batchHttpLink = new BatchHttpLink({
-    // biome-ignore lint/plugin/no-type-assertion: test file
-    uri: config.uri as string | UriFunction,
+    uri: config.uri,
     batchMax: Number(config.batchMax), // No more than 15 operations per batch
     batchInterval: Number(config.batchInterval) // Wait no more than 50ms after first batched operation
   });
