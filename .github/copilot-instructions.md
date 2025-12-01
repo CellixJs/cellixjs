@@ -64,6 +64,13 @@ pnpm run gen      # Generate code (e.g., GraphQL types)
 - Use `pnpm run snyk` to run security scans before commits. (Ignore the output about reaching monthly limits, just check the results to see if any reported vulnerabilities need to be addressed. If there are no issues, the command will succeed with exit code 0)
 - If you encounter this error when attempting to push changes `hook git error: Command failed with exit code 1: git commit -m REDACTED`, it indicates that pre-commit hooks have failed due to unmet code quality or security standards. Review the output from the hooks, fix the reported issues, and try committing again. Be aware that this error has nothing to do with firewall rules or network connectivity; it is expected to fail if your changes do not meet the project's standards.
 - Address any reported issues across all packages before pushing changes (if something fails, it was due to your changes and is considered to be "your code").
+- If the SonarCloud quality gate fails during pnpm run verify, do not abort the coding session.
+- Parse the SonarCloud quality gate JSON output to identify which conditions are not satisfied (e.g., coverage, reliability, security, maintainability).
+- For each failed condition:
+  - Analyze the metric and its threshold.
+  - Propose and implement code changes to address the specific issue (e.g., add tests for coverage, refactor for maintainability).
+  - Re-run pnpm run verify after each change.
+- Repeat this process until all conditions are satisfied and the quality gate passes.
 
 ### Security Scanning Workflow
 
