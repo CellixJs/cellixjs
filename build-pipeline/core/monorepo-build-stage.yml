@@ -100,18 +100,6 @@ stages:
           pnpm config set store-dir ${{parameters.pnpm_config_cache}}
           pnpm --version
 
-    # Set PLAYWRIGHT_VERSION variable for cache key
-    - task: Bash@3
-      displayName: 'Detect Playwright version for cache key'
-      inputs:
-        targetType: 'inline'
-        script: |
-          set -euo pipefail
-          version=$(pnpm exec playwright --version | awk '{print $2}')
-          echo "Detected Playwright version: $version"
-          echo "##vso[task.setvariable variable=PLAYWRIGHT_VERSION]$version"
-      workingDirectory: ''
-
     # Install dependencies
     - task: Bash@3
       displayName: 'PNPM: Install dependencies'
@@ -131,6 +119,18 @@ stages:
         script: |
           export NODE_OPTIONS=--max_old_space_size=16384
           pnpm install --frozen-lockfile
+        workingDirectory: ''
+
+    # Set PLAYWRIGHT_VERSION variable for cache key
+    - task: Bash@3
+      displayName: 'Detect Playwright version for cache key'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          version=$(pnpm exec playwright --version | awk '{print $2}')
+          echo "Detected Playwright version: $version"
+          echo "##vso[task.setvariable variable=PLAYWRIGHT_VERSION]$version"
         workingDirectory: ''
 
         # Playwright: Restore browsers cache
