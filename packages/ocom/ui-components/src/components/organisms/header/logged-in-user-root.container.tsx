@@ -1,7 +1,7 @@
 import { useApolloClient, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { useAuth } from 'react-oidc-context';
-import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument, type LoggedInUserContainerEndUserFieldsFragment } from '../../../generated.tsx';
+import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } from '../../../generated.tsx';
 import { HandleLogout } from './handle-logout.tsx';
 import { LoggedInUserRoot } from './logged-in-user-root.tsx';
 
@@ -24,8 +24,9 @@ export const LoggedInUserRootContainer: React.FC<LoggedInUserRootContainerProps>
       loading={loading}
       hasData={data?.currentEndUserAndCreateIfNotExists}
       hasDataComponent={
-        // biome-ignore lint/plugin/no-type-assertion: test file
-        <LoggedInUserRoot userData={data?.currentEndUserAndCreateIfNotExists as LoggedInUserContainerEndUserFieldsFragment} handleLogout={handleLogout} />
+        data?.currentEndUserAndCreateIfNotExists ? (
+          <LoggedInUserRoot userData={data.currentEndUserAndCreateIfNotExists} handleLogout={handleLogout} />
+        ) : <></>
       }
       error={error}
       noDataComponent={<div>No Data</div>}

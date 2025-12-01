@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import { AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument, type AccountsUserInfoContainerEndUserFieldsFragment } from '../../../../generated.tsx';
+import { AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument } from '../../../../generated.tsx';
 import { UserInfo } from './user-info.tsx';
 
 export const UserInfoContainer: React.FC = () => {
@@ -11,8 +11,7 @@ export const UserInfoContainer: React.FC = () => {
             loading={loading}
             error={error}
             hasData={data?.currentEndUserAndCreateIfNotExists}
-            // biome-ignore lint/plugin/no-type-assertion: test file
-            hasDataComponent={<UserInfo userData={data?.currentEndUserAndCreateIfNotExists as AccountsUserInfoContainerEndUserFieldsFragment} />}
+            hasDataComponent={data?.currentEndUserAndCreateIfNotExists ? <UserInfo userData={data.currentEndUserAndCreateIfNotExists} /> : <></>}
             noDataComponent={<div>No User Data</div>}
         />
     )

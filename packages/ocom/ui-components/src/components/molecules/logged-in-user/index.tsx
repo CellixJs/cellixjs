@@ -20,18 +20,15 @@ export const LoggedInUser: React.FC<LoggedInUserProps> = (props) => {
       return;
     };
     if (props.data.isLoggedIn) {
-      const loggedInProps: Partial<LoggedInProps> = {
-        data: {
-          profileImage: props.data.profileImage ?? '',
-          firstName: props.data.firstName ?? '',
-          lastName: props.data.lastName ?? '',
-          notificationCount: props.data.notificationCount ?? 0
-        }
+      const userData: LoggedInProps['data'] = {
+        profileImage: props.data.profileImage ?? '',
+        firstName: props.data.firstName ?? '',
+        lastName: props.data.lastName ?? '',
+        notificationCount: props.data.notificationCount ?? 0
       };
 
       return <LoggedIn 
-        // biome-ignore lint/plugin/no-type-assertion: test file
-        data={loggedInProps.data as LoggedInProps['data']} 
+        data={userData} 
         onLogoutClicked={props.onLogoutClicked ?? dummyFunction}
       />
     } else {
