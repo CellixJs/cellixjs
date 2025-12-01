@@ -126,9 +126,9 @@ stages:
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
       inputs:
-        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v3'
+        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v4'
         restoreKeys: |
-          playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v3
+          playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v4
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
         cacheHitVar: PW_CACHE_HIT
 
