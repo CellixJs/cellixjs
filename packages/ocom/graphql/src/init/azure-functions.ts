@@ -47,14 +47,14 @@ export function startServerAndCreateHandler<TContext extends BaseContext>(
 		try {
 			const normalizedRequest = await normalizeRequest(req);
 
+			const contextPromise: () => Promise<TContext> = async () => contextFunction({ context, req }) as TContext;
 			const { body, headers, status } = await server.executeHTTPGraphQLRequest({
 				httpGraphQLRequest: normalizedRequest,
-				// biome-ignore lint/plugin/no-type-assertion: test file
-				context: () => contextFunction({ context, req }) as Promise<TContext>,
+				context: contextPromise,
 			});
 
 			if (body.kind === 'chunked') {
-				return {
+				const response: HttpResponseInit = {
 					status: 501,
 					headers: {
 						'content-type': 'application/json',
@@ -67,27 +67,27 @@ export function startServerAndCreateHandler<TContext extends BaseContext>(
 							},
 						],
 					}),
-				// biome-ignore lint/plugin/no-type-assertion: test file
-				} as HttpResponseInit;
+				};
+				return response;
 			}
 
-			return {
+			const response: HttpResponseInit = {
 				status: status ?? 200,
 				headers: {
 					...Object.fromEntries(headers),
 					'content-length': Buffer.byteLength(body.string).toString(),
 				},
 				body: body.string,
-			// biome-ignore lint/plugin/no-type-assertion: test file
-			} as HttpResponseInit;
+			};
+			return response;
 		} catch (e) {
 			context.error('Failure processing GraphQL request', e);
-			return {
+			const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+			const errorResponse: HttpResponseInit = {
 				status: 400,
-				// biome-ignore lint/plugin/no-type-assertion: test file
-				body: (e as Error).message,
-			// biome-ignore lint/plugin/no-type-assertion: test file
-			} as HttpResponseInit;
+				body: errorMessage,
+			};
+			return errorResponse;
 		}
 	};
 }

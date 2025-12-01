@@ -32,19 +32,25 @@ const community: Resolvers = {
             });
         },
         communitiesForCurrentEndUser: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
-            if (!context.applicationServices.verifiedUser?.verifiedJwt) { throw new Error('Unauthorized'); }
+            const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
+            if (!jwt) { throw new Error('Unauthorized'); }
+            const externalId = typeof jwt.sub === 'string' ? jwt.sub : undefined;
+            if (!externalId) { throw new Error('Missing sub claim'); }
             return await context.applicationServices.Community.Community.queryByEndUserExternalId({
-                externalId: context.applicationServices.verifiedUser.verifiedJwt.sub
+                externalId
             });
         }
     },
     Mutation: {
         communityCreate: async (_parent, args: { input: CommunityCreateInput }, context: GraphContext) => {
-            if (!context.applicationServices?.verifiedUser?.verifiedJwt?.sub) { throw new Error('Unauthorized'); }
+            const jwt = context.applicationServices?.verifiedUser?.verifiedJwt;
+            if (!jwt) { throw new Error('Unauthorized'); }
+            const endUserExternalId = typeof jwt.sub === 'string' ? jwt.sub : undefined;
+            if (!endUserExternalId) { throw new Error('Missing sub claim'); }
             return await CommunityMutationResolver(
                 context.applicationServices.Community.Community.create({
                     name: args.input.name,
-                    endUserExternalId: context.applicationServices.verifiedUser?.verifiedJwt.sub
+                    endUserExternalId
                 })
             );
         }
