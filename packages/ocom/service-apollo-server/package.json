@@ -18,9 +18,6 @@
     "build": "tsc --build",
     "watch": "tsc --watch",
     "lint": "biome lint",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest",
     "clean": "rimraf dist"
   },
   "dependencies": {

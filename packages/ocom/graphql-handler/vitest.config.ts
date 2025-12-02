@@ -1,7 +1,6 @@
-import { defineConfig } from '@cellix/vitest-config';
+import { nodeConfig } from '@cellix/vitest-config';
+import { defineConfig, mergeConfig } from 'vitest/config';
 
-export default defineConfig({
-	test: {
-		name: '@ocom/graphql-handler',
-	},
-});
+export default mergeConfig(nodeConfig, defineConfig({
+  // Add package-specific overrides here if needed
+}));
