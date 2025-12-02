@@ -232,14 +232,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     When('I get the communityId property', () => {
       // Test will check the value
     });
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the community\'s id as a string', () => {
       expect(adapter.communityId).toBe('507f1f77bcf86cd799439012');
     });
   });
 
   Scenario('Getting the communityId property when not populated', ({ Given, When, Then }) => {
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1DomainAdapter for a document with community as an ObjectId', () => {
       doc.community = new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012');
       adapter = new ServiceTicketV1DomainAdapter(doc);
@@ -272,14 +270,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     When('I get the requestorId property', () => {
       // Test will check the value
     });
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the requestor\'s id as a string', () => {
       expect(adapter.requestorId).toBe('507f1f77bcf86cd799439013');
     });
   });
 
   Scenario('Getting the requestorId property when not populated', ({ Given, When, Then }) => {
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1DomainAdapter for a document with requestor as an ObjectId', () => {
       doc.requestor = new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013');
       adapter = new ServiceTicketV1DomainAdapter(doc);
@@ -583,7 +579,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     let activityDoc: ServiceTicketActivityDetail;
     let result: Domain.Contexts.Community.Member.MemberEntityReference;
 
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1ActivityDetailDomainAdapter for a document with activityBy as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
       activityDoc = makeActivityDetailDoc({ activityBy: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
@@ -637,7 +632,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     let messageDoc: ServiceTicketMessage;
     let result: Domain.Contexts.Community.Member.MemberEntityReference;
 
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1MessageDomainAdapter for a document with initiatedBy as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
       messageDoc = makeMessageDoc({ initiatedBy: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });
@@ -735,7 +729,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Loading the community when not populated', ({ Given, When, Then }) => {
     let result: Domain.Contexts.Community.Community.CommunityEntityReference;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1DomainAdapter for the document with community as an ObjectId', () => {
       const communityDoc = makeCommunityDoc();
       doc = makeServiceTicketDoc({ community: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012') });
@@ -773,7 +766,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Loading the requestor when not populated', ({ Given, When, Then }) => {
     let result: Domain.Contexts.Community.Member.MemberProps;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceTicketV1DomainAdapter for the document with requestor as an ObjectId', () => {
       const memberDoc = makeMemberDoc();
       doc = makeServiceTicketDoc({ requestor: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439013') });

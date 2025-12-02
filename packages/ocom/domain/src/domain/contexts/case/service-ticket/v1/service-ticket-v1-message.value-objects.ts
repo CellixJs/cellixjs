@@ -3,7 +3,6 @@ import { VOString } from '@lucaspaganini/value-objects';
 const ServiceTicketV1MessageSentByEnum = {
 	Internal: 'internal',
 	External: 'external',
-// biome-ignore lint/plugin/no-type-assertion: test file
 } as const;
 
 export class Message extends VOString({

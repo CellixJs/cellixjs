@@ -182,7 +182,6 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				serviceTicket.requestDelete();
 			});
 
-			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the ticket should be marked as deleted', () => {
 				expect(serviceTicket.isDeleted).toBe(true);
 			});

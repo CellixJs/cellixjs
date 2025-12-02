@@ -191,7 +191,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Getting the createdBy property when it is an ObjectId', ({ Given, When, Then }) => {
     let gettingCreatedByWhenObjectId: () => void;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a CommunityDomainAdapter for a document with createdBy as an ObjectId', () => {
       doc = makeCommunityDoc({ createdBy: new MongooseSeedwork.ObjectId() });
       adapter = new CommunityDomainAdapter(doc);

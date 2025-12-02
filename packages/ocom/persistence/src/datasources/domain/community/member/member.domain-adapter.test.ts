@@ -242,7 +242,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     When('I get the communityId property', () => {
       result = adapter.communityId;
     });
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the community\'s id as a string', () => {
       expect(result).toBe(communityDoc.id);
     });
@@ -264,7 +263,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Getting the community property when not populated', ({ Given, When, Then }) => {
     let gettingCommunityWhenNotPopulated: () => void;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a MemberDomainAdapter for a document with community as an ObjectId', () => {
       doc = makeMemberDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new MemberDomainAdapter(doc);
@@ -334,7 +332,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Getting the role property when not populated', ({ Given, When, Then }) => {
     let gettingRoleWhenNotPopulated: () => void;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a MemberDomainAdapter for a document with role as an ObjectId', () => {
       doc = makeMemberDoc({ role: new MongooseSeedwork.ObjectId() });
       adapter = new MemberDomainAdapter(doc);

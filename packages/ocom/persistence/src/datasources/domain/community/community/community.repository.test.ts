@@ -152,7 +152,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Creating a new community instance', ({ Given, When, Then, And }) => {
     let userDomainObject: Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a valid EndUser domain object as the user', () => {
       userDoc = makeUserDoc();
       userAdapter = new EndUserDomainAdapter(userDoc)

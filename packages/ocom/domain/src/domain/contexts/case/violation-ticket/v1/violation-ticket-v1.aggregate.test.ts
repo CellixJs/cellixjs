@@ -381,7 +381,6 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				violationTicket.requestDelete();
 			});
 
-			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the ticket should be marked as deleted', () => {
 				expect(violationTicket.isDeleted).toBe(true);
 			});
@@ -1384,7 +1383,6 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				violationTicket.requestDelete();
 			});
 
-			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the ticket should be marked as deleted', () => {
 				expect(violationTicket.isDeleted).toBe(true);
 			});
@@ -2223,7 +2221,6 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			And('I add a status transition to "Paid"', () => {
 				violationTicket.requestAddStatusTransition(
 					new ValueObjects.StatusCode(ValueObjects.StatusCodes.Paid),
-					// biome-ignore lint/plugin/no-type-assertion: test file
 					'Marked as paid by worker',
 					memberRef,
 				);

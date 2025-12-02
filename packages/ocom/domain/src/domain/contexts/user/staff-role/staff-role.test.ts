@@ -277,7 +277,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					} as StaffRoleEntityReference);
 				},
 			);
-			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the staff role should be marked as deleted', () => {
 				expect(deletedRole.isDeleted).toBe(true);
 			});

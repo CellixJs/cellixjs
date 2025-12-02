@@ -174,7 +174,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Getting the community property when not populated', ({ Given, When, Then }) => {
     let gettingCommunityWhenNotPopulated: () => void;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceDomainAdapter for a document with community as an ObjectId', () => {
       doc = makeServiceDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new ServiceDomainAdapter(doc);
@@ -191,7 +190,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Loading the community', ({ Given, When, Then }) => {
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a ServiceDomainAdapter for a document with community as an ObjectId', () => {
       doc = makeServiceDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new ServiceDomainAdapter(doc);
@@ -216,7 +214,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     When('I set the community property to the Community domain object', () => {
       adapter.setCommunityRef(communityDomainObj);
     });
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('the document\'s community should be set to the community\'s id as ObjectId', () => {
       expect(doc.community).toBeInstanceOf(MongooseSeedwork.ObjectId);
       // biome-ignore lint/plugin/no-type-assertion: test file

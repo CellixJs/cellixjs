@@ -96,7 +96,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	);
 
 	Scenario(
-		// biome-ignore lint/plugin/no-type-assertion: test file
 		'determineIf always receives all permissions as false',
 		({ Given, When, Then }) => {
 			let result: boolean;

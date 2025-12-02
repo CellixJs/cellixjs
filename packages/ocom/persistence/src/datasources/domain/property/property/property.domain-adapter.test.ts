@@ -374,7 +374,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     When('I get the communityId property', () => {
       result = adapter.communityId;
     });
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the community\'s id as a string', () => {
       expect(result).toBe(communityDoc.id);
     });
@@ -396,7 +395,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Getting the community property when not populated', ({ Given, When, Then }) => {
     let gettingCommunityWhenNotPopulated: () => void;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a PropertyDomainAdapter for a document with community as an ObjectId', () => {
       doc = makePropertyDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new PropertyDomainAdapter(doc);
@@ -413,7 +411,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Loading the community', ({ Given, When, Then }) => {
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a PropertyDomainAdapter for a document with community as an ObjectId', () => {
       doc = makePropertyDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new PropertyDomainAdapter(doc);
@@ -471,7 +468,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     When('I get the ownerId property', () => {
       result = adapter.ownerId;
     });
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Then('it should return the owner\'s id as a string', () => {
       expect(result).toBe(memberDoc.id);
     });
@@ -492,7 +488,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Getting the owner property when not populated', ({ Given, When, Then }) => {
     let gettingOwnerWhenNotPopulated: () => void;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a PropertyDomainAdapter for a document with owner as an ObjectId', () => {
       doc = makePropertyDoc({ owner: new MongooseSeedwork.ObjectId() });
       adapter = new PropertyDomainAdapter(doc);
@@ -509,7 +504,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Loading the owner', ({ Given, When, Then }) => {
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a PropertyDomainAdapter for a document with owner as an ObjectId', () => {
       doc = makePropertyDoc({ owner: new MongooseSeedwork.ObjectId() });
       adapter = new PropertyDomainAdapter(doc);

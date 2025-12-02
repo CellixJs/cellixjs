@@ -176,7 +176,6 @@ test.for(feature, ({ Scenario }) => {
     });
   });
 
-  // biome-ignore lint/plugin/no-type-assertion: test file
   Scenario('Accessing items returns all items as adapters', ({ Given, When, Then }) => {
     Given('a mongoose prop array with a document array containing multiple documents', () => {
       doc1 = vi.mocked({

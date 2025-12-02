@@ -586,7 +586,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			When('I request to delete the property', () => {
 				property.requestDelete();
 			});
-			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the property should be marked as deleted', () => {
 				expect(property.isDeleted).toBe(true);
 			});

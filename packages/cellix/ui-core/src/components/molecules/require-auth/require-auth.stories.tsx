@@ -356,7 +356,6 @@ export const ActiveNavigator: Story = {
       const auth = useMemo(() => ({
         isAuthenticated: false,
         isLoading: false,
-        // biome-ignore lint/plugin/no-type-assertion: test file
         activeNavigator: "signinRedirect" as const, // This should prevent auto-signin
         error: undefined,
         signinRedirect: () => {

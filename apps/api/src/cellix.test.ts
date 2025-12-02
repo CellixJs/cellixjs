@@ -94,18 +94,15 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     // Mock trace.getTracer
     const mockGetTracer = vi.fn(() => mockTracer);
-    // biome-ignore lint/plugin/no-type-assertion: test file
     (api.trace.getTracer as MockedFunction<() => Tracer>) = mockGetTracer;
     mockGetTracer.mockReturnValue(mockTracer);
 
     // Mock context.active and context.with
     const mockActive = vi.fn(() => ({}));
-    // biome-ignore lint/plugin/no-type-assertion: test file
     (api.context.active as MockedFunction<() => unknown>) = mockActive;
     mockActive.mockReturnValue({});
 
     const mockWith = vi.fn((_ctx: unknown, callback: () => unknown) => callback());
-    // biome-ignore lint/plugin/no-type-assertion: test file
     (api.context.with as MockedFunction<(ctx: unknown, callback: () => unknown) => unknown>) = mockWith;
     mockWith.mockImplementation((_ctx: unknown, callback: () => unknown) => callback());
   });

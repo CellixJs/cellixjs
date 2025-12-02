@@ -183,7 +183,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   Scenario('Creating a new vendor user role instance', ({ Given, When, Then, And }) => {
     let communityDomainObj: Domain.Contexts.Community.Community.CommunityEntityReference;
 
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a valid Community domain object as the community', () => {
       // biome-ignore lint/plugin/no-type-assertion: test file
       communityDomainObj = { id: communityDoc.id.toString(), name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;

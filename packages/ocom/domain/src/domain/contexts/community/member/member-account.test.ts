@@ -92,7 +92,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Background(({ Given, And }) => {
 		Given(
-			// biome-ignore lint/plugin/no-type-assertion: test file
 			'valid MemberAccountProps with firstName "Alice", lastName "Smith", a valid EndUserEntityReference as user, statusCode "active", and a valid EndUserEntityReference as createdBy',
 			() => {
 				props = makeProps();

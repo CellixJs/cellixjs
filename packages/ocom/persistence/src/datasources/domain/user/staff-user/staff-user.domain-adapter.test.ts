@@ -311,7 +311,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting role when role is ObjectId', ({ Given, When, Then }) => {
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('a StaffUserDomainAdapter for the document with role as ObjectId', () => {
       doc.role = new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012');
       adapter = new StaffUserDomainAdapter(doc);

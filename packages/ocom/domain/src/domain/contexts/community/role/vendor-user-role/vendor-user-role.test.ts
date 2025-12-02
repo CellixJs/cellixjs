@@ -314,7 +314,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					role.deleteAndReassignTo(reassignedRole);
 				},
 			);
-			// biome-ignore lint/plugin/no-type-assertion: test file
 			Then('the role should be marked as deleted', () => {
 				expect(role.isDeleted).toBe(true);
 			});

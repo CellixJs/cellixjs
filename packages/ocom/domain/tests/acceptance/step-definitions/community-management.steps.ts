@@ -111,7 +111,6 @@ When('I try to create a community with a name longer than {int} characters',
     this.syncResultsFromScreenplay();
     
     if (this.creationError) {
-      // biome-ignore lint/plugin/no-type-assertion: test file
       console.log(`✓ Community creation failed as expected: ${this.creationError.message}`);
     } else {
       console.log(`✗ Unexpected success: Community was created despite invalid name length`);

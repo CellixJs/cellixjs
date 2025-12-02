@@ -184,7 +184,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 
   Scenario('Getting the community property when not populated', ({ Given, When, Then }) => {
     let gettingCommunityWhenNotPopulated: () => void;
-    // biome-ignore lint/plugin/no-type-assertion: test file
     Given('an EndUserRoleDomainAdapter for a document with community as an ObjectId', () => {
       doc = makeEndUserRoleDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new EndUserRoleDomainAdapter(doc);
