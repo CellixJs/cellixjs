@@ -8,7 +8,6 @@
     "src/**/*.ts"
   ],
   "references": [
-    { "path": "../graphql" },
     { "path": "../persistence" },
     { "path": "../service-apollo-server" },
     { "path": "../service-token-validation" }

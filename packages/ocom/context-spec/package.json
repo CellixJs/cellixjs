@@ -18,7 +18,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@ocom/graphql": "workspace:*",
+    "@apollo/server": "^5.0.0",
     "@ocom/persistence": "workspace:*",
     "@ocom/service-apollo-server": "workspace:*",
     "@ocom/service-token-validation": "workspace:*"
