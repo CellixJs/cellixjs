@@ -18,7 +18,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@azure/functions": "^4.6.0",
+    "@azure/functions": "catalog:",
     "@ocom/application-services": "workspace:*"
   },
   "devDependencies": {

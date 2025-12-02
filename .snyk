@@ -12,17 +12,19 @@ ignore:
         created: '2025-11-17T09:06:00.000Z'
   'SNYK-JS-NODEFORGE-14114940':
     - '* > node-forge':
-        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage; blocked until https://github.com/jfromaniello/selfsigned/issues/78 is resolved'
+        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
         expires: '2025-12-15T00:00:00.000Z'
-        created: '2025-12-01T11:40:00.000Z'
-  'SNYK-JS-NODEFORGE-14125097':
-    - '* > node-forge':
-        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage; blocked for same issue as SNYK-JS-NODEFORGE-14114940'
-        expires: '2025-12-15T00:00:00.000Z'
-        created: '2025-12-01T11:40:00.000Z'
-  'SNYK-JS-NODEFORGE-14125745':
-    - '* > node-forge':
-        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage; blocked for same issue as SNYK-JS-NODEFORGE-14114940'
-        expires: '2025-12-15T00:00:00.000Z'
-        created: '2025-12-01T11:40:00.000Z'
-    
+        created: '2025-11-26T10:12:00.000Z'
+  'SNYK-JS-EXPRESS-14157151':
+    - '@docusaurus/core@3.9.2 > * > express':
+        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
+        expires: '2025-12-16T00:00:00.000Z'
+        created: '2025-12-02T09:39:00.000Z'
+    - '@docusaurus/plugin-content-docs@3.9.2 > * > express':
+        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
+        expires: '2025-12-16T00:00:00.000Z'
+        created: '2025-12-02T09:39:00.000Z'
+    - '@docusaurus/preset-classic@3.9.2 > * > express':
+        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
+        expires: '2025-12-16T00:00:00.000Z'
+        created: '2025-12-02T09:39:00.000Z'

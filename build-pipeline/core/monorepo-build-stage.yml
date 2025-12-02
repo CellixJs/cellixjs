@@ -99,7 +99,6 @@ stages:
           corepack prepare pnpm@latest-10 --activate
           pnpm config set store-dir ${{parameters.pnpm_config_cache}}
           pnpm --version
-        workingDirectory: ''
 
     # Install dependencies
     - task: Bash@3
@@ -122,13 +121,25 @@ stages:
           pnpm install --frozen-lockfile
         workingDirectory: ''
 
-        # Playwright: Restore browsers cache
+    # Set PLAYWRIGHT_VERSION variable for cache key
+    - task: Bash@3
+      displayName: 'Detect Playwright version for cache key'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          version=$(pnpm exec playwright --version | awk '{print $2}')
+          echo "Detected Playwright version: $version"
+          echo "##vso[task.setvariable variable=PLAYWRIGHT_VERSION]$version"
+        workingDirectory: ''
+
+    # Playwright: Restore browsers cache
     - task: Cache@2
       displayName: 'Playwright: Restore browsers cache'
       inputs:
-        key: 'playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v3'
+        key: playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | "$(PLAYWRIGHT_VERSION)"
         restoreKeys: |
-          playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | v3
+          playwright | "$(Agent.OS)" | ubuntu-latest | node-22 | "$(PLAYWRIGHT_VERSION)"
         path: '$(PLAYWRIGHT_BROWSERS_PATH)'
         cacheHitVar: PW_CACHE_HIT
 
@@ -150,6 +161,7 @@ stages:
     # Playwright: Ensure browsers are available for packages that need them
     - task: Bash@3
       displayName: 'Playwright: Verify browser installation'
+      condition: always()
       inputs:
         targetType: 'inline'
         script: |
@@ -224,7 +236,7 @@ stages:
 
           # Audit pnpm packages for vulnerabilities
           echo "Running pnpm audit for vulnerabilities..."
-          pnpm audit --audit-level=high --prod
+          pnpm run audit
 
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then

@@ -2,7 +2,7 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "//#gen"],
+      "dependsOn": ["//#audit", "^build", "//#gen"],
       "inputs": [
         "src/**",
         "tsconfig*.json"
@@ -94,6 +94,9 @@
     "//#gen:watch": {
       "cache": false,
       "persistent": true
+    },
+    "//#audit": {
+      "cache": false
     }
   }
 }
