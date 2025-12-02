@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { loadFilesSync } from '@graphql-tools/load-files';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import * as Scalars from 'graphql-scalars';
-import type { GraphContext } from '../../init/context.ts';
+import { Scalars } from '@cellix/graphql-core';
+import type { GraphContext } from '../context.ts';
 import { resolvers } from './resolver-builder.ts';
 import type { GraphQLSchema } from 'graphql';
 

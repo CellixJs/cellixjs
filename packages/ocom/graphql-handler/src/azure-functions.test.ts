@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { startServerAndCreateHandler } from './azure-functions.ts';
+import { createHandler } from './azure-functions.ts';
 import type { ApolloServer, BaseContext, HeaderMap } from '@apollo/server';
 import type { HttpRequest, InvocationContext, HttpResponseInit } from '@azure/functions';
 
@@ -15,7 +15,6 @@ const feature = await loadFeature(
 
 function makeMockApolloServer() {
   return {
-    startInBackgroundHandlingStartupErrorsByLoggingAndFailingAllRequests: vi.fn(),
     executeHTTPGraphQLRequest: vi.fn(),
   } as unknown as ApolloServer<BaseContext>;
 }
@@ -41,7 +40,7 @@ function makeMockInvocationContext() {
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let server: ApolloServer<BaseContext>;
-  let handler: ReturnType<typeof startServerAndCreateHandler>;
+  let handler: ReturnType<typeof createHandler>;
   let req: HttpRequest;
   let context: InvocationContext;
 
@@ -70,7 +69,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         headers: Object.assign(new Map([['content-type', 'application/json']]), { __identity: 'HeaderMap' }) as unknown as HeaderMap,
         status: 200,
       });
-      handler = startServerAndCreateHandler(server);
+      handler = createHandler(server);
       response = await handler(req, context);
     });
 
@@ -108,7 +107,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         headers: Object.assign(new Map([['content-type', 'application/json']]), { __identity: 'HeaderMap' }) as unknown as HeaderMap,
         status: 200,
       });
-      handler = startServerAndCreateHandler(server);
+      handler = createHandler(server);
       response = await handler(req, context);
     });
 
@@ -144,7 +143,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the Azure Functions handler is invoked', async () => {
-      handler = startServerAndCreateHandler(server);
+      handler = createHandler(server);
       response = await handler(req, context);
     });
 
@@ -162,7 +161,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the Azure Functions handler is invoked', async () => {
-      handler = startServerAndCreateHandler(server);
+      handler = createHandler(server);
       response = await handler(req, context);
     });
 
@@ -184,7 +183,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the Azure Functions handler is invoked', async () => {
-      handler = startServerAndCreateHandler(server);
+      handler = createHandler(server);
       response = await handler(req, context);
     });
 

@@ -13,9 +13,15 @@ import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
-import { graphHandlerCreator } from '@ocom/graphql';
+import { ServiceApolloServer } from '@ocom/service-apollo-server';
+import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
+
+import { graphHandlerCreator, type GraphContext } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 
+
+// Store the Apollo Server service instance for handler creation
+let apolloServerServiceInstance: ServiceApolloServer<GraphContext>;
 
 Cellix
     .initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
@@ -32,6 +38,10 @@ Cellix
                     TokenValidationConfig.portalTokens,
                 ),
             );
+        
+        // Register and store Apollo Server service
+        apolloServerServiceInstance = new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions);
+        serviceRegistry.registerInfrastructureService(apolloServerServiceInstance);
     })
     .setContext((serviceRegistry) => {
         const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(
@@ -44,13 +54,17 @@ Cellix
         return {
             dataSourcesFactory,
             tokenValidationService: serviceRegistry.getInfrastructureService<ServiceTokenValidation>(ServiceTokenValidation),
+            apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),
         };
     })
     .initializeApplicationServices((context) => buildApplicationServicesFactory(context))
     .registerAzureFunctionHttpHandler(
         'graphql',
         { route: 'graphql/{*segments}', methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'] },
-        graphHandlerCreator,
+        (appServicesFactory) => graphHandlerCreator(
+            apolloServerServiceInstance,
+            appServicesFactory
+        ),
     )
     .registerAzureFunctionHttpHandler(
         'rest',

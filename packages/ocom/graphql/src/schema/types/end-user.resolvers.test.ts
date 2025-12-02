@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
-import type { GraphContext } from '../../init/context.ts';
+import type { GraphContext } from '../context.ts';
 import endUserResolvers from './end-user.resolvers.ts';
 
 // Mock the resolver helper

@@ -1,0 +1,13 @@
+{
+  "extends": "@cellix/typescript-config/node",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "."
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../application-services" },
+    { "path": "../graphql" },
+    { "path": "../service-apollo-server" }
+  ]
+}
