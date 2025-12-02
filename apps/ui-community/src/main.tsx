@@ -22,8 +22,8 @@ const ConfigProviderWrapper = () => {
 			theme={{
 				token: {
 					...currentTokens?.token,
-					colorBgBase: currentTokens?.hardCodedTokens.backgroundColor as string,
-					colorPrimaryText: currentTokens?.hardCodedTokens.textColor as string,
+					colorBgBase: currentTokens?.hardCodedTokens.backgroundColor ?? '#ffffff',
+					colorPrimaryText: currentTokens?.hardCodedTokens.textColor ?? '#000000',
 				},
 			}}
 		>

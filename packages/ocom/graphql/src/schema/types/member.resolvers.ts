@@ -20,8 +20,10 @@ const member: Resolvers = {
     },
     Query: {
         membersForCurrentEndUser: async (_parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
-            if (!context.applicationServices.verifiedUser?.verifiedJwt) { throw new Error('Unauthorized'); }
-            const externalId = context.applicationServices.verifiedUser.verifiedJwt.sub;
+            const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
+            if (!jwt) { throw new Error('Unauthorized'); }
+            const externalId = typeof jwt.sub === 'string' ? jwt.sub : undefined;
+            if (!externalId) { throw new Error('Missing sub claim'); }
             return await context.applicationServices.Community.Member.queryByEndUserExternalId({
                 externalId,
             });

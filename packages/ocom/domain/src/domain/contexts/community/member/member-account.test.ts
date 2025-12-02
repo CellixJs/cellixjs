@@ -48,7 +48,9 @@ function makePassport(): Passport {
 			forVendorUser: vi.fn(),
 			forStaffUser: vi.fn(),
 			forStaffRole: vi.fn(),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as UserPassport,
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as Passport);
 }
 
@@ -57,6 +59,7 @@ function makeEndUserEntityReference(id = 'user-1'): EndUserEntityReference {
 		id,
 		userType: 'end-user',
 		displayName: 'Test User',
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as EndUserEntityReference;
 }
 

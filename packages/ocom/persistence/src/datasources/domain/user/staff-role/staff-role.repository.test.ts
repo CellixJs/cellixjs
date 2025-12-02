@@ -51,9 +51,11 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
       },
     },
     set(key: keyof StaffRole, value: unknown) {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as StaffRole)[key] = value as never;
     },
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as StaffRole;
   return vi.mocked(base);
 }
@@ -65,6 +67,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -95,11 +98,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       prototype: {},
     });
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     eventBus = { publish: vi.fn() } as unknown as EventBus;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
     repo = new StaffRoleRepository(
       passport,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       ModelMock as unknown as StaffRoleModelType,
       converter,
       eventBus,

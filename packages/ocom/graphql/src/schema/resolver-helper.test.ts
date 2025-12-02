@@ -27,8 +27,10 @@ function makeInfo({
         kind: 'SelectionSet',
         selections,
       },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as FieldNode],
     fragments,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as GraphQLResolveInfo;
 }
 

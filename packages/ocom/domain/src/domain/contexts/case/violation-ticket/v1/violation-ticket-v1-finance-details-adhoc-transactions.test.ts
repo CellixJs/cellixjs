@@ -32,16 +32,20 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	BeforeEachScenario(() => {
 		approval = {
 			id: 'approval-123',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference;
 		transactionReference = {
 			id: 'transaction-ref-123',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReferenceEntityReference;
 		financeReference = {
 			id: 'finance-ref-123',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference;
 
 		visa = {
 			determineIf: vi.fn(() => true),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1Visa;
 
 		props = {

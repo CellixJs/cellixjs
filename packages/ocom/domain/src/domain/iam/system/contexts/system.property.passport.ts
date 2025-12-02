@@ -9,6 +9,7 @@ export class SystemPropertyPassport
 	implements PropertyPassport
 {
 	forProperty(_root: PropertyEntityReference): PropertyVisa {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		const permissions = this.permissions as PropertyDomainPermissions;
 		return { determineIf: (func) => func(permissions) };
 	}

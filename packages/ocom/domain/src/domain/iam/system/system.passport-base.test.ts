@@ -55,6 +55,7 @@ test.for(feature, ({ Scenario }) => {
 					permissions = {
 						canManageMembers: true,
 						canCreateCommunities: false,
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					} as Partial<PermissionsSpec>;
 				},
 			);
@@ -103,6 +104,7 @@ test.for(feature, ({ Scenario }) => {
 		'Creating SystemPassportBase with undefined permissions',
 		({ Given, When, Then, And }) => {
 			Given('I pass undefined as permissions', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				permissions = undefined as unknown as Partial<PermissionsSpec>;
 			});
 

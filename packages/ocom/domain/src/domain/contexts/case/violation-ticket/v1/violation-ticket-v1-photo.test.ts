@@ -24,6 +24,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	BeforeEachScenario(() => {
 		visa = {
 			determineIf: vi.fn(() => true),
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1Visa;
 
 		props = {

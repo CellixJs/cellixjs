@@ -75,6 +75,7 @@ export class ManageCommunities {
    */
   static as(actor: Actor): ManageCommunities {
     // Store the ability on the actor object for retrieval
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const actorWithAbility = actor as Actor & { manageCommunities?: ManageCommunities };
     if (!actorWithAbility.manageCommunities) {
       throw new Error(`Actor ${actor.name} does not have the ManageCommunities ability`);
@@ -86,6 +87,7 @@ export class ManageCommunities {
    * Attach this ability to an actor
    */
   static attachTo(actor: Actor, ability: ManageCommunities): Actor {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const actorWithAbility = actor as Actor & { manageCommunities?: ManageCommunities };
     actorWithAbility.manageCommunities = ability;
     return actor;

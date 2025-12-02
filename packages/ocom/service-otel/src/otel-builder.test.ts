@@ -116,8 +116,11 @@ test.for(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) => {
       expect(metricExporterMock).toHaveBeenCalledWith({ connectionString: connStr });
       expect(logExporterMock).toHaveBeenCalledWith({ connectionString: connStr });
       // Also check the instance has the correct property for extra safety
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((exporters.traceExporter as unknown as { __args: { connectionString: string } }).__args.connectionString).toBe(connStr);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((exporters.metricExporter as unknown as { __args: { connectionString: string } }).__args.connectionString).toBe(connStr);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((exporters.logExporter as unknown as { __args: { connectionString: string } }).__args.connectionString).toBe(connStr);
     });
   });

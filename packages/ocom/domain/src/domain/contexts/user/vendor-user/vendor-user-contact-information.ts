@@ -51,6 +51,10 @@ export class VendorUserContactInformation
 		) {
 			throw new PermissionError('Cannot set email');
 		}
-		this.props.email = new Email(email).valueOf() as string;
+		const emailValue = new Email(email).valueOf();
+		if (emailValue === undefined) {
+			throw new Error('Invalid email value');
+		}
+		this.props.email = emailValue;
 	}
 }

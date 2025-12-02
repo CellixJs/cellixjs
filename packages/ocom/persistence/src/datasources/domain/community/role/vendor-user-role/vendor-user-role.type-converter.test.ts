@@ -55,6 +55,7 @@ function makeVendorUserRoleDoc(overrides: Partial<VendorUserRole> = {}) {
     },
     set(key: keyof VendorUserRole, value: unknown) {
       // Type-safe property assignment
+      // biome-ignore lint/plugin/no-type-assertion: test file
       (this as unknown as VendorUserRole)[key] = value as never;
     },
     toObject() {
@@ -62,6 +63,7 @@ function makeVendorUserRoleDoc(overrides: Partial<VendorUserRole> = {}) {
     },
   };
   const merged = { ...base, ...overrides };
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return vi.mocked(merged as unknown as VendorUserRole);
 }
 
@@ -72,6 +74,7 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
     description: 'A test community',
     settings: {},
   };
+  // biome-ignore lint/plugin/no-type-assertion: test file
   return { ...base, ...overrides } as Community;
 }
 
@@ -97,6 +100,7 @@ function makeMockPassport(): Domain.Passport {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -140,12 +144,15 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       expect(result).toBeInstanceOf(Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole);
     });
     And('the domain object\'s roleName should be "Test Vendor Role"', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).roleName).toBe('Test Vendor Role');
     });
     And('the domain object\'s isDefault should be true', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       expect((result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>).isDefault).toBe(true);
     });
     And('the domain object\'s community should be a Community domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const { community } = result as Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>;
       expect(community).toBeInstanceOf(Domain.Contexts.Community.Community.Community);
     });

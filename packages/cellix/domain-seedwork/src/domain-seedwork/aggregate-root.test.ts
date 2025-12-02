@@ -69,6 +69,7 @@ function findEvent<T>(
 	events: readonly unknown[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
@@ -81,6 +82,7 @@ function expectEventEmitted<T>(
 	expect(event).toBeDefined();
 	expect(event).toBeInstanceOf(eventClass);
 	if (payloadMatcher) {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		payloadMatcher(event as T);
 	}
 }
@@ -103,6 +105,7 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 
 	BeforeEachScenario(() => {
 		baseProps = { id: 'agg-1', foo: 'bar' };
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		mockedPassport = vi.mocked({} as unknown);
 	});
 
@@ -115,6 +118,7 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 	Scenario('Constructing an Aggregate Root', ({ Given, When, Then }) => {
 		Given('a set of initial properties and some type of passport', () => {
 			baseProps = { id: 'agg-1', foo: 'bar' };
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			mockedPassport = vi.mocked({} as unknown);
 		});
 		When('the aggregate root is constructed', () => {

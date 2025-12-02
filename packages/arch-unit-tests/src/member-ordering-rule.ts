@@ -60,7 +60,7 @@ export const defaultMemberOrder: MemberOrderGroup[] = [
 // Utility: check for a specific modifier
 function hasModifier(node: ts.Node, kind: ts.SyntaxKind): boolean {
 	// 'modifiers' is optional on many node types
-	const { modifiers } = node as { modifiers?: ts.NodeArray<ts.ModifierLike> };
+	const modifiers = 'modifiers' in node && Array.isArray(node.modifiers) ? node.modifiers : undefined;
 	return !!modifiers?.some((m) => ts.isModifier(m) && m.kind === kind);
 }
 
@@ -135,8 +135,9 @@ export function checkMemberOrdering(
 
 		let maxSoFar = -1;
 		for (let i = 0; i < relevantMembers.length; i++) {
-			const idx = groupIndexes[i] as number;
-			const member = relevantMembers[i] as ts.ClassElement;
+			const idx = groupIndexes[i];
+			const member = relevantMembers[i];
+			if (idx === undefined || member === undefined) continue;
 
 			if (idx < maxSoFar) {
 				const memberName = getMemberName(member);

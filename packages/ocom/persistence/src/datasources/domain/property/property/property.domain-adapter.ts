@@ -113,6 +113,7 @@ export class PropertyDomainAdapter
 				'community is not populated or is not of the correct type',
 			);
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
@@ -123,6 +124,7 @@ export class PropertyDomainAdapter
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
 			await this.doc.populate('community');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
@@ -153,6 +155,7 @@ export class PropertyDomainAdapter
 			return c.toString();
 		}
 		// populated doc case
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return (c as Community).id.toString();
 	}
 
@@ -167,6 +170,7 @@ export class PropertyDomainAdapter
 		}
         // TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new MemberDomainAdapter(this.doc.owner as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}
 
@@ -177,6 +181,7 @@ export class PropertyDomainAdapter
 		if (this.doc.owner instanceof MongooseSeedwork.ObjectId) {
 			await this.doc.populate('owner');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new MemberDomainAdapter(this.doc.owner as Member);
 	}
 
@@ -193,6 +198,7 @@ export class PropertyDomainAdapter
 			return o.toString();
 		}
 		// populated doc case
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return (o as Member).id.toString();
 	}
 
@@ -405,6 +411,7 @@ class PropertyLocationPositionDomainAdapter implements Domain.Contexts.Property.
 	}
 
 	set coordinates(coordinates: ReadonlyArray<number> | null) {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		this.doc.coordinates = coordinates as number[] | null;
 	}
 }
@@ -416,6 +423,7 @@ class PropertyListingDetailBedroomDetailDomainAdapter implements Domain.Contexts
 	}
 
 	get id(): string {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return this.doc.id?.valueOf() as string;
 	}
 
@@ -443,6 +451,7 @@ class PropertyListingDetailAdditionalAmenityDomainAdapter implements Domain.Cont
 	}
 
 	get id(): string {
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return this.doc.id?.valueOf() as string;
 	}
 

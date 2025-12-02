@@ -28,7 +28,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let fakeModel: Model<TestDoc>;
 
   BeforeEachScenario(() => {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     schema = {} as Schema<TestDoc, Model<TestDoc>, TestDoc>;
+    // biome-ignore lint/plugin/no-type-assertion: test file
     fakeModel = {} as Model<TestDoc>;
   });
 
@@ -38,6 +40,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         models: { TestModel: fakeModel },
         model: vi.fn(),
       };
+      // biome-ignore lint/plugin/no-type-assertion: test file
       contextFactory = { service: mockService as unknown as MongooseContextFactory['service'] };
     });
     When('modelFactory is called with the model name and schema', () => {
@@ -55,6 +58,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
         models: {},
         model: vi.fn().mockReturnValue(fakeModel),
       };
+      // biome-ignore lint/plugin/no-type-assertion: test file
       contextFactory = { service: mockService as unknown as MongooseContextFactory['service'] };
     });
     When('modelFactory is called with the model name and schema', () => {

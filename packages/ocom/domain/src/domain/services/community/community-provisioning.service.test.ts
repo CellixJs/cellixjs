@@ -68,6 +68,7 @@ function makeMockDomainDataSource(): DomainDataSource {
 				},
 			},
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as DomainDataSource;
 }
 
@@ -87,6 +88,7 @@ function makeMockCommunity(
 			},
 		},
 		...overrides,
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Domain.Contexts.Community.Community.CommunityEntityReference;
 }
 
@@ -96,6 +98,7 @@ function makeMockRole(): Domain.Contexts.Community.Role.EndUserRole.EndUserRoleE
 		permissions: {
 			setDefaultAdminPermissions: vi.fn(),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference;
 }
 
@@ -111,6 +114,7 @@ function makeMockMember(): Domain.Contexts.Community.Member.MemberEntityReferenc
 			statusCode: '',
 			user: null,
 		})),
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 }
 
@@ -242,6 +246,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 							mockDomainDataSource,
 						);
 					} catch (error) {
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						thrownError = error as Error;
 					}
 				},
@@ -261,6 +266,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				() => {
 					expect(
 						(
+							// biome-ignore lint/plugin/no-type-assertion: test file
 							mockRole.permissions as unknown as {
 								setDefaultAdminPermissions: MockedFunction<() => void>;
 							}
@@ -284,6 +290,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			And('the member should have a new account with the user details', () => {
 				expect(
 					(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						mockMember as unknown as {
 							requestNewAccount: MockedFunction<() => unknown>;
 						}
@@ -309,6 +316,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 							mockDomainDataSource,
 						);
 					} catch (error) {
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						thrownError = error as Error;
 					}
 				},
@@ -342,6 +350,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 							mockDomainDataSource,
 						);
 					} catch (error) {
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						thrownError = error as Error;
 					}
 				},
@@ -366,6 +375,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				const communityWithoutCreatedBy = {
 					...mockCommunity,
 					createdBy: null,
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				} as unknown as Domain.Contexts.Community.Community.CommunityEntityReference;
 				mockCommunityRepo.getByIdWithCreatedBy.mockResolvedValue(
 					communityWithoutCreatedBy,
@@ -385,6 +395,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 							mockDomainDataSource,
 						);
 					} catch (error) {
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						thrownError = error as Error;
 					}
 				},
@@ -428,6 +439,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 							mockDomainDataSource,
 						);
 					} catch (error) {
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						thrownError = error as Error;
 					}
 				},
@@ -450,6 +462,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			And('the member account should still be created successfully', () => {
 				expect(
 					(
+						// biome-ignore lint/plugin/no-type-assertion: test file
 						mockMember as unknown as {
 							requestNewAccount: MockedFunction<() => unknown>;
 						}

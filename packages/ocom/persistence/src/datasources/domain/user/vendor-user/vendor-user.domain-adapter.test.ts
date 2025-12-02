@@ -52,6 +52,7 @@ function makeVendorUserDoc(overrides: Partial<VendorUser> = {}) {
     schemaVersion: '1.0.0',
     set: vi.fn(),
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as VendorUser;
 
   // If personalInformation was overridden, ensure it has the set spy
@@ -69,6 +70,7 @@ function makeMockPassport() {
         determineIf: vi.fn(() => true),
       })),
     },
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as unknown as Domain.Passport;
 }
 
@@ -210,6 +212,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   Scenario('Getting the personalInformation property when not defined on the document', ({ Given, When, Then }) => {
     let docWithoutPersonalInfo: VendorUser;
     Given('a VendorUserDomainAdapter for a document with no personalInformation', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       docWithoutPersonalInfo = makeVendorUserDoc({ personalInformation: {} } as Partial<VendorUser>);
       adapter = new VendorUserDomainAdapter(docWithoutPersonalInfo);
     });
@@ -227,6 +230,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new VendorUserDomainAdapter(doc);
     });
     When('I get the personalInformation property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       personalInformation = adapter.personalInformation as VendorUserPersonalInformation;
     });
     And('I get the identityDetails property', () => {
@@ -244,9 +248,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new VendorUserDomainAdapter(doc);
     });
     When('I get the personalInformation property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       personalInformation = adapter.personalInformation as VendorUserPersonalInformationDomainAdapter;
     });
     And('I get the identityDetails property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       identityDetails = personalInformation.identityDetails as VendorUserIdentityDetailsDomainAdapter;
     });
     And('I get the lastName property', () => {
@@ -270,9 +276,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new VendorUserDomainAdapter(doc);
     });
     When('I get the personalInformation property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       personalInformation = adapter.personalInformation as VendorUserPersonalInformationDomainAdapter;
     });
     And('I get the identityDetails property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       identityDetails = personalInformation.identityDetails as VendorUserIdentityDetailsDomainAdapter;
     });
     And('I get the legalNameConsistsOfOneName property', () => {
@@ -296,9 +304,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new VendorUserDomainAdapter(doc);
     });
     When('I get the personalInformation property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       personalInformation = adapter.personalInformation as VendorUserPersonalInformationDomainAdapter;
     });
     And('I get the identityDetails property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       identityDetails = personalInformation.identityDetails as VendorUserIdentityDetailsDomainAdapter;
     });
     And('I get the restOfName property', () => {
@@ -321,6 +331,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new VendorUserDomainAdapter(doc);
     });
     When('I get the personalInformation property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       personalInformation = adapter.personalInformation as VendorUserPersonalInformationDomainAdapter;
     });
     And('I get the contactInformation property', () => {
@@ -337,10 +348,12 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
     Given('a VendorUserDomainAdapter for a document with no contactInformation', () => {
       docWithoutContactInfo = makeVendorUserDoc({
         personalInformation: { identityDetails: { lastName: 'Doe' }, contactInformation: {} }
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as Partial<VendorUser>);
       adapter = new VendorUserDomainAdapter(docWithoutContactInfo);
     });
     When('I get the personalInformation property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       personalInformation = adapter.personalInformation as VendorUserPersonalInformationDomainAdapter;
     });
     And('I get the contactInformation property', () => {
@@ -358,9 +371,11 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       adapter = new VendorUserDomainAdapter(doc);
     });
     When('I get the personalInformation property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       personalInformation = adapter.personalInformation as VendorUserPersonalInformationDomainAdapter;
     });
     And('I get the contactInformation property', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       contactInformation = personalInformation.contactInformation as VendorUserContactInformationDomainAdapter;
     });
     And('I get the email property', () => {
@@ -387,6 +402,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   BeforeEachScenario(() => {
     converter = new VendorUserConverter();
     doc = makeVendorUserDoc();
+    // biome-ignore lint/plugin/no-type-assertion: test file
     domainObject = {} as Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
     result = undefined;
   });
@@ -405,6 +421,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       converter = new VendorUserConverter();
     });
     When('I call toDomain with the Mongoose VendorUser document', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = converter.toDomain(doc, makeMockPassport()) as Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
     });
     Then('I should receive a VendorUser domain object', () => {
@@ -447,6 +464,7 @@ test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
       domainObject = new Domain.Contexts.User.VendorUser.VendorUser(mockAdapter, makeMockPassport());
     });
     When('I call toPersistence with the VendorUser domain object', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       result = converter.toPersistence(domainObject) as VendorUser;
     });
     Then('I should receive a Mongoose VendorUser document', () => {

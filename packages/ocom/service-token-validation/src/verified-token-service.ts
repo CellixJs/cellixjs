@@ -67,7 +67,8 @@ export class VerifiedTokenService {
   refreshCollection() {
     if (!this.openIdConfigs) { return }
     for (const configKey of [...this.openIdConfigs.keys()]) {
-    const openIdConfig = this.openIdConfigs.get(configKey) as OpenIdConfig;
+    const openIdConfig = this.openIdConfigs.get(configKey);
+      if (!openIdConfig) continue;
       const newKeyStore = {
         keyStore: createRemoteJWKSet(new URL(openIdConfig.oidcEndpoint)),
         issuerUrl: openIdConfig.issuerUrl
@@ -99,7 +100,10 @@ export class VerifiedTokenService {
     if (!this.keyStoreCollection.has(configKey)) {
       throw new Error('Invalid OpenIdConfig Key');
     }
-    const openIdConfig = this.openIdConfigs.get(configKey) as OpenIdConfig;
+    const openIdConfig = this.openIdConfigs.get(configKey);
+    if (!openIdConfig) {
+      throw new Error('OpenIdConfig not found for key');
+    }
 
     const jwtVerifyOptions: JWTVerifyOptions = {
       audience: openIdConfig.audience,
@@ -110,9 +114,12 @@ export class VerifiedTokenService {
     }
 
     const keyStoreEntry = this.keyStoreCollection.get(configKey)?.keyStore;
+    if (!keyStoreEntry) {
+      throw new Error('KeyStore not found for key');
+    }
     return await jwtVerify(
       bearerToken,
-      keyStoreEntry as GetKeyFunction<JWSHeaderParameters, FlattenedJWSInput>,
+      keyStoreEntry,
       jwtVerifyOptions
     );
   }

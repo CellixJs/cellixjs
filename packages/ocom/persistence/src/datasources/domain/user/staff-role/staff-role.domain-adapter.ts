@@ -39,6 +39,7 @@ export class StaffRoleDomainAdapter
 			this.doc.set('permissions', {});
 		}
 		return new StaffRolePermissionsAdapter(
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			this.doc.permissions as StaffRolePermissions,
 		);
 	}

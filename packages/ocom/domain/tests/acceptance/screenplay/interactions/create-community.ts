@@ -6,7 +6,9 @@ import { ManageCommunities } from '../abilities/manage-communities.ts';
 
 // Global storage for test results (simplified approach)
 export const CommunityCreationResults = {
+  // biome-ignore lint/plugin/no-type-assertion: test file
   createdCommunity: null as Community<CommunityProps> | null,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   creationError: null as Error | null
 };
 
@@ -34,12 +36,15 @@ export class CreateCommunity extends Interaction {
       domain: '',
       whiteLabelDomain: null,
       handle: null,
+      // biome-ignore lint/plugin/no-type-assertion: test file
       createdBy: {} as EndUserEntityReference,
       createdAt: new Date(),
       updatedAt: new Date(),
       schemaVersion: '1.0.0',
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as CommunityProps;
 
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const createdBy = {} as EndUserEntityReference;
     
     return new CreateCommunity(communityData, name, createdBy);
@@ -65,6 +70,7 @@ export class CreateCommunity extends Interaction {
    * Performs the interaction
    */
   performAs(actor: UsesAbilities & AnswersQuestions): Promise<void> {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     const ability = ManageCommunities.as(actor as Actor);
     const passport = ability.getPassport();
 

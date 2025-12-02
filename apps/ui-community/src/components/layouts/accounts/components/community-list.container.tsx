@@ -2,7 +2,6 @@ import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import {
   AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-  type AccountsCommunityListContainerCommunityFieldsFragment,
   type AccountsCommunityListContainerMemberFieldsFragment,
   AccountsCommunityListContainerMembersForCurrentEndUserDocument,
 } from '../../../../generated.tsx';
@@ -43,8 +42,8 @@ export const CommunityListContainer: React.FC = () => {
       hasDataComponent={
         <CommunityList 
             data={{ 
-                communities: communityData?.communitiesForCurrentEndUser as AccountsCommunityListContainerCommunityFieldsFragment[],
-                members: members as AccountsCommunityListContainerMemberFieldsFragment[][]
+                communities: (communityData?.communitiesForCurrentEndUser ?? []).filter((c): c is NonNullable<typeof c> => c !== null),
+                members: members
             }} 
         />}
       noDataComponent={<div>No Data...</div>}

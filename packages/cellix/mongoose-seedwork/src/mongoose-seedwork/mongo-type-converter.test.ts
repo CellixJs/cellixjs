@@ -47,6 +47,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v1',
         version: 1,
         foo: 'bar',
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       passport = 'my-passport';
       converter = new TestConverter(TestAdapter, TestDomain);
@@ -72,6 +73,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v2',
         version: 2,
         foo: 'baz',
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       adapter = new TestAdapter(doc);
       domain = new TestDomain(adapter, 'passport');
@@ -94,6 +96,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v3',
         version: 3,
         foo: 'adapter',
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       converter = new TestConverter(TestAdapter, TestDomain);
     });
@@ -115,6 +118,7 @@ test.for(feature, ({ Scenario }) => {
         schemaVersion: 'v4',
         version: 4,
         foo: 'adapter2',
+      // biome-ignore lint/plugin/no-type-assertion: test file
       } as TestDoc);
       adapter = new TestAdapter(doc);
       domain = new TestDomain(adapter, 'passport');

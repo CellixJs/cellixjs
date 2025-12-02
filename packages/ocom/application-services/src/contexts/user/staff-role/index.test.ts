@@ -53,6 +53,7 @@ function makeMockStaffRole(overrides: Partial<Domain.Contexts.User.StaffRole.Sta
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
 }
 
@@ -85,6 +86,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
           },
         },
       },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as DataSources;
 
     service = StaffRole(dataSources);

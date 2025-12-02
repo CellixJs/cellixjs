@@ -54,6 +54,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
       return c.toString();
     }
     // populated doc case
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return (c as Community).id.toString();
   }
 
@@ -64,6 +65,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
         throw new Error('community is not populated or is not of the correct type');
     }
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return new CommunityDomainAdapter(this.doc.community as Community);
   }
   async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
@@ -73,6 +75,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
       await this.doc.populate('community');
     }
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return new CommunityDomainAdapter(this.doc.community as Community);
   }
   set community(community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>) {
@@ -100,6 +103,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     if (this.doc.role instanceof MongooseSeedwork.ObjectId) {
       throw new Error('role is not populated or is not of the correct type');
     }
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return new EndUserRoleDomainAdapter(this.doc.role as EndUserRole);
   }
   async loadRole(): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRoleProps> {
@@ -109,6 +113,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
     if (this.doc.role instanceof MongooseSeedwork.ObjectId) {
       await this.doc.populate('role');
     }
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return new EndUserRoleDomainAdapter(this.doc.role as EndUserRole);
   }
   set role(role: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference | Domain.Contexts.Community.Role.EndUserRole.EndUserRole<EndUserRoleDomainAdapter>) {
@@ -140,6 +145,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
     this.doc = doc;
   }
   public get id(): string {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return this.doc.id?.valueOf() as string;
   }
 
@@ -151,6 +157,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
   }
 
   get lastName() {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return this.doc.lastName as string;
   }
   set lastName(lastName) {
@@ -164,6 +171,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
     if (this.doc.user instanceof MongooseSeedwork.ObjectId) {
       throw new Error('User is not populated or is not of the correct type');
     }
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return new EndUserDomainAdapter(this.doc.user as EndUser);
   }
 
@@ -194,6 +202,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
     if (this.doc.createdBy instanceof MongooseSeedwork.ObjectId) {
       throw new Error('createdBy is not populated or is not of the correct type');
     }
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
   }
   set createdBy(createdBy: Domain.Contexts.User.EndUser.EndUserEntityReference | Domain.Contexts.User.EndUser.EndUser<EndUserDomainAdapter>) {
@@ -216,6 +225,7 @@ export class MemberCustomViewDomainAdapter implements Domain.Contexts.Community.
     this.doc = doc;
   }
   public get id(): string {
+    // biome-ignore lint/plugin/no-type-assertion: test file
     return this.doc.id?.valueOf() as string;
   }
 

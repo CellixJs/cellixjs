@@ -15,12 +15,14 @@ const feature = await loadFeature(
 function makeServiceTicketV1EntityReference(): ServiceTicketV1EntityReference {
 	return vi.mocked({
 		id: 'service-ticket-id',
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as ServiceTicketV1EntityReference);
 }
 
 function makeViolationTicketV1EntityReference(): ViolationTicketV1EntityReference {
 	return vi.mocked({
 		id: 'violation-ticket-id',
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as ViolationTicketV1EntityReference);
 }
 

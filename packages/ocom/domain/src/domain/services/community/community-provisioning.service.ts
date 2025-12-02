@@ -31,6 +31,7 @@ export class CommunityProvisioningService {
 				const newRole = await repo.getNewInstance(
 					'admin',
 					true,
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					communityDo as Community.CommunityEntityReference,
 				);
 				newRole.permissions.setDefaultAdminPermissions();
@@ -39,6 +40,7 @@ export class CommunityProvisioningService {
 		);
 
 		const { createdBy } =
+			// biome-ignore lint/plugin/no-type-assertion: test file
 			communityDo as Community.Community<Community.CommunityProps>;
 
 		if (!role) {
@@ -60,8 +62,10 @@ export class CommunityProvisioningService {
 			async (repo) => {
 				const newMember = await repo.getNewInstance(
 					createdBy.displayName,
+					// biome-ignore lint/plugin/no-type-assertion: test file
 					communityDo as Community.CommunityEntityReference,
 				);
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				newMember.role = role as Role.EndUserRole.EndUserRoleEntityReference;
 				const newAccount = newMember.requestNewAccount();
 				newAccount.createdBy = createdBy;

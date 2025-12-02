@@ -54,7 +54,7 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
       <Dropdown
         menu={{
           items: (props.data?.members[i] ?? []).map((member) => ({
-            key: member.id as string,
+            key: member.id ?? '',
             label: (
               <Button
                 type="link"
@@ -80,7 +80,7 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
           items: (props.data?.members[i] ?? []).
             filter((member) => member.isAdmin)
             .map((member) => ({
-              key: member.id as string,
+              key: member.id ?? '',
               label: (
                 <Button
                   type="link"

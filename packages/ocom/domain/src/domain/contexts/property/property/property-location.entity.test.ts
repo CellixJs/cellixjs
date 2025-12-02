@@ -16,6 +16,7 @@ const feature = await loadFeature(
 test.for(feature, ({ Scenario }) => {
 	const mockVisa = {
 		determineIf: vi.fn(),
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as PropertyVisa;
 
 	const validAddressProps: PropertyLocationAddressProps = {

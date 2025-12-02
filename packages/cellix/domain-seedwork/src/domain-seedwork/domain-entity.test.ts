@@ -58,6 +58,7 @@ test.for(feature, ({ Scenario }) => {
       try {
         throw new PermissionError('Not allowed');
       } catch (e) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         error = e as Error;
       }
     });

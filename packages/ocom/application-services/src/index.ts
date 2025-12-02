@@ -11,7 +11,18 @@ export interface ApplicationServices {
     get verifiedUser(): VerifiedUser | null;
 }
 
-export interface VerifiedJwt {
+// JWTPayload from jose library - defining inline to avoid adding jose dependency
+type JWTPayload = Record<string, unknown> & {
+  iss?: string;
+  sub?: string;
+  aud?: string | string[];
+  exp?: number;
+  nbf?: number;
+  iat?: number;
+  jti?: string;
+};
+
+export interface VerifiedJwt extends JWTPayload {
   given_name: string;
   family_name: string;
   email: string;
@@ -22,7 +33,7 @@ export interface VerifiedJwt {
 }
 
 export interface VerifiedUser {
-  verifiedJwt?: VerifiedJwt | undefined;
+  verifiedJwt?: JWTPayload | undefined;
   openIdConfigKey?: string | undefined;
   hints?: PrincipalHints | undefined;
 }
@@ -45,13 +56,13 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
     const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints): Promise<ApplicationServices> => {
         const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
         const tokenValidationResult = accessToken
-            ? await infrastructureServicesRegistry.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken)
+            ? await infrastructureServicesRegistry.tokenValidationService.verifyJwt(accessToken)
             : null;
         let passport = Domain.PassportFactory.forGuest();
         if (tokenValidationResult !== null) {
             const { verifiedJwt, openIdConfigKey } = tokenValidationResult;
             const { readonlyDataSource } = infrastructureServicesRegistry.dataSourcesFactory.withSystemPassport();
-            if (openIdConfigKey === 'AccountPortal') {
+            if (openIdConfigKey === 'AccountPortal' && verifiedJwt.sub) {
 
                 const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
                 const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithRole(hints?.memberId) : null;

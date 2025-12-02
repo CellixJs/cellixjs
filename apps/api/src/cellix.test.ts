@@ -89,6 +89,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       startActiveSpan: vi.fn((_name: string, callback: (span: typeof mockSpan) => Promise<void>) => {
         return callback(mockSpan);
       }),
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as Tracer;
 
     // Mock trace.getTracer
@@ -135,6 +136,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Registering an infrastructure service', ({ Given, When, Then, And }) => {
     Given('a Cellix instance in infrastructure phase', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
     });
 
@@ -157,6 +159,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Cellix instance with a registered service', () => {
       cellix = Cellix.initializeInfrastructureServices((registry) => {
         registry.registerInfrastructureService(mockService);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       }) as Cellix<unknown, unknown>;
     });
 
@@ -176,6 +179,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let result: ReturnType<Cellix<unknown, unknown>['setContext']>;
 
     Given('a Cellix instance in infrastructure phase', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
     });
 
@@ -200,6 +204,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Setting context in wrong phase', ({ Given, When, Then }) => {
     Given('a Cellix instance in context phase', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
     });
@@ -219,6 +224,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     let cellixWithContext: ReturnType<Cellix<unknown, unknown>['setContext']>;
 
     Given('a Cellix instance in context phase with context creator set', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
       cellixWithContext = cellix.setContext(() => ({}));
     });
@@ -243,6 +249,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Initializing application services without context', ({ Given, When, Then }) => {
     Given('a Cellix instance in context phase without context creator', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
       // Call setContext to transition to context phase
       cellix.setContext(() => ({}));
@@ -263,6 +270,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Registering an Azure Function HTTP handler', ({ Given, When, Then, And }) => {
     Given('a Cellix instance in app-services phase', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
       cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
@@ -294,6 +302,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Registering handler in wrong phase', ({ Given, When, Then }) => {
     Given('a Cellix instance in infrastructure phase', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
     });
 
@@ -318,6 +327,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Cellix instance in handlers phase with all configurations', () => {
       cellix = Cellix.initializeInfrastructureServices((registry) => {
         registry.registerInfrastructureService(mockService);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
       cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
@@ -332,6 +342,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       result = cellix.startUp();
       await result;
       // Manually trigger the appStart hook to simulate Azure Functions runtime
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const mockHook = app.hook.appStart as unknown as { mock: { calls: [(() => Promise<void>)][] } };
       const appStartCallback = mockHook.mock.calls[0]?.[0];
       if (appStartCallback) {
@@ -363,6 +374,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Starting up without context configuration', ({ Given, When, Then }) => {
     Given('a Cellix instance in handlers phase without context creator', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
       cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
@@ -390,6 +402,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a started Cellix application with registered services', async () => {
       cellix = Cellix.initializeInfrastructureServices((registry) => {
         registry.registerInfrastructureService(mockService);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
       cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
@@ -412,6 +425,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Retrieving unregistered service', ({ Given, When, Then }) => {
     Given('a started Cellix application', async () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
       cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
@@ -436,6 +450,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Accessing context before initialization', ({ Given, When, Then }) => {
     Given('a Cellix instance before startup', () => {
+      // biome-ignore lint/plugin/no-type-assertion: test file
       cellix = Cellix.initializeInfrastructureServices(() => { /* no op */ }) as Cellix<unknown, unknown>;
     });
 
@@ -452,6 +467,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Cellix application during appStart hook', () => {
       cellix = Cellix.initializeInfrastructureServices((registry) => {
         registry.registerInfrastructureService(mockService);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
       cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
@@ -465,6 +481,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     When('services are started', async () => {
       await cellix.startUp();
       // Manually trigger the appStart hook to simulate Azure Functions runtime
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const mockHook = app.hook.appStart as unknown as { mock: { calls: [(() => Promise<void>)][] } };
       const appStartCallback = mockHook.mock.calls[0]?.[0];
       if (appStartCallback) {
@@ -495,6 +512,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a started Cellix application during appTerminate hook', async () => {
       cellix = Cellix.initializeInfrastructureServices((registry) => {
         registry.registerInfrastructureService(mockService);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
       cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
@@ -526,6 +544,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a Cellix application with a service that fails to start', () => {
       cellix = Cellix.initializeInfrastructureServices((registry) => {
         registry.registerInfrastructureService(failingService);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
       cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
@@ -539,6 +558,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     When('appStart hook executes', async () => {
       await cellix.startUp();
       // Manually trigger the appStart hook to simulate Azure Functions runtime
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const mockHook = app.hook.appStart as unknown as { mock: { calls: [(() => Promise<void>)][] } };
       const appStartCallback = mockHook.mock.calls[0]?.[0];
       if (appStartCallback) {
@@ -563,6 +583,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a started Cellix application with a service that fails to stop', async () => {
       cellix = Cellix.initializeInfrastructureServices((registry) => {
         registry.registerInfrastructureService(failingService);
+      // biome-ignore lint/plugin/no-type-assertion: test file
       }) as Cellix<unknown, unknown>;
       cellix.setContext(() => ({}));
       cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));

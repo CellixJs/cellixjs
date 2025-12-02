@@ -19,6 +19,7 @@ test.for(feature, ({ Scenario }) => {
       try {
         throw new NotFoundError('Item not found');
       } catch (e) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         error = e as Error;
       }
     });

@@ -236,6 +236,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       }));
 
       // Patch the broadcaster to throw synchronously
+      // biome-ignore lint/plugin/no-type-assertion: test file
       const bus = NodeEventBusInstance as unknown as { broadcaster: { broadcast: (event: string, data: unknown) => void } };
       const originalBroadcast = bus.broadcaster.broadcast;
       const spy = vi.spyOn(bus.broadcaster, 'broadcast').mockImplementation(() => {

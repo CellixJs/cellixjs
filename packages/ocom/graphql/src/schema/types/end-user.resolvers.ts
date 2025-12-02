@@ -3,15 +3,32 @@ import type { GraphContext } from "../../init/context.ts";
 import type { Resolvers } from "../builder/generated.ts";
 import { getRequestedFieldPaths } from "../resolver-helper.ts";
 
+// Helper to safely extract string property from JWT payload
+function getStringProperty(obj: Record<string, unknown> | undefined, key: string): string | undefined {
+    const value = obj?.[key];
+    return typeof value === 'string' ? value : undefined;
+}
+
 const endUser: Resolvers = {
     Query: {
         currentEndUserAndCreateIfNotExists: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
-            if (!context.applicationServices.verifiedUser?.verifiedJwt) { throw new Error('Unauthorized'); }
+            const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
+            if (!jwt) { throw new Error('Unauthorized'); }
+            
+            const externalId = getStringProperty(jwt, 'sub');
+            const lastName = getStringProperty(jwt, 'family_name');
+            const restOfName = getStringProperty(jwt, 'given_name');
+            const email = getStringProperty(jwt, 'email');
+            
+            if (!externalId || !email) {
+                throw new Error('Required JWT claims missing');
+            }
+            
             return await context.applicationServices.User.EndUser.createIfNotExists({
-                externalId: context.applicationServices.verifiedUser.verifiedJwt?.sub,
-                lastName: context.applicationServices.verifiedUser.verifiedJwt?.family_name,
-                restOfName: context.applicationServices.verifiedUser.verifiedJwt?.given_name,
-                email: context.applicationServices.verifiedUser.verifiedJwt?.email
+                externalId,
+                lastName,
+                restOfName,
+                email
             });
         },
         endUserById: async (_parent, args: { id: string }, context: GraphContext, info: GraphQLResolveInfo) => {

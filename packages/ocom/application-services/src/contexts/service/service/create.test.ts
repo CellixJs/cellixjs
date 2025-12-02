@@ -17,6 +17,7 @@ function makeMockCommunity(overrides: Partial<Domain.Contexts.Community.Communit
     id: '507f1f77bcf86cd799439011',
     name: 'Test Community',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Domain.Contexts.Community.Community.CommunityEntityReference;
 }
 
@@ -26,6 +27,7 @@ function makeMockService(overrides: Partial<Domain.Contexts.Service.Service.Serv
     serviceName: 'Test Service',
     description: 'Test Description',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Domain.Contexts.Service.Service.ServiceEntityReference;
 }
 
@@ -53,6 +55,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
           },
         },
       },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as DataSources;
 
     createService = create(dataSources);
@@ -98,6 +101,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       try {
         await createService({ serviceName: 'Test Service', description: 'Test Description', communityId: '507f1f77bcf86cd799439011' });
       } catch (err) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         error = err as Error;
       }
     });
@@ -130,6 +134,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       try {
         await createService({ serviceName: 'Test Service', description: 'Test Description', communityId: '507f1f77bcf86cd799439011' });
       } catch (err) {
+        // biome-ignore lint/plugin/no-type-assertion: test file
         error = err as Error;
       }
     });

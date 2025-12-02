@@ -30,6 +30,7 @@ function makePassport(canManageCommunitySettings = true): Passport {
 					fn({ canManageEndUsers: true }),
 			})),
 		},
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as unknown as Passport);
 }
 
@@ -38,6 +39,7 @@ function makeEndUserEntityReference(id: string): EndUserEntityReference {
 		id,
 		userType: 'end-user',
 		displayName: 'Test User',
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	} as EndUserEntityReference;
 }
 
@@ -63,6 +65,7 @@ function findEvent<T>(
 	events: readonly unknown[],
 	eventClass: new (aggregateId: string) => T,
 ): T | undefined {
+	// biome-ignore lint/plugin/no-type-assertion: test file
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
@@ -76,6 +79,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		passport = makePassport(true);
 		baseProps = makeBaseProps();
 		community = new Community(baseProps, passport);
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		newCommunity = undefined as unknown as Community<CommunityProps>;
 	});
 

@@ -1,12 +1,14 @@
 import type { ServiceBase } from '@cellix/api-services-spec';
 import { type OpenIdConfig, VerifiedTokenService } from './verified-token-service.ts';
 
+import type { JWTPayload } from 'jose';
+
 export interface TokenValidation {
-	verifyJwt<ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null>;
+	verifyJwt(token: string): Promise<TokenValidationResult | null>;
 }
 
-export interface TokenValidationResult<ClaimsType> {
-    verifiedJwt: ClaimsType
+export interface TokenValidationResult {
+    verifiedJwt: JWTPayload
     openIdConfigKey: string;
 }
 
@@ -28,7 +30,7 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 					audience: this.tryGetConfigValue(`${envPrefix}_OIDC_AUDIENCE`),
 					issuerUrl: this.tryGetConfigValue(`${envPrefix}_OIDC_ISSUER`),
 					ignoreIssuer: this.tryGetConfigValueWithDefault(`${envPrefix}_OIDC_IGNORE_ISSUER`, 'false') === 'true',
-				} as OpenIdConfig
+				}
 			);
 		}
 		this.tokenVerifier = new VerifiedTokenService(this.tokenSettings, this.refreshInterval);
@@ -39,13 +41,13 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 		return Promise.resolve(this);
 	}
 
-	async verifyJwt<ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null> {
+	async verifyJwt(token: string): Promise<TokenValidationResult | null> {
 		// Try each config key for verification
 		for (const configKey of this.tokenSettings.keys()) {
 			const result = await this.tokenVerifier.getVerifiedJwt(token, configKey);
 			if (result?.payload) {
 				return {
-                    verifiedJwt: result.payload as ClaimsType,
+                    verifiedJwt: result.payload,
                     openIdConfigKey: configKey,
                 }
 			}
@@ -62,17 +64,21 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
         return Promise.resolve();
 	}
 
-	private tryGetConfigValue(configKey: string) {
+	private tryGetConfigValue(configKey: string): string {
 		if (Object.hasOwn(process.env, configKey)) {
-			return process.env[configKey];
+			const value = process.env[configKey];
+			if (value === undefined) {
+				throw new Error(`Environment variable ${configKey} is undefined`);
+			}
+			return value;
 		} else {
 			throw new Error(`Environment variable ${configKey} not set`);
 		}
 	}
 
-	private tryGetConfigValueWithDefault(configKey: string, defaultValue: string) {
+	private tryGetConfigValueWithDefault(configKey: string, defaultValue: string): string {
 		if (Object.hasOwn(process.env, configKey)) {
-			return process.env[configKey];
+			return process.env[configKey] ?? defaultValue;
 		} else {
 			return defaultValue;
 		}

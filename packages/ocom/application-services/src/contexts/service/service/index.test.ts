@@ -29,6 +29,7 @@ function makeMockService(overrides: Partial<Domain.Contexts.Service.Service.Serv
     updatedAt: new Date(),
     schemaVersion: '1.0',
     ...overrides,
+  // biome-ignore lint/plugin/no-type-assertion: test file
   } as Domain.Contexts.Service.Service.ServiceEntityReference;
 }
 
@@ -55,6 +56,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
           },
         },
       },
+    // biome-ignore lint/plugin/no-type-assertion: test file
     } as unknown as DataSources;
 
     service = Service(dataSources);

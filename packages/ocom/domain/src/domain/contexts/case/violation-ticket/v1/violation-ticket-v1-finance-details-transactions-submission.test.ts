@@ -27,6 +27,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			referenceId: 'ref-123',
 			completedOn: new Date('2023-01-01'),
 			vendor: 'Test Vendor',
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		} as unknown as ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReferenceEntityReference;
 
 		props = {

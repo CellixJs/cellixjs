@@ -47,13 +47,14 @@ export function startServerAndCreateHandler<TContext extends BaseContext>(
 		try {
 			const normalizedRequest = await normalizeRequest(req);
 
+			const contextPromise: () => Promise<TContext> = async () => contextFunction({ context, req }) as TContext;
 			const { body, headers, status } = await server.executeHTTPGraphQLRequest({
 				httpGraphQLRequest: normalizedRequest,
-				context: () => contextFunction({ context, req }) as Promise<TContext>,
+				context: contextPromise,
 			});
 
 			if (body.kind === 'chunked') {
-				return {
+				const response: HttpResponseInit = {
 					status: 501,
 					headers: {
 						'content-type': 'application/json',
@@ -66,23 +67,27 @@ export function startServerAndCreateHandler<TContext extends BaseContext>(
 							},
 						],
 					}),
-				} as HttpResponseInit;
+				};
+				return response;
 			}
 
-			return {
+			const response: HttpResponseInit = {
 				status: status ?? 200,
 				headers: {
 					...Object.fromEntries(headers),
 					'content-length': Buffer.byteLength(body.string).toString(),
 				},
 				body: body.string,
-			} as HttpResponseInit;
+			};
+			return response;
 		} catch (e) {
 			context.error('Failure processing GraphQL request', e);
-			return {
+			const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+			const errorResponse: HttpResponseInit = {
 				status: 400,
-				body: (e as Error).message,
-			} as HttpResponseInit;
+				body: errorMessage,
+			};
+			return errorResponse;
 		}
 	};
 }

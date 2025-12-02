@@ -39,6 +39,7 @@ test.for(feature, ({ Scenario, Background }) => {
 			});
 
 			And('I have a property entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				propertyRef = { id: 'property-123' } as PropertyEntityReference;
 			});
 
@@ -70,6 +71,7 @@ test.for(feature, ({ Scenario, Background }) => {
 			});
 
 			And('I have a property entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				propertyRef = { id: 'property-123' } as PropertyEntityReference;
 			});
 
@@ -98,6 +100,7 @@ test.for(feature, ({ Scenario, Background }) => {
 			);
 
 			And('I have a property entity reference', () => {
+				// biome-ignore lint/plugin/no-type-assertion: test file
 				propertyRef = { id: 'property-123' } as PropertyEntityReference;
 			});
 

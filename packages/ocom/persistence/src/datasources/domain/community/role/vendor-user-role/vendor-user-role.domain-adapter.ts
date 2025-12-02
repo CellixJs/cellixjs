@@ -38,6 +38,7 @@ export class VendorUserRoleDomainAdapter
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
 			throw new Error('community is not populated or is not of the correct type');
 		}
+		// biome-ignore lint/plugin/no-type-assertion: test file
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
     async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
@@ -47,6 +48,7 @@ export class VendorUserRoleDomainAdapter
         if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
             await this.doc.populate('community');
         }
+        // biome-ignore lint/plugin/no-type-assertion: test file
         return new CommunityDomainAdapter(this.doc.community as Community);
     }
 	set community(
@@ -72,9 +74,11 @@ export class VendorUserRoleDomainAdapter
     get permissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePermissionsProps {
         if (!this.doc.permissions) {
             // ensure subdocument exists
+            // biome-ignore lint/plugin/no-type-assertion: test file
             this.doc.set('permissions', {} as VendorUserRolePermissions);
         }
         return new VendorUserRolePermissionsDomainAdapter(
+            // biome-ignore lint/plugin/no-type-assertion: test file
             this.doc.permissions as VendorUserRolePermissions,
         );
 	}
