@@ -10,8 +10,12 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     }
   },
   "scripts": {
@@ -25,12 +29,20 @@
     "clean": "rimraf dist"
   },
   "peerDependencies": {
+    "@graphql-tools/load-files": "^7.0.1",
+    "@graphql-tools/merge": "^9.1.1",
+    "@graphql-tools/schema": "^10.0.25",
+    "@graphql-tools/utils": "^10.0.13",
     "graphql": ">16.0.0",
     "graphql-scalars": "^1.24.2"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
+    "@graphql-tools/load-files": "^7.0.1",
+    "@graphql-tools/merge": "^9.1.1",
+    "@graphql-tools/schema": "^10.0.25",
+    "@graphql-tools/utils": "^10.0.13",
     "graphql": "catalog:",
     "graphql-scalars": "^1.24.2",
     "rimraf": "catalog:",

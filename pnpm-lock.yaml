@@ -433,6 +433,18 @@ importers:
       '@cellix/vitest-config':
         specifier: workspace:*
         version: link:../vitest-config
+      '@graphql-tools/load-files':
+        specifier: ^7.0.1
+        version: 7.0.1(graphql@16.12.0)
+      '@graphql-tools/merge':
+        specifier: ^9.1.1
+        version: 9.1.6(graphql@16.12.0)
+      '@graphql-tools/schema':
+        specifier: ^10.0.25
+        version: 10.0.30(graphql@16.12.0)
+      '@graphql-tools/utils':
+        specifier: ^10.0.13
+        version: 10.11.0(graphql@16.12.0)
       graphql:
         specifier: 'catalog:'
         version: 16.12.0

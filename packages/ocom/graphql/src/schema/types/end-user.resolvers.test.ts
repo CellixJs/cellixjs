@@ -17,7 +17,7 @@ import {
 // Mock the resolver helper
 
 const test = { for: describeFeature };
-vi.mock('@cellix/graphql-core', () => ({
+vi.mock('@cellix/graphql-core/utils', () => ({
   getRequestedFieldPaths: vi.fn().mockReturnValue(['id', 'email']),
 }));
 

@@ -4,8 +4,7 @@
  */
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadFilesSync } from '@graphql-tools/load-files';
-import { mergeResolvers } from '@graphql-tools/merge';
+import { loadResolversFromGlob } from '@cellix/graphql-core';
 import type { Resolvers } from './generated.ts';
 
 // ESM-safe __dirname
@@ -17,8 +16,5 @@ const __dirname = path.dirname(__filename);
 const resolversGlob = path.resolve(__dirname, '../types/**/*.resolvers.{js,cjs,mjs}');
 const permissionsGlob = path.resolve(__dirname, '../types/**/*.permissions.{js,cjs,mjs}');
 
-const resolversArray = loadFilesSync(resolversGlob);
-const permissionsArray = loadFilesSync(permissionsGlob);
-
-export const resolvers: Resolvers = mergeResolvers(resolversArray);
-export const permissions: Resolvers = mergeResolvers(permissionsArray);
+export const resolvers: Resolvers = loadResolversFromGlob(resolversGlob);
+export const permissions: Resolvers = loadResolversFromGlob(permissionsGlob);
