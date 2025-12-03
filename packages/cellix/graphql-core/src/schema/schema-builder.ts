@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
  * Load base Cellix GraphQL schema files
  */
 function loadBaseCellixTypeDefs() {
-  const baseSchemaGlob = path.resolve(__dirname, '../schema/**/*.graphql');
+  const baseSchemaGlob = path.resolve(__dirname, '../../src/schema/**/*.graphql');
   return loadFilesSync(baseSchemaGlob);
 }
 
