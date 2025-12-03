@@ -5,7 +5,7 @@ import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { IResolvers } from '@graphql-tools/utils';
 import { typeDefs as scalarTypeDefs, resolvers as scalarResolvers } from 'graphql-scalars';
-import type { GraphQLSchema } from 'graphql';
+import type { GraphQLSchema, DocumentNode } from 'graphql';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,7 +25,7 @@ function loadBaseCellixTypeDefs() {
  * @returns A complete executable GraphQL schema
  */
 export function buildCellixSchema<TContext = Record<string, unknown>>(
-  additionalTypeDefs: string | string[] = [],
+  additionalTypeDefs: (string | DocumentNode) | Array<string | DocumentNode> = [],
   additionalResolvers: IResolvers<unknown, TContext>[] = [],
 ): GraphQLSchema {
   // Load base Cellix schema files

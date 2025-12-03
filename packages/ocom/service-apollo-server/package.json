@@ -32,7 +32,6 @@
     "graphql-middleware": "^6.1.35"
   },
   "devDependencies": {
-    "@amiceli/vitest-cucumber": "^5.1.2",
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
     "@types/graphql-depth-limit": "^1.1.6",
