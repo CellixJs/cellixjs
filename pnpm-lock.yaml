@@ -426,13 +426,7 @@ importers:
         version: 5.9.3
 
   packages/cellix/graphql-core:
-    devDependencies:
-      '@cellix/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
-      '@cellix/vitest-config':
-        specifier: workspace:*
-        version: link:../vitest-config
+    dependencies:
       '@graphql-tools/load-files':
         specifier: ^7.0.1
         version: 7.0.1(graphql@16.12.0)
@@ -446,11 +440,18 @@ importers:
         specifier: ^10.0.13
         version: 10.11.0(graphql@16.12.0)
       graphql:
-        specifier: 'catalog:'
+        specifier: ^16.10.0
         version: 16.12.0
       graphql-scalars:
         specifier: ^1.24.2
         version: 1.25.0(graphql@16.12.0)
+    devDependencies:
+      '@cellix/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@cellix/vitest-config':
+        specifier: workspace:*
+        version: link:../vitest-config
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -923,6 +924,9 @@ importers:
       '@cellix/api-services-spec':
         specifier: workspace:*
         version: link:../../cellix/api-services-spec
+      '@opentelemetry/api':
+        specifier: 1.9.0
+        version: 1.9.0
       graphql:
         specifier: 'catalog:'
         version: 16.12.0

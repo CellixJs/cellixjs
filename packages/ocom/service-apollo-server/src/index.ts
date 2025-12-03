@@ -3,6 +3,7 @@ import type { ServiceBase } from '@cellix/api-services-spec';
 import depthLimit from 'graphql-depth-limit';
 import { applyMiddleware } from 'graphql-middleware';
 import type { GraphQLSchema } from 'graphql';
+import { trace, type Span } from '@opentelemetry/api';
 
 /**
  * Configuration options for the Apollo Server service.
@@ -46,6 +47,7 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
 {
 	private serverInternal: ApolloServer<TContext> | undefined;
 	private readonly options: ServiceApolloServerOptions;
+	private readonly tracer = trace.getTracer('service-apollo-server');
 
 	constructor(options: ServiceApolloServerOptions) {
 		this.options = options;
@@ -56,46 +58,64 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
 	 * Creates the server instance with the configured schema and options.
 	 */
 	public async startUp(): Promise<ApolloServer<TContext>> {
-		const {
-			schema,
-			middleware,
-			introspection = process.env.NODE_ENV !== 'production',
-			allowBatchedHttpRequests = true,
-			maxDepth = 10,
-		} = this.options;
+		return await this.tracer.startActiveSpan('ServiceApolloServer.startUp', async (span: Span) => {
+			try {
+				const {
+					schema,
+					middleware,
+					introspection = process.env.NODE_ENV !== 'production',
+					allowBatchedHttpRequests = true,
+					maxDepth = 10,
+				} = this.options;
 
-		// Apply middleware if provided
-		const finalSchema = middleware
-			? applyMiddleware(schema, middleware)
-			: schema;
+				// Apply middleware if provided
+				const finalSchema = middleware
+					? applyMiddleware(schema, middleware)
+					: schema;
 
-		this.serverInternal = new ApolloServer<TContext>({
-			schema: finalSchema,
-			introspection,
-			allowBatchedHttpRequests,
-			validationRules: [depthLimit(maxDepth)],
+				this.serverInternal = new ApolloServer<TContext>({
+					schema: finalSchema,
+					introspection,
+					allowBatchedHttpRequests,
+					validationRules: [depthLimit(maxDepth)],
+				});
+
+				// Start the server in the background
+				await this.serverInternal.start();
+
+				span.addEvent('ServiceApolloServer started');
+				return this.serverInternal;
+			} catch (error) {
+				span.recordException(error as Error);
+				throw error;
+			} finally {
+				span.end();
+			}
 		});
-
-		// Start the server in the background
-		await this.serverInternal.start();
-
-		console.log('ServiceApolloServer started');
-		return this.serverInternal;
 	}
 
 	/**
 	 * Stops the Apollo Server.
 	 */
 	public async shutDown(): Promise<void> {
-		if (!this.serverInternal) {
-			throw new Error(
-				'ServiceApolloServer is not started - shutdown cannot proceed',
-			);
-		}
+		return await this.tracer.startActiveSpan('ServiceApolloServer.shutDown', async (span: Span) => {
+			try {
+				if (!this.serverInternal) {
+					throw new Error(
+						'ServiceApolloServer is not started - shutdown cannot proceed',
+					);
+				}
 
-		await this.serverInternal.stop();
-		this.serverInternal = undefined;
-		console.log('ServiceApolloServer stopped');
+				await this.serverInternal.stop();
+				this.serverInternal = undefined;
+				span.addEvent('ServiceApolloServer stopped');
+			} catch (error) {
+				span.recordException(error as Error);
+				throw error;
+			} finally {
+				span.end();
+			}
+		});
 	}
 
 	/**

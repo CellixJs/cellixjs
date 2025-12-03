@@ -26,6 +26,7 @@
   "dependencies": {
     "@apollo/server": "^5.0.0",
     "@cellix/api-services-spec": "workspace:*",
+    "@opentelemetry/api": "1.9.0",
     "graphql": "catalog:",
     "graphql-depth-limit": "^1.1.0",
     "graphql-middleware": "^6.1.35"

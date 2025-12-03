@@ -241,8 +241,8 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       service = new ServiceApolloServer({ schema: testSchema });
     });
 
-    When('shutDown is called', () => {
-      expect(() => service.shutDown()).rejects.toThrow(
+    When('shutDown is called', async () => {
+      await expect(service.shutDown()).rejects.toThrow(
         'ServiceApolloServer is not started - shutdown cannot proceed'
       );
     });
