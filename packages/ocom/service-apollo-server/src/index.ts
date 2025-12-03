@@ -2,7 +2,7 @@ import { ApolloServer, type BaseContext } from '@apollo/server';
 import type { ServiceBase } from '@cellix/api-services-spec';
 import { trace, type Tracer, type Span, SpanStatusCode } from '@opentelemetry/api';
 import depthLimit from 'graphql-depth-limit';
-import { applyMiddleware } from 'graphql-middleware';
+import { applyMiddleware, type IMiddleware } from 'graphql-middleware';
 import type { GraphQLSchema } from 'graphql';
 
 /**
@@ -17,7 +17,7 @@ export interface ServiceApolloServerOptions {
 	/**
 	 * Optional middleware to apply to the schema (e.g., permissions).
 	 */
-	middleware?: unknown;
+	middleware?: IMiddleware;
 
 	/**
 	 * Enable GraphQL introspection.

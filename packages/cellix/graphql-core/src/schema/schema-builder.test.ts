@@ -74,7 +74,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('the schema should include base Cellix types', () => {
-      expect(loadFilesSync).toHaveBeenCalledWith(path.resolve(__dirname, '../../src/schema/**/*.graphql'));
+      expect(loadFilesSync).toHaveBeenCalledWith(path.resolve(__dirname, '../..', 'src/schema/**/*.graphql'));
     });
 
     And('the schema should include GraphQL scalars', () => {
