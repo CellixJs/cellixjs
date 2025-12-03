@@ -7,5 +7,5 @@ export interface ApiContextSpec {
 	//mongooseService:Exclude<ServiceMongoose, ServiceBase>;
 	dataSourcesFactory: DataSourcesFactory; // NOT an infrastructure service
     tokenValidationService: TokenValidation;
-	apolloServerService: ServiceApolloServer<BaseContext>; // Apollo Server infrastructure service
+	apolloServerService: ServiceApolloServer<BaseContext>;
 }
