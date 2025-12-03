@@ -1,9 +1,9 @@
 import { ApolloServer, type BaseContext } from '@apollo/server';
 import type { ServiceBase } from '@cellix/api-services-spec';
+import { trace, type Tracer, type Span, SpanStatusCode } from '@opentelemetry/api';
 import depthLimit from 'graphql-depth-limit';
 import { applyMiddleware } from 'graphql-middleware';
 import type { GraphQLSchema } from 'graphql';
-import { trace, type Span } from '@opentelemetry/api';
 
 /**
  * Configuration options for the Apollo Server service.
@@ -47,7 +47,7 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
 {
 	private serverInternal: ApolloServer<TContext> | undefined;
 	private readonly options: ServiceApolloServerOptions;
-	private readonly tracer = trace.getTracer('service-apollo-server');
+	private readonly tracer: Tracer = trace.getTracer('service-apollo-server');
 
 	constructor(options: ServiceApolloServerOptions) {
 		this.options = options;
@@ -84,9 +84,13 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
 				await this.serverInternal.start();
 
 				span.addEvent('ServiceApolloServer started');
+				span.setStatus({ code: SpanStatusCode.OK });
 				return this.serverInternal;
 			} catch (error) {
-				span.recordException(error as Error);
+				span.setStatus({ code: SpanStatusCode.ERROR, message: error instanceof Error ? error.message : 'Startup failed' });
+				if (error instanceof Error) {
+					span.recordException(error);
+				}
 				throw error;
 			} finally {
 				span.end();
@@ -108,9 +112,14 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
 
 				await this.serverInternal.stop();
 				this.serverInternal = undefined;
+
 				span.addEvent('ServiceApolloServer stopped');
+				span.setStatus({ code: SpanStatusCode.OK });
 			} catch (error) {
-				span.recordException(error as Error);
+				span.setStatus({ code: SpanStatusCode.ERROR, message: error instanceof Error ? error.message : 'Shutdown failed' });
+				if (error instanceof Error) {
+					span.recordException(error);
+				}
 				throw error;
 			} finally {
 				span.end();

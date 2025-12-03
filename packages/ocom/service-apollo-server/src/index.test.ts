@@ -6,6 +6,7 @@ import { applyMiddleware } from 'graphql-middleware';
 import depthLimit from 'graphql-depth-limit';
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { expect, vi, type MockedFunction } from 'vitest';
+import type { Span, SpanContext } from '@opentelemetry/api';
 import { ServiceApolloServer, type ServiceApolloServerOptions } from './index.ts';
 
 const test = { for: describeFeature };
@@ -25,8 +26,42 @@ vi.mock('graphql-depth-limit', () => ({
   default: vi.fn(),
 }));
 
-// Mock console.log
-const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+// Mock OpenTelemetry
+const mockSpan = {
+  addEvent: vi.fn(),
+  setStatus: vi.fn(),
+  recordException: vi.fn(),
+  end: vi.fn(),
+  spanContext: {
+    traceId: 'mock-trace-id',
+    spanId: 'mock-span-id',
+    traceFlags: 1,
+  } as SpanContext,
+  setAttribute: vi.fn(),
+  setAttributes: vi.fn(),
+  addLink: vi.fn(),
+  addLinks: vi.fn(),
+  setParent: vi.fn(),
+  isRecording: vi.fn(() => true),
+  addEvent2: vi.fn(),
+  recordException2: vi.fn(),
+};
+
+const mockTracer = {
+  startActiveSpan: vi.fn(<T>(_name: string, callback: (span: Span) => Promise<T>): Promise<T> => {
+    return callback(mockSpan as unknown as Span);
+  }),
+};
+
+vi.mock('@opentelemetry/api', () => ({
+  trace: {
+    getTracer: vi.fn(() => mockTracer),
+  },
+  SpanStatusCode: {
+    OK: 'OK',
+    ERROR: 'ERROR',
+  },
+}));
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(
@@ -56,7 +91,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     // Reset all mocks
     vi.clearAllMocks();
-    consoleLogSpy.mockClear();
+
+    // Clear span mocks
+    mockSpan.addEvent.mockClear();
+    mockSpan.setStatus.mockClear();
+    mockSpan.recordException.mockClear();
+    mockSpan.end.mockClear();
 
     // Setup mock ApolloServer
     mockApolloServer = {
@@ -118,8 +158,11 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       expect(result).toBe(mockApolloServer);
     });
 
-    And('it should log "ServiceApolloServer started"', () => {
-      expect(consoleLogSpy).toHaveBeenCalledWith('ServiceApolloServer started');
+    And('it should create a span with startUp event', () => {
+      expect(mockTracer.startActiveSpan).toHaveBeenCalledWith('ServiceApolloServer.startUp', expect.any(Function));
+      expect(mockSpan.addEvent).toHaveBeenCalledWith('ServiceApolloServer started');
+      expect(mockSpan.setStatus).toHaveBeenCalledWith({ code: 'OK' });
+      expect(mockSpan.end).toHaveBeenCalled();
     });
   });
 
@@ -213,8 +256,11 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       expect(() => service.server).toThrow();
     });
 
-    And('it should log "ServiceApolloServer stopped"', () => {
-      expect(consoleLogSpy).toHaveBeenCalledWith('ServiceApolloServer stopped');
+    And('it should create a span with shutDown event', () => {
+      expect(mockTracer.startActiveSpan).toHaveBeenCalledWith('ServiceApolloServer.shutDown', expect.any(Function));
+      expect(mockSpan.addEvent).toHaveBeenCalledWith('ServiceApolloServer stopped');
+      expect(mockSpan.setStatus).toHaveBeenCalledWith({ code: 'OK' });
+      expect(mockSpan.end).toHaveBeenCalled();
     });
   });
 
@@ -249,6 +295,108 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     Then('it should throw an error indicating shutdown cannot proceed', () => {
       // Error already thrown in When step
+    });
+  });
+
+  Scenario('Starting up with server start failure', ({ Given, When, Then, And }) => {
+    Given('a ServiceApolloServer with a schema', () => {
+      service = new ServiceApolloServer({ schema: testSchema });
+    });
+
+    And('the ApolloServer start method will fail', () => {
+      mockApolloServer.start.mockRejectedValue(new Error('Start failed'));
+    });
+
+    When('startUp is called', () => {
+      expect(service.startUp()).rejects.toThrow('Start failed');
+    });
+
+    Then('it should throw an error', () => {
+      // Error already thrown in When step
+    });
+
+    And('it should create a span with error status', () => {
+      expect(mockTracer.startActiveSpan).toHaveBeenCalledWith('ServiceApolloServer.startUp', expect.any(Function));
+      expect(mockSpan.setStatus).toHaveBeenCalledWith({ code: 'ERROR', message: 'Start failed' });
+      expect(mockSpan.recordException).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockSpan.end).toHaveBeenCalled();
+    });
+  });
+
+  Scenario('Shutting down with server stop failure', ({ Given, When, Then, And }) => {
+    Given('a started ServiceApolloServer', async () => {
+      service = new ServiceApolloServer({ schema: testSchema });
+      await service.startUp();
+    });
+
+    And('the ApolloServer stop method will fail', () => {
+      mockApolloServer.stop.mockRejectedValue(new Error('Stop failed'));
+    });
+
+    When('shutDown is called', () => {
+      expect(service.shutDown()).rejects.toThrow('Stop failed');
+    });
+
+    Then('it should throw an error', () => {
+      // Error already thrown in When step
+    });
+
+    And('it should create a span with error status', () => {
+      expect(mockTracer.startActiveSpan).toHaveBeenCalledWith('ServiceApolloServer.shutDown', expect.any(Function));
+      expect(mockSpan.setStatus).toHaveBeenCalledWith({ code: 'ERROR', message: 'Stop failed' });
+      expect(mockSpan.recordException).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockSpan.end).toHaveBeenCalled();
+    });
+  });
+
+  Scenario('Starting up with non-Error failure', ({ Given, When, Then, And }) => {
+    Given('a ServiceApolloServer with a schema', () => {
+      service = new ServiceApolloServer({ schema: testSchema });
+    });
+
+    And('the ApolloServer start method will fail with non-Error', () => {
+      mockApolloServer.start.mockRejectedValue('String error');
+    });
+
+    When('startUp is called', () => {
+      expect(service.startUp()).rejects.toThrow('String error');
+    });
+
+    Then('it should throw an error', () => {
+      // Error already thrown in When step
+    });
+
+    And('it should create a span with generic error message', () => {
+      expect(mockTracer.startActiveSpan).toHaveBeenCalledWith('ServiceApolloServer.startUp', expect.any(Function));
+      expect(mockSpan.setStatus).toHaveBeenCalledWith({ code: 'ERROR', message: 'Startup failed' });
+      expect(mockSpan.recordException).not.toHaveBeenCalled();
+      expect(mockSpan.end).toHaveBeenCalled();
+    });
+  });
+
+  Scenario('Shutting down with non-Error failure', ({ Given, When, Then, And }) => {
+    Given('a started ServiceApolloServer', async () => {
+      service = new ServiceApolloServer({ schema: testSchema });
+      await service.startUp();
+    });
+
+    And('the ApolloServer stop method will fail with non-Error', () => {
+      mockApolloServer.stop.mockRejectedValue('String error');
+    });
+
+    When('shutDown is called', () => {
+      expect(service.shutDown()).rejects.toThrow('String error');
+    });
+
+    Then('it should throw an error', () => {
+      // Error already thrown in When step
+    });
+
+    And('it should create a span with generic error message', () => {
+      expect(mockTracer.startActiveSpan).toHaveBeenCalledWith('ServiceApolloServer.shutDown', expect.any(Function));
+      expect(mockSpan.setStatus).toHaveBeenCalledWith({ code: 'ERROR', message: 'Shutdown failed' });
+      expect(mockSpan.recordException).not.toHaveBeenCalled();
+      expect(mockSpan.end).toHaveBeenCalled();
     });
   });
 });

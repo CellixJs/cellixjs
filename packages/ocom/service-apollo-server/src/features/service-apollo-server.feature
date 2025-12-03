@@ -12,7 +12,7 @@ Feature: ServiceApolloServer
     Then it should create an ApolloServer instance
     And it should start the server
     And it should return the ApolloServer instance
-    And it should log "ServiceApolloServer started"
+    And it should create a span with startUp event
 
   Scenario: Starting up with middleware applied
     Given a ServiceApolloServer with schema and middleware
@@ -36,7 +36,7 @@ Feature: ServiceApolloServer
     When shutDown is called
     Then it should stop the ApolloServer
     And it should set the server to undefined
-    And it should log "ServiceApolloServer stopped"
+    And it should create a span with shutDown event
 
   Scenario: Accessing server after shutdown
     Given a ServiceApolloServer that has been shut down
@@ -47,3 +47,31 @@ Feature: ServiceApolloServer
     Given a ServiceApolloServer that has not been started
     When shutDown is called
     Then it should throw an error indicating shutdown cannot proceed
+
+  Scenario: Starting up with server start failure
+    Given a ServiceApolloServer with a schema
+    And the ApolloServer start method will fail
+    When startUp is called
+    Then it should throw an error
+    And it should create a span with error status
+
+  Scenario: Shutting down with server stop failure
+    Given a started ServiceApolloServer
+    And the ApolloServer stop method will fail
+    When shutDown is called
+    Then it should throw an error
+    And it should create a span with error status
+
+  Scenario: Starting up with non-Error failure
+    Given a ServiceApolloServer with a schema
+    And the ApolloServer start method will fail with non-Error
+    When startUp is called
+    Then it should throw an error
+    And it should create a span with generic error message
+
+  Scenario: Shutting down with non-Error failure
+    Given a started ServiceApolloServer
+    And the ApolloServer stop method will fail with non-Error
+    When shutDown is called
+    Then it should throw an error
+    And it should create a span with generic error message

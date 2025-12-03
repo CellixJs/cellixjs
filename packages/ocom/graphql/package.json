@@ -27,12 +27,9 @@
     "@apollo/server": "^5.0.0",
     "@cellix/graphql-core": "workspace:*",
     "@graphql-tools/load-files": "^7.0.1",
-    "@graphql-tools/merge": "^9.1.1",
-    "@graphql-tools/schema": "^10.0.25",
     "@ocom/application-services": "workspace:*",
     "@ocom/domain": "workspace:*",
-    "graphql": "catalog:",
-    "graphql-scalars": "^1.24.2"
+    "graphql": "catalog:"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
