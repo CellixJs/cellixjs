@@ -31,8 +31,8 @@
     "@graphql-tools/schema": "^10.0.25",
     "@ocom/application-services": "workspace:*",
     "@ocom/domain": "workspace:*",
-    "graphql": "^16.10.0",
-    "graphql-middleware": "^6.1.35"
+    "graphql": "catalog:",
+    "graphql-scalars": "^1.24.2"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",

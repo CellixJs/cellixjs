@@ -9,6 +9,9 @@ catalogs:
     '@azure/functions':
       specifier: 4.8.0
       version: 4.8.0
+    graphql:
+      specifier: ^16.10.0
+      version: 16.12.0
     mongodb:
       specifier: 6.18.0
       version: 6.18.0
@@ -153,9 +156,6 @@ importers:
       '@opentelemetry/api':
         specifier: 1.9.0
         version: 1.9.0
-      graphql-middleware:
-        specifier: ^6.1.35
-        version: 6.1.35(graphql@16.12.0)
     devDependencies:
       '@cellix/typescript-config':
         specifier: workspace:*
@@ -426,13 +426,6 @@ importers:
         version: 5.9.3
 
   packages/cellix/graphql-core:
-    dependencies:
-      graphql:
-        specifier: ^16.10.0
-        version: 16.12.0
-      graphql-scalars:
-        specifier: ^1.24.2
-        version: 1.25.0(graphql@16.12.0)
     devDependencies:
       '@cellix/typescript-config':
         specifier: workspace:*
@@ -440,6 +433,12 @@ importers:
       '@cellix/vitest-config':
         specifier: workspace:*
         version: link:../vitest-config
+      graphql:
+        specifier: 'catalog:'
+        version: 16.12.0
+      graphql-scalars:
+        specifier: ^1.24.2
+        version: 1.25.0(graphql@16.12.0)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -783,11 +782,11 @@ importers:
         specifier: workspace:*
         version: link:../domain
       graphql:
-        specifier: ^16.10.0
+        specifier: 'catalog:'
         version: 16.12.0
-      graphql-middleware:
-        specifier: ^6.1.35
-        version: 6.1.35(graphql@16.12.0)
+      graphql-scalars:
+        specifier: ^1.24.2
+        version: 1.25.0(graphql@16.12.0)
     devDependencies:
       '@cellix/typescript-config':
         specifier: workspace:*
@@ -826,7 +825,7 @@ importers:
         specifier: workspace:*
         version: link:../service-apollo-server
       graphql:
-        specifier: ^16.10.0
+        specifier: 'catalog:'
         version: 16.12.0
     devDependencies:
       '@cellix/typescript-config':
@@ -913,7 +912,7 @@ importers:
         specifier: workspace:*
         version: link:../../cellix/api-services-spec
       graphql:
-        specifier: ^16.10.0
+        specifier: 'catalog:'
         version: 16.12.0
       graphql-depth-limit:
         specifier: ^1.1.0
@@ -922,6 +921,9 @@ importers:
         specifier: ^6.1.35
         version: 6.1.35(graphql@16.12.0)
     devDependencies:
+      '@amiceli/vitest-cucumber':
+        specifier: ^5.1.2
+        version: 5.2.1(vitest@3.2.4)
       '@cellix/typescript-config':
         specifier: workspace:*
         version: link:../../cellix/typescript-config
@@ -1083,7 +1085,7 @@ importers:
         specifier: ^5.27.1
         version: 5.29.1(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       graphql:
-        specifier: ^16.10.0
+        specifier: 'catalog:'
         version: 16.12.0
       react:
         specifier: ^19.1.1

@@ -24,13 +24,15 @@
     "test:watch": "vitest",
     "clean": "rimraf dist"
   },
-  "dependencies": {
-    "graphql": "^16.10.0",
+  "peerDependencies": {
+    "graphql": ">16.0.0",
     "graphql-scalars": "^1.24.2"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
+    "graphql": "catalog:",
+    "graphql-scalars": "^1.24.2",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

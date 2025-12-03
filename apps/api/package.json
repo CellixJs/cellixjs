@@ -25,8 +25,8 @@
     "@ocom/application-services": "workspace:*",
     "@ocom/context-spec": "workspace:*",
     "@ocom/event-handler": "workspace:*",
-    "@ocom/graphql": "workspace:*",
     "@ocom/graphql-handler": "workspace:*",
+    "@ocom/graphql": "workspace:*",
     "@ocom/persistence": "workspace:*",
     "@ocom/rest": "workspace:*",
     "@ocom/service-apollo-server": "workspace:*",
@@ -34,8 +34,7 @@
     "@ocom/service-mongoose": "workspace:*",
     "@ocom/service-otel": "workspace:*",
     "@ocom/service-token-validation": "workspace:*",
-    "@opentelemetry/api": "1.9.0",
-    "graphql-middleware": "^6.1.35"
+    "@opentelemetry/api": "1.9.0"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",

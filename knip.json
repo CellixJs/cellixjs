@@ -17,7 +17,10 @@
       "project": ["src/**/*.{ts,tsx,js,jsx}"]
     },
     "packages/cellix/*": {
-      "project": ["src/**/*.ts"]
+      "project": ["src/**/*.ts"],
+      "ignore": [
+        "**/graphql-tools-scalars.ts"
+      ]
     },
     "packages/cellix/mongoose-seedwork": {
         "entry": ["src/index.ts"],
@@ -46,10 +49,7 @@
     },
     "packages/ocom/*": {
       "entry": ["src/index.ts"],
-      "project": ["src/**/*.ts"],
-      "ignore": [
-        "**/graphql-tools-scalars.ts"
-      ]
+      "project": ["src/**/*.ts"]
     },
     "packages/ocom/ui-components": {
       "entry": ["src/index.ts"],
