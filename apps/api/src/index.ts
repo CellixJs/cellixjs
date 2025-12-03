@@ -19,10 +19,6 @@ import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import { graphHandlerCreator, type GraphContext } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 
-
-// Store the Apollo Server service instance for handler creation
-let apolloServerServiceInstance: ServiceApolloServer<GraphContext>;
-
 Cellix
     .initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
         serviceRegistry
@@ -39,9 +35,10 @@ Cellix
                 ),
             );
         
-        // Register and store Apollo Server service
-        apolloServerServiceInstance = new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions);
-        serviceRegistry.registerInfrastructureService(apolloServerServiceInstance);
+        // Register Apollo Server service
+        serviceRegistry.registerInfrastructureService(
+            new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions)
+        );
     })
     .setContext((serviceRegistry) => {
         const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(
@@ -61,8 +58,8 @@ Cellix
     .registerAzureFunctionHttpHandler(
         'graphql',
         { route: 'graphql/{*segments}', methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'] },
-        (appServicesFactory) => graphHandlerCreator(
-            apolloServerServiceInstance,
+        (appServicesFactory, infrastructureRegistry) => graphHandlerCreator(
+            infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer),
             appServicesFactory
         ),
     )
