@@ -9,7 +9,12 @@ import { ServiceConverter } from './service.domain-adapter.ts';
 import { ServiceRepository } from './service.repository.ts';
 import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
 
-export const getServiceUnitOfWork = (
+type ServiceUnitOfWorkType = (
+    serviceModel: ServiceModelType,
+    passport: Domain.Passport
+) => Domain.Contexts.Service.Service.ServiceUnitOfWork;
+
+export const getServiceUnitOfWork: ServiceUnitOfWorkType = (
     serviceModel: ServiceModelType,
     passport: Domain.Passport
 ): Domain.Contexts.Service.Service.ServiceUnitOfWork => {

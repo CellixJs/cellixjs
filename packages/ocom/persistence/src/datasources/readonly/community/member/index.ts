@@ -1,10 +1,17 @@
 import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
-import { getMemberReadRepository } from './member.read-repository.ts';
+import { type MemberReadRepository, getMemberReadRepository } from './member.read-repository.ts';
 
 export type { MemberReadRepository } from './member.read-repository.ts';
 
-export const MemberReadRepositoryImpl = (models: ModelsContext, passport: Domain.Passport) => {
+type MemberReadRepositoryImplType = (
+    models: ModelsContext,
+    passport: Domain.Passport
+) => {
+    MemberReadRepo: MemberReadRepository;
+};
+
+export const MemberReadRepositoryImpl: MemberReadRepositoryImplType = (models: ModelsContext, passport: Domain.Passport) => {
     return {
         MemberReadRepo: getMemberReadRepository(models, passport),
     };

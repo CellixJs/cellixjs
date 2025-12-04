@@ -9,7 +9,12 @@ import { EndUserRoleConverter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
 import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 
-export const getEndUserRoleUnitOfWork = (
+type EndUserRoleUnitOfWorkType = (
+    endUserRoleModel: EndUserRoleModelType,
+    passport: Domain.Passport,
+) => Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+
+export const getEndUserRoleUnitOfWork: EndUserRoleUnitOfWorkType = (
     endUserRoleModel: EndUserRoleModelType,
     passport: Domain.Passport
 ): Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork => {

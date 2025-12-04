@@ -9,14 +9,19 @@ import { MemberConverter } from './member.domain-adapter.ts';
 import { MemberRepository } from './member.repository.ts';
 import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
 
-export const getMemberUnitOfWork = (
-    endUserModel: MemberModelType,
+type MemberUnitOfWorkType = (
+    memberModel: MemberModelType,
+    passport: Domain.Passport,
+) => Domain.Contexts.Community.Member.MemberUnitOfWork;
+
+export const getMemberUnitOfWork: MemberUnitOfWorkType = (
+    memberModel: MemberModelType,
     passport: Domain.Passport
 ): Domain.Contexts.Community.Member.MemberUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,
-        endUserModel,
+        memberModel,
         new MemberConverter(),
         MemberRepository,
     );

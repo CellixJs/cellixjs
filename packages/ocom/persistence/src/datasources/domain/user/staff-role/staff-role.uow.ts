@@ -9,7 +9,12 @@ import { StaffRoleConverter } from './staff-role.domain-adapter.ts';
 import { StaffRoleRepository } from './staff-role.repository.ts';
 import type { StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
 
-export const getStaffRoleUnitOfWork = (
+type StaffRoleUnitOfWorkType = (
+    staffRoleModel: StaffRoleModelType,
+    passport: Domain.Passport
+) => Domain.Contexts.User.StaffRole.StaffRoleUnitOfWork;
+
+export const getStaffRoleUnitOfWork: StaffRoleUnitOfWorkType = (
 	staffRoleModel: StaffRoleModelType,
 	passport: Domain.Passport,
 ): Domain.Contexts.User.StaffRole.StaffRoleUnitOfWork => {

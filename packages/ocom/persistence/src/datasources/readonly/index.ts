@@ -22,7 +22,7 @@ export interface ReadonlyDataSource {
     }
 }
 
-export const ReadonlyDataSourceImplementation = (models: ModelsContext, passport: Domain.Passport): ReadonlyDataSource => ({
+export const ReadonlyDataSourceImplementation: (models: ModelsContext, passport: Domain.Passport) => ReadonlyDataSource = (models, passport) => ({
     Community: CommunityContext(models, passport),
     User: UserContext(models, passport)
 });

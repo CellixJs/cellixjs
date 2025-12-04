@@ -9,7 +9,12 @@ import { PropertyConverter } from './property.domain-adapter.ts';
 import { PropertyRepository } from './property.repository.ts';
 import type { PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
 
-export const getPropertyUnitOfWork = (
+type PropertyUnitOfWorkType = (
+	propertyModel: PropertyModelType,
+	passport: Domain.Passport,
+) => Domain.Contexts.Property.Property.PropertyUnitOfWork;
+
+export const getPropertyUnitOfWork: PropertyUnitOfWorkType = (
 	propertyModel: PropertyModelType,
 	passport: Domain.Passport
 ): Domain.Contexts.Property.Property.PropertyUnitOfWork => {

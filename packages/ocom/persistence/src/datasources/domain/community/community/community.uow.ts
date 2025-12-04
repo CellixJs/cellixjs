@@ -9,14 +9,19 @@ import { CommunityConverter } from './community.domain-adapter.ts';
 import { CommunityRepository } from './community.repository.ts';
 import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 
-export const getCommunityUnitOfWork = (
-    endUserModel: CommunityModelType,
+type CommunityUnitOfWorkType = (
+	communityModel: CommunityModelType,
+	passport: Domain.Passport,
+) => Domain.Contexts.Community.Community.CommunityUnitOfWork;
+
+export const getCommunityUnitOfWork: CommunityUnitOfWorkType = (
+    communityModel: CommunityModelType,
     passport: Domain.Passport
 ): Domain.Contexts.Community.Community.CommunityUnitOfWork => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,
-        endUserModel,
+        communityModel,
         new CommunityConverter(),
         CommunityRepository,
     );

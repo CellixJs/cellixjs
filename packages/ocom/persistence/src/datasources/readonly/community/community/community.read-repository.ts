@@ -124,7 +124,12 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
     }
 }
 
-export const getCommunityReadRepository = (
+type CommunityReadRepositoryType = (
+    models: ModelsContext,
+    passport: Domain.Passport
+) => CommunityReadRepository;
+
+export const getCommunityReadRepository: CommunityReadRepositoryType = (
     models: ModelsContext,
     passport: Domain.Passport
 ) => {

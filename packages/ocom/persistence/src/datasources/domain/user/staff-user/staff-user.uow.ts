@@ -9,7 +9,12 @@ import { StaffUserConverter } from './staff-user.domain-adapter.ts';
 import { StaffUserRepository } from './staff-user.repository.ts';
 import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
-export const getStaffUserUnitOfWork = (
+type StaffUserUnitOfWorkType = (
+    staffUserModel: StaffUserModelType,
+    passport: Domain.Passport
+) => Domain.Contexts.User.StaffUser.StaffUserUnitOfWork;
+
+export const getStaffUserUnitOfWork: StaffUserUnitOfWorkType = (
 	staffUserModel: StaffUserModelType,
 	passport: Domain.Passport,
 ): Domain.Contexts.User.StaffUser.StaffUserUnitOfWork => {
