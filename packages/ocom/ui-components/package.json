@@ -29,7 +29,7 @@
     "@cellix/ui-core": "workspace:*",
     "@graphql-typed-document-node/core": "^3.2.0",
     "antd": "^5.27.1",
-    "graphql": "^16.10.0",
+    "graphql": "catalog:",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-oidc-context": "^3.3.0",

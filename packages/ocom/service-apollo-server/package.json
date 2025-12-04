@@ -1,11 +1,11 @@
 {
-  "name": "@ocom/graphql",
+  "name": "@ocom/service-apollo-server",
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "Apollo Server infrastructure service for Cellix framework",
   "files": [
-    "dist",
-    "src/schema/**/*.graphql"
+    "dist"
   ],
   "exports": {
     ".": {
@@ -17,23 +17,24 @@
     "prebuild": "biome lint",
     "build": "tsgo --build",
     "watch": "tsgo --watch",
-    "lint": "biome lint",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest",
+    "lint": "biome lint",
     "clean": "rimraf dist"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",
-    "@cellix/graphql-core": "workspace:*",
-    "@graphql-tools/load-files": "^7.0.1",
-    "@ocom/application-services": "workspace:*",
-    "@ocom/domain": "workspace:*",
-    "graphql": "catalog:"
+    "@cellix/api-services-spec": "workspace:*",
+    "@opentelemetry/api": "1.9.0",
+    "graphql": "catalog:",
+    "graphql-depth-limit": "^1.1.0",
+    "graphql-middleware": "^6.1.35"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
+    "@types/graphql-depth-limit": "^1.1.6",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

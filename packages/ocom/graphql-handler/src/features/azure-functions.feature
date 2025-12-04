@@ -1,8 +1,4 @@
-Feature: Azure Functions GraphQL Handler
-
-  As a developer
-  I want to expose a GraphQL API via Azure Functions using Apollo Server
-  So that HTTP requests are correctly handled and GraphQL responses are returned
+Feature: Azure Functions Handler
 
   Scenario: Handling a valid GraphQL POST request
     Given an initialized ApolloServer instance

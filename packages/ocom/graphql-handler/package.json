@@ -1,11 +1,11 @@
 {
-  "name": "@ocom/graphql",
+  "name": "@ocom/graphql-handler",
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "Azure Functions HTTP integration for GraphQL",
   "files": [
-    "dist",
-    "src/schema/**/*.graphql"
+    "dist"
   ],
   "exports": {
     ".": {
@@ -25,10 +25,11 @@
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",
-    "@cellix/graphql-core": "workspace:*",
-    "@graphql-tools/load-files": "^7.0.1",
+    "@apollo/utils.withrequired": "^3.0.0",
+    "@azure/functions": "catalog:",
     "@ocom/application-services": "workspace:*",
-    "@ocom/domain": "workspace:*",
+    "@ocom/graphql": "workspace:*",
+    "@ocom/service-apollo-server": "workspace:*",
     "graphql": "catalog:"
   },
   "devDependencies": {

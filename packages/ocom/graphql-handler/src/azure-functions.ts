@@ -29,19 +29,26 @@ const defaultContext: ContextFunction<
 	[AzureFunctionsContextFunctionArgument]
 > = async () => ({});
 
-export function startServerAndCreateHandler(
+/**
+ * Creates an Azure Functions HTTP handler for Apollo Server.
+ * The server must already be started before calling this function.
+ * 
+ * @param server - The Apollo Server instance (must be started)
+ * @param options - Configuration options for the handler
+ * @returns An Azure Functions HTTP handler
+ */
+export function createHandler(
 	server: ApolloServer,
 	options?: AzureFunctionsMiddlewareOptions<BaseContext>,
 ): HttpHandler;
-export function startServerAndCreateHandler<TContext extends BaseContext>(
+export function createHandler<TContext extends BaseContext>(
 	server: ApolloServer<TContext>,
 	options: WithRequired<AzureFunctionsMiddlewareOptions<TContext>, 'context'>,
 ): HttpHandler;
-export function startServerAndCreateHandler<TContext extends BaseContext>(
+export function createHandler<TContext extends BaseContext>(
 	server: ApolloServer<TContext>,
 	options?: AzureFunctionsMiddlewareOptions<TContext>,
 ): HttpHandler {
-	server.startInBackgroundHandlingStartupErrorsByLoggingAndFailingAllRequests();
 	return async (req: HttpRequest, context: InvocationContext) => {
 		const contextFunction = options?.context ?? defaultContext;
 		try {

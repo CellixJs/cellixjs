@@ -1,0 +1,11 @@
+{
+  "extends": "@cellix/typescript-config/node",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "."
+  },
+  "include": ["src/**/*.ts", "globals.d.ts"],
+  "references": [
+    { "path": "../../cellix/api-services-spec" }
+  ]
+}
