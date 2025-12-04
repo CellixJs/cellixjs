@@ -12,7 +12,7 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc",
+    "typecheck": "tsgo",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest"

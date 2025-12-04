@@ -11,8 +11,8 @@
     "format": "biome format --write",
     "start": "node dist/src/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc --build",
-    "clean": "rimraf dist node_modules tsconfig.tsbuildinfo && tsc --build --clean",
+    "build": "tsgo --build",
+    "clean": "rimraf dist node_modules tsconfig.tsbuildinfo && tsgo --build --clean",
     "lint": "biome lint",
     "prebuild": "biome lint"
   },

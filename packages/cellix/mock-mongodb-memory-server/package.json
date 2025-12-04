@@ -9,7 +9,7 @@
   "types": "dist/src/index.d.ts",
   "scripts": {
     "prebuild": "biome lint",
-    "build": "tsc --build",
+    "build": "tsgo --build",
     "start": "node dist/src/index.js",
     "clean": "rimraf dist"
   },

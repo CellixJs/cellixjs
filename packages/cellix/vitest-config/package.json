@@ -6,7 +6,10 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "build": "tsc --build"
+    "prebuild": "biome lint",
+    "build": "tsgo --build",
+    "clean": "rimraf dist",
+    "lint": "biome lint"
   },
   "dependencies": {
     "@storybook/addon-vitest": "^9.1.3",
