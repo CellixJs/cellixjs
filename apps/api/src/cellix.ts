@@ -75,22 +75,23 @@ interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unkn
      * Registers an Azure Function HTTP endpoint.
      *
      * @remarks
-     * The `handlerCreator` is invoked per request and receives the application services host.
+     * The `handlerCreator` is invoked per request and receives the application services host and infrastructure registry.
      * Use it to create a request-scoped handler (e.g., to build per-request context).
      * Registration is allowed in phases `'app-services'` and `'handlers'`.
      *
      * @param name - Function name to bind in Azure Functions.
      * @param options - Azure Functions HTTP options (excluding the handler).
-     * @param handlerCreator - Factory that, given the app services host, returns an `HttpHandler`.
+     * @param handlerCreator - Factory that, given the app services host and infrastructure registry, returns an `HttpHandler`.
      * @returns The registry (for chaining).
      *
      * @throws Error - If called before application services are initialized.
      *
      * @example
      * ```ts
-     * registerAzureFunctionHttpHandler('graphql', { authLevel: 'anonymous' }, (host) => {
+     * registerAzureFunctionHttpHandler('graphql', { authLevel: 'anonymous' }, (host, infra) => {
      *   return async (req, ctx) => {
      *     const app = await host.forRequest(req.headers.get('authorization') ?? undefined);
+     *     const apollo = infra.getInfrastructureService(ServiceApolloServer);
      *     return app.GraphQL.handle(req, ctx);
      *   };
      * });
@@ -101,6 +102,7 @@ interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unkn
 		options: Omit<HttpFunctionOptions, 'handler'>,
 		handlerCreator: (
 			applicationServicesHost: AppHost<AppServices>,
+			infrastructureRegistry: InitializedServiceRegistry,
 		) => HttpHandler,
 	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
     /**
@@ -164,7 +166,10 @@ type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;
 interface PendingHandler<AppServices> {
 	name: string;
 	options: Omit<HttpFunctionOptions, 'handler'>;
-	handlerCreator: (applicationServicesHost: AppHost<AppServices>) => HttpHandler;
+	handlerCreator: (
+		applicationServicesHost: RequestScopedHost<AppServices, unknown>,
+		infrastructureRegistry: InitializedServiceRegistry,
+	) => HttpHandler;
 }
 
 type Phase = 'infrastructure' | 'context' | 'app-services' | 'handlers' | 'started';
@@ -275,6 +280,7 @@ export class Cellix<ContextType, AppServices = unknown>
 		options: Omit<HttpFunctionOptions, 'handler'>,
 		handlerCreator: (
 			applicationServicesHost: RequestScopedHost<AppServices, unknown>,
+			infrastructureRegistry: InitializedServiceRegistry,
 		) => HttpHandler,
 	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
 		this.ensurePhase('app-services', 'handlers');
@@ -302,7 +308,7 @@ export class Cellix<ContextType, AppServices = unknown>
 					if (!this.appServicesHostInternal) {
 						throw new Error('Application not started yet');
 					}
-					return h.handlerCreator(this.appServicesHostInternal)(request, context);
+					return h.handlerCreator(this.appServicesHostInternal, this)(request, context);
 				},
 			});
 		}

@@ -13,6 +13,7 @@
     { "path": "../../packages/ocom/context-spec" },
     { "path": "../../packages/ocom/event-handler" },
     { "path": "../../packages/ocom/graphql" },
+    { "path": "../../packages/ocom/graphql-handler" },
     { "path": "../../packages/ocom/persistence" },
     { "path": "../../packages/ocom/rest" },
     { "path": "../../packages/ocom/service-blob-storage" },

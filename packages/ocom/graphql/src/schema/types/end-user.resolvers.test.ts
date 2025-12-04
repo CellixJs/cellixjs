@@ -3,13 +3,21 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
-import type { GraphContext } from '../../init/context.ts';
+import type { GraphContext } from '../context.ts';
 import endUserResolvers from './end-user.resolvers.ts';
+import {
+  type FieldNode,
+  type GraphQLResolveInfo,
+  type GraphQLObjectType,
+  type GraphQLSchema,
+  type OperationDefinitionNode,
+  Kind,
+} from 'graphql';
 
 // Mock the resolver helper
 
 const test = { for: describeFeature };
-vi.mock('../resolver-helper.ts', () => ({
+vi.mock('@cellix/graphql-core/utils', () => ({
   getRequestedFieldPaths: vi.fn().mockReturnValue(['id', 'email']),
 }));
 
@@ -103,7 +111,23 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     When('the currentEndUserAndCreateIfNotExists query is executed', async () => {
       vi.mocked(context.applicationServices.User.EndUser.createIfNotExists).mockResolvedValue(mockEndUser);
-      result = await (endUserResolvers.Query?.currentEndUserAndCreateIfNotExists as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<EndUserEntity | null>)(null, {}, context, {});
+      const mockFieldNode: FieldNode = {
+        kind: Kind.FIELD,
+        name: { kind: Kind.NAME, value: 'currentEndUserAndCreateIfNotExists' },
+      };
+      const mockInfo: GraphQLResolveInfo = {
+        fieldName: 'currentEndUserAndCreateIfNotExists',
+        fieldNodes: [mockFieldNode],
+        returnType: {} as GraphQLObjectType,
+        parentType: {} as GraphQLObjectType,
+        path: { key: 'currentEndUserAndCreateIfNotExists', prev: undefined, typename: undefined },
+        schema: {} as GraphQLSchema,
+        fragments: {},
+        rootValue: {},
+        operation: {} as OperationDefinitionNode,
+        variableValues: {},
+      };
+      result = await (endUserResolvers.Query?.currentEndUserAndCreateIfNotExists as unknown as (parent: object, args: Record<string, never>, context: GraphContext, info: GraphQLResolveInfo) => Promise<EndUserEntity | null>)({}, {}, context, mockInfo);
     });
 
     Then('it should call User.EndUser.createIfNotExists with the user\'s sub, family_name, given_name, and email', () => {
@@ -130,7 +154,23 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     When('the endUserById query is executed with that ID', async () => {
       vi.mocked(context.applicationServices.User.EndUser.queryById).mockResolvedValue(mockEndUser);
-      result = await (endUserResolvers.Query?.endUserById as unknown as (parent: unknown, args: { id: string }, context: GraphContext, info: unknown) => Promise<EndUserEntity | null>)(null, { id: endUserId }, context, {});
+      const mockFieldNode: FieldNode = {
+        kind: Kind.FIELD,
+        name: { kind: Kind.NAME, value: 'endUserById' },
+      };
+      const mockInfo: GraphQLResolveInfo = {
+        fieldName: 'endUserById',
+        fieldNodes: [mockFieldNode],
+        returnType: {} as GraphQLObjectType,
+        parentType: {} as GraphQLObjectType,
+        path: { key: 'endUserById', prev: undefined, typename: undefined },
+        schema: {} as GraphQLSchema,
+        fragments: {},
+        rootValue: {},
+        operation: {} as OperationDefinitionNode,
+        variableValues: {},
+      };
+      result = await (endUserResolvers.Query?.endUserById as unknown as (parent: object, args: { id: string }, context: GraphContext, info: GraphQLResolveInfo) => Promise<EndUserEntity | null>)({}, { id: endUserId }, context, mockInfo);
     });
 
     Then('it should call User.EndUser.queryById with the provided ID and requested fields', () => {
@@ -153,7 +193,23 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('the currentEndUserAndCreateIfNotExists query is executed', async () => {
-      await expect((endUserResolvers.Query?.currentEndUserAndCreateIfNotExists as unknown as (parent: unknown, args: Record<string, never>, context: GraphContext, info: unknown) => Promise<EndUserEntity | null>)(null, {}, context, {})).rejects.toThrow('Unauthorized');
+      const mockFieldNode: FieldNode = {
+        kind: Kind.FIELD,
+        name: { kind: Kind.NAME, value: 'currentEndUserAndCreateIfNotExists' },
+      };
+      const mockInfo: GraphQLResolveInfo = {
+        fieldName: 'currentEndUserAndCreateIfNotExists',
+        fieldNodes: [mockFieldNode],
+        returnType: {} as GraphQLObjectType,
+        parentType: {} as GraphQLObjectType,
+        path: { key: 'currentEndUserAndCreateIfNotExists', prev: undefined, typename: undefined },
+        schema: {} as GraphQLSchema,
+        fragments: {},
+        rootValue: {},
+        operation: {} as OperationDefinitionNode,
+        variableValues: {},
+      };
+      await expect((endUserResolvers.Query?.currentEndUserAndCreateIfNotExists as unknown as (parent: object, args: Record<string, never>, context: GraphContext, info: GraphQLResolveInfo) => Promise<EndUserEntity | null>)({}, {}, context, mockInfo)).rejects.toThrow('Unauthorized');
     });
 
     Then('it should throw an "Unauthorized" error', () => {

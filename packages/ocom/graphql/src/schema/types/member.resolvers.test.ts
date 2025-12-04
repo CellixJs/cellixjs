@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Domain } from '@ocom/domain';
-import type { GraphContext } from '../../init/context.ts';
+import type { GraphContext } from '../context.ts';
 import memberResolvers from './member.resolvers.ts';
 
 const test = { for: describeFeature };

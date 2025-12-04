@@ -2,12 +2,13 @@
 
 overwrite: true
 schema:
-  - './packages/ocom/graphql/src/schema/core/graphql-tools-scalars.ts'
+  - './packages/cellix/graphql-core/src/schema/**/**.graphql'
+  - './packages/cellix/graphql-core/src/schema/core/graphql-tools-scalars.ts'
   - './packages/ocom/graphql/src/schema/**/**.graphql'
 generates:
   ./packages/ocom/graphql/src/schema/builder/generated.ts:
     config:
-      contextType: '../../init/context.ts#GraphContext'
+      contextType: '../context.ts#GraphContext'
       useIndexSignature: true
       useTypeImports: true
       enumsAsTypes: true

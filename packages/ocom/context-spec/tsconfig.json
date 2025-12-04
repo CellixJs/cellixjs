@@ -9,6 +9,7 @@
   ],
   "references": [
     { "path": "../persistence" },
+    { "path": "../service-apollo-server" },
     { "path": "../service-token-validation" }
   ]
 }
