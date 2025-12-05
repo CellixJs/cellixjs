@@ -1,7 +1,16 @@
 import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../index.ts';
-import * as Property from './property/index.ts';
+import { type PropertyReturnType, PropertyPersistence } from './property/index.ts';
 
-export const PropertyContextPersistence = (models: ModelsContext, passport: Domain.Passport) => ({
-	Property: Property.PropertyPersistence(models, passport),
+interface PropertyContextPersistence {
+	Property: PropertyReturnType;
+}
+
+type PropertyContextPersistenceType = (
+	models: ModelsContext,
+	passport: Domain.Passport,
+) => PropertyContextPersistence;
+
+export const PropertyContextPersistence: PropertyContextPersistenceType = (models: ModelsContext, passport: Domain.Passport) => ({
+	Property: PropertyPersistence(models, passport),
 });

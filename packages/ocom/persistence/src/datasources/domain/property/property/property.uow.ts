@@ -1,3 +1,4 @@
+import type { UnitOfWorkFactory } from '@cellix/domain-seedwork/unit-of-work';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import {
 	InProcEventBusInstance,
@@ -9,10 +10,16 @@ import { PropertyConverter } from './property.domain-adapter.ts';
 import { PropertyRepository } from './property.repository.ts';
 import type { PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
 
-export const getPropertyUnitOfWork = (
+type PropertyUnitOfWorkType = UnitOfWorkFactory<
+	PropertyModelType,
+	Domain.Passport,
+	Domain.Contexts.Property.Property.PropertyUnitOfWork
+>;
+
+export const getPropertyUnitOfWork: PropertyUnitOfWorkType = (
 	propertyModel: PropertyModelType,
 	passport: Domain.Passport
-): Domain.Contexts.Property.Property.PropertyUnitOfWork => {
+) => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

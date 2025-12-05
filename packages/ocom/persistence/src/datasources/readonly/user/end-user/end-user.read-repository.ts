@@ -44,7 +44,12 @@ export class EndUserReadRepositoryImpl implements EndUserReadRepository {
     }
 }
 
-export const getEndUserReadRepository = (
+type EndUserReadRepositoryType = (
+    models: ModelsContext,
+    passport: Domain.Passport
+) => EndUserReadRepository;
+
+export const getEndUserReadRepository: EndUserReadRepositoryType = (
     models: ModelsContext,
     passport: Domain.Passport
 ) => {

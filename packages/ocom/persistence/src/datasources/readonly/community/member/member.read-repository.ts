@@ -141,7 +141,12 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
     }
 }
 
-export const getMemberReadRepository = (
+type MemberReadRepositoryType = (
+    models: ModelsContext,
+    passport: Domain.Passport
+) => MemberReadRepository;
+
+export const getMemberReadRepository: MemberReadRepositoryType = (
     models: ModelsContext,
     passport: Domain.Passport
 ) => {

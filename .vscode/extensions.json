@@ -7,5 +7,6 @@
     "vitest.explorer",
     "sourcery.sourcery",
     "sonarsource.sonarlint-vscode",
+    "TypeScriptTeam.native-preview",
   ]
 }

@@ -6,7 +6,12 @@ import { PropertyContextPersistence } from './property/index.ts';
 import { ServiceContextPersistence } from './service/index.ts';
 import { UserContextPersistence } from './user/index.ts';
 
-export const DomainDataSourceImplementation = (models: ModelsContext, passport: Domain.Passport): DomainDataSource => ({
+type DomainDataSourceImplementationType = (
+    models: ModelsContext,
+    passport: Domain.Passport,
+) => DomainDataSource;
+
+export const DomainDataSourceImplementation: DomainDataSourceImplementationType = (models: ModelsContext, passport: Domain.Passport) => ({
     Case: CaseContextPersistence(models, passport),
     Community: CommunityContextPersistence(models, passport),
     Property: PropertyContextPersistence(models, passport),

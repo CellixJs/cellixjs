@@ -28,3 +28,8 @@ export interface InitializedUnitOfWork<
         func: (repository: RepoType) => Promise<void>,
     ): Promise<Root>;
 }
+
+export type UnitOfWorkFactory<ModelType, PassportType, UnitOfWorkType> = (
+    model: ModelType,
+    passport: PassportType,
+) => UnitOfWorkType;

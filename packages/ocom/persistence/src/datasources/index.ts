@@ -13,7 +13,7 @@ export type DataSourcesFactory = {
     withSystemPassport: () => DataSources
 }
 
-export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactory => {
+export const DataSourcesFactoryImpl: (models: ModelsContext) => DataSourcesFactory = (models) => {
     const withPassport = (passport: Domain.Passport): DataSources => {
         return {
             domainDataSource: DomainDataSourceImplementation(models, passport),
