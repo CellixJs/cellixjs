@@ -5,17 +5,19 @@ import { type MemberReturnType, MemberPersistence } from './member/index.ts';
 import { type CommunityReturnType, CommunityPersistence } from './community/index.ts';
 import type { Domain } from '@ocom/domain';
 
-type CommunityContextPersistenceType = (
-	models: ModelsContext,
-	passport: Domain.Passport,
-) => {
+interface CommunityContextPersistence {
 	Community: CommunityReturnType;
     Member: MemberReturnType;
     Role: {
         EndUserRole: EndUserRoleReturnType;
         VendorUserRole: VendorUserRoleReturnType;
     };
-};
+}
+
+type CommunityContextPersistenceType = (
+	models: ModelsContext,
+	passport: Domain.Passport,
+) => CommunityContextPersistence;
 
 
 export const CommunityContextPersistence: CommunityContextPersistenceType = (models: ModelsContext, passport: Domain.Passport) => ({

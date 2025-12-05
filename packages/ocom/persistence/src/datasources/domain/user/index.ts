@@ -5,15 +5,17 @@ import { type StaffRoleReturnType, StaffRolePersistence } from './staff-role/ind
 import { type StaffUserReturnType, StaffUserPersistence } from './staff-user/index.ts';
 import { type VendorUserReturnType, VendorUserPersistence } from './vendor-user/index.ts';
 
-type UserContextPersistenceType = (
-    models: ModelsContext,
-    passport: Domain.Passport,
-) => {
+interface UserContextPersistence {
     EndUser: EndUserReturnType;
     StaffRole: StaffRoleReturnType;
     StaffUser: StaffUserReturnType;
     VendorUser: VendorUserReturnType;
-};
+}
+
+type UserContextPersistenceType = (
+    models: ModelsContext,
+    passport: Domain.Passport,
+) => UserContextPersistence;
 
 export const UserContextPersistence: UserContextPersistenceType = (models: ModelsContext, passport: Domain.Passport) => ({
 	EndUser: EndUserPersistence(models, passport),

@@ -3,13 +3,15 @@ import type { ModelsContext } from '../../../index.ts';
 import { type CommunityReadRepositoryImplType, CommunityReadRepositoryImpl } from './community/index.ts';
 import { MemberReadRepositoryImpl, type MemberReadRepositoryImplType } from './member/index.ts';
 
+interface CommunityContext {
+    Community: ReturnType<CommunityReadRepositoryImplType>;
+    Member: ReturnType<MemberReadRepositoryImplType>;
+}
+
 type CommunityContextType = (
     models: ModelsContext,
     passport: Domain.Passport,
-) => {
-    Community: ReturnType<CommunityReadRepositoryImplType>;
-    Member: ReturnType<MemberReadRepositoryImplType>;
-};
+) => CommunityContext;
 
 export const CommunityContext: CommunityContextType = (models: ModelsContext, passport: Domain.Passport) => ({
     Community: CommunityReadRepositoryImpl(models, passport),
