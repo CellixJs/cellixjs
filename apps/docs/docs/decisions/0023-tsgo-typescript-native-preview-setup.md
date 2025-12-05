@@ -1,7 +1,7 @@
 ---
 sidebar_position: 23
 sidebar_label: 0023 tsgo TypeScript Native Preview Setup
-description: "Setting up TsGo with TypeScript/native-preview for enhanced type checking and future compatibility."
+description: "Setting up tsgo with TypeScript/native-preview for enhanced type checking and future compatibility."
 status: accepted
 date: 2025-12-05
 deciders: team
