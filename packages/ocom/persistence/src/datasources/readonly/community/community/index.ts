@@ -4,12 +4,14 @@ import { type CommunityReadRepository, getCommunityReadRepository } from './comm
 
 export type { CommunityReadRepository } from './community.read-repository.ts';
 
+export type CommunityReadReturnType = {
+    CommunityReadRepo: CommunityReadRepository;
+};
+
 export type CommunityReadRepositoryImplType = (
     models: ModelsContext,
     passport: Domain.Passport
-) => {
-    CommunityReadRepo: CommunityReadRepository;
-};
+) => CommunityReadReturnType;
 
 export const CommunityReadRepositoryImpl: CommunityReadRepositoryImplType = (models: ModelsContext, passport: Domain.Passport) => {
     return {

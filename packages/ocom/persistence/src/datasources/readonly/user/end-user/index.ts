@@ -4,12 +4,14 @@ import { type EndUserReadRepository, getEndUserReadRepository } from './end-user
 
 export type { EndUserReadRepository } from './end-user.read-repository.ts';
 
+export type EndUserReadReturnType = {
+    EndUserReadRepo: EndUserReadRepository;
+};
+
 export type EndUserReadRepositoryImplType = (
     models: ModelsContext,
     passport: Domain.Passport
-) => {
-    EndUserReadRepo: EndUserReadRepository;
-};
+) => EndUserReadReturnType;
 
 export const EndUserReadRepositoryImpl: EndUserReadRepositoryImplType = (models: ModelsContext, passport: Domain.Passport) => {
     return {

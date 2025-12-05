@@ -4,12 +4,14 @@ import { type MemberReadRepository, getMemberReadRepository } from './member.rea
 
 export type { MemberReadRepository } from './member.read-repository.ts';
 
+export type MemberReadReturnType = {
+    MemberReadRepo: MemberReadRepository;
+};
+
 export type MemberReadRepositoryImplType = (
     models: ModelsContext,
     passport: Domain.Passport
-) => {
-    MemberReadRepo: MemberReadRepository;
-};
+) => MemberReadReturnType;
 
 export const MemberReadRepositoryImpl: MemberReadRepositoryImplType = (models: ModelsContext, passport: Domain.Passport) => {
     return {

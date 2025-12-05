@@ -1,9 +1,9 @@
 import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../index.ts';
-import { EndUserReadRepositoryImpl, type EndUserReadRepositoryImplType  } from './end-user/index.ts';
+import { EndUserReadRepositoryImpl, type EndUserReadReturnType } from './end-user/index.ts';
 
 interface UserContext {
-    EndUser: ReturnType<EndUserReadRepositoryImplType>;
+    EndUser: EndUserReadReturnType;
 }
 
 type UserContextType = (
