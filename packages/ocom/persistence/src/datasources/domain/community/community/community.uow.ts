@@ -17,15 +17,15 @@ type CommunityUnitOfWorkType = UnitOfWorkFactory<
 >;
 
 export const getCommunityUnitOfWork: CommunityUnitOfWorkType = (
-    communityModel: CommunityModelType,
-    passport: Domain.Passport
-): Domain.Contexts.Community.Community.CommunityUnitOfWork => {
-    const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
-        InProcEventBusInstance,
-        NodeEventBusInstance,
-        communityModel,
-        new CommunityConverter(),
-        CommunityRepository,
-    );
-    return MongooseSeedwork.getInitializedUnitOfWork(unitOfWork, passport);
-}
+	communityModel: CommunityModelType,
+	passport: Domain.Passport,
+) => {
+	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
+		InProcEventBusInstance,
+		NodeEventBusInstance,
+		communityModel,
+		new CommunityConverter(),
+		CommunityRepository,
+	);
+	return MongooseSeedwork.getInitializedUnitOfWork(unitOfWork, passport);
+};

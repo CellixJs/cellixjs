@@ -19,7 +19,7 @@ type ServiceTicketV1UnitOfWorkType = UnitOfWorkFactory<
 export const getServiceTicketV1UnitOfWork: ServiceTicketV1UnitOfWorkType = (
 	serviceTicketModel: ServiceTicketModelType,
 	passport: Domain.Passport,
-): Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork => {
+) => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

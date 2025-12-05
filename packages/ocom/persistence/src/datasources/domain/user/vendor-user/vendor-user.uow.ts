@@ -19,7 +19,7 @@ type VendorUserUnitOfWorkType = UnitOfWorkFactory<
 export const getVendorUserUnitOfWork: VendorUserUnitOfWorkType = (
 	vendorUserModel: VendorUserModelType,
 	passport: Domain.Passport,
-): Domain.Contexts.User.VendorUser.VendorUserUnitOfWork => {
+) => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

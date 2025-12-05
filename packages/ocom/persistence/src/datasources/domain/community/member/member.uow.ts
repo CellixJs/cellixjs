@@ -17,15 +17,15 @@ type MemberUnitOfWorkType = UnitOfWorkFactory<
 >;
 
 export const getMemberUnitOfWork: MemberUnitOfWorkType = (
-    memberModel: MemberModelType,
-    passport: Domain.Passport
-): Domain.Contexts.Community.Member.MemberUnitOfWork => {
-    const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
-        InProcEventBusInstance,
-        NodeEventBusInstance,
-        memberModel,
-        new MemberConverter(),
-        MemberRepository,
-    );
-    return MongooseSeedwork.getInitializedUnitOfWork(unitOfWork, passport);
-}
+	memberModel: MemberModelType,
+	passport: Domain.Passport,
+) => {
+	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
+		InProcEventBusInstance,
+		NodeEventBusInstance,
+		memberModel,
+		new MemberConverter(),
+		MemberRepository,
+	);
+	return MongooseSeedwork.getInitializedUnitOfWork(unitOfWork, passport);
+};

@@ -19,7 +19,7 @@ type PropertyUnitOfWorkType = UnitOfWorkFactory<
 export const getPropertyUnitOfWork: PropertyUnitOfWorkType = (
 	propertyModel: PropertyModelType,
 	passport: Domain.Passport
-): Domain.Contexts.Property.Property.PropertyUnitOfWork => {
+) => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

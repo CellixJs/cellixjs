@@ -17,15 +17,15 @@ type VendorUserRoleUnitOfWorkType = UnitOfWorkFactory<
 >;
 
 export const getVendorUserRoleUnitOfWork: VendorUserRoleUnitOfWorkType = (
-    vendorUserRoleModel: VendorUserRoleModelType,
-    passport: Domain.Passport
-): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork => {
-    const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
-        InProcEventBusInstance,
-        NodeEventBusInstance,
-        vendorUserRoleModel,
-        new VendorUserRoleConverter(),
-        VendorUserRoleRepository,
-    );
-    return MongooseSeedwork.getInitializedUnitOfWork(unitOfWork, passport);
-}
+	vendorUserRoleModel: VendorUserRoleModelType,
+	passport: Domain.Passport,
+) => {
+	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
+		InProcEventBusInstance,
+		NodeEventBusInstance,
+		vendorUserRoleModel,
+		new VendorUserRoleConverter(),
+		VendorUserRoleRepository,
+	);
+	return MongooseSeedwork.getInitializedUnitOfWork(unitOfWork, passport);
+};

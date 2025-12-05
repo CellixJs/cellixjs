@@ -19,7 +19,7 @@ type StaffUserUnitOfWorkType = UnitOfWorkFactory<
 export const getStaffUserUnitOfWork: StaffUserUnitOfWorkType = (
 	staffUserModel: StaffUserModelType,
 	passport: Domain.Passport,
-): Domain.Contexts.User.StaffUser.StaffUserUnitOfWork => {
+) => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
 		InProcEventBusInstance,
 		NodeEventBusInstance,

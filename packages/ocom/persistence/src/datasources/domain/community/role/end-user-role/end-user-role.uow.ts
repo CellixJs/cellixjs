@@ -19,7 +19,7 @@ type EndUserRoleUnitOfWorkType = UnitOfWorkFactory<
 export const getEndUserRoleUnitOfWork: EndUserRoleUnitOfWorkType = (
     endUserRoleModel: EndUserRoleModelType,
     passport: Domain.Passport
-): Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork => {
+) => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,

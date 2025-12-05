@@ -19,7 +19,7 @@ type ServiceUnitOfWorkType = UnitOfWorkFactory<
 export const getServiceUnitOfWork: ServiceUnitOfWorkType = (
     serviceModel: ServiceModelType,
     passport: Domain.Passport
-): Domain.Contexts.Service.Service.ServiceUnitOfWork => {
+) => {
     const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(
         InProcEventBusInstance,
         NodeEventBusInstance,
