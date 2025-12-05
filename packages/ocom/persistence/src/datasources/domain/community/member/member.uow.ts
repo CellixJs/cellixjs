@@ -1,3 +1,4 @@
+import type { UnitOfWorkFactory } from '@cellix/domain-seedwork/unit-of-work';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import {
 	InProcEventBusInstance,
@@ -9,10 +10,11 @@ import { MemberConverter } from './member.domain-adapter.ts';
 import { MemberRepository } from './member.repository.ts';
 import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
 
-type MemberUnitOfWorkType = (
-    memberModel: MemberModelType,
-    passport: Domain.Passport,
-) => Domain.Contexts.Community.Member.MemberUnitOfWork;
+type MemberUnitOfWorkType = UnitOfWorkFactory<
+	MemberModelType,
+	Domain.Passport,
+	Domain.Contexts.Community.Member.MemberUnitOfWork
+>;
 
 export const getMemberUnitOfWork: MemberUnitOfWorkType = (
     memberModel: MemberModelType,

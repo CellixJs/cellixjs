@@ -1,3 +1,4 @@
+import type { UnitOfWorkFactory } from '@cellix/domain-seedwork/unit-of-work';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import {
 	InProcEventBusInstance,
@@ -9,10 +10,11 @@ import { VendorUserRoleConverter } from './vendor-user-role.domain-adapter.ts';
 import { VendorUserRoleRepository } from './vendor-user-role.repository.ts';
 import type { VendorUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
-type VendorUserRoleUnitOfWorkType = (
-    vendorUserRoleModel: VendorUserRoleModelType,
-    passport: Domain.Passport,
-) => Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork;
+type VendorUserRoleUnitOfWorkType = UnitOfWorkFactory<
+	VendorUserRoleModelType,
+	Domain.Passport,
+	Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork
+>;
 
 export const getVendorUserRoleUnitOfWork: VendorUserRoleUnitOfWorkType = (
     vendorUserRoleModel: VendorUserRoleModelType,

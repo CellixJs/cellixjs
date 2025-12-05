@@ -1,3 +1,4 @@
+import type { UnitOfWorkFactory } from '@cellix/domain-seedwork/unit-of-work';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import {
 	InProcEventBusInstance,
@@ -9,10 +10,11 @@ import { EndUserRoleConverter } from './end-user-role.domain-adapter.ts';
 import { EndUserRoleRepository } from './end-user-role.repository.ts';
 import type { EndUserRoleModelType } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 
-type EndUserRoleUnitOfWorkType = (
-    endUserRoleModel: EndUserRoleModelType,
-    passport: Domain.Passport,
-) => Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
+type EndUserRoleUnitOfWorkType = UnitOfWorkFactory<
+	EndUserRoleModelType,
+	Domain.Passport,
+	Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork
+>;
 
 export const getEndUserRoleUnitOfWork: EndUserRoleUnitOfWorkType = (
     endUserRoleModel: EndUserRoleModelType,

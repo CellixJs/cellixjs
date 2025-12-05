@@ -1,5 +1,5 @@
 import type { Domain } from '@ocom/domain';
-
+import type { UnitOfWorkFactory } from '@cellix/domain-seedwork/unit-of-work';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import {
 	InProcEventBusInstance,
@@ -12,10 +12,11 @@ import {
 import { EndUserRepository } from './end-user.repository.ts';
 import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
-type EndUserUnitOfWorkType = (
-    endUserModel: EndUserModelType,
-    passport: Domain.Passport
-) => Domain.Contexts.User.EndUser.EndUserUnitOfWork;
+type EndUserUnitOfWorkType = UnitOfWorkFactory<
+	EndUserModelType,
+	Domain.Passport,
+	Domain.Contexts.User.EndUser.EndUserUnitOfWork
+>;
 
 export const getEndUserUnitOfWork: EndUserUnitOfWorkType = (endUserModel: EndUserModelType, passport: Domain.Passport) => {
 	const unitOfWork = new MongooseSeedwork.MongoUnitOfWork(

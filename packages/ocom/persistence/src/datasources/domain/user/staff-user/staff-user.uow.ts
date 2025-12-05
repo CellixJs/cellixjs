@@ -1,3 +1,4 @@
+import type { UnitOfWorkFactory } from '@cellix/domain-seedwork/unit-of-work';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import {
 	InProcEventBusInstance,
@@ -9,10 +10,11 @@ import { StaffUserConverter } from './staff-user.domain-adapter.ts';
 import { StaffUserRepository } from './staff-user.repository.ts';
 import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
-type StaffUserUnitOfWorkType = (
-    staffUserModel: StaffUserModelType,
-    passport: Domain.Passport
-) => Domain.Contexts.User.StaffUser.StaffUserUnitOfWork;
+type StaffUserUnitOfWorkType = UnitOfWorkFactory<
+	StaffUserModelType,
+	Domain.Passport,
+	Domain.Contexts.User.StaffUser.StaffUserUnitOfWork
+>;
 
 export const getStaffUserUnitOfWork: StaffUserUnitOfWorkType = (
 	staffUserModel: StaffUserModelType,

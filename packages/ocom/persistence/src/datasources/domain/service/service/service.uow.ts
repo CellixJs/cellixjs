@@ -1,3 +1,4 @@
+import type { UnitOfWorkFactory } from '@cellix/domain-seedwork/unit-of-work';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import {
 	InProcEventBusInstance,
@@ -9,10 +10,11 @@ import { ServiceConverter } from './service.domain-adapter.ts';
 import { ServiceRepository } from './service.repository.ts';
 import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
 
-type ServiceUnitOfWorkType = (
-    serviceModel: ServiceModelType,
-    passport: Domain.Passport
-) => Domain.Contexts.Service.Service.ServiceUnitOfWork;
+type ServiceUnitOfWorkType = UnitOfWorkFactory<
+	ServiceModelType,
+	Domain.Passport,
+	Domain.Contexts.Service.Service.ServiceUnitOfWork
+>;
 
 export const getServiceUnitOfWork: ServiceUnitOfWorkType = (
     serviceModel: ServiceModelType,
