@@ -4,7 +4,7 @@ import { type CommunityReadRepository, getCommunityReadRepository } from './comm
 
 export type { CommunityReadRepository } from './community.read-repository.ts';
 
-type CommunityReadRepositoryImplType = (
+export type CommunityReadRepositoryImplType = (
     models: ModelsContext,
     passport: Domain.Passport
 ) => {

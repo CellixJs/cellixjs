@@ -4,7 +4,7 @@ import { type MemberReadRepository, getMemberReadRepository } from './member.rea
 
 export type { MemberReadRepository } from './member.read-repository.ts';
 
-type MemberReadRepositoryImplType = (
+export type MemberReadRepositoryImplType = (
     models: ModelsContext,
     passport: Domain.Passport
 ) => {
