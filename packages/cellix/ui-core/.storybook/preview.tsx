@@ -1,4 +1,5 @@
 import type { Decorator, Parameters } from '@storybook/react';
+// @ts-ignore [TS7]
 import { message } from 'antd';
 import { MemoryRouter } from 'react-router-dom';
 import 'antd/dist/reset.css';

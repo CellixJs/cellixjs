@@ -1,4 +1,5 @@
 import { HelmetProvider } from '@dr.pogodin/react-helmet';
+// @ts-ignore [TS7]
 import { ConfigProvider } from 'antd';
 import React, { useContext } from 'react';
 import { createRoot } from 'react-dom/client';

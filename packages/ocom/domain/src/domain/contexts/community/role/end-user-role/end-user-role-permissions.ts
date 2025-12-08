@@ -1,4 +1,6 @@
+// @ts-ignore [TS7]
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+// @ts-ignore [TS7]
 import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { CommunityVisa } from '../../community.visa.ts';
 import {

@@ -1,3 +1,4 @@
+// @ts-ignore [TS7]
 import type mongoose from 'mongoose';
 import type {
 	Model,
@@ -25,6 +26,7 @@ export type GetModelFunctionWithSchema = <ModelType extends Base>(
 	modelName: string,
 	schema: Schema<ModelType, Model<ModelType>, ModelType>,
 ) => Model<ModelType>;
+// @ts-ignore [TS7]
 export type { Schema } from 'mongoose';
 
 export interface MongooseContextFactory {

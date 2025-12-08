@@ -1,3 +1,4 @@
+// @ts-ignore [TS7]
 import { Button, theme } from 'antd';
 import styles from './header.module.css';
 

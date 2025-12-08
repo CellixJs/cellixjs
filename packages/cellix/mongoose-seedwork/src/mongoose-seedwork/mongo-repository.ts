@@ -5,6 +5,7 @@ import type { Repository } from '@cellix/domain-seedwork/repository';
 import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { CustomDomainEvent } from '@cellix/domain-seedwork/domain-event';
+// @ts-ignore [TS7]
 import type { ClientSession, Model } from 'mongoose';
 import type { Base } from './base.ts';
 

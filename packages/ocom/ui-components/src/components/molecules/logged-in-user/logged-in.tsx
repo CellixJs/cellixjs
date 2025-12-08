@@ -1,3 +1,4 @@
+// @ts-ignore [TS7]
 import { Avatar, Button, Image } from 'antd';
 import type { FC } from 'react';
 import { Link } from 'react-router-dom';

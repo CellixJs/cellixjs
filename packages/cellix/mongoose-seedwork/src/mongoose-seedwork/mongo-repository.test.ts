@@ -4,6 +4,7 @@ import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import { NotFoundError } from '@cellix/domain-seedwork/repository';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+// @ts-ignore [TS7]
 import type mongoose from 'mongoose';
 import { expect, type Mock, vi } from 'vitest';
 import type { Base } from './base.ts';

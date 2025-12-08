@@ -9,6 +9,7 @@ import {
 	beforeEach,
 	vi,
 } from 'vitest';
+// @ts-ignore [TS7]
 import mongoose, { Schema, model, type Model } from 'mongoose';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import {

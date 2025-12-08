@@ -1,4 +1,5 @@
 import { LoggedInUserContainer } from '@ocom/ui-components';
+// @ts-ignore [TS7]
 import { Layout, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
 

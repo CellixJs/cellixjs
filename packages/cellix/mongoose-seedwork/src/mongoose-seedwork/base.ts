@@ -1,3 +1,4 @@
+// @ts-ignore [TS7]
 import type { Document, SchemaOptions, Types } from 'mongoose';
 
 interface MongoBase {

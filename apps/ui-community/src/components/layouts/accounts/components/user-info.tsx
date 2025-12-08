@@ -1,3 +1,4 @@
+// @ts-ignore [TS7]
 import { Typography } from 'antd';
 import type { AccountsUserInfoContainerEndUserFieldsFragment } from '../../../../generated.tsx';
 

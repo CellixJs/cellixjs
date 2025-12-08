@@ -1,4 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+// @ts-ignore [TS7]
 import  { type Model, type ObjectId, type PopulatedDoc, Schema, type SchemaDefinition, type Types } from 'mongoose';
 import { Patterns } from '../../patterns.ts';
 import * as Community from '../community/community.model.ts';

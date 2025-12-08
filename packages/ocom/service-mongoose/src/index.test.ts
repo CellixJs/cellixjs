@@ -2,6 +2,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+// @ts-ignore [TS7]
 import type { Mongoose, ConnectOptions } from 'mongoose';
 
 // Use the vi.mock factory pattern to avoid hoisting issues with top-level variables

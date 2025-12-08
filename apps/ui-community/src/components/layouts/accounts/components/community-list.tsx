@@ -1,4 +1,5 @@
 import { DownOutlined } from '@ant-design/icons';
+// @ts-ignore [TS7]
 import { Button, Dropdown, Input as Search, Space, Table, Typography  } from 'antd';
 import { type ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

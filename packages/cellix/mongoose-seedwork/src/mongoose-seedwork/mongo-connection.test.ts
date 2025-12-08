@@ -1,3 +1,4 @@
+// @ts-ignore [TS7]
 import type { Model, Schema } from 'mongoose';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

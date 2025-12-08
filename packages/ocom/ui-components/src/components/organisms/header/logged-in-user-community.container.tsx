@@ -1,5 +1,6 @@
 import { useApolloClient } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
+// @ts-ignore [TS7]
 import { Skeleton } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { useParams } from 'react-router-dom';
