@@ -8,9 +8,7 @@ interface CommunityContext {
     Member: MemberReadReturnType;
 }
 
-type CommunityContextType = PersistenceFactory<CommunityContext>;
-
-export const CommunityContext: CommunityContextType = (models: ModelsContext, passport: Domain.Passport) => ({
+export const CommunityContext: PersistenceFactory<CommunityContext> = (models: ModelsContext, passport: Domain.Passport) => ({
     Community: CommunityReadRepositoryImpl(models, passport),
     Member: MemberReadRepositoryImpl(models, passport),
 });

@@ -8,9 +8,7 @@ export type EndUserReadReturnType = {
     EndUserReadRepo: EndUserReadRepository;
 };
 
-export type EndUserReadRepositoryImplType = PersistenceFactory<EndUserReadReturnType>;
-
-export const EndUserReadRepositoryImpl: EndUserReadRepositoryImplType = (models: ModelsContext, passport: Domain.Passport) => {
+export const EndUserReadRepositoryImpl: PersistenceFactory<EndUserReadReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
     return {
         EndUserReadRepo: getEndUserReadRepository(models, passport),
     };

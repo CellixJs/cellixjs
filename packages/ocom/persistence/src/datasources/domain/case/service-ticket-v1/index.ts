@@ -6,9 +6,7 @@ export type ServiceTicketV1ReturnType = {
 	ServiceTicketV1UnitOfWork: Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1UnitOfWork;
 };
 
-type ServiceTicketV1PersistenceType = PersistenceFactory<ServiceTicketV1ReturnType>;
-
-export const ServiceTicketV1Persistence: ServiceTicketV1PersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
+export const ServiceTicketV1Persistence: PersistenceFactory<ServiceTicketV1ReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const ServiceTicketModel = models.ServiceTicket;
 	return {
 		ServiceTicketV1UnitOfWork: getServiceTicketV1UnitOfWork(ServiceTicketModel, passport),

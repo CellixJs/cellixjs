@@ -6,9 +6,7 @@ export type EndUserReturnType = {
     EndUserUnitOfWork: Domain.Contexts.User.EndUser.EndUserUnitOfWork;
 };
 
-export type EndUserPersistenceType = PersistenceFactory<EndUserReturnType>;
-
-export const EndUserPersistence: EndUserPersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
+export const EndUserPersistence: PersistenceFactory<EndUserReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const EndUserModel = models.EndUser;
 	return {
 		EndUserUnitOfWork: getEndUserUnitOfWork(EndUserModel, passport),

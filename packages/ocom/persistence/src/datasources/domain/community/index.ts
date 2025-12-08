@@ -14,9 +14,7 @@ interface CommunityContextPersistence {
     };
 }
 
-type CommunityContextPersistenceType = PersistenceFactory<CommunityContextPersistence>;
-
-export const CommunityContextPersistence: CommunityContextPersistenceType = (models: ModelsContext, passport: Domain.Passport) => ({
+export const CommunityContextPersistence: PersistenceFactory<CommunityContextPersistence> = (models: ModelsContext, passport: Domain.Passport) => ({
 	Community: CommunityPersistence(models, passport),
 	Member: MemberPersistence(models, passport),
     Role: {

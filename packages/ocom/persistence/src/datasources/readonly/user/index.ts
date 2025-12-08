@@ -6,8 +6,6 @@ interface UserContext {
     EndUser: EndUserReadReturnType;
 }
 
-type UserContextType = PersistenceFactory<UserContext>;
-
-export const UserContext: UserContextType = (models: ModelsContext, passport: Domain.Passport) => ({
+export const UserContext: PersistenceFactory<UserContext> = (models: ModelsContext, passport: Domain.Passport) => ({
     EndUser: EndUserReadRepositoryImpl(models, passport),
 });

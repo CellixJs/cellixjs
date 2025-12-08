@@ -6,9 +6,7 @@ export type CommunityReturnType = {
 	CommunityUnitOfWork: Domain.Contexts.Community.Community.CommunityUnitOfWork;
 };
 
-type CommunityPersistenceType = PersistenceFactory<CommunityReturnType>;
-
-export const CommunityPersistence: CommunityPersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
+export const CommunityPersistence: PersistenceFactory<CommunityReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const CommunityModel = models.Community;
 	return {
 		CommunityUnitOfWork: getCommunityUnitOfWork(CommunityModel, passport),

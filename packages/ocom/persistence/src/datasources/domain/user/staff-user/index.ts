@@ -6,9 +6,7 @@ export type StaffUserReturnType = {
     StaffUserUnitOfWork: Domain.Contexts.User.StaffUser.StaffUserUnitOfWork;
 };
 
-export type StaffUserPersistenceType = PersistenceFactory<StaffUserReturnType>;
-
-export const StaffUserPersistence: StaffUserPersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
+export const StaffUserPersistence: PersistenceFactory<StaffUserReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const staffUserModel = models.StaffUser;
 	if (!staffUserModel) {
 		throw new Error('StaffUser model is not available in the mongoose context');

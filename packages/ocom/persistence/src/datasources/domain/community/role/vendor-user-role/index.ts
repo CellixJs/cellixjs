@@ -6,9 +6,7 @@ export type VendorUserRoleReturnType = {
     VendorUserRoleUnitOfWork: Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleUnitOfWork;
 };
 
-type VendorUserRolePersistenceType = PersistenceFactory<VendorUserRoleReturnType>;
-
-export const VendorUserRolePersistence: VendorUserRolePersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
+export const VendorUserRolePersistence: PersistenceFactory<VendorUserRoleReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const VendorUserRoleModel = models.VendorUserRole;
 	return {
 		VendorUserRoleUnitOfWork: getVendorUserRoleUnitOfWork(VendorUserRoleModel, passport),

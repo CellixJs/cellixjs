@@ -1,5 +1,5 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../types.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
@@ -44,12 +44,7 @@ export class EndUserReadRepositoryImpl implements EndUserReadRepository {
     }
 }
 
-type EndUserReadRepositoryType = (
-    models: ModelsContext,
-    passport: Domain.Passport
-) => EndUserReadRepository;
-
-export const getEndUserReadRepository: EndUserReadRepositoryType = (
+export const getEndUserReadRepository: PersistenceFactory<EndUserReadRepository> = (
     models: ModelsContext,
     passport: Domain.Passport
 ) => {

@@ -1,6 +1,6 @@
 import type { Domain } from '@ocom/domain';
 
-import type { ModelsContext } from '../../../../types.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { CommunityDataSourceImpl, type CommunityDataSource } from './community.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { CommunityConverter } from '../../../domain/community/community/community.domain-adapter.ts';
@@ -124,12 +124,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
     }
 }
 
-type CommunityReadRepositoryType = (
-    models: ModelsContext,
-    passport: Domain.Passport
-) => CommunityReadRepository;
-
-export const getCommunityReadRepository: CommunityReadRepositoryType = (
+export const getCommunityReadRepository: PersistenceFactory<CommunityReadRepository> = (
     models: ModelsContext,
     passport: Domain.Passport
 ) => {

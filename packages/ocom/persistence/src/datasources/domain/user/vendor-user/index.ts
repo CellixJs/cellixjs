@@ -6,9 +6,7 @@ export type VendorUserReturnType = {
     VendorUserUnitOfWork: Domain.Contexts.User.VendorUser.VendorUserUnitOfWork;
 };
 
-export type VendorUserPersistenceType = PersistenceFactory<VendorUserReturnType>;
-
-export const VendorUserPersistence: VendorUserPersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
+export const VendorUserPersistence: PersistenceFactory<VendorUserReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const vendorUserModel = models.VendorUser;
 	if (!vendorUserModel) {
 		throw new Error('VendorUser model is not available in the mongoose context');

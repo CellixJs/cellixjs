@@ -5,9 +5,7 @@ export type MemberReturnType = {
 	MemberUnitOfWork: Domain.Contexts.Community.Member.MemberUnitOfWork;
 };
 
-type MemberPersistenceType = PersistenceFactory<MemberReturnType>;
-
-export const MemberPersistence: MemberPersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
+export const MemberPersistence: PersistenceFactory<MemberReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const MemberModel = models.Member;
 	return {
 		MemberUnitOfWork: getMemberUnitOfWork(MemberModel, passport),

@@ -8,9 +8,7 @@ interface CaseContextPersistence {
 	};
 }
 
-type CaseContextPersistenceType = PersistenceFactory<CaseContextPersistence>;
-
-export const CaseContextPersistence: CaseContextPersistenceType = (
+export const CaseContextPersistence: PersistenceFactory<CaseContextPersistence> = (
 	models: ModelsContext,
 	passport: Domain.Passport,
 ) => ({

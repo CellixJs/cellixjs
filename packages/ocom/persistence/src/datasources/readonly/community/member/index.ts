@@ -8,9 +8,7 @@ export type MemberReadReturnType = {
     MemberReadRepo: MemberReadRepository;
 };
 
-export type MemberReadRepositoryImplType = PersistenceFactory<MemberReadReturnType>;
-
-export const MemberReadRepositoryImpl: MemberReadRepositoryImplType = (models: ModelsContext, passport: Domain.Passport) => {
+export const MemberReadRepositoryImpl: PersistenceFactory<MemberReadReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
     return {
         MemberReadRepo: getMemberReadRepository(models, passport),
     };

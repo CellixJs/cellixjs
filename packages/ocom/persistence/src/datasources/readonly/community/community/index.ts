@@ -8,9 +8,7 @@ export type CommunityReadReturnType = {
     CommunityReadRepo: CommunityReadRepository;
 };
 
-export type CommunityReadRepositoryImplType = PersistenceFactory<CommunityReadReturnType>;
-
-export const CommunityReadRepositoryImpl: CommunityReadRepositoryImplType = (models: ModelsContext, passport: Domain.Passport) => {
+export const CommunityReadRepositoryImpl: PersistenceFactory<CommunityReadReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
     return {
         CommunityReadRepo: getCommunityReadRepository(models, passport),
     };

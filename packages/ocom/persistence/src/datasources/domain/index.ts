@@ -6,9 +6,7 @@ import { PropertyContextPersistence } from './property/index.ts';
 import { ServiceContextPersistence } from './service/index.ts';
 import { UserContextPersistence } from './user/index.ts';
 
-type DomainDataSourceImplementationType = PersistenceFactory<DomainDataSource>;
-
-export const DomainDataSourceImplementation: DomainDataSourceImplementationType = (models: ModelsContext, passport: Domain.Passport) => ({
+export const DomainDataSourceImplementation: PersistenceFactory<DomainDataSource> = (models: ModelsContext, passport: Domain.Passport) => ({
     Case: CaseContextPersistence(models, passport),
     Community: CommunityContextPersistence(models, passport),
     Property: PropertyContextPersistence(models, passport),

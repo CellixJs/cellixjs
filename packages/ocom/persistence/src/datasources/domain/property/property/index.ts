@@ -5,9 +5,7 @@ export type PropertyReturnType = {
     PropertyUnitOfWork: Domain.Contexts.Property.Property.PropertyUnitOfWork;
 };
 
-type PropertyPersistenceType = PersistenceFactory<PropertyReturnType>;
-
-export const PropertyPersistence: PropertyPersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
+export const PropertyPersistence: PersistenceFactory<PropertyReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const PropertyModel = models.Property;
 	return {
 		PropertyUnitOfWork: getPropertyUnitOfWork(PropertyModel, passport),

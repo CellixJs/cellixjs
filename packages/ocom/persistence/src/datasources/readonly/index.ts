@@ -21,9 +21,7 @@ export interface ReadonlyDataSource {
     }
 }
 
-type ReadonlyDataSourceImplementationType = PersistenceFactory<ReadonlyDataSource>;
-
-export const ReadonlyDataSourceImplementation: ReadonlyDataSourceImplementationType = (models, passport) => ({
+export const ReadonlyDataSourceImplementation: PersistenceFactory<ReadonlyDataSource> = (models, passport) => ({
     Community: CommunityContext(models, passport),
     User: UserContext(models, passport)
 });

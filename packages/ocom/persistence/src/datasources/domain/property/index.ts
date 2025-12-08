@@ -6,8 +6,6 @@ interface PropertyContextPersistence {
 	Property: PropertyReturnType;
 }
 
-type PropertyContextPersistenceType = PersistenceFactory<PropertyContextPersistence>;
-
-export const PropertyContextPersistence: PropertyContextPersistenceType = (models: ModelsContext, passport: Domain.Passport) => ({
+export const PropertyContextPersistence: PersistenceFactory<PropertyContextPersistence> = (models: ModelsContext, passport: Domain.Passport) => ({
 	Property: PropertyPersistence(models, passport),
 });

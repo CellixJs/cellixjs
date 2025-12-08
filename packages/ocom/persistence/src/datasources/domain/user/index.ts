@@ -12,9 +12,7 @@ interface UserContextPersistence {
     VendorUser: VendorUserReturnType;
 }
 
-type UserContextPersistenceType = PersistenceFactory<UserContextPersistence>;
-
-export const UserContextPersistence: UserContextPersistenceType = (models: ModelsContext, passport: Domain.Passport) => ({
+export const UserContextPersistence: PersistenceFactory<UserContextPersistence> = (models: ModelsContext, passport: Domain.Passport) => ({
 	EndUser: EndUserPersistence(models, passport),
 	StaffRole: StaffRolePersistence(models, passport),
 	StaffUser: StaffUserPersistence(models, passport),

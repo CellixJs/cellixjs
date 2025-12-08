@@ -6,8 +6,6 @@ interface ServiceContextPersistence {
     Service: ServiceReturnType;
 }
 
-type ServiceContextPersistenceType = PersistenceFactory<ServiceContextPersistence>;
-
-export const ServiceContextPersistence: ServiceContextPersistenceType = (models: ModelsContext, passport: Domain.Passport) => ({
+export const ServiceContextPersistence: PersistenceFactory<ServiceContextPersistence> = (models: ModelsContext, passport: Domain.Passport) => ({
     Service: ServicePersistence(models, passport)
 });

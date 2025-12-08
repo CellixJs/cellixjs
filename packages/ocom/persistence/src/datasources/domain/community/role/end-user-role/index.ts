@@ -6,9 +6,7 @@ export type EndUserRoleReturnType = {
 	EndUserRoleUnitOfWork: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleUnitOfWork;
 };
 
-type EndUserRolePersistenceType = PersistenceFactory<EndUserRoleReturnType>;
-
-export const EndUserRolePersistence: EndUserRolePersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
+export const EndUserRolePersistence: PersistenceFactory<EndUserRoleReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const EndUserRoleModel = models.EndUserRole;
 	return {
 		EndUserRoleUnitOfWork: getEndUserRoleUnitOfWork(EndUserRoleModel, passport),
