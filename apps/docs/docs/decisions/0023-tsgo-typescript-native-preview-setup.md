@@ -13,7 +13,7 @@ informed:
 
 ## Context and Problem Statement
 
-To prepare for TypeScript 7.0 and leverage advanced type checking features, we needed to integrate `tsgo` with the `typescript/native-preview` package. This setup provides early access to upcoming TypeScript enhancements, improving type safety and performance. However, adoption required addressing compatibility issues with existing dependencies and adding missing type annotations in our codebase.
+To prepare for TypeScript 7.0 and leverage advanced type checking features, we needed to integrate `tsgo` with the `@typescript/native-preview` package. This setup provides early access to upcoming TypeScript enhancements, improving type safety and performance. However, adoption required addressing compatibility issues with existing dependencies and adding missing type annotations in our codebase.
 
 ## Decision Drivers
 
