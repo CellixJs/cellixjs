@@ -2,7 +2,8 @@
   "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "lib": ["ES2023", "DOM"]
   },
   "include": ["src"],
 }

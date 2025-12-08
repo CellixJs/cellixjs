@@ -5,15 +5,27 @@ import { ApolloServer } from '@apollo/server';
 import { applyMiddleware } from 'graphql-middleware';
 import depthLimit from 'graphql-depth-limit';
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
-import { expect, vi, type MockedFunction } from 'vitest';
+import { expect, vi, type Mock } from 'vitest';
 import type { Span, SpanContext } from '@opentelemetry/api';
 import { ServiceApolloServer, type ServiceApolloServerOptions } from './index.ts';
 
 const test = { for: describeFeature };
 
+// Define mockApolloServer
+const mockApolloServer: {
+  start: Mock<() => Promise<void>>;
+  stop: Mock<() => Promise<void>>;
+} = {
+  start: vi.fn(),
+  stop: vi.fn(),
+};
+
 // Mock ApolloServer
 vi.mock('@apollo/server', () => ({
-  ApolloServer: vi.fn(),
+  // biome-ignore lint/complexity/useArrowFunction: mockImplementation needs a function expression to work as constructor
+  ApolloServer: vi.fn().mockImplementation(function () {
+    return mockApolloServer;
+  }),
 }));
 
 // Mock graphql-middleware
@@ -83,10 +95,6 @@ const testSchema = new GraphQLSchema({
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let service: ServiceApolloServer;
-  let mockApolloServer: {
-    start: MockedFunction<() => Promise<void>>;
-    stop: MockedFunction<() => Promise<void>>;
-  };
 
   BeforeEachScenario(() => {
     // Reset all mocks
@@ -98,13 +106,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     mockSpan.recordException.mockClear();
     mockSpan.end.mockClear();
 
-    // Setup mock ApolloServer
-    mockApolloServer = {
-      start: vi.fn().mockResolvedValue(undefined),
-      stop: vi.fn().mockResolvedValue(undefined),
-    };
+    // Reset mock ApolloServer
+    mockApolloServer.start = vi.fn().mockResolvedValue(undefined);
+    mockApolloServer.stop = vi.fn().mockResolvedValue(undefined);
 
-    (ApolloServer as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => mockApolloServer);
     (applyMiddleware as ReturnType<typeof vi.fn>).mockImplementation((schema: GraphQLSchema) => schema);
     (depthLimit as ReturnType<typeof vi.fn>).mockReturnValue(() => ({}));
   });

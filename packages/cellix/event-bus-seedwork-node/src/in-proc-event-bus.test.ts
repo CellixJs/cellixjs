@@ -2,7 +2,7 @@ import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
+import { expect, vi, type Mock } from 'vitest';
 import { InProcEventBusInstance } from './in-proc-event-bus.ts';
 
 
@@ -18,21 +18,21 @@ class TestEventA extends CustomDomainEventImpl<{ testA: string }> {}
 class TestEventB extends CustomDomainEventImpl<{ testB: string }> {}
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
-  let handler: ReturnType<typeof vi.fn>;
-  let handler1: ReturnType<typeof vi.fn>;
-  let handler2: ReturnType<typeof vi.fn>;
-  let handlerA: ReturnType<typeof vi.fn>;
-  let handlerB: ReturnType<typeof vi.fn>;
+  let handler: Mock<(payload: { test: string; }) => Promise<void>>;
+  let handler1: Mock<(payload: { test: string; }) => Promise<void>>;
+  let handler2: Mock<(payload: { test: string; }) => Promise<void>>;
+  let handlerA: Mock<(payload: { testA: string; }) => Promise<void>>;
+  let handlerB: Mock<(payload: { testB: string; }) => Promise<void>>;
   let error: unknown;
 
   // Reset the singleton's subscribers for isolation before each scenario
   BeforeEachScenario(() => {
     (InProcEventBusInstance as unknown as { eventSubscribers: Record<string, Array<(rawpayload: string) => Promise<void>> | undefined> }).eventSubscribers = {};
-    handler = vi.fn().mockResolvedValue(undefined);
-    handler1 = vi.fn().mockResolvedValue(undefined);
-    handler2 = vi.fn().mockResolvedValue(undefined);
-    handlerA = vi.fn().mockResolvedValue(undefined);
-    handlerB = vi.fn().mockResolvedValue(undefined);
+    handler = vi.fn<(payload: { test: string; }) => Promise<void>>().mockResolvedValue(undefined);
+    handler1 = vi.fn<(payload: { test: string; }) => Promise<void>>().mockResolvedValue(undefined);
+    handler2 = vi.fn<(payload: { test: string; }) => Promise<void>>().mockResolvedValue(undefined);
+    handlerA = vi.fn<(payload: { testA: string; }) => Promise<void>>().mockResolvedValue(undefined);
+    handlerB = vi.fn<(payload: { testB: string; }) => Promise<void>>().mockResolvedValue(undefined);
     error = undefined;
   });
 
@@ -101,8 +101,8 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Handler throws and both are registered', ({ Given, When, And, Then }) => {
     Given('multiple handlers for the same event class', () => {
-      handler1 = vi.fn().mockRejectedValue(new Error('handler1 error'));
-      handler2 = vi.fn().mockResolvedValue(undefined);
+      handler1 = vi.fn<(payload: { test: string; }) => Promise<void>>().mockRejectedValue(new Error('handler1 error'));
+      handler2 = vi.fn<(payload: { test: string; }) => Promise<void>>().mockResolvedValue(undefined);
     });
     When('one handler throws and both are registered', () => {
       InProcEventBusInstance.register(TestEvent, handler1);
