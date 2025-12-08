@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature} from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
+import { expect, vi, type Mock } from 'vitest';
 import { DomainEventBase } from './domain-event.ts';
 import { type HandleEvent, HandleEventImpl } from './handle-event.ts';
 
@@ -15,13 +15,13 @@ const feature = await loadFeature(
 class TestEvent extends DomainEventBase {}
 
 test.for(feature, ({ Scenario }) => {
-  let handlerFn: ReturnType<typeof vi.fn>;
+  let handlerFn: Mock<(event: TestEvent) => void>;
   let handler: HandleEvent<TestEvent>   ;
   let event: TestEvent;
 
   Scenario('Handling a domain event with a registered handler', ({ Given, When, Then }) => {
     Given('a domain event handler is registered with a function', () => {
-      handlerFn = vi.fn();
+      handlerFn = vi.fn<(event: TestEvent) => void>(() => {/* empty */});
       handler = new HandleEventImpl<TestEvent>(handlerFn);
       event = new TestEvent('agg-1');
     });
@@ -36,7 +36,7 @@ test.for(feature, ({ Scenario }) => {
 
   Scenario('Registering a handler', ({ Given, When, Then }) => {
     Given('a function to handle a domain event', () => {
-      handlerFn = vi.fn();
+      handlerFn = vi.fn<(event: TestEvent) => void>(() => {/* empty */});
       event = new TestEvent('agg-2');
     });
     When('I register the function using the static register method', () => {
@@ -50,15 +50,15 @@ test.for(feature, ({ Scenario }) => {
   });
 
   Scenario('Registering multiple handlers', ({ Given, When, Then }) => {
-    let handlerFn1: ReturnType<typeof vi.fn>;
-    let handlerFn2: ReturnType<typeof vi.fn>;
+    let handlerFn1: Mock<(event: TestEvent) => void>;
+    let handlerFn2: Mock<(event: TestEvent) => void>;
     let handler1: HandleEventImpl<TestEvent>;
     let handler2: HandleEventImpl<TestEvent>;
     let combinedHandler: HandleEventImpl<TestEvent>;
 
     Given('multiple handlers for a domain event', () => {
-      handlerFn1 = vi.fn();
-      handlerFn2 = vi.fn();
+      handlerFn1 = vi.fn<(event: TestEvent) => void>(() => {/* empty */});
+      handlerFn2 = vi.fn<(event: TestEvent) => void>(() => {/* empty */});
       handler1 = new HandleEventImpl<TestEvent>(handlerFn1);
       handler2 = new HandleEventImpl<TestEvent>(handlerFn2);
       event = new TestEvent('agg-3');

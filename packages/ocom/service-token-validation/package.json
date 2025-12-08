@@ -25,6 +25,7 @@
     "@cellix/api-services-spec": "workspace:*"
   },
   "devDependencies": {
+    "@amiceli/vitest-cucumber": "catalog:",
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
     "typescript": "catalog:",

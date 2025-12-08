@@ -12,7 +12,7 @@ import { DataloaderInstrumentation } from '@opentelemetry/instrumentation-datalo
 import { GraphQLInstrumentation } from '@opentelemetry/instrumentation-graphql';
 import azureOtel from '@azure/functions-opentelemetry-instrumentation';
 import { MongooseInstrumentation } from '@opentelemetry/instrumentation-mongoose';
-import { expect, vi } from 'vitest';
+import { expect, vi, type Mock } from 'vitest';
 import { OtelBuilder } from './otel-builder.ts';
 
 // Move mocks INSIDE the vi.mock factory to avoid hoisting issues
@@ -24,9 +24,18 @@ vi.mock('@azure/monitor-opentelemetry-exporter', () => {
   class MetricExporter {}
   class LogExporter {}
   // Mocks that attach args for assertion
-  const traceExporterMock = vi.fn((args) => Object.assign(new TraceExporter(), { __args: args }));
-  const metricExporterMock = vi.fn((args) => Object.assign(new MetricExporter(), { __args: args }));
-  const logExporterMock = vi.fn((args) => Object.assign(new LogExporter(), { __args: args }));
+  // biome-ignore lint/complexity/useArrowFunction: Vitest v4 requires function expression for constructor mocks
+  const traceExporterMock = vi.fn(function (args) {
+    return Object.assign(new TraceExporter(), { __args: args });
+  });
+    // biome-ignore lint/complexity/useArrowFunction: Vitest v4 requires function expression for constructor mocks
+  const metricExporterMock = vi.fn(function (args) {
+    return Object.assign(new MetricExporter(), { __args: args });
+  });
+  // biome-ignore lint/complexity/useArrowFunction: Vitest v4 requires function expression for constructor mocks
+  const logExporterMock = vi.fn(function (args) {
+    return Object.assign(new LogExporter(), { __args: args });
+  });
   // Expose mocks and classes for test access
   return {
     AzureMonitorTraceExporter: traceExporterMock,
@@ -54,9 +63,9 @@ const feature = await loadFeature(
 test.for(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) => {
   let builder: OtelBuilder;
   let originalEnv: NodeJS.ProcessEnv;
-  let traceExporterMock: ReturnType<typeof vi.fn>;
-  let metricExporterMock: ReturnType<typeof vi.fn>;
-  let logExporterMock: ReturnType<typeof vi.fn>;
+  let traceExporterMock: Mock<(...args: unknown[]) => unknown>;
+  let metricExporterMock: Mock<(...args: unknown[]) => unknown>;
+  let logExporterMock: Mock<(...args: unknown[]) => unknown>;
   let TraceExporter: new (...args: unknown[]) => unknown;
   let MetricExporter: new (...args: unknown[]) => unknown;
   let LogExporter: new (...args: unknown[]) => unknown;

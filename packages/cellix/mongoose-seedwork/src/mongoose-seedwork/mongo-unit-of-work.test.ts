@@ -28,7 +28,7 @@ const feature = await loadFeature(
   const Passport = {};
 
 class AggregateRootMock extends AggregateRoot<PropType, typeof Passport> {
-  override getIntegrationEvents = vi.fn(() => []);
+  override getIntegrationEvents = vi.fn<() => CustomDomainEventImpl<Record<string, unknown>>[]>(() => []);
   get foo(): string { return this.props.foo; }
   set foo(foo: string) { this.props.foo = foo; }
   get createdAt(): Date { return this.props.createdAt; }
@@ -41,7 +41,7 @@ type PropType = DomainEntityProps & {
   readonly schemaVersion: string;
 };
 class RepoMock extends MongoRepositoryBase<MongoType, PropType, typeof Passport, AggregateRootMock> {
-  override getIntegrationEvents = vi.fn(() => []);
+  override getIntegrationEvents = vi.fn<() => CustomDomainEventImpl<Record<string, unknown>>[]>(() => []);
 }
 
 class TestEvent extends CustomDomainEventImpl<{ foo: string }> {}
@@ -66,7 +66,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let typeConverter: TypeConverter<MongoType, PropType, unknown, AggregateRootMock>;
 
   const mockRepoClass = vi.fn((_passport, _model, _typeConverter, _bus, _session): RepoMock => repoInstance);
-  let domainOperation: ReturnType<typeof vi.fn>;
+  let domainOperation: Mock<(repository: RepoMock) => Promise<void>>;
 
   BeforeEachScenario(() => {
     session = {} as ClientSession;
@@ -116,7 +116,8 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       typeConverter,
       mockRepoClass,
     );
-    domainOperation = vi.fn(async (repo: RepoMock) => {
+    domainOperation = vi.fn();
+    domainOperation.mockImplementation(async (repo: RepoMock) => {
       const aggregate = await repo.get('agg-1');
       aggregate.foo = 'new-foo';
       await repo.save(aggregate);
@@ -146,7 +147,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('Domain operation with no events, completes successfully', ({ Given, When, Then }) => {
     Given('a domain operation that emits no domain or integration events', () => {
-      repoInstance.getIntegrationEvents = vi.fn(() => []);
+      repoInstance.getIntegrationEvents.mockReturnValue([]);
     });
     When('the operation completes successfully', async () => {
       await unitOfWork.withTransaction(Passport, domainOperation);
@@ -160,7 +161,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   Scenario('Domain operation with no events, throws error', ({ Given, When, Then }) => {
     let domainError: Error;
     Given('a domain operation that emits no domain or integration events', () => {
-      repoInstance.getIntegrationEvents = vi.fn(() => []);
+      repoInstance.getIntegrationEvents.mockReturnValue([]);
       domainError = new Error('Domain failure');
     });
     When('the operation throws an error', async () => {
@@ -184,7 +185,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       event1.payload = { foo: 'bar1' };
       event2 = new TestEvent('id');
       event2.payload = { foo: 'bar2' };
-      repoInstance.getIntegrationEvents = vi.fn(() => [event1, event2]);
+      repoInstance.getIntegrationEvents.mockReturnValue([event1, event2]);
     });
     When('the transaction completes successfully', async () => {
       (integrationEventBus.dispatch as Mock)
@@ -215,7 +216,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       event1.payload = { foo: 'bar1' };
       event2 = new TestEvent('id');
       event2.payload = { foo: 'bar2' };
-      repoInstance.getIntegrationEvents = vi.fn(() => [event1, event2]);
+      repoInstance.getIntegrationEvents.mockReturnValue([event1, event2]);
     });
     When('integration event dispatch fails', async () => {
       (integrationEventBus.dispatch as Mock)
@@ -238,7 +239,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       event1.payload = { foo: 'bar1' };
       event2 = new TestEvent('id');
       event2.payload = { foo: 'bar2' };
-      repoInstance.getIntegrationEvents = vi.fn(() => [event1, event2]);
+      repoInstance.getIntegrationEvents.mockReturnValue([event1, event2]);
     });
     When('multiple integration events are emitted and all succeed', async () => {
       (integrationEventBus.dispatch as Mock)
@@ -272,7 +273,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('InitializedUnitOfWork withTransaction method', ({ Given, When, Then }) => {
     let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
-    let transactionCallback: Mock;
+    let transactionCallback: Mock<(repository: RepoMock) => Promise<void>>;
 
     Given('an initialized unit of work', () => {
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
@@ -290,7 +291,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('InitializedUnitOfWork withScopedTransaction method', ({ Given, When, Then }) => {
     let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
-    let transactionCallback: Mock;
+    let transactionCallback: Mock<(repository: RepoMock) => Promise<void>>;
 
     Given('an initialized unit of work', () => {
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
@@ -309,7 +310,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   Scenario('InitializedUnitOfWork withScopedTransactionById with existing item', ({ Given, When, Then }) => {
     let initializedUow: InitializedUnitOfWork<PassportType, PropType, AggregateRootMock, RepoMock>;
     let result: AggregateRootMock;
-    let transactionCallback: Mock;
+    let transactionCallback: Mock<(repository: RepoMock) => Promise<void>>;
 
     Given('an initialized unit of work and an existing item', () => {
       initializedUow = getInitializedUnitOfWork(unitOfWork as MongoUnitOfWork<MongoType, PropType, PassportType, AggregateRootMock, RepoMock>, Passport);
@@ -357,7 +358,8 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     When('withScopedTransactionById callback throws an error', async () => {
-      const failingCallback = vi.fn(() => {
+      const failingCallback = vi.fn(async () => {
+        await Promise.resolve();
         throw callbackError;
       });
       await expect(

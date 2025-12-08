@@ -1,13 +1,11 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi, afterEach } from 'vitest';
+import { expect, vi, afterEach, type Mock } from 'vitest';
 import { VerifiedTokenService } from './verified-token-service.ts';
 import { ServiceTokenValidation } from './index.ts';
 
 // Mock VerifiedTokenService
-
-const test = { for: describeFeature };
 vi.mock('./verified-token-service.ts', () => ({
   VerifiedTokenService: vi.fn(),
 }));
@@ -20,14 +18,15 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'index.feature')
 );
 
-test.for(feature, ({ Scenario, BeforeEachScenario }) => {
+let originalEnv: NodeJS.ProcessEnv;
+
+describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   let service: ServiceTokenValidation;
   let mockVerifiedTokenService: {
-    start: ReturnType<typeof vi.fn>;
-    getVerifiedJwt: ReturnType<typeof vi.fn>;
+    start: Mock<() => void>;
+    getVerifiedJwt: Mock<(token: string, configKey: string) => Promise<unknown>>;
     timerInstance: NodeJS.Timeout;
   };
-  let originalEnv: NodeJS.ProcessEnv;
 
   BeforeEachScenario(() => {
     // Reset mocks
@@ -44,7 +43,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       timerInstance: setInterval(() => undefined, 1000),
     };
 
-    (VerifiedTokenService as ReturnType<typeof vi.fn>).mockImplementation(() => mockVerifiedTokenService);
+    // biome-ignore lint/complexity/useArrowFunction: Vitest v4 requires function expression for constructor mocks
+    (VerifiedTokenService as ReturnType<typeof vi.fn>).mockImplementation(function () {
+      return mockVerifiedTokenService;
+    });
   });
 
   afterEach(() => {
