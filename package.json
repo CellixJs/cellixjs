@@ -77,7 +77,6 @@
   },
   "pnpm": {
     "overrides": {
-      "@types/chai": "5.0.1",
       "vite": "7.1.12",
       "jiti": "2.6.1"
     }

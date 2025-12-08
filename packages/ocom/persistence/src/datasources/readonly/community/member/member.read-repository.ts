@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork'; 
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext } from '../../../../types.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { type MemberDataSource, MemberDataSourceImpl } from './member.data.ts';

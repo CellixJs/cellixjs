@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext } from '../../../../types.ts';
 import { MemberReadRepositoryImpl } from './member.read-repository.ts';
 import { MemberDataSourceImpl } from './member.data.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';

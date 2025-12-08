@@ -1,15 +1,12 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { getStaffRoleUnitOfWork } from './staff-role.uow.ts';
 
 export type StaffRoleReturnType = {
     StaffRoleUnitOfWork: Domain.Contexts.User.StaffRole.StaffRoleUnitOfWork;
 };
 
-export type StaffRolePersistenceType = (
-    models: ModelsContext,
-    passport: Domain.Passport,
-) => StaffRoleReturnType;
+export type StaffRolePersistenceType = PersistenceFactory<StaffRoleReturnType>;
 
 export const StaffRolePersistence: StaffRolePersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
 	const staffRoleModel = models.StaffRole;

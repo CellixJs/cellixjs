@@ -1,15 +1,12 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { getServiceUnitOfWork } from './service.uow.ts';
 
 export type ServiceReturnType = {
     ServiceUnitOfWork: Domain.Contexts.Service.Service.ServiceUnitOfWork;
 };
 
-export type ServicePersistenceType = (
-	models: ModelsContext,
-	passport: Domain.Passport,
-) => ServiceReturnType;
+export type ServicePersistenceType = PersistenceFactory<ServiceReturnType>;
 
 export const ServicePersistence: ServicePersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
 	const ServiceModel = models.Service;

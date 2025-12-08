@@ -1,5 +1,5 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../types.ts';
 import { CommunityReadRepositoryImpl, type CommunityReadReturnType } from './community/index.ts';
 import { MemberReadRepositoryImpl, type MemberReadReturnType } from './member/index.ts';
 
@@ -8,10 +8,7 @@ interface CommunityContext {
     Member: MemberReadReturnType;
 }
 
-type CommunityContextType = (
-    models: ModelsContext,
-    passport: Domain.Passport,
-) => CommunityContext;
+type CommunityContextType = PersistenceFactory<CommunityContext>;
 
 export const CommunityContext: CommunityContextType = (models: ModelsContext, passport: Domain.Passport) => ({
     Community: CommunityReadRepositoryImpl(models, passport),

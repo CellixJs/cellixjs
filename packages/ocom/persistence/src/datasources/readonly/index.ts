@@ -1,5 +1,5 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../index.ts';
+import type { ModelsContext } from '../../types.ts';
 import type * as Community from './community/community/index.ts';
 import { CommunityContext } from './community/index.ts';
 import type * as Member from './community/member/index.ts';

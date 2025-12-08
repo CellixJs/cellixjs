@@ -1,5 +1,5 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../types.ts';
 import { type EndUserReturnType, EndUserPersistence } from './end-user/index.ts';
 import { type StaffRoleReturnType, StaffRolePersistence } from './staff-role/index.ts';
 import { type StaffUserReturnType, StaffUserPersistence } from './staff-user/index.ts';
@@ -12,10 +12,7 @@ interface UserContextPersistence {
     VendorUser: VendorUserReturnType;
 }
 
-type UserContextPersistenceType = (
-    models: ModelsContext,
-    passport: Domain.Passport,
-) => UserContextPersistence;
+type UserContextPersistenceType = PersistenceFactory<UserContextPersistence>;
 
 export const UserContextPersistence: UserContextPersistenceType = (models: ModelsContext, passport: Domain.Passport) => ({
 	EndUser: EndUserPersistence(models, passport),

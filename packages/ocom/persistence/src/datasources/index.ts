@@ -1,5 +1,5 @@
 import { Domain, type DomainDataSource } from "@ocom/domain";
-import type { ModelsContext } from "../index.ts";
+import type { ModelsContext } from "../types.ts";
 import { DomainDataSourceImplementation } from "./domain/index.ts";
 import { type ReadonlyDataSource, ReadonlyDataSourceImplementation } from "./readonly/index.ts";
 

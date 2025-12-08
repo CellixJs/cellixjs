@@ -1,6 +1,6 @@
 import type { Domain } from '@ocom/domain';
 
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext } from '../../../../types.ts';
 import { CommunityDataSourceImpl, type CommunityDataSource } from './community.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { CommunityConverter } from '../../../domain/community/community/community.domain-adapter.ts';

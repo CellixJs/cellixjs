@@ -1,15 +1,12 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { getVendorUserUnitOfWork } from './vendor-user.uow.ts';
 
 export type VendorUserReturnType = {
     VendorUserUnitOfWork: Domain.Contexts.User.VendorUser.VendorUserUnitOfWork;
 };
 
-export type VendorUserPersistenceType = (
-    models: ModelsContext,
-    passport: Domain.Passport,
-) => VendorUserReturnType;
+export type VendorUserPersistenceType = PersistenceFactory<VendorUserReturnType>;
 
 export const VendorUserPersistence: VendorUserPersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
 	const vendorUserModel = models.VendorUser;

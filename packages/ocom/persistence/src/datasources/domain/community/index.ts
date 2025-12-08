@@ -1,5 +1,5 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../types.ts';
 import { type CommunityReturnType, CommunityPersistence } from './community/index.ts';
 import { type MemberReturnType, MemberPersistence } from './member/index.ts';
 import { type EndUserRoleReturnType, EndUserRolePersistence } from './role/end-user-role/index.ts';
@@ -14,10 +14,7 @@ interface CommunityContextPersistence {
     };
 }
 
-type CommunityContextPersistenceType = (
-	models: ModelsContext,
-	passport: Domain.Passport,
-) => CommunityContextPersistence;
+type CommunityContextPersistenceType = PersistenceFactory<CommunityContextPersistence>;
 
 export const CommunityContextPersistence: CommunityContextPersistenceType = (models: ModelsContext, passport: Domain.Passport) => ({
 	Community: CommunityPersistence(models, passport),

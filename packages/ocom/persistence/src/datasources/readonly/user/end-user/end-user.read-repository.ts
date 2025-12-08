@@ -1,5 +1,5 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext } from '../../../../types.ts';
 import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';

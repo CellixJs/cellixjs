@@ -1,15 +1,12 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { getEndUserUnitOfWork } from './end-user.uow.ts';
 
 export type EndUserReturnType = {
     EndUserUnitOfWork: Domain.Contexts.User.EndUser.EndUserUnitOfWork;
 };
 
-export type EndUserPersistenceType = (
-    models: ModelsContext,
-    passport: Domain.Passport,
-) => EndUserReturnType;
+export type EndUserPersistenceType = PersistenceFactory<EndUserReturnType>;
 
 export const EndUserPersistence: EndUserPersistenceType = (models: ModelsContext, passport: Domain.Passport) => {
 	const EndUserModel = models.EndUser;

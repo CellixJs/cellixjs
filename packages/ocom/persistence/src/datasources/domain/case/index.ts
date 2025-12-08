@@ -1,5 +1,5 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../types.ts';
 import { ServiceTicketV1Persistence, type ServiceTicketV1ReturnType } from './service-ticket-v1/index.ts';
 
 interface CaseContextPersistence {
@@ -8,10 +8,7 @@ interface CaseContextPersistence {
 	};
 }
 
-type CaseContextPersistenceType = (
-	models: ModelsContext,
-	passport: Domain.Passport,
-) => CaseContextPersistence;
+type CaseContextPersistenceType = PersistenceFactory<CaseContextPersistence>;
 
 export const CaseContextPersistence: CaseContextPersistenceType = (
 	models: ModelsContext,
