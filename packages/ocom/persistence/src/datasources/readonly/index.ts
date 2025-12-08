@@ -1,5 +1,4 @@
-import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../types.ts';
+import type { PersistenceFactory } from '../../types.ts';
 import type * as Community from './community/community/index.ts';
 import { CommunityContext } from './community/index.ts';
 import type * as Member from './community/member/index.ts';
@@ -22,10 +21,7 @@ export interface ReadonlyDataSource {
     }
 }
 
-type ReadonlyDataSourceImplementationType = (
-    models: ModelsContext,
-    passport: Domain.Passport,
-) => ReadonlyDataSource;
+type ReadonlyDataSourceImplementationType = PersistenceFactory<ReadonlyDataSource>;
 
 export const ReadonlyDataSourceImplementation: ReadonlyDataSourceImplementationType = (models, passport) => ({
     Community: CommunityContext(models, passport),
