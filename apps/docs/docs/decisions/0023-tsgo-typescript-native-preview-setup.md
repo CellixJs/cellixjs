@@ -50,24 +50,24 @@ Chosen option: "Adopt tsgo with typescript/native-preview immediately", because 
 
 ### Adopt tsgo with typescript/native-preview immediately
 
-- Good, because provides early access to TypeScript 7.0 features
-- Good, because allows gradual migration and issue identification
-- Neutral, because requires temporary workarounds
-- Bad, because increases maintenance burden during transition period
+- Good, because it provides early access to TypeScript 7.0 features
+- Good, because it allows gradual migration and issue identification
+- Neutral, because it requires temporary workarounds
+- Bad, because it increases maintenance burden during transition period
 
 ### Wait for official TypeScript 7.0 release
 
-- Good, because avoids compatibility issues and workarounds
-- Good, because official release is more stable
-- Bad, because delays access to beneficial features
-- Bad, because may require more significant changes later
+- Good, because it avoids compatibility issues and workarounds
+- Good, because the official release is more stable
+- Bad, because it delays access to beneficial features
+- Bad, because it may require more significant changes later
 
 ### Use alternative type checking tools
 
-- Good, because avoids TypeScript-specific issues
-- Neutral, because may provide different benefits
-- Bad, because increases tooling complexity
-- Bad, because may not integrate as well with existing TypeScript ecosystem
+- Good, because it avoids TypeScript-specific issues
+- Neutral, because it may provide different benefits
+- Bad, because it increases tooling complexity
+- Bad, because it may not integrate as well with existing TypeScript ecosystem
 
 ## More Information
 
