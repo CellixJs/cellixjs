@@ -2,32 +2,34 @@
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 // @ts-ignore [TS7]
 import { ValueObject } from '@cellix/domain-seedwork/value-object';
-import type { CommunityVisa } from '../../community.visa.ts';
+// [NN] [TS7] revert chang of '.js' to '.ts' in the imports once declaration emit is fully implemented
+// https://github.com/microsoft/TypeScript-Go?tab=readme-ov-file#what-works-so-far
+import type { CommunityVisa } from '../../community.visa.js';
 import {
 	EndUserRoleCommunityPermissions,
 	type EndUserRoleCommunityPermissionsEntityReference,
 	type EndUserRoleCommunityPermissionsProps,
-} from './end-user-role-community-permissions.ts';
+} from './end-user-role-community-permissions.js';
 import {
 	EndUserRolePropertyPermissions,
 	type EndUserRolePropertyPermissionsEntityReference,
 	type EndUserRolePropertyPermissionsProps,
-} from './end-user-role-property-permissions.ts';
+} from './end-user-role-property-permissions.js';
 import {
 	EndUserRoleServicePermissions,
 	type EndUserRoleServicePermissionsEntityReference,
 	type EndUserRoleServicePermissionsProps,
-} from './end-user-role-service-permissions.ts';
+} from './end-user-role-service-permissions.js';
 import {
 	EndUserRoleServiceTicketPermissions,
 	type EndUserRoleServiceTicketPermissionsEntityReference,
 	type EndUserRoleServiceTicketPermissionsProps,
-} from './end-user-role-service-ticket-permissions.ts';
+} from './end-user-role-service-ticket-permissions.js';
 import {
 	EndUserRoleViolationTicketPermissions,
 	type EndUserRoleViolationTicketPermissionsEntityReference,
 	type EndUserRoleViolationTicketPermissionsProps,
-} from './end-user-role-violation-ticket-permissions.ts';
+} from './end-user-role-violation-ticket-permissions.js';
 
 export interface EndUserRolePermissionsProps extends ValueObjectProps {
 	readonly communityPermissions: EndUserRoleCommunityPermissionsProps;
