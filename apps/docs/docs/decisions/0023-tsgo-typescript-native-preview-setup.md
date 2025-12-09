@@ -75,13 +75,21 @@ Chosen option: "Adopt tsgo with typescript/native-preview immediately", because 
 
 1. **Type Annotations in @ocom/persistence**: Added additional type annotations that were not previously required, ensuring compatibility with stricter tsgo type checking.
 
-2. **Temporary skipLibCheck**: Added `skipLibCheck: true` in certain workspace package tsconfigs to work around new tsgo-related type errors in dependencies such as `mongoose` and `vitest`. This is the recommended approach for handling third-party type definition issues rather than using `@ts-ignore` comments, as `skipLibCheck` disables type checking for all declaration files (`.d.ts`) in `node_modules`, which is appropriate for issues outside our control. Using `@ts-ignore` comments would only suppress individual errors in our source files and would not address the root cause of incompatible third-party types.
+2. **Mongoose Type Compatibility Issues**: tsgo with TypeScript/native-preview exposes circular type reference errors (TS4109) in mongoose@8.17.0's type definitions (`inferschematype.d.ts` lines 262, 282). These circular references exist within mongoose's `.d.ts` files and cannot be fixed with module augmentation since:
+   - The errors originate in third-party declaration files in `node_modules`
+   - Module augmentation extends types but cannot replace circular references in the original definitions
+   - Standard TypeScript directives like `@ts-ignore` cannot suppress errors in `.d.ts` files we don't control
 
-3. **VSCode Extension**: Added TypeScript (Native Preview) extension to recommended workspace extensions to provide developers with the native preview TypeScript language service.
+3. **skipLibCheck Usage**: Currently limited to UI packages only (ui-community, ui-components, ui-core) where it's appropriate for React/Ant Design type compatibility. Non-UI packages have `skipLibCheck` removed to maintain strict type checking, though this currently blocks builds due to the mongoose issue described above.
+
+4. **VSCode Extension**: Added TypeScript (Native Preview) extension to recommended workspace extensions to provide developers with the native preview TypeScript language service.
 
 ### Future Actions
 
-- Reassess both the tsconfig `skipLibCheck` options and removal of the `@typescript/native-preview` package once TypeScript 7.0 officially releases
-- Gradually remove `skipLibCheck` workarounds as dependencies update their type definitions to be compatible with TypeScript 7.0
+- Monitor mongoose type definition updates for fixes to circular reference errors, or consider downgrading to an earlier version
+- Remove the `@typescript/native-preview` package once TypeScript 7.0 officially releases
 - Monitor TypeScript 7.0 release notes for any changes affecting our setup
-- Consider using module augmentation for specific type patches only if `skipLibCheck` is insufficient for particular use cases
+- Evaluate options for mongoose compatibility:
+  - Re-add `skipLibCheck: true` to mongoose-dependent packages with documentation
+  - Use patch-package to modify mongoose type definitions
+  - Downgrade or upgrade mongoose to a version without circular reference issues
