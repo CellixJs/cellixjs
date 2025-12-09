@@ -75,15 +75,13 @@ Chosen option: "Adopt tsgo with typescript/native-preview immediately", because 
 
 1. **Type Annotations in @ocom/persistence**: Added additional type annotations that were not previously required, ensuring compatibility with stricter tsgo type checking.
 
-2. **Temporary skipLibCheck**: Added `skipLibCheck: true` in certain workspace package tsconfigs to work around new tsgo-related type errors in dependencies such as `mongoose` and `vitest`.
+2. **Temporary skipLibCheck**: Added `skipLibCheck: true` in certain workspace package tsconfigs to work around new tsgo-related type errors in dependencies such as `mongoose` and `vitest`. This is the recommended approach for handling third-party type definition issues rather than using `@ts-ignore` comments, as `skipLibCheck` disables type checking for all declaration files (`.d.ts`) in `node_modules`, which is appropriate for issues outside our control. Using `@ts-ignore` comments would only suppress individual errors in our source files and would not address the root cause of incompatible third-party types.
 
 3. **VSCode Extension**: Added TypeScript (Native Preview) extension to recommended workspace extensions to provide developers with the native preview TypeScript language service.
-
-4. **@types/chai Override**: Pinned `@types/chai` to version `5.0.1` in the root `package.json` overrides to resolve duplicate identifier conflicts with vitest's global type definitions. The newer versions of `@types/chai` (5.2.3+) introduce a `containSubset` assertion that conflicts with vitest's own `containSubset` global type, causing TypeScript compilation errors. This override ensures compatibility between chai testing utilities and vitest's assertion extensions during the tsgo transition period.
 
 ### Future Actions
 
 - Reassess both the tsconfig `skipLibCheck` options and removal of the `@typescript/native-preview` package once TypeScript 7.0 officially releases
-- Gradually remove workarounds as dependencies update their type definitions
+- Gradually remove `skipLibCheck` workarounds as dependencies update their type definitions to be compatible with TypeScript 7.0
 - Monitor TypeScript 7.0 release notes for any changes affecting our setup
-- Remove the `@types/chai` version override once vitest and @types/chai resolve their conflicting `containSubset` type definitions
+- Consider using module augmentation for specific type patches only if `skipLibCheck` is insufficient for particular use cases
