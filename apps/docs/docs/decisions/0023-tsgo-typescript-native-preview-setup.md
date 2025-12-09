@@ -75,15 +75,19 @@ Chosen option: "Adopt tsgo with typescript/native-preview immediately", because 
 
 1. **Type Annotations in @ocom/persistence**: Added additional type annotations that were not previously required, ensuring compatibility with stricter tsgo type checking.
 
-2. **Temporary skipLibCheck**: Added `skipLibCheck: true` in certain workspace package tsconfigs to work around new tsgo-related type errors in dependencies such as `mongoose` and `vitest`.
+2. **VSCode Extension**: Added TypeScript (Native Preview) extension to recommended workspace extensions to provide developers with the native preview TypeScript language service.
 
-3. **VSCode Extension**: Added TypeScript (Native Preview) extension to recommended workspace extensions to provide developers with the native preview TypeScript language service.
+3. **@types/chai Override**: Pinned `@types/chai` to version `5.0.1` in the root `package.json` overrides to resolve duplicate identifier conflicts with vitest's global type definitions. The newer versions of `@types/chai` (5.2.3+) introduce a `containSubset` assertion that conflicts with vitest's own `containSubset` global type, causing TypeScript compilation errors. This override ensures compatibility between chai testing utilities and vitest's assertion extensions during the tsgo transition period.
 
-4. **@types/chai Override**: Pinned `@types/chai` to version `5.0.1` in the root `package.json` overrides to resolve duplicate identifier conflicts with vitest's global type definitions. The newer versions of `@types/chai` (5.2.3+) introduce a `containSubset` assertion that conflicts with vitest's own `containSubset` global type, causing TypeScript compilation errors. This override ensures compatibility between chai testing utilities and vitest's assertion extensions during the tsgo transition period.
+4. **tsgo import workarounds**: The `rewriteRelativeImportExtensions` and `allowImportingTsExtensions` flags in our tsconfig still behave inconsistently under `tsgo`, so we added `@ts-ignore` comments to the remaining problematic imports and manually switched those relative paths to `.js` extensions, which keeps the build green while we await more complete resolver support.
 
 ### Future Actions
 
-- Reassess both the tsconfig `skipLibCheck` options and removal of the `@typescript/native-preview` package once TypeScript 7.0 officially releases
+- Reassess removal of the `@typescript/native-preview` package as well as the need to keep certain manual `.js` import extensions once TypeScript 7.0 officially releases and our module resolver behavior stabilizes
 - Gradually remove workarounds as dependencies update their type definitions
 - Monitor TypeScript 7.0 release notes for any changes affecting our setup
 - Remove the `@types/chai` version override once vitest and @types/chai resolve their conflicting `containSubset` type definitions
+
+### Tracking tsgo progress
+
+- Keep an eye on the [TypeScript Go README](https://github.com/microsoft/TypeScript-Go?tab=readme-ov-file#what-works-so-far) for updates on `tsgo`/`@typescript/native-preview` feature parity and resolver improvements so we can reassess the temporary `.js` import extensions when relevant.
