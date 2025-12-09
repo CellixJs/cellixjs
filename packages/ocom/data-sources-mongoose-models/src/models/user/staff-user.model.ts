@@ -1,4 +1,3 @@
-// @ts-ignore [TS7]
 import { type Model, type ObjectId, type PopulatedDoc, Schema } from 'mongoose';
 import { Patterns } from '../../patterns.ts';
 import * as StaffRole from '../role/staff-role.model.ts';

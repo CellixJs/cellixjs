@@ -1,4 +1,3 @@
-// @ts-ignore [TS7]
 import mongoose, { type Mongoose, type ConnectOptions } from 'mongoose';
 import type { ServiceBase } from '@cellix/api-services-spec';
 import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';

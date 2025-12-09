@@ -1,4 +1,3 @@
-// @ts-ignore [TS7]
 import {Row, Space, Spin, Typography } from 'antd';
 import type React from 'react';
 import { useEffect } from 'react';

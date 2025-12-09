@@ -3,7 +3,8 @@
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "skipLibCheck": true
   },
   "include": ["src", "globals.d.ts"],
   "references": [

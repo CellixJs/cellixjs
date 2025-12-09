@@ -1,6 +1,4 @@
-// @ts-ignore [TS7]
 import { message, Skeleton } from 'antd';
-// @ts-ignore [TS7]
 import type { FC } from 'react';
 
 export interface ComponentQueryLoaderProps {

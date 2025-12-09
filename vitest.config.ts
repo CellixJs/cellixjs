@@ -1,4 +1,3 @@
-// @ts-ignore [TS7]
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({

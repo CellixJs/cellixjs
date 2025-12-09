@@ -2,7 +2,8 @@
   "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],
   "references": [

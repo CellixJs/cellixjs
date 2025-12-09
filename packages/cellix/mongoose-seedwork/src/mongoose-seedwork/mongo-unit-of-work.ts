@@ -4,7 +4,6 @@ import type { InitializedUnitOfWork, UnitOfWork } from '@cellix/domain-seedwork/
 import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { CustomDomainEvent } from '@cellix/domain-seedwork/domain-event';
-// @ts-ignore [TS7]
 import mongoose, { type ClientSession, type Model } from 'mongoose';
 import { MongoRepositoryBase } from './mongo-repository.ts';
 import type { Base } from './base.ts';

@@ -1,5 +1,4 @@
 import { projectFiles } from "archunit";
-// @ts-ignore [TS7]
 import { describe, expect, it } from "vitest";
 import { checkMemberOrdering, defaultMemberOrder } from "./member-ordering-rule.ts";
 
