@@ -3,7 +3,8 @@
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "skipLibCheck": true // [TS7] temporary to ignore mongoose type issues https://github.com/microsoft/typescript-go/issues/948
   },
   "include": ["src", "globals.d.ts"],
   "references": [

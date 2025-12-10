@@ -81,6 +81,8 @@ Chosen option: "Adopt tsgo with typescript/native-preview immediately", because 
 
 4. **tsgo import workarounds**: The `rewriteRelativeImportExtensions` and `allowImportingTsExtensions` flags in our tsconfig still behave inconsistently under `tsgo`, so we added `@ts-ignore` comments to the remaining problematic imports and manually switched those relative paths to `.js` extensions, which keeps the build green while we await more complete resolver support.
 
+5. **skipLibCheck**: Enabled `skipLibCheck` inside the specific workspace packages that hit the mongoose circular dependency error while `tsgo` is enabled. This is a temporary concession to avoid the TypeScript Native Preview issue and will be reassessed once TypeScript 7.0 ships and the related typings are stabilized. Issue encountered [here](https://github.com/microsoft/TypeScript-Go/issues/948).
+
 ### Future Actions
 
 - Reassess removal of the `@typescript/native-preview` package as well as the need to keep certain manual `.js` import extensions once TypeScript 7.0 officially releases and our module resolver behavior stabilizes
