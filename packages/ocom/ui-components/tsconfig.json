@@ -8,7 +8,7 @@
     "exactOptionalPropertyTypes": false,
     "skipLibCheck": true
   },
-  "include": ["src"],
+  "include": ["src", "types/**/*.d.ts", "../../types/**/*.d.ts"],
   "references": [
     { "path": "../../cellix/ui-core" },
   ]

@@ -4,7 +4,6 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { app } from '@azure/functions';
 import type { ServiceBase } from '@cellix/api-services-spec';
 import api, { type Tracer } from '@opentelemetry/api';
-// @ts-ignore [TS7]
 import { expect, type MockedFunction, vi } from 'vitest';
 import { Cellix } from './cellix.ts';
 

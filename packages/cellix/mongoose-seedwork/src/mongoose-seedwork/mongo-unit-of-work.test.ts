@@ -9,9 +9,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi, type Mock} from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-// @ts-ignore [TS7]
 import type { ClientSession, Model } from 'mongoose';
-// @ts-ignore [TS7]
 import mongoose from 'mongoose';
 import type { Base } from './index.ts';
 import { MongoUnitOfWork, getInitializedUnitOfWork } from './mongo-unit-of-work.ts';

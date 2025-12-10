@@ -5,7 +5,7 @@ import { type StaffRoleReturnType, StaffRolePersistence } from './staff-role/ind
 import { type StaffUserReturnType, StaffUserPersistence } from './staff-user/index.ts';
 import { type VendorUserReturnType, VendorUserPersistence } from './vendor-user/index.ts';
 
-interface UserContextPersistence {
+export interface UserContextPersistence {
     EndUser: EndUserReturnType;
     StaffRole: StaffRoleReturnType;
     StaffUser: StaffUserReturnType;

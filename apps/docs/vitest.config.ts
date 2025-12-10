@@ -1,5 +1,4 @@
 import path from 'node:path';
-// @ts-ignore [TS7]
 import { defineConfig, mergeConfig } from 'vitest/config';
 import { baseConfig } from '@cellix/vitest-config';
 

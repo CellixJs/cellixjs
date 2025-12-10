@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-ignore [TS7]
 import { Button, Form, Input, Typography, theme } from 'antd';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import type { CommunityCreateInput } from '../../../../generated.tsx';

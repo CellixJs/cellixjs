@@ -2,7 +2,7 @@ import type { Domain } from '@ocom/domain';
 import type { ModelsContext, PersistenceFactory } from '../../../types.ts';
 import { type PropertyReturnType, PropertyPersistence } from './property/index.ts';
 
-interface PropertyContextPersistence {
+export interface PropertyContextPersistence {
 	Property: PropertyReturnType;
 }
 

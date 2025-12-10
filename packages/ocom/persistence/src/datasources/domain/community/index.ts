@@ -5,7 +5,7 @@ import { type MemberReturnType, MemberPersistence } from './member/index.ts';
 import { type EndUserRoleReturnType, EndUserRolePersistence } from './role/end-user-role/index.ts';
 import { type VendorUserRoleReturnType, VendorUserRolePersistence } from './role/vendor-user-role/index.ts';
 
-interface CommunityContextPersistence {
+export interface CommunityContextPersistence {
 	Community: CommunityReturnType;
     Member: MemberReturnType;
     Role: {

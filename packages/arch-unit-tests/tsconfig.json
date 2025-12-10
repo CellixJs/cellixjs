@@ -4,7 +4,8 @@
     "src/**/*",
     "../cellix/**/*.ts",
     "../ocom/**/*.ts",
-    "../../apps/**/*.ts"
+    "../../apps/**/*.ts",
+    "../../types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",

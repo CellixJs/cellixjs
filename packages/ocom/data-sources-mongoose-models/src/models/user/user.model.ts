@@ -1,5 +1,4 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-// @ts-ignore [TS7]
 import { type Model, Schema } from 'mongoose';
 
 export interface User extends MongooseSeedwork.Base {

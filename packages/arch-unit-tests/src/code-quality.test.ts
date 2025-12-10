@@ -1,5 +1,4 @@
 import { metrics } from 'archunit';
-// @ts-ignore [TS7]
 import { describe, it, expect } from 'vitest';
 import { join } from 'node:path';
 

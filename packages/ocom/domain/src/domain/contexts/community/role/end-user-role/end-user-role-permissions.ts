@@ -1,6 +1,4 @@
-// @ts-ignore [TS7]
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
-// @ts-ignore [TS7]
 import { ValueObject } from '@cellix/domain-seedwork/value-object';
 // [NN] [TS7] revert chang of '.js' to '.ts' in the imports once declaration emit is fully implemented
 // https://github.com/microsoft/TypeScript-Go?tab=readme-ov-file#what-works-so-far

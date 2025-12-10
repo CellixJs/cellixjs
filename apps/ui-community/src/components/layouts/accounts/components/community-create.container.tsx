@@ -1,5 +1,4 @@
 import { useMutation } from '@apollo/client';
-// @ts-ignore [TS7]
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {

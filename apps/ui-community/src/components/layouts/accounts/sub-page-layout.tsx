@@ -1,5 +1,4 @@
 
-// @ts-ignore [TS7]
 import { Layout, theme } from 'antd';
 import type React from "react";
 

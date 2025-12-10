@@ -7,5 +7,5 @@
       "@site/*": ["./*"]
     }
   },
-  "include": ["./src", "./docusaurus.config.*", "./sidebars.*"]
+  "include": ["./src", "./docusaurus.config.*", "./sidebars.*", "../../types/**/*.d.ts"]
 }

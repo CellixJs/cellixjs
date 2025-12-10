@@ -6,7 +6,8 @@
     "skipLibCheck": true // [TS7] temporary to ignore mongoose type issues https://github.com/microsoft/typescript-go/issues/948
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "../../types/**/*.d.ts"
   ],
   "references": [
     { "path": "../../cellix/domain-seedwork" },

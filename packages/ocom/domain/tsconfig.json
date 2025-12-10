@@ -4,7 +4,7 @@
     "outDir": "dist",
     "rootDir": "."
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "types/**/*.d.ts", "../../types/**/*.d.ts"],
   "references": [
     { "path": "../../cellix/domain-seedwork" },
     { "path": "../../cellix/event-bus-seedwork-node" }

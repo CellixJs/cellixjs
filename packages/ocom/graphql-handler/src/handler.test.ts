@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-// @ts-ignore [TS7]
 import { expect, vi } from 'vitest';
 import { graphHandlerCreator } from './handler.ts';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
