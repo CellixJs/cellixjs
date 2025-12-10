@@ -2,7 +2,7 @@ import type { Domain } from '@ocom/domain';
 import type { ModelsContext, PersistenceFactory } from '../../../types.ts';
 import { EndUserReadRepositoryImpl, type EndUserReadReturnType } from './end-user/index.ts';
 
-interface UserContext {
+export interface UserContext {
     EndUser: EndUserReadReturnType;
 }
 

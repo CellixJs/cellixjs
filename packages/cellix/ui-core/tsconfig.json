@@ -12,5 +12,5 @@
     "exactOptionalPropertyTypes": false,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.tsx", "src/**/*.ts", "types/**/*.d.ts", "../../types/**/*.d.ts"],
+  "include": ["src/**/*.tsx", "src/**/*.ts", "../../types/**/*.d.ts"],
 }

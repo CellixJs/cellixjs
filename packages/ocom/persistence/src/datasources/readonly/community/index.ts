@@ -3,7 +3,7 @@ import type { ModelsContext, PersistenceFactory } from '../../../types.ts';
 import { CommunityReadRepositoryImpl, type CommunityReadReturnType } from './community/index.ts';
 import { MemberReadRepositoryImpl, type MemberReadReturnType } from './member/index.ts';
 
-interface CommunityContext {
+export interface CommunityContext {
     Community: CommunityReadReturnType;
     Member: MemberReadReturnType;
 }

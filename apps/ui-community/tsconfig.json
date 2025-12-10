@@ -8,5 +8,5 @@
     "exactOptionalPropertyTypes": false,
     "skipLibCheck": true
   },
-  "include": ["src", "types/**/*.d.ts"]
+  "include": ["src", "../../types/**/*.d.ts"]
 }
