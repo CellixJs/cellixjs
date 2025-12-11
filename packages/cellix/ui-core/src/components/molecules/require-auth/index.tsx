@@ -1,4 +1,4 @@
-import {Row, Space, Spin, Typography } from 'antd';
+import { Row, Space, Spin, Typography } from 'antd';
 import type React from 'react';
 import { useEffect } from 'react';
 import { hasAuthParams, useAuth } from 'react-oidc-context';

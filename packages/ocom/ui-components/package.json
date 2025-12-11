@@ -14,8 +14,8 @@
   },
   "scripts": {
     "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
+    "build": "tsgo --build",
+    "watch": "tsgo --watch",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest",

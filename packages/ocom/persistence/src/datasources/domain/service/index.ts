@@ -1,7 +1,11 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../index.ts';
-import { ServicePersistence } from './service/index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../types.ts';
+import { type ServiceReturnType, ServicePersistence } from './service/index.ts';
 
-export const ServiceContextPersistence = (models: ModelsContext, passport: Domain.Passport) => ({
+interface ServiceContextPersistence {
+    Service: ServiceReturnType;
+}
+
+export const ServiceContextPersistence: PersistenceFactory<ServiceContextPersistence> = (models: ModelsContext, passport: Domain.Passport) => ({
     Service: ServicePersistence(models, passport)
 });

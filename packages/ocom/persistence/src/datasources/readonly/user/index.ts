@@ -1,7 +1,11 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../index.ts';
-import { EndUserReadRepositoryImpl } from './end-user/index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../types.ts';
+import { EndUserReadRepositoryImpl, type EndUserReadReturnType } from './end-user/index.ts';
 
-export const UserContext = (models: ModelsContext, passport: Domain.Passport) => ({
+interface UserContext {
+    EndUser: EndUserReadReturnType;
+}
+
+export const UserContext: PersistenceFactory<UserContext> = (models: ModelsContext, passport: Domain.Passport) => ({
     EndUser: EndUserReadRepositoryImpl(models, passport),
 });

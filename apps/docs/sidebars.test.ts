@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import sidebars from './sidebars';
+import sidebars from './sidebars.ts';
 
 describe('Sidebars Config', () => {
   it('should have valid sidebar configuration', () => {

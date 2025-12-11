@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --build && vite build",
+    "build": "tsgo --build && vite build",
     "start": "vite",
     "lint": "biome lint",
     "preview": "vite preview",

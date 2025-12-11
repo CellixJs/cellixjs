@@ -25,7 +25,6 @@ export type GetModelFunctionWithSchema = <ModelType extends Base>(
 	modelName: string,
 	schema: Schema<ModelType, Model<ModelType>, ModelType>,
 ) => Model<ModelType>;
-export type { Schema } from 'mongoose';
 
 export interface MongooseContextFactory {
 	//  GetModel: GetModelFunctionWithSchema;

@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 
 import { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../index.ts';
+import type { ModelsContext } from '../types.ts';
 import type { DomainDataSource } from '@ocom/domain';
 import type { ReadonlyDataSource } from './readonly/index.ts';
 

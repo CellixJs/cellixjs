@@ -2,13 +2,18 @@
   "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "skipLibCheck": true,
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types"
+    ]
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "types/**/*.d.ts"
   ],
   "references": [
-    { "path": "../../cellix/api-services-spec" },
-    { "path": "../../cellix/mongoose-seedwork" }
+    { "path": "../../cellix/api-services-spec" }
   ]
 }

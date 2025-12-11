@@ -16,7 +16,8 @@ vi.mock('./datasources/index.ts', () => ({
   DataSourcesFactoryImpl: vi.fn(),
 }));
 
-import { Persistence, type ModelsContext } from './index.ts';
+import { Persistence } from './index.ts';
+import type { ModelsContext } from './types.ts';
 import { DataSourcesFactoryImpl } from './datasources/index.ts';
 import { mongooseContextBuilder } from '@ocom/data-sources-mongoose-models';
 

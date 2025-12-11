@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork'; 
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { type MemberDataSource, MemberDataSourceImpl } from './member.data.ts';
@@ -141,7 +141,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
     }
 }
 
-export const getMemberReadRepository = (
+export const getMemberReadRepository: PersistenceFactory<MemberReadRepository> = (
     models: ModelsContext,
     passport: Domain.Passport
 ) => {

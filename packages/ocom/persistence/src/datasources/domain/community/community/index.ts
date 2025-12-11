@@ -1,8 +1,12 @@
 import type { Domain } from '@ocom/domain';
-import type { ModelsContext } from '../../../../index.ts';
+import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { getCommunityUnitOfWork } from './community.uow.ts';
 
-export const CommunityPersistence = (models: ModelsContext, passport: Domain.Passport) => {
+export type CommunityReturnType = {
+	CommunityUnitOfWork: Domain.Contexts.Community.Community.CommunityUnitOfWork;
+};
+
+export const CommunityPersistence: PersistenceFactory<CommunityReturnType> = (models: ModelsContext, passport: Domain.Passport) => {
 	const CommunityModel = models.Community;
 	return {
 		CommunityUnitOfWork: getCommunityUnitOfWork(CommunityModel, passport),

@@ -1,5 +1,5 @@
 import { Domain, type DomainDataSource } from "@ocom/domain";
-import type { ModelsContext } from "../index.ts";
+import type { ModelsContext } from "../types.ts";
 import { DomainDataSourceImplementation } from "./domain/index.ts";
 import { type ReadonlyDataSource, ReadonlyDataSourceImplementation } from "./readonly/index.ts";
 
@@ -13,7 +13,7 @@ export type DataSourcesFactory = {
     withSystemPassport: () => DataSources
 }
 
-export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactory => {
+export const DataSourcesFactoryImpl: (models: ModelsContext) => DataSourcesFactory = (models) => {
     const withPassport = (passport: Domain.Passport): DataSources => {
         return {
             domainDataSource: DomainDataSourceImplementation(models, passport),
