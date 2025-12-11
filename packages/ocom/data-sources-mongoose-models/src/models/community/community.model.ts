@@ -1,6 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Model, ObjectId, PopulatedDoc } from 'mongoose';
-import { Schema } from 'mongoose';
+import { type Model, type ObjectId, type PopulatedDoc, Schema } from 'mongoose';
 import * as EndUser from '../user/end-user.model.ts';
 
 export interface Community extends MongooseSeedwork.Base {

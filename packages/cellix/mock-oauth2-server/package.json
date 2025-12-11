@@ -12,7 +12,7 @@
     "start": "node dist/src/index.js",
     "dev": "tsx watch src/index.ts",
     "build": "tsgo --build",
-    "clean": "rimraf dist node_modules",
+    "clean": "rimraf dist",
     "lint": "biome lint",
     "prebuild": "biome lint"
   },

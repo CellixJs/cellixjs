@@ -58,6 +58,13 @@ export interface DataSourcesFactory {
   withSystemPassport(): DataSources;
 }
 
-export type Persistence = (initializedService: { service: unknown }) => DataSourcesFactory;
+export interface MongooseContextFactoryLike {
+  service: {
+    models: Record<string, unknown>;
+    model: (name: string, schema: unknown, collection?: unknown, options?: unknown) => unknown;
+  };
+}
+
+export type Persistence = (initializedService: MongooseContextFactoryLike) => DataSourcesFactory;
 
 export declare const Persistence: Persistence;

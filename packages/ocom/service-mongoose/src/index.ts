@@ -1,16 +1,11 @@
 // Keep public surface mongoose-free to avoid Schema type cycles in consumers
 import type { ServiceBase } from '@cellix/api-services-spec';
+import type { ConnectOptions, Mongoose } from './mongoose-stub.ts';
 
-type MongooseLike = {
-	models: Record<string, unknown>;
-	model: (name: string, schema?: unknown, collection?: unknown, options?: unknown) => unknown;
-	disconnect: () => Promise<void>;
-	set?: (...args: unknown[]) => unknown;
-};
+type MongooseLike = Pick<Mongoose, 'models' | 'model' | 'disconnect' | 'set'>;
 
-export type ServiceMongooseOptions = {
+export type ServiceMongooseOptions = ConnectOptions & {
 	debug?: boolean;
-	[key: string]: unknown;
 };
 
 export interface MongooseContextFactoryLike {
@@ -34,8 +29,8 @@ export class ServiceMongoose
 
 	public async startUp() {
 		const { debug, ...options } = this.options;
-		type MongooseModule = typeof import('mongoose');
-		const mongooseModule = (await import('mongoose')) as MongooseModule;
+		type MongooseModule = { default?: Mongoose; connect: Mongoose['connect'] };
+		const mongooseModule = (await import('mongoose')) as unknown as MongooseModule;
 		const mongoose = mongooseModule.default ?? mongooseModule;
 		this.serviceInternal = (await mongoose.connect(this.uri, options)) as unknown as MongooseLike;
 		if (debug && this.serviceInternal?.set) {

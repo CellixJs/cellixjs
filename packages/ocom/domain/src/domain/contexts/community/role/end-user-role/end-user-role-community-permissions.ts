@@ -1,7 +1,7 @@
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import { ValueObject } from '@cellix/domain-seedwork/value-object';
-// [NN] [TS7] revert chang of '.js' to '.ts' in the imports once declaration emit is fully implemented
+// [NN] [TS7] revert change of '.js' to '.ts' in the imports once declaration emit is fully implemented
 // https://github.com/microsoft/TypeScript-Go?tab=readme-ov-file#what-works-so-far
 import type { CommunityDomainPermissions } from '../../community.domain-permissions.js';
 import type { CommunityVisa } from '../../community.visa.js';

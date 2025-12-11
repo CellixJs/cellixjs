@@ -24,13 +24,13 @@ To prepare for TypeScript 7.0 and leverage advanced type checking features, we n
 
 ## Considered Options
 
-- Adopt tsgo with typescript/native-preview immediately
+- Adopt tsgo with @typescript/native-preview immediately
 - Wait for official TypeScript 7.0 release
 - Use alternative type checking tools
 
 ## Decision Outcome
 
-Chosen option: "Adopt tsgo with typescript/native-preview immediately", because it provides early access to beneficial features while allowing us to prepare for the official release. We implemented necessary workarounds for compatibility issues and documented the temporary nature of these changes.
+Chosen option: "Adopt tsgo with @typescript/native-preview immediately", because it provides early access to beneficial features while allowing us to prepare for the official release. We implemented necessary workarounds for compatibility issues and documented the temporary nature of these changes.
 
 ### Consequences
 
@@ -41,7 +41,7 @@ Chosen option: "Adopt tsgo with typescript/native-preview immediately", because 
 
 ## Validation
 
-- Code compiles successfully with tsgo and typescript/native-preview
+- Code compiles successfully with tsgo and @typescript/native-preview
 - Existing tests pass with skipLibCheck workarounds
 - Type annotations in @ocom/persistence are validated through compilation
 - CI pipeline build/test time decreased from ~8 minutes to ~6 minutes after tsgo implementation
@@ -92,6 +92,17 @@ Chosen option: "Adopt tsgo with typescript/native-preview immediately", because 
 - Reassess the need for the mongoose facade/stub and the scoped `skipLibCheck` once Mongoose/TS7 typings resolve the Schema recursion (TS4109) and tsgo stabilizes.
 - Drop the `@types/chai` override when the vitest/`@types/chai` `containSubset` conflict is fixed.
 - Reevaluate `@typescript/native-preview` and any remaining tsgo-specific workarounds after the TS7 release.
+
+### Remediation plan after TypeScript 7 GA
+
+When TS 7.0 and compatible Mongoose typings are stable:
+
+1. Remove scoped `skipLibCheck` flags from schema-bearing packages and restore full strict checking.
+2. Delete the temporary mongoose facade/stub (`@ocom/service-mongoose` stub, public facade in `@ocom/persistence`) and re-export the official Mongoose types where needed.
+3. Revert temporary `.js` import extensions introduced for tsgo resolver quirks once declaration emit is supported end-to-end.
+4. Unpin `@types/chai` and re-enable the latest versions once the vitest globals conflict is resolved.
+5. Decide whether to keep tsgo or move back to the official TypeScript compiler; drop `@typescript/native-preview` if no longer required.
+6. Run the full quality gate (`pnpm run verify`, including Snyk) to ensure no regressions and re-enable any checks previously skipped during the transition.
 
 ### Tracking tsgo progress
 
