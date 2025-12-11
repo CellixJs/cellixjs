@@ -972,9 +972,6 @@ importers:
       '@cellix/api-services-spec':
         specifier: workspace:*
         version: link:../../cellix/api-services-spec
-      '@cellix/mongoose-seedwork':
-        specifier: workspace:*
-        version: link:../../cellix/mongoose-seedwork
       mongoose:
         specifier: 'catalog:'
         version: 8.17.0
