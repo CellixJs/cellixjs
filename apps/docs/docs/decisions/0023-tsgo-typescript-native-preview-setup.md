@@ -48,7 +48,7 @@ Chosen option: "Adopt tsgo with @typescript/native-preview immediately", because
 
 ## Pros and Cons of the Options
 
-### Adopt tsgo with typescript/native-preview immediately
+### Adopt tsgo with @typescript/native-preview immediately
 
 - Good, because it provides early access to TypeScript 7.0 features
 - Good, because it allows gradual migration and issue identification
