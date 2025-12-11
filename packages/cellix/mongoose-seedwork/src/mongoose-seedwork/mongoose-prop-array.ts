@@ -1,8 +1,6 @@
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
-// @ts-ignore [TS7]
 import type mongoose from 'mongoose';
-// @ts-ignore [TS7]
 import { Types } from 'mongoose';
 import type { Base, SubdocumentBase } from './base.ts';
 

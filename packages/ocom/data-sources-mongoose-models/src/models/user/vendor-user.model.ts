@@ -1,5 +1,4 @@
-// @ts-ignore [TS7]
-import { type Model, Schema, type SchemaDefinition } from 'mongoose';
+import { Schema, type Model, type SchemaDefinition } from 'mongoose';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Patterns } from '../../patterns.ts';
 import { type User, type UserModelType, userOptions } from './user.model.ts';

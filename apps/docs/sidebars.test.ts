@@ -1,6 +1,4 @@
-// @ts-ignore [TS7]
 import { describe, expect, it } from 'vitest';
-// @ts-ignore [TS7]
 import sidebars from './sidebars.ts';
 
 describe('Sidebars Config', () => {

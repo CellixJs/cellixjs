@@ -1,6 +1,5 @@
 import { join } from 'node:path';
 import { metrics } from 'archunit';
-// @ts-ignore [TS7]
 import { describe, expect, it } from 'vitest';
 
 const tsconfigPath = join(__dirname, '..', 'tsconfig.json');

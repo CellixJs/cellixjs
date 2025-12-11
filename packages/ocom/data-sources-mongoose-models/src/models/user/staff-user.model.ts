@@ -1,5 +1,4 @@
-// @ts-ignore [TS7]
-import { type Model, type ObjectId, type PopulatedDoc, Schema } from 'mongoose';
+import { Schema, type Model, type ObjectId, type PopulatedDoc } from 'mongoose';
 import { Patterns } from '../../patterns.ts';
 import * as StaffRole from '../role/staff-role.model.ts';
 import { type User, type UserModelType, userOptions } from './user.model.ts';

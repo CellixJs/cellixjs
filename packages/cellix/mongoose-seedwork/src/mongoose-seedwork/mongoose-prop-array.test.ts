@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-// @ts-ignore [TS7]
 import { Types } from 'mongoose';
 import { expect, vi } from 'vitest';
 import type { Base } from './base.ts';

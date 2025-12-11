@@ -1,4 +1,3 @@
-// @ts-ignore [TS7]
 import type mongoose from 'mongoose';
 import type {
 	Model,

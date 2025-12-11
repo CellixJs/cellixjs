@@ -1,6 +1,6 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-// @ts-ignore [TS7]
-import { type Model, type ObjectId, type PopulatedDoc, Schema } from 'mongoose';
+import type { Model, ObjectId, PopulatedDoc } from 'mongoose';
+import { Schema } from 'mongoose';
 import * as Community from '../community/community.model.ts';
 
 export interface Service extends MongooseSeedwork.Base {

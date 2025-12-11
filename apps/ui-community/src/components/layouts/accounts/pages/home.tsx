@@ -1,5 +1,4 @@
 import { Helmet } from '@dr.pogodin/react-helmet';
-// @ts-ignore [TS7]
 import { Typography } from 'antd';
 // import { useNavigate } from 'react-router-dom';
 import { CommunityListContainer } from '../components/community-list.container.tsx';
