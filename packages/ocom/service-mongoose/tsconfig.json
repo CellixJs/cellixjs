@@ -3,13 +3,17 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "skipLibCheck": true // [TS7] temporary to ignore mongoose type issues https://github.com/microsoft/typescript-go/issues/948
+    "skipLibCheck": true,
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types"
+    ]
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "types/**/*.d.ts"
   ],
   "references": [
-    { "path": "../../cellix/api-services-spec" },
-    { "path": "../../cellix/mongoose-seedwork" }
+    { "path": "../../cellix/api-services-spec" }
   ]
 }

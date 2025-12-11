@@ -21,7 +21,6 @@
   "dependencies": {
     "@azure/functions": "catalog:",
     "@cellix/api-services-spec": "workspace:*",
-    "@cellix/mongoose-seedwork": "workspace:*",
     "@ocom/application-services": "workspace:*",
     "@ocom/context-spec": "workspace:*",
     "@ocom/event-handler": "workspace:*",

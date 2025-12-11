@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "skipLibCheck": true
+    "skipLibCheck": true // [TS7] temporary to ignore mongoose type issues
   },
   "include": ["src/**/*.ts"],
   "references": [

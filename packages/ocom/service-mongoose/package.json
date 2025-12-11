@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "files": ["dist"],
+  "files": ["dist", "types"],
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -22,8 +22,7 @@
   },
   "dependencies": {
     "mongoose": "catalog:",
-    "@cellix/api-services-spec": "workspace:*",
-    "@cellix/mongoose-seedwork": "workspace:*"
+    "@cellix/api-services-spec": "workspace:*"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",

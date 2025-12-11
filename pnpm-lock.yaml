@@ -118,9 +118,6 @@ importers:
       '@cellix/api-services-spec':
         specifier: workspace:*
         version: link:../../packages/cellix/api-services-spec
-      '@cellix/mongoose-seedwork':
-        specifier: workspace:*
-        version: link:../../packages/cellix/mongoose-seedwork
       '@ocom/application-services':
         specifier: workspace:*
         version: link:../../packages/ocom/application-services

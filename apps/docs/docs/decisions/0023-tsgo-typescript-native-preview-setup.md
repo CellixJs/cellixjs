@@ -71,24 +71,27 @@ Chosen option: "Adopt tsgo with typescript/native-preview immediately", because 
 
 ## More Information
 
-### Changes Made
+### Changes Made (tsgo + TS7 compatibility)
 
-1. **Type Annotations in @ocom/persistence**: Added additional type annotations that were not previously required, ensuring compatibility with stricter tsgo type checking.
+1. **Scoped skipLibCheck**: Enabled only in schema-bearing packages that must compile Mongoose `Schema` typings (`@cellix/mongoose-seedwork`, `@ocom/data-sources-mongoose-models`, `@ocom/persistence`). Downstream packages stay strict without `skipLibCheck`.
 
-2. **VSCode Extension**: Added TypeScript (Native Preview) extension to recommended workspace extensions to provide developers with the native preview TypeScript language service.
+2. **Mongoose isolation for downstream packages** (temporary):
+	- Mongoose-free public facade in `@ocom/persistence/types/public.d.ts` so consumers avoid `Schema` types.
+	- Single ambient mongoose stub in `@ocom/service-mongoose/types/mongoose/index.d.ts` with `typeRoots`/`files` wiring to let `typeof import('mongoose')` compile without Schema types.
+	- Minimal `MongooseLike` public surface for `ServiceMongoose` (runtime still uses real mongoose) to prevent Schema typings from leaking.
+	- Removed duplicate stubs (e.g., in `@ocom/context-spec`) and avoided unnecessary `@cellix/mongoose-seedwork` deps in non-mongoose packages (e.g., `apps/api`).
 
-3. **@types/chai Override**: Pinned `@types/chai` to version `5.0.1` in the root `package.json` overrides to resolve duplicate identifier conflicts with vitest's global type definitions. The newer versions of `@types/chai` (5.2.3+) introduce a `containSubset` assertion that conflicts with vitest's own `containSubset` global type, causing TypeScript compilation errors. This override ensures compatibility between chai testing utilities and vitest's assertion extensions during the tsgo transition period.
+3. **Type hygiene**: Added missing annotations where tsgo/TS7 required them (notably in `@ocom/persistence`).
 
-4. **tsgo import workarounds**: The `rewriteRelativeImportExtensions` and `allowImportingTsExtensions` flags in our tsconfig still behave inconsistently under `tsgo`, so we added `@ts-ignore` comments to the remaining problematic imports and manually switched those relative paths to `.js` extensions, which keeps the build green while we await more complete resolver support.
+4. **@types/chai override**: Pinned to `5.0.1` to avoid the `containSubset` conflict with vitest globals during the transition.
 
-5. **skipLibCheck**: Enabled `skipLibCheck` inside the specific workspace packages that hit the mongoose circular dependency error while `tsgo` is enabled. This is a temporary concession to avoid the TypeScript Native Preview issue and will be reassessed once TypeScript 7.0 ships and the related typings are stabilized. Issue encountered [here](https://github.com/microsoft/TypeScript-Go/issues/948).
+5. **Editor support**: Recommend the TypeScript (Native Preview) VS Code extension to align the language service with tsgo.
 
 ### Future Actions
 
-- Reassess removal of the `@typescript/native-preview` package as well as the need to keep certain manual `.js` import extensions once TypeScript 7.0 officially releases and our module resolver behavior stabilizes
-- Gradually remove workarounds as dependencies update their type definitions
-- Monitor TypeScript 7.0 release notes for any changes affecting our setup
-- Remove the `@types/chai` version override once vitest and @types/chai resolve their conflicting `containSubset` type definitions
+- Reassess the need for the mongoose facade/stub and the scoped `skipLibCheck` once Mongoose/TS7 typings resolve the Schema recursion (TS4109) and tsgo stabilizes.
+- Drop the `@types/chai` override when the vitest/`@types/chai` `containSubset` conflict is fixed.
+- Reevaluate `@typescript/native-preview` and any remaining tsgo-specific workarounds after the TS7 release.
 
 ### Tracking tsgo progress
 

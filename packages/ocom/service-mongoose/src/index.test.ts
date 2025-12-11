@@ -2,8 +2,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-// @ts-ignore [TS7]
-import type { Mongoose, ConnectOptions } from 'mongoose';
+import type { ServiceMongooseOptions } from './index.ts';
 
 // Use the vi.mock factory pattern to avoid hoisting issues with top-level variables
 vi.mock('mongoose', () => {
@@ -30,9 +29,9 @@ test.for(
 	feature,
 	({ Scenario, BeforeEachScenario, AfterEachScenario }) => {
 		let uri: string;
-		let options: ConnectOptions;
+		let options: ServiceMongooseOptions;
 		let service: ServiceMongoose;
-		let mockMongooseInstance: Mongoose;
+		let mockMongooseInstance: { disconnect: () => Promise<void> };
 		let logSpy: ReturnType<typeof vi.spyOn>;
 		let connectMock: ReturnType<typeof vi.fn>;
 		let disconnectMock: ReturnType<typeof vi.fn>;
@@ -46,7 +45,7 @@ test.for(
 			disconnectMock = vi.fn().mockResolvedValue(undefined);
 			mockMongooseInstance = {
 				disconnect: disconnectMock,
-			} as unknown as Mongoose;
+			};
 			connectMock.mockClear();
 			disconnectMock.mockClear();
 			connectMock.mockResolvedValue(mockMongooseInstance);

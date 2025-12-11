@@ -6,7 +6,7 @@
   "files": ["dist"],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
+      "types": "./types/public.d.ts",
       "default": "./dist/src/index.js"
     },
     "./datasources": {
