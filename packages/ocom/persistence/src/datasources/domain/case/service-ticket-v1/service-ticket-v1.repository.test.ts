@@ -11,6 +11,7 @@ import type { ClientSession } from 'mongoose';
 import type { ServiceTicket, ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 
 const test = { for: describeFeature };
@@ -19,9 +20,14 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/service-ticket-v1.repository.feature')
 );
 
+const SERVICE_TICKET_ID = '507f1f77bcf86cd799439011';
+const COMMUNITY_ID = '507f1f77bcf86cd799439012';
+const MEMBER_ID = '507f1f77bcf86cd799439013';
+
 function makeServiceTicketDoc(overrides: Partial<ServiceTicket> = {}) {
   const base = {
-    id: '507f1f77bcf86cd799439011', // Valid ObjectId string
+    _id: new MongooseSeedwork.ObjectId(SERVICE_TICKET_ID),
+    id: SERVICE_TICKET_ID,
     title: 'Test Ticket',
     description: 'Test Description',
     status: 'open',
@@ -47,11 +53,21 @@ function makeServiceTicketDoc(overrides: Partial<ServiceTicket> = {}) {
 }
 
 function makeCommunityDoc(overrides: Partial<Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community;
+  return {
+    _id: new MongooseSeedwork.ObjectId(COMMUNITY_ID),
+    id: COMMUNITY_ID,
+    name: 'Test Community',
+    ...overrides,
+  } as Community;
 }
 
 function makeMemberDoc(overrides: Partial<Member> = {}) {
-  return { id: '507f1f77bcf86cd799439013', memberName: 'Test Member', ...overrides } as Member;
+  return {
+    _id: new MongooseSeedwork.ObjectId(MEMBER_ID),
+    id: MEMBER_ID,
+    memberName: 'Test Member',
+    ...overrides,
+  } as Member;
 }
 
 function makeMockPassport() {
@@ -103,7 +119,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     // Attach static methods to the constructor
     Object.assign(ModelMock, {
       findById: vi.fn((id: string) => ({
-        exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? serviceTicketDoc : null)),
+        exec: vi.fn(async () => (id === SERVICE_TICKET_ID ? serviceTicketDoc : null)),
       })),
     });
 
@@ -132,7 +148,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       'a valid Mongoose ServiceTicket document with id "507f1f77bcf86cd799439011", title "Test Ticket", description "Test Description"',
       () => {
         serviceTicketDoc = makeServiceTicketDoc({
-          _id: '507f1f77bcf86cd799439011',
           title: 'Test Ticket',
           description: 'Test Description'
         });

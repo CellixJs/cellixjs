@@ -3,8 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Domain } from '@ocom/domain';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 import { ServiceRepository } from './service.repository.ts';
 import { ServiceConverter } from './service.domain-adapter.ts';
@@ -18,8 +18,12 @@ const repositoryFeature = await loadFeature(
   path.resolve(__dirname, 'features/service.repository.feature')
 );
 
+const SERVICE_ID = '507f1f77bcf86cd799439021';
+const COMMUNITY_ID = '6898b0c34b4a2fbc01e9c697';
+
 function makeServiceDoc(overrides: Partial<Service> = {}) {
   return {
+    _id: new MongooseSeedwork.ObjectId(SERVICE_ID),
     serviceName: 'Test Service',
     description: 'Test service description',
     isActive: true,
@@ -43,7 +47,8 @@ function makeServiceDoc(overrides: Partial<Service> = {}) {
 
 function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
-    id: '6898b0c34b4a2fbc01e9c697',
+    _id: new MongooseSeedwork.ObjectId(COMMUNITY_ID),
+    id: COMMUNITY_ID,
     name: 'Test Community',
     domain: 'test.com',
     ...overrides,
@@ -85,7 +90,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
     Object.assign(ModelMock, {
       findById: vi.fn((id: string) => ({
         populate: vi.fn().mockReturnThis(),
-        exec: vi.fn(async () => (id === '123' ? makeServiceDoc({ _id: id }) : null)),
+        exec: vi.fn(async () => (id === SERVICE_ID ? makeServiceDoc() : null)),
       })),
     });
 
@@ -105,17 +110,17 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Getting a service by ID when the service exists', ({ Given, When, Then, And }) => {
-    Given('a service document exists in the database with ID "123"', () => {
+    Given(`a service document exists in the database with ID "${SERVICE_ID}"`, () => {
       // Mock is set up in BeforeEachScenario
     });
-    When('I call getById with ID "123"', async () => {
-      result = await repository.getById('123');
+    When(`I call getById with ID "${SERVICE_ID}"`, async () => {
+      result = await repository.getById(SERVICE_ID);
     });
     Then('it should return a Service domain object', () => {
       expect(result).toBeInstanceOf(Domain.Contexts.Service.Service.Service);
     });
-    And('the model\'s findById method should have been called with "123"', () => {
-      expect(mockModel.findById).toHaveBeenCalledWith('123');
+    And(`the model's findById method should have been called with "${SERVICE_ID}"`, () => {
+      expect(mockModel.findById).toHaveBeenCalledWith(SERVICE_ID);
     });
   });
 

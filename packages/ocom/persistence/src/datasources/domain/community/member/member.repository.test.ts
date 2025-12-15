@@ -10,6 +10,7 @@ import { MemberConverter, type MemberDomainAdapter } from './member.domain-adapt
 import type { ClientSession } from 'mongoose';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member, MemberModelType } from '@ocom/data-sources-mongoose-models/member';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 
 const test = { for: describeFeature };
@@ -18,9 +19,13 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/member.repository.feature')
 );
 
+const MEMBER_ID = '507f1f77bcf86cd799439011';
+const COMMUNITY_ID = '507f1f77bcf86cd799439012';
+
 function makeMemberDoc(overrides: Partial<Member> = {}) {
   const base = {
-    id: '507f1f77bcf86cd799439011', // Valid ObjectId string
+    _id: new MongooseSeedwork.ObjectId(MEMBER_ID),
+    id: MEMBER_ID,
     memberName: 'Test Member',
     community: makeCommunityDoc(),
     set(key: keyof Member, value: unknown) {
@@ -32,7 +37,12 @@ function makeMemberDoc(overrides: Partial<Member> = {}) {
 }
 
 function makeCommunityDoc(overrides: Partial<Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community; // Valid ObjectId string
+  return {
+    _id: new MongooseSeedwork.ObjectId(COMMUNITY_ID),
+    id: COMMUNITY_ID,
+    name: 'Test Community',
+    ...overrides,
+  } as Community;
 }
 
 function makeMockPassport() {
@@ -105,9 +115,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       }
     );
     And(
-      'a valid Mongoose Member document with id "507f1f77bcf86cd799439011", name "Test Member", and a populated community field',
+      `a valid Mongoose Member document with id "${MEMBER_ID}", name "Test Member", and a populated community field`,
       () => {
-        memberDoc = makeMemberDoc({ _id: '507f1f77bcf86cd799439011', memberName: 'Test Member', community: communityDoc });
+        memberDoc = makeMemberDoc({ memberName: 'Test Member', community: communityDoc });
       }
     );
   });

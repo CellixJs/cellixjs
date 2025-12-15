@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Model } from 'mongoose';
-import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { MongoDataSourceImpl, type MongoDataSource } from './mongo-data-source.ts';
 
 // Mock mongoose Model and isValidObjectId
@@ -16,7 +16,6 @@ vi.mock('mongoose', () => ({
 
 // Define a test document type
 interface TestDocument extends MongooseSeedwork.Base {
-  _id: string;
   name: string;
   value: number;
   createdAt: Date;
@@ -37,34 +36,37 @@ function makeMockModel() {
   } as unknown as Model<TestDocument>;
 }
 
-function makeMockLeanDocument(): TestDocument & { _id: string } {
+const MOCK_ID_ONE = '507f1f77bcf86cd799439011';
+const MOCK_ID_TWO = '507f1f77bcf86cd799439012';
+
+function makeMockLeanDocument(): TestDocument {
   return {
-    _id: '507f1f77bcf86cd799439011',
+    _id: new MongooseSeedwork.ObjectId(MOCK_ID_ONE),
     name: 'test-doc',
     value: 42,
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-02'),
-  } as TestDocument & { _id: string };
+  } as TestDocument;
 }
 
-function makeMockLeanDocuments(): (TestDocument & { _id: string })[] {
+function makeMockLeanDocuments(): TestDocument[] {
   return [
     makeMockLeanDocument(),
     {
-      _id: '507f1f77bcf86cd799439012',
+      _id: new MongooseSeedwork.ObjectId(MOCK_ID_TWO),
       name: 'test-doc-2',
       value: 24,
       createdAt: new Date('2023-01-02'),
       updatedAt: new Date('2023-01-03'),
-    } as TestDocument & { _id: string },
+    } as TestDocument,
   ];
 }
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let model: Model<TestDocument>;
   let dataSource: MongoDataSource<TestDocument>;
-  let mockLeanDoc: TestDocument & { _id: string };
-  let mockLeanDocs: (TestDocument & { _id: string })[];
+  let mockLeanDoc: TestDocument;
+  let mockLeanDocs: TestDocument[];
 
   BeforeEachScenario(() => {
     model = makeMockModel();
@@ -148,7 +150,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       expect(result[0]).toBeDefined();
       expect(result[1]).toBeDefined();
       // TypeScript knows result has 2 elements after toHaveLength(2)
-      const typedResult = result as Array<{ id: string; _id: string }>;
+      const typedResult = result as Array<{ id: string; _id: MongooseSeedwork.ObjectId }>;
       expect(typedResult[0]?.id).toBe(mockLeanDocs[0]?._id);
       expect(typedResult[1]?.id).toBe(mockLeanDocs[1]?._id);
       expect(model.find).toHaveBeenCalledWith(

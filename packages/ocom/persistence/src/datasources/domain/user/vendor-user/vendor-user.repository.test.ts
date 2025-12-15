@@ -9,6 +9,7 @@ import { VendorUserRepository } from './vendor-user.repository.ts';
 import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 import type { VendorUser, VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,10 +17,12 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/vendor-user.repository.feature')
 );
 
+const VENDOR_USER_ID = '507f1f77bcf86cd799439011';
+
 function makeVendorUserDoc(overrides: Partial<VendorUser> = {}) {
   const base = {
-    _id: '507f1f77bcf86cd799439011',
-    id: '507f1f77bcf86cd799439011',
+    _id: new MongooseSeedwork.ObjectId(VENDOR_USER_ID),
+    id: VENDOR_USER_ID,
     userType: 'vendor-user',
     externalId: '123e4567-e89b-12d3-a456-426614174001',
     email: 'vendor@example.com',
@@ -73,12 +76,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
     // Attach static methods to the constructor
     findByIdAndDeleteMock = vi.fn((id: string) => ({
-      exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? {} : null)),
+      exec: vi.fn(async () => (id === VENDOR_USER_ID ? {} : null)),
     }));
 
     Object.assign(ModelMock, {
       findById: vi.fn((id: string) => ({
-        exec: vi.fn(async () => (id === vendorUserDoc._id ? vendorUserDoc : null)),
+        exec: vi.fn(async () => (id === vendorUserDoc._id.toString() ? vendorUserDoc : null)),
       })),
       findOne: vi.fn((query: { externalId: string }) => ({
         exec: vi.fn(async () => (query.externalId === vendorUserDoc.externalId ? vendorUserDoc : null)),
@@ -106,7 +109,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       }
     );
     And(
-      'a VendorUser document with ID "507f1f77bcf86cd799439011" and externalId "123e4567-e89b-12d3-a456-426614174001"',
+      `a VendorUser document with ID "${VENDOR_USER_ID}" and externalId "123e4567-e89b-12d3-a456-426614174001"`,
       () => {
         vendorUserDoc = makeVendorUserDoc();
       }
@@ -115,8 +118,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Getting a VendorUser by ID', ({ When, Then, And }) => {
     let result: Domain.Contexts.User.VendorUser.VendorUser<VendorUserDomainAdapter>;
-    When('I call getById with ID "507f1f77bcf86cd799439011"', async () => {
-      result = await repo.getById('507f1f77bcf86cd799439011');
+    When(`I call getById with ID "${VENDOR_USER_ID}"`, async () => {
+      result = await repo.getById(VENDOR_USER_ID);
     });
     Then('it should return the VendorUser domain object', () => {
       expect(result).toBeInstanceOf(Domain.Contexts.User.VendorUser.VendorUser);
@@ -140,11 +143,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   });
 
   Scenario('Deleting a VendorUser by ID', ({ When, Then }) => {
-    When('I call delete with ID "507f1f77bcf86cd799439011"', async () => {
-      await repo.delete('507f1f77bcf86cd799439011');
+    When(`I call delete with ID "${VENDOR_USER_ID}"`, async () => {
+      await repo.delete(VENDOR_USER_ID);
     });
     Then('the VendorUser document should be deleted from the database', () => {
-      expect(findByIdAndDeleteMock).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(findByIdAndDeleteMock).toHaveBeenCalledWith(VENDOR_USER_ID);
     });
   });
 

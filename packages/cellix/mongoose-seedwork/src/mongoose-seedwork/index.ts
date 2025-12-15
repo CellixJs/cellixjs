@@ -1,5 +1,7 @@
+import mongoose from 'mongoose';
 
-export { ObjectId } from 'mongodb';
+export const { ObjectId } = mongoose.Types;
+export type ObjectId = mongoose.Types.ObjectId;
 export { type Base, type NestedPath, NestedPathOptions, type SubdocumentBase } from './base.ts';
 export { type MongooseContextFactory, modelFactory} from './mongo-connection.ts';
 export { MongooseDomainAdapter } from './mongo-domain-adapter.ts';

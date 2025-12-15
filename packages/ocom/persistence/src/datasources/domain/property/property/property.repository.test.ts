@@ -10,6 +10,7 @@ import { PropertyConverter, type PropertyDomainAdapter } from './property.domain
 import type { ClientSession } from 'mongoose';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Property, PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 
 const test = { for: describeFeature };
@@ -18,9 +19,13 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/property.repository.feature')
 );
 
+const PROPERTY_ID = '507f1f77bcf86cd799439011';
+const COMMUNITY_ID = '507f1f77bcf86cd799439012';
+
 function makePropertyDoc(overrides: Partial<Property> = {}) {
   const base = {
-    id: '507f1f77bcf86cd799439011', // Valid ObjectId string
+    _id: new MongooseSeedwork.ObjectId(PROPERTY_ID),
+    id: PROPERTY_ID,
     propertyName: 'Test Property',
     community: makeCommunityDoc(),
     set(key: keyof Property, value: unknown) {
@@ -32,7 +37,12 @@ function makePropertyDoc(overrides: Partial<Property> = {}) {
 }
 
 function makeCommunityDoc(overrides: Partial<Community> = {}) {
-  return { id: '507f1f77bcf86cd799439012', name: 'Test Community', ...overrides } as Community; // Valid ObjectId string
+  return {
+    _id: new MongooseSeedwork.ObjectId(COMMUNITY_ID),
+    id: COMMUNITY_ID,
+    name: 'Test Community',
+    ...overrides,
+  } as Community;
 }
 
 function makeMockPassport() {
@@ -105,9 +115,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       }
     );
     And(
-      'a valid Mongoose Property document with id "507f1f77bcf86cd799439011", name "Test Property", and a populated community field',
+      `a valid Mongoose Property document with id "${PROPERTY_ID}", name "Test Property", and a populated community field`,
       () => {
-        propertyDoc = makePropertyDoc({ _id: '507f1f77bcf86cd799439011', propertyName: 'Test Property', community: communityDoc });
+        propertyDoc = makePropertyDoc({ propertyName: 'Test Property', community: communityDoc });
       }
     );
   });

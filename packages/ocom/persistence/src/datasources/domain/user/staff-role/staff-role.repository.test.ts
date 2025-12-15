@@ -9,6 +9,7 @@ import { StaffRoleRepository } from './staff-role.repository.ts';
 import { StaffRoleConverter, type StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
 import type { ClientSession } from 'mongoose';
 import type { StaffRole, StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,9 +17,11 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/staff-role.repository.feature')
 );
 
+const STAFF_ROLE_ID = '507f1f77bcf86cd799439030';
+
 function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
   const base = {
-    _id: 'role-1',
+    _id: new MongooseSeedwork.ObjectId(STAFF_ROLE_ID),
     roleName: 'Manager',
     isDefault: false,
     roleType: 'staff',
@@ -87,7 +90,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     }
     Object.assign(ModelMock, {
       findById: vi.fn((id: string) => ({
-        exec: vi.fn(async () => (id === staffRoleDoc._id ? staffRoleDoc : null)),
+        exec: vi.fn(async () => (id === staffRoleDoc._id.toString() ? staffRoleDoc : null)),
       })),
       findOne: vi.fn((query: { roleName: string }) => ({
         exec: vi.fn(async () => (query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null)),
@@ -115,7 +118,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       }
     );
     And(
-      'a valid Mongoose StaffRole document with id "role-1", roleName "Manager", isDefault false, and roleType "staff"',
+      `a valid Mongoose StaffRole document with id "${STAFF_ROLE_ID}", roleName "Manager", isDefault false, and roleType "staff"`,
       () => {
         staffRoleDoc = makeStaffRoleDoc();
       }
@@ -124,8 +127,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Getting a staff role by id', ({ When, Then, And }) => {
     let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
-    When('I call getById with "role-1"', async () => {
-      result = await repo.getById('role-1');
+    When(`I call getById with "${STAFF_ROLE_ID}"`, async () => {
+      result = await repo.getById(STAFF_ROLE_ID);
     });
     Then('I should receive a StaffRole domain object', () => {
       expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);

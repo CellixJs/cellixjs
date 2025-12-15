@@ -1,9 +1,10 @@
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork'; 
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Domain } from '@ocom/domain';
 import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
-import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
+import type { FindOneOptions, FindOptions, Lean } from '../../mongo-data-source.ts';
 import { type MemberDataSource, MemberDataSourceImpl } from './member.data.ts';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
 
 
@@ -27,6 +28,10 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
     private readonly converter: MemberConverter;
     private readonly passport: Domain.Passport;
 
+    private toDomain(doc: Lean<Member>) {
+        return this.converter.toDomain(this.mongoDataSource.hydrate(doc), this.passport);
+    }
+
     /**
      * Constructs a new MemberReadRepositoryImpl.
      * @param models - The models context containing the Member model.
@@ -46,7 +51,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
      */
     async getByCommunityId(communityId: string, options?: FindOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {
         const result = await this.mongoDataSource.find({ community: new MongooseSeedwork.ObjectId(communityId) }, options);
-        return result.map(doc => this.converter.toDomain(doc, this.passport));
+        return result.map(doc => this.toDomain(doc));
     }
 
     /**
@@ -58,7 +63,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
     async getById(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
         const result = await this.mongoDataSource.findById(id, options);
         if (!result) { return null; }
-        return this.converter.toDomain(result, this.passport);
+        return this.toDomain(result);
     }
 
     /**
@@ -74,7 +79,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
         };
         const result = await this.mongoDataSource.findById(id, finalOptions);
         if (!result) { return null; }
-        return this.converter.toDomain(result, this.passport);
+        return this.toDomain(result);
     }
 
     async getMembersForEndUserExternalId(externalId: string): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {
@@ -117,7 +122,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
     ];
 
         const result = await this.mongoDataSource.aggregate(pipeline);
-        return result.map((doc) => this.converter.toDomain(doc, this.passport));
+        return result.map((doc) => this.toDomain(doc));
     }
 
     async isAdmin(id: string): Promise<boolean> {

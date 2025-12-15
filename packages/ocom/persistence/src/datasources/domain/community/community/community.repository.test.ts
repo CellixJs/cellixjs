@@ -11,6 +11,7 @@ import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapte
 import type { ClientSession } from 'mongoose';
 import type { Community, CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 
 const test = { for: describeFeature };
@@ -19,9 +20,13 @@ const feature = await loadFeature(
   path.resolve(__dirname, 'features/community.repository.feature')
 );
 
+const COMMUNITY_ID = '507f1f77bcf86cd799439014';
+const USER_ID = '507f1f77bcf86cd799439015';
+
 function makeCommunityDoc(overrides: Partial<Community> = {}) {
   const base = {
-    id: 'community-1',
+    _id: new MongooseSeedwork.ObjectId(COMMUNITY_ID),
+    id: COMMUNITY_ID,
     name: 'Test Community',
     domain: 'test.com',
     whiteLabelDomain: 'white.test.com',
@@ -36,7 +41,12 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
 }
 
 function makeUserDoc(overrides: Partial<EndUser> = {}) {
-  return { id: 'user-1', displayName: 'Test User', ...overrides } as EndUser;
+  return {
+    _id: new MongooseSeedwork.ObjectId(USER_ID),
+    id: USER_ID,
+    displayName: 'Test User',
+    ...overrides,
+  } as EndUser;
 }
 
 function makeMockPassport() {
@@ -66,7 +76,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     userDoc = makeUserDoc();
     userAdapter = new EndUserDomainAdapter(userDoc);
-    communityDoc = makeCommunityDoc({ _id: 'community-1', createdBy: userDoc });
+    communityDoc = makeCommunityDoc({ createdBy: userDoc });
     converter = new CommunityConverter();
     passport = makeMockPassport();
     result = {} as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
@@ -78,7 +88,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     Object.assign(ModelMock, {
       findById: vi.fn((id: string) => ({
         populate: vi.fn(() => ({
-          exec: vi.fn(async () => (id === 'community-1' ? communityDoc : null)),
+          exec: vi.fn(async () => (id === COMMUNITY_ID ? communityDoc : null)),
         })),
       })),
     });
@@ -104,17 +114,17 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       }
     );
     And(
-      'a valid Mongoose Community document with id "community-1", name "Test Community", and a populated createdBy field',
+      `a valid Mongoose Community document with id "${COMMUNITY_ID}", name "Test Community", and a populated createdBy field`,
       () => {
         userDoc = makeUserDoc();
-        communityDoc = makeCommunityDoc({ _id: 'community-1', name: 'Test Community', createdBy: userDoc });
+        communityDoc = makeCommunityDoc({ name: 'Test Community', createdBy: userDoc });
       }
     );
   });
 
   Scenario('Getting a community by id with createdBy populated', ({ When, Then, And }) => {
-    When('I call getByIdWithCreatedBy with "community-1"', async () => {
-      result = await repo.getByIdWithCreatedBy('community-1');
+    When(`I call getByIdWithCreatedBy with "${COMMUNITY_ID}"`, async () => {
+      result = await repo.getByIdWithCreatedBy(COMMUNITY_ID);
     });
     Then('I should receive a Community domain object', () => {
       expect(result).toBeInstanceOf(Domain.Contexts.Community.Community.Community);

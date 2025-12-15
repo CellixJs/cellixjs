@@ -53,6 +53,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
       findById: vi.fn(),
       findOne: vi.fn(),
       aggregate: vi.fn(),
+      hydrate: vi.fn((doc) => doc as never),
     } as MemberDataSource;
 
     // Mock the constructor to return our mock data source

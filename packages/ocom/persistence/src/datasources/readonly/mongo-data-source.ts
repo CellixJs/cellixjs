@@ -1,8 +1,8 @@
 import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { type FilterQuery, type FlattenMaps, isValidObjectId, type Model, type PipelineStage, type QueryOptions, type Require_id } from 'mongoose';
+import { type QueryFilter, type FlattenMaps, isValidObjectId, type Model, type PipelineStage, type QueryOptions, type Require_id } from 'mongoose';
 
 type LeanBase<T> = Readonly<Require_id<FlattenMaps<T>>>;
-type Lean<T> = LeanBase<T> & { id: string };
+export type Lean<T> = LeanBase<T> & { id: string };
 
 export type FindOptions = {
   fields?: string[] | undefined;
@@ -19,6 +19,7 @@ export interface MongoDataSource<TDoc extends MongooseSeedwork.Base> {
     findOne(filter: Partial<TDoc>, options?: FindOneOptions): Promise<Lean<TDoc> | null>;
     findById(id: string, options?: FindOneOptions): Promise<Lean<TDoc> | null>;
     aggregate(pipeline: PipelineStage[]): Promise<Lean<TDoc>[]>;
+    hydrate(doc: Lean<TDoc>): TDoc;
 }
 
 export class MongoDataSourceImpl<TDoc extends MongooseSeedwork.Base> implements MongoDataSource<TDoc> {
@@ -37,15 +38,9 @@ export class MongoDataSourceImpl<TDoc extends MongooseSeedwork.Base> implements 
         return projection;
     }
 
-    private buildFilterQuery(filter: Partial<TDoc>): FilterQuery<TDoc> {
-        const query: FilterQuery<TDoc> = {};
-        for (const key of Object.keys(filter)) {
-            const value = filter[key as keyof TDoc];
-            if (value !== undefined) {
-                query[key as keyof FilterQuery<TDoc>] = value as FilterQuery<TDoc>[keyof TDoc];
-            }
-        }
-        return query;
+    private buildFilterQuery(filter: Partial<TDoc>): QueryFilter<TDoc> {
+        const entries = Object.entries(filter).filter(([, value]) => value !== undefined);
+        return Object.fromEntries(entries) as QueryFilter<TDoc>;
     }
 
     private appendId(doc: LeanBase<TDoc>): Lean<TDoc> {
@@ -93,5 +88,9 @@ export class MongoDataSourceImpl<TDoc extends MongooseSeedwork.Base> implements 
     async aggregate(pipeline: PipelineStage[]): Promise<Lean<TDoc>[]> {
         const docs = await this.model.aggregate(pipeline).exec();
         return docs.map(doc => this.appendId(doc));
+    }
+
+    hydrate(doc: Lean<TDoc>): TDoc {
+        return this.model.hydrate(doc as TDoc);
     }
 }

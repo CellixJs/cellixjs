@@ -2,7 +2,7 @@ import type { Domain } from '@ocom/domain';
 
 import type { ModelsContext, PersistenceFactory } from '../../../../types.ts';
 import { CommunityDataSourceImpl, type CommunityDataSource } from './community.data.ts';
-import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
+import type { FindOneOptions, FindOptions, Lean } from '../../mongo-data-source.ts';
 import { CommunityConverter } from '../../../domain/community/community/community.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 
@@ -36,7 +36,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
      */
     async getAll(options?: FindOptions): Promise<Domain.Contexts.Community.Community.CommunityEntityReference[]> {
         const result = await this.mongoDataSource.find({}, options);
-        return result.map(doc => this.converter.toDomain(doc, this.passport));
+        return result.map(doc => this.toDomain(doc));
     }
 
     /**
@@ -48,7 +48,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
     async getById(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Community.CommunityEntityReference | null> {
         const result = await this.mongoDataSource.findById(id, options);
         if (!result) { return null; }
-        return this.converter.toDomain(result, this.passport);
+        return this.toDomain(result);
     }
 
     /**
@@ -64,7 +64,7 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
         };
         const result = await this.mongoDataSource.findById(id, finalOptions);
         if (!result) { return null; }
-        return this.converter.toDomain(result, this.passport);
+        return this.toDomain(result);
     }
 
     /**
@@ -120,7 +120,12 @@ export class CommunityReadRepositoryImpl implements CommunityReadRepository {
             { $project: { m: 0, accountUsers: 0, matchedEndUsers: 0 } },
         ];
         const result = await this.mongoDataSource.aggregate(pipeline);
-        return result.map((doc: Readonly<Community>) => this.converter.toDomain(doc, this.passport));
+        return result.map(doc => this.toDomain(doc));
+    }
+
+    private toDomain(doc: Lean<Community>): Domain.Contexts.Community.Community.CommunityEntityReference {
+        const hydrated = this.mongoDataSource.hydrate(doc);
+        return this.converter.toDomain(hydrated, this.passport);
     }
 }
 
