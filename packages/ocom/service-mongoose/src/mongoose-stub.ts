@@ -38,10 +38,3 @@ export interface Mongoose {
 	disconnect(): Promise<void>;
 	set?: (key: string, value: unknown) => Mongoose;
 }
-
-export type DocumentArray<T = unknown> = Array<T>;
-
-export type MongooseModule = {
-	default?: Mongoose;
-	connect?: Mongoose['connect'];
-} & Mongoose;

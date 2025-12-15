@@ -1,8 +1,4 @@
-// Minimal public typings for @ocom/persistence to avoid pulling mongoose Schema types into consumers.
-// Runtime exports remain from dist/src/index.js; these types intentionally erase mongoose details while
-// preserving the structural shape and return types needed by downstream callers.
-
-import type { Domain, DomainDataSource as PersistenceDomainDataSource } from '@ocom/domain';
+import type { Domain, DomainDataSource } from '@ocom/domain';
 
 export interface CommunityReadRepository {
   getAll(options?: Record<string, unknown>): Promise<Domain.Contexts.Community.Community.CommunityEntityReference[]>;
@@ -46,8 +42,6 @@ export interface ReadonlyDataSource {
   User: ReadonlyUserDataSource;
 }
 
-export type DomainDataSource = PersistenceDomainDataSource;
-
 export interface DataSources {
   domainDataSource: DomainDataSource;
   readonlyDataSource: ReadonlyDataSource;
@@ -66,5 +60,4 @@ export interface MongooseContextFactoryLike {
 }
 
 export type Persistence = (initializedService: MongooseContextFactoryLike) => DataSourcesFactory;
-
 export declare const Persistence: Persistence;

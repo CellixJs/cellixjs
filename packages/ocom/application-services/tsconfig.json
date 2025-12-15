@@ -3,13 +3,16 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
+    "paths": {
+      "@ocom/persistence": ["../persistence/types/public.d.ts"],
+      "@ocom/persistence/*": ["../persistence/types/*"]
+    }
   },
   "include": [
     "src/**/*.ts"
   ],
   "references": [
     { "path": "../context-spec" },
-    { "path": "../domain" },
-    { "path": "../persistence" }
+    { "path": "../domain" }
   ]
 }

@@ -2,7 +2,13 @@
   "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "paths": {
+      "mongoose": ["../service-mongoose/types/mongoose/index.d.ts"],
+      "mongoose/*": ["../service-mongoose/types/mongoose/*"],
+      "@ocom/service-mongoose": ["../service-mongoose/dist/src/index.d.ts"],
+      "@ocom/service-mongoose/*": ["../service-mongoose/dist/src/*"]
+    }
   },
   "include": [
     "src/**/*.ts"
