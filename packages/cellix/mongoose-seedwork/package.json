@@ -27,7 +27,7 @@
     "@cellix/event-bus-seedwork-node": "workspace:*"
   },
   "peerDependencies": {
-    "mongoose": "^8.0.0",
+    "mongoose": "^9.0.1",
     "mongodb": "^6.0.0"
   },
   "devDependencies": {

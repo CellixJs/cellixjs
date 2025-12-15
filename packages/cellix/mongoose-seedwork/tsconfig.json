@@ -2,8 +2,7 @@
   "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": ".",
-    "skipLibCheck": true // [TS7] temporary to ignore mongoose type issues https://github.com/microsoft/typescript-go/issues/948
+    "rootDir": "."
   },
   "include": ["src/**/*.ts"],
   "references": [
