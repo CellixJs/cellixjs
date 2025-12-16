@@ -9,7 +9,7 @@ consulted:
 informed:
 ---
 
-# tsgo Migration Exploration
+# tsgo Migration
 
 ## Context and Problem Statement
 
@@ -66,7 +66,7 @@ Chosen option: "Wait for the official TypeScript 7.0 release", because the tempo
 - Every Monday (or at least once per sprint week), review the linked issues to see if the tsgo blockers have advanced toward resolution. Update this ADR with the new status and any clean-up that becomes relevant.
 - **Schema circular reference (TS4109):** [Issue 929](https://github.com/microsoft/typescript-go/issues/929) (monitor the related [issue 948](https://github.com/microsoft/typescript-go/issues/948) even though it is closed in case the problem reappears).
 - **Inferred type cannot be named (TS2742):** [Issue 2220](https://github.com/microsoft/typescript-go/issues/2220) plus the related reports [2233](https://github.com/microsoft/typescript-go/issues/2233) and [2277](https://github.com/microsoft/typescript-go/issues/2277).
-- **tsgo issue queue:** Refer to the [TypeScript Go issue tracker](https://github.com/microsoft/typescript-go/issues) as needed to find other relevant bugs or enhancements that impact our planned migration.
+- **tsgo issue queue:** Refer to the [TypeScript Go issue tracker](https://github.com/microsoft/typescript-go/issues) as needed to find other relevant bugs that impact our planned migration.
 
 ### Remediation plan after TypeScript 7 GA
 

@@ -95,6 +95,14 @@ For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 
 - Architecture docs and ADRs in `docusaurus/decisions`
 
+## In Progress ADRs
+
+| ADR | ADR Status | Issue Status | Date Added |
+| --- | --- | --- | --- |
+| [0023 tsgo Migration](apps/docs/docs/decisions/0023-tsgo-migration.md) | deferred | not started | 2025-12-16 |
+
+> Deferred ADRs require weekly GitHub issue check-ins; see the ADR’s “Weekly Reassessment” section for the linked blockers to review each week.
+
 ## VS Code tips
 
 - Install recommended VSCode extensions for best developer experience.
