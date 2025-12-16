@@ -3,17 +3,13 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "skipLibCheck": true,
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ]
+    "exactOptionalPropertyTypes": false // TS2344 - node_modules/.pnpm/mongoose@9.0.1/node_modules/mongoose/types/inferhydrateddoctype.d.ts
   },
   "include": [
-    "src/**/*.ts",
-    "types/**/*.d.ts"
+    "src/**/*.ts"
   ],
   "references": [
-    { "path": "../../cellix/api-services-spec" }
+    { "path": "../../cellix/api-services-spec" },
+    { "path": "../../cellix/mongoose-seedwork" }
   ]
 }

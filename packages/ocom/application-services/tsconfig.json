@@ -3,16 +3,14 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "paths": {
-      "@ocom/persistence": ["../persistence/types/public.d.ts"],
-      "@ocom/persistence/*": ["../persistence/types/*"]
-    }
+    "exactOptionalPropertyTypes": false // TS2344 - node_modules/.pnpm/mongoose@9.0.1/node_modules/mongoose/types/inferhydrateddoctype.d.ts
   },
   "include": [
     "src/**/*.ts"
   ],
   "references": [
     { "path": "../context-spec" },
-    { "path": "../domain" }
+    { "path": "../domain" },
+    { "path": "../persistence" }
   ]
 }

@@ -3,12 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "paths": {
-      "mongoose": ["../service-mongoose/types/mongoose/index.d.ts"],
-      "mongoose/*": ["../service-mongoose/types/mongoose/*"],
-      "@ocom/service-mongoose": ["../service-mongoose/dist/src/index.d.ts"],
-      "@ocom/service-mongoose/*": ["../service-mongoose/dist/src/*"]
-    }
+    "exactOptionalPropertyTypes": false // TS2344 - node_modules/.pnpm/mongoose@9.0.1/node_modules/mongoose/types/inferhydrateddoctype.d.ts
   },
   "include": [
     "src/**/*.ts"

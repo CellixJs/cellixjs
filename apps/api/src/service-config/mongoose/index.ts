@@ -1,5 +1,6 @@
+import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Persistence } from '@ocom/persistence';
-import type { MongooseContextFactoryLike, ServiceMongooseOptions } from '@ocom/service-mongoose';
+import type { ServiceMongooseOptions } from '@ocom/service-mongoose';
 
 const { COSMOSDB_DBNAME, COSMOSDB_CONNECTION_STRING, NODE_ENV } = process.env;
 
@@ -21,7 +22,7 @@ export const mongooseConnectOptions: ServiceMongooseOptions = {
 export const mongooseConnectionString: string = COSMOSDB_CONNECTION_STRING ?? ''; // need to throw an error if this is not set
 
 export const mongooseContextBuilder = (
-	initializedService: MongooseContextFactoryLike,
+	initializedService: MongooseSeedwork.MongooseContextFactory,
 ) => {
 	return Persistence(initializedService);
 };

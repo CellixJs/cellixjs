@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "files": ["dist", "types"],
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -12,8 +12,8 @@
   },
   "scripts": {
     "prebuild": "biome lint",
-    "build": "tsgo --build",
-    "watch": "tsgo --watch",
+    "build": "tsc --build",
+    "watch": "tsc --watch",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest",

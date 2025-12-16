@@ -11,7 +11,7 @@
     "format": "biome format --write",
     "start": "node dist/src/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "tsgo --build",
+    "build": "tsc --build",
     "clean": "rimraf dist",
     "lint": "biome lint",
     "prebuild": "biome lint"

@@ -16,8 +16,8 @@
     "format": "turbo run format",
     "gen": "graphql-codegen --config codegen.yml",
     "gen:watch": "graphql-codegen --config codegen.yml --watch",
-    "tsbuild": "tsgo --build",
-    "tswatch": "tsgo --build --watch",
+    "tsbuild": "tsc --build",
+    "tswatch": "tsc --build --watch",
     "clean": "turbo run clean && rimraf dist node_modules **/coverage",
     "start:api": "pnpm --filter @ocom/api start",
     "start:ui-community": "pnpm --filter @ocom/ui-community dev",
@@ -62,7 +62,6 @@
     "@playwright/test": "^1.55.1",
     "@sonar/scan": "^4.3.0",
     "@types/node": "^24.6.1",
-    "@typescript/native-preview": "7.0.0-dev.20251204.1",
     "@vitest/coverage-v8": "^3.2.4",
     "azurite": "^3.35.0",
     "concurrently": "^9.1.2",
@@ -77,7 +76,6 @@
   },
   "pnpm": {
     "overrides": {
-      "@types/chai": "5.0.1",
       "vite": "7.1.12",
       "jiti": "2.6.1"
     }

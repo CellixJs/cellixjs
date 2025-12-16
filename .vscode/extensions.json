@@ -6,7 +6,6 @@
     "biomejs.biome",
     "vitest.explorer",
     "sourcery.sourcery",
-    "sonarsource.sonarlint-vscode",
-    "TypeScriptTeam.native-preview",
+    "sonarsource.sonarlint-vscode"
   ]
 }

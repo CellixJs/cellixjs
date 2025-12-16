@@ -60,8 +60,8 @@
   },
   "scripts": {
     "prebuild": "biome lint",
-    "build": "tsgo --build",
-    "watch": "tsgo --watch",
+    "build": "tsc --build",
+    "watch": "tsc --watch",
     "lint": "biome lint",
     "clean": "rimraf dist"
   },

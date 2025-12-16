@@ -7,8 +7,8 @@
   "types": "dist/src/index.d.ts",
   "scripts": {
     "prebuild": "biome lint",
-    "build": "tsgo --build",
-    "watch": "tsgo --watch",
+    "build": "tsc --build",
+    "watch": "tsc --watch",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest",
@@ -21,6 +21,7 @@
   "dependencies": {
     "@azure/functions": "catalog:",
     "@cellix/api-services-spec": "workspace:*",
+    "@cellix/mongoose-seedwork": "workspace:*",
     "@ocom/application-services": "workspace:*",
     "@ocom/context-spec": "workspace:*",
     "@ocom/event-handler": "workspace:*",

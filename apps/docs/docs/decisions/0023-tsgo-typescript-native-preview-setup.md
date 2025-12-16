@@ -1,8 +1,8 @@
 ---
 sidebar_position: 23
 sidebar_label: 0023 tsgo TypeScript Native Preview Setup
-description: "Setting up tsgo with @typescript/native-preview for enhanced type checking and future compatibility."
-status: accepted
+description: "Documenting the decision to postpone the tsgo migration until TypeScript 7 and surrounding typings stabilize."
+status: deferred
 date: 2025-12-08
 deciders: team
 consulted:
@@ -13,14 +13,15 @@ informed:
 
 ## Context and Problem Statement
 
-To prepare for TypeScript 7.0 and leverage advanced type checking features, we needed to integrate `tsgo` with the `@typescript/native-preview` package. This setup provides early access to upcoming TypeScript enhancements, improving type safety and performance. However, adoption required addressing compatibility issues with existing dependencies and adding missing type annotations in our codebase.
+To prepare for TypeScript 7.0 and leverage advanced type checking features, we evaluated integrating `tsgo` with the `@typescript/native-preview` package. Early experimentation delivered potential benefits like stricter type checking and faster incremental builds, but the implementation introduced compatibility issues with critical dependencies (notably mongoose `Schema` typings) and required temporary workarounds that increased maintenance burden. With the mongoose 9.0.1 upgrade already complete, we now prefer to keep the existing `tsc`-based workflow stable and let TypeScript 7 mature before reattempting the migration.
 
 ## Decision Drivers
 
-- **Future Compatibility**: Prepare codebase for TypeScript 7.0 features and improvements
-- **Enhanced Type Safety**: Leverage stricter type checking capabilities
-- **Performance Benefits**: Utilize tsgo's optimizations for better compilation and runtime performance
-- **Dependency Compatibility**: Maintain compatibility with existing libraries (mongoose, vitest, etc.)
+- **Future Compatibility**: Monitor TypeScript 7.0 while waiting for first-party stability
+- **Enhanced Type Safety**: Track `tsgo` and `@typescript/native-preview` to adopt them when the benefits outweigh the costs
+- **Performance Balance**: Avoid premature optimization if it impairs the developer experience today
+- **Dependency Compatibility**: Keep mongoose, Vitest, and other core libraries running on the officially supported TypeScript toolchain
+- **Release Momentum**: Retain the mongoose 9.0.1 upgrade without adding additional risks or temporary guards for downstream packages
 
 ## Considered Options
 
@@ -30,79 +31,50 @@ To prepare for TypeScript 7.0 and leverage advanced type checking features, we n
 
 ## Decision Outcome
 
-Chosen option: "Adopt tsgo with @typescript/native-preview immediately", because it provides early access to beneficial features while allowing us to prepare for the official release. We implemented necessary workarounds for compatibility issues and documented the temporary nature of these changes.
+Chosen option: "Wait for the official TypeScript 7.0 release", because the temporary compatibility workarounds (like `skipLibCheck`, mongoose type facades, and editor extensions) are more disruptive than the incremental benefits right now. We will continue to monitor tsgo and revisit the migration once the tooling and type definitions stabilize.
 
 ### Consequences
 
-- Good, because early adoption allows us to identify and resolve compatibility issues before the official release
-- Good, because enhanced type checking improves code quality and catches potential issues earlier
-- Bad, because temporary workarounds (skipLibCheck) reduce type safety in the short term
-- Bad, because additional type annotations increase development overhead temporarily
+- Good, because we avoid fragile tsgo-specific workarounds across multiple packages
+- Good, because the mongoose 9.0.1 upgrade can stay in place with the standard TypeScript toolchain
+- Neutral, because we lose early access to TS7 features but gain confidence in the current compiler
+- Bad, because we defer potential compilation and runtime benefits from tsgo until later
 
 ## Validation
 
-- Code compiles successfully with tsgo and @typescript/native-preview
-- Existing tests pass with skipLibCheck workarounds
-- Type annotations in @ocom/persistence are validated through compilation
-- CI pipeline build/test time decreased from ~8 minutes to ~6 minutes after tsgo implementation
-
-## Pros and Cons of the Options
-
-### Adopt tsgo with @typescript/native-preview immediately
-
-- Good, because it provides early access to TypeScript 7.0 features
-- Good, because it allows gradual migration and issue identification
-- Neutral, because it requires temporary workarounds
-- Bad, because it increases maintenance burden during transition period
-
-### Wait for official TypeScript 7.0 release
-
-- Good, because it avoids compatibility issues and workarounds
-- Good, because the official release is more stable
-- Bad, because it delays access to beneficial features
-- Bad, because it may require more significant changes later
-
-### Use alternative type checking tools
-
-- Good, because it avoids TypeScript-specific issues
-- Neutral, because it may provide different benefits
-- Bad, because it increases tooling complexity
-- Bad, because it may not integrate as well with existing TypeScript ecosystem
+- The codebase now builds with the standard `tsc` scripts (`tsbuild`, `tswatch`) and no longer contains tsgo-specific plugins, dependencies, or compiler overrides.
+- All mongoose-consuming packages import the real mongoose types again, so downstream typings rely on official definitions instead of temporary stubs.
+- The mongoose 9.0.1 upgrade remains intact, allowing consumers to benefit from the latest typings without extra migration risk.
+- `pnpm run verify` (lint, build, test, SonarCloud, Snyk) is the guardrail we plan to run before committing these documentation updates.
 
 ## More Information
 
-### Changes Made (tsgo + TS7 compatibility)
-
-1. **Scoped skipLibCheck**: Enabled only in schema-bearing packages that must compile Mongoose `Schema` typings (`@cellix/mongoose-seedwork`, `@ocom/data-sources-mongoose-models`, `@ocom/persistence`). Downstream packages stay strict without `skipLibCheck`.
-
-2. **Mongoose isolation for downstream packages** (temporary):
-	- Mongoose-free public facade in `@ocom/persistence/types/public.d.ts` so consumers avoid `Schema` types.
-	- Single ambient mongoose stub in `@ocom/service-mongoose/types/mongoose/index.d.ts` with `typeRoots`/`files` wiring to let `typeof import('mongoose')` compile without Schema types.
-	- Minimal `MongooseLike` public surface for `ServiceMongoose` (runtime still uses real mongoose) to prevent Schema typings from leaking.
-	- Removed duplicate stubs (e.g., in `@ocom/context-spec`) and avoided unnecessary `@cellix/mongoose-seedwork` deps in non-mongoose packages (e.g., `apps/api`).
-
-3. **Type hygiene**: Added missing annotations where tsgo/TS7 required them (notably in `@ocom/persistence`).
-
-4. **@types/chai override**: Pinned to `5.0.1` to avoid the `containSubset` conflict with vitest globals during the transition.
-
-5. **Editor support**: Recommend the TypeScript (Native Preview) VS Code extension to align the language service with tsgo.
+- Every `tsgo`-specific configuration was removed: `tsconfig` files extend the base config without `skipLibCheck`, package scripts call `tsc`, and temporary mongoose type facades/stubs have been deleted.
+- The TypeScript (Native Preview) VS Code recommendation and other editor guidance were reverted to the standard experience.
+- We continue to monitor TypeScript Go for resolver improvements but intend to revisit this work only once TypeScript 7.0 and the related mongoose typings (TS4109) stabilize.
+- `pnpm run verify` remains the benchmark before closing this ADR and merging the updated documentation.
 
 ### Future Actions
 
-- Reassess the need for the mongoose facade/stub and the scoped `skipLibCheck` once Mongoose/TS7 typings resolve the Schema recursion (TS4109) and tsgo stabilizes.
-- Drop the `@types/chai` override when the vitest/`@types/chai` `containSubset` conflict is fixed.
-- Reevaluate `@typescript/native-preview` and any remaining tsgo-specific workarounds after the TS7 release.
+- Track the TypeScript 7.0 release timeline and tsgo stability so we know when a second attempt makes sense.
+- Keep an eye on mongoose typings (TS4109) to see when the schema recursion issues resolve without requiring `skipLibCheck` or manual stubs.
+- Reassess the necessity of the `@types/chai` pin whenever the Vitest globals conflict is resolved.
+- Document any follow-up migration plan before reintroducing new tooling.
+
+### Weekly Reassessment
+
+- Every Monday (or at least once per sprint week), review the linked issues to see if the tsgo blockers have advanced toward resolution. Update this ADR with the new status and any clean-up that becomes relevant.
+- **Schema circular reference (TS4109):** [Issue 929](https://github.com/microsoft/typescript-go/issues/929) (monitor the related [issue 948](https://github.com/microsoft/typescript-go/issues/948) even though it is closed in case the problem reappears).
+- **Inferred type cannot be named (TS2742):** [Issue 2220](https://github.com/microsoft/typescript-go/issues/2220) plus the related reports [2233](https://github.com/microsoft/typescript-go/issues/2233) and [2277](https://github.com/microsoft/typescript-go/issues/2277).
+- **tsgo issue queue:** Refer to the [TypeScript Go issue tracker](https://github.com/microsoft/typescript-go/issues) as needed to find other relevant bugs or enhancements that impact our planned migration.
 
 ### Remediation plan after TypeScript 7 GA
 
-When TS 7.0 and compatible Mongoose typings are stable:
-
-1. Remove scoped `skipLibCheck` flags from schema-bearing packages and restore full strict checking.
-2. Delete the temporary mongoose facade/stub (`@ocom/service-mongoose` stub, public facade in `@ocom/persistence`) and re-export the official Mongoose types where needed.
-3. Revert temporary `.js` import extensions introduced for tsgo resolver quirks once declaration emit is supported end-to-end.
-4. Unpin `@types/chai` and re-enable the latest versions once the vitest globals conflict is resolved.
-5. Decide whether to keep tsgo or move back to the official TypeScript compiler; drop `@typescript/native-preview` if no longer required.
-6. Run the full quality gate (`pnpm run verify`, including Snyk) to ensure no regressions and re-enable any checks previously skipped during the transition.
+- Revisit this ADR and either mark it as superseded or update it with the new migration plan.
+- If tsgo proves stable, reintroduce the necessary configuration changes (plugin, `@typescript/native-preview`, tsconfig tweaks) while following the previously documented steps for mongoose isolation.
+- Remove any remaining `skipLibCheck` flags and stub type facades once the official mongoose typings can coexist with tsgo.
+- Unpin `@types/chai` when the Vitest conflict is fully fixed and the default types align with our usage.
+- Run `pnpm run verify` again to ensure the tsgo path passes linting, building, testing, SonarCloud, and Snyk scanners.
 
 ### Tracking tsgo progress
 

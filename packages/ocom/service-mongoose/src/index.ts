@@ -1,6 +1,6 @@
 // Keep public surface mongoose-free to avoid Schema type cycles in consumers
 import type { ServiceBase } from '@cellix/api-services-spec';
-import type { ConnectOptions, Mongoose } from './mongoose-stub.ts';
+import type { ConnectOptions, Mongoose } from 'mongoose';
 
 type MongooseLike = Pick<Mongoose, 'models' | 'model' | 'disconnect' | 'set'>;
 

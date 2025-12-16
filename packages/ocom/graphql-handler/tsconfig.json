@@ -2,7 +2,8 @@
   "extends": "@cellix/typescript-config/node",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "exactOptionalPropertyTypes": false // TS2344 - node_modules/.pnpm/mongoose@9.0.1/node_modules/mongoose/types/inferhydrateddoctype.d.ts
   },
   "include": ["src/**/*.ts"],
   "references": [

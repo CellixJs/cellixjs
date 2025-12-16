@@ -11,8 +11,7 @@
 		"noUncheckedIndexedAccess": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"strict": false,
-        "strictNullChecks": true,
+		"strict": true,
 
 		/* Modules */
 		"allowImportingTsExtensions": true,

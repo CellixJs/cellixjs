@@ -7,7 +7,7 @@
   "types": "dist/src/index.d.ts",
   "scripts": {
     "prebuild": "biome lint",
-    "build": "tsgo --build",
+    "build": "tsc --build",
     "clean": "rimraf dist",
     "lint": "biome lint"
   },
