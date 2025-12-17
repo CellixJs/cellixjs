@@ -2,8 +2,8 @@
 sidebar_position: 23
 sidebar_label: 0023 tsgo Migration
 description: "Documenting the decision to postpone the tsgo migration until TypeScript 7 and surrounding typings stabilize."
-status: deferred
-date: 2025-12-08
+status: monitored
+date: 2025-12-17
 deciders: team
 consulted:
 informed:
@@ -36,13 +36,13 @@ Chosen option: "Wait for the official TypeScript 7.0 release", because the tempo
 ### Consequences
 
 - Good, because we avoid fragile tsgo-specific workarounds across multiple packages
-- Good, because the mongoose 9.0.1 upgrade can stay in place with the standard TypeScript toolchain
+- Good, because we reverted the mongoose upgrade back to 8.17.0 which preserves a stable dependency while we wait for tsgo/mongoose 9.x typings to catch up
 - Neutral, because we lose early access to TS7 features but gain confidence in the current compiler
 - Bad, because we defer potential compilation and runtime benefits from tsgo until later
 
 ## Validation
 
-- We exercised `tsgo --build` across every workspace package and hit new type errors that do not occur when running `tsc` with no changes: mongoose emits a `TS4109` circular-reference failure (notably under [packages/ocom/data-sources-mongoose-models/dist/src/index.d.ts](packages/ocom/data-sources-mongoose-models/dist/src/index.d.ts)), and our own code surfaces `TS2742` “inferred type cannot be named” errors.
+- We exercised `tsgo --build` across every workspace package and hit new type errors that do not occur when running `tsc` with no changes: mongoose emits a `TS4109` circular-reference failure (notably under *packages/ocom/data-sources-mongoose-models/dist/src/index.d.ts*), and our own code surfaces `TS2742` “inferred type cannot be named” errors.
 - The only ways we could persuade the `tsgo` compiler to finish were enabling `skipLibCheck` everywhere (even downstream packages that never touch mongoose) or layering temporary stub mongoose typings that hid the real errors. Neither approach felt acceptable because they amount to manual workarounds for tsgo bugs instead of a stable migration path.
 - Because there was no way to satisfy the CI pipeline when using `tsgo` without those temporary changes, we kept the existing `tsc` workflow and decided to revisit `tsgo` once TypeScript/mongoose typings stabilize.
 
@@ -57,12 +57,12 @@ Chosen option: "Wait for the official TypeScript 7.0 release", because the tempo
 
 - Track the TypeScript 7.0 release timeline and tsgo stability so we know when a second attempt makes sense.
 - Keep an eye on mongoose typings (TS4109) to see when the schema recursion issues resolve without requiring `skipLibCheck` or manual stubs.
-- Reassess the necessity of the `@types/chai` pin whenever the Vitest globals conflict is resolved.
+- Reassess the necessity of the `@types/chai` pin whenever the Vitest globals conflict is resolved. Needed to pin `@types/chai@5.0.1` in root `package.json` overrides section to avoid conflicts with Vitest-provided types when using `tsgo`.
 - Document any follow-up migration plan before reintroducing new tooling.
 
 ### Weekly Reassessment
 
-- Every Monday, review the linked issues to see if the tsgo blockers have advanced toward resolution. Update this ADR and the main [README.md](../../../../README.md)'s In Progress ADRs section with the new status and any clean-up that becomes relevant.
+- Every Monday, review the linked issues to see if the tsgo blockers have advanced toward resolution. Update this ADR and the main [README.md](https://github.com/cellixjs/cellixjs)'s In Progress ADRs section with the new status and any clean-up that becomes relevant.
 - **Schema circular reference (TS4109):** [Issue 929](https://github.com/microsoft/typescript-go/issues/929) (monitor the related [issue 948](https://github.com/microsoft/typescript-go/issues/948) even though it is closed in case the problem reappears).
 - **Inferred type cannot be named (TS2742):** [Issue 2220](https://github.com/microsoft/typescript-go/issues/2220) plus the related reports [2233](https://github.com/microsoft/typescript-go/issues/2233) and [2277](https://github.com/microsoft/typescript-go/issues/2277).
 - **tsgo issue queue:** Refer to the [TypeScript Go issue tracker](https://github.com/microsoft/typescript-go/issues) as needed to find other relevant bugs that impact our planned migration.
