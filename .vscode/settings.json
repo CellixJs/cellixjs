@@ -20,6 +20,7 @@
     "chat.instructionsFilesLocations": {
         "packages/**": true
     },
+    "git.allowNoVerifyCommit": true,
     "github.copilot.chat.customInstructionsInSystemMessage": false,
     "[typescript]": {
         "editor.defaultFormatter": "biomejs.biome"

@@ -5,30 +5,41 @@ import { defineConfig, type PluginOption } from 'vite'
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === 'development';
 
-// Ensure heavyweight dependencies are split into named chunks to avoid giant vendor blobs.
-const dependencyChunkRules: Array<[RegExp, string]> = [
-  [/node_modules\/react[\/]/, 'vendor-react'],
-  [/node_modules\/react-dom[\/]/, 'vendor-react'],
-  [/node_modules\/react-router-dom[\/]/, 'vendor-react'],
-  [/node_modules\/@ant-design[\/]/, 'vendor-antd'],
-  [/node_modules\/antd[\/]/, 'vendor-antd'],
-  [/node_modules\/@apollo[\/]/, 'vendor-apollo'],
-  [/node_modules\/apollo[-\/]/, 'vendor-apollo'],
-  [/node_modules\/@cellix\//, 'vendor-cellix'],
-  [/node_modules\/@ocom\//, 'vendor-cellix'],
-]
-
-const chunkForDependency = (id: string): string | undefined => {
-  if (!id.includes('node_modules')) {
-    return undefined;
-  }
-  for (const [matcher, chunkName] of dependencyChunkRules) {
-    if (matcher.test(id)) {
-      return chunkName;
-    }
-  }
-  return 'vendor';
-};
+// Define groups for advancedChunks
+const dependencyChunkGroups = [
+  { 
+    name: 'vendor-react', 
+    test: /[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom)[\\/]/ 
+  },
+  { 
+    name: 'vendor-antd-icons', 
+    test: /[\\/]node_modules[\\/]@ant-design[\\/]icons[\\/]/ 
+  },
+  { 
+    name: 'vendor-antd-pro', 
+    test: /[\\/]node_modules[\\/]@ant-design[\\/]pro-.*[\\/]/ 
+  },
+  { 
+    name: 'vendor-antd', 
+    test: /[\\/]node_modules[\\/](antd|@ant-design|rc-.*)[\\/]/ 
+  },
+  { 
+    name: 'vendor-apollo', 
+    test: /[\\/]node_modules[\\/](@apollo|apollo-.*|graphql)[\\/]/ 
+  },
+  { 
+    name: 'vendor-cellix', 
+    test: /[\\/](@cellix|@ocom)[\\/]/ 
+  },
+  { 
+    name: 'vendor-utils',
+    test: /[\\/]node_modules[\\/](lodash|dayjs|date-fns|axios)[\\/]/ 
+  },
+  { 
+    name: 'vendor', 
+    test: /[\\/]node_modules[\\/]/ 
+  },
+];
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -40,10 +51,12 @@ export default defineConfig({
     port: 3000,
   },
   build: {
-    chunkSizeWarningLimit: 1500,
-    rollupOptions: {
+    chunkSizeWarningLimit: 500,
+    rolldownOptions: { // Still used for compatibility, but Rolldown interprets it
       output: {
-        manualChunks: (id) => chunkForDependency(id ?? ''),
+        advancedChunks: {
+          groups: dependencyChunkGroups,
+        },
       },
     },
   },
