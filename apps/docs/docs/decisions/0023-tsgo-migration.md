@@ -13,7 +13,7 @@ informed:
 
 ## Context and Problem Statement
 
-To prepare for TypeScript 7.0 and leverage advanced type checking features, we evaluated integrating `tsgo` with the `@typescript/native-preview` package. Early experimentation delivered potential benefits like stricter type checking and faster incremental builds, but the implementation introduced compatibility issues with critical dependencies (notably mongoose `Schema` typings) and required temporary workarounds that increased maintenance burden. With the mongoose 9.0.1 upgrade already complete, we now prefer to keep the existing `tsc`-based workflow stable and let TypeScript 7 mature before reattempting the migration.
+To prepare for TypeScript 7.0 and leverage advanced type checking features, we evaluated integrating `tsgo` with the `@typescript/native-preview` package. Early experimentation delivered potential benefits like stricter type checking and faster incremental builds, but the implementation introduced compatibility issues with critical dependencies (notably mongoose `Schema` typings) and required temporary workarounds that increased maintenance burden. After attempting the mongoose 9.0.1 upgrade and encountering issues from having exactOptionalPropertyTypes enabled in our tsconfig, we reverted to the 8.17.0 version and now prefer to keep the existing `tsc`-based workflow stable while TypeScript 7 matures.
 
 ## Decision Drivers
 
@@ -21,7 +21,7 @@ To prepare for TypeScript 7.0 and leverage advanced type checking features, we e
 - **Enhanced Type Safety**: Track `tsgo` and `@typescript/native-preview` to adopt them when the benefits outweigh the costs
 - **Performance Balance**: Avoid premature optimization if it impairs the developer experience today
 - **Dependency Compatibility**: Keep mongoose, Vitest, and other core libraries running on the officially supported TypeScript toolchain
-- **Release Momentum**: Retain the mongoose 9.0.1 upgrade without adding additional risks or temporary guards for downstream packages
+- **Stability**: Roll back the mongoose 9.0.1 upgrade (migrating back to 8.17.0) because the new typings triggered exactOptionalPropertyTypes issues in our tsconfig that the tsgo build could not resolve.
 
 ## Considered Options
 

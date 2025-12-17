@@ -97,9 +97,9 @@ For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 
 ## In Progress ADRs
 
-| ADR | ADR Status | Issue Status | Date Added |
+| ADR | ADR Status | GitHub Issue Status | Date Added |
 | --- | --- | --- | --- |
-| [0023 tsgo Migration](apps/docs/docs/decisions/0023-tsgo-migration.md) | monitored | not started | 2025-12-17 |
+| [0023 tsgo Migration](https://developers.cellixjs.org/docs/decisions/tsgo-migration) | monitored | not started | 2025-12-17 |
 
 > Deferred ADRs require weekly GitHub issue check-ins; see the ADR’s “Weekly Reassessment” section for the linked blockers to review each week.
 
