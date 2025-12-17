@@ -3,28 +3,28 @@ ignore:
   'SNYK-JS-SIRV-12558119':
     - '* > sirv@2.0.4':
         reason: 'Transitive dependency in Docusaurus; not exploitable in static site serving context (dev-only asset handler)'
-        expires: '2025-12-04T00:00:00.000Z'
+        expires: '2025-12-31T00:00:00.000Z'
         created: '2025-11-06T15:57:00.000Z'
   'SNYK-JS-JSYAML-13961110':
     - '* > js-yaml':
         reason: 'Transitive dependency in Docusaurus; upgrade path blocked until https://github.com/jonschlinkert/gray-matter/pull/137#issuecomment-3533768351 is merged and transitive deps are updated. Not exploitable in current usage.'
-        expires: '2025-12-07T00:00:00.000Z'
+        expires: '2025-12-31T00:00:00.000Z'
         created: '2025-11-17T09:06:00.000Z'
   'SNYK-JS-NODEFORGE-14114940':
     - '* > node-forge':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
-        expires: '2025-12-15T00:00:00.000Z'
+        expires: '2025-12-31T00:00:00.000Z'
         created: '2025-11-26T10:12:00.000Z'
   'SNYK-JS-EXPRESS-14157151':
     - '@docusaurus/core@3.9.2 > * > express':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
-        expires: '2025-12-16T00:00:00.000Z'
+        expires: '2025-12-31T00:00:00.000Z'
         created: '2025-12-02T09:39:00.000Z'
     - '@docusaurus/plugin-content-docs@3.9.2 > * > express':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
-        expires: '2025-12-16T00:00:00.000Z'
+        expires: '2025-12-31T00:00:00.000Z'
         created: '2025-12-02T09:39:00.000Z'
     - '@docusaurus/preset-classic@3.9.2 > * > express':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
-        expires: '2025-12-16T00:00:00.000Z'
+        expires: '2025-12-31T00:00:00.000Z'
         created: '2025-12-02T09:39:00.000Z'
