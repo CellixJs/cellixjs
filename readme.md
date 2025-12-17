@@ -99,9 +99,9 @@ For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 
 | ADR | ADR Status | GitHub Issue Status | Date Added |
 | --- | --- | --- | --- |
-| [0023 tsgo Migration](https://developers.cellixjs.org/docs/decisions/tsgo-migration) | monitored | not started | 2025-12-17 |
+| [0023 TypeScript Go (tsgo) Migration](https://developers.cellixjs.org/docs/decisions/tsgo-migration) | monitored | not started | 2025-12-17 |
 
-> Deferred ADRs require weekly GitHub issue check-ins; see the ADR’s “Weekly Reassessment” section for the linked blockers to review each week.
+> Monitored ADRs require weekly GitHub issue check-ins; see the ADR’s “Weekly Reassessment” section for the linked blockers to review each week.
 
 ## VS Code tips
 

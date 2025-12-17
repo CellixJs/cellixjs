@@ -1,15 +1,16 @@
 ---
 sidebar_position: 23
-sidebar_label: 0023 tsgo Migration
+sidebar_label: 0023 TypeScript Go (tsgo) Migration
 description: "Documenting the decision to postpone the tsgo migration until TypeScript 7 and surrounding typings stabilize."
 status: monitored
 date: 2025-12-17
-deciders: team
+contact: nnoce14
+deciders: gidich nnoce14
 consulted:
 informed:
 ---
 
-# tsgo Migration
+# TypeScript Go (tsgo) Migration
 
 ## Context and Problem Statement
 
