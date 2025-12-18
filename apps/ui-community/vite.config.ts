@@ -21,7 +21,8 @@ const dependencyChunkGroups = [
   },
   { 
     name: 'vendor-antd', 
-    test: /[\\/]node_modules[\\/](antd|@ant-design|rc-.*)[\\/]/ 
+    // Matches @ant-design ONLY if it is NOT followed by /icons or /pro-
+    test: /[\\/]node_modules[\\/](antd|@ant-design(?![\\/](icons|pro-))|rc-.*)[\\/]/ 
   },
   { 
     name: 'vendor-apollo', 
