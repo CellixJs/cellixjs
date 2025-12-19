@@ -49,7 +49,9 @@ export const SettingsGeneralContainer: React.FC = () => {
 			loading={communityLoading}
 			hasData={communityData?.currentCommunity}
 			hasDataComponent={
-				<SettingsGeneral onSave={handleSave} data={communityData!.currentCommunity!} />
+				communityData?.currentCommunity ? (
+					<SettingsGeneral onSave={handleSave} data={communityData.currentCommunity} />
+				) : null
 			}
 			error={communityError ?? mutationError}
 		/>
