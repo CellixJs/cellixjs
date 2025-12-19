@@ -50,7 +50,7 @@
     "react-oidc-context": "^3.3.0",
     "react-router-dom": "^7.9.3",
     "rimraf": "catalog:",
-    "storybook": "^9.1.17",
+    "storybook": "catalog:",
     "typescript": "catalog:",
     "vitest": "^3.2.4"
   }

@@ -21,6 +21,9 @@ catalogs:
     rimraf:
       specifier: 6.0.1
       version: 6.0.1
+    storybook:
+      specifier: 9.1.17
+      version: 9.1.17
     typescript:
       specifier: 5.9.3
       version: 5.9.3
@@ -334,7 +337,7 @@ importers:
         specifier: ^6.0.5
         version: 6.0.5(rolldown@1.0.0-beta.55)(rollup@4.53.3)
       storybook:
-        specifier: ^9.1.17
+        specifier: 'catalog:'
         version: 9.1.17(@testing-library/dom@10.4.1)(vite@8.0.0-beta.3(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       storybook-addon-apollo-client:
         specifier: ^9.0.0
@@ -609,7 +612,7 @@ importers:
         specifier: 'catalog:'
         version: 6.0.1
       storybook:
-        specifier: ^9.1.17
+        specifier: 'catalog:'
         version: 9.1.17(@testing-library/dom@10.4.1)(vite@8.0.0-beta.3(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       typescript:
         specifier: 'catalog:'
@@ -1147,7 +1150,7 @@ importers:
         specifier: 'catalog:'
         version: 6.0.1
       storybook:
-        specifier: ^9.1.17
+        specifier: 'catalog:'
         version: 9.1.17(@testing-library/dom@10.4.1)(vite@8.0.0-beta.3(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       storybook-addon-apollo-client:
         specifier: ^9.0.0
