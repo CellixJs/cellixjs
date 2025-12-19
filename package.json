@@ -76,7 +76,7 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "7.1.12",
+      "vite": "catalog:",
       "jiti": "2.6.1"
     }
   }
