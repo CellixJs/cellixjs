@@ -1,8 +1,10 @@
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Domain } from '@ocom/domain';
-import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
+import { Community, type CommunityContextApplicationService, type CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
+
+export type { CommunityUpdateSettingsCommand };
 
 export interface ApplicationServices {
     Community: CommunityContextApplicationService;
