@@ -22,8 +22,10 @@ applyTo: "**/ui-*/src/components/**/!(*.container).tsx"
 - Component name must match file name in PascalCase.
 - Define a `{ComponentName}Props` type for all props.
 - When a component receives data from a container's GraphQL query, use the generated fragment type from the corresponding `.container.graphql` file to type the data property in `{ComponentName}Props`. The presentational component is responsible for any necessary data conversion or formatting (e.g., date formatting) for display.
-- For components containing forms, use the `data` prop (typed with the GraphQL fragment) to populate the form's `initialValues`.
+- For components containing forms, use the `data` prop (typed with the GraphQL fragment) to populate the form's `initialValues`. Do not use `defaultValue` on individual `Input` or `Form.Item` components if `initialValues` is provided at the `Form` level.
+- Prefer derived state over `useState` for data that can be computed from props. If you must use local state for filtering or searching, ensure the component correctly reacts to prop changes (e.g., by using the props directly in the render logic or using `useMemo`).
 - Avoid managing local loading state for operations triggered by handler props (e.g., `onSave`). Instead, accept a `loading` prop from the container to reflect the actual state of the operation (e.g., from `useMutation`).
+- REQUIRED: Every presentational component MUST have a corresponding `.stories.tsx` file and a `.test.tsx` file. Do not consider a component complete without these.
 - Use strict TypeScript types for all props and local state.
 - Use kebab-case for file and directory names.
 - Do not perform side effects, API calls, or business logic in presentational components.

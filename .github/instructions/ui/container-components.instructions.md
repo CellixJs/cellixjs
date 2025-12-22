@@ -23,6 +23,8 @@ applyTo: "packages/ui-*/src/components/**/*.container.tsx"
 - Use strict TypeScript types for all state, props, and API responses.
 - Pass GraphQL query results directly to the presentational component's props without explicit mapping or transformation. Rendering logic and data formatting should be handled by the presentational component.
 - When performing mutations or queries, pass the `loading` state from the Apollo hooks (`useQuery`, `useMutation`) directly to the presentational component to ensure accurate UI feedback. Avoid creating redundant local state for loading.
+- After a mutation that creates, updates, or deletes data, ensure the Apollo cache is updated so the UI reflects the changes. Note that Apollo automatically handles cache updates for single documents when the `id` and `__typename` match. Manual cache updates via the `update` function are typically only required for queries/mutations involving lists of documents (e.g., adding/removing items). Prefer manual updates over `refetchQueries` for better performance and immediate UI updates in these scenarios.
+- When handling mutations or async operations, use `async/await` consistently. Avoid mixing `.then()` with `await`.
 - Handle user feedback (e.g., success/error notifications using `antd`'s `message`) within the container's handler functions (e.g., `onSave`, `onDelete`) after an operation completes.
 - Use kebab-case for file and directory names.
 - Provide handler functions through display component props for all relevant actions (e.g., handleClick, handleChange, handleSubmit, handleSave).
@@ -34,7 +36,7 @@ applyTo: "packages/ui-*/src/components/**/*.container.tsx"
 ## Data Fetching
 
 - Use Apollo Client hooks for GraphQL queries and mutations.
-- Leverage the shared `ComponentQueryLoader` component for consistent data fetching, loading, and error handling.
+- Leverage the shared `ComponentQueryLoader` component for consistent data fetching, loading, and error handling. Ensure `ComponentQueryLoader` is used for all data-fetching containers, providing a `noDataComponent` where appropriate.
 
 ## Error Handling
 
