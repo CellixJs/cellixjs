@@ -3,13 +3,14 @@ import { message } from 'antd';
 import {
 	AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
 	AdminSettingsGeneralContainerCurrentCommunityDocument,
+	type AdminSettingsGeneralContainerCommunityFieldsFragment,
 	type CommunityUpdateSettingsInput,
 } from '../../../../generated.tsx';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { SettingsGeneral } from './settings-general.tsx';
 
 export const SettingsGeneralContainer: React.FC = () => {
-	const [communityUpdate, { error: mutationError }] = useMutation(
+	const [communityUpdate, { loading: mutationLoading, error: mutationError }] = useMutation(
 		AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
 	);
 	const {
@@ -49,9 +50,13 @@ export const SettingsGeneralContainer: React.FC = () => {
 			loading={communityLoading}
 			hasData={communityData?.currentCommunity}
 			hasDataComponent={
-				communityData?.currentCommunity ? (
-					<SettingsGeneral onSave={handleSave} data={communityData.currentCommunity} />
-				) : null
+				<SettingsGeneral
+					onSave={handleSave}
+					data={
+						communityData?.currentCommunity as AdminSettingsGeneralContainerCommunityFieldsFragment
+					}
+					loading={mutationLoading}
+				/>
 			}
 			error={communityError ?? mutationError}
 		/>

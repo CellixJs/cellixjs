@@ -1,23 +1,18 @@
 import { Button, Descriptions, Form, Input } from 'antd';
-import React from 'react';
-import type { CommunityUpdateSettingsInput } from '../../../../generated.tsx';
+import type React from 'react';
+import type {
+	AdminSettingsGeneralContainerCommunityFieldsFragment,
+	CommunityUpdateSettingsInput,
+} from '../../../../generated.tsx';
 
 interface SettingsGeneralProps {
-	data: {
-		id: string;
-		name: string;
-		domain?: string | null;
-		whiteLabelDomain?: string | null;
-		handle?: string | null;
-		createdAt?: string;
-		updatedAt?: string;
-	};
+	data: AdminSettingsGeneralContainerCommunityFieldsFragment;
 	onSave: (values: CommunityUpdateSettingsInput) => void;
+	loading?: boolean;
 }
 
 export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 	const [form] = Form.useForm();
-	const [formLoading, setFormLoading] = React.useState<boolean>(false);
 
 	return (
 		<>
@@ -36,9 +31,7 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 				form={form}
 				initialValues={props.data}
 				onFinish={(values) => {
-					setFormLoading(true);
 					props.onSave(values);
-					setFormLoading(false);
 				}}
 			>
 				<Form.Item
@@ -81,7 +74,7 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 						defaultValue={props.data.handle ?? undefined}
 					/>
 				</Form.Item>
-				<Button type="primary" htmlType="submit" value={'save'} loading={formLoading}>
+				<Button type="primary" htmlType="submit" value={'save'} loading={props.loading}>
 					Save
 				</Button>
 			</Form>
