@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { SettingsGeneral } from './settings-general.tsx';
 import type { AdminSettingsGeneralContainerCommunityFieldsFragment } from '../../../../generated.tsx';
 
@@ -10,8 +10,8 @@ const mockData: AdminSettingsGeneralContainerCommunityFieldsFragment = {
 	domain: 'test.com',
 	whiteLabelDomain: 'wl.test.com',
 	handle: 'testcommunity',
-	createdAt: '2024-01-01T00:00:00.000Z',
-	updatedAt: '2024-01-15T00:00:00.000Z',
+	createdAt: '2024-01-01T12:00:00.000Z',
+	updatedAt: '2024-01-15T12:00:00.000Z',
 };
 
 const meta = {
@@ -32,9 +32,7 @@ type Story = StoryObj<typeof SettingsGeneral>;
 export const Default: Story = {
 	args: {
 		data: mockData,
-		onSave: () => {
-			// Action handler for Storybook
-		},
+		onSave: fn(),
 		loading: false,
 	},
 	play: ({ canvasElement }) => {
@@ -53,9 +51,7 @@ export const Default: Story = {
 export const Loading: Story = {
 	args: {
 		data: mockData,
-		onSave: () => {
-			// Action handler for Storybook
-		},
+		onSave: fn(),
 		loading: true,
 	},
 	play: ({ canvasElement }) => {
@@ -76,12 +72,10 @@ export const WithMinimalData: Story = {
 			domain: null,
 			whiteLabelDomain: null,
 			handle: null,
-			createdAt: '2024-01-01T00:00:00.000Z',
-			updatedAt: '2024-01-01T00:00:00.000Z',
+			createdAt: '2024-01-01T12:00:00.000Z',
+			updatedAt: '2024-01-01T12:00:00.000Z',
 		},
-		onSave: () => {
-			// Action handler for Storybook
-		},
+		onSave: fn(),
 		loading: false,
 	},
 };
@@ -89,9 +83,7 @@ export const WithMinimalData: Story = {
 export const FormSubmission: Story = {
 	args: {
 		data: mockData,
-		onSave: () => {
-			// Action handler for Storybook
-		},
+		onSave: fn(),
 		loading: false,
 	},
 	play: async ({ args, canvasElement }) => {

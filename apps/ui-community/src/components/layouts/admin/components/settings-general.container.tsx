@@ -1,13 +1,13 @@
 import { useMutation, useQuery } from '@apollo/client';
+import { ComponentQueryLoader } from '@cellix/ui-core';
 import { message } from 'antd';
 import {
-	AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
-	AdminSettingsGeneralContainerCurrentCommunityDocument,
-	type AdminSettingsGeneralContainerCommunityFieldsFragment,
-	type CommunityUpdateSettingsInput,
+    type AdminSettingsGeneralContainerCommunityFieldsFragment,
+    AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
+    AdminSettingsGeneralContainerCurrentCommunityDocument,
+    type CommunityUpdateSettingsInput,
 } from '../../../../generated.tsx';
-import { ComponentQueryLoader } from '@cellix/ui-core';
-import { SettingsGeneral } from './settings-general.tsx';
+import { SettingsGeneral, type SettingsGeneralProps } from './settings-general.tsx';
 
 export const SettingsGeneralContainer: React.FC = () => {
 	const [communityUpdate, { loading: mutationLoading, error: mutationError }] = useMutation(
@@ -45,19 +45,17 @@ export const SettingsGeneralContainer: React.FC = () => {
 		}
 	};
 
+	const settingsProps: SettingsGeneralProps = {
+		onSave: handleSave,
+		data: communityData?.currentCommunity as AdminSettingsGeneralContainerCommunityFieldsFragment,
+		loading: mutationLoading,
+	};
+
 	return (
 		<ComponentQueryLoader
 			loading={communityLoading}
 			hasData={communityData?.currentCommunity}
-			hasDataComponent={
-				<SettingsGeneral
-					onSave={handleSave}
-					data={
-						communityData?.currentCommunity as AdminSettingsGeneralContainerCommunityFieldsFragment
-					}
-					loading={mutationLoading}
-				/>
-			}
+			hasDataComponent={<SettingsGeneral {...settingsProps} />}
 			error={communityError ?? mutationError}
 		/>
 	);

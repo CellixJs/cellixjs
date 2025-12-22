@@ -4,30 +4,30 @@ import { useNavigate } from 'react-router-dom';
 import {
   AccountsCommunityCreateContainerCommunityCreateDocument,
   type CommunityCreateInput,
-//   AccountsCommunityListContainerCommunitiesDocument,
+  AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
 } from '../../../../generated.tsx';
 import { CommunityCreate } from './community-create.tsx';
 
 export const CommunityCreateContainer: React.FC = () => {
   const [createCommunity, { loading, error }] = useMutation(
     AccountsCommunityCreateContainerCommunityCreateDocument,
-    // {
-    //   update(cache, { data }) {
-    //     // update the list with the new item
-    //     const newCommunity = data?.communityCreate?.community;
-    //     const communities = cache.readQuery({
-    //       query: AccountsCommunityListContainerCommunitiesDocument,
-    //     })?.communities;
-    //     if (newCommunity && communities) {
-    //       cache.writeQuery({
-    //         query: AccountsCommunityListContainerCommunitiesDocument,
-    //         data: {
-    //           communities: [...communities, newCommunity],
-    //         },
-    //       });
-    //     }
-    //   },
-    // }
+    {
+      update(cache, { data }) {
+        // update the list with the new item
+        const newCommunity = data?.communityCreate?.community;
+        const communities = cache.readQuery({
+          query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
+        })?.communitiesForCurrentEndUser;
+        if (newCommunity && communities) {
+          cache.writeQuery({
+            query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
+            data: {
+              communitiesForCurrentEndUser: [...communities, newCommunity],
+            },
+          });
+        }
+      },
+    }
   );
   const navigate = useNavigate();
 

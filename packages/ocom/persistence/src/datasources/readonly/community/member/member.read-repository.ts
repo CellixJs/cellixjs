@@ -70,7 +70,7 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
     async getByIdWithRole(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
         const finalOptions: FindOneOptions = {
             ...options,
-            populateFields: ['role']
+            populateFields: ['role', 'role.community']
         };
         const result = await this.mongoDataSource.findById(id, finalOptions);
         if (!result) { return null; }

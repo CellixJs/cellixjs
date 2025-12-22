@@ -7,7 +7,7 @@ import type {
 
 interface SettingsGeneralProps {
 	data: AdminSettingsGeneralContainerCommunityFieldsFragment;
-	onSave: (values: CommunityUpdateSettingsInput) => void;
+	onSave: (values: CommunityUpdateSettingsInput) => Promise<void>;
 	loading?: boolean;
 }
 

@@ -178,19 +178,17 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
   });
 
   Scenario('Getting the community property when not populated', ({ Given, When, Then }) => {
-    let gettingCommunityWhenNotPopulated: () => void;
     Given('an EndUserRoleDomainAdapter for a document with community as an ObjectId', () => {
       doc = makeEndUserRoleDoc({ community: new MongooseSeedwork.ObjectId() });
       adapter = new EndUserRoleDomainAdapter(doc);
     });
     When('I get the community property', () => {
-      gettingCommunityWhenNotPopulated = () => {
-        result = adapter.community;
-      };
+      result = adapter.community;
     });
-    Then('an error should be thrown indicating "community is not populated or is not of the correct type"', () => {
-      expect(gettingCommunityWhenNotPopulated).toThrow();
-      expect(gettingCommunityWhenNotPopulated).throws(/community is not populated/);
+    Then('it should return a CommunityEntityReference stub with the correct ID', () => {
+      expect(result).not.toBeInstanceOf(CommunityDomainAdapter);
+      expect(result).toHaveProperty('id');
+      expect((result as { id: string }).id).toBe(doc.community?.toString());
     });
   });
 

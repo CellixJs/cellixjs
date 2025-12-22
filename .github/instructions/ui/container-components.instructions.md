@@ -28,6 +28,7 @@ applyTo: "packages/ui-*/src/components/**/*.container.tsx"
 - Handle user feedback (e.g., success/error notifications using `antd`'s `message`) within the container's handler functions (e.g., `onSave`, `onDelete`) after an operation completes.
 - Use kebab-case for file and directory names.
 - Provide handler functions through display component props for all relevant actions (e.g., handleClick, handleChange, handleSubmit, handleSave).
+- **Knip Compliance**: To satisfy `knip` (unused export detection) while maintaining exports for Storybook/Testing, use the presentational component's exported `Props` type to define a typed object before passing it to the component. Prefer `<Component {...props} />` with a typed `props` object over inline casting like `<Component data={data as PropType} />`.
 
 ## State Management
 

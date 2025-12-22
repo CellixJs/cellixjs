@@ -183,7 +183,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     Then('I should receive the MemberEntityReference object with role populated', () => {
       expect(mockDataSource.findById).toHaveBeenCalledWith('member-123', {
-        populateFields: ['role']
+        populateFields: ['role', 'role.community']
       });
       expect(mockConverter.toDomain).toHaveBeenCalledWith(mockMemberDoc, passport);
     });
@@ -243,7 +243,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
     Then('I should receive a boolean indicating admin status', () => {
       expect(mockDataSource.findById).toHaveBeenCalledWith('admin-member', {
-        populateFields: ['role']
+        populateFields: ['role', 'role.community']
       });
     });
   });
