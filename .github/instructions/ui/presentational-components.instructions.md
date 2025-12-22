@@ -21,6 +21,9 @@ applyTo: "**/ui-*/src/components/**/!(*.container).tsx"
 - Use functional components and React hooks for local UI state only.
 - Component name must match file name in PascalCase.
 - Define a `{ComponentName}Props` type for all props.
+- When a component receives data from a container's GraphQL query, use the generated fragment type from the corresponding `.container.graphql` file to type the data property in `{ComponentName}Props`. The presentational component is responsible for any necessary data conversion or formatting (e.g., date formatting) for display.
+- For components containing forms, use the `data` prop (typed with the GraphQL fragment) to populate the form's `initialValues`.
+- Avoid managing local loading state for operations triggered by handler props (e.g., `onSave`). Instead, accept a `loading` prop from the container to reflect the actual state of the operation (e.g., from `useMutation`).
 - Use strict TypeScript types for all props and local state.
 - Use kebab-case for file and directory names.
 - Do not perform side effects, API calls, or business logic in presentational components.

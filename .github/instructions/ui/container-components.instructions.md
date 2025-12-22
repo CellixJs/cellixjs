@@ -21,6 +21,9 @@ applyTo: "packages/ui-*/src/components/**/*.container.tsx"
 - Component name must match file name in PascalCase.
 - Each container must define a `{ComponentName}ContainerProps` type for its props.
 - Use strict TypeScript types for all state, props, and API responses.
+- Pass GraphQL query results directly to the presentational component's props without explicit mapping or transformation. Rendering logic and data formatting should be handled by the presentational component.
+- When performing mutations or queries, pass the `loading` state from the Apollo hooks (`useQuery`, `useMutation`) directly to the presentational component to ensure accurate UI feedback. Avoid creating redundant local state for loading.
+- Handle user feedback (e.g., success/error notifications using `antd`'s `message`) within the container's handler functions (e.g., `onSave`, `onDelete`) after an operation completes.
 - Use kebab-case for file and directory names.
 - Provide handler functions through display component props for all relevant actions (e.g., handleClick, handleChange, handleSubmit, handleSave).
 
