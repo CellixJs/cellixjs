@@ -24,6 +24,7 @@
     "@ocom/ui-components": "workspace:*",
     "antd": "^5.27.0",
     "apollo-link-rest": "^0.9.0",
+    "dayjs": "^1.11.19",
     "less": "^4.4.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
