@@ -1,7 +1,8 @@
-import { SettingOutlined } from '@ant-design/icons';
+import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
 import { Route, Routes } from 'react-router-dom';
 import { SectionLayout } from './section-layout.tsx';
 import { Settings } from './pages/settings.tsx';
+import { Home } from './pages/home.tsx';
 
 export interface PageLayoutProps {
 	path: string;
@@ -12,10 +13,15 @@ export interface PageLayoutProps {
 }
 
 export const Admin: React.FC = () => {
+	const pathLocations = {
+		home: '',
+		settings: 'settings/*',
+	};
+
 	const pageLayouts: PageLayoutProps[] = [
-		{ path: '', title: 'Home', icon: <SettingOutlined />, id: 'ROOT' },
+		{ path: pathLocations.home, title: 'Home', icon: <HomeOutlined />, id: 'ROOT' },
 		{
-			path: 'settings/*',
+			path: pathLocations.settings,
 			title: 'Settings',
 			icon: <SettingOutlined />,
 			id: 2,
@@ -26,7 +32,8 @@ export const Admin: React.FC = () => {
 	return (
 		<Routes>
 			<Route path="" element={<SectionLayout pageLayouts={pageLayouts} />}>
-				<Route path="settings/*" element={<Settings />} />
+				<Route path={pathLocations.home} element={<Home />} />
+				<Route path={pathLocations.settings} element={<Settings />} />
 			</Route>
 		</Routes>
 	);

@@ -21,7 +21,7 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<Accounts />} />
                 <Route path="/accounts/*" element={<Accounts />} />
-                <Route path="/admin/*" element={<Admin />} />
+                <Route path="/:communityId/admin/:memberId/*" element={<Admin />} />
             </Routes>
 		</RequireAuth>
 	);
