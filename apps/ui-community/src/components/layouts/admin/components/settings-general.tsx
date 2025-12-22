@@ -11,6 +11,8 @@ interface SettingsGeneralProps {
 	loading?: boolean;
 }
 
+export type { SettingsGeneralProps };
+
 export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 	const [form] = Form.useForm();
 

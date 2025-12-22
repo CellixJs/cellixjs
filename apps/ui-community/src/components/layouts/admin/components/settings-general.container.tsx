@@ -27,19 +27,19 @@ export const SettingsGeneralContainer: React.FC = () => {
 
 		values.id = communityData.currentCommunity.id;
 		try {
-			await communityUpdate({
+			const result = await communityUpdate({
 				variables: {
 					input: values,
 				},
-			}).then((result) => {
-				if (result.data?.communityUpdateSettings?.status?.success) {
-					message.success('Saved');
-				} else {
-					message.error(
-						result.data?.communityUpdateSettings.status.errorMessage ?? 'Unknown error',
-					);
-				}
 			});
+			
+			if (result.data?.communityUpdateSettings?.status?.success) {
+				message.success('Saved');
+			} else {
+				message.error(
+					result.data?.communityUpdateSettings.status.errorMessage ?? 'Unknown error',
+				);
+			}
 		} catch (saveError) {
 			message.error(`Error updating community: ${JSON.stringify(saveError)}`);
 		}
