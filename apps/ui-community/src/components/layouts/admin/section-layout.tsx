@@ -3,6 +3,7 @@ import { Layout, theme } from 'antd';
 import { useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
 import type { Member } from '../../../generated.tsx';
+import { CommunitiesDropdownContainer } from '../../ui/organisms/dropdown-menu/communities-dropdown.container.tsx';
 import { MenuComponent } from '../shared/components/menu-component.tsx';
 import type { PageLayoutProps } from './index.tsx';
 import './section-layout.css';
@@ -51,6 +52,9 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 						gap: '10px',
 					}}
 				>
+					<div style={{ display: 'flex' }} className="allowBoxShadow">
+						<CommunitiesDropdownContainer data={{ id: params['communityId'] }} />
+					</div>
 					<Link
 						className="allowBoxShadow"
 						to={`/community/${params['communityId']}/member/${params['memberId']}`}
