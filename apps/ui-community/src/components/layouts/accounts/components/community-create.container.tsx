@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { message } from 'antd';
+import { App } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {
   AccountsCommunityCreateContainerCommunityCreateDocument,
@@ -9,6 +9,7 @@ import {
 import { CommunityCreate } from './community-create.tsx';
 
 export const CommunityCreateContainer: React.FC = () => {
+  const { message } = App.useApp();
   const [createCommunity, { loading, error }] = useMutation(
     AccountsCommunityCreateContainerCommunityCreateDocument,
     {

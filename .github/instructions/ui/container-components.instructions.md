@@ -26,11 +26,11 @@ applyTo: "packages/ui-*/src/components/**/*.container.tsx"
 - After a mutation that creates, updates, or deletes data, ensure the Apollo cache is updated so the UI reflects the changes. Note that Apollo automatically handles cache updates for single documents when the `id` and `__typename` match. Manual cache updates via the `update` function are typically only required for queries/mutations involving lists of documents (e.g., adding/removing items). Prefer manual updates over `refetchQueries` for better performance and immediate UI updates in these scenarios.
 - When handling mutations or async operations, use `async/await` consistently. Avoid mixing `.then()` with `await`.
 - **Mutation Response Handling**: Container components are responsible for processing mutation results and providing user feedback.
+    - **REQUIRED**: Use the `App.useApp()` hook from `antd` to access the `message`, `notification`, or `modal` instances. Do NOT use static imports like `import { message } from 'antd'`.
     - Always check the response for a `status` object (e.g., `result.data?.mutationName?.status`).
-    - Use `message.success()` from `antd` when `status.success` is true.
-    - Use `message.error()` from `antd` when `status.success` is false, displaying the `status.errorMessage` if available.
+    - Use `message.success()` when `status.success` is true.
+    - Use `message.error()` when `status.success` is false, displaying the `status.errorMessage` if available.
     - Wrap mutation calls in `try/catch` blocks to handle network or execution errors, displaying them via `message.error()`.
-- Handle user feedback (e.g., success/error notifications using `antd`'s `message`) within the container's handler functions (e.g., `onSave`, `onDelete`) after an operation completes.
 - Use kebab-case for file and directory names.
 - Provide handler functions through display component props for all relevant actions (e.g., handleClick, handleChange, handleSubmit, handleSave).
 - **Knip Compliance**: To satisfy `knip` (unused export detection) while maintaining exports for Storybook/Testing, use the presentational component's exported `Props` type to define a typed object before passing it to the component. Prefer `<Component {...props} />` with a typed `props` object over inline casting like `<Component data={data as PropType} />`.

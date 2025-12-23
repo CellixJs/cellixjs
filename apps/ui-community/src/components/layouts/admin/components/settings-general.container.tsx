@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import { message } from 'antd';
+import { App } from 'antd';
 import {
 	type AdminSettingsGeneralContainerCommunityFieldsFragment,
 	AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
@@ -9,7 +9,10 @@ import {
 } from '../../../../generated.tsx';
 import { SettingsGeneral, type SettingsGeneralProps } from './settings-general.tsx';
 
+
 export const SettingsGeneralContainer: React.FC = () => {
+    const { message } = App.useApp();
+
 	const [communityUpdate, { loading: mutationLoading, error: mutationError }] = useMutation(
 		AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
 	);
