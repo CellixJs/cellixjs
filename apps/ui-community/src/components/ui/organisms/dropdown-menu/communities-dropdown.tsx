@@ -10,14 +10,27 @@ export interface CommunitiesDropdownProps {
 	};
 }
 
-export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (props) => {
+export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
+	props,
+) => {
 	const [dropdownVisible, setDropdownVisible] = useState(false);
 	const params = useParams();
 	const navigate = useNavigate();
 
-	const currentMember = props.data.members?.find((member) => member.id === params['memberId']);
+	const currentMember = props.data.members?.find(
+		(member) => member.id === params['memberId'],
+	);
 
-	const populateItems = (member: Member, itemsMap: { [key: string]: { key: string; label: string | undefined; children: { key: string; label: string; onClick: () => void }[] } }) => {
+	const populateItems = (
+		member: Member,
+		itemsMap: {
+			[key: string]: {
+				key: string;
+				label: string | undefined;
+				children: { key: string; label: string; onClick: () => void }[];
+			};
+		},
+	) => {
 		const communityId = member?.community?.id;
 		if (!communityId) return;
 
@@ -56,8 +69,16 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (props) =
 		}
 	};
 
-	const itemsMap: { [key: string]: { key: string; label: string | undefined; children: { key: string; label: string; onClick: () => void }[] } } = {};
-	props.data.members?.forEach((member: Member) => populateItems(member, itemsMap));
+	const itemsMap: {
+		[key: string]: {
+			key: string;
+			label: string | undefined;
+			children: { key: string; label: string; onClick: () => void }[];
+		};
+	} = {};
+	props.data.members?.forEach((member: Member) =>
+		populateItems(member, itemsMap),
+	);
 
 	const items: MenuProps['items'] = Object.values(itemsMap);
 
@@ -71,8 +92,13 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (props) =
 			open={dropdownVisible}
 			onOpenChange={(visible) => setDropdownVisible(visible)}
 		>
-			<a onClick={(e) => e.preventDefault()} className="ant-dropdown-link" style={{ minHeight: '50px' }}>
-				{currentMember?.community?.name} | {currentMember?.memberName} <DownOutlined />
+			<a
+				onClick={(e) => e.preventDefault()}
+				className="ant-dropdown-link"
+				style={{ minHeight: '50px' }}
+			>
+				{currentMember?.community?.name} | {currentMember?.memberName}{' '}
+				<DownOutlined />
 			</a>
 		</Dropdown>
 	);

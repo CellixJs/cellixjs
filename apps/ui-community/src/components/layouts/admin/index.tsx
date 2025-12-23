@@ -16,7 +16,12 @@ export interface PageLayoutProps {
 
 export const Admin: React.FC = () => {
 	const pageLayouts: PageLayoutProps[] = [
-		{ path: '/:communityId/admin/:memberId', title: 'Home', icon: <HomeOutlined />, id: 'ROOT' },
+		{
+			path: '/:communityId/admin/:memberId',
+			title: 'Home',
+			icon: <HomeOutlined />,
+			id: 'ROOT',
+		},
 		{
 			path: '/:communityId/admin/:memberId/settings/*',
 			title: 'Settings',
@@ -31,7 +36,10 @@ export const Admin: React.FC = () => {
 
 	return (
 		<Routes>
-			<Route path="" element={<SectionLayoutContainer pageLayouts={pageLayouts} />}>
+			<Route
+				path=""
+				element={<SectionLayoutContainer pageLayouts={pageLayouts} />}
+			>
 				<Route path="" element={<Home />} />
 				<Route path="settings/*" element={<Settings />} />
 			</Route>

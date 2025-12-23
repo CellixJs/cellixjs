@@ -1,11 +1,11 @@
+import type { ApolloError } from '@apollo/client';
 import { useLazyQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import type { ApolloError } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-	AdminSectionLayoutContainerMembersForCurrentEndUserDocument,
 	type AdminSectionLayoutContainerMemberFieldsFragment,
+	AdminSectionLayoutContainerMembersForCurrentEndUserDocument,
 	type Member,
 } from '../../../generated.tsx';
 import type { PageLayoutProps } from './index.tsx';
@@ -28,7 +28,9 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (
 		AdminSectionLayoutContainerMembersForCurrentEndUserDocument,
 	);
 	const [memberData, setMemberData] = useState<MemberDataState | null>(null);
-	const [memberError, setMemberError] = useState<ApolloError | undefined>(undefined);
+	const [memberError, setMemberError] = useState<ApolloError | undefined>(
+		undefined,
+	);
 	const [memberLoading, setMemberLoading] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -42,7 +44,8 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (
 
 				// Filter for the current member by memberId
 				const currentMember = membersDataTemp?.membersForCurrentEndUser?.find(
-					(m: AdminSectionLayoutContainerMemberFieldsFragment) => m.id === params['memberId'],
+					(m: AdminSectionLayoutContainerMemberFieldsFragment) =>
+						m.id === params['memberId'],
 				);
 
 				setMemberData(currentMember ? { member: currentMember } : null);

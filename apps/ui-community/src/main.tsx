@@ -27,15 +27,15 @@ const ConfigProviderWrapper = () => {
 				},
 			}}
 		>
-            <AntdApp>
-                <HelmetProvider>
-                    <BrowserRouter>
-                        <AuthProvider {...oidcConfig}>
-                            <App />
-                        </AuthProvider>
-                    </BrowserRouter>
-                </HelmetProvider>
-            </AntdApp>
+			<AntdApp>
+				<HelmetProvider>
+					<BrowserRouter>
+						<AuthProvider {...oidcConfig}>
+							<App />
+						</AuthProvider>
+					</BrowserRouter>
+				</HelmetProvider>
+			</AntdApp>
 		</ConfigProvider>
 	);
 };

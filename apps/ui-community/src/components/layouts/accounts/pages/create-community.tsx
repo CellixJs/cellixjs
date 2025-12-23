@@ -4,13 +4,15 @@ import { CommunityCreateContainer } from '../components/community-create.contain
 import { SubPageLayout } from '../sub-page-layout.tsx';
 
 export const CreateCommunity: React.FC = () => {
-  const navigate = useNavigate();
-  return (
-    <SubPageLayout
-      fixedHeader={false}
-      header={<PageHeader title="Create a Community" onBack={() => navigate('../')} />}
-    >
-      <CommunityCreateContainer />
-    </SubPageLayout>
-  );
+	const navigate = useNavigate();
+	return (
+		<SubPageLayout
+			fixedHeader={false}
+			header={
+				<PageHeader title="Create a Community" onBack={() => navigate('../')} />
+			}
+		>
+			<CommunityCreateContainer />
+		</SubPageLayout>
+	);
 };

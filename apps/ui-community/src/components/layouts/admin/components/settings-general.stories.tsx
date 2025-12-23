@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { SettingsGeneral } from './settings-general.tsx';
 import type { AdminSettingsGeneralContainerCommunityFieldsFragment } from '../../../../generated.tsx';
+import { SettingsGeneral } from './settings-general.tsx';
 
 const mockData: AdminSettingsGeneralContainerCommunityFieldsFragment = {
 	__typename: 'Community',
@@ -37,11 +37,11 @@ export const Default: Story = {
 	},
 	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		
+
 		// Verify community info is displayed
 		expect(canvas.getByText(mockData.id)).toBeInTheDocument();
 		expect(canvas.getByText(/1\/1\/2024/)).toBeInTheDocument(); // Created date
-		
+
 		// Verify form fields have correct values
 		const nameInput = canvas.getByPlaceholderText('Name') as HTMLInputElement;
 		expect(nameInput.value).toBe(mockData.name);
@@ -56,7 +56,7 @@ export const Loading: Story = {
 	},
 	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		
+
 		// Verify save button is in loading state
 		const saveButton = canvas.getByRole('button', { name: /save/i });
 		expect(saveButton).toHaveClass('ant-btn-loading');
@@ -88,16 +88,16 @@ export const FormSubmission: Story = {
 	},
 	play: async ({ args, canvasElement }) => {
 		const canvas = within(canvasElement);
-		
+
 		// Update the name field
 		const nameInput = canvas.getByPlaceholderText('Name');
 		await userEvent.clear(nameInput);
 		await userEvent.type(nameInput, 'Updated Community Name');
-		
+
 		// Submit the form
 		const saveButton = canvas.getByRole('button', { name: /save/i });
 		await userEvent.click(saveButton);
-		
+
 		// Verify onSave was called (action will be logged in Storybook)
 		expect(args.onSave).toHaveBeenCalled();
 	},

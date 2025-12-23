@@ -38,7 +38,10 @@ export const SubPageLayout: React.FC<SubPageLayoutProps> = (props) => {
 				<Content style={{ margin: '24px 16px 0', minHeight: 'inherit' }}>
 					<div style={{ padding: 24, minHeight: '100%' }}>{props.children}</div>
 				</Content>
-				<Footer className="flex items-center mx-auto" style={{ height: '47px' }}>
+				<Footer
+					className="flex items-center mx-auto"
+					style={{ height: '47px' }}
+				>
 					Owner Community
 				</Footer>
 			</div>

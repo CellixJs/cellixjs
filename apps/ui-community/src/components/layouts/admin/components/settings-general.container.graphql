@@ -4,7 +4,9 @@ query AdminSettingsGeneralContainerCurrentCommunity {
 	}
 }
 
-mutation AdminSettingsGeneralContainerCommunityUpdateSettings($input: CommunityUpdateSettingsInput!) {
+mutation AdminSettingsGeneralContainerCommunityUpdateSettings(
+	$input: CommunityUpdateSettingsInput!
+) {
 	communityUpdateSettings(input: $input) {
 		status {
 			success

@@ -14,7 +14,10 @@ const LocalSettingsKeys = {
 	SidebarCollapsed: 'SidebarCollapsed',
 } as const;
 
-const handleToggler = (isExpanded: boolean, setIsExpanded: (value: boolean) => void) => {
+const handleToggler = (
+	isExpanded: boolean,
+	setIsExpanded: (value: boolean) => void,
+) => {
 	const newValue = !isExpanded;
 	setIsExpanded(newValue);
 	if (newValue) {
@@ -31,7 +34,9 @@ interface AdminSectionLayoutProps {
 
 export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 	const params = useParams();
-	const sidebarCollapsed = localStorage.getItem(LocalSettingsKeys.SidebarCollapsed);
+	const sidebarCollapsed = localStorage.getItem(
+		LocalSettingsKeys.SidebarCollapsed,
+	);
 	const [isExpanded, setIsExpanded] = useState(!sidebarCollapsed);
 	const {
 		token: { colorBgContainer },
@@ -53,7 +58,9 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 					}}
 				>
 					<div style={{ display: 'flex' }} className="allowBoxShadow">
-						<CommunitiesDropdownContainer data={{ id: params['communityId'] }} />
+						<CommunitiesDropdownContainer
+							data={{ id: params['communityId'] }}
+						/>
 					</div>
 					<Link
 						className="allowBoxShadow"

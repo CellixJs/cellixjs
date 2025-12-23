@@ -1,31 +1,31 @@
 {
-  "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "ES2022",
-    "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext", // Overrides @cellix/typescript-config/base.json
-    "skipLibCheck": true, // Overrides @cellix/typescript-config/base.json
+	"compilerOptions": {
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+		"target": "ES2022",
+		"useDefineForClassFields": true,
+		"lib": ["ES2022", "DOM", "DOM.Iterable"],
+		"module": "ESNext", // Overrides @cellix/typescript-config/base.json
+		"skipLibCheck": true, // Overrides @cellix/typescript-config/base.json
 
-    /* Bundler mode */
-    "moduleResolution": "bundler", // Overrides @cellix/typescript-config/base.json
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "moduleDetection": "force", // New setting
-    "noEmit": true, // New setting
-    "jsx": "react-jsx", // New setting
+		/* Bundler mode */
+		"moduleResolution": "bundler", // Overrides @cellix/typescript-config/base.json
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
+		"moduleDetection": "force", // New setting
+		"noEmit": true, // New setting
+		"jsx": "react-jsx", // New setting
 
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
-  },
-  "include": ["src"],
-  "references": [
-    { "path": "../../packages/cellix/ui-core" },
-    { "path": "../../packages/ocom/ui-components" }
-  ]
+		/* Linting */
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"erasableSyntaxOnly": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true
+	},
+	"include": ["src"],
+	"references": [
+		{ "path": "../../packages/cellix/ui-core" },
+		{ "path": "../../packages/ocom/ui-components" }
+	]
 }

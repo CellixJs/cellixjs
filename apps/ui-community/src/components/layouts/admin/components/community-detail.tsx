@@ -48,7 +48,9 @@ export const CommunityDetail: React.FC<CommunityDetailProps> = (props) => {
 	return (
 		<div>
 			<div
-				className={'w-full p-5 mx-auto my-5 shadow-lg rounded-lg border border-1'}
+				className={
+					'w-full p-5 mx-auto my-5 shadow-lg rounded-lg border border-1'
+				}
 				style={{
 					color: colorText,
 					backgroundColor: colorBgContainer,

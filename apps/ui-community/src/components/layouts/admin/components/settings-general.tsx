@@ -55,15 +55,15 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 					/>
 				</Form.Item>
 				<div className={'m-3'}>
-					The white domain is used to allow users to access your public community
-					website.
+					The white domain is used to allow users to access your public
+					community website.
 					<br />
 					They will be able access it at: https://
 					<Text strong>{data.whiteLabelDomain}</Text>.owner.community
 					<br />
-					<Text type={'danger'}>This is necessary</Text> to allow users to access
-					your community website unless you have a custom domain you own. (see
-					below)
+					<Text type={'danger'}>This is necessary</Text> to allow users to
+					access your community website unless you have a custom domain you own.
+					(see below)
 				</div>
 
 				<Form.Item name="domain" label="Domain">
@@ -83,7 +83,8 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 					Assign the CNAME of "www" to "cname.vercel-dns.com" in your DNS
 					settings.
 					<br />
-					Once added, you can use the domain name in the white label field above.
+					Once added, you can use the domain name in the white label field
+					above.
 					<br />
 				</div>
 
@@ -94,7 +95,12 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 						defaultValue={data.handle ?? undefined}
 					/>
 				</Form.Item>
-				<Button type="primary" htmlType="submit" value={'save'} loading={props.loading}>
+				<Button
+					type="primary"
+					htmlType="submit"
+					value={'save'}
+					loading={props.loading}
+				>
 					Save
 				</Button>
 			</Form>
