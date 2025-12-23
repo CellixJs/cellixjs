@@ -40,7 +40,7 @@ export const Default: Story = {
 
 		// Verify community info is displayed
 		expect(canvas.getByText(mockData.id)).toBeInTheDocument();
-		expect(canvas.getByText(/1\/1\/2024/)).toBeInTheDocument(); // Created date
+		expect(canvas.getByText(/01\/01\/2024/)).toBeInTheDocument(); // Created date
 
 		// Verify form fields have correct values
 		const nameInput = canvas.getByPlaceholderText('Name') as HTMLInputElement;

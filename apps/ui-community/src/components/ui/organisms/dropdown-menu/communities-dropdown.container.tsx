@@ -1,5 +1,5 @@
 import { useLazyQuery } from '@apollo/client';
-import { ComponentQueryLoader } from '@ocom/ui-components';
+import { ComponentQueryLoader } from '@cellix/ui-core';
 import { useEffect, useState } from 'react';
 import type {
 	Member,
@@ -56,7 +56,7 @@ export const CommunitiesDropdownContainer: React.FC<
 					}}
 				/>
 			}
-			error={membersError}
+			error={membersError ?? undefined}
 		/>
 	);
 };

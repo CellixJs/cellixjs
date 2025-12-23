@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Member } from '../../../../generated.tsx';
 import { CommunitiesDropdown } from './communities-dropdown.tsx';
@@ -47,10 +47,22 @@ const meta = {
 		layout: 'centered',
 	},
 	decorators: [
-		(Story) => (
-			<BrowserRouter>
-				<Story />
-			</BrowserRouter>
+		(Story, context) => (
+			<MemoryRouter
+				initialEntries={
+					context.parameters['initialEntries'] || [
+						'/community/community1/member/member1',
+					]
+				}
+			>
+				<Routes>
+					<Route
+						path="/community/:communityId/member/:memberId"
+						element={<Story />}
+					/>
+					<Route path="*" element={<Story />} />
+				</Routes>
+			</MemoryRouter>
 		),
 	],
 } satisfies Meta<typeof CommunitiesDropdown>;
@@ -64,7 +76,7 @@ export const Default: Story = {
 			members: mockMembers,
 		},
 	},
-	play: async ({ canvasElement }) => {
+	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify dropdown trigger is rendered
@@ -91,7 +103,7 @@ export const MultipleCommunities: Story = {
 		const canvas = within(canvasElement);
 
 		// Click dropdown to open
-		const dropdownTrigger = canvas.getByRole('link');
+		const dropdownTrigger = canvas.getByText(/Community One/i);
 		await userEvent.click(dropdownTrigger);
 
 		// Wait for dropdown menu to appear
@@ -109,6 +121,9 @@ export const NoMembers: Story = {
 };
 
 export const AdminMember: Story = {
+	parameters: {
+		initialEntries: ['/community/comm1/member/admin1'],
+	},
 	args: {
 		data: {
 			members: [
@@ -126,7 +141,7 @@ export const AdminMember: Story = {
 			],
 		},
 	},
-	play: async ({ canvasElement }) => {
+	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify admin member is shown in dropdown
