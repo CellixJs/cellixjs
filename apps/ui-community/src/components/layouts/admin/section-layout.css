@@ -1,0 +1,19 @@
+#components-layout-demo-fixed-sider .logo {
+	height: 32px;
+	margin: 16px;
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.site-layout .site-layout-background {
+	background: #fff;
+}
+
+.ant-dropdown .ant-menu-root.ant-menu-vertical {
+	box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.allowBoxShadow {
+	box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+	border-radius: 4px;
+	padding: 8px 12px;
+}

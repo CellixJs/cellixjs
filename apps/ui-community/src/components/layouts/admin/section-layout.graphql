@@ -1,0 +1,15 @@
+query AdminSectionLayoutContainerMembersForCurrentEndUser {
+	membersForCurrentEndUser {
+		...AdminSectionLayoutContainerMemberFields
+	}
+}
+
+fragment AdminSectionLayoutContainerMemberFields on Member {
+	id
+	memberName
+	isAdmin
+	community {
+		id
+		name
+	}
+}
