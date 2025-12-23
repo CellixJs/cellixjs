@@ -25,6 +25,11 @@ applyTo: "packages/ui-*/src/components/**/*.container.tsx"
 - When performing mutations or queries, pass the `loading` state from the Apollo hooks (`useQuery`, `useMutation`) directly to the presentational component to ensure accurate UI feedback. Avoid creating redundant local state for loading.
 - After a mutation that creates, updates, or deletes data, ensure the Apollo cache is updated so the UI reflects the changes. Note that Apollo automatically handles cache updates for single documents when the `id` and `__typename` match. Manual cache updates via the `update` function are typically only required for queries/mutations involving lists of documents (e.g., adding/removing items). Prefer manual updates over `refetchQueries` for better performance and immediate UI updates in these scenarios.
 - When handling mutations or async operations, use `async/await` consistently. Avoid mixing `.then()` with `await`.
+- **Mutation Response Handling**: Container components are responsible for processing mutation results and providing user feedback.
+    - Always check the response for a `status` object (e.g., `result.data?.mutationName?.status`).
+    - Use `message.success()` from `antd` when `status.success` is true.
+    - Use `message.error()` from `antd` when `status.success` is false, displaying the `status.errorMessage` if available.
+    - Wrap mutation calls in `try/catch` blocks to handle network or execution errors, displaying them via `message.error()`.
 - Handle user feedback (e.g., success/error notifications using `antd`'s `message`) within the container's handler functions (e.g., `onSave`, `onDelete`) after an operation completes.
 - Use kebab-case for file and directory names.
 - Provide handler functions through display component props for all relevant actions (e.g., handleClick, handleChange, handleSubmit, handleSave).

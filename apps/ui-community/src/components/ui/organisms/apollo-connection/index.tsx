@@ -2,7 +2,7 @@ import { ApolloLink, ApolloProvider, from } from "@apollo/client";
 import { RestLink } from 'apollo-link-rest';
 import { type FC, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { ApolloLinkToAddAuthHeader, ApolloLinkToAddCustomHeader, BaseApolloLink, client, TerminatingApolloLinkForGraphqlServer } from "./apollo-client-links.js";
 
 export interface ApolloConnectionProps {
@@ -10,16 +10,17 @@ export interface ApolloConnectionProps {
 }
 export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnectionProps) => {
   const auth = useAuth();
-  const params = useParams(); // useParams.memberId won't work here because ApolloConnection wraps the Routes, not inside a Route
-  const communityId = params['*']?.slice(0, 24) ?? null;
-  const memberId = params['*']?.match(/(member|admin)\/([\w\d]+)/)?.[2] ?? null;
+  const location = useLocation();
+  
+  const communityId = location.pathname.match(/\/community\/([a-f\d]{24})/i)?.[1] ?? null;
+  const memberId = location.pathname.match(/\/(member|admin)\/([a-f\d]{24})/i)?.[2] ?? null;
 
 
   const apolloLinkChainForGraphqlDataSource = from([
     BaseApolloLink(),
     ApolloLinkToAddAuthHeader(auth),
-    ApolloLinkToAddCustomHeader('community', communityId, (communityId !== 'accounts')),
-    ApolloLinkToAddCustomHeader('member', memberId),
+    ApolloLinkToAddCustomHeader('x-community-id', communityId, (communityId !== 'accounts')),
+    ApolloLinkToAddCustomHeader('x-member-id', memberId),
     TerminatingApolloLinkForGraphqlServer({
       // biome-ignore lint:useLiteralKeys
       uri: `${import.meta.env['VITE_FUNCTION_ENDPOINT']}`,
@@ -57,7 +58,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
 
   useEffect(() => {
     client.setLink(updateLink());
-  }, [auth]);
+  }, [auth, communityId, memberId]);
 
   return <ApolloProvider client={client}>{props.children}</ApolloProvider>;
 };
