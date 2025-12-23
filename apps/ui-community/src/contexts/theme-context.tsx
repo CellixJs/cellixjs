@@ -1,6 +1,6 @@
 import { Button, theme } from 'antd';
 import type { SeedToken } from 'antd/lib/theme/interface/index.js';
-import { createContext, type ReactNode, useEffect, useState } from 'react';
+import { createContext, type ReactNode, useCallback, useEffect, useState } from 'react';
 
 // import ModalPopUp from './components/modal-popup.tsx';
 // import MaintenanceMessage from '../components/shared/maintenance-message/maintenance-message';
@@ -57,10 +57,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 	});
 	const [isHidden, setIsHidden] = useState(false);
 
-	const toggleHidden = () => setIsHidden((prevHidden) => !prevHidden);
+	const toggleHidden = useCallback(() => setIsHidden((prevHidden) => !prevHidden), []);
 
 	// setTheme functions that take tokens as argument
-	const setTheme = (tokens: Partial<SeedToken>, type: string) => {
+	const setTheme = useCallback((tokens: Partial<SeedToken>, type: string) => {
 		let valueToSet: ThemeContextType['currentTokens'] | undefined;
 		if (type === 'light') {
 			valueToSet = {
@@ -95,7 +95,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		setCurrentTokens(valueToSet);
 
 		localStorage.setItem('themeProp', JSON.stringify(valueToSet));
-	};
+	}, [currentTokens]);
 
 	useEffect(() => {
 		const extractFromLocal = JSON.parse(
@@ -141,7 +141,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			setTheme(theme.defaultSeed, 'light');
 			return;
 		}
-	}, []);
+	}, [setTheme]);
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
@@ -155,7 +155,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
 		};
-	}, []);
+	}, [toggleHidden]);
 	//   console.log('isImpending', isImpending);
 	//   console.log('isMaintenance', isMaintenance);
 	return (

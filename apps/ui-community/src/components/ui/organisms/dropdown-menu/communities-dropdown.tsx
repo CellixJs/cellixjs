@@ -18,7 +18,7 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
 	const navigate = useNavigate();
 
 	const currentMember = props.data.members?.find(
-		(member) => member.id === params['memberId'],
+		(member) => member.id === params.memberId,
 	);
 
 	const populateItems = (
@@ -87,19 +87,20 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
 			menu={{
 				items,
 				selectable: true,
-				defaultSelectedKeys: [params['memberId'] ?? ''],
+				defaultSelectedKeys: [params.memberId ?? ''],
 			}}
 			open={dropdownVisible}
 			onOpenChange={(visible) => setDropdownVisible(visible)}
 		>
-			<a
+			<button
+				type="button"
 				onClick={(e) => e.preventDefault()}
 				className="ant-dropdown-link"
-				style={{ minHeight: '50px' }}
+				style={{ minHeight: '50px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
 			>
 				{currentMember?.community?.name} | {currentMember?.memberName}{' '}
 				<DownOutlined />
-			</a>
+			</button>
 		</Dropdown>
 	);
 };

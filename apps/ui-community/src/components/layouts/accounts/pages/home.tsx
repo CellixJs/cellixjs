@@ -9,7 +9,7 @@ const { Title } = Typography;
 
 export const Home: React.FC = () => {
 	return (
-		<SubPageLayout fixedHeader={false} header={<></>}>
+		<SubPageLayout fixedHeader={false} header={null}>
 			<Helmet>
 				<title>Owner Community Home</title>
 			</Helmet>

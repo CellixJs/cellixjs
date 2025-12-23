@@ -66,7 +66,7 @@ export const Default: Story = {
 		theme: 'light',
 		mode: 'inline',
 	},
-	play: async ({ canvasElement }) => {
+	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify menu items are rendered
@@ -130,7 +130,7 @@ export const WithPermissions: Story = {
 		mode: 'inline',
 		memberData: mockMember,
 	},
-	play: async ({ canvasElement }) => {
+	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify admin-only menu item is visible for admin member
@@ -170,7 +170,7 @@ export const NoPermissions: Story = {
 			isAdmin: false,
 		},
 	},
-	play: async ({ canvasElement }) => {
+	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify admin-only menu item is NOT visible for non-admin member

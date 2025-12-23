@@ -1,6 +1,6 @@
 import { ApolloLink, ApolloProvider, from } from '@apollo/client';
 import { RestLink } from 'apollo-link-rest';
-import { type FC, useEffect } from 'react';
+import { type FC, useCallback, useEffect } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { useLocation } from 'react-router-dom';
 import {
@@ -48,12 +48,12 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (
 		}),
 	]);
 
-	const linkMap = {
-		CountryDetails: apolloLinkChainForCountryDataSource,
-		default: apolloLinkChainForGraphqlDataSource,
-	};
+	const updateLink = useCallback(() => {
+		const linkMap = {
+			CountryDetails: apolloLinkChainForCountryDataSource,
+			default: apolloLinkChainForGraphqlDataSource,
+		};
 
-	const updateLink = () => {
 		return ApolloLink.from([
 			ApolloLink.split(
 				// various options to split:
@@ -69,11 +69,11 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (
 				apolloLinkChainForGraphqlDataSource,
 			),
 		]);
-	};
+	}, [apolloLinkChainForGraphqlDataSource, apolloLinkChainForCountryDataSource]);
 
 	useEffect(() => {
 		client.setLink(updateLink());
-	}, [auth, communityId, memberId]);
+	}, [updateLink]);
 
 	return <ApolloProvider client={client}>{props.children}</ApolloProvider>;
 };

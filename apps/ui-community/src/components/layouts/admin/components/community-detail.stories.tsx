@@ -29,7 +29,7 @@ export const Default: Story = {
 	args: {
 		data: mockData,
 	},
-	play: async ({ canvasElement }) => {
+	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify community details are displayed
@@ -56,7 +56,7 @@ export const WithMinimalData: Story = {
 			updatedAt: '2024-01-01T12:00:00.000Z',
 		},
 	},
-	play: async ({ canvasElement }) => {
+	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify only required fields are displayed
@@ -87,7 +87,7 @@ export const WithAllFields: Story = {
 			updatedAt: '2024-01-15T12:00:00.000Z',
 		},
 	},
-	play: async ({ canvasElement }) => {
+	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify all fields are displayed

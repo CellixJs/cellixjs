@@ -59,12 +59,12 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 				>
 					<div style={{ display: 'flex' }} className="allowBoxShadow">
 						<CommunitiesDropdownContainer
-							data={{ id: params['communityId'] }}
+							data={{ id: params.communityId }}
 						/>
 					</div>
 					<Link
 						className="allowBoxShadow"
-						to={`/community/${params['communityId']}/member/${params['memberId']}`}
+						to={`/community/${params.communityId}/member/${params.memberId}`}
 					>
 						View Member Site
 					</Link>

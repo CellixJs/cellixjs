@@ -19,7 +19,7 @@ export const Home: React.FC = () => {
 				/>
 			}
 		>
-			<CommunityDetailContainer data={{ id: params['communityId'] }} />
+			<CommunityDetailContainer data={{ id: params.communityId }} />
 		</SubPageLayout>
 	);
 };
