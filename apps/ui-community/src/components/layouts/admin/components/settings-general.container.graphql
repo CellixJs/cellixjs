@@ -1,0 +1,29 @@
+query AdminSettingsGeneralContainerCurrentCommunity {
+	currentCommunity {
+		...AdminSettingsGeneralContainerCommunityFields
+	}
+}
+
+mutation AdminSettingsGeneralContainerCommunityUpdateSettings(
+	$input: CommunityUpdateSettingsInput!
+) {
+	communityUpdateSettings(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		community {
+			...AdminSettingsGeneralContainerCommunityFields
+		}
+	}
+}
+
+fragment AdminSettingsGeneralContainerCommunityFields on Community {
+	id
+	name
+	domain
+	whiteLabelDomain
+	handle
+	createdAt
+	updatedAt
+}

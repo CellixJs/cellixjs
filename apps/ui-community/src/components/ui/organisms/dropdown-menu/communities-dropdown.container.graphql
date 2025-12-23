@@ -1,0 +1,15 @@
+query SharedCommunitiesDropdownContainerMembers {
+	membersForCurrentEndUser {
+		...SharedCommunitiesDropdownContainerMembersFields
+	}
+}
+
+fragment SharedCommunitiesDropdownContainerMembersFields on Member {
+	id
+	memberName
+	isAdmin
+	community {
+		id
+		name
+	}
+}

@@ -62,7 +62,7 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
       throw new Error('community is not populated');
     }
     if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-        throw new Error('community is not populated or is not of the correct type');
+        return { id: this.doc.community.toString() } as Domain.Contexts.Community.Community.CommunityEntityReference;
     }
     return new CommunityDomainAdapter(this.doc.community as Community);
   }

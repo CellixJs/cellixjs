@@ -47,6 +47,10 @@ export class MemberRepository //<
 		community: Domain.Contexts.Community.Community.CommunityEntityReference
 	): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
+		// Set the community on the adapter before creating the domain instance
+		// This ensures the community is available when the Member constructor
+		// tries to create the visa
+		adapter.community = community;
 		return Promise.resolve(
 			Domain.Contexts.Community.Member.Member.getNewInstance(
 				adapter,

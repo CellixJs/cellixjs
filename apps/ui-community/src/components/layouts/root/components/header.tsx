@@ -13,7 +13,10 @@ export const Header: React.FC = () => {
 
 	return (
 		<>
-			<div className={`${styles['top-bar']} flex gap-2`} style={{ backgroundColor: colorBgContainer }}>
+			<div
+				className={`${styles['top-bar']} flex gap-2`}
+				style={{ backgroundColor: colorBgContainer }}
+			>
 				<Button type="primary" onClick={handleLogin}>
 					Log In v6
 				</Button>

@@ -31,6 +31,7 @@ applyTo: "**/ui-*/src/components/**/*.graphql"
 
 
 - Import `.graphql` files into TypeScript/JS files using codegen-generated types for type safety.
+- Presentational components should use the generated fragment types from their corresponding `.container.graphql` file to type the data they expect in their props. The presentational component is responsible for any necessary data conversion or formatting (e.g., date formatting) for display.
 - Use Apollo Client hooks (`useQuery`, `useMutation`, etc.) with imported queries/mutations.
 - Co-locate fragments with the components that use them for maintainability.
 

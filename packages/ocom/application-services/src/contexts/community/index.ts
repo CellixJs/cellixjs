@@ -1,6 +1,8 @@
 import type { DataSources } from '@ocom/persistence';
-import { Community as CommunityApi, type CommunityApplicationService } from './community/index.ts';
+import { Community as CommunityApi, type CommunityApplicationService, type CommunityUpdateSettingsCommand } from './community/index.ts';
 import { Member as MemberApi, type MemberApplicationService } from './member/index.ts';
+
+export type { CommunityUpdateSettingsCommand };
 
 export interface CommunityContextApplicationService {
     Community: CommunityApplicationService;

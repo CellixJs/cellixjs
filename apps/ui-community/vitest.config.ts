@@ -3,12 +3,13 @@ import { fileURLToPath } from 'node:url';
 import { createStorybookVitestConfig } from '@cellix/vitest-config';
 import { defineConfig } from 'vitest/config';
 
-const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+const dirname =
+	typeof __dirname !== 'undefined'
+		? __dirname
+		: path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(
-  createStorybookVitestConfig(dirname, {
-    additionalCoverageExclude: [
-        'eslint.config.js',
-    ],
-  })
+	createStorybookVitestConfig(dirname, {
+		additionalCoverageExclude: ['eslint.config.js'],
+	}),
 );

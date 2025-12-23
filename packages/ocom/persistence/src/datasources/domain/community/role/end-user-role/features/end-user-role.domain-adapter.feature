@@ -25,7 +25,7 @@ Feature: <DomainAdapter> EndUserRoleDomainAdapter
   Scenario: Getting the community property when not populated
     Given an EndUserRoleDomainAdapter for a document with community as an ObjectId
     When I get the community property
-    Then an error should be thrown indicating "community is not populated or is not of the correct type"
+    Then it should return a CommunityEntityReference stub with the correct ID
 
   Scenario: Setting the community property with a valid Community domain object
     Given an EndUserRoleDomainAdapter for the document

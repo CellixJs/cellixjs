@@ -17,14 +17,14 @@ class BroadCaster {
 		this.eventEmitter = new EventEmitter();
 	}
 
-	public broadcast(event: string, data: unknown): void {
+	public async broadcast(event: string, data: unknown): Promise<void> {
 		// Collect all listeners for the event
 		const listeners = this.eventEmitter.listeners(event) as Array<
 			(data: unknown) => Promise<void> | void
 		>;
-		// Fire and forget for each listener
+		// Execute all listeners sequentially and await each one
 		for (const listener of listeners) {
-			void listener(data);
+			await listener(data);
 		}
 	}
 	public on(
