@@ -2,10 +2,10 @@ import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { message } from 'antd';
 import {
-    type AdminSettingsGeneralContainerCommunityFieldsFragment,
-    AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
-    AdminSettingsGeneralContainerCurrentCommunityDocument,
-    type CommunityUpdateSettingsInput,
+	type AdminSettingsGeneralContainerCommunityFieldsFragment,
+	AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
+	AdminSettingsGeneralContainerCurrentCommunityDocument,
+	type CommunityUpdateSettingsInput,
 } from '../../../../generated.tsx';
 import { SettingsGeneral, type SettingsGeneralProps } from './settings-general.tsx';
 
@@ -32,16 +32,16 @@ export const SettingsGeneralContainer: React.FC = () => {
 					input: values,
 				},
 			});
-			
+
 			if (result.data?.communityUpdateSettings?.status?.success) {
 				message.success('Saved');
 			} else {
 				message.error(
-					result.data?.communityUpdateSettings.status.errorMessage ?? 'Unknown error',
+					result.data?.communityUpdateSettings?.status?.errorMessage ?? 'Unknown error',
 				);
 			}
 		} catch (saveError) {
-			message.error(`Error updating community: ${JSON.stringify(saveError)}`);
+			message.error(`Error updating community: ${saveError instanceof Error ? saveError.message : JSON.stringify(saveError)}`);
 		}
 	};
 
