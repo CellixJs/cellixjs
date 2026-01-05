@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
 import type { Member } from '../../../generated.tsx';
 import { CommunitiesDropdownContainer } from '../../ui/organisms/dropdown-menu/communities-dropdown.container.tsx';
-import { MenuComponent } from '../shared/components/menu-component.tsx';
+import { MenuComponent, type MenuComponentProps } from '../shared/components/menu-component.tsx';
 import type { PageLayoutProps } from './index.tsx';
 import './section-layout.css';
 
@@ -42,6 +42,13 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 		token: { colorBgContainer },
 	} = theme.useToken();
 
+    const menuComponentProps: MenuComponentProps = {
+        pageLayouts: props.pageLayouts,
+        memberData: props.memberData,
+        theme: "light",
+        mode: "inline",
+    }
+
 	return (
 		<Layout className="site-layout" style={{ minHeight: '100vh' }}>
 			<Header
@@ -59,12 +66,14 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 				>
 					<div style={{ display: 'flex' }} className="allowBoxShadow">
 						<CommunitiesDropdownContainer
-							data={{ id: params.communityId }}
+                            // biome-ignore lint:useLiteralKeys
+							data={{ id: params['communityId'] }}
 						/>
 					</div>
 					<Link
 						className="allowBoxShadow"
-						to={`/community/${params.communityId}/member/${params.memberId}`}
+                        // biome-ignore lint:useLiteralKeys
+						to={`/community/${params['communityId']}/member/${params['memberId']}`}
 					>
 						View Member Site
 					</Link>
@@ -92,12 +101,7 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 				>
 					<div className="logo" />
 
-					<MenuComponent
-						pageLayouts={props.pageLayouts}
-						memberData={props.memberData}
-						theme="light"
-						mode="inline"
-					/>
+					<MenuComponent {...menuComponentProps} />
 				</Sider>
 
 				<Layout

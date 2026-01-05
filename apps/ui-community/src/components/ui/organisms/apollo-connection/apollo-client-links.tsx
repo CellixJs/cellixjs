@@ -14,8 +14,10 @@ import type { AuthContextProps } from 'react-oidc-context';
 // apollo client instance
 export const client = new ApolloClient({
 	cache: new InMemoryCache(),
-	// biome-ignore lint:useLiteralKeys
-	connectToDevTools: import.meta.env['NODE_ENV'] !== 'production',
+	devtools: {
+        // biome-ignore lint:useLiteralKeys
+        enabled: import.meta.env['NODE_ENV'] !== 'production',
+    },
 });
 
 // base apollo link with no customizations
@@ -38,20 +40,18 @@ export const ApolloLinkToAddAuthHeader = (auth: AuthContextProps): ApolloLink =>
 		// In production, rely solely on react-oidc-context to provide the user/token.
 		if (
 			!access_token &&
-			typeof window !== 'undefined' &&
+			typeof globalThis !== 'undefined' &&
 			!import.meta.env.PROD
 		) {
 			try {
 				// biome-ignore lint:useLiteralKeys
-				const authority =
-					import.meta.env['VITE_AAD_B2C_ACCOUNT_AUTHORITY'] ?? '';
+				const authority = import.meta.env['VITE_AAD_B2C_ACCOUNT_AUTHORITY'] ?? '';
 				// biome-ignore lint:useLiteralKeys
-				const client_id =
-					import.meta.env['VITE_AAD_B2C_ACCOUNT_CLIENTID'] ?? '';
+				const client_id = import.meta.env['VITE_AAD_B2C_ACCOUNT_CLIENTID'] ?? '';
 				const storageKey = `oidc.user:${authority}:${client_id}`;
 				const raw =
-					window.sessionStorage.getItem(storageKey) ??
-					window.localStorage.getItem(storageKey);
+					globalThis.sessionStorage.getItem(storageKey) ??
+					globalThis.localStorage.getItem(storageKey);
 				if (raw) {
 					const parsed = JSON.parse(raw);
 					access_token =

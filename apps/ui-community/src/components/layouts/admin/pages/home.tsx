@@ -1,7 +1,7 @@
 import { PageHeader } from '@ant-design/pro-layout';
 import { theme } from 'antd';
 import { useParams } from 'react-router-dom';
-import { CommunityDetailContainer } from '../components/community-detail.container.tsx';
+import { CommunityDetailContainer, type CommunityDetailContainerProps } from '../components/community-detail.container.tsx';
 import { SubPageLayout } from '../sub-page-layout.tsx';
 
 export const Home: React.FC = () => {
@@ -9,6 +9,11 @@ export const Home: React.FC = () => {
 		token: { colorTextBase },
 	} = theme.useToken();
 	const params = useParams();
+
+    const communityDetailContainerProps: CommunityDetailContainerProps = {
+        // biome-ignore lint:useLiteralKeys
+        data: { id: params['communityId'] }
+    }
 
 	return (
 		<SubPageLayout
@@ -19,7 +24,7 @@ export const Home: React.FC = () => {
 				/>
 			}
 		>
-			<CommunityDetailContainer data={{ id: params.communityId }} />
+			<CommunityDetailContainer {...communityDetailContainerProps} />
 		</SubPageLayout>
 	);
 };

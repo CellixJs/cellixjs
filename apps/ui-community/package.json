@@ -4,8 +4,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "tsc --build && vite build",
-		"start": "vite",
+        "prebuild": "biome lint",
+        "build": "tsc --build && vite build",
+        "start": "vite",
 		"lint": "biome lint",
 		"preview": "vite preview",
 		"test": "vitest run --silent --reporter=dot",

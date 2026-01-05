@@ -57,45 +57,46 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 	});
 	const [isHidden, setIsHidden] = useState(false);
 
-	const toggleHidden = useCallback(() => setIsHidden((prevHidden) => !prevHidden), []);
+    const toggleHidden = useCallback(() => setIsHidden((prevHidden) => !prevHidden), []);
 
-	// setTheme functions that take tokens as argument
-	const setTheme = useCallback((tokens: Partial<SeedToken>, type: string) => {
-		let valueToSet: ThemeContextType['currentTokens'] | undefined;
-		if (type === 'light') {
-			valueToSet = {
-				token: tokens,
-				hardCodedTokens: {
-					textColor: '#000000',
-					backgroundColor: '#ffffff',
-				},
-				type: 'light',
-			};
-		} else if (type === 'dark') {
-			valueToSet = {
-				token: tokens,
-				hardCodedTokens: {
-					textColor: '#ffffff',
-					backgroundColor: '#000000',
-				},
-				type: 'dark',
-			};
-		} else if (type === 'custom') {
-			valueToSet = {
-				token: {
-					...currentTokens?.token,
-				},
-				hardCodedTokens: {
-					textColor: tokens?.colorTextBase,
-					backgroundColor: tokens?.colorBgBase,
-				},
-				type: 'custom',
-			};
-		}
-		setCurrentTokens(valueToSet);
-
-		localStorage.setItem('themeProp', JSON.stringify(valueToSet));
-	}, [currentTokens]);
+    // setTheme functions that take tokens as argument
+    const setTheme = useCallback((tokens: Partial<SeedToken>, type: string) => {
+        setCurrentTokens((prevTokens) => {
+            let valueToSet: ThemeContextType['currentTokens'] | undefined;
+            if (type === 'light') {
+                valueToSet = {
+                    token: tokens,
+                    hardCodedTokens: {
+                        textColor: '#000000',
+                        backgroundColor: '#ffffff',
+                    },
+                    type: 'light',
+                };
+            } else if (type === 'dark') {
+                valueToSet = {
+                    token: tokens,
+                    hardCodedTokens: {
+                        textColor: '#ffffff',
+                        backgroundColor: '#000000',
+                    },
+                    type: 'dark',
+                };
+            } else if (type === 'custom') {
+                valueToSet = {
+                    token: {
+                        ...prevTokens?.token,
+                    },
+                    hardCodedTokens: {
+                        textColor: tokens?.colorTextBase,
+                        backgroundColor: tokens?.colorBgBase,
+                    },
+                    type: 'custom',
+                };
+            }
+            localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+            return valueToSet;
+        });
+    }, []);
 
 	useEffect(() => {
 		const extractFromLocal = JSON.parse(

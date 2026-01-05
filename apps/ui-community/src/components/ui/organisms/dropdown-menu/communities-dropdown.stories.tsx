@@ -50,7 +50,8 @@ const meta = {
 		(Story, context) => (
 			<MemoryRouter
 				initialEntries={
-					context.parameters.initialEntries || [
+                    // biome-ignore lint:useLiteralKeys
+					context.parameters['initialEntries'] || [
 						'/community/community1/member/member1',
 					]
 				}

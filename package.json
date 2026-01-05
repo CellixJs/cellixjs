@@ -75,6 +75,11 @@
     "vitest": "catalog:"
   },
   "pnpm": {
+    "auditConfig": {
+        "ignoreGhsas": [
+            "GHSA-6rw7-vpxm-498p"
+        ]
+    },
     "overrides": {
       "vite": "catalog:",
       "jiti": "2.6.1"

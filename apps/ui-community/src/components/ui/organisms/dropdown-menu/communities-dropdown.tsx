@@ -18,7 +18,8 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
 	const navigate = useNavigate();
 
 	const currentMember = props.data.members?.find(
-		(member) => member.id === params.memberId,
+        // biome-ignore lint:useLiteralKeys
+		(member) => member.id === params['memberId'],
 	);
 
 	const populateItems = (
@@ -87,7 +88,8 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
 			menu={{
 				items,
 				selectable: true,
-				defaultSelectedKeys: [params.memberId ?? ''],
+                // biome-ignore lint:useLiteralKeys
+				defaultSelectedKeys: [params['memberId'] ?? ''],
 			}}
 			open={dropdownVisible}
 			onOpenChange={(visible) => setDropdownVisible(visible)}

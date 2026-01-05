@@ -1,12 +1,10 @@
-import { useLazyQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import { useEffect, useState } from 'react';
 import type {
 	Member,
-	SharedCommunitiesDropdownContainerMembersQuery,
 } from '../../../../generated.tsx';
 import { SharedCommunitiesDropdownContainerMembersDocument } from '../../../../generated.tsx';
-import { CommunitiesDropdown } from './communities-dropdown.tsx';
+import { CommunitiesDropdown, type CommunitiesDropdownProps } from './communities-dropdown.tsx';
 
 interface CommunitiesDropdownContainerProps {
 	data: {
@@ -17,46 +15,26 @@ interface CommunitiesDropdownContainerProps {
 export const CommunitiesDropdownContainer: React.FC<
 	CommunitiesDropdownContainerProps
 > = (_props) => {
-	const [memberQuery] = useLazyQuery(
+	const { data, loading, error } = useQuery(
 		SharedCommunitiesDropdownContainerMembersDocument,
 	);
-	const [membersData, setMemberData] =
-		useState<SharedCommunitiesDropdownContainerMembersQuery | null>(null);
-	const [membersError, setMemberError] = useState<Error | null>(null);
-	const [membersLoading, setMemberLoading] = useState<boolean>(true);
 
-	useEffect(() => {
-		const getData = async () => {
-			try {
-				const {
-					data: membersDataTemp,
-					loading: membersLoadingTemp,
-					error: membersErrorTemp,
-				} = await memberQuery();
-				setMemberData(membersDataTemp ?? null);
-				setMemberError(membersErrorTemp ?? null);
-				setMemberLoading(membersLoadingTemp);
-			} catch (e) {
-				console.error('Error getting data in community dropdown: ', e);
-				setMemberError(e instanceof Error ? e : new Error('Unknown error'));
-				setMemberLoading(false);
-			}
-		};
-		getData();
-	}, [memberQuery]);
+    const communitiesDropdownProps: CommunitiesDropdownProps = {
+		data: {
+			members: (data?.membersForCurrentEndUser as Member[]) ?? [],
+		},
+	};
 
 	return (
 		<ComponentQueryLoader
-			loading={membersLoading}
-			hasData={membersData}
+			loading={loading}
+			hasData={data}
 			hasDataComponent={
 				<CommunitiesDropdown
-					data={{
-						members: (membersData?.membersForCurrentEndUser as Member[]) ?? [],
-					}}
+                    {...communitiesDropdownProps}
 				/>
 			}
-			error={membersError ?? undefined}
+			error={error ?? undefined}
 		/>
 	);
 };

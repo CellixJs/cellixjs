@@ -10,14 +10,15 @@ type OIDCConfig = {
 };
 
 export const oidcConfig: OIDCConfig = {
-	// biome-ignore lint:useLiteralKeys
 	authority:
+		// biome-ignore lint:useLiteralKeys
 		import.meta.env['VITE_AAD_B2C_ACCOUNT_AUTHORITY'] ??
 		'http://localhost:4000',
 	// biome-ignore lint:useLiteralKeys
 	client_id: import.meta.env['VITE_AAD_B2C_ACCOUNT_CLIENTID'] ?? 'mock-client',
-	// biome-ignore lint:useLiteralKeys
+
 	redirect_uri:
+		// biome-ignore lint:useLiteralKeys
 		import.meta.env['VITE_AAD_B2C_REDIRECT_URI'] ??
 		'http://localhost:3000/auth-redirect',
 	code_verifier: true,
@@ -27,11 +28,11 @@ export const oidcConfig: OIDCConfig = {
 	scope: import.meta.env['VITE_AAD_B2C_ACCOUNT_SCOPES'],
 	onSigninCallback: (): void => {
 		console.log('onSigninCallback');
-		window.history.replaceState({}, document.title, window.location.pathname);
-		const redirectToPath = window.sessionStorage.getItem('redirectTo');
+		globalThis.history.replaceState({}, document.title, globalThis.location.pathname);
+		const redirectToPath = globalThis.sessionStorage.getItem('redirectTo');
 		if (redirectToPath) {
-			window.location.pathname = redirectToPath;
-			window.sessionStorage.removeItem('redirectTo');
+			globalThis.location.pathname = redirectToPath;
+			globalThis.sessionStorage.removeItem('redirectTo');
 		}
 	},
 };
