@@ -28,3 +28,8 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
         expires: '2025-12-31T00:00:00.000Z'
         created: '2025-12-02T09:39:00.000Z'
+  'SNYK-JS-QS-14724253':
+    - '* > qs':
+        reason: 'Transitive dependency in express, @docusaurus/core, @apollo/server, apollo-link-rest; not exploitable in current usage.'
+        expires: '2026-01-19T00:00:00.000Z'
+        created: '2026-01-05T09:39:00.000Z'
