@@ -1,0 +1,42 @@
+parameters:
+- name: stageName
+  type: string
+  default: 'EdgeScan'
+- name: dependsOn
+  type: string
+- name: esAssetId
+  type: string
+- name: vmImageName
+  type: string
+  default: 'ubuntu-latest'
+
+stages:
+- stage: ${{parameters.stageName}}
+  displayName: 'EdgeScan Security Scan'
+  dependsOn: ${{parameters.dependsOn}}
+  condition: succeeded()
+  jobs:
+  - job: EdgeScan
+    displayName: 'EdgeScan CI/CD Integration'
+    pool:
+      vmImage: ${{parameters.vmImageName}}
+    steps:
+    - task: Bash@3
+      displayName: 'Run EdgeScan Scan'
+      inputs:
+        targetType: 'inline'
+        script: |
+          if [ -z "$(ES_API_TOKEN)" ]; then
+            echo "Error: ES_API_TOKEN is not set in the variable group."
+            exit 1
+          fi
+
+          docker pull edgescan/cicd-integration
+          
+          echo "Triggering EdgeScan for Asset ID: ${{parameters.esAssetId}}"
+          
+          docker run --rm \
+            -e ES_API_TOKEN=$(ES_API_TOKEN) \
+            -e ES_ASSET_ID=${{parameters.esAssetId}} \
+            -e MAX_RISK_THRESHOLD=3 \
+            edgescan/cicd-integration --wait --color
