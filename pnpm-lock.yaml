@@ -496,7 +496,7 @@ importers:
         specifier: ^16.4.5
         version: 16.6.1
       express:
-        specifier: ^4.22.1
+        specifier: ^4.22.0
         version: 4.22.1
       jose:
         specifier: ^5.9.6
