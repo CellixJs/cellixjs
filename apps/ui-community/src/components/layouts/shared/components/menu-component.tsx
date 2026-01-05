@@ -35,9 +35,9 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({
 	const params = useParams();
 	const location = useLocation();
 
-	const createPath = (path: string): string => {
-		return generatePath(path.replace('*', ''), params);
-	};
+    const createPath = (path: string): string => {
+        return generatePath(path.replaceAll('*', ''), params);
+    };
 
 	const buildMenu = (
 		parentId: string | number,

@@ -19,7 +19,7 @@ function processLcovContent(content, packagePath) {
       // Extract the file path after 'SF:'
       const filePath = line.substring(3);
       // Prefix with package path, ensuring no double slashes
-      const prefixedPath = path.join(packagePath, filePath).replace(/\\/g, '/');
+      const prefixedPath = path.join(packagePath, filePath).replaceAll('\\', '/');
       processedLines.push(`SF:${prefixedPath}`);
     } else {
       processedLines.push(line);
