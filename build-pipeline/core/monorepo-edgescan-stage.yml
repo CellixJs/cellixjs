@@ -21,6 +21,31 @@ stages:
     pool:
       vmImage: ${{parameters.vmImageName}}
     steps:
+    - task: Cache@2
+      displayName: 'Cache EdgeScan Docker Image'
+      inputs:
+        key: 'docker | edgescan | latest'
+        path: $(Pipeline.Workspace)/docker-cache
+        cacheHitVar: DOCKER_CACHE_HIT
+
+    - task: Bash@3
+      displayName: 'Pull or Restore EdgeScan Image'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          mkdir -p $(Pipeline.Workspace)/docker-cache
+          
+          if [ "$DOCKER_CACHE_HIT" == "true" ] && [ -f "$(Pipeline.Workspace)/docker-cache/edgescan.tar" ]; then
+            echo "Restoring EdgeScan image from cache..."
+            docker load -i $(Pipeline.Workspace)/docker-cache/edgescan.tar
+          else
+            echo "Cache miss or missing tarball. Pulling from Docker Hub..."
+            docker pull edgescan/cicd-integration:latest
+            echo "Saving image to cache for future runs..."
+            docker save edgescan/cicd-integration:latest -o $(Pipeline.Workspace)/docker-cache/edgescan.tar
+          fi
+
     - task: Bash@3
       displayName: 'Run EdgeScan Scan'
       inputs:
@@ -37,15 +62,14 @@ stages:
             echo "Error: ES_ASSET_ID_DEV must be set in the variable group."
             exit 1
           fi
-
-          docker pull edgescan/cicd-integration:latest
           
           echo "Triggering EdgeScan for Asset ID: ${{ parameters.esAssetId }}"
           
           docker run --tty --rm \
-            -e ES_API_TOKEN="$ES_API_TOKEN" \
-            -e ES_ASSET_ID="${{ parameters.esAssetId }}" \
-            -e MAX_RISK_THRESHOLD=3 \
-            edgescan/cicd-integration:latest --wait --color
+            edgescan/cicd-integration:latest \
+            --api-token "$ES_API_TOKEN" \
+            --asset-id "${{ parameters.esAssetId }}" \
+            --max-risk-threshold 3 \
+            --wait --color
       env:
         ES_API_TOKEN: $(ES_API_TOKEN)
