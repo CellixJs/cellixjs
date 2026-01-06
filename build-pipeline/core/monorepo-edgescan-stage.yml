@@ -69,6 +69,7 @@ stages:
             edgescan/cicd-integration:latest \
             --api-token "$ES_API_TOKEN" \
             --asset-id "${{ parameters.esAssetId }}" \
+            --start-scan \
             --max-risk-threshold 3 \
             --wait --color
       env:
