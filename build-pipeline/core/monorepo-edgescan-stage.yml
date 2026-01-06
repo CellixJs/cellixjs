@@ -43,8 +43,8 @@ stages:
           echo "Triggering EdgeScan for Asset ID: ${{ parameters.esAssetId }}"
           
           docker run --rm \
-            -e ES_API_TOKEN=$ES_API_TOKEN \
-            -e ES_ASSET_ID=${{ parameters.esAssetId }} \
+            -e ES_API_TOKEN="$ES_API_TOKEN" \
+            -e ES_ASSET_ID="${{ parameters.esAssetId }}" \
             -e MAX_RISK_THRESHOLD=3 \
             edgescan/cicd-integration:latest --wait --color
       env:
