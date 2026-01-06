@@ -29,7 +29,7 @@ stages:
           set -euo pipefail
 
           if [ -z "$ES_API_TOKEN" ] then
-            echo "Error: Error: ES_API_TOKEN must be set in the variable group."
+            echo "Error: ES_API_TOKEN must be set in the variable group."
             exit 1
           fi
 
@@ -42,7 +42,7 @@ stages:
           
           echo "Triggering EdgeScan for Asset ID: ${{ parameters.esAssetId }}"
           
-          docker run --rm \
+          docker run --tty --rm \
             -e ES_API_TOKEN="$ES_API_TOKEN" \
             -e ES_ASSET_ID="${{ parameters.esAssetId }}" \
             -e MAX_RISK_THRESHOLD=3 \
