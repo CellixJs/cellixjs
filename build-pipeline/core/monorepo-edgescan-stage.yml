@@ -28,7 +28,7 @@ stages:
         script: |
           set -euo pipefail
 
-          if [ -z "$ES_API_TOKEN" ] then
+          if [ -z "$ES_API_TOKEN" ]; then
             echo "Error: ES_API_TOKEN must be set in the variable group."
             exit 1
           fi
