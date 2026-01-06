@@ -18,13 +18,16 @@ stages:
   jobs:
   - job: EdgeScan
     displayName: 'EdgeScan CI/CD Integration'
+    variables:
+      # Generates a monthly key like "2026-01" to ensure the image is refreshed monthly
+      cacheMonth: $[format('{0:yyyy-MM}', pipeline.startTime)]
     pool:
       vmImage: ${{parameters.vmImageName}}
     steps:
     - task: Cache@2
       displayName: 'Cache EdgeScan Docker Image'
       inputs:
-        key: 'docker | edgescan | latest'
+        key: 'docker | edgescan | latest | $(cacheMonth)'
         path: $(Pipeline.Workspace)/docker-cache
         cacheHitVar: DOCKER_CACHE_HIT
 
