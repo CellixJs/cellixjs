@@ -81,7 +81,7 @@ jobs:
         run: |
           docker --version
           docker ps
-          docker pull edgescan/cicd-integration  # Pre-pull to cache the image for faster agent runs
+          docker pull edgescan/cicd-integration:latest  # Pre-pull to cache the image for faster agent runs
 
       - name: Verify required environment variables
         run: |

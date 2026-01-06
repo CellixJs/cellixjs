@@ -28,12 +28,12 @@ stages:
         script: |
           set -euo pipefail
 
-          if [ -z \"${ES_API_TOKEN}\" ] || [ -z "$(ES_ASSET_ID)" ]; then
+          if [ -z "${ES_API_TOKEN}" ] || [ -z "$(ES_ASSET_ID)" ]; then
             echo "Error: Error: ES_API_TOKEN and ES_ASSET_ID must be set in the variable group."
             exit 1
           fi
 
-          docker pull edgescan/cicd-integration
+          docker pull edgescan/cicd-integration:latest
           
           echo "Triggering EdgeScan for Asset ID: ${{parameters.esAssetId}}"
           
@@ -41,4 +41,7 @@ stages:
             -e ES_API_TOKEN=$(ES_API_TOKEN) \
             -e ES_ASSET_ID=${{parameters.esAssetId}} \
             -e MAX_RISK_THRESHOLD=3 \
-            edgescan/cicd-integration --wait --color
+            edgescan/cicd-integration:latest --wait --color
+      env:
+        ES_API_TOKEN: $(ES_API_TOKEN)
+        ES_ASSET_ID: $(ES_ASSET_ID)
