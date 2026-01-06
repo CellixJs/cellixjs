@@ -26,8 +26,10 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          if [ -z "$(ES_API_TOKEN)" ]; then
-            echo "Error: ES_API_TOKEN is not set in the variable group."
+          set -euo pipefail
+
+          if [ -z \"${ES_API_TOKEN}\" ] || [ -z "$(ES_ASSET_ID)" ]; then
+            echo "Error: Error: ES_API_TOKEN and ES_ASSET_ID must be set in the variable group."
             exit 1
           fi
 
