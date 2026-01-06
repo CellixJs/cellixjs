@@ -14,7 +14,7 @@ stages:
 - stage: ${{parameters.stageName}}
   displayName: 'EdgeScan Security Scan'
   dependsOn: ${{parameters.dependsOn}}
-  condition: succeeded()
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   jobs:
   - job: EdgeScan
     displayName: 'EdgeScan CI/CD Integration'
