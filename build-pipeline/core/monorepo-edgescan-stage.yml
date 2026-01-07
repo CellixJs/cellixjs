@@ -39,7 +39,7 @@ stages:
           set -euo pipefail
           mkdir -p $(Pipeline.Workspace)/docker-cache
           
-          if [ "$DOCKER_CACHE_HIT" == "true" ] && [ -f "$(Pipeline.Workspace)/docker-cache/edgescan.tar" ]; then
+          if [ "${DOCKER_CACHE_HIT:-}" = "true" ] && [ -f "$(Pipeline.Workspace)/docker-cache/edgescan.tar" ]; then
             echo "Restoring EdgeScan image from cache..."
             docker load -i $(Pipeline.Workspace)/docker-cache/edgescan.tar
           else
