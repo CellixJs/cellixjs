@@ -3,7 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { MembersList } from './members-list.tsx';
 
 const meta: Meta<typeof MembersList> = {
-	title: 'Admin/Pages/MembersList',
+	title: 'Pages/Layouts/Admin/MembersList',
 	component: MembersList,
 	decorators: [
 		(Story) => (

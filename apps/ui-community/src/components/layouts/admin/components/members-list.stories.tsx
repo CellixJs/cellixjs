@@ -4,7 +4,7 @@ import type { AdminMembersListContainerMemberFieldsFragment } from '../../../../
 import { MembersList } from './members-list.tsx';
 
 const meta: Meta<typeof MembersList> = {
-	title: 'Admin/Components/MembersList',
+	title: 'Components/Layouts/Admin/MembersList',
 	component: MembersList,
 	decorators: [
 		(Story) => (
