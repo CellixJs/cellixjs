@@ -49,6 +49,7 @@ extend type Query {
 extend type Mutation {
     memberCreate(input: MemberCreateInput!): MemberMutationResult!
     memberUpdate(input: MemberUpdateInput!): MemberMutationResult!
+    memberProfileUpdate(input: MemberProfileUpdateInput!): MemberMutationResult!
     memberInvite(input: MemberInviteInput!): MemberMutationResult!
     memberRemove(input: MemberRemoveInput!): MemberMutationResult!
     memberUpdateRole(input: MemberUpdateRoleInput!): MemberMutationResult!
@@ -66,6 +67,23 @@ input MemberCreateInput {
 input MemberUpdateInput {
   id: ObjectID!
   memberName: String
+}
+
+input MemberProfileUpdateInput {
+  memberId: ObjectID!
+  profile: MemberProfileInput!
+}
+
+input MemberProfileInput {
+  name: String
+  email: String
+  bio: String
+  interests: [String]
+  showInterests: Boolean
+  showEmail: Boolean
+  showProfile: Boolean
+  showLocation: Boolean
+  showProperties: Boolean
 }
 
 input MemberInviteInput {

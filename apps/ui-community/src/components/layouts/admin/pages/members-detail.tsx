@@ -1,4 +1,4 @@
-import { IdcardOutlined, ProfileOutlined } from '@ant-design/icons';
+import { IdcardOutlined, ProfileOutlined, TeamOutlined } from '@ant-design/icons';
 import { PageHeader } from '@ant-design/pro-layout';
 import { theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { VerticalTabs } from '@cellix/ui-core';
 import { SubPageLayout } from '../sub-page-layout.tsx';
 import { MembersGeneral } from './members-general.tsx';
 import { MembersProfile } from './members-profile.tsx';
+import { MembersAccounts } from './members-accounts.tsx';
 
 export const MembersDetail: React.FC = () => {
 	const navigate = useNavigate();
@@ -30,6 +31,14 @@ export const MembersDetail: React.FC = () => {
 			title: 'Profile',
 			icon: <IdcardOutlined />,
 			element: <MembersProfile />,
+		},
+		{
+			id: '3',
+			link: 'accounts',
+			path: 'accounts/*',
+			title: 'Accounts',
+			icon: <TeamOutlined />,
+			element: <MembersAccounts />,
 		},
 	];
 

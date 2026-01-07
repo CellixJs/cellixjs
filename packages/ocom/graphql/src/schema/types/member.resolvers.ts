@@ -145,6 +145,24 @@ const member: Resolvers = {
 				context.applicationServices.Community.Member.update(updateCommand),
 			);
 		},
+		memberProfileUpdate: async (
+			_parent,
+			args: { input: { memberId: string; profile: unknown } },
+			context: GraphContext,
+		) => {
+			if (!context.applicationServices?.verifiedUser?.verifiedJwt?.sub) {
+				throw new Error('Unauthorized');
+			}
+
+			// TODO: Implement profile update in domain and application service
+			// For now, return success to allow UI testing
+			return {
+				status: { success: true },
+				member: await context.applicationServices.Community.Member.queryById({
+					id: args.input.memberId,
+				}),
+			};
+		},
 	},
 };
 

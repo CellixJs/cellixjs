@@ -1,0 +1,38 @@
+query SharedMemberProfileDetailsContainerMember($id: ObjectID!) {
+	member(id: $id) {
+		...SharedMemberProfileDetailsContainerMemberFields
+	}
+}
+
+mutation SharedMemberProfileDetailsContainerMemberProfileUpdate(
+	$input: MemberProfileUpdateInput!
+) {
+	memberProfileUpdate(input: $input) {
+		...SharedMemberProfileDetailsContainerMemberProfileMutationResultFields
+	}
+}
+
+fragment SharedMemberProfileDetailsContainerMemberProfileMutationResultFields on MemberMutationResult {
+	status {
+		success
+		errorMessage
+	}
+	member {
+		...SharedMemberProfileDetailsContainerMemberFields
+	}
+}
+
+fragment SharedMemberProfileDetailsContainerMemberFields on Member {
+	profile {
+		name
+		email
+		bio
+		interests
+		showInterests
+		showEmail
+		showLocation
+		showProfile
+		showProperties
+	}
+	id
+}
