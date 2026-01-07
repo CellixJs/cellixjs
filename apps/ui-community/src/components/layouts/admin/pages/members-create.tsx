@@ -1,10 +1,11 @@
 import { PageHeader } from '@ant-design/pro-layout';
 import { theme } from 'antd';
-import { useParams } from 'react-router-dom';
-import { MembersListContainer } from '../components/members-list.container.tsx';
+import { useNavigate, useParams } from 'react-router-dom';
+import { MembersCreateContainer } from '../components/members-create.container.tsx';
 import { SubPageLayout } from '../sub-page-layout.tsx';
 
-export const MembersList: React.FC = () => {
+export const MembersCreate: React.FC = () => {
+	const navigate = useNavigate();
 	const params = useParams();
 	const {
 		token: { colorTextBase },
@@ -21,13 +22,14 @@ export const MembersList: React.FC = () => {
 								color: colorTextBase,
 							}}
 						>
-							Members
+							Create Member
 						</span>
 					}
+					onBack={() => navigate('../')}
 				/>
 			}
 		>
-			<MembersListContainer
+			<MembersCreateContainer
 				data={{ communityId: params['communityId'] ?? '' }}
 			/>
 		</SubPageLayout>
