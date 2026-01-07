@@ -25,6 +25,12 @@ const member: Resolvers = {
             return await context.applicationServices.Community.Member.queryByEndUserExternalId({
                 externalId,
             });
+        },
+        membersByCommunityId: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
+            if (!context.applicationServices.verifiedUser?.verifiedJwt) { throw new Error('Unauthorized'); }
+            return await context.applicationServices.Community.Member.queryByCommunityId({
+                communityId: args.communityId,
+            });
         }
     },
 };

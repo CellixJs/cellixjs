@@ -41,7 +41,34 @@ type MemberProfile {
 
 extend type Query {
     # member(id: ObjectID!): Member!
-    # membersByCommunityId(communityId: ObjectID!): [Member!]!
+    membersByCommunityId(communityId: ObjectID!): [Member!]!
     # memberForCurrentCommunity: Member!
     membersForCurrentEndUser: [Member!]!
+}
+
+extend type Mutation {
+    memberInvite(input: MemberInviteInput!): MemberMutationResult!
+    memberRemove(input: MemberRemoveInput!): MemberMutationResult!
+    memberUpdateRole(input: MemberUpdateRoleInput!): MemberMutationResult!
+}
+
+type MemberMutationResult implements MutationResult {
+  status: MutationStatus!
+  member: Member
+}
+
+input MemberInviteInput {
+  communityId: ObjectID!
+  firstName: String!
+  lastName: String
+  email: String!
+}
+
+input MemberRemoveInput {
+  id: ObjectID!
+}
+
+input MemberUpdateRoleInput {
+  memberId: ObjectID!
+  roleId: ObjectID!
 }
