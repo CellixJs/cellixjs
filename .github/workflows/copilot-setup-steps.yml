@@ -54,7 +54,7 @@ jobs:
       - name: Show proxy / CA related env
         run: |
           set -e
-          env | sort | grep -E 'HTTPS?_PROXY|NO_PROXY|NODE_EXTRA_CA_CERTS|NPM_CONFIG_CA|NPM_CONFIG_CAFILE|SSL_CERT|REQUESTS_CA_BUNDLE|GIT_SSL_CAINFO|npm_config_(ca|cafile|registry)' || true
+          env | sort | grep -E 'HTTPS?_PROXY|NO_PROXY|NODE_EXTRA_CA_CERTS|NPM_CONFIG_CA|NPM_CONFIG_CAFILE|SSL_CERT|REQUESTS_CA_BUNDLE|GIT_SSL_CAINFO|npm_config_(ca|cafile|registry)'
 
       - name: Install JavaScript dependencies
         run: pnpm install --frozen-lockfile
