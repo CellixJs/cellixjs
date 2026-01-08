@@ -39,7 +39,7 @@ export const MembersList: React.FC = () => {
 				/>
 			}
 		>
-			<MembersListContainer data={{ communityId: params.communityId ?? '' }} />
+			<MembersListContainer data={{ communityId: params['communityId'] ?? '' }} />
 		</SubPageLayout>
 	);
 };
