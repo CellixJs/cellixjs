@@ -51,10 +51,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
-      - name: Show proxy / CA related env
+      - name: Refresh CA certificates
         run: |
-          set -e
-          env | sort | grep -E 'HTTPS?_PROXY|NO_PROXY|NODE_EXTRA_CA_CERTS|NPM_CONFIG_CA|NPM_CONFIG_CAFILE|SSL_CERT|REQUESTS_CA_BUNDLE|GIT_SSL_CAINFO|npm_config_(ca|cafile|registry)'
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates
+          sudo update-ca-certificates
 
       - name: Install JavaScript dependencies
         run: pnpm install --frozen-lockfile
