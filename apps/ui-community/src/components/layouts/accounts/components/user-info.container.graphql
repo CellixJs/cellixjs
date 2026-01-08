@@ -1,17 +1,17 @@
 query AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExists {
-  currentEndUserAndCreateIfNotExists { 
-      ...AccountsUserInfoContainerEndUserFields
-  }
+	currentEndUserAndCreateIfNotExists {
+		...AccountsUserInfoContainerEndUserFields
+	}
 }
 
 fragment AccountsUserInfoContainerEndUserFields on EndUser {
-  externalId
-  personalInformation {
-    identityDetails {
-      lastName
-      restOfName
-    }
-  }
+	externalId
+	personalInformation {
+		identityDetails {
+			lastName
+			restOfName
+		}
+	}
 
-  id
+	id
 }

@@ -1,8 +1,10 @@
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Domain } from '@ocom/domain';
-import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
+import { Community, type CommunityContextApplicationService, type CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
+
+export type { CommunityUpdateSettingsCommand };
 
 export interface ApplicationServices {
     Community: CommunityContextApplicationService;
@@ -54,7 +56,7 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
             if (openIdConfigKey === 'AccountPortal') {
 
                 const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
-                const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithRole(hints?.memberId) : null;
+                const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithCommunityAndRoleAndUser(hints?.memberId) : null;
                 const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
 
                 if (endUser && member && community) {

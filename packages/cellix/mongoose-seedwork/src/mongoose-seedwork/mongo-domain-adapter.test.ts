@@ -25,7 +25,7 @@ test.for(feature, ({ Scenario }) => {
   Scenario('Constructing a MongooseDomainAdapter', ({ Given, When, Then }) => {
     Given('a Mongoose document with id, createdAt, updatedAt, and schemaVersion', () => {
       doc = vi.mocked({
-        id: { toString: () => 'abc123' },
+        _id: { toString: () => 'abc123' },
         createdAt: new Date('2023-01-01T00:00:00Z'),
         updatedAt: new Date('2023-01-02T00:00:00Z'),
         schemaVersion: 'v1',
@@ -45,7 +45,7 @@ test.for(feature, ({ Scenario }) => {
     Given('a domain adapter constructed with a document with an ObjectId', () => {
       toStringMock = vi.fn(() => 'objectid123');
       doc = vi.mocked({
-        id: { toString: toStringMock },
+        _id: { toString: toStringMock },
         createdAt: new Date(),
         updatedAt: new Date(),
         schemaVersion: 'v2',
@@ -67,7 +67,7 @@ test.for(feature, ({ Scenario }) => {
     const updated = new Date('2022-01-02T00:00:00Z');
     Given('a domain adapter constructed with a document with createdAt, updatedAt, and schemaVersion', () => {
       doc = vi.mocked({
-        id: { toString: () => 'id' },
+        _id: { toString: () => 'id' },
         createdAt: created,
         updatedAt: updated,
         schemaVersion: 'v3',

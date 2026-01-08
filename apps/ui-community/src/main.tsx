@@ -1,5 +1,5 @@
 import { HelmetProvider } from '@dr.pogodin/react-helmet';
-import { ConfigProvider } from 'antd';
+import { App as AntdApp, ConfigProvider } from 'antd';
 import React, { useContext } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AuthProvider } from 'react-oidc-context';
@@ -27,13 +27,15 @@ const ConfigProviderWrapper = () => {
 				},
 			}}
 		>
-			<HelmetProvider>
-				<BrowserRouter>
-					<AuthProvider {...oidcConfig}>
-						<App />
-					</AuthProvider>
-				</BrowserRouter>
-			</HelmetProvider>
+			<AntdApp>
+				<HelmetProvider>
+					<BrowserRouter>
+						<AuthProvider {...oidcConfig}>
+							<App />
+						</AuthProvider>
+					</BrowserRouter>
+				</HelmetProvider>
+			</AntdApp>
 		</ConfigProvider>
 	);
 };

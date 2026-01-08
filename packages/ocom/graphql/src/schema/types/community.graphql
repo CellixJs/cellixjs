@@ -25,6 +25,7 @@ extend type Query {
 
 extend type Mutation {
     communityCreate(input: CommunityCreateInput!): CommunityMutationResult!
+    communityUpdateSettings(input: CommunityUpdateSettingsInput!): CommunityMutationResult!
 }
 
 type CommunityMutationResult implements MutationResult {
@@ -34,5 +35,13 @@ type CommunityMutationResult implements MutationResult {
 
 input CommunityCreateInput {
   name: String!
+}
+
+input CommunityUpdateSettingsInput {
+  id: ObjectID!
+  name: String
+  domain: String
+  whiteLabelDomain: String
+  handle: String
 }
 

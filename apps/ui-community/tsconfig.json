@@ -1,12 +1,12 @@
 {
-  "extends": "@cellix/typescript-config/base",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "jsx": "react-jsx",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "exactOptionalPropertyTypes": false,
-    "skipLibCheck": true
-  },
-  "include": ["src"]
+	"extends": "@cellix/typescript-config/base",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"jsx": "react-jsx",
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
+		"exactOptionalPropertyTypes": false,
+		"skipLibCheck": true
+	},
+	"include": ["src"]
 }

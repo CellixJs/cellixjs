@@ -11,6 +11,7 @@ export interface MemberReadRepository {
     getByCommunityId: (communityId: string, options?: FindOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
     getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
     getByIdWithRole: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
+    getByIdWithCommunityAndRoleAndUser: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
      /**
      * Retrieves all Member entities for a given end-user external ID.
      * Finds members whose accounts reference a user with the specified external ID.
@@ -62,15 +63,25 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
     }
 
     /**
-     * Retrieves a Member entity by its ID, including the 'createdBy' field.
+     * Retrieves a Member entity by its ID, including the 'role' and 'accounts.user' field.
      * @param id - The ID of the Member entity.
      * @param options - Optional find options for querying.
      * @returns A promise that resolves to a MemberEntityReference object or null if not found.
      */
+    async getByIdWithCommunityAndRoleAndUser(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
+        const finalOptions: FindOneOptions = {
+            ...options,
+            populateFields: ['community', 'role', 'role.community', 'accounts.user']
+        };
+        const result = await this.mongoDataSource.findById(id, finalOptions);
+        if (!result) { return null; }
+        return this.converter.toDomain(result, this.passport);
+    }
+
     async getByIdWithRole(id: string, options?: FindOneOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
         const finalOptions: FindOneOptions = {
             ...options,
-            populateFields: ['role']
+            populateFields: ['role', 'role.community']
         };
         const result = await this.mongoDataSource.findById(id, finalOptions);
         if (!result) { return null; }

@@ -14,7 +14,11 @@ export abstract class MongooseDomainAdapter<T extends Base>
 		this.doc = doc;
 	}
 	get id() {
-		return this.doc.id.toString();
+		const id = this.doc._id || this.doc.id;
+		if (!id) {
+			throw new Error(`${this.constructor.name} document is missing _id`);
+		}
+		return id.toString();
 	}
 	get createdAt() {
 		return this.doc.createdAt;

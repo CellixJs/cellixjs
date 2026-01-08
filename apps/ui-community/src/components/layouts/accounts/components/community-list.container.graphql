@@ -1,34 +1,34 @@
 query AccountsCommunityListContainerCommunitiesForCurrentEndUser {
-  communitiesForCurrentEndUser {
-    ...AccountsCommunityListContainerCommunityFields
-  }
+	communitiesForCurrentEndUser {
+		...AccountsCommunityListContainerCommunityFields
+	}
 }
 
 query AccountsCommunityListContainerMembersForCurrentEndUser {
-  membersForCurrentEndUser {
-    ...AccountsCommunityListContainerMemberFields
-  }
+	membersForCurrentEndUser {
+		...AccountsCommunityListContainerMemberFields
+	}
 }
 
 fragment AccountsCommunityListContainerMemberFields on Member {
-  memberName
-  community {
-    id
-  }
-  isAdmin
+	memberName
+	community {
+		id
+	}
+	isAdmin
 
-  id
+	id
 }
 
 fragment AccountsCommunityListContainerCommunityFields on Community {
-  name
-  domain
-  whiteLabelDomain
-  handle
-  publicContentBlobUrl
-  
-  schemaVersion
-  createdAt
-  updatedAt
-  id
+	name
+	domain
+	whiteLabelDomain
+	handle
+	publicContentBlobUrl
+
+	schemaVersion
+	createdAt
+	updatedAt
+	id
 }

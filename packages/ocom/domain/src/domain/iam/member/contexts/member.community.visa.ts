@@ -33,14 +33,19 @@ export class MemberCommunityVisa<root extends CommunityEntityReference>
 		//   console.log("Member Visa: no community permissions");
 		//   return false;
 		// }
-
-		const updatedPermissions: CommunityDomainPermissions = {
-			...communityPermissions, //using spread here to ensure that we get type safety and we don't need to deep copy
-			isEditingOwnMemberAccount: false,
-			canCreateCommunities: true, //TODO: add a more complext rule here like can only create one community for free, otherwise need a paid plan
-			canManageVendorUserRolesAndPermissions: false, // end user roles cannot manage vendor user roles
-			isSystemAccount: false,
-		};
+        const updatedPermissions: CommunityDomainPermissions = {
+            canManageCommunitySettings: communityPermissions.canManageCommunitySettings,
+            canManageMembers: communityPermissions.canManageMembers,
+            canEditOwnMemberProfile: communityPermissions.canEditOwnMemberProfile,
+            canEditOwnMemberAccounts: communityPermissions.canEditOwnMemberAccounts,
+            canManageEndUserRolesAndPermissions:
+                communityPermissions.canManageEndUserRolesAndPermissions,
+            canManageSiteContent: communityPermissions.canManageSiteContent,
+            isEditingOwnMemberAccount: false,
+            canCreateCommunities: true, //TODO: add a more complext rule here like can only create one community for free, otherwise need a paid plan
+            canManageVendorUserRolesAndPermissions: false, // end user roles cannot manage vendor user roles
+            isSystemAccount: false,
+        };
 
 		return func(updatedPermissions);
 	}
