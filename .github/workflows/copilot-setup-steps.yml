@@ -39,9 +39,6 @@ jobs:
         with:
           version: 10.18.2
 
-      - name: Configure pnpm for cloud agent
-        run: pnpm config set strict-ssl false
-
       - name: Cache pnpm store
         uses: actions/cache@v4
         with:
@@ -53,6 +50,12 @@ jobs:
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-
+
+      - name: Refresh CA certificates
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates
+          sudo update-ca-certificates
 
       - name: Install JavaScript dependencies
         run: pnpm install --frozen-lockfile
@@ -80,6 +83,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Validate Docker and Pre-Pull Edgescan Image
+        run: |
+          docker --version
+          docker ps
+          docker pull edgescan/cicd-integration:latest  # Ensure Edgescan image is available in this job and verify Docker access
+
       - name: Verify required environment variables
         run: |
           if [ -z "$SONAR_TOKEN" ]; then
@@ -94,8 +103,18 @@ jobs:
             echo "Error: SNYK_TOKEN is not set."
             exit 1
           fi
+          if [ -z "$ES_API_TOKEN" ]; then
+            echo "Error: ES_API_TOKEN is not set."
+            exit 1
+          fi
+          if [ -z "$ES_ASSET_ID" ]; then
+            echo "Error: ES_ASSET_ID is not set."
+            exit 1
+          fi
           echo "All required environment variables are set."
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          ES_API_TOKEN: ${{ secrets.ES_API_TOKEN }}
+          ES_ASSET_ID: ${{ secrets.ES_ASSET_ID }}
