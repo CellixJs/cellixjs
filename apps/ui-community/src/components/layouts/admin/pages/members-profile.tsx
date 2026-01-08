@@ -5,11 +5,14 @@ export const MembersProfile: React.FC = () => {
 	const params = useParams();
 
 	return (
-		<MemberProfileContainer
-			data={{
-				communityId: params['communityId'] ?? '',
-			}}
-			isAdmin={true}
-		/>
+		<div>
+			<h1>Members Profile</h1>
+			<MemberProfileContainer
+				data={{
+					communityId: params['communityId'] ?? '',
+				}}
+				isAdmin
+			/>
+		</div>
 	);
 };
