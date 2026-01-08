@@ -1,0 +1,17 @@
+query AdminMembersProfileContainerMember($id: ObjectID!) {
+	member(id: $id) {
+		...AdminMembersProfileContainerMemberFields
+	}
+}
+
+fragment AdminMembersProfileContainerMemberFields on Member {
+	profile {
+		name
+		email
+		bio
+		showEmail
+		showProfile
+	}
+
+	id
+}

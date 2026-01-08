@@ -1,0 +1,29 @@
+query AdminMembersDetailContainerMember($id: ObjectID!) {
+	member(id: $id) {
+		...AdminMembersDetailContainerMemberFields
+	}
+}
+
+mutation AdminMembersDetailContainerMemberUpdate($input: MemberUpdateInput!) {
+	memberUpdate(input: $input) {
+		...AdminMembersDetailContainerMemberMutationResultFields
+	}
+}
+
+fragment AdminMembersDetailContainerMemberMutationResultFields on MemberMutationResult {
+	status {
+		success
+		errorMessage
+	}
+	member {
+		...AdminMembersDetailContainerMemberFields
+	}
+}
+
+fragment AdminMembersDetailContainerMemberFields on Member {
+	memberName
+
+	id
+	createdAt
+	updatedAt
+}
