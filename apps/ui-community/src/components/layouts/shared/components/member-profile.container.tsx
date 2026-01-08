@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { MemberProfile } from './member-profile.tsx';
 
-export interface MemberProfileContainerProps {
+interface MemberProfileContainerProps {
 	data: {
 		communityId: string;
 	};

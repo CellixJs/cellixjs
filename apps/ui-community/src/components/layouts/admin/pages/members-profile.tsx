@@ -9,7 +9,7 @@ export const MembersProfile: React.FC = () => {
 			<h1>Members Profile</h1>
 			<MemberProfileContainer
 				data={{
-					communityId: params['communityId'] ?? '',
+					communityId: params.communityId ?? '',
 				}}
 				isAdmin
 			/>

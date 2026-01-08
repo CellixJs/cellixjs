@@ -7,6 +7,7 @@ import { MembersAccountsList } from './members-accounts-list.tsx';
 const mockAccounts: AdminMembersAccountsListContainerMemberAccountFieldsFragment[] =
 	[
 		{
+			__typename: 'MemberAccount',
 			id: '1',
 			firstName: 'John',
 			lastName: 'Doe',
@@ -15,6 +16,7 @@ const mockAccounts: AdminMembersAccountsListContainerMemberAccountFieldsFragment
 			updatedAt: '2024-01-15T12:00:00.000Z',
 		},
 		{
+			__typename: 'MemberAccount',
 			id: '2',
 			firstName: 'Jane',
 			lastName: 'Smith',
@@ -23,6 +25,7 @@ const mockAccounts: AdminMembersAccountsListContainerMemberAccountFieldsFragment
 			updatedAt: '2024-01-20T12:00:00.000Z',
 		},
 		{
+			__typename: 'MemberAccount',
 			id: '3',
 			firstName: 'Bob',
 			lastName: 'Johnson',
@@ -71,7 +74,10 @@ export const Default: Story = {
 		// Verify data is rendered
 		expect(canvas.getByText('John')).toBeInTheDocument();
 		expect(canvas.getByText('Doe')).toBeInTheDocument();
-		expect(canvas.getByText('Active')).toBeInTheDocument();
+		
+		// Verify Active status appears in table cells
+		const cells = canvas.getAllByText('Active');
+		expect(cells.length).toBeGreaterThan(0);
 	},
 };
 
@@ -85,8 +91,9 @@ export const Empty: Story = {
 		// Verify add button is present
 		expect(canvas.getByRole('button', { name: /Add Account/i })).toBeInTheDocument();
 
-		// Verify empty state message
-		expect(canvas.getByText(/No data/i)).toBeInTheDocument();
+		// Verify empty state message (in the ant-empty-description div, not the SVG title)
+		const emptyDescription = canvas.getByText('No data', { selector: '.ant-empty-description' });
+		expect(emptyDescription).toBeInTheDocument();
 	},
 };
 

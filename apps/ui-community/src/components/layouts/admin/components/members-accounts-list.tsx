@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } from '../../../../generated.tsx';
 
-export interface MembersAccountsListProps {
+interface MembersAccountsListProps {
 	data: AdminMembersAccountsListContainerMemberAccountFieldsFragment[];
 }
 

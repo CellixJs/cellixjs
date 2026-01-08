@@ -9,7 +9,7 @@ import {
 import type { MembersCreateProps } from './members-create.tsx';
 import { MembersCreate } from './members-create.tsx';
 
-export interface MembersCreateContainerProps {
+interface MembersCreateContainerProps {
 	data: {
 		communityId: string;
 	};

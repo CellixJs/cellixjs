@@ -1,7 +1,7 @@
 import { Descriptions } from 'antd';
 import type { AdminMembersProfileContainerMemberFieldsFragment } from '../../../../generated.tsx';
 
-export interface MembersProfileProps {
+interface MembersProfileProps {
 	data: {
 		member: AdminMembersProfileContainerMemberFieldsFragment;
 	};

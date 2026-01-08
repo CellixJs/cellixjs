@@ -30,7 +30,7 @@ export const MembersCreate: React.FC = () => {
 			}
 		>
 			<MembersCreateContainer
-				data={{ communityId: params['communityId'] ?? '' }}
+				data={{ communityId: params.communityId ?? '' }}
 			/>
 		</SubPageLayout>
 	);

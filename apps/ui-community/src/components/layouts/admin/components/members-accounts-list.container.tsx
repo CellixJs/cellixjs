@@ -6,7 +6,7 @@ import {
 } from '../../../../generated.tsx';
 import { MembersAccountsList } from './members-accounts-list.tsx';
 
-export interface MembersAccountsListContainerProps {
+interface MembersAccountsListContainerProps {
 	data: {
 		id: string;
 	};

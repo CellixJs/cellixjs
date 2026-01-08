@@ -10,7 +10,7 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import type { MembersDetailProps } from './members-detail.tsx';
 import { MembersDetail } from './members-detail.tsx';
 
-export interface MembersDetailContainerProps {
+interface MembersDetailContainerProps {
 	data: {
 		id: string;
 		communityId: string;

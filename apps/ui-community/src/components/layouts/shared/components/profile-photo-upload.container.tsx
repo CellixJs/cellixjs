@@ -1,6 +1,6 @@
 import { Button, message } from 'antd';
 
-export interface ProfilePhotoUploadContainerProps {
+interface ProfilePhotoUploadContainerProps {
 	data: {
 		id: string;
 		communityId: string;

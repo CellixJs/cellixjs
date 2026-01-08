@@ -4,7 +4,7 @@ import type { MemberProfileInput } from '../../../../generated.tsx';
 
 const { TextArea } = Input;
 
-export interface MemberProfileDetailsProps {
+interface MemberProfileDetailsProps {
 	data?: MemberProfileInput | null;
 	onSave: (values: MemberProfileInput) => void;
 }

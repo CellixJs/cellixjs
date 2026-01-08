@@ -4,6 +4,7 @@ import type { AdminMembersDetailContainerMemberFieldsFragment } from '../../../.
 import { MembersDetail } from './members-detail.tsx';
 
 const mockMember: AdminMembersDetailContainerMemberFieldsFragment = {
+	__typename: 'Member',
 	id: '507f1f77bcf86cd799439011',
 	memberName: 'John Doe',
 	createdAt: '2024-01-01T12:00:00.000Z',
@@ -56,8 +57,8 @@ export const Loading: Story = {
 	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
-		// Verify loading state
-		const button = canvas.getByRole('button', { name: 'Save' });
+		// Verify loading state - button text is still present but button has loading class
+		const button = canvas.getByText('Save').closest('button');
 		expect(button).toHaveClass('ant-btn-loading');
 	},
 };

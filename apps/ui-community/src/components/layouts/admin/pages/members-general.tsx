@@ -7,8 +7,8 @@ export const MembersGeneral: React.FC = () => {
 	return (
 		<MembersDetailContainer
 			data={{
-				id: params['id'] ?? '',
-				communityId: params['communityId'] ?? '',
+				id: params.id ?? '',
+				communityId: params.communityId ?? '',
 			}}
 		/>
 	);

@@ -60,8 +60,8 @@ export const Loading: Story = {
 	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
-		// Verify loading state
-		const button = canvas.getByRole('button', { name: 'Create Member' });
+		// Verify loading state - button text is still present but button has loading class
+		const button = canvas.getByText('Create Member').closest('button');
 		expect(button).toHaveClass('ant-btn-loading');
 	},
 };

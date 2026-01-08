@@ -1,13 +1,17 @@
-import { IdcardOutlined, ProfileOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+	IdcardOutlined,
+	ProfileOutlined,
+	TeamOutlined,
+} from '@ant-design/icons';
 import { PageHeader } from '@ant-design/pro-layout';
-import { theme } from 'antd';
-import { useNavigate } from 'react-router-dom';
 import type { RouteDefinition } from '@cellix/ui-core';
 import { VerticalTabs } from '@cellix/ui-core';
+import { theme } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { SubPageLayout } from '../sub-page-layout.tsx';
+import { MembersAccounts } from './members-accounts.tsx';
 import { MembersGeneral } from './members-general.tsx';
 import { MembersProfile } from './members-profile.tsx';
-import { MembersAccounts } from './members-accounts.tsx';
 
 export const MembersDetail: React.FC = () => {
 	const navigate = useNavigate();

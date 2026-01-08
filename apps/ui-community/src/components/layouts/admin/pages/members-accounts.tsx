@@ -10,7 +10,7 @@ export const MembersAccounts: React.FC = () => {
 				<Route
 					path=""
 					element={
-						<MembersAccountsListContainer data={{ id: params['id'] ?? '' }} />
+						<MembersAccountsListContainer data={{ id: params.id ?? '' }} />
 					}
 				/>
 			</Routes>

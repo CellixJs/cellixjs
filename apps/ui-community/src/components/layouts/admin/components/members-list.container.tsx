@@ -7,7 +7,7 @@ import {
 import type { MembersListProps } from './members-list.tsx';
 import { MembersList } from './members-list.tsx';
 
-export interface MembersListContainerProps {
+interface MembersListContainerProps {
 	data: {
 		communityId: string;
 	};

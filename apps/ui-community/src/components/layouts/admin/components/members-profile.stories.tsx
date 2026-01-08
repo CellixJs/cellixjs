@@ -5,8 +5,10 @@ import { MembersProfile } from './members-profile.tsx';
 
 const mockMemberWithProfile: AdminMembersProfileContainerMemberFieldsFragment =
 	{
+		__typename: 'Member',
 		id: '507f1f77bcf86cd799439011',
 		profile: {
+			__typename: 'MemberProfile',
 			name: 'John Doe',
 			email: 'john.doe@example.com',
 			bio: 'Software developer with 10 years of experience',
@@ -17,6 +19,7 @@ const mockMemberWithProfile: AdminMembersProfileContainerMemberFieldsFragment =
 
 const mockMemberWithoutProfile: AdminMembersProfileContainerMemberFieldsFragment =
 	{
+		__typename: 'Member',
 		id: '507f1f77bcf86cd799439012',
 		profile: null,
 	};
