@@ -12,10 +12,11 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  - group: sonarcloud-credential-cellixjs
+  - group: edgescan-credential-cellixjs
   - group: github-credential-cellixjs
-  - group: ui-community-settings-cellixjs
   - group: snyk-credential-cellixjs
+  - group: sonarcloud-credential-cellixjs
+  - group: ui-community-settings-cellixjs
   - name: deploymentDefaultLocation
     value: 'eastus2'
   - name: ServiceConnectionName
@@ -64,3 +65,10 @@ stages:
       appSettingsJsonFileRelativePathPri: 'apps/api/build-pipelines/config/dev-pri.json'
       frontDoorProfileName: 'simnova-afd'
       frontDoorEndpointName: 'ocm-fde-ged3a8gxcvfxafaf'
+
+  - template: ./build-pipeline/core/monorepo-edgescan-stage.yml
+    parameters:
+      stageName: 'EdgeScan_DEV'
+      dependsOn: 'DEV'
+      vmImageName: $(vmImageName)
+      esAssetId: $(ES_ASSET_ID_DEV)

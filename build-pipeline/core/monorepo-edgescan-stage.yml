@@ -1,0 +1,79 @@
+parameters:
+- name: stageName
+  type: string
+  default: 'EdgeScan'
+- name: dependsOn
+  type: string
+- name: esAssetId
+  type: string
+- name: vmImageName
+  type: string
+  default: 'ubuntu-latest'
+
+stages:
+- stage: ${{parameters.stageName}}
+  displayName: 'EdgeScan Security Scan'
+  dependsOn: ${{parameters.dependsOn}}
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  - job: EdgeScan
+    displayName: 'EdgeScan CI/CD Integration'
+    variables:
+      # Generates a monthly key like "2026-01" to ensure the image is refreshed monthly
+      cacheMonth: $[format('{0:yyyy-MM}', pipeline.startTime)]
+    pool:
+      vmImage: ${{parameters.vmImageName}}
+    steps:
+    - task: Cache@2
+      displayName: 'Cache EdgeScan Docker Image'
+      inputs:
+        key: 'docker | edgescan | latest | $(cacheMonth)'
+        path: $(Pipeline.Workspace)/docker-cache
+        cacheHitVar: DOCKER_CACHE_HIT
+
+    - task: Bash@3
+      displayName: 'Pull or Restore EdgeScan Image'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          mkdir -p $(Pipeline.Workspace)/docker-cache
+          
+          if [ "${DOCKER_CACHE_HIT:-}" = "true" ] && [ -f "$(Pipeline.Workspace)/docker-cache/edgescan.tar" ]; then
+            echo "Restoring EdgeScan image from cache..."
+            docker load -i $(Pipeline.Workspace)/docker-cache/edgescan.tar
+          else
+            echo "Cache miss or missing tarball. Pulling from Docker Hub..."
+            docker pull edgescan/cicd-integration:latest
+            echo "Saving image to cache for future runs..."
+            docker save edgescan/cicd-integration:latest -o $(Pipeline.Workspace)/docker-cache/edgescan.tar
+          fi
+
+    - task: Bash@3
+      displayName: 'Run EdgeScan Scan'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+
+          if [ -z "$ES_API_TOKEN" ]; then
+            echo "Error: ES_API_TOKEN must be set in the variable group."
+            exit 1
+          fi
+
+          if [ -z "${{ parameters.esAssetId }}" ]; then
+            echo "Error: ES_ASSET_ID_DEV must be set in the variable group."
+            exit 1
+          fi
+          
+          echo "Triggering EdgeScan for Asset ID: ${{ parameters.esAssetId }}"
+          
+          docker run --tty --rm \
+            edgescan/cicd-integration:latest \
+            --api-token "$ES_API_TOKEN" \
+            --asset-id "${{ parameters.esAssetId }}" \
+            --start-scan \
+            --max-risk-threshold 3 \
+            --wait --color
+      env:
+        ES_API_TOKEN: $(ES_API_TOKEN)
