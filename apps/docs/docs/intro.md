@@ -104,6 +104,31 @@ pnpm run snyk:iac     # IaC - scan Bicep templates for misconfigurations
 
 > **Note**: Only use the npm scripts listed above. Other Snyk scripts (`snyk:monitor`, `snyk:code:report`) are reserved for CI/CD pipeline use only.
 
+## Apple Native Containers Setup
+
+This is a one-time setup and is a requirement for the `edgescan:dev` script.
+
+1. Download the `container-installer-signed.pkg` from the [Apple Native Containers releases](https://github.com/apple/container/releases).
+2. Run the installer.
+3. Once finished, start the container system:
+   ```bash
+   container system start
+   ```
+   Input `Y` when prompted.
+4. Confirm it is working as expected:
+   ```bash
+   container system status
+   ```
+   Expected output:
+   ```text
+   ❯ container system status
+   apiserver is running
+   application data root: /Users/<name>/Library/Application Support/com.apple.container/
+   application install root: /usr/local/
+   container-apiserver version: container-apiserver version 0.7.1 (build: release, commit: 420be74)
+   container-apiserver commit: 420be748f18afc685d11987ac5118c928e174c19
+   ```
+
 ## Start Development
 
 Run the development environment:
