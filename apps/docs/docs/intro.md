@@ -126,7 +126,7 @@ This is a one-time setup and is a requirement for the `edgescan:dev` script.
    application data root: /Users/<name>/Library/Application Support/com.apple.container/
    application install root: /usr/local/
    container-apiserver version: container-apiserver version 0.7.1 (build: release, commit: 420be74)
-   container-apiserver commit: 420be748f18afc685d11987ac5118c928e174c19
+   container-apiserver commit: ...
    ```
 
 ## Start Development
