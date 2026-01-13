@@ -106,7 +106,7 @@ pnpm run snyk:iac     # IaC - scan Bicep templates for misconfigurations
 
 ## Local EdgeScan Setup
 
-EdgeScan is a **Dynamic Application Security Testing (DAST)** platform. Unlike Snyk or SonarCloud which analyze source code, EdgeScan scans **live, running applications** to provide deep security intelligence and continuous vulnerability profiling for our serverless architecture.
+EdgeScan is a **Dynamic Application Security Testing (DAST)** platform. Unlike Snyk or SonarCloud, which analyze source code, EdgeScan scans **live, running applications** to provide deep security intelligence and continuous vulnerability profiling for our serverless architecture.
 
 **How to use:**
 - Use `pnpm run edgescan:dev` to run local security validation scans.
@@ -138,9 +138,9 @@ This is a one-time setup for macOS developers.
    ...
    ```
 
-### 2. EdgeScan API Token
+#### 2. EdgeScan API Token
 
-1. Login to [intealth.edgescan.com](https://intealth.edgescan.com).
+1. Log in to [intealth.edgescan.com](https://intealth.edgescan.com).
 2. Go to your **Profile Settings** and generate an API token for your account.
 3. Export the token in your terminal (consider adding this to your `~/.zshrc` or `~/.bashrc`):
    ```bash
