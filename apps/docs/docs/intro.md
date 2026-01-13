@@ -106,9 +106,17 @@ pnpm run snyk:iac     # IaC - scan Bicep templates for misconfigurations
 
 ## Local EdgeScan Setup
 
+EdgeScan is a **Dynamic Application Security Testing (DAST)** platform. Unlike Snyk or SonarCloud which analyze source code, EdgeScan scans **live, running applications** to provide deep security intelligence and continuous vulnerability profiling for our serverless architecture.
+
+**How to use:**
+- Use `pnpm run edgescan:dev` to run local security validation scans.
+- **DO NOT use** `edgescan:agent` - this script is strictly reserved for the **GitHub Copilot AI Coding Agent** and CI/CD automation.
+
+### Prerequisites
+
 This setup is required for the `edgescan:dev` script.
 
-### 1. Apple Native Containers
+#### 1. Apple Native Containers
 
 This is a one-time setup for macOS developers.
 
@@ -127,10 +135,7 @@ This is a one-time setup for macOS developers.
    ```text
    ❯ container system status
    apiserver is running
-   application data root: /Users/<name>/Library/Application Support/com.apple.container/
-   application install root: /usr/local/
-   container-apiserver version: container-apiserver version 0.7.1 ...
-   container-apiserver commit: ...
+   ...
    ```
 
 ### 2. EdgeScan API Token

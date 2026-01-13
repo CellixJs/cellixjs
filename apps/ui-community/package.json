@@ -4,16 +4,16 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"prebuild": "biome lint",
-		"build": "tsc --build && vite build",
-		"start": "vite",
-		"lint": "biome lint",
-		"preview": "vite preview",
-		"test": "vitest run --silent --reporter=dot",
-		"test:coverage": "vitest run --coverage --silent --reporter=dot",
-		"test:watch": "vitest",
-		"storybook": "storybook dev -p 6008",
-		"build-storybook": "storybook build"
+	"prebuild": "biome lint",
+	"build": "tsc --build && vite build",
+	"start": "vite",
+    "lint": "biome lint",
+    "preview": "vite preview",
+    "test": "vitest run --silent --reporter=dot",
+    "test:coverage": "vitest run --coverage --silent --reporter=dot",
+    "test:watch": "vitest",
+    "storybook": "storybook dev -p 6008",
+    "build-storybook": "storybook build"
 	},
 	"dependencies": {
 		"@ant-design/icons": "^6.0.2",
