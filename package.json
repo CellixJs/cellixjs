@@ -48,7 +48,8 @@
     "snyk:iac:report": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --target-name=cellixjs-iac --report",
     "analyze": "pnpm -r exec -- pnpm dlx @e18e/cli analyze",
     "prepare": "husky",
-    "edgescan:run": "docker run --tty --rm edgescan/cicd-integration:latest --api-token $ES_API_TOKEN --asset-id $ES_ASSET_ID --start-scan --max-risk-threshold 3 --wait --color"
+    "edgescan:agent": "docker run --tty --rm edgescan/cicd-integration:latest --api-token $ES_API_TOKEN --asset-id $ES_ASSET_ID --start-scan --max-risk-threshold 3 --wait --color",
+    "edgescan:dev": "container run --tty --rm --platform linux/amd64 edgescan/cicd-integration:latest --api-token $ES_API_TOKEN --asset-id 74096 --start-scan --max-risk-threshold 3 --wait --color"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",
