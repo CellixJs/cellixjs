@@ -18,6 +18,9 @@ catalogs:
     mongoose:
       specifier: 8.17.0
       version: 8.17.0
+    react-router-dom:
+      specifier: 7.12.0
+      version: 7.12.0
     rimraf:
       specifier: 6.0.1
       version: 6.0.1
@@ -288,8 +291,8 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       react-router-dom:
-        specifier: ^7.0.2
-        version: 7.9.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: 'catalog:'
+        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/typescript-config':
         specifier: workspace:*
@@ -609,8 +612,8 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       react-router-dom:
-        specifier: ^7.9.3
-        version: 7.9.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: 'catalog:'
+        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1107,8 +1110,8 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       react-router-dom:
-        specifier: ^7.8.2
-        version: 7.9.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: 'catalog:'
+        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/typescript-config':
         specifier: workspace:*
@@ -9662,8 +9665,8 @@ packages:
     peerDependencies:
       react: '>=15'
 
-  react-router-dom@7.9.6:
-    resolution: {integrity: sha512-2MkC2XSXq6HjGcihnx1s0DBWQETI4mlis4Ux7YTLvP67xnGxCvq+BcCQSO81qQHVUTM1V53tl4iVVaY5sReCOA==}
+  react-router-dom@7.12.0:
+    resolution: {integrity: sha512-pfO9fiBcpEfX4Tx+iTYKDtPbrSLLCbwJ5EqP+SPYQu1VYCXdy79GSj0wttR0U4cikVdlImZuEZ/9ZNCgoaxwBA==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -9674,8 +9677,8 @@ packages:
     peerDependencies:
       react: '>=15'
 
-  react-router@7.9.6:
-    resolution: {integrity: sha512-Y1tUp8clYRXpfPITyuifmSoE2vncSME18uVLgaqyxh9H35JWpIfzHo+9y3Fzh5odk/jxPW29IgLgzcdwxGqyNA==}
+  react-router@7.12.0:
+    resolution: {integrity: sha512-kTPDYPFzDVGIIGNLS5VJykK0HfHLY5MF3b+xj0/tTyNYL1gF1qs7u67Z9jEhQk2sQ98SUaHxlG31g1JtF7IfVw==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -22269,11 +22272,11 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  react-router-dom@7.9.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  react-router-dom@7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
-      react-router: 7.9.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-router: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
 
   react-router@5.3.4(react@19.2.0):
     dependencies:
@@ -22288,7 +22291,7 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  react-router@7.9.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  react-router@7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       cookie: 1.1.1
       react: 19.2.0
