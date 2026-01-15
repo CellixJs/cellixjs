@@ -30,7 +30,7 @@
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
 		"react-oidc-context": "^3.3.0",
-		"react-router-dom": "^7.12.0"
+		"react-router-dom": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/typescript-config": "workspace:*",
