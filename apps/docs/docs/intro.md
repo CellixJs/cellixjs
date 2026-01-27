@@ -104,6 +104,49 @@ pnpm run snyk:iac     # IaC - scan Bicep templates for misconfigurations
 
 > **Note**: Only use the npm scripts listed above. Other Snyk scripts (`snyk:monitor`, `snyk:code:report`) are reserved for CI/CD pipeline use only.
 
+## Local EdgeScan Setup
+
+EdgeScan is a **Dynamic Application Security Testing (DAST)** platform. Unlike Snyk or SonarCloud, which analyze source code, EdgeScan scans **live, running applications** to provide deep security intelligence and continuous vulnerability profiling for our serverless architecture.
+
+**How to use:**
+- Use `pnpm run edgescan:dev` to run local security validation scans.
+- **DO NOT use** `edgescan:agent` - this script is strictly reserved for the **GitHub Copilot AI Coding Agent** and CI/CD automation.
+
+### Prerequisites
+
+This setup is required for the `edgescan:dev` script.
+
+#### 1. Apple Native Containers
+
+This is a one-time setup for macOS developers.
+
+1. Download the `container-installer-signed.pkg` from the [Apple Native Containers releases](https://github.com/apple/container/releases).
+2. Run the installer.
+3. Once finished, start the container system:
+   ```bash
+   container system start
+   ```
+   Input `Y` when prompted.
+4. Confirm it is working as expected:
+   ```bash
+   container system status
+   ```
+   Expected output:
+   ```text
+   ❯ container system status
+   apiserver is running
+   ...
+   ```
+
+#### 2. EdgeScan API Token
+
+1. Log in to [intealth.edgescan.com](https://intealth.edgescan.com).
+2. Go to your **Profile Settings** and generate an API token for your account.
+3. Export the token in your terminal (consider adding this to your `~/.zshrc` or `~/.bashrc`):
+   ```bash
+   export ES_API_TOKEN="<your token here>"
+   ```
+
 ## Start Development
 
 Run the development environment:

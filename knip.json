@@ -79,5 +79,5 @@
     "@graphql-typed-document-node/core",
     "ts-scope-trimmer-plugin"
   ],
-  "ignoreBinaries": ["func"]
+  "ignoreBinaries": ["func", "container"]
 }
