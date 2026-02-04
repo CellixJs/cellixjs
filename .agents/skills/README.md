@@ -13,12 +13,14 @@ Agent Skills are folders of instructions and resources that AI agents can discov
 
 ## Directory Structure
 
+CellixJS skills follow the same structure as community skills in [simnova/sharethrift](https://github.com/simnova/sharethrift/.agents/skills), aligning with the agentskills.io specification:
+
 ```
 .agents/skills/                      # Primary skills location (agentskills.io standard)
 ├── madr-enforcement/                # Enforces ADR standards in code
-│   ├── SKILL.md                    # Main skill instructions
-│   ├── EXAMPLES.md                 # Code examples following ADRs
-│   └── assets/                     # MADR templates for creating new ADRs
+│   ├── SKILL.md                    # Main skill instructions (required)
+│   ├── EXAMPLES.md                 # Comprehensive code examples (recommended)
+│   └── assets/                     # Additional resources (optional)
 │       ├── adr-template.md         # Full MADR template
 │       └── adr-short-template.md   # Short MADR template
 └── (future skills)/                # Additional skills as needed
@@ -27,10 +29,16 @@ Agent Skills are folders of instructions and resources that AI agents can discov
 └── madr-enforcement -> ../../.agents/skills/madr-enforcement
 ```
 
+**Structure Pattern (aligned with sharethrift community skills):**
+- `SKILL.md` - Main instructions with YAML frontmatter (required for all skills)
+- `EXAMPLES.md` - Detailed code examples and patterns (recommended, following sharethrift pattern)
+- `assets/` or `references/` - Supporting materials like templates or extended docs (optional)
+- Skills can have additional subdirectories as needed (e.g., `command/` for CLI tools)
+
 **Why two locations?**
 - `.agents/skills/` is the standard location per agentskills.io specification
-- `.github/skills/` is used by GitHub Copilot for skill discovery
-- Symlinks avoid duplication while supporting both standards
+- `.github/skills/` provides symlinks for GitHub Copilot discovery
+- This dual approach is also used in simnova/sharethrift
 
 ## Available Skills
 
@@ -79,43 +87,96 @@ Skills in `.agents/skills/` and `.github/skills/` are automatically discovered b
 Skills are referenced in `.github/instructions/` files:
 - `.github/instructions/madr.instructions.md` - MADR enforcement in code
 
-## Community Skills
+## Community Skills from ShareThrift
 
-The simnova/sharethrift project maintains additional skills that may be relevant:
+The [simnova/sharethrift](https://github.com/simnova/sharethrift) repository maintains a collection of community skills that our madr-enforcement skill aligns with structurally. ShareThrift skills follow the same agentskills.io specification and provide excellent examples of skill organization.
 
-**Available Skills:**
-- **apollo-client** - Apollo Client 4.x best practices
-- **apollo-server** - Apollo Server 4.x patterns
-- **graphql-operations** - GraphQL query/mutation conventions
-- **graphql-schema** - GraphQL schema design
-- **turborepo** - Turborepo task orchestration (aligns with ADR-0019)
-- **vercel-react-best-practices** - React 19 patterns
-- **enterprise-architecture-patterns** - DDD, CQRS, Event Sourcing (aligns with ADR-0003)
+**ShareThrift Community Skills:**
 
-**To explore:**
+| Skill | Source | Purpose | Structure |
+|-------|--------|---------|-----------|
+| **apollo-client** | [apollographql/skills](https://github.com/apollographql/skills) | Apollo Client 4.x patterns | SKILL.md + references/ |
+| **apollo-server** | [apollographql/skills](https://github.com/apollographql/skills) | Apollo Server 4.x patterns | SKILL.md + references/ |
+| **graphql-operations** | [apollographql/skills](https://github.com/apollographql/skills) | GraphQL query/mutation patterns | SKILL.md + references/ |
+| **graphql-schema** | [apollographql/skills](https://github.com/apollographql/skills) | GraphQL schema design | SKILL.md + references/ |
+| **turborepo** | [vercel/turborepo](https://github.com/vercel/turborepo) | Turborepo orchestration (aligns with ADR-0019) | SKILL.md + command/ + references/ |
+| **vercel-react-best-practices** | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | React 19 patterns | SKILL.md + references/ |
+| **enterprise-architecture-patterns** | Community | DDD, CQRS, Event Sourcing (aligns with ADR-0003) | SKILL.md + EXAMPLES.md |
+
+**Structure Patterns Observed:**
+- **SKILL.md** - Always present, contains main instructions with YAML frontmatter
+- **EXAMPLES.md** - Used for comprehensive code examples (enterprise-architecture-patterns, madr-enforcement)
+- **references/** - Directory for extended documentation organized by topic (apollo-client, turborepo)
+- **command/** - Directory for CLI-related skills (turborepo)
+- Flexibility in organization while maintaining discoverability
+
+**Our Alignment:**
+The madr-enforcement skill follows the **SKILL.md + EXAMPLES.md + assets/** pattern, similar to:
+- `enterprise-architecture-patterns` (SKILL.md + EXAMPLES.md for comprehensive examples)
+- While other skills use `references/` for extended docs, we use `assets/` for MADR templates
+
+**To explore ShareThrift skills:**
 Visit [simnova/sharethrift/.agents/skills/](https://github.com/simnova/sharethrift/tree/main/.agents/skills)
 
 ## Creating New Skills
 
-When creating a new skill for CellixJS:
+When creating a new skill for CellixJS, follow the structure patterns from sharethrift community skills:
 
-### 1. Create Skill Directory
+### 1. Choose Your Structure Pattern
+
+Based on sharethrift community skills, choose the appropriate pattern:
+
+**Pattern A: SKILL.md + EXAMPLES.md** (for skills with extensive code examples)
+```
+my-skill/
+├── SKILL.md        # Main instructions with YAML frontmatter
+├── EXAMPLES.md     # Comprehensive code examples
+└── assets/         # Templates or resources (optional)
+```
+*Use for:* Code enforcement, pattern guidance (like madr-enforcement, enterprise-architecture-patterns)
+
+**Pattern B: SKILL.md + references/** (for skills with topical documentation)
+```
+my-skill/
+├── SKILL.md        # Main instructions with YAML frontmatter
+└── references/     # Extended documentation organized by topic
+    ├── setup.md
+    ├── patterns.md
+    └── troubleshooting.md
+```
+*Use for:* Framework integrations, API usage (like apollo-client, graphql-operations)
+
+**Pattern C: SKILL.md + command/** (for CLI-focused skills)
+```
+my-skill/
+├── SKILL.md        # Main instructions with YAML frontmatter
+├── command/        # CLI command documentation
+└── references/     # Additional docs (optional)
+```
+*Use for:* Build tools, CLI utilities (like turborepo)
+
+### 2. Create Skill Directory
 
 ```bash
 mkdir -p .agents/skills/my-skill/{references,assets}
+# or choose the structure that fits your need
 ```
 
-### 2. Create SKILL.md
+### 3. Create SKILL.md (Required)
+
+All skills must have a SKILL.md file following agentskills.io specification:
 
 ```markdown
 ---
 name: my-skill
-description: Brief description. Use when: (1) scenario 1, (2) scenario 2...
+description: >
+  Brief description. Use when: (1) scenario 1, (2) scenario 2...
 license: MIT
 compatibility: Compatibility info
 metadata:
   author: CellixJS Team
   version: "1.0"
+  repository: https://github.com/CellixJs/cellixjs
 allowed-tools: Bash(npm:*) Read Write Edit Glob Grep
 ---
 
@@ -131,21 +192,33 @@ allowed-tools: Bash(npm:*) Read Write Edit Glob Grep
 Detailed guidance, patterns, and examples...
 ```
 
-### 3. Add Supporting Files
+### 4. Add Supporting Files (Based on Pattern)
 
-- **EXAMPLES.md** - Comprehensive examples (recommended)
-- **references/** - Extended documentation (optional)
-- **assets/** - Templates or configuration files (optional)
+**For Pattern A (SKILL.md + EXAMPLES.md):**
+- **EXAMPLES.md** - Comprehensive code examples with correct/incorrect implementations
+- **assets/** - Templates, configuration files, or other resources
 
-### 4. Create GitHub Copilot Symlink
+**For Pattern B (SKILL.md + references/):**
+- Create markdown files in `references/` organized by topic
+- Each reference file covers a specific aspect of the skill
+
+**For Pattern C (SKILL.md + command/):**
+- Document CLI commands and usage patterns
+- Include command-specific examples
+
+### 5. Create GitHub Copilot Symlink
 
 ```bash
 ln -s ../../.agents/skills/my-skill .github/skills/my-skill
 ```
 
-### 5. Document in MADR
+### 6. Document in MADR
 
-Create an ADR documenting why the skill is needed and how it should be used.
+Create an ADR documenting why the skill is needed, what it enforces, and how it aligns with existing patterns.
+
+**Example References:**
+- See [ADR-0024](../apps/docs/docs/decisions/0024-madr-agent-skills.md) for how madr-enforcement skill was documented
+- Review [sharethrift skills](https://github.com/simnova/sharethrift/tree/main/.agents/skills) for structural inspiration
 
 ## Skill Development Best Practices
 
