@@ -93,15 +93,15 @@ For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 
 ## Agent Skills
 
-CellixJS integrates [Agent Skills](https://agentskills.io) to provide AI coding assistants with structured, project-specific context. Skills are located in `.agents/skills/` and `.github/skills/`.
+CellixJS integrates [Agent Skills](https://agentskills.io) to provide AI coding assistants with structured, project-specific context for enforcing architectural standards defined in our MADRs.
 
 **Available Skills:**
-- **madr-enforcement**: Ensures MADR compliance per [ADR-0001](apps/docs/docs/decisions/0001-madr-architecture-decisions.md)
+- **madr-enforcement**: Ensures code adheres to architectural standards documented in ADRs (DDD patterns, Biome linting, Vitest testing, Snyk security, etc.)
 
-**Validate MADR files:**
-```bash
-node .agents/skills/madr-enforcement/scripts/validate-madr.js apps/docs/docs/decisions/0024-example.md
-```
+**What the skill does:**
+- Enforces patterns from ADR-0003 (Domain-Driven Design), ADR-0012 (Biome), ADR-0013 (Vitest), ADR-0022 (Snyk), and other ADRs
+- Provides code examples showing correct and incorrect implementations
+- Identifies common violations and how to fix them
 
 **Learn more:** See [.agents/skills/README.md](.agents/skills/README.md) and [ADR-0024](apps/docs/docs/decisions/0024-madr-agent-skills.md)
 

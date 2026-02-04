@@ -4,23 +4,21 @@ This directory contains Agent Skills that provide AI agents with structured, pro
 
 ## What are Agent Skills?
 
-Agent Skills are folders of instructions, scripts, and resources that AI agents can discover and use to perform tasks more accurately and efficiently. They provide:
+Agent Skills are folders of instructions and resources that AI agents can discover and use to perform tasks more accurately and efficiently. They provide:
 
-- **Domain Expertise**: Package specialized knowledge about CellixJS architecture and patterns
-- **Procedural Knowledge**: Step-by-step workflows for common tasks (creating MADRs, validating compliance)
+- **Domain Expertise**: Specialized knowledge about CellixJS architecture and patterns
+- **Enforcement Guidance**: How to apply documented architectural decisions in code
 - **Reusable Context**: Structured information AI agents can load on-demand
-- **Validation Tools**: Scripts to verify compliance with project conventions
+- **Best Practices**: Examples and anti-patterns for common scenarios
 
 ## Directory Structure
 
 ```
-.agents/skills/                      # Primary skills location (standard)
-├── madr-enforcement/                # MADR compliance and enforcement
+.agents/skills/                      # Primary skills location (agentskills.io standard)
+├── madr-enforcement/                # Enforces ADR standards in code
 │   ├── SKILL.md                    # Main skill instructions
-│   ├── EXAMPLES.md                 # Complete MADR examples
-│   ├── scripts/                    # Validation scripts
-│   │   └── validate-madr.js        # MADR format validator
-│   └── assets/                     # Templates and resources
+│   ├── EXAMPLES.md                 # Code examples following ADRs
+│   └── assets/                     # MADR templates for creating new ADRs
 │       ├── adr-template.md         # Full MADR template
 │       └── adr-short-template.md   # Short MADR template
 └── (future skills)/                # Additional skills as needed
@@ -38,35 +36,37 @@ Agent Skills are folders of instructions, scripts, and resources that AI agents 
 
 ### MADR Enforcement
 
-**Purpose:** Ensure compliance with MADR (Markdown Any Decision Records) per [ADR-0001](../apps/docs/docs/decisions/0001-madr-architecture-decisions.md)
+**Purpose:** Ensure code adheres to architectural standards defined in MADRs (ADR-0003, ADR-0012, ADR-0013, ADR-0022, etc.)
 
 **Use Cases:**
-- Creating new architectural decision records
-- Validating MADR format and structure
-- Reviewing code changes for architectural decisions
-- Enforcing MADR workflow (proposal → review → acceptance)
+- Writing new code that follows documented architectural patterns
+- Reviewing code for compliance with ADR standards
+- Refactoring to align with current architectural decisions
+- Identifying when new ADRs are needed
+
+**What This Skill Does:**
+- Enforces Domain-Driven Design patterns (ADR-0003) in code
+- Ensures Biome linting is used (ADR-0012), not ESLint/Prettier
+- Verifies Vitest testing framework (ADR-0013), not Jest
+- Requires Snyk security scanning (ADR-0022) before commits
+- Validates Turborepo usage (ADR-0019) for builds
+- Checks Bicep usage (ADR-0011) for infrastructure
+
+**What This Skill Does NOT Do:**
+- ❌ Does NOT validate MADR document format/structure
+- ❌ Does NOT check MADR frontmatter or markdown syntax
+- ✅ DOES enforce the standards documented IN the MADRs
 
 **Key Features:**
-- Comprehensive MADR guidelines and templates
-- Validation script for automated compliance checking
-- Complete examples of well-structured MADRs
-- Integration with existing ADR-0001 workflow
-
-**Usage:**
-```bash
-# Validate a MADR file
-node .agents/skills/madr-enforcement/scripts/validate-madr.js apps/docs/docs/decisions/0024-example.md
-
-# AI agents automatically reference this skill when:
-# - Creating new architectural decisions
-# - Reviewing code changes
-# - Identifying missing MADRs
-```
+- Comprehensive ADR index with enforcement guidelines
+- Code examples showing correct and incorrect implementations
+- Common violation patterns and how to fix them
+- Review checklists organized by ADR
 
 **References:**
-- [SKILL.md](.agents/skills/madr-enforcement/SKILL.md) - Complete skill documentation
-- [EXAMPLES.md](.agents/skills/madr-enforcement/EXAMPLES.md) - MADR examples
-- [ADR-0001](../apps/docs/docs/decisions/0001-madr-architecture-decisions.md) - MADR framework decision
+- [SKILL.md](.agents/skills/madr-enforcement/SKILL.md) - Complete enforcement documentation
+- [EXAMPLES.md](.agents/skills/madr-enforcement/EXAMPLES.md) - Code examples following ADRs
+- [All ADRs](../apps/docs/docs/decisions/) - Source of architectural standards
 
 ## Integration with GitHub Copilot
 
@@ -77,7 +77,7 @@ Skills in `.agents/skills/` and `.github/skills/` are automatically discovered b
 
 ### 2. Copilot Instructions
 Skills are referenced in `.github/instructions/` files:
-- `.github/instructions/madr.instructions.md` - MADR compliance requirements
+- `.github/instructions/madr.instructions.md` - MADR enforcement in code
 
 ## Community Skills
 
@@ -102,7 +102,7 @@ When creating a new skill for CellixJS:
 ### 1. Create Skill Directory
 
 ```bash
-mkdir -p .agents/skills/my-skill/{scripts,references,assets}
+mkdir -p .agents/skills/my-skill/{references,assets}
 ```
 
 ### 2. Create SKILL.md
@@ -134,7 +134,6 @@ Detailed guidance, patterns, and examples...
 ### 3. Add Supporting Files
 
 - **EXAMPLES.md** - Comprehensive examples (recommended)
-- **scripts/** - Validation or automation scripts (optional)
 - **references/** - Extended documentation (optional)
 - **assets/** - Templates or configuration files (optional)
 
@@ -152,10 +151,10 @@ Create an ADR documenting why the skill is needed and how it should be used.
 
 ### Content Guidelines
 
-1. **Clear "When to Use"**: Explicitly state scenarios where skill applies
-2. **Concrete Examples**: Provide code examples and complete workflows
-3. **MADR Alignment**: Reference related ADRs (e.g., ADR-0003 for DDD patterns)
-4. **Validation**: Include scripts or checklists for compliance verification
+1. **Focus on Enforcement**: Show how to apply standards in code, not how to write documents
+2. **Concrete Examples**: Provide correct and incorrect code examples
+3. **MADR Alignment**: Reference specific ADRs being enforced
+4. **Common Violations**: Include anti-patterns and how to fix them
 5. **Maintenance**: Keep skills synchronized with MADR updates
 
 ### Technical Guidelines
@@ -166,26 +165,6 @@ Create an ADR documenting why the skill is needed and how it should be used.
 4. **Version Control**: Track skills alongside code in Git
 5. **Testing**: Verify AI agents can discover and use the skill
 
-## Validation
-
-Ensure skills are working correctly:
-
-### Manual Testing
-
-1. **Ask AI agent about skill topic** - Does it reference the skill?
-2. **Request code generation** - Does output align with skill guidance?
-3. **Run validation scripts** - Do they execute successfully?
-
-### Automated Validation
-
-```bash
-# Validate MADR files
-node .agents/skills/madr-enforcement/scripts/validate-madr.js apps/docs/docs/decisions/*.md
-
-# (Future) Validate skill format
-# node scripts/validate-skill.js .agents/skills/my-skill/SKILL.md
-```
-
 ## Architectural Decision
 
 The adoption of Agent Skills framework for CellixJS is documented in:
@@ -194,7 +173,7 @@ The adoption of Agent Skills framework for CellixJS is documented in:
 
 This decision covers:
 - Why Agent Skills format was chosen
-- How skills enforce MADR compliance
+- How skills enforce standards defined in ADRs
 - Integration with community skills
 - Future skill development plans
 
@@ -222,16 +201,16 @@ This decision covers:
 
 To contribute a new skill:
 
-1. **Identify Need**: Does this skill fill a gap in AI agent knowledge?
+1. **Identify Need**: Does this skill enforce standards not covered by existing skills?
 2. **Check Existing**: Look for similar skills in community repositories
 3. **Create Skill**: Follow creation guidelines above
-4. **Document Decision**: Create ADR if introducing new pattern
+4. **Document Decision**: Create ADR if introducing new enforcement pattern
 5. **Test Thoroughly**: Verify AI agents can use the skill effectively
 6. **Share Knowledge**: Consider contributing useful skills to simnova/sharethrift
 
 ## Questions?
 
 - **Agent Skills Format**: See [agentskills.io/specification](https://agentskills.io/specification)
-- **MADR Process**: See [ADR-0001](../apps/docs/docs/decisions/0001-madr-architecture-decisions.md)
+- **ADRs and Standards**: See [apps/docs/docs/decisions/](../apps/docs/docs/decisions/)
 - **CellixJS Patterns**: See [Copilot Instructions](../.github/copilot-instructions.md)
 - **Community Skills**: See [simnova/sharethrift](https://github.com/simnova/sharethrift)

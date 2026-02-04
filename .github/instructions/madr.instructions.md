@@ -1,196 +1,136 @@
 ---
 applyTo: "**"
-description: MADR (Markdown Any Decision Records) Compliance and Enforcement
+description: MADR (Markdown Any Decision Records) Enforcement in Code
 ---
 
-# MADR Compliance Requirements
+# MADR Enforcement in Code
 
-## When to Create a MADR
+## Purpose
 
-**REQUIRED** - Create a new MADR when making architectural decisions about:
+This instruction file ensures that all code written in CellixJS adheres to the architectural standards, 
+patterns, and guidelines documented in our MADRs (Markdown Any Decision Records).
 
-- Adopting new frameworks, libraries, or significant dependencies
-- Changing architectural patterns (DDD, CQRS, Event Sourcing, etc.)
-- Selecting or changing infrastructure technologies (databases, message queues, caching, cloud services)
-- Modifying build, test, or deployment pipelines
-- Changing code quality tools (linters, formatters, test frameworks, security scanners)
-- Introducing new security practices, authentication, or authorization mechanisms
-- Restructuring monorepo or package organization
-- Selecting UI component libraries or state management solutions
-- Changing API design patterns (REST, GraphQL, gRPC)
-- Adopting new development patterns or best practices
+**Location of ADRs:** `apps/docs/docs/decisions/`
 
-**NOT REQUIRED** for:
-- Bug fixes
-- Refactoring without architectural impact
-- Documentation updates (unless changing documentation strategy)
-- Minor dependency updates
-- UI styling changes
-- Performance optimizations (unless requiring architectural change)
+## Key Principle
 
-## MADR File Structure
+**ADRs are binding architectural decisions that MUST be followed when writing, reviewing, or modifying code.**
 
-### Location
-All MADRs must be placed in:
-```
-apps/docs/docs/decisions/
-```
+## When to Apply MADR Standards
 
-### Naming Convention
-```
-NNNN-title-with-dashes.md
-```
-- NNNN = Sequential 4-digit number (check existing files for next number)
-- title-with-dashes = lowercase, hyphen-separated
+- **Writing new code** - Follow patterns documented in relevant ADRs
+- **Reviewing pull requests** - Verify code compliance with ADR standards
+- **Refactoring** - Align with current architectural decisions
+- **Adding dependencies** - Check against technology choices in ADRs
+- **Making design decisions** - Consult ADRs or create new ones
 
-### Required Frontmatter
-```yaml
----
-sidebar_position: <number>
-sidebar_label: <NNNN Title>
-description: "Brief description"
-status: proposed | rejected | accepted | deprecated | superseded by [ADR-NNNN]
-contact: <person proposing>
-date: YYYY-MM-DD
-deciders: <list of approvers>
-consulted: <list of consultants>
-informed: <list of stakeholders>
----
-```
+## Critical ADRs for Code Compliance
 
-### Required Sections
-1. **Title** (H1) - Clear statement of decision
-2. **Context and Problem Statement** - What problem are we solving?
-3. **Decision Drivers** - What factors influence this decision?
-4. **Considered Options** - List at least 2 alternatives
-5. **Decision Outcome** - Which option was chosen and why?
-6. **Pros and Cons of the Options** - Detailed analysis
+### ADR-0003: Domain-Driven Design
 
-### Recommended Sections
-- **Validation** - How will compliance be verified?
-- **More Information** - References, migration plans, related ADRs
+**Enforce in Code:**
+- Organize code by bounded contexts in `packages/ocom/domain/contexts/{context-name}/`
+- Entities in `{entity}.ts` with unique IDs and business logic
+- Value objects in `{entity}.value-objects.ts` (immutable)
+- Unit of Work in `{entity}.uow.ts` for persistence
+- **Keep domain logic separate from infrastructure**
 
-## MADR Workflow
+**Common Violation:** Database code in domain entities
 
-### Creating a MADR
+### ADR-0012: Biome for Linting
 
-1. Check for next available number:
-   ```bash
-   ls apps/docs/docs/decisions/ | grep -E '^[0-9]{4}' | sort | tail -1
-   ```
+**Enforce in Code:**
+- Use Biome only (no ESLint or Prettier)
+- Run `pnpm run lint` before commits
+- Configuration in `biome.json`
+- Tab indentation, strict TypeScript
 
-2. Copy appropriate template:
-   ```bash
-   # Full template (complex decisions)
-   cp apps/docs/docs/decisions/adr-template.md apps/docs/docs/decisions/0024-your-title.md
-   
-   # Short template (simple decisions)
-   cp apps/docs/docs/decisions/adr-short-template.md apps/docs/docs/decisions/0024-your-title.md
-   ```
+**Common Violation:** Adding ESLint or Prettier configs
 
-3. Fill out all required sections
+### ADR-0013: Test Suite Architecture
 
-4. Set status to `proposed`
+**Enforce in Code:**
+- Use Vitest for unit tests
+- Co-locate tests with source files
+- Run `pnpm run test:coverage`
+- Maintain coverage thresholds
 
-5. List deciders (must include EM and patrick)
+**Common Violation:** Using Jest instead of Vitest
 
-6. Create PR with deciders as required reviewers
+### ADR-0022: Snyk Security Integration
 
-7. Update status to `accepted` and date before merging
+**Enforce in Code:**
+- Run `pnpm run snyk` before commits
+- Scan new dependencies with `gh-advisory-database` MCP tool
+- Fix or document all vulnerabilities
+- Use `.snyk` file for suppressions with expiration dates
 
-### Validating a MADR
+**Common Violation:** Committing without security scan
 
-Use the validation script:
+### ADR-0019: MonoRepo and Turborepo
+
+**Enforce in Code:**
+- Use `pnpm run build` (not direct package builds)
+- Use `workspace:*` protocol for internal dependencies
+- Respect package boundaries
+- Use affected builds: `pnpm run build:affected`
+
+**Common Violation:** Bypassing Turborepo, using npm directly
+
+### ADR-0011: Bicep for Infrastructure
+
+**Enforce in Code:**
+- Define Azure infrastructure in Bicep (not ARM or Terraform)
+- Location: `iac/` directory
+- Follow resource naming conventions (ADR-0021)
+
+**Common Violation:** Using ARM templates or Terraform
+
+## Code Review Workflow
+
+When reviewing code, check:
+
+1. **Which ADRs apply?** - Identify relevant architectural decisions
+2. **Is code compliant?** - Verify patterns match documented standards
+3. **Are violations present?** - Look for common anti-patterns
+4. **Reference ADR in feedback** - Cite specific ADR when requesting changes
+
+## Verification Before Commit
+
 ```bash
-node .agents/skills/madr-enforcement/scripts/validate-madr.js apps/docs/docs/decisions/0024-your-title.md
+# Full verification (includes linting, tests, security, quality)
+pnpm run verify
 ```
 
-## Code Review MADR Enforcement
-
-When reviewing code changes:
-
-1. **Check for architectural impact** - Does this introduce new patterns, libraries, or infrastructure?
-
-2. **Verify MADR exists** - If architectural change, ensure corresponding MADR is created/referenced
-
-3. **Validate compliance** - If MADR referenced, verify implementation follows documented decision
-
-4. **Request MADR if missing** - Comment on PR:
-   ```
-   This change introduces [pattern/technology]. Per ADR-0001, this requires an 
-   architectural decision record. Please create a MADR following the template at 
-   apps/docs/docs/decisions/adr-template.md
-   ```
-
-## Existing MADRs to Reference
-
-Key architectural decisions already documented:
-
-### Architecture & Patterns
-- **ADR-0001**: MADR for architectural decisions
-- **ADR-0003**: Domain-Driven Design (DDD)
-- **ADR-0019**: MonoRepo and Turborepo
-
-### Infrastructure & DevOps
-- **ADR-0002**: OpenTelemetry for observability
-- **ADR-0011**: Bicep for Infrastructure as Code
-- **ADR-0014**: Azure Infrastructure Deployments
-- **ADR-0020**: Azure DevOps Monorepo Pipeline
-- **ADR-0021**: Bicep Resource Scoping Strategy
-
-### Code Quality & Security
-- **ADR-0012**: Biome for linting
-- **ADR-0013**: Test suite architecture
-- **ADR-0015**: SonarCloud integration
-- **ADR-0016**: SonarCloud code duplication checks
-- **ADR-0022**: Snyk security integration
-
-### Technology & Tools
-- **ADR-0004**: Identity and Access Management
-- **ADR-0005**: Authorization patterns
-- **ADR-0006**: Maps integration
-- **ADR-0007**: SerenityJS for testing
-- **ADR-0010**: React Router loaders
-- **ADR-0023**: TsGo migration
-
-## MADR Best Practices
-
-### Problem Statement
-- Be specific and measurable
-- Include quantitative impact when possible
-- Explain why decision is needed now
-
-### Options Analysis
-- List at least 2 options (including status quo or "do nothing")
-- Provide honest pros and cons
-- Include concrete examples or code snippets
-- Reference related ADRs for alignment
-
-### Decision Justification
-- Clearly state chosen option
-- Explain why this option was selected
-- Quantify benefits when possible
-- Address major concerns
-
-### Validation Criteria
-- Define measurable success criteria
-- Include code review checkpoints
-- Specify automated validation (tests, linters, ArchUnit)
-- Set timelines for validation
+This enforces:
+- **ADR-0012**: Biome linting
+- **ADR-0013**: Test suite with Vitest
+- **ADR-0022**: Snyk security scanning
+- **ADR-0015**: SonarCloud quality gate
 
 ## Agent Skills Integration
 
-This MADR enforcement skill is part of the CellixJS Agent Skills framework:
+For detailed enforcement guidance, see:
 
-- **Skill Location**: `.agents/skills/madr-enforcement/`
-- **GitHub Integration**: `.github/skills/madr-enforcement` (symlink)
-- **Validation Script**: `.agents/skills/madr-enforcement/scripts/validate-madr.js`
-- **Templates**: `.agents/skills/madr-enforcement/assets/`
-- **Examples**: `.agents/skills/madr-enforcement/EXAMPLES.md`
+- **MADR Enforcement Skill**: `.agents/skills/madr-enforcement/SKILL.md`
+- **Code Examples**: `.agents/skills/madr-enforcement/EXAMPLES.md`
+- **All ADRs**: `apps/docs/docs/decisions/`
+
+## Quick Reference
+
+| ADR | Standard to Enforce | Common Violation |
+|-----|---------------------|------------------|
+| ADR-0003 | DDD patterns, layer separation | DB code in domain |
+| ADR-0012 | Biome linting/formatting | Using ESLint/Prettier |
+| ADR-0013 | Vitest testing | Using Jest |
+| ADR-0022 | Snyk security scans | Skipping security checks |
+| ADR-0019 | Turborepo builds | Direct package builds |
+| ADR-0011 | Bicep IaC | Using ARM/Terraform |
+| ADR-0014 | Azure Functions v4, Cellix DI | Manual service instantiation |
 
 ## References
 
-- [MADR Project](https://adr.github.io/madr/)
-- [ADR-0001: MADR Architecture Decisions](../../apps/docs/docs/decisions/0001-madr-architecture-decisions.md)
 - [MADR Enforcement Skill](../.agents/skills/madr-enforcement/SKILL.md)
-- [Agent Skills Specification](https://agentskills.io/specification)
+- [Code Examples](../.agents/skills/madr-enforcement/EXAMPLES.md)
+- [All ADRs](../apps/docs/docs/decisions/)
+- [ADR-0001: MADR Process](../apps/docs/docs/decisions/0001-madr-architecture-decisions.md)
