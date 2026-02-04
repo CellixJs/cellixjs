@@ -10,8 +10,12 @@
  *   node validate-madr.js apps/docs/docs/decisions/0024-example.md
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ANSI color codes
 const colors = {
@@ -216,22 +220,18 @@ class MADRValidator {
 }
 
 // CLI execution
-if (require.main === module) {
-  const args = process.argv.slice(2);
-  
-  if (args.length === 0) {
-    console.error(`${colors.red}Error: Please provide path to MADR file${colors.reset}`);
-    console.log('\nUsage:');
-    console.log('  node validate-madr.js <path-to-madr-file>');
-    console.log('\nExample:');
-    console.log('  node validate-madr.js apps/docs/docs/decisions/0024-example.md');
-    process.exit(1);
-  }
+const args = process.argv.slice(2);
 
-  const validator = new MADRValidator(args[0]);
-  const isValid = validator.validate();
-  
-  process.exit(isValid ? 0 : 1);
+if (args.length === 0) {
+  console.error(`${colors.red}Error: Please provide path to MADR file${colors.reset}`);
+  console.log('\nUsage:');
+  console.log('  node validate-madr.js <path-to-madr-file>');
+  console.log('\nExample:');
+  console.log('  node validate-madr.js apps/docs/docs/decisions/0024-example.md');
+  process.exit(1);
 }
 
-module.exports = MADRValidator;
+const validator = new MADRValidator(args[0]);
+const isValid = validator.validate();
+
+process.exit(isValid ? 0 : 1);
