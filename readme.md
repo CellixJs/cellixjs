@@ -91,9 +91,23 @@ This monorepo uses [Turborepo](https://turbo.build/) for optimized builds and te
 
 For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 
+## Agent Skills
+
+CellixJS integrates [Agent Skills](https://agentskills.io) to provide AI coding assistants with structured, project-specific context. Skills are located in `.agents/skills/` and `.github/skills/`.
+
+**Available Skills:**
+- **madr-enforcement**: Ensures MADR compliance per [ADR-0001](apps/docs/docs/decisions/0001-madr-architecture-decisions.md)
+
+**Validate MADR files:**
+```bash
+node .agents/skills/madr-enforcement/scripts/validate-madr.js apps/docs/docs/decisions/0024-example.md
+```
+
+**Learn more:** See [.agents/skills/README.md](.agents/skills/README.md) and [ADR-0024](apps/docs/docs/decisions/0024-madr-agent-skills.md)
+
 ## Decisions
 
-- Architecture docs and ADRs in `docusaurus/decisions`
+- Architecture docs and ADRs in `apps/docs/docs/decisions`
 
 ## In Progress ADRs
 
