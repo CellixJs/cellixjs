@@ -24,7 +24,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@apollo/server": "^5.0.0",
+    "@apollo/server": "^5.4.0",
     "@cellix/api-services-spec": "workspace:*",
     "@opentelemetry/api": "1.9.0",
     "graphql": "catalog:",
