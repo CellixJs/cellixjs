@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -18,14 +20,14 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@apollo/server": "^5.0.0",
+    "@apollo/server": "^5.4.0",
     "@ocom/persistence": "workspace:*",
     "@ocom/service-apollo-server": "workspace:*",
     "@ocom/service-token-validation": "workspace:*"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
-    "typescript": "catalog:",
-    "rimraf": "catalog:"
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   }
 }
