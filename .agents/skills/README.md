@@ -72,9 +72,9 @@ CellixJS skills follow the same structure as community skills in [simnova/sharet
 - Review checklists organized by ADR
 
 **References:**
-- [SKILL.md](.agents/skills/madr-enforcement/SKILL.md) - Complete enforcement documentation
-- [EXAMPLES.md](.agents/skills/madr-enforcement/EXAMPLES.md) - Code examples following ADRs
-- [All ADRs](../apps/docs/docs/decisions/) - Source of architectural standards
+- [SKILL.md](madr-enforcement/SKILL.md) - Complete enforcement documentation
+- [EXAMPLES.md](madr-enforcement/EXAMPLES.md) - Code examples following ADRs
+- [All ADRs](../../apps/docs/docs/decisions/) - Source of architectural standards
 
 ## Integration with GitHub Copilot
 
@@ -217,7 +217,7 @@ ln -s ../../.agents/skills/my-skill .github/skills/my-skill
 Create an ADR documenting why the skill is needed, what it enforces, and how it aligns with existing patterns.
 
 **Example References:**
-- See [ADR-0024](../apps/docs/docs/decisions/0024-madr-agent-skills.md) for how madr-enforcement skill was documented
+- See [ADR-0024](../../apps/docs/docs/decisions/0024-madr-agent-skills.md) for how madr-enforcement skill was documented
 - Review [sharethrift skills](https://github.com/simnova/sharethrift/tree/main/.agents/skills) for structural inspiration
 
 ## Skill Development Best Practices
@@ -242,7 +242,7 @@ Create an ADR documenting why the skill is needed, what it enforces, and how it 
 
 The adoption of Agent Skills framework for CellixJS is documented in:
 
-**[ADR-0024: Agent Skills Integration](../apps/docs/docs/decisions/0024-madr-agent-skills.md)**
+**[ADR-0024: Agent Skills Integration](../../apps/docs/docs/decisions/0024-madr-agent-skills.md)**
 
 This decision covers:
 - Why Agent Skills format was chosen
@@ -261,9 +261,9 @@ This decision covers:
 
 ### CellixJS Documentation
 
-- **[ADR-0024: Agent Skills Integration](../apps/docs/docs/decisions/0024-madr-agent-skills.md)** - Decision to adopt Agent Skills
-- **[ADR-0001: MADR Architecture Decisions](../apps/docs/docs/decisions/0001-madr-architecture-decisions.md)** - MADR framework
-- **[Copilot Instructions](../.github/copilot-instructions.md)** - GitHub Copilot development guide
+- **[ADR-0024: Agent Skills Integration](../../apps/docs/docs/decisions/0024-madr-agent-skills.md)** - Decision to adopt Agent Skills
+- **[ADR-0001: MADR Architecture Decisions](../../apps/docs/docs/decisions/0001-madr-architecture-decisions.md)** - MADR framework
+- **[Copilot Instructions](../../.github/copilot-instructions.md)** - GitHub Copilot development guide
 
 ### Community Resources
 

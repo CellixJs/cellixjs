@@ -28,7 +28,9 @@ export interface PropertyReference extends Readonly<PropertyProps> {}
  * Manages property information and business rules
  */
 export class Property implements AggregateRoot<PropertyProps> {
-  private readonly props: PropertyProps;
+  // Note: props is not readonly to allow updates via immutable pattern
+  // Each update creates a new props object, maintaining immutability
+  private props: PropertyProps;
   
   constructor(props: PropertyProps) {
     this.props = props;
