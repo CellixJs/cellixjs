@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
