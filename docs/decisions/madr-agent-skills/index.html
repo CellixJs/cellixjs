@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-decisions/madr-agent-skills" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Adopt Agent Skills Framework to Enforce MADR Standards in Code | CellixJs Docs</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://cellixjs.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://cellixjs.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://cellixjs.github.io/docs/decisions/madr-agent-skills"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Adopt Agent Skills Framework to Enforce MADR Standards in Code | CellixJs Docs"><meta data-rh="true" name="description" content="Adopt Agent Skills framework to enforce architectural standards defined in MADRs when writing, reviewing, or modifying code"><meta data-rh="true" property="og:description" content="Adopt Agent Skills framework to enforce architectural standards defined in MADRs when writing, reviewing, or modifying code"><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://cellixjs.github.io/docs/decisions/madr-agent-skills"><link data-rh="true" rel="alternate" href="https://cellixjs.github.io/docs/decisions/madr-agent-skills" hreflang="en"><link data-rh="true" rel="alternate" href="https://cellixjs.github.io/docs/decisions/madr-agent-skills" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Decisions","item":"https://cellixjs.github.io/docs/category/decisions"},{"@type":"ListItem","position":2,"name":"0024 Agent Skills Integration","item":"https://cellixjs.github.io/docs/decisions/madr-agent-skills"}]}</script><link rel="alternate" type="application/rss+xml" href="/blog/rss.xml" title="CellixJs Docs RSS Feed">
+<link rel="alternate" type="application/atom+xml" href="/blog/atom.xml" title="CellixJs Docs Atom Feed"><link rel="stylesheet" href="/assets/css/styles.1c80e02e.css">
+<script src="/assets/js/runtime~main.94b49814.js" defer="defer"></script>
+<script src="/assets/js/main.6f9f39ef.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"light"),document.documentElement.setAttribute("data-theme-choice",t||"light")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/img/logo.svg"><div role="region" aria-label="Skip to main content"><a class="skipToContent_wzqN" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/"><div class="navbar__logo"><img src="/img/logo.svg" alt="CellixJs Logo" class="themedComponent_NR3U themedComponent--light_Kqxi"><img src="/img/logo.svg" alt="CellixJs Logo" class="themedComponent_NR3U themedComponent--dark_adIj"></div><b class="navbar__title text--truncate">Home</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/docs/intro">Doc</a><a class="navbar__item navbar__link" href="/blog">Blog</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/CellixJs/cellixjs" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_KIqC"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_cUXY colorModeToggle_pKgX"><button class="clean-btn toggleButton_pedX toggleButtonDisabled_rcnT" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_VrQz lightToggleIcon_SdZ4"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_VrQz darkToggleIcon_K809"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_VrQz systemToggleIcon_XiHY"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_tCB5"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_zDwp"><div class="docsWrapper_kgV0"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_Gx28" type="button"></button><div class="docRoot_TlFA"><aside class="theme-doc-sidebar-container docSidebarContainer_qm_h"><div class="sidebarViewport_t1Gb"><div class="sidebar_Ik2W"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_ow6i"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/docs/intro"><span title="Introduction 👋" class="linkLabel_t3il">Introduction 👋</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_DIrl menu__link menu__link--sublist" href="/docs/category/technical-overview"><span title="Technical Overview" class="categoryLinkLabel_KKaR">Technical Overview</span></a><button aria-label="Expand sidebar category &#x27;Technical Overview&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_DIrl menu__link menu__link--sublist menu__link--active" href="/docs/category/decisions"><span title="Decisions" class="categoryLinkLabel_KKaR">Decisions</span></a><button aria-label="Collapse sidebar category &#x27;Decisions&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/madr-architecture-decisions"><span title="0001 MADR Architecture Decisions" class="linkLabel_t3il">0001 MADR Architecture Decisions</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/open-telemetry"><span title="0002 Open Telemetry" class="linkLabel_t3il">0002 Open Telemetry</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/domain-driven-design"><span title="0003 Domain Driven Design" class="linkLabel_t3il">0003 Domain Driven Design</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/identity-access"><span title="0004 Identity and Access Control" class="linkLabel_t3il">0004 Identity and Access Control</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/authorization"><span title="0005 Authorization and Access Pattern" class="linkLabel_t3il">0005 Authorization and Access Pattern</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/maps"><span title="0006 Azure Maps Integration Decision" class="linkLabel_t3il">0006 Azure Maps Integration Decision</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/serenityjs"><span title="0007 SerenityJS" class="linkLabel_t3il">0007 SerenityJS</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/white-label"><span title="0008 White Label" class="linkLabel_t3il">0008 White Label</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/cache-purging"><span title="0009 Cache Purging" class="linkLabel_t3il">0009 Cache Purging</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/react-router-loaders"><span title="0010 React Router Loader" class="linkLabel_t3il">0010 React Router Loader</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/bicep"><span title="0011 Bicep" class="linkLabel_t3il">0011 Bicep</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/linter"><span title="0012 Linter Oxlint vs Biome" class="linkLabel_t3il">0012 Linter Oxlint vs Biome</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/test-suite"><span title="0013 Test Suite Selection" class="linkLabel_t3il">0013 Test Suite Selection</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/azure-infrastructure-deployments"><span title="0014 Azure Infrastructure Deployments" class="linkLabel_t3il">0014 Azure Infrastructure Deployments</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/sonarcloud"><span title="0015 SonarCloud Node16 EOL" class="linkLabel_t3il">0015 SonarCloud Node16 EOL</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/adr-template"><span title="ADR Template" class="linkLabel_t3il">ADR Template</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/sonarcloud-code-duplication-checks"><span title="0016 SonarCloud Code Duplication Checks" class="linkLabel_t3il">0016 SonarCloud Code Duplication Checks</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/adr-short-template"><span title="ADR Short Template" class="linkLabel_t3il">ADR Short Template</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/chrome-content-overrides"><span title="0017 Chrome Content Overrides" class="linkLabel_t3il">0017 Chrome Content Overrides</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/docusaurus-azure-pipeline-stages"><span title="0018 Docusaurus Azure Pipeline Stages" class="linkLabel_t3il">0018 Docusaurus Azure Pipeline Stages</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/monorepo-turborepo"><span title="0019 Monorepo Structure and Turborepo" class="linkLabel_t3il">0019 Monorepo Structure and Turborepo</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/azure-devops-monorepo-pipeline"><span title="0020 Azure DevOps Monorepo Pipeline" class="linkLabel_t3il">0020 Azure DevOps Monorepo Pipeline</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/bicep-resource-scoping-strategy"><span title="0021 Bicep Resource Scoping Strategy" class="linkLabel_t3il">0021 Bicep Resource Scoping Strategy</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/snyk-security-integration"><span title="0022 Snyk Security Integration" class="linkLabel_t3il">0022 Snyk Security Integration</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decisions/tsgo-migration"><span title="0023 TypeScript Go (tsgo) Migration" class="linkLabel_t3il">0023 TypeScript Go (tsgo) Migration</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/docs/decisions/madr-agent-skills"><span title="0024 Agent Skills Integration" class="linkLabel_t3il">0024 Agent Skills Integration</span></a></li></ul></li></ul></nav></div></div></aside><main class="docMainContainer__Xyx"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_lkAw"><div class="docItemContainer_G9Et"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_cAtp" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_HXG1"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/docs/category/decisions"><span>Decisions</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">0024 Agent Skills Integration</span></li></ul></nav><div class="tocCollapsible_Md5l theme-doc-toc-mobile tocMobile_ou_u"><button type="button" class="clean-btn tocCollapsibleButton_pqXe">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>Adopt Agent Skills Framework to Enforce MADR Standards in Code</h1></header>
+<h2 class="anchor anchorTargetStickyNavbar_Ided" id="context-and-problem-statement">Context and Problem Statement<a href="#context-and-problem-statement" class="hash-link" aria-label="Direct link to Context and Problem Statement" title="Direct link to Context and Problem Statement" translate="no">​</a></h2>
+<p>CellixJS has documented 23+ architectural decisions in MADRs (Markdown Any Decision Records) covering Domain-Driven Design, linting standards, testing frameworks, security practices, and infrastructure choices. However, these documented standards are only enforced through manual code review, leading to inconsistent application of architectural patterns.</p>
+<p>AI coding assistants like GitHub Copilot can generate code, but without structured context about our MADRs, they may suggest implementations that violate documented architectural decisions (e.g., using ESLint instead of Biome per ADR-0012, mixing domain and infrastructure code contrary to ADR-0003, or using Jest instead of Vitest contrary to ADR-0013).</p>
+<p>We need a mechanism to provide AI agents with structured knowledge about our MADRs so they can automatically apply and enforce architectural standards when generating, reviewing, or modifying code.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Ided" id="decision-drivers">Decision Drivers<a href="#decision-drivers" class="hash-link" aria-label="Direct link to Decision Drivers" title="Direct link to Decision Drivers" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Consistent ADR Enforcement</strong>: Ensure code adheres to architectural standards documented in MADRs</li>
+<li class=""><strong>AI-Assisted Compliance</strong>: Enable AI agents to understand and apply MADR guidelines automatically</li>
+<li class=""><strong>Reduced Review Burden</strong>: Catch ADR violations during code generation, not just during review</li>
+<li class=""><strong>Developer Experience</strong>: Provide clear guidance on applying ADR patterns in code</li>
+<li class=""><strong>Discoverability</strong>: Make architectural standards easily accessible to AI agents</li>
+<li class=""><strong>Maintainability</strong>: Use industry-standard format that&#x27;s portable across AI agent products</li>
+<li class=""><strong>Community Integration</strong>: Benefit from community-maintained skills and share our expertise</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Ided" id="considered-options">Considered Options<a href="#considered-options" class="hash-link" aria-label="Direct link to Considered Options" title="Direct link to Considered Options" translate="no">​</a></h2>
+<ol>
+<li class=""><strong>Agent Skills Framework</strong> (agentskills.io standard format) - Structured skill files</li>
+<li class=""><strong>GitHub Copilot Instructions Only</strong> (continue current approach) - Markdown instructions</li>
+<li class=""><strong>Custom Documentation System</strong> (build our own format) - Proprietary format</li>
+<li class=""><strong>Manual Code Review Only</strong> (rely on human review) - No AI assistance</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Ided" id="decision-outcome">Decision Outcome<a href="#decision-outcome" class="hash-link" aria-label="Direct link to Decision Outcome" title="Direct link to Decision Outcome" translate="no">​</a></h2>
+<p>Chosen option: <strong>Agent Skills Framework</strong>, because it provides a standardized, portable format for packaging ADR enforcement guidance that AI agents can consume. The framework enables:</p>
+<ol>
+<li class=""><strong>Code-Level Enforcement</strong>: AI agents apply ADR standards when writing/reviewing code</li>
+<li class=""><strong>Portable Format</strong>: Works across GitHub Copilot, Claude, Cursor, and other AI tools</li>
+<li class=""><strong>Structured Guidance</strong>: Clear examples of correct/incorrect implementations per ADR</li>
+<li class=""><strong>Community Integration</strong>: Can leverage and contribute to community skills</li>
+</ol>
+<p>This decision aligns with ADR-0001 (MADR for architectural decisions) by providing a mechanism to <strong>enforce</strong> documented standards in code, not just document them.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="consequences">Consequences<a href="#consequences" class="hash-link" aria-label="Direct link to Consequences" title="Direct link to Consequences" translate="no">​</a></h3>
+<p><strong>Good:</strong></p>
+<ul>
+<li class="">AI agents automatically apply ADR standards when generating code</li>
+<li class="">Catch violations (e.g., using ESLint vs Biome, domain code mixing with infrastructure) during coding</li>
+<li class="">Reduce manual code review burden for ADR compliance</li>
+<li class="">Standardized format works across multiple AI agent products</li>
+<li class="">Can leverage community skills from simnova/sharethrift</li>
+<li class="">Skills serve as both AI guidance and developer documentation</li>
+</ul>
+<p><strong>Bad:</strong></p>
+<ul>
+<li class="">Team must maintain skills directory and keep content synchronized with ADRs</li>
+<li class="">Learning curve for understanding Agent Skills format</li>
+<li class="">Skills must be updated when ADRs change or new ADRs are created</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Ided" id="validation">Validation<a href="#validation" class="hash-link" aria-label="Direct link to Validation" title="Direct link to Validation" translate="no">​</a></h2>
+<p>Implementation validated by:</p>
+<ol>
+<li class=""><strong>Code Generation</strong>: AI agents reference MADR enforcement skill when writing code</li>
+<li class=""><strong>Code Reviews</strong>: AI agents identify ADR violations (e.g., ESLint usage, DDD pattern violations)</li>
+<li class=""><strong>Examples Provided</strong>: Skill includes correct/incorrect code examples for each ADR</li>
+<li class=""><strong>Developer Feedback</strong>: Team reports AI suggestions align with documented standards</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Ided" id="pros-and-cons-of-the-options">Pros and Cons of the Options<a href="#pros-and-cons-of-the-options" class="hash-link" aria-label="Direct link to Pros and Cons of the Options" title="Direct link to Pros and Cons of the Options" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="agent-skills-framework-agentskillsio">Agent Skills Framework (agentskills.io)<a href="#agent-skills-framework-agentskillsio" class="hash-link" aria-label="Direct link to Agent Skills Framework (agentskills.io)" title="Direct link to Agent Skills Framework (agentskills.io)" translate="no">​</a></h3>
+<p>Standardized format for packaging AI agent context and capabilities.</p>
+<p><strong>Good:</strong></p>
+<ul>
+<li class="">Industry-standard format (originally developed by Anthropic, adopted by GitHub, Cursor, etc.)</li>
+<li class="">Portable across multiple AI agent products</li>
+<li class="">Progressive loading (only relevant skills loaded per task)</li>
+<li class="">Community ecosystem of shareable skills</li>
+<li class="">Clear specification at agentskills.io</li>
+<li class="">Folder-based structure is simple and Git-friendly</li>
+<li class="">Can integrate skills from simnova/sharethrift project</li>
+<li class="">Perfect for enforcing ADR standards in code</li>
+</ul>
+<p><strong>Neutral:</strong></p>
+<ul>
+<li class="">Requires following specific folder structure (SKILL.md, assets/, etc.)</li>
+<li class="">Skill metadata defined in YAML frontmatter</li>
+</ul>
+<p><strong>Bad:</strong></p>
+<ul>
+<li class="">Relatively new standard (but rapidly gaining adoption)</li>
+<li class="">Team must learn skill authoring conventions</li>
+<li class="">Skills must be maintained and kept current with ADR changes</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="github-copilot-instructions-only">GitHub Copilot Instructions Only<a href="#github-copilot-instructions-only" class="hash-link" aria-label="Direct link to GitHub Copilot Instructions Only" title="Direct link to GitHub Copilot Instructions Only" translate="no">​</a></h3>
+<p>Continue using <code>.github/copilot-instructions.md</code> and <code>.github/instructions/</code> without Agent Skills.</p>
+<p><strong>Good:</strong></p>
+<ul>
+<li class="">Current approach, team already familiar</li>
+<li class="">No new structure to learn</li>
+<li class="">Works with GitHub Copilot</li>
+</ul>
+<p><strong>Neutral:</strong></p>
+<ul>
+<li class="">GitHub-specific format</li>
+</ul>
+<p><strong>Bad:</strong></p>
+<ul>
+<li class="">Not portable to other AI agent products (Cursor, Claude, etc.)</li>
+<li class="">No standardized format for code examples and anti-patterns</li>
+<li class="">Difficult to organize complex enforcement guidance</li>
+<li class="">Can&#x27;t leverage community-maintained skills</li>
+<li class="">No progressive loading (all instructions loaded always)</li>
+<li class="">Lacks structure for organizing examples and references</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="custom-documentation-system">Custom Documentation System<a href="#custom-documentation-system" class="hash-link" aria-label="Direct link to Custom Documentation System" title="Direct link to Custom Documentation System" translate="no">​</a></h3>
+<p>Build our own format for AI agent context.</p>
+<p><strong>Good:</strong></p>
+<ul>
+<li class="">Full control over format and structure</li>
+<li class="">Tailored to CellixJS specific needs</li>
+</ul>
+<p><strong>Neutral:</strong></p>
+<ul>
+<li class="">Custom design decisions</li>
+</ul>
+<p><strong>Bad:</strong></p>
+<ul>
+<li class="">Reinventing existing standard</li>
+<li class="">Not portable across AI products</li>
+<li class="">No community ecosystem</li>
+<li class="">Maintenance burden</li>
+<li class="">Must build own tooling</li>
+<li class="">Team must learn proprietary format</li>
+<li class="">Doesn&#x27;t benefit from agentskills.io ecosystem improvements</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="manual-code-review-only">Manual Code Review Only<a href="#manual-code-review-only" class="hash-link" aria-label="Direct link to Manual Code Review Only" title="Direct link to Manual Code Review Only" translate="no">​</a></h3>
+<p>Rely on human code review to catch ADR violations.</p>
+<p><strong>Good:</strong></p>
+<ul>
+<li class="">No additional structure required</li>
+<li class="">Minimal overhead</li>
+</ul>
+<p><strong>Neutral:</strong></p>
+<ul>
+<li class="">Status quo approach</li>
+</ul>
+<p><strong>Bad:</strong></p>
+<ul>
+<li class="">AI agents lack context about ADR standards</li>
+<li class="">Violations only caught during manual review (late in process)</li>
+<li class="">Inconsistent enforcement across reviewers</li>
+<li class="">Higher review burden on human developers</li>
+<li class="">Risk of violating ADR-0003 (DDD), ADR-0012 (Biome), ADR-0022 (Snyk), etc.</li>
+<li class="">No systematic enforcement</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Ided" id="implementation-strategy">Implementation Strategy<a href="#implementation-strategy" class="hash-link" aria-label="Direct link to Implementation Strategy" title="Direct link to Implementation Strategy" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="1-skill-directory-structure">1. Skill Directory Structure<a href="#1-skill-directory-structure" class="hash-link" aria-label="Direct link to 1. Skill Directory Structure" title="Direct link to 1. Skill Directory Structure" translate="no">​</a></h3>
+<p>Following Agent Skills specification:</p>
+<div class="language-text codeBlockContainer_XdkW theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_TGFr"><pre tabindex="0" class="prism-code language-text codeBlock_KBG9 thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_c3MG"><span class="token-line" style="color:#393A34"><span class="token plain">.agents/skills/                      # Primary skills location</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">└── madr-enforcement/                # MADR standards enforcement in code</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    ├── SKILL.md                    # Main enforcement instructions</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    ├── EXAMPLES.md                 # Code examples following ADRs</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    └── assets/                     # MADR templates</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">        ├── adr-template.md         # Full template (for creating new ADRs)</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">        └── adr-short-template.md   # Short template (for creating new ADRs)</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">.github/skills/                      # Symlinks for GitHub Copilot</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">└── madr-enforcement -&gt; ../../.agents/skills/madr-enforcement</span><br></span></code></pre></div></div>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li class=""><code>.agents/skills/</code> = Primary location (standard per agentskills.io)</li>
+<li class=""><code>.github/skills/</code> = Symlinks for GitHub Copilot compatibility</li>
+<li class="">Symlink approach avoids duplication while supporting both locations</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="2-madr-enforcement-skill">2. MADR Enforcement Skill<a href="#2-madr-enforcement-skill" class="hash-link" aria-label="Direct link to 2. MADR Enforcement Skill" title="Direct link to 2. MADR Enforcement Skill" translate="no">​</a></h3>
+<p><strong>Purpose:</strong> Enforce architectural standards defined in MADRs when writing code</p>
+<p><strong>What It Enforces:</strong></p>
+<ul>
+<li class=""><strong>ADR-0003</strong>: Domain-Driven Design patterns (entities, value objects, aggregate roots, Unit of Work)</li>
+<li class=""><strong>ADR-0012</strong>: Biome linting/formatting (not ESLint/Prettier)</li>
+<li class=""><strong>ADR-0013</strong>: Vitest testing framework (not Jest)</li>
+<li class=""><strong>ADR-0022</strong>: Snyk security scanning before commits</li>
+<li class=""><strong>ADR-0019</strong>: Turborepo build system usage</li>
+<li class=""><strong>ADR-0011</strong>: Bicep for infrastructure (not ARM/Terraform)</li>
+<li class=""><strong>ADR-0014</strong>: Azure Functions v4 with Cellix DI</li>
+<li class="">And all other documented ADRs...</li>
+</ul>
+<p><strong>What It Does NOT Do:</strong></p>
+<ul>
+<li class="">❌ Does NOT validate MADR document format</li>
+<li class="">❌ Does NOT check MADR frontmatter or markdown syntax</li>
+<li class="">✅ DOES enforce the standards documented IN the MADRs</li>
+</ul>
+<p><strong>Capabilities:</strong></p>
+<ul>
+<li class="">Comprehensive ADR index with enforcement checklists</li>
+<li class="">Code examples showing correct vs. incorrect implementations</li>
+<li class="">Common violation patterns and how to fix them</li>
+<li class="">Layer separation enforcement (domain vs. infrastructure per ADR-0003)</li>
+<li class="">Technology choice enforcement (Biome vs ESLint per ADR-0012)</li>
+</ul>
+<p><strong>Integration with GitHub Copilot:</strong></p>
+<ul>
+<li class="">Skill location: <code>.agents/skills/madr-enforcement/</code></li>
+<li class="">Instructions file: <code>.github/instructions/madr.instructions.md</code></li>
+<li class="">Symlink: <code>.github/skills/madr-enforcement</code></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="3-community-skills-integration">3. Community Skills Integration<a href="#3-community-skills-integration" class="hash-link" aria-label="Direct link to 3. Community Skills Integration" title="Direct link to 3. Community Skills Integration" translate="no">​</a></h3>
+<p>Investigate and integrate relevant skills from simnova/sharethrift:</p>
+<p><strong>Available Community Skills:</strong></p>
+<ul>
+<li class=""><strong>apollo-client</strong>: Apollo Client 4.x best practices</li>
+<li class=""><strong>apollo-server</strong>: Apollo Server 4.x patterns</li>
+<li class=""><strong>graphql-operations</strong>: GraphQL query/mutation conventions</li>
+<li class=""><strong>graphql-schema</strong>: GraphQL schema design</li>
+<li class=""><strong>turborepo</strong>: Turborepo task orchestration (aligns with ADR-0019)</li>
+<li class=""><strong>vercel-react-best-practices</strong>: React 19 patterns</li>
+<li class=""><strong>enterprise-architecture-patterns</strong>: DDD, CQRS, Event Sourcing (aligns with ADR-0003)</li>
+</ul>
+<p><strong>Integration Method:</strong>
+Future phase - evaluate and integrate relevant community skills</p>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="4-skill-authoring-guidelines">4. Skill Authoring Guidelines<a href="#4-skill-authoring-guidelines" class="hash-link" aria-label="Direct link to 4. Skill Authoring Guidelines" title="Direct link to 4. Skill Authoring Guidelines" translate="no">​</a></h3>
+<p>Skills created for CellixJS must:</p>
+<p><strong>Required Elements:</strong></p>
+<ol>
+<li class=""><code>SKILL.md</code> with YAML frontmatter (name, description, license, compatibility)</li>
+<li class="">Clear &quot;When to Use This Skill&quot; section</li>
+<li class="">Detailed enforcement guidelines with code examples</li>
+<li class="">Correct and incorrect implementation examples</li>
+<li class="">References to specific ADRs being enforced</li>
+</ol>
+<p><strong>Optional Elements:</strong></p>
+<ul>
+<li class=""><code>EXAMPLES.md</code> for comprehensive code examples</li>
+<li class=""><code>assets/</code> for templates or configuration files</li>
+<li class=""><code>references/</code> for extended documentation</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="5-integration-with-existing-adrs">5. Integration with Existing ADRs<a href="#5-integration-with-existing-adrs" class="hash-link" aria-label="Direct link to 5. Integration with Existing ADRs" title="Direct link to 5. Integration with Existing ADRs" translate="no">​</a></h3>
+<p>The MADR enforcement skill references and enforces:</p>
+<ul>
+<li class=""><strong>ADR-0003</strong>: Domain-Driven Design patterns</li>
+<li class=""><strong>ADR-0012</strong>: Biome linting (not ESLint/Prettier)</li>
+<li class=""><strong>ADR-0013</strong>: Vitest testing (not Jest)</li>
+<li class=""><strong>ADR-0022</strong>: Snyk security scanning</li>
+<li class=""><strong>ADR-0019</strong>: Turborepo monorepo builds</li>
+<li class=""><strong>ADR-0011</strong>: Bicep infrastructure as code</li>
+<li class=""><strong>ADR-0014</strong>: Azure Functions v4 patterns</li>
+<li class="">And all other documented ADRs</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Ided" id="migration-plan">Migration Plan<a href="#migration-plan" class="hash-link" aria-label="Direct link to Migration Plan" title="Direct link to Migration Plan" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="phase-1-madr-enforcement-skill-completed">Phase 1: MADR Enforcement Skill (Completed)<a href="#phase-1-madr-enforcement-skill-completed" class="hash-link" aria-label="Direct link to Phase 1: MADR Enforcement Skill (Completed)" title="Direct link to Phase 1: MADR Enforcement Skill (Completed)" translate="no">​</a></h3>
+<ul>
+<li class="">✅ Create <code>.agents/skills/madr-enforcement/</code> with SKILL.md</li>
+<li class="">✅ Add comprehensive code examples in EXAMPLES.md</li>
+<li class="">✅ Include enforcement checklists for each ADR</li>
+<li class="">✅ Copy MADR templates to assets/ (for creating new ADRs)</li>
+<li class="">✅ Add <code>.github/instructions/madr.instructions.md</code></li>
+<li class="">✅ Create symlink in <code>.github/skills/</code></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="phase-2-community-skills-integration-next">Phase 2: Community Skills Integration (Next)<a href="#phase-2-community-skills-integration-next" class="hash-link" aria-label="Direct link to Phase 2: Community Skills Integration (Next)" title="Direct link to Phase 2: Community Skills Integration (Next)" translate="no">​</a></h3>
+<ul class="contains-task-list containsTaskList_xnBX">
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Research available skills in simnova/sharethrift</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Identify applicable skills (apollo-client, turborepo, enterprise-architecture-patterns)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Install or adapt skills for CellixJS context</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Document integration in README</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="phase-3-additional-cellixjs-skills-future">Phase 3: Additional CellixJS Skills (Future)<a href="#phase-3-additional-cellixjs-skills-future" class="hash-link" aria-label="Direct link to Phase 3: Additional CellixJS Skills (Future)" title="Direct link to Phase 3: Additional CellixJS Skills (Future)" translate="no">​</a></h3>
+<ul class="contains-task-list containsTaskList_xnBX">
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Create additional enforcement skills as needed for new ADRs</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Extend MADR enforcement skill with new ADR standards</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Monitor developer feedback on AI code generation quality</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="phase-4-continuous-improvement-ongoing">Phase 4: Continuous Improvement (Ongoing)<a href="#phase-4-continuous-improvement-ongoing" class="hash-link" aria-label="Direct link to Phase 4: Continuous Improvement (Ongoing)" title="Direct link to Phase 4: Continuous Improvement (Ongoing)" translate="no">​</a></h3>
+<ul class="contains-task-list containsTaskList_xnBX">
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Update skills when ADRs are created or modified</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Gather developer feedback on AI enforcement accuracy</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Contribute useful skills back to community</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Monitor agentskills.io for standard updates</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Ided" id="more-information">More Information<a href="#more-information" class="hash-link" aria-label="Direct link to More Information" title="Direct link to More Information" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="skill-format-specification">Skill Format Specification<a href="#skill-format-specification" class="hash-link" aria-label="Direct link to Skill Format Specification" title="Direct link to Skill Format Specification" translate="no">​</a></h3>
+<p>Agent Skills follow this structure:</p>
+<div class="language-markdown codeBlockContainer_XdkW theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_TGFr"><pre tabindex="0" class="prism-code language-markdown codeBlock_KBG9 thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_c3MG"><span class="token-line" style="color:#393A34"><span class="token front-matter-block punctuation" style="color:#393A34">---</span><span class="token front-matter-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token front-matter-block"></span><span class="token front-matter-block front-matter yaml language-yaml key atrule" style="color:#00a4db">name</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml"> skill</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">-</span><span class="token front-matter-block front-matter yaml language-yaml">name</span><br></span><span class="token-line" style="color:#393A34"><span class="token front-matter-block front-matter yaml language-yaml"></span><span class="token front-matter-block front-matter yaml language-yaml key atrule" style="color:#00a4db">description</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml"> </span><span class="token front-matter-block front-matter yaml language-yaml key atrule" style="color:#00a4db">Brief description. Use when</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml"> (1) scenario 1</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">,</span><span class="token front-matter-block front-matter yaml language-yaml"> (2) scenario 2</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">...</span><span class="token front-matter-block front-matter yaml language-yaml"></span><br></span><span class="token-line" style="color:#393A34"><span class="token front-matter-block front-matter yaml language-yaml"></span><span class="token front-matter-block front-matter yaml language-yaml key atrule" style="color:#00a4db">license</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml"> MIT</span><br></span><span class="token-line" style="color:#393A34"><span class="token front-matter-block front-matter yaml language-yaml"></span><span class="token front-matter-block front-matter yaml language-yaml key atrule" style="color:#00a4db">compatibility</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml"> Framework/version compatibility</span><br></span><span class="token-line" style="color:#393A34"><span class="token front-matter-block front-matter yaml language-yaml"></span><span class="token front-matter-block front-matter yaml language-yaml key atrule" style="color:#00a4db">metadata</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml"></span><br></span><span class="token-line" style="color:#393A34"><span class="token front-matter-block front-matter yaml language-yaml">  </span><span class="token front-matter-block front-matter yaml language-yaml key atrule" style="color:#00a4db">author</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml"> CellixJS Team</span><br></span><span class="token-line" style="color:#393A34"><span class="token front-matter-block front-matter yaml language-yaml">  </span><span class="token front-matter-block front-matter yaml language-yaml key atrule" style="color:#00a4db">version</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml"> </span><span class="token front-matter-block front-matter yaml language-yaml string" style="color:#e3116c">&quot;1.0&quot;</span><span class="token front-matter-block front-matter yaml language-yaml"></span><br></span><span class="token-line" style="color:#393A34"><span class="token front-matter-block front-matter yaml language-yaml"></span><span class="token front-matter-block front-matter yaml language-yaml key atrule" style="color:#00a4db">allowed-tools</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml"> Bash(npm</span><span class="token front-matter-block front-matter yaml language-yaml punctuation" style="color:#393A34">:</span><span class="token front-matter-block front-matter yaml language-yaml important">*)</span><span class="token front-matter-block front-matter yaml language-yaml"> Read Write Edit Glob Grep</span><span class="token front-matter-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token front-matter-block"></span><span class="token front-matter-block punctuation" style="color:#393A34">---</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token title important punctuation" style="color:#393A34">#</span><span class="token title important"> Skill Title</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">Instructions on enforcing standards, code examples, anti-patterns...</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="code-enforcement-workflow">Code Enforcement Workflow<a href="#code-enforcement-workflow" class="hash-link" aria-label="Direct link to Code Enforcement Workflow" title="Direct link to Code Enforcement Workflow" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>AI generates code</strong> → References MADR enforcement skill</li>
+<li class=""><strong>Code follows ADR patterns</strong> → Correct DDD structure, Biome usage, Vitest tests, etc.</li>
+<li class=""><strong>Violations identified</strong> → AI flags ESLint usage, domain/infrastructure mixing, etc.</li>
+<li class=""><strong>Developer review</strong> → Verify ADR compliance with reduced manual burden</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="related-madrs">Related MADRs<a href="#related-madrs" class="hash-link" aria-label="Direct link to Related MADRs" title="Direct link to Related MADRs" translate="no">​</a></h3>
+<ul>
+<li class=""><a class="" href="/docs/decisions/madr-architecture-decisions">ADR-0001: MADR Architecture Decisions</a> - Process for documenting decisions that this skill helps enforce</li>
+<li class=""><a class="" href="/docs/decisions/domain-driven-design">ADR-0003: Domain-Driven Design</a> - DDD patterns enforced by this skill</li>
+<li class=""><a class="" href="/docs/decisions/linter">ADR-0012: Biome Linting</a> - Biome usage enforced by this skill</li>
+<li class=""><a class="" href="/docs/decisions/test-suite">ADR-0013: Test Suite</a> - Vitest usage enforced by this skill</li>
+<li class=""><a class="" href="/docs/decisions/monorepo-turborepo">ADR-0019: MonoRepo and Turborepo</a> - Turborepo patterns enforced by this skill</li>
+<li class=""><a class="" href="/docs/decisions/snyk-security-integration">ADR-0022: Snyk Security</a> - Security scanning enforced by this skill</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="external-references">External References<a href="#external-references" class="hash-link" aria-label="Direct link to External References" title="Direct link to External References" translate="no">​</a></h3>
+<ul>
+<li class=""><a href="https://agentskills.io/home" target="_blank" rel="noopener noreferrer" class="">Agent Skills Home</a></li>
+<li class=""><a href="https://agentskills.io/specification" target="_blank" rel="noopener noreferrer" class="">Agent Skills Specification</a></li>
+<li class=""><a href="https://github.com/agentskills/agentskills" target="_blank" rel="noopener noreferrer" class="">Agent Skills GitHub</a></li>
+<li class=""><a href="https://github.com/simnova/sharethrift" target="_blank" rel="noopener noreferrer" class="">simnova/sharethrift Repository</a></li>
+<li class=""><a href="https://github.com/simnova/sharethrift/blob/main/apps/docs/docs/decisions/0024-madr-agent-skills.md" target="_blank" rel="noopener noreferrer" class="">simnova/sharethrift ADR-0024</a></li>
+<li class=""><a href="https://github.com/skills-sh/skills" target="_blank" rel="noopener noreferrer" class="">Skills CLI</a></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Ided" id="future-considerations">Future Considerations<a href="#future-considerations" class="hash-link" aria-label="Direct link to Future Considerations" title="Direct link to Future Considerations" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>Skills CLI Integration</strong>: Use <code>pnpm dlx skills</code> commands for managing community skills</li>
+<li class=""><strong>Skill Versioning</strong>: Track skill versions alongside ADR versions</li>
+<li class=""><strong>Cross-Repository Skills</strong>: Share CellixJS skills with broader community</li>
+<li class=""><strong>Lock File Support</strong>: Monitor Skills CLI for lock file feature</li>
+</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint__44i"><a href="https://github.com/CellixJs/cellixjs/tree/main/packages/docs/docs/decisions/0024-madr-agent-skills.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_lheC" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_KFCY"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/docs/decisions/tsgo-migration"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">0023 TypeScript Go (tsgo) Migration</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_rS4X thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#context-and-problem-statement" class="table-of-contents__link toc-highlight">Context and Problem Statement</a></li><li><a href="#decision-drivers" class="table-of-contents__link toc-highlight">Decision Drivers</a></li><li><a href="#considered-options" class="table-of-contents__link toc-highlight">Considered Options</a></li><li><a href="#decision-outcome" class="table-of-contents__link toc-highlight">Decision Outcome</a><ul><li><a href="#consequences" class="table-of-contents__link toc-highlight">Consequences</a></li></ul></li><li><a href="#validation" class="table-of-contents__link toc-highlight">Validation</a></li><li><a href="#pros-and-cons-of-the-options" class="table-of-contents__link toc-highlight">Pros and Cons of the Options</a><ul><li><a href="#agent-skills-framework-agentskillsio" class="table-of-contents__link toc-highlight">Agent Skills Framework (agentskills.io)</a></li><li><a href="#github-copilot-instructions-only" class="table-of-contents__link toc-highlight">GitHub Copilot Instructions Only</a></li><li><a href="#custom-documentation-system" class="table-of-contents__link toc-highlight">Custom Documentation System</a></li><li><a href="#manual-code-review-only" class="table-of-contents__link toc-highlight">Manual Code Review Only</a></li></ul></li><li><a href="#implementation-strategy" class="table-of-contents__link toc-highlight">Implementation Strategy</a><ul><li><a href="#1-skill-directory-structure" class="table-of-contents__link toc-highlight">1. Skill Directory Structure</a></li><li><a href="#2-madr-enforcement-skill" class="table-of-contents__link toc-highlight">2. MADR Enforcement Skill</a></li><li><a href="#3-community-skills-integration" class="table-of-contents__link toc-highlight">3. Community Skills Integration</a></li><li><a href="#4-skill-authoring-guidelines" class="table-of-contents__link toc-highlight">4. Skill Authoring Guidelines</a></li><li><a href="#5-integration-with-existing-adrs" class="table-of-contents__link toc-highlight">5. Integration with Existing ADRs</a></li></ul></li><li><a href="#migration-plan" class="table-of-contents__link toc-highlight">Migration Plan</a><ul><li><a href="#phase-1-madr-enforcement-skill-completed" class="table-of-contents__link toc-highlight">Phase 1: MADR Enforcement Skill (Completed)</a></li><li><a href="#phase-2-community-skills-integration-next" class="table-of-contents__link toc-highlight">Phase 2: Community Skills Integration (Next)</a></li><li><a href="#phase-3-additional-cellixjs-skills-future" class="table-of-contents__link toc-highlight">Phase 3: Additional CellixJS Skills (Future)</a></li><li><a href="#phase-4-continuous-improvement-ongoing" class="table-of-contents__link toc-highlight">Phase 4: Continuous Improvement (Ongoing)</a></li></ul></li><li><a href="#more-information" class="table-of-contents__link toc-highlight">More Information</a><ul><li><a href="#skill-format-specification" class="table-of-contents__link toc-highlight">Skill Format Specification</a></li><li><a href="#code-enforcement-workflow" class="table-of-contents__link toc-highlight">Code Enforcement Workflow</a></li><li><a href="#related-madrs" class="table-of-contents__link toc-highlight">Related MADRs</a></li><li><a href="#external-references" class="table-of-contents__link toc-highlight">External References</a></li><li><a href="#future-considerations" class="table-of-contents__link toc-highlight">Future Considerations</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/docs/intro">Doc</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://stackoverflow.com/questions/tagged/cellixjs" target="_blank" rel="noopener noreferrer" class="footer__link-item">Stack Overflow<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_KIqC"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://discordapp.com/invite/cellixjs" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_KIqC"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://x.com/cellixjs" target="_blank" rel="noopener noreferrer" class="footer__link-item">X<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_KIqC"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/blog">Blog</a></li><li class="footer__item"><a href="https://github.com/CellixJs/cellixjs" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_KIqC"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 CellixJs, Inc.</div></div></div></footer></div>
+</body>
+</html>
