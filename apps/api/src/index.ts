@@ -10,6 +10,8 @@ import * as MongooseConfig from './service-config/mongoose/index.ts';
 
 import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 
+import { ServiceQueueStorage } from '@ocom/service-queue-storage';
+
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
@@ -30,6 +32,12 @@ Cellix
             )
             .registerInfrastructureService(new ServiceBlobStorage())
             .registerInfrastructureService(
+                new ServiceQueueStorage(
+                    // biome-ignore lint:useLiteralKeys
+                    process.env['AZURE_STORAGE_CONNECTION_STRING'] || '',
+                ),
+            )
+            .registerInfrastructureService(
                 new ServiceTokenValidation(
                     TokenValidationConfig.portalTokens,
                 ),
@@ -46,7 +54,8 @@ Cellix
         );
 
         const { domainDataSource} = dataSourcesFactory.withSystemPassport();
-        RegisterEventHandlers(domainDataSource);
+        const queueService = serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage);
+        RegisterEventHandlers(domainDataSource, queueService);
 
         return {
             dataSourcesFactory,
