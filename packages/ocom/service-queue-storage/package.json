@@ -1,0 +1,36 @@
+{
+  "name": "@ocom/service-queue-storage",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "prebuild": "biome lint",
+    "build": "tsc --build",
+    "watch": "tsc --watch",
+    "test": "vitest run --silent --reporter=dot",
+    "test:coverage": "vitest run --coverage --silent --reporter=dot",
+    "test:watch": "vitest",
+    "lint": "biome lint",
+    "clean": "rimraf dist tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@cellix/api-services-spec": "workspace:*",
+    "@cellix/queue-storage-seedwork": "workspace:*",
+    "@opentelemetry/api": "catalog:",
+    "ajv": "catalog:"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "workspace:*",
+    "@cellix/vitest-config": "workspace:*",
+    "typescript": "catalog:",
+    "rimraf": "catalog:",
+    "vitest": "catalog:"
+  }
+}
