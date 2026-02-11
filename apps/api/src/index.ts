@@ -20,6 +20,7 @@ import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 
 import { graphHandlerCreator, type GraphContext } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
+import { memberQueueHandlerCreator } from './handlers/queue/member-queue-handler.ts';
 
 Cellix
     .initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
@@ -76,5 +77,10 @@ Cellix
         'rest',
         { route: '{communityId}/{role}/{memberId}/{*rest}' },
         restHandlerCreator,
+    )
+    .registerAzureFunctionQueueHandler(
+        'member-queue',
+        { queueName: 'member', connection: 'AZURE_STORAGE_CONNECTION_STRING' },
+        memberQueueHandlerCreator,
     )
     .startUp();
