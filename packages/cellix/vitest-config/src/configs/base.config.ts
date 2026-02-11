@@ -5,7 +5,7 @@ export const baseConfig = defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
-      reportsDirectory: "coverage",
+      reportsDirectory: "coverage"
     },
   },
 });
