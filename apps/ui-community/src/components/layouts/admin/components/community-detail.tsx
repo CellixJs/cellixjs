@@ -16,7 +16,7 @@ export const CommunityDetail: React.FC<CommunityDetailProps> = (props) => {
 				</Descriptions.Item>
 			);
 		}
-		return <></>;
+		return null;
 	};
 
 	const domainDetails = () => {
@@ -27,7 +27,7 @@ export const CommunityDetail: React.FC<CommunityDetailProps> = (props) => {
 				</Descriptions.Item>
 			);
 		}
-		return <></>;
+        return null;
 	};
 
 	const handleDetails = () => {
@@ -38,7 +38,7 @@ export const CommunityDetail: React.FC<CommunityDetailProps> = (props) => {
 				</Descriptions.Item>
 			);
 		}
-		return <></>;
+		return null;
 	};
 
 	const {

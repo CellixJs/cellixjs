@@ -36,13 +36,11 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
 		if (!communityId) return;
 
 		// Initialize community in itemsMap if it doesn't exist
-		if (!itemsMap[communityId]) {
-			itemsMap[communityId] = {
-				key: communityId,
-				label: member?.community?.name,
-				children: [],
-			};
-		}
+		itemsMap[communityId] ??= {
+			key: communityId,
+			label: member?.community?.name,
+			children: [],
+		};
 
 		// Add member to the community's children
 		const memberPath = `/community/${communityId}/member/${member?.id}`;
@@ -77,9 +75,9 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
 			children: { key: string; label: string; onClick: () => void }[];
 		};
 	} = {};
-	props.data.members?.forEach((member: Member) =>
-		populateItems(member, itemsMap),
-	);
+	props.data.members?.forEach((member: Member) => {
+		populateItems(member, itemsMap);
+	});
 
 	const items: MenuProps['items'] = Object.values(itemsMap);
 
