@@ -3,13 +3,14 @@
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**", "!!build", "!**/generated.tsx"]
+		"includes": ["**", "!**/dist/", "!**/build/**", "!**/node_modules/**", "!**/coverage/**", "!**/generated.*"]
 	},
 	"css": { "parser": { "cssModules": true } },
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
 		"indentWidth": 2,
+        "attributePosition": "multiline",
         "lineWidth": 230
 	},
 	"linter": {
@@ -96,6 +97,8 @@
 		},
 		"includes": [
 			"**/src/**",
+            "**/tests/**",
+            "**/docs/**",
 			"!*.config.*",
 			"!**/*.config.*",
 			"!**/node_modules/**",
