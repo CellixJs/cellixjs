@@ -46,7 +46,7 @@
     "snyk:code:report": "snyk code test --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --project-name=cellixjs-code --report",
     "snyk:iac": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs",
     "snyk:iac:report": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --target-name=cellixjs-iac --report",
-    "analyze": "pnpm -r exec -- pnpm dlx @e18e/cli analyze",
+    "analyze": "pnpm dlx @e18e/cli analyze",
     "prepare": "husky",
     "edgescan:run": "docker run --tty --rm edgescan/cicd-integration:latest --api-token $ES_API_TOKEN --asset-id $ES_ASSET_ID --start-scan --max-risk-threshold 3 --wait --color"
   },
@@ -86,7 +86,13 @@
     "overrides": {
       "vite": "catalog:",
       "jiti": "2.6.1",
-      "minimatch": "10.2.1"
+      "rollup": "^4.59.0",
+      "serve-handler>minimatch": "3.1.5",
+      "serialize-javascript": "^7.0.3",
+      "svgo": "^3.3.3",
+      "qs": "^6.14.2",
+      "ajv@^6": "6.14.0",
+      "webpack": "^5.105.4"
     }
   }
 }
