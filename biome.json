@@ -1,12 +1,17 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.4.6/schema.json",
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-	"files": { "ignoreUnknown": false },
-    "css": { "parser": { "cssModules": true } },
+	"files": {
+		"ignoreUnknown": false,
+		"includes": ["**", "!**/dist/", "!**/build", "!**/node_modules", "!**/coverage", "!**/generated.*"]
+	},
+	"css": { "parser": { "cssModules": true } },
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
-		"indentWidth": 2
+		"indentWidth": 2,
+        "attributePosition": "multiline",
+        "lineWidth": 230
 	},
 	"linter": {
 		"enabled": true,
@@ -91,18 +96,19 @@
 			}
 		},
 		"includes": [
-            "apps/**",
-			"packages/**",
-            "build-pipeline/scripts/**",
+			"**/src/**",
+            "**/tests/**",
+            "**/docs/**",
 			"!*.config.*",
 			"!**/*.config.*",
 			"!**/node_modules/**",
 			"!**/dist/**",
 			"!**/*.d.ts",
 			"!**/package.json",
-            "!**/coverage/**",
-            "!**/generated.ts",
-            "!**/generated.tsx"
+			"!**/coverage/**",
+			"!**/generated.ts",
+			"!**/generated.tsx",
+			"!**/App.css"
 		]
 	},
 	"javascript": { "formatter": { "quoteStyle": "single" }, "globals": [] },
@@ -140,7 +146,10 @@
 			}
 		},
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
-        { "includes": ["build-pipeline/scripts/**/*.{c|m}js"], "linter": { "rules": { "style": { "noCommonJs": "off" } } } },
+		{
+			"includes": ["build-pipeline/scripts/**/*.{c|m}js"],
+			"linter": { "rules": { "style": { "noCommonJs": "off" } } }
+		},
 		{
 			"includes": ["packages/cellix/domain-seedwork/**/*.ts"],
 			"linter": {
@@ -158,6 +167,12 @@
 				"rules": {
 					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
 				}
+			}
+		},
+		{
+			"includes": ["tailwind.config.js", "craco.config.js"],
+			"linter": {
+				"enabled": false
 			}
 		}
 	],

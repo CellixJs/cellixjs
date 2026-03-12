@@ -46,7 +46,9 @@ export class MongoosePropArray<
 	}
 	removeAll(): void {
 		const ids = this.docArray.map((doc) => doc._id);
-		ids.forEach((id) => this.docArray.pull({ _id: id }));
+		ids.forEach((id) => {
+			this.docArray.pull({ _id: id });
+		});
 	}
 	/**
 	 * Creates a new Mongoose document with a generated ObjectId, adds it to the document array,
@@ -61,11 +63,6 @@ export class MongoosePropArray<
 	 * - The document array is mutated by this operation.
 	 */
 	getNewItem(): propType {
-		/*
-    if (!this.docArray) {
-      this.docArray = new Types.DocumentArray<docType>([]);
-    }
-    */
 		const item = this.docArray.create({ _id: new Types.ObjectId() });
 		this.docArray.push(item);
 		return new this.adapter(item);
