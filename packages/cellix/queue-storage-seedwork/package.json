@@ -1,0 +1,52 @@
+{
+  "name": "@cellix/queue-storage-seedwork",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "files": ["dist"],
+  "exports": {
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
+    "./base-queue-sender": {
+      "types": "./dist/base-queue-sender.d.ts",
+      "default": "./dist/base-queue-sender.js"
+    },
+    "./base-queue-receiver": {
+      "types": "./dist/base-queue-receiver.d.ts",
+      "default": "./dist/base-queue-receiver.js"
+    },
+    "./message-logger": {
+      "types": "./dist/message-logger.d.ts",
+      "default": "./dist/message-logger.js"
+    },
+    "./schema-validator": {
+      "types": "./dist/schema-validator.d.ts",
+      "default": "./dist/schema-validator.js"
+    }
+  },
+  "scripts": {
+    "prebuild": "biome lint",
+    "build": "tsc --build",
+    "watch": "tsc --watch",
+    "test": "vitest run --silent --reporter=dot",
+    "test:coverage": "vitest run --coverage --silent --reporter=dot",
+    "test:watch": "vitest",
+    "lint": "biome lint",
+    "clean": "rimraf dist tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@azure/storage-queue": "catalog:",
+    "@azure/storage-blob": "catalog:",
+    "@opentelemetry/api": "catalog:",
+    "ajv": "catalog:"
+  },
+  "devDependencies": {
+    "@cellix/typescript-config": "workspace:*",
+    "@cellix/vitest-config": "workspace:*",
+    "typescript": "catalog:",
+    "rimraf": "catalog:",
+    "vitest": "catalog:"
+  }
+}

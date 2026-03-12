@@ -18,7 +18,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@ocom/domain": "workspace:*"
+    "@ocom/domain": "workspace:*",
+    "@ocom/service-queue-storage": "workspace:*"
   },
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
