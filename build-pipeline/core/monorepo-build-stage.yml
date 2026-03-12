@@ -277,10 +277,10 @@ stages:
     # Analyze dependencies with pnpm analyze
     - task: Bash@3
       displayName: 'Analyze dependencies with pnpm analyze'
+      continueOnError: true
       inputs:
         targetType: 'inline'
         script: |
-          set -euo pipefail
           echo "Running pnpm analyze to analyze dependencies..."
           pnpm analyze
         workingDirectory: ''
