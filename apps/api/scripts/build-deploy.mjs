@@ -15,10 +15,6 @@ const packageJsonPath = path.join(apiDir, 'package.json');
 const hostJsonPath = path.join(apiDir, 'host.json');
 const banner = `import { createRequire as __createRequire } from 'node:module';
 globalThis.require = __createRequire(import.meta.url);`;
-const explicitExternalModules = new Set([
-	'@azure/functions-core',
-	'@azure/functions-extensions-base',
-]);
 const require = createRequire(import.meta.url);
 const workspacePackageMap = await collectWorkspacePackages();
 const bundlerAliasMap = await buildBundlerAliasMap();
@@ -67,7 +63,7 @@ async function ensureCompiledEntryExists() {
 }
 
 function shouldExternalizeModule(id) {
-	return explicitExternalModules.has(id) || isBuiltin(id) || id.startsWith('node:');
+	return isBuiltin(id) || id.startsWith('node:');
 }
 
 async function writeDeployPackageJson() {
