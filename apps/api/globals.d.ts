@@ -1,13 +1,3 @@
-import type {
-	BodyInit as UndiciBodyInit,
-	HeadersInit as UndiciHeadersInit,
-} from 'undici-types';
-
-declare global {
-	type BodyInit = UndiciBodyInit;
-	type HeadersInit = UndiciHeadersInit;
-}
-
 declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: 'development' | 'production' | 'test';

@@ -30,9 +30,6 @@ catalogs:
     typescript:
       specifier: 5.9.3
       version: 5.9.3
-    undici-types:
-      specifier: 7.16.0
-      version: 7.16.0
     vitest:
       specifier: 3.2.4
       version: 3.2.4
@@ -47,6 +44,11 @@ overrides:
   qs: ^6.14.2
   ajv@^6: 6.14.0
   webpack: ^5.105.4
+
+patchedDependencies:
+  '@azure/functions@4.11.0':
+    hash: 69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645
+    path: patches/@azure__functions@4.11.0.patch
 
 importers:
 
@@ -126,7 +128,7 @@ importers:
     dependencies:
       '@azure/functions':
         specifier: 'catalog:'
-        version: 4.11.0
+        version: 4.11.0(patch_hash=69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645)
       '@cellix/api-services-spec':
         specifier: workspace:*
         version: link:../../packages/cellix/api-services-spec
@@ -188,9 +190,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
-      undici-types:
-        specifier: 'catalog:'
-        version: 7.16.0
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(less@4.4.2)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
@@ -843,7 +842,7 @@ importers:
         version: 3.0.0
       '@azure/functions':
         specifier: 'catalog:'
-        version: 4.11.0
+        version: 4.11.0(patch_hash=69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645)
       '@ocom/application-services':
         specifier: workspace:*
         version: link:../application-services
@@ -869,9 +868,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
-      undici-types:
-        specifier: 'catalog:'
-        version: 7.16.0
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(less@4.4.2)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
@@ -920,7 +916,7 @@ importers:
     dependencies:
       '@azure/functions':
         specifier: 'catalog:'
-        version: 4.11.0
+        version: 4.11.0(patch_hash=69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645)
       '@ocom/application-services':
         specifier: workspace:*
         version: link:../application-services
@@ -934,9 +930,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
-      undici-types:
-        specifier: 'catalog:'
-        version: 7.16.0
 
   packages/ocom/service-apollo-server:
     dependencies:
@@ -12146,7 +12139,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/functions@4.11.0':
+  '@azure/functions@4.11.0(patch_hash=69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645)':
     dependencies:
       '@azure/functions-extensions-base': 0.2.0
       cookie: 0.7.2

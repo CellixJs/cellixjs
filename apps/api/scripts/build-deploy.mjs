@@ -13,6 +13,10 @@ const deployDir = path.join(apiDir, 'deploy');
 const deployDistDir = path.join(deployDir, 'dist');
 const packageJsonPath = path.join(apiDir, 'package.json');
 const hostJsonPath = path.join(apiDir, 'host.json');
+const explicitExternalModules = new Set([
+	'@azure/functions-core',
+	'@azure/functions-extensions-base',
+]);
 const require = createRequire(import.meta.url);
 const workspacePackageMap = await collectWorkspacePackages();
 const bundlerAliasMap = await buildBundlerAliasMap();
@@ -25,6 +29,16 @@ await build({
 	cwd: apiDir,
 	input: distEntryFile,
 	logLevel: 'warn',
+	onLog(level, log, defaultHandler) {
+		if (level === 'warn'
+			&& log.code === 'EVAL'
+			&& typeof log.message === 'string'
+			&& log.message.includes('@protobufjs/inquire/index.js')) {
+			return;
+		}
+
+		defaultHandler(level, log);
+	},
 	platform: 'node',
 	resolve: {
 		alias: bundlerAliasMap,
@@ -51,7 +65,7 @@ async function ensureCompiledEntryExists() {
 }
 
 function shouldExternalizeModule(id) {
-	return isBuiltin(id) || id.startsWith('node:');
+	return explicitExternalModules.has(id) || isBuiltin(id) || id.startsWith('node:');
 }
 
 async function writeDeployPackageJson() {

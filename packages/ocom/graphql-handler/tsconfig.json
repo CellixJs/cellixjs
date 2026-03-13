@@ -4,7 +4,7 @@
     "outDir": "./dist",
     "rootDir": "."
   },
-  "include": ["src/**/*.ts", "globals.d.ts"],
+  "include": ["src/**/*.ts"],
   "references": [
     { "path": "../application-services" },
     { "path": "../graphql" },

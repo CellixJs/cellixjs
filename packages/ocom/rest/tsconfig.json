@@ -5,8 +5,7 @@
     "rootDir": "."
   },
   "include": [
-    "src/**/*.ts",
-    "globals.d.ts"
+    "src/**/*.ts"
   ],
   "references": [
     { "path": "../application-services" }

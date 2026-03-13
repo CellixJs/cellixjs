@@ -24,7 +24,6 @@
   "devDependencies": {
     "@cellix/typescript-config": "workspace:*",
     "rimraf": "catalog:",
-    "typescript": "catalog:",
-    "undici-types": "catalog:"
+    "typescript": "catalog:"
   }
 }
