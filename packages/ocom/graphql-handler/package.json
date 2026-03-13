@@ -37,6 +37,7 @@
     "@cellix/vitest-config": "workspace:*",
     "rimraf": "catalog:",
     "typescript": "catalog:",
+    "undici-types": "catalog:",
     "vitest": "catalog:"
   }
 }

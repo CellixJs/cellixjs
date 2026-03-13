@@ -123,8 +123,8 @@ async function parseBody(req: HttpRequest): Promise<unknown> {
 function normalizeHeaders(req: HttpRequest): HeaderMap {
 	const headerMap = new HeaderMap();
 
-	for (const [key, value] of req.headers.entries()) {
+	req.headers.forEach((value, key) => {
 		headerMap.set(key, value);
-	}
+	});
 	return headerMap;
 }
