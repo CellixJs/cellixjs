@@ -58,6 +58,8 @@ pnpm run test     # Test all packages
 pnpm run gen      # Generate code (e.g., GraphQL types)
 ```
 
+For workspace-specific validation or development tasks, prefer running the workspace's existing package scripts from the repo root with `pnpm --filter <workspace> <script>` rather than invoking the underlying tool directly. For example, prefer `pnpm --filter @ocom/service-apollo-server lint` over calling `biome lint` manually when the workspace already exposes a `lint` script.
+
 **Important**: 
 - Use `pnpm run verify` to ensure code quality before commits
 - *Note*: Be patient when you run the `verify` command; wait at least 6 minutes for all checks to complete before assuming unexpected failure.

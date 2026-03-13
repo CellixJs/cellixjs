@@ -1,4 +1,17 @@
 {
   "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": [
+        "src/**",
+        "tsconfig*.json",
+        "package.json",
+        "host.json",
+        "scripts/**",
+        "../../build-pipeline/scripts/generate-graphql-bundler-manifests.mjs"
+      ],
+      "outputs": ["dist/**", "build/**", "deploy/**"]
+    }
+  },
   "tags": ["backend"]
 }

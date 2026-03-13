@@ -48,7 +48,11 @@ function makeMockHttpRequest(headers?: Record<string, string>): HttpRequest {
     url: 'http://localhost/graphql',
     headers: {
       get: (key: string) => headerMap.get(key.toLowerCase()),
-      entries: () => headerMap.entries(),
+      forEach: (callback: (value: string, key: string) => void) => {
+        headerMap.forEach((value, key) => {
+          callback(value, key);
+        });
+      },
     },
     json: vi.fn().mockResolvedValue({ query: '{ test }' }),
   } as unknown as HttpRequest;

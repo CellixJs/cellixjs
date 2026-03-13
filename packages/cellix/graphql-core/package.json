@@ -19,7 +19,7 @@
     }
   },
   "scripts": {
-    "prebuild": "biome lint",
+    "prebuild": "node ../../../build-pipeline/scripts/generate-graphql-bundler-manifests.mjs && biome lint",
     "build": "tsc --build",
     "watch": "tsc --watch",
     "lint": "biome lint",

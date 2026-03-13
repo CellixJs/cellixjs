@@ -431,7 +431,7 @@ stages:
         SonarCloud: ${{parameters.SonarCloud}}
         organization: ${{parameters.SonarCloud_organization}}
 
-    # Deploy API package with production dependencies
+    # Package the pre-bundled Azure Functions artifact
     - task: Bash@3
       displayName: 'Artifact: Prepare API'
       condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
@@ -440,25 +440,13 @@ stages:
         script: |
           set -euo pipefail
           
-          DEPLOY_DIR="$(Build.SourcesDirectory)/apps/api-deploy"
-          rm -rf "$DEPLOY_DIR"
+          DEPLOY_DIR="$(Build.SourcesDirectory)/apps/api/deploy"
           
-          echo "Creating production deployment for @ocom/api..."
-
-          # Use pnpm deploy to resolve workspace dependencies while preserving pnpm symlinks
-          # This copies everything including dist/, host.json, and installs production deps
-          # Using --legacy flag to maintain pnpm v9 behavior with v10+
-          # Rationale: The --legacy flag is required to preserve pnpm v9 workspace symlink behavior during deployment.
-          # Specifically, pnpm v10+ changes how workspace dependencies are resolved and symlinked, which can break
-          # our deployment artifact structure and runtime resolution. Until our deployment scripts and runtime
-          # are verified to work with the new pnpm v10+ behavior, we retain --legacy to ensure:
-          #   - Workspace dependencies are symlinked as in pnpm v9
-          #   - The node_modules structure matches what our runtime expects
-          # @CellixJs/tech-sme: Please reassess the need for --legacy when upgrading pnpm or changing deployment logic.
-          pnpm --filter @ocom/api --prod deploy --legacy "$DEPLOY_DIR"
-          
-          # Remove unnecessary files that pnpm deploy copied
-          rm -rf "$DEPLOY_DIR"/{.turbo,coverage,tests,.vscode,.github,.gitignore,README.md,src}
+          echo "Packaging rolldown deployment output for @ocom/api..."
+          if [ ! -d "$DEPLOY_DIR" ]; then
+            echo "ERROR: Deployment directory missing: $DEPLOY_DIR"
+            exit 1
+          fi
           
           # Verify deployment structure
           echo ""
@@ -468,26 +456,32 @@ stages:
           # Verify critical files exist
           echo ""
           echo "✓ Verifying required files..."
-          for file in package.json host.json dist node_modules; do
+          for file in package.json host.json dist; do
             if [ ! -e "$DEPLOY_DIR/$file" ]; then
               echo "ERROR: Required file/directory missing: $file"
               exit 1
             fi
             echo "  ✓ $file"
           done
+
+          if [ ! -f "$DEPLOY_DIR/dist/index.js" ]; then
+            echo "ERROR: Bundled entrypoint missing: dist/index.js"
+            exit 1
+          fi
+          echo "  ✓ dist/index.js"
           
           echo ""
           echo "✓ Production API package ready for archiving"
 
-          # Create the zip artifact while preserving pnpm symlinks
+          # Create the zip artifact from the standalone bundle output
           ZIP_PATH="$(Build.ArtifactStagingDirectory)/api-$(Build.BuildId).zip"
           mkdir -p "$(Build.ArtifactStagingDirectory)"
           rm -f "$ZIP_PATH"
 
           echo ""
-          echo "✓ Creating symlink-aware zip archive..."
+          echo "✓ Creating deployment zip archive..."
           pushd "$DEPLOY_DIR" >/dev/null
-          zip --symlinks -q -r "$ZIP_PATH" .
+          zip -q -r "$ZIP_PATH" .
           popd >/dev/null
           echo "✓ API artifact created at: $ZIP_PATH"
         workingDirectory: ''

@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { createHandler } from './azure-functions.ts';
 import type { ApolloServer, BaseContext, HeaderMap } from '@apollo/server';
-import type { HttpRequest, InvocationContext, HttpResponseInit } from '@azure/functions';
+import type { HttpRequest, HttpResponse, HttpResponseInit, InvocationContext } from '@azure/functions';
 
 
 const test = { for: describeFeature };
@@ -26,7 +26,11 @@ function makeMockHttpRequest(method: string, url: string, headers?: Record<strin
     url,
     headers: {
       get: (key: string) => headerMap.get(key.toLowerCase()),
-      entries: () => headerMap.entries(),
+      forEach: (callback: (value: string, key: string) => void) => {
+        headerMap.forEach((value, key) => {
+          callback(value, key);
+        });
+      },
     },
     json: async () => body,
   } as unknown as HttpRequest;
@@ -51,7 +55,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Handling a valid GraphQL POST request', ({ Given, And, When, Then }) => {
-    let response: HttpResponseInit;
+    let response: HttpResponseInit | HttpResponse;
     const query = '{ hello }';
     const resultBody = JSON.stringify({ data: { hello: 'world' } });
 
@@ -89,7 +93,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Handling a valid GraphQL GET request', ({ Given, And, When, Then }) => {
-    let response: HttpResponseInit;
+    let response: HttpResponseInit | HttpResponse;
     const url = 'http://localhost/graphql?query=%7B%20hello%20%7D';
     const resultBody = JSON.stringify({ data: { hello: 'world' } });
 
@@ -127,7 +131,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Handling a request with chunked response', ({ Given, When, Then }) => {
-    let response: HttpResponseInit;
+    let response: HttpResponseInit | HttpResponse;
 
     Given('ApolloServer.executeHTTPGraphQLRequest returns a body with kind "chunked"', () => {
       req = makeMockHttpRequest('POST', 'http://localhost/graphql', { 'content-type': 'application/json' }, { query: '{ hello }' });
@@ -154,7 +158,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Handling a request with missing HTTP method', ({ Given, When, Then }) => {
-    let response: HttpResponseInit;
+    let response: HttpResponseInit | HttpResponse;
 
     Given('an HttpRequest with no method property', () => {
       req = makeMockHttpRequest(undefined as unknown as string, 'http://localhost/graphql', { 'content-type': 'application/json' }, { query: '{ hello }' });
@@ -172,7 +176,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   });
 
   Scenario('Handling a request that throws an error', ({ Given, When, Then, And }) => {
-    let response: HttpResponseInit;
+    let response: HttpResponseInit | HttpResponse;
     const errorMessage = 'Something went wrong';
 
     Given('ApolloServer.executeHTTPGraphQLRequest throws an error', () => {
