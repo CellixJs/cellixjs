@@ -60,10 +60,11 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
 	public async startUp(): Promise<ApolloServer<TContext>> {
 		return await this.tracer.startActiveSpan('ServiceApolloServer.startUp', async (span: Span) => {
 			try {
+				const { NODE_ENV: nodeEnv } = process.env;
 				const {
 					schema,
 					middleware,
-					introspection = process.env.NODE_ENV !== 'production',
+					introspection = nodeEnv !== 'production',
 					allowBatchedHttpRequests = true,
 					maxDepth = 10,
 				} = this.options;
