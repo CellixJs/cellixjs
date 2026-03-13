@@ -13,6 +13,8 @@ const deployDir = path.join(apiDir, 'deploy');
 const deployDistDir = path.join(deployDir, 'dist');
 const packageJsonPath = path.join(apiDir, 'package.json');
 const hostJsonPath = path.join(apiDir, 'host.json');
+const banner = `import { createRequire as __createRequire } from 'node:module';
+globalThis.require = __createRequire(import.meta.url);`;
 const explicitExternalModules = new Set([
 	'@azure/functions-core',
 	'@azure/functions-extensions-base',
@@ -46,10 +48,10 @@ await build({
 	treeshake: true,
 	external: shouldExternalizeModule,
 	output: {
-		file: path.join(deployDistDir, 'index.cjs'),
-		format: 'cjs',
-		inlineDynamicImports: true,
+		dir: deployDistDir,
+		format: 'esm',
 		sourcemap: true,
+		banner: banner,
 	},
 });
 
@@ -74,7 +76,8 @@ async function writeDeployPackageJson() {
 		name: packageJson.name,
 		version: packageJson.version,
 		private: true,
-		main: 'dist/index.cjs',
+		type: 'module',
+		main: 'dist/index.js',
 	};
 
 	await fs.writeFile(
@@ -141,7 +144,7 @@ async function collectExternalDependencies(packageName, visitedWorkspacePackages
 	const dependencyNames = Object.keys({
 		...(packageJson.dependencies ?? {}),
 		...(packageJson.optionalDependencies ?? {}),
-	}).sort();
+	}).sort((a, b) => a.localeCompare(b));
 	const externalDependencies = new Set();
 
 	for (const dependencyName of dependencyNames) {
@@ -159,7 +162,7 @@ async function collectExternalDependencies(packageName, visitedWorkspacePackages
 		externalDependencies.add(dependencyName);
 	}
 
-	return [...externalDependencies].sort();
+	return [...externalDependencies].sort((a, b) => a.localeCompare(b));
 }
 
 async function collectWorkspacePackages() {
@@ -250,7 +253,7 @@ async function resolveInstalledPackageRoot(packageName) {
 		const pnpmEntries = await fs.readdir(pnpmStoreDir);
 		const packagePathSegments = packageName.split('/');
 
-		for (const pnpmEntry of pnpmEntries.sort()) {
+		for (const pnpmEntry of pnpmEntries.sort((a, b) => a.localeCompare(b))) {
 			const candidatePackageJsonPath = path.join(
 				pnpmStoreDir,
 				pnpmEntry,
