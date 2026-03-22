@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi, type MockedFunction } from 'vitest';
 import { buildCellixSchema, loadResolversFromGlob } from './schema-builder.ts';
+import { baseCellixTypeDefs } from './base-type-defs.generated.ts';
 import type { IResolvers } from '@graphql-tools/utils';
 import type { GraphQLSchema, DocumentNode } from 'graphql';
 
@@ -74,7 +75,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     });
 
     And('the schema should include base Cellix types', () => {
-      expect(loadFilesSync).toHaveBeenCalledWith(path.resolve(__dirname, '../..', 'src/schema/**/*.graphql'));
+      expect(mergeTypeDefs).toHaveBeenCalledWith(
+        expect.arrayContaining([...baseCellixTypeDefs])
+      );
     });
 
     And('the schema should include GraphQL scalars', () => {

@@ -1,20 +1,10 @@
-/**
- * This file is used to traverse  all the files in this directory
- * and merge them together to create the application schema
- */
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { loadResolversFromGlob } from '@cellix/graphql-core';
+import { mergeResolvers } from '@graphql-tools/merge';
 import type { Resolvers } from './generated.ts';
+import { ocomGraphqlPermissions, ocomGraphqlResolvers } from './resolver-manifest.generated.ts';
 
-// ESM-safe __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+function mergeResolverModules(modules: Resolvers[]): Resolvers {
+	return (modules.length === 0 ? {} : mergeResolvers(modules)) as Resolvers;
+}
 
-// Load compiled resolver JS from dist:
-// dist/src/schema/builder -> up to dist/src -> dist -> package root -> dist/src/schema/types
-const resolversGlob = path.resolve(__dirname, '../types/**/*.resolvers.{js,cjs,mjs}');
-const permissionsGlob = path.resolve(__dirname, '../types/**/*.permissions.{js,cjs,mjs}');
-
-export const resolvers: Resolvers = loadResolversFromGlob(resolversGlob);
-export const permissions: Resolvers = loadResolversFromGlob(permissionsGlob);
+export const resolvers: Resolvers = mergeResolverModules(ocomGraphqlResolvers as Resolvers[]);
+export const permissions: Resolvers = mergeResolverModules(ocomGraphqlPermissions as Resolvers[]);

@@ -103,6 +103,26 @@ generates:
       - 'typescript-operations'
       - 'typed-document-node'
 
+  # Static SDL type defs for rolldown bundling - replaces runtime loadFilesSync glob in @cellix/graphql-core
+  ./packages/cellix/graphql-core/src/schema/base-type-defs.generated.ts:
+    plugins:
+      - './build-pipeline/graphql-codegen-plugins/static-type-defs-plugin.mjs':
+          sourceDir: 'packages/cellix/graphql-core/src/schema'
+          exportName: 'baseCellixTypeDefs'
+
+  # Static SDL type defs for rolldown bundling - replaces runtime loadFilesSync glob in @ocom/graphql
+  ./packages/ocom/graphql/src/schema/builder/schema-type-defs.generated.ts:
+    plugins:
+      - './build-pipeline/graphql-codegen-plugins/static-type-defs-plugin.mjs':
+          sourceDir: 'packages/ocom/graphql/src/schema/types'
+          exportName: 'ocomGraphqlTypeDefs'
+
+  # Static resolver imports for rolldown bundling - replaces runtime loadResolversFromGlob in @ocom/graphql
+  ./packages/ocom/graphql/src/schema/builder/resolver-manifest.generated.ts:
+    plugins:
+      - './build-pipeline/graphql-codegen-plugins/resolver-manifest-plugin.mjs':
+          typesDir: 'packages/ocom/graphql/src/schema/types'
+
 hooks:
   afterAllFileWrite:
     - pnpm exec biome format --write

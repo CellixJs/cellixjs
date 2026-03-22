@@ -1,4 +1,16 @@
 {
   "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": [
+        "src/**",
+        "tsconfig*.json",
+        "package.json",
+        "host.json",
+        "scripts/**"
+      ],
+      "outputs": ["dist/**", "build/**", "deploy/**"]
+    }
+  },
   "tags": ["backend"]
 }

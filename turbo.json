@@ -83,10 +83,14 @@
       "cache": true,
       "inputs": [
         "codegen.yml",
-        "**/*.graphql"
+        "**/*.graphql",
+        "**/*.resolvers.ts",
+        "**/*.permissions.ts",
+        "build-pipeline/graphql-codegen-plugins/**"
       ],
       "outputs": [
         "**/generated.ts",
+        "**/*.generated.ts",
         "**/graphql.schema.json",
         "**/generated.tsx"
       ]

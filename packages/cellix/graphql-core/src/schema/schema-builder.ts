@@ -1,24 +1,10 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { loadFilesSync } from '@graphql-tools/load-files';
 import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { IResolvers } from '@graphql-tools/utils';
 import { typeDefs as scalarTypeDefs, resolvers as scalarResolvers } from 'graphql-scalars';
 import type { GraphQLSchema, DocumentNode } from 'graphql';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/**
- * Load base Cellix GraphQL schema files
- */
-function loadBaseCellixTypeDefs() {
-  // Resolve relative to package root to work in both development and published package
-  const packageRoot = path.resolve(__dirname, '../..');
-  const baseSchemaGlob = path.join(packageRoot, 'src/schema/**/*.graphql');
-  return loadFilesSync(baseSchemaGlob);
-}
+import { baseCellixTypeDefs } from './base-type-defs.generated.ts';
 
 /**
  * Create a complete GraphQL schema by combining base Cellix types with additional types
@@ -30,16 +16,13 @@ export function buildCellixSchema<TContext = Record<string, unknown>>(
   additionalTypeDefs: (string | DocumentNode) | Array<string | DocumentNode> = [],
   additionalResolvers: IResolvers<unknown, TContext>[] = [],
 ): GraphQLSchema {
-  // Load base Cellix schema files
-  const baseTypeDefs = loadBaseCellixTypeDefs();
-
   // Normalize additional typeDefs to array
   const additionalTypeDefsArray = Array.isArray(additionalTypeDefs) ? additionalTypeDefs : [additionalTypeDefs];
 
   // Merge all type definitions
   const allTypeDefs = mergeTypeDefs([
     ...scalarTypeDefs, // GraphQL scalars
-    ...baseTypeDefs, // Base Cellix types (Query, Mutation, MongoBase, etc.)
+    ...baseCellixTypeDefs, // Base Cellix types (Query, Mutation, MongoBase, etc.)
     ...additionalTypeDefsArray, // Additional types from consumer
   ]);
 

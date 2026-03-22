@@ -26,7 +26,11 @@ function makeMockHttpRequest(method: string, url: string, headers?: Record<strin
     url,
     headers: {
       get: (key: string) => headerMap.get(key.toLowerCase()),
-      entries: () => headerMap.entries(),
+      forEach: (callback: (value: string, key: string) => void) => {
+        headerMap.forEach((value, key) => {
+          callback(value, key);
+        });
+      },
     },
     json: async () => body,
   } as unknown as HttpRequest;
