@@ -2,6 +2,7 @@
 
 # Assigns code ownership of all CellixJS framework files to the core team
 /packages/cellix/*                          @CellixJs/tech-sme
+/**/*.archunit.test.ts                      @CellixJs/tech-sme
 
 # Assigns code ownership of configuration files to the admin team
 /packages/**/tsconfig.json                  @CellixJs/tech-admin

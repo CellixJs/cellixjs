@@ -1,6 +1,6 @@
 packages:
   - "apps/*"
-  - "packages/arch-unit-tests"
+  - "packages/archunit-tests"
   - "packages/cellix/*"
   - "packages/ocom/*"
 
