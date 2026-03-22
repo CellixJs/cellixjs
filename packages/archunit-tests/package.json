@@ -1,11 +1,11 @@
 {
-  "name": "@ocom/arch-unit-tests",
+  "name": "@ocom/archunit-tests",
   "version": "1.0.0",
   "description": "Architectural fitness tests for the CellixJS monorepo",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "pnpm run test:coverage --silent",
+    "test": "pnpm run test:coverage",
     "test:coverage": "vitest run --silent --reporter=dot",
     "test:watch": "vitest"
   },
