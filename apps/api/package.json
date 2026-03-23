@@ -1,5 +1,5 @@
 {
-  "name": "@ocom/api",
+  "name": "@apps/api",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "biome lint",
     "build": "tsc --build && rolldown -c rolldown.config.ts",
-    "prepare:deploy": "node ./build-pipelines/scripts/build-deploy.mjs",
+    "prepare:deploy": "cellix-prepare-func-deploy",
     "watch": "tsc --watch",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
@@ -39,6 +39,7 @@
     "@opentelemetry/api": "1.9.0"
   },
   "devDependencies": {
+    "@cellix/config-rolldown": "workspace:*",
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
     "rimraf": "catalog:",

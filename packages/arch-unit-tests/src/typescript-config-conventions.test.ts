@@ -15,6 +15,7 @@ type TsConfig = {
 const packagesRoot = join(__dirname, '..', '..');
 const expectedPackageConfigs = new Map<string, '@cellix/typescript-config/base' | '@cellix/typescript-config/node'>([
 	['cellix/api-services-spec', '@cellix/typescript-config/node'],
+	['cellix/config-rolldown', '@cellix/typescript-config/node'],
 	['cellix/domain-seedwork', '@cellix/typescript-config/node'],
 	['cellix/event-bus-seedwork-node', '@cellix/typescript-config/node'],
 	['cellix/graphql-codegen', '@cellix/typescript-config/node'],

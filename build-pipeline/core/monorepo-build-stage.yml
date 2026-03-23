@@ -442,11 +442,11 @@ stages:
 
           DEPLOY_DIR="$(Build.SourcesDirectory)/apps/api/deploy"
 
-          echo "Preparing @ocom/api deployment artifact..."
+          echo "Preparing @apps/api deployment artifact..."
 
           # Populate deploy/ with host.json and package.json alongside the
           # rolldown-bundled dist/ already produced by the build step.
-          pnpm --filter @ocom/api run prepare:deploy
+          pnpm --filter @apps/api run prepare:deploy
 
           # Verify deployment structure
           echo ""

@@ -67,6 +67,9 @@
     "**/__tests__/**",
     "**/tests/**"
   ],
+  "ignoreIssues": {
+    "codegen.yml": ["unlisted"]
+  },
   "ignoreDependencies": [
     "@types/*",
     "@cucumber/node",
@@ -76,6 +79,7 @@
     "@serenity-js/core",
     "@serenity-js/cucumber",
     "@serenity-js/serenity-bdd",
+    "@cellix/graphql-codegen",
     "@graphql-typed-document-node/core",
     "ts-scope-trimmer-plugin"
   ],

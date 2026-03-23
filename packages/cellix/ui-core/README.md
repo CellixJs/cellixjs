@@ -123,4 +123,4 @@ Common scripts from `package.json` (executed in this workspace):
 ## See also
 
 - `@ocom/ui-components` — Shared UI components for OCOM applications using this component library
-- `@ocom/ui-community` — Community-facing UI application using this component library
+- `@apps/ui-community` — Community-facing UI application using this component library

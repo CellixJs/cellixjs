@@ -4,7 +4,7 @@ Local OAuth2/OIDC mock server for development and testing.
 
 ⚠️ For local development only. Never deploy to production.
 
-This service acts as a drop-in replacement for Azure AD B2C when running the OwnerCommunity API (@ocom/api) locally.
+This service acts as a drop-in replacement for Azure AD B2C when running the OwnerCommunity API (@apps/api) locally.
 
 ## Features
 
@@ -63,9 +63,9 @@ Sub=11111111-1111-1111-1111-111111111111
 - `GET /authorize?state=...` — redirects to `ALLOWED_REDIRECT_URI` with `code` and optional `state`
 - `POST /token` — body supports `tid` and `refresh_token`; returns signed `id_token` and `access_token`
 
-## Align with @ocom/api
+## Align with @apps/api
 
-`@ocom/api` reads OIDC config from `packages/api/local.settings.json` — ensure these point to this mock server:
+`@apps/api` reads OIDC config from `packages/api/local.settings.json` — ensure these point to this mock server:
 
 - `ACCOUNT_PORTAL_OIDC_ENDPOINT`: `http://localhost:4000/.well-known/jwks.json`
 - `ACCOUNT_PORTAL_OIDC_ISSUER`: `http://localhost:4000`

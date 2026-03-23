@@ -98,7 +98,7 @@ jobs:
               export GIT_PASS=$(GH_TOKEN)
 
               echo "Installing dependencies for deployment..."
-              pnpm install --filter @ocom/docs... --frozen-lockfile
+              pnpm install --filter @apps/docs... --frozen-lockfile
 
               cd apps/docs
 

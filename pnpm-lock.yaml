@@ -178,6 +178,9 @@ importers:
         specifier: 1.9.0
         version: 1.9.0
     devDependencies:
+      '@cellix/config-rolldown':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-rolldown
       '@cellix/typescript-config':
         specifier: workspace:*
         version: link:../../packages/cellix/typescript-config
@@ -408,6 +411,21 @@ importers:
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/cellix/config-rolldown:
+    devDependencies:
+      '@cellix/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      rolldown:
+        specifier: 1.0.0-beta.55
+        version: 1.0.0-beta.55
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

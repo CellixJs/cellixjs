@@ -118,12 +118,12 @@ Use VS Code tasks for development (preferred over manual commands):
 
 ### Workspace Structure
 Monorepo uses pnpm workspaces with these core packages:
-- `@ocom/api` - Main Azure Functions backend application
+- `@apps/api` - Main Azure Functions backend application
 - `@ocom/data-sources-mongoose-models` - Mongoose data source models
 - `@ocom/domain` - Domain models and business logic
 - `@ocom/graphql` - GraphQL implementation
 - `@ocom/service-mongoose` - MongoDB data layer
-- `@ocom/ui-community` - React frontend application
+- `@apps/ui-community` - React frontend application
 - `@cellix/*` - Shared seedwork libraries
 
 ### External Integrations
