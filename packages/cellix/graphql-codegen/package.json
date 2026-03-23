@@ -1,22 +1,20 @@
 {
-  "name": "@cellix/graphql-core",
+  "name": "@cellix/graphql-codegen",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Shared, reusable GraphQL utilities for Cellix framework",
+  "description": "Cellix graphql-codegen plugins and schema builder — generates static type-def arrays and resolver manifests, and provides buildCellixSchema for consuming the generated artifacts at runtime",
   "files": [
     "dist",
-    "src/schema/**/*.graphql"
+    "plugins"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "default": "./dist/utils/index.js"
-    }
+    "./plugins/static-type-defs": "./plugins/static-type-defs-plugin.mjs",
+    "./plugins/resolver-manifest": "./plugins/resolver-manifest-plugin.mjs"
   },
   "scripts": {
     "prebuild": "biome lint",
@@ -26,13 +24,18 @@
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist node_modules .turbo .coverage"
   },
   "dependencies": {
+    "@cellix/graphql-core": "workspace:*",
+    "@graphql-tools/merge": "^9.1.1",
+    "@graphql-tools/schema": "^10.0.25",
+    "@graphql-tools/utils": "^10.0.13",
     "graphql": "^16.10.0",
     "graphql-scalars": "^1.24.2"
   },
   "devDependencies": {
+    "@amiceli/vitest-cucumber": "^5.1.2",
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
     "rimraf": "catalog:",
@@ -40,3 +43,4 @@
     "vitest": "catalog:"
   }
 }
+

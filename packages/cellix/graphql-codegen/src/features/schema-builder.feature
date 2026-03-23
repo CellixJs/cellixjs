@@ -18,8 +18,3 @@ Feature: Schema Builder
     When buildCellixSchema is called with the additional resolvers
     Then it should return a valid GraphQL schema
     And the schema should include the additional resolvers
-
-  Scenario: Loading resolvers from glob pattern
-    Given a glob pattern for resolver files
-    When loadResolversFromGlob is called
-    Then it should return merged resolvers from the matched files

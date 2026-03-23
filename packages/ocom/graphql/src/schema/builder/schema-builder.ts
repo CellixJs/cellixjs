@@ -1,4 +1,4 @@
-import { buildCellixSchema } from '@cellix/graphql-core';
+import { buildCellixSchema } from '@cellix/graphql-codegen';
 import type { GraphContext } from '../context.ts';
 import { resolvers } from './resolver-builder.ts';
 import type { GraphQLSchema } from 'graphql';

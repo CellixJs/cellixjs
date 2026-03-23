@@ -6,5 +6,5 @@ function mergeResolverModules(modules: Resolvers[]): Resolvers {
 	return (modules.length === 0 ? {} : mergeResolvers(modules)) as Resolvers;
 }
 
-export const resolvers: Resolvers = mergeResolverModules(ocomGraphqlResolvers as Resolvers[]);
-export const permissions: Resolvers = mergeResolverModules(ocomGraphqlPermissions as Resolvers[]);
+export const resolvers: Resolvers = mergeResolverModules(ocomGraphqlResolvers);
+export const permissions: Resolvers = mergeResolverModules(ocomGraphqlPermissions);

@@ -2,15 +2,16 @@
   "extends": ["//"],
   "tasks": {
     "build": {
+      "cache": true,
       "inputs": [
         "src/**",
         "tsconfig*.json",
+        "rolldown.config.ts",
         "package.json",
         "host.json",
-        "scripts/**"
+        "build-pipelines/scripts/**"
       ],
-      "outputs": ["dist/**", "build/**", "deploy/**"]
+      "outputs": ["dist/**", "deploy/**"]
     }
-  },
-  "tags": ["backend"]
+  }
 }

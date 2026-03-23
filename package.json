@@ -16,8 +16,6 @@
     "format": "turbo run format",
     "gen": "graphql-codegen --config codegen.yml",
     "gen:watch": "graphql-codegen --config codegen.yml --watch",
-    "tsbuild": "tsc --build",
-    "tswatch": "tsc --build --watch",
     "clean": "turbo run clean && rimraf dist node_modules **/coverage",
     "start:api": "pnpm --filter @ocom/api start",
     "start:ui-community": "pnpm --filter @ocom/ui-community dev",
@@ -53,6 +51,7 @@
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",
     "@biomejs/biome": "2.4.6",
+    "@cellix/graphql-codegen": "workspace:*",
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/introspection": "^4.0.3",
     "@graphql-codegen/typed-document-node": "^5.1.2",

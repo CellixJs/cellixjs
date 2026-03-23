@@ -86,7 +86,7 @@
         "**/*.graphql",
         "**/*.resolvers.ts",
         "**/*.permissions.ts",
-        "build-pipeline/graphql-codegen-plugins/**"
+        "packages/cellix/graphql-codegen/plugins/**"
       ],
       "outputs": [
         "**/generated.ts",

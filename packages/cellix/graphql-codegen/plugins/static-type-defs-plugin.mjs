@@ -13,12 +13,6 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const REPO_ROOT = path.resolve(__dirname, '../..');
 
 export const plugin = async (_schema, _documents, config) => {
 	const { sourceDir, exportName } = config;
@@ -27,7 +21,7 @@ export const plugin = async (_schema, _documents, config) => {
 		throw new Error('static-type-defs-plugin: "sourceDir" and "exportName" config options are required');
 	}
 
-	const absoluteSourceDir = path.resolve(REPO_ROOT, sourceDir);
+	const absoluteSourceDir = path.resolve(process.cwd(), sourceDir);
 	const files = await collectFiles(absoluteSourceDir, '.graphql');
 	const fileContents = await Promise.all(
 		files.map(async (filePath) => ({
@@ -43,7 +37,7 @@ export const plugin = async (_schema, _documents, config) => {
 		`export const ${exportName} = [`,
 		...fileContents.map(
 			({ filePath, content }) =>
-				`\t${JSON.stringify(content)}, // ${toPosixPath(path.relative(REPO_ROOT, filePath))}`,
+				`\t${JSON.stringify(content)}, // ${toPosixPath(path.relative(process.cwd(), filePath))}`,
 		),
 		'] as const;',
 		'',

@@ -7,32 +7,31 @@
  * can statically analyse all resolver imports at bundle time.
  *
  * Config options:
- *   typesDir  - path relative to repo root containing the resolver/permissions files
- *   outputFile - path relative to repo root where this file will be written
- *               (used to compute correct relative import paths)
+ *   typesDir              - path relative to repo root containing the resolver/permissions files
+ *   resolversExportName   - name of the exported resolvers array (default: 'resolvers')
+ *   permissionsExportName - name of the exported permissions array (default: 'permissions')
  */
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const REPO_ROOT = path.resolve(__dirname, '../..');
 
 export const plugin = async (_schema, _documents, config, info) => {
-	const { typesDir } = config;
+	const {
+		typesDir,
+		resolversExportName = 'resolvers',
+		permissionsExportName = 'permissions',
+	} = config;
 
 	if (!typesDir) {
 		throw new Error('resolver-manifest-plugin: "typesDir" config option is required');
 	}
 
-	const absoluteTypesDir = path.resolve(REPO_ROOT, typesDir);
+	const repoRoot = process.cwd();
+	const absoluteTypesDir = path.resolve(repoRoot, typesDir);
 
 	// Use the output file path from codegen info to compute relative imports
 	const outputFile = info?.outputFile
-		? path.resolve(REPO_ROOT, info.outputFile)
+		? path.resolve(repoRoot, info.outputFile)
 		: path.resolve(absoluteTypesDir, '../builder/resolver-manifest.generated.ts');
 
 	const resolverFiles = await collectFiles(absoluteTypesDir, '.resolvers.ts');
@@ -52,11 +51,11 @@ export const plugin = async (_schema, _documents, config, info) => {
 		'// Do not edit directly.',
 		...(allImports.length === 0 ? [] : ['', ...allImports]),
 		'',
-		'export const ocomGraphqlResolvers = [',
+		`export const ${resolversExportName} = [`,
 		...resolverFiles.map((_filePath, index) => `\tresolver${index},`),
 		'];',
 		'',
-		'export const ocomGraphqlPermissions = [',
+		`export const ${permissionsExportName} = [`,
 		...permissionFiles.map((_filePath, index) => `\tpermission${index},`),
 		'];',
 		'',

@@ -4,7 +4,9 @@ Shared, reusable GraphQL utilities for Cellix framework projects.
 
 ## Purpose
 
-This package provides common GraphQL utilities and schema definitions that can be shared across all Cellix-based applications. It is framework-level code, not application-specific.
+This package provides common GraphQL utilities and base schema definitions that can be shared across all Cellix-based applications. It is framework-level code, not application-specific.
+
+In the current Cellix GraphQL architecture, this package owns the shared SDL and resolver helpers, while `@cellix/graphql-codegen` is responsible for turning the SDL into rolldown-friendly generated artifacts consumed at runtime.
 
 ## Contents
 
@@ -28,28 +30,54 @@ This package provides common GraphQL utilities and schema definitions that can b
   - `blob-auth-header.graphql`: Types for blob storage authentication
   - `mutation-status.graphql`: Standard mutation status types
 
+### Generated Exports
+
+- **baseCellixTypeDefs**: A generated static array of the framework SDL exported from `@cellix/graphql-core`
+
 ## Usage
 
 ```typescript
-import { getRequestedFieldPaths, Scalars } from '@cellix/graphql-core';
+import { getRequestedFieldPaths, Scalars, baseCellixTypeDefs } from '@cellix/graphql-core';
 
 // Use in resolvers
 const requestedFields = getRequestedFieldPaths(info);
 
 // Use scalar resolvers
 const resolvers = [Scalars.resolvers, myResolvers];
+
+// Use generated base SDL
+const typeDefs = [...baseCellixTypeDefs];
 ```
 
-## Schema Files
+## How It Fits Together
 
-GraphQL schema files (*.graphql) are included in the package distribution and can be loaded using @graphql-tools/load-files or similar utilities:
+Cellix projects do not load `.graphql` files from this package dynamically at runtime.
+
+Instead, the recommended flow is:
+
+1. Keep shared framework SDL in `@cellix/graphql-core/src/schema/**/*.graphql`
+2. Generate `base-type-defs.generated.ts` using the `@cellix/graphql-codegen/plugins/static-type-defs` plugin
+3. Import `baseCellixTypeDefs` from `@cellix/graphql-core`
+4. Build the application schema with `buildCellixSchema` from `@cellix/graphql-codegen`
+
+Example:
 
 ```typescript
-import { loadFilesSync } from '@graphql-tools/load-files';
-import path from 'node:path';
+import { buildCellixSchema } from '@cellix/graphql-codegen';
+import { baseCellixTypeDefs } from '@cellix/graphql-core';
+import { myAppTypeDefs } from './schema-type-defs.generated.ts';
+import { myAppResolvers } from './resolver-manifest.generated.ts';
 
-// Load core schema files
-const coreSchemaFiles = loadFilesSync(
-  path.join(require.resolve('@cellix/graphql-core'), '../../schema/**/*.graphql')
+const schema = buildCellixSchema(
+  [...myAppTypeDefs],
+  myAppResolvers,
 );
 ```
+
+This approach keeps schema assembly statically analyzable so rolldown can bundle GraphQL applications without runtime glob discovery.
+
+## Notes
+
+- The `.graphql` files in this package are source inputs for code generation.
+- The primary runtime contract for consumers is the generated `baseCellixTypeDefs` export.
+- If you are building a Cellix GraphQL app, prefer the generated static exports over `loadFilesSync` or other runtime file-loading patterns.
