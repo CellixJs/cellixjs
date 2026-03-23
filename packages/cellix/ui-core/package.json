@@ -6,12 +6,12 @@
   "files": ["dist"],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./components/*": {
-      "types": "./dist/src/components/*.d.ts",
-      "default": "./dist/src/components/*.js"
+      "types": "./dist/components/*.d.ts",
+      "default": "./dist/components/*.js"
     }
   },
   "scripts": {

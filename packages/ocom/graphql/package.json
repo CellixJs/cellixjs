@@ -9,8 +9,8 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -21,10 +21,11 @@
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist **/*.generated.ts **/graphql.schema.json"
   },
   "dependencies": {
     "@apollo/server": "^5.4.0",
+    "@cellix/graphql-codegen": "workspace:*",
     "@cellix/graphql-core": "workspace:*",
     "@graphql-tools/merge": "^9.1.6",
     "@ocom/application-services": "workspace:*",

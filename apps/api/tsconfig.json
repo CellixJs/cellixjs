@@ -3,7 +3,8 @@
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": ["src", "globals.d.ts"],
   "references": [
