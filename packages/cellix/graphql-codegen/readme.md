@@ -26,7 +26,7 @@ import { ocomGraphqlResolvers } from './resolver-manifest.generated.ts';
 
 export const schema = buildCellixSchema(
   [...ocomGraphqlTypeDefs],
-  [resolvers],
+  [ocomGraphqlResolvers],
 );
 ```
 

@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs';
+import os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -7,7 +8,7 @@ import {
 	prepareCellixAzureFunctionsDeploy,
 } from './index.js';
 
-const repoWorkspaceRoot = path.resolve(import.meta.dirname, '../../../..');
+const tempRootPrefix = path.join(os.tmpdir(), 'cellix-config-rolldown-');
 
 describe('@cellix/config-rolldown', () => {
 	afterEach(async () => {
@@ -142,7 +143,7 @@ describe('@cellix/config-rolldown', () => {
 });
 
 async function createTempRepo(files: Record<string, string>): Promise<string> {
-	const repoRoot = await fs.mkdtemp(path.join(repoWorkspaceRoot, '.tmp-config-rolldown-'));
+	const repoRoot = await fs.mkdtemp(tempRootPrefix);
 	await fs.mkdir(path.join(repoRoot, 'apps'), { recursive: true });
 	await fs.mkdir(path.join(repoRoot, 'packages'), { recursive: true });
 
@@ -156,13 +157,12 @@ async function createTempRepo(files: Record<string, string>): Promise<string> {
 }
 
 async function cleanupTempRepos(): Promise<void> {
-	const entries = await fs.readdir(repoWorkspaceRoot, { withFileTypes: true });
+	const tempRootDir = os.tmpdir();
+	const entries = await fs.readdir(tempRootDir, { withFileTypes: true });
 
-	await Promise.all(
-		entries
-			.filter((entry) => entry.isDirectory() && entry.name.startsWith('.tmp-config-rolldown-'))
-			.map((entry) =>
-				fs.rm(path.join(repoWorkspaceRoot, entry.name), { recursive: true, force: true }),
-			),
-	);
+	await Promise.all(entries
+		.filter((entry) => entry.isDirectory() && entry.name.startsWith('cellix-config-rolldown-'))
+		.map((entry) =>
+			fs.rm(path.join(tempRootDir, entry.name), { recursive: true, force: true }),
+		));
 }

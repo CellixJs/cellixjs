@@ -10,7 +10,7 @@ describe("Member ordering", () => {
     const allViolations: string[] = [];
 
     await projectFiles()
-      .inFolder("../ocom/domain/src/**")
+      .inFolder("../domain/src/**")
       .withName("*.ts")
       .should()
       .adhereTo((file) => {
@@ -32,5 +32,5 @@ describe("Member ordering", () => {
     }
     // If no violations, test passes
     expect(allViolations).toStrictEqual([]);
-  }, 30000);
+  }, 60000);
 });

@@ -1,9 +1,10 @@
 import { metrics } from 'archunit';
 import { describe, it, expect } from 'vitest';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Absolute tsconfig path so archunit resolves workspace files reliably
-const tsconfigPath = join(__dirname, '..', 'tsconfig.json');
+const tsconfigPath = join(fileURLToPath(new URL('..', import.meta.url)), 'tsconfig.json');
 
 describe('Code Quality', () => {
 	describe('Domain (ocom/domain)', () => {
@@ -12,7 +13,7 @@ describe('Code Quality', () => {
 			// intentionally simple and report high LCOM; relax threshold here to avoid
 			// noisy failures. If you want stricter checks, consider whitelisting folders.
 			const rule = metrics(tsconfigPath)
-				.inPath('../ocom/domain/src/**')
+				.inPath('../domain/src/**')
     				.lcom()
     				.lcom96b()
     				.shouldBeBelowOrEqual(1.0);
@@ -22,7 +23,7 @@ describe('Code Quality', () => {
 
 		it.skip('should avoid excessive methods per class', async () => {
 			const rule = metrics(tsconfigPath)
-				.inPath('../ocom/domain/src/**')
+				.inPath('../domain/src/**')
 				.count()
 				.methodCount()
 				.shouldBeBelow(30);
@@ -33,12 +34,9 @@ describe('Code Quality', () => {
 
 	describe('UI (ui packages)', () => {
 		it.skip('should have higher cohesion (LCOM96b)', async () => {
-			// Target known UI packages explicitly so the pattern matches reliably in
-			// monorepo layouts.
 			const rule = metrics(tsconfigPath)
-				.inPath('../cellix/ui-core/src/**')
-				.inPath('../ocom/ui-components/src/**')
-				.inPath('../../apps/ui-community/src/**')
+				.inPath('../ui-components/src/**')
+				.inPath('../../../apps/ui-community/src/**')
 				.lcom()
 				.lcom96b()
 				.shouldBeBelow(0.85);
@@ -49,9 +47,8 @@ describe('Code Quality', () => {
 
 		it.skip('should limit imports and surface area in UI code', async () => {
 			const rule = metrics(tsconfigPath)
-				.inPath('../cellix/ui-core/src/**')
-				.inPath('../ocom/ui-components/src/**')
-				.inPath('../../apps/ui-community/src/**')
+				.inPath('../ui-components/src/**')
+				.inPath('../../../apps/ui-community/src/**')
 				.count()
 				.imports()
 				.shouldBeBelowOrEqual(20);
@@ -63,7 +60,7 @@ describe('Code Quality', () => {
 	describe('Service / Infrastructure', () => {
 		it.skip('should have reasonable cohesion (LCOM96b)', async () => {
 			const rule = metrics(tsconfigPath)
-				.inPath('../ocom/service-*/src/**')
+				.inPath('../service-*/src/**')
 				.lcom()
 				.lcom96b()
 				.shouldBeBelow(0.95);
@@ -73,7 +70,7 @@ describe('Code Quality', () => {
 
 		it.skip('should limit imports per file for services', async () => {
 			const rule = metrics(tsconfigPath)
-				.inPath('../ocom/service-*/src/**')
+				.inPath('../service-*/src/**')
 				.count()
 				.imports()
 				.shouldBeBelowOrEqual(25);
@@ -88,7 +85,7 @@ describe('Code Quality', () => {
 			// some workspace clones don't include everything.
 			const rule = metrics(tsconfigPath)
 				.inPath('../**/src/**')
-				.inPath('../../apps/**/src/**')
+				.inPath('../../../apps/**/src/**')
 				.lcom()
 				.lcom96b()
 				.shouldBeBelow(0.98);
@@ -98,7 +95,7 @@ describe('Code Quality', () => {
 		it.skip('custom complexity ratio (methods / fields) should be reasonable', async () => {
 			const rule = metrics(tsconfigPath)
 				.inPath('../**/src/**')
-				.inPath('../../apps/**/src/**')
+				.inPath('../../../apps/**/src/**')
 				.customMetric('complexityRatio', 'methods/fields ratio', (classInfo) => {
 					return classInfo.methods.length / Math.max(classInfo.fields.length, 1);
 				})

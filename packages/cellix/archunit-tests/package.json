@@ -1,7 +1,7 @@
 {
-  "name": "@ocom/arch-unit-tests",
+  "name": "@cellix/archunit-tests",
   "version": "1.0.0",
-  "description": "Architectural fitness tests for the CellixJS monorepo",
+  "description": "Architectural fitness tests for the Cellix framework packages",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,7 +13,7 @@
     "@cellix/typescript-config": "workspace:*",
     "@cellix/vitest-config": "workspace:*",
     "@types/node": "^24.6.1",
-    "archunit": "^2.1.63",
+    "archunit": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

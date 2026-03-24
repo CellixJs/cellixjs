@@ -1,0 +1,19 @@
+{
+  "extends": "@cellix/typescript-config/base",
+  "include": [
+    "src/**/*",
+    "../**/*.ts",
+    "../**/*.tsx",
+    "../../ocom/**/*.ts",
+    "../../ocom/**/*.tsx",
+    "../../../apps/**/*.ts",
+    "../../../apps/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "**/dist",
+    "**/coverage",
+    "**/*.test.ts"
+  ]
+}

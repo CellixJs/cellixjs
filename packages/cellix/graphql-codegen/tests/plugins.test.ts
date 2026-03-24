@@ -35,11 +35,31 @@ describe('@cellix/graphql-codegen plugins', () => {
 		});
 
 		expect(output).toContain('export const myTypeDefs = [');
-		expect(output).toContain('"type A { id: ID! }\\n", // schema/nested/a.graphql');
-		expect(output).toContain('"type B { id: ID! }\\n", // schema/b.graphql');
+		expect(output).toContain(String.raw`"type A { id: ID! }\n", // schema/nested/a.graphql`);
+		expect(output).toContain(String.raw`"type B { id: ID! }\n", // schema/b.graphql`);
 		expect(output.indexOf('schema/b.graphql')).toBeLessThan(
 			output.indexOf('schema/nested/a.graphql'),
 		);
+	});
+
+	it('static-type-defs plugin handles sourceDir with no .graphql files', async () => {
+		const repoRoot = await createTempRoot();
+
+		await writeFiles(repoRoot, {
+			'schema/README.md': '# no graphql files here\n',
+			'schema/ignored.txt': 'not graphql\n',
+		});
+		process.chdir(repoRoot);
+
+		const output = await staticTypeDefsPlugin({}, [], {
+			sourceDir: 'schema',
+			exportName: 'staticTypeDefs',
+		});
+
+		expect(typeof output).toBe('string');
+		expect(output).toContain('export const staticTypeDefs = [');
+		expect(output).toContain('] as const;');
+		expect(output).not.toMatch(/\/\/ schema\//);
 	});
 
 	it('resolver-manifest plugin requires typesDir', async () => {
@@ -83,6 +103,32 @@ describe('@cellix/graphql-codegen plugins', () => {
 		expect(output).toContain('\tresolver1,');
 		expect(output).toContain('export const myPermissions = [');
 		expect(output).toContain('\tpermission0,');
+	});
+
+	it('resolver-manifest plugin handles typesDir with no resolver or permission files', async () => {
+		const repoRoot = await createTempRoot();
+
+		await writeFiles(repoRoot, {
+			'schema/types/User.ts': 'export interface User { id: string }\n',
+			'schema/README.md': '# no resolvers here\n',
+		});
+		process.chdir(repoRoot);
+
+		const output = await resolverManifestPlugin(
+			{},
+			[],
+			{
+				typesDir: 'schema/types',
+			},
+			{ outputFile: 'src/__generated__/resolver-manifest.ts' },
+		);
+
+		expect(typeof output).toBe('string');
+		expect(output).toContain('export const resolvers = [');
+		expect(output).toContain('export const permissions = [');
+		expect(output).toMatch(/\bresolvers\s*=\s*\[\s*\]/);
+		expect(output).toMatch(/\bpermissions\s*=\s*\[\s*\]/);
+		expect(output).not.toMatch(/\bfrom\s+['"].+['"]/);
 	});
 
 	it('resolver-manifest plugin supports the default fallback output location', async () => {

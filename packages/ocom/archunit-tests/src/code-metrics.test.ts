@@ -1,15 +1,17 @@
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { metrics } from 'archunit';
 import { describe, expect, it } from 'vitest';
 
-const tsconfigPath = join(__dirname, '..', 'tsconfig.json');
+const tsconfigPath = join(fileURLToPath(new URL('..', import.meta.url)), 'tsconfig.json');
 
 describe('Code Metrics', () => {
 	describe('File Size', () => {
 	    // This check can be slow on large repos; give it more timeout headroom
         it.skip('should not contain too large files', async () => {
             const rule = metrics(tsconfigPath)
-                .inPath('../../**/src/**/*.ts')
+                .inPath('../**/src/**/*.ts')
+                .inPath('../../../apps/**/src/**/*.ts')
                 .count()
                 .linesOfCode()
                 .shouldBeBelow(1000);
@@ -19,7 +21,8 @@ describe('Code Metrics', () => {
 
 		it.skip('should limit statements per file (excluding tests)', async () => {
 			const rule = metrics(tsconfigPath)
-				.inPath('../../**/src/**/*.ts')
+				.inPath('../**/src/**/*.ts')
+				.inPath('../../../apps/**/src/**/*.ts')
 				.count()
 				.statements()
 				.shouldBeBelowOrEqual(250);
@@ -31,6 +34,7 @@ describe('Code Metrics', () => {
 		it.skip('should limit methods per class', async () => {
 			const rule = metrics(tsconfigPath)
 				.inPath('../**/src/**/*.ts')
+				.inPath('../../../apps/**/src/**/*.ts')
 				.count()
 				.methodCount()
 				.shouldBeBelow(20);
@@ -40,6 +44,7 @@ describe('Code Metrics', () => {
 		it.skip('should limit fields per class', async () => {
 			const rule = metrics(tsconfigPath)
 				.inPath('../**/src/**/*.ts')
+				.inPath('../../../apps/**/src/**/*.ts')
 				.count()
 				.fieldCount()
 				.shouldBeBelow(15);
@@ -51,6 +56,7 @@ describe('Code Metrics', () => {
 		it.skip('should limit imports per file', async () => {
 			const rule = metrics(tsconfigPath)
 				.inPath('../**/src/**/*.ts')
+				.inPath('../../../apps/**/src/**/*.ts')
 				.count()
 				.imports()
 				.shouldBeBelowOrEqual(20);

@@ -9,6 +9,9 @@ catalogs:
     '@azure/functions':
       specifier: 4.11.0
       version: 4.11.0
+    archunit:
+      specifier: ^2.1.63
+      version: 2.1.63
     graphql:
       specifier: ^16.10.0
       version: 16.12.0
@@ -382,27 +385,6 @@ importers:
         specifier: 'catalog:'
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(less@4.4.2)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/arch-unit-tests:
-    devDependencies:
-      '@cellix/typescript-config':
-        specifier: workspace:*
-        version: link:../cellix/typescript-config
-      '@cellix/vitest-config':
-        specifier: workspace:*
-        version: link:../cellix/vitest-config
-      '@types/node':
-        specifier: ^24.6.1
-        version: 24.10.1
-      archunit:
-        specifier: ^2.1.63
-        version: 2.1.63
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vitest:
-        specifier: 'catalog:'
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(less@4.4.2)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
-
   packages/cellix/api-services-spec:
     devDependencies:
       '@cellix/typescript-config':
@@ -414,6 +396,27 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
+
+  packages/cellix/archunit-tests:
+    devDependencies:
+      '@cellix/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@cellix/vitest-config':
+        specifier: workspace:*
+        version: link:../vitest-config
+      '@types/node':
+        specifier: ^24.6.1
+        version: 24.10.1
+      archunit:
+        specifier: 'catalog:'
+        version: 2.1.63
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(less@4.4.2)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/cellix/config-rolldown:
     devDependencies:
@@ -737,6 +740,27 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
+
+  packages/ocom/archunit-tests:
+    devDependencies:
+      '@cellix/typescript-config':
+        specifier: workspace:*
+        version: link:../../cellix/typescript-config
+      '@cellix/vitest-config':
+        specifier: workspace:*
+        version: link:../../cellix/vitest-config
+      '@types/node':
+        specifier: ^24.6.1
+        version: 24.10.1
+      archunit:
+        specifier: 'catalog:'
+        version: 2.1.63
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(less@4.4.2)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/ocom/context-spec:
     dependencies:

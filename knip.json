@@ -47,6 +47,9 @@
       ],
       "project": ["src/**/*.ts"]
     },
+    "packages/ocom/archunit-tests": {
+      "project": ["src/**/*.ts"]
+    },
     "packages/ocom/*": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"]
