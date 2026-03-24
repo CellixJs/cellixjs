@@ -4,11 +4,11 @@
 		"target": "ES2022",
 		"useDefineForClassFields": true,
 		"lib": ["ES2022", "DOM", "DOM.Iterable"],
-		"module": "ESNext", // Overrides @cellix/typescript-config/base.json
-		"skipLibCheck": true, // Overrides @cellix/typescript-config/base.json
+		"module": "ESNext", // Overrides @cellix/config-typescript/base.json
+		"skipLibCheck": true, // Overrides @cellix/config-typescript/base.json
 
 		/* Bundler mode */
-		"moduleResolution": "bundler", // Overrides @cellix/typescript-config/base.json
+		"moduleResolution": "bundler", // Overrides @cellix/config-typescript/base.json
 		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"moduleDetection": "force", // New setting

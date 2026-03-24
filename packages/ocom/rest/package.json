@@ -22,7 +22,7 @@
     "@ocom/application-services": "workspace:*"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
     "typescript": "catalog:",
     "rimraf": "catalog:"
   }

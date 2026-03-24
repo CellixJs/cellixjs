@@ -1,5 +1,5 @@
 {
-  "name": "@cellix/vitest-config",
+  "name": "@cellix/config-vitest",
   "version": "1.0.0",
   "type": "module",
   "files": ["dist"],
@@ -13,7 +13,7 @@
     "vitest": "^3.2.4"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
     "typescript": "catalog:"
   }
 }

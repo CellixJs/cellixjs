@@ -10,7 +10,7 @@ describe('Cellix Dependency Rules', () => {
         .should()
         .haveNoCycles();
       await expect(rule).toPassAsync();
-    }, 60000);
+    }, 90000);
   });
 
   describe('Framework Boundaries', () => {

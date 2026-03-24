@@ -10,8 +10,8 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "@types/node": "^24.6.1",
     "archunit": "catalog:",
     "typescript": "catalog:",

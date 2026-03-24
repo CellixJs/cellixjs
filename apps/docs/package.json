@@ -28,8 +28,8 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "@docusaurus/module-type-aliases": "3.9.2",
     "@docusaurus/tsconfig": "3.9.2",
     "@docusaurus/types": "3.9.2",

@@ -126,8 +126,8 @@
     "mongodb": "catalog:"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "typescript": "catalog:",
     "rimraf": "catalog:",
     "vitest": "catalog:"

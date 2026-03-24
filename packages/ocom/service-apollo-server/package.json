@@ -32,8 +32,8 @@
     "graphql-middleware": "^6.1.35"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "@types/graphql-depth-limit": "^1.1.6",
     "rimraf": "catalog:",
     "typescript": "catalog:",

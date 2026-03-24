@@ -70,7 +70,7 @@
     "mongoose": "catalog:"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
     "rimraf": "catalog:",
     "typescript": "catalog:"
   }

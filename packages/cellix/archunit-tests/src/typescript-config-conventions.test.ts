@@ -13,7 +13,7 @@ type TsConfig = {
 };
 
 const packagesRoot = join(fileURLToPath(new URL('../../..', import.meta.url)));
-const exemptWorkspacePackages = new Set(['cellix/archunit-tests', 'cellix/typescript-config']);
+const exemptWorkspacePackages = new Set(['cellix/archunit-tests', 'cellix/config-typescript']);
 
 async function listWorkspacePackages(rootPath: string, prefix = ''): Promise<string[]> {
 	const entries = await readdir(rootPath, { withFileTypes: true });

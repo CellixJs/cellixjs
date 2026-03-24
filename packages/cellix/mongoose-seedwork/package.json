@@ -31,8 +31,8 @@
     "mongodb": "^6.0.0"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "mongoose": "catalog:",
     "mongodb": "catalog:",
     "mongodb-memory-server": "^10.1.4",

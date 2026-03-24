@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createStorybookVitestConfig } from '@cellix/vitest-config';
+import { createStorybookVitestConfig } from '@cellix/config-vitest';
 import { defineConfig } from 'vitest/config';
 
 const dirname =

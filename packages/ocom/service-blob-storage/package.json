@@ -23,8 +23,8 @@
     "@cellix/api-services-spec": "workspace:*"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "rimraf": "catalog:",
     "typescript": "catalog:"
   }

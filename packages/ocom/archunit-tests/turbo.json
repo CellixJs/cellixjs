@@ -3,7 +3,7 @@
   "tasks": {
     "test:coverage": {
       "dependsOn": [
-        "@cellix/vitest-config#build",
+        "@cellix/config-vitest#build",
         "@ocom/domain#build",
         "@ocom/persistence#build",
         "@ocom/application-services#build",

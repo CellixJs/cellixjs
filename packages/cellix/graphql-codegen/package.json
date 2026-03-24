@@ -36,8 +36,8 @@
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

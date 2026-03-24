@@ -14,25 +14,11 @@ type TsConfig = {
 };
 
 const packagesRoot = join(fileURLToPath(new URL('../..', import.meta.url)));
-const expectedPackageConfigs = new Map<string, '@cellix/typescript-config/base' | '@cellix/typescript-config/node'>([
-	['ocom/application-services', '@cellix/typescript-config/node'],
-	['ocom/archunit-tests', '@cellix/typescript-config/base'],
-	['ocom/context-spec', '@cellix/typescript-config/node'],
-	['ocom/data-sources-mongoose-models', '@cellix/typescript-config/node'],
-	['ocom/domain', '@cellix/typescript-config/node'],
-	['ocom/event-handler', '@cellix/typescript-config/node'],
-	['ocom/graphql', '@cellix/typescript-config/node'],
-	['ocom/graphql-handler', '@cellix/typescript-config/node'],
-	['ocom/persistence', '@cellix/typescript-config/node'],
-	['ocom/rest', '@cellix/typescript-config/node'],
-	['ocom/service-apollo-server', '@cellix/typescript-config/node'],
-	['ocom/service-blob-storage', '@cellix/typescript-config/node'],
-	['ocom/service-mongoose', '@cellix/typescript-config/node'],
-	['ocom/service-otel', '@cellix/typescript-config/node'],
-	['ocom/service-token-validation', '@cellix/typescript-config/node'],
-	['ocom/ui-components', '@cellix/typescript-config/base'],
+const allowedSharedConfigs = new Set([
+	'@cellix/config-typescript/base',
+	'@cellix/config-typescript/node',
 ]);
-const exemptWorkspacePackages = new Set(['cellix/typescript-config']);
+const exemptWorkspacePackages = new Set(['ocom/archunit-tests']);
 
 async function listWorkspacePackages(rootPath: string, prefix = ''): Promise<string[]> {
 	const entries = await readdir(rootPath, { withFileTypes: true });
@@ -101,36 +87,36 @@ function validateNodeCompilerOptions(
 }
 
 function validateBaseCompilerOptions(
-	packagePath: string,
 	tsconfigPath: string,
 	config: TsConfig,
 	violations: string[],
 ): void {
-	if (packagePath === 'ocom/archunit-tests') {
-		return;
-	}
-
 	validateCommonCompilerOptions(tsconfigPath, config, violations);
 }
 
 function validatePackageConfig(
 	packagePath: string,
 	config: TsConfig,
-	expectedExtends: '@cellix/typescript-config/base' | '@cellix/typescript-config/node',
 	violations: string[],
 ): void {
 	const tsconfigPath = join(packagesRoot, packagePath, 'tsconfig.json');
+	const sharedConfig = config.extends;
 
-	if (config.extends !== expectedExtends) {
-		violations.push(`${tsconfigPath}: extends must be "${expectedExtends}"`);
+	if (!sharedConfig || !allowedSharedConfigs.has(sharedConfig)) {
+		violations.push(
+			`${tsconfigPath}: extends must be one of ${Array.from(allowedSharedConfigs).join(', ')}`,
+		);
+		return;
 	}
 
-	if (expectedExtends === '@cellix/typescript-config/node') {
+	if (sharedConfig === '@cellix/config-typescript/node') {
 		validateNodeCompilerOptions(tsconfigPath, config, violations);
 		return;
 	}
 
-	validateBaseCompilerOptions(packagePath, tsconfigPath, config, violations);
+	if (!exemptWorkspacePackages.has(packagePath)) {
+		validateBaseCompilerOptions(tsconfigPath, config, violations);
+	}
 }
 
 describe('TypeScript Config Conventions', () => {
@@ -143,16 +129,6 @@ describe('TypeScript Config Conventions', () => {
 				continue;
 			}
 
-			if (exemptWorkspacePackages.has(packagePath)) {
-				continue;
-			}
-
-			const expectedExtends = expectedPackageConfigs.get(packagePath);
-			if (!expectedExtends) {
-				violations.push(`packages/${packagePath}: missing tsconfig convention entry in test`);
-				continue;
-			}
-
 			const tsconfigPath = join(packagesRoot, packagePath, 'tsconfig.json');
 			const config = await readTsConfig(tsconfigPath);
 			if (!config) {
@@ -160,7 +136,7 @@ describe('TypeScript Config Conventions', () => {
 				continue;
 			}
 
-			validatePackageConfig(packagePath, config, expectedExtends, violations);
+			validatePackageConfig(packagePath, config, violations);
 		}
 
 		expect(violations, violations.join('\n')).toEqual([]);

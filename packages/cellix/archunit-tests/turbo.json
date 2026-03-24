@@ -11,7 +11,7 @@
         "@cellix/graphql-core#build",
         "@cellix/mongoose-seedwork#build",
         "@cellix/ui-core#build",
-        "@cellix/vitest-config#build"
+        "@cellix/config-vitest#build"
       ],
       "outputs": ["coverage/**"]
     }

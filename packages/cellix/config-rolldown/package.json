@@ -20,8 +20,8 @@
     "rolldown": "1.0.0-beta.55"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "rimraf": "catalog:",
     "rolldown": "1.0.0-beta.55",
     "typescript": "catalog:",

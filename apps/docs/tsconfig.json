@@ -1,5 +1,5 @@
 {
-  "extends": ["@cellix/typescript-config/base", "@docusaurus/tsconfig"],
+  "extends": ["@cellix/config-typescript/base", "@docusaurus/tsconfig"],
   "compilerOptions": {
     "baseUrl": ".",
     "types": ["@docusaurus/module-type-aliases"],

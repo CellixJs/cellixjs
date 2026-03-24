@@ -1,5 +1,5 @@
 {
-  "name": "@cellix/typescript-config",
+  "name": "@cellix/config-typescript",
   "version": "1.0.0",
   "private": true,
   "main": "./tsconfig.base.json",

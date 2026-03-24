@@ -1,5 +1,5 @@
 {
-	"extends": "@cellix/typescript-config/base",
+	"extends": "@cellix/config-typescript/base",
 	"compilerOptions": {
 		"outDir": "dist",
 		"rootDir": "src",

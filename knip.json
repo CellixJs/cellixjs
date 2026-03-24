@@ -59,7 +59,7 @@
       "project": ["src/**/*.{ts,tsx}"]
     }
   },
-  "ignoreWorkspaces": ["packages/cellix/typescript-config"],
+  "ignoreWorkspaces": ["packages/cellix/config-typescript"],
   "ignore": [
     "build-pipeline/scripts/**",
     "**/*.test.ts",

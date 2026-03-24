@@ -10,7 +10,7 @@
       "outputs": ["dist/**", "build/**"]
     },
     "test": {
-      "dependsOn": ["^build", "@cellix/vitest-config#build"],
+      "dependsOn": ["^build", "@cellix/config-vitest#build"],
       "inputs": [
         "src/**",
         "tests/**",
@@ -18,7 +18,7 @@
       ]
     },
     "test:coverage": {
-      "dependsOn": ["build", "^build", "@cellix/vitest-config#build"],
+      "dependsOn": ["build", "^build", "@cellix/config-vitest#build"],
       "inputs": [
         "src/**",
         "tests/**",
