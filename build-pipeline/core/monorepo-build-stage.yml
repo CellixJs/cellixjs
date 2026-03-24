@@ -57,7 +57,7 @@ stages:
     - task: NodeTool@0
       displayName: 'Install: Node.js - LTS'
       inputs:
-        versionSpec: '22.x'
+        versionSpec: '22.20.0'
 
     # Cache Azure Functions Core Tools
     - task: Cache@2
