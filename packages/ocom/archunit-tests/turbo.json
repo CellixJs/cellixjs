@@ -17,7 +17,7 @@
         "@apps/api#build",
         "@apps/ui-community#build"
       ],
-      "outputs": ["coverage/**"]
+      "outputs": []
     }
   }
 }

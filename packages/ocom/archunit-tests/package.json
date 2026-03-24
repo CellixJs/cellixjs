@@ -5,8 +5,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "pnpm run test:coverage",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
+    "test": "vitest run --silent --reporter=dot",
+    "test:coverage": "pnpm run test",
     "test:watch": "vitest"
   },
   "devDependencies": {

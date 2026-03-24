@@ -13,7 +13,7 @@
         "@cellix/ui-core#build",
         "@cellix/config-vitest#build"
       ],
-      "outputs": ["coverage/**"]
+      "outputs": []
     }
   }
 }
