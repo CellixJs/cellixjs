@@ -5,7 +5,7 @@
   "type": "module",
   "author": "CellixJS",
   "license": "MIT",
-  "packageManager": "pnpm@10.18.2",
+  "packageManager": "pnpm@10.30.1",
   "scripts": {
     "audit": "(pnpm audit --audit-level=high --prod) && (pnpm audit --audit-level=critical --dev)",
     "build": "turbo run build",
@@ -96,5 +96,8 @@
     "patchedDependencies": {
       "@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"
     }
+  },
+  "engines": {
+      "node": "22.20.0"
   }
 }

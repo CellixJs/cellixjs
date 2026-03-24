@@ -7,10 +7,13 @@ export const nodeConfig = mergeConfig(baseConfig, defineConfig({
     environment: "node",
     testTimeout: 5000,
     coverage: {
+      excludeAfterRemap: true,
       exclude: [
         "**/*.test.*",
         "**/*.spec.*",
         "**/*.stories.*",
+        "**/*.generated.ts",
+        "**/*.generated.tsx",
         "**/*.d.ts",
         "**/*.config.*",
         "**/vitest.config.*",
@@ -18,7 +21,8 @@ export const nodeConfig = mergeConfig(baseConfig, defineConfig({
         "**/coverage/**",
         "**/.storybook/**",
         "**/tsconfig*.json",
-        "dist/**",
+        "**/dist/**",
+        "**/deploy/**",
         "node_modules/**",
       ],
     },

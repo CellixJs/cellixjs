@@ -17,7 +17,8 @@
         "@ocom/ui-components#build",
         "@apps/api#build",
         "@apps/ui-community#build"
-      ]
+      ],
+      "outputs": ["coverage/**"]
     }
   }
 }

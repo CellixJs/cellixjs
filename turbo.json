@@ -24,7 +24,7 @@
         "tests/**",
         "vitest*.config.*"
       ],
-      "outputs": ["coverage/lcov.info"]
+      "outputs": ["coverage/**"]
     },
     "test:watch": {
         "dependsOn": ["build", "^build"],

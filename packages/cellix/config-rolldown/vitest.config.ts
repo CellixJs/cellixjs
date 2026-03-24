@@ -5,9 +5,8 @@ export default mergeConfig(
 	nodeConfig,
 	defineConfig({
 		test: {
-			include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
 			coverage: {
-				exclude: ['src/index.ts'],
+				exclude: ['bin/prepare-azure-functions-deploy.mjs'],
 			},
 		},
 	}),

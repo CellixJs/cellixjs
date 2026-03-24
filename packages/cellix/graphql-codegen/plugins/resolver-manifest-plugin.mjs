@@ -12,8 +12,8 @@
  *   permissionsExportName - name of the exported permissions array (default: 'permissions')
  */
 
-import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { collectFiles, toPosixPath } from './file-utils.mjs';
 
 export const plugin = async (_schema, _documents, config, info) => {
 	const {
@@ -63,24 +63,6 @@ export const plugin = async (_schema, _documents, config, info) => {
 
 	return lines.join('\n');
 };
-
-async function collectFiles(rootDir, suffix) {
-	const entries = await fs.readdir(rootDir, { withFileTypes: true });
-	const files = await Promise.all(
-		entries.map(async (entry) => {
-			const entryPath = path.join(rootDir, entry.name);
-			if (entry.isDirectory()) {
-				return collectFiles(entryPath, suffix);
-			}
-			if (entry.isFile() && entry.name.endsWith(suffix)) {
-				return [entryPath];
-			}
-			return [];
-		}),
-	);
-	return files.flat().sort((a, b) => a.localeCompare(b));
-}
-
 function toImportPath(fromFile, toFile) {
 	const relativePath = path.relative(path.dirname(fromFile), toFile);
 	return normalizeRelativeSpecifier(relativePath);
@@ -89,8 +71,4 @@ function toImportPath(fromFile, toFile) {
 function normalizeRelativeSpecifier(value) {
 	const posixValue = toPosixPath(value);
 	return posixValue.startsWith('.') ? posixValue : `./${posixValue}`;
-}
-
-function toPosixPath(value) {
-	return value.split(path.sep).join('/');
 }

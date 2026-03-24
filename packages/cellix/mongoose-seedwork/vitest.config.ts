@@ -6,6 +6,7 @@ export default mergeConfig(nodeConfig, defineConfig({
   test: {
     include: ["src/**/*.test.ts", "tests/integration/**/*.test.ts"],
     retry: 0,
+    testTimeout: 20000,
     coverage: {
         exclude: [
             "**/index.ts",

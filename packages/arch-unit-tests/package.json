@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "pnpm run test:coverage",
-    "test:coverage": "vitest run --silent --reporter=dot",
+    "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest"
   },
   "devDependencies": {
