@@ -4,8 +4,9 @@ packages:
   - "packages/ocom/*"
 
 catalog:
-  archunit: ^2.1.63
   '@azure/functions': 4.11.0
+  '@types/node': ^22.19.5
+  archunit: ^2.1.63
   graphql: ^16.10.0
   mongodb: 6.18.0
   mongoose: 8.17.0
