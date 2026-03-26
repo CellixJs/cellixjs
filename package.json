@@ -61,7 +61,7 @@
     "@parcel/watcher": "^2.5.1",
     "@playwright/test": "^1.55.1",
     "@sonar/scan": "^4.3.0",
-    "@types/node": "^24.6.1",
+    "@types/node": "^22.19.5",
     "@vitest/coverage-v8": "^3.2.4",
     "azurite": "^3.35.0",
     "concurrently": "^9.1.2",
@@ -98,6 +98,6 @@
     }
   },
   "engines": {
-    "node": "22.20.0"
+    "node": "22.22.2"
   }
 }

@@ -55,9 +55,9 @@ stages:
 
     # Ensure the correct version of Node is installed.
     - task: NodeTool@0
-      displayName: 'Install: Node.js - LTS'
+      displayName: 'Install: Node.js - 22.22.2'
       inputs:
-        versionSpec: '22.20.0'
+        versionSpec: '22.22.2'
 
     # Cache Azure Functions Core Tools
     - task: Cache@2
