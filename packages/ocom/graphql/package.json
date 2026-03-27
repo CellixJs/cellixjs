@@ -24,7 +24,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@apollo/server": "^5.4.0",
+    "@apollo/server": "^5.5.0",
     "@cellix/graphql-core": "workspace:*",
     "@graphql-tools/load-files": "^7.0.1",
     "@ocom/application-services": "workspace:*",
