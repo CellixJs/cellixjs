@@ -1,4 +1,10 @@
 {
+	"exclude": [
+		"${configDir}/**/*.test.ts",
+		"${configDir}/**/*.spec.ts",
+		"${configDir}/**/*.test.tsx",
+		"${configDir}/**/*.spec.tsx"
+	],
 	"compilerOptions": {
 		/* Type Checking */
 		"allowUnreachableCode": false,
@@ -39,11 +45,11 @@
 		/* Completeness */
 		"skipLibCheck": false,
 
-        /* Plugins */
-        "plugins": [
-        {
-            "name": "ts-scope-trimmer-plugin"
-        }
-    ] 
+		/* Plugins */
+		"plugins": [
+			{
+				"name": "ts-scope-trimmer-plugin"
+			}
+		]
 	}
 }
