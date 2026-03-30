@@ -15,7 +15,7 @@
     "test:watch": "vitest",
     "lint": "biome lint",
     "clean": "rimraf dist deploy",
-    "prestart": "pnpm run clean && pnpm run build && pnpm run prepare:deploy && pnpm run sync-local-settings",
+    "prestart": "pnpm run prepare:deploy && pnpm run sync-local-settings",
     "start": "func start --typescript --script-root deploy/",
     "sync-local-settings": "node -e \"const fs=require('node:fs'); fs.mkdirSync('deploy',{recursive:true}); if (fs.existsSync('local.settings.json')) fs.copyFileSync('local.settings.json','deploy/local.settings.json');\"",
     "azurite": "azurite-blob --silent --location ../../__blobstorage__ & azurite-queue --silent --location ../../__queuestorage__ & azurite-table --silent --location ../../__tablestorage__"
