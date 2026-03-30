@@ -453,6 +453,8 @@ stages:
           echo "✓ Production API structure:"
           ls -lah "$DEPLOY_DIR"
 
+          rm -f "${DEPLOY_DIR}/dist/**/*.map"
+
           # Verify critical files exist (no node_modules — everything is bundled)
           echo ""
           echo "✓ Verifying required files..."
