@@ -5,7 +5,7 @@
   "type": "module",
   "author": "CellixJS",
   "license": "MIT",
-  "packageManager": "pnpm@10.18.2",
+  "packageManager": "pnpm@10.30.1",
   "scripts": {
     "audit": "(pnpm audit --audit-level=high --prod) && (pnpm audit --audit-level=critical --dev)",
     "build": "turbo run build",
@@ -16,11 +16,9 @@
     "format": "turbo run format",
     "gen": "graphql-codegen --config codegen.yml",
     "gen:watch": "graphql-codegen --config codegen.yml --watch",
-    "tsbuild": "tsc --build",
-    "tswatch": "tsc --build --watch",
     "clean": "turbo run clean && rimraf dist node_modules **/coverage",
-    "start:api": "pnpm --filter @ocom/api start",
-    "start:ui-community": "pnpm --filter @ocom/ui-community dev",
+    "start:api": "pnpm --filter @apps/api start",
+    "start:ui-community": "pnpm --filter @apps/ui-community dev",
     "start-emulator:mongo-memory-server": "pnpm --filter @cellix/mock-mongodb-memory-server start",
     "start-emulator:auth-server": "pnpm --filter @cellix/mock-oauth2-server start",
     "test:all": "turbo run test:all",
@@ -53,6 +51,7 @@
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^5.1.2",
     "@biomejs/biome": "2.4.6",
+    "@cellix/graphql-codegen": "workspace:*",
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/introspection": "^4.0.3",
     "@graphql-codegen/typed-document-node": "^5.1.2",
@@ -62,7 +61,7 @@
     "@parcel/watcher": "^2.5.1",
     "@playwright/test": "^1.55.1",
     "@sonar/scan": "^4.3.0",
-    "@types/node": "^24.6.1",
+    "@types/node": "catalog:",
     "@vitest/coverage-v8": "^3.2.4",
     "azurite": "^3.35.0",
     "concurrently": "^9.1.2",
@@ -87,12 +86,25 @@
       "vite": "catalog:",
       "jiti": "2.6.1",
       "rollup": "^4.59.0",
+      "@ant-design/pro-layout>path-to-regexp": "^8.4.0",
+      "brace-expansion@1.1.12": "1.1.13",
       "serve-handler>minimatch": "3.1.5",
-      "serialize-javascript": "^7.0.3",
+      "serialize-javascript@6.0.2": "7.0.5",
+      "serialize-javascript@7.0.4": "7.0.5",
       "svgo": "^3.3.3",
+      "yaml@2.8.2": "2.8.3",
+      "yauzl@3.2.0": "3.2.1",
       "qs": "^6.14.2",
       "ajv@^6": "6.14.0",
+      "node-forge": "^1.4.0",
+      "picomatch": "^4.0.4",
       "webpack": "^5.105.4"
+    },
+    "patchedDependencies": {
+      "@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"
     }
+  },
+  "engines": {
+    "node": "22.22.2"
   }
 }

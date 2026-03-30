@@ -6,8 +6,8 @@
   "files": ["dist"],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -18,13 +18,13 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@apollo/server": "^5.4.0",
+    "@apollo/server": "catalog:",
     "@ocom/persistence": "workspace:*",
     "@ocom/service-apollo-server": "workspace:*",
     "@ocom/service-token-validation": "workspace:*"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
     "rimraf": "catalog:",
     "typescript": "catalog:"
   }

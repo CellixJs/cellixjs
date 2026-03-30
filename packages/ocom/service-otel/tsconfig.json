@@ -1,14 +1,15 @@
 {
-  "extends": "@cellix/typescript-config/node",
+  "extends": "@cellix/config-typescript/node",
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": [
     "src/**/*.ts"
   ],
   "references": [
-    { "path": "../../cellix/api-services-spec" },
+    { "path": "../../cellix/api-services-spec" }
   ]
 }

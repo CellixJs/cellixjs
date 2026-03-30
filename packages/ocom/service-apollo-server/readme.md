@@ -57,7 +57,7 @@ const server = apolloService.server;
 
 ## Service Configuration
 
-Configuration should be placed in `apps/api/src/service-config/apollo-server/` following the Cellix convention. See the `@ocom/api` package for integration examples.
+Configuration should be placed in `apps/api/src/service-config/apollo-server/` following the Cellix convention. See the `@apps/api` package for integration examples.
 
 ## Lifecycle
 

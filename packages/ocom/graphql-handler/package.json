@@ -9,8 +9,8 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -24,7 +24,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@apollo/server": "^5.4.0",
+    "@apollo/server": "catalog:",
     "@apollo/utils.withrequired": "^3.0.0",
     "@azure/functions": "catalog:",
     "@ocom/application-services": "workspace:*",
@@ -33,8 +33,8 @@
     "graphql": "catalog:"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

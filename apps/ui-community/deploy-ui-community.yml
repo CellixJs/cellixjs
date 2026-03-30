@@ -15,6 +15,8 @@ parameters:
   type: string
 - name: frontDoorEndpointName
   type: string
+- name: frontDoorDomainName
+  type: string
 
 jobs:
 - job: Infrastructure_UI_Community
@@ -98,5 +100,5 @@ jobs:
             inlineScript: |
               az storage blob delete-batch -s `$web --pattern * --account-name $(storageAccountName)
               az storage blob upload-batch --destination `$web --account-name $(storageAccountName) --source $(Build.ArtifactStagingDirectory)/deploy
-              az afd endpoint purge --content-paths "/*" --endpoint-name ${{parameters.frontDoorEndpointName}} --profile-name ${{parameters.frontDoorProfileName}} --resource-group ${{parameters.resourceGroupName}}
+              az afd endpoint purge --content-paths "/*" --endpoint-name ${{parameters.frontDoorEndpointName}} --profile-name ${{parameters.frontDoorProfileName}} --resource-group ${{parameters.resourceGroupName}} --domains ${{parameters.frontDoorDomainName}}
             addSpnToEnvironment: true

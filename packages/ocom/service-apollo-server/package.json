@@ -9,8 +9,8 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -24,7 +24,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@apollo/server": "^5.4.0",
+    "@apollo/server": "catalog:",
     "@cellix/api-services-spec": "workspace:*",
     "@opentelemetry/api": "1.9.0",
     "graphql": "catalog:",
@@ -32,8 +32,8 @@
     "graphql-middleware": "^6.1.35"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "@types/graphql-depth-limit": "^1.1.6",
     "rimraf": "catalog:",
     "typescript": "catalog:",

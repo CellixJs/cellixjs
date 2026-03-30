@@ -6,8 +6,8 @@
   "files": ["dist"],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -25,8 +25,8 @@
     "@cellix/api-services-spec": "workspace:*"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "typescript": "catalog:",
     "rimraf": "catalog:",
     "vitest": "catalog:"

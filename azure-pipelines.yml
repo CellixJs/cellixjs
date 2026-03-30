@@ -65,6 +65,7 @@ stages:
       appSettingsJsonFileRelativePathPri: 'apps/api/build-pipelines/config/dev-pri.json'
       frontDoorProfileName: 'simnova-afd'
       frontDoorEndpointName: 'ocm-fde-ged3a8gxcvfxafaf'
+      frontDoorDomainNameUICommunity: 'ownercommunity.org'
 
   - template: ./build-pipeline/core/monorepo-edgescan-stage.yml
     parameters:

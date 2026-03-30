@@ -1,4 +1,4 @@
-/node_modules
+node_modules
 .DS_Store
 **/coverage
 # .gitignore template - https://github.com/github/gitignore/blob/main/Node.gitignore
@@ -25,3 +25,9 @@ local.settings.json
 
 # Bicep build output
 iac/build/
+
+# Local Azure Functions deployment bundle
+apps/api/deploy/
+
+# Rolldown-generated bundler manifests
+**/*.generated.ts

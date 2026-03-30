@@ -77,7 +77,7 @@ While in local development mode, we want to enable SimpleProcessors to see logs 
     "module": "Node18", //was commonjs
     "target": "es6",
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "src",
     "sourceMap": true,
     "strict": true,
     "esModuleInterop": true,

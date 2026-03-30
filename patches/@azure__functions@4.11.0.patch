@@ -1,0 +1,26 @@
+diff --git a/package.json b/package.json
+index e04d7b7a0c11deaf5581c8747b079c58b84fcfe5..2ac271cd1fd6737b7e612ace2b5a74372b49b83d 100644
+--- a/package.json
++++ b/package.json
+@@ -43,7 +43,8 @@
+     "dependencies": {
+         "@azure/functions-extensions-base": "0.2.0",
+         "cookie": "^0.7.0",
+-        "long": "^4.0.0"
++        "long": "^4.0.0",
++        "undici-types": "^7.16.0"
+     },
+     "devDependencies": {
+         "@types/chai": "^4.2.22",
+diff --git a/types/http.d.ts b/types/http.d.ts
+index 0c56028963f499df8a107846c9d01f1ca233f892..a96365c0f3abd3e68d6eea4006242c53698d2594 100644
+--- a/types/http.d.ts
++++ b/types/http.d.ts
+@@ -2,6 +2,7 @@
+ // Licensed under the MIT License.
+ 
+ import { Blob } from 'buffer';
++import type { BodyInit, HeadersInit } from 'undici-types';
+ import { ReadableStream } from 'stream/web';
+ import { URLSearchParams } from 'url';
+ import { FunctionOptions, FunctionOutput, FunctionResult, FunctionTrigger } from './index';

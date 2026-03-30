@@ -1,0 +1,19 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "test:coverage": {
+      "dependsOn": [
+        "@cellix/api-services-spec#build",
+        "@cellix/config-rolldown#build",
+        "@cellix/domain-seedwork#build",
+        "@cellix/event-bus-seedwork-node#build",
+        "@cellix/graphql-codegen#build",
+        "@cellix/graphql-core#build",
+        "@cellix/mongoose-seedwork#build",
+        "@cellix/ui-core#build",
+        "@cellix/config-vitest#build"
+      ],
+      "outputs": []
+    }
+  }
+}

@@ -74,9 +74,9 @@ await mongoose.connect(uri);
 
 You can also use the native driver similarly.
 
-## Align with @ocom/api
+## Align with @apps/api
 
-`@ocom/api` reads its Mongo connection from `packages/api/local.settings.json`:
+`@apps/api` reads its Mongo connection from `packages/api/local.settings.json`:
 
 - `COSMOSDB_CONNECTION_STRING`
 - `COSMOSDB_DBNAME` (optional)
@@ -94,7 +94,7 @@ Defaults here (`PORT=50000`, `DB_NAME=test`, `REPL_SET_NAME=rs0`) imply:
 }
 ```
 
-If keeping `@ocom/api` defaults (e.g., `owner-community` + `replicaSet=globaldb`), set this service’s `.env.local` accordingly:
+If keeping `@apps/api` defaults (e.g., `owner-community` + `replicaSet=globaldb`), set this service’s `.env.local` accordingly:
 
 ```ini
 PORT=50000

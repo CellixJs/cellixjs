@@ -1,0 +1,30 @@
+{
+  "name": "@cellix/config-rolldown",
+  "version": "1.0.0",
+  "type": "module",
+  "files": ["dist", "bin"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "cellix-prepare-func-deploy": "bin/prepare-azure-functions-deploy.mjs"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "lint": "biome lint",
+    "test": "vitest run --silent --reporter=dot",
+    "test:coverage": "vitest run --coverage --silent --reporter=dot",
+    "test:watch": "vitest",
+    "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "rolldown": "1.0.0-beta.55"
+  },
+  "devDependencies": {
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
+    "rimraf": "catalog:",
+    "rolldown": "1.0.0-beta.55",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

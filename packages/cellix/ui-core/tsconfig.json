@@ -1,9 +1,10 @@
 {
-  "extends": "@cellix/typescript-config/base",
+  "extends": "@cellix/config-typescript/base",
   "compilerOptions": {
     "composite": true,
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
     "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,

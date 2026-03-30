@@ -1,6 +1,11 @@
-import { nodeConfig } from '@cellix/vitest-config';
+import { nodeConfig } from '@cellix/config-vitest';
 import { defineConfig, mergeConfig } from 'vitest/config';
 
 export default mergeConfig(nodeConfig, defineConfig({
-  // Add package-specific overrides here if needed
+  test: {
+    coverage: {
+      include: ['src/**/*.ts'],
+      exclude: ['src/service-config/**', 'src/index.ts'],
+    },
+  },
 }));

@@ -29,6 +29,9 @@ parameters:
 - name: frontDoorEndpointName
   displayName: 'Front Door Endpoint Name'
   type: string
+- name: frontDoorDomainNameUICommunity
+  displayName: 'Front Door Domain Name'
+  type: string
 stages:
 - stage: ${{parameters.stageName}}
   displayName: ${{parameters.stageName}} stage
@@ -57,3 +60,4 @@ stages:
       resourceGroupName: ${{parameters.resourceGroupName}}
       frontDoorProfileName: ${{parameters.frontDoorProfileName}}
       frontDoorEndpointName: ${{parameters.frontDoorEndpointName}}
+      frontDoorDomainName: ${{parameters.frontDoorDomainNameUICommunity}}

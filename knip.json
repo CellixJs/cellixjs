@@ -47,6 +47,9 @@
       ],
       "project": ["src/**/*.ts"]
     },
+    "packages/ocom/archunit-tests": {
+      "project": ["src/**/*.ts"]
+    },
     "packages/ocom/*": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"]
@@ -56,7 +59,7 @@
       "project": ["src/**/*.{ts,tsx}"]
     }
   },
-  "ignoreWorkspaces": ["packages/cellix/typescript-config"],
+  "ignoreWorkspaces": ["packages/cellix/config-typescript"],
   "ignore": [
     "build-pipeline/scripts/**",
     "**/*.test.ts",
@@ -67,6 +70,9 @@
     "**/__tests__/**",
     "**/tests/**"
   ],
+  "ignoreIssues": {
+    "codegen.yml": ["unlisted"]
+  },
   "ignoreDependencies": [
     "@types/*",
     "@cucumber/node",
@@ -76,6 +82,7 @@
     "@serenity-js/core",
     "@serenity-js/cucumber",
     "@serenity-js/serenity-bdd",
+    "@cellix/graphql-codegen",
     "@graphql-typed-document-node/core",
     "ts-scope-trimmer-plugin"
   ],

@@ -134,4 +134,4 @@ Common scripts from `package.json` (executed in this workspace):
 ## See also
 
 - `@cellix/ui-core` — Core UI component library with foundational components for Cellix applications
-- `@ocom/ui-community` — Community-facing UI application using this component library
+- `@apps/ui-community` — Community-facing UI application using this component library

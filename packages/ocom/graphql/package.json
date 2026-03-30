@@ -9,8 +9,8 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -21,19 +21,20 @@
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist **/*.generated.ts **/graphql.schema.json"
   },
   "dependencies": {
-    "@apollo/server": "^5.4.0",
+    "@apollo/server": "catalog:",
+    "@cellix/graphql-codegen": "workspace:*",
     "@cellix/graphql-core": "workspace:*",
-    "@graphql-tools/load-files": "^7.0.1",
+    "@graphql-tools/merge": "^9.1.6",
     "@ocom/application-services": "workspace:*",
     "@ocom/domain": "workspace:*",
     "graphql": "catalog:"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
-    "@cellix/vitest-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

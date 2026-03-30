@@ -68,7 +68,7 @@ Turborepo automatically caches task outputs locally in the `.turbo` directory:
 The pipeline automatically detects changes and categorizes them based on tags specified in turbo.json:
 
 - **Frontend changes**: Any changes to `ui-*` packages
-- **Backend changes**: Changes to packages used by `@ocom/api` (excluding mock servers)
+- **Backend changes**: Changes to packages used by `@apps/api` (excluding mock servers)
 - **Docs changes**: Changes affecting documentation
 
 ### Selective Builds

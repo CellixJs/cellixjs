@@ -178,15 +178,15 @@ flowchart BT
   subgraph ocom
     direction TB
     %% API and services
-    ocom_api["@ocom/api"]
-    ocom_api_graphql["@ocom/api-graphql"]
-    ocom_api_rest["@ocom/api-rest"]
-    ocom_api_application_services["@ocom/api-application-services"]
-    ocom_api_context_spec["@ocom/api-context-spec"]
-    ocom_api_event_handler["@ocom/api-event-handler"]
-    ocom_api_domain["@ocom/api-domain"]
-    ocom_api_persistence["@ocom/api-persistence"]
-    ocom_api_ds_mongoose_models["@ocom/api-data-sources-mongoose-models"]
+    ocom_api["@apps/api"]
+    ocom_api_graphql["@ocom/graphql"]
+    ocom_api_rest["@ocom/rest"]
+    ocom_api_application_services["@ocom/application-services"]
+    ocom_api_context_spec["@ocom/context-spec"]
+    ocom_api_event_handler["@ocom/event-handler"]
+    ocom_api_domain["@ocom/domain"]
+    ocom_api_persistence["@ocom/persistence"]
+    ocom_api_ds_mongoose_models["@ocom/data-sources-mongoose-models"]
 
     %% Infra services (OCom)
     ocom_service_mongoose["@ocom/service-mongoose"]
@@ -197,7 +197,7 @@ flowchart BT
     %% Local dev + UI
     ocom_service_oauth2_mock_server["@ocom/service-oauth2-mock-server"]
     ocom_service_mongodb_memory_server["@ocom/service-mongodb-memory-server"]
-    ocom_ui_community["@ocom/ui-community"]
+    ocom_ui_community["@apps/ui-community"]
   end
 
   subgraph cellix

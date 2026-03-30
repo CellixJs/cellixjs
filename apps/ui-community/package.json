@@ -1,5 +1,5 @@
 {
-	"name": "@ocom/ui-community",
+	"name": "@apps/ui-community",
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
@@ -33,8 +33,8 @@
 		"react-router-dom": "catalog:"
 	},
 	"devDependencies": {
-		"@cellix/typescript-config": "workspace:*",
-		"@cellix/vitest-config": "workspace:*",
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
 		"@chromatic-com/storybook": "^4.1.1",
 		"@storybook/addon-a11y": "^9.1.3",
 		"@storybook/addon-docs": "^9.1.3",

@@ -1,8 +1,9 @@
 {
-  "extends": "@cellix/typescript-config/node",
+  "extends": "@cellix/config-typescript/node",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": [
     "src/**/*.ts"

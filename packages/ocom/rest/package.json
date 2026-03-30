@@ -6,8 +6,8 @@
   "files": ["dist"],
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -22,7 +22,7 @@
     "@ocom/application-services": "workspace:*"
   },
   "devDependencies": {
-    "@cellix/typescript-config": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
     "typescript": "catalog:",
     "rimraf": "catalog:"
   }

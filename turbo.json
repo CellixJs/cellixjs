@@ -10,7 +10,7 @@
       "outputs": ["dist/**", "build/**"]
     },
     "test": {
-      "dependsOn": ["^build", "@cellix/vitest-config#build"],
+      "dependsOn": ["^build", "@cellix/config-vitest#build"],
       "inputs": [
         "src/**",
         "tests/**",
@@ -18,13 +18,13 @@
       ]
     },
     "test:coverage": {
-      "dependsOn": ["build", "^build", "@cellix/vitest-config#build"],
+      "dependsOn": ["build", "^build", "@cellix/config-vitest#build"],
       "inputs": [
         "src/**",
         "tests/**",
         "vitest*.config.*"
       ],
-      "outputs": ["coverage/lcov.info"]
+      "outputs": ["coverage/**"]
     },
     "test:watch": {
         "dependsOn": ["build", "^build"],
@@ -83,10 +83,14 @@
       "cache": true,
       "inputs": [
         "codegen.yml",
-        "**/*.graphql"
+        "**/*.graphql",
+        "**/*.resolvers.ts",
+        "**/*.permissions.ts",
+        "packages/cellix/graphql-codegen/plugins/**"
       ],
       "outputs": [
         "**/generated.ts",
+        "**/*.generated.ts",
         "**/graphql.schema.json",
         "**/generated.tsx"
       ]

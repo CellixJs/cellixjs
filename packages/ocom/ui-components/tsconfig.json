@@ -1,8 +1,9 @@
 {
-  "extends": "@cellix/typescript-config/base",
+  "extends": "@cellix/config-typescript/base",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
     "jsx": "react-jsx",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "exactOptionalPropertyTypes": false,

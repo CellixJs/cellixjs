@@ -1,0 +1,139 @@
+overwrite: true
+
+# Cellix standard:
+# - Keep this file at your repo root as codegen.yml
+# - Run graphql-codegen from the repo root
+# - Keep the shared Cellix graphql-core entries below unless the framework package moves
+schema:
+  # Cellix standard: do not change unless your Cellix framework package lives somewhere else
+  - './packages/cellix/graphql-core/src/schema/**/**.graphql'
+  # Cellix standard: do not change unless your Cellix framework package lives somewhere else
+  - './packages/cellix/graphql-core/src/schema/core/graphql-tools-scalars.ts'
+  # Project-specific: replace my-app with your application GraphQL package path
+  - './packages/my-app/graphql/src/schema/**/**.graphql'
+
+generates:
+  # Project-specific: replace my-app with your application GraphQL package path
+  # Project-specific: update GraphContext import path if your context type lives elsewhere
+  './packages/my-app/graphql/src/schema/builder/generated.ts':
+    config:
+      # Project-specific: update if your GraphQL context type name or path differs (can be same as Cellix default)
+      contextType: '../context.ts#GraphContext'
+      # Cellix standard: keep these defaults unless your project has a specific reason to differ
+      useIndexSignature: true
+      useTypeImports: true
+      enumsAsTypes: true
+      immutableTypes: true
+      # Cellix standard: keep these scalar mappings consistent across Cellix projects
+      scalars:
+        BigInt: 'any'
+        Byte: 'any'
+        Currency: 'any'
+        Date: 'Date'
+        DateTime: 'any'
+        Duration: 'any'
+        EmailAddress: 'string'
+        GUID: 'string'
+        HSL: 'any'
+        HSLA: 'any'
+        HexColorCode: 'any'
+        Hexadecimal: 'any'
+        IBAN: 'any'
+        IPv4: 'any'
+        IPv6: 'any'
+        ISBN: 'any'
+        ISO8601Duration: 'any'
+        JSON: 'any'
+        JSONObject: 'any'
+        JWT: 'any'
+        Latitude: 'any'
+        LocalDate: 'any'
+        LocalEndTime: 'any'
+        LocalTime: 'any'
+        Long: 'any'
+        Longitude: 'any'
+        MAC: 'any'
+        NegativeFloat: 'any'
+        NegativeInt: 'any'
+        NonEmptyString: 'any'
+        NonNegativeFloat: 'any'
+        NonNegativeInt: 'any'
+        NonPositiveFloat: 'any'
+        NonPositiveInt: 'any'
+        ObjectID: 'any'
+        PhoneNumber: 'any'
+        Port: 'any'
+        PositiveFloat: 'any'
+        PositiveInt: 'any'
+        PostalCode: 'any'
+        RGB: 'any'
+        RGBA: 'any'
+        SafeInt: 'any'
+        Time: 'any'
+        Timestamp: 'any'
+        URL: 'any'
+        USCurrency: 'any'
+        UUID: 'any'
+        UnsignedFloat: 'any'
+        UnsignedInt: 'any'
+        UtcOffset: 'any'
+        Void: 'any'
+      # Project-specific: configure domain mappers for your app's domain model types.
+      # Leave commented out if your project does not need custom mappers yet.
+      # mappers:
+      #   MyType: "import('@my-org/domain').MyType"
+    plugins:
+      - typescript
+      - typescript-resolvers
+
+  # Project-specific: replace my-app with your application GraphQL package path
+  './packages/my-app/graphql/src/schema/builder/graphql.schema.json':
+    plugins:
+      - introspection
+
+  # Optional and project-specific:
+  # - keep only if this repo has a UI/app package that consumes GraphQL documents
+  # - replace my-ui with your actual app path
+  # - remove this block entirely if you do not generate client document types in this repo
+  # - should configure one for each ui-app package that generates client document types (query/mutation/fragments) from .graphql files
+  './apps/my-ui/src/generated.tsx':
+    documents: './apps/my-ui/src/components/**/**.graphql'
+    config:
+      # Cellix standard defaults for client document generation
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
+  # Cellix standard: keep this block as-is unless your Cellix framework package path changes.
+  # This generates the shared framework SDL bundle used by buildCellixSchema.
+  './packages/cellix/graphql-core/src/schema/base-type-defs.generated.ts':
+    plugins:
+      - '@cellix/graphql-codegen/plugins/static-type-defs':
+          sourceDir: 'packages/cellix/graphql-core/src/schema'
+          exportName: 'baseCellixTypeDefs'
+
+  # Project-specific: replace my-app and myApp for your application's graphql package and export naming
+  './packages/my-app/graphql/src/schema/builder/schema-type-defs.generated.ts':
+    plugins:
+      - '@cellix/graphql-codegen/plugins/static-type-defs':
+          sourceDir: 'packages/my-app/graphql/src/schema/types'
+          exportName: 'myAppTypeDefs'
+
+  # Project-specific: replace my-app and myApp for your application package and export naming
+  './packages/my-app/graphql/src/schema/builder/resolver-manifest.generated.ts':
+    plugins:
+      - '@cellix/graphql-codegen/plugins/resolver-manifest':
+          typesDir: 'packages/my-app/graphql/src/schema/types'
+          resolversExportName: 'myAppResolvers'
+          permissionsExportName: 'myAppPermissions'
+
+hooks:
+  # Cellix standard: keep formatting after generation
+  afterAllFileWrite:
+    - 'pnpm exec biome format --write'

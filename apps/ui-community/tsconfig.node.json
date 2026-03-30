@@ -3,11 +3,11 @@
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
 		"target": "ES2023",
 		"lib": ["ES2023"],
-		"module": "ESNext", // Overrides @cellix/typescript-config/base.json
-		"skipLibCheck": true, // Overrides @cellix/typescript-config/base.json
+		"module": "ESNext", // Overrides @cellix/config-typescript/base.json
+		"skipLibCheck": true, // Overrides @cellix/config-typescript/base.json
 
 		/* Bundler mode */
-		"moduleResolution": "bundler", // Overrides @cellix/typescript-config/base.json
+		"moduleResolution": "bundler", // Overrides @cellix/config-typescript/base.json
 		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"moduleDetection": "force", // New setting
