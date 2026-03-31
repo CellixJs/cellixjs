@@ -71,8 +71,7 @@
     "**/tests/**"
   ],
   "ignoreIssues": {
-    "codegen.yml": ["unlisted"],
-    "packages/cellix/ui-core/vitest.config.ts": ["unlisted"]
+    "codegen.yml": ["unlisted"]
   },
   "ignoreDependencies": [
     "@types/*",
@@ -85,6 +84,7 @@
     "@serenity-js/serenity-bdd",
     "@cellix/graphql-codegen",
     "@graphql-typed-document-node/core",
+    "@vitest/coverage-v8",
     "ts-scope-trimmer-plugin"
   ],
   "ignoreBinaries": ["func"]
