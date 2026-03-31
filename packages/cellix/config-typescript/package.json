@@ -5,10 +5,12 @@
   "main": "./tsconfig.base.json",
   "files": [
     "tsconfig.base.json",
-    "tsconfig.node.json"
+    "tsconfig.node.json",
+    "tsconfig.vitest.json"
   ],
   "exports": {
     "./base": "./tsconfig.base.json",
-    "./node": "./tsconfig.node.json"
+    "./node": "./tsconfig.node.json",
+    "./vitest": "./tsconfig.vitest.json"
   }
 }

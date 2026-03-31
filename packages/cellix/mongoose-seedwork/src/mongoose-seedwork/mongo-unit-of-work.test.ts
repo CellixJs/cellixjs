@@ -28,7 +28,7 @@ const feature = await loadFeature(
   const Passport = {};
 
 class AggregateRootMock extends AggregateRoot<PropType, typeof Passport> {
-  override getIntegrationEvents = vi.fn(() => []);
+  override getIntegrationEvents = vi.fn((): TestEvent[] => []);
   get foo(): string { return this.props.foo; }
   set foo(foo: string) { this.props.foo = foo; }
   get createdAt(): Date { return this.props.createdAt; }
@@ -41,10 +41,11 @@ type PropType = DomainEntityProps & {
   readonly schemaVersion: string;
 };
 class RepoMock extends MongoRepositoryBase<MongoType, PropType, typeof Passport, AggregateRootMock> {
-  override getIntegrationEvents = vi.fn(() => []);
+  override getIntegrationEvents = vi.fn((): TestEvent[] => []);
 }
 
 class TestEvent extends CustomDomainEventImpl<{ foo: string }> {}
+// class TestEvent {}
 
 vi.mock('mongoose', async () => {
   const original = await vi.importActual<typeof import('mongoose')>('mongoose');
@@ -74,7 +75,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   ): RepoMock {
     return repoInstance;
   });
-  let domainOperation: ReturnType<typeof vi.fn>;
+  let domainOperation: Mock<(repo: RepoMock) => Promise<void>>;
 
   BeforeEachScenario(() => {
     session = {} as ClientSession;
@@ -124,7 +125,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       typeConverter,
       mockRepoClass,
     );
-    domainOperation = vi.fn(async (repo: RepoMock) => {
+    domainOperation = vi.fn(async (repo: RepoMock): Promise<void> => {
       const aggregate = await repo.get('agg-1');
       aggregate.foo = 'new-foo';
       await repo.save(aggregate);

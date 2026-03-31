@@ -1,4 +1,4 @@
-import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
+type SidebarsConfig = import('@docusaurus/plugin-content-docs').SidebarsConfig;
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -29,5 +29,5 @@ const sidebars: SidebarsConfig = {
   ],
    */
 };
-// biome-ignore lint:noCommonJs
-module.exports = sidebars satisfies SidebarsConfig; 
+
+export = sidebars;

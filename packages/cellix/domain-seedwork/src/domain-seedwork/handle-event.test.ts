@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature} from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
+import { expect, vi, type Mock } from 'vitest';
 import { DomainEventBase } from './domain-event.ts';
 import { type HandleEvent, HandleEventImpl } from './handle-event.ts';
 
@@ -15,7 +15,7 @@ const feature = await loadFeature(
 class TestEvent extends DomainEventBase {}
 
 test.for(feature, ({ Scenario }) => {
-  let handlerFn: ReturnType<typeof vi.fn>;
+  let handlerFn: Mock<(event: TestEvent) => void>;
   let handler: HandleEvent<TestEvent>   ;
   let event: TestEvent;
 
@@ -50,8 +50,8 @@ test.for(feature, ({ Scenario }) => {
   });
 
   Scenario('Registering multiple handlers', ({ Given, When, Then }) => {
-    let handlerFn1: ReturnType<typeof vi.fn>;
-    let handlerFn2: ReturnType<typeof vi.fn>;
+    let handlerFn1: Mock<(event: TestEvent) => void>;
+    let handlerFn2: Mock<(event: TestEvent) => void>;
     let handler1: HandleEventImpl<TestEvent>;
     let handler2: HandleEventImpl<TestEvent>;
     let combinedHandler: HandleEventImpl<TestEvent>;

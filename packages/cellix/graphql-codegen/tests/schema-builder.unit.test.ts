@@ -32,7 +32,7 @@ describe('buildCellixSchema', () => {
 		>;
 		const mergedTypeDefs = { kind: 'Document', definitions: [] } as DocumentNode;
 		const mergedResolvers = { Query: { ping: () => 'pong' } };
-		const builtSchema = { kind: 'schema' } as GraphQLSchema;
+		const builtSchema = { kind: 'schema' } as unknown as GraphQLSchema;
 		const additionalTypeDef = 'type Query { ping: String! }';
 		const additionalResolvers: IResolvers[] = [mergedResolvers];
 

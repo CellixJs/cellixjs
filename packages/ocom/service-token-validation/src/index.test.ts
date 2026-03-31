@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi, afterEach } from 'vitest';
+import { expect, vi, afterEach, type Mock } from 'vitest';
 import { VerifiedTokenService } from './verified-token-service.ts';
 import { ServiceTokenValidation } from './index.ts';
 
@@ -22,11 +22,11 @@ const feature = await loadFeature(
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let service: ServiceTokenValidation;
-  let mockVerifiedTokenService: {
-    start: ReturnType<typeof vi.fn>;
-    getVerifiedJwt: ReturnType<typeof vi.fn>;
-    timerInstance: NodeJS.Timeout;
-  };
+  let mockVerifiedTokenService: VerifiedTokenService;
+  let mockGetVerifiedJwt: Mock<
+    (bearerToken: string, configKey: string) =>
+      Promise<Awaited<ReturnType<VerifiedTokenService['getVerifiedJwt']>> | null>
+  >;
   let originalEnv: NodeJS.ProcessEnv;
 
   BeforeEachScenario(() => {
@@ -38,14 +38,19 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     originalEnv = { ...process.env };
 
     // Setup mock VerifiedTokenService
+    mockGetVerifiedJwt = vi.fn<VerifiedTokenService['getVerifiedJwt']>();
     mockVerifiedTokenService = {
-      start: vi.fn(),
-      getVerifiedJwt: vi.fn(),
+      openIdConfigs: new Map(),
+      refreshInterval: 1000 * 60 * 5,
+      keyStoreCollection: new Map(),
+      refreshCollection: vi.fn<VerifiedTokenService['refreshCollection']>(),
+      start: vi.fn<VerifiedTokenService['start']>(),
+      getVerifiedJwt: mockGetVerifiedJwt as unknown as VerifiedTokenService['getVerifiedJwt'],
       timerInstance: setInterval(() => undefined, 1000),
-    };
+    } as VerifiedTokenService;
 
     vi.mocked(VerifiedTokenService).mockImplementation(function MockVerifiedTokenService() {
-      return mockVerifiedTokenService as VerifiedTokenService;
+      return mockVerifiedTokenService;
     });
   });
 
@@ -229,11 +234,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       service = new ServiceTokenValidation(portalTokens);
 
       // Mock successful verification on second attempt
-      mockVerifiedTokenService.getVerifiedJwt
+      mockGetVerifiedJwt
         .mockResolvedValueOnce(null) // First provider fails
         .mockResolvedValueOnce({ // Second provider succeeds
           payload: { sub: 'user123', aud: 'audience2' },
           protectedHeader: { alg: 'RS256' },
+          key: {} as never,
         });
     });
 
@@ -274,7 +280,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       service = new ServiceTokenValidation(portalTokens);
 
       // Mock verification failure
-      mockVerifiedTokenService.getVerifiedJwt.mockResolvedValue(null);
+      mockGetVerifiedJwt.mockResolvedValue(null);
     });
 
     And('an invalid JWT token', () => {

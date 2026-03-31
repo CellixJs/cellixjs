@@ -15,19 +15,19 @@ import {
 	InProcEventBusInstance,
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
-import { MongoUnitOfWork } from '../../src/mongoose-seedwork/mongo-unit-of-work';
-import { MongoRepositoryBase } from '../../src/mongoose-seedwork/mongo-repository';
-import { MongoTypeConverter } from '../../src/mongoose-seedwork/mongo-type-converter';
-import type { Base } from '../../src/mongoose-seedwork/base';
-import { MongooseDomainAdapter } from '../../src/mongoose-seedwork/mongo-domain-adapter';
+import { MongoUnitOfWork } from '../../src/mongoose-seedwork/mongo-unit-of-work.ts';
+import { MongoRepositoryBase } from '../../src/mongoose-seedwork/mongo-repository.ts';
+import { MongoTypeConverter } from '../../src/mongoose-seedwork/mongo-type-converter.ts';
+import type { Base } from '../../src/mongoose-seedwork/base.ts';
+import { MongooseDomainAdapter } from '../../src/mongoose-seedwork/mongo-domain-adapter.ts';
 // Import your DomainSeedwork and any other needed types
 
 // 1. Define a minimal aggregate root and type converter for integration
 interface TestProps {
 	id: string;
 	foo: string;
-	bar?: string;
-	baz?: string;
+	bar: string | undefined;
+	baz: string | undefined;
 	createdAt: Date;
 	updatedAt: Date;
 	schemaVersion: string;
@@ -71,7 +71,7 @@ class TestAggregate<
 			}
 			this.props.bar = bar;
 			this.addDomainEvent(TestBarDomainEvent, {
-				oldBar,
+				...(oldBar !== undefined ? { oldBar } : {}),
 				bar: this.props.bar,
 			});
 		}
@@ -84,7 +84,7 @@ class TestAggregate<
 		if (oldBaz !== baz && baz !== undefined) {
 			this.props.baz = baz;
 			this.addDomainEvent(TestBazDomainEvent, {
-				oldBaz,
+				...(oldBaz !== undefined ? { oldBaz } : {}),
 				baz: this.props.baz,
 			});
 		}
@@ -121,12 +121,20 @@ class TestAdapter
 		return this.doc.bar;
 	}
 	set bar(value: string | undefined) {
+		if (value === undefined) {
+			delete this.doc.bar;
+			return;
+		}
 		this.doc.bar = value;
 	}
 	get baz(): string | undefined {
 		return this.doc.baz;
 	}
 	set baz(value: string | undefined) {
+		if (value === undefined) {
+			delete this.doc.baz;
+			return;
+		}
 		this.doc.baz = value;
 	}
 }
