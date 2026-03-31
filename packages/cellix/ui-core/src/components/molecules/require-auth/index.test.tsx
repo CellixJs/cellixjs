@@ -29,7 +29,7 @@ describe('RequireAuth', () => {
     vi.clearAllMocks();
     mockHasAuthParams.mockReturnValue(false);
     mockUseLocation.mockReturnValue({ pathname: '/private', search: '?tab=1' });
-    window.sessionStorage.clear();
+    globalThis.sessionStorage.clear();
   });
 
   it('renders a loading state while auth is loading', () => {
@@ -139,7 +139,7 @@ describe('RequireAuth', () => {
       expect(signinRedirect).toHaveBeenCalled();
     });
 
-    expect(window.sessionStorage.getItem('redirectTo')).toBe('/private?tab=1');
+    expect(globalThis.sessionStorage.getItem('redirectTo')).toBe('/private?tab=1');
   });
 
   it('does not store a redirect target when auth params are present before redirecting', async () => {
@@ -166,6 +166,6 @@ describe('RequireAuth', () => {
       expect(signinRedirect).toHaveBeenCalledTimes(1);
     });
 
-    expect(window.sessionStorage.getItem('redirectTo')).toBeNull();
+    expect(globalThis.sessionStorage.getItem('redirectTo')).toBeNull();
   });
 });
