@@ -1,4 +1,8 @@
 {
 	"extends": ["//"],
-	"tags": ["frontend"]
+	"tasks": {
+		"test:coverage": {
+			"outputs": []
+		}
+	}
 }

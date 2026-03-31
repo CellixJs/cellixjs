@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Route, Routes } from 'react-router-dom';
-import { LoggedInUserCommunityContainer } from './logged-in-user-community.container.tsx';
+import { LoggedInUserCommunityContainer, type LoggedInUserCommunityContainerProps } from './logged-in-user-community.container.tsx';
 
 const meta = {
   title: 'UI/Organisms/Header/LoggedInUserCommunity/Container',
@@ -8,10 +8,10 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
-} satisfies Meta<typeof LoggedInUserCommunityContainer>;
+} satisfies Meta<LoggedInUserCommunityContainerProps>;
 
 export default meta;
-type Story = StoryObj<typeof LoggedInUserCommunityContainer>;
+type Story = StoryObj<LoggedInUserCommunityContainerProps>;
 
 export const Default: Story = {
   parameters: {

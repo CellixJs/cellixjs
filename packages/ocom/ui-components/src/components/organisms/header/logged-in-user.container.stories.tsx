@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { GraphQLError } from 'graphql';
 import { Route, Routes } from 'react-router-dom';
 import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } from '../../../generated.tsx';
-import { LoggedInUserContainer } from './logged-in-user.container.tsx';
+import { LoggedInUserContainer, type LoggedInUserContainerProps } from './logged-in-user.container.tsx';
 
 const meta = {
   title: 'UI/Organisms/Header/LoggedInUser/Container',
@@ -10,10 +10,10 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
-} satisfies Meta<typeof LoggedInUserContainer>;
+} satisfies Meta<LoggedInUserContainerProps>;
 
 export default meta;
-type Story = StoryObj<typeof LoggedInUserContainer>;
+type Story = StoryObj<LoggedInUserContainerProps>;
 
 // Root path variant (no communityId) — success
 export const RootDefault: Story = {

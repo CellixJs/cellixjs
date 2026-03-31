@@ -71,7 +71,8 @@
     "**/tests/**"
   ],
   "ignoreIssues": {
-    "codegen.yml": ["unlisted"]
+    "codegen.yml": ["unlisted"],
+    "packages/cellix/ui-core/vitest.config.ts": ["unlisted"]
   },
   "ignoreDependencies": [
     "@types/*",

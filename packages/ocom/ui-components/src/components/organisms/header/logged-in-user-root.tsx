@@ -24,4 +24,4 @@ export const LoggedInUserRoot: React.FC<LoggedInUserRootProps> = (props) => {
         <LoggedInUser key={props.userData?.id} data={userData.data} onLogoutClicked={props.handleLogout} />
       </div>
     );
-}
+};
