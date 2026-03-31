@@ -6,8 +6,10 @@
     "./sidebars.*",
     "./vitest.config.mts",
     "./**/*.test.ts",
+    "./**/*.test.mts",
     "./**/*.test.tsx",
     "./**/*.spec.ts",
+    "./**/*.spec.mts",
     "./**/*.spec.tsx"
   ]
 }
