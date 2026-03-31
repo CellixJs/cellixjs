@@ -6,12 +6,15 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "test": "vitest run --silent --reporter=dot",
+    "test:coverage": "vitest run --coverage --silent --reporter=dot",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@storybook/addon-vitest": "^9.1.20",
     "@vitest/browser-playwright": "^4.1.2",
-    "vitest": "^4.1.2"
+    "vitest": "catalog:"
   },
   "devDependencies": {
     "@cellix/config-typescript": "workspace:*",
