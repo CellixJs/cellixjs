@@ -317,12 +317,8 @@ describe('MongoUnitOfWork:Integration', () => {
 					expect(persisted).not.toBeNull();
 					expect(persisted?.bar).toBeUndefined();
 					expect(persisted?.baz).toBeUndefined();
-					expect(
-						Object.prototype.hasOwnProperty.call(persistedRaw ?? {}, 'bar'),
-					).toBe(false);
-					expect(
-						Object.prototype.hasOwnProperty.call(persistedRaw ?? {}, 'baz'),
-					).toBe(false);
+					expect(Object.hasOwn(persistedRaw ?? {}, 'bar')).toBe(false);
+					expect(Object.hasOwn(persistedRaw ?? {}, 'baz')).toBe(false);
 				});
 			});
 		});
