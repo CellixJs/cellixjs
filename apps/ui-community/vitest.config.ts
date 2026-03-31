@@ -1,13 +1,8 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { createStorybookVitestConfig } from '@cellix/config-vitest';
+import { createStorybookVitestConfig, getDirnameFromImportMetaUrl } from '@cellix/config-vitest';
 import { defineConfig } from 'vitest/config';
 
-const dirname =
-  typeof __dirname === 'undefined'
-    ? path.dirname(fileURLToPath(import.meta.url))
-    : __dirname;
+const dirname = getDirnameFromImportMetaUrl(import.meta.url);
 
 export default defineConfig(
-	createStorybookVitestConfig(dirname),
+	createStorybookVitestConfig(dirname, {}),
 );

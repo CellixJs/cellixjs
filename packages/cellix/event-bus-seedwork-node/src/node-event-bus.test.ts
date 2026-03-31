@@ -1,9 +1,10 @@
 import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi, type Mock } from 'vitest';
+import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NodeEventBusInstance } from './node-event-bus.ts';
+import type { AsyncHandlerMock } from './test-handler.types.ts';
 // --- Mocks for OpenTelemetry and performance ---
 
 const test = { for: describeFeature };
@@ -47,9 +48,9 @@ const feature = await loadFeature(
 class TestEvent extends CustomDomainEventImpl<{ test: string }> {}
 class EventA extends CustomDomainEventImpl<{ a: string }> {}
 class EventB extends CustomDomainEventImpl<{ b: string }> {}
-type TestEventHandler = Mock<(payload: { test: string }) => Promise<void>>;
-type EventAHandler = Mock<(payload: { a: string }) => Promise<void>>;
-type EventBHandler = Mock<(payload: { b: string }) => Promise<void>>;
+type TestEventHandler = AsyncHandlerMock<{ test: string }>;
+type EventAHandler = AsyncHandlerMock<{ a: string }>;
+type EventBHandler = AsyncHandlerMock<{ b: string }>;
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   let handler: TestEventHandler;
