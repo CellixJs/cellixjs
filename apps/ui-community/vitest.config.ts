@@ -4,5 +4,5 @@ import { defineConfig } from 'vitest/config';
 const dirname = getDirnameFromImportMetaUrl(import.meta.url);
 
 export default defineConfig(
-	createStorybookVitestConfig(dirname, {}),
+	createStorybookVitestConfig(dirname),
 );

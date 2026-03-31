@@ -65,15 +65,17 @@ class TestAggregate<
 	}
 	set bar(bar: string | undefined) {
 		const oldBar = this.props.bar;
-		if (oldBar !== bar && bar !== undefined) {
+		if (oldBar !== bar) {
 			if (bar === '') {
 				throw new Error('Too short');
 			}
 			this.props.bar = bar;
-			this.addDomainEvent(TestBarDomainEvent, {
-				...(oldBar !== undefined ? { oldBar } : {}),
-				bar: this.props.bar,
-			});
+			if (bar !== undefined) {
+				this.addDomainEvent(TestBarDomainEvent, {
+					...(oldBar !== undefined ? { oldBar } : {}),
+					bar,
+				});
+			}
 		}
 	}
 	get baz() {
@@ -81,12 +83,14 @@ class TestAggregate<
 	}
 	set baz(baz: string | undefined) {
 		const oldBaz = this.props.baz;
-		if (oldBaz !== baz && baz !== undefined) {
+		if (oldBaz !== baz) {
 			this.props.baz = baz;
-			this.addDomainEvent(TestBazDomainEvent, {
-				...(oldBaz !== undefined ? { oldBaz } : {}),
-				baz: this.props.baz,
-			});
+			if (baz !== undefined) {
+				this.addDomainEvent(TestBazDomainEvent, {
+					...(oldBaz !== undefined ? { oldBaz } : {}),
+					baz,
+				});
+			}
 		}
 	}
 }
@@ -122,7 +126,7 @@ class TestAdapter
 	}
 	set bar(value: string | undefined) {
 		if (value === undefined) {
-			delete this.doc.bar;
+			this.doc.set('bar', undefined);
 			return;
 		}
 		this.doc.bar = value;
@@ -132,7 +136,7 @@ class TestAdapter
 	}
 	set baz(value: string | undefined) {
 		if (value === undefined) {
-			delete this.doc.baz;
+			this.doc.set('baz', undefined);
 			return;
 		}
 		this.doc.baz = value;
@@ -280,6 +284,45 @@ describe('MongoUnitOfWork:Integration', () => {
 					expect(updatedDoc).not.toBeNull();
 					expect(updatedAggregate).toBeInstanceOf(TestAggregate);
 					expect(updatedAggregate.foo).toBe('new-foo');
+				});
+
+				it('Then bar and baz should be removed from the persisted document when set to undefined', async () => {
+					const idWithOptionalFields = new mongoose.Types.ObjectId(
+						'60c72b2f9b1e8d3f4c8b4568',
+					);
+					await TestModel.create({
+						_id: idWithOptionalFields.toString(),
+						foo: 'foo-value',
+						bar: 'bar-value',
+						baz: 'baz-value',
+						createdAt: new Date(),
+						updatedAt: new Date(),
+						schemaVersion: '1.0.0',
+					});
+
+					await uow.withTransaction({}, async (repo) => {
+						const aggregate = await repo.get(idWithOptionalFields.toString());
+						aggregate.bar = undefined;
+						aggregate.baz = undefined;
+						await repo.save(aggregate);
+					});
+
+					const persisted = await TestModel.findById(idWithOptionalFields)
+						.lean()
+						.exec();
+					const persistedRaw = await TestModel.collection.findOne({
+						_id: idWithOptionalFields,
+					});
+
+					expect(persisted).not.toBeNull();
+					expect(persisted?.bar).toBeUndefined();
+					expect(persisted?.baz).toBeUndefined();
+					expect(
+						Object.prototype.hasOwnProperty.call(persistedRaw ?? {}, 'bar'),
+					).toBe(false);
+					expect(
+						Object.prototype.hasOwnProperty.call(persistedRaw ?? {}, 'baz'),
+					).toBe(false);
 				});
 			});
 		});

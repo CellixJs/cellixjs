@@ -45,7 +45,6 @@ class RepoMock extends MongoRepositoryBase<MongoType, PropType, typeof Passport,
 }
 
 class TestEvent extends CustomDomainEventImpl<{ foo: string }> {}
-// class TestEvent {}
 
 vi.mock('mongoose', async () => {
   const original = await vi.importActual<typeof import('mongoose')>('mongoose');
