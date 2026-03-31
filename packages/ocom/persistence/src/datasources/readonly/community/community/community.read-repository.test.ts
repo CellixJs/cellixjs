@@ -73,7 +73,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     };
 
     // Mock the CommunityDataSourceImpl constructor
-    vi.mocked(CommunityDataSourceImpl).mockImplementation(() => mockDataSource as unknown as InstanceType<typeof CommunityDataSourceImpl>);
+    vi.mocked(CommunityDataSourceImpl).mockImplementation(function MockCommunityDataSourceImpl() {
+      return mockDataSource as unknown as InstanceType<typeof CommunityDataSourceImpl>;
+    });
 
     repository = new CommunityReadRepositoryImpl(models, passport);
   });

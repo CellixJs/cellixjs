@@ -65,7 +65,15 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
   let mockModel: Model<MongoType>;
   let typeConverter: TypeConverter<MongoType, PropType, unknown, AggregateRootMock>;
 
-  const mockRepoClass = vi.fn((_passport, _model, _typeConverter, _bus, _session): RepoMock => repoInstance);
+  const mockRepoClass = vi.fn(function MockRepoClass(
+    _passport,
+    _model,
+    _typeConverter,
+    _bus,
+    _session,
+  ): RepoMock {
+    return repoInstance;
+  });
   let domainOperation: ReturnType<typeof vi.fn>;
 
   BeforeEachScenario(() => {

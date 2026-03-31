@@ -35,12 +35,12 @@
     "graphql-scalars": "^1.24.2"
   },
   "devDependencies": {
-    "@amiceli/vitest-cucumber": "^5.1.2",
+    "@amiceli/vitest-cucumber": "^6.3.0",
     "@cellix/config-typescript": "workspace:*",
     "@cellix/config-vitest": "workspace:*",
+    "@vitest/coverage-istanbul": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
 }
-

@@ -196,6 +196,7 @@ describe('MongoUnitOfWork:Integration', () => {
 	});
 
 	beforeEach(async () => {
+		vi.restoreAllMocks();
 		await TestModel.deleteMany({});
 		// biome-ignore lint:useLiteralKeys
 		eventBus['eventSubscribers'] = {};

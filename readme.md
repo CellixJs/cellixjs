@@ -284,7 +284,7 @@ npm init -w ./packages/api-persistence
 
 npm init -w ./packages/event-bus-seedwork-node
 
-npm install --save-dev @tsconfig/node20 @tsconfig/node-ts vitest @vitest/coverage-v8
+npm install --save-dev @tsconfig/node20 @tsconfig/node-ts vitest @vitest/coverage-istanbul
 ```
 
 ## Your feedback matters!

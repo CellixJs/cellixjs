@@ -24,9 +24,15 @@ vi.mock('@azure/monitor-opentelemetry-exporter', () => {
   class MetricExporter {}
   class LogExporter {}
   // Mocks that attach args for assertion
-  const traceExporterMock = vi.fn((args) => Object.assign(new TraceExporter(), { __args: args }));
-  const metricExporterMock = vi.fn((args) => Object.assign(new MetricExporter(), { __args: args }));
-  const logExporterMock = vi.fn((args) => Object.assign(new LogExporter(), { __args: args }));
+  const traceExporterMock = vi.fn(function MockTraceExporter(args) {
+    return Object.assign(new TraceExporter(), { __args: args });
+  });
+  const metricExporterMock = vi.fn(function MockMetricExporter(args) {
+    return Object.assign(new MetricExporter(), { __args: args });
+  });
+  const logExporterMock = vi.fn(function MockLogExporter(args) {
+    return Object.assign(new LogExporter(), { __args: args });
+  });
   // Expose mocks and classes for test access
   return {
     AzureMonitorTraceExporter: traceExporterMock,

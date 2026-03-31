@@ -97,8 +97,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     };
 
     // Mock the constructors
-    vi.mocked(EndUserDataSourceImpl).mockImplementation(() => mockDataSource as unknown as InstanceType<typeof EndUserDataSourceImpl>);
-    vi.mocked(EndUserConverter).mockImplementation(() => mockConverter as unknown as EndUserConverter);
+    vi.mocked(EndUserDataSourceImpl).mockImplementation(function MockEndUserDataSourceImpl() {
+      return mockDataSource as unknown as InstanceType<typeof EndUserDataSourceImpl>;
+    });
+    vi.mocked(EndUserConverter).mockImplementation(function MockEndUserConverter() {
+      return mockConverter as unknown as EndUserConverter;
+    });
 
     repository = new EndUserReadRepositoryImpl(models, passport);
   });

@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
-import { defineConfig, mergeConfig, type ViteUserConfig } from 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
+import { mergeConfig, type ViteUserConfig } from 'vitest/config';
 import { baseConfig } from './base.config.ts';
 
 export type StorybookVitestConfigOptions = {
@@ -8,6 +9,7 @@ export type StorybookVitestConfigOptions = {
   setupFiles?: string[]; // default: ['.storybook/vitest.setup.ts']
   browsers?: { browser: 'chromium' | 'firefox' | 'webkit' }[]; // default: [{ browser: 'chromium' }]
   additionalCoverageExclude?: string[];
+  additionalProjects?: NonNullable<NonNullable<ViteUserConfig['test']>['projects']>;
 };
 
 export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookVitestConfigOptions = {}): ViteUserConfig {
@@ -15,7 +17,7 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
   const setupFiles = opts.setupFiles ?? ['.storybook/vitest.setup.ts'];
   const instances = opts.browsers ?? [{ browser: 'chromium' }];
 
-  const base = mergeConfig(baseConfig, defineConfig({
+  return mergeConfig(baseConfig as ViteUserConfig, {
     test: {
       globals: true,
       projects: [
@@ -31,14 +33,16 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
             browser: {
               enabled: true,
               headless: true,
-              provider: 'playwright',
+              provider: playwright(),
               instances,
             },
             setupFiles,
           },
         },
+        ...(opts.additionalProjects ?? []),
       ],
       coverage: {
+        include: ['src/**/*.{ts,tsx}'],
         exclude: [
           '**/*.config.ts',
           '**/tsconfig.json',
@@ -56,7 +60,5 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
         ],
       },
     },
-  }));
-
-  return mergeConfig(base, defineConfig({}));
+  });
 }

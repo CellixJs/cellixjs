@@ -10,8 +10,10 @@
     "declarationMap": true,
     "sourceMap": true,
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
     "exactOptionalPropertyTypes": false,
     "skipLibCheck": true
   },
+  "exclude": ["dist"],
   "include": ["src/**/*.tsx", "src/**/*.ts"],
 }

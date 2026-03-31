@@ -40,6 +40,7 @@
   "devDependencies": {
     "@cellix/config-typescript": "workspace:*",
     "@cellix/config-vitest": "workspace:*",
+    "@vitest/coverage-istanbul": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

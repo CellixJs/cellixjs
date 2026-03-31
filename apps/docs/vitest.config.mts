@@ -1,8 +1,10 @@
 import path from 'node:path';
+import react from '@vitejs/plugin-react';
 import { defineConfig, mergeConfig } from 'vitest/config';
 import { baseConfig } from '@cellix/config-vitest';
 
 export default mergeConfig(baseConfig, defineConfig({
+  plugins: [react()],
   // Add package-specific overrides here if needed
   test: {
     globals: true,
@@ -10,23 +12,13 @@ export default mergeConfig(baseConfig, defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', '*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     coverage: {
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
-        'node_modules/',
-        'build/',
-        '.docusaurus/',
-        'coverage/**',
-        'static/',
-        'docs/',
-        'blog/',
         '**/*.config.{js,ts}',
-        '**/index.{js,ts}',
-        'src/test/',
+        'src/test/**',
         '**/setup.{js,ts}'
       ],
     },
-  },
-  esbuild: {
-    jsx: 'automatic',
   },
   resolve: {
     alias: {

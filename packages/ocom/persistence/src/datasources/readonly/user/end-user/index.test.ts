@@ -61,7 +61,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     } as EndUserDataSource;
 
     // Mock the constructor to return our mock data source
-    vi.mocked(EndUserDataSourceImpl).mockImplementation(() => mockDataSource as unknown as InstanceType<typeof EndUserDataSourceImpl>);
+    vi.mocked(EndUserDataSourceImpl).mockImplementation(function MockEndUserDataSourceImpl() {
+      return mockDataSource as unknown as InstanceType<typeof EndUserDataSourceImpl>;
+    });
 
     result = {} as ReturnType<typeof EndUserReadRepositoryImpl>;
   });

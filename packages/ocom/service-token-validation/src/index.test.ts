@@ -44,7 +44,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       timerInstance: setInterval(() => undefined, 1000),
     };
 
-    (VerifiedTokenService as ReturnType<typeof vi.fn>).mockImplementation(() => mockVerifiedTokenService);
+    vi.mocked(VerifiedTokenService).mockImplementation(function MockVerifiedTokenService() {
+      return mockVerifiedTokenService as VerifiedTokenService;
+    });
   });
 
   afterEach(() => {

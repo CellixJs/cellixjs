@@ -104,7 +104,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
       stop: vi.fn().mockResolvedValue(undefined),
     };
 
-    (ApolloServer as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => mockApolloServer);
+    vi.mocked(ApolloServer).mockImplementation(function MockApolloServer() {
+      return mockApolloServer as ApolloServer;
+    });
     (applyMiddleware as ReturnType<typeof vi.fn>).mockImplementation((schema: GraphQLSchema) => schema);
     (depthLimit as ReturnType<typeof vi.fn>).mockReturnValue(() => ({}));
   });

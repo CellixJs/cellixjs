@@ -8,7 +8,8 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 export default defineConfig(
   createStorybookVitestConfig(dirname, {
     additionalCoverageExclude: [
-      '**/index.ts',
+      'src/index.ts',
+      'src/components/index.ts',
       'src/components/molecules/index.tsx',
       'src/components/organisms/index.tsx'
     ],
