@@ -8,20 +8,23 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
-} satisfies Meta<LoggedInUserCommunityContainerProps>;
+} satisfies Meta<typeof LoggedInUserCommunityContainer>;
 
 export default meta;
-type Story = StoryObj<LoggedInUserCommunityContainerProps>;
+type Story = StoryObj<typeof LoggedInUserCommunityContainer>;
 
 export const Default: Story = {
+  args: {
+    autoLogin: false,
+  } satisfies LoggedInUserCommunityContainerProps,
   parameters: {
     memoryRouter: {
       initialEntries: ["/community/123"],
     },
   },
-  render: () => (
+  render: (args) => (
     <Routes>
-      <Route path="/community/:communityId" element={<LoggedInUserCommunityContainer autoLogin={false} />} />
+      <Route path="/community/:communityId" element={<LoggedInUserCommunityContainer autoLogin={args.autoLogin} />} />
     </Routes>
   ),
 };

@@ -6,13 +6,12 @@ import { defineConfig } from 'vitest/config';
 const dirname = typeof __dirname === 'undefined' ? path.dirname(fileURLToPath(import.meta.url)) : __dirname;
 
 export default defineConfig(
-    createStorybookVitestConfig(dirname, {
-      additionalCoverageExclude: [
-        'src/index.ts',
-        'src/components/index.ts',
-        'src/components/molecules/index.tsx',
-        'src/components/organisms/index.tsx',
-      ],
-    },
-  )
+  createStorybookVitestConfig(dirname, {
+    additionalCoverageExclude: [
+      'src/index.ts',
+      'src/components/index.ts',
+      'src/components/molecules/index.tsx',
+      'src/components/organisms/index.tsx',
+    ],
+  }),
 );
