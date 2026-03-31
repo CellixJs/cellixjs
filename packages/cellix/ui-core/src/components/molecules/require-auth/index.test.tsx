@@ -142,7 +142,7 @@ describe('RequireAuth', () => {
     expect(window.sessionStorage.getItem('redirectTo')).toBe('/private?tab=1');
   });
 
-  it('does not auto-login when auth params are present', async () => {
+  it('does not store a redirect target when auth params are present before redirecting', async () => {
     const signinRedirect = vi.fn().mockResolvedValue(undefined);
 
     mockHasAuthParams.mockReturnValue(true);

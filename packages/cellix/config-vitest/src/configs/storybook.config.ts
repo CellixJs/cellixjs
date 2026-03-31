@@ -9,7 +9,6 @@ export type StorybookVitestConfigOptions = {
   setupFiles?: string[]; // default: ['.storybook/vitest.setup.ts']
   browsers?: { browser: 'chromium' | 'firefox' | 'webkit' }[]; // default: [{ browser: 'chromium' }]
   additionalCoverageExclude?: string[];
-  additionalProjects?: NonNullable<NonNullable<ViteUserConfig['test']>['projects']>;
 };
 
 export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookVitestConfigOptions = {}): ViteUserConfig {
@@ -39,7 +38,6 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
             setupFiles,
           },
         },
-        ...(opts.additionalProjects ?? []),
       ],
       coverage: {
         include: ['src/**/*.{ts,tsx}'],
