@@ -33,6 +33,7 @@
   "devDependencies": {
     "@cellix/config-typescript": "workspace:*",
     "@cellix/config-vitest": "workspace:*",
+    "@vitest/coverage-istanbul": "catalog:",
     "mongoose": "catalog:",
     "mongodb": "catalog:",
     "mongodb-memory-server": "^10.1.4",

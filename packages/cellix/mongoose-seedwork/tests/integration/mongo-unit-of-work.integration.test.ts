@@ -15,19 +15,19 @@ import {
 	InProcEventBusInstance,
 	NodeEventBusInstance,
 } from '@cellix/event-bus-seedwork-node';
-import { MongoUnitOfWork } from '../../src/mongoose-seedwork/mongo-unit-of-work';
-import { MongoRepositoryBase } from '../../src/mongoose-seedwork/mongo-repository';
-import { MongoTypeConverter } from '../../src/mongoose-seedwork/mongo-type-converter';
-import type { Base } from '../../src/mongoose-seedwork/base';
-import { MongooseDomainAdapter } from '../../src/mongoose-seedwork/mongo-domain-adapter';
+import { MongoUnitOfWork } from '../../src/mongoose-seedwork/mongo-unit-of-work.ts';
+import { MongoRepositoryBase } from '../../src/mongoose-seedwork/mongo-repository.ts';
+import { MongoTypeConverter } from '../../src/mongoose-seedwork/mongo-type-converter.ts';
+import type { Base } from '../../src/mongoose-seedwork/base.ts';
+import { MongooseDomainAdapter } from '../../src/mongoose-seedwork/mongo-domain-adapter.ts';
 // Import your DomainSeedwork and any other needed types
 
 // 1. Define a minimal aggregate root and type converter for integration
 interface TestProps {
 	id: string;
 	foo: string;
-	bar?: string;
-	baz?: string;
+	bar: string | undefined;
+	baz: string | undefined;
 	createdAt: Date;
 	updatedAt: Date;
 	schemaVersion: string;
@@ -65,15 +65,17 @@ class TestAggregate<
 	}
 	set bar(bar: string | undefined) {
 		const oldBar = this.props.bar;
-		if (oldBar !== bar && bar !== undefined) {
+		if (oldBar !== bar) {
 			if (bar === '') {
 				throw new Error('Too short');
 			}
 			this.props.bar = bar;
-			this.addDomainEvent(TestBarDomainEvent, {
-				oldBar,
-				bar: this.props.bar,
-			});
+			if (bar !== undefined) {
+				this.addDomainEvent(TestBarDomainEvent, {
+					...(oldBar !== undefined ? { oldBar } : {}),
+					bar,
+				});
+			}
 		}
 	}
 	get baz() {
@@ -81,12 +83,14 @@ class TestAggregate<
 	}
 	set baz(baz: string | undefined) {
 		const oldBaz = this.props.baz;
-		if (oldBaz !== baz && baz !== undefined) {
+		if (oldBaz !== baz) {
 			this.props.baz = baz;
-			this.addDomainEvent(TestBazDomainEvent, {
-				oldBaz,
-				baz: this.props.baz,
-			});
+			if (baz !== undefined) {
+				this.addDomainEvent(TestBazDomainEvent, {
+					...(oldBaz !== undefined ? { oldBaz } : {}),
+					baz,
+				});
+			}
 		}
 	}
 }
@@ -121,12 +125,20 @@ class TestAdapter
 		return this.doc.bar;
 	}
 	set bar(value: string | undefined) {
+		if (value === undefined) {
+			this.doc.set('bar', undefined);
+			return;
+		}
 		this.doc.bar = value;
 	}
 	get baz(): string | undefined {
 		return this.doc.baz;
 	}
 	set baz(value: string | undefined) {
+		if (value === undefined) {
+			this.doc.set('baz', undefined);
+			return;
+		}
 		this.doc.baz = value;
 	}
 }
@@ -196,6 +208,7 @@ describe('MongoUnitOfWork:Integration', () => {
 	});
 
 	beforeEach(async () => {
+		vi.restoreAllMocks();
 		await TestModel.deleteMany({});
 		// biome-ignore lint:useLiteralKeys
 		eventBus['eventSubscribers'] = {};
@@ -271,6 +284,41 @@ describe('MongoUnitOfWork:Integration', () => {
 					expect(updatedDoc).not.toBeNull();
 					expect(updatedAggregate).toBeInstanceOf(TestAggregate);
 					expect(updatedAggregate.foo).toBe('new-foo');
+				});
+
+				it('Then bar and baz should be removed from the persisted document when set to undefined', async () => {
+					const idWithOptionalFields = new mongoose.Types.ObjectId(
+						'60c72b2f9b1e8d3f4c8b4568',
+					);
+					await TestModel.create({
+						_id: idWithOptionalFields.toString(),
+						foo: 'foo-value',
+						bar: 'bar-value',
+						baz: 'baz-value',
+						createdAt: new Date(),
+						updatedAt: new Date(),
+						schemaVersion: '1.0.0',
+					});
+
+					await uow.withTransaction({}, async (repo) => {
+						const aggregate = await repo.get(idWithOptionalFields.toString());
+						aggregate.bar = undefined;
+						aggregate.baz = undefined;
+						await repo.save(aggregate);
+					});
+
+					const persisted = await TestModel.findById(idWithOptionalFields)
+						.lean()
+						.exec();
+					const persistedRaw = await TestModel.collection.findOne({
+						_id: idWithOptionalFields,
+					});
+
+					expect(persisted).not.toBeNull();
+					expect(persisted?.bar).toBeUndefined();
+					expect(persisted?.baz).toBeUndefined();
+					expect(Object.hasOwn(persistedRaw ?? {}, 'bar')).toBe(false);
+					expect(Object.hasOwn(persistedRaw ?? {}, 'baz')).toBe(false);
 				});
 			});
 		});

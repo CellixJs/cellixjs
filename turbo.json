@@ -14,7 +14,8 @@
       "inputs": [
         "src/**",
         "tests/**",
-        "vitest*.config.*"
+        "vitest*.config.*",
+        "tsconfig*.json"
       ]
     },
     "test:coverage": {
@@ -22,7 +23,8 @@
       "inputs": [
         "src/**",
         "tests/**",
-        "vitest*.config.*"
+        "vitest*.config.*",
+        "tsconfig*.json"
       ],
       "outputs": ["coverage/**"]
     },
@@ -36,7 +38,8 @@
       "inputs": [
         "src/**",
         "tests/**",
-        "vitest*.config.*"
+        "vitest*.config.*",
+        "tsconfig*.json"
       ],
       "outputs": ["coverage/**"]
     },
@@ -45,7 +48,8 @@
       "inputs": [
         "src/**",
         "tests/**",
-        "vitest*.config.*"
+        "vitest*.config.*",
+        "tsconfig*.json"
       ],
       "outputs": ["coverage/**"]
     },

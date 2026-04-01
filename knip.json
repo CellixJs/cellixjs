@@ -84,6 +84,7 @@
     "@serenity-js/serenity-bdd",
     "@cellix/graphql-codegen",
     "@graphql-typed-document-node/core",
+    "@vitest/coverage-v8",
     "ts-scope-trimmer-plugin"
   ],
   "ignoreBinaries": ["func"]

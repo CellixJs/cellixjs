@@ -13,5 +13,6 @@
     "exactOptionalPropertyTypes": false,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.tsx", "src/**/*.ts"],
+  "exclude": ["dist"],
+  "include": ["src"],
 }

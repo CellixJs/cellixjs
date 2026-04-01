@@ -1,0 +1,15 @@
+{
+  "extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
+  "include": [
+    "./src",
+    "./docusaurus.config.*",
+    "./sidebars.*",
+    "./vitest.config.mts",
+    "./**/*.test.ts",
+    "./**/*.test.mts",
+    "./**/*.test.tsx",
+    "./**/*.spec.ts",
+    "./**/*.spec.mts",
+    "./**/*.spec.tsx"
+  ]
+}

@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
-import { defineConfig, mergeConfig, type ViteUserConfig } from 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
+import { mergeConfig, type ViteUserConfig } from 'vitest/config';
 import { baseConfig } from './base.config.ts';
 
 export type StorybookVitestConfigOptions = {
@@ -10,13 +11,26 @@ export type StorybookVitestConfigOptions = {
   additionalCoverageExclude?: string[];
 };
 
+function getBrowserApiPort(pkgDirname: string): number {
+  const hash = Array.from(pkgDirname).reduce((total, char) => {
+    return (total * 31 + (char.codePointAt(0) ?? 0)) % 1000;
+  }, 0);
+
+  return 64000 + hash;
+}
+
 export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookVitestConfigOptions = {}): ViteUserConfig {
   const STORYBOOK_DIR = opts.storybookDirRelativeToPackage ?? '.storybook';
   const setupFiles = opts.setupFiles ?? ['.storybook/vitest.setup.ts'];
   const instances = opts.browsers ?? [{ browser: 'chromium' }];
+  const browserApiPort = getBrowserApiPort(pkgDirname);
 
-  const base = mergeConfig(baseConfig, defineConfig({
+  return mergeConfig(baseConfig as ViteUserConfig, {
     test: {
+      api: {
+        host: '127.0.0.1',
+        port: browserApiPort,
+      },
       globals: true,
       projects: [
         {
@@ -30,8 +44,12 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
             name: 'storybook',
             browser: {
               enabled: true,
+              api: {
+                host: '127.0.0.1',
+                port: browserApiPort,
+              },
               headless: true,
-              provider: 'playwright',
+              provider: playwright(),
               instances,
             },
             setupFiles,
@@ -39,6 +57,7 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
         },
       ],
       coverage: {
+        include: ['src/**/*.{ts,tsx}'],
         exclude: [
           '**/*.config.ts',
           '**/tsconfig.json',
@@ -56,7 +75,5 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
         ],
       },
     },
-  }));
-
-  return mergeConfig(base, defineConfig({}));
+  });
 }

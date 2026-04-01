@@ -10,13 +10,16 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
-} satisfies Meta<typeof LoggedInUserContainer & LoggedInUserContainerProps>;
+} satisfies Meta<typeof LoggedInUserContainer>;
 
 export default meta;
 type Story = StoryObj<typeof LoggedInUserContainer>;
 
 // Root path variant (no communityId) — success
 export const RootDefault: Story = {
+  args: {
+    autoLogin: false,
+  } satisfies LoggedInUserContainerProps,
   parameters: {
     memoryRouter: {
       initialEntries: ['/'],
@@ -49,15 +52,18 @@ export const RootDefault: Story = {
       ],
     },
   },
-  render: () => (
+  render: (args) => (
     <Routes>
-      <Route path="/" element={<LoggedInUserContainer autoLogin={false} />} />
+      <Route path="/" element={<LoggedInUserContainer autoLogin={args.autoLogin} />} />
     </Routes>
   ),
 };
 
 // Root path variant — loading
 export const RootLoading: Story = {
+  args: {
+    autoLogin: false,
+  } satisfies LoggedInUserContainerProps,
   parameters: {
     memoryRouter: {
       initialEntries: ['/'],
@@ -91,15 +97,18 @@ export const RootLoading: Story = {
       ],
     },
   },
-  render: () => (
+  render: (args) => (
     <Routes>
-      <Route path="/" element={<LoggedInUserContainer autoLogin={false} />} />
+      <Route path="/" element={<LoggedInUserContainer autoLogin={args.autoLogin} />} />
     </Routes>
   ),
 };
 
 // Root path variant — error
 export const RootError: Story = {
+  args: {
+    autoLogin: false,
+  } satisfies LoggedInUserContainerProps,
   parameters: {
     memoryRouter: {
       initialEntries: ['/'],
@@ -122,23 +131,26 @@ export const RootError: Story = {
       },
     },
   },
-  render: () => (
+  render: (args) => (
     <Routes>
-      <Route path="/" element={<LoggedInUserContainer key="root-error" autoLogin={false} />} />
+      <Route path="/" element={<LoggedInUserContainer key="root-error" autoLogin={args.autoLogin} />} />
     </Routes>
   ),
 };
 
 // Community path variant (with communityId) — the community container currently uses stubbed data
 export const CommunityDefault: Story = {
+  args: {
+    autoLogin: false,
+  } satisfies LoggedInUserContainerProps,
   parameters: {
     memoryRouter: {
       initialEntries: ['/community/123'],
     },
   },
-  render: () => (
+  render: (args) => (
     <Routes>
-      <Route path="/community/:communityId" element={<LoggedInUserContainer autoLogin={false} />} />
+      <Route path="/community/:communityId" element={<LoggedInUserContainer autoLogin={args.autoLogin} />} />
     </Routes>
   ),
 };

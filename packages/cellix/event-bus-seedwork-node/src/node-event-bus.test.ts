@@ -4,6 +4,7 @@ import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NodeEventBusInstance } from './node-event-bus.ts';
+import type { AsyncHandlerMock } from './test-handler.types.ts';
 // --- Mocks for OpenTelemetry and performance ---
 
 const test = { for: describeFeature };
@@ -47,20 +48,23 @@ const feature = await loadFeature(
 class TestEvent extends CustomDomainEventImpl<{ test: string }> {}
 class EventA extends CustomDomainEventImpl<{ a: string }> {}
 class EventB extends CustomDomainEventImpl<{ b: string }> {}
+type TestEventHandler = AsyncHandlerMock<{ test: string }>;
+type EventAHandler = AsyncHandlerMock<{ a: string }>;
+type EventBHandler = AsyncHandlerMock<{ b: string }>;
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
-  let handler: ReturnType<typeof vi.fn>;
-  let handler1: ReturnType<typeof vi.fn>;
-  let handler2: ReturnType<typeof vi.fn>;
-  let handlerA: ReturnType<typeof vi.fn>;
-  let handlerB: ReturnType<typeof vi.fn>;
+  let handler: TestEventHandler;
+  let handler1: TestEventHandler;
+  let handler2: TestEventHandler;
+  let handlerA: EventAHandler;
+  let handlerB: EventBHandler;
 
   BeforeEachScenario(() => {
-    handler = vi.fn().mockResolvedValue(undefined);
-    handler1 = vi.fn().mockResolvedValue(undefined);
-    handler2 = vi.fn().mockResolvedValue(undefined);
-    handlerA = vi.fn().mockResolvedValue(undefined);
-    handlerB = vi.fn().mockResolvedValue(undefined);
+    handler = vi.fn(async () => undefined);
+    handler1 = vi.fn(async () => undefined);
+    handler2 = vi.fn(async () => undefined);
+    handlerA = vi.fn(async () => undefined);
+    handlerB = vi.fn(async () => undefined);
     NodeEventBusInstance.removeAllListeners();
   });
 
@@ -161,7 +165,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     };
 
     Given('a registered handler for an event that throws', async () => {
-      handler = vi.fn().mockRejectedValue(new Error('handler error'));
+      handler = vi.fn(() => Promise.reject(new Error('handler error')));
       errorEvent = TestEvent;
       NodeEventBusInstance.register(errorEvent, handler);
 
@@ -267,8 +271,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     let callOrder: string[];
     Given('multiple handlers for the same event class', () => {
       callOrder = [];
-      handler1 = vi.fn(() => callOrder.push('handler1'));
-      handler2 = vi.fn(() => callOrder.push('handler2'));
+      handler1 = vi.fn(() => {
+        callOrder.push('handler1');
+        return Promise.resolve();
+      });
+      handler2 = vi.fn(() => {
+        callOrder.push('handler2');
+        return Promise.resolve();
+      });
     });
     When('all handlers are registered', () => {
       NodeEventBusInstance.register(TestEvent, handler1);
@@ -284,8 +294,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Multiple handlers for the same event, one throws, errors not propagated', ({ Given, When, And, Then }) => {
     Given('multiple handlers for the same event class', () => {
-      handler1 = vi.fn().mockRejectedValue(new Error('handler1 error'));
-      handler2 = vi.fn().mockResolvedValue(undefined);
+      handler1 = vi.fn(() => Promise.reject(new Error('handler1 error')));
+      handler2 = vi.fn(async () => undefined);
     });
     When('all handlers are registered and one throws', () => {
       NodeEventBusInstance.register(TestEvent, handler1);
@@ -302,8 +312,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
   Scenario('Multiple handlers for the same event, all throw, errors not propagated', ({ Given, When, And, Then }) => {
     Given('multiple handlers for the same event class', () => {
-      handler1 = vi.fn().mockRejectedValue(new Error('handler1 error'));
-      handler2 = vi.fn().mockRejectedValue(new Error('handler2 error'));
+      handler1 = vi.fn(() => Promise.reject(new Error('handler1 error')));
+      handler2 = vi.fn(() => Promise.reject(new Error('handler2 error')));
     });
     When('all handlers are registered and all throw', () => {
       NodeEventBusInstance.register(TestEvent, handler1);
@@ -321,7 +331,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
   Scenario('Dispatch does not wait for handler completion', ({ Given, When, And, Then }) => {
     let handlerStarted = false;
     let handlerCompleted = false;
-    let asyncHandler: ReturnType<typeof vi.fn>;
+    let asyncHandler: TestEventHandler;
     Given('a handler for an event that is asynchronous', () => {
       asyncHandler = vi.fn(async () => {
         handlerStarted = true;

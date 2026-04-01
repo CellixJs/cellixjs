@@ -56,7 +56,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
     } as MemberDataSource;
 
     // Mock the constructor to return our mock data source
-    vi.mocked(MemberDataSourceImpl).mockImplementation(() => mockDataSource as unknown as InstanceType<typeof MemberDataSourceImpl>);
+    vi.mocked(MemberDataSourceImpl).mockImplementation(function MockMemberDataSourceImpl() {
+      return mockDataSource as unknown as InstanceType<typeof MemberDataSourceImpl>;
+    });
 
     result = {} as ReturnType<typeof MemberReadRepositoryImpl>;
   });

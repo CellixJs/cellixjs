@@ -9,12 +9,15 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
-} satisfies Meta<typeof LoggedInUserRootContainer & LoggedInUserRootContainerProps>;
+} satisfies Meta<typeof LoggedInUserRootContainer>;
 
 export default meta;
 type Story = StoryObj<typeof LoggedInUserRootContainer>;
 
 export const Default: Story = {
+  args: {
+    autoLogin: false,
+  } satisfies LoggedInUserRootContainerProps,
   parameters: {
     apolloClient: {
       mocks: [
@@ -44,10 +47,13 @@ export const Default: Story = {
       ],
     },
   },
-  render: () => <LoggedInUserRootContainer autoLogin={false} />,
+  render: (args) => <LoggedInUserRootContainer autoLogin={args.autoLogin} />,
 };
 
 export const Loading: Story = {
+  args: {
+    autoLogin: false,
+  } satisfies LoggedInUserRootContainerProps,
   parameters: {
     apolloClient: {
       mocks: [
@@ -79,10 +85,13 @@ export const Loading: Story = {
       ],
     },
   },
-  render: () => <LoggedInUserRootContainer autoLogin={false} />,
+  render: (args) => <LoggedInUserRootContainer autoLogin={args.autoLogin} />,
 };
 
 export const ErrorState: Story = {
+  args: {
+    autoLogin: false,
+  } satisfies LoggedInUserRootContainerProps,
   parameters: {
     apolloClient: {
       mocks: [
@@ -102,5 +111,5 @@ export const ErrorState: Story = {
       },
     },
   },
-  render: () => <LoggedInUserRootContainer key="error" autoLogin={false} />,
+  render: (args) => <LoggedInUserRootContainer key="error" autoLogin={args.autoLogin} />,
 };

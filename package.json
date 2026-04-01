@@ -49,7 +49,7 @@
     "edgescan:run": "docker run --tty --rm edgescan/cicd-integration:latest --api-token $ES_API_TOKEN --asset-id $ES_ASSET_ID --start-scan --max-risk-threshold 3 --wait --color"
   },
   "devDependencies": {
-    "@amiceli/vitest-cucumber": "^5.1.2",
+    "@amiceli/vitest-cucumber": "^6.3.0",
     "@biomejs/biome": "2.4.6",
     "@cellix/graphql-codegen": "workspace:*",
     "@graphql-codegen/cli": "^5.0.7",
@@ -62,7 +62,7 @@
     "@playwright/test": "^1.55.1",
     "@sonar/scan": "^4.3.0",
     "@types/node": "catalog:",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-istanbul": "catalog:",
     "azurite": "^3.35.0",
     "concurrently": "^9.1.2",
     "husky": "^9.1.7",
@@ -96,6 +96,8 @@
       "yauzl@3.2.0": "3.2.1",
       "qs": "^6.14.2",
       "ajv@^6": "6.14.0",
+      "lodash": "4.17.21",
+      "lodash-es": "4.17.21",
       "node-forge": "^1.4.0",
       "picomatch": "^4.0.4",
       "webpack": "^5.105.4"

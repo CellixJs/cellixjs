@@ -9,7 +9,7 @@ const meta = {
 	argTypes: {
 		handleLogout: { action: 'handleLogout' },
 	},
-} satisfies Meta<typeof LoggedInUserRoot & LoggedInUserRootProps>;
+} satisfies Meta<typeof LoggedInUserRoot>;
 
 export default meta;
 type Story = StoryObj<typeof LoggedInUserRoot>;
@@ -28,8 +28,8 @@ export const Default: Story = {
 			},
 			__typename: 'EndUser',
 		} as LoggedInUserContainerEndUserFieldsFragment,
-        handleLogout: fn(),
-	},
+		handleLogout: fn(),
+	} satisfies LoggedInUserRootProps,
     play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
         const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
@@ -52,8 +52,8 @@ export const WithMissingName: Story = {
 			},
 			__typename: 'EndUser',
 		} as LoggedInUserContainerEndUserFieldsFragment,
-        handleLogout: fn(),
-	},
+		handleLogout: fn(),
+	} satisfies LoggedInUserRootProps,
     play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
         const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
@@ -69,8 +69,8 @@ export const WithNullPersonalInfo: Story = {
 			personalInformation: null,
 			__typename: 'EndUser',
 		} as unknown as LoggedInUserContainerEndUserFieldsFragment,
-        handleLogout: fn(),
-	},
+		handleLogout: fn(),
+	} satisfies LoggedInUserRootProps,
     play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
         const logoutBtn = await canvas.findByRole('button', { name: /log out/i });

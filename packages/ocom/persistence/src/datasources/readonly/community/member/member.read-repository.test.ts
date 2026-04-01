@@ -25,7 +25,9 @@ vi.mock('../../../domain/community/member/member.domain-adapter.ts', () => ({
 // Mock MongooseSeedwork.ObjectId to handle invalid ObjectId strings
 vi.mock('@cellix/mongoose-seedwork', () => ({
   MongooseSeedwork: {
-    ObjectId: vi.fn((id: string) => ({ toString: () => id, equals: vi.fn() })),
+    ObjectId: vi.fn(function MockObjectId(id: string) {
+      return { toString: () => id, equals: vi.fn() };
+    }),
   },
 }));
 
@@ -106,8 +108,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
     };
 
     // Mock the constructors
-    vi.mocked(MemberDataSourceImpl).mockImplementation(() => mockDataSource as unknown as InstanceType<typeof MemberDataSourceImpl>);
-    vi.mocked(MemberConverter).mockImplementation(() => mockConverter as unknown as MemberConverter);
+    vi.mocked(MemberDataSourceImpl).mockImplementation(function MockMemberDataSourceImpl() {
+      return mockDataSource as unknown as InstanceType<typeof MemberDataSourceImpl>;
+    });
+    vi.mocked(MemberConverter).mockImplementation(function MockMemberConverter() {
+      return mockConverter as unknown as MemberConverter;
+    });
 
     repository = new MemberReadRepositoryImpl(models, passport);
   });
