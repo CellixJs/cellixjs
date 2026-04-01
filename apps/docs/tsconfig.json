@@ -1,7 +1,7 @@
 {
   "extends": ["@cellix/config-typescript/base", "@docusaurus/tsconfig"],
   "compilerOptions": {
-    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "types": ["@docusaurus/module-type-aliases"],
     "paths": {
       "@site/*": ["./*"]

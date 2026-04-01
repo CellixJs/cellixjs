@@ -98,7 +98,9 @@
       "ajv@^6": "6.14.0",
       "node-forge": "^1.4.0",
       "picomatch": "^4.0.4",
-      "webpack": "^5.105.4"
+      "webpack": "^5.105.4",
+      "playwright-core": "1.59.0",
+      "playwright": "1.59.0"
     },
     "patchedDependencies": {
       "@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"
