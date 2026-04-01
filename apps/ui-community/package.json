@@ -6,6 +6,7 @@
 	"scripts": {
 		"prebuild": "biome lint",
 		"build": "tsc --build && vite build",
+		"dev": "portless ownercommunity.localhost vite",
 		"start": "vite",
 		"lint": "biome lint",
 		"preview": "vite preview",

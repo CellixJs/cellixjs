@@ -12,15 +12,13 @@ type OIDCConfig = {
 export const oidcConfig: OIDCConfig = {
 	authority:
 		// biome-ignore lint:useLiteralKeys
-		import.meta.env['VITE_AAD_B2C_ACCOUNT_AUTHORITY'] ??
-		'http://localhost:4000',
+		import.meta.env['VITE_AAD_B2C_ACCOUNT_AUTHORITY'] ?? 'https://mock-auth.ownercommunity.localhost',
 	// biome-ignore lint:useLiteralKeys
 	client_id: import.meta.env['VITE_AAD_B2C_ACCOUNT_CLIENTID'] ?? 'mock-client',
 
 	redirect_uri:
 		// biome-ignore lint:useLiteralKeys
-		import.meta.env['VITE_AAD_B2C_REDIRECT_URI'] ??
-		'http://localhost:3000/auth-redirect',
+		import.meta.env['VITE_AAD_B2C_REDIRECT_URI'] ?? 'https://ownercommunity.localhost/auth-redirect',
 	code_verifier: true,
 	noonce: true,
 	response_type: 'code',

@@ -1,38 +1,35 @@
-# @cellix/mock-mongodb-memory-server
+# @cellix/server-mongodb-memory-mock-seedwork
 
 Spin up a local, single-node MongoDB replica set in memory for development and tests.
 
 ⚠️ **For local development and testing only. Never use in production.**
 
-Wraps `mongodb-memory-server` to start a pinned MongoDB binary and prints a ready-to-use connection URI. Used across CellixJS to enable transactions without a real MongoDB instance.
+Provides reusable startup logic around `mongodb-memory-server` for app-level local Mongo mock services.
 
 ## Features
 
 - Single-node replica set (transactions-ready)
 - Pinned MongoDB binary version for reproducibility (currently 7.0.14)
-- Simple configuration via environment variables
-- Loads env from `.env` and `.env.local` (with `.env.local` overriding)
+- Simple configuration via an explicit startup config object
 
 ## Prerequisites
 
 - Internet access on first run (binary download/cache)
 
-## Quick start
+## Usage
 
-Note: this service starts automatically when running `npm run dev` at the repo root.
+In CellixJS, the runnable Mongo mock process lives in `@apps/server-mongodb-memory-mock`. This seedwork package exports the reusable startup function consumed by that app package.
 
-- Start emulator from repo root:
+- Build the seedwork package:
 
 	```bash
-	npm run start-emulator:mongo-memory-server
+	pnpm --filter @cellix/server-mongodb-memory-mock-seedwork run build
 	```
 
-- Or build and run from this package:
+- Run the CellixJS Mongo mock app:
 
 	```bash
-	npm install
-	npm run build
-	npm start
+	pnpm --filter @apps/server-mongodb-memory-mock run dev
 	```
 
 The process will log the replica set connection URI, for example:
@@ -45,21 +42,12 @@ MongoDB Memory Replica Set ready at: mongodb://127.0.0.1:50000/test?replicaSet=r
 
 ## Configuration
 
-These environment variables are supported:
+The app package supplies runtime configuration such as:
 
-- `PORT` — Port to expose the mongod instance (default: `50000`)
-- `DB_NAME` — Database name to append to the URI (default: `test`)
-- `REPL_SET_NAME` — Replica set name (default: `rs0`)
-
-Environment loading order: `.env`, then `.env.local` (overrides).
-
-Example `.env.local`:
-
-```ini
-PORT=50123
-DB_NAME=cellix_local
-REPL_SET_NAME=rs0
-```
+- `port`
+- `dbName`
+- `replSetName`
+- optional `binaryVersion`
 
 ## Using the URI in your app (Mongoose)
 
@@ -74,16 +62,16 @@ await mongoose.connect(uri);
 
 You can also use the native driver similarly.
 
-## Align with @apps/api
+## CellixJS integration
 
-`@apps/api` reads its Mongo connection from `packages/api/local.settings.json`:
+CellixJS configures this seedwork through the `@apps/server-mongodb-memory-mock` app package, and `@apps/api` reads its Mongo connection from `apps/api/local.settings.json`:
 
 - `COSMOSDB_CONNECTION_STRING`
 - `COSMOSDB_DBNAME` (optional)
 
 Ensure these match the URI printed by this service (db name + `replicaSet`).
 
-Defaults here (`PORT=50000`, `DB_NAME=test`, `REPL_SET_NAME=rs0`) imply:
+An app using this seedwork could produce defaults like:
 
 ```json
 {
@@ -94,7 +82,7 @@ Defaults here (`PORT=50000`, `DB_NAME=test`, `REPL_SET_NAME=rs0`) imply:
 }
 ```
 
-If keeping `@apps/api` defaults (e.g., `owner-community` + `replicaSet=globaldb`), set this service’s `.env.local` accordingly:
+CellixJS sets its app-level defaults to match `@apps/api` expectations:
 
 ```ini
 PORT=50000
@@ -106,11 +94,11 @@ REPL_SET_NAME=globaldb
 
 | Symptom                  | Fix                                                                 |
 | ------------------------ | ------------------------------------------------------------------- |
-| Port already in use       | Change `PORT` in your `.env.local`.                                 |
+| Port already in use       | Change the app package's configured port.                           |
 | Binary download issues    | Ensure internet connectivity or pre-warm the cache on CI. If downloads are slow/flaky, retry or check your network. |
 | Transactions not working  | Use the printed URI which includes `replicaSet=...` and ensure your client connects with that URI. |
 
 ## Notes
 
-- This package currently exposes a simple runner. There is no programmatic API exported; it starts the replica set and prints the URI to stdout.
+- This package now exposes a programmatic startup function for app-level mock services.
 - The MongoDB version is pinned in the code to ensure consistent local behavior across machines.
