@@ -6,6 +6,19 @@
 
 Consumers need a predictable way to merge default and request headers without worrying about case normalization details. They should not have to import the normalizer directly.
 
+## Contract gate summary
+
+- `mergeHeaders(base, incoming)` should remain the only consumer-facing export because it serves the actual header-merging use case.
+- `./internal-normalizer` is uncertain and should be treated as a removal candidate because it exposes implementation detail rather than a distinct consumer need.
+
+Primary success-path snippet:
+
+```ts
+const merged = mergeHeaders(defaultHeaders, requestHeaders);
+```
+
+Human review is warranted here because narrowing the surface would remove an existing export path that downstream dependents might already consume.
+
 ## Public contract
 
 The intended consumer contract is `mergeHeaders(base, incoming)` from the package root.

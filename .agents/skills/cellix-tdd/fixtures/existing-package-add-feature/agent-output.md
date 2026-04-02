@@ -6,6 +6,19 @@
 
 Consumers need to treat `?preview=true`, `?preview=1`, or a missing param as a simple boolean decision. They should not need to know about token tables or parsing helpers.
 
+## Contract gate summary
+
+- `parseStringList(input)` continues to serve multi-value query parsing from the package root.
+- `parseBooleanFlag(input)` is proposed to serve the primary preview-flag success path without exposing token-normalization helpers.
+
+Primary success-path snippet:
+
+```ts
+const preview = parseBooleanFlag(searchParams.get("preview"));
+```
+
+This is a clearly additive change to an established package, so no mandatory human stop was required. No uncertain exports were proposed.
+
 ## Public contract
 
 The public surface stays at the package root. The new contract adds `parseBooleanFlag(input)` alongside `parseStringList(input)`, and invalid boolean text throws a `TypeError`.

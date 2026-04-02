@@ -6,6 +6,19 @@
 
 Consumers need a one-step way to turn labels into stable slugs for routes, cache keys, or filenames. They care about predictable lowercasing, separator handling, and stripping unsafe punctuation.
 
+## Contract gate summary
+
+- `slugify(input, options?)` is proposed as the primary public export for turning display text into stable URL-safe slugs.
+- `SlugifyOptions` is proposed as the minimal public options type because consumers need to control separators without importing internals.
+
+Primary success-path snippet:
+
+```ts
+const slug = slugify("Cellix Framework", { separator: "-" });
+```
+
+Human review was required because this is a new package and the initial public surface establishes the baseline contract. No extra helper exports were approved.
+
 ## Public contract
 
 The package starts with a single root export, `slugify(input, options?)`, plus a small `SlugifyOptions` type. No helper exports are public.

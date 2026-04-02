@@ -6,6 +6,10 @@
 
 Consumers need a safe way to require or optionally read environment values without repeating null checks. They care about predictable errors and defaults, not about process-level implementation details.
 
+## Contract gate summary
+
+The proposed surface stays with the existing root exports for required and optional environment reads, because the task is docs alignment rather than contract expansion. Human review was not required here; the main gate note is that no new exports should be added to paper over the documentation drift.
+
 ## Public contract
 
 The package exposes two root-level helpers for required and optional environment reads. There are no public subpath exports.

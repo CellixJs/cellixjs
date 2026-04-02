@@ -6,6 +6,10 @@
 
 Consumers only care that `createRetryPolicy()` yields stable retry delays for a given attempt limit and base delay. They do not consume or reason about the internal backoff calculator directly.
 
+## Contract gate summary
+
+The proposed surface remains a single root export, `createRetryPolicy(options)`, because this is an internal refactor with no intended contract change. Human review was not required; the gate outcome was to preserve the current public surface and keep the extracted backoff helper internal.
+
 ## Public contract
 
 The root export remains `createRetryPolicy(options)`. The return shape and delay behavior remain stable across the refactor.

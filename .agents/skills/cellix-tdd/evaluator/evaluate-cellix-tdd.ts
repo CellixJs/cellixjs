@@ -6,6 +6,7 @@ import { directoryExists, fileExists, getDefaultSummaryPath } from "./utils.ts";
 const requiredOutputSections = [
 	"package framing",
 	"consumer usage exploration",
+	"contract gate summary",
 	"public contract",
 	"test plan",
 	"changes made",

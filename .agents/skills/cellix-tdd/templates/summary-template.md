@@ -14,6 +14,10 @@ TODO: replace this section with the package purpose, intended consumers, and whe
 
 TODO: replace this section with realistic consumer flows, important success paths, and the edge or failure cases that shaped the contract.
 
+## Contract gate summary
+
+TODO: replace this section with the proposed public exports and their purpose, the primary consumer success-path snippet, any uncertain exports, and whether human review was required before finalizing the contract.
+
 ## Public contract
 
 TODO: replace this section with the intended public exports, the observable behavior consumers should rely on, and anything that must remain internal.

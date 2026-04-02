@@ -6,6 +6,10 @@
 
 Consumers care about registering commands and dispatching by name. They should not need to understand how route keys are normalized internally.
 
+## Contract gate summary
+
+The proposed surface stays at `createCommandRouter()` from the package root because the route-key normalizer does not serve a standalone consumer need. Human review was not required for the surface itself; the gate outcome was simply to keep the helper private and reject the convenience of testing it directly.
+
 ## Public contract
 
 The package exposes `createCommandRouter()` from the root entrypoint and keeps route-key normalization private.

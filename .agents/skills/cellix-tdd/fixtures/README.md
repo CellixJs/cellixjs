@@ -5,7 +5,7 @@ These fixtures give the evaluator concrete package/result bundles to score.
 Each fixture directory contains:
 
 - `prompt.md` - the scenario the skill should handle
-- `agent-output.md` - the required output structure produced by the skill user
+- `agent-output.md` - the required output structure produced by the skill user, including `Contract gate summary`
 - `package/` - a small `@cellix/*` package snapshot to evaluate
 - `expected-report.json` - the expected overall status and failing checks for self-test
 
