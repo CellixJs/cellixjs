@@ -14,6 +14,13 @@ export function getDefaultSummaryPath(packageRoot: string): string {
 	const resolvedPackageRoot = resolve(packageRoot);
 	const relativePackagePath = relative(process.cwd(), resolvedPackageRoot);
 
+	if (relativePackagePath.startsWith("..")) {
+		throw new Error(
+			`Package path ${resolvedPackageRoot} is outside the current working directory.\n` +
+			`Run this command from the repo root, or use --output to specify a summary path explicitly.`,
+		);
+	}
+
 	return join(
 		process.cwd(),
 		".agents/skills/cellix-tdd/runs",

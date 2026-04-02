@@ -491,8 +491,9 @@ function getPublicDeclarations(
 
 	for (const filePath of allowedEntryFiles) {
 		for (const declaration of findExportDeclarations(filePath, packageRoot, new Set())) {
-			if (!seen.has(declaration.name)) {
-				seen.add(declaration.name);
+			const key = `${declaration.filePath}:${declaration.name}`;
+			if (!seen.has(key)) {
+				seen.add(key);
 				declarations.push(declaration);
 			}
 		}
