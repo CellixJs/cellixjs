@@ -3,8 +3,8 @@
 	"tasks": {
 		"build": {
 			"cache": true,
-			"inputs": ["src/**", "tsconfig*.json", "rolldown.config.ts", "package.json", "host.json", "build-pipelines/scripts/**"],
-			"outputs": ["dist/**", "deploy/**"]
+			"inputs": ["$TURBO_EXTENDS$", "rolldown.config.ts", "host.json", "$TURBO_ROOT$/build-pipeline/scripts/**"],
+			"outputs": ["$TURBO_EXTENDS$", "deploy/**"]
 		}
 	}
 }

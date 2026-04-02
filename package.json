@@ -11,7 +11,7 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "dev": "pnpm run build && turbo run azurite gen:watch start --parallel",
+    "dev": "pnpm run build && turbo run azurite gen:watch start",
     "start": "turbo run build && concurrently --kill-others-on-fail \"pnpm run start:api\" \"pnpm run start:ui-community\"",
     "format": "turbo run format",
     "gen": "graphql-codegen --config codegen.yml",
@@ -70,7 +70,7 @@
     "rimraf": "^6.0.1",
     "snyk": "^1.1300.2",
     "ts-scope-trimmer-plugin": "^1.0.2",
-    "turbo": "^2.8.16",
+    "turbo": "2.9.3",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
