@@ -2,17 +2,16 @@
   "name": "@cellix/server-oauth2-mock-seedwork",
   "version": "1.0.0",
   "author": "",
-  "license": "MIT",
   "description": "Reusable OAuth2/OIDC mock server seedwork for local development and testing",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "format": "biome format --write",
+    "prebuild": "pnpm run lint && pnpm run format",
     "build": "tsc --build",
     "clean": "rimraf dist tsconfig.tsbuildinfo && tsc --build --clean",
     "lint": "biome lint",
-    "prebuild": "biome lint"
+    "format": "biome format --write"
   },
   "dependencies": {
     "express": "^4.22.0",

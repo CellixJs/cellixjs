@@ -3,9 +3,7 @@ import type { CommunityDomainPermissions } from '../../../../contexts/community/
 import type { CommunityVisa } from '../../../../contexts/community/community.visa.ts';
 import type { StaffUserEntityReference } from '../../../../contexts/user/staff-user/staff-user.ts';
 
-export class StaffUserCommunityVisa<root extends CommunityEntityReference>
-	implements CommunityVisa
-{
+export class StaffUserCommunityVisa<root extends CommunityEntityReference> implements CommunityVisa {
 	private readonly root: root;
 	private readonly user: StaffUserEntityReference;
 
@@ -14,16 +12,10 @@ export class StaffUserCommunityVisa<root extends CommunityEntityReference>
 		this.user = user;
 	}
 
-	determineIf(
-		func: (permissions: CommunityDomainPermissions) => boolean,
-	): boolean {
+	determineIf(func: (permissions: CommunityDomainPermissions) => boolean): boolean {
 		//ensure that the member is a member of the community
 		if (!this.user.role) {
-			console.log(
-				'Staff Role Visa : undefined user or role',
-				this.user,
-				this.root,
-			);
+			console.log('Staff Role Visa : undefined user or role', this.user, this.root);
 			return false;
 		}
 
@@ -41,10 +33,8 @@ export class StaffUserCommunityVisa<root extends CommunityEntityReference>
 			canEditOwnMemberProfile: communityPermissions.canManageAllCommunities,
 			canEditOwnMemberAccounts: communityPermissions.canManageAllCommunities,
 			isEditingOwnMemberAccount: false,
-			canManageEndUserRolesAndPermissions:
-				communityPermissions.canManageAllCommunities,
-			canManageVendorUserRolesAndPermissions:
-				communityPermissions.canManageAllCommunities,
+			canManageEndUserRolesAndPermissions: communityPermissions.canManageAllCommunities,
+			canManageVendorUserRolesAndPermissions: communityPermissions.canManageAllCommunities,
 			canManageSiteContent: communityPermissions.canManageAllCommunities,
 			isSystemAccount: false,
 		};

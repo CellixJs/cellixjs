@@ -3,15 +3,13 @@ import { EndUser as EndUserApi, type EndUserApplicationService } from './end-use
 import { StaffRole as StaffRoleApi, type StaffRoleApplicationService } from './staff-role/index.ts';
 
 export interface UserContextApplicationService {
-    EndUser: EndUserApplicationService;
-    StaffRole: StaffRoleApplicationService;
+	EndUser: EndUserApplicationService;
+	StaffRole: StaffRoleApplicationService;
 }
 
-export const User = (
-    dataSources: DataSources
-): UserContextApplicationService => {
-    return {
-        EndUser: EndUserApi(dataSources),
-        StaffRole: StaffRoleApi(dataSources),
-    }
-}
+export const User = (dataSources: DataSources): UserContextApplicationService => {
+	return {
+		EndUser: EndUserApi(dataSources),
+		StaffRole: StaffRoleApi(dataSources),
+	};
+};

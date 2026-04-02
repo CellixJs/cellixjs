@@ -7,12 +7,7 @@ import { VendorUserRoleViolationTicketPermissions } from './vendor-user-role-vio
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(
-		__dirname,
-		'features/vendor-user-role-violation-ticket-permissions.feature',
-	),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/vendor-user-role-violation-ticket-permissions.feature'));
 
 function makeVisa(
 	overrides: Partial<{
@@ -21,15 +16,9 @@ function makeVisa(
 	}> = {},
 ) {
 	return vi.mocked({
-		determineIf: (
-			fn: (p: {
-				canManageVendorUserRolesAndPermissions: boolean;
-				isSystemAccount: boolean;
-			}) => boolean,
-		) =>
+		determineIf: (fn: (p: { canManageVendorUserRolesAndPermissions: boolean; isSystemAccount: boolean }) => boolean) =>
 			fn({
-				canManageVendorUserRolesAndPermissions:
-					overrides.canManageVendorUserRolesAndPermissions ?? true,
+				canManageVendorUserRolesAndPermissions: overrides.canManageVendorUserRolesAndPermissions ?? true,
 				isSystemAccount: overrides.isSystemAccount ?? false,
 			}),
 	});
@@ -56,322 +45,211 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Background(({ Given, And }) => {
-		Given(
-			'valid VendorUserRoleViolationTicketPermissionsProps with all permissions set to false',
-			() => {
-				props = makeProps();
-			},
-		);
+		Given('valid VendorUserRoleViolationTicketPermissionsProps with all permissions set to false', () => {
+			props = makeProps();
+		});
 		And('a valid CommunityVisa', () => {
 			visa = makeVisa();
 		});
 	});
 
 	// canCreateTickets
-	Scenario(
-		'Changing canCreateTickets with manage vendor user roles permission',
-		({ Given, When, Then }) => {
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity with permission to manage vendor user roles',
-				() => {
-					visa = makeVisa({ canManageVendorUserRolesAndPermissions: true });
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I set canCreateTickets to true', () => {
-				entity.canCreateTickets = true;
-			});
-			Then('the property should be updated to true', () => {
-				expect(entity.canCreateTickets).toBe(true);
-			});
-		},
-	);
+	Scenario('Changing canCreateTickets with manage vendor user roles permission', ({ Given, When, Then }) => {
+		Given('an VendorUserRoleViolationTicketPermissions entity with permission to manage vendor user roles', () => {
+			visa = makeVisa({ canManageVendorUserRolesAndPermissions: true });
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I set canCreateTickets to true', () => {
+			entity.canCreateTickets = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canCreateTickets).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Changing canCreateTickets with system account permission',
-		({ Given, When, Then }) => {
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity with system account permission',
-				() => {
-					visa = makeVisa({
-						canManageVendorUserRolesAndPermissions: false,
-						isSystemAccount: true,
-					});
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I set canCreateTickets to true', () => {
-				entity.canCreateTickets = true;
+	Scenario('Changing canCreateTickets with system account permission', ({ Given, When, Then }) => {
+		Given('an VendorUserRoleViolationTicketPermissions entity with system account permission', () => {
+			visa = makeVisa({
+				canManageVendorUserRolesAndPermissions: false,
+				isSystemAccount: true,
 			});
-			Then('the property should be updated to true', () => {
-				expect(entity.canCreateTickets).toBe(true);
-			});
-		},
-	);
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I set canCreateTickets to true', () => {
+			entity.canCreateTickets = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canCreateTickets).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Changing canCreateTickets without permission',
-		({ Given, When, Then }) => {
-			let setPermission: () => void;
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity without permission to manage vendor user roles or system account',
-				() => {
-					visa = makeVisa({
-						canManageVendorUserRolesAndPermissions: false,
-						isSystemAccount: false,
-					});
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I try to set canCreateTickets to true', () => {
-				setPermission = () => {
-					entity.canCreateTickets = true;
-				};
+	Scenario('Changing canCreateTickets without permission', ({ Given, When, Then }) => {
+		let setPermission: () => void;
+		Given('an VendorUserRoleViolationTicketPermissions entity without permission to manage vendor user roles or system account', () => {
+			visa = makeVisa({
+				canManageVendorUserRolesAndPermissions: false,
+				isSystemAccount: false,
 			});
-			Then('a PermissionError should be thrown', () => {
-				expect(setPermission).toThrow(PermissionError);
-				expect(setPermission).toThrow('Cannot set permission');
-			});
-		},
-	);
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I try to set canCreateTickets to true', () => {
+			setPermission = () => {
+				entity.canCreateTickets = true;
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(setPermission).toThrow(PermissionError);
+			expect(setPermission).toThrow('Cannot set permission');
+		});
+	});
 
 	// canManageTickets
-	Scenario(
-		'Changing canManageTickets with manage vendor user roles permission',
-		({ Given, When, Then }) => {
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity with permission to manage vendor user roles',
-				() => {
-					visa = makeVisa({ canManageVendorUserRolesAndPermissions: true });
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I set canManageTickets to true', () => {
-				entity.canManageTickets = true;
-			});
-			Then('the property should be updated to true', () => {
-				expect(entity.canManageTickets).toBe(true);
-			});
-		},
-	);
+	Scenario('Changing canManageTickets with manage vendor user roles permission', ({ Given, When, Then }) => {
+		Given('an VendorUserRoleViolationTicketPermissions entity with permission to manage vendor user roles', () => {
+			visa = makeVisa({ canManageVendorUserRolesAndPermissions: true });
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I set canManageTickets to true', () => {
+			entity.canManageTickets = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canManageTickets).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Changing canManageTickets with system account permission',
-		({ Given, When, Then }) => {
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity with system account permission',
-				() => {
-					visa = makeVisa({
-						canManageVendorUserRolesAndPermissions: false,
-						isSystemAccount: true,
-					});
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I set canManageTickets to true', () => {
-				entity.canManageTickets = true;
+	Scenario('Changing canManageTickets with system account permission', ({ Given, When, Then }) => {
+		Given('an VendorUserRoleViolationTicketPermissions entity with system account permission', () => {
+			visa = makeVisa({
+				canManageVendorUserRolesAndPermissions: false,
+				isSystemAccount: true,
 			});
-			Then('the property should be updated to true', () => {
-				expect(entity.canManageTickets).toBe(true);
-			});
-		},
-	);
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I set canManageTickets to true', () => {
+			entity.canManageTickets = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canManageTickets).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Changing canManageTickets without permission',
-		({ Given, When, Then }) => {
-			let setPermission: () => void;
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity without permission to manage vendor user roles or system account',
-				() => {
-					visa = makeVisa({
-						canManageVendorUserRolesAndPermissions: false,
-						isSystemAccount: false,
-					});
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I try to set canManageTickets to true', () => {
-				setPermission = () => {
-					entity.canManageTickets = true;
-				};
+	Scenario('Changing canManageTickets without permission', ({ Given, When, Then }) => {
+		let setPermission: () => void;
+		Given('an VendorUserRoleViolationTicketPermissions entity without permission to manage vendor user roles or system account', () => {
+			visa = makeVisa({
+				canManageVendorUserRolesAndPermissions: false,
+				isSystemAccount: false,
 			});
-			Then('a PermissionError should be thrown', () => {
-				expect(setPermission).toThrow(PermissionError);
-				expect(setPermission).toThrow('Cannot set permission');
-			});
-		},
-	);
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I try to set canManageTickets to true', () => {
+			setPermission = () => {
+				entity.canManageTickets = true;
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(setPermission).toThrow(PermissionError);
+			expect(setPermission).toThrow('Cannot set permission');
+		});
+	});
 
 	// canAssignTickets
-	Scenario(
-		'Changing canAssignTickets with manage vendor user roles permission',
-		({ Given, When, Then }) => {
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity with permission to manage vendor user roles',
-				() => {
-					visa = makeVisa({ canManageVendorUserRolesAndPermissions: true });
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I set canAssignTickets to true', () => {
-				entity.canAssignTickets = true;
-			});
-			Then('the property should be updated to true', () => {
-				expect(entity.canAssignTickets).toBe(true);
-			});
-		},
-	);
+	Scenario('Changing canAssignTickets with manage vendor user roles permission', ({ Given, When, Then }) => {
+		Given('an VendorUserRoleViolationTicketPermissions entity with permission to manage vendor user roles', () => {
+			visa = makeVisa({ canManageVendorUserRolesAndPermissions: true });
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I set canAssignTickets to true', () => {
+			entity.canAssignTickets = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canAssignTickets).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Changing canAssignTickets with system account permission',
-		({ Given, When, Then }) => {
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity with system account permission',
-				() => {
-					visa = makeVisa({
-						canManageVendorUserRolesAndPermissions: false,
-						isSystemAccount: true,
-					});
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I set canAssignTickets to true', () => {
-				entity.canAssignTickets = true;
+	Scenario('Changing canAssignTickets with system account permission', ({ Given, When, Then }) => {
+		Given('an VendorUserRoleViolationTicketPermissions entity with system account permission', () => {
+			visa = makeVisa({
+				canManageVendorUserRolesAndPermissions: false,
+				isSystemAccount: true,
 			});
-			Then('the property should be updated to true', () => {
-				expect(entity.canAssignTickets).toBe(true);
-			});
-		},
-	);
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I set canAssignTickets to true', () => {
+			entity.canAssignTickets = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canAssignTickets).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Changing canAssignTickets without permission',
-		({ Given, When, Then }) => {
-			let setPermission: () => void;
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity without permission to manage vendor user roles or system account',
-				() => {
-					visa = makeVisa({
-						canManageVendorUserRolesAndPermissions: false,
-						isSystemAccount: false,
-					});
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I try to set canAssignTickets to true', () => {
-				setPermission = () => {
-					entity.canAssignTickets = true;
-				};
+	Scenario('Changing canAssignTickets without permission', ({ Given, When, Then }) => {
+		let setPermission: () => void;
+		Given('an VendorUserRoleViolationTicketPermissions entity without permission to manage vendor user roles or system account', () => {
+			visa = makeVisa({
+				canManageVendorUserRolesAndPermissions: false,
+				isSystemAccount: false,
 			});
-			Then('a PermissionError should be thrown', () => {
-				expect(setPermission).toThrow(PermissionError);
-				expect(setPermission).toThrow('Cannot set permission');
-			});
-		},
-	);
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I try to set canAssignTickets to true', () => {
+			setPermission = () => {
+				entity.canAssignTickets = true;
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(setPermission).toThrow(PermissionError);
+			expect(setPermission).toThrow('Cannot set permission');
+		});
+	});
 
 	// canWorkOnTickets
-	Scenario(
-		'Changing canWorkOnTickets with manage vendor user roles permission',
-		({ Given, When, Then }) => {
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity with permission to manage vendor user roles',
-				() => {
-					visa = makeVisa({ canManageVendorUserRolesAndPermissions: true });
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I set canWorkOnTickets to true', () => {
-				entity.canWorkOnTickets = true;
-			});
-			Then('the property should be updated to true', () => {
-				expect(entity.canWorkOnTickets).toBe(true);
-			});
-		},
-	);
+	Scenario('Changing canWorkOnTickets with manage vendor user roles permission', ({ Given, When, Then }) => {
+		Given('an VendorUserRoleViolationTicketPermissions entity with permission to manage vendor user roles', () => {
+			visa = makeVisa({ canManageVendorUserRolesAndPermissions: true });
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I set canWorkOnTickets to true', () => {
+			entity.canWorkOnTickets = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canWorkOnTickets).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Changing canWorkOnTickets with system account permission',
-		({ Given, When, Then }) => {
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity with system account permission',
-				() => {
-					visa = makeVisa({
-						canManageVendorUserRolesAndPermissions: false,
-						isSystemAccount: true,
-					});
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I set canWorkOnTickets to true', () => {
-				entity.canWorkOnTickets = true;
+	Scenario('Changing canWorkOnTickets with system account permission', ({ Given, When, Then }) => {
+		Given('an VendorUserRoleViolationTicketPermissions entity with system account permission', () => {
+			visa = makeVisa({
+				canManageVendorUserRolesAndPermissions: false,
+				isSystemAccount: true,
 			});
-			Then('the property should be updated to true', () => {
-				expect(entity.canWorkOnTickets).toBe(true);
-			});
-		},
-	);
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I set canWorkOnTickets to true', () => {
+			entity.canWorkOnTickets = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canWorkOnTickets).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Changing canWorkOnTickets without permission',
-		({ Given, When, Then }) => {
-			let setPermission: () => void;
-			Given(
-				'an VendorUserRoleViolationTicketPermissions entity without permission to manage vendor user roles or system account',
-				() => {
-					visa = makeVisa({
-						canManageVendorUserRolesAndPermissions: false,
-						isSystemAccount: false,
-					});
-					entity = new VendorUserRoleViolationTicketPermissions(
-						makeProps(),
-						visa,
-					);
-				},
-			);
-			When('I try to set canWorkOnTickets to true', () => {
-				setPermission = () => {
-					entity.canWorkOnTickets = true;
-				};
+	Scenario('Changing canWorkOnTickets without permission', ({ Given, When, Then }) => {
+		let setPermission: () => void;
+		Given('an VendorUserRoleViolationTicketPermissions entity without permission to manage vendor user roles or system account', () => {
+			visa = makeVisa({
+				canManageVendorUserRolesAndPermissions: false,
+				isSystemAccount: false,
 			});
-			Then('a PermissionError should be thrown', () => {
-				expect(setPermission).toThrow(PermissionError);
-				expect(setPermission).toThrow('Cannot set permission');
-			});
-		},
-	);
+			entity = new VendorUserRoleViolationTicketPermissions(makeProps(), visa);
+		});
+		When('I try to set canWorkOnTickets to true', () => {
+			setPermission = () => {
+				entity.canWorkOnTickets = true;
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(setPermission).toThrow(PermissionError);
+			expect(setPermission).toThrow('Cannot set permission');
+		});
+	});
 });

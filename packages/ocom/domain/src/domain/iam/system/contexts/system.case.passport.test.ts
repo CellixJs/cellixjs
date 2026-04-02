@@ -11,9 +11,7 @@ import { SystemCasePassport } from './system.case.passport.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/system.case.passport.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/system.case.passport.feature'));
 
 function makeServiceTicketV1(id = 'service-ticket-1') {
 	return { id } as ServiceTicketV1EntityReference;
@@ -40,160 +38,116 @@ test.for(feature, ({ Scenario, Background }) => {
 		});
 	});
 
-	Scenario(
-		'Creating SystemCasePassport and getting visa for service ticket V1',
-		({ Given, When, Then, And }) => {
-			Given('I create a SystemCasePassport with permissions', () => {
-				passport = new SystemCasePassport(permissions);
-			});
+	Scenario('Creating SystemCasePassport and getting visa for service ticket V1', ({ Given, When, Then, And }) => {
+		Given('I create a SystemCasePassport with permissions', () => {
+			passport = new SystemCasePassport(permissions);
+		});
 
-			And('I have a service ticket V1 entity reference', () => {
-				serviceTicketRef = makeServiceTicketV1();
-			});
+		And('I have a service ticket V1 entity reference', () => {
+			serviceTicketRef = makeServiceTicketV1();
+		});
 
-			When(
-				'I call forServiceTicketV1 with the service ticket reference',
-				() => {
-					serviceTicketVisa = passport.forServiceTicketV1(serviceTicketRef);
-				},
-			);
+		When('I call forServiceTicketV1 with the service ticket reference', () => {
+			serviceTicketVisa = passport.forServiceTicketV1(serviceTicketRef);
+		});
 
-			Then('it should return a ServiceTicketV1Visa', () => {
-				expect(serviceTicketVisa).toBeDefined();
-				expect(typeof serviceTicketVisa.determineIf).toBe('function');
-			});
+		Then('it should return a ServiceTicketV1Visa', () => {
+			expect(serviceTicketVisa).toBeDefined();
+			expect(typeof serviceTicketVisa.determineIf).toBe('function');
+		});
 
-			And('the visa should allow determining permissions', () => {
-				expect(typeof serviceTicketVisa.determineIf).toBe('function');
-				const result = serviceTicketVisa.determineIf(
-					(perms: Readonly<CaseDomainPermissions>) => perms.canCreateTickets,
-				);
-				expect(typeof result).toBe('boolean');
-			});
-		},
-	);
+		And('the visa should allow determining permissions', () => {
+			expect(typeof serviceTicketVisa.determineIf).toBe('function');
+			const result = serviceTicketVisa.determineIf((perms: Readonly<CaseDomainPermissions>) => perms.canCreateTickets);
+			expect(typeof result).toBe('boolean');
+		});
+	});
 
-	Scenario(
-		'Creating SystemCasePassport and getting visa for violation ticket V1',
-		({ Given, When, Then, And }) => {
-			Given('I create a SystemCasePassport with permissions', () => {
-				passport = new SystemCasePassport(permissions);
-			});
+	Scenario('Creating SystemCasePassport and getting visa for violation ticket V1', ({ Given, When, Then, And }) => {
+		Given('I create a SystemCasePassport with permissions', () => {
+			passport = new SystemCasePassport(permissions);
+		});
 
-			And('I have a violation ticket V1 entity reference', () => {
-				violationTicketRef = makeViolationTicketV1();
-			});
+		And('I have a violation ticket V1 entity reference', () => {
+			violationTicketRef = makeViolationTicketV1();
+		});
 
-			When(
-				'I call forViolationTicketV1 with the violation ticket reference',
-				() => {
-					violationTicketVisa =
-						passport.forViolationTicketV1(violationTicketRef);
-				},
-			);
+		When('I call forViolationTicketV1 with the violation ticket reference', () => {
+			violationTicketVisa = passport.forViolationTicketV1(violationTicketRef);
+		});
 
-			Then('it should return a ViolationTicketV1Visa', () => {
-				expect(violationTicketVisa).toBeDefined();
-				expect(typeof violationTicketVisa.determineIf).toBe('function');
-			});
+		Then('it should return a ViolationTicketV1Visa', () => {
+			expect(violationTicketVisa).toBeDefined();
+			expect(typeof violationTicketVisa.determineIf).toBe('function');
+		});
 
-			And('the visa should allow determining permissions', () => {
-				expect(typeof violationTicketVisa.determineIf).toBe('function');
-				const result = violationTicketVisa.determineIf(
-					(perms: Readonly<CaseDomainPermissions>) => perms.canCreateTickets,
-				);
-				expect(typeof result).toBe('boolean');
-			});
-		},
-	);
+		And('the visa should allow determining permissions', () => {
+			expect(typeof violationTicketVisa.determineIf).toBe('function');
+			const result = violationTicketVisa.determineIf((perms: Readonly<CaseDomainPermissions>) => perms.canCreateTickets);
+			expect(typeof result).toBe('boolean');
+		});
+	});
 
-	Scenario(
-		'Creating SystemCasePassport with no permissions',
-		({ Given, When, Then, And }) => {
-			Given('I create a SystemCasePassport with no permissions', () => {
-				passport = new SystemCasePassport();
-			});
+	Scenario('Creating SystemCasePassport with no permissions', ({ Given, When, Then, And }) => {
+		Given('I create a SystemCasePassport with no permissions', () => {
+			passport = new SystemCasePassport();
+		});
 
-			And('I have a service ticket V1 entity reference', () => {
-				serviceTicketRef = makeServiceTicketV1();
-			});
+		And('I have a service ticket V1 entity reference', () => {
+			serviceTicketRef = makeServiceTicketV1();
+		});
 
-			When(
-				'I call forServiceTicketV1 with the service ticket reference',
-				() => {
-					serviceTicketVisa = passport.forServiceTicketV1(serviceTicketRef);
-				},
-			);
+		When('I call forServiceTicketV1 with the service ticket reference', () => {
+			serviceTicketVisa = passport.forServiceTicketV1(serviceTicketRef);
+		});
 
-			Then(
-				'it should return a ServiceTicketV1Visa that works with empty permissions',
-				() => {
-					expect(serviceTicketVisa).toBeDefined();
-					expect(typeof serviceTicketVisa.determineIf).toBe('function');
-				},
-			);
-		},
-	);
+		Then('it should return a ServiceTicketV1Visa that works with empty permissions', () => {
+			expect(serviceTicketVisa).toBeDefined();
+			expect(typeof serviceTicketVisa.determineIf).toBe('function');
+		});
+	});
 
-	Scenario(
-		'Using visa to determine permissions for service ticket',
-		({ Given, When, Then, And }) => {
-			Given(
-				'I create a SystemCasePassport with canCreateTickets permission',
-				() => {
-					passport = new SystemCasePassport({ canCreateTickets: true });
-				},
-			);
+	Scenario('Using visa to determine permissions for service ticket', ({ Given, When, Then, And }) => {
+		Given('I create a SystemCasePassport with canCreateTickets permission', () => {
+			passport = new SystemCasePassport({ canCreateTickets: true });
+		});
 
-			And('I have a service ticket V1 entity reference', () => {
-				serviceTicketRef = makeServiceTicketV1();
-			});
+		And('I have a service ticket V1 entity reference', () => {
+			serviceTicketRef = makeServiceTicketV1();
+		});
 
-			When('I get a visa for the service ticket', () => {
-				serviceTicketVisa = passport.forServiceTicketV1(serviceTicketRef);
-			});
+		When('I get a visa for the service ticket', () => {
+			serviceTicketVisa = passport.forServiceTicketV1(serviceTicketRef);
+		});
 
-			And('I use determineIf to check if canCreateTickets is true', () => {
-				permissionResult = serviceTicketVisa.determineIf(
-					(perms: Readonly<CaseDomainPermissions>) =>
-						perms.canCreateTickets === true,
-				);
-			});
+		And('I use determineIf to check if canCreateTickets is true', () => {
+			permissionResult = serviceTicketVisa.determineIf((perms: Readonly<CaseDomainPermissions>) => perms.canCreateTickets === true);
+		});
 
-			Then('it should return true', () => {
-				expect(permissionResult).toBe(true);
-			});
-		},
-	);
+		Then('it should return true', () => {
+			expect(permissionResult).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Using visa to determine permissions for violation ticket',
-		({ Given, When, Then, And }) => {
-			Given(
-				'I create a SystemCasePassport with canCreateTickets permission',
-				() => {
-					passport = new SystemCasePassport({ canCreateTickets: true });
-				},
-			);
+	Scenario('Using visa to determine permissions for violation ticket', ({ Given, When, Then, And }) => {
+		Given('I create a SystemCasePassport with canCreateTickets permission', () => {
+			passport = new SystemCasePassport({ canCreateTickets: true });
+		});
 
-			And('I have a violation ticket V1 entity reference', () => {
-				violationTicketRef = makeViolationTicketV1();
-			});
+		And('I have a violation ticket V1 entity reference', () => {
+			violationTicketRef = makeViolationTicketV1();
+		});
 
-			When('I get a visa for the violation ticket', () => {
-				violationTicketVisa = passport.forViolationTicketV1(violationTicketRef);
-			});
+		When('I get a visa for the violation ticket', () => {
+			violationTicketVisa = passport.forViolationTicketV1(violationTicketRef);
+		});
 
-			And('I use determineIf to check if canCreateTickets is true', () => {
-				permissionResult = violationTicketVisa.determineIf(
-					(perms: Readonly<CaseDomainPermissions>) =>
-						perms.canCreateTickets === true,
-				);
-			});
+		And('I use determineIf to check if canCreateTickets is true', () => {
+			permissionResult = violationTicketVisa.determineIf((perms: Readonly<CaseDomainPermissions>) => perms.canCreateTickets === true);
+		});
 
-			Then('it should return true', () => {
-				expect(permissionResult).toBe(true);
-			});
-		},
-	);
+		Then('it should return true', () => {
+			expect(permissionResult).toBe(true);
+		});
+	});
 });

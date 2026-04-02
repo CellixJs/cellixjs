@@ -30,12 +30,12 @@ export const Default: Story = {
 		} as LoggedInUserContainerEndUserFieldsFragment,
 		handleLogout: fn(),
 	} satisfies LoggedInUserRootProps,
-    play: async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-        const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
-        await userEvent.click(logoutBtn);
-        expect(args.handleLogout).toHaveBeenCalledTimes(1);
-    },
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
+		await userEvent.click(logoutBtn);
+		expect(args.handleLogout).toHaveBeenCalledTimes(1);
+	},
 };
 
 export const WithMissingName: Story = {
@@ -54,12 +54,12 @@ export const WithMissingName: Story = {
 		} as LoggedInUserContainerEndUserFieldsFragment,
 		handleLogout: fn(),
 	} satisfies LoggedInUserRootProps,
-    play: async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-        const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
-        await userEvent.click(logoutBtn);
-        expect(args.handleLogout).toHaveBeenCalledTimes(1);
-    },
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
+		await userEvent.click(logoutBtn);
+		expect(args.handleLogout).toHaveBeenCalledTimes(1);
+	},
 };
 
 export const WithNullPersonalInfo: Story = {
@@ -71,10 +71,10 @@ export const WithNullPersonalInfo: Story = {
 		} as unknown as LoggedInUserContainerEndUserFieldsFragment,
 		handleLogout: fn(),
 	} satisfies LoggedInUserRootProps,
-    play: async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-        const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
-        await userEvent.click(logoutBtn);
-        expect(args.handleLogout).toHaveBeenCalledTimes(1);
-    },
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		const logoutBtn = await canvas.findByRole('button', { name: /log out/i });
+		await userEvent.click(logoutBtn);
+		expect(args.handleLogout).toHaveBeenCalledTimes(1);
+	},
 };

@@ -1,23 +1,12 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
-import {
-	RoleDeletedReassignEvent,
-	type RoleDeletedReassignProps,
-} from '../../../../events/types/role-deleted-reassign.ts';
+import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../../passport.ts';
-import {
-	Community,
-	type CommunityEntityReference,
-	type CommunityProps,
-} from '../../community/community.ts';
+import { Community, type CommunityEntityReference, type CommunityProps } from '../../community/community.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
 import * as ValueObjects from './vendor-user-role.value-objects.ts';
-import {
-	VendorUserRolePermissions,
-	type VendorUserRolePermissionsEntityReference,
-	type VendorUserRolePermissionsProps,
-} from './vendor-user-role-permissions.ts';
+import { VendorUserRolePermissions, type VendorUserRolePermissionsEntityReference, type VendorUserRolePermissionsProps } from './vendor-user-role-permissions.ts';
 
 export interface VendorUserRoleProps extends DomainEntityProps {
 	roleName: string;
@@ -31,28 +20,16 @@ export interface VendorUserRoleProps extends DomainEntityProps {
 	readonly schemaVersion: string;
 }
 
-export interface VendorUserRoleEntityReference
-	extends Readonly<
-		Omit<VendorUserRoleProps, 'community' | 'setCommunityRef' | 'permissions'>
-	> {
+export interface VendorUserRoleEntityReference extends Readonly<Omit<VendorUserRoleProps, 'community' | 'setCommunityRef' | 'permissions'>> {
 	get community(): Readonly<CommunityEntityReference>;
 	get permissions(): Readonly<VendorUserRolePermissionsEntityReference>;
 }
 
-export class VendorUserRole<props extends VendorUserRoleProps>
-	extends AggregateRoot<props, Passport>
-	implements VendorUserRoleEntityReference
-{
+export class VendorUserRole<props extends VendorUserRoleProps> extends AggregateRoot<props, Passport> implements VendorUserRoleEntityReference {
 	private isNew: boolean = false;
 	private _visa?: CommunityVisa;
 
-	public static getNewInstance<props extends VendorUserRoleProps>(
-		newProps: props,
-		passport: Passport,
-		roleName: string,
-		isDefault: boolean,
-		community: CommunityEntityReference,
-	): VendorUserRole<props> {
+	public static getNewInstance<props extends VendorUserRoleProps>(newProps: props, passport: Passport, roleName: string, isDefault: boolean, community: CommunityEntityReference): VendorUserRole<props> {
 		const role = new VendorUserRole(newProps, passport);
 		role.isNew = true;
 		role.roleName = roleName;
@@ -66,32 +43,20 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 		if (this.isDefault) {
 			throw new PermissionError('You cannot delete a default vendor user role');
 		}
-		if (
-			!this.isDeleted &&
-			!this.visa.determineIf(
-				(permissions) => permissions.canManageVendorUserRolesAndPermissions,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to delete this role',
-			);
+		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.canManageVendorUserRolesAndPermissions)) {
+			throw new PermissionError('You do not have permission to delete this role');
 		}
 		super.isDeleted = true;
-		this.addIntegrationEvent<
-			RoleDeletedReassignProps,
-			RoleDeletedReassignEvent
-		>(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});
 	}
 
-    private get visa(): CommunityVisa {
+	private get visa(): CommunityVisa {
 		if (!this._visa) {
 			if (!this.props.community) {
-				throw new Error(
-					'Community must be set before computing a visa for VendorUserRole',
-				);
+				throw new Error('Community must be set before computing a visa for VendorUserRole');
 			}
 			this._visa = this.passport.community.forCommunity(this.community);
 		}
@@ -102,16 +67,8 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 		return new Community(this.props.community, this.passport);
 	}
 	private set community(community: CommunityEntityReference) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(domainPermissions) =>
-					domainPermissions.canManageVendorUserRolesAndPermissions,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this role',
-			);
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageVendorUserRolesAndPermissions)) {
+			throw new PermissionError('You do not have permission to update this role');
 		}
 		this.props.community = community;
 	}
@@ -120,17 +77,8 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 		return this.props.isDefault;
 	}
 	set isDefault(isDefault: boolean) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageVendorUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this role',
-			);
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageVendorUserRolesAndPermissions || permissions.isSystemAccount)) {
+			throw new PermissionError('You do not have permission to update this role');
 		}
 		this.props.isDefault = isDefault;
 	}
@@ -139,12 +87,7 @@ export class VendorUserRole<props extends VendorUserRoleProps>
 		return this.props.roleName;
 	}
 	set roleName(roleName: string) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) => permissions.canManageVendorUserRolesAndPermissions,
-			)
-		) {
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageVendorUserRolesAndPermissions)) {
 			throw new PermissionError('Cannot set role name');
 		}
 		this.props.roleName = new ValueObjects.RoleName(roleName).valueOf();

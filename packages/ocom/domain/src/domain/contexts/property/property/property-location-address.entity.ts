@@ -21,13 +21,9 @@ export interface PropertyLocationAddressProps extends ValueObjectProps {
 	crossStreet: string;
 }
 
-export interface PropertyLocationAddressEntityReference
-	extends Readonly<PropertyLocationAddressProps> {}
+export interface PropertyLocationAddressEntityReference extends Readonly<PropertyLocationAddressProps> {}
 
-export class PropertyLocationAddress
-	extends ValueObject<PropertyLocationAddressProps>
-	implements PropertyLocationAddressEntityReference
-{
+export class PropertyLocationAddress extends ValueObject<PropertyLocationAddressProps> implements PropertyLocationAddressEntityReference {
 	get streetNumber(): string {
 		return this.props.streetNumber;
 	}

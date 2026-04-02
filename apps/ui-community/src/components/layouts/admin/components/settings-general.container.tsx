@@ -7,21 +7,13 @@ import {
 	AdminSettingsGeneralContainerCurrentCommunityDocument,
 	type CommunityUpdateSettingsInput,
 } from '../../../../generated.tsx';
-import {
-	SettingsGeneral,
-	type SettingsGeneralProps,
-} from './settings-general.tsx';
+import { SettingsGeneral, type SettingsGeneralProps } from './settings-general.tsx';
 
 export const SettingsGeneralContainer: React.FC = () => {
 	const { message } = App.useApp();
 
-	const [communityUpdate, { loading: mutationLoading, error: mutationError }] =
-		useMutation(AdminSettingsGeneralContainerCommunityUpdateSettingsDocument);
-	const {
-		data: communityData,
-		loading: communityLoading,
-		error: communityError,
-	} = useQuery(AdminSettingsGeneralContainerCurrentCommunityDocument);
+	const [communityUpdate, { loading: mutationLoading, error: mutationError }] = useMutation(AdminSettingsGeneralContainerCommunityUpdateSettingsDocument);
+	const { data: communityData, loading: communityLoading, error: communityError } = useQuery(AdminSettingsGeneralContainerCurrentCommunityDocument);
 
 	const handleSave = async (values: CommunityUpdateSettingsInput) => {
 		if (!communityData?.currentCommunity?.id) {
@@ -40,15 +32,10 @@ export const SettingsGeneralContainer: React.FC = () => {
 			if (result.data?.communityUpdateSettings?.status?.success) {
 				message.success('Saved');
 			} else {
-				message.error(
-					result.data?.communityUpdateSettings?.status?.errorMessage ??
-						'Unknown error',
-				);
+				message.error(result.data?.communityUpdateSettings?.status?.errorMessage ?? 'Unknown error');
 			}
 		} catch (saveError) {
-			message.error(
-				`Error updating community: ${saveError instanceof Error ? saveError.message : JSON.stringify(saveError)}`,
-			);
+			message.error(`Error updating community: ${saveError instanceof Error ? saveError.message : JSON.stringify(saveError)}`);
 		}
 	};
 

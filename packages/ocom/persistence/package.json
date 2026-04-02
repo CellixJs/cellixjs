@@ -1,136 +1,139 @@
 {
-  "name": "@ocom/persistence",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "files": ["dist"],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./datasources": {
-      "types": "./dist/datasources/index.d.ts",
-      "default": "./dist/datasources/index.js"
-    },
-    "./datasources/domain": {
-      "types": "./dist/datasources/domain/index.d.ts",
-      "default": "./dist/datasources/domain/index.js"
-    },
-    "./datasources/domain/case": {
-      "types": "./dist/datasources/domain/case/index.d.ts",
-      "default": "./dist/datasources/domain/case/index.js"
-    },
-    "./datasources/domain/case/service-ticket-v1": {
-      "types": "./dist/datasources/domain/case/service-ticket-v1/index.d.ts",
-      "default": "./dist/datasources/domain/case/service-ticket-v1/index.js"
-    },
-    "./datasources/domain/community": {
-      "types": "./dist/datasources/domain/community/index.d.ts",
-      "default": "./dist/datasources/domain/community/index.js"
-    },
-    "./datasources/domain/community/community": {
-      "types": "./dist/datasources/domain/community/community/index.d.ts",
-      "default": "./dist/datasources/domain/community/community/index.js"
-    },
-    "./datasources/domain/community/member": {
-      "types": "./dist/datasources/domain/community/member/index.d.ts",
-      "default": "./dist/datasources/domain/community/member/index.js"
-    },
-    "./datasources/domain/community/role/end-user-role": {
-      "types": "./dist/datasources/domain/community/role/end-user-role/index.d.ts",
-      "default": "./dist/datasources/domain/community/role/end-user-role/index.js"
-    },
-    "./datasources/domain/community/role/vendor-user-role": {
-      "types": "./dist/datasources/domain/community/role/vendor-user-role/index.d.ts",
-      "default": "./dist/datasources/domain/community/role/vendor-user-role/index.js"
-    },
-    "./datasources/domain/property": {
-      "types": "./dist/datasources/domain/property/index.d.ts",
-      "default": "./dist/datasources/domain/property/index.js"
-    },
-    "./datasources/domain/property/property": {
-      "types": "./dist/datasources/domain/property/property/index.d.ts",
-      "default": "./dist/datasources/domain/property/property/index.js"
-    },
-    "./datasources/domain/service": {
-      "types": "./dist/datasources/domain/service/index.d.ts",
-      "default": "./dist/datasources/domain/service/index.js"
-    },
-    "./datasources/domain/service/service": {
-      "types": "./dist/datasources/domain/service/service/index.d.ts",
-      "default": "./dist/datasources/domain/service/service/index.js"
-    },
-    "./datasources/domain/user": {
-      "types": "./dist/datasources/domain/user/index.d.ts",
-      "default": "./dist/datasources/domain/user/index.js"
-    },
-    "./datasources/domain/user/end-user": {
-      "types": "./dist/datasources/domain/user/end-user/index.d.ts",
-      "default": "./dist/datasources/domain/user/end-user/index.js"
-    },
-    "./datasources/domain/user/staff-role": {
-      "types": "./dist/datasources/domain/user/staff-role/index.d.ts",
-      "default": "./dist/datasources/domain/user/staff-role/index.js"
-    },
-    "./datasources/domain/user/staff-user": {
-      "types": "./dist/datasources/domain/user/staff-user/index.d.ts",
-      "default": "./dist/datasources/domain/user/staff-user/index.js"
-    },
-    "./datasources/domain/user/vendor-user": {
-      "types": "./dist/datasources/domain/user/vendor-user/index.d.ts",
-      "default": "./dist/datasources/domain/user/vendor-user/index.js"
-    },
-    "./datasources/readonly": {
-      "types": "./dist/datasources/readonly/index.d.ts",
-      "default": "./dist/datasources/readonly/index.js"
-    },
-    "./datasources/readonly/community": {
-      "types": "./dist/datasources/readonly/community/index.d.ts",
-      "default": "./dist/datasources/readonly/community/index.js"
-    },
-    "./datasources/readonly/community/community": {
-      "types": "./dist/datasources/readonly/community/community/index.d.ts",
-      "default": "./dist/datasources/readonly/community/community/index.js"
-    },
-    "./datasources/readonly/community/member": {
-      "types": "./dist/datasources/readonly/community/member/index.d.ts",
-      "default": "./dist/datasources/readonly/community/member/index.js"
-    },
-    "./datasources/readonly/user": {
-      "types": "./dist/datasources/readonly/user/index.d.ts",
-      "default": "./dist/datasources/readonly/user/index.js"
-    },
-    "./datasources/readonly/user/end-user": {
-      "types": "./dist/datasources/readonly/user/end-user/index.d.ts",
-      "default": "./dist/datasources/readonly/user/end-user/index.js"
-    }
-  },
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest",
-    "lint": "biome lint",
-    "clean": "rimraf dist"
-  },
-  "dependencies": {
-    "@cellix/domain-seedwork": "workspace:*",
-    "@cellix/event-bus-seedwork-node": "workspace:*",
-    "@cellix/mongoose-seedwork": "workspace:*",
-    "@ocom/domain": "workspace:*",
-    "@ocom/data-sources-mongoose-models": "workspace:*",
-    "mongoose": "catalog:",
-    "mongodb": "catalog:"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@cellix/config-vitest": "workspace:*",
-    "@vitest/coverage-istanbul": "catalog:",
-    "typescript": "catalog:",
-    "rimraf": "catalog:",
-    "vitest": "catalog:"
-  }
+	"name": "@ocom/persistence",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./datasources": {
+			"types": "./dist/datasources/index.d.ts",
+			"default": "./dist/datasources/index.js"
+		},
+		"./datasources/domain": {
+			"types": "./dist/datasources/domain/index.d.ts",
+			"default": "./dist/datasources/domain/index.js"
+		},
+		"./datasources/domain/case": {
+			"types": "./dist/datasources/domain/case/index.d.ts",
+			"default": "./dist/datasources/domain/case/index.js"
+		},
+		"./datasources/domain/case/service-ticket-v1": {
+			"types": "./dist/datasources/domain/case/service-ticket-v1/index.d.ts",
+			"default": "./dist/datasources/domain/case/service-ticket-v1/index.js"
+		},
+		"./datasources/domain/community": {
+			"types": "./dist/datasources/domain/community/index.d.ts",
+			"default": "./dist/datasources/domain/community/index.js"
+		},
+		"./datasources/domain/community/community": {
+			"types": "./dist/datasources/domain/community/community/index.d.ts",
+			"default": "./dist/datasources/domain/community/community/index.js"
+		},
+		"./datasources/domain/community/member": {
+			"types": "./dist/datasources/domain/community/member/index.d.ts",
+			"default": "./dist/datasources/domain/community/member/index.js"
+		},
+		"./datasources/domain/community/role/end-user-role": {
+			"types": "./dist/datasources/domain/community/role/end-user-role/index.d.ts",
+			"default": "./dist/datasources/domain/community/role/end-user-role/index.js"
+		},
+		"./datasources/domain/community/role/vendor-user-role": {
+			"types": "./dist/datasources/domain/community/role/vendor-user-role/index.d.ts",
+			"default": "./dist/datasources/domain/community/role/vendor-user-role/index.js"
+		},
+		"./datasources/domain/property": {
+			"types": "./dist/datasources/domain/property/index.d.ts",
+			"default": "./dist/datasources/domain/property/index.js"
+		},
+		"./datasources/domain/property/property": {
+			"types": "./dist/datasources/domain/property/property/index.d.ts",
+			"default": "./dist/datasources/domain/property/property/index.js"
+		},
+		"./datasources/domain/service": {
+			"types": "./dist/datasources/domain/service/index.d.ts",
+			"default": "./dist/datasources/domain/service/index.js"
+		},
+		"./datasources/domain/service/service": {
+			"types": "./dist/datasources/domain/service/service/index.d.ts",
+			"default": "./dist/datasources/domain/service/service/index.js"
+		},
+		"./datasources/domain/user": {
+			"types": "./dist/datasources/domain/user/index.d.ts",
+			"default": "./dist/datasources/domain/user/index.js"
+		},
+		"./datasources/domain/user/end-user": {
+			"types": "./dist/datasources/domain/user/end-user/index.d.ts",
+			"default": "./dist/datasources/domain/user/end-user/index.js"
+		},
+		"./datasources/domain/user/staff-role": {
+			"types": "./dist/datasources/domain/user/staff-role/index.d.ts",
+			"default": "./dist/datasources/domain/user/staff-role/index.js"
+		},
+		"./datasources/domain/user/staff-user": {
+			"types": "./dist/datasources/domain/user/staff-user/index.d.ts",
+			"default": "./dist/datasources/domain/user/staff-user/index.js"
+		},
+		"./datasources/domain/user/vendor-user": {
+			"types": "./dist/datasources/domain/user/vendor-user/index.d.ts",
+			"default": "./dist/datasources/domain/user/vendor-user/index.js"
+		},
+		"./datasources/readonly": {
+			"types": "./dist/datasources/readonly/index.d.ts",
+			"default": "./dist/datasources/readonly/index.js"
+		},
+		"./datasources/readonly/community": {
+			"types": "./dist/datasources/readonly/community/index.d.ts",
+			"default": "./dist/datasources/readonly/community/index.js"
+		},
+		"./datasources/readonly/community/community": {
+			"types": "./dist/datasources/readonly/community/community/index.d.ts",
+			"default": "./dist/datasources/readonly/community/community/index.js"
+		},
+		"./datasources/readonly/community/member": {
+			"types": "./dist/datasources/readonly/community/member/index.d.ts",
+			"default": "./dist/datasources/readonly/community/member/index.js"
+		},
+		"./datasources/readonly/user": {
+			"types": "./dist/datasources/readonly/user/index.d.ts",
+			"default": "./dist/datasources/readonly/user/index.js"
+		},
+		"./datasources/readonly/user/end-user": {
+			"types": "./dist/datasources/readonly/user/end-user/index.d.ts",
+			"default": "./dist/datasources/readonly/user/end-user/index.js"
+		}
+	},
+	"scripts": {
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"watch": "tsc --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"lint": "biome lint",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@cellix/domain-seedwork": "workspace:*",
+		"@cellix/event-bus-seedwork-node": "workspace:*",
+		"@cellix/mongoose-seedwork": "workspace:*",
+		"@ocom/domain": "workspace:*",
+		"@ocom/data-sources-mongoose-models": "workspace:*",
+		"mongoose": "catalog:",
+		"mongodb": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
+		"typescript": "catalog:",
+		"rimraf": "catalog:",
+		"vitest": "catalog:"
+	}
 }

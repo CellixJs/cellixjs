@@ -2,10 +2,7 @@ import { App as AntdApp } from 'antd';
 import type { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
-import {
-	AccountsCommunityCreateContainerCommunityCreateDocument,
-	AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-} from '../../../../generated.tsx';
+import { AccountsCommunityCreateContainerCommunityCreateDocument, AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument } from '../../../../generated.tsx';
 import { CommunityCreateContainer } from './community-create.container.tsx';
 
 const meta = {
@@ -16,9 +13,18 @@ const meta = {
 			<AntdApp>
 				<MemoryRouter initialEntries={['/accounts/create']}>
 					<Routes>
-						<Route path="/accounts" element={<div>Accounts List Page</div>} />
-						<Route path="/accounts/create" element={<Story />} />
-						<Route path="/" element={<div>Root Page</div>} />
+						<Route
+							path="/accounts"
+							element={<div>Accounts List Page</div>}
+						/>
+						<Route
+							path="/accounts/create"
+							element={<Story />}
+						/>
+						<Route
+							path="/"
+							element={<div>Root Page</div>}
+						/>
 					</Routes>
 				</MemoryRouter>
 			</AntdApp>
@@ -58,9 +64,7 @@ export const Success: Story = {
 					},
 					result: {
 						data: {
-							communitiesForCurrentEndUser: [
-								{ id: '1', name: 'Existing Community', __typename: 'Community' },
-							],
+							communitiesForCurrentEndUser: [{ id: '1', name: 'Existing Community', __typename: 'Community' }],
 						},
 					},
 				},
@@ -100,9 +104,9 @@ export const Success: Story = {
 		});
 		await userEvent.click(submitButton);
 
-// Verify navigation happened (Root Page should be visible because navigate('../') from /accounts/create goes to /)
-  const rootPage = await canvas.findByText('Root Page');
-  expect(rootPage).toBeInTheDocument();
+		// Verify navigation happened (Root Page should be visible because navigate('../') from /accounts/create goes to /)
+		const rootPage = await canvas.findByText('Root Page');
+		expect(rootPage).toBeInTheDocument();
 	},
 };
 
@@ -146,7 +150,7 @@ export const ErrorState: Story = {
 		await userEvent.click(submitButton);
 
 		// Verify error message appears (Antd message)
-		// Note: Antd messages are rendered outside the canvasElement usually, 
+		// Note: Antd messages are rendered outside the canvasElement usually,
 		// but in Storybook they might be in the body.
 		const body = within(canvasElement.ownerDocument.body);
 		const errorMessage = await body.findByText(/Error creating community/);

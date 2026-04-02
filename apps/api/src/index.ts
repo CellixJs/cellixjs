@@ -19,53 +19,30 @@ import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import { graphHandlerCreator, type GraphContext } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 
-Cellix
-    .initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
-        serviceRegistry
-            .registerInfrastructureService(
-                new ServiceMongoose(
-                    MongooseConfig.mongooseConnectionString,
-                    MongooseConfig.mongooseConnectOptions,
-                ),
-            )
-            .registerInfrastructureService(new ServiceBlobStorage())
-            .registerInfrastructureService(
-                new ServiceTokenValidation(
-                    TokenValidationConfig.portalTokens,
-                ),
-            );
-        
-        // Register Apollo Server service
-        serviceRegistry.registerInfrastructureService(
-            new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions)
-        );
-    })
-    .setContext((serviceRegistry) => {
-        const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(
-            serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose),
-        );
+Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
+	serviceRegistry
+		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
+		.registerInfrastructureService(new ServiceBlobStorage())
+		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens));
 
-        const { domainDataSource} = dataSourcesFactory.withSystemPassport();
-        RegisterEventHandlers(domainDataSource);
+	// Register Apollo Server service
+	serviceRegistry.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
+})
+	.setContext((serviceRegistry) => {
+		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
 
-        return {
-            dataSourcesFactory,
-            tokenValidationService: serviceRegistry.getInfrastructureService<ServiceTokenValidation>(ServiceTokenValidation),
-            apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),
-        };
-    })
-    .initializeApplicationServices((context) => buildApplicationServicesFactory(context))
-    .registerAzureFunctionHttpHandler(
-        'graphql',
-        { route: 'graphql/{*segments}', methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'] },
-        (appServicesFactory, infrastructureRegistry) => graphHandlerCreator(
-            infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer),
-            appServicesFactory
-        ),
-    )
-    .registerAzureFunctionHttpHandler(
-        'rest',
-        { route: '{communityId}/{role}/{memberId}/{*rest}' },
-        restHandlerCreator,
-    )
-    .startUp();
+		const { domainDataSource } = dataSourcesFactory.withSystemPassport();
+		RegisterEventHandlers(domainDataSource);
+
+		return {
+			dataSourcesFactory,
+			tokenValidationService: serviceRegistry.getInfrastructureService<ServiceTokenValidation>(ServiceTokenValidation),
+			apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),
+		};
+	})
+	.initializeApplicationServices((context) => buildApplicationServicesFactory(context))
+	.registerAzureFunctionHttpHandler('graphql', { route: 'graphql/{*segments}', methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'] }, (appServicesFactory, infrastructureRegistry) =>
+		graphHandlerCreator(infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer), appServicesFactory),
+	)
+	.registerAzureFunctionHttpHandler('rest', { route: '{communityId}/{role}/{memberId}/{*rest}' }, restHandlerCreator)
+	.startUp();

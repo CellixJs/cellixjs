@@ -4,11 +4,7 @@ import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 
 export type ServiceMongooseOptions = ConnectOptions & { debug?: boolean };
 
-export class ServiceMongoose
-	implements
-		ServiceBase<MongooseSeedwork.MongooseContextFactory>,
-		MongooseSeedwork.MongooseContextFactory
-{
+export class ServiceMongoose implements ServiceBase<MongooseSeedwork.MongooseContextFactory>, MongooseSeedwork.MongooseContextFactory {
 	private readonly uri: string;
 	private readonly options: ServiceMongooseOptions;
 	private serviceInternal: Mongoose | undefined;
@@ -20,16 +16,16 @@ export class ServiceMongoose
 		this.options = options ?? {};
 	}
 	public async startUp() {
-        const { debug, ...options } = this.options;
+		const { debug, ...options } = this.options;
 		this.serviceInternal = await mongoose.connect(this.uri, options);
-        if (debug) { this.serviceInternal.set('debug', true); }
+		if (debug) {
+			this.serviceInternal.set('debug', true);
+		}
 		return this;
 	}
 	public async shutDown() {
 		if (!this.serviceInternal) {
-			throw new Error(
-				'ServiceMongoose is not started - shutdown cannot proceed',
-			);
+			throw new Error('ServiceMongoose is not started - shutdown cannot proceed');
 		}
 		await this.serviceInternal.disconnect();
 		console.log('ServiceMongoose stopped');

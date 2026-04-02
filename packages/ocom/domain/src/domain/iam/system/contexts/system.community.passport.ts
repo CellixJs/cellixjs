@@ -4,10 +4,7 @@ import type { CommunityPassport } from '../../../contexts/community/community.pa
 import type { CommunityVisa } from '../../../contexts/community/community.visa.ts';
 import { SystemPassportBase } from '../system.passport-base.ts';
 
-export class SystemCommunityPassport
-	extends SystemPassportBase
-	implements CommunityPassport
-{
+export class SystemCommunityPassport extends SystemPassportBase implements CommunityPassport {
 	forCommunity(_root: CommunityEntityReference): CommunityVisa {
 		const permissions = this.permissions as CommunityDomainPermissions;
 		return { determineIf: (func) => func(permissions) };

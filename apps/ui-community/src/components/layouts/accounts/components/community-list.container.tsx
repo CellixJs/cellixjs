@@ -9,13 +9,7 @@ import {
 import { CommunityList } from './community-list.tsx';
 
 export const CommunityListContainer: React.FC = () => {
-	const {
-		loading: communityLoading,
-		error: communityError,
-		data: communityData,
-	} = useQuery(
-		AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-	);
+	const { loading: communityLoading, error: communityError, data: communityData } = useQuery(AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument);
 
 	const {
 		loading: membersLoading,
@@ -26,18 +20,9 @@ export const CommunityListContainer: React.FC = () => {
 	});
 
 	const members: AccountsCommunityListContainerMemberFieldsFragment[][] = [];
-	if (
-		membersData?.membersForCurrentEndUser &&
-		membersData?.membersForCurrentEndUser.length > 0 &&
-		communityData?.communitiesForCurrentEndUser
-	) {
+	if (membersData?.membersForCurrentEndUser && membersData?.membersForCurrentEndUser.length > 0 && communityData?.communitiesForCurrentEndUser) {
 		for (const community of communityData.communitiesForCurrentEndUser) {
-			members.push(
-				membersData.membersForCurrentEndUser.filter(
-					(member: AccountsCommunityListContainerMemberFieldsFragment) =>
-						member?.community?.id === community?.id,
-				),
-			);
+			members.push(membersData.membersForCurrentEndUser.filter((member: AccountsCommunityListContainerMemberFieldsFragment) => member?.community?.id === community?.id));
 		}
 	}
 
@@ -48,22 +33,14 @@ export const CommunityListContainer: React.FC = () => {
 			hasDataComponent={
 				<CommunityList
 					data={{
-						communities:
-							communityData?.communitiesForCurrentEndUser as AccountsCommunityListContainerCommunityFieldsFragment[],
-						members:
-							members as AccountsCommunityListContainerMemberFieldsFragment[][],
+						communities: communityData?.communitiesForCurrentEndUser as AccountsCommunityListContainerCommunityFieldsFragment[],
+						members: members as AccountsCommunityListContainerMemberFieldsFragment[][],
 					}}
 				/>
 			}
 			noDataComponent={<div>No Data...</div>}
 			error={communityError || membersError}
-			errorComponent={
-				communityError ? (
-					<div>Error :( {JSON.stringify(communityError)}</div>
-				) : (
-					<div>Error :( {JSON.stringify(membersError)}</div>
-				)
-			}
+			errorComponent={communityError ? <div>Error :( {JSON.stringify(communityError)}</div> : <div>Error :( {JSON.stringify(membersError)}</div>}
 		/>
 	);
 };

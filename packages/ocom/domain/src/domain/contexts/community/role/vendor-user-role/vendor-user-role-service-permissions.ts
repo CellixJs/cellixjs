@@ -8,21 +8,12 @@ interface VendorUserRoleServicePermissionsSpec {
 	isSystemAccount: boolean;
 }
 
-export interface VendorUserRoleServicePermissionsProps
-	extends Omit<VendorUserRoleServicePermissionsSpec, 'isSystemAccount'>,
-		ValueObjectProps {}
-export interface VendorUserRoleServicePermissionsEntityReference
-	extends Readonly<VendorUserRoleServicePermissionsProps> {}
+export interface VendorUserRoleServicePermissionsProps extends Omit<VendorUserRoleServicePermissionsSpec, 'isSystemAccount'>, ValueObjectProps {}
+export interface VendorUserRoleServicePermissionsEntityReference extends Readonly<VendorUserRoleServicePermissionsProps> {}
 
-export class VendorUserRoleServicePermissions
-	extends ValueObject<VendorUserRoleServicePermissionsProps>
-	implements VendorUserRoleServicePermissionsEntityReference
-{
+export class VendorUserRoleServicePermissions extends ValueObject<VendorUserRoleServicePermissionsProps> implements VendorUserRoleServicePermissionsEntityReference {
 	private readonly visa: CommunityVisa;
-	constructor(
-		props: VendorUserRoleServicePermissionsProps,
-		visa: CommunityVisa,
-	) {
+	constructor(props: VendorUserRoleServicePermissionsProps, visa: CommunityVisa) {
 		super(props);
 		this.visa = visa;
 	}
@@ -31,13 +22,7 @@ export class VendorUserRoleServicePermissions
 		return this.props.canManageServices;
 	}
 	set canManageServices(value: boolean) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageVendorUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageVendorUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canManageServices = value;

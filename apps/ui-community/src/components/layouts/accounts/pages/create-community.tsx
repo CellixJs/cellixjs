@@ -9,7 +9,10 @@ export const CreateCommunity: React.FC = () => {
 		<SubPageLayout
 			fixedHeader={false}
 			header={
-				<PageHeader title="Create a Community" onBack={() => navigate('../')} />
+				<PageHeader
+					title="Create a Community"
+					onBack={() => navigate('../')}
+				/>
 			}
 		>
 			<CommunityCreateContainer />

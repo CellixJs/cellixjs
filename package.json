@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^6.3.0",
-    "@biomejs/biome": "2.4.6",
+    "@biomejs/biome": "2.4.10",
     "@cellix/graphql-codegen": "workspace:*",
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/introspection": "^4.0.3",
@@ -73,7 +73,7 @@
     "rimraf": "^6.0.1",
     "snyk": "^1.1300.2",
     "ts-scope-trimmer-plugin": "^1.0.2",
-    "turbo": "^2.8.16",
+    "turbo": "2.9.3",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

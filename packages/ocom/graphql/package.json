@@ -1,43 +1,44 @@
 {
-  "name": "@ocom/graphql",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "files": [
-    "dist",
-    "src/schema/**/*.graphql"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
-    "lint": "biome lint",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest",
-    "clean": "rimraf dist **/*.generated.ts **/graphql.schema.json"
-  },
-  "dependencies": {
-    "@apollo/server": "catalog:",
-    "@cellix/graphql-codegen": "workspace:*",
-    "@cellix/graphql-core": "workspace:*",
-    "@graphql-tools/merge": "^9.1.6",
-    "@ocom/application-services": "workspace:*",
-    "@ocom/domain": "workspace:*",
-    "graphql": "catalog:"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@cellix/config-vitest": "workspace:*",
-    "@vitest/coverage-istanbul": "catalog:",
-    "rimraf": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
-  }
+	"name": "@ocom/graphql",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist",
+		"src/schema/**/*.graphql"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"watch": "tsc --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"clean": "rimraf dist **/*.generated.ts **/graphql.schema.json"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@cellix/graphql-codegen": "workspace:*",
+		"@cellix/graphql-core": "workspace:*",
+		"@graphql-tools/merge": "^9.1.6",
+		"@ocom/application-services": "workspace:*",
+		"@ocom/domain": "workspace:*",
+		"graphql": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
 }

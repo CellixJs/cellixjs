@@ -4,36 +4,18 @@ import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { PropertyDomainPermissions } from '../../../property/property.domain-permissions.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
 
-export interface VendorUserRolePropertyPermissionsProps
-	extends Omit<
-			PropertyDomainPermissions,
-			'isEditingOwnProperty' | 'isSystemAccount'
-		>,
-		ValueObjectProps {}
-export interface VendorUserRolePropertyPermissionsEntityReference
-	extends Readonly<VendorUserRolePropertyPermissionsProps> {}
+export interface VendorUserRolePropertyPermissionsProps extends Omit<PropertyDomainPermissions, 'isEditingOwnProperty' | 'isSystemAccount'>, ValueObjectProps {}
+export interface VendorUserRolePropertyPermissionsEntityReference extends Readonly<VendorUserRolePropertyPermissionsProps> {}
 
-export class VendorUserRolePropertyPermissions
-	extends ValueObject<VendorUserRolePropertyPermissionsProps>
-	implements VendorUserRolePropertyPermissionsEntityReference
-{
+export class VendorUserRolePropertyPermissions extends ValueObject<VendorUserRolePropertyPermissionsProps> implements VendorUserRolePropertyPermissionsEntityReference {
 	private readonly visa: CommunityVisa;
-	constructor(
-		props: VendorUserRolePropertyPermissionsProps,
-		visa: CommunityVisa,
-	) {
+	constructor(props: VendorUserRolePropertyPermissionsProps, visa: CommunityVisa) {
 		super(props);
 		this.visa = visa;
 	}
 
 	private validateVisa(): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageVendorUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageVendorUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission');
 		}
 	}

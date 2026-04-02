@@ -14,9 +14,7 @@ import { TicketModelFactory } from './models/case/ticket.model.ts';
 import { PropertyModelFactory } from './models/property/property.model.ts';
 import { ServiceModelFactory } from './models/service/service.model.ts';
 
-export const mongooseContextBuilder = (
-	initializedService: MongooseSeedwork.MongooseContextFactory,
-) => {
+export const mongooseContextBuilder = (initializedService: MongooseSeedwork.MongooseContextFactory) => {
 	const roleModel = RoleModelFactory(initializedService);
 	const userModel = UserModelFactory(initializedService);
 	const ticketModel = TicketModelFactory(initializedService);

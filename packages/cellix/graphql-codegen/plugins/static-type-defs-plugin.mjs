@@ -36,10 +36,7 @@ export const plugin = async (_schema, _documents, config) => {
 		'// Do not edit directly.',
 		'',
 		`export const ${exportName} = [`,
-		...fileContents.map(
-			({ filePath, content }) =>
-				`\t${JSON.stringify(content)}, // ${toPosixPath(path.relative(process.cwd(), filePath))}`,
-		),
+		...fileContents.map(({ filePath, content }) => `\t${JSON.stringify(content)}, // ${toPosixPath(path.relative(process.cwd(), filePath))}`),
 		'] as const;',
 		'',
 	];

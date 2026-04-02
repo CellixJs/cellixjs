@@ -1,17 +1,6 @@
-import {
-	type ApolloServer,
-	type BaseContext,
-	type ContextFunction,
-    HeaderMap,
-	type HTTPGraphQLRequest,
-} from '@apollo/server';
+import { type ApolloServer, type BaseContext, type ContextFunction, HeaderMap, type HTTPGraphQLRequest } from '@apollo/server';
 import type { WithRequired } from '@apollo/utils.withrequired';
-import type {
-	HttpHandler,
-	HttpRequest,
-	HttpResponseInit,
-	InvocationContext,
-} from '@azure/functions';
+import type { HttpHandler, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
 export type { WithRequired } from '@apollo/utils.withrequired';
 
@@ -25,30 +14,19 @@ export interface AzureFunctionsMiddlewareOptions<TContext extends BaseContext> {
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await
-const defaultContext: ContextFunction<
-	[AzureFunctionsContextFunctionArgument]
-> = async () => ({});
+const defaultContext: ContextFunction<[AzureFunctionsContextFunctionArgument]> = async () => ({});
 
 /**
  * Creates an Azure Functions HTTP handler for Apollo Server.
  * The server must already be started before calling this function.
- * 
+ *
  * @param server - The Apollo Server instance (must be started)
  * @param options - Configuration options for the handler
  * @returns An Azure Functions HTTP handler
  */
-export function createHandler(
-	server: ApolloServer,
-	options?: AzureFunctionsMiddlewareOptions<BaseContext>,
-): HttpHandler;
-export function createHandler<TContext extends BaseContext>(
-	server: ApolloServer<TContext>,
-	options: WithRequired<AzureFunctionsMiddlewareOptions<TContext>, 'context'>,
-): HttpHandler;
-export function createHandler<TContext extends BaseContext>(
-	server: ApolloServer<TContext>,
-	options?: AzureFunctionsMiddlewareOptions<TContext>,
-): HttpHandler {
+export function createHandler(server: ApolloServer, options?: AzureFunctionsMiddlewareOptions<BaseContext>): HttpHandler;
+export function createHandler<TContext extends BaseContext>(server: ApolloServer<TContext>, options: WithRequired<AzureFunctionsMiddlewareOptions<TContext>, 'context'>): HttpHandler;
+export function createHandler<TContext extends BaseContext>(server: ApolloServer<TContext>, options?: AzureFunctionsMiddlewareOptions<TContext>): HttpHandler {
 	return async (req: HttpRequest, context: InvocationContext) => {
 		const contextFunction = options?.context ?? defaultContext;
 		try {
@@ -68,8 +46,7 @@ export function createHandler<TContext extends BaseContext>(
 					body: JSON.stringify({
 						errors: [
 							{
-								message:
-									'Incremental delivery (chunked responses) is not implemented.',
+								message: 'Incremental delivery (chunked responses) is not implemented.',
 							},
 						],
 					}),
@@ -108,9 +85,7 @@ async function normalizeRequest(req: HttpRequest): Promise<HTTPGraphQLRequest> {
 }
 
 async function parseBody(req: HttpRequest): Promise<unknown> {
-	const isValidContentType = req.headers
-		.get('content-type')
-		?.startsWith('application/json');
+	const isValidContentType = req.headers.get('content-type')?.startsWith('application/json');
 	const isValidPostRequest = req.method === 'POST' && isValidContentType;
 
 	if (isValidPostRequest) {

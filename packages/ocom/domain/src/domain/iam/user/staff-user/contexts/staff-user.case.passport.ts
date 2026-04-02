@@ -5,10 +5,7 @@ import { StaffUserPassportBase } from '../../staff-user.passport-base.ts';
 import { StaffUserServiceTicketVisa } from './staff-user.service-ticket.visa.ts';
 import { StaffUserViolationTicketVisa } from './staff-user.violation-ticket.visa.ts';
 
-export class StaffUserCasePassport
-	extends StaffUserPassportBase
-	implements CasePassport
-{
+export class StaffUserCasePassport extends StaffUserPassportBase implements CasePassport {
 	forServiceTicketV1(_root: ServiceTicketV1EntityReference) {
 		return new StaffUserServiceTicketVisa();
 	}

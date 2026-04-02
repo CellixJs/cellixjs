@@ -1,12 +1,12 @@
-import {Row, Space, Spin, Typography } from 'antd';
+import { Row, Space, Spin, Typography } from 'antd';
 import type React from 'react';
 import { useEffect } from 'react';
 import { hasAuthParams, useAuth } from 'react-oidc-context';
 import { Navigate, useLocation } from 'react-router-dom';
 
 export interface RequireAuthProps {
-  children: React.JSX.Element;
-  forceLogin?: boolean;
+	children: React.JSX.Element;
+	forceLogin?: boolean;
 }
 
 export const RequireAuth: React.FC<RequireAuthProps> = (props) => {

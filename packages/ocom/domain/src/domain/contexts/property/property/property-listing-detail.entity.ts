@@ -4,16 +4,8 @@ import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail.value-objects.ts';
-import {
-	PropertyListingDetailAdditionalAmenity,
-	type PropertyListingDetailAdditionalAmenityEntityReference,
-	type PropertyListingDetailAdditionalAmenityProps,
-} from './property-listing-detail-additional-amenity.entity.ts';
-import {
-	PropertyListingDetailBedroomDetail,
-	type PropertyListingDetailBedroomDetailEntityReference,
-	type PropertyListingDetailBedroomDetailProps,
-} from './property-listing-detail-bedroom-detail.entity.ts';
+import { PropertyListingDetailAdditionalAmenity, type PropertyListingDetailAdditionalAmenityEntityReference, type PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';
+import { PropertyListingDetailBedroomDetail, type PropertyListingDetailBedroomDetailEntityReference, type PropertyListingDetailBedroomDetailProps } from './property-listing-detail-bedroom-detail.entity.ts';
 
 export interface PropertyListingDetailProps extends ValueObjectProps {
 	price: number | null;
@@ -45,18 +37,12 @@ export interface PropertyListingDetailProps extends ValueObjectProps {
 	listingAgentCompanyAddress: string | null;
 }
 
-export interface PropertyListingDetailEntityReference
-	extends Readonly<
-		Omit<PropertyListingDetailProps, 'bedroomDetails' | 'additionalAmenities'>
-	> {
+export interface PropertyListingDetailEntityReference extends Readonly<Omit<PropertyListingDetailProps, 'bedroomDetails' | 'additionalAmenities'>> {
 	readonly bedroomDetails: ReadonlyArray<PropertyListingDetailBedroomDetailEntityReference>;
 	readonly additionalAmenities: ReadonlyArray<PropertyListingDetailAdditionalAmenityEntityReference>;
 }
 
-export class PropertyListingDetail
-	extends ValueObject<PropertyListingDetailProps>
-	implements PropertyListingDetailEntityReference
-{
+export class PropertyListingDetail extends ValueObject<PropertyListingDetailProps> implements PropertyListingDetailEntityReference {
 	//#region Fields
 	private readonly visa: PropertyVisa;
 	//#endregion Fields
@@ -71,54 +57,33 @@ export class PropertyListingDetail
 	//#region Methods
 	public requestNewBedroom(): PropertyListingDetailBedroomDetail {
 		this.ensureCanModifyListing();
-		return new PropertyListingDetailBedroomDetail(
-			this.props.bedroomDetails.getNewItem(),
-			this.visa,
-		);
+		return new PropertyListingDetailBedroomDetail(this.props.bedroomDetails.getNewItem(), this.visa);
 	}
 
-	public requestRemoveBedroom(
-		detail: PropertyListingDetailBedroomDetailProps,
-	): void {
+	public requestRemoveBedroom(detail: PropertyListingDetailBedroomDetailProps): void {
 		this.ensureCanModifyListing();
 		this.props.bedroomDetails.removeItem(detail);
 	}
 
 	public requestNewAdditionalAmenity(): PropertyListingDetailAdditionalAmenity {
 		this.ensureCanModifyListing();
-		return new PropertyListingDetailAdditionalAmenity(
-			this.props.additionalAmenities.getNewItem(),
-			this.visa,
-		);
+		return new PropertyListingDetailAdditionalAmenity(this.props.additionalAmenities.getNewItem(), this.visa);
 	}
 
-	public requestRemoveAdditionalAmenity(
-		amenity: PropertyListingDetailAdditionalAmenityProps,
-	): void {
+	public requestRemoveAdditionalAmenity(amenity: PropertyListingDetailAdditionalAmenityProps): void {
 		this.ensureCanModifyListing();
 		this.props.additionalAmenities.removeItem(amenity);
 	}
 
 	public requestRemoveImage(blobName: string): void {
 		this.ensureCanModifyListing();
-		this.props.images =
-			this.props.images?.filter((image) => image !== blobName) || null;
-		this.props.floorPlanImages =
-			this.props.floorPlanImages?.filter((image) => image !== blobName) || null;
+		this.props.images = this.props.images?.filter((image) => image !== blobName) || null;
+		this.props.floorPlanImages = this.props.floorPlanImages?.filter((image) => image !== blobName) || null;
 	}
 
 	private ensureCanModifyListing(): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageProperties ||
-					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this property listing',
-			);
+		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageProperties || (permissions.canEditOwnProperty && permissions.isEditingOwnProperty))) {
+			throw new PermissionError('You do not have permission to update this property listing');
 		}
 	}
 	//#endregion Methods
@@ -173,9 +138,7 @@ export class PropertyListingDetail
 	}
 
 	get bedroomDetails(): ReadonlyArray<PropertyListingDetailBedroomDetail> {
-		return this.props.bedroomDetails.items.map(
-			(item) => new PropertyListingDetailBedroomDetail(item, this.visa),
-		);
+		return this.props.bedroomDetails.items.map((item) => new PropertyListingDetailBedroomDetail(item, this.visa));
 	}
 
 	get bathrooms(): number | null {
@@ -227,9 +190,7 @@ export class PropertyListingDetail
 	}
 
 	get additionalAmenities(): ReadonlyArray<PropertyListingDetailAdditionalAmenity> {
-		return this.props.additionalAmenities.items.map(
-			(item) => new PropertyListingDetailAdditionalAmenity(item, this.visa),
-		);
+		return this.props.additionalAmenities.items.map((item) => new PropertyListingDetailAdditionalAmenity(item, this.visa));
 	}
 
 	get images(): string[] | null {

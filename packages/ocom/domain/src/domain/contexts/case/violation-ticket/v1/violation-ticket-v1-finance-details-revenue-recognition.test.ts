@@ -3,19 +3,11 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 import type { ViolationTicketV1FinanceDetailsGlTransactionEntityReference } from './violation-ticket-v1-finance-details-gl-transaction.ts';
-import {
-	ViolationTicketV1FinanceDetailsRevenueRecognition,
-	type ViolationTicketV1FinanceDetailsRevenueRecognitionProps,
-} from './violation-ticket-v1-finance-details-revenue-recognition.ts';
+import { ViolationTicketV1FinanceDetailsRevenueRecognition, type ViolationTicketV1FinanceDetailsRevenueRecognitionProps } from './violation-ticket-v1-finance-details-revenue-recognition.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(
-		__dirname,
-		'features/violation-ticket-v1-finance-details-revenue-recognition.feature',
-	),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/violation-ticket-v1-finance-details-revenue-recognition.feature'));
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let revenueRecognition: ViolationTicketV1FinanceDetailsRevenueRecognition;
@@ -37,28 +29,21 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		};
 	});
 
-	Scenario(
-		'Creating a new ViolationTicketV1FinanceDetailsRevenueRecognition instance',
-		({ When, Then, And }) => {
-			When(
-				'I create a new ViolationTicketV1FinanceDetailsRevenueRecognition with valid properties',
-				() => {
-					revenueRecognition =
-						new ViolationTicketV1FinanceDetailsRevenueRecognition(props);
-				},
-			);
+	Scenario('Creating a new ViolationTicketV1FinanceDetailsRevenueRecognition instance', ({ When, Then, And }) => {
+		When('I create a new ViolationTicketV1FinanceDetailsRevenueRecognition with valid properties', () => {
+			revenueRecognition = new ViolationTicketV1FinanceDetailsRevenueRecognition(props);
+		});
 
-			Then('the instance should be created successfully', () => {
-				expect(revenueRecognition).toBeDefined();
-			});
+		Then('the instance should be created successfully', () => {
+			expect(revenueRecognition).toBeDefined();
+		});
 
-			And('the submission should be set correctly', () => {
-				expect(revenueRecognition.submission).toBe(submission);
-			});
+		And('the submission should be set correctly', () => {
+			expect(revenueRecognition.submission).toBe(submission);
+		});
 
-			And('the recognition should be set correctly', () => {
-				expect(revenueRecognition.recognition).toBe(recognition);
-			});
-		},
-	);
+		And('the recognition should be set correctly', () => {
+			expect(revenueRecognition.recognition).toBe(recognition);
+		});
+	});
 });

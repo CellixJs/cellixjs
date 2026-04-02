@@ -1,7 +1,7 @@
 query LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExists {
-  currentEndUserAndCreateIfNotExists { 
-    ...LoggedInUserContainerEndUserFields
-  }
+	currentEndUserAndCreateIfNotExists {
+		...LoggedInUserContainerEndUserFields
+	}
 }
 
 # query LoggedInUserCommunityContainerUserCurrentQuery {
@@ -17,13 +17,13 @@ query LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExists {
 # }
 
 fragment LoggedInUserContainerEndUserFields on EndUser {
-  externalId
-  personalInformation {
-    identityDetails {
-      lastName
-      restOfName
-    }
-  }
-  
-  id
+	externalId
+	personalInformation {
+		identityDetails {
+			lastName
+			restOfName
+		}
+	}
+
+	id
 }

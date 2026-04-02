@@ -44,8 +44,5 @@ const ServiceSchema = new Schema<Service, Model<Service>, Service>(
 );
 
 export const ServiceModelName = 'Service';
-export const ServiceModelFactory = MongooseSeedwork.modelFactory<Service>(
-	ServiceModelName,
-	ServiceSchema,
-);
+export const ServiceModelFactory = MongooseSeedwork.modelFactory<Service>(ServiceModelName, ServiceSchema);
 export type ServiceModelType = ReturnType<typeof ServiceModelFactory>;

@@ -4,36 +4,18 @@ import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { CaseDomainPermissions } from '../../../case/case.domain-permissions.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
 
-export interface VendorUserRoleServiceTicketPermissionsProps
-	extends Omit<
-			CaseDomainPermissions,
-			'isEditingOwnTicket' | 'isEditingAssignedTicket' | 'isSystemAccount'
-		>,
-		ValueObjectProps {}
-export interface VendorUserRoleServiceTicketPermissionsEntityReference
-	extends Readonly<VendorUserRoleServiceTicketPermissionsProps> {}
+export interface VendorUserRoleServiceTicketPermissionsProps extends Omit<CaseDomainPermissions, 'isEditingOwnTicket' | 'isEditingAssignedTicket' | 'isSystemAccount'>, ValueObjectProps {}
+export interface VendorUserRoleServiceTicketPermissionsEntityReference extends Readonly<VendorUserRoleServiceTicketPermissionsProps> {}
 
-export class VendorUserRoleServiceTicketPermissions
-	extends ValueObject<VendorUserRoleServiceTicketPermissionsProps>
-	implements VendorUserRoleServiceTicketPermissionsEntityReference
-{
+export class VendorUserRoleServiceTicketPermissions extends ValueObject<VendorUserRoleServiceTicketPermissionsProps> implements VendorUserRoleServiceTicketPermissionsEntityReference {
 	private readonly visa: CommunityVisa;
-	constructor(
-		props: VendorUserRoleServiceTicketPermissionsProps,
-		visa: CommunityVisa,
-	) {
+	constructor(props: VendorUserRoleServiceTicketPermissionsProps, visa: CommunityVisa) {
 		super(props);
 		this.visa = visa;
 	}
 
 	private validateVisa(): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageVendorUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageVendorUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission');
 		}
 	}

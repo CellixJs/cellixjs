@@ -8,8 +8,8 @@ import { VendorUserRolePersistence } from './role/vendor-user-role/index.ts';
 export const CommunityContextPersistence = (models: ModelsContext, passport: Domain.Passport) => ({
 	Community: Community.CommunityPersistence(models, passport),
 	Member: Member.MemberPersistence(models, passport),
-    Role: {
-        EndUserRole: EndUserRolePersistence(models, passport),
-        VendorUserRole: VendorUserRolePersistence(models, passport),
-    },
+	Role: {
+		EndUserRole: EndUserRolePersistence(models, passport),
+		VendorUserRole: VendorUserRolePersistence(models, passport),
+	},
 });

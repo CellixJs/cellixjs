@@ -2,9 +2,7 @@ import type { CaseDomainPermissions } from '../../../../contexts/case/case.domai
 import type { CaseVisa } from '../../../../contexts/case/case.visa.ts';
 
 export class StaffUserServiceTicketVisa implements CaseVisa {
-	determineIf(
-		func: (permissions: Readonly<CaseDomainPermissions>) => boolean,
-	): boolean {
+	determineIf(func: (permissions: Readonly<CaseDomainPermissions>) => boolean): boolean {
 		const permissions: CaseDomainPermissions = {
 			canCreateTickets: true,
 			canManageTickets: true,

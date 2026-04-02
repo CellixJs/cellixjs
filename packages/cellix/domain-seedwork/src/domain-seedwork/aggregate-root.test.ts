@@ -6,7 +6,6 @@ import type { DomainEntityProps } from './domain-entity.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-
 const test = { for: describeFeature };
 
 // Test interface to verify RootEventRegistry export
@@ -40,10 +39,7 @@ interface TestAggregateProps extends DomainEntityProps {
 
 interface TestAggregateEntityReference extends Readonly<TestAggregateProps> {}
 
-class TestAggregate<props extends TestAggregateProps>
-	extends AggregateRoot<props, unknown>
-	implements TestAggregateEntityReference
-{
+class TestAggregate<props extends TestAggregateProps> extends AggregateRoot<props, unknown> implements TestAggregateEntityReference {
 	get foo(): string {
 		return this.props.foo;
 	}
@@ -65,18 +61,11 @@ class TestAggregate<props extends TestAggregateProps>
 	}
 }
 
-function findEvent<T>(
-	events: readonly unknown[],
-	eventClass: new (aggregateId: string) => T,
-): T | undefined {
+function findEvent<T>(events: readonly unknown[], eventClass: new (aggregateId: string) => T): T | undefined {
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
 
-function expectEventEmitted<T>(
-	events: readonly unknown[],
-	eventClass: new (aggregateId: string) => T,
-	payloadMatcher?: (event: T) => void,
-) {
+function expectEventEmitted<T>(events: readonly unknown[], eventClass: new (aggregateId: string) => T, payloadMatcher?: (event: T) => void) {
 	const event = findEvent(events, eventClass);
 	expect(event).toBeDefined();
 	expect(event).toBeInstanceOf(eventClass);
@@ -85,10 +74,7 @@ function expectEventEmitted<T>(
 	}
 }
 
-function expectNoEventEmitted<T>(
-	events: readonly unknown[],
-	eventClass: new (aggregateId: string) => T,
-) {
+function expectNoEventEmitted<T>(events: readonly unknown[], eventClass: new (aggregateId: string) => T) {
 	const event = findEvent(events, eventClass);
 	expect(event).toBeUndefined();
 }
@@ -96,7 +82,7 @@ function expectNoEventEmitted<T>(
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const aggregateRootFeature = await loadFeature(path.resolve(__dirname, 'features/aggregate-root.feature'));
 
-test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => {
+test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let aggregate: TestAggregate<TestAggregateProps>;
 	let baseProps: TestAggregateProps;
 	let mockedPassport: unknown;
@@ -126,18 +112,14 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 		});
 	});
 
-	Scenario('Managing Domain Events - add one', ({ When, Then}) => {
+	Scenario('Managing Domain Events - add one', ({ When, Then }) => {
 		When('a domain event is added', () => {
 			aggregate.addDomainEvent(TestDomainEvent, { foo: aggregate.foo });
 		});
 		Then('it should add a domain event to the aggregate domain events and not have any integration events', () => {
-			expectEventEmitted(
-				aggregate.getDomainEvents(),
-				TestDomainEvent,
-				(event) => {
-					expect(event.payload).toEqual({ foo: baseProps.foo });
-				},
-			);
+			expectEventEmitted(aggregate.getDomainEvents(), TestDomainEvent, (event) => {
+				expect(event.payload).toEqual({ foo: baseProps.foo });
+			});
 			expect(aggregate.getIntegrationEvents()).toHaveLength(0);
 		});
 	});
@@ -159,9 +141,7 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 			aggregate.addDomainEvent(TestDomainEvent, { foo: 'first' });
 			aggregate.addDomainEvent(TestDomainEvent, { foo: 'second' });
 			aggregate.addDomainEvent(TestDomainEvent, { foo: 'third' });
-			const events = aggregate
-				.getDomainEvents()
-				.map((e) => (e instanceof TestDomainEvent ? e : null));
+			const events = aggregate.getDomainEvents().map((e) => (e instanceof TestDomainEvent ? e : null));
 			expect(events[0]?.payload).toEqual({ foo: 'first' });
 			expect(events[1]?.payload).toEqual({ foo: 'second' });
 			expect(events[2]?.payload).toEqual({ foo: 'third' });
@@ -225,14 +205,8 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 			expect(aggregate.getDomainEvents()).toHaveLength(0);
 			expect(aggregate.getIntegrationEvents()).toHaveLength(0);
 			expectNoEventEmitted(aggregate.getDomainEvents(), TestDomainEvent);
-			expectNoEventEmitted(
-				aggregate.getIntegrationEvents(),
-				TestAggregateCreatedEvent,
-			);
-			expectNoEventEmitted(
-				aggregate.getIntegrationEvents(),
-				TestAggregateUpdatedEvent,
-			);
+			expectNoEventEmitted(aggregate.getIntegrationEvents(), TestAggregateCreatedEvent);
+			expectNoEventEmitted(aggregate.getIntegrationEvents(), TestAggregateUpdatedEvent);
 		});
 	});
 
@@ -244,16 +218,12 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 			});
 		});
 		Then('it should add an integration event to the aggregate integration events and not have any domain events', () => {
-			expectEventEmitted(
-				aggregate.getIntegrationEvents(),
-				TestAggregateUpdatedEvent,
-				(event) => {
-					expect(event.payload).toEqual({
-						testAggregateId: 'agg-1',
-						foo: 'baz',
-					});
-				},
-			);
+			expectEventEmitted(aggregate.getIntegrationEvents(), TestAggregateUpdatedEvent, (event) => {
+				expect(event.payload).toEqual({
+					testAggregateId: 'agg-1',
+					foo: 'baz',
+				});
+			});
 			expect(aggregate.getDomainEvents()).toHaveLength(0);
 		});
 	});
@@ -290,9 +260,7 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 				testAggregateId: 'agg-1',
 				foo: 'third',
 			});
-			const events = aggregate
-				.getIntegrationEvents()
-				.map((e) => (e instanceof TestAggregateUpdatedEvent ? e : null));
+			const events = aggregate.getIntegrationEvents().map((e) => (e instanceof TestAggregateUpdatedEvent ? e : null));
 			expect(events[0]?.payload).toEqual({
 				testAggregateId: 'agg-1',
 				foo: 'first',
@@ -321,10 +289,7 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 			aggregate.clearIntegrationEvents();
 		});
 		Then('it should clear all integration events from the aggregate', () => {
-			expectNoEventEmitted(
-				aggregate.getIntegrationEvents(),
-				TestAggregateUpdatedEvent,
-			);
+			expectNoEventEmitted(aggregate.getIntegrationEvents(), TestAggregateUpdatedEvent);
 		});
 	});
 
@@ -343,10 +308,7 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 			aggregate.clearIntegrationEvents();
 		});
 		Then('it should clear all integration events from the aggregate but not domain events', () => {
-			expectNoEventEmitted(
-				aggregate.getIntegrationEvents(),
-				TestAggregateUpdatedEvent,
-			);
+			expectNoEventEmitted(aggregate.getIntegrationEvents(), TestAggregateUpdatedEvent);
 			expect(aggregate.getDomainEvents()).toHaveLength(2);
 		});
 	});
@@ -399,6 +361,4 @@ test.for(aggregateRootFeature, ({ Scenario, Background, BeforeEachScenario}) => 
 			expect(aggregate.isDeleted).toBe(true);
 		});
 	});
-
-
 });

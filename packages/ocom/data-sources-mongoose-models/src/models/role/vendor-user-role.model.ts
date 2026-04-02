@@ -69,11 +69,7 @@ export interface VendorUserRole extends Role {
 	isDefault: boolean;
 }
 
-const VendorUserRoleSchema = new Schema<
-	VendorUserRole,
-	Model<VendorUserRole>,
-	VendorUserRole
->(
+const VendorUserRoleSchema = new Schema<VendorUserRole, Model<VendorUserRole>, VendorUserRole>(
 	{
 		community: {
 			type: Schema.Types.ObjectId,
@@ -146,7 +142,7 @@ const VendorUserRoleSchema = new Schema<
 const VendorUserRoleModelName: string = 'vendor-user-roles';
 
 export const VendorUserRoleModelFactory = (RoleModel: RoleModelType) => {
-    return RoleModel.discriminator(VendorUserRoleModelName, VendorUserRoleSchema);
+	return RoleModel.discriminator(VendorUserRoleModelName, VendorUserRoleSchema);
 };
 
 export type VendorUserRoleModelType = ReturnType<typeof VendorUserRoleModelFactory>;

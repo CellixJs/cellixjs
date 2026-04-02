@@ -27,9 +27,7 @@ describe('buildCellixSchema', () => {
 		const schema = vi.mocked(await import('@graphql-tools/schema'));
 		const mergeTypeDefs = merge.mergeTypeDefs as MockedFunction<(...args: unknown[]) => unknown>;
 		const mergeResolvers = merge.mergeResolvers as MockedFunction<(...args: unknown[]) => unknown>;
-		const makeExecutableSchema = schema.makeExecutableSchema as MockedFunction<
-			(...args: unknown[]) => unknown
-		>;
+		const makeExecutableSchema = schema.makeExecutableSchema as MockedFunction<(...args: unknown[]) => unknown>;
 		const mergedTypeDefs = { kind: 'Document', definitions: [] } as DocumentNode;
 		const mergedResolvers = { Query: { ping: () => 'pong' } };
 		const builtSchema = { kind: 'schema' } as unknown as GraphQLSchema;
@@ -43,12 +41,8 @@ describe('buildCellixSchema', () => {
 		const result = buildCellixSchema(additionalTypeDef, additionalResolvers);
 
 		expect(result).toBe(builtSchema);
-		expect(mergeTypeDefs).toHaveBeenCalledWith(
-			expect.arrayContaining(['scalar DateTime', additionalTypeDef]),
-		);
-		expect(mergeResolvers).toHaveBeenCalledWith(
-			expect.arrayContaining([{ DateTime: expect.any(Object) }, ...additionalResolvers]),
-		);
+		expect(mergeTypeDefs).toHaveBeenCalledWith(expect.arrayContaining(['scalar DateTime', additionalTypeDef]));
+		expect(mergeResolvers).toHaveBeenCalledWith(expect.arrayContaining([{ DateTime: expect.any(Object) }, ...additionalResolvers]));
 		expect(makeExecutableSchema).toHaveBeenCalledWith({
 			typeDefs: mergedTypeDefs,
 			resolvers: mergedResolvers,

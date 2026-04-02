@@ -1,18 +1,18 @@
 {
-  "extends": "@cellix/config-typescript/base",
-  "compilerOptions": {
-    "composite": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
-    "jsx": "react-jsx",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "lib": ["ES2023", "DOM"],
-    "exactOptionalPropertyTypes": false,
-    "skipLibCheck": true
-  },
-  "exclude": ["dist"],
-  "include": ["src"],
+	"extends": "@cellix/config-typescript/base",
+	"compilerOptions": {
+		"composite": true,
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+		"jsx": "react-jsx",
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"lib": ["ES2023", "DOM"],
+		"exactOptionalPropertyTypes": false,
+		"skipLibCheck": true
+	},
+	"exclude": ["dist"],
+	"include": ["src"]
 }

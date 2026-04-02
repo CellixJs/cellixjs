@@ -3,21 +3,8 @@ import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { Base } from './base.ts';
 import type { MongooseDomainAdapterType } from './mongo-domain-adapter.ts';
 
-export abstract class MongoTypeConverter<
-	MongooseModelType extends Base,
-	DomainPropInterface extends MongooseDomainAdapterType<MongooseModelType>,
-	PassportType,
-	DomainType extends AggregateRoot<
-		DomainPropInterface,
-		PassportType
-	>,
-> implements
-		TypeConverter<
-			MongooseModelType,
-			DomainPropInterface,
-			PassportType,
-			DomainType
-		>
+export abstract class MongoTypeConverter<MongooseModelType extends Base, DomainPropInterface extends MongooseDomainAdapterType<MongooseModelType>, PassportType, DomainType extends AggregateRoot<DomainPropInterface, PassportType>>
+	implements TypeConverter<MongooseModelType, DomainPropInterface, PassportType, DomainType>
 {
 	private readonly adapter: new (
 		args: MongooseModelType,
@@ -27,13 +14,7 @@ export abstract class MongoTypeConverter<
 		passport: PassportType,
 	) => DomainType;
 
-	constructor(
-		adapter: new (args: MongooseModelType) => DomainPropInterface,
-		domainObject: new (
-			args: DomainPropInterface,
-			passport: PassportType,
-		) => DomainType,
-	) {
+	constructor(adapter: new (args: MongooseModelType) => DomainPropInterface, domainObject: new (args: DomainPropInterface, passport: PassportType) => DomainType) {
 		this.adapter = adapter;
 		this.domainObject = domainObject;
 	}
