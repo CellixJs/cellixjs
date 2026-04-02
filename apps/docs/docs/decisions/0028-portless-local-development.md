@@ -103,6 +103,21 @@ We also aligned the package split with the ShareThrift reference:
 
 That keeps environment variables, portless routes, and app-specific defaults in the app layer while preserving reusable seedwork for future mock services.
 
+#### 4a. Mock OAuth2 Server Refactoring
+
+As part of adopting portless, the OAuth2 mock server was refactored into:
+
+- **`@cellix/server-oauth2-mock-seedwork`** — reusable OIDC server logic (endpoints, token generation, JWT signing)
+- **`@apps/server-oauth2-mock`** — application-level configuration and environment setup
+
+This separation enables:
+
+- **Reusability** — any CellixJS application can use the seedwork for local OIDC simulation
+- **Clarity** — server logic is separate from app-specific configuration
+- **Automatic session persistence** — the `sub` (user subject ID) is generated once at startup and cached, ensuring the same user identity persists across multiple login attempts without additional configuration
+
+The `@apps/server-oauth2-mock` package can be customized per application via environment variables (`.env` and `.env.local`), and runs under portless on `mock-auth.ownercommunity.localhost`.
+
 ### 5. Add portless as a repo-managed dependency
 
 We chose to install `portless` from the repository rather than rely on a mutable global installation. This makes the tool version explicit in the workspace and keeps the local development contract reproducible across contributors and CI-like environments.
@@ -153,6 +168,38 @@ Evidence used to validate the adoption:
 - If HTTPS trust has not yet been established on a machine, run `pnpm exec portless trust`.
 - When wiring a new browser-facing app or HTTP mock service, prefer a dedicated portless subdomain under `*.ownercommunity.localhost`.
 - When wiring a non-HTTP dependency, evaluate it separately; portless should not be used just for consistency if the protocol does not benefit from HTTP routing.
+
+## Future Evolution: Multi-Provider OIDC Support
+
+CellixJS applications may eventually require multiple independent OIDC providers running simultaneously (e.g., B2C on `/b2c/*` and AAD B2C on `/aadb2c/*`). Two approaches are viable:
+
+### Option A: Multiple Server Instances (Current Approach)
+
+Run separate instances of `@apps/server-oauth2-mock` with different configurations:
+
+```bash
+pnpm run dev                    # Provider 1 on :4000
+pnpm run dev:aadb2c             # Provider 2 on :4001
+```
+
+This requires no changes to the seedwork. Each instance is fully isolated.
+
+### Option B: Single Server with Route-Based Providers (Future Enhancement)
+
+Evolve the seedwork to accept a map of providers and route incoming requests based on path:
+
+```typescript
+const config: MockOAuth2ServerConfig = {
+  providers: {
+    '/b2c': { ...b2cConfig },
+    '/aadb2c': { ...aadb2cConfig },
+  },
+};
+```
+
+This would require changes to `MockOAuth2ServerConfig`, route handlers, and OIDC discovery endpoints.
+
+For now, **Option A (multiple instances) is recommended**. When a production application requires multi-provider support, **Option B will be designed and implemented as a focused enhancement**.
 
 ## More Information
 

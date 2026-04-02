@@ -16,7 +16,7 @@ This package provides the reusable server logic used by app-level mock OAuth2 se
 
 ## Usage
 
-In CellixJS, the runnable HTTP process lives in `@apps/server-oauth2-mock`. This seedwork package exports the reusable startup logic and types consumed by that app package.
+In CellixJS applications, the runnable HTTP process lives in `@apps/server-oauth2-mock`. This seedwork package exports the reusable startup logic and types consumed by that app package.
 
 - Build the seedwork package:
 
