@@ -1,6 +1,7 @@
 {
   "extends": ["@cellix/config-typescript/base", "@docusaurus/tsconfig"],
   "compilerOptions": {
+    // Temporary TS 6.0 suppression for @docusaurus/tsconfig's inherited baseUrl until upstream removes it.
     "ignoreDeprecations": "6.0",
     "types": ["@docusaurus/module-type-aliases"],
     "paths": {

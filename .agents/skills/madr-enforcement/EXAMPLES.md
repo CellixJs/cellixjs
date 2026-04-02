@@ -277,9 +277,9 @@ pnpm run snyk:test
 # .snyk file
 version: v1.5.0
 ignore:
-  'SNYK-JS-LODASH-12345':
-    - '* > lodash@4.17.20':
-        reason: 'Vulnerability not exploitable in our use case - we only use safe methods'
+  'SNYK-JS-[PACKAGE-NAME]-[EXAMPLE-ID]':
+    - '* > [package-name]@[version]':
+        reason: 'Vulnerability not exploitable in our use case - document specific reason'
         expires: '2026-06-01T00:00:00.000Z'
         created: '2026-02-04T00:00:00.000Z'
 ```

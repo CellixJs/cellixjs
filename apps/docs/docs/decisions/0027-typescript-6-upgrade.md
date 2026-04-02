@@ -21,7 +21,7 @@ TypeScript 6.0 was released as a significant transition release designed to act 
 - **TS 7.0 preparation**: TypeScript 6.0 is the last JS-based release; TS 7.0 will be the native Go port and this upgrade is the on-ramp.
 - **Breaking-change compliance**: TS 6.0 hard-deprecated several legacy options and syntax forms that could silently cause issues if not addressed now.
 - **Third-party compatibility**: Some dependency type declarations use syntax that TS 6.0 now errors on; these must be resolved.
-- **Strict type hygiene**: The codebase maintains `"skipLibCheck": false` across all packages; any declaration-file errors must be resolved at the source rather than suppressed.
+- **Strict type hygiene**: The shared base config keeps `"skipLibCheck": false`; package-level overrides should remain exceptional and narrowly scoped.
 
 ## Considered Options
 
@@ -37,7 +37,7 @@ Chosen option: "Upgrade to TypeScript 6.0.2 with targeted fixes", because it res
 
 - Good, because the monorepo is now on the current TypeScript release and one step closer to TS 7.0.
 - Good, because `stableTypeOrdering` validation confirmed zero ordering-related type differences between TS 6.0 and TS 7.0 ordering semantics across all 54 test:coverage tasks.
-- Good, because `playwright-core` was upgraded to 1.59.0 (from 1.57.0) as a side effect, resolving its deprecated `module` namespace declarations.
+- Good, because Playwright tooling was aligned on 1.59.0, resolving deprecated `module` namespace declarations in `playwright-core` while keeping the test runner and runtime in sync.
 - Neutral, because the `DOM.Iterable` removal from UI tsconfigs is a cosmetic simplification with no runtime impact.
 - Neutral, because the docs package's `@docusaurus/tsconfig` still depends on the deprecated `baseUrl` option; this is suppressed with `ignoreDeprecations: "6.0"` until Docusaurus ships an updated config.
 
@@ -47,16 +47,17 @@ Chosen option: "Upgrade to TypeScript 6.0.2 with targeted fixes", because it res
 
 Updated `pnpm-workspace.yaml` catalog entry. All 32 workspace packages reference TypeScript via `catalog:`, so this single change updates the entire monorepo.
 
-### 2. Playwright upgraded `1.57.0` → `1.59.0` (pnpm override)
+### 2. Playwright aligned to `1.59.0` (`@playwright/test` + pnpm overrides)
 
-`playwright-core@1.57.0` uses the `module Foo {}` namespace declaration syntax which TypeScript 6.0 hard-errors on (TS1540). The fix landed in playwright-core `1.59.0`. Since playwright is pulled in as a peer dependency of `@vitest/browser-playwright` (with a `"*"` version range), an override was added to `pnpm.overrides` in `package.json`:
+`playwright-core@1.57.0` uses the `module Foo {}` namespace declaration syntax which TypeScript 6.0 hard-errors on (TS1540). The fix landed in Playwright `1.59.0`. Since `playwright` is pulled in as a peer dependency of `@vitest/browser-playwright` (with a `"*"` version range), the repo pins `@playwright/test` to `1.59.0` in `devDependencies` and adds overrides in `pnpm.overrides` in `package.json`:
 
 ```json
+"@playwright/test": "1.59.0",
 "playwright-core": "1.59.0",
 "playwright": "1.59.0"
 ```
 
-This preserves `"skipLibCheck": false` without requiring a blanket suppression.
+This preserves the base `"skipLibCheck": false` posture without requiring a blanket suppression.
 
 ### 3. `DOM.Iterable` removed from UI tsconfigs
 
@@ -68,7 +69,7 @@ TypeScript 6.0 merges `lib.dom.iterable.d.ts` and `lib.dom.asynciterable.d.ts` i
 
 ### 4. `apps/docs` tsconfig: `baseUrl` removed, `ignoreDeprecations: "6.0"` added
 
-`baseUrl` is deprecated in TypeScript 6.0. The `apps/docs` tsconfig extended both `@cellix/config-typescript/base` and `@docusaurus/tsconfig`. The latter defines `"baseUrl": "."` internally and the docs tsconfig duplicated it. The duplicate was removed. Because `@docusaurus/tsconfig` still carries `baseUrl` and we cannot change a third-party package, `"ignoreDeprecations": "6.0"` was added to the docs tsconfig to suppress the resulting TS6.0 deprecation error from the inherited config. All other packages are unaffected since none use `baseUrl`.
+`baseUrl` is deprecated in TypeScript 6.0. The `apps/docs` tsconfig extended both `@cellix/config-typescript/base` and `@docusaurus/tsconfig`. The latter defines `"baseUrl": "."` internally and the docs tsconfig duplicated it. The duplicate was removed. Because `@docusaurus/tsconfig` still carries `baseUrl` and we cannot change a third-party package, `"ignoreDeprecations": "6.0"` was added to the docs tsconfig as a temporary suppression for the inherited config until Docusaurus drops the deprecated option. All other packages are unaffected since none use `baseUrl`.
 
 ## TypeScript 7.0 Readiness Validation (`--stableTypeOrdering`)
 
