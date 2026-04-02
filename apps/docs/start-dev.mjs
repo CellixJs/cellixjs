@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 
 const port = process.env.PORT ?? '3001';
 
-const child = spawn('docusaurus', ['start', '--port', port, '--host', '127.0.0.1'], {
+const child = spawn('docusaurus', ['start', '--port', port, '--host', '127.0.0.1', '--no-open'], {
 	stdio: 'inherit',
 });
 

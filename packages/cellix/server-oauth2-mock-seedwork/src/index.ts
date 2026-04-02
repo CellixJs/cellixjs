@@ -134,6 +134,10 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 	publicJwk.alg = 'RS256';
 	publicJwk.kid = publicJwk.kid || 'mock-key';
 
+	// Cache the sub value once at startup to ensure session persistence across multiple logins
+	const cachedUserProfile = config.getUserProfile();
+	const persistedSub = cachedUserProfile.sub ?? crypto.randomUUID();
+
 	// Serve JWKS endpoint from Express
 	app.get('/.well-known/jwks.json', (_req, res) => {
 		res.json({ keys: [publicJwk] });
@@ -192,7 +196,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 
 		const profile: TokenProfile = {
 			aud,
-			sub: userProfile.sub ?? crypto.randomUUID(),
+			sub: persistedSub,
 			iss: config.baseUrl,
 			email: userProfile.email,
 			given_name: userProfile.given_name,
