@@ -21,10 +21,31 @@ Each fixture directory contains:
 ## Run the Fixture Suite
 
 ```bash
-node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --fixtures-root .agents/skills/cellix-tdd/fixtures --verify-expected
+pnpm run test:skill:cellix-tdd
 ```
 
 The fixture suite is intentionally mixed:
 
 - the first three fixtures represent healthy outputs that should pass
 - the last three fixtures contain realistic violations that should fail specific rubric checks
+
+## Evaluate a Real Package
+
+```bash
+pnpm run skill:cellix-tdd:check -- --package packages/cellix/my-package
+```
+
+By default, the summary is created at:
+
+```text
+.agents/skills/cellix-tdd/runs/<relative-package-path>/summary.md
+```
+
+The generated summary is intentionally a failing scaffold until its `TODO:` sections are replaced with real package-specific content.
+
+Useful flags:
+
+- `--output /path/to/summary.md`
+- `--init-only`
+- `--force-init`
+- `--json`

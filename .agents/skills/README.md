@@ -84,6 +84,10 @@ CellixJS skills follow the same structure as community skills in [simnova/sharet
 - [rubric.md](cellix-tdd/rubric.md) - Artifact scoring rubric
 - [fixtures/README.md](cellix-tdd/fixtures/README.md) - Included scenario coverage
 
+**Verification Commands:**
+- `pnpm run test:skill:cellix-tdd` - run the fixture regression suite
+- `pnpm run skill:cellix-tdd:check -- --package <pkg>` - scaffold the summary if needed, then evaluate it
+
 ### MADR Enforcement
 
 **Purpose:** Ensure code adheres to architectural standards defined in MADRs (ADR-0003, ADR-0012, ADR-0013, ADR-0022, etc.)

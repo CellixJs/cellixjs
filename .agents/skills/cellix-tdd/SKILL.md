@@ -155,14 +155,25 @@ The work is not done until you can explain:
 For skill-harness evaluation, run:
 
 ```bash
-node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --fixtures-root .agents/skills/cellix-tdd/fixtures --verify-expected
+pnpm run test:skill:cellix-tdd
 ```
 
-To evaluate a real package/result pair:
+For real package work, use:
 
 ```bash
-node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --package packages/cellix/my-package --output /path/to/skill-summary.md
+pnpm run skill:cellix-tdd:check -- --package packages/cellix/my-package
 ```
+
+This creates the scaffold if it is missing and then evaluates the package against the summary.
+
+The generated file is a scaffold. It is expected to fail evaluation until the placeholder sections are replaced with package-specific content.
+
+Useful options:
+
+- `--output /path/to/summary.md` to override the default summary path
+- `--init-only` to create or refresh the scaffold without evaluating
+- `--force-init` to overwrite an existing scaffold before continuing
+- `--json` for machine-readable evaluation output
 
 ## Anti-Patterns
 

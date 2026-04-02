@@ -127,6 +127,8 @@ function parseArgs(argv: string[]): ParsedArgs {
 		const next = argv[index + 1];
 
 		switch (arg) {
+			case "--":
+				break;
 			case "--fixture":
 				parsed.fixtureDir = next;
 				index += 1;
@@ -165,7 +167,7 @@ function printUsage(): void {
 	console.log(`Usage:
   node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --fixture <fixture-dir> [--verify-expected] [--json]
   node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --fixtures-root <fixtures-dir> --verify-expected [--json]
-  node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --package <package-root> --output <skill-summary.md> [--json]`);
+  node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --package <package-root> [--output <skill-summary.md>] [--json]`);
 }
 
 function readText(filePath: string): string {
@@ -174,6 +176,18 @@ function readText(filePath: string): string {
 
 function readJson<T>(filePath: string): T {
 	return JSON.parse(readText(filePath)) as T;
+}
+
+function getDefaultSummaryPath(packageRoot: string): string {
+	const resolvedPackageRoot = resolve(packageRoot);
+	const relativePackagePath = relative(process.cwd(), resolvedPackageRoot);
+
+	return join(
+		process.cwd(),
+		".agents/skills/cellix-tdd/runs",
+		relativePackagePath,
+		"summary.md",
+	);
 }
 
 function fileExists(filePath: string): boolean {
@@ -224,6 +238,10 @@ function parseMarkdownSections(markdown: string): Map<string, string> {
 	}
 
 	return sections;
+}
+
+function isTemplateBoilerplate(value: string): boolean {
+	return /\bTODO:\b/i.test(value) || /\breplace this section\b/i.test(value) || /\{\{.+\}\}/.test(value);
 }
 
 function hasHeading(markdown: string, heading: string): boolean {
@@ -416,7 +434,7 @@ function evaluateRequiredWorkflowSections(outputText: string): CheckResult {
 	const sections = parseMarkdownSections(outputText);
 	const missing = requiredOutputSections.filter((heading) => {
 		const content = sections.get(heading);
-		return !content || content.length < 30;
+		return !content || content.length < 30 || isTemplateBoilerplate(content);
 	});
 
 	return createCheckResult("required_workflow_sections", missing.length === 0, missing.length === 0 ? [
@@ -816,10 +834,37 @@ function main(): void {
 	}
 
 	if (args.packageRoot && args.outputPath) {
+		const resolvedPackageRoot = resolve(args.packageRoot);
+		const outputPath = resolve(args.outputPath);
 		const result = evaluatePackage(
-			relative(process.cwd(), resolve(args.packageRoot)),
-			resolve(args.packageRoot),
-			resolve(args.outputPath),
+			relative(process.cwd(), resolvedPackageRoot),
+			resolvedPackageRoot,
+			outputPath,
+		);
+
+		if (args.json) {
+			console.log(JSON.stringify(result, null, 2));
+		} else {
+			console.log(formatResult(result));
+		}
+
+		process.exit(result.overallStatus === "pass" ? 0 : 1);
+	}
+
+	if (args.packageRoot) {
+		const resolvedPackageRoot = resolve(args.packageRoot);
+		const outputPath = getDefaultSummaryPath(resolvedPackageRoot);
+
+		if (!fileExists(outputPath)) {
+			throw new Error(
+				`Summary not found at default path: ${outputPath}\nRun pnpm run skill:cellix-tdd:check -- --package ${relative(process.cwd(), resolvedPackageRoot)} first, or pass --output explicitly.`,
+			);
+		}
+
+		const result = evaluatePackage(
+			relative(process.cwd(), resolvedPackageRoot),
+			resolvedPackageRoot,
+			outputPath,
 		);
 
 		if (args.json) {
