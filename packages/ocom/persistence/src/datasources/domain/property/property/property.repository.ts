@@ -8,28 +8,13 @@ type PropertyModelType = Property;
 type PropType = PropertyDomainAdapter;
 
 export class PropertyRepository
-	extends MongooseSeedwork.MongoRepositoryBase<
-		PropertyModelType,
-		PropType,
-		Domain.Passport,
-		Domain.Contexts.Property.Property.Property<PropType>
-	>
+	extends MongooseSeedwork.MongoRepositoryBase<PropertyModelType, PropType, Domain.Passport, Domain.Contexts.Property.Property.Property<PropType>>
 	implements Domain.Contexts.Property.Property.PropertyRepository<PropType>
 {
 	// biome-ignore lint:noRequireAwait
-	async getNewInstance(
-		propertyName: string,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference,
-	): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
+	async getNewInstance(propertyName: string, community: Domain.Contexts.Community.Community.CommunityEntityReference): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
-		return Promise.resolve(
-			Domain.Contexts.Property.Property.Property.getNewInstance(
-				adapter,
-				propertyName,
-				community,
-				this.passport,
-			),
-		);
+		return Promise.resolve(Domain.Contexts.Property.Property.Property.getNewInstance(adapter, propertyName, community, this.passport));
 	}
 
 	async getById(id: string): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
@@ -42,10 +27,6 @@ export class PropertyRepository
 
 	async getAll(): Promise<ReadonlyArray<Domain.Contexts.Property.Property.Property<PropType>>> {
 		const mongoProperties = await this.model.find().exec();
-		return Promise.all(
-			mongoProperties.map((mongoProperty) =>
-				this.typeConverter.toDomain(mongoProperty, this.passport),
-			),
-		);
+		return Promise.all(mongoProperties.map((mongoProperty) => this.typeConverter.toDomain(mongoProperty, this.passport)));
 	}
 }

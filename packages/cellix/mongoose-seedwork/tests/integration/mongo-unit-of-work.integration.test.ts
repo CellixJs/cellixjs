@@ -1,20 +1,9 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
-import {
-	describe,
-	it,
-	expect,
-	beforeAll,
-	afterAll,
-	beforeEach,
-	vi,
-} from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import mongoose, { Schema, model, type Model } from 'mongoose';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
-import {
-	InProcEventBusInstance,
-	NodeEventBusInstance,
-} from '@cellix/event-bus-seedwork-node';
+import { InProcEventBusInstance, NodeEventBusInstance } from '@cellix/event-bus-seedwork-node';
 import { MongoUnitOfWork } from '../../src/mongoose-seedwork/mongo-unit-of-work.ts';
 import { MongoRepositoryBase } from '../../src/mongoose-seedwork/mongo-repository.ts';
 import { MongoTypeConverter } from '../../src/mongoose-seedwork/mongo-type-converter.ts';
@@ -40,14 +29,8 @@ interface TestMongoType extends Base {
 	updatedAt: Date;
 	schemaVersion: string;
 }
-class TestAggregate<
-	props extends TestProps,
-> extends AggregateRoot<props, unknown> {
-	static getNewInstance<props extends TestProps>(
-		newProps: props,
-		foo: string,
-		passport: unknown,
-	): TestAggregate<props> {
+class TestAggregate<props extends TestProps> extends AggregateRoot<props, unknown> {
+	static getNewInstance<props extends TestProps>(newProps: props, foo: string, passport: unknown): TestAggregate<props> {
 		console.log('getNewInstance called');
 		const newInstance = new TestAggregate(newProps, passport);
 		newInstance.foo = foo;
@@ -111,10 +94,7 @@ let TestModel: Model<TestMongoType>;
  * This converter uses the MongoTypeConverter abstract class to provide realistic
  * conversion between the domain aggregate and the Mongoose model for integration tests.
  */
-class TestAdapter
-	extends MongooseDomainAdapter<TestMongoType>
-	implements TestProps
-{
+class TestAdapter extends MongooseDomainAdapter<TestMongoType> implements TestProps {
 	get foo(): string {
 		return this.doc.foo;
 	}
@@ -143,12 +123,7 @@ class TestAdapter
 	}
 }
 
-class TestTypeConverter extends MongoTypeConverter<
-	TestMongoType,
-	TestAdapter,
-	unknown,
-	TestAggregate<TestAdapter>
-> {
+class TestTypeConverter extends MongoTypeConverter<TestMongoType, TestAdapter, unknown, TestAggregate<TestAdapter>> {
 	constructor() {
 		super(TestAdapter, TestAggregate);
 	}
@@ -165,12 +140,7 @@ class TestBazDomainEvent extends CustomDomainEventImpl<{
 	baz: string;
 }> {}
 
-class TestRepo extends MongoRepositoryBase<
-	TestMongoType,
-	TestAdapter,
-	unknown,
-	TestAggregate<TestAdapter>
-> {
+class TestRepo extends MongoRepositoryBase<TestMongoType, TestAdapter, unknown, TestAggregate<TestAdapter>> {
 	getNewInstance(foo: string): TestAggregate<TestAdapter> {
 		const adapter = typeConverter.toAdapter(new this.model());
 		return TestAggregate.getNewInstance(adapter, foo, this.passport);
@@ -183,13 +153,7 @@ const eventBus = InProcEventBusInstance;
 const integrationEventBus = NodeEventBusInstance;
 
 let mongoServer: MongoMemoryReplSet;
-let uow: MongoUnitOfWork<
-	TestMongoType,
-	TestAdapter,
-	unknown,
-	TestAggregate<TestAdapter>,
-	TestRepo
->;
+let uow: MongoUnitOfWork<TestMongoType, TestAdapter, unknown, TestAggregate<TestAdapter>, TestRepo>;
 describe('MongoUnitOfWork:Integration', () => {
 	beforeAll(async () => {
 		mongoServer = await MongoMemoryReplSet.create({
@@ -213,13 +177,7 @@ describe('MongoUnitOfWork:Integration', () => {
 		// biome-ignore lint:useLiteralKeys
 		eventBus['eventSubscribers'] = {};
 		integrationEventBus.removeAllListeners();
-		uow = new MongoUnitOfWork(
-			eventBus,
-			integrationEventBus,
-			TestModel,
-			typeConverter,
-			repoClass,
-		);
+		uow = new MongoUnitOfWork(eventBus, integrationEventBus, TestModel, typeConverter, repoClass);
 	});
 	describe('Scenario: Initializing the MongoUnitOfWork', () => {
 		describe('Given a valid domain event bus, integration event bus, mongoose model, TypeConverter, and repository class', () => {
@@ -248,9 +206,7 @@ describe('MongoUnitOfWork:Integration', () => {
 
 					const result = await TestModel.findOne({ foo: 'bar' }).exec();
 					expect(result).not.toBeNull();
-					expect(
-						typeConverter.toDomain(result as TestMongoType, {} as unknown),
-					).toBeInstanceOf(TestAggregate);
+					expect(typeConverter.toDomain(result as TestMongoType, {} as unknown)).toBeInstanceOf(TestAggregate);
 				});
 			});
 		});
@@ -277,19 +233,14 @@ describe('MongoUnitOfWork:Integration', () => {
 					});
 					// Assert
 					const updatedDoc = await TestModel.findById(id).exec();
-					const updatedAggregate = typeConverter.toDomain(
-						updatedDoc as TestMongoType,
-						{} as unknown,
-					);
+					const updatedAggregate = typeConverter.toDomain(updatedDoc as TestMongoType, {} as unknown);
 					expect(updatedDoc).not.toBeNull();
 					expect(updatedAggregate).toBeInstanceOf(TestAggregate);
 					expect(updatedAggregate.foo).toBe('new-foo');
 				});
 
 				it('Then bar and baz should be removed from the persisted document when set to undefined', async () => {
-					const idWithOptionalFields = new mongoose.Types.ObjectId(
-						'60c72b2f9b1e8d3f4c8b4568',
-					);
+					const idWithOptionalFields = new mongoose.Types.ObjectId('60c72b2f9b1e8d3f4c8b4568');
 					await TestModel.create({
 						_id: idWithOptionalFields.toString(),
 						foo: 'foo-value',
@@ -307,9 +258,7 @@ describe('MongoUnitOfWork:Integration', () => {
 						await repo.save(aggregate);
 					});
 
-					const persisted = await TestModel.findById(idWithOptionalFields)
-						.lean()
-						.exec();
+					const persisted = await TestModel.findById(idWithOptionalFields).lean().exec();
 					const persistedRaw = await TestModel.collection.findOne({
 						_id: idWithOptionalFields,
 					});
@@ -346,20 +295,13 @@ describe('MongoUnitOfWork:Integration', () => {
 
 					// Spy on eventBus and integrationEventBus
 					const eventBusDispatchSpy = vi.spyOn(eventBus, 'dispatch');
-					const integrationEventBusDispatchSpy = vi.spyOn(
-						integrationEventBus,
-						'dispatch',
-					);
+					const integrationEventBusDispatchSpy = vi.spyOn(integrationEventBus, 'dispatch');
 					// Register a handler for the TestDomainEvent
-					const handler = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								console.log('Domain event handled:', payload);
-								await Promise.resolve();
-							},
-						);
+					const handler = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						console.log('Domain event handled:', payload);
+						await Promise.resolve();
+					});
 					eventBus.register(TestBarDomainEvent, handler);
 
 					//
@@ -391,20 +333,13 @@ describe('MongoUnitOfWork:Integration', () => {
 				it('Then the domain event should be dispatched by eventBus with the correct payload, the unit of work should wait for the handler to complete, and no integration events should be dispatched', async () => {
 					// Arrange
 					const eventBusDispatchSpy = vi.spyOn(eventBus, 'dispatch');
-					const integrationEventBusDispatchSpy = vi.spyOn(
-						integrationEventBus,
-						'dispatch',
-					);
+					const integrationEventBusDispatchSpy = vi.spyOn(integrationEventBus, 'dispatch');
 					// Register a handler for the TestDomainEvent
-					const handler = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								console.log('Domain event handled:', payload);
-								await new Promise((resolve) => setTimeout(resolve, 10));
-							},
-						);
+					const handler = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						console.log('Domain event handled:', payload);
+						await new Promise((resolve) => setTimeout(resolve, 10));
+					});
 					eventBus.register(TestBarDomainEvent, handler);
 
 					await uow.withTransaction({}, async (repo) => {
@@ -432,29 +367,18 @@ describe('MongoUnitOfWork:Integration', () => {
 					// Arrange
 					// Spy on eventBus and integrationEventBus
 					const eventBusDispatchSpy = vi.spyOn(eventBus, 'dispatch');
-					const integrationEventBusDispatchSpy = vi.spyOn(
-						integrationEventBus,
-						'dispatch',
-					);
+					const integrationEventBusDispatchSpy = vi.spyOn(integrationEventBus, 'dispatch');
 					// Register multiple handlers for the TestDomainEvent
-					const handler1 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								console.log('TestBarDomainEvent handler1:', payload);
-								await Promise.resolve();
-							},
-						);
-					const handler2 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								console.log('TestBarDomainEvent handler2:', payload);
-								await Promise.resolve();
-							},
-						);
+					const handler1 = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						console.log('TestBarDomainEvent handler1:', payload);
+						await Promise.resolve();
+					});
+					const handler2 = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						console.log('TestBarDomainEvent handler2:', payload);
+						await Promise.resolve();
+					});
 					eventBus.register(TestBarDomainEvent, handler1);
 					eventBus.register(TestBarDomainEvent, handler2);
 
@@ -493,30 +417,19 @@ describe('MongoUnitOfWork:Integration', () => {
 					// Arrange
 					// Spy on eventBus and integrationEventBus
 					const eventBusDispatchSpy = vi.spyOn(eventBus, 'dispatch');
-					const integrationEventBusDispatchSpy = vi.spyOn(
-						integrationEventBus,
-						'dispatch',
-					);
+					const integrationEventBusDispatchSpy = vi.spyOn(integrationEventBus, 'dispatch');
 
 					// Register handlers for both domain events
-					const handler1 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								console.log('TestBarDomainEvent handler: ', payload);
-								await Promise.resolve();
-							},
-						);
-					const handler2 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBaz?: string; baz: string }) => {
-								expect(payload).toEqual({ oldBaz: 'old-baz', baz: 'new-baz' });
-								console.log('TestBazDomainEvent handler: ', payload);
-								await Promise.resolve();
-							},
-						);
+					const handler1 = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						console.log('TestBarDomainEvent handler: ', payload);
+						await Promise.resolve();
+					});
+					const handler2 = vi.fn().mockImplementation(async (payload: { oldBaz?: string; baz: string }) => {
+						expect(payload).toEqual({ oldBaz: 'old-baz', baz: 'new-baz' });
+						console.log('TestBazDomainEvent handler: ', payload);
+						await Promise.resolve();
+					});
 					eventBus.register(TestBarDomainEvent, handler1);
 					eventBus.register(TestBazDomainEvent, handler2);
 
@@ -559,48 +472,29 @@ describe('MongoUnitOfWork:Integration', () => {
 					//
 					// Arrange
 					const eventBusDispatchSpy = vi.spyOn(eventBus, 'dispatch');
-					const integrationEventBusDispatchSpy = vi.spyOn(
-						integrationEventBus,
-						'dispatch',
-					);
+					const integrationEventBusDispatchSpy = vi.spyOn(integrationEventBus, 'dispatch');
 
 					// Register multiple handlers for both domain events
-					const barHandler1 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								console.log('TestBarDomainEvent handler1:', payload);
-								await Promise.resolve();
-							},
-						);
-					const barHandler2 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								console.log('TestBarDomainEvent handler2:', payload);
-								await Promise.resolve();
-							},
-						);
-					const bazHandler1 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBaz?: string; baz: string }) => {
-								expect(payload).toEqual({ oldBaz: 'old-baz', baz: 'new-baz' });
-								console.log('TestBazDomainEvent handler1:', payload);
-								await Promise.resolve();
-							},
-						);
-					const bazHandler2 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBaz?: string; baz: string }) => {
-								expect(payload).toEqual({ oldBaz: 'old-baz', baz: 'new-baz' });
-								console.log('TestBazDomainEvent handler2:', payload);
-								await Promise.resolve();
-							},
-						);
+					const barHandler1 = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						console.log('TestBarDomainEvent handler1:', payload);
+						await Promise.resolve();
+					});
+					const barHandler2 = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						console.log('TestBarDomainEvent handler2:', payload);
+						await Promise.resolve();
+					});
+					const bazHandler1 = vi.fn().mockImplementation(async (payload: { oldBaz?: string; baz: string }) => {
+						expect(payload).toEqual({ oldBaz: 'old-baz', baz: 'new-baz' });
+						console.log('TestBazDomainEvent handler1:', payload);
+						await Promise.resolve();
+					});
+					const bazHandler2 = vi.fn().mockImplementation(async (payload: { oldBaz?: string; baz: string }) => {
+						expect(payload).toEqual({ oldBaz: 'old-baz', baz: 'new-baz' });
+						console.log('TestBazDomainEvent handler2:', payload);
+						await Promise.resolve();
+					});
 					eventBus.register(TestBarDomainEvent, barHandler1);
 					eventBus.register(TestBarDomainEvent, barHandler2);
 					eventBus.register(TestBazDomainEvent, bazHandler1);
@@ -655,20 +549,13 @@ describe('MongoUnitOfWork:Integration', () => {
 
 					// Spy on eventBus and integrationEventBus
 					const eventBusDispatchSpy = vi.spyOn(eventBus, 'dispatch');
-					const integrationEventBusDispatchSpy = vi.spyOn(
-						integrationEventBus,
-						'dispatch',
-					);
+					const integrationEventBusDispatchSpy = vi.spyOn(integrationEventBus, 'dispatch');
 					// Register a handler for the TestDomainEvent that throws
-					const handler = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								await Promise.resolve();
-								throw new Error('Handler failed');
-							},
-						);
+					const handler = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						await Promise.resolve();
+						throw new Error('Handler failed');
+					});
 					eventBus.register(TestBarDomainEvent, handler);
 
 					//
@@ -707,28 +594,17 @@ describe('MongoUnitOfWork:Integration', () => {
 
 					// Spy on eventBus and integrationEventBus
 					const eventBusDispatchSpy = vi.spyOn(eventBus, 'dispatch');
-					const integrationEventBusDispatchSpy = vi.spyOn(
-						integrationEventBus,
-						'dispatch',
-					);
+					const integrationEventBusDispatchSpy = vi.spyOn(integrationEventBus, 'dispatch');
 					// Register multiple handlers for the TestDomainEvent, one of which throws
-					const handler1 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								await Promise.resolve();
-								throw new Error('Handler1 failed');
-							},
-						);
-					const handler2 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								await Promise.resolve();
-							},
-						);
+					const handler1 = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						await Promise.resolve();
+						throw new Error('Handler1 failed');
+					});
+					const handler2 = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						await Promise.resolve();
+					});
 					eventBus.register(TestBarDomainEvent, handler1);
 					eventBus.register(TestBarDomainEvent, handler2);
 
@@ -769,29 +645,18 @@ describe('MongoUnitOfWork:Integration', () => {
 
 					// Spy on eventBus and integrationEventBus
 					const eventBusDispatchSpy = vi.spyOn(eventBus, 'dispatch');
-					const integrationEventBusDispatchSpy = vi.spyOn(
-						integrationEventBus,
-						'dispatch',
-					);
+					const integrationEventBusDispatchSpy = vi.spyOn(integrationEventBus, 'dispatch');
 					// Register multiple handlers for the TestBarDomainEvent, first of which throws after a delay
-					const handler1 = vi
-						.fn()
-						.mockImplementation(
-							async (payload: { oldBar?: string; bar: string }) => {
-								expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
-								await new Promise((resolve) => setTimeout(resolve, 20));
-								throw new Error('Async handler1 failed');
-							},
-						);
-					const handler2 = vi
-						.fn()
-						.mockImplementation(
-							async (_payload: { oldBar?: string; bar: string }) => {
-								// This should NOT be called
-								await new Promise((resolve) => setTimeout(resolve, 20));
-								throw new Error('Handler2 should not be called');
-							},
-						);
+					const handler1 = vi.fn().mockImplementation(async (payload: { oldBar?: string; bar: string }) => {
+						expect(payload).toEqual({ oldBar: 'old-bar', bar: 'new-bar' });
+						await new Promise((resolve) => setTimeout(resolve, 20));
+						throw new Error('Async handler1 failed');
+					});
+					const handler2 = vi.fn().mockImplementation(async (_payload: { oldBar?: string; bar: string }) => {
+						// This should NOT be called
+						await new Promise((resolve) => setTimeout(resolve, 20));
+						throw new Error('Handler2 should not be called');
+					});
 					eventBus.register(TestBarDomainEvent, handler1);
 					eventBus.register(TestBarDomainEvent, handler2);
 
@@ -832,10 +697,7 @@ describe('MongoUnitOfWork:Integration', () => {
 
 					// Spy on eventBus and integrationEventBus
 					const eventBusDispatchSpy = vi.spyOn(eventBus, 'dispatch');
-					const integrationEventBusDispatchSpy = vi.spyOn(
-						integrationEventBus,
-						'dispatch',
-					);
+					const integrationEventBusDispatchSpy = vi.spyOn(integrationEventBus, 'dispatch');
 					// Register a handler for the TestBarDomainEvent
 					const handler = vi.fn();
 					eventBus.register(TestBarDomainEvent, handler);

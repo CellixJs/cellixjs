@@ -4,41 +4,19 @@ import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { CommunityDomainPermissions } from '../../community.domain-permissions.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
 
-interface VendorUserRoleCommunityPermissionsSpec
-	extends Omit<
-			CommunityDomainPermissions,
-			| 'canCreateCommunities'
-			| 'canManageEndUserRolesAndPermissions'
-			| 'isEditingOwnMemberAccount'
-			| 'isSystemAccount'
-		>,
-		ValueObjectProps {}
+interface VendorUserRoleCommunityPermissionsSpec extends Omit<CommunityDomainPermissions, 'canCreateCommunities' | 'canManageEndUserRolesAndPermissions' | 'isEditingOwnMemberAccount' | 'isSystemAccount'>, ValueObjectProps {}
 
-export interface VendorUserRoleCommunityPermissionsProps
-	extends VendorUserRoleCommunityPermissionsSpec,
-		ValueObjectProps {}
+export interface VendorUserRoleCommunityPermissionsProps extends VendorUserRoleCommunityPermissionsSpec, ValueObjectProps {}
 
-export class VendorUserRoleCommunityPermissions
-	extends ValueObject<VendorUserRoleCommunityPermissionsProps>
-	implements VendorUserRoleCommunityPermissionsEntityReference
-{
+export class VendorUserRoleCommunityPermissions extends ValueObject<VendorUserRoleCommunityPermissionsProps> implements VendorUserRoleCommunityPermissionsEntityReference {
 	private readonly visa: CommunityVisa;
-	constructor(
-		props: VendorUserRoleCommunityPermissionsProps,
-		visa: CommunityVisa,
-	) {
+	constructor(props: VendorUserRoleCommunityPermissionsProps, visa: CommunityVisa) {
 		super(props);
 		this.visa = visa;
 	}
 
 	private validateVisa(): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageVendorUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageVendorUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission1');
 		}
 	}
@@ -92,5 +70,4 @@ export class VendorUserRoleCommunityPermissions
 	}
 }
 
-export interface VendorUserRoleCommunityPermissionsEntityReference
-	extends Readonly<VendorUserRoleCommunityPermissionsProps> {}
+export interface VendorUserRoleCommunityPermissionsEntityReference extends Readonly<VendorUserRoleCommunityPermissionsProps> {}

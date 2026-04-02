@@ -6,13 +6,8 @@ class InProcEventBusImpl implements EventBus {
 	} = {};
 	private static instance: InProcEventBusImpl;
 
-	async dispatch<T extends DomainEvent>(
-		event: new (aggregateId: string) => T,
-		data: unknown,
-	): Promise<void> {
-		console.log(
-			`Dispatching in-proc event ${event.name} or ${event.name} with data ${JSON.stringify(data)}`,
-		);
+	async dispatch<T extends DomainEvent>(event: new (aggregateId: string) => T, data: unknown): Promise<void> {
+		console.log(`Dispatching in-proc event ${event.name} or ${event.name} with data ${JSON.stringify(data)}`);
 		if (this.eventSubscribers[event.name]) {
 			const subscribers = this.eventSubscribers[event.name];
 			if (subscribers) {
@@ -23,22 +18,11 @@ class InProcEventBusImpl implements EventBus {
 		}
 	}
 
-	register<EventProps, T extends CustomDomainEvent<EventProps>>(
-		event: new (aggregateId: string) => T,
-		func: (payload: T['payload']) => Promise<void>,
-	): void {
+	register<EventProps, T extends CustomDomainEvent<EventProps>>(event: new (aggregateId: string) => T, func: (payload: T['payload']) => Promise<void>): void {
 		console.log(`Registering in-proc event handler for: ${event.name}`);
-		this.eventSubscribers[event.name] ??= [] as Array<
-			(rawpayload: string) => Promise<void>
-		>; // Ensure the array exists
-		(
-			this.eventSubscribers[event.name] as Array<
-				(rawpayload: string) => Promise<void>
-			>
-		).push(async (rawpayload: string) => {
-			console.log(
-				`Received in-proc event ${event.name} with data ${rawpayload}`,
-			);
+		this.eventSubscribers[event.name] ??= [] as Array<(rawpayload: string) => Promise<void>>; // Ensure the array exists
+		(this.eventSubscribers[event.name] as Array<(rawpayload: string) => Promise<void>>).push(async (rawpayload: string) => {
+			console.log(`Received in-proc event ${event.name} with data ${rawpayload}`);
 			await func(JSON.parse(rawpayload) as T['payload']);
 		});
 	}

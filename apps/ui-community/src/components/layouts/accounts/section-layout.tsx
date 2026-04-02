@@ -9,7 +9,10 @@ export const SectionLayout: React.FC = () => {
 		token: { colorBgContainer },
 	} = theme.useToken();
 	return (
-		<Layout className="site-layout" style={{ minHeight: '100vh' }}>
+		<Layout
+			className="site-layout"
+			style={{ minHeight: '100vh' }}
+		>
 			<Header
 				style={{
 					background: colorBgContainer,

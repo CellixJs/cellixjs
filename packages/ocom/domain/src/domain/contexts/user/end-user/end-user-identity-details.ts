@@ -5,36 +5,25 @@ import type { UserVisa } from '../user.visa.ts';
 import type { EndUserAggregateRoot } from './end-user.ts';
 import * as ValueObjects from './end-user.value-objects.ts';
 
-export interface EndUserIdentityDetailsProps
-	extends ValueObjectProps {
+export interface EndUserIdentityDetailsProps extends ValueObjectProps {
 	lastName: string;
 	legalNameConsistsOfOneName: boolean;
 	restOfName: string | undefined;
 }
 
-export interface EndUserIdentityDetailsEntityReference
-	extends Readonly<EndUserIdentityDetailsProps> {}
+export interface EndUserIdentityDetailsEntityReference extends Readonly<EndUserIdentityDetailsProps> {}
 
-export class EndUserIdentityDetails
-	extends ValueObject<EndUserIdentityDetailsProps>
-	implements EndUserIdentityDetailsEntityReference
-{
+export class EndUserIdentityDetails extends ValueObject<EndUserIdentityDetailsProps> implements EndUserIdentityDetailsEntityReference {
 	private readonly visa: UserVisa;
-    private readonly root: EndUserAggregateRoot;
+	private readonly root: EndUserAggregateRoot;
 	constructor(props: EndUserIdentityDetailsProps, visa: UserVisa, root: EndUserAggregateRoot) {
 		super(props);
 		this.visa = visa;
-        this.root = root;
+		this.root = root;
 	}
 
 	private validateVisa(): void {
-		if (
-			!this.root.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isEditingOwnAccount || permissions.canManageEndUsers,
-			)
-		) {
+		if (!this.root.isNew && !this.visa.determineIf((permissions) => permissions.isEditingOwnAccount || permissions.canManageEndUsers)) {
 			throw new PermissionError('Cannot set identity details');
 		}
 	}

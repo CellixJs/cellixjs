@@ -7,10 +7,7 @@ import { StaffUserCasePassport } from './contexts/staff-user.case.passport.ts';
 import { StaffUserCommunityPassport } from './contexts/staff-user.community.passport.ts';
 import { StaffUserPropertyPassport } from './contexts/staff-user.property.passport.ts';
 
-export class StaffUserPassport
-	extends StaffUserPassportBase
-	implements Passport
-{
+export class StaffUserPassport extends StaffUserPassportBase implements Passport {
 	private _communityPassport: CommunityPassport | undefined;
 	private _propertyPassport: PropertyPassport | undefined;
 	private _casePassport: CasePassport | undefined;

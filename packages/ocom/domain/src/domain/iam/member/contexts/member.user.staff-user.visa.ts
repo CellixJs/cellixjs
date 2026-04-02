@@ -3,9 +3,7 @@ import type { StaffUserEntityReference } from '../../../contexts/user/staff-user
 import type { UserDomainPermissions } from '../../../contexts/user/user.domain-permissions.ts';
 import type { UserVisa } from '../../../contexts/user/user.visa.ts';
 
-export class MemberUserStaffUserVisa<root extends StaffUserEntityReference>
-	implements UserVisa
-{
+export class MemberUserStaffUserVisa<root extends StaffUserEntityReference> implements UserVisa {
 	//biome-ignore lint:noUsedVars
 	private readonly root: root;
 
@@ -13,9 +11,7 @@ export class MemberUserStaffUserVisa<root extends StaffUserEntityReference>
 		this.root = root;
 	}
 
-	determineIf(
-		func: (permissions: Readonly<UserDomainPermissions>) => boolean,
-	): boolean {
+	determineIf(func: (permissions: Readonly<UserDomainPermissions>) => boolean): boolean {
 		const updatedPermissions: UserDomainPermissions = {
 			canManageEndUsers: false,
 			canManageStaffRolesAndPermissions: false,

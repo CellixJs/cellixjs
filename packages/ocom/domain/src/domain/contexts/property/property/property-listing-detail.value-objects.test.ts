@@ -6,12 +6,7 @@ import * as ValueObjects from './property-listing-detail.value-objects.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(
-		__dirname,
-		'features/property-listing-detail.value-objects.feature',
-	),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/property-listing-detail.value-objects.feature'));
 
 test.for(feature, ({ Scenario }) => {
 	// Price
@@ -75,12 +70,9 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.RentHigh(-500).valueOf();
 			};
 		});
-		Then(
-			'an error should be thrown indicating the rent high is invalid',
-			() => {
-				expect(createRentHighWithNegative).toThrow('Too small');
-			},
-		);
+		Then('an error should be thrown indicating the rent high is invalid', () => {
+			expect(createRentHighWithNegative).toThrow('Too small');
+		});
 	});
 
 	// Bedrooms
@@ -132,9 +124,7 @@ test.for(feature, ({ Scenario }) => {
 	Scenario('Creating a description with valid value', ({ When, Then }) => {
 		let value: string | null;
 		When('I create a description with "A nice property description"', () => {
-			value = new ValueObjects.Description(
-				'A nice property description',
-			).valueOf();
+			value = new ValueObjects.Description('A nice property description').valueOf();
 		});
 		Then('the value should be "A nice property description"', () => {
 			expect(value).toBe('A nice property description');
@@ -151,52 +141,37 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a description with leading and trailing whitespace',
-		({ When, Then }) => {
-			let value: string | null;
-			When('I create a description with "  A nice property  "', () => {
-				value = new ValueObjects.Description('  A nice property  ').valueOf();
-			});
-			Then('the value should be "A nice property"', () => {
-				expect(value).toBe('A nice property');
-			});
-		},
-	);
+	Scenario('Creating a description with leading and trailing whitespace', ({ When, Then }) => {
+		let value: string | null;
+		When('I create a description with "  A nice property  "', () => {
+			value = new ValueObjects.Description('  A nice property  ').valueOf();
+		});
+		Then('the value should be "A nice property"', () => {
+			expect(value).toBe('A nice property');
+		});
+	});
 
-	Scenario(
-		'Creating a description with maximum allowed length',
-		({ When, Then }) => {
-			let value: string | null;
-			When('I create a description with a string of 5000 characters', () => {
-				value = new ValueObjects.Description('a'.repeat(5000)).valueOf();
-			});
-			Then('the value should be the 5000 character string', () => {
-				expect(value).toBe('a'.repeat(5000));
-			});
-		},
-	);
+	Scenario('Creating a description with maximum allowed length', ({ When, Then }) => {
+		let value: string | null;
+		When('I create a description with a string of 5000 characters', () => {
+			value = new ValueObjects.Description('a'.repeat(5000)).valueOf();
+		});
+		Then('the value should be the 5000 character string', () => {
+			expect(value).toBe('a'.repeat(5000));
+		});
+	});
 
-	Scenario(
-		'Creating a description with more than maximum allowed length',
-		({ When, Then }) => {
-			let createDescriptionAboveMax: () => void;
-			When(
-				'I try to create a description with a string of 5001 characters',
-				() => {
-					createDescriptionAboveMax = () => {
-						new ValueObjects.Description('a'.repeat(5001)).valueOf();
-					};
-				},
-			);
-			Then(
-				'an error should be thrown indicating the description is too long',
-				() => {
-					expect(createDescriptionAboveMax).toThrow('Too long');
-				},
-			);
-		},
-	);
+	Scenario('Creating a description with more than maximum allowed length', ({ When, Then }) => {
+		let createDescriptionAboveMax: () => void;
+		When('I try to create a description with a string of 5001 characters', () => {
+			createDescriptionAboveMax = () => {
+				new ValueObjects.Description('a'.repeat(5001)).valueOf();
+			};
+		});
+		Then('an error should be thrown indicating the description is too long', () => {
+			expect(createDescriptionAboveMax).toThrow('Too long');
+		});
+	});
 
 	// Amenities
 	Scenario('Creating amenities with valid array', ({ When, Then }) => {
@@ -229,23 +204,17 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating amenities with array above maximum length',
-		({ When, Then }) => {
-			let createAmenitiesAboveMax: () => void;
-			When('I try to create amenities with 51 items', () => {
-				createAmenitiesAboveMax = () => {
-					new ValueObjects.Amenities(new Array(51).fill('amenity'));
-				};
-			});
-			Then(
-				'an error should be thrown indicating the amenities array is too long',
-				() => {
-					expect(createAmenitiesAboveMax).toThrow('Too long');
-				},
-			);
-		},
-	);
+	Scenario('Creating amenities with array above maximum length', ({ When, Then }) => {
+		let createAmenitiesAboveMax: () => void;
+		When('I try to create amenities with 51 items', () => {
+			createAmenitiesAboveMax = () => {
+				new ValueObjects.Amenities(new Array(51).fill('amenity'));
+			};
+		});
+		Then('an error should be thrown indicating the amenities array is too long', () => {
+			expect(createAmenitiesAboveMax).toThrow('Too long');
+		});
+	});
 
 	// Images
 	Scenario('Creating images with valid array', ({ When, Then }) => {
@@ -268,39 +237,28 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating images with array above maximum length',
-		({ When, Then }) => {
-			let createImagesAboveMax: () => void;
-			When('I try to create images with 51 items', () => {
-				createImagesAboveMax = () => {
-					new ValueObjects.Images(new Array(51).fill('image.jpg')).valueOf();
-				};
-			});
-			Then(
-				'an error should be thrown indicating the images array is too long',
-				() => {
-					expect(createImagesAboveMax).toThrow('Too long');
-				},
-			);
-		},
-	);
+	Scenario('Creating images with array above maximum length', ({ When, Then }) => {
+		let createImagesAboveMax: () => void;
+		When('I try to create images with 51 items', () => {
+			createImagesAboveMax = () => {
+				new ValueObjects.Images(new Array(51).fill('image.jpg')).valueOf();
+			};
+		});
+		Then('an error should be thrown indicating the images array is too long', () => {
+			expect(createImagesAboveMax).toThrow('Too long');
+		});
+	});
 
 	// ListingAgentEmail
-	Scenario(
-		'Creating a listing agent email with valid value',
-		({ When, Then }) => {
-			let value: string | null;
-			When('I create a listing agent email with "agent@example.com"', () => {
-				value = new ValueObjects.ListingAgentEmail(
-					'agent@example.com',
-				).valueOf();
-			});
-			Then('the value should be "agent@example.com"', () => {
-				expect(value).toBe('agent@example.com');
-			});
-		},
-	);
+	Scenario('Creating a listing agent email with valid value', ({ When, Then }) => {
+		let value: string | null;
+		When('I create a listing agent email with "agent@example.com"', () => {
+			value = new ValueObjects.ListingAgentEmail('agent@example.com').valueOf();
+		});
+		Then('the value should be "agent@example.com"', () => {
+			expect(value).toBe('agent@example.com');
+		});
+	});
 
 	Scenario('Creating a listing agent email with null', ({ When, Then }) => {
 		let value: string | null;
@@ -312,18 +270,15 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a listing agent email with invalid format',
-		({ When, Then }) => {
-			let createInvalidEmail: () => void;
-			When('I try to create a listing agent email with "invalid-email"', () => {
-				createInvalidEmail = () => {
-					new ValueObjects.ListingAgentEmail('invalid-email').valueOf();
-				};
-			});
-			Then('an error should be thrown indicating the email is invalid', () => {
-				expect(createInvalidEmail).toThrow("Value doesn't match pattern");
-			});
-		},
-	);
+	Scenario('Creating a listing agent email with invalid format', ({ When, Then }) => {
+		let createInvalidEmail: () => void;
+		When('I try to create a listing agent email with "invalid-email"', () => {
+			createInvalidEmail = () => {
+				new ValueObjects.ListingAgentEmail('invalid-email').valueOf();
+			};
+		});
+		Then('an error should be thrown indicating the email is invalid', () => {
+			expect(createInvalidEmail).toThrow("Value doesn't match pattern");
+		});
+	});
 });

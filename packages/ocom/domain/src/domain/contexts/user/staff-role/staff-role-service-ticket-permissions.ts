@@ -11,16 +11,10 @@ interface StaffRoleServiceTicketPermissionsSpec {
 	// isSystemAccount: boolean;
 }
 
-export interface StaffRoleServiceTicketPermissionsProps
-	extends StaffRoleServiceTicketPermissionsSpec,
-		ValueObjectProps {}
-export interface StaffRoleServiceTicketPermissionsEntityReference
-	extends Readonly<StaffRoleServiceTicketPermissionsProps> {}
+export interface StaffRoleServiceTicketPermissionsProps extends StaffRoleServiceTicketPermissionsSpec, ValueObjectProps {}
+export interface StaffRoleServiceTicketPermissionsEntityReference extends Readonly<StaffRoleServiceTicketPermissionsProps> {}
 
-export class StaffRoleServiceTicketPermissions
-	extends ValueObject<StaffRoleServiceTicketPermissionsProps>
-	implements StaffRoleServiceTicketPermissionsEntityReference
-{
+export class StaffRoleServiceTicketPermissions extends ValueObject<StaffRoleServiceTicketPermissionsProps> implements StaffRoleServiceTicketPermissionsEntityReference {
 	private readonly visa: UserVisa;
 	constructor(props: StaffRoleServiceTicketPermissionsProps, visa: UserVisa) {
 		super(props);
@@ -28,45 +22,45 @@ export class StaffRoleServiceTicketPermissions
 	}
 
 	get canCreateTickets(): boolean {
-	  return this.props.canCreateTickets;
+		return this.props.canCreateTickets;
 	}
 	get canManageTickets(): boolean {
-	  return this.props.canManageTickets;
+		return this.props.canManageTickets;
 	}
 	get canAssignTickets(): boolean {
-	  return this.props.canAssignTickets;
+		return this.props.canAssignTickets;
 	}
 	get canWorkOnTickets(): boolean {
-	  return this.props.canWorkOnTickets;
-    }
+		return this.props.canWorkOnTickets;
+	}
 
 	// setters using ts 5.1
 
 	set canCreateTickets(value: boolean) {
-	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new PermissionError('Cannot set permission');
-	  }
-	  this.props.canCreateTickets = value;
+		if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set permission');
+		}
+		this.props.canCreateTickets = value;
 	}
 
 	set canManageTickets(value: boolean) {
-	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new PermissionError('Cannot set permission');
-	  }
-	  this.props.canManageTickets = value;
+		if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set permission');
+		}
+		this.props.canManageTickets = value;
 	}
 
 	set canAssignTickets(value: boolean) {
-	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new PermissionError('Cannot set permission');
-	  }
-	  this.props.canAssignTickets = value;
+		if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set permission');
+		}
+		this.props.canAssignTickets = value;
 	}
 
 	set canWorkOnTickets(value: boolean) {
-	  if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-	    throw new PermissionError('Cannot set permission');
-	  }
-	  this.props.canWorkOnTickets = value;
+		if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set permission');
+		}
+		this.props.canWorkOnTickets = value;
 	}
 }

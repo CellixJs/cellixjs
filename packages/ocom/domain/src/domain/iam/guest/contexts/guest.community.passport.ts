@@ -3,10 +3,7 @@ import type { CommunityPassport } from '../../../contexts/community/community.pa
 import type { CommunityVisa } from '../../../contexts/community/community.visa.ts';
 import { GuestPassportBase } from '../guest.passport-base.ts';
 
-export class GuestCommunityPassport
-	extends GuestPassportBase
-	implements CommunityPassport
-{
+export class GuestCommunityPassport extends GuestPassportBase implements CommunityPassport {
 	forCommunity(_root: CommunityEntityReference): CommunityVisa {
 		return { determineIf: () => false };
 	}

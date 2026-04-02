@@ -1,19 +1,16 @@
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import { ValueObject } from '@cellix/domain-seedwork/value-object';
-export interface ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceProps
-	extends ValueObjectProps {
+export interface ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceProps extends ValueObjectProps {
 	debitGlAccount: string;
 	creditGlAccount: string;
 	completedOn: Date;
 }
 
-export interface ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference
-	extends Readonly<ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceProps> {}
+export interface ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference extends Readonly<ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceProps> {}
 
 export class ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference
 	extends ValueObject<ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceProps>
-	implements
-		ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference
+	implements ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference
 {
 	get debitGlAccount(): string {
 		return this.props.debitGlAccount;

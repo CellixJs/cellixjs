@@ -1,31 +1,32 @@
 {
-  "name": "@ocom/service-blob-storage",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
-    "lint": "biome lint",
-    "clean": "rimraf dist"
-  },
-  "dependencies": {
-    "@cellix/api-services-spec": "workspace:*"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@cellix/config-vitest": "workspace:*",
-    "rimraf": "catalog:",
-    "typescript": "catalog:"
-  }
+	"name": "@ocom/service-blob-storage",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"watch": "tsc --watch",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@cellix/api-services-spec": "workspace:*"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
 }

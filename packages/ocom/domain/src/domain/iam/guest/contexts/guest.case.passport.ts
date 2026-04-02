@@ -3,10 +3,7 @@ import type { ServiceTicketV1EntityReference } from '../../../contexts/case/serv
 import type { ViolationTicketV1EntityReference } from '../../../contexts/case/violation-ticket/v1/violation-ticket-v1.aggregate.ts';
 import { GuestPassportBase } from '../guest.passport-base.ts';
 
-export class GuestCasePassport
-	extends GuestPassportBase
-	implements CasePassport
-{
+export class GuestCasePassport extends GuestPassportBase implements CasePassport {
 	forServiceTicketV1(_root: ServiceTicketV1EntityReference) {
 		return { determineIf: () => false };
 	}

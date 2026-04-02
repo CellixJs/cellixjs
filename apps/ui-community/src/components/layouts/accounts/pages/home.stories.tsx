@@ -31,9 +31,7 @@ export const Default: Story = {
 		expect(welcomeTitle).toBeInTheDocument();
 
 		// Verify the description text is present
-		const descriptionText = await canvas.findByText(
-			/To join a community, you must provide/,
-		);
+		const descriptionText = await canvas.findByText(/To join a community, you must provide/);
 		expect(descriptionText).toBeInTheDocument();
 	},
 };

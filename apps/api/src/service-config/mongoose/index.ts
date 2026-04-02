@@ -4,9 +4,7 @@ import type { ServiceMongooseOptions } from '@ocom/service-mongoose';
 
 const { COSMOSDB_DBNAME, COSMOSDB_CONNECTION_STRING, NODE_ENV } = process.env;
 
-const isUsingCosmosDBEmulator =
-	NODE_ENV === 'development' ||
-	NODE_ENV === 'test';
+const isUsingCosmosDBEmulator = NODE_ENV === 'development' || NODE_ENV === 'test';
 
 export const mongooseConnectOptions: ServiceMongooseOptions = {
 	tlsInsecure: isUsingCosmosDBEmulator, //only true for local development - required for Azure Cosmos DB emulator
@@ -16,13 +14,11 @@ export const mongooseConnectOptions: ServiceMongooseOptions = {
 	autoIndex: true, //default is true - there is debate on whether this should be true or false, leaving as true for now
 	autoCreate: true, //default is true - there is debate on whether this should be true or false, leaving as true for now
 	dbName: COSMOSDB_DBNAME, // need to throw an error if this is not set,
-    debug: NODE_ENV !== 'production' // enables Mongoose logs for local development only, note this is not a mongoose ConnectOption field
+	debug: NODE_ENV !== 'production', // enables Mongoose logs for local development only, note this is not a mongoose ConnectOption field
 };
 
 export const mongooseConnectionString: string = COSMOSDB_CONNECTION_STRING ?? ''; // need to throw an error if this is not set
 
-export const mongooseContextBuilder = (
-	initializedService: MongooseSeedwork.MongooseContextFactory,
-) => {
+export const mongooseContextBuilder = (initializedService: MongooseSeedwork.MongooseContextFactory) => {
 	return Persistence(initializedService);
 };

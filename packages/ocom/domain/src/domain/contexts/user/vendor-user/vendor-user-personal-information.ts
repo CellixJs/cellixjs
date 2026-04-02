@@ -1,39 +1,21 @@
 import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
-import {
-	VendorUserContactInformation,
-	type VendorUserContactInformationEntityReference,
-	type VendorUserContactInformationProps,
-} from './vendor-user-contact-information.ts';
-import {
-	VendorUserIdentityDetails,
-	type VendorUserIdentityDetailsEntityReference,
-	type VendorUserIdentityDetailsProps,
-} from './vendor-user-identity-details.ts';
+import { VendorUserContactInformation, type VendorUserContactInformationEntityReference, type VendorUserContactInformationProps } from './vendor-user-contact-information.ts';
+import { VendorUserIdentityDetails, type VendorUserIdentityDetailsEntityReference, type VendorUserIdentityDetailsProps } from './vendor-user-identity-details.ts';
 
-export interface VendorUserPersonalInformationProps
-	extends ValueObjectProps {
+export interface VendorUserPersonalInformationProps extends ValueObjectProps {
 	readonly identityDetails: VendorUserIdentityDetailsProps;
 	readonly contactInformation: VendorUserContactInformationProps;
 }
 
-export interface VendorUserPersonalInformationEntityReference
-	extends Readonly<
-		Omit<
-			VendorUserPersonalInformationProps,
-			'identityDetails' | 'contactInformation'
-		>
-	> {
+export interface VendorUserPersonalInformationEntityReference extends Readonly<Omit<VendorUserPersonalInformationProps, 'identityDetails' | 'contactInformation'>> {
 	readonly identityDetails: VendorUserIdentityDetailsEntityReference;
 	readonly contactInformation: VendorUserContactInformationEntityReference;
 }
 
-export class VendorUserPersonalInformation
-	extends ValueObject<VendorUserPersonalInformationProps>
-	implements VendorUserPersonalInformationEntityReference
-{
-    private readonly visa: UserVisa;
+export class VendorUserPersonalInformation extends ValueObject<VendorUserPersonalInformationProps> implements VendorUserPersonalInformationEntityReference {
+	private readonly visa: UserVisa;
 	constructor(props: VendorUserPersonalInformationProps, visa: UserVisa) {
 		super(props);
 		this.visa = visa;

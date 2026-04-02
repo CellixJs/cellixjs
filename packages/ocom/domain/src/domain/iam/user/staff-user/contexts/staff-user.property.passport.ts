@@ -3,10 +3,7 @@ import type { PropertyPassport } from '../../../../contexts/property/property.pa
 import type { PropertyVisa } from '../../../../contexts/property/property.visa.ts';
 import { StaffUserPassportBase } from '../../staff-user.passport-base.ts';
 
-export class StaffUserPropertyPassport
-	extends StaffUserPassportBase
-	implements PropertyPassport
-{
+export class StaffUserPropertyPassport extends StaffUserPassportBase implements PropertyPassport {
 	forProperty(_root: PropertyEntityReference): PropertyVisa {
 		return { determineIf: () => false };
 	}

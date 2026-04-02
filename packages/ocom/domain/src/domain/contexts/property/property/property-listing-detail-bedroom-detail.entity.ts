@@ -3,41 +3,24 @@ import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail-bedroom-detail.value-objects.ts';
 
-export interface PropertyListingDetailBedroomDetailProps
-	extends DomainEntityProps {
+export interface PropertyListingDetailBedroomDetailProps extends DomainEntityProps {
 	roomName: string;
 	bedDescriptions: string[];
 }
 
-export interface PropertyListingDetailBedroomDetailEntityReference
-	extends Readonly<PropertyListingDetailBedroomDetailProps> {}
+export interface PropertyListingDetailBedroomDetailEntityReference extends Readonly<PropertyListingDetailBedroomDetailProps> {}
 
-export class PropertyListingDetailBedroomDetail
-	extends DomainEntity<PropertyListingDetailBedroomDetailProps>
-	implements PropertyListingDetailBedroomDetailEntityReference
-{
+export class PropertyListingDetailBedroomDetail extends DomainEntity<PropertyListingDetailBedroomDetailProps> implements PropertyListingDetailBedroomDetailEntityReference {
 	private readonly visa: PropertyVisa;
 
-	constructor(
-		props: PropertyListingDetailBedroomDetailProps,
-		visa: PropertyVisa,
-	) {
+	constructor(props: PropertyListingDetailBedroomDetailProps, visa: PropertyVisa) {
 		super(props);
 		this.visa = visa;
 	}
 
-    private validateVisa(): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageProperties ||
-					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update bedroom details for this property',
-			);
+	private validateVisa(): void {
+		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageProperties || (permissions.canEditOwnProperty && permissions.isEditingOwnProperty))) {
+			throw new PermissionError('You do not have permission to update bedroom details for this property');
 		}
 	}
 

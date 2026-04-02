@@ -42,9 +42,7 @@ export interface ServiceApolloServerOptions {
  * Apollo Server infrastructure service following the Cellix ServiceBase pattern.
  * Manages the Apollo Server lifecycle with startUp/shutDown hooks.
  */
-export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
-	implements ServiceBase<ApolloServer<TContext>>
-{
+export class ServiceApolloServer<TContext extends BaseContext = BaseContext> implements ServiceBase<ApolloServer<TContext>> {
 	private serverInternal: ApolloServer<TContext> | undefined;
 	private readonly options: ServiceApolloServerOptions;
 	private readonly tracer: Tracer = trace.getTracer('service-apollo-server');
@@ -61,18 +59,10 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
 		return await this.tracer.startActiveSpan('ServiceApolloServer.startUp', async (span: Span) => {
 			try {
 				const { NODE_ENV: nodeEnv } = process.env;
-				const {
-					schema,
-					middleware,
-					introspection = nodeEnv !== 'production',
-					allowBatchedHttpRequests = true,
-					maxDepth = 10,
-				} = this.options;
+				const { schema, middleware, introspection = nodeEnv !== 'production', allowBatchedHttpRequests = true, maxDepth = 10 } = this.options;
 
 				// Apply middleware if provided
-				const finalSchema = middleware
-					? applyMiddleware(schema, middleware)
-					: schema;
+				const finalSchema = middleware ? applyMiddleware(schema, middleware) : schema;
 
 				this.serverInternal = new ApolloServer<TContext>({
 					schema: finalSchema,
@@ -106,9 +96,7 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
 		return await this.tracer.startActiveSpan('ServiceApolloServer.shutDown', async (span: Span) => {
 			try {
 				if (!this.serverInternal) {
-					throw new Error(
-						'ServiceApolloServer is not started - shutdown cannot proceed',
-					);
+					throw new Error('ServiceApolloServer is not started - shutdown cannot proceed');
 				}
 
 				await this.serverInternal.stop();
@@ -134,9 +122,7 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext>
 	 */
 	public get server(): ApolloServer<TContext> {
 		if (!this.serverInternal) {
-			throw new Error(
-				'ServiceApolloServer is not started - cannot access server',
-			);
+			throw new Error('ServiceApolloServer is not started - cannot access server');
 		}
 		return this.serverInternal;
 	}

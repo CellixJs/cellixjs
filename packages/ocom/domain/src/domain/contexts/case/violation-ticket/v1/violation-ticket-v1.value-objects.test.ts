@@ -6,9 +6,7 @@ import * as ValueObjects from './violation-ticket-v1.value-objects.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/violation-ticket-v1.value-objects.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/violation-ticket-v1.value-objects.feature'));
 
 test.for(feature, ({ Scenario }) => {
 	// Title
@@ -22,18 +20,15 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a title with leading and trailing whitespace',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a title with "  Valid Title  "', () => {
-				value = new ValueObjects.Title('  Valid Title  ').valueOf();
-			});
-			Then('the value should be "Valid Title"', () => {
-				expect(value).toBe('Valid Title');
-			});
-		},
-	);
+	Scenario('Creating a title with leading and trailing whitespace', ({ When, Then }) => {
+		let value: string;
+		When('I create a title with "  Valid Title  "', () => {
+			value = new ValueObjects.Title('  Valid Title  ').valueOf();
+		});
+		Then('the value should be "Valid Title"', () => {
+			expect(value).toBe('Valid Title');
+		});
+	});
 
 	Scenario('Creating a title with maximum allowed length', ({ When, Then }) => {
 		let value: string;
@@ -46,20 +41,17 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a title with more than maximum allowed length',
-		({ When, Then }) => {
-			let createTitleAboveMaxLength: () => void;
-			When('I try to create a title with a string of 201 characters', () => {
-				createTitleAboveMaxLength = () => {
-					new ValueObjects.Title('a'.repeat(201));
-				};
-			});
-			Then('an error should be thrown indicating the title is too long', () => {
-				expect(createTitleAboveMaxLength).toThrow('Too long');
-			});
-		},
-	);
+	Scenario('Creating a title with more than maximum allowed length', ({ When, Then }) => {
+		let createTitleAboveMaxLength: () => void;
+		When('I try to create a title with a string of 201 characters', () => {
+			createTitleAboveMaxLength = () => {
+				new ValueObjects.Title('a'.repeat(201));
+			};
+		});
+		Then('an error should be thrown indicating the title is too long', () => {
+			expect(createTitleAboveMaxLength).toThrow('Too long');
+		});
+	});
 
 	Scenario('Creating a title with minimum allowed length', ({ When, Then }) => {
 		let value: string;
@@ -71,23 +63,17 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a title with less than minimum allowed length',
-		({ When, Then }) => {
-			let createTitleBelowMinLength: () => void;
-			When('I try to create a title with a string of 4 characters', () => {
-				createTitleBelowMinLength = () => {
-					new ValueObjects.Title('abcd');
-				};
-			});
-			Then(
-				'an error should be thrown indicating the title is too short',
-				() => {
-					expect(createTitleBelowMinLength).toThrow('Too short');
-				},
-			);
-		},
-	);
+	Scenario('Creating a title with less than minimum allowed length', ({ When, Then }) => {
+		let createTitleBelowMinLength: () => void;
+		When('I try to create a title with a string of 4 characters', () => {
+			createTitleBelowMinLength = () => {
+				new ValueObjects.Title('abcd');
+			};
+		});
+		Then('an error should be thrown indicating the title is too short', () => {
+			expect(createTitleBelowMinLength).toThrow('Too short');
+		});
+	});
 
 	Scenario('Creating a title with null', ({ When, Then }) => {
 		let createTitleWithNull: () => void;
@@ -126,53 +112,38 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a description with leading and trailing whitespace',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a description with "  Valid description  "', () => {
-				value = new ValueObjects.Description('  Valid description  ').valueOf();
-			});
-			Then('the value should be "Valid description"', () => {
-				expect(value).toBe('Valid description');
-			});
-		},
-	);
+	Scenario('Creating a description with leading and trailing whitespace', ({ When, Then }) => {
+		let value: string;
+		When('I create a description with "  Valid description  "', () => {
+			value = new ValueObjects.Description('  Valid description  ').valueOf();
+		});
+		Then('the value should be "Valid description"', () => {
+			expect(value).toBe('Valid description');
+		});
+	});
 
-	Scenario(
-		'Creating a description with maximum allowed length',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a description with a string of 2000 characters', () => {
-				const longDescription = 'a'.repeat(2000);
-				value = new ValueObjects.Description(longDescription).valueOf();
-			});
-			Then('the value should be the 2000 character string', () => {
-				expect(value).toBe('a'.repeat(2000));
-			});
-		},
-	);
+	Scenario('Creating a description with maximum allowed length', ({ When, Then }) => {
+		let value: string;
+		When('I create a description with a string of 2000 characters', () => {
+			const longDescription = 'a'.repeat(2000);
+			value = new ValueObjects.Description(longDescription).valueOf();
+		});
+		Then('the value should be the 2000 character string', () => {
+			expect(value).toBe('a'.repeat(2000));
+		});
+	});
 
-	Scenario(
-		'Creating a description with more than maximum allowed length',
-		({ When, Then }) => {
-			let createDescriptionAboveMaxLength: () => void;
-			When(
-				'I try to create a description with a string of 2001 characters',
-				() => {
-					createDescriptionAboveMaxLength = () => {
-						new ValueObjects.Description('a'.repeat(2001));
-					};
-				},
-			);
-			Then(
-				'an error should be thrown indicating the description is too long',
-				() => {
-					expect(createDescriptionAboveMaxLength).toThrow('Too long');
-				},
-			);
-		},
-	);
+	Scenario('Creating a description with more than maximum allowed length', ({ When, Then }) => {
+		let createDescriptionAboveMaxLength: () => void;
+		When('I try to create a description with a string of 2001 characters', () => {
+			createDescriptionAboveMaxLength = () => {
+				new ValueObjects.Description('a'.repeat(2001));
+			};
+		});
+		Then('an error should be thrown indicating the description is too long', () => {
+			expect(createDescriptionAboveMaxLength).toThrow('Too long');
+		});
+	});
 
 	Scenario('Creating a description with null', ({ When, Then }) => {
 		let createDescriptionWithNull: () => void;
@@ -182,12 +153,9 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.Description(null);
 			};
 		});
-		Then(
-			'an error should be thrown indicating the description is invalid',
-			() => {
-				expect(createDescriptionWithNull).toThrow('Wrong raw value type');
-			},
-		);
+		Then('an error should be thrown indicating the description is invalid', () => {
+			expect(createDescriptionWithNull).toThrow('Wrong raw value type');
+		});
 	});
 
 	Scenario('Creating a description with undefined', ({ When, Then }) => {
@@ -198,12 +166,9 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.Description(undefined);
 			};
 		});
-		Then(
-			'an error should be thrown indicating the description is invalid',
-			() => {
-				expect(createDescriptionWithUndefined).toThrow('Wrong raw value type');
-			},
-		);
+		Then('an error should be thrown indicating the description is invalid', () => {
+			expect(createDescriptionWithUndefined).toThrow('Wrong raw value type');
+		});
 	});
 
 	// StatusCode
@@ -224,14 +189,9 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.StatusCode('INVALID');
 			};
 		});
-		Then(
-			'an error should be thrown indicating the status code is invalid',
-			() => {
-				expect(createStatusCodeWithInvalidValue).toThrow(
-					'Value not found in set',
-				);
-			},
-		);
+		Then('an error should be thrown indicating the status code is invalid', () => {
+			expect(createStatusCodeWithInvalidValue).toThrow('Value not found in set');
+		});
 	});
 
 	Scenario('Creating a status code with null', ({ When, Then }) => {
@@ -242,12 +202,9 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.StatusCode(null);
 			};
 		});
-		Then(
-			'an error should be thrown indicating the status code is invalid',
-			() => {
-				expect(createStatusCodeWithNull).toThrow('Wrong raw value type');
-			},
-		);
+		Then('an error should be thrown indicating the status code is invalid', () => {
+			expect(createStatusCodeWithNull).toThrow('Wrong raw value type');
+		});
 	});
 
 	Scenario('Creating a status code with undefined', ({ When, Then }) => {
@@ -258,12 +215,9 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.StatusCode(undefined);
 			};
 		});
-		Then(
-			'an error should be thrown indicating the status code is invalid',
-			() => {
-				expect(createStatusCodeWithUndefined).toThrow('Wrong raw value type');
-			},
-		);
+		Then('an error should be thrown indicating the status code is invalid', () => {
+			expect(createStatusCodeWithUndefined).toThrow('Wrong raw value type');
+		});
 	});
 
 	// Priority
@@ -277,67 +231,49 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a priority with minimum allowed value',
-		({ When, Then }) => {
-			let value: number;
-			When('I create a priority with 1', () => {
-				value = new ValueObjects.Priority(1).valueOf();
-			});
-			Then('the value should be 1', () => {
-				expect(value).toBe(1);
-			});
-		},
-	);
+	Scenario('Creating a priority with minimum allowed value', ({ When, Then }) => {
+		let value: number;
+		When('I create a priority with 1', () => {
+			value = new ValueObjects.Priority(1).valueOf();
+		});
+		Then('the value should be 1', () => {
+			expect(value).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Creating a priority with maximum allowed value',
-		({ When, Then }) => {
-			let value: number;
-			When('I create a priority with 5', () => {
-				value = new ValueObjects.Priority(5).valueOf();
-			});
-			Then('the value should be 5', () => {
-				expect(value).toBe(5);
-			});
-		},
-	);
+	Scenario('Creating a priority with maximum allowed value', ({ When, Then }) => {
+		let value: number;
+		When('I create a priority with 5', () => {
+			value = new ValueObjects.Priority(5).valueOf();
+		});
+		Then('the value should be 5', () => {
+			expect(value).toBe(5);
+		});
+	});
 
-	Scenario(
-		'Creating a priority with less than minimum allowed value',
-		({ When, Then }) => {
-			let createPriorityBelowMin: () => void;
-			When('I try to create a priority with 0', () => {
-				createPriorityBelowMin = () => {
-					new ValueObjects.Priority(0);
-				};
-			});
-			Then(
-				'an error should be thrown indicating the priority is too low',
-				() => {
-					expect(createPriorityBelowMin).toThrow('Too small');
-				},
-			);
-		},
-	);
+	Scenario('Creating a priority with less than minimum allowed value', ({ When, Then }) => {
+		let createPriorityBelowMin: () => void;
+		When('I try to create a priority with 0', () => {
+			createPriorityBelowMin = () => {
+				new ValueObjects.Priority(0);
+			};
+		});
+		Then('an error should be thrown indicating the priority is too low', () => {
+			expect(createPriorityBelowMin).toThrow('Too small');
+		});
+	});
 
-	Scenario(
-		'Creating a priority with more than maximum allowed value',
-		({ When, Then }) => {
-			let createPriorityAboveMax: () => void;
-			When('I try to create a priority with 6', () => {
-				createPriorityAboveMax = () => {
-					new ValueObjects.Priority(6);
-				};
-			});
-			Then(
-				'an error should be thrown indicating the priority is too high',
-				() => {
-					expect(createPriorityAboveMax).toThrow('Too big');
-				},
-			);
-		},
-	);
+	Scenario('Creating a priority with more than maximum allowed value', ({ When, Then }) => {
+		let createPriorityAboveMax: () => void;
+		When('I try to create a priority with 6', () => {
+			createPriorityAboveMax = () => {
+				new ValueObjects.Priority(6);
+			};
+		});
+		Then('an error should be thrown indicating the priority is too high', () => {
+			expect(createPriorityAboveMax).toThrow('Too big');
+		});
+	});
 
 	Scenario('Creating a priority with null', ({ When, Then }) => {
 		let createPriorityWithNull: () => void;

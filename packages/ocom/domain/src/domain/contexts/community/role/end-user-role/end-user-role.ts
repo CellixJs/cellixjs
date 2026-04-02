@@ -1,23 +1,12 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
-import {
-	RoleDeletedReassignEvent,
-	type RoleDeletedReassignProps,
-} from '../../../../events/types/role-deleted-reassign.ts';
+import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../../passport.ts';
-import {
-	Community,
-	type CommunityEntityReference,
-	type CommunityProps,
-} from '../../community/community.ts';
+import { Community, type CommunityEntityReference, type CommunityProps } from '../../community/community.ts';
 import type { CommunityVisa } from '../../community.visa.ts';
 import * as ValueObjects from './end-user-role.value-objects.ts';
-import {
-	EndUserRolePermissions,
-	type EndUserRolePermissionsEntityReference,
-	type EndUserRolePermissionsProps,
-} from './end-user-role-permissions.ts';
+import { EndUserRolePermissions, type EndUserRolePermissionsEntityReference, type EndUserRolePermissionsProps } from './end-user-role-permissions.ts';
 
 export interface EndUserRoleProps extends DomainEntityProps {
 	roleName: string;
@@ -31,16 +20,12 @@ export interface EndUserRoleProps extends DomainEntityProps {
 	readonly schemaVersion: string;
 }
 
-export interface EndUserRoleEntityReference
-	extends Readonly<Omit<EndUserRoleProps, 'community' | 'permissions'>> {
+export interface EndUserRoleEntityReference extends Readonly<Omit<EndUserRoleProps, 'community' | 'permissions'>> {
 	get community(): CommunityEntityReference;
 	get permissions(): EndUserRolePermissionsEntityReference;
 }
 
-export class EndUserRole<props extends EndUserRoleProps>
-	extends AggregateRoot<props, Passport>
-	implements EndUserRoleEntityReference
-{
+export class EndUserRole<props extends EndUserRoleProps> extends AggregateRoot<props, Passport> implements EndUserRoleEntityReference {
 	//#region Fields
 	private isNew: boolean = false;
 	private _visa?: CommunityVisa;
@@ -54,13 +39,7 @@ export class EndUserRole<props extends EndUserRoleProps>
 	//#endregion Constructors
 
 	//#region Methods
-	public static getNewInstance<props extends EndUserRoleProps>(
-		newProps: props,
-		passport: Passport,
-		roleName: string,
-		isDefault: boolean,
-		community: CommunityEntityReference,
-	): EndUserRole<props> {
+	public static getNewInstance<props extends EndUserRoleProps>(newProps: props, passport: Passport, roleName: string, isDefault: boolean, community: CommunityEntityReference): EndUserRole<props> {
 		const role = new EndUserRole(newProps, passport);
 		role.isNew = true;
 		role.roleName = roleName;
@@ -73,21 +52,11 @@ export class EndUserRole<props extends EndUserRoleProps>
 		if (this.isDefault) {
 			throw new PermissionError('You cannot delete a default end user role');
 		}
-		if (
-			!this.isDeleted &&
-			!this.visa.determineIf(
-				(permissions) => permissions.canManageEndUserRolesAndPermissions,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to delete this role',
-			);
+		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.canManageEndUserRolesAndPermissions)) {
+			throw new PermissionError('You do not have permission to delete this role');
 		}
 		super.isDeleted = true;
-		this.addIntegrationEvent<
-			RoleDeletedReassignProps,
-			RoleDeletedReassignEvent
-		>(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
 			deletedRoleId: this.props.id,
 			newRoleId: roleRef.id,
 		});
@@ -96,9 +65,7 @@ export class EndUserRole<props extends EndUserRoleProps>
 	private get visa(): CommunityVisa {
 		if (!this._visa) {
 			if (!this.props.community) {
-				throw new Error(
-					'Community must be set before computing a visa for EndUserRole',
-				);
+				throw new Error('Community must be set before computing a visa for EndUserRole');
 			}
 			this._visa = this.passport.community.forCommunity(this.community);
 		}
@@ -111,13 +78,7 @@ export class EndUserRole<props extends EndUserRoleProps>
 		return this.props.roleName;
 	}
 	set roleName(roleName: string) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(domainPermissions) =>
-					domainPermissions.canManageEndUserRolesAndPermissions,
-			)
-		) {
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageEndUserRolesAndPermissions)) {
 			throw new PermissionError('Cannot set role name');
 		}
 		this.props.roleName = new ValueObjects.RoleName(roleName).valueOf();
@@ -127,16 +88,8 @@ export class EndUserRole<props extends EndUserRoleProps>
 		return new Community(this.props.community, this.passport);
 	}
 	private set community(community: CommunityEntityReference) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(domainPermissions) =>
-					domainPermissions.canManageEndUserRolesAndPermissions,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this role',
-			);
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageEndUserRolesAndPermissions)) {
+			throw new PermissionError('You do not have permission to update this role');
 		}
 		this.props.community = community;
 	}
@@ -144,17 +97,8 @@ export class EndUserRole<props extends EndUserRoleProps>
 		return this.props.isDefault;
 	}
 	set isDefault(isDefault: boolean) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(domainPermissions) =>
-					domainPermissions.canManageEndUserRolesAndPermissions ||
-					domainPermissions.isSystemAccount,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this role',
-			);
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageEndUserRolesAndPermissions || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('You do not have permission to update this role');
 		}
 		this.props.isDefault = isDefault;
 	}

@@ -28,8 +28,7 @@ const EndUserIdentityDetailsType: SchemaDefinition<EndUserIdentityDetails> = {
 	restOfName: { type: String, required: false, maxlength: 50 },
 };
 
-export interface EndUserPersonalInformation
-	extends MongooseSeedwork.NestedPath {
+export interface EndUserPersonalInformation extends MongooseSeedwork.NestedPath {
 	identityDetails: EndUserIdentityDetails;
 	contactInformation: EndUserContactInformation;
 }
@@ -101,10 +100,7 @@ const EndUserSchema = new Schema<EndUser, Model<EndUser>, EndUser>(
 		},
 	},
 	userOptions,
-).index(
-	{ 'personalInformation.contactInformation.email': 1 },
-	{ sparse: true },
-);
+).index({ 'personalInformation.contactInformation.email': 1 }, { sparse: true });
 
 export const EndUserModelName: string = 'end-users'; //TODO: This should be in singular form
 

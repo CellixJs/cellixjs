@@ -8,37 +8,15 @@ import type { CustomDomainEvent } from '@cellix/domain-seedwork/domain-event';
 import type { ClientSession, Model } from 'mongoose';
 import type { Base } from './base.ts';
 
-export abstract class MongoRepositoryBase<
-	MongoType extends Base,
-	PropType extends DomainEntityProps,
-	PassportType,
-	DomainType extends AggregateRoot<PropType, PassportType>,
-> implements Repository<DomainType>
-{
+export abstract class MongoRepositoryBase<MongoType extends Base, PropType extends DomainEntityProps, PassportType, DomainType extends AggregateRoot<PropType, PassportType>> implements Repository<DomainType> {
 	protected itemsInTransaction: DomainType[] = [];
 	protected passport: PassportType;
 	protected model: Model<MongoType>;
-	public typeConverter: TypeConverter<
-		MongoType,
-		PropType,
-		PassportType,
-		DomainType
-	>;
+	public typeConverter: TypeConverter<MongoType, PropType, PassportType, DomainType>;
 	protected bus: EventBus;
 	protected session: ClientSession;
 
-	public constructor(
-		passport: PassportType,
-		model: Model<MongoType>,
-		typeConverter: TypeConverter<
-			MongoType,
-			PropType,
-			PassportType,
-			DomainType
-		>,
-		eventBus: EventBus,
-		session: ClientSession,
-	) {
+	public constructor(passport: PassportType, model: Model<MongoType>, typeConverter: TypeConverter<MongoType, PropType, PassportType, DomainType>, eventBus: EventBus, session: ClientSession) {
 		this.passport = passport;
 		this.model = model;
 		this.typeConverter = typeConverter;
@@ -61,27 +39,19 @@ export abstract class MongoRepositoryBase<
 		for (const event of item.getDomainEvents()) {
 			console.log(`Repo dispatching DomainEvent : ${JSON.stringify(event)}`);
 			// [NN] [ESLINT] will come back to this with refactoring and unit tests to implement similar to QueueSenderApi<T>
-			await this.bus.dispatch(
-				event.constructor as new (aggregateId: string) => typeof event,
-				event.payload,
-			);
+			await this.bus.dispatch(event.constructor as new (aggregateId: string) => typeof event, event.payload);
 		}
 		item.clearDomainEvents();
 		this.itemsInTransaction.push(item);
 		try {
 			if (item.isDeleted) {
-                console.log('deleting item id', item.id);
-				await this.model
-					.deleteOne({ _id: item.id }, { session: this.session })
-					.exec();
+				console.log('deleting item id', item.id);
+				await this.model.deleteOne({ _id: item.id }, { session: this.session }).exec();
 				return item;
 			} else {
 				console.log('saving item id', item.id);
 				const mongoObj = this.typeConverter.toPersistence(item);
-				return this.typeConverter.toDomain(
-					await mongoObj.save({ session: this.session }),
-					this.passport,
-				);
+				return this.typeConverter.toDomain(await mongoObj.save({ session: this.session }), this.passport);
 			}
 		} catch (error) {
 			console.log(`Error saving item : ${String(error)}`);
@@ -89,9 +59,7 @@ export abstract class MongoRepositoryBase<
 		}
 	}
 
-	getIntegrationEvents(): ReadonlyArray<
-		CustomDomainEvent<unknown>
-	> {
+	getIntegrationEvents(): ReadonlyArray<CustomDomainEvent<unknown>> {
 		const integrationEventsGroup = this.itemsInTransaction.map((item) => {
 			const integrationEvents = item.getIntegrationEvents();
 			item.clearIntegrationEvents();
@@ -105,35 +73,14 @@ export abstract class MongoRepositoryBase<
 		PropType extends DomainEntityProps,
 		PassportType,
 		DomainType extends AggregateRoot<PropType, PassportType>,
-		RepoType extends MongoRepositoryBase<
-			MongoType,
-			PropType,
-			PassportType,
-			DomainType
-		>,
+		RepoType extends MongoRepositoryBase<MongoType, PropType, PassportType, DomainType>,
 	>(
 		passport: PassportType,
 		model: Model<MongoType>,
-		typeConverter: TypeConverter<
-			MongoType,
-			PropType,
-			PassportType,
-			DomainType
-		>,
+		typeConverter: TypeConverter<MongoType, PropType, PassportType, DomainType>,
 		bus: EventBus,
 		session: ClientSession,
-		repoClass: new (
-			passport: PassportType,
-			model: Model<MongoType>,
-			typeConverter: TypeConverter<
-				MongoType,
-				PropType,
-				PassportType,
-				DomainType
-			>,
-			bus: EventBus,
-			session: ClientSession,
-		) => RepoType,
+		repoClass: new (passport: PassportType, model: Model<MongoType>, typeConverter: TypeConverter<MongoType, PropType, PassportType, DomainType>, bus: EventBus, session: ClientSession) => RepoType,
 	): RepoType {
 		return new repoClass(passport, model, typeConverter, bus, session);
 	}

@@ -1,18 +1,10 @@
 {
-  "extends": "@cellix/config-typescript/node",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
-  },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "references": [
-    { "path": "../../cellix/domain-seedwork" },
-    { "path": "../../cellix/event-bus-seedwork-node" },
-    { "path": "../../cellix/mongoose-seedwork" },
-    { "path": "../domain" },
-    { "path": "../data-sources-mongoose-models" }
-  ]
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts"],
+	"references": [{ "path": "../../cellix/domain-seedwork" }, { "path": "../../cellix/event-bus-seedwork-node" }, { "path": "../../cellix/mongoose-seedwork" }, { "path": "../domain" }, { "path": "../data-sources-mongoose-models" }]
 }

@@ -105,8 +105,7 @@ export const apolloMocks = [
 	},
 	{
 		request: {
-			query:
-				AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument,
+			query: AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument,
 		},
 		result: {
 			data: {

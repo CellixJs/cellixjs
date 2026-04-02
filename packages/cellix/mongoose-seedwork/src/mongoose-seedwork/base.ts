@@ -27,9 +27,7 @@ export interface Base extends Document, MongoBase {
  * This interface is to be used for all Mongoose Subdocuments, either inside an array or as a single document
  * While defining the Mongoose Schema, Subdocument object should be defined as a separate Schema
  */
-export interface SubdocumentBase
-	extends Omit<Document, 'id'>,
-		Omit<MongoBase, 'schemaVersion'> {}
+export interface SubdocumentBase extends Omit<Document, 'id'>, Omit<MongoBase, 'schemaVersion'> {}
 // const SubdocumentBaseOptions: SchemaOptions = BaseOptions;
 
 /**

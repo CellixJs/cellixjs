@@ -14,20 +14,13 @@ interface HasProps<docType extends Base | SubdocumentBase> {
 // Minimal contract any adapter must satisfy for this prop array
 type AdapterLike<TDoc> = DomainEntityProps & HasDoc<TDoc>;
 
-export class MongoosePropArray<
-	docType extends Base | SubdocumentBase,
-	propType extends AdapterLike<docType>,
-> implements PropArray<propType>
-{
+export class MongoosePropArray<docType extends Base | SubdocumentBase, propType extends AdapterLike<docType>> implements PropArray<propType> {
 	protected docArray: mongoose.Types.DocumentArray<docType>;
 	protected adapter: new (
 		doc: docType,
 	) => propType;
 
-	constructor(
-		docArray: mongoose.Types.DocumentArray<docType>,
-		adapter: new (doc: docType) => propType,
-	) {
+	constructor(docArray: mongoose.Types.DocumentArray<docType>, adapter: new (doc: docType) => propType) {
 		this.docArray = docArray;
 		this.adapter = adapter;
 	}

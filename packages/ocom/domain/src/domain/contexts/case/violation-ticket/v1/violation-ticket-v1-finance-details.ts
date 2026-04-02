@@ -9,21 +9,12 @@ export interface ViolationTicketV1FinanceDetailProps extends ValueObjectProps {
 	revenueRecognition: ViolationTicketV1FinanceDetailsRevenueRecognitionEntityReference;
 }
 
-export interface ViolationTicketV1FinanceDetailEntityReference
-	extends Readonly<
-		Omit<
-			ViolationTicketV1FinanceDetailProps,
-			'transactions' | 'revenueRecognition'
-		>
-	> {
+export interface ViolationTicketV1FinanceDetailEntityReference extends Readonly<Omit<ViolationTicketV1FinanceDetailProps, 'transactions' | 'revenueRecognition'>> {
 	readonly transactions: ViolationTicketV1FinanceDetailsTransactionsEntityReference;
 	readonly revenueRecognition: ViolationTicketV1FinanceDetailsRevenueRecognitionEntityReference;
 }
 
-export class ViolationTicketV1FinanceDetails
-	extends ValueObject<ViolationTicketV1FinanceDetailProps>
-	implements ViolationTicketV1FinanceDetailEntityReference
-{
+export class ViolationTicketV1FinanceDetails extends ValueObject<ViolationTicketV1FinanceDetailProps> implements ViolationTicketV1FinanceDetailEntityReference {
 	get serviceFee(): number {
 		return this.props.serviceFee;
 	}
