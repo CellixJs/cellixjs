@@ -10,12 +10,8 @@ export interface ServiceTicketV1ActivityDetailProps extends DomainEntityProps {
 	loadActivityBy: () => Promise<MemberEntityReference>;
 }
 
-export interface ServiceTicketV1ActivityDetailEntityReference
-	extends Readonly<ServiceTicketV1ActivityDetailProps> {}
-export class ServiceTicketV1ActivityDetail
-	extends DomainEntity<ServiceTicketV1ActivityDetailProps>
-	implements ServiceTicketV1ActivityDetailEntityReference
-{
+export interface ServiceTicketV1ActivityDetailEntityReference extends Readonly<ServiceTicketV1ActivityDetailProps> {}
+export class ServiceTicketV1ActivityDetail extends DomainEntity<ServiceTicketV1ActivityDetailProps> implements ServiceTicketV1ActivityDetailEntityReference {
 	//#region Fields
 	private isNew: boolean = false;
 	//#endregion Fields
@@ -24,10 +20,7 @@ export class ServiceTicketV1ActivityDetail
 	//#endregion Constructor
 
 	//#region Methods
-	public static getNewInstance(
-		newProps: ServiceTicketV1ActivityDetailProps,
-		activityBy: MemberEntityReference,
-	): ServiceTicketV1ActivityDetail {
+	public static getNewInstance(newProps: ServiceTicketV1ActivityDetailProps, activityBy: MemberEntityReference): ServiceTicketV1ActivityDetail {
 		const instance = new ServiceTicketV1ActivityDetail(newProps);
 		instance.isNew = true;
 		instance.activityBy = activityBy;

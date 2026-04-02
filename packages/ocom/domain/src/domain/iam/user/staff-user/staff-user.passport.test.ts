@@ -10,9 +10,7 @@ import { StaffUserPassport } from './staff-user.passport.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/staff-user.passport.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/staff-user.passport.feature'));
 
 function makeStaffUser(id = 'staff-1') {
 	return {
@@ -45,17 +43,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a StaffUserPassport with valid staff user',
-		({ When, Then }) => {
-			When('I create a StaffUserPassport with the staff user', () => {
-				passport = new StaffUserPassport(staffUser);
-			});
-			Then('the passport should be created successfully', () => {
-				expect(passport).toBeInstanceOf(StaffUserPassport);
-			});
-		},
-	);
+	Scenario('Creating a StaffUserPassport with valid staff user', ({ When, Then }) => {
+		When('I create a StaffUserPassport with the staff user', () => {
+			passport = new StaffUserPassport(staffUser);
+		});
+		Then('the passport should be created successfully', () => {
+			expect(passport).toBeInstanceOf(StaffUserPassport);
+		});
+	});
 
 	Scenario('Accessing the community passport', ({ When, And, Then }) => {
 		// Uncomment and update when StaffUserPassport is implemented
@@ -65,18 +60,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('I access the community property', () => {
 			communityPassport = passport.community;
 		});
-		Then(
-			'I should receive a StaffUserCommunityPassport instance with all visas',
-			() => {
-				expect(communityPassport).toBeInstanceOf(StaffUserCommunityPassport);
-				expect(
-					(communityPassport as StaffUserCommunityPassport).forCommunity({
-						id: 'community-1',
-					} as CommunityEntityReference),
-				).toBeInstanceOf(StaffUserCommunityVisa);
-				// Add more assertions for visas if needed
-			},
-		);
+		Then('I should receive a StaffUserCommunityPassport instance with all visas', () => {
+			expect(communityPassport).toBeInstanceOf(StaffUserCommunityPassport);
+			expect(
+				(communityPassport as StaffUserCommunityPassport).forCommunity({
+					id: 'community-1',
+				} as CommunityEntityReference),
+			).toBeInstanceOf(StaffUserCommunityVisa);
+			// Add more assertions for visas if needed
+		});
 	});
 
 	Scenario('Accessing the service passport', ({ When, And, Then }) => {
@@ -87,14 +79,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('I access the service property', () => {
 			getServicePassport = () => passport.service;
 		});
-		Then(
-			'an error should be thrown indicating the service passport is not available',
-			() => {
-				expect(getServicePassport).toThrow(
-					'Service passport is not available for StaffUserPassport',
-				);
-			},
-		);
+		Then('an error should be thrown indicating the service passport is not available', () => {
+			expect(getServicePassport).toThrow('Service passport is not available for StaffUserPassport');
+		});
 	});
 
 	Scenario('Accessing the user passport', ({ When, And, Then }) => {
@@ -105,13 +92,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('I access the user property', () => {
 			getUserPassport = () => passport.user;
 		});
-		Then(
-			'an error should be thrown indicating the user passport is not available',
-			() => {
-				expect(getUserPassport).toThrow(
-					'User passport is not available for StaffUserPassport',
-				);
-			},
-		);
+		Then('an error should be thrown indicating the user passport is not available', () => {
+			expect(getUserPassport).toThrow('User passport is not available for StaffUserPassport');
+		});
 	});
 });

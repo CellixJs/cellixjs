@@ -1,16 +1,14 @@
 {
-  "extends": "@cellix/config-typescript/base",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
-    "jsx": "react-jsx",
-    "lib": ["ES2023", "DOM"],
-    "exactOptionalPropertyTypes": false,
-    "skipLibCheck": true
-  },
-  "include": ["src"],
-  "references": [
-    { "path": "../../cellix/ui-core" },
-  ]
+	"extends": "@cellix/config-typescript/base",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+		"jsx": "react-jsx",
+		"lib": ["ES2023", "DOM"],
+		"exactOptionalPropertyTypes": false,
+		"skipLibCheck": true
+	},
+	"include": ["src"],
+	"references": [{ "path": "../../cellix/ui-core" }]
 }

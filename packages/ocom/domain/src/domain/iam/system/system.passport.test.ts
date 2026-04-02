@@ -10,9 +10,7 @@ import type { PermissionsSpec } from './system.passport-base.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/system.passport.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/system.passport.feature'));
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let passport: SystemPassport;
@@ -33,104 +31,81 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating SystemPassport and accessing community passport',
-		({ Given, When, Then, And }) => {
-			Given('I create a SystemPassport with permissions', () => {
-				passport = new SystemPassport(permissions);
-			});
+	Scenario('Creating SystemPassport and accessing community passport', ({ Given, When, Then, And }) => {
+		Given('I create a SystemPassport with permissions', () => {
+			passport = new SystemPassport(permissions);
+		});
 
-			When('I access the community property', () => {
-				communityPassport = passport.community;
-			});
+		When('I access the community property', () => {
+			communityPassport = passport.community;
+		});
 
-			Then('it should return a SystemCommunityPassport instance', () => {
-				expect(communityPassport).toBeDefined();
-				expect(communityPassport.constructor.name).toBe(
-					'SystemCommunityPassport',
-				);
-			});
+		Then('it should return a SystemCommunityPassport instance', () => {
+			expect(communityPassport).toBeDefined();
+			expect(communityPassport.constructor.name).toBe('SystemCommunityPassport');
+		});
 
-			And(
-				'accessing community property again should return the same instance',
-				() => {
-					const secondAccess = passport.community;
-					expect(secondAccess).toBe(communityPassport);
-				},
-			);
-		},
-	);
+		And('accessing community property again should return the same instance', () => {
+			const secondAccess = passport.community;
+			expect(secondAccess).toBe(communityPassport);
+		});
+	});
 
-	Scenario(
-		'Creating SystemPassport and accessing service passport',
-		({ Given, When, Then, And }) => {
-			Given('I create a SystemPassport with permissions', () => {
-				passport = new SystemPassport(permissions);
-			});
+	Scenario('Creating SystemPassport and accessing service passport', ({ Given, When, Then, And }) => {
+		Given('I create a SystemPassport with permissions', () => {
+			passport = new SystemPassport(permissions);
+		});
 
-			When('I access the service property', () => {
-				servicePassport = passport.service;
-			});
+		When('I access the service property', () => {
+			servicePassport = passport.service;
+		});
 
-			Then('it should return a SystemServicePassport instance', () => {
-				expect(servicePassport).toBeDefined();
-				expect(servicePassport.constructor.name).toBe('SystemServicePassport');
-			});
+		Then('it should return a SystemServicePassport instance', () => {
+			expect(servicePassport).toBeDefined();
+			expect(servicePassport.constructor.name).toBe('SystemServicePassport');
+		});
 
-			And(
-				'accessing service property again should return the same instance',
-				() => {
-					const secondAccess = passport.service;
-					expect(secondAccess).toBe(servicePassport);
-				},
-			);
-		},
-	);
+		And('accessing service property again should return the same instance', () => {
+			const secondAccess = passport.service;
+			expect(secondAccess).toBe(servicePassport);
+		});
+	});
 
-	Scenario(
-		'Creating SystemPassport and accessing user passport',
-		({ Given, When, Then, And }) => {
-			Given('I create a SystemPassport with permissions', () => {
-				passport = new SystemPassport(permissions);
-			});
+	Scenario('Creating SystemPassport and accessing user passport', ({ Given, When, Then, And }) => {
+		Given('I create a SystemPassport with permissions', () => {
+			passport = new SystemPassport(permissions);
+		});
 
-			When('I access the user property', () => {
-				userPassport = passport.user;
-			});
+		When('I access the user property', () => {
+			userPassport = passport.user;
+		});
 
-			Then('it should return a SystemUserPassport instance', () => {
-				expect(userPassport).toBeDefined();
-				expect(userPassport.constructor.name).toBe('SystemUserPassport');
-			});
+		Then('it should return a SystemUserPassport instance', () => {
+			expect(userPassport).toBeDefined();
+			expect(userPassport.constructor.name).toBe('SystemUserPassport');
+		});
 
-			And(
-				'accessing user property again should return the same instance',
-				() => {
-					const secondAccess = passport.user;
-					expect(secondAccess).toBe(userPassport);
-				},
-			);
-		},
-	);
+		And('accessing user property again should return the same instance', () => {
+			const secondAccess = passport.user;
+			expect(secondAccess).toBe(userPassport);
+		});
+	});
 
-	Scenario(
-		'Creating SystemPassport with no permissions',
-		({ Given, When, Then }) => {
-			Given('I create a SystemPassport with no permissions', () => {
-				passport = new SystemPassport();
-			});
+	Scenario('Creating SystemPassport with no permissions', ({ Given, When, Then }) => {
+		Given('I create a SystemPassport with no permissions', () => {
+			passport = new SystemPassport();
+		});
 
-			When('I access the community, service, and user properties', () => {
-				communityPassport = passport.community;
-				servicePassport = passport.service;
-				userPassport = passport.user;
-			});
+		When('I access the community, service, and user properties', () => {
+			communityPassport = passport.community;
+			servicePassport = passport.service;
+			userPassport = passport.user;
+		});
 
-			Then('all passport instances should be created successfully', () => {
-				expect(communityPassport).toBeDefined();
-				expect(servicePassport).toBeDefined();
-				expect(userPassport).toBeDefined();
-			});
-		},
-	);
+		Then('all passport instances should be created successfully', () => {
+			expect(communityPassport).toBeDefined();
+			expect(servicePassport).toBeDefined();
+			expect(userPassport).toBeDefined();
+		});
+	});
 });

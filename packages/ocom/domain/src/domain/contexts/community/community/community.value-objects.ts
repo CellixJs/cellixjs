@@ -15,9 +15,7 @@ class WhiteLabelDomainBase extends VOString({
 	maxLength: 500,
 	minLength: 1,
 }) {}
-export class WhiteLabelDomain extends VOOptional(WhiteLabelDomainBase, [
-	null,
-]) {}
+export class WhiteLabelDomain extends VOOptional(WhiteLabelDomainBase, [null]) {}
 class HandleBase extends VOString({
 	trim: true,
 	maxLength: 50,

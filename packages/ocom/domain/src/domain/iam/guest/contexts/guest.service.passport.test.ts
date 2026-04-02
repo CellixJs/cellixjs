@@ -8,9 +8,7 @@ import { GuestServicePassport } from './guest.service.passport.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/guest.service.passport.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/guest.service.passport.feature'));
 
 test.for(feature, ({ Scenario }) => {
 	let passport: GuestServicePassport;
@@ -18,31 +16,28 @@ test.for(feature, ({ Scenario }) => {
 	let visa: ServiceVisa;
 	let permissionResult: boolean;
 
-	Scenario(
-		'Creating GuestServicePassport and getting visa for service',
-		({ When, Then, And }) => {
-			When('I create a GuestServicePassport', () => {
-				passport = new GuestServicePassport();
-			});
+	Scenario('Creating GuestServicePassport and getting visa for service', ({ When, Then, And }) => {
+		When('I create a GuestServicePassport', () => {
+			passport = new GuestServicePassport();
+		});
 
-			And('I have a service entity reference', () => {
-				serviceRef = { id: 'service-123' } as ServiceEntityReference;
-			});
+		And('I have a service entity reference', () => {
+			serviceRef = { id: 'service-123' } as ServiceEntityReference;
+		});
 
-			And('I call forService with the service reference', () => {
-				visa = passport.forService(serviceRef);
-			});
+		And('I call forService with the service reference', () => {
+			visa = passport.forService(serviceRef);
+		});
 
-			Then('it should return a ServiceVisa', () => {
-				expect(visa).toBeDefined();
-				expect(typeof visa.determineIf).toBe('function');
-			});
+		Then('it should return a ServiceVisa', () => {
+			expect(visa).toBeDefined();
+			expect(typeof visa.determineIf).toBe('function');
+		});
 
-			And('the visa should deny all permissions', () => {
-				expect(visa.determineIf(() => true)).toBe(false);
-			});
-		},
-	);
+		And('the visa should deny all permissions', () => {
+			expect(visa.determineIf(() => true)).toBe(false);
+		});
+	});
 
 	Scenario('Using visa to determine permissions', ({ When, Then, And }) => {
 		When('I create a GuestServicePassport', () => {

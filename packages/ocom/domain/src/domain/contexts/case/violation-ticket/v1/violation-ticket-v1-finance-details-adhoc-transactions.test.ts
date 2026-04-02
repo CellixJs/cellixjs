@@ -4,22 +4,14 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { expect, vi } from 'vitest';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
-import {
-	ViolationTicketV1FinanceDetailsAdhocTransactions,
-	type ViolationTicketV1FinanceDetailsAdhocTransactionsProps,
-} from './violation-ticket-v1-finance-details-adhoc-transactions.ts';
+import { ViolationTicketV1FinanceDetailsAdhocTransactions, type ViolationTicketV1FinanceDetailsAdhocTransactionsProps } from './violation-ticket-v1-finance-details-adhoc-transactions.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-approval.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-finance-reference.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReferenceEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-transaction-reference.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(
-		__dirname,
-		'features/violation-ticket-v1-finance-details-adhoc-transactions.feature',
-	),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/violation-ticket-v1-finance-details-adhoc-transactions.feature'));
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let adhocTransaction: ViolationTicketV1FinanceDetailsAdhocTransactions;
@@ -58,72 +50,57 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		};
 	});
 
-	Scenario(
-		'Creating a new ViolationTicketV1FinanceDetailsAdhocTransactions instance',
-		({ When, Then, And }) => {
-			When(
-				'I create a new ViolationTicketV1FinanceDetailsAdhocTransactions with valid properties',
-				() => {
-					adhocTransaction =
-						new ViolationTicketV1FinanceDetailsAdhocTransactions(props, visa);
-				},
-			);
+	Scenario('Creating a new ViolationTicketV1FinanceDetailsAdhocTransactions instance', ({ When, Then, And }) => {
+		When('I create a new ViolationTicketV1FinanceDetailsAdhocTransactions with valid properties', () => {
+			adhocTransaction = new ViolationTicketV1FinanceDetailsAdhocTransactions(props, visa);
+		});
 
-			Then('the instance should be created successfully', () => {
-				expect(adhocTransaction).toBeDefined();
-				expect(adhocTransaction.id).toBe('adhoc-transaction-123');
-			});
+		Then('the instance should be created successfully', () => {
+			expect(adhocTransaction).toBeDefined();
+			expect(adhocTransaction.id).toBe('adhoc-transaction-123');
+		});
 
-			And('the amount should be set correctly', () => {
-				expect(adhocTransaction.amount).toBe(100.5);
-			});
+		And('the amount should be set correctly', () => {
+			expect(adhocTransaction.amount).toBe(100.5);
+		});
 
-			And('the requested by should be set correctly', () => {
-				expect(adhocTransaction.requestedBy).toBe('member-123');
-			});
+		And('the requested by should be set correctly', () => {
+			expect(adhocTransaction.requestedBy).toBe('member-123');
+		});
 
-			And('the requested on should be set correctly', () => {
-				expect(adhocTransaction.requestedOn).toEqual(new Date('2023-01-01'));
-			});
+		And('the requested on should be set correctly', () => {
+			expect(adhocTransaction.requestedOn).toEqual(new Date('2023-01-01'));
+		});
 
-			And('the reason should be set correctly', () => {
-				expect(adhocTransaction.reason).toBe('Test reason');
-			});
+		And('the reason should be set correctly', () => {
+			expect(adhocTransaction.reason).toBe('Test reason');
+		});
 
-			And('the approval should be set correctly', () => {
-				expect(adhocTransaction.approval).toBe(approval);
-			});
+		And('the approval should be set correctly', () => {
+			expect(adhocTransaction.approval).toBe(approval);
+		});
 
-			And('the transaction reference should be set correctly', () => {
-				expect(adhocTransaction.transactionReference).toBe(
-					transactionReference,
-				);
-			});
+		And('the transaction reference should be set correctly', () => {
+			expect(adhocTransaction.transactionReference).toBe(transactionReference);
+		});
 
-			And('the finance reference should be set correctly', () => {
-				expect(adhocTransaction.financeReference).toBe(financeReference);
-			});
+		And('the finance reference should be set correctly', () => {
+			expect(adhocTransaction.financeReference).toBe(financeReference);
+		});
 
-			And('the created at should be set correctly', () => {
-				expect(adhocTransaction.createdAt).toEqual(new Date('2023-01-01'));
-			});
+		And('the created at should be set correctly', () => {
+			expect(adhocTransaction.createdAt).toEqual(new Date('2023-01-01'));
+		});
 
-			And('the updated at should be set correctly', () => {
-				expect(adhocTransaction.updatedAt).toEqual(new Date('2023-01-01'));
-			});
-		},
-	);
+		And('the updated at should be set correctly', () => {
+			expect(adhocTransaction.updatedAt).toEqual(new Date('2023-01-01'));
+		});
+	});
 
 	Scenario('Setting amount with proper permissions', ({ When, Then, And }) => {
-		When(
-			'I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance',
-			() => {
-				adhocTransaction = new ViolationTicketV1FinanceDetailsAdhocTransactions(
-					props,
-					visa,
-				);
-			},
-		);
+		When('I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance', () => {
+			adhocTransaction = new ViolationTicketV1FinanceDetailsAdhocTransactions(props, visa);
+		});
 
 		And('I have proper permissions to modify', () => {
 			vi.mocked(visa.determineIf).mockReturnValue(true);
@@ -139,15 +116,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	});
 
 	Scenario('Setting amount without permissions', ({ When, Then, And }) => {
-		When(
-			'I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance',
-			() => {
-				adhocTransaction = new ViolationTicketV1FinanceDetailsAdhocTransactions(
-					props,
-					visa,
-				);
-			},
-		);
+		When('I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance', () => {
+			adhocTransaction = new ViolationTicketV1FinanceDetailsAdhocTransactions(props, visa);
+		});
 
 		And('I do not have proper permissions to modify', () => {
 			vi.mocked(visa.determineIf).mockReturnValue(false);
@@ -164,67 +135,47 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Setting requested by with proper permissions',
-		({ When, Then, And }) => {
-			When(
-				'I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance',
-				() => {
-					adhocTransaction =
-						new ViolationTicketV1FinanceDetailsAdhocTransactions(props, visa);
-				},
-			);
+	Scenario('Setting requested by with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance', () => {
+			adhocTransaction = new ViolationTicketV1FinanceDetailsAdhocTransactions(props, visa);
+		});
 
-			And('I have proper permissions to modify', () => {
-				vi.mocked(visa.determineIf).mockReturnValue(true);
-			});
+		And('I have proper permissions to modify', () => {
+			vi.mocked(visa.determineIf).mockReturnValue(true);
+		});
 
-			And('I set the requested by', () => {
-				adhocTransaction.requestedBy = 'member-456';
-			});
+		And('I set the requested by', () => {
+			adhocTransaction.requestedBy = 'member-456';
+		});
 
-			Then('the requested by should be updated', () => {
-				expect(adhocTransaction.requestedBy).toBe('member-456');
-			});
-		},
-	);
+		Then('the requested by should be updated', () => {
+			expect(adhocTransaction.requestedBy).toBe('member-456');
+		});
+	});
 
-	Scenario(
-		'Setting requested on with proper permissions',
-		({ When, Then, And }) => {
-			When(
-				'I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance',
-				() => {
-					adhocTransaction =
-						new ViolationTicketV1FinanceDetailsAdhocTransactions(props, visa);
-				},
-			);
+	Scenario('Setting requested on with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance', () => {
+			adhocTransaction = new ViolationTicketV1FinanceDetailsAdhocTransactions(props, visa);
+		});
 
-			And('I have proper permissions to modify', () => {
-				vi.mocked(visa.determineIf).mockReturnValue(true);
-			});
+		And('I have proper permissions to modify', () => {
+			vi.mocked(visa.determineIf).mockReturnValue(true);
+		});
 
-			And('I set the requested on', () => {
-				const newDate = new Date('2023-02-01');
-				adhocTransaction.requestedOn = newDate;
-			});
+		And('I set the requested on', () => {
+			const newDate = new Date('2023-02-01');
+			adhocTransaction.requestedOn = newDate;
+		});
 
-			Then('the requested on should be updated', () => {
-				expect(adhocTransaction.requestedOn).toEqual(new Date('2023-02-01'));
-			});
-		},
-	);
+		Then('the requested on should be updated', () => {
+			expect(adhocTransaction.requestedOn).toEqual(new Date('2023-02-01'));
+		});
+	});
 
 	Scenario('Setting reason with proper permissions', ({ When, Then, And }) => {
-		When(
-			'I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance',
-			() => {
-				adhocTransaction = new ViolationTicketV1FinanceDetailsAdhocTransactions(
-					props,
-					visa,
-				);
-			},
-		);
+		When('I have a ViolationTicketV1FinanceDetailsAdhocTransactions instance', () => {
+			adhocTransaction = new ViolationTicketV1FinanceDetailsAdhocTransactions(props, visa);
+		});
 
 		And('I have proper permissions to modify', () => {
 			vi.mocked(visa.determineIf).mockReturnValue(true);

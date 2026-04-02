@@ -5,11 +5,7 @@ import { VendorUserCreatedEvent, type VendorUserCreatedProps } from '../../../ev
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './vendor-user.value-objects.ts';
-import {
-	VendorUserPersonalInformation,
-	type VendorUserPersonalInformationEntityReference,
-	type VendorUserPersonalInformationProps,
-} from './vendor-user-personal-information.ts';
+import { VendorUserPersonalInformation, type VendorUserPersonalInformationEntityReference, type VendorUserPersonalInformationProps } from './vendor-user-personal-information.ts';
 
 export interface VendorUserProps extends DomainEntityProps {
 	readonly personalInformation: VendorUserPersonalInformationProps;
@@ -25,15 +21,11 @@ export interface VendorUserProps extends DomainEntityProps {
 	readonly schemaVersion: string;
 }
 
-export interface VendorUserEntityReference
-	extends Readonly<Omit<VendorUserProps, 'personalInformation'>> {
+export interface VendorUserEntityReference extends Readonly<Omit<VendorUserProps, 'personalInformation'>> {
 	readonly personalInformation: VendorUserPersonalInformationEntityReference;
 }
 
-export class VendorUser<props extends VendorUserProps>
-	extends AggregateRoot<props, Passport>
-	implements VendorUserEntityReference
-{
+export class VendorUser<props extends VendorUserProps> extends AggregateRoot<props, Passport> implements VendorUserEntityReference {
 	private isNew: boolean = false;
 	private readonly visa: UserVisa;
 
@@ -42,13 +34,7 @@ export class VendorUser<props extends VendorUserProps>
 		this.visa = passport.user.forVendorUser(this);
 	}
 
-	public static getNewUser<props extends VendorUserProps>(
-		newProps: props,
-		passport: Passport,
-		externalId: string,
-		lastName: string,
-		restOfName?: string,
-	): VendorUser<props> {
+	public static getNewUser<props extends VendorUserProps>(newProps: props, passport: Passport, externalId: string, lastName: string, restOfName?: string): VendorUser<props> {
 		newProps.externalId = externalId;
 		const user = new VendorUser(newProps, passport);
 		user.markAsNew();
@@ -75,21 +61,12 @@ export class VendorUser<props extends VendorUserProps>
 	}
 
 	private validateVisa(): void {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageVendorUsers || permissions.isEditingOwnAccount,
-			)
-		) {
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageVendorUsers || permissions.isEditingOwnAccount)) {
 			throw new PermissionError('Unauthorized');
 		}
 	}
 	private validateVisaElevated(): void {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf((permissions) => permissions.canManageVendorUsers)
-		) {
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageVendorUsers)) {
 			throw new Error('Unauthorized');
 		}
 	}
@@ -98,7 +75,7 @@ export class VendorUser<props extends VendorUserProps>
 		return new VendorUserPersonalInformation(this.props.personalInformation, this.visa);
 	}
 
-	get userType(): string  {
+	get userType(): string {
 		return this.props.userType;
 	}
 
@@ -114,9 +91,7 @@ export class VendorUser<props extends VendorUserProps>
 	}
 	set displayName(displayName: string) {
 		this.validateVisa();
-		this.props.displayName = new ValueObjects.DisplayName(
-			displayName,
-		).valueOf();
+		this.props.displayName = new ValueObjects.DisplayName(displayName).valueOf();
 	}
 
 	get externalId(): string {

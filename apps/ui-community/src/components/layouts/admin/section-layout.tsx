@@ -14,10 +14,7 @@ const LocalSettingsKeys = {
 	SidebarCollapsed: 'SidebarCollapsed',
 } as const;
 
-const handleToggler = (
-	isExpanded: boolean,
-	setIsExpanded: (value: boolean) => void,
-) => {
+const handleToggler = (isExpanded: boolean, setIsExpanded: (value: boolean) => void) => {
 	const newValue = !isExpanded;
 	setIsExpanded(newValue);
 	if (newValue) {
@@ -34,23 +31,24 @@ interface AdminSectionLayoutProps {
 
 export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 	const params = useParams();
-	const sidebarCollapsed = localStorage.getItem(
-		LocalSettingsKeys.SidebarCollapsed,
-	);
+	const sidebarCollapsed = localStorage.getItem(LocalSettingsKeys.SidebarCollapsed);
 	const [isExpanded, setIsExpanded] = useState(!sidebarCollapsed);
 	const {
 		token: { colorBgContainer },
 	} = theme.useToken();
 
-    const menuComponentProps: MenuComponentProps = {
-        pageLayouts: props.pageLayouts,
-        memberData: props.memberData,
-        theme: "light",
-        mode: "inline",
-    }
+	const menuComponentProps: MenuComponentProps = {
+		pageLayouts: props.pageLayouts,
+		memberData: props.memberData,
+		theme: 'light',
+		mode: 'inline',
+	};
 
 	return (
-		<Layout className="site-layout" style={{ minHeight: '100vh' }}>
+		<Layout
+			className="site-layout"
+			style={{ minHeight: '100vh' }}
+		>
 			<Header
 				style={{
 					backgroundColor: colorBgContainer,
@@ -64,15 +62,18 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 						gap: '10px',
 					}}
 				>
-					<div style={{ display: 'flex' }} className="allowBoxShadow">
+					<div
+						style={{ display: 'flex' }}
+						className="allowBoxShadow"
+					>
 						<CommunitiesDropdownContainer
-                            // biome-ignore lint:useLiteralKeys
+							// biome-ignore lint:useLiteralKeys
 							data={{ id: params['communityId'] }}
 						/>
 					</div>
 					<Link
 						className="allowBoxShadow"
-                        // biome-ignore lint:useLiteralKeys
+						// biome-ignore lint:useLiteralKeys
 						to={`/community/${params['communityId']}/member/${params['memberId']}`}
 					>
 						View Member Site

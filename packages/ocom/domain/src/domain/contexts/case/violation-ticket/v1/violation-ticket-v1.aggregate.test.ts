@@ -9,17 +9,12 @@ import { expect, vi } from 'vitest';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { Passport } from '../../../passport.ts';
 import * as ActivityDetailValueObjects from './violation-ticket-v1-activity-detail.value-objects.ts';
-import {
-    ViolationTicketV1,
-    type ViolationTicketV1Props,
-} from './violation-ticket-v1.aggregate.ts';
+import { ViolationTicketV1, type ViolationTicketV1Props } from './violation-ticket-v1.aggregate.ts';
 import * as ValueObjects from './violation-ticket-v1.value-objects.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/violation-ticket-v1.aggregate.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/violation-ticket-v1.aggregate.feature'));
 
 // Mock PropArray implementation for testing
 class MockPropArray<T extends DomainEntityProps> implements PropArray<T> {
@@ -165,15 +160,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	Scenario('Setting status to an invalid value', ({ When, Then }) => {
 		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
-		When(
-			'I have a ViolationTicketV1 instance with system account permissions',
-			() => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
-			},
-		);
+		When('I have a ViolationTicketV1 instance with system account permissions', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
+			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 		When('I set the status to "InvalidStatus"', () => {
 			expect(() => {
 				violationTicket.status = 'InvalidStatus';
@@ -184,34 +176,24 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Adding a status transition to an invalid status',
-		({ When, Then }) => {
-			let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
-			When(
-				'I have a ViolationTicketV1 instance with status "Draft" and proper permissions',
-				() => {
-					props.status = ValueObjects.StatusCodes.Draft;
-					vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-						determineIf: vi.fn(() => false),
-					});
-					violationTicket = new ViolationTicketV1(props, passport);
-				},
-			);
-			When('I add a status transition to "Paid"', () => {
-				expect(() => {
-					violationTicket.requestAddStatusTransition(
-						new ValueObjects.StatusCode(ValueObjects.StatusCodes.Paid),
-						'Invalid transition',
-						memberRef,
-					);
-				}).toThrow(PermissionError);
+	Scenario('Adding a status transition to an invalid status', ({ When, Then }) => {
+		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
+		When('I have a ViolationTicketV1 instance with status "Draft" and proper permissions', () => {
+			props.status = ValueObjects.StatusCodes.Draft;
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => false),
 			});
-			Then('a PermissionError should be thrown', () => {
-				// Already checked above
-			});
-		},
-	);
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
+		When('I add a status transition to "Paid"', () => {
+			expect(() => {
+				violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Paid), 'Invalid transition', memberRef);
+			}).toThrow(PermissionError);
+		});
+		Then('a PermissionError should be thrown', () => {
+			// Already checked above
+		});
+	});
 
 	Scenario('Setting title to an empty string', ({ When, Then }) => {
 		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
@@ -283,15 +265,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	Scenario('Attempting to call requestDelete twice', ({ When, Then, And }) => {
 		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
-		When(
-			'I have a ViolationTicketV1 instance with system account permissions',
-			() => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
-			},
-		);
+		When('I have a ViolationTicketV1 instance with system account permissions', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
+			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 		When('I request delete', () => {
 			violationTicket.requestDelete();
 		});
@@ -305,15 +284,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	Scenario('Calling onSave after deletion', ({ When, Then, And }) => {
 		let violationTicket: ViolationTicketV1<ViolationTicketV1Props>;
-		When(
-			'I have a ViolationTicketV1 instance with system account permissions',
-			() => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
-			},
-		);
+		When('I have a ViolationTicketV1 instance with system account permissions', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
+			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 		When('I request delete', () => {
 			violationTicket.requestDelete();
 		});
@@ -325,68 +301,54 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(violationTicket.isDeleted).toBe(true);
 		});
 	});
-	Scenario(
-		'Creating a new ViolationTicketV1 instance',
-		({ When, Then, And }) => {
-			When('I create a new ViolationTicketV1 with valid properties', () => {
-				violationTicket = ViolationTicketV1.getNewInstance(
-					props,
-					passport,
-					'Test Title',
-					'Test Description',
-					'community-123',
-					'requestor-123',
-					100,
-				);
-			});
+	Scenario('Creating a new ViolationTicketV1 instance', ({ When, Then, And }) => {
+		When('I create a new ViolationTicketV1 with valid properties', () => {
+			violationTicket = ViolationTicketV1.getNewInstance(props, passport, 'Test Title', 'Test Description', 'community-123', 'requestor-123', 100);
+		});
 
-			Then('the instance should be created successfully', () => {
-				expect(violationTicket).toBeDefined();
-				expect(violationTicket.id).toBe('test-id');
-			});
+		Then('the instance should be created successfully', () => {
+			expect(violationTicket).toBeDefined();
+			expect(violationTicket.id).toBe('test-id');
+		});
 
-			And('the status should be "Draft"', () => {
-				expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Draft);
-			});
+		And('the status should be "Draft"', () => {
+			expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Draft);
+		});
 
-			And('the priority should be 5', () => {
-				expect(violationTicket.priority).toBe(5);
-			});
+		And('the priority should be 5', () => {
+			expect(violationTicket.priority).toBe(5);
+		});
 
-			And('a created event should be added', () => {
-				// Check that integration event was added
-				expect(violationTicket).toBeDefined();
-			});
-		},
-	);
+		And('a created event should be added', () => {
+			// Check that integration event was added
+			expect(violationTicket).toBeDefined();
+		});
+	});
 
-	Scenario(
-		'Requesting delete with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				violationTicket = new ViolationTicketV1(props, passport);
-			});
+	Scenario('Requesting delete with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have system account permissions', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
+		And('I have system account permissions', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+		});
 
-			And('I request delete', () => {
-				violationTicket.requestDelete();
-			});
+		And('I request delete', () => {
+			violationTicket.requestDelete();
+		});
 
-			Then('the ticket should be marked as deleted', () => {
-				expect(violationTicket.isDeleted).toBe(true);
-			});
+		Then('the ticket should be marked as deleted', () => {
+			expect(violationTicket.isDeleted).toBe(true);
+		});
 
-			And('a deleted event should be added', () => {
-				// Check that integration event was added
-				expect(violationTicket).toBeDefined();
-			});
-		},
-	);
+		And('a deleted event should be added', () => {
+			// Check that integration event was added
+			expect(violationTicket).toBeDefined();
+		});
+	});
 
 	Scenario('Requesting delete without permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -410,61 +372,51 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Adding status update with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Adding status update with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have proper permissions to update', () => {
-				// Already set
-			});
+		And('I have proper permissions to update', () => {
+			// Already set
+		});
 
-			And('I add a status update', () => {
-				violationTicket.requestAddStatusUpdate('Test update', memberRef);
-			});
+		And('I add a status update', () => {
+			violationTicket.requestAddStatusUpdate('Test update', memberRef);
+		});
 
-			Then('a new activity detail should be created', () => {
-				expect(violationTicket.activityLog.length).toBe(1);
-			});
+		Then('a new activity detail should be created', () => {
+			expect(violationTicket.activityLog.length).toBe(1);
+		});
 
-			And('the activity type should be "Updated"', () => {
-				expect(violationTicket.activityLog[0]?.activityType).toBe(
-					ActivityDetailValueObjects.ActivityTypeCodes.Updated,
-				);
-			});
-		},
-	);
+		And('the activity type should be "Updated"', () => {
+			expect(violationTicket.activityLog[0]?.activityType).toBe(ActivityDetailValueObjects.ActivityTypeCodes.Updated);
+		});
+	});
 
-	Scenario(
-		'Adding status update without permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => false),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Adding status update without permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => false),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I do not have proper permissions to update', () => {
-				// Already set
-			});
+		And('I do not have proper permissions to update', () => {
+			// Already set
+		});
 
-			And('I add a status update', () => {
-				expect(() =>
-					violationTicket.requestAddStatusUpdate('Test update', memberRef),
-				).toThrow(PermissionError);
-			});
+		And('I add a status update', () => {
+			expect(() => violationTicket.requestAddStatusUpdate('Test update', memberRef)).toThrow(PermissionError);
+		});
 
-			Then('a PermissionError should be thrown', () => {
-				// Already checked
-			});
-		},
-	);
+		Then('a PermissionError should be thrown', () => {
+			// Already checked
+		});
+	});
 
 	Scenario('Setting title with proper permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -489,15 +441,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	Scenario('Setting communityId on new instance', ({ When, Then, And }) => {
 		When('I create a new ViolationTicketV1 instance', () => {
-			violationTicket = ViolationTicketV1.getNewInstance(
-				props,
-				passport,
-				'Test Title',
-				'Test Description',
-				'community-123',
-				'requestor-123',
-				100,
-			);
+			violationTicket = ViolationTicketV1.getNewInstance(props, passport, 'Test Title', 'Test Description', 'community-123', 'requestor-123', 100);
 		});
 
 		And('I set the communityId', () => {
@@ -511,48 +455,42 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Setting communityId on existing instance',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				violationTicket = new ViolationTicketV1(props, passport);
-			});
+	Scenario('Setting communityId on existing instance', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I set the communityId', () => {
-				expect(() => {
-					violationTicket.communityId = 'new-community-123';
-				}).toThrow(PermissionError);
-			});
+		And('I set the communityId', () => {
+			expect(() => {
+				violationTicket.communityId = 'new-community-123';
+			}).toThrow(PermissionError);
+		});
 
-			Then('a PermissionError should be thrown', () => {
-				// Already checked
-			});
-		},
-	);
+		Then('a PermissionError should be thrown', () => {
+			// Already checked
+		});
+	});
 
-	Scenario(
-		'Setting propertyId with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Setting propertyId with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have proper permissions to set propertyId', () => {
-				// Already set
-			});
+		And('I have proper permissions to set propertyId', () => {
+			// Already set
+		});
 
-			And('I set the propertyId', () => {
-				violationTicket.propertyId = 'new-property-123';
-			});
+		And('I set the propertyId', () => {
+			violationTicket.propertyId = 'new-property-123';
+		});
 
-			Then('the propertyId should be updated', () => {
-				expect(violationTicket.propertyId).toBe('new-property-123');
-			});
-		},
-	);
+		Then('the propertyId should be updated', () => {
+			expect(violationTicket.propertyId).toBe('new-property-123');
+		});
+	});
 
 	Scenario('Setting propertyId without permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -577,79 +515,70 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Setting assignedToId with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Setting assignedToId with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have proper permissions to assign', () => {
-				// Already set
+		And('I have proper permissions to assign', () => {
+			// Already set
+		});
+
+		And('I set the assignedToId', () => {
+			violationTicket.assignedToId = 'new-assignee-123';
+		});
+
+		Then('the assignedToId should be updated', () => {
+			expect(violationTicket.assignedToId).toBe('new-assignee-123');
+		});
+	});
+
+	Scenario('Setting assignedToId without permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => false),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I set the assignedToId', () => {
+		And('I do not have proper permissions to assign', () => {
+			// Already set
+		});
+
+		And('I set the assignedToId', () => {
+			expect(() => {
 				violationTicket.assignedToId = 'new-assignee-123';
-			});
+			}).toThrow(PermissionError);
+		});
 
-			Then('the assignedToId should be updated', () => {
-				expect(violationTicket.assignedToId).toBe('new-assignee-123');
-			});
-		},
-	);
+		Then('a PermissionError should be thrown', () => {
+			// Already checked
+		});
+	});
 
-	Scenario(
-		'Setting assignedToId without permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => false),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Setting serviceId with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I do not have proper permissions to assign', () => {
-				// Already set
-			});
+		And('I have proper permissions to set serviceId', () => {
+			// Already set
+		});
 
-			And('I set the assignedToId', () => {
-				expect(() => {
-					violationTicket.assignedToId = 'new-assignee-123';
-				}).toThrow(PermissionError);
-			});
+		And('I set the serviceId', () => {
+			violationTicket.serviceId = 'new-service-123';
+		});
 
-			Then('a PermissionError should be thrown', () => {
-				// Already checked
-			});
-		},
-	);
-
-	Scenario(
-		'Setting serviceId with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
-			});
-
-			And('I have proper permissions to set serviceId', () => {
-				// Already set
-			});
-
-			And('I set the serviceId', () => {
-				violationTicket.serviceId = 'new-service-123';
-			});
-
-			Then('the serviceId should be updated', () => {
-				expect(violationTicket.serviceId).toBe('new-service-123');
-			});
-		},
-	);
+		Then('the serviceId should be updated', () => {
+			expect(violationTicket.serviceId).toBe('new-service-123');
+		});
+	});
 
 	Scenario('Setting serviceId without permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -674,29 +603,26 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Setting description with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Setting description with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have proper permissions to set description', () => {
-				// Already set
-			});
+		And('I have proper permissions to set description', () => {
+			// Already set
+		});
 
-			And('I set the description', () => {
-				violationTicket.description = 'New Description';
-			});
+		And('I set the description', () => {
+			violationTicket.description = 'New Description';
+		});
 
-			Then('the description should be updated', () => {
-				expect(violationTicket.description).toBe('New Description');
-			});
-		},
-	);
+		Then('the description should be updated', () => {
+			expect(violationTicket.description).toBe('New Description');
+		});
+	});
 
 	Scenario('Setting description without permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -721,29 +647,26 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Setting ticketType with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Setting ticketType with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have proper permissions to set ticketType', () => {
-				// Already set
-			});
+		And('I have proper permissions to set ticketType', () => {
+			// Already set
+		});
 
-			And('I set the ticketType', () => {
-				violationTicket.ticketType = 'Parking';
-			});
+		And('I set the ticketType', () => {
+			violationTicket.ticketType = 'Parking';
+		});
 
-			Then('the ticketType should be updated', () => {
-				expect(violationTicket.ticketType).toBe('Parking');
-			});
-		},
-	);
+		Then('the ticketType should be updated', () => {
+			expect(violationTicket.ticketType).toBe('Parking');
+		});
+	});
 
 	Scenario('Setting ticketType without permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -768,29 +691,26 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Setting status with system account permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Setting status with system account permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have system account permissions', () => {
-				// Already set
-			});
+		And('I have system account permissions', () => {
+			// Already set
+		});
 
-			And('I set the status', () => {
-				violationTicket.status = ValueObjects.StatusCodes.Submitted;
-			});
+		And('I set the status', () => {
+			violationTicket.status = ValueObjects.StatusCodes.Submitted;
+		});
 
-			Then('the status should be updated', () => {
-				expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Submitted);
-			});
-		},
-	);
+		Then('the status should be updated', () => {
+			expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Submitted);
+		});
+	});
 
 	Scenario('Setting status without permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -815,29 +735,26 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Setting priority with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Setting priority with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have proper permissions to set priority', () => {
-				// Already set
-			});
+		And('I have proper permissions to set priority', () => {
+			// Already set
+		});
 
-			And('I set the priority', () => {
-				violationTicket.priority = 3;
-			});
+		And('I set the priority', () => {
+			violationTicket.priority = 3;
+		});
 
-			Then('the priority should be updated', () => {
-				expect(violationTicket.priority).toBe(3);
-			});
-		},
-	);
+		Then('the priority should be updated', () => {
+			expect(violationTicket.priority).toBe(3);
+		});
+	});
 
 	Scenario('Setting priority without permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -906,30 +823,27 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Setting lastIndexed with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Setting lastIndexed with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have proper permissions to set lastIndexed', () => {
-				// Already set
-			});
+		And('I have proper permissions to set lastIndexed', () => {
+			// Already set
+		});
 
-			And('I set the lastIndexed', () => {
-				const testDate = new Date();
-				violationTicket.lastIndexed = testDate;
-			});
+		And('I set the lastIndexed', () => {
+			const testDate = new Date();
+			violationTicket.lastIndexed = testDate;
+		});
 
-			Then('the lastIndexed should be updated', () => {
-				expect(violationTicket.lastIndexed).toBeDefined();
-			});
-		},
-	);
+		Then('the lastIndexed should be updated', () => {
+			expect(violationTicket.lastIndexed).toBeDefined();
+		});
+	});
 
 	Scenario('Setting lastIndexed without permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -954,59 +868,50 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Setting updateIndexFailedDate with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Setting updateIndexFailedDate with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have proper permissions to set updateIndexFailedDate', () => {
-				// Already set
+		And('I have proper permissions to set updateIndexFailedDate', () => {
+			// Already set
+		});
+
+		And('I set the updateIndexFailedDate', () => {
+			const testDate = new Date();
+			violationTicket.updateIndexFailedDate = testDate;
+		});
+
+		Then('the updateIndexFailedDate should be updated', () => {
+			expect(violationTicket.updateIndexFailedDate).toBeDefined();
+		});
+	});
+
+	Scenario('Setting updateIndexFailedDate without permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => false),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I set the updateIndexFailedDate', () => {
-				const testDate = new Date();
-				violationTicket.updateIndexFailedDate = testDate;
-			});
+		And('I do not have proper permissions to set updateIndexFailedDate', () => {
+			// Already set
+		});
 
-			Then('the updateIndexFailedDate should be updated', () => {
-				expect(violationTicket.updateIndexFailedDate).toBeDefined();
-			});
-		},
-	);
+		And('I set the updateIndexFailedDate', () => {
+			expect(() => {
+				violationTicket.updateIndexFailedDate = new Date();
+			}).toThrow(PermissionError);
+		});
 
-	Scenario(
-		'Setting updateIndexFailedDate without permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => false),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
-			});
-
-			And(
-				'I do not have proper permissions to set updateIndexFailedDate',
-				() => {
-					// Already set
-				},
-			);
-
-			And('I set the updateIndexFailedDate', () => {
-				expect(() => {
-					violationTicket.updateIndexFailedDate = new Date();
-				}).toThrow(PermissionError);
-			});
-
-			Then('a PermissionError should be thrown', () => {
-				// Already checked
-			});
-		},
-	);
+		Then('a PermissionError should be thrown', () => {
+			// Already checked
+		});
+	});
 
 	Scenario('Setting title without permissions', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -1044,11 +949,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		And('I add a message', () => {
-			violationTicket.requestAddMessage(
-				'Test message',
-				'external',
-				'embedding-123',
-			);
+			violationTicket.requestAddMessage('Test message', 'external', 'embedding-123');
 		});
 
 		Then('a new message should be created', () => {
@@ -1069,13 +970,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		And('I add a message', () => {
-			expect(() =>
-				violationTicket.requestAddMessage(
-					'Test message',
-					'external',
-					'embedding-123',
-				),
-			).toThrow(PermissionError);
+			expect(() => violationTicket.requestAddMessage('Test message', 'external', 'embedding-123')).toThrow(PermissionError);
 		});
 
 		Then('a PermissionError should be thrown', () => {
@@ -1117,12 +1012,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		And('I add a photo', () => {
-			expect(() =>
-				violationTicket.requestAddPhoto(
-					'document-123',
-					'Test photo description',
-				),
-			).toThrow(PermissionError);
+			expect(() => violationTicket.requestAddPhoto('document-123', 'Test photo description')).toThrow(PermissionError);
 		});
 
 		Then('a PermissionError should be thrown', () => {
@@ -1130,38 +1020,31 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Adding valid status transition with proper permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance with status "Draft"', () => {
-				props.status = ValueObjects.StatusCodes.Draft;
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => true),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Adding valid status transition with proper permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance with status "Draft"', () => {
+			props.status = ValueObjects.StatusCodes.Draft;
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => true),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have proper permissions to change status', () => {
-				// Already set
-			});
+		And('I have proper permissions to change status', () => {
+			// Already set
+		});
 
-			And('I add a status transition to "Submitted"', () => {
-				violationTicket.requestAddStatusTransition(
-					new ValueObjects.StatusCode(ValueObjects.StatusCodes.Submitted),
-					'Status changed',
-					memberRef,
-				);
-			});
+		And('I add a status transition to "Submitted"', () => {
+			violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Submitted), 'Status changed', memberRef);
+		});
 
-			Then('the status should be updated', () => {
-				expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Submitted);
-			});
+		Then('the status should be updated', () => {
+			expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Submitted);
+		});
 
-			And('a new activity detail should be created', () => {
-				expect(violationTicket.activityLog.length).toBe(1);
-			});
-		},
-	);
+		And('a new activity detail should be created', () => {
+			expect(violationTicket.activityLog.length).toBe(1);
+		});
+	});
 
 	Scenario('Adding invalid status transition', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance with status "Draft"', () => {
@@ -1177,13 +1060,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		And('I add a status transition to "Closed"', () => {
-			expect(() =>
-				violationTicket.requestAddStatusTransition(
-					new ValueObjects.StatusCode(ValueObjects.StatusCodes.Closed),
-					'Invalid transition',
-					memberRef,
-				),
-			).toThrow(PermissionError);
+			expect(() => violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Closed), 'Invalid transition', memberRef)).toThrow(PermissionError);
 		});
 
 		Then('a PermissionError should be thrown', () => {
@@ -1191,36 +1068,27 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Adding status transition without permissions',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance with status "Draft"', () => {
-				props.status = ValueObjects.StatusCodes.Draft;
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn(() => false),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+	Scenario('Adding status transition without permissions', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance with status "Draft"', () => {
+			props.status = ValueObjects.StatusCodes.Draft;
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn(() => false),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I do not have proper permissions to change status', () => {
-				// Already set
-			});
+		And('I do not have proper permissions to change status', () => {
+			// Already set
+		});
 
-			And('I add a status transition to "Submitted"', () => {
-				expect(() =>
-					violationTicket.requestAddStatusTransition(
-						new ValueObjects.StatusCode(ValueObjects.StatusCodes.Submitted),
-						'Status changed',
-						memberRef,
-					),
-				).toThrow(PermissionError);
-			});
+		And('I add a status transition to "Submitted"', () => {
+			expect(() => violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Submitted), 'Status changed', memberRef)).toThrow(PermissionError);
+		});
 
-			Then('a PermissionError should be thrown', () => {
-				// Already checked
-			});
-		},
-	);
+		Then('a PermissionError should be thrown', () => {
+			// Already checked
+		});
+	});
 
 	Scenario('Requesting new activity detail', ({ When, Then, And }) => {
 		When('I have a ViolationTicketV1 instance', () => {
@@ -1228,8 +1096,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		And('I request a new activity detail', () => {
-			const activityDetail =
-				violationTicket.requestNewActivityDetail(memberRef);
+			const activityDetail = violationTicket.requestNewActivityDetail(memberRef);
 			expect(activityDetail).toBeDefined();
 		});
 
@@ -1353,12 +1220,11 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	//#region Additional Permission Coverage Tests
 
-	Scenario(
-		'Requesting delete with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Requesting delete with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true,
 						canCreateTickets: false,
@@ -1366,31 +1232,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I request delete', () => {
-				violationTicket.requestDelete();
-			});
+		And('I request delete', () => {
+			violationTicket.requestDelete();
+		});
 
-			Then('the ticket should be marked as deleted', () => {
-				expect(violationTicket.isDeleted).toBe(true);
-			});
-		},
-	);
+		Then('the ticket should be marked as deleted', () => {
+			expect(violationTicket.isDeleted).toBe(true);
+		});
+	});
 
-	Scenario(
-		'Setting propertyId with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting propertyId with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true,
 						canCreateTickets: false,
@@ -1398,31 +1263,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I set the propertyId', () => {
-				violationTicket.propertyId = 'new-property-456';
-			});
+		And('I set the propertyId', () => {
+			violationTicket.propertyId = 'new-property-456';
+		});
 
-			Then('the propertyId should be updated', () => {
-				expect(violationTicket.propertyId).toBe('new-property-456');
-			});
-		},
-	);
+		Then('the propertyId should be updated', () => {
+			expect(violationTicket.propertyId).toBe('new-property-456');
+		});
+	});
 
-	Scenario(
-		'Setting propertyId with canCreateTickets and isEditingOwnTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting propertyId with canCreateTickets and isEditingOwnTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: false,
 						canCreateTickets: true,
@@ -1430,31 +1294,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: true,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
-				// Already set
-			});
+		And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
+			// Already set
+		});
 
-			And('I set the propertyId', () => {
-				violationTicket.propertyId = 'property-789';
-			});
+		And('I set the propertyId', () => {
+			violationTicket.propertyId = 'property-789';
+		});
 
-			Then('the propertyId should be updated', () => {
-				expect(violationTicket.propertyId).toBe('property-789');
-			});
-		},
-	);
+		Then('the propertyId should be updated', () => {
+			expect(violationTicket.propertyId).toBe('property-789');
+		});
+	});
 
-	Scenario(
-		'Setting assignedToId with canAssignTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting assignedToId with canAssignTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: false,
 						canCreateTickets: false,
@@ -1462,31 +1325,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canAssignTickets permission', () => {
-				// Already set
-			});
+		And('I have canAssignTickets permission', () => {
+			// Already set
+		});
 
-			And('I set the assignedToId', () => {
-				violationTicket.assignedToId = 'assignee-999';
-			});
+		And('I set the assignedToId', () => {
+			violationTicket.assignedToId = 'assignee-999';
+		});
 
-			Then('the assignedToId should be updated', () => {
-				expect(violationTicket.assignedToId).toBe('assignee-999');
-			});
-		},
-	);
+		Then('the assignedToId should be updated', () => {
+			expect(violationTicket.assignedToId).toBe('assignee-999');
+		});
+	});
 
-	Scenario(
-		'Setting serviceId with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting serviceId with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true,
 						canCreateTickets: false,
@@ -1494,31 +1356,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I set the serviceId', () => {
-				violationTicket.serviceId = 'service-555';
-			});
+		And('I set the serviceId', () => {
+			violationTicket.serviceId = 'service-555';
+		});
 
-			Then('the serviceId should be updated', () => {
-				expect(violationTicket.serviceId).toBe('service-555');
-			});
-		},
-	);
+		Then('the serviceId should be updated', () => {
+			expect(violationTicket.serviceId).toBe('service-555');
+		});
+	});
 
-	Scenario(
-		'Setting serviceId with canCreateTickets and isEditingOwnTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting serviceId with canCreateTickets and isEditingOwnTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: false,
 						canCreateTickets: true,
@@ -1526,31 +1387,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: true,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
-				// Already set
-			});
+		And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
+			// Already set
+		});
 
-			And('I set the serviceId', () => {
-				violationTicket.serviceId = 'service-666';
-			});
+		And('I set the serviceId', () => {
+			violationTicket.serviceId = 'service-666';
+		});
 
-			Then('the serviceId should be updated', () => {
-				expect(violationTicket.serviceId).toBe('service-666');
-			});
-		},
-	);
+		Then('the serviceId should be updated', () => {
+			expect(violationTicket.serviceId).toBe('service-666');
+		});
+	});
 
-	Scenario(
-		'Setting title with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting title with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true,
 						canCreateTickets: false,
@@ -1558,31 +1418,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I set the title', () => {
-				violationTicket.title = 'Managed Title';
-			});
+		And('I set the title', () => {
+			violationTicket.title = 'Managed Title';
+		});
 
-			Then('the title should be updated', () => {
-				expect(violationTicket.title).toBe('Managed Title');
-			});
-		},
-	);
+		Then('the title should be updated', () => {
+			expect(violationTicket.title).toBe('Managed Title');
+		});
+	});
 
-	Scenario(
-		'Setting title with canCreateTickets and isEditingOwnTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting title with canCreateTickets and isEditingOwnTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: false,
 						canCreateTickets: true,
@@ -1590,31 +1449,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: true,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
-				// Already set
-			});
+		And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
+			// Already set
+		});
 
-			And('I set the title', () => {
-				violationTicket.title = 'Own Ticket Title';
-			});
+		And('I set the title', () => {
+			violationTicket.title = 'Own Ticket Title';
+		});
 
-			Then('the title should be updated', () => {
-				expect(violationTicket.title).toBe('Own Ticket Title');
-			});
-		},
-	);
+		Then('the title should be updated', () => {
+			expect(violationTicket.title).toBe('Own Ticket Title');
+		});
+	});
 
-	Scenario(
-		'Setting description with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting description with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true,
 						canCreateTickets: false,
@@ -1622,31 +1480,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I set the description', () => {
-				violationTicket.description = 'Managed description';
-			});
+		And('I set the description', () => {
+			violationTicket.description = 'Managed description';
+		});
 
-			Then('the description should be updated', () => {
-				expect(violationTicket.description).toBe('Managed description');
-			});
-		},
-	);
+		Then('the description should be updated', () => {
+			expect(violationTicket.description).toBe('Managed description');
+		});
+	});
 
-	Scenario(
-		'Setting description with canCreateTickets and isEditingOwnTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting description with canCreateTickets and isEditingOwnTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: false,
 						canCreateTickets: true,
@@ -1654,31 +1511,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: true,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
-				// Already set
-			});
+		And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
+			// Already set
+		});
 
-			And('I set the description', () => {
-				violationTicket.description = 'Own ticket description';
-			});
+		And('I set the description', () => {
+			violationTicket.description = 'Own ticket description';
+		});
 
-			Then('the description should be updated', () => {
-				expect(violationTicket.description).toBe('Own ticket description');
-			});
-		},
-	);
+		Then('the description should be updated', () => {
+			expect(violationTicket.description).toBe('Own ticket description');
+		});
+	});
 
-	Scenario(
-		'Setting ticketType with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting ticketType with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true,
 						canCreateTickets: false,
@@ -1686,31 +1542,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I set the ticketType', () => {
-				violationTicket.ticketType = 'Violation';
-			});
+		And('I set the ticketType', () => {
+			violationTicket.ticketType = 'Violation';
+		});
 
-			Then('the ticketType should be updated', () => {
-				expect(violationTicket.ticketType).toBe('Violation');
-			});
-		},
-	);
+		Then('the ticketType should be updated', () => {
+			expect(violationTicket.ticketType).toBe('Violation');
+		});
+	});
 
-	Scenario(
-		'Setting priority with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting priority with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true,
 						canCreateTickets: false,
@@ -1718,31 +1573,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I set the priority', () => {
-				violationTicket.priority = 4;
-			});
+		And('I set the priority', () => {
+			violationTicket.priority = 4;
+		});
 
-			Then('the priority should be updated', () => {
-				expect(violationTicket.priority).toBe(4);
-			});
-		},
-	);
+		Then('the priority should be updated', () => {
+			expect(violationTicket.priority).toBe(4);
+		});
+	});
 
-	Scenario(
-		'Setting priority with canCreateTickets and isEditingOwnTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting priority with canCreateTickets and isEditingOwnTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: false,
 						canCreateTickets: true,
@@ -1750,31 +1604,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: true,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
-				// Already set
-			});
+		And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
+			// Already set
+		});
 
-			And('I set the priority', () => {
-				violationTicket.priority = 3;
-			});
+		And('I set the priority', () => {
+			violationTicket.priority = 3;
+		});
 
-			Then('the priority should be updated', () => {
-				expect(violationTicket.priority).toBe(3);
-			});
-		},
-	);
+		Then('the priority should be updated', () => {
+			expect(violationTicket.priority).toBe(3);
+		});
+	});
 
-	Scenario(
-		'Adding message with canCreateTickets and isEditingOwnTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding message with canCreateTickets and isEditingOwnTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: true, // Required for message createdAt setter
 						canManageTickets: true, // Required for entity setters
 						canCreateTickets: true,
@@ -1782,35 +1635,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: true,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
-				// Already set
-			});
+		And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
+			// Already set
+		});
 
-			And('I add a message', () => {
-				violationTicket.requestAddMessage(
-					'Test message from creator',
-					'internal',
-					'embedding-456',
-				);
-			});
+		And('I add a message', () => {
+			violationTicket.requestAddMessage('Test message from creator', 'internal', 'embedding-456');
+		});
 
-			Then('a new message should be created', () => {
-				expect(violationTicket.messages.length).toBe(1);
-			});
-		},
-	);
+		Then('a new message should be created', () => {
+			expect(violationTicket.messages.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Adding message with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding message with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: true, // Required for message createdAt setter
 						canManageTickets: true, // Required for entity setters
 						canCreateTickets: false,
@@ -1818,35 +1666,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I add a message', () => {
-				violationTicket.requestAddMessage(
-					'Test message from manager',
-					'internal',
-					'embedding-789',
-				);
-			});
+		And('I add a message', () => {
+			violationTicket.requestAddMessage('Test message from manager', 'internal', 'embedding-789');
+		});
 
-			Then('a new message should be created', () => {
-				expect(violationTicket.messages.length).toBe(1);
-			});
-		},
-	);
+		Then('a new message should be created', () => {
+			expect(violationTicket.messages.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Adding message with canWorkOnTickets and isEditingAssignedTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding message with canWorkOnTickets and isEditingAssignedTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: true, // Required for message createdAt setter
 						canManageTickets: true, // Required for entity setters
 						canCreateTickets: false,
@@ -1854,35 +1697,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: true,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: true,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canWorkOnTickets and isEditingAssignedTicket permissions', () => {
-				// Already set
-			});
+		And('I have canWorkOnTickets and isEditingAssignedTicket permissions', () => {
+			// Already set
+		});
 
-			And('I add a message', () => {
-				violationTicket.requestAddMessage(
-					'Test message from worker',
-					'internal',
-					'embedding-999',
-				);
-			});
+		And('I add a message', () => {
+			violationTicket.requestAddMessage('Test message from worker', 'internal', 'embedding-999');
+		});
 
-			Then('a new message should be created', () => {
-				expect(violationTicket.messages.length).toBe(1);
-			});
-		},
-	);
+		Then('a new message should be created', () => {
+			expect(violationTicket.messages.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Adding photo with canCreateTickets and isEditingOwnTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding photo with canCreateTickets and isEditingOwnTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true, // Required for photo setters
 						canCreateTickets: true,
@@ -1890,34 +1728,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: true,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
-				// Already set
-			});
+		And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
+			// Already set
+		});
 
-			And('I add a photo', () => {
-				violationTicket.requestAddPhoto(
-					'document-456',
-					'Photo from creator',
-				);
-			});
+		And('I add a photo', () => {
+			violationTicket.requestAddPhoto('document-456', 'Photo from creator');
+		});
 
-			Then('a new photo should be created', () => {
-				expect(violationTicket.photos.length).toBe(1);
-			});
-		},
-	);
+		Then('a new photo should be created', () => {
+			expect(violationTicket.photos.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Adding photo with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding photo with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true, // Required for entity setters
 						canCreateTickets: false,
@@ -1925,34 +1759,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I add a photo', () => {
-				violationTicket.requestAddPhoto(
-					'document-789',
-					'Photo from manager',
-				);
-			});
+		And('I add a photo', () => {
+			violationTicket.requestAddPhoto('document-789', 'Photo from manager');
+		});
 
-			Then('a new photo should be created', () => {
-				expect(violationTicket.photos.length).toBe(1);
-			});
-		},
-	);
+		Then('a new photo should be created', () => {
+			expect(violationTicket.photos.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Adding status update with canCreateTickets and isEditingOwnTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding status update with canCreateTickets and isEditingOwnTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true, // Required for activity detail setters
 						canCreateTickets: true,
@@ -1960,34 +1790,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: true,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
-				// Already set
-			});
+		And('I have canCreateTickets and isEditingOwnTicket permissions', () => {
+			// Already set
+		});
 
-			And('I add a status update', () => {
-				violationTicket.requestAddStatusUpdate(
-					'Update from creator',
-					memberRef,
-				);
-			});
+		And('I add a status update', () => {
+			violationTicket.requestAddStatusUpdate('Update from creator', memberRef);
+		});
 
-			Then('a new activity detail should be created', () => {
-				expect(violationTicket.activityLog.length).toBe(1);
-			});
-		},
-	);
+		Then('a new activity detail should be created', () => {
+			expect(violationTicket.activityLog.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Adding status update with canManageTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding status update with canManageTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true,
 						canCreateTickets: false,
@@ -1995,34 +1821,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I add a status update', () => {
-				violationTicket.requestAddStatusUpdate(
-					'Update from manager',
-					memberRef,
-				);
-			});
+		And('I add a status update', () => {
+			violationTicket.requestAddStatusUpdate('Update from manager', memberRef);
+		});
 
-			Then('a new activity detail should be created', () => {
-				expect(violationTicket.activityLog.length).toBe(1);
-			});
-		},
-	);
+		Then('a new activity detail should be created', () => {
+			expect(violationTicket.activityLog.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Adding status update with canAssignTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding status update with canAssignTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true, // Required for activity detail setters
 						canCreateTickets: false,
@@ -2030,34 +1852,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canAssignTickets permission', () => {
-				// Already set
-			});
+		And('I have canAssignTickets permission', () => {
+			// Already set
+		});
 
-			And('I add a status update', () => {
-				violationTicket.requestAddStatusUpdate(
-					'Update from assignor',
-					memberRef,
-				);
-			});
+		And('I add a status update', () => {
+			violationTicket.requestAddStatusUpdate('Update from assignor', memberRef);
+		});
 
-			Then('a new activity detail should be created', () => {
-				expect(violationTicket.activityLog.length).toBe(1);
-			});
-		},
-	);
+		Then('a new activity detail should be created', () => {
+			expect(violationTicket.activityLog.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Setting hash with multiple permission combinations',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting hash with multiple permission combinations', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true,
 						canCreateTickets: false,
@@ -2065,31 +1883,30 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canManageTickets permission', () => {
-				// Already set
-			});
+		And('I have canManageTickets permission', () => {
+			// Already set
+		});
 
-			And('I set the hash', () => {
-				violationTicket.hash = 'new-hash-combo';
-			});
+		And('I set the hash', () => {
+			violationTicket.hash = 'new-hash-combo';
+		});
 
-			Then('the hash should be updated', () => {
-				expect(violationTicket.hash).toBe('new-hash-combo');
-			});
-		},
-	);
+		Then('the hash should be updated', () => {
+			expect(violationTicket.hash).toBe('new-hash-combo');
+		});
+	});
 
-	Scenario(
-		'Setting lastIndexed with canWorkOnTickets and isEditingAssignedTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting lastIndexed with canWorkOnTickets and isEditingAssignedTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: false,
 						canCreateTickets: false,
@@ -2097,32 +1914,31 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: true,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: true,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canWorkOnTickets and isEditingAssignedTicket permissions', () => {
-				// Already set
-			});
+		And('I have canWorkOnTickets and isEditingAssignedTicket permissions', () => {
+			// Already set
+		});
 
-			And('I set the lastIndexed', () => {
-				const testDate = new Date();
-				violationTicket.lastIndexed = testDate;
-			});
+		And('I set the lastIndexed', () => {
+			const testDate = new Date();
+			violationTicket.lastIndexed = testDate;
+		});
 
-			Then('the lastIndexed should be updated', () => {
-				expect(violationTicket.lastIndexed).toBeDefined();
-			});
-		},
-	);
+		Then('the lastIndexed should be updated', () => {
+			expect(violationTicket.lastIndexed).toBeDefined();
+		});
+	});
 
-	Scenario(
-		'Setting updateIndexFailedDate with canAssignTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance', () => {
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Setting updateIndexFailedDate with canAssignTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance', () => {
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: false,
 						canCreateTickets: false,
@@ -2130,33 +1946,32 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canAssignTickets permission', () => {
-				// Already set
-			});
+		And('I have canAssignTickets permission', () => {
+			// Already set
+		});
 
-			And('I set the updateIndexFailedDate', () => {
-				const testDate = new Date();
-				violationTicket.updateIndexFailedDate = testDate;
-			});
+		And('I set the updateIndexFailedDate', () => {
+			const testDate = new Date();
+			violationTicket.updateIndexFailedDate = testDate;
+		});
 
-			Then('the updateIndexFailedDate should be updated', () => {
-				expect(violationTicket.updateIndexFailedDate).toBeDefined();
-			});
-		},
-	);
+		Then('the updateIndexFailedDate should be updated', () => {
+			expect(violationTicket.updateIndexFailedDate).toBeDefined();
+		});
+	});
 
-	Scenario(
-		'Adding valid status transition with canAssignTickets permission',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance with status "Submitted"', () => {
-				props.status = ValueObjects.StatusCodes.Submitted;
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding valid status transition with canAssignTickets permission', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance with status "Submitted"', () => {
+			props.status = ValueObjects.StatusCodes.Submitted;
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true, // Required for activity detail setters
 						canCreateTickets: false,
@@ -2164,40 +1979,35 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canAssignTickets permission', () => {
-				// Already set
-			});
+		And('I have canAssignTickets permission', () => {
+			// Already set
+		});
 
-			And('I add a status transition to "Assigned"', () => {
-				violationTicket.requestAddStatusTransition(
-					new ValueObjects.StatusCode(ValueObjects.StatusCodes.Assigned),
-					'Assigned by ticket assigner',
-					memberRef,
-				);
-			});
+		And('I add a status transition to "Assigned"', () => {
+			violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Assigned), 'Assigned by ticket assigner', memberRef);
+		});
 
-			Then('the status should be updated to Assigned', () => {
-				expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Assigned);
-			});
+		Then('the status should be updated to Assigned', () => {
+			expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Assigned);
+		});
 
-			And('a new activity detail should be created', () => {
-				expect(violationTicket.activityLog.length).toBe(1);
-			});
-		},
-	);
+		And('a new activity detail should be created', () => {
+			expect(violationTicket.activityLog.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Adding valid status transition with canWorkOnTickets and isEditingAssignedTicket',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance with status "Assigned"', () => {
-				props.status = ValueObjects.StatusCodes.Assigned;
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding valid status transition with canWorkOnTickets and isEditingAssignedTicket', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance with status "Assigned"', () => {
+			props.status = ValueObjects.StatusCodes.Assigned;
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: true, // Required for activity detail setters
 						canCreateTickets: false,
@@ -2205,40 +2015,35 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: true,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: true,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have canWorkOnTickets and isEditingAssignedTicket permissions', () => {
-				// Already set
-			});
+		And('I have canWorkOnTickets and isEditingAssignedTicket permissions', () => {
+			// Already set
+		});
 
-			And('I add a status transition to "Paid"', () => {
-				violationTicket.requestAddStatusTransition(
-					new ValueObjects.StatusCode(ValueObjects.StatusCodes.Paid),
-					'Marked as paid by worker',
-					memberRef,
-				);
-			});
+		And('I add a status transition to "Paid"', () => {
+			violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Paid), 'Marked as paid by worker', memberRef);
+		});
 
-			Then('the status should be updated to Paid', () => {
-				expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Paid);
-			});
+		Then('the status should be updated to Paid', () => {
+			expect(violationTicket.status).toBe(ValueObjects.StatusCodes.Paid);
+		});
 
-			And('a new activity detail should be created', () => {
-				expect(violationTicket.activityLog.length).toBe(1);
-			});
-		},
-	);
+		And('a new activity detail should be created', () => {
+			expect(violationTicket.activityLog.length).toBe(1);
+		});
+	});
 
-	Scenario(
-		'Adding status transition with invalid permission combination',
-		({ When, Then, And }) => {
-			When('I have a ViolationTicketV1 instance with status "Submitted"', () => {
-				props.status = ValueObjects.StatusCodes.Submitted;
-				vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
-					determineIf: vi.fn((predicate) => predicate({
+	Scenario('Adding status transition with invalid permission combination', ({ When, Then, And }) => {
+		When('I have a ViolationTicketV1 instance with status "Submitted"', () => {
+			props.status = ValueObjects.StatusCodes.Submitted;
+			vi.mocked(passport.case.forViolationTicketV1).mockReturnValue({
+				determineIf: vi.fn((predicate) =>
+					predicate({
 						isSystemAccount: false,
 						canManageTickets: false,
 						canCreateTickets: true,
@@ -2246,30 +2051,24 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 						canWorkOnTickets: false,
 						isEditingOwnTicket: false,
 						isEditingAssignedTicket: false,
-					})),
-				});
-				violationTicket = new ViolationTicketV1(props, passport);
+					}),
+				),
 			});
+			violationTicket = new ViolationTicketV1(props, passport);
+		});
 
-			And('I have insufficient permissions for status transition', () => {
-				// Already set
-			});
+		And('I have insufficient permissions for status transition', () => {
+			// Already set
+		});
 
-			And('I add a status transition to "Assigned"', () => {
-				expect(() =>
-					violationTicket.requestAddStatusTransition(
-						new ValueObjects.StatusCode(ValueObjects.StatusCodes.Assigned),
-						'Try to assign without permission',
-						memberRef,
-					),
-				).toThrow(PermissionError);
-			});
+		And('I add a status transition to "Assigned"', () => {
+			expect(() => violationTicket.requestAddStatusTransition(new ValueObjects.StatusCode(ValueObjects.StatusCodes.Assigned), 'Try to assign without permission', memberRef)).toThrow(PermissionError);
+		});
 
-			Then('a PermissionError should be thrown', () => {
-				// Already checked
-			});
-		},
-	);
+		Then('a PermissionError should be thrown', () => {
+			// Already checked
+		});
+	});
 
 	//#endregion Additional Permission Coverage Tests
 });

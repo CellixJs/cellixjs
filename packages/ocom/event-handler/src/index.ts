@@ -1,3 +1,1 @@
-export {
-	RegisterEventHandlers,
-} from './handlers/index.ts';
+export { RegisterEventHandlers } from './handlers/index.ts';

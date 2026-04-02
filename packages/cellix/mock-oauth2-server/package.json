@@ -1,31 +1,31 @@
 {
-  "name": "@cellix/mock-oauth2-server",
-  "version": "1.0.0",
-  "author": "",
-  "license": "MIT",
-  "description": "Local OAuth2/OIDC mock server for dev/testing",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "format": "biome format --write",
-    "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc --build",
-    "clean": "rimraf dist node_modules tsconfig.tsbuildinfo && tsc --build --clean",
-    "lint": "biome lint",
-    "prebuild": "biome lint"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.22.0",
-    "jose": "^5.9.6"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@types/express": "^5.0.3",
-    "rimraf": "catalog:",
-    "tsx": "^4.20.3",
-    "typescript": "catalog:"
-  }
+	"name": "@cellix/mock-oauth2-server",
+	"version": "1.0.0",
+	"author": "",
+	"license": "MIT",
+	"description": "Local OAuth2/OIDC mock server for dev/testing",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"start": "node dist/index.js",
+		"dev": "tsx watch src/index.ts",
+		"build": "tsc --build",
+		"clean": "rimraf dist node_modules tsconfig.tsbuildinfo && tsc --build --clean"
+	},
+	"dependencies": {
+		"dotenv": "^16.4.5",
+		"express": "^4.22.0",
+		"jose": "^5.9.6"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@types/express": "^5.0.3",
+		"rimraf": "catalog:",
+		"tsx": "^4.20.3",
+		"typescript": "catalog:"
+	}
 }

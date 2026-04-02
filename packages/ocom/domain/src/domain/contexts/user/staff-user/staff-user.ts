@@ -3,11 +3,7 @@ import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../events/types/staff-user-created.ts';
 import type { Passport } from '../../passport.ts';
-import {
-	StaffRole,
-	type StaffRoleEntityReference,
-	type StaffRoleProps,
-} from '../staff-role/staff-role.ts';
+import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from '../staff-role/staff-role.ts';
 import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './staff-user.value-objects.ts';
 
@@ -28,15 +24,11 @@ export interface StaffUserProps extends DomainEntityProps {
 	readonly schemaVersion: string;
 }
 
-export interface StaffUserEntityReference
-	extends Readonly<Omit<StaffUserProps, 'role' | 'setRoleRef'>> {
+export interface StaffUserEntityReference extends Readonly<Omit<StaffUserProps, 'role' | 'setRoleRef'>> {
 	readonly role: StaffRoleEntityReference | undefined;
 }
 
-export class StaffUser<props extends StaffUserProps>
-	extends AggregateRoot<props, Passport>
-	implements StaffUserEntityReference
-{
+export class StaffUser<props extends StaffUserProps> extends AggregateRoot<props, Passport> implements StaffUserEntityReference {
 	private isNew: boolean = false;
 	private readonly visa: UserVisa;
 
@@ -45,14 +37,7 @@ export class StaffUser<props extends StaffUserProps>
 		this.visa = passport.user.forStaffUser(this);
 	}
 
-	public static getNewUser<props extends StaffUserProps>(
-		newProps: props,
-		passport: Passport,
-		externalId: string,
-		firstName: string,
-		lastName: string,
-		email: string,
-	): StaffUser<props> {
+	public static getNewUser<props extends StaffUserProps>(newProps: props, passport: Passport, externalId: string, firstName: string, lastName: string, email: string): StaffUser<props> {
 		newProps.externalId = externalId;
 		const user = new StaffUser(newProps, passport);
 		user.markAsNew();
@@ -73,20 +58,13 @@ export class StaffUser<props extends StaffUserProps>
 	}
 
 	private validateVisa(): void {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) => permissions.canManageStaffRolesAndPermissions,
-			)
-		) {
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions)) {
 			throw new PermissionError('Unauthorized');
 		}
 	}
 
 	get role(): StaffRoleEntityReference | undefined {
-		return this.props.role
-			? new StaffRole(this.props.role, this.passport)
-			: undefined;
+		return this.props.role ? new StaffRole(this.props.role, this.passport) : undefined;
 	}
 	set role(role: StaffRoleEntityReference | undefined) {
 		this.validateVisa();
@@ -122,9 +100,7 @@ export class StaffUser<props extends StaffUserProps>
 	}
 	set displayName(displayName: string) {
 		this.validateVisa();
-		this.props.displayName = new ValueObjects.DisplayName(
-			displayName,
-		).valueOf();
+		this.props.displayName = new ValueObjects.DisplayName(displayName).valueOf();
 	}
 
 	get externalId(): string {

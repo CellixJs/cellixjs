@@ -7,23 +7,23 @@ message.config({ duration: 0 });
 
 // Global MemoryRouter so any Link/useLocation has context
 export const decorators: Decorator[] = [
-  (Story, context) => {
-    const initialEntries = context.parameters?.memoryRouter?.initialEntries ?? ['/'];
-    return (
-      <MemoryRouter initialEntries={initialEntries}>
-        <Story />
-      </MemoryRouter>
-    );
-  }
+	(Story, context) => {
+		const initialEntries = context.parameters?.memoryRouter?.initialEntries ?? ['/'];
+		return (
+			<MemoryRouter initialEntries={initialEntries}>
+				<Story />
+			</MemoryRouter>
+		);
+	},
 ];
 
 export const parameters: Parameters = {
-  layout: 'padded',
-  actions: { argTypesRegex: '^on[A-Z].*' },
-  controls: {
-    matchers: {
-      color: /(background|color)$/i,
-      date: /Date$/i
-    }
-  }
+	layout: 'padded',
+	actions: { argTypesRegex: '^on[A-Z].*' },
+	controls: {
+		matchers: {
+			color: /(background|color)$/i,
+			date: /Date$/i,
+		},
+	},
 };

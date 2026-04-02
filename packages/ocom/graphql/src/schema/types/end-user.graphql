@@ -1,42 +1,41 @@
 type EndUser implements MongoBase {
-  externalId: String
-  displayName: String
-  accessBlocked: Boolean
-  tags: [String]
+	externalId: String
+	displayName: String
+	accessBlocked: Boolean
+	tags: [String]
 
-  personalInformation: EndUserPersonalInformation
+	personalInformation: EndUserPersonalInformation
 
-  id: ObjectID!
-  schemaVersion: String
-  createdAt: DateTime
-  updatedAt: DateTime
+	id: ObjectID!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
 }
 
 type EndUserPersonalInformation {
-  identityDetails: EndUserIdentityDetails
-  contactInformation: EndUserContactInformation
+	identityDetails: EndUserIdentityDetails
+	contactInformation: EndUserContactInformation
 }
 
 type EndUserIdentityDetails {
-  lastName: String!
-  legalNameConsistsOfOneName: Boolean!
-  restOfName: String
+	lastName: String!
+	legalNameConsistsOfOneName: Boolean!
+	restOfName: String
 }
 
 type EndUserContactInformation {
-  email: String!
+	email: String!
 }
 
 extend type Query {
-  endUserById(id: ObjectID!): EndUser
-  currentEndUserAndCreateIfNotExists: EndUser!
+	endUserById(id: ObjectID!): EndUser
+	currentEndUserAndCreateIfNotExists: EndUser!
 }
 
 # extend type Mutation {
 #   userCreate: EndUserMutationResult!
 #   userUpdate(input: UserUpdateInput!): EndUserMutationResult!
 # }
-
 
 # type EndUserMutationResult implements MutationResult {
 #   status: MutationStatus!

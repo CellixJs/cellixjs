@@ -4,112 +4,117 @@ import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } f
 import { LoggedInUserRootContainer, type LoggedInUserRootContainerProps } from './logged-in-user-root.container.tsx';
 
 const meta = {
-  title: 'UI/Organisms/Header/LoggedInUserRoot/Container',
-  component: LoggedInUserRootContainer,
-  parameters: {
-    layout: 'padded',
-  },
+	title: 'UI/Organisms/Header/LoggedInUserRoot/Container',
+	component: LoggedInUserRootContainer,
+	parameters: {
+		layout: 'padded',
+	},
 } satisfies Meta<typeof LoggedInUserRootContainer>;
 
 export default meta;
 type Story = StoryObj<typeof LoggedInUserRootContainer>;
 
 export const Default: Story = {
-  args: {
-    autoLogin: false,
-  } satisfies LoggedInUserRootContainerProps,
-  parameters: {
-    apolloClient: {
-      mocks: [
-        {
-          request: {
-            query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
-          },
-          result: {
-            data: {
-              __typename: 'Query',
-              currentEndUserAndCreateIfNotExists: {
-                __typename: 'EndUser',
-                externalId: null,
-                id: 'user-1',
-                personalInformation: {
-                  __typename: 'EndUserPersonalInformation',
-                  identityDetails: {
-                    __typename: 'EndUserIdentityDetails',
-                    restOfName: 'Jane',
-                    lastName: 'Smith',
-                  },
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-  },
-  render: (args) => <LoggedInUserRootContainer autoLogin={args.autoLogin} />,
+	args: {
+		autoLogin: false,
+	} satisfies LoggedInUserRootContainerProps,
+	parameters: {
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
+					},
+					result: {
+						data: {
+							__typename: 'Query',
+							currentEndUserAndCreateIfNotExists: {
+								__typename: 'EndUser',
+								externalId: null,
+								id: 'user-1',
+								personalInformation: {
+									__typename: 'EndUserPersonalInformation',
+									identityDetails: {
+										__typename: 'EndUserIdentityDetails',
+										restOfName: 'Jane',
+										lastName: 'Smith',
+									},
+								},
+							},
+						},
+					},
+				},
+			],
+		},
+	},
+	render: (args) => <LoggedInUserRootContainer autoLogin={args.autoLogin} />,
 };
 
 export const Loading: Story = {
-  args: {
-    autoLogin: false,
-  } satisfies LoggedInUserRootContainerProps,
-  parameters: {
-    apolloClient: {
-      mocks: [
-        {
-          request: {
-            query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
-          },
-          // Simulate loading by delaying the response noticeably
-          delay: 2000,
-          result: {
-            data: {
-              __typename: 'Query',
-              currentEndUserAndCreateIfNotExists: {
-                __typename: 'EndUser',
-                externalId: null,
-                id: 'user-1',
-                personalInformation: {
-                  __typename: 'EndUserPersonalInformation',
-                  identityDetails: {
-                    __typename: 'EndUserIdentityDetails',
-                    restOfName: 'Loading',
-                    lastName: 'User',
-                  },
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-  },
-  render: (args) => <LoggedInUserRootContainer autoLogin={args.autoLogin} />,
+	args: {
+		autoLogin: false,
+	} satisfies LoggedInUserRootContainerProps,
+	parameters: {
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
+					},
+					// Simulate loading by delaying the response noticeably
+					delay: 2000,
+					result: {
+						data: {
+							__typename: 'Query',
+							currentEndUserAndCreateIfNotExists: {
+								__typename: 'EndUser',
+								externalId: null,
+								id: 'user-1',
+								personalInformation: {
+									__typename: 'EndUserPersonalInformation',
+									identityDetails: {
+										__typename: 'EndUserIdentityDetails',
+										restOfName: 'Loading',
+										lastName: 'User',
+									},
+								},
+							},
+						},
+					},
+				},
+			],
+		},
+	},
+	render: (args) => <LoggedInUserRootContainer autoLogin={args.autoLogin} />,
 };
 
 export const ErrorState: Story = {
-  args: {
-    autoLogin: false,
-  } satisfies LoggedInUserRootContainerProps,
-  parameters: {
-    apolloClient: {
-      mocks: [
-        {
-          request: {
-            query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
-          },
-          result: {
-            error: [new GraphQLError('Failed to fetch user')],
-          },
-        },
-      ],
-      // Force queries to hit mocks even if a previous story populated cache
-      defaultOptions: {
-        watchQuery: { fetchPolicy: 'network-only' },
-        query: { fetchPolicy: 'network-only' },
-      },
-    },
-  },
-  render: (args) => <LoggedInUserRootContainer key="error" autoLogin={args.autoLogin} />,
+	args: {
+		autoLogin: false,
+	} satisfies LoggedInUserRootContainerProps,
+	parameters: {
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
+					},
+					result: {
+						error: [new GraphQLError('Failed to fetch user')],
+					},
+				},
+			],
+			// Force queries to hit mocks even if a previous story populated cache
+			defaultOptions: {
+				watchQuery: { fetchPolicy: 'network-only' },
+				query: { fetchPolicy: 'network-only' },
+			},
+		},
+	},
+	render: (args) => (
+		<LoggedInUserRootContainer
+			key="error"
+			autoLogin={args.autoLogin}
+		/>
+	),
 };

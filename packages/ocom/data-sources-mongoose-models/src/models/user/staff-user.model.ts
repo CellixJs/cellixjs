@@ -16,11 +16,7 @@ export interface StaffUser extends User {
 	tags?: string[];
 }
 
-const StaffUserSchema = new Schema<
-	StaffUser,
-	Model<StaffUser>,
-	StaffUser
->(
+const StaffUserSchema = new Schema<StaffUser, Model<StaffUser>, StaffUser>(
 	{
 		role: {
 			type: Schema.Types.ObjectId,

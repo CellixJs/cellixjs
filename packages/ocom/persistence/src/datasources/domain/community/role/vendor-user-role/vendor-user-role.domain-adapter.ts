@@ -3,7 +3,15 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Domain } from '@ocom/domain';
 import { CommunityDomainAdapter } from '../../community/community.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
-import type { VendorUserRole, VendorUserRoleCommunityPermissions, VendorUserRolePermissions, VendorUserRolePropertyPermissions, VendorUserRoleServicePermissions, VendorUserRoleServiceTicketPermissions, VendorUserRoleViolationTicketPermissions } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
+import type {
+	VendorUserRole,
+	VendorUserRoleCommunityPermissions,
+	VendorUserRolePermissions,
+	VendorUserRolePropertyPermissions,
+	VendorUserRoleServicePermissions,
+	VendorUserRoleServiceTicketPermissions,
+	VendorUserRoleViolationTicketPermissions,
+} from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
 
 export class VendorUserRoleConverter extends MongooseSeedwork.MongoTypeConverter<
 	VendorUserRole,
@@ -12,17 +20,11 @@ export class VendorUserRoleConverter extends MongooseSeedwork.MongoTypeConverter
 	Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>
 > {
 	constructor() {
-		super(
-			VendorUserRoleDomainAdapter,
-            Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>
-		);
+		super(VendorUserRoleDomainAdapter, Domain.Contexts.Community.Role.VendorUserRole.VendorUserRole<VendorUserRoleDomainAdapter>);
 	}
 }
 
-export class VendorUserRoleDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<VendorUserRole>
-	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleProps
-{
+export class VendorUserRoleDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<VendorUserRole> implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleProps {
 	// roleName
 	get roleName(): string {
 		return this.doc.roleName;
@@ -31,7 +33,7 @@ export class VendorUserRoleDomainAdapter
 		this.doc.roleName = roleName;
 	}
 
-    get community(): Domain.Contexts.Community.Community.CommunityProps {
+	get community(): Domain.Contexts.Community.Community.CommunityProps {
 		if (!this.doc.community) {
 			throw new Error('community is not populated');
 		}
@@ -40,18 +42,16 @@ export class VendorUserRoleDomainAdapter
 		}
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
-    async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
-        if (!this.doc.community) {
-            throw new Error('community is not populated');
-        }
-        if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-            await this.doc.populate('community');
-        }
-        return new CommunityDomainAdapter(this.doc.community as Community);
-    }
-	set community(
-		community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>,
-	) {
+	async loadCommunity(): Promise<Domain.Contexts.Community.Community.CommunityProps> {
+		if (!this.doc.community) {
+			throw new Error('community is not populated');
+		}
+		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
+			await this.doc.populate('community');
+		}
+		return new CommunityDomainAdapter(this.doc.community as Community);
+	}
+	set community(community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>,) {
 		if (community instanceof Domain.Contexts.Community.Community.Community) {
 			this.doc.set('community', community.props.doc);
 			return;
@@ -69,25 +69,21 @@ export class VendorUserRoleDomainAdapter
 		this.doc.isDefault = value;
 	}
 
-    get permissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePermissionsProps {
-        if (!this.doc.permissions) {
-            // ensure subdocument exists
-            this.doc.set('permissions', {} as VendorUserRolePermissions);
-        }
-        return new VendorUserRolePermissionsDomainAdapter(
-            this.doc.permissions as VendorUserRolePermissions,
-        );
+	get permissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePermissionsProps {
+		if (!this.doc.permissions) {
+			// ensure subdocument exists
+			this.doc.set('permissions', {} as VendorUserRolePermissions);
+		}
+		return new VendorUserRolePermissionsDomainAdapter(this.doc.permissions as VendorUserRolePermissions);
 	}
 
-    get roleType(): string | undefined {
-        return this.doc.roleType;
-    }
+	get roleType(): string | undefined {
+		return this.doc.roleType;
+	}
 }
 
 // Permissions adapter tree
-export class VendorUserRolePermissionsDomainAdapter
-	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePermissionsProps
-{
+export class VendorUserRolePermissionsDomainAdapter implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePermissionsProps {
 	public readonly props: VendorUserRolePermissions;
 	constructor(props: VendorUserRolePermissions) {
 		this.props = props;
@@ -102,14 +98,14 @@ export class VendorUserRolePermissionsDomainAdapter
 
 	get propertyPermissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePropertyPermissionsProps {
 		if (!this.props.propertyPermissions) {
-            this.props.set('propertyPermissions', {});
+			this.props.set('propertyPermissions', {});
 		}
 		return new VendorUserRolePropertyPermissionsDomainAdapter(this.props.propertyPermissions);
 	}
 
 	get serviceTicketPermissions(): Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServiceTicketPermissionsProps {
 		if (!this.props.serviceTicketPermissions) {
-            this.props.set('serviceTicketPermissions', {});
+			this.props.set('serviceTicketPermissions', {});
 		}
 		return new VendorUserRoleServiceTicketPermissionsDomainAdapter(this.props.serviceTicketPermissions);
 	}
@@ -129,9 +125,7 @@ export class VendorUserRolePermissionsDomainAdapter
 	}
 }
 
-class VendorUserRoleServicePermissionsDomainAdapter
-	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServicePermissionsProps
-{
+class VendorUserRoleServicePermissionsDomainAdapter implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServicePermissionsProps {
 	public readonly props: VendorUserRoleServicePermissions;
 	constructor(props: VendorUserRoleServicePermissions) {
 		this.props = props;
@@ -144,9 +138,7 @@ class VendorUserRoleServicePermissionsDomainAdapter
 	}
 }
 
-class VendorUserRoleServiceTicketPermissionsDomainAdapter
-	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServiceTicketPermissionsProps
-{
+class VendorUserRoleServiceTicketPermissionsDomainAdapter implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleServiceTicketPermissionsProps {
 	public readonly props: VendorUserRoleServiceTicketPermissions;
 	constructor(props: VendorUserRoleServiceTicketPermissions) {
 		this.props = props;
@@ -177,9 +169,7 @@ class VendorUserRoleServiceTicketPermissionsDomainAdapter
 	}
 }
 
-class VendorUserRoleViolationTicketPermissionsDomainAdapter
-	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleViolationTicketPermissionsProps
-{
+class VendorUserRoleViolationTicketPermissionsDomainAdapter implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleViolationTicketPermissionsProps {
 	public readonly props: VendorUserRoleViolationTicketPermissions;
 	constructor(props: VendorUserRoleViolationTicketPermissions) {
 		this.props = props;
@@ -210,9 +200,7 @@ class VendorUserRoleViolationTicketPermissionsDomainAdapter
 	}
 }
 
-class VendorUserRolePropertyPermissionsDomainAdapter
-	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePropertyPermissionsProps
-{
+class VendorUserRolePropertyPermissionsDomainAdapter implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRolePropertyPermissionsProps {
 	public readonly props: VendorUserRolePropertyPermissions;
 	constructor(props: VendorUserRolePropertyPermissions) {
 		this.props = props;
@@ -231,9 +219,7 @@ class VendorUserRolePropertyPermissionsDomainAdapter
 	}
 }
 
-class VendorUserRoleCommunityPermissionsDomainAdapter
-	implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleCommunityPermissionsProps
-{
+class VendorUserRoleCommunityPermissionsDomainAdapter implements Domain.Contexts.Community.Role.VendorUserRole.VendorUserRoleCommunityPermissionsProps {
 	public readonly props: VendorUserRoleCommunityPermissions;
 	constructor(props: VendorUserRoleCommunityPermissions) {
 		this.props = props;

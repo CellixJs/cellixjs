@@ -17,9 +17,7 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 	return (
 		<>
 			<div
-				className={
-					'w-full p-5 mx-auto my-5 shadow-lg rounded-lg border border-1'
-				}
+				className={'w-full p-5 mx-auto my-5 shadow-lg rounded-lg border border-1'}
 				style={{
 					backgroundColor: colorBgContainer,
 					color: colorTextBase,
@@ -32,13 +30,9 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 				<p>
 					Getting started with your community is only a few clicks away.
 					<br />
-					Once you create it here you'll see it in the list of communities you
-					have access to. <br />
-					You will have access to both the member side and the admin side of
-					your community. <br />
-					Start by creating a name for your community, you can always change it
-					later, you may want to make the name descriptive to avoid confusion
-					with other communities with the same or similar names.
+					Once you create it here you'll see it in the list of communities you have access to. <br />
+					You will have access to both the member side and the admin side of your community. <br />
+					Start by creating a name for your community, you can always change it later, you may want to make the name descriptive to avoid confusion with other communities with the same or similar names.
 				</p>
 			</div>
 			<Form
@@ -58,7 +52,11 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 					<Input placeholder="Name" />
 				</Form.Item>
 
-				<Button type="primary" htmlType="submit" loading={formLoading}>
+				<Button
+					type="primary"
+					htmlType="submit"
+					loading={formLoading}
+				>
 					Create Community
 				</Button>
 			</Form>

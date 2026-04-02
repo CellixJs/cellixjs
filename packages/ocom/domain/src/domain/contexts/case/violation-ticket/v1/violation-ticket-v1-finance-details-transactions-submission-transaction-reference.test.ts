@@ -9,12 +9,7 @@ import {
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(
-		__dirname,
-		'features/violation-ticket-v1-finance-details-transactions-submission-transaction-reference.feature',
-	),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/violation-ticket-v1-finance-details-transactions-submission-transaction-reference.feature'));
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let transactionReference: ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference;
@@ -28,32 +23,21 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		};
 	});
 
-	Scenario(
-		'Creating a new ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference instance',
-		({ When, Then, And }) => {
-			When(
-				'I create a new ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference with valid properties',
-				() => {
-					transactionReference =
-						new ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference(
-							props,
-						);
-				},
-			);
+	Scenario('Creating a new ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference instance', ({ When, Then, And }) => {
+		When('I create a new ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference with valid properties', () => {
+			transactionReference = new ViolationTicketV1FinanceDetailsTransactionsSubmissionTransactionReference(props);
+		});
 
-			Then('the reference ID should be accessible', () => {
-				expect(transactionReference.referenceId).toBe('ref-456');
-			});
+		Then('the reference ID should be accessible', () => {
+			expect(transactionReference.referenceId).toBe('ref-456');
+		});
 
-			And('the completed on date should be accessible', () => {
-				expect(transactionReference.completedOn).toEqual(
-					new Date('2023-01-02'),
-				);
-			});
+		And('the completed on date should be accessible', () => {
+			expect(transactionReference.completedOn).toEqual(new Date('2023-01-02'));
+		});
 
-			And('the vendor should be accessible', () => {
-				expect(transactionReference.vendor).toBe('Another Vendor');
-			});
-		},
-	);
+		And('the vendor should be accessible', () => {
+			expect(transactionReference.vendor).toBe('Another Vendor');
+		});
+	});
 });

@@ -3,9 +3,7 @@ import type { EndUserEntityReference } from '../../../contexts/user/end-user/end
 import type { UserDomainPermissions } from '../../../contexts/user/user.domain-permissions.ts';
 import type { UserVisa } from '../../../contexts/user/user.visa.ts';
 
-export class MemberUserEndUserVisa<root extends EndUserEntityReference>
-	implements UserVisa
-{
+export class MemberUserEndUserVisa<root extends EndUserEntityReference> implements UserVisa {
 	private readonly root: root;
 	private readonly member: MemberEntityReference;
 
@@ -14,17 +12,13 @@ export class MemberUserEndUserVisa<root extends EndUserEntityReference>
 		this.member = member;
 	}
 
-	determineIf(
-		func: (permissions: Readonly<UserDomainPermissions>) => boolean,
-	): boolean {
+	determineIf(func: (permissions: Readonly<UserDomainPermissions>) => boolean): boolean {
 		const updatedPermissions: UserDomainPermissions = {
 			canManageEndUsers: false,
 			canManageStaffRolesAndPermissions: false,
 			canManageStaffUsers: false,
 			canManageVendorUsers: false,
-			isEditingOwnAccount: this.member.accounts.some(
-				(account) => account.user.id === this.root.id,
-			),
+			isEditingOwnAccount: this.member.accounts.some((account) => account.user.id === this.root.id),
 			isSystemAccount: false,
 		};
 

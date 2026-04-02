@@ -17,36 +17,22 @@ export interface ViolationTicketV1MessageProps extends DomainEntityProps {
 	isHiddenFromApplicant: boolean;
 }
 
-export interface ViolationTicketV1MessageEntityReference
-	extends Readonly<ViolationTicketV1MessageProps> {}
+export interface ViolationTicketV1MessageEntityReference extends Readonly<ViolationTicketV1MessageProps> {}
 
 /**
  * ViolationTicketV1Message entity
  */
-export class ViolationTicketV1Message
-	extends DomainEntity<ViolationTicketV1MessageProps>
-	implements ViolationTicketV1MessageEntityReference
-{
+export class ViolationTicketV1Message extends DomainEntity<ViolationTicketV1MessageProps> implements ViolationTicketV1MessageEntityReference {
 	private readonly visa: ViolationTicketV1Visa;
 	//#region Constructor
-	constructor(
-		props: ViolationTicketV1MessageProps,
-		visa: ViolationTicketV1Visa,
-	) {
+	constructor(props: ViolationTicketV1MessageProps, visa: ViolationTicketV1Visa) {
 		super(props);
 		this.visa = visa;
 	}
 	//#endregion Constructor
 
 	//#region Methods
-	public static getNewInstance(
-		messageProps: ViolationTicketV1MessageProps,
-		visa: ViolationTicketV1Visa,
-		message: string,
-		sentBy: string,
-		embedding: string,
-		initiatedBy?: MemberEntityReference,
-	): ViolationTicketV1Message {
+	public static getNewInstance(messageProps: ViolationTicketV1MessageProps, visa: ViolationTicketV1Visa, message: string, sentBy: string, embedding: string, initiatedBy?: MemberEntityReference): ViolationTicketV1Message {
 		const instance = new ViolationTicketV1Message(messageProps, visa);
 		instance.sentBy = new ValueObjects.SentBy(sentBy);
 		instance.message = new ValueObjects.Message(message);
@@ -72,15 +58,8 @@ export class ViolationTicketV1Message
 	}
 
 	set sentBy(sentBy: ValueObjects.SentBy) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageTickets || permissions.isSystemAccount,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to modify this message',
-			);
+		if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
+			throw new PermissionError('You do not have permission to modify this message');
 		}
 		this.props.sentBy = sentBy.valueOf();
 	}
@@ -98,15 +77,8 @@ export class ViolationTicketV1Message
 	}
 
 	set message(message: ValueObjects.Message) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageTickets || permissions.isSystemAccount,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to modify this message',
-			);
+		if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
+			throw new PermissionError('You do not have permission to modify this message');
 		}
 		this.props.message = message.valueOf();
 	}
@@ -116,15 +88,8 @@ export class ViolationTicketV1Message
 	}
 
 	set embedding(embedding: ValueObjects.Embedding) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageTickets || permissions.isSystemAccount,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to modify this message',
-			);
+		if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
+			throw new PermissionError('You do not have permission to modify this message');
 		}
 		this.props.embedding = embedding.valueOf();
 	}
@@ -135,9 +100,7 @@ export class ViolationTicketV1Message
 
 	set createdAt(createdAt: Date) {
 		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount)) {
-			throw new PermissionError(
-				'You do not have permission to modify this message timestamp',
-			);
+			throw new PermissionError('You do not have permission to modify this message timestamp');
 		}
 		this.props.createdAt = createdAt;
 	}
@@ -147,15 +110,8 @@ export class ViolationTicketV1Message
 	}
 
 	set isHiddenFromApplicant(isHiddenFromApplicant: boolean) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageTickets || permissions.isSystemAccount,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to modify this message visibility',
-			);
+		if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
+			throw new PermissionError('You do not have permission to modify this message visibility');
 		}
 		this.props.isHiddenFromApplicant = isHiddenFromApplicant;
 	}

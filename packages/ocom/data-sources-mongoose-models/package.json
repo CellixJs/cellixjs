@@ -1,77 +1,80 @@
 {
-  "name": "@ocom/data-sources-mongoose-models",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "files": ["dist"],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./community": {
-      "types": "./dist/models/community/community.model.d.ts",
-      "default": "./dist/models/community/community.model.js"
-    },
-    "./member": {
-      "types": "./dist/models/member/member.model.d.ts",
-      "default": "./dist/models/member/member.model.js"
-    },
-    "./user/end-user": {
-      "types": "./dist/models/user/end-user.model.d.ts",
-      "default": "./dist/models/user/end-user.model.js"
-    },
-    "./user/staff-user": {
-      "types": "./dist/models/user/staff-user.model.d.ts",
-      "default": "./dist/models/user/staff-user.model.js"
-    },
-    "./user/vendor-user": {
-      "types": "./dist/models/user/vendor-user.model.d.ts",
-      "default": "./dist/models/user/vendor-user.model.js"
-    },
-    "./role/end-user-role": {
-      "types": "./dist/models/role/end-user-role.model.d.ts",
-      "default": "./dist/models/role/end-user-role.model.js"
-    },
-    "./role/staff-role": {
-      "types": "./dist/models/role/staff-role.model.d.ts",
-      "default": "./dist/models/role/staff-role.model.js"
-    },
-    "./role/vendor-user-role": {
-      "types": "./dist/models/role/vendor-user-role.model.d.ts",
-      "default": "./dist/models/role/vendor-user-role.model.js"
-    },
-    "./case/service-ticket": {
-      "types": "./dist/models/case/service-ticket.model.d.ts",
-      "default": "./dist/models/case/service-ticket.model.js"
-    },
-    "./case/violation-ticket": {
-      "types": "./dist/models/case/violation-ticket.model.d.ts",
-      "default": "./dist/models/case/violation-ticket.model.js"
-    },
-    "./property": {
-      "types": "./dist/models/property/property.model.d.ts",
-      "default": "./dist/models/property/property.model.js"
-    },
-    "./service": {
-      "types": "./dist/models/service/service.model.d.ts",
-      "default": "./dist/models/service/service.model.js"
-    }
-  },
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
-    "lint": "biome lint",
-    "clean": "rimraf dist"
-  },
-  "dependencies": {
-    "@cellix/mongoose-seedwork": "workspace:*",
-    "mongoose": "catalog:"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "rimraf": "catalog:",
-    "typescript": "catalog:"
-  }
+	"name": "@ocom/data-sources-mongoose-models",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./community": {
+			"types": "./dist/models/community/community.model.d.ts",
+			"default": "./dist/models/community/community.model.js"
+		},
+		"./member": {
+			"types": "./dist/models/member/member.model.d.ts",
+			"default": "./dist/models/member/member.model.js"
+		},
+		"./user/end-user": {
+			"types": "./dist/models/user/end-user.model.d.ts",
+			"default": "./dist/models/user/end-user.model.js"
+		},
+		"./user/staff-user": {
+			"types": "./dist/models/user/staff-user.model.d.ts",
+			"default": "./dist/models/user/staff-user.model.js"
+		},
+		"./user/vendor-user": {
+			"types": "./dist/models/user/vendor-user.model.d.ts",
+			"default": "./dist/models/user/vendor-user.model.js"
+		},
+		"./role/end-user-role": {
+			"types": "./dist/models/role/end-user-role.model.d.ts",
+			"default": "./dist/models/role/end-user-role.model.js"
+		},
+		"./role/staff-role": {
+			"types": "./dist/models/role/staff-role.model.d.ts",
+			"default": "./dist/models/role/staff-role.model.js"
+		},
+		"./role/vendor-user-role": {
+			"types": "./dist/models/role/vendor-user-role.model.d.ts",
+			"default": "./dist/models/role/vendor-user-role.model.js"
+		},
+		"./case/service-ticket": {
+			"types": "./dist/models/case/service-ticket.model.d.ts",
+			"default": "./dist/models/case/service-ticket.model.js"
+		},
+		"./case/violation-ticket": {
+			"types": "./dist/models/case/violation-ticket.model.d.ts",
+			"default": "./dist/models/case/violation-ticket.model.js"
+		},
+		"./property": {
+			"types": "./dist/models/property/property.model.d.ts",
+			"default": "./dist/models/property/property.model.js"
+		},
+		"./service": {
+			"types": "./dist/models/service/service.model.d.ts",
+			"default": "./dist/models/service/service.model.js"
+		}
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"watch": "tsc --watch",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@cellix/mongoose-seedwork": "workspace:*",
+		"mongoose": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
 }

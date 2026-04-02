@@ -10,54 +10,37 @@ type PropType = MemberDomainAdapter;
 export class MemberRepository //<
 	//PropType extends Domain.Contexts.Member.Member.MemberProps
 	//>
-	extends MongooseSeedwork.MongoRepositoryBase<
-		MemberModelType,
-		PropType,
-		Domain.Passport,
-		Domain.Contexts.Community.Member.Member<PropType>
-	>
+	extends MongooseSeedwork.MongoRepositoryBase<MemberModelType, PropType, Domain.Passport, Domain.Contexts.Community.Member.Member<PropType>>
 	implements Domain.Contexts.Community.Member.MemberRepository<PropType>
 {
-	async getById(
-		id: string,
-	): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
-		const mongoMember = await this.model
-			.findById(id)
-			.populate(['community'])
-			.exec();
+	async getById(id: string): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
+		const mongoMember = await this.model.findById(id).populate(['community']).exec();
 		if (!mongoMember) {
 			throw new Error(`Member with id ${id} not found`);
 		}
 		return this.typeConverter.toDomain(mongoMember, this.passport);
 	}
 
-    async getAll(): Promise<Domain.Contexts.Community.Member.Member<PropType>[]> {
-        const mongoMembers = await this.model.find().populate(['community']).exec();
-        return mongoMembers.map(member => this.typeConverter.toDomain(member, this.passport));
-    }
+	async getAll(): Promise<Domain.Contexts.Community.Member.Member<PropType>[]> {
+		const mongoMembers = await this.model.find().populate(['community']).exec();
+		return mongoMembers.map((member) => this.typeConverter.toDomain(member, this.passport));
+	}
 
-    async getAssignedToRole(roleId: string): Promise<Domain.Contexts.Community.Member.Member<MemberDomainAdapter>[]> {
-        const mongoMembers = await this.model.find({ role: new MongooseSeedwork.ObjectId(roleId) }).populate(['community', 'role']).exec();
-        return mongoMembers.map(member => this.typeConverter.toDomain(member, this.passport));
-    }
+	async getAssignedToRole(roleId: string): Promise<Domain.Contexts.Community.Member.Member<MemberDomainAdapter>[]> {
+		const mongoMembers = await this.model
+			.find({ role: new MongooseSeedwork.ObjectId(roleId) })
+			.populate(['community', 'role'])
+			.exec();
+		return mongoMembers.map((member) => this.typeConverter.toDomain(member, this.passport));
+	}
 
 	// biome-ignore lint:noRequireAwait
-	async getNewInstance(
-		name: string,
-		community: Domain.Contexts.Community.Community.CommunityEntityReference
-	): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
+	async getNewInstance(name: string, community: Domain.Contexts.Community.Community.CommunityEntityReference): Promise<Domain.Contexts.Community.Member.Member<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		// Set the community on the adapter before creating the domain instance
 		// This ensures the community is available when the Member constructor
 		// tries to create the visa
 		adapter.community = community;
-		return Promise.resolve(
-			Domain.Contexts.Community.Member.Member.getNewInstance(
-				adapter,
-                this.passport,
-				name,
-				community,
-			),
-		);
+		return Promise.resolve(Domain.Contexts.Community.Member.Member.getNewInstance(adapter, this.passport, name, community));
 	}
 }

@@ -6,12 +6,7 @@ import * as ValueObjects from './violation-ticket-v1-message.value-objects.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(
-		__dirname,
-		'features/violation-ticket-v1-message.value-objects.feature',
-	),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/violation-ticket-v1-message.value-objects.feature'));
 
 test.for(feature, ({ Scenario }) => {
 	// SentBy
@@ -74,50 +69,38 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a message with leading and trailing whitespace',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a message with "  Valid message  "', () => {
-				value = new ValueObjects.Message('  Valid message  ').valueOf();
-			});
-			Then('the value should be "Valid message"', () => {
-				expect(value).toBe('Valid message');
-			});
-		},
-	);
+	Scenario('Creating a message with leading and trailing whitespace', ({ When, Then }) => {
+		let value: string;
+		When('I create a message with "  Valid message  "', () => {
+			value = new ValueObjects.Message('  Valid message  ').valueOf();
+		});
+		Then('the value should be "Valid message"', () => {
+			expect(value).toBe('Valid message');
+		});
+	});
 
-	Scenario(
-		'Creating a message with maximum allowed length',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a message with a string of 2000 characters', () => {
-				const longMessage = 'a'.repeat(2000);
-				value = new ValueObjects.Message(longMessage).valueOf();
-			});
-			Then('the value should be the 2000 character string', () => {
-				expect(value).toBe('a'.repeat(2000));
-			});
-		},
-	);
+	Scenario('Creating a message with maximum allowed length', ({ When, Then }) => {
+		let value: string;
+		When('I create a message with a string of 2000 characters', () => {
+			const longMessage = 'a'.repeat(2000);
+			value = new ValueObjects.Message(longMessage).valueOf();
+		});
+		Then('the value should be the 2000 character string', () => {
+			expect(value).toBe('a'.repeat(2000));
+		});
+	});
 
-	Scenario(
-		'Creating a message with more than maximum allowed length',
-		({ When, Then }) => {
-			let createMessageAboveMaxLength: () => void;
-			When('I try to create a message with a string of 2001 characters', () => {
-				createMessageAboveMaxLength = () => {
-					new ValueObjects.Message('a'.repeat(2001));
-				};
-			});
-			Then(
-				'an error should be thrown indicating the message is too long',
-				() => {
-					expect(createMessageAboveMaxLength).toThrow('Too long');
-				},
-			);
-		},
-	);
+	Scenario('Creating a message with more than maximum allowed length', ({ When, Then }) => {
+		let createMessageAboveMaxLength: () => void;
+		When('I try to create a message with a string of 2001 characters', () => {
+			createMessageAboveMaxLength = () => {
+				new ValueObjects.Message('a'.repeat(2001));
+			};
+		});
+		Then('an error should be thrown indicating the message is too long', () => {
+			expect(createMessageAboveMaxLength).toThrow('Too long');
+		});
+	});
 
 	Scenario('Creating a message with null', ({ When, Then }) => {
 		let createMessageWithNull: () => void;
@@ -156,53 +139,38 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating an embedding with leading and trailing whitespace',
-		({ When, Then }) => {
-			let value: string;
-			When('I create an embedding with "  Valid embedding  "', () => {
-				value = new ValueObjects.Embedding('  Valid embedding  ').valueOf();
-			});
-			Then('the value should be "Valid embedding"', () => {
-				expect(value).toBe('Valid embedding');
-			});
-		},
-	);
+	Scenario('Creating an embedding with leading and trailing whitespace', ({ When, Then }) => {
+		let value: string;
+		When('I create an embedding with "  Valid embedding  "', () => {
+			value = new ValueObjects.Embedding('  Valid embedding  ').valueOf();
+		});
+		Then('the value should be "Valid embedding"', () => {
+			expect(value).toBe('Valid embedding');
+		});
+	});
 
-	Scenario(
-		'Creating an embedding with maximum allowed length',
-		({ When, Then }) => {
-			let value: string;
-			When('I create an embedding with a string of 2000 characters', () => {
-				const longEmbedding = 'a'.repeat(2000);
-				value = new ValueObjects.Embedding(longEmbedding).valueOf();
-			});
-			Then('the value should be the 2000 character string', () => {
-				expect(value).toBe('a'.repeat(2000));
-			});
-		},
-	);
+	Scenario('Creating an embedding with maximum allowed length', ({ When, Then }) => {
+		let value: string;
+		When('I create an embedding with a string of 2000 characters', () => {
+			const longEmbedding = 'a'.repeat(2000);
+			value = new ValueObjects.Embedding(longEmbedding).valueOf();
+		});
+		Then('the value should be the 2000 character string', () => {
+			expect(value).toBe('a'.repeat(2000));
+		});
+	});
 
-	Scenario(
-		'Creating an embedding with more than maximum allowed length',
-		({ When, Then }) => {
-			let createEmbeddingAboveMaxLength: () => void;
-			When(
-				'I try to create an embedding with a string of 2001 characters',
-				() => {
-					createEmbeddingAboveMaxLength = () => {
-						new ValueObjects.Embedding('a'.repeat(2001));
-					};
-				},
-			);
-			Then(
-				'an error should be thrown indicating the embedding is too long',
-				() => {
-					expect(createEmbeddingAboveMaxLength).toThrow('Too long');
-				},
-			);
-		},
-	);
+	Scenario('Creating an embedding with more than maximum allowed length', ({ When, Then }) => {
+		let createEmbeddingAboveMaxLength: () => void;
+		When('I try to create an embedding with a string of 2001 characters', () => {
+			createEmbeddingAboveMaxLength = () => {
+				new ValueObjects.Embedding('a'.repeat(2001));
+			};
+		});
+		Then('an error should be thrown indicating the embedding is too long', () => {
+			expect(createEmbeddingAboveMaxLength).toThrow('Too long');
+		});
+	});
 
 	Scenario('Creating an embedding with null', ({ When, Then }) => {
 		let createEmbeddingWithNull: () => void;
@@ -212,12 +180,9 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.Embedding(null);
 			};
 		});
-		Then(
-			'an error should be thrown indicating the embedding is invalid',
-			() => {
-				expect(createEmbeddingWithNull).toThrow('Wrong raw value type');
-			},
-		);
+		Then('an error should be thrown indicating the embedding is invalid', () => {
+			expect(createEmbeddingWithNull).toThrow('Wrong raw value type');
+		});
 	});
 
 	Scenario('Creating an embedding with undefined', ({ When, Then }) => {
@@ -228,11 +193,8 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.Embedding(undefined);
 			};
 		});
-		Then(
-			'an error should be thrown indicating the embedding is invalid',
-			() => {
-				expect(createEmbeddingWithUndefined).toThrow('Wrong raw value type');
-			},
-		);
+		Then('an error should be thrown indicating the embedding is invalid', () => {
+			expect(createEmbeddingWithUndefined).toThrow('Wrong raw value type');
+		});
 	});
 });

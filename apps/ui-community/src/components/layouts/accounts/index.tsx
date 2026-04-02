@@ -6,9 +6,18 @@ import { SectionLayout } from './section-layout.tsx';
 export const Accounts: React.FC = () => {
 	return (
 		<Routes>
-			<Route path="" element={<SectionLayout />}>
-				<Route path="/" element={<Home />} />
-				<Route path="create-community" element={<CreateCommunity />} />
+			<Route
+				path=""
+				element={<SectionLayout />}
+			>
+				<Route
+					path="/"
+					element={<Home />}
+				/>
+				<Route
+					path="create-community"
+					element={<CreateCommunity />}
+				/>
 			</Route>
 		</Routes>
 	);

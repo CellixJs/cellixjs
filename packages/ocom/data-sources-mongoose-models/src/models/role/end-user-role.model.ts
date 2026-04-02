@@ -69,11 +69,7 @@ export interface EndUserRole extends Role {
 	isDefault: boolean;
 }
 
-const EndUserRoleSchema = new Schema<
-	EndUserRole,
-	Model<EndUserRole>,
-	EndUserRole
->(
+const EndUserRoleSchema = new Schema<EndUserRole, Model<EndUserRole>, EndUserRole>(
 	{
 		community: {
 			type: Schema.Types.ObjectId,
@@ -146,7 +142,7 @@ const EndUserRoleSchema = new Schema<
 export const EndUserRoleModelName: string = 'end-user-roles';
 
 export const EndUserRoleModelFactory = (RoleModel: RoleModelType) => {
-    return RoleModel.discriminator(EndUserRoleModelName, EndUserRoleSchema);
+	return RoleModel.discriminator(EndUserRoleModelName, EndUserRoleSchema);
 };
 
 export type EndUserRoleModelType = ReturnType<typeof EndUserRoleModelFactory>;

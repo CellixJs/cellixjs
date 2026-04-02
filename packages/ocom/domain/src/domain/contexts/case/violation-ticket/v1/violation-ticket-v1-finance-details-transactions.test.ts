@@ -6,10 +6,7 @@ import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { expect, vi } from 'vitest';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions.ts';
-import {
-	ViolationTicketV1FinanceDetailsTransactions,
-	type ViolationTicketV1FinanceDetailsTransactionsProps,
-} from './violation-ticket-v1-finance-details-transactions.ts';
+import { ViolationTicketV1FinanceDetailsTransactions, type ViolationTicketV1FinanceDetailsTransactionsProps } from './violation-ticket-v1-finance-details-transactions.ts';
 import type { ViolationTicketV1FinanceDetailsTransactionsSubmissionEntityReference } from './violation-ticket-v1-finance-details-transactions-submission.ts';
 
 // Mock PropArray for testing
@@ -62,12 +59,7 @@ class MockPropArray<T extends DomainEntityProps> implements PropArray<T> {
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(
-		__dirname,
-		'features/violation-ticket-v1-finance-details-transactions.feature',
-	),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/violation-ticket-v1-finance-details-transactions.feature'));
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let transactions: ViolationTicketV1FinanceDetailsTransactions;
@@ -92,43 +84,28 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		};
 	});
 
-	Scenario(
-		'Creating a new ViolationTicketV1FinanceDetailsTransactions instance',
-		({ When, Then, And }) => {
-			When(
-				'I create a new ViolationTicketV1FinanceDetailsTransactions with valid properties',
-				() => {
-					transactions = new ViolationTicketV1FinanceDetailsTransactions(
-						props,
-						visa,
-					);
-				},
-			);
+	Scenario('Creating a new ViolationTicketV1FinanceDetailsTransactions instance', ({ When, Then, And }) => {
+		When('I create a new ViolationTicketV1FinanceDetailsTransactions with valid properties', () => {
+			transactions = new ViolationTicketV1FinanceDetailsTransactions(props, visa);
+		});
 
-			Then('the instance should be created successfully', () => {
-				expect(transactions).toBeDefined();
-			});
+		Then('the instance should be created successfully', () => {
+			expect(transactions).toBeDefined();
+		});
 
-			And('the submission should be set correctly', () => {
-				expect(transactions.submission).toBe(submission);
-			});
+		And('the submission should be set correctly', () => {
+			expect(transactions.submission).toBe(submission);
+		});
 
-			And('the adhoc transactions should be accessible', () => {
-				expect(transactions.adhocTransactions).toEqual([]);
-			});
-		},
-	);
+		And('the adhoc transactions should be accessible', () => {
+			expect(transactions.adhocTransactions).toEqual([]);
+		});
+	});
 
 	Scenario('Requesting to add new adhoc transaction', ({ When, Then, And }) => {
-		When(
-			'I have a ViolationTicketV1FinanceDetailsTransactions instance',
-			() => {
-				transactions = new ViolationTicketV1FinanceDetailsTransactions(
-					props,
-					visa,
-				);
-			},
-		);
+		When('I have a ViolationTicketV1FinanceDetailsTransactions instance', () => {
+			transactions = new ViolationTicketV1FinanceDetailsTransactions(props, visa);
+		});
 
 		And('I request to add a new adhoc transaction', () => {
 			const result = transactions.requestAddNewAdhocTransaction();

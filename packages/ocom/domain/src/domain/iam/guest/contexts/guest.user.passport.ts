@@ -6,10 +6,7 @@ import type { UserVisa } from '../../../contexts/user/user.visa.ts';
 import type { VendorUserEntityReference } from '../../../contexts/user/vendor-user/vendor-user.ts';
 import { GuestPassportBase } from '../guest.passport-base.ts';
 
-export class GuestUserPassport
-	extends GuestPassportBase
-	implements UserPassport
-{
+export class GuestUserPassport extends GuestPassportBase implements UserPassport {
 	forEndUser(_root: EndUserEntityReference): UserVisa {
 		return { determineIf: () => false };
 	}

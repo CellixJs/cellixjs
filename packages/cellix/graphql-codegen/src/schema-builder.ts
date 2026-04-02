@@ -11,13 +11,8 @@ import { baseCellixTypeDefs } from '@cellix/graphql-core';
  * @param additionalResolvers - Additional resolvers to include
  * @returns A complete executable GraphQL schema
  */
-export function buildCellixSchema<TContext = Record<string, unknown>>(
-	additionalTypeDefs: (string | DocumentNode) | Array<string | DocumentNode> = [],
-	additionalResolvers: IResolvers<unknown, TContext>[] = [],
-): GraphQLSchema {
-	const additionalTypeDefsArray = Array.isArray(additionalTypeDefs)
-		? additionalTypeDefs
-		: [additionalTypeDefs];
+export function buildCellixSchema<TContext = Record<string, unknown>>(additionalTypeDefs: (string | DocumentNode) | Array<string | DocumentNode> = [], additionalResolvers: IResolvers<unknown, TContext>[] = []): GraphQLSchema {
+	const additionalTypeDefsArray = Array.isArray(additionalTypeDefs) ? additionalTypeDefs : [additionalTypeDefs];
 
 	const allTypeDefs = mergeTypeDefs([
 		...scalarTypeDefs, // GraphQL scalars

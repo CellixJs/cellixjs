@@ -8,24 +8,13 @@ import type { ServiceTicket, ServiceTicketActivityDetail, ServiceTicketMessage }
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
-export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverter<
-	ServiceTicket,
-	ServiceTicketV1DomainAdapter,
-	Domain.Passport,
-	Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>
-> {
+export class ServiceTicketV1Converter extends MongooseSeedwork.MongoTypeConverter<ServiceTicket, ServiceTicketV1DomainAdapter, Domain.Passport, Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<ServiceTicketV1DomainAdapter>> {
 	constructor() {
-		super(
-			ServiceTicketV1DomainAdapter,
-			Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1
-		);
+		super(ServiceTicketV1DomainAdapter, Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1);
 	}
 }
 
-export class ServiceTicketV1DomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<ServiceTicket>
-	implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Props
-{
+export class ServiceTicketV1DomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<ServiceTicket> implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Props {
 	get title(): string {
 		return this.doc.title;
 	}
@@ -59,12 +48,12 @@ export class ServiceTicketV1DomainAdapter
 	}
 
 	get communityId(): string {
-        if (!this.doc.community) {
-            throw new Error('community is not set');
-        }
-        if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-            throw new Error('community is not populated');
-        }
+		if (!this.doc.community) {
+			throw new Error('community is not set');
+		}
+		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
+			throw new Error('community is not populated');
+		}
 		return this.doc.community.id.toString();
 	}
 
@@ -85,12 +74,12 @@ export class ServiceTicketV1DomainAdapter
 	}
 
 	get requestorId(): string {
-        if (!this.doc.requestor) {
-            throw new Error('requestor is not set');
-        }
-        if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
-            throw new Error('requestor is not populated');
-        }
+		if (!this.doc.requestor) {
+			throw new Error('requestor is not set');
+		}
+		if (this.doc.requestor instanceof MongooseSeedwork.ObjectId) {
+			throw new Error('requestor is not populated');
+		}
 		return this.doc.requestor.id.toString();
 	}
 
@@ -239,11 +228,11 @@ export { ServiceTicketV1ActivityDetailDomainAdapter, ServiceTicketV1MessageDomai
 
 class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1ActivityDetailProps {
 	public readonly doc: ServiceTicketActivityDetail;
-	
+
 	constructor(doc: ServiceTicketActivityDetail) {
 		this.doc = doc;
 	}
-	
+
 	public get id(): string {
 		return this.doc.id?.valueOf() as string;
 	}
@@ -251,7 +240,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 	get activityType(): string {
 		return this.doc.activityType;
 	}
-	
+
 	set activityType(activityType: string) {
 		this.doc.activityType = activityType;
 	}
@@ -259,7 +248,7 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 	get activityDescription(): string {
 		return this.doc.activityDescription;
 	}
-	
+
 	set activityDescription(activityDescription: string) {
 		this.doc.activityDescription = activityDescription;
 	}
@@ -305,11 +294,11 @@ class ServiceTicketV1ActivityDetailDomainAdapter implements Domain.Contexts.Case
 
 class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1MessageProps {
 	public readonly doc: ServiceTicketMessage;
-	
+
 	constructor(doc: ServiceTicketMessage) {
 		this.doc = doc;
 	}
-	
+
 	public get id(): string {
 		return this.doc.id?.valueOf() as string;
 	}
@@ -317,7 +306,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 	get sentBy(): string {
 		return this.doc.sentBy;
 	}
-	
+
 	set sentBy(sentBy: string) {
 		this.doc.sentBy = sentBy;
 	}
@@ -363,15 +352,15 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 	get message(): string {
 		return this.doc.message;
 	}
-	
+
 	set message(message: string) {
 		this.doc.message = message;
 	}
 
-	get embedding(){
+	get embedding() {
 		return this.doc.embedding;
 	}
-	
+
 	set embedding(embedding: string | undefined) {
 		this.doc.embedding = embedding || '';
 	}
@@ -379,7 +368,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 	get createdAt(): Date {
 		return this.doc.createdAt;
 	}
-	
+
 	set createdAt(createdAt: Date) {
 		this.doc.createdAt = createdAt;
 	}
@@ -387,7 +376,7 @@ class ServiceTicketV1MessageDomainAdapter implements Domain.Contexts.Case.Servic
 	get isHiddenFromApplicant(): boolean {
 		return this.doc.isHiddenFromApplicant;
 	}
-	
+
 	set isHiddenFromApplicant(isHiddenFromApplicant: boolean) {
 		this.doc.isHiddenFromApplicant = isHiddenFromApplicant;
 	}

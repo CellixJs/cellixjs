@@ -39,71 +39,57 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		mergeTypeDefs = merge.mergeTypeDefs as MockedFunction<(...args: unknown[]) => unknown>;
 		mergeResolvers = merge.mergeResolvers as MockedFunction<(...args: unknown[]) => unknown>;
-		makeExecutableSchema = schema.makeExecutableSchema as MockedFunction<
-			(...args: unknown[]) => unknown
-		>;
+		makeExecutableSchema = schema.makeExecutableSchema as MockedFunction<(...args: unknown[]) => unknown>;
 
 		mergeTypeDefs.mockReturnValue({ kind: 'Document', definitions: [] } as DocumentNode);
 		mergeResolvers.mockReturnValue({});
 		makeExecutableSchema.mockReturnValue({} as GraphQLSchema);
 	});
 
-	Scenario(
-		'Building schema with no additional types or resolvers',
-		({ Given, When, Then, And }) => {
-			let result: GraphQLSchema;
+	Scenario('Building schema with no additional types or resolvers', ({ Given, When, Then, And }) => {
+		let result: GraphQLSchema;
 
-			Given('no additional type definitions or resolvers', () => {
-				// no setup needed
-			});
+		Given('no additional type definitions or resolvers', () => {
+			// no setup needed
+		});
 
-			When('buildCellixSchema is called', () => {
-				result = buildCellixSchema();
-			});
+		When('buildCellixSchema is called', () => {
+			result = buildCellixSchema();
+		});
 
-			Then('it should return a valid GraphQL schema', () => {
-				expect(result).toBeDefined();
-			});
+		Then('it should return a valid GraphQL schema', () => {
+			expect(result).toBeDefined();
+		});
 
-			And('the schema should include base Cellix types', () => {
-				expect(mergeTypeDefs).toHaveBeenCalledWith(
-					expect.arrayContaining([...baseCellixTypeDefs]),
-				);
-			});
+		And('the schema should include base Cellix types', () => {
+			expect(mergeTypeDefs).toHaveBeenCalledWith(expect.arrayContaining([...baseCellixTypeDefs]));
+		});
 
-			And('the schema should include GraphQL scalars', () => {
-				expect(mergeTypeDefs).toHaveBeenCalledWith(
-					expect.arrayContaining(['scalar DateTime']),
-				);
-			});
-		},
-	);
+		And('the schema should include GraphQL scalars', () => {
+			expect(mergeTypeDefs).toHaveBeenCalledWith(expect.arrayContaining(['scalar DateTime']));
+		});
+	});
 
-	Scenario(
-		'Building schema with additional string type definitions',
-		({ Given, When, Then, And }) => {
-			let result: GraphQLSchema;
-			const additionalTypes = ['type CustomType { id: ID! }'];
+	Scenario('Building schema with additional string type definitions', ({ Given, When, Then, And }) => {
+		let result: GraphQLSchema;
+		const additionalTypes = ['type CustomType { id: ID! }'];
 
-			Given('additional type definitions as strings', () => {
-				// types defined above
-			});
+		Given('additional type definitions as strings', () => {
+			// types defined above
+		});
 
-			When('buildCellixSchema is called with the additional types', () => {
-				result = buildCellixSchema(additionalTypes);
-			});
+		When('buildCellixSchema is called with the additional types', () => {
+			result = buildCellixSchema(additionalTypes);
+		});
 
-			Then('it should return a valid GraphQL schema', () => {
-				expect(result).toBeDefined();
-			});
+		Then('it should return a valid GraphQL schema', () => {
+			expect(result).toBeDefined();
+		});
 
-			And('the schema should include the additional types', () => {
-				expect(mergeTypeDefs).toHaveBeenCalledWith(
-					expect.arrayContaining(additionalTypes),
-				);
-			});
-		},
-	);
+		And('the schema should include the additional types', () => {
+			expect(mergeTypeDefs).toHaveBeenCalledWith(expect.arrayContaining(additionalTypes));
+		});
+	});
 
 	Scenario('Building schema with additional resolvers', ({ Given, When, Then, And }) => {
 		let result: GraphQLSchema;
@@ -122,9 +108,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		And('the schema should include the additional resolvers', () => {
-			expect(mergeResolvers).toHaveBeenCalledWith(
-				expect.arrayContaining(additionalResolvers),
-			);
+			expect(mergeResolvers).toHaveBeenCalledWith(expect.arrayContaining(additionalResolvers));
 		});
 	});
 });

@@ -212,8 +212,5 @@ const PropertySchema = new Schema<Property, Model<Property>, Property>(
 	.index({ 'location.position': '2dsphere' });
 
 export const PropertyModelName = 'Property';
-export const PropertyModelFactory = MongooseSeedwork.modelFactory<Property>(
-	PropertyModelName,
-	PropertySchema,
-);
+export const PropertyModelFactory = MongooseSeedwork.modelFactory<Property>(PropertyModelName, PropertySchema);
 export type PropertyModelType = ReturnType<typeof PropertyModelFactory>;

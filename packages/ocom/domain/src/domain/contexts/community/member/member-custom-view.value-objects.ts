@@ -5,8 +5,7 @@ const CustomViewTypes = {
 	ServiceTicket: 'SERVICE_TICKET',
 } as const;
 
-type CustomViewTypeEnum =
-	(typeof CustomViewTypes)[keyof typeof CustomViewTypes];
+type CustomViewTypeEnum = (typeof CustomViewTypes)[keyof typeof CustomViewTypes];
 
 export class CustomViewName extends VOString({ trim: true, maxLength: 500 }) {}
 class CustomViewTypeBase extends VOString({ trim: true, maxLength: 500 }) {}

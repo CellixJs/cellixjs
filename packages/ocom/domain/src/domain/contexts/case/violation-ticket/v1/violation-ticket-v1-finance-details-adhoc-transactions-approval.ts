@@ -1,19 +1,16 @@
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import { ValueObject } from '@cellix/domain-seedwork/value-object';
-export interface ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps
-	extends ValueObjectProps {
+export interface ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps extends ValueObjectProps {
 	isApplicantApprovalRequired: boolean;
 	isApplicantApproved: boolean;
 	applicantRespondedAt: Date;
 }
 
-export interface ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference
-	extends Readonly<ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps> {}
+export interface ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference extends Readonly<ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps> {}
 
 export class ViolationTicketV1FinanceDetailsAdhocTransactionsApproval
 	extends ValueObject<ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalProps>
-	implements
-		ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference
+	implements ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference
 {
 	get isApplicantApprovalRequired(): boolean {
 		return this.props.isApplicantApprovalRequired;

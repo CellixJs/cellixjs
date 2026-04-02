@@ -4,14 +4,7 @@ import { useState, useMemo } from 'react';
 import { AuthProvider, type AuthContextProps } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, within, waitFor } from 'storybook/test';
-import {
-	ApolloLinkToAddAuthHeader,
-	ApolloLinkToAddAuthHeader1,
-	ApolloLinkToAddAuthHeader2,
-	ApolloLinkToAddCustomHeader,
-	BaseApolloLink,
-	TerminatingApolloLinkForGraphqlServer,
-} from './apollo-client-links.tsx';
+import { ApolloLinkToAddAuthHeader, ApolloLinkToAddAuthHeader1, ApolloLinkToAddAuthHeader2, ApolloLinkToAddCustomHeader, BaseApolloLink, TerminatingApolloLinkForGraphqlServer } from './apollo-client-links.tsx';
 import { ApolloConnection } from './index.tsx';
 
 interface MockAuth {
@@ -124,10 +117,18 @@ const ApolloLinkTester = ({ customClient }: { customClient?: ApolloClient<unknow
 
 	return (
 		<div data-testid="apollo-link-tester">
-			<button type="button" data-testid="test-auth-button" onClick={testAuthHeader}>
+			<button
+				type="button"
+				data-testid="test-auth-button"
+				onClick={testAuthHeader}
+			>
 				Test Auth Header
 			</button>
-			<button type="button" data-testid="test-headers-button" onClick={testCustomHeaders}>
+			<button
+				type="button"
+				data-testid="test-headers-button"
+				onClick={testCustomHeaders}
+			>
 				Test Custom Headers
 			</button>
 			<div data-testid="auth-result">{authResult}</div>
@@ -140,10 +141,14 @@ const ApolloLinkTester = ({ customClient }: { customClient?: ApolloClient<unknow
 };
 
 const CustomClientTester = ({ link }: { link: ApolloLink }) => {
-	const testClient = useMemo(() => new ApolloClient({
-		link: ApolloLink.from([link, mockTerminatingLink]),
-		cache: new InMemoryCache(),
-	}), [link]);
+	const testClient = useMemo(
+		() =>
+			new ApolloClient({
+				link: ApolloLink.from([link, mockTerminatingLink]),
+				cache: new InMemoryCache(),
+			}),
+		[link],
+	);
 	return <ApolloLinkTester customClient={testClient} />;
 };
 
@@ -151,12 +156,12 @@ export const BaseLink: StoryObj = {
 	render: () => <CustomClientTester link={BaseApolloLink()} />,
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-auth-button').then(b => b.click());
+		await canvas.findByTestId('test-auth-button').then((b) => b.click());
 		const result = await canvas.findByTestId('auth-result');
 		await waitFor(() => {
 			expect(result.textContent).toContain('success');
 		});
-	}
+	},
 };
 
 export const AuthHeaderFallbackStorage: StoryObj = {
@@ -165,7 +170,7 @@ export const AuthHeaderFallbackStorage: StoryObj = {
 		const authority = mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY;
 		const client_id = mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID;
 		const storageKey = `oidc.user:${authority}:${client_id}`;
-		
+
 		const mockToken = ['mock', 'token'].join('-');
 		mockStorage.setItem(storageKey, JSON.stringify({ access_token: mockToken }));
 
@@ -173,12 +178,12 @@ export const AuthHeaderFallbackStorage: StoryObj = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-auth-button').then(b => b.click());
+		await canvas.findByTestId('test-auth-button').then((b) => b.click());
 		const result = await canvas.findByTestId('auth-result');
 		await waitFor(() => {
 			expect(result.textContent).toContain('success');
 		});
-	}
+	},
 };
 
 export const AuthHeaderStorageParseError: StoryObj = {
@@ -187,19 +192,19 @@ export const AuthHeaderStorageParseError: StoryObj = {
 		const authority = mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY;
 		const client_id = mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID;
 		const storageKey = `oidc.user:${authority}:${client_id}`;
-		
+
 		mockStorage.setItem(storageKey, 'invalid-json{');
 
 		return <CustomClientTester link={ApolloLinkToAddAuthHeader(auth as unknown as AuthContextProps)} />;
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-auth-button').then(b => b.click());
+		await canvas.findByTestId('test-auth-button').then((b) => b.click());
 		const result = await canvas.findByTestId('auth-result');
 		await waitFor(() => {
 			expect(result.textContent).toContain('success');
 		});
-	}
+	},
 };
 
 export const AuthHeaderLink1: StoryObj = {
@@ -210,12 +215,12 @@ export const AuthHeaderLink1: StoryObj = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-auth-button').then(b => b.click());
+		await canvas.findByTestId('test-auth-button').then((b) => b.click());
 		const result = await canvas.findByTestId('auth-result');
 		await waitFor(() => {
 			expect(result.textContent).toContain('success');
 		});
-	}
+	},
 };
 
 export const AuthHeaderLink1NotAuth: StoryObj = {
@@ -225,12 +230,12 @@ export const AuthHeaderLink1NotAuth: StoryObj = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-auth-button').then(b => b.click());
+		await canvas.findByTestId('test-auth-button').then((b) => b.click());
 		const result = await canvas.findByTestId('auth-result');
 		await waitFor(() => {
 			expect(result.textContent).toContain('success');
 		});
-	}
+	},
 };
 
 export const AuthHeaderLink2: StoryObj = {
@@ -241,36 +246,36 @@ export const AuthHeaderLink2: StoryObj = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-auth-button').then(b => b.click());
+		await canvas.findByTestId('test-auth-button').then((b) => b.click());
 		const result = await canvas.findByTestId('auth-result');
 		await waitFor(() => {
 			expect(result.textContent).toContain('success');
 		});
-	}
+	},
 };
 
 export const CustomHeaderIfTrueFalse: StoryObj = {
 	render: () => <CustomClientTester link={ApolloLinkToAddCustomHeader('x-test', 'value', false)} />,
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-auth-button').then(b => b.click());
+		await canvas.findByTestId('test-auth-button').then((b) => b.click());
 		const result = await canvas.findByTestId('auth-result');
 		await waitFor(() => {
 			expect(result.textContent).toContain('success');
 		});
-	}
+	},
 };
 
 export const CustomHeaderNoValue: StoryObj = {
 	render: () => <CustomClientTester link={ApolloLinkToAddCustomHeader('x-test', null)} />,
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-auth-button').then(b => b.click());
+		await canvas.findByTestId('test-auth-button').then((b) => b.click());
 		const result = await canvas.findByTestId('auth-result');
 		await waitFor(() => {
 			expect(result.textContent).toContain('success');
 		});
-	}
+	},
 };
 
 export const AuthHeaderNoToken: StoryObj = {
@@ -281,12 +286,12 @@ export const AuthHeaderNoToken: StoryObj = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-auth-button').then(b => b.click());
+		await canvas.findByTestId('test-auth-button').then((b) => b.click());
 		const result = await canvas.findByTestId('auth-result');
 		await waitFor(() => {
 			expect(result.textContent).toContain('success');
 		});
-	}
+	},
 };
 
 export const TerminatingLink: StoryObj = {
@@ -303,16 +308,16 @@ export const TerminatingLink: StoryObj = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await canvas.findByTestId('test-headers-button').then(b => b.click());
+		await canvas.findByTestId('test-headers-button').then((b) => b.click());
 		const result = await canvas.findByTestId('headers-result');
 		expect(result.textContent).toContain('Link');
-	}
+	},
 };
 
 export const ApolloConnectionIntegration: StoryObj = {
 	render: () => (
 		<MemoryRouter>
-			<AuthProvider 
+			<AuthProvider
 				authority={mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY}
 				client_id={mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID}
 			>
@@ -325,6 +330,5 @@ export const ApolloConnectionIntegration: StoryObj = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		expect(await canvas.findByTestId('apollo-link-tester')).toBeInTheDocument();
-	}
+	},
 };
-

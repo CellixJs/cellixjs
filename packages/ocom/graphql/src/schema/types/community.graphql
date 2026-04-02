@@ -1,47 +1,46 @@
 type Community implements MongoBase {
-  name: String!
-  domain: String
-#   domainStatus: CommunityDomainResult
-  whiteLabelDomain: String
-  handle: String
-  publicContentBlobUrl: String
-  createdBy: EndUser!
-#   roles: [Role]
-#   files: [FileInfo]
-#   filesByType(type: String!): [FileInfo]
-#   userIsAdmin: Boolean!
+	name: String!
+	domain: String
+	#   domainStatus: CommunityDomainResult
+	whiteLabelDomain: String
+	handle: String
+	publicContentBlobUrl: String
+	createdBy: EndUser!
+	#   roles: [Role]
+	#   files: [FileInfo]
+	#   filesByType(type: String!): [FileInfo]
+	#   userIsAdmin: Boolean!
 
-  id: ObjectID!
-  schemaVersion: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 extend type Query {
-  currentCommunity: Community
-  communityById(id: ObjectID!): Community
-  communitiesForCurrentEndUser: [Community]
+	currentCommunity: Community
+	communityById(id: ObjectID!): Community
+	communitiesForCurrentEndUser: [Community]
 }
 
 extend type Mutation {
-    communityCreate(input: CommunityCreateInput!): CommunityMutationResult!
-    communityUpdateSettings(input: CommunityUpdateSettingsInput!): CommunityMutationResult!
+	communityCreate(input: CommunityCreateInput!): CommunityMutationResult!
+	communityUpdateSettings(input: CommunityUpdateSettingsInput!): CommunityMutationResult!
 }
 
 type CommunityMutationResult implements MutationResult {
-  status: MutationStatus!
-  community: Community
+	status: MutationStatus!
+	community: Community
 }
 
 input CommunityCreateInput {
-  name: String!
+	name: String!
 }
 
 input CommunityUpdateSettingsInput {
-  id: ObjectID!
-  name: String
-  domain: String
-  whiteLabelDomain: String
-  handle: String
+	id: ObjectID!
+	name: String
+	domain: String
+	whiteLabelDomain: String
+	handle: String
 }
-

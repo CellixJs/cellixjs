@@ -24,8 +24,5 @@
 		"noUncheckedSideEffectImports": true
 	},
 	"include": ["src"],
-	"references": [
-		{ "path": "../../packages/cellix/ui-core" },
-		{ "path": "../../packages/ocom/ui-components" }
-	]
+	"references": [{ "path": "../../packages/cellix/ui-core" }, { "path": "../../packages/ocom/ui-components" }]
 }

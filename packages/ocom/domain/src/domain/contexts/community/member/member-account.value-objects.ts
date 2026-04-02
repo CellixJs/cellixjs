@@ -16,6 +16,4 @@ export class LastName extends VOString({
 	maxLength: 500,
 	minLength: 1,
 }) {}
-export class AccountStatusCode extends VOSet(
-	Object.values(AccountStatusCodes),
-) {}
+export class AccountStatusCode extends VOSet(Object.values(AccountStatusCodes)) {}

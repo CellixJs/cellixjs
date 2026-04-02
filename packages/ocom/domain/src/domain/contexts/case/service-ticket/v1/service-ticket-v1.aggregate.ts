@@ -2,33 +2,16 @@ import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
-import {
-	ServiceTicketV1CreatedEvent,
-	type ServiceTicketV1CreatedProps,
-} from '../../../../events/types/service-ticket-v1-created.ts';
-import {
-	ServiceTicketV1DeletedEvent,
-	type ServiceTicketV1DeletedProps,
-} from '../../../../events/types/service-ticket-v1-deleted.ts';
-import {
-	ServiceTicketV1UpdatedEvent,
-	type ServiceTicketV1UpdatedProps,
-} from '../../../../events/types/service-ticket-v1-updated.ts';
+import { ServiceTicketV1CreatedEvent, type ServiceTicketV1CreatedProps } from '../../../../events/types/service-ticket-v1-created.ts';
+import { ServiceTicketV1DeletedEvent, type ServiceTicketV1DeletedProps } from '../../../../events/types/service-ticket-v1-deleted.ts';
+import { ServiceTicketV1UpdatedEvent, type ServiceTicketV1UpdatedProps } from '../../../../events/types/service-ticket-v1-updated.ts';
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { Passport } from '../../../passport.ts';
 import * as ValueObjects from './service-ticket-v1.value-objects.ts';
 import type { ServiceTicketV1Visa } from './service-ticket-v1.visa.ts';
-import {
-	ServiceTicketV1ActivityDetail,
-	type ServiceTicketV1ActivityDetailEntityReference,
-	type ServiceTicketV1ActivityDetailProps,
-} from './service-ticket-v1-activity-detail.entity.ts';
+import { ServiceTicketV1ActivityDetail, type ServiceTicketV1ActivityDetailEntityReference, type ServiceTicketV1ActivityDetailProps } from './service-ticket-v1-activity-detail.entity.ts';
 import * as ActivityDetailValueObjects from './service-ticket-v1-activity-detail.value-objects.ts';
-import {
-	ServiceTicketV1Message,
-	type ServiceTicketV1MessageEntityReference,
-	type ServiceTicketV1MessageProps,
-} from './service-ticket-v1-message.entity.ts';
+import { ServiceTicketV1Message, type ServiceTicketV1MessageEntityReference, type ServiceTicketV1MessageProps } from './service-ticket-v1-message.entity.ts';
 
 /**
  * Props for ServiceTicket aggregate
@@ -57,8 +40,7 @@ export interface ServiceTicketV1Props extends DomainEntityProps {
 /**
  * Entity reference for ServiceTicket
  */
-export interface ServiceTicketV1EntityReference
-	extends Readonly<Omit<ServiceTicketV1Props, 'activityLog' | 'messages'>> {
+export interface ServiceTicketV1EntityReference extends Readonly<Omit<ServiceTicketV1Props, 'activityLog' | 'messages'>> {
 	readonly activityLog: ReadonlyArray<ServiceTicketV1ActivityDetailEntityReference>;
 	readonly messages: ReadonlyArray<ServiceTicketV1MessageEntityReference>;
 }
@@ -66,58 +48,25 @@ export interface ServiceTicketV1EntityReference
 /**
  * ServiceTicket aggregate root
  */
-export class ServiceTicketV1<props extends ServiceTicketV1Props>
-	extends AggregateRoot<props, Passport>
-	implements ServiceTicketV1EntityReference
-{
+export class ServiceTicketV1<props extends ServiceTicketV1Props> extends AggregateRoot<props, Passport> implements ServiceTicketV1EntityReference {
 	//#region Fields
 	private readonly visa: ServiceTicketV1Visa;
 	private isNew: boolean = false;
 	private readonly validStatusTransitions = new Map<ValueObjects.StatusCode, ValueObjects.StatusCode[]>([
 		[ValueObjects.StatusCodes.Draft, [ValueObjects.StatusCodes.Submitted]],
-		[
-			ValueObjects.StatusCodes.Submitted,
-			[ValueObjects.StatusCodes.Draft, ValueObjects.StatusCodes.Assigned],
-		],
-		[
-			ValueObjects.StatusCodes.Assigned,
-			[ValueObjects.StatusCodes.Submitted, ValueObjects.StatusCodes.InProgress],
-		],
-		[
-			ValueObjects.StatusCodes.InProgress,
-			[ValueObjects.StatusCodes.Assigned, ValueObjects.StatusCodes.Completed],
-		],
-		[
-			ValueObjects.StatusCodes.Completed,
-			[ValueObjects.StatusCodes.InProgress, ValueObjects.StatusCodes.Closed],
-		],
+		[ValueObjects.StatusCodes.Submitted, [ValueObjects.StatusCodes.Draft, ValueObjects.StatusCodes.Assigned]],
+		[ValueObjects.StatusCodes.Assigned, [ValueObjects.StatusCodes.Submitted, ValueObjects.StatusCodes.InProgress]],
+		[ValueObjects.StatusCodes.InProgress, [ValueObjects.StatusCodes.Assigned, ValueObjects.StatusCodes.Completed]],
+		[ValueObjects.StatusCodes.Completed, [ValueObjects.StatusCodes.InProgress, ValueObjects.StatusCodes.Closed]],
 		[ValueObjects.StatusCodes.Closed, [ValueObjects.StatusCodes.InProgress]],
 	]);
 	private readonly statusMappings = new Map<ValueObjects.StatusCode, ActivityDetailValueObjects.ActivityTypeCode>([
-		[
-			ValueObjects.StatusCodes.Draft,
-			ActivityDetailValueObjects.ActivityTypeCodes.Created,
-		],
-		[
-			ValueObjects.StatusCodes.Submitted,
-			ActivityDetailValueObjects.ActivityTypeCodes.Submitted,
-		],
-		[
-			ValueObjects.StatusCodes.Assigned,
-			ActivityDetailValueObjects.ActivityTypeCodes.Assigned,
-		],
-		[
-			ValueObjects.StatusCodes.InProgress,
-			ActivityDetailValueObjects.ActivityTypeCodes.InProgress,
-		],
-		[
-			ValueObjects.StatusCodes.Completed,
-			ActivityDetailValueObjects.ActivityTypeCodes.Completed,
-		],
-		[
-			ValueObjects.StatusCodes.Closed,
-			ActivityDetailValueObjects.ActivityTypeCodes.Closed,
-		],
+		[ValueObjects.StatusCodes.Draft, ActivityDetailValueObjects.ActivityTypeCodes.Created],
+		[ValueObjects.StatusCodes.Submitted, ActivityDetailValueObjects.ActivityTypeCodes.Submitted],
+		[ValueObjects.StatusCodes.Assigned, ActivityDetailValueObjects.ActivityTypeCodes.Assigned],
+		[ValueObjects.StatusCodes.InProgress, ActivityDetailValueObjects.ActivityTypeCodes.InProgress],
+		[ValueObjects.StatusCodes.Completed, ActivityDetailValueObjects.ActivityTypeCodes.Completed],
+		[ValueObjects.StatusCodes.Closed, ActivityDetailValueObjects.ActivityTypeCodes.Closed],
 	]);
 	//#endregion Fields
 
@@ -156,108 +105,63 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 
 	private markAsNew(): void {
 		this.isNew = true;
-		this.addIntegrationEvent<
-			ServiceTicketV1CreatedProps,
-			ServiceTicketV1CreatedEvent
-		>(ServiceTicketV1CreatedEvent, {
+		this.addIntegrationEvent<ServiceTicketV1CreatedProps, ServiceTicketV1CreatedEvent>(ServiceTicketV1CreatedEvent, {
 			id: this.props.id,
 		});
 	}
 
-	public requestNewActivityDetail(
-		activityBy: MemberEntityReference,
-	): ServiceTicketV1ActivityDetail {
+	public requestNewActivityDetail(activityBy: MemberEntityReference): ServiceTicketV1ActivityDetail {
 		const activityDetailProps = this.props.activityLog.getNewItem();
-		return ServiceTicketV1ActivityDetail.getNewInstance(
-			activityDetailProps,
-			activityBy,
-		);
+		return ServiceTicketV1ActivityDetail.getNewInstance(activityDetailProps, activityBy);
 	}
 
-	public requestAddStatusUpdate(
-		description: string,
-		by: MemberEntityReference,
-	): void {
+	public requestAddStatusUpdate(description: string, by: MemberEntityReference): void {
 		if (
 			!this.isNew &&
 			!this.visa.determineIf(
 				(permissions) =>
 					permissions.isSystemAccount ||
 					(permissions.canCreateTickets && permissions.isEditingOwnTicket) ||
-					(permissions.canWorkOnTickets &&
-						permissions.isEditingAssignedTicket) ||
+					(permissions.canWorkOnTickets && permissions.isEditingAssignedTicket) ||
 					permissions.canManageTickets ||
 					permissions.canAssignTickets,
 			)
 		) {
-			throw new PermissionError(
-				'You do not have permission to update this service ticket',
-			);
+			throw new PermissionError('You do not have permission to update this service ticket');
 		}
 		const activityDetail = this.requestNewActivityDetail(by);
-		activityDetail.activityType =
-			ActivityDetailValueObjects.ActivityTypeCodes.Updated;
+		activityDetail.activityType = ActivityDetailValueObjects.ActivityTypeCodes.Updated;
 		activityDetail.activityDescription = description;
 	}
-	public requestAddStatusTransition(
-		newStatus: ValueObjects.StatusCode,
-		description: string,
-		by: MemberEntityReference,
-	): void {
+	public requestAddStatusTransition(newStatus: ValueObjects.StatusCode, description: string, by: MemberEntityReference): void {
 		if (
 			!this.visa.determineIf(
 				(permissions) =>
 					permissions.isSystemAccount ||
-					((this.validStatusTransitions
-						.get(this.status)
-						?.includes(newStatus.valueOf()) ??
-						false) &&
-						(permissions.canManageTickets ||
-							permissions.canAssignTickets ||
-							(permissions.canCreateTickets &&
-								permissions.isEditingOwnTicket) ||
-							(permissions.canWorkOnTickets &&
-								permissions.isEditingAssignedTicket))),
+					((this.validStatusTransitions.get(this.status)?.includes(newStatus.valueOf()) ?? false) &&
+						(permissions.canManageTickets || permissions.canAssignTickets || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket))),
 			)
 		) {
-			throw new PermissionError(
-				'You do not have permission to change the status of this service ticket or the status transition is invalid',
-			);
+			throw new PermissionError('You do not have permission to change the status of this service ticket or the status transition is invalid');
 		}
 
 		this.props.status = newStatus.valueOf();
 		const activityDetail = this.requestNewActivityDetail(by);
 		activityDetail.activityDescription = description;
-		activityDetail.activityType =
-			this.statusMappings.get(newStatus.valueOf()) ||
-			ActivityDetailValueObjects.ActivityTypeCodes.Updated;
+		activityDetail.activityType = this.statusMappings.get(newStatus.valueOf()) || ActivityDetailValueObjects.ActivityTypeCodes.Updated;
 	}
 
 	public requestDelete(): void {
-		if (
-			!this.isDeleted &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount || permissions.canManageTickets,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to delete this property',
-			);
+		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
+			throw new PermissionError('You do not have permission to delete this property');
 		}
 		super.isDeleted = true;
-		this.addIntegrationEvent<
-			ServiceTicketV1DeletedProps,
-			ServiceTicketV1DeletedEvent
-		>(ServiceTicketV1DeletedEvent, { id: this.props.id });
+		this.addIntegrationEvent<ServiceTicketV1DeletedProps, ServiceTicketV1DeletedEvent>(ServiceTicketV1DeletedEvent, { id: this.props.id });
 	}
 
 	public override onSave(isModified: boolean): void {
 		if (isModified && !super.isDeleted) {
-			this.addIntegrationEvent<
-				ServiceTicketV1UpdatedProps,
-				ServiceTicketV1UpdatedEvent
-			>(ServiceTicketV1UpdatedEvent, {
+			this.addIntegrationEvent<ServiceTicketV1UpdatedProps, ServiceTicketV1UpdatedEvent>(ServiceTicketV1UpdatedEvent, {
 				id: this.props.id,
 			});
 		}
@@ -274,16 +178,10 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 		if (
 			!this.isNew &&
 			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageTickets ||
-					(permissions.canCreateTickets && permissions.isEditingOwnTicket) ||
-					(permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
+				(permissions) => permissions.isSystemAccount || permissions.canManageTickets || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
 			)
 		) {
-			throw new PermissionError(
-				'You do not have permission to update this service ticket',
-			);
+			throw new PermissionError('You do not have permission to update this service ticket');
 		}
 		this.props.title = title.valueOf();
 	}
@@ -296,16 +194,10 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 		if (
 			!this.isNew &&
 			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageTickets ||
-					(permissions.canCreateTickets && permissions.isEditingOwnTicket) ||
-					(permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
+				(permissions) => permissions.isSystemAccount || permissions.canManageTickets || (permissions.canCreateTickets && permissions.isEditingOwnTicket) || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
 			)
 		) {
-			throw new PermissionError(
-				'You do not have permission to update this service ticket',
-			);
+			throw new PermissionError('You do not have permission to update this service ticket');
 		}
 		this.props.description = description.valueOf();
 	}
@@ -317,17 +209,9 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 	set status(status: ValueObjects.StatusCode) {
 		if (
 			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageTickets ||
-					permissions.canAssignTickets ||
-					(permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
-			)
+			!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets || permissions.canAssignTickets || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket))
 		) {
-			throw new PermissionError(
-				'You do not have permission to change the status of this service ticket',
-			);
+			throw new PermissionError('You do not have permission to change the status of this service ticket');
 		}
 		this.props.status = status.valueOf();
 	}
@@ -337,18 +221,8 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 	}
 
 	set priority(priority: ValueObjects.Priority) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageTickets ||
-					permissions.canAssignTickets,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to change the priority of this service ticket',
-			);
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets || permissions.canAssignTickets)) {
+			throw new PermissionError('You do not have permission to change the priority of this service ticket');
 		}
 		this.props.priority = priority.valueOf();
 	}
@@ -362,16 +236,8 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 	}
 
 	set communityId(value: string) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount || permissions.canManageTickets,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to change the community of this service ticket',
-			);
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
+			throw new PermissionError('You do not have permission to change the community of this service ticket');
 		}
 		this.props.communityId = value;
 	}
@@ -381,16 +247,8 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 	}
 
 	set propertyId(value: string | undefined) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount || permissions.canManageTickets,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to change the property of this service ticket',
-			);
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
+			throw new PermissionError('You do not have permission to change the property of this service ticket');
 		}
 		this.props.propertyId = value;
 	}
@@ -400,16 +258,8 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 	}
 
 	set requestorId(value: string) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount || permissions.canManageTickets,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to change the requestor of this service ticket',
-			);
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets)) {
+			throw new PermissionError('You do not have permission to change the requestor of this service ticket');
 		}
 		this.props.requestorId = value;
 	}
@@ -419,17 +269,8 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 	}
 
 	set assignedToId(value: string) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageTickets ||
-					permissions.canAssignTickets,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to assign this service ticket',
-			);
+		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets || permissions.canAssignTickets)) {
+			throw new PermissionError('You do not have permission to assign this service ticket');
 		}
 		this.props.assignedToId = value;
 	}
@@ -439,32 +280,18 @@ export class ServiceTicketV1<props extends ServiceTicketV1Props>
 	}
 
 	set serviceId(value: string) {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageTickets ||
-					(permissions.canWorkOnTickets && permissions.isEditingAssignedTicket),
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to change the service of this service ticket',
-			);
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageTickets || (permissions.canWorkOnTickets && permissions.isEditingAssignedTicket))) {
+			throw new PermissionError('You do not have permission to change the service of this service ticket');
 		}
 		this.props.serviceId = value;
 	}
 
 	get activityLog(): ReadonlyArray<ServiceTicketV1ActivityDetailEntityReference> {
-		return this.props.activityLog.items.map(
-			(item) => new ServiceTicketV1ActivityDetail(item),
-		);
+		return this.props.activityLog.items.map((item) => new ServiceTicketV1ActivityDetail(item));
 	}
 
 	get messages(): ReadonlyArray<ServiceTicketV1MessageEntityReference> {
-		return this.props.messages.items.map(
-			(item) => new ServiceTicketV1Message(item, this.visa),
-		);
+		return this.props.messages.items.map((item) => new ServiceTicketV1Message(item, this.visa));
 	}
 
 	get createdAt(): Date {
