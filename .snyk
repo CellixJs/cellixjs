@@ -47,36 +47,6 @@ ignore:
         reason: 'Transitive dependency in @azure/functions; upgrade path has type errors'
         expires: '2026-07-28T00:00:00.000Z'
         created: '2026-01-15T11:04:00.000Z'
-  'SNYK-JS-LODASH-15053838':
-    - '* > lodash':
-        reason: 'Transitive dependency used by Docusaurus and graphql-tools; not exploitable in current usage. Lodash 4.18.0 (the reported fix) is a deprecated bad release that breaks html-webpack-plugin; pinned to 4.17.21 via pnpm override.'
-        expires: '2027-04-01T00:00:00.000Z'
-        created: '2026-04-01T00:00:00.000Z'
-  'SNYK-JS-LODASHES-15053836':
-    - '* > lodash-es':
-        reason: 'Transitive dependency in @ant-design/pro-layout; not exploitable in current usage. Lodash-es 4.18.0 (the reported fix) is a deprecated bad release; pinned to 4.17.21 via pnpm override.'
-        expires: '2027-04-01T00:00:00.000Z'
-        created: '2026-04-01T00:00:00.000Z'
-  'SNYK-JS-LODASH-15869619':
-    - '* > lodash':
-        reason: 'Prototype Pollution in lodash@4.17.21. Lodash 4.18.0 (the Snyk-reported fix) is a deprecated bad release (npm: "Bad release. Please use lodash@4.17.21 instead") that breaks html-webpack-plugin via a missing assignWith reference. No valid fix is available; lodash is pinned to 4.17.21 via pnpm override. Not exploitable in current transitive usage.'
-        expires: '2027-04-01T00:00:00.000Z'
-        created: '2026-04-01T00:00:00.000Z'
-  'SNYK-JS-LODASH-15869625':
-    - '* > lodash':
-        reason: 'Arbitrary Code Injection via _.template() in lodash@4.17.21. Lodash 4.18.0 (the Snyk-reported fix) is a deprecated bad release that breaks html-webpack-plugin. No valid fix exists on npm. The _.template() function is only invoked at build-time by html-webpack-plugin/docusaurus with trusted internal templates, not with user-controlled input. Not exploitable in current usage.'
-        expires: '2027-04-01T00:00:00.000Z'
-        created: '2026-04-01T00:00:00.000Z'
-  'SNYK-JS-LODASHES-15869621':
-    - '* > lodash-es':
-        reason: 'Prototype Pollution in lodash-es@4.17.21. Lodash-es 4.18.0 (the Snyk-reported fix) is a deprecated bad release. No valid fix is available; lodash-es is pinned to 4.17.21 via pnpm override. Not exploitable in current transitive usage.'
-        expires: '2027-04-01T00:00:00.000Z'
-        created: '2026-04-01T00:00:00.000Z'
-  'SNYK-JS-LODASHES-15869627':
-    - '* > lodash-es':
-        reason: 'Arbitrary Code Injection via _.template() in lodash-es@4.17.21. Lodash-es 4.18.0 (the Snyk-reported fix) is a deprecated bad release. Not exploitable in current usage; _.template() is not called with user-controlled input in our dependency chain.'
-        expires: '2027-04-01T00:00:00.000Z'
-        created: '2026-04-01T00:00:00.000Z'
   'SNYK-JS-YAUZL-15467445':
     - '* > yauzl@<3.2.1':
         reason: 'Transitive dependency in @mongodb-memory-server; not exploitable in current usage.'
