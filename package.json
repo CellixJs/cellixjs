@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^6.3.0",
-    "@biomejs/biome": "2.4.6",
+    "@biomejs/biome": "2.4.10",
     "@cellix/graphql-codegen": "workspace:*",
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/introspection": "^4.0.3",

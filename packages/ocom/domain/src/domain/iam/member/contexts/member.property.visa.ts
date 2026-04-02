@@ -3,9 +3,7 @@ import type { PropertyEntityReference } from '../../../contexts/property/propert
 import type { PropertyDomainPermissions } from '../../../contexts/property/property.domain-permissions.ts';
 import type { PropertyVisa } from '../../../contexts/property/property.visa.ts';
 
-export class MemberPropertyVisa<root extends PropertyEntityReference>
-	implements PropertyVisa
-{
+export class MemberPropertyVisa<root extends PropertyEntityReference> implements PropertyVisa {
 	private readonly root: root;
 	private readonly member: MemberEntityReference;
 
@@ -14,9 +12,7 @@ export class MemberPropertyVisa<root extends PropertyEntityReference>
 		this.member = member;
 	}
 
-	determineIf(
-		func: (permissions: Readonly<PropertyDomainPermissions>) => boolean,
-	): boolean {
+	determineIf(func: (permissions: Readonly<PropertyDomainPermissions>) => boolean): boolean {
 		if (this.member.community.id !== this.root.community.id) {
 			return false;
 		}
@@ -26,9 +22,7 @@ export class MemberPropertyVisa<root extends PropertyEntityReference>
 			canManageProperties: propertyPermissions?.canManageProperties ?? false,
 			canEditOwnProperty: propertyPermissions?.canEditOwnProperty ?? false,
 			isSystemAccount: false,
-			isEditingOwnProperty: Boolean(
-				this.root.owner?.id && this.root.owner.id === this.member.id,
-			),
+			isEditingOwnProperty: Boolean(this.root.owner?.id && this.root.owner.id === this.member.id),
 		};
 
 		return func(permissions);

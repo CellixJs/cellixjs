@@ -7,8 +7,7 @@ export interface VendorUserContactInformation extends MongooseSeedwork.NestedPat
 	email: string | undefined;
 }
 
-const VendorUserContactInformationType:
-	SchemaDefinition<VendorUserContactInformation> = {
+const VendorUserContactInformationType: SchemaDefinition<VendorUserContactInformation> = {
 	email: {
 		type: String,
 		match: Patterns.EMAIL_PATTERN,
@@ -23,8 +22,7 @@ export interface VendorUserIdentityDetails extends MongooseSeedwork.NestedPath {
 	restOfName: string | undefined;
 }
 
-const VendorUserIdentityDetailsType:
-	SchemaDefinition<VendorUserIdentityDetails> = {
+const VendorUserIdentityDetailsType: SchemaDefinition<VendorUserIdentityDetails> = {
 	lastName: { type: String, required: true, maxlength: 50 },
 	legalNameConsistsOfOneName: {
 		type: Boolean,
@@ -34,14 +32,12 @@ const VendorUserIdentityDetailsType:
 	restOfName: { type: String, required: false, maxlength: 50 },
 };
 
-export interface VendorUserPersonalInformation
-	extends MongooseSeedwork.NestedPath {
+export interface VendorUserPersonalInformation extends MongooseSeedwork.NestedPath {
 	identityDetails: VendorUserIdentityDetails;
 	contactInformation: VendorUserContactInformation;
 }
 
-const VendorUserPersonalInformationType:
-	SchemaDefinition<VendorUserPersonalInformation> = {
+const VendorUserPersonalInformationType: SchemaDefinition<VendorUserPersonalInformation> = {
 	identityDetails: {
 		type: VendorUserIdentityDetailsType,
 		required: true,
@@ -65,11 +61,7 @@ export interface VendorUser extends User {
 	tags: string[] | undefined;
 }
 
-const VendorUserSchema = new Schema<
-	VendorUser,
-	Model<VendorUser>,
-	VendorUser
->(
+const VendorUserSchema = new Schema<VendorUser, Model<VendorUser>, VendorUser>(
 	{
 		personalInformation: {
 			type: VendorUserPersonalInformationType,

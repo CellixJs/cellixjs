@@ -6,9 +6,7 @@ import * as ValueObjects from './staff-user.value-objects.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/staff-user.value-objects.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/staff-user.value-objects.feature'));
 
 test.for(feature, ({ Scenario }) => {
 	// RestOfName
@@ -22,52 +20,37 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a first name with leading and trailing whitespace',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a first name with "  Alice  "', () => {
-				value = new ValueObjects.FirstName('  Alice  ').valueOf();
-			});
-			Then('the value should be "Alice"', () => {
-				expect(value).toBe('Alice');
-			});
-		},
-	);
+	Scenario('Creating a first name with leading and trailing whitespace', ({ When, Then }) => {
+		let value: string;
+		When('I create a first name with "  Alice  "', () => {
+			value = new ValueObjects.FirstName('  Alice  ').valueOf();
+		});
+		Then('the value should be "Alice"', () => {
+			expect(value).toBe('Alice');
+		});
+	});
 
-	Scenario(
-		'Creating a first name with maximum allowed length',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a first name with a string of 50 characters', () => {
-				value = new ValueObjects.FirstName('a'.repeat(50)).valueOf();
-			});
-			Then('the value should be the 50 character string', () => {
-				expect(value).toBe('a'.repeat(50));
-			});
-		},
-	);
+	Scenario('Creating a first name with maximum allowed length', ({ When, Then }) => {
+		let value: string;
+		When('I create a first name with a string of 50 characters', () => {
+			value = new ValueObjects.FirstName('a'.repeat(50)).valueOf();
+		});
+		Then('the value should be the 50 character string', () => {
+			expect(value).toBe('a'.repeat(50));
+		});
+	});
 
-	Scenario(
-		'Creating a first name with more than maximum allowed length',
-		({ When, Then }) => {
-			let createRestOfName: () => void;
-			When(
-				'I try to create a first name with a string of 51 characters',
-				() => {
-					createRestOfName = () => {
-						new ValueObjects.FirstName('a'.repeat(51)).valueOf();
-					};
-				},
-			);
-			Then(
-				'an error should be thrown indicating the first name is too long',
-				() => {
-					expect(createRestOfName).throws('Too long');
-				},
-			);
-		},
-	);
+	Scenario('Creating a first name with more than maximum allowed length', ({ When, Then }) => {
+		let createRestOfName: () => void;
+		When('I try to create a first name with a string of 51 characters', () => {
+			createRestOfName = () => {
+				new ValueObjects.FirstName('a'.repeat(51)).valueOf();
+			};
+		});
+		Then('an error should be thrown indicating the first name is too long', () => {
+			expect(createRestOfName).throws('Too long');
+		});
+	});
 
 	Scenario('Creating a first name with an empty string', ({ When, Then }) => {
 		let createRestOfName: () => void;
@@ -76,12 +59,9 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.FirstName('').valueOf();
 			};
 		});
-		Then(
-			'an error should be thrown indicating the first name is too short',
-			() => {
-				expect(createRestOfName).throws('Too short');
-			},
-		);
+		Then('an error should be thrown indicating the first name is too short', () => {
+			expect(createRestOfName).throws('Too short');
+		});
 	});
 
 	Scenario('Creating a first name with null', ({ When, Then }) => {
@@ -121,49 +101,37 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a last name with leading and trailing whitespace',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a last name with "  Smith  "', () => {
-				value = new ValueObjects.LastName('  Smith  ').valueOf();
-			});
-			Then('the value should be "Smith"', () => {
-				expect(value).toBe('Smith');
-			});
-		},
-	);
+	Scenario('Creating a last name with leading and trailing whitespace', ({ When, Then }) => {
+		let value: string;
+		When('I create a last name with "  Smith  "', () => {
+			value = new ValueObjects.LastName('  Smith  ').valueOf();
+		});
+		Then('the value should be "Smith"', () => {
+			expect(value).toBe('Smith');
+		});
+	});
 
-	Scenario(
-		'Creating a last name with maximum allowed length',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a last name with a string of 50 characters', () => {
-				value = new ValueObjects.LastName('b'.repeat(50)).valueOf();
-			});
-			Then('the value should be the 50 character string', () => {
-				expect(value).toBe('b'.repeat(50));
-			});
-		},
-	);
+	Scenario('Creating a last name with maximum allowed length', ({ When, Then }) => {
+		let value: string;
+		When('I create a last name with a string of 50 characters', () => {
+			value = new ValueObjects.LastName('b'.repeat(50)).valueOf();
+		});
+		Then('the value should be the 50 character string', () => {
+			expect(value).toBe('b'.repeat(50));
+		});
+	});
 
-	Scenario(
-		'Creating a last name with more than maximum allowed length',
-		({ When, Then }) => {
-			let createLastName: () => void;
-			When('I try to create a last name with a string of 51 characters', () => {
-				createLastName = () => {
-					new ValueObjects.LastName('b'.repeat(51)).valueOf();
-				};
-			});
-			Then(
-				'an error should be thrown indicating the last name is too long',
-				() => {
-					expect(createLastName).throws('Too long');
-				},
-			);
-		},
-	);
+	Scenario('Creating a last name with more than maximum allowed length', ({ When, Then }) => {
+		let createLastName: () => void;
+		When('I try to create a last name with a string of 51 characters', () => {
+			createLastName = () => {
+				new ValueObjects.LastName('b'.repeat(51)).valueOf();
+			};
+		});
+		Then('an error should be thrown indicating the last name is too long', () => {
+			expect(createLastName).throws('Too long');
+		});
+	});
 
 	Scenario('Creating a last name with an empty string', ({ When, Then }) => {
 		let createLastName: () => void;
@@ -172,12 +140,9 @@ test.for(feature, ({ Scenario }) => {
 				new ValueObjects.LastName('').valueOf();
 			};
 		});
-		Then(
-			'an error should be thrown indicating the last name is too short',
-			() => {
-				expect(createLastName).throws('Too short');
-			},
-		);
+		Then('an error should be thrown indicating the last name is too short', () => {
+			expect(createLastName).throws('Too short');
+		});
 	});
 
 	Scenario('Creating a last name with null', ({ When, Then }) => {
@@ -217,83 +182,59 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a display name with leading and trailing whitespace',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a display name with "  Alice Smith  "', () => {
-				value = new ValueObjects.DisplayName('  Alice Smith  ').valueOf();
-			});
-			Then('the value should be "Alice Smith"', () => {
-				expect(value).toBe('Alice Smith');
-			});
-		},
-	);
+	Scenario('Creating a display name with leading and trailing whitespace', ({ When, Then }) => {
+		let value: string;
+		When('I create a display name with "  Alice Smith  "', () => {
+			value = new ValueObjects.DisplayName('  Alice Smith  ').valueOf();
+		});
+		Then('the value should be "Alice Smith"', () => {
+			expect(value).toBe('Alice Smith');
+		});
+	});
 
-	Scenario(
-		'Creating a display name with maximum allowed length',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a display name with a string of 100 characters', () => {
-				value = new ValueObjects.DisplayName('c'.repeat(100)).valueOf();
-			});
-			Then('the value should be the 100 character string', () => {
-				expect(value).toBe('c'.repeat(100));
-			});
-		},
-	);
+	Scenario('Creating a display name with maximum allowed length', ({ When, Then }) => {
+		let value: string;
+		When('I create a display name with a string of 100 characters', () => {
+			value = new ValueObjects.DisplayName('c'.repeat(100)).valueOf();
+		});
+		Then('the value should be the 100 character string', () => {
+			expect(value).toBe('c'.repeat(100));
+		});
+	});
 
-	Scenario(
-		'Creating a display name with more than maximum allowed length',
-		({ When, Then }) => {
-			let createDisplayName: () => void;
-			When(
-				'I try to create a display name with a string of 101 characters',
-				() => {
-					createDisplayName = () => {
-						new ValueObjects.DisplayName('c'.repeat(101)).valueOf();
-					};
-				},
-			);
-			Then(
-				'an error should be thrown indicating the display name is too long',
-				() => {
-					expect(createDisplayName).throws('Too long');
-				},
-			);
-		},
-	);
+	Scenario('Creating a display name with more than maximum allowed length', ({ When, Then }) => {
+		let createDisplayName: () => void;
+		When('I try to create a display name with a string of 101 characters', () => {
+			createDisplayName = () => {
+				new ValueObjects.DisplayName('c'.repeat(101)).valueOf();
+			};
+		});
+		Then('an error should be thrown indicating the display name is too long', () => {
+			expect(createDisplayName).throws('Too long');
+		});
+	});
 
-	Scenario(
-		'Creating a display name with minimum allowed length',
-		({ When, Then }) => {
-			let value: string;
-			When('I create a display name with a string of 1 character', () => {
-				value = new ValueObjects.DisplayName('d').valueOf();
-			});
-			Then('the value should be the 1 character string', () => {
-				expect(value).toBe('d');
-			});
-		},
-	);
+	Scenario('Creating a display name with minimum allowed length', ({ When, Then }) => {
+		let value: string;
+		When('I create a display name with a string of 1 character', () => {
+			value = new ValueObjects.DisplayName('d').valueOf();
+		});
+		Then('the value should be the 1 character string', () => {
+			expect(value).toBe('d');
+		});
+	});
 
-	Scenario(
-		'Creating a display name with less than minimum allowed length',
-		({ When, Then }) => {
-			let createDisplayName: () => void;
-			When('I try to create a display name with an empty string', () => {
-				createDisplayName = () => {
-					new ValueObjects.DisplayName('').valueOf();
-				};
-			});
-			Then(
-				'an error should be thrown indicating the display name is too short',
-				() => {
-					expect(createDisplayName).throws('Too short');
-				},
-			);
-		},
-	);
+	Scenario('Creating a display name with less than minimum allowed length', ({ When, Then }) => {
+		let createDisplayName: () => void;
+		When('I try to create a display name with an empty string', () => {
+			createDisplayName = () => {
+				new ValueObjects.DisplayName('').valueOf();
+			};
+		});
+		Then('an error should be thrown indicating the display name is too short', () => {
+			expect(createDisplayName).throws('Too short');
+		});
+	});
 
 	Scenario('Creating a display name with null', ({ When, Then }) => {
 		let createDisplayNameNull: () => void;

@@ -5,10 +5,7 @@ import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.
 import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
 import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
-export class StaffUserDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<StaffUser>
-	implements Domain.Contexts.User.StaffUser.StaffUserProps
-{
+export class StaffUserDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<StaffUser> implements Domain.Contexts.User.StaffUser.StaffUserProps {
 	get role(): Domain.Contexts.User.StaffRole.StaffRoleProps {
 		if (!this.doc.role) {
 			return undefined as unknown as Domain.Contexts.User.StaffRole.StaffRoleProps;
@@ -19,12 +16,7 @@ export class StaffUserDomainAdapter
 		return new StaffRoleDomainAdapter(this.doc.role as StaffRole);
 	}
 
-	setRoleRef(
-		role:
-			| Domain.Contexts.User.StaffRole.StaffRoleEntityReference
-			| Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>
-			| undefined,
-	): void {
+	setRoleRef(role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter> | undefined): void {
 		if (!role) {
 			this.doc.set('role', undefined);
 			return;
@@ -111,16 +103,8 @@ export class StaffUserDomainAdapter
 	}
 }
 
-export class StaffUserConverter extends MongooseSeedwork.MongoTypeConverter<
-	StaffUser,
-	StaffUserDomainAdapter,
-	Domain.Passport,
-	Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>
-> {
+export class StaffUserConverter extends MongooseSeedwork.MongoTypeConverter<StaffUser, StaffUserDomainAdapter, Domain.Passport, Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>> {
 	constructor() {
-		super(
-			StaffUserDomainAdapter,
-			Domain.Contexts.User.StaffUser.StaffUser,
-		);
+		super(StaffUserDomainAdapter, Domain.Contexts.User.StaffUser.StaffUser);
 	}
 }

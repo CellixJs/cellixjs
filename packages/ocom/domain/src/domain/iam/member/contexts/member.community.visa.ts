@@ -3,9 +3,7 @@ import type { CommunityDomainPermissions } from '../../../contexts/community/com
 import type { CommunityVisa } from '../../../contexts/community/community.visa.ts';
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
 
-export class MemberCommunityVisa<root extends CommunityEntityReference>
-	implements CommunityVisa
-{
+export class MemberCommunityVisa<root extends CommunityEntityReference> implements CommunityVisa {
 	private readonly root: root;
 	private readonly member: MemberEntityReference;
 
@@ -14,16 +12,10 @@ export class MemberCommunityVisa<root extends CommunityEntityReference>
 		this.member = member;
 	}
 
-	determineIf(
-		func: (permissions: CommunityDomainPermissions) => boolean,
-	): boolean {
+	determineIf(func: (permissions: CommunityDomainPermissions) => boolean): boolean {
 		//ensure that the member is a member of this community
 		if (this.member.community.id !== this.root.id) {
-			console.log(
-				'Member Visa: member is not a member of this community',
-				this.member,
-				this.root,
-			);
+			console.log('Member Visa: member is not a member of this community', this.member, this.root);
 			return false;
 		}
 
@@ -33,19 +25,18 @@ export class MemberCommunityVisa<root extends CommunityEntityReference>
 		//   console.log("Member Visa: no community permissions");
 		//   return false;
 		// }
-        const updatedPermissions: CommunityDomainPermissions = {
-            canManageCommunitySettings: communityPermissions.canManageCommunitySettings,
-            canManageMembers: communityPermissions.canManageMembers,
-            canEditOwnMemberProfile: communityPermissions.canEditOwnMemberProfile,
-            canEditOwnMemberAccounts: communityPermissions.canEditOwnMemberAccounts,
-            canManageEndUserRolesAndPermissions:
-                communityPermissions.canManageEndUserRolesAndPermissions,
-            canManageSiteContent: communityPermissions.canManageSiteContent,
-            isEditingOwnMemberAccount: false,
-            canCreateCommunities: true, //TODO: add a more complext rule here like can only create one community for free, otherwise need a paid plan
-            canManageVendorUserRolesAndPermissions: false, // end user roles cannot manage vendor user roles
-            isSystemAccount: false,
-        };
+		const updatedPermissions: CommunityDomainPermissions = {
+			canManageCommunitySettings: communityPermissions.canManageCommunitySettings,
+			canManageMembers: communityPermissions.canManageMembers,
+			canEditOwnMemberProfile: communityPermissions.canEditOwnMemberProfile,
+			canEditOwnMemberAccounts: communityPermissions.canEditOwnMemberAccounts,
+			canManageEndUserRolesAndPermissions: communityPermissions.canManageEndUserRolesAndPermissions,
+			canManageSiteContent: communityPermissions.canManageSiteContent,
+			isEditingOwnMemberAccount: false,
+			canCreateCommunities: true, //TODO: add a more complext rule here like can only create one community for free, otherwise need a paid plan
+			canManageVendorUserRolesAndPermissions: false, // end user roles cannot manage vendor user roles
+			isSystemAccount: false,
+		};
 
 		return func(updatedPermissions);
 	}

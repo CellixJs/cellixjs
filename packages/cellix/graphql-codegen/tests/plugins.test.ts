@@ -14,9 +14,7 @@ describe('@cellix/graphql-codegen plugins', () => {
 	});
 
 	it('static-type-defs plugin requires sourceDir and exportName', async () => {
-		await expect(staticTypeDefsPlugin({}, [], {})).rejects.toThrow(
-			'static-type-defs-plugin: "sourceDir" and "exportName" config options are required',
-		);
+		await expect(staticTypeDefsPlugin({}, [], {})).rejects.toThrow('static-type-defs-plugin: "sourceDir" and "exportName" config options are required');
 	});
 
 	it('static-type-defs plugin emits a sorted static type-def array', async () => {
@@ -37,9 +35,7 @@ describe('@cellix/graphql-codegen plugins', () => {
 		expect(output).toContain('export const myTypeDefs = [');
 		expect(output).toContain(String.raw`"type A { id: ID! }\n", // schema/nested/a.graphql`);
 		expect(output).toContain(String.raw`"type B { id: ID! }\n", // schema/b.graphql`);
-		expect(output.indexOf('schema/b.graphql')).toBeLessThan(
-			output.indexOf('schema/nested/a.graphql'),
-		);
+		expect(output.indexOf('schema/b.graphql')).toBeLessThan(output.indexOf('schema/nested/a.graphql'));
 	});
 
 	it('static-type-defs plugin handles sourceDir with no .graphql files', async () => {
@@ -63,9 +59,7 @@ describe('@cellix/graphql-codegen plugins', () => {
 	});
 
 	it('resolver-manifest plugin requires typesDir', async () => {
-		await expect(resolverManifestPlugin({}, [], {} as never)).rejects.toThrow(
-			'resolver-manifest-plugin: "typesDir" config option is required',
-		);
+		await expect(resolverManifestPlugin({}, [], {} as never)).rejects.toThrow('resolver-manifest-plugin: "typesDir" config option is required');
 	});
 
 	it('resolver-manifest plugin emits static imports and custom export names', async () => {
@@ -89,15 +83,9 @@ describe('@cellix/graphql-codegen plugins', () => {
 			{ outputFile: 'src/schema/builder/resolver-manifest.generated.ts' },
 		);
 
-		expect(output).toContain(
-			"import resolver0 from '../types/b.resolvers.ts';",
-		);
-		expect(output).toContain(
-			"import resolver1 from '../types/nested/a.resolvers.ts';",
-		);
-		expect(output).toContain(
-			"import permission0 from '../types/z.permissions.ts';",
-		);
+		expect(output).toContain("import resolver0 from '../types/b.resolvers.ts';");
+		expect(output).toContain("import resolver1 from '../types/nested/a.resolvers.ts';");
+		expect(output).toContain("import permission0 from '../types/z.permissions.ts';");
 		expect(output).toContain('export const myResolvers = [');
 		expect(output).toContain('\tresolver0,');
 		expect(output).toContain('\tresolver1,');
@@ -148,9 +136,7 @@ describe('@cellix/graphql-codegen plugins', () => {
 			undefined,
 		);
 
-		expect(output).toContain(
-			"import resolver0 from '../types/example.resolvers.ts';",
-		);
+		expect(output).toContain("import resolver0 from '../types/example.resolvers.ts';");
 		expect(output).toContain('export const resolvers = [');
 		expect(output).toContain('export const permissions = [');
 	});

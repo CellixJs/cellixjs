@@ -1,15 +1,10 @@
 {
-  "extends": "@cellix/config-typescript/node",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
-  },
-  "include": [
-    "src/**/*.ts", "globals.d.ts"
-  ],
-  "references": [
-    { "path": "../application-services" },
-    { "path": "../domain" }
-  ]
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts", "globals.d.ts"],
+	"references": [{ "path": "../application-services" }, { "path": "../domain" }]
 }

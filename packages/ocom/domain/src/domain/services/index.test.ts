@@ -6,9 +6,7 @@ import { Community } from './index.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/index.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/index.feature'));
 
 test.for(feature, ({ Scenario }) => {
 	let communityExport: typeof Community;

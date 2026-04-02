@@ -1,14 +1,11 @@
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { Base } from './base.ts';
 
-export interface MongooseDomainAdapterType<T extends Base>
-	extends DomainEntityProps {
+export interface MongooseDomainAdapterType<T extends Base> extends DomainEntityProps {
 	readonly doc: T;
 }
 
-export abstract class MongooseDomainAdapter<T extends Base>
-	implements MongooseDomainAdapterType<T>
-{
+export abstract class MongooseDomainAdapter<T extends Base> implements MongooseDomainAdapterType<T> {
 	public readonly doc: T;
 	constructor(doc: T) {
 		this.doc = doc;

@@ -6,8 +6,8 @@ export interface TokenValidation {
 }
 
 export interface TokenValidationResult<ClaimsType> {
-    verifiedJwt: ClaimsType
-    openIdConfigKey: string;
+	verifiedJwt: ClaimsType;
+	openIdConfigKey: string;
 }
 
 export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
@@ -20,16 +20,13 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 		this.refreshInterval = refreshInterval;
 
 		for (const [portalKey, envPrefix] of portalTokens) {
-			this.tokenSettings.set(
-				portalKey,
-				{
-					oidcEndpoint: this.tryGetConfigValue(`${envPrefix}_OIDC_ENDPOINT`),
-					clockTolerance: this.tryGetConfigValueWithDefault(`${envPrefix}_OIDC_CLOCK_TOLERANCE`, '5 minutes'),
-					audience: this.tryGetConfigValue(`${envPrefix}_OIDC_AUDIENCE`),
-					issuerUrl: this.tryGetConfigValue(`${envPrefix}_OIDC_ISSUER`),
-					ignoreIssuer: this.tryGetConfigValueWithDefault(`${envPrefix}_OIDC_IGNORE_ISSUER`, 'false') === 'true',
-				} as OpenIdConfig
-			);
+			this.tokenSettings.set(portalKey, {
+				oidcEndpoint: this.tryGetConfigValue(`${envPrefix}_OIDC_ENDPOINT`),
+				clockTolerance: this.tryGetConfigValueWithDefault(`${envPrefix}_OIDC_CLOCK_TOLERANCE`, '5 minutes'),
+				audience: this.tryGetConfigValue(`${envPrefix}_OIDC_AUDIENCE`),
+				issuerUrl: this.tryGetConfigValue(`${envPrefix}_OIDC_ISSUER`),
+				ignoreIssuer: this.tryGetConfigValueWithDefault(`${envPrefix}_OIDC_IGNORE_ISSUER`, 'false') === 'true',
+			} as OpenIdConfig);
 		}
 		this.tokenVerifier = new VerifiedTokenService(this.tokenSettings, this.refreshInterval);
 	}
@@ -45,9 +42,9 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 			const result = await this.tokenVerifier.getVerifiedJwt(token, configKey);
 			if (result?.payload) {
 				return {
-                    verifiedJwt: result.payload as ClaimsType,
-                    openIdConfigKey: configKey,
-                }
+					verifiedJwt: result.payload as ClaimsType,
+					openIdConfigKey: configKey,
+				};
 			}
 		}
 		return null;
@@ -58,8 +55,8 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 		if (this.tokenVerifier.timerInstance) {
 			clearInterval(this.tokenVerifier.timerInstance);
 		}
-        console.log('ServiceTokenValidation stopped');
-        return Promise.resolve();
+		console.log('ServiceTokenValidation stopped');
+		return Promise.resolve();
 	}
 
 	private tryGetConfigValue(configKey: string) {

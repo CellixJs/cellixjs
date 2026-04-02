@@ -1,9 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import {
-	CommunityCreate,
-	type CommunityCreateProps,
-} from './community-create.tsx';
+import { CommunityCreate, type CommunityCreateProps } from './community-create.tsx';
 
 const meta = {
 	title: 'Components/Accounts/CommunityCreate',
@@ -31,9 +28,7 @@ export const Default: Story = {
 		expect(title).toBeInTheDocument();
 
 		// Verify the description text is present
-		const description = await canvas.findByText(
-			/Getting started with your community/,
-		);
+		const description = await canvas.findByText(/Getting started with your community/);
 		expect(description).toBeInTheDocument();
 
 		// Verify the form elements are present

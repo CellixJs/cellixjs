@@ -34,9 +34,7 @@ export const Default: Story = {
 
 		// Verify community details are displayed
 		expect(canvas.getByTestId('community-id')).toHaveTextContent(mockData.id);
-		expect(canvas.getByTestId('community-name')).toHaveTextContent(
-			mockData.name,
-		);
+		expect(canvas.getByTestId('community-name')).toHaveTextContent(mockData.name);
 		expect(canvas.getByText('White Label Name')).toBeInTheDocument();
 		expect(canvas.getByText('Domain Name')).toBeInTheDocument();
 		expect(canvas.getByText('Handle Name')).toBeInTheDocument();
@@ -60,12 +58,8 @@ export const WithMinimalData: Story = {
 		const canvas = within(canvasElement);
 
 		// Verify only required fields are displayed
-		expect(canvas.getByTestId('community-id')).toHaveTextContent(
-			'507f1f77bcf86cd799439011',
-		);
-		expect(canvas.getByTestId('community-name')).toHaveTextContent(
-			'Minimal Community',
-		);
+		expect(canvas.getByTestId('community-id')).toHaveTextContent('507f1f77bcf86cd799439011');
+		expect(canvas.getByTestId('community-name')).toHaveTextContent('Minimal Community');
 
 		// Verify optional fields are not displayed
 		expect(canvas.queryByText('White Label Name')).not.toBeInTheDocument();

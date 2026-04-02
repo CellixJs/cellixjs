@@ -6,12 +6,7 @@ import { EndUserCreatedEvent, type EndUserCreatedProps } from '../../../events/t
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './end-user.value-objects.ts';
-import {
-	EndUserPersonalInformation,
-	type EndUserPersonalInformationEntityReference,
-	type EndUserPersonalInformationProps,
-} from './end-user-personal-information.ts';
-
+import { EndUserPersonalInformation, type EndUserPersonalInformationEntityReference, type EndUserPersonalInformationProps } from './end-user-personal-information.ts';
 
 export interface EndUserProps extends DomainEntityProps {
 	readonly personalInformation: EndUserPersonalInformationProps;
@@ -25,20 +20,15 @@ export interface EndUserProps extends DomainEntityProps {
 	readonly updatedAt: Date;
 	readonly schemaVersion: string;
 }
-export interface EndUserEntityReference
-	extends Readonly<Omit<EndUserProps, 'personalInformation'>> {
+export interface EndUserEntityReference extends Readonly<Omit<EndUserProps, 'personalInformation'>> {
 	readonly personalInformation: EndUserPersonalInformationEntityReference;
 }
 
 export interface EndUserAggregateRoot extends RootEventRegistry {
-    get isNew(): boolean;
+	get isNew(): boolean;
 }
 
-export class EndUser<props extends EndUserProps>
-	extends AggregateRoot<props, Passport>
-	implements EndUserEntityReference,
-    EndUserAggregateRoot
-{
+export class EndUser<props extends EndUserProps> extends AggregateRoot<props, Passport> implements EndUserEntityReference, EndUserAggregateRoot {
 	private _isNew: boolean = false;
 	private readonly visa: UserVisa;
 	constructor(props: props, passport: Passport) {
@@ -46,25 +36,18 @@ export class EndUser<props extends EndUserProps>
 		this.visa = passport.user.forEndUser(this);
 	}
 
-	public static getNewInstance<props extends EndUserProps>(
-		newProps: props,
-		passport: Passport,
-		externalId: string,
-		lastName: string,
-		restOfName: string | undefined,
-		email: string,
-	): EndUser<props> {
+	public static getNewInstance<props extends EndUserProps>(newProps: props, passport: Passport, externalId: string, lastName: string, restOfName: string | undefined, email: string): EndUser<props> {
 		const newInstance = new EndUser(newProps, passport);
 		newInstance.markAsNew();
 		newInstance.externalId = externalId;
-        newInstance.personalInformation.contactInformation.email = email;
-        newInstance.personalInformation.identityDetails.lastName = lastName;
+		newInstance.personalInformation.contactInformation.email = email;
+		newInstance.personalInformation.identityDetails.lastName = lastName;
 		if (restOfName !== undefined && restOfName.trim() !== '') {
-            newInstance.personalInformation.identityDetails.legalNameConsistsOfOneName = false;
-            newInstance.personalInformation.identityDetails.restOfName = restOfName;
+			newInstance.personalInformation.identityDetails.legalNameConsistsOfOneName = false;
+			newInstance.personalInformation.identityDetails.restOfName = restOfName;
 			newInstance.displayName = `${restOfName} ${lastName}`;
 		} else {
-            newInstance.personalInformation.identityDetails.legalNameConsistsOfOneName = true;
+			newInstance.personalInformation.identityDetails.legalNameConsistsOfOneName = true;
 			newInstance.displayName = lastName;
 		}
 		newInstance._isNew = false;
@@ -79,28 +62,19 @@ export class EndUser<props extends EndUserProps>
 	}
 
 	private validateVisa(): void {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isEditingOwnAccount || permissions.canManageEndUsers,
-			)
-		) {
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.isEditingOwnAccount || permissions.canManageEndUsers)) {
 			throw new PermissionError('Unauthorized');
 		}
 	}
 	private validateVisaElevated(): void {
-		if (
-			!this.isNew &&
-			!this.visa.determineIf((permissions) => permissions.canManageEndUsers)
-		) {
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageEndUsers)) {
 			throw new PermissionError('Unauthorized');
 		}
 	}
 
-    get isNew() {
-        return this._isNew;
-    }
+	get isNew() {
+		return this._isNew;
+	}
 
 	get email(): string | undefined {
 		return this.props.email;
@@ -114,9 +88,7 @@ export class EndUser<props extends EndUserProps>
 	}
 	set displayName(displayName: string) {
 		this.validateVisa();
-		this.props.displayName = new ValueObjects.DisplayName(
-			displayName,
-		).valueOf();
+		this.props.displayName = new ValueObjects.DisplayName(displayName).valueOf();
 	}
 	get externalId(): string {
 		return this.props.externalId;
@@ -143,11 +115,7 @@ export class EndUser<props extends EndUserProps>
 		this.props.tags = tags;
 	}
 	get personalInformation() {
-		return new EndUserPersonalInformation(
-			this.props.personalInformation,
-			this.visa,
-            this
-		);
+		return new EndUserPersonalInformation(this.props.personalInformation, this.visa, this);
 	}
 
 	get userType(): string {

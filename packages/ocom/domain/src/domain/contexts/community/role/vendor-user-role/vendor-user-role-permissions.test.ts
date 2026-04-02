@@ -11,9 +11,7 @@ import { VendorUserRoleViolationTicketPermissions } from './vendor-user-role-vio
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/vendor-user-role-permissions.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/vendor-user-role-permissions.feature'));
 
 function makeVisa() {
 	return vi.mocked({
@@ -43,12 +41,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Background(({ Given, And }) => {
-		Given(
-			'valid VendorUserRolePermissionsProps with all required permission props',
-			() => {
-				props = makeProps();
-			},
-		);
+		Given('valid VendorUserRolePermissionsProps with all required permission props', () => {
+			props = makeProps();
+		});
 		And('a valid UserVisa', () => {
 			visa = makeVisa();
 		});
@@ -62,14 +57,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I access the communityPermissions property', () => {
 			communityPermissions = entity.communityPermissions;
 		});
-		Then(
-			'I should receive a VendorUserRoleCommunityPermissions entity instance',
-			() => {
-				expect(communityPermissions).toBeInstanceOf(
-					VendorUserRoleCommunityPermissions,
-				);
-			},
-		);
+		Then('I should receive a VendorUserRoleCommunityPermissions entity instance', () => {
+			expect(communityPermissions).toBeInstanceOf(VendorUserRoleCommunityPermissions);
+		});
 	});
 
 	Scenario('Accessing propertyPermissions', ({ Given, When, Then }) => {
@@ -80,14 +70,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I access the propertyPermissions property', () => {
 			propertyPermissions = entity.propertyPermissions;
 		});
-		Then(
-			'I should receive a VendorUserRolePropertyPermissions entity instance',
-			() => {
-				expect(propertyPermissions).toBeInstanceOf(
-					VendorUserRolePropertyPermissions,
-				);
-			},
-		);
+		Then('I should receive a VendorUserRolePropertyPermissions entity instance', () => {
+			expect(propertyPermissions).toBeInstanceOf(VendorUserRolePropertyPermissions);
+		});
 	});
 
 	Scenario('Accessing serviceTicketPermissions', ({ Given, When, Then }) => {
@@ -98,14 +83,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I access the serviceTicketPermissions property', () => {
 			serviceTicketPermissions = entity.serviceTicketPermissions;
 		});
-		Then(
-			'I should receive a VendorUserRoleServiceTicketPermissions entity instance',
-			() => {
-				expect(serviceTicketPermissions).toBeInstanceOf(
-					VendorUserRoleServiceTicketPermissions,
-				);
-			},
-		);
+		Then('I should receive a VendorUserRoleServiceTicketPermissions entity instance', () => {
+			expect(serviceTicketPermissions).toBeInstanceOf(VendorUserRoleServiceTicketPermissions);
+		});
 	});
 
 	Scenario('Accessing servicePermissions', ({ Given, When, Then }) => {
@@ -116,14 +96,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I access the servicePermissions property', () => {
 			servicePermissions = entity.servicePermissions;
 		});
-		Then(
-			'I should receive a VendorUserRoleServicePermissions entity instance',
-			() => {
-				expect(servicePermissions).toBeInstanceOf(
-					VendorUserRoleServicePermissions,
-				);
-			},
-		);
+		Then('I should receive a VendorUserRoleServicePermissions entity instance', () => {
+			expect(servicePermissions).toBeInstanceOf(VendorUserRoleServicePermissions);
+		});
 	});
 
 	Scenario('Accessing violationTicketPermissions', ({ Given, When, Then }) => {
@@ -134,13 +109,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I access the violationTicketPermissions property', () => {
 			violationTicketPermissions = entity.violationTicketPermissions;
 		});
-		Then(
-			'I should receive a VendorUserRoleViolationTicketPermissions entity instance',
-			() => {
-				expect(violationTicketPermissions).toBeInstanceOf(
-					VendorUserRoleViolationTicketPermissions,
-				);
-			},
-		);
+		Then('I should receive a VendorUserRoleViolationTicketPermissions entity instance', () => {
+			expect(violationTicketPermissions).toBeInstanceOf(VendorUserRoleViolationTicketPermissions);
+		});
 	});
 });

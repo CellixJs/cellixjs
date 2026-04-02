@@ -10,15 +10,13 @@ export interface CommunitiesDropdownProps {
 	};
 }
 
-export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
-	props,
-) => {
+export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (props) => {
 	const [dropdownVisible, setDropdownVisible] = useState(false);
 	const params = useParams();
 	const navigate = useNavigate();
 
 	const currentMember = props.data.members?.find(
-        // biome-ignore lint:useLiteralKeys
+		// biome-ignore lint:useLiteralKeys
 		(member) => member.id === params['memberId'],
 	);
 
@@ -86,7 +84,7 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
 			menu={{
 				items,
 				selectable: true,
-                // biome-ignore lint:useLiteralKeys
+				// biome-ignore lint:useLiteralKeys
 				defaultSelectedKeys: [params['memberId'] ?? ''],
 			}}
 			open={dropdownVisible}
@@ -98,8 +96,7 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (
 				className="ant-dropdown-link"
 				style={{ minHeight: '50px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
 			>
-				{currentMember?.community?.name} | {currentMember?.memberName}{' '}
-				<DownOutlined />
+				{currentMember?.community?.name} | {currentMember?.memberName} <DownOutlined />
 			</button>
 		</Dropdown>
 	);

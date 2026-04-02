@@ -18,10 +18,7 @@ export abstract class DomainEventBase implements DomainEvent {
 	}
 }
 
-export abstract class CustomDomainEventImpl<T>
-	extends DomainEventBase
-	implements CustomDomainEvent<T>
-{
+export abstract class CustomDomainEventImpl<T> extends DomainEventBase implements CustomDomainEvent<T> {
 	private _payload?: T;
 	get payload(): T {
 		if (this._payload === undefined) {

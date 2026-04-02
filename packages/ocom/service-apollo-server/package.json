@@ -1,43 +1,44 @@
 {
-  "name": "@ocom/service-apollo-server",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "description": "Apollo Server infrastructure service for Cellix framework",
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest",
-    "lint": "biome lint",
-    "clean": "rimraf dist"
-  },
-  "dependencies": {
-    "@apollo/server": "catalog:",
-    "@cellix/api-services-spec": "workspace:*",
-    "@opentelemetry/api": "1.9.0",
-    "graphql": "catalog:",
-    "graphql-depth-limit": "^1.1.0",
-    "graphql-middleware": "^6.1.35"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@cellix/config-vitest": "workspace:*",
-    "@types/graphql-depth-limit": "^1.1.6",
-    "@vitest/coverage-istanbul": "catalog:",
-    "rimraf": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
-  }
+	"name": "@ocom/service-apollo-server",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Apollo Server infrastructure service for Cellix framework",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"watch": "tsc --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"lint": "biome lint",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@cellix/api-services-spec": "workspace:*",
+		"@opentelemetry/api": "1.9.0",
+		"graphql": "catalog:",
+		"graphql-depth-limit": "^1.1.0",
+		"graphql-middleware": "^6.1.35"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@types/graphql-depth-limit": "^1.1.6",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
 }

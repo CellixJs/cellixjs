@@ -5,8 +5,7 @@ import type { ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityRefe
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-finance-reference.ts';
 import type { ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReferenceEntityReference } from './violation-ticket-v1-finance-details-adhoc-transactions-transaction-reference.ts';
 
-export interface ViolationTicketV1FinanceDetailsAdhocTransactionsProps
-	extends DomainEntityProps {
+export interface ViolationTicketV1FinanceDetailsAdhocTransactionsProps extends DomainEntityProps {
 	amount: number;
 	requestedBy: string; // Member ID reference
 	requestedOn: Date;
@@ -18,28 +17,16 @@ export interface ViolationTicketV1FinanceDetailsAdhocTransactionsProps
 	updatedAt: Date;
 }
 
-export interface ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference
-	extends Readonly<
-		Omit<
-			ViolationTicketV1FinanceDetailsAdhocTransactionsProps,
-			'approval' | 'transactionReference' | 'financeReference'
-		>
-	> {
+export interface ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference extends Readonly<Omit<ViolationTicketV1FinanceDetailsAdhocTransactionsProps, 'approval' | 'transactionReference' | 'financeReference'>> {
 	readonly approval: ViolationTicketV1FinanceDetailsAdhocTransactionsApprovalEntityReference;
 	readonly transactionReference: ViolationTicketV1FinanceDetailsAdhocTransactionsTransactionReferenceEntityReference;
 	readonly financeReference: ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReferenceEntityReference;
 }
 
-export class ViolationTicketV1FinanceDetailsAdhocTransactions
-	extends DomainEntity<ViolationTicketV1FinanceDetailsAdhocTransactionsProps>
-	implements ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference
-{
+export class ViolationTicketV1FinanceDetailsAdhocTransactions extends DomainEntity<ViolationTicketV1FinanceDetailsAdhocTransactionsProps> implements ViolationTicketV1FinanceDetailsAdhocTransactionsEntityReference {
 	private readonly visa: ViolationTicketV1Visa;
 
-	constructor(
-		props: ViolationTicketV1FinanceDetailsAdhocTransactionsProps,
-		visa: ViolationTicketV1Visa,
-	) {
+	constructor(props: ViolationTicketV1FinanceDetailsAdhocTransactionsProps, visa: ViolationTicketV1Visa) {
 		super(props);
 		this.visa = visa;
 	}
@@ -50,9 +37,7 @@ export class ViolationTicketV1FinanceDetailsAdhocTransactions
 
 	set amount(value: number) {
 		if (!this.visa.determineIf((permissions) => permissions.canManageTickets)) {
-			throw new PermissionError(
-				'You do not have permission to update adhoc transaction amount',
-			);
+			throw new PermissionError('You do not have permission to update adhoc transaction amount');
 		}
 		this.props.amount = value;
 	}
@@ -63,9 +48,7 @@ export class ViolationTicketV1FinanceDetailsAdhocTransactions
 
 	set requestedBy(value: string) {
 		if (!this.visa.determineIf((permissions) => permissions.canManageTickets)) {
-			throw new PermissionError(
-				'You do not have permission to update requested by',
-			);
+			throw new PermissionError('You do not have permission to update requested by');
 		}
 		this.props.requestedBy = value;
 	}
@@ -76,9 +59,7 @@ export class ViolationTicketV1FinanceDetailsAdhocTransactions
 
 	set requestedOn(value: Date) {
 		if (!this.visa.determineIf((permissions) => permissions.canManageTickets)) {
-			throw new PermissionError(
-				'You do not have permission to update requested on',
-			);
+			throw new PermissionError('You do not have permission to update requested on');
 		}
 		this.props.requestedOn = value;
 	}

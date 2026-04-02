@@ -9,122 +9,110 @@ import { createMockPassport, generateStringOfLength } from '../acceptance/suppor
  * described in the community-management.feature file.
  */
 describe('Community Management - Cucumber Integration Tests', () => {
+	// Helper function to create valid community data
+	const createValidCommunityData = (): CommunityProps => {
+		return {
+			id: '12345',
+			name: '',
+			domain: '',
+			whiteLabelDomain: null,
+			handle: null,
+			createdBy: {} as EndUserEntityReference,
+			loadCreatedBy: async () => ({}) as EndUserEntityReference,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			schemaVersion: '1.0.0',
+		};
+	};
 
-  // Helper function to create valid community data
-  const createValidCommunityData = (): CommunityProps => {
-    return {
-      id: '12345',
-      name: '',
-      domain: '',
-      whiteLabelDomain: null,
-      handle: null,
-      createdBy: {} as EndUserEntityReference,
-      loadCreatedBy: async () => ({} as EndUserEntityReference),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      schemaVersion: '1.0.0',
-    };
-  }  
+	describe('Scenario: Rejecting community creation with invalid name - too long', () => {
+		it('Given I am an authorized user with community management permissions', () => {
+			// Setup: Create a user with community management permissions
+			const passport = createMockPassport({ canManageCommunitySettings: true });
+			expect(passport).toBeDefined();
+		});
 
-  describe('Scenario: Rejecting community creation with invalid name - too long', () => {
+		it('Given I have valid community data', () => {
+			// Setup: Create valid community data structure
+			const validCommunityData = createValidCommunityData();
+			expect(validCommunityData).toBeDefined();
+			expect(validCommunityData.id).toBeDefined();
+		});
 
-    it('Given I am an authorized user with community management permissions', () => {
-      // Setup: Create a user with community management permissions
-      const passport = createMockPassport({ canManageCommunitySettings: true });
-      expect(passport).toBeDefined();
-    });
+		it('When I try to create a community with a name longer than 200 characters', () => {
+			// Arrange
+			const validCommunityData = createValidCommunityData();
+			const passport = createMockPassport({ canManageCommunitySettings: true });
+			const createdBy = {} as EndUserEntityReference;
 
-    it('Given I have valid community data', () => {
-      // Setup: Create valid community data structure
-      const validCommunityData = createValidCommunityData();
-      expect(validCommunityData).toBeDefined();
-      expect(validCommunityData.id).toBeDefined();
-    });
+			// Create a name longer than 200 characters (201 characters)
+			const invalidCommunityName = generateStringOfLength(201);
 
-    it('When I try to create a community with a name longer than 200 characters', () => {
-      // Arrange
-      const validCommunityData = createValidCommunityData();
-      const passport = createMockPassport({ canManageCommunitySettings: true });
-      const createdBy = {} as EndUserEntityReference;
+			// Act & Assert
+			let creationError: Error | null = null;
+			let createdCommunity: Community<CommunityProps> | null = null;
 
-      // Create a name longer than 200 characters (201 characters)
-      const invalidCommunityName = generateStringOfLength(201);
+			try {
+				createdCommunity = Community.getNewInstance(validCommunityData, invalidCommunityName, createdBy, passport);
+			} catch (error) {
+				creationError = error as Error;
+			}
 
-      // Act & Assert
-      let creationError: Error | null = null;
-      let createdCommunity: Community<CommunityProps> | null = null;
+			// Then the community creation should fail
+			expect(creationError).toBeDefined();
+			expect(createdCommunity).toBeNull();
 
-      try {
-        createdCommunity = Community.getNewInstance(
-          validCommunityData,
-          invalidCommunityName,
-          createdBy,
-          passport,
-        );
-      } catch (error) {
-        creationError = error as Error;
-      }
+			// And I should receive an error message containing "Too long"
+			expect(creationError?.message).toBeDefined();
+			expect(creationError?.message).not.toBeNull();
+			expect(creationError?.message).toContain('Too long');
+		});
+	});
 
-      // Then the community creation should fail
-      expect(creationError).toBeDefined();
-      expect(createdCommunity).toBeNull();
+	describe('Scenario: Allowing community creation with valid name', () => {
+		let creationError: Error | null = null;
+		let createdCommunity: Community<CommunityProps> | null = null;
 
-      // And I should receive an error message containing "Too long"
-      expect(creationError?.message).toBeDefined();
-      expect(creationError?.message).not.toBeNull();
-      expect(creationError?.message).toContain('Too long');
-    });
-  });
+		it('Given I am an authorized user with community management permissions', () => {
+			// Setup: Create a user with community management permissions
+			const passport = createMockPassport({ canManageCommunitySettings: true });
+			expect(passport).toBeDefined();
+		});
 
-  describe('Scenario: Allowing community creation with valid name', () => {
-    let creationError: Error | null = null;
-    let createdCommunity: Community<CommunityProps> | null = null;
+		it('Given I have valid community data', () => {
+			// Setup: Create valid community data structure
+			const validCommunityData = createValidCommunityData();
+			expect(validCommunityData).toBeDefined();
+			expect(validCommunityData.id).toBeDefined();
+		});
 
-    it('Given I am an authorized user with community management permissions', () => {
-      // Setup: Create a user with community management permissions
-      const passport = createMockPassport({ canManageCommunitySettings: true });
-      expect(passport).toBeDefined();
-    });
+		it('When I attempt to create a community named "Valid Community Name"', () => {
+			// Arrange
+			const validCommunityData = createValidCommunityData();
+			const passport = createMockPassport({ canManageCommunitySettings: true });
+			const createdBy = {} as EndUserEntityReference;
 
-    it('Given I have valid community data', () => {
-      // Setup: Create valid community data structure
-      const validCommunityData = createValidCommunityData();
-      expect(validCommunityData).toBeDefined();
-      expect(validCommunityData.id).toBeDefined();
-    });
+			// Create a valid community name
+			const validCommunityName = 'Valid Community Name';
 
-    it('When I attempt to create a community named "Valid Community Name"', () => {
-      // Arrange
-      const validCommunityData = createValidCommunityData();
-      const passport = createMockPassport({ canManageCommunitySettings: true });
-      const createdBy = {} as EndUserEntityReference;
+			// Act
 
-      // Create a valid community name
-      const validCommunityName = 'Valid Community Name';
+			try {
+				createdCommunity = Community.getNewInstance(validCommunityData, validCommunityName, createdBy, passport);
+			} catch (error) {
+				creationError = error as Error;
+			}
 
-      // Act
+			// Then the community creation should succeed
+			expect(creationError).toBeNull();
+			expect(createdCommunity).toBeDefined();
+		});
 
-      try {
-        createdCommunity = Community.getNewInstance(
-          validCommunityData,
-          validCommunityName,
-          createdBy,
-          passport,
-        );
-      } catch (error) {
-        creationError = error as Error;
-      }
-
-      // Then the community creation should succeed
-      expect(creationError).toBeNull();
-      expect(createdCommunity).toBeDefined();
-    });
-
-    it('Then the community "Valid Community Name" should be created successfully', () => {
-      // Assert
-      expect(creationError).toBeNull();
-      expect(createdCommunity).toBeDefined();
-      expect(createdCommunity?.name).toBe('Valid Community Name');
-    });
-  });
+		it('Then the community "Valid Community Name" should be created successfully', () => {
+			// Assert
+			expect(creationError).toBeNull();
+			expect(createdCommunity).toBeDefined();
+			expect(createdCommunity?.name).toBe('Valid Community Name');
+		});
+	});
 });

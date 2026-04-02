@@ -9,12 +9,7 @@ import {
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(
-		__dirname,
-		'features/violation-ticket-v1-finance-details-adhoc-transactions-finance-reference.feature',
-	),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/violation-ticket-v1-finance-details-adhoc-transactions-finance-reference.feature'));
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let financeReference: ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference;
@@ -28,43 +23,28 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		};
 	});
 
-	Scenario(
-		'Creating a new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference instance',
-		({ When, Then, And }) => {
-			When(
-				'I create a new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference with valid properties',
-				() => {
-					financeReference =
-						new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference(
-							props,
-						);
-				},
-			);
+	Scenario('Creating a new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference instance', ({ When, Then, And }) => {
+		When('I create a new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference with valid properties', () => {
+			financeReference = new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference(props);
+		});
 
-			Then('the debit GL account should be accessible', () => {
-				expect(financeReference.debitGlAccount).toBe('1000');
-			});
+		Then('the debit GL account should be accessible', () => {
+			expect(financeReference.debitGlAccount).toBe('1000');
+		});
 
-			And('the credit GL account should be accessible', () => {
-				expect(financeReference.creditGlAccount).toBe('2000');
-			});
+		And('the credit GL account should be accessible', () => {
+			expect(financeReference.creditGlAccount).toBe('2000');
+		});
 
-			And('the completed on date should be accessible', () => {
-				expect(financeReference.completedOn).toEqual(new Date('2023-01-01'));
-			});
-		},
-	);
+		And('the completed on date should be accessible', () => {
+			expect(financeReference.completedOn).toEqual(new Date('2023-01-01'));
+		});
+	});
 
 	Scenario('Setting debit GL account', ({ Given, When, Then }) => {
-		Given(
-			'I have a ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference instance',
-			() => {
-				financeReference =
-					new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference(
-						props,
-					);
-			},
-		);
+		Given('I have a ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference instance', () => {
+			financeReference = new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference(props);
+		});
 
 		When('I set the debit GL account to "3000"', () => {
 			financeReference.debitGlAccount = '3000';
@@ -76,15 +56,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	});
 
 	Scenario('Setting credit GL account', ({ Given, When, Then }) => {
-		Given(
-			'I have a ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference instance',
-			() => {
-				financeReference =
-					new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference(
-						props,
-					);
-			},
-		);
+		Given('I have a ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference instance', () => {
+			financeReference = new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference(props);
+		});
 
 		When('I set the credit GL account to "4000"', () => {
 			financeReference.creditGlAccount = '4000';
@@ -96,15 +70,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	});
 
 	Scenario('Setting completed on date', ({ Given, When, Then }) => {
-		Given(
-			'I have a ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference instance',
-			() => {
-				financeReference =
-					new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference(
-						props,
-					);
-			},
-		);
+		Given('I have a ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference instance', () => {
+			financeReference = new ViolationTicketV1FinanceDetailsAdhocTransactionsFinanceReference(props);
+		});
 
 		When('I set the completed on date to a new date', () => {
 			const newDate = new Date('2023-02-01');

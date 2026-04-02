@@ -58,11 +58,7 @@ export interface StaffRole extends Role {
 	isDefault: boolean;
 }
 
-const StaffRoleSchema = new Schema<
-	StaffRole,
-	Model<StaffRole>,
-	StaffRole
->(
+const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 	{
 		permissions: {
 			servicePermissions: {
@@ -118,8 +114,7 @@ const StaffRoleSchema = new Schema<
 export const StaffRoleModelName: string = 'staff-roles';
 
 export const StaffRoleModelFactory = (RoleModel: RoleModelType) => {
-    return RoleModel.discriminator(StaffRoleModelName, StaffRoleSchema);
+	return RoleModel.discriminator(StaffRoleModelName, StaffRoleSchema);
 };
 
 export type StaffRoleModelType = ReturnType<typeof StaffRoleModelFactory>;
-

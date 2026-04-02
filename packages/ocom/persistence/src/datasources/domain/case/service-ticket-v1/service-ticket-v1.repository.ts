@@ -10,12 +10,7 @@ type PropType = ServiceTicketV1DomainAdapter;
 export class ServiceTicketV1Repository //<
 	//PropType extends Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Props
 	//>
-	extends MongooseSeedwork.MongoRepositoryBase<
-		ServiceTicketModelType,
-		PropType,
-		Domain.Passport,
-		Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>
-	>
+	extends MongooseSeedwork.MongoRepositoryBase<ServiceTicketModelType, PropType, Domain.Passport, Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>>
 	implements Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1Repository<PropType>
 {
 	getNewInstance(
@@ -26,17 +21,7 @@ export class ServiceTicketV1Repository //<
 		property?: Domain.Contexts.Property.Property.PropertyEntityReference,
 	): Promise<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
-		return Promise.resolve(
-			Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1.getNewInstance(
-				adapter,
-				this.passport,
-                title,
-				description,
-				community.id,
-				requestor.id,
-				property?.id,
-			),
-		);
+		return Promise.resolve(Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1.getNewInstance(adapter, this.passport, title, description, community.id, requestor.id, property?.id));
 	}
 
 	async getById(id: string): Promise<Domain.Contexts.Case.ServiceTicket.V1.ServiceTicketV1<PropType>> {

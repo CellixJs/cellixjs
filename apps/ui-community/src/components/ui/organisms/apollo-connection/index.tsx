@@ -3,36 +3,22 @@ import { RestLink } from 'apollo-link-rest';
 import { type FC, useCallback, useEffect } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { useLocation } from 'react-router-dom';
-import {
-	ApolloLinkToAddAuthHeader,
-	ApolloLinkToAddCustomHeader,
-	BaseApolloLink,
-	client,
-	TerminatingApolloLinkForGraphqlServer,
-} from './apollo-client-links.js';
+import { ApolloLinkToAddAuthHeader, ApolloLinkToAddCustomHeader, BaseApolloLink, client, TerminatingApolloLinkForGraphqlServer } from './apollo-client-links.js';
 
 export interface ApolloConnectionProps {
 	children: React.ReactNode;
 }
-export const ApolloConnection: FC<ApolloConnectionProps> = (
-	props: ApolloConnectionProps,
-) => {
+export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnectionProps) => {
 	const auth = useAuth();
 	const location = useLocation();
 
-	const communityId =
-		location.pathname.match(/\/community\/([a-f\d]{24})/i)?.[1] ?? null;
-	const memberId =
-		location.pathname.match(/\/(member|admin)\/([a-f\d]{24})/i)?.[2] ?? null;
+	const communityId = location.pathname.match(/\/community\/([a-f\d]{24})/i)?.[1] ?? null;
+	const memberId = location.pathname.match(/\/(member|admin)\/([a-f\d]{24})/i)?.[2] ?? null;
 
 	const apolloLinkChainForGraphqlDataSource = from([
 		BaseApolloLink(),
 		ApolloLinkToAddAuthHeader(auth),
-		ApolloLinkToAddCustomHeader(
-			'x-community-id',
-			communityId,
-			communityId !== 'accounts',
-		),
+		ApolloLinkToAddCustomHeader('x-community-id', communityId, communityId !== 'accounts'),
 		ApolloLinkToAddCustomHeader('x-member-id', memberId),
 		TerminatingApolloLinkForGraphqlServer({
 			// biome-ignore lint:useLiteralKeys
@@ -61,9 +47,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (
 				// 2. check for string name of the query if it is named: (operation) => operation.operationName === "CountryDetails",
 				(operation) => operation.operationName in linkMap,
 				new ApolloLink((operation, forward) => {
-					const link =
-						linkMap[operation.operationName as keyof typeof linkMap] ||
-						linkMap.default;
+					const link = linkMap[operation.operationName as keyof typeof linkMap] || linkMap.default;
 					return link.request(operation, forward);
 				}),
 				apolloLinkChainForGraphqlDataSource,

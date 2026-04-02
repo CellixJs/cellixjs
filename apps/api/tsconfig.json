@@ -1,25 +1,25 @@
 {
-  "extends": "@cellix/config-typescript/node",
-  "compilerOptions": {
-    "exactOptionalPropertyTypes": false,
-    "outDir": "dist",
-    "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
-  },
-  "include": ["src", "globals.d.ts"],
-  "references": [
-    { "path": "../../packages/cellix/api-services-spec" },
-    { "path": "../../packages/cellix/mongoose-seedwork" },
-    { "path": "../../packages/ocom/application-services" },
-    { "path": "../../packages/ocom/context-spec" },
-    { "path": "../../packages/ocom/event-handler" },
-    { "path": "../../packages/ocom/graphql" },
-    { "path": "../../packages/ocom/graphql-handler" },
-    { "path": "../../packages/ocom/persistence" },
-    { "path": "../../packages/ocom/rest" },
-    { "path": "../../packages/ocom/service-blob-storage" },
-    { "path": "../../packages/ocom/service-mongoose" },
-    { "path": "../../packages/ocom/service-otel" },
-    { "path": "../../packages/ocom/service-token-validation" }
-  ]
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"exactOptionalPropertyTypes": false,
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+	},
+	"include": ["src", "globals.d.ts"],
+	"references": [
+		{ "path": "../../packages/cellix/api-services-spec" },
+		{ "path": "../../packages/cellix/mongoose-seedwork" },
+		{ "path": "../../packages/ocom/application-services" },
+		{ "path": "../../packages/ocom/context-spec" },
+		{ "path": "../../packages/ocom/event-handler" },
+		{ "path": "../../packages/ocom/graphql" },
+		{ "path": "../../packages/ocom/graphql-handler" },
+		{ "path": "../../packages/ocom/persistence" },
+		{ "path": "../../packages/ocom/rest" },
+		{ "path": "../../packages/ocom/service-blob-storage" },
+		{ "path": "../../packages/ocom/service-mongoose" },
+		{ "path": "../../packages/ocom/service-otel" },
+		{ "path": "../../packages/ocom/service-token-validation" }
+	]
 }

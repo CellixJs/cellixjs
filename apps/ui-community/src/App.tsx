@@ -19,9 +19,18 @@ export default function App() {
 	const communitySection = (
 		<RequireAuth forceLogin={false}>
 			<Routes>
-				<Route path="/" element={<Accounts />} />
-				<Route path="/accounts/*" element={<Accounts />} />
-				<Route path="/:communityId/admin/:memberId/*" element={<Admin />} />
+				<Route
+					path="/"
+					element={<Accounts />}
+				/>
+				<Route
+					path="/accounts/*"
+					element={<Accounts />}
+				/>
+				<Route
+					path="/:communityId/admin/:memberId/*"
+					element={<Admin />}
+				/>
 			</Routes>
 		</RequireAuth>
 	);
@@ -29,9 +38,18 @@ export default function App() {
 	return (
 		<ApolloConnection>
 			<Routes>
-				<Route path="*" element={rootSection} />
-				<Route path="/auth-redirect" element={authSection} />
-				<Route path="/community/*" element={communitySection} />
+				<Route
+					path="*"
+					element={rootSection}
+				/>
+				<Route
+					path="/auth-redirect"
+					element={authSection}
+				/>
+				<Route
+					path="/community/*"
+					element={communitySection}
+				/>
 			</Routes>
 		</ApolloConnection>
 	);

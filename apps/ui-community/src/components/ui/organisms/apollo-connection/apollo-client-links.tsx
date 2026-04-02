@@ -1,10 +1,4 @@
-import {
-	ApolloClient,
-	ApolloLink,
-	type DefaultContext,
-	from,
-	InMemoryCache,
-} from '@apollo/client';
+import { ApolloClient, ApolloLink, type DefaultContext, from, InMemoryCache } from '@apollo/client';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { setContext } from '@apollo/client/link/context';
 import type { UriFunction } from '@apollo/client/link/http';
@@ -15,9 +9,9 @@ import type { AuthContextProps } from 'react-oidc-context';
 export const client = new ApolloClient({
 	cache: new InMemoryCache(),
 	devtools: {
-        // biome-ignore lint:useLiteralKeys
-        enabled: import.meta.env['NODE_ENV'] !== 'production',
-    },
+		// biome-ignore lint:useLiteralKeys
+		enabled: import.meta.env['NODE_ENV'] !== 'production',
+	},
 });
 
 // base apollo link with no customizations
@@ -38,26 +32,17 @@ export const ApolloLinkToAddAuthHeader = (auth: AuthContextProps): ApolloLink =>
 		let access_token: string | undefined = auth.user?.access_token;
 		// In development, fall back to storage to avoid a brief race on refresh.
 		// In production, rely solely on react-oidc-context to provide the user/token.
-		if (
-			!access_token &&
-			typeof globalThis !== 'undefined' &&
-			!import.meta.env.PROD
-		) {
+		if (!access_token && typeof globalThis !== 'undefined' && !import.meta.env.PROD) {
 			try {
 				// biome-ignore lint:useLiteralKeys
 				const authority = import.meta.env['VITE_AAD_B2C_ACCOUNT_AUTHORITY'] ?? '';
 				// biome-ignore lint:useLiteralKeys
 				const client_id = import.meta.env['VITE_AAD_B2C_ACCOUNT_CLIENTID'] ?? '';
 				const storageKey = `oidc.user:${authority}:${client_id}`;
-				const raw =
-					globalThis.sessionStorage.getItem(storageKey) ??
-					globalThis.localStorage.getItem(storageKey);
+				const raw = globalThis.sessionStorage.getItem(storageKey) ?? globalThis.localStorage.getItem(storageKey);
 				if (raw) {
 					const parsed = JSON.parse(raw);
-					access_token =
-						typeof parsed?.access_token === 'string'
-							? parsed.access_token
-							: undefined;
+					access_token = typeof parsed?.access_token === 'string' ? parsed.access_token : undefined;
 				}
 			} catch {
 				// ignore parse/storage errors and proceed without auth header
@@ -71,13 +56,9 @@ export const ApolloLinkToAddAuthHeader = (auth: AuthContextProps): ApolloLink =>
 		};
 	});
 // alternate way to add auth header
-export const ApolloLinkToAddAuthHeader1 = (
-	auth: AuthContextProps,
-): ApolloLink =>
+export const ApolloLinkToAddAuthHeader1 = (auth: AuthContextProps): ApolloLink =>
 	new ApolloLink((operation, forward) => {
-		const access_token = auth.isAuthenticated
-			? auth.user?.access_token
-			: undefined;
+		const access_token = auth.isAuthenticated ? auth.user?.access_token : undefined;
 		if (!access_token) {
 			return forward(operation);
 		}
@@ -89,13 +70,10 @@ export const ApolloLinkToAddAuthHeader1 = (
 		return forward(operation);
 	});
 // alternate way to add auth header
-export const ApolloLinkToAddAuthHeader2 = (
-	auth: AuthContextProps,
-): ApolloLink => {
+export const ApolloLinkToAddAuthHeader2 = (auth: AuthContextProps): ApolloLink => {
 	return setContext((_, { headers }) => {
 		const returnHeaders = { ...headers };
-		const access_token =
-			auth.isAuthenticated === true ? auth.user?.access_token : undefined;
+		const access_token = auth.isAuthenticated === true ? auth.user?.access_token : undefined;
 		if (access_token) {
 			// biome-ignore lint:useLiteralKeys
 			returnHeaders['Authorization'] = `Bearer ${access_token}`;
@@ -105,11 +83,7 @@ export const ApolloLinkToAddAuthHeader2 = (
 };
 
 // apollo link to add custom header
-export const ApolloLinkToAddCustomHeader = (
-	headerName: string,
-	headerValue: string | null | undefined,
-	ifTrue?: boolean,
-): ApolloLink =>
+export const ApolloLinkToAddCustomHeader = (headerName: string, headerValue: string | null | undefined, ifTrue?: boolean): ApolloLink =>
 	new ApolloLink((operation, forward) => {
 		if (!headerValue || (ifTrue !== undefined && ifTrue === false)) {
 			return forward(operation);
@@ -124,9 +98,7 @@ export const ApolloLinkToAddCustomHeader = (
 
 // apollo link to batch graphql requests
 // includes removeTypenameFromVariables link
-export const TerminatingApolloLinkForGraphqlServer = (
-	config: BatchHttpLink.Options,
-) => {
+export const TerminatingApolloLinkForGraphqlServer = (config: BatchHttpLink.Options) => {
 	const batchHttpLink = new BatchHttpLink({
 		uri: config.uri as string | UriFunction,
 		batchMax: Number(config.batchMax), // No more than 15 operations per batch

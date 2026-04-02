@@ -5,13 +5,9 @@ export interface PropertyLocationPositionProps extends ValueObjectProps {
 	coordinates: ReadonlyArray<number> | null;
 }
 
-export interface PropertyLocationPositionEntityReference
-	extends Readonly<PropertyLocationPositionProps> {}
+export interface PropertyLocationPositionEntityReference extends Readonly<PropertyLocationPositionProps> {}
 
-export class PropertyLocationPosition
-	extends ValueObject<PropertyLocationPositionProps>
-	implements PropertyLocationPositionEntityReference
-{
+export class PropertyLocationPosition extends ValueObject<PropertyLocationPositionProps> implements PropertyLocationPositionEntityReference {
 	get type(): string | null {
 		return this.props.type;
 	}

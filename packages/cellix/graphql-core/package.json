@@ -1,43 +1,44 @@
 {
-  "name": "@cellix/graphql-core",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "description": "Shared, reusable GraphQL utilities for Cellix framework",
-  "files": [
-    "dist",
-    "src/schema/**/*.graphql"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "default": "./dist/utils/index.js"
-    }
-  },
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
-    "lint": "biome lint",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest",
-    "clean": "rimraf dist"
-  },
-  "dependencies": {
-    "graphql": "^16.10.0",
-    "graphql-scalars": "^1.24.2"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@cellix/config-vitest": "workspace:*",
-    "@vitest/coverage-istanbul": "catalog:",
-    "rimraf": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
-  }
+	"name": "@cellix/graphql-core",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Shared, reusable GraphQL utilities for Cellix framework",
+	"files": [
+		"dist",
+		"src/schema/**/*.graphql"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./utils": {
+			"types": "./dist/utils/index.d.ts",
+			"default": "./dist/utils/index.js"
+		}
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"watch": "tsc --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"graphql": "^16.10.0",
+		"graphql-scalars": "^1.24.2"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
 }

@@ -8,9 +8,7 @@ export interface CommunityDetailContainerProps {
 	data: { id?: string };
 }
 
-export const CommunityDetailContainer: React.FC<
-	CommunityDetailContainerProps
-> = (props) => {
+export const CommunityDetailContainer: React.FC<CommunityDetailContainerProps> = (props) => {
 	const {
 		data: communityData,
 		loading: communityLoading,
@@ -19,17 +17,15 @@ export const CommunityDetailContainer: React.FC<
 		variables: { id: props.data.id ?? '' },
 	});
 
-    const communityDetailProps: CommunityDetailProps = {
-        data: communityData?.communityById as AdminCommunityDetailContainerCommunityFieldsFragment
-    };
+	const communityDetailProps: CommunityDetailProps = {
+		data: communityData?.communityById as AdminCommunityDetailContainerCommunityFieldsFragment,
+	};
 
 	return (
 		<ComponentQueryLoader
 			loading={communityLoading}
 			hasData={communityData}
-			hasDataComponent={
-				<CommunityDetail {...communityDetailProps}/>
-			}
+			hasDataComponent={<CommunityDetail {...communityDetailProps} />}
 			error={communityError}
 		/>
 	);

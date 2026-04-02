@@ -3,31 +3,13 @@ import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import type { Passport } from '../../passport.ts';
-import {
-	Community,
-	type CommunityEntityReference,
-} from '../community/community.ts';
+import { Community, type CommunityEntityReference } from '../community/community.ts';
 import type { CommunityVisa } from '../community.visa.ts';
-import {
-	EndUserRole,
-	type EndUserRoleEntityReference,
-} from '../role/end-user-role/end-user-role.ts';
+import { EndUserRole, type EndUserRoleEntityReference } from '../role/end-user-role/end-user-role.ts';
 import * as ValueObjects from './member.value-objects.ts';
-import {
-	MemberAccount,
-	type MemberAccountEntityReference,
-	type MemberAccountProps,
-} from './member-account.ts';
-import {
-	MemberCustomView,
-	type MemberCustomViewEntityReference,
-	type MemberCustomViewProps,
-} from './member-custom-view.ts';
-import {
-	MemberProfile,
-	type MemberProfileEntityReference,
-	type MemberProfileProps,
-} from './member-profile.ts';
+import { MemberAccount, type MemberAccountEntityReference, type MemberAccountProps } from './member-account.ts';
+import { MemberCustomView, type MemberCustomViewEntityReference, type MemberCustomViewProps } from './member-custom-view.ts';
+import { MemberProfile, type MemberProfileEntityReference, type MemberProfileProps } from './member-profile.ts';
 
 export interface MemberProps extends DomainEntityProps {
 	memberName: string;
@@ -47,13 +29,7 @@ export interface MemberProps extends DomainEntityProps {
 	readonly schemaVersion: string;
 }
 
-export interface MemberEntityReference
-	extends Readonly<
-		Omit<
-			MemberProps,
-			'community' | 'accounts' | 'role' | 'profile' | 'customViews'
-		>
-	> {
+export interface MemberEntityReference extends Readonly<Omit<MemberProps, 'community' | 'accounts' | 'role' | 'profile' | 'customViews'>> {
 	readonly community: CommunityEntityReference;
 	readonly accounts: ReadonlyArray<MemberAccountEntityReference>;
 	readonly role: EndUserRoleEntityReference;
@@ -61,10 +37,7 @@ export interface MemberEntityReference
 	readonly customViews: ReadonlyArray<MemberCustomViewEntityReference>;
 }
 
-export class Member<props extends MemberProps>
-	extends AggregateRoot<props, Passport>
-	implements MemberEntityReference
-{
+export class Member<props extends MemberProps> extends AggregateRoot<props, Passport> implements MemberEntityReference {
 	//#region Fields
 	private isNew: boolean = false;
 	private _visa?: CommunityVisa;
@@ -78,213 +51,132 @@ export class Member<props extends MemberProps>
 	//#endregion Constructors
 
 	//#region Methods
-		public static getNewInstance<props extends MemberProps>(
-			newProps: props,
-			passport: Passport,
-			name: string,
-			community: CommunityEntityReference,
-		): Member<props> {
-			if (
-				!passport.community
-					.forCommunity(community)
-					.determineIf(
-						(domainPermissions) =>
-							domainPermissions.canManageMembers ||
-							domainPermissions.isSystemAccount,
-					)
-			) {
-				throw new PermissionError('Cannot create new member');
-			}
-
-			const newInstance = new Member(newProps, passport);
-			newInstance.isNew = true;
-			newInstance.memberName = name;
-			newInstance.community = community;
-			newInstance.isNew = false;
-			return newInstance;
+	public static getNewInstance<props extends MemberProps>(newProps: props, passport: Passport, name: string, community: CommunityEntityReference): Member<props> {
+		if (!passport.community.forCommunity(community).determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot create new member');
 		}
 
-		public requestNewAccount(): MemberAccount {
-			if (
-				!this.isNew &&
-				!this.visa.determineIf(
-					(domainPermissions) =>
-						domainPermissions.canManageMembers ||
-						domainPermissions.isSystemAccount,
-				)
-			) {
-				throw new PermissionError('Cannot set role');
-			}
-			return new MemberAccount(
-				this.props.accounts.getNewItem(),
-				this.passport,
-				this.visa,
-			);
-		}
+		const newInstance = new Member(newProps, passport);
+		newInstance.isNew = true;
+		newInstance.memberName = name;
+		newInstance.community = community;
+		newInstance.isNew = false;
+		return newInstance;
+	}
 
-		public requestRemoveAccount(accountRef: MemberAccountProps): void {
-			if (
-				!this.isNew &&
-				!this.visa.determineIf(
-					(domainPermissions) =>
-						domainPermissions.canManageMembers ||
-						domainPermissions.isSystemAccount,
-				)
-			) {
-				throw new PermissionError('Cannot set role');
-			}
-			this.props.accounts.removeItem(accountRef);
+	public requestNewAccount(): MemberAccount {
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set role');
 		}
+		return new MemberAccount(this.props.accounts.getNewItem(), this.passport, this.visa);
+	}
 
-		public requestNewCustomView(): MemberCustomView {
-			if (
-				!this.isNew &&
-				!this.visa.determineIf(
-					(domainPermissions) =>
-						domainPermissions.canManageMembers ||
-						domainPermissions.isSystemAccount,
-				)
-			) {
-				throw new PermissionError('Cannot set custom view');
-			}
-			return new MemberCustomView(this.props.customViews.getNewItem(), this.visa);
+	public requestRemoveAccount(accountRef: MemberAccountProps): void {
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set role');
 		}
+		this.props.accounts.removeItem(accountRef);
+	}
 
-		public requestRemoveCustomView(customView: MemberCustomView): void {
-			if (
-				!this.isNew &&
-				!this.visa.determineIf(
-					(domainPermissions) =>
-						domainPermissions.canManageMembers ||
-						domainPermissions.isSystemAccount,
-				)
-			) {
-				throw new PermissionError('Cannot remove custom view');
-			}
-			console.log(customView.name);
-			this.props.customViews.removeItem(customView.props);
+	public requestNewCustomView(): MemberCustomView {
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set custom view');
 		}
+		return new MemberCustomView(this.props.customViews.getNewItem(), this.visa);
+	}
 
-		async loadCommunity(): Promise<CommunityEntityReference> {
-			return await this.props.loadCommunity();
+	public requestRemoveCustomView(customView: MemberCustomView): void {
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot remove custom view');
 		}
+		console.log(customView.name);
+		this.props.customViews.removeItem(customView.props);
+	}
 
-		async loadRole(): Promise<EndUserRoleEntityReference> {
-			return await this.props.loadRole();
-		}
+	async loadCommunity(): Promise<CommunityEntityReference> {
+		return await this.props.loadCommunity();
+	}
+
+	async loadRole(): Promise<EndUserRoleEntityReference> {
+		return await this.props.loadRole();
+	}
 	//#endregion Methods
 
 	//#region Properties
-		private get visa(): CommunityVisa {
-			if (!this._visa) {
-				if (!this.props.community) {
-					throw new Error(
-						'Community must be set before computing a visa for Member',
-					);
-				}
-				this._visa = this.passport.community.forCommunity(this.community);
+	private get visa(): CommunityVisa {
+		if (!this._visa) {
+			if (!this.props.community) {
+				throw new Error('Community must be set before computing a visa for Member');
 			}
-			return this._visa;
+			this._visa = this.passport.community.forCommunity(this.community);
 		}
-		get memberName(): string {
-			return this.props.memberName;
+		return this._visa;
+	}
+	get memberName(): string {
+		return this.props.memberName;
+	}
+	set memberName(memberName: string) {
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set member name');
 		}
-		set memberName(memberName: string) {
-			if (
-				!this.isNew &&
-				!this.visa.determineIf(
-					(domainPermissions) =>
-						domainPermissions.canManageMembers ||
-						domainPermissions.isSystemAccount,
-				)
-			) {
-				throw new PermissionError('Cannot set member name');
-			}
-			this.props.memberName = new ValueObjects.MemberName(memberName).valueOf();
-		}
+		this.props.memberName = new ValueObjects.MemberName(memberName).valueOf();
+	}
 
-		get cybersourceCustomerId(): string {
-			return this.props.cybersourceCustomerId;
+	get cybersourceCustomerId(): string {
+		return this.props.cybersourceCustomerId;
+	}
+	set cybersourceCustomerId(cybersourceCustomerId: string) {
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set cybersource customer id');
 		}
-		set cybersourceCustomerId(cybersourceCustomerId: string) {
-			if (
-				!this.isNew &&
-				!this.visa.determineIf(
-					(domainPermissions) =>
-						domainPermissions.canManageMembers ||
-						domainPermissions.isSystemAccount,
-				)
-			) {
-				throw new PermissionError('Cannot set cybersource customer id');
-			}
-			this.props.cybersourceCustomerId = new ValueObjects.CyberSourceCustomerId(
-				cybersourceCustomerId,
-			).valueOf();
+		this.props.cybersourceCustomerId = new ValueObjects.CyberSourceCustomerId(cybersourceCustomerId).valueOf();
+	}
+	get communityId(): string {
+		return this.props.communityId;
+	}
+	get community(): CommunityEntityReference {
+		return new Community(this.props.community, this.passport);
+	}
+	//TODO: why is this not security checked?
+	set community(community: CommunityEntityReference) {
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set community');
 		}
-		get communityId(): string {
-			return this.props.communityId;
-		}
-		get community(): CommunityEntityReference {
-			return new Community(this.props.community, this.passport);
-		}
-		//TODO: why is this not security checked?
-		set community(community: CommunityEntityReference) {
-			if (
-				!this.isNew &&
-				!this.visa.determineIf(
-					(domainPermissions) =>
-						domainPermissions.canManageMembers ||
-						domainPermissions.isSystemAccount,
-				)
-			) {
-				throw new PermissionError('Cannot set community');
-			}
-			this.props.community = community;
-		}
+		this.props.community = community;
+	}
 
-		get accounts(): ReadonlyArray<MemberAccount> {
-			return this.props.accounts.items.map(
-				(account) => new MemberAccount(account, this.passport, this.visa),
-			);
-		} // return account as it's an embedded document not a reference (allows editing)
+	get accounts(): ReadonlyArray<MemberAccount> {
+		return this.props.accounts.items.map((account) => new MemberAccount(account, this.passport, this.visa));
+	} // return account as it's an embedded document not a reference (allows editing)
 
-		get role(): EndUserRoleEntityReference {
-			return new EndUserRole(this.props.role, this.passport);
+	get role(): EndUserRoleEntityReference {
+		return new EndUserRole(this.props.role, this.passport);
+	}
+	set role(role: EndUserRoleEntityReference) {
+		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set role');
 		}
-		set role(role: EndUserRoleEntityReference) {
-			if (
-				!this.isNew &&
-				!this.visa.determineIf(
-					(domainPermissions) =>
-						domainPermissions.canManageMembers ||
-						domainPermissions.isSystemAccount,
-				)
-			) {
-				throw new PermissionError('Cannot set role');
-			}
-			this.props.role = role;
-		}
+		this.props.role = role;
+	}
 
-		get profile() {
-			return new MemberProfile(this.props.profile, this.visa);
-		} // return profile as it's an embedded document not a reference (allows editing)
+	get profile() {
+		return new MemberProfile(this.props.profile, this.visa);
+	} // return profile as it's an embedded document not a reference (allows editing)
 
-		get createdAt() {
-			return this.props.createdAt;
-		}
+	get createdAt() {
+		return this.props.createdAt;
+	}
 
-		get updatedAt() {
-			return this.props.updatedAt;
-		}
+	get updatedAt() {
+		return this.props.updatedAt;
+	}
 
-		get schemaVersion() {
-			return this.props.schemaVersion;
-		}
+	get schemaVersion() {
+		return this.props.schemaVersion;
+	}
 
-		get customViews(): ReadonlyArray<MemberCustomView> {
-			return this.props.customViews.items.map(
-				(customView) => new MemberCustomView(customView, this.visa),
-			);
-		} // return customView as it's an embedded document not a reference (allows editing)
-		// #endregion Properties
+	get customViews(): ReadonlyArray<MemberCustomView> {
+		return this.props.customViews.items.map((customView) => new MemberCustomView(customView, this.visa));
+	} // return customView as it's an embedded document not a reference (allows editing)
+	// #endregion Properties
 }

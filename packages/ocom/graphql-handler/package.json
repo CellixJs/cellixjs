@@ -1,43 +1,44 @@
 {
-  "name": "@ocom/graphql-handler",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "description": "Azure Functions HTTP integration for GraphQL",
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
-    "lint": "biome lint",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest",
-    "clean": "rimraf dist"
-  },
-  "dependencies": {
-    "@apollo/server": "catalog:",
-    "@apollo/utils.withrequired": "^3.0.0",
-    "@azure/functions": "catalog:",
-    "@ocom/application-services": "workspace:*",
-    "@ocom/graphql": "workspace:*",
-    "@ocom/service-apollo-server": "workspace:*",
-    "graphql": "catalog:"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@cellix/config-vitest": "workspace:*",
-    "@vitest/coverage-istanbul": "catalog:",
-    "rimraf": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
-  }
+	"name": "@ocom/graphql-handler",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Azure Functions HTTP integration for GraphQL",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"watch": "tsc --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@apollo/utils.withrequired": "^3.0.0",
+		"@azure/functions": "catalog:",
+		"@ocom/application-services": "workspace:*",
+		"@ocom/graphql": "workspace:*",
+		"@ocom/service-apollo-server": "workspace:*",
+		"graphql": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
 }

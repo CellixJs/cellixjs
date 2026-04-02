@@ -6,6 +6,6 @@ import { ocomGraphqlTypeDefs } from './schema-type-defs.generated.ts';
 
 // Build the complete schema using Cellix core utilities
 export const combinedSchema: GraphQLSchema = buildCellixSchema<GraphContext>(
-  [...ocomGraphqlTypeDefs], // Additional type definitions
-  [resolvers], // Additional resolvers
+	[...ocomGraphqlTypeDefs], // Additional type definitions
+	[resolvers], // Additional resolvers
 );

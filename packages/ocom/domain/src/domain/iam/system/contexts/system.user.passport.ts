@@ -7,10 +7,7 @@ import type { UserVisa } from '../../../contexts/user/user.visa.ts';
 import type { VendorUserEntityReference } from '../../../contexts/user/vendor-user/vendor-user.ts';
 import { SystemPassportBase } from '../system.passport-base.ts';
 
-export class SystemUserPassport
-	extends SystemPassportBase
-	implements UserPassport
-{
+export class SystemUserPassport extends SystemPassportBase implements UserPassport {
 	forEndUser(_root: EndUserEntityReference): UserVisa {
 		const permissions = this.permissions as UserDomainPermissions;
 		return { determineIf: (func) => func(permissions) };

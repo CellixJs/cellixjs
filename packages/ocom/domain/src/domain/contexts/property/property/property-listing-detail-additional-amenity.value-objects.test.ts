@@ -6,12 +6,7 @@ import * as ValueObjects from './property-listing-detail-additional-amenity.valu
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(
-		__dirname,
-		'features/property-listing-detail-additional-amenity.value-objects.feature',
-	),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/property-listing-detail-additional-amenity.value-objects.feature'));
 
 test.for(feature, ({ Scenario }) => {
 	Scenario('Creating a valid category', ({ When, Then }) => {
@@ -24,18 +19,15 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
-	Scenario(
-		'Creating a category with leading/trailing whitespace',
-		({ When, Then }) => {
-			let category: ValueObjects.Category;
-			When('I create a category with "  Kitchen  "', () => {
-				category = new ValueObjects.Category('  Kitchen  ');
-			});
-			Then('the value should be "Kitchen"', () => {
-				expect(category.valueOf()).toBe('Kitchen');
-			});
-		},
-	);
+	Scenario('Creating a category with leading/trailing whitespace', ({ When, Then }) => {
+		let category: ValueObjects.Category;
+		When('I create a category with "  Kitchen  "', () => {
+			category = new ValueObjects.Category('  Kitchen  ');
+		});
+		Then('the value should be "Kitchen"', () => {
+			expect(category.valueOf()).toBe('Kitchen');
+		});
+	});
 
 	Scenario('Creating a category that is too short', ({ When, Then }) => {
 		When('I try to create a category with ""', () => {
@@ -48,12 +40,9 @@ test.for(feature, ({ Scenario }) => {
 
 	Scenario('Creating a category that is too long', ({ When, Then }) => {
 		const longString = 'a'.repeat(101);
-		When(
-			'I try to create a category with a string longer than 100 characters',
-			() => {
-				expect(() => new ValueObjects.Category(longString)).toThrow('Too long');
-			},
-		);
+		When('I try to create a category with a string longer than 100 characters', () => {
+			expect(() => new ValueObjects.Category(longString)).toThrow('Too long');
+		});
 		Then('it should throw an error "Too long"', () => {
 			// Already checked in When
 		});
@@ -62,9 +51,7 @@ test.for(feature, ({ Scenario }) => {
 	Scenario('Creating a category with null', ({ When, Then }) => {
 		When('I try to create a category with null', () => {
 			// @ts-expect-error Testing invalid input
-			expect(() => new ValueObjects.Category(null)).toThrow(
-				'Wrong raw value type',
-			);
+			expect(() => new ValueObjects.Category(null)).toThrow('Wrong raw value type');
 		});
 		Then('it should throw an error "Wrong raw value type"', () => {
 			// Already checked in When
@@ -84,9 +71,7 @@ test.for(feature, ({ Scenario }) => {
 	Scenario('Creating amenities with too many items', ({ When, Then }) => {
 		const tooManyItems = Array.from({ length: 21 }, (_, i) => `Amenity${i}`);
 		When('I try to create amenities with more than 20 items', () => {
-			expect(() => new ValueObjects.Amenities(tooManyItems)).toThrow(
-				'Too long',
-			);
+			expect(() => new ValueObjects.Amenities(tooManyItems)).toThrow('Too long');
 		});
 		Then('it should throw an error "Too long"', () => {
 			// Already checked in When
@@ -96,9 +81,7 @@ test.for(feature, ({ Scenario }) => {
 	Scenario('Creating amenities with null', ({ When, Then }) => {
 		When('I try to create amenities with null', () => {
 			// @ts-expect-error Testing invalid input
-			expect(() => new ValueObjects.Amenities(null)).toThrow(
-				'Wrong raw value type',
-			);
+			expect(() => new ValueObjects.Amenities(null)).toThrow('Wrong raw value type');
 		});
 		Then('it should throw an error "Wrong raw value type"', () => {
 			// Already checked in When

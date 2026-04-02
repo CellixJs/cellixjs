@@ -32,10 +32,10 @@ const CommunitySchema = new Schema<Community, Model<Community>, Community>(
 			required: true,
 		},
 	},
-    { 
-        timestamps: true,
-        versionKey: 'version',
-    }
+	{
+		timestamps: true,
+		versionKey: 'version',
+	},
 )
 	.index(
 		{ domain: 1 },
@@ -66,8 +66,5 @@ const CommunitySchema = new Schema<Community, Model<Community>, Community>(
 	);
 
 export const CommunityModelName = 'Community';
-export const CommunityModelFactory = MongooseSeedwork.modelFactory<Community>(
-	CommunityModelName,
-	CommunitySchema,
-);
+export const CommunityModelFactory = MongooseSeedwork.modelFactory<Community>(CommunityModelName, CommunitySchema);
 export type CommunityModelType = ReturnType<typeof CommunityModelFactory>;

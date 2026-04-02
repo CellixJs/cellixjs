@@ -23,10 +23,7 @@ export class ServiceOtel implements SyncServiceBase<void> {
 	constructor(config: OtelConfig) {
 		const otelBuilder = new OtelBuilder();
 		const exporters = otelBuilder.buildExporters(config.exportToConsole);
-		const processors = otelBuilder.buildProcessors(
-			config.useSimpleProcessors,
-			exporters,
-		);
+		const processors = otelBuilder.buildProcessors(config.useSimpleProcessors, exporters);
 		const metricReader = otelBuilder.buildMetricReader(exporters);
 		const instrumentations = otelBuilder.buildInstrumentations();
 
@@ -41,14 +38,14 @@ export class ServiceOtel implements SyncServiceBase<void> {
 					[ATTR_SERVICE_VERSION]: '1.0.0',
 				}),
 			),
-            sampler: otelBuilder.buildSampler()
+			sampler: otelBuilder.buildSampler(),
 		};
 		this.sdk = new opentelemetry.NodeSDK(sdkConfig);
 	}
 
 	public startUp() {
 		this.sdk.start();
-        console.log('ServiceOtel started');
+		console.log('ServiceOtel started');
 	}
 
 	public shutDown() {

@@ -4,15 +4,13 @@ import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId } 
 import { determineIfAdmin, type MemberDetermineIfAdminCommand } from './determine-if-admin.ts';
 
 export interface MemberApplicationService {
-    determineIfAdmin: (command: MemberDetermineIfAdminCommand) => Promise<boolean>,
-    queryByEndUserExternalId: (command: MemberQueryByEndUserExternalIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>,
+	determineIfAdmin: (command: MemberDetermineIfAdminCommand) => Promise<boolean>;
+	queryByEndUserExternalId: (command: MemberQueryByEndUserExternalIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 }
 
-export const Member = (
-    dataSources: DataSources
-): MemberApplicationService => {
-    return {
-        determineIfAdmin: determineIfAdmin(dataSources),
-        queryByEndUserExternalId: queryByEndUserExternalId(dataSources),
-    }
-}
+export const Member = (dataSources: DataSources): MemberApplicationService => {
+	return {
+		determineIfAdmin: determineIfAdmin(dataSources),
+		queryByEndUserExternalId: queryByEndUserExternalId(dataSources),
+	};
+};

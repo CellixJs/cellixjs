@@ -16,7 +16,7 @@ export const CommunityDetail: React.FC<CommunityDetailProps> = (props) => {
 				</Descriptions.Item>
 			);
 		}
-        return null;
+		return null;
 	};
 
 	const domainDetails = () => {
@@ -27,7 +27,7 @@ export const CommunityDetail: React.FC<CommunityDetailProps> = (props) => {
 				</Descriptions.Item>
 			);
 		}
-        return null;
+		return null;
 	};
 
 	const handleDetails = () => {
@@ -38,7 +38,7 @@ export const CommunityDetail: React.FC<CommunityDetailProps> = (props) => {
 				</Descriptions.Item>
 			);
 		}
-	    return null;
+		return null;
 	};
 
 	const {
@@ -48,30 +48,30 @@ export const CommunityDetail: React.FC<CommunityDetailProps> = (props) => {
 	return (
 		<div>
 			<div
-				className={
-					'w-full p-5 mx-auto my-5 shadow-lg rounded-lg border border-1'
-				}
+				className={'w-full p-5 mx-auto my-5 shadow-lg rounded-lg border border-1'}
 				style={{
 					color: colorText,
 					backgroundColor: colorBgContainer,
 				}}
 			>
 				<Title level={3}>Community Admin</Title>
-				<p>
-					You can manage different aspects of your community here. The items in
-					menu to the left reflect the permissions you have in managing this
-					community.
-				</p>
+				<p>You can manage different aspects of your community here. The items in menu to the left reflect the permissions you have in managing this community.</p>
 			</div>
 
 			<Descriptions column={1}>
 				<Descriptions.Item label="Community ID">
-					<Text strong data-testid="community-id">
+					<Text
+						strong
+						data-testid="community-id"
+					>
 						{props.data.id}
 					</Text>
 				</Descriptions.Item>
 				<Descriptions.Item label="Community Name">
-					<Text strong data-testid="community-name">
+					<Text
+						strong
+						data-testid="community-name"
+					>
 						{props.data.name}
 					</Text>
 				</Descriptions.Item>

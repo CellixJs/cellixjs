@@ -16,11 +16,7 @@ import path from 'node:path';
 import { collectFiles, toPosixPath } from './file-utils.mjs';
 
 export const plugin = async (_schema, _documents, config, info) => {
-	const {
-		typesDir,
-		resolversExportName = 'resolvers',
-		permissionsExportName = 'permissions',
-	} = config;
+	const { typesDir, resolversExportName = 'resolvers', permissionsExportName = 'permissions' } = config;
 
 	if (!typesDir) {
 		throw new Error('resolver-manifest-plugin: "typesDir" config option is required');
@@ -30,19 +26,13 @@ export const plugin = async (_schema, _documents, config, info) => {
 	const absoluteTypesDir = path.resolve(repoRoot, typesDir);
 
 	// Use the output file path from codegen info to compute relative imports
-	const outputFile = info?.outputFile
-		? path.resolve(repoRoot, info.outputFile)
-		: path.resolve(absoluteTypesDir, '../builder/resolver-manifest.generated.ts');
+	const outputFile = info?.outputFile ? path.resolve(repoRoot, info.outputFile) : path.resolve(absoluteTypesDir, '../builder/resolver-manifest.generated.ts');
 
 	const resolverFiles = await collectFiles(absoluteTypesDir, '.resolvers.ts');
 	const permissionFiles = await collectFiles(absoluteTypesDir, '.permissions.ts');
 
-	const resolverImports = resolverFiles.map(
-		(filePath, index) => `import resolver${index} from '${toImportPath(outputFile, filePath)}';`,
-	);
-	const permissionImports = permissionFiles.map(
-		(filePath, index) => `import permission${index} from '${toImportPath(outputFile, filePath)}';`,
-	);
+	const resolverImports = resolverFiles.map((filePath, index) => `import resolver${index} from '${toImportPath(outputFile, filePath)}';`);
+	const permissionImports = permissionFiles.map((filePath, index) => `import permission${index} from '${toImportPath(outputFile, filePath)}';`);
 
 	const allImports = [...resolverImports, ...permissionImports];
 

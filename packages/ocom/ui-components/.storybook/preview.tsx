@@ -8,35 +8,38 @@ import 'antd/dist/reset.css';
 
 // Global MemoryRouter so any Link/useLocation has context
 export const decorators: Decorator[] = [
-  (Story, context) => {
-    const initialEntries = context.parameters?.memoryRouter?.initialEntries ?? ["/"];
-    const apolloParams = context.parameters?.apolloClient ?? {};
-    const mocks = apolloParams.mocks ?? [];
-    const { defaultOptions } = apolloParams;
+	(Story, context) => {
+		const initialEntries = context.parameters?.memoryRouter?.initialEntries ?? ['/'];
+		const apolloParams = context.parameters?.apolloClient ?? {};
+		const mocks = apolloParams.mocks ?? [];
+		const { defaultOptions } = apolloParams;
 
-    return (
-      <AuthProvider>
-        <MockedProvider mocks={mocks} defaultOptions={defaultOptions}>
-          <MemoryRouter initialEntries={initialEntries}>
-            <Story />
-          </MemoryRouter>
-        </MockedProvider>
-      </AuthProvider>
-    );
-  },
+		return (
+			<AuthProvider>
+				<MockedProvider
+					mocks={mocks}
+					defaultOptions={defaultOptions}
+				>
+					<MemoryRouter initialEntries={initialEntries}>
+						<Story />
+					</MemoryRouter>
+				</MockedProvider>
+			</AuthProvider>
+		);
+	},
 ];
 
 // Global parameters
 export const parameters: Parameters = {
 	layout: 'padded',
 	actions: { argTypesRegex: '^on[A-Z].*' },
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/i,
-      },
-    },
-    apolloClient: {
-        MockedProvider,
-    }
+	controls: {
+		matchers: {
+			color: /(background|color)$/i,
+			date: /Date$/i,
+		},
+	},
+	apolloClient: {
+		MockedProvider,
+	},
 };

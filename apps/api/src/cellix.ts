@@ -3,162 +3,153 @@ import type { ServiceBase } from '@cellix/api-services-spec';
 import api, { SpanStatusCode, type Tracer, trace } from '@opentelemetry/api';
 
 interface InfrastructureServiceRegistry<ContextType = unknown, AppServices = unknown> {
-    /**
-     * Registers an infrastructure service with the application.
-     *
-     * @remarks
-     * Must be called during the {@link Phase | 'infrastructure'} phase. Each
-     * constructor key can be registered at most once.
-     *
-     * @typeParam T - The concrete service type.
-     * @param service - The service instance to register.
-     * @returns The registry (for chaining).
-     *
-     * @throws Error - If called outside the infrastructure phase or the service key is already registered.
-     */
+	/**
+	 * Registers an infrastructure service with the application.
+	 *
+	 * @remarks
+	 * Must be called during the {@link Phase | 'infrastructure'} phase. Each
+	 * constructor key can be registered at most once.
+	 *
+	 * @typeParam T - The concrete service type.
+	 * @param service - The service instance to register.
+	 * @returns The registry (for chaining).
+	 *
+	 * @throws Error - If called outside the infrastructure phase or the service key is already registered.
+	 */
 	registerInfrastructureService<T extends ServiceBase>(service: T): InfrastructureServiceRegistry<ContextType, AppServices>;
 }
 
 interface ContextBuilder<ContextType = unknown, AppServices = unknown> {
-    /**
-     * Defines the infrastructure context available for the application.
-     *
-     * @remarks
-     * Must be called during the {@link Phase | 'infrastructure'} phase. Stores the `contextCreator`
-     * and transitions the application to the {@link Phase | 'context'} phase. The provided function
-     * will be invoked during {@link startUp} (inside the Azure Functions `appStart` hook) after all
-     * infrastructure services have successfully started. Note that `ContextType` is defined in the
-     * `api-context-spec` package.
-     *
-     * @param contextCreator - Function that builds the infrastructure context from the initialized service registry.
-     * @returns An {@link ApplicationServicesInitializer} for configuring application services.
-     *
-     * @throws Error - If called outside the 'infrastructure' phase.
-     */
-	setContext(
-		contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType,
-	): ApplicationServicesInitializer<ContextType, AppServices>;
+	/**
+	 * Defines the infrastructure context available for the application.
+	 *
+	 * @remarks
+	 * Must be called during the {@link Phase | 'infrastructure'} phase. Stores the `contextCreator`
+	 * and transitions the application to the {@link Phase | 'context'} phase. The provided function
+	 * will be invoked during {@link startUp} (inside the Azure Functions `appStart` hook) after all
+	 * infrastructure services have successfully started. Note that `ContextType` is defined in the
+	 * `api-context-spec` package.
+	 *
+	 * @param contextCreator - Function that builds the infrastructure context from the initialized service registry.
+	 * @returns An {@link ApplicationServicesInitializer} for configuring application services.
+	 *
+	 * @throws Error - If called outside the 'infrastructure' phase.
+	 */
+	setContext(contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType): ApplicationServicesInitializer<ContextType, AppServices>;
 }
 
 interface ApplicationServicesInitializer<ContextType, AppServices = unknown> {
-    /**
-     * Registers the factory that creates the request-scoped application services host.
-     *
-     * @remarks
-     * Must be called during the {@link Phase | 'context'} phase, after {@link setContext}. Stores the
-     * factory and transitions the application to the {@link Phase | 'app-services'} phase. The factory
-     * will be invoked during {@link startUp} to produce an {@link AppHost} that can build
-     * request-scoped services via {@link AppHost.forRequest}. Note that `AppServices` is defined in the
-     * `api-application-services` package.
-     *
-     * @param factory - Function that produces the application services host from the infrastructure context.
-     * @returns An {@link AzureFunctionHandlerRegistry} for registering HTTP handlers or starting the app.
-     *
-     * @throws Error - If the context creator has not been set via {@link setContext}, or if called outside the 'context' phase.
-     *
-     * @example
-     * ```ts
-     * initializeApplicationServices((infraCtx) => createAppHost(infraCtx))
-     *   .registerAzureFunctionHttpHandler('health', { authLevel: 'anonymous' }, (host) => async (req, fnCtx) => {
-     *     const app = await host.forRequest();
-     *     return app.Health.handle(req, fnCtx);
-     *   });
-     * ```
-     */
-	initializeApplicationServices(
-		factory: (infrastructureContext: ContextType) => AppHost<AppServices>
-	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
+	/**
+	 * Registers the factory that creates the request-scoped application services host.
+	 *
+	 * @remarks
+	 * Must be called during the {@link Phase | 'context'} phase, after {@link setContext}. Stores the
+	 * factory and transitions the application to the {@link Phase | 'app-services'} phase. The factory
+	 * will be invoked during {@link startUp} to produce an {@link AppHost} that can build
+	 * request-scoped services via {@link AppHost.forRequest}. Note that `AppServices` is defined in the
+	 * `api-application-services` package.
+	 *
+	 * @param factory - Function that produces the application services host from the infrastructure context.
+	 * @returns An {@link AzureFunctionHandlerRegistry} for registering HTTP handlers or starting the app.
+	 *
+	 * @throws Error - If the context creator has not been set via {@link setContext}, or if called outside the 'context' phase.
+	 *
+	 * @example
+	 * ```ts
+	 * initializeApplicationServices((infraCtx) => createAppHost(infraCtx))
+	 *   .registerAzureFunctionHttpHandler('health', { authLevel: 'anonymous' }, (host) => async (req, fnCtx) => {
+	 *     const app = await host.forRequest();
+	 *     return app.Health.handle(req, fnCtx);
+	 *   });
+	 * ```
+	 */
+	initializeApplicationServices(factory: (infrastructureContext: ContextType) => AppHost<AppServices>): AzureFunctionHandlerRegistry<ContextType, AppServices>;
 }
 
 interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unknown> {
-    /**
-     * Registers an Azure Function HTTP endpoint.
-     *
-     * @remarks
-     * The `handlerCreator` is invoked per request and receives the application services host and infrastructure registry.
-     * Use it to create a request-scoped handler (e.g., to build per-request context).
-     * Registration is allowed in phases `'app-services'` and `'handlers'`.
-     *
-     * @param name - Function name to bind in Azure Functions.
-     * @param options - Azure Functions HTTP options (excluding the handler).
-     * @param handlerCreator - Factory that, given the app services host and infrastructure registry, returns an `HttpHandler`.
-     * @returns The registry (for chaining).
-     *
-     * @throws Error - If called before application services are initialized.
-     *
-     * @example
-     * ```ts
-     * registerAzureFunctionHttpHandler('graphql', { authLevel: 'anonymous' }, (host, infra) => {
-     *   return async (req, ctx) => {
-     *     const app = await host.forRequest(req.headers.get('authorization') ?? undefined);
-     *     const apollo = infra.getInfrastructureService(ServiceApolloServer);
-     *     return app.GraphQL.handle(req, ctx);
-     *   };
-     * });
-     * ```
-     */
+	/**
+	 * Registers an Azure Function HTTP endpoint.
+	 *
+	 * @remarks
+	 * The `handlerCreator` is invoked per request and receives the application services host and infrastructure registry.
+	 * Use it to create a request-scoped handler (e.g., to build per-request context).
+	 * Registration is allowed in phases `'app-services'` and `'handlers'`.
+	 *
+	 * @param name - Function name to bind in Azure Functions.
+	 * @param options - Azure Functions HTTP options (excluding the handler).
+	 * @param handlerCreator - Factory that, given the app services host and infrastructure registry, returns an `HttpHandler`.
+	 * @returns The registry (for chaining).
+	 *
+	 * @throws Error - If called before application services are initialized.
+	 *
+	 * @example
+	 * ```ts
+	 * registerAzureFunctionHttpHandler('graphql', { authLevel: 'anonymous' }, (host, infra) => {
+	 *   return async (req, ctx) => {
+	 *     const app = await host.forRequest(req.headers.get('authorization') ?? undefined);
+	 *     const apollo = infra.getInfrastructureService(ServiceApolloServer);
+	 *     return app.GraphQL.handle(req, ctx);
+	 *   };
+	 * });
+	 * ```
+	 */
 	registerAzureFunctionHttpHandler(
 		name: string,
 		options: Omit<HttpFunctionOptions, 'handler'>,
-		handlerCreator: (
-			applicationServicesHost: AppHost<AppServices>,
-			infrastructureRegistry: InitializedServiceRegistry,
-		) => HttpHandler,
+		handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
 	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
-    /**
-     * Finalizes configuration and starts the application.
-     *
-     * @remarks
-     * This registers function handlers with Azure Functions, starts all infrastructure
-     * services (in parallel), builds the infrastructure context, and initializes
-     * application services. After this resolves, the application is in the `'started'` phase.
-     *
-     * @returns A promise that resolves to the started application facade.
-     *
-     * @throws Error - If the context builder or application services factory have not been configured.
-     */
+	/**
+	 * Finalizes configuration and starts the application.
+	 *
+	 * @remarks
+	 * This registers function handlers with Azure Functions, starts all infrastructure
+	 * services (in parallel), builds the infrastructure context, and initializes
+	 * application services. After this resolves, the application is in the `'started'` phase.
+	 *
+	 * @returns A promise that resolves to the started application facade.
+	 *
+	 * @throws Error - If the context builder or application services factory have not been configured.
+	 */
 	startUp(): Promise<StartedApplication<ContextType>>;
 }
 
-interface StartedApplication<ContextType = unknown>
-	extends InitializedServiceRegistry {
+interface StartedApplication<ContextType = unknown> extends InitializedServiceRegistry {
 	get context(): ContextType;
 }
 
 interface InitializedServiceRegistry {
-    /**
-     * Retrieves a registered infrastructure service by its constructor key.
-     *
-     * @remarks
-     * Services are keyed by their constructor identity (not by name), which is
-     * minification-safe. You must pass the same class you used when registering
-     * the service; base classes or interfaces will not match.
-     *
-     * @typeParam T - The concrete service type.
-     * @param serviceKey - The service class (constructor) used at registration time.
-     * @returns The registered service instance.
-     *
-     * @throws Error - If no service is registered for the provided key.
-     *
-     * @example
-     * ```ts
-     * // registration
-     * registry.registerInfrastructureService(new BlobStorageService(...));
-     *
-     * // lookup
-     * const blob = app.getInfrastructureService(BlobStorageService);
-     * await blob.startUp();
-     * ```
-     */
+	/**
+	 * Retrieves a registered infrastructure service by its constructor key.
+	 *
+	 * @remarks
+	 * Services are keyed by their constructor identity (not by name), which is
+	 * minification-safe. You must pass the same class you used when registering
+	 * the service; base classes or interfaces will not match.
+	 *
+	 * @typeParam T - The concrete service type.
+	 * @param serviceKey - The service class (constructor) used at registration time.
+	 * @returns The registered service instance.
+	 *
+	 * @throws Error - If no service is registered for the provided key.
+	 *
+	 * @example
+	 * ```ts
+	 * // registration
+	 * registry.registerInfrastructureService(new BlobStorageService(...));
+	 *
+	 * // lookup
+	 * const blob = app.getInfrastructureService(BlobStorageService);
+	 * await blob.startUp();
+	 * ```
+	 */
 	getInfrastructureService<T extends ServiceBase>(serviceKey: ServiceKey<T>): T;
 	get servicesInitialized(): boolean;
 }
 
 type UninitializedServiceRegistry<ContextType = unknown, AppServices = unknown> = InfrastructureServiceRegistry<ContextType, AppServices>;
 
-
 type RequestScopedHost<S, H = unknown> = {
-  forRequest(rawAuthHeader?: string, hints?: H): Promise<S>;
+	forRequest(rawAuthHeader?: string, hints?: H): Promise<S>;
 };
 
 type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;
@@ -166,10 +157,7 @@ type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;
 interface PendingHandler<AppServices> {
 	name: string;
 	options: Omit<HttpFunctionOptions, 'handler'>;
-	handlerCreator: (
-		applicationServicesHost: RequestScopedHost<AppServices, unknown>,
-		infrastructureRegistry: InitializedServiceRegistry,
-	) => HttpHandler;
+	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler;
 }
 
 type Phase = 'infrastructure' | 'context' | 'app-services' | 'handlers' | 'started';
@@ -204,43 +192,39 @@ export class Cellix<ContextType, AppServices = unknown>
 		this.tracer = trace.getTracer('cellix:bootstrap');
 	}
 
-    /**
-     * Begins configuring a Cellix application by registering infrastructure services.
-     *
-     * @remarks
-     * This is the first step in the bootstrap sequence. It constructs a new Cellix instance in the
-     * {@link Phase | 'infrastructure'} phase, invokes your `registerServices` callback to register
-     * infrastructure services, and returns a {@link ContextBuilder} to define the infrastructure context.
-     *
-     * The typical flow is: {@link initializeInfrastructureServices} → {@link setContext} →
-     * {@link initializeApplicationServices} → {@link registerAzureFunctionHttpHandler} → {@link startUp}.
-     *
-     * @typeParam ContextType - The shape of your infrastructure context that will be created in {@link setContext}.
-     * @typeParam AppServices - The application services host type produced by {@link initializeApplicationServices}.
-     *
-     * @param registerServices - Callback invoked once to register infrastructure services.
-     * @returns A {@link ContextBuilder} for defining the infrastructure context.
-     *
-     * @example
-     * ```ts
-     * Cellix.initializeInfrastructureServices((r) => {
-     *   r.registerInfrastructureService(new BlobStorageService(...));
-     *   r.registerInfrastructureService(new TokenValidationService(...));
-     * })
-     * .setContext((registry) => buildInfraContext(registry))
-     * .initializeApplicationServices((ctx) => createAppHost(ctx))
-     * .registerAzureFunctionHttpHandler('graphql', { authLevel: 'anonymous' }, (host) => async (req, fnCtx) => {
-     *   const app = await host.forRequest(req.headers.get('authorization') ?? undefined);
-     *   return app.GraphQL.handle(req, fnCtx);
-     * })
-     * .startUp();
-     * ```
-     */
-	public static initializeInfrastructureServices<ContextType, AppServices = unknown>(
-		registerServices: (
-			registry: UninitializedServiceRegistry<ContextType, AppServices>,
-		) => void,
-	): ContextBuilder<ContextType, AppServices> {
+	/**
+	 * Begins configuring a Cellix application by registering infrastructure services.
+	 *
+	 * @remarks
+	 * This is the first step in the bootstrap sequence. It constructs a new Cellix instance in the
+	 * {@link Phase | 'infrastructure'} phase, invokes your `registerServices` callback to register
+	 * infrastructure services, and returns a {@link ContextBuilder} to define the infrastructure context.
+	 *
+	 * The typical flow is: {@link initializeInfrastructureServices} → {@link setContext} →
+	 * {@link initializeApplicationServices} → {@link registerAzureFunctionHttpHandler} → {@link startUp}.
+	 *
+	 * @typeParam ContextType - The shape of your infrastructure context that will be created in {@link setContext}.
+	 * @typeParam AppServices - The application services host type produced by {@link initializeApplicationServices}.
+	 *
+	 * @param registerServices - Callback invoked once to register infrastructure services.
+	 * @returns A {@link ContextBuilder} for defining the infrastructure context.
+	 *
+	 * @example
+	 * ```ts
+	 * Cellix.initializeInfrastructureServices((r) => {
+	 *   r.registerInfrastructureService(new BlobStorageService(...));
+	 *   r.registerInfrastructureService(new TokenValidationService(...));
+	 * })
+	 * .setContext((registry) => buildInfraContext(registry))
+	 * .initializeApplicationServices((ctx) => createAppHost(ctx))
+	 * .registerAzureFunctionHttpHandler('graphql', { authLevel: 'anonymous' }, (host) => async (req, fnCtx) => {
+	 *   const app = await host.forRequest(req.headers.get('authorization') ?? undefined);
+	 *   return app.GraphQL.handle(req, fnCtx);
+	 * })
+	 * .startUp();
+	 * ```
+	 */
+	public static initializeInfrastructureServices<ContextType, AppServices = unknown>(registerServices: (registry: UninitializedServiceRegistry<ContextType, AppServices>) => void): ContextBuilder<ContextType, AppServices> {
 		const instance = new Cellix<ContextType, AppServices>();
 		registerServices(instance);
 		return instance;
@@ -248,7 +232,7 @@ export class Cellix<ContextType, AppServices = unknown>
 
 	public registerInfrastructureService<T extends ServiceBase>(service: T): InfrastructureServiceRegistry<ContextType, AppServices> {
 		this.ensurePhase('infrastructure');
-        const key = service.constructor as ServiceKey<ServiceBase>;
+		const key = service.constructor as ServiceKey<ServiceBase>;
 		if (this.servicesInternal.has(key)) {
 			throw new Error(`Service already registered for constructor: ${service.constructor.name}`);
 		}
@@ -263,9 +247,7 @@ export class Cellix<ContextType, AppServices = unknown>
 		return this;
 	}
 
-	public initializeApplicationServices(
-		factory: (infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown>,
-	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
+	public initializeApplicationServices(factory: (infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown>): AzureFunctionHandlerRegistry<ContextType, AppServices> {
 		this.ensurePhase('context');
 		if (!this.contextCreatorInternal) {
 			throw new Error('Context creator must be set before initializing application services');
@@ -278,10 +260,7 @@ export class Cellix<ContextType, AppServices = unknown>
 	public registerAzureFunctionHttpHandler(
 		name: string,
 		options: Omit<HttpFunctionOptions, 'handler'>,
-		handlerCreator: (
-			applicationServicesHost: RequestScopedHost<AppServices, unknown>,
-			infrastructureRegistry: InitializedServiceRegistry,
-		) => HttpHandler,
+		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
 	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
 		this.ensurePhase('app-services', 'handlers');
 		this.pendingHandlers.push({ name, options, handlerCreator });

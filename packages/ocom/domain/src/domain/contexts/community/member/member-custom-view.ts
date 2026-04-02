@@ -11,13 +11,9 @@ export interface MemberCustomViewProps extends DomainEntityProps {
 	columnsToDisplay: string[];
 }
 
-export interface MemberCustomViewEntityReference
-	extends Readonly<MemberCustomViewProps> {}
+export interface MemberCustomViewEntityReference extends Readonly<MemberCustomViewProps> {}
 
-export class MemberCustomView
-	extends DomainEntity<MemberCustomViewProps>
-	implements MemberCustomViewEntityReference
-{
+export class MemberCustomView extends DomainEntity<MemberCustomViewProps> implements MemberCustomViewEntityReference {
 	//#region Fields
 	private readonly visa: CommunityVisa;
 	//#endregion Fields
@@ -31,18 +27,8 @@ export class MemberCustomView
 
 	//#region Methods
 	private validateVisa() {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageMembers ||
-					(permissions.canEditOwnMemberAccounts &&
-						permissions.isEditingOwnMemberAccount),
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this account',
-			);
+		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageMembers || (permissions.canEditOwnMemberAccounts && permissions.isEditingOwnMemberAccount))) {
+			throw new PermissionError('You do not have permission to update this account');
 		}
 	}
 	//#endregion Methods
@@ -77,9 +63,7 @@ export class MemberCustomView
 	}
 	set sortOrder(sortOrder: string) {
 		this.validateVisa();
-		this.props.sortOrder = new ValueObjects.CustomViewSortOrder(
-			sortOrder,
-		).valueOf();
+		this.props.sortOrder = new ValueObjects.CustomViewSortOrder(sortOrder).valueOf();
 	}
 
 	get columnsToDisplay(): string[] {
@@ -87,9 +71,7 @@ export class MemberCustomView
 	}
 	set columnsToDisplay(columnsToDisplay: string[]) {
 		this.validateVisa();
-		this.props.columnsToDisplay = new ValueObjects.CustomViewColumnsToDisplay(
-			columnsToDisplay,
-		).valueOf();
+		this.props.columnsToDisplay = new ValueObjects.CustomViewColumnsToDisplay(columnsToDisplay).valueOf();
 	}
 	//#endregion Properties
 }

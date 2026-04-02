@@ -5,27 +5,14 @@ import type { CommunityDomainPermissions } from '../../community.domain-permissi
 import type { CommunityVisa } from '../../community.visa.ts';
 
 export interface EndUserRoleCommunityPermissionsProps
-	extends Omit<
-			CommunityDomainPermissions,
-			| 'canCreateCommunities'
-			| 'canManageVendorUserRolesAndPermissions'
-			| 'isEditingOwnMemberAccount'
-			| 'isSystemAccount'
-		>,
+	extends Omit<CommunityDomainPermissions, 'canCreateCommunities' | 'canManageVendorUserRolesAndPermissions' | 'isEditingOwnMemberAccount' | 'isSystemAccount'>,
 		ValueObjectProps {}
-export interface EndUserRoleCommunityPermissionsEntityReference
-	extends Readonly<EndUserRoleCommunityPermissionsProps> {}
+export interface EndUserRoleCommunityPermissionsEntityReference extends Readonly<EndUserRoleCommunityPermissionsProps> {}
 
-export class EndUserRoleCommunityPermissions
-	extends ValueObject<EndUserRoleCommunityPermissionsProps>
-	implements EndUserRoleCommunityPermissionsEntityReference
-{
+export class EndUserRoleCommunityPermissions extends ValueObject<EndUserRoleCommunityPermissionsProps> implements EndUserRoleCommunityPermissionsEntityReference {
 	private visa: CommunityVisa;
 
-	constructor(
-		props: EndUserRoleCommunityPermissionsProps,
-		visa: CommunityVisa,
-	) {
+	constructor(props: EndUserRoleCommunityPermissionsProps, visa: CommunityVisa) {
 		super(props);
 		this.visa = visa;
 	}
@@ -34,13 +21,7 @@ export class EndUserRoleCommunityPermissions
 		return this.props.canManageEndUserRolesAndPermissions;
 	}
 	set canManageEndUserRolesAndPermissions(value: boolean) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageEndUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageEndUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission1');
 		}
 		this.props.canManageEndUserRolesAndPermissions = value;
@@ -50,13 +31,7 @@ export class EndUserRoleCommunityPermissions
 		return this.props.canManageCommunitySettings;
 	}
 	set canManageCommunitySettings(value: boolean) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageEndUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageEndUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission2');
 		}
 		this.props.canManageCommunitySettings = value;
@@ -66,13 +41,7 @@ export class EndUserRoleCommunityPermissions
 		return this.props.canManageSiteContent;
 	}
 	set canManageSiteContent(value: boolean) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageEndUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageEndUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission3');
 		}
 		this.props.canManageSiteContent = value;
@@ -82,13 +51,7 @@ export class EndUserRoleCommunityPermissions
 		return this.props.canManageMembers;
 	}
 	set canManageMembers(value: boolean) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageEndUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageEndUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canManageMembers = value;
@@ -98,13 +61,7 @@ export class EndUserRoleCommunityPermissions
 		return this.props.canEditOwnMemberProfile;
 	}
 	set canEditOwnMemberProfile(value: boolean) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageEndUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageEndUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canEditOwnMemberProfile = value;
@@ -114,13 +71,7 @@ export class EndUserRoleCommunityPermissions
 		return this.props.canEditOwnMemberAccounts;
 	}
 	set canEditOwnMemberAccounts(value: boolean) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageEndUserRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageEndUserRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission');
 		}
 		this.props.canEditOwnMemberAccounts = value;
