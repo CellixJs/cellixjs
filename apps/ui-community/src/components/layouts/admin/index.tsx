@@ -40,8 +40,14 @@ export const Admin: React.FC = () => {
 				path=""
 				element={<SectionLayoutContainer pageLayouts={pageLayouts} />}
 			>
-				<Route path="" element={<Home />} />
-				<Route path="settings/*" element={<Settings />} />
+				<Route
+					path=""
+					element={<Home />}
+				/>
+				<Route
+					path="settings/*"
+					element={<Settings />}
+				/>
 			</Route>
 		</Routes>
 	);

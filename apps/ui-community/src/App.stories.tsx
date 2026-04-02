@@ -59,8 +59,7 @@ const meta = {
 		layout: 'fullscreen',
 		docs: {
 			description: {
-				component:
-					'Main application component that handles routing and authentication flow. Integrates Apollo GraphQL client and manages different application sections.',
+				component: 'Main application component that handles routing and authentication flow. Integrates Apollo GraphQL client and manages different application sections.',
 			},
 		},
 	},
@@ -98,10 +97,7 @@ export const Default: Story = {
 		expect(canvasElement).toBeTruthy();
 
 		// Verify that the ApolloConnection wrapper is present
-		const apolloWrapper =
-			canvasElement.querySelector('[data-testid="apollo-connection"]') ||
-			canvasElement.closest('[data-testid="apollo-connection"]') ||
-			canvasElement;
+		const apolloWrapper = canvasElement.querySelector('[data-testid="apollo-connection"]') || canvasElement.closest('[data-testid="apollo-connection"]') || canvasElement;
 		expect(apolloWrapper).toBeInTheDocument();
 	},
 };

@@ -1,34 +1,13 @@
 import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
-import {
-	StaffRoleCommunityPermissions,
-	type StaffRoleCommunityPermissionsEntityReference,
-	type StaffRoleCommunityPermissionsProps,
-} from './staff-role-community-permissions.ts';
-import {
-	StaffRolePropertyPermissions,
-	type StaffRolePropertyPermissionsEntityReference,
-	type StaffRolePropertyPermissionsProps,
-} from './staff-role-property-permissions.ts';
-import {
-	StaffRoleServicePermissions,
-	type StaffRoleServicePermissionsEntityReference,
-	type StaffRoleServicePermissionsProps,
-} from './staff-role-service-permissions.ts';
-import {
-	StaffRoleServiceTicketPermissions,
-	type StaffRoleServiceTicketPermissionsEntityReference,
-	type StaffRoleServiceTicketPermissionsProps,
-} from './staff-role-service-ticket-permissions.ts';
-import {
-	StaffRoleViolationTicketPermissions,
-	type StaffRoleViolationTicketPermissionsEntityReference,
-	type StaffRoleViolationTicketPermissionsProps,
-} from './staff-role-violation-ticket-permissions.ts';
+import { StaffRoleCommunityPermissions, type StaffRoleCommunityPermissionsEntityReference, type StaffRoleCommunityPermissionsProps } from './staff-role-community-permissions.ts';
+import { StaffRolePropertyPermissions, type StaffRolePropertyPermissionsEntityReference, type StaffRolePropertyPermissionsProps } from './staff-role-property-permissions.ts';
+import { StaffRoleServicePermissions, type StaffRoleServicePermissionsEntityReference, type StaffRoleServicePermissionsProps } from './staff-role-service-permissions.ts';
+import { StaffRoleServiceTicketPermissions, type StaffRoleServiceTicketPermissionsEntityReference, type StaffRoleServiceTicketPermissionsProps } from './staff-role-service-ticket-permissions.ts';
+import { StaffRoleViolationTicketPermissions, type StaffRoleViolationTicketPermissionsEntityReference, type StaffRoleViolationTicketPermissionsProps } from './staff-role-violation-ticket-permissions.ts';
 
-export interface StaffRolePermissionsProps
-	extends ValueObjectProps {
+export interface StaffRolePermissionsProps extends ValueObjectProps {
 	readonly communityPermissions: StaffRoleCommunityPermissionsProps;
 	readonly propertyPermissions: StaffRolePropertyPermissionsProps;
 	readonly serviceTicketPermissions: StaffRoleServiceTicketPermissionsProps;
@@ -37,16 +16,7 @@ export interface StaffRolePermissionsProps
 }
 
 export interface StaffRolePermissionsEntityReference
-	extends Readonly<
-		Omit<
-			StaffRolePermissionsProps,
-			| 'communityPermissions'
-			| 'propertyPermissions'
-			| 'serviceTicketPermissions'
-			| 'servicePermissions'
-			| 'violationTicketPermissions'
-		>
-	> {
+	extends Readonly<Omit<StaffRolePermissionsProps, 'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions'>> {
 	readonly communityPermissions: StaffRoleCommunityPermissionsEntityReference;
 	readonly propertyPermissions: StaffRolePropertyPermissionsEntityReference;
 	readonly serviceTicketPermissions: StaffRoleServiceTicketPermissionsEntityReference;
@@ -54,10 +24,7 @@ export interface StaffRolePermissionsEntityReference
 	readonly violationTicketPermissions: StaffRoleViolationTicketPermissionsEntityReference;
 }
 
-export class StaffRolePermissions
-	extends ValueObject<StaffRolePermissionsProps>
-	implements StaffRolePermissionsEntityReference
-{
+export class StaffRolePermissions extends ValueObject<StaffRolePermissionsProps> implements StaffRolePermissionsEntityReference {
 	private visa: UserVisa;
 
 	constructor(props: StaffRolePermissionsProps, visa: UserVisa) {
@@ -66,33 +33,18 @@ export class StaffRolePermissions
 	}
 
 	get communityPermissions(): StaffRoleCommunityPermissions {
-		return new StaffRoleCommunityPermissions(
-			this.props.communityPermissions,
-			this.visa,
-		);
+		return new StaffRoleCommunityPermissions(this.props.communityPermissions, this.visa);
 	}
 	get propertyPermissions(): StaffRolePropertyPermissions {
-		return new StaffRolePropertyPermissions(
-			this.props.propertyPermissions,
-			this.visa,
-		);
+		return new StaffRolePropertyPermissions(this.props.propertyPermissions, this.visa);
 	}
 	get serviceTicketPermissions(): StaffRoleServiceTicketPermissions {
-		return new StaffRoleServiceTicketPermissions(
-			this.props.serviceTicketPermissions,
-			this.visa,
-		);
+		return new StaffRoleServiceTicketPermissions(this.props.serviceTicketPermissions, this.visa);
 	}
 	get servicePermissions(): StaffRoleServicePermissions {
-		return new StaffRoleServicePermissions(
-			this.props.servicePermissions,
-			this.visa,
-		);
+		return new StaffRoleServicePermissions(this.props.servicePermissions, this.visa);
 	}
 	get violationTicketPermissions(): StaffRoleViolationTicketPermissions {
-		return new StaffRoleViolationTicketPermissions(
-			this.props.violationTicketPermissions,
-			this.visa,
-		);
+		return new StaffRoleViolationTicketPermissions(this.props.violationTicketPermissions, this.visa);
 	}
 }

@@ -3,9 +3,7 @@ import type { ServiceEntityReference } from '../../../contexts/service/service/i
 import type { ServiceDomainPermissions } from '../../../contexts/service/service.domain-permissions.ts';
 import type { ServiceVisa } from '../../../contexts/service/service.visa.ts';
 
-export class MemberServiceVisa<root extends ServiceEntityReference>
-	implements ServiceVisa
-{
+export class MemberServiceVisa<root extends ServiceEntityReference> implements ServiceVisa {
 	private readonly root: root;
 	private readonly member: MemberEntityReference;
 
@@ -14,16 +12,10 @@ export class MemberServiceVisa<root extends ServiceEntityReference>
 		this.member = member;
 	}
 
-	determineIf(
-		func: (permissions: ServiceDomainPermissions) => boolean,
-	): boolean {
+	determineIf(func: (permissions: ServiceDomainPermissions) => boolean): boolean {
 		//ensure that the member is a member of this community
 		if (this.member.community.id !== this.root.community.id) {
-			console.log(
-				'Service Visa : member is not a member of this community',
-				this.member,
-				this.root,
-			);
+			console.log('Service Visa : member is not a member of this community', this.member, this.root);
 			return false;
 		}
 

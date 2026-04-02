@@ -1,6 +1,4 @@
-mutation AccountsCommunityCreateContainerCommunityCreate(
-	$input: CommunityCreateInput!
-) {
+mutation AccountsCommunityCreateContainerCommunityCreate($input: CommunityCreateInput!) {
 	communityCreate(input: $input) {
 		...AccountsCommunityCreateContainerCommunityMutationResultFields
 	}

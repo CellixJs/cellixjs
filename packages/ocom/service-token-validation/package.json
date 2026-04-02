@@ -1,35 +1,38 @@
 {
-  "name": "@ocom/service-token-validation",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "files": ["dist"],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest",
-    "lint": "biome lint",
-    "clean": "rimraf dist"
-  },
-  "dependencies": {
-    "jose": "^5.9.6",
-    "@cellix/api-services-spec": "workspace:*"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@cellix/config-vitest": "workspace:*",
-    "@vitest/coverage-istanbul": "catalog:",
-    "typescript": "catalog:",
-    "rimraf": "catalog:",
-    "vitest": "catalog:"
-  }
+	"name": "@ocom/service-token-validation",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"watch": "tsc --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"lint": "biome lint",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"jose": "^5.9.6",
+		"@cellix/api-services-spec": "workspace:*"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
+		"typescript": "catalog:",
+		"rimraf": "catalog:",
+		"vitest": "catalog:"
+	}
 }

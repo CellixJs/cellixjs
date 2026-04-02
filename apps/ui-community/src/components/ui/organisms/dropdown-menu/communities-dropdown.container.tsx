@@ -1,8 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import type {
-	Member,
-} from '../../../../generated.tsx';
+import type { Member } from '../../../../generated.tsx';
 import { SharedCommunitiesDropdownContainerMembersDocument } from '../../../../generated.tsx';
 import { CommunitiesDropdown, type CommunitiesDropdownProps } from './communities-dropdown.tsx';
 
@@ -12,14 +10,10 @@ interface CommunitiesDropdownContainerProps {
 	};
 }
 
-export const CommunitiesDropdownContainer: React.FC<
-	CommunitiesDropdownContainerProps
-> = (_props) => {
-	const { data, loading, error } = useQuery(
-		SharedCommunitiesDropdownContainerMembersDocument,
-	);
+export const CommunitiesDropdownContainer: React.FC<CommunitiesDropdownContainerProps> = (_props) => {
+	const { data, loading, error } = useQuery(SharedCommunitiesDropdownContainerMembersDocument);
 
-    const communitiesDropdownProps: CommunitiesDropdownProps = {
+	const communitiesDropdownProps: CommunitiesDropdownProps = {
 		data: {
 			members: (data?.membersForCurrentEndUser as Member[]) ?? [],
 		},
@@ -29,11 +23,7 @@ export const CommunitiesDropdownContainer: React.FC<
 		<ComponentQueryLoader
 			loading={loading}
 			hasData={data}
-			hasDataComponent={
-				<CommunitiesDropdown
-                    {...communitiesDropdownProps}
-				/>
-			}
+			hasDataComponent={<CommunitiesDropdown {...communitiesDropdownProps} />}
 			error={error ?? undefined}
 		/>
 	);

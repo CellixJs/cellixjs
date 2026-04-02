@@ -3,8 +3,7 @@ import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-en
 import type { MemberEntityReference } from '../../../community/member/index.ts';
 import type { ViolationTicketV1Visa } from './violation-ticket-v1.visa.ts';
 
-export interface ViolationTicketV1RevisionRequestProps
-	extends DomainEntityProps {
+export interface ViolationTicketV1RevisionRequestProps extends DomainEntityProps {
 	requestedAt: Date;
 	requestedBy: MemberEntityReference;
 	loadRequestedBy: () => Promise<MemberEntityReference>;
@@ -18,22 +17,15 @@ export interface ViolationTicketV1RevisionRequestProps
 	revisionSubmittedAt?: Date | undefined;
 }
 
-export interface ViolationTicketV1RevisionRequestEntityReference
-	extends Readonly<ViolationTicketV1RevisionRequestProps> {}
+export interface ViolationTicketV1RevisionRequestEntityReference extends Readonly<ViolationTicketV1RevisionRequestProps> {}
 
-export class ViolationTicketV1RevisionRequest
-	extends DomainEntity<ViolationTicketV1RevisionRequestProps>
-	implements ViolationTicketV1RevisionRequestEntityReference
-{
+export class ViolationTicketV1RevisionRequest extends DomainEntity<ViolationTicketV1RevisionRequestProps> implements ViolationTicketV1RevisionRequestEntityReference {
 	//#region Fields
 	private readonly visa: ViolationTicketV1Visa;
 	//#endregion Fields
 
 	//#region Constructor
-	constructor(
-		props: ViolationTicketV1RevisionRequestProps,
-		visa: ViolationTicketV1Visa,
-	) {
+	constructor(props: ViolationTicketV1RevisionRequestProps, visa: ViolationTicketV1Visa) {
 		super(props);
 		this.visa = visa;
 	}
@@ -46,10 +38,7 @@ export class ViolationTicketV1RevisionRequest
 		revisionSummary: string,
 		requestedChanges: ViolationTicketV1RevisionRequestProps['requestedChanges'],
 	): ViolationTicketV1RevisionRequest {
-		const instance = new ViolationTicketV1RevisionRequest(
-			newProps,
-			{} as ViolationTicketV1Visa,
-		);
+		const instance = new ViolationTicketV1RevisionRequest(newProps, {} as ViolationTicketV1Visa);
 		instance.requestedAt = new Date();
 		instance.requestedBy = requestedBy;
 		instance.revisionSummary = revisionSummary;
@@ -100,15 +89,8 @@ export class ViolationTicketV1RevisionRequest
 	}
 
 	set revisionSubmittedAt(value: Date | undefined) {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageTickets || permissions.isSystemAccount,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to submit this revision request',
-			);
+		if (!this.visa.determineIf((permissions) => permissions.canManageTickets || permissions.isSystemAccount)) {
+			throw new PermissionError('You do not have permission to submit this revision request');
 		}
 		this.props.revisionSubmittedAt = value;
 	}

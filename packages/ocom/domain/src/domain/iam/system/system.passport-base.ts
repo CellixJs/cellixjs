@@ -4,12 +4,7 @@ import type { PropertyDomainPermissions } from '../../contexts/property/property
 import type { ServiceDomainPermissions } from '../../contexts/service/service.domain-permissions.ts';
 import type { UserDomainPermissions } from '../../contexts/user/user.domain-permissions.ts';
 
-export type PermissionsSpec =
-	| CaseDomainPermissions
-	| CommunityDomainPermissions
-	| PropertyDomainPermissions
-	| ServiceDomainPermissions
-	| UserDomainPermissions;
+export type PermissionsSpec = CaseDomainPermissions | CommunityDomainPermissions | PropertyDomainPermissions | ServiceDomainPermissions | UserDomainPermissions;
 export abstract class SystemPassportBase {
 	protected readonly permissions: Partial<PermissionsSpec>;
 	constructor(permissions?: Partial<PermissionsSpec>) {

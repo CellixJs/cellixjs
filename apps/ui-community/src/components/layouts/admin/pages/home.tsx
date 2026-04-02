@@ -10,19 +10,15 @@ export const Home: React.FC = () => {
 	} = theme.useToken();
 	const params = useParams();
 
-    const communityDetailContainerProps: CommunityDetailContainerProps = {
-        // biome-ignore lint:useLiteralKeys
-        data: { id: params['communityId'] }
-    }
+	const communityDetailContainerProps: CommunityDetailContainerProps = {
+		// biome-ignore lint:useLiteralKeys
+		data: { id: params['communityId'] },
+	};
 
 	return (
 		<SubPageLayout
 			fixedHeader={false}
-			header={
-				<PageHeader
-					title={<span style={{ color: colorTextBase }}>Home</span>}
-				/>
-			}
+			header={<PageHeader title={<span style={{ color: colorTextBase }}>Home</span>} />}
 		>
 			<CommunityDetailContainer {...communityDetailContainerProps} />
 		</SubPageLayout>

@@ -1,110 +1,79 @@
 {
-  "ui": "tui",
-  "tasks": {
-    "build": {
-      "dependsOn": ["//#audit", "^build", "//#gen"],
-      "inputs": [
-        "src/**",
-        "tsconfig*.json"
-      ],
-      "outputs": ["dist/**", "build/**"]
-    },
-    "test": {
-      "dependsOn": ["^build", "@cellix/config-vitest#build"],
-      "inputs": [
-        "src/**",
-        "tests/**",
-        "vitest*.config.*",
-        "tsconfig*.json"
-      ]
-    },
-    "test:coverage": {
-      "dependsOn": ["build", "^build", "@cellix/config-vitest#build"],
-      "inputs": [
-        "src/**",
-        "tests/**",
-        "vitest*.config.*",
-        "tsconfig*.json"
-      ],
-      "outputs": ["coverage/**"]
-    },
-    "test:watch": {
-        "dependsOn": ["build", "^build"],
-        "cache": false,
-        "persistent": true
-    },
-    "test:unit": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "src/**",
-        "tests/**",
-        "vitest*.config.*",
-        "tsconfig*.json"
-      ],
-      "outputs": ["coverage/**"]
-    },
-    "test:integration": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "src/**",
-        "tests/**",
-        "vitest*.config.*",
-        "tsconfig*.json"
-      ],
-      "outputs": ["coverage/**"]
-    },
-    "test:serenity": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "src/**",
-        "tests/**",
-        "cucumber*.config.*"
-      ],
-      "outputs": ["target/**"]
-    },
-    "storybook": {
-      "dependsOn": ["^build", "//#gen"],
-      "cache": false,
-      "persistent": true
-    },
-    "start": {
-      "cache": false,
-      "persistent": true
-    },
-    "azurite": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {},
-    "format": {
-      "outputs": []
-    },
-    "clean": {
-      "cache": false,
-      "outputs": []
-    },
-    "//#gen": {
-      "cache": true,
-      "inputs": [
-        "codegen.yml",
-        "**/*.graphql",
-        "**/*.resolvers.ts",
-        "**/*.permissions.ts",
-        "packages/cellix/graphql-codegen/plugins/**"
-      ],
-      "outputs": [
-        "**/generated.ts",
-        "**/*.generated.ts",
-        "**/graphql.schema.json",
-        "**/generated.tsx"
-      ]
-    },
-    "//#gen:watch": {
-      "cache": false,
-      "persistent": true
-    },
-    "//#audit": {
-      "cache": false
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"ui": "tui",
+	"futureFlags": {
+		"affectedUsingTaskInputs": true
+	},
+	"tasks": {
+		"build": {
+			"dependsOn": ["//#audit", "^build", "//#gen"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!tests/**", "!**/*.test.*", "!**/*.spec.*", "!vitest*.config.*"],
+			"outputs": ["dist/**", "build/**", "*.tsbuildinfo"]
+		},
+		"test": {
+			"dependsOn": ["^build", "@cellix/config-vitest#build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"]
+		},
+		"test:coverage": {
+			"dependsOn": ["build", "^build", "@cellix/config-vitest#build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"outputs": ["coverage/**"]
+		},
+		"test:watch": {
+			"dependsOn": ["build", "^build"],
+			"cache": false,
+			"persistent": true
+		},
+		"test:unit": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"outputs": ["coverage/**"]
+		},
+		"test:integration": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"outputs": ["coverage/**"]
+		},
+		"test:serenity": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"outputs": ["target/**"]
+		},
+		"storybook": {
+			"dependsOn": ["^build", "//#gen"],
+			"cache": false,
+			"persistent": true
+		},
+		"start": {
+			"cache": false,
+			"persistent": true
+		},
+		"azurite": {
+			"cache": false,
+			"persistent": true
+		},
+		"lint": {
+			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.json", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"outputs": []
+		},
+		"format": {
+			"outputs": []
+		},
+		"clean": {
+			"cache": false,
+			"outputs": []
+		},
+		"//#gen": {
+			"cache": true,
+			"inputs": ["codegen.yml", "**/*.graphql", "**/*.resolvers.ts", "**/*.permissions.ts", "packages/cellix/graphql-codegen/plugins/**"],
+			"outputs": ["**/generated.ts", "**/*.generated.ts", "**/graphql.schema.json", "**/generated.tsx"]
+		},
+		"//#gen:watch": {
+			"cache": false,
+			"persistent": true
+		},
+		"//#audit": {
+			"cache": false
+		}
+	}
 }

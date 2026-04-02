@@ -8,9 +8,7 @@ import { EndUserPersonalInformation } from './end-user-personal-information.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/end-user-personal-information.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/end-user-personal-information.feature'));
 
 function makeVisa() {
 	return vi.mocked({
@@ -66,103 +64,54 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		identityDetailsProps = makeIdentityDetailsProps();
 		contactInformationProps = makeContactInformationProps();
 		personalInformationProps = makePersonalInformationProps();
-		entity = new EndUserPersonalInformation(
-			personalInformationProps,
-			visa,
-			root,
-		);
+		entity = new EndUserPersonalInformation(personalInformationProps, visa, root);
 	});
 
 	Background(({ Given, And }) => {
-		Given(
-			'valid EndUserIdentityDetailsProps and EndUserContactInformationProps',
-			() => {
-				identityDetailsProps = makeIdentityDetailsProps();
-				contactInformationProps = makeContactInformationProps();
-				personalInformationProps = makePersonalInformationProps();
-			},
-		);
+		Given('valid EndUserIdentityDetailsProps and EndUserContactInformationProps', () => {
+			identityDetailsProps = makeIdentityDetailsProps();
+			contactInformationProps = makeContactInformationProps();
+			personalInformationProps = makePersonalInformationProps();
+		});
 		And('a valid UserVisa', () => {
 			visa = makeVisa();
 		});
 	});
 
-	Scenario(
-		'Creating a new EndUserPersonalInformation instance',
-		({ When, Then, And }) => {
-			let newEntity: EndUserPersonalInformation;
-			When(
-				'I create a new EndUserPersonalInformation using getNewInstance with the identity details and contact information',
-				() => {
-					newEntity = new EndUserPersonalInformation(
-						personalInformationProps,
-						visa,
-						root,
-					);
-				},
-			);
-			Then(
-				"the entity's identity details should be set to the provided identity details",
-				() => {
-					expect(newEntity.identityDetails).toBeDefined();
-					expect(newEntity.identityDetails.lastName).toBe(
-						identityDetailsProps.lastName,
-					);
-					expect(newEntity.identityDetails.legalNameConsistsOfOneName).toBe(
-						identityDetailsProps.legalNameConsistsOfOneName,
-					);
-					expect(newEntity.identityDetails.restOfName).toBe(
-						identityDetailsProps.restOfName,
-					);
-				},
-			);
-			And(
-				"the entity's contact information should be set to the provided contact information",
-				() => {
-					expect(newEntity.contactInformation).toBeDefined();
-					expect(newEntity.contactInformation.email).toBe(
-						contactInformationProps.email,
-					);
-				},
-			);
-		},
-	);
+	Scenario('Creating a new EndUserPersonalInformation instance', ({ When, Then, And }) => {
+		let newEntity: EndUserPersonalInformation;
+		When('I create a new EndUserPersonalInformation using getNewInstance with the identity details and contact information', () => {
+			newEntity = new EndUserPersonalInformation(personalInformationProps, visa, root);
+		});
+		Then("the entity's identity details should be set to the provided identity details", () => {
+			expect(newEntity.identityDetails).toBeDefined();
+			expect(newEntity.identityDetails.lastName).toBe(identityDetailsProps.lastName);
+			expect(newEntity.identityDetails.legalNameConsistsOfOneName).toBe(identityDetailsProps.legalNameConsistsOfOneName);
+			expect(newEntity.identityDetails.restOfName).toBe(identityDetailsProps.restOfName);
+		});
+		And("the entity's contact information should be set to the provided contact information", () => {
+			expect(newEntity.contactInformation).toBeDefined();
+			expect(newEntity.contactInformation.email).toBe(contactInformationProps.email);
+		});
+	});
 
-	Scenario(
-		'Getting identity details and contact information',
-		({ Given, When, Then }) => {
-			let identityDetails: EndUserIdentityDetailsProps;
-			let contactInformation: EndUserContactInformationProps;
-			Given('an EndUserPersonalInformation instance', () => {
-				entity = new EndUserPersonalInformation(
-					personalInformationProps,
-					visa,
-					root,
-				);
-			});
-			When('I access identity details and contact information', () => {
-				identityDetails = entity.identityDetails;
-				contactInformation = entity.contactInformation;
-			});
-			Then(
-				'I should receive EndUserIdentityDetails and EndUserContactInformation entity instances',
-				() => {
-					expect(identityDetails).toBeDefined();
-					expect(identityDetails.lastName).toBe(
-						personalInformationProps.identityDetails.lastName,
-					);
-					expect(identityDetails.legalNameConsistsOfOneName).toBe(
-						personalInformationProps.identityDetails.legalNameConsistsOfOneName,
-					);
-					expect(identityDetails.restOfName).toBe(
-						personalInformationProps.identityDetails.restOfName,
-					);
-					expect(contactInformation).toBeDefined();
-					expect(contactInformation.email).toBe(
-						personalInformationProps.contactInformation.email,
-					);
-				},
-			);
-		},
-	);
+	Scenario('Getting identity details and contact information', ({ Given, When, Then }) => {
+		let identityDetails: EndUserIdentityDetailsProps;
+		let contactInformation: EndUserContactInformationProps;
+		Given('an EndUserPersonalInformation instance', () => {
+			entity = new EndUserPersonalInformation(personalInformationProps, visa, root);
+		});
+		When('I access identity details and contact information', () => {
+			identityDetails = entity.identityDetails;
+			contactInformation = entity.contactInformation;
+		});
+		Then('I should receive EndUserIdentityDetails and EndUserContactInformation entity instances', () => {
+			expect(identityDetails).toBeDefined();
+			expect(identityDetails.lastName).toBe(personalInformationProps.identityDetails.lastName);
+			expect(identityDetails.legalNameConsistsOfOneName).toBe(personalInformationProps.identityDetails.legalNameConsistsOfOneName);
+			expect(identityDetails.restOfName).toBe(personalInformationProps.identityDetails.restOfName);
+			expect(contactInformation).toBeDefined();
+			expect(contactInformation.email).toBe(personalInformationProps.contactInformation.email);
+		});
+	});
 });

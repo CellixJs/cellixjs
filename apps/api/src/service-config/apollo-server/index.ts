@@ -6,7 +6,7 @@ const isDev = NODE_ENV !== 'production';
 
 /**
  * Apollo Server configuration for the API.
- * 
+ *
  * Configures:
  * - GraphQL schema with permissions middleware
  * - Introspection (enabled in development)

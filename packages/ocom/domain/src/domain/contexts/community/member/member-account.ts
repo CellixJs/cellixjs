@@ -1,10 +1,7 @@
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
 import type { Passport } from '../../passport.ts';
-import {
-	EndUser,
-	type EndUserEntityReference,
-} from '../../user/end-user/end-user.ts';
+import { EndUser, type EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './member-account.value-objects.ts';
 
@@ -16,27 +13,19 @@ export interface MemberAccountProps extends DomainEntityProps {
 	createdBy: Readonly<EndUserEntityReference>;
 }
 
-export interface MemberAccountEntityReference
-	extends Readonly<Omit<MemberAccountProps, 'user' | 'createdBy'>> {
+export interface MemberAccountEntityReference extends Readonly<Omit<MemberAccountProps, 'user' | 'createdBy'>> {
 	get user(): Readonly<EndUserEntityReference>;
 	get createdBy(): Readonly<EndUserEntityReference>;
 }
 
-export class MemberAccount
-	extends DomainEntity<MemberAccountProps>
-	implements MemberAccountEntityReference
-{
+export class MemberAccount extends DomainEntity<MemberAccountProps> implements MemberAccountEntityReference {
 	//#region Fields
 	private readonly visa: CommunityVisa;
 	private readonly passport: Passport;
 	//#endregion Fields
 
 	//#region Constructors
-	constructor(
-		props: MemberAccountProps,
-		passport: Passport,
-		visa: CommunityVisa,
-	) {
+	constructor(props: MemberAccountProps, passport: Passport, visa: CommunityVisa) {
 		super(props);
 		this.passport = passport;
 		this.visa = visa;
@@ -45,18 +34,8 @@ export class MemberAccount
 
 	//#region Methods
 	private validateVisa() {
-		if (
-			!this.visa.determineIf(
-				(domainPermissions) =>
-					domainPermissions.isSystemAccount ||
-					domainPermissions.canManageMembers ||
-					(domainPermissions.canEditOwnMemberAccounts &&
-						domainPermissions.isEditingOwnMemberAccount),
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this account',
-			);
+		if (!this.visa.determineIf((domainPermissions) => domainPermissions.isSystemAccount || domainPermissions.canManageMembers || (domainPermissions.canEditOwnMemberAccounts && domainPermissions.isEditingOwnMemberAccount))) {
+			throw new PermissionError('You do not have permission to update this account');
 		}
 	}
 	//#endregion Methods
@@ -90,20 +69,10 @@ export class MemberAccount
 		return this.props.statusCode;
 	}
 	set statusCode(statusCode: string) {
-		if (
-			!this.visa.determineIf(
-				(domainPermissions) =>
-					domainPermissions.isSystemAccount ||
-					domainPermissions.canManageMembers,
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this account',
-			);
+		if (!this.visa.determineIf((domainPermissions) => domainPermissions.isSystemAccount || domainPermissions.canManageMembers)) {
+			throw new PermissionError('You do not have permission to update this account');
 		}
-		this.props.statusCode = new ValueObjects.AccountStatusCode(
-			statusCode,
-		).valueOf();
+		this.props.statusCode = new ValueObjects.AccountStatusCode(statusCode).valueOf();
 	}
 
 	get createdBy(): Readonly<EndUserEntityReference> {

@@ -11,16 +11,10 @@ interface StaffRoleCommunityPermissionsSpec {
 	canReIndexSearchCollections: boolean;
 }
 
-export interface StaffRoleCommunityPermissionsProps
-	extends StaffRoleCommunityPermissionsSpec,
-		ValueObjectProps {}
-export interface StaffRoleCommunityPermissionsEntityReference
-	extends Readonly<StaffRoleCommunityPermissionsProps> {}
+export interface StaffRoleCommunityPermissionsProps extends StaffRoleCommunityPermissionsSpec, ValueObjectProps {}
+export interface StaffRoleCommunityPermissionsEntityReference extends Readonly<StaffRoleCommunityPermissionsProps> {}
 
-export class StaffRoleCommunityPermissions
-	extends ValueObject<StaffRoleCommunityPermissionsProps>
-	implements StaffRoleCommunityPermissionsEntityReference
-{
+export class StaffRoleCommunityPermissions extends ValueObject<StaffRoleCommunityPermissionsProps> implements StaffRoleCommunityPermissionsEntityReference {
 	private readonly visa: UserVisa;
 
 	constructor(props: StaffRoleCommunityPermissionsProps, visa: UserVisa) {
@@ -29,13 +23,7 @@ export class StaffRoleCommunityPermissions
 	}
 
 	private validateVisa() {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.canManageStaffRolesAndPermissions ||
-					permissions.isSystemAccount,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set permission');
 		}
 	}

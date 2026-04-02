@@ -7,9 +7,7 @@ import { EndUserContactInformation } from './end-user-contact-information.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-	path.resolve(__dirname, 'features/end-user-contact-information.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/end-user-contact-information.feature'));
 
 function makeVisa(overrides: Partial<UserDomainPermissions> = {}) {
 	return vi.mocked({
@@ -53,89 +51,65 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Background(({ Given, And }) => {
-		Given(
-			'valid EndUserContactInformationProps with email "alice@cellix.com"',
-			() => {
-				props = makeProps();
-			},
-		);
+		Given('valid EndUserContactInformationProps with email "alice@cellix.com"', () => {
+			props = makeProps();
+		});
 		And('a valid UserVisa', () => {
 			visa = makeVisa();
 		});
 	});
 
-	Scenario(
-		'Creating a new EndUserContactInformation instance',
-		({ When, Then }) => {
-			let newEntity: EndUserContactInformation;
-			When(
-				'I create a new EndUserContactInformation using getNewInstance with the email',
-				() => {
-					newEntity = new EndUserContactInformation(props, visa, root);
-				},
-			);
-			Then('the entity\'s email should be set to "alice@cellix.com"', () => {
-				expect(newEntity.email).toBe('alice@cellix.com');
-			});
-		},
-	);
+	Scenario('Creating a new EndUserContactInformation instance', ({ When, Then }) => {
+		let newEntity: EndUserContactInformation;
+		When('I create a new EndUserContactInformation using getNewInstance with the email', () => {
+			newEntity = new EndUserContactInformation(props, visa, root);
+		});
+		Then('the entity\'s email should be set to "alice@cellix.com"', () => {
+			expect(newEntity.email).toBe('alice@cellix.com');
+		});
+	});
 
-	Scenario(
-		'Changing the email with permission to edit own account',
-		({ Given, When, Then }) => {
-			Given(
-				'an EndUserContactInformation entity with permission to edit own account',
-				() => {
-					visa = makeVisa({
-						isEditingOwnAccount: true,
-						canManageEndUsers: false,
-					});
-					entity = new EndUserContactInformation(makeProps(), visa, root);
-				},
-			);
-			When('I set the email to "bob@cellix.com"', () => {
-				entity.email = 'bob@cellix.com';
+	Scenario('Changing the email with permission to edit own account', ({ Given, When, Then }) => {
+		Given('an EndUserContactInformation entity with permission to edit own account', () => {
+			visa = makeVisa({
+				isEditingOwnAccount: true,
+				canManageEndUsers: false,
 			});
-			Then('the entity\'s email should be "bob@cellix.com"', () => {
-				expect(entity.email).toBe('bob@cellix.com');
-			});
-		},
-	);
+			entity = new EndUserContactInformation(makeProps(), visa, root);
+		});
+		When('I set the email to "bob@cellix.com"', () => {
+			entity.email = 'bob@cellix.com';
+		});
+		Then('the entity\'s email should be "bob@cellix.com"', () => {
+			expect(entity.email).toBe('bob@cellix.com');
+		});
+	});
 
-	Scenario(
-		'Changing the email with permission to manage end users',
-		({ Given, When, Then }) => {
-			Given(
-				'an EndUserContactInformation entity with permission to manage end users',
-				() => {
-					visa = makeVisa({
-						isEditingOwnAccount: false,
-						canManageEndUsers: true,
-					});
-					entity = new EndUserContactInformation(makeProps(), visa, root);
-				},
-			);
-			When('I set the email to "bob@cellix.com"', () => {
-				entity.email = 'bob@cellix.com';
+	Scenario('Changing the email with permission to manage end users', ({ Given, When, Then }) => {
+		Given('an EndUserContactInformation entity with permission to manage end users', () => {
+			visa = makeVisa({
+				isEditingOwnAccount: false,
+				canManageEndUsers: true,
 			});
-			Then('the entity\'s email should be "bob@cellix.com"', () => {
-				expect(entity.email).toBe('bob@cellix.com');
-			});
-		},
-	);
+			entity = new EndUserContactInformation(makeProps(), visa, root);
+		});
+		When('I set the email to "bob@cellix.com"', () => {
+			entity.email = 'bob@cellix.com';
+		});
+		Then('the entity\'s email should be "bob@cellix.com"', () => {
+			expect(entity.email).toBe('bob@cellix.com');
+		});
+	});
 
 	Scenario('Changing the email without permission', ({ Given, When, Then }) => {
 		let changingEmailWithoutPermission: () => void;
-		Given(
-			'an EndUserContactInformation entity without permission to edit own account or manage end users',
-			() => {
-				visa = makeVisa({
-					isEditingOwnAccount: false,
-					canManageEndUsers: false,
-				});
-				entity = new EndUserContactInformation(makeProps(), visa, root);
-			},
-		);
+		Given('an EndUserContactInformation entity without permission to edit own account or manage end users', () => {
+			visa = makeVisa({
+				isEditingOwnAccount: false,
+				canManageEndUsers: false,
+			});
+			entity = new EndUserContactInformation(makeProps(), visa, root);
+		});
 		When('I try to set the email to "bob@cellix.com"', () => {
 			changingEmailWithoutPermission = () => {
 				entity.email = 'bob@cellix.com';
@@ -146,27 +120,19 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario(
-		'Changing the email to an invalid value',
-		({ Given, When, Then }) => {
-			let changingEmailToInvalidValue: () => void;
-			Given(
-				'an EndUserContactInformation entity with permission to edit own account',
-				() => {
-					visa = makeVisa();
-					entity = new EndUserContactInformation(makeProps(), visa, root);
-				},
-			);
-			When('I try to set the email to "not-an-email"', () => {
-				changingEmailToInvalidValue = () => {
-					entity.email = 'not-an-email';
-				};
-			});
-			Then('an error should be thrown indicating the email is invalid', () => {
-				expect(changingEmailToInvalidValue).toThrow(
-					"Value doesn't match pattern",
-				);
-			});
-		},
-	);
+	Scenario('Changing the email to an invalid value', ({ Given, When, Then }) => {
+		let changingEmailToInvalidValue: () => void;
+		Given('an EndUserContactInformation entity with permission to edit own account', () => {
+			visa = makeVisa();
+			entity = new EndUserContactInformation(makeProps(), visa, root);
+		});
+		When('I try to set the email to "not-an-email"', () => {
+			changingEmailToInvalidValue = () => {
+				entity.email = 'not-an-email';
+			};
+		});
+		Then('an error should be thrown indicating the email is invalid', () => {
+			expect(changingEmailToInvalidValue).toThrow("Value doesn't match pattern");
+		});
+	});
 });

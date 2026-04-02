@@ -3,19 +3,11 @@ import { LoggedInUserCommunityContainer } from './logged-in-user-community.conta
 import { LoggedInUserRootContainer } from './logged-in-user-root.container.tsx';
 
 export interface LoggedInUserContainerProps {
-  autoLogin: boolean;
+	autoLogin: boolean;
 }
 
 export const LoggedInUserContainer: React.FC<LoggedInUserContainerProps> = (props) => {
-  const { communityId } = useParams();
+	const { communityId } = useParams();
 
-  return (
-    <>
-      {communityId ? (
-        <LoggedInUserCommunityContainer autoLogin={props.autoLogin} />
-      ) : (
-        <LoggedInUserRootContainer autoLogin={props.autoLogin} />
-      )}
-    </>
-  );
+	return <>{communityId ? <LoggedInUserCommunityContainer autoLogin={props.autoLogin} /> : <LoggedInUserRootContainer autoLogin={props.autoLogin} />}</>;
 };

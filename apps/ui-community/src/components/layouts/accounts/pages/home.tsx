@@ -8,14 +8,16 @@ const { Title } = Typography;
 
 export const Home: React.FC = () => {
 	return (
-        // biome-ignore lint:noUselessFragments
-		<SubPageLayout fixedHeader={false} header={<></>}>
+		// biome-ignore lint:noUselessFragments
+		<SubPageLayout
+			fixedHeader={false}
+			header={<></>}
+		>
 			<Helmet>
 				<title>Owner Community Home</title>
 			</Helmet>
 			<Title level={3}>Welcome to Owner Community</Title>
-			To join a community, you must provide the community manager with the
-			following:
+			To join a community, you must provide the community manager with the following:
 			<br />
 			<br />
 			<UserInfoContainer />

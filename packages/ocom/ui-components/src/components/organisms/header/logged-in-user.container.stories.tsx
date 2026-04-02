@@ -5,11 +5,11 @@ import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } f
 import { LoggedInUserContainer, type LoggedInUserContainerProps } from './logged-in-user.container.tsx';
 
 const meta = {
-  title: 'UI/Organisms/Header/LoggedInUser/Container',
-  component: LoggedInUserContainer,
-  parameters: {
-    layout: 'padded',
-  },
+	title: 'UI/Organisms/Header/LoggedInUser/Container',
+	component: LoggedInUserContainer,
+	parameters: {
+		layout: 'padded',
+	},
 } satisfies Meta<typeof LoggedInUserContainer>;
 
 export default meta;
@@ -17,140 +17,157 @@ type Story = StoryObj<typeof LoggedInUserContainer>;
 
 // Root path variant (no communityId) — success
 export const RootDefault: Story = {
-  args: {
-    autoLogin: false,
-  } satisfies LoggedInUserContainerProps,
-  parameters: {
-    memoryRouter: {
-      initialEntries: ['/'],
-    },
-    apolloClient: {
-      mocks: [
-        {
-          request: {
-            query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
-          },
-          result: {
-            data: {
-              __typename: 'Query',
-              currentEndUserAndCreateIfNotExists: {
-                __typename: 'EndUser',
-                externalId: null,
-                id: 'user-1',
-                personalInformation: {
-                  __typename: 'EndUserPersonalInformation',
-                  identityDetails: {
-                    __typename: 'EndUserIdentityDetails',
-                    restOfName: 'Jane',
-                    lastName: 'Smith',
-                  },
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-  },
-  render: (args) => (
-    <Routes>
-      <Route path="/" element={<LoggedInUserContainer autoLogin={args.autoLogin} />} />
-    </Routes>
-  ),
+	args: {
+		autoLogin: false,
+	} satisfies LoggedInUserContainerProps,
+	parameters: {
+		memoryRouter: {
+			initialEntries: ['/'],
+		},
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
+					},
+					result: {
+						data: {
+							__typename: 'Query',
+							currentEndUserAndCreateIfNotExists: {
+								__typename: 'EndUser',
+								externalId: null,
+								id: 'user-1',
+								personalInformation: {
+									__typename: 'EndUserPersonalInformation',
+									identityDetails: {
+										__typename: 'EndUserIdentityDetails',
+										restOfName: 'Jane',
+										lastName: 'Smith',
+									},
+								},
+							},
+						},
+					},
+				},
+			],
+		},
+	},
+	render: (args) => (
+		<Routes>
+			<Route
+				path="/"
+				element={<LoggedInUserContainer autoLogin={args.autoLogin} />}
+			/>
+		</Routes>
+	),
 };
 
 // Root path variant — loading
 export const RootLoading: Story = {
-  args: {
-    autoLogin: false,
-  } satisfies LoggedInUserContainerProps,
-  parameters: {
-    memoryRouter: {
-      initialEntries: ['/'],
-    },
-    apolloClient: {
-      mocks: [
-        {
-          request: {
-            query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
-          },
-          delay: 2000,
-          result: {
-            data: {
-              __typename: 'Query',
-              currentEndUserAndCreateIfNotExists: {
-                __typename: 'EndUser',
-                externalId: null,
-                id: 'user-1',
-                personalInformation: {
-                  __typename: 'EndUserPersonalInformation',
-                  identityDetails: {
-                    __typename: 'EndUserIdentityDetails',
-                    restOfName: 'Loading',
-                    lastName: 'User',
-                  },
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-  },
-  render: (args) => (
-    <Routes>
-      <Route path="/" element={<LoggedInUserContainer autoLogin={args.autoLogin} />} />
-    </Routes>
-  ),
+	args: {
+		autoLogin: false,
+	} satisfies LoggedInUserContainerProps,
+	parameters: {
+		memoryRouter: {
+			initialEntries: ['/'],
+		},
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
+					},
+					delay: 2000,
+					result: {
+						data: {
+							__typename: 'Query',
+							currentEndUserAndCreateIfNotExists: {
+								__typename: 'EndUser',
+								externalId: null,
+								id: 'user-1',
+								personalInformation: {
+									__typename: 'EndUserPersonalInformation',
+									identityDetails: {
+										__typename: 'EndUserIdentityDetails',
+										restOfName: 'Loading',
+										lastName: 'User',
+									},
+								},
+							},
+						},
+					},
+				},
+			],
+		},
+	},
+	render: (args) => (
+		<Routes>
+			<Route
+				path="/"
+				element={<LoggedInUserContainer autoLogin={args.autoLogin} />}
+			/>
+		</Routes>
+	),
 };
 
 // Root path variant — error
 export const RootError: Story = {
-  args: {
-    autoLogin: false,
-  } satisfies LoggedInUserContainerProps,
-  parameters: {
-    memoryRouter: {
-      initialEntries: ['/'],
-    },
-    apolloClient: {
-      mocks: [
-        {
-          request: {
-            query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
-          },
-          result: {
-            errors: [new GraphQLError('Failed to fetch user')],
-          },
-        },
-      ],
-      // Force queries to bypass cache if a previous story populated it
-      defaultOptions: {
-        watchQuery: { fetchPolicy: 'network-only' },
-        query: { fetchPolicy: 'network-only' },
-      },
-    },
-  },
-  render: (args) => (
-    <Routes>
-      <Route path="/" element={<LoggedInUserContainer key="root-error" autoLogin={args.autoLogin} />} />
-    </Routes>
-  ),
+	args: {
+		autoLogin: false,
+	} satisfies LoggedInUserContainerProps,
+	parameters: {
+		memoryRouter: {
+			initialEntries: ['/'],
+		},
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
+					},
+					result: {
+						errors: [new GraphQLError('Failed to fetch user')],
+					},
+				},
+			],
+			// Force queries to bypass cache if a previous story populated it
+			defaultOptions: {
+				watchQuery: { fetchPolicy: 'network-only' },
+				query: { fetchPolicy: 'network-only' },
+			},
+		},
+	},
+	render: (args) => (
+		<Routes>
+			<Route
+				path="/"
+				element={
+					<LoggedInUserContainer
+						key="root-error"
+						autoLogin={args.autoLogin}
+					/>
+				}
+			/>
+		</Routes>
+	),
 };
 
 // Community path variant (with communityId) — the community container currently uses stubbed data
 export const CommunityDefault: Story = {
-  args: {
-    autoLogin: false,
-  } satisfies LoggedInUserContainerProps,
-  parameters: {
-    memoryRouter: {
-      initialEntries: ['/community/123'],
-    },
-  },
-  render: (args) => (
-    <Routes>
-      <Route path="/community/:communityId" element={<LoggedInUserContainer autoLogin={args.autoLogin} />} />
-    </Routes>
-  ),
+	args: {
+		autoLogin: false,
+	} satisfies LoggedInUserContainerProps,
+	parameters: {
+		memoryRouter: {
+			initialEntries: ['/community/123'],
+		},
+	},
+	render: (args) => (
+		<Routes>
+			<Route
+				path="/community/:communityId"
+				element={<LoggedInUserContainer autoLogin={args.autoLogin} />}
+			/>
+		</Routes>
+	),
 };

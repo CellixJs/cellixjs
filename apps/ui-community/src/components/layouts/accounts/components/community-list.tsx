@@ -1,18 +1,8 @@
 import { DownOutlined } from '@ant-design/icons';
-import {
-	Button,
-	Dropdown,
-	Input as Search,
-	Space,
-	Table,
-	Typography,
-} from 'antd';
+import { Button, Dropdown, Input as Search, Space, Table, Typography } from 'antd';
 import { type ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type {
-	AccountsCommunityListContainerCommunityFieldsFragment,
-	AccountsCommunityListContainerMemberFieldsFragment,
-} from '../../../../generated.tsx';
+import type { AccountsCommunityListContainerCommunityFieldsFragment, AccountsCommunityListContainerMemberFieldsFragment } from '../../../../generated.tsx';
 
 const { Title } = Typography;
 
@@ -34,9 +24,7 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 			return;
 		}
 		const filteredCommunities = props.data.communities.filter((community) => {
-			return community?.name
-				?.toLocaleLowerCase()
-				.includes(searchValue.toLocaleLowerCase());
+			return community?.name?.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase());
 		});
 		setCommunityList(filteredCommunities);
 	};
@@ -70,9 +58,7 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 						label: (
 							<Button
 								type="link"
-								onClick={() =>
-									navigate(`/community/${community.id}/member/${member.id}`)
-								}
+								onClick={() => navigate(`/community/${community.id}/member/${member.id}`)}
 							>
 								{member.memberName}
 							</Button>
@@ -80,7 +66,10 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 					})),
 				}}
 			>
-				<Button type="link" onClick={(e) => e.preventDefault()}>
+				<Button
+					type="link"
+					onClick={(e) => e.preventDefault()}
+				>
 					<Space>
 						Member Portals
 						<DownOutlined />
@@ -98,9 +87,7 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 							label: (
 								<Button
 									type="link"
-									onClick={() =>
-										navigate(`/community/${community.id}/admin/${member.id}`)
-									}
+									onClick={() => navigate(`/community/${community.id}/admin/${member.id}`)}
 								>
 									{member.memberName}
 								</Button>
@@ -108,7 +95,10 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 						})),
 				}}
 			>
-				<Button type="link" onClick={(e) => e.preventDefault()}>
+				<Button
+					type="link"
+					onClick={(e) => e.preventDefault()}
+				>
 					<Space>
 						Admin Portals
 						<DownOutlined />
@@ -122,7 +112,10 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 		<div>
 			<div className="flex justify-between">
 				<h1>Navigate to a Community</h1>
-				<Button type="primary" onClick={() => navigate('create-community')}>
+				<Button
+					type="primary"
+					onClick={() => navigate('create-community')}
+				>
 					Create a Community
 				</Button>
 			</div>

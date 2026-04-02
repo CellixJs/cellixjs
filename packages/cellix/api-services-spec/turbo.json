@@ -1,4 +1,4 @@
 {
-  "extends": ["//"],
-  "tags": ["backend"]
+	"extends": ["//"],
+	"tags": ["backend"]
 }

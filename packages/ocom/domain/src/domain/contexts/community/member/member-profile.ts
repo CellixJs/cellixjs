@@ -17,13 +17,9 @@ export interface MemberProfileProps extends ValueObjectProps {
 	showProperties: boolean;
 }
 
-export interface MemberProfileEntityReference
-	extends Readonly<MemberProfileProps> {}
+export interface MemberProfileEntityReference extends Readonly<MemberProfileProps> {}
 
-export class MemberProfile
-	extends ValueObject<MemberProfileProps>
-	implements MemberProfileEntityReference
-{
+export class MemberProfile extends ValueObject<MemberProfileProps> implements MemberProfileEntityReference {
 	//#region Fields
 	private readonly visa: CommunityVisa;
 	//#endregion Fields
@@ -37,17 +33,8 @@ export class MemberProfile
 
 	//#region Methods
 	private validateVisa() {
-		if (
-			!this.visa.determineIf(
-				(domainPermissions) =>
-					domainPermissions.canManageMembers ||
-					(domainPermissions.canEditOwnMemberProfile &&
-						domainPermissions.isEditingOwnMemberAccount),
-			)
-		) {
-			throw new PermissionError(
-				'You do not have permission to update this profile',
-			);
+		if (!this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || (domainPermissions.canEditOwnMemberProfile && domainPermissions.isEditingOwnMemberAccount))) {
+			throw new PermissionError('You do not have permission to update this profile');
 		}
 	}
 	//#endregion Methods

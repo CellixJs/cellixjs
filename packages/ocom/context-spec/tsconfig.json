@@ -1,16 +1,10 @@
 {
-  "extends": "@cellix/config-typescript/node",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
-  },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "references": [
-    { "path": "../persistence" },
-    { "path": "../service-apollo-server" },
-    { "path": "../service-token-validation" }
-  ]
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts"],
+	"references": [{ "path": "../persistence" }, { "path": "../service-apollo-server" }, { "path": "../service-token-validation" }]
 }

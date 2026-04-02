@@ -8,24 +8,13 @@ import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import type { AdditionalAmenity, BedroomDetail, ListingDetail, Location, Property } from '@ocom/data-sources-mongoose-models/property';
 
-export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<
-	Property,
-	PropertyDomainAdapter,
-	Domain.Passport,
-	Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>
-> {
+export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<Property, PropertyDomainAdapter, Domain.Passport, Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>> {
 	constructor() {
-		super(
-			PropertyDomainAdapter,
-			Domain.Contexts.Property.Property.Property
-		);
+		super(PropertyDomainAdapter, Domain.Contexts.Property.Property.Property);
 	}
 }
 
-export class PropertyDomainAdapter
-	extends MongooseSeedwork.MongooseDomainAdapter<Property>
-	implements Domain.Contexts.Property.Property.PropertyProps
-{
+export class PropertyDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<Property> implements Domain.Contexts.Property.Property.PropertyProps {
 	get propertyName() {
 		return this.doc.propertyName;
 	}
@@ -109,9 +98,7 @@ export class PropertyDomainAdapter
 			throw new Error('community is not populated');
 		}
 		if (this.doc.community instanceof MongooseSeedwork.ObjectId) {
-			throw new Error(
-				'community is not populated or is not of the correct type',
-			);
+			throw new Error('community is not populated or is not of the correct type');
 		}
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
@@ -126,19 +113,19 @@ export class PropertyDomainAdapter
 		return new CommunityDomainAdapter(this.doc.community as Community);
 	}
 
-    set community(community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>) {
-        //check to see if community is derived from MongooseDomainAdapter
-        if (community instanceof Domain.Contexts.Community.Community.Community) {
-            this.doc.set('community', community.props.doc);
-            return;
-        }
+	set community(community: Domain.Contexts.Community.Community.CommunityEntityReference | Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>) {
+		//check to see if community is derived from MongooseDomainAdapter
+		if (community instanceof Domain.Contexts.Community.Community.Community) {
+			this.doc.set('community', community.props.doc);
+			return;
+		}
 
-        if (!community?.id) {
-            throw new Error('community reference is missing id');
-        }
+		if (!community?.id) {
+			throw new Error('community reference is missing id');
+		}
 
-        this.doc.set('community', community);
-    }
+		this.doc.set('community', community);
+	}
 
 	/**
 	 * Exposes the community foreign key as a string regardless of populated state.
@@ -161,11 +148,9 @@ export class PropertyDomainAdapter
 			return null;
 		}
 		if (this.doc.owner instanceof MongooseSeedwork.ObjectId) {
-			throw new Error(
-				'owner is not populated or is not of the correct type',
-			);
+			throw new Error('owner is not populated or is not of the correct type');
 		}
-        // TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
+		// TODO: Temporary workaround for PropArray vs ReadonlyArray incompatibility
 		// See GitHub issue: https://github.com/CellixJs/cellixjs/issues/78
 		return new MemberDomainAdapter(this.doc.owner as Member) as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
 	}

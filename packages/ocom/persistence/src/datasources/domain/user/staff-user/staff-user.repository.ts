@@ -8,15 +8,7 @@ type StaffUserDocument = StaffUser;
 type StaffUserAggregate = Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
 type StaffUserRepositoryContract = Domain.Contexts.User.StaffUser.StaffUserRepository<StaffUserDomainAdapter>;
 
-export class StaffUserRepository
-	extends MongooseSeedwork.MongoRepositoryBase<
-	StaffUserDocument,
-	StaffUserDomainAdapter,
-	Domain.Passport,
-	StaffUserAggregate
-	>
-	implements StaffUserRepositoryContract
-{
+export class StaffUserRepository extends MongooseSeedwork.MongoRepositoryBase<StaffUserDocument, StaffUserDomainAdapter, Domain.Passport, StaffUserAggregate> implements StaffUserRepositoryContract {
 	async delete(id: string): Promise<void> {
 		await this.model.findByIdAndDelete(id).exec();
 	}
@@ -30,34 +22,17 @@ export class StaffUserRepository
 	}
 
 	async getByExternalId(externalId: string): Promise<StaffUserAggregate> {
-		const staffUser = await this.model
-			.findOne({ externalId })
-			.populate('role')
-			.exec();
+		const staffUser = await this.model.findOne({ externalId }).populate('role').exec();
 		if (!staffUser) {
 			throw new Error(`StaffUser with externalId ${externalId} not found`);
 		}
 		return this.typeConverter.toDomain(staffUser, this.passport);
 	}
 
-	getNewInstance(
-		externalId: string,
-		firstName: string,
-		lastName: string,
-		email: string,
-	): Promise<StaffUserAggregate> {
+	getNewInstance(externalId: string, firstName: string, lastName: string, email: string): Promise<StaffUserAggregate> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		adapter.tags = [];
 		adapter.accessBlocked = false;
-		return Promise.resolve(
-			Domain.Contexts.User.StaffUser.StaffUser.getNewUser(
-				adapter,
-				this.passport,
-				externalId,
-				firstName,
-				lastName,
-				email,
-			),
-		);
+		return Promise.resolve(Domain.Contexts.User.StaffUser.StaffUser.getNewUser(adapter, this.passport, externalId, firstName, lastName, email));
 	}
 }

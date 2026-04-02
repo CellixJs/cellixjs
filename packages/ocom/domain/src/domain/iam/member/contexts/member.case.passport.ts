@@ -7,19 +7,12 @@ import { MemberPassportBase } from '../member.passport-base.ts';
 import { MemberServiceTicketVisa } from './member.service-ticket.visa.ts';
 import { MemberViolationTicketVisa } from './member.violation-ticket.visa.ts';
 
-export class MemberCasePassport
-	extends MemberPassportBase
-	implements CasePassport
-{
-	forServiceTicketV1(
-		root: ServiceTicketV1EntityReference,
-	): ServiceTicketV1Visa {
+export class MemberCasePassport extends MemberPassportBase implements CasePassport {
+	forServiceTicketV1(root: ServiceTicketV1EntityReference): ServiceTicketV1Visa {
 		return new MemberServiceTicketVisa(root, this._member);
 	}
 
-	forViolationTicketV1(
-		root: ViolationTicketV1EntityReference,
-	): ViolationTicketV1Visa {
+	forViolationTicketV1(root: ViolationTicketV1EntityReference): ViolationTicketV1Visa {
 		return new MemberViolationTicketVisa(root, this._member);
 	}
 }

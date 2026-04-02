@@ -19,18 +19,13 @@ class BroadCaster {
 
 	public async broadcast(event: string, data: unknown): Promise<void> {
 		// Collect all listeners for the event
-		const listeners = this.eventEmitter.listeners(event) as Array<
-			(data: unknown) => Promise<void> | void
-		>;
+		const listeners = this.eventEmitter.listeners(event) as Array<(data: unknown) => Promise<void> | void>;
 		// Execute all listeners sequentially and await each one
 		for (const listener of listeners) {
 			await listener(data);
 		}
 	}
-	public on(
-		event: string,
-		listener: (rawPayload: unknown) => Promise<void> | void,
-	) {
+	public on(event: string, listener: (rawPayload: unknown) => Promise<void> | void) {
 		this.eventEmitter.on(event, (data) => {
 			// Call the listener and ignore any returned Promise
 			void listener(data);
@@ -61,13 +56,8 @@ class NodeEventBusImpl implements EventBus {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-	async dispatch<T extends DomainEvent>(
-		event: new (aggregateId: string) => T,
-		data: unknown,
-	): Promise<void> {
-		console.log(
-			`Dispatching node event (${event.name} or ${event.name}) with data ${JSON.stringify(data)}`,
-		);
+	async dispatch<T extends DomainEvent>(event: new (aggregateId: string) => T, data: unknown): Promise<void> {
+		console.log(`Dispatching node event (${event.name} or ${event.name}) with data ${JSON.stringify(data)}`);
 
 		const contextObject = {};
 		api.propagation.inject(api.context.active(), contextObject);
@@ -77,11 +67,7 @@ class NodeEventBusImpl implements EventBus {
 			span.setAttribute('message.system', 'node-event-bus');
 			span.setAttribute('messaging.operation', 'publish');
 			span.setAttribute('messaging.destination.name', event.name);
-			span.addEvent(
-				'dispatching node event',
-				{ name: event.name, data: JSON.stringify(data) },
-				new Date(),
-			);
+			span.addEvent('dispatching node event', { name: event.name, data: JSON.stringify(data) }, new Date());
 
 			try {
 				await this.broadcaster.broadcast(event.name, {
@@ -101,21 +87,13 @@ class NodeEventBusImpl implements EventBus {
 		});
 	}
 
-	register<EventProps, T extends CustomDomainEvent<EventProps>>(
-		event: new (aggregateId: string) => T,
-		func: (payload: T['payload']) => Promise<void>,
-	): void {
+	register<EventProps, T extends CustomDomainEvent<EventProps>>(event: new (aggregateId: string) => T, func: (payload: T['payload']) => Promise<void>): void {
 		console.log(`custom-log | registering-node-event-handler | ${event.name}`);
 
 		this.broadcaster.on(event.name, async (rawPayload: unknown) => {
 			const payload = rawPayload as RawPayload;
-			console.log(
-				`Received node event ${event.name} with data ${JSON.stringify(payload)}`,
-			);
-			const activeContext = api.propagation.extract(
-				api.context.active(),
-				payload.context,
-			);
+			console.log(`Received node event ${event.name} with data ${JSON.stringify(payload)}`);
+			const activeContext = api.propagation.extract(api.context.active(), payload.context);
 			await api.context.with(activeContext, async () => {
 				// all descendants of this context will have the active context set
 				const tracer = trace.getTracer('PG:data-access');
@@ -134,16 +112,9 @@ class NodeEventBusImpl implements EventBus {
 					// see : https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/monitor/monitor-opentelemetry-exporter/src/utils/spanUtils.ts#L191
 					span.setAttribute(ATTR_DB_SYSTEM, 'node-event-bus'); // hack (becomes upper case)
 					span.setAttribute(ATTR_DB_NAME, event.name); // hack
-					span.setAttribute(
-						ATTR_DB_STATEMENT,
-						`handling event: ${event.name} with payload: ${payload.data}`,
-					); // hack - dumps payload in command
+					span.setAttribute(ATTR_DB_STATEMENT, `handling event: ${event.name} with payload: ${payload.data}`); // hack - dumps payload in command
 
-					span.addEvent(
-						`NodeEventBus: Executing ${event.name}`,
-						{ data: payload.data },
-						performance.now() as TimeInput,
-					);
+					span.addEvent(`NodeEventBus: Executing ${event.name}`, { data: payload.data }, performance.now() as TimeInput);
 					try {
 						await func(JSON.parse(payload.data) as T['payload']);
 						span.setStatus({
@@ -156,9 +127,7 @@ class NodeEventBusImpl implements EventBus {
 							code: SpanStatusCode.ERROR,
 							message: `NodeEventBus: Error executing ${event.name}`,
 						});
-						console.error(
-							`Error handling node event ${event.name} with data ${JSON.stringify(payload)}`,
-						);
+						console.error(`Error handling node event ${event.name} with data ${JSON.stringify(payload)}`);
 						console.error(e as Error);
 					} finally {
 						span.end();

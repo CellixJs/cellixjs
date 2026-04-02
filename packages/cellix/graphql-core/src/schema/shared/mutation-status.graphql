@@ -1,4 +1,4 @@
 type MutationStatus {
-  success: Boolean!
-  errorMessage: String
+	success: Boolean!
+	errorMessage: String
 }

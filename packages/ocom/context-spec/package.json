@@ -1,31 +1,34 @@
 {
-  "name": "@ocom/context-spec",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "files": ["dist"],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "prebuild": "biome lint",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
-    "lint": "biome lint",
-    "clean": "rimraf dist"
-  },
-  "dependencies": {
-    "@apollo/server": "catalog:",
-    "@ocom/persistence": "workspace:*",
-    "@ocom/service-apollo-server": "workspace:*",
-    "@ocom/service-token-validation": "workspace:*"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "rimraf": "catalog:",
-    "typescript": "catalog:"
-  }
+	"name": "@ocom/context-spec",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"watch": "tsc --watch",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@ocom/persistence": "workspace:*",
+		"@ocom/service-apollo-server": "workspace:*",
+		"@ocom/service-token-validation": "workspace:*"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
 }

@@ -2,17 +2,12 @@
 // biome-ignore lint:noEmptyInterface
 interface SyncDomainEventPayloadBaseType {}
 
-interface SyncDomainEventType<
-	EventPayloadType extends SyncDomainEventPayloadBaseType,
-> {
+interface SyncDomainEventType<EventPayloadType extends SyncDomainEventPayloadBaseType> {
 	get payload(): EventPayloadType;
 	set payload(payload: EventPayloadType);
 }
 
-export abstract class SyncDomainEventImpl<
-	EventPayloadType extends SyncDomainEventPayloadBaseType,
-> implements SyncDomainEventType<EventPayloadType>
-{
+export abstract class SyncDomainEventImpl<EventPayloadType extends SyncDomainEventPayloadBaseType> implements SyncDomainEventType<EventPayloadType> {
 	private _payload?: EventPayloadType;
 	get payload(): EventPayloadType {
 		if (this._payload === undefined) {

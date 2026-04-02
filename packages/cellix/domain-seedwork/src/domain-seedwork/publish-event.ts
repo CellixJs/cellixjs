@@ -2,10 +2,7 @@ import type { DomainEvent } from './domain-event.ts';
 import type { EventBus } from './event-bus.ts';
 
 export interface PublishEvent {
-	publish<T extends { payload: unknown } & DomainEvent>(
-		eventToPublish: new (aggregateId: string) => T,
-		data: T['payload'],
-	): Promise<void>;
+	publish<T extends { payload: unknown } & DomainEvent>(eventToPublish: new (aggregateId: string) => T, data: T['payload']): Promise<void>;
 }
 
 export class EventPublisher implements PublishEvent {
@@ -15,10 +12,7 @@ export class EventPublisher implements PublishEvent {
 		this.eventBus = eventBus;
 	}
 
-	async publish<T extends { payload: unknown } & DomainEvent>(
-		eventToPublish: new (aggregateId: string) => T,
-		data: T['payload'],
-	) {
+	async publish<T extends { payload: unknown } & DomainEvent>(eventToPublish: new (aggregateId: string) => T, data: T['payload']) {
 		await this.eventBus.dispatch(eventToPublish, data);
 	}
 }

@@ -6,20 +6,18 @@ import testResolvers from './test.resolvers.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const feature = await loadFeature(
-  path.resolve(__dirname, 'features/test.resolvers.feature'),
-);
+const feature = await loadFeature(path.resolve(__dirname, 'features/test.resolvers.feature'));
 
 test.for(feature, ({ Scenario }) => {
-  let result: string;
+	let result: string;
 
-  Scenario('Responding with hello world', ({ When, Then }) => {
-    When('the hello query is executed', () => {
-      result = (testResolvers.Query?.hello as () => string)();
-    });
+	Scenario('Responding with hello world', ({ When, Then }) => {
+		When('the hello query is executed', () => {
+			result = (testResolvers.Query?.hello as () => string)();
+		});
 
-    Then('it should return "Hello, world!"', () => {
-      expect(result).toBe('Hello, world!');
-    });
-  });
+		Then('it should return "Hello, world!"', () => {
+			expect(result).toBe('Hello, world!');
+		});
+	});
 });

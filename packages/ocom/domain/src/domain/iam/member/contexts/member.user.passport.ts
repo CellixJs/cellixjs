@@ -10,10 +10,7 @@ import { MemberUserStaffRoleVisa } from './member.user.staff-role.visa.ts';
 import { MemberUserStaffUserVisa } from './member.user.staff-user.visa.ts';
 import { MemberUserVendorUserVisa } from './member.user.vendor-user.visa.ts';
 
-export class MemberUserPassport
-	extends MemberPassportBase
-	implements UserPassport
-{
+export class MemberUserPassport extends MemberPassportBase implements UserPassport {
 	forStaffUser(root: StaffUserEntityReference): UserVisa {
 		return new MemberUserStaffUserVisa(root, this._member);
 	}

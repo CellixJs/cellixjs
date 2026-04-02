@@ -20,55 +20,35 @@ export class MemberPassport extends MemberPassportBase implements Passport {
 
 	public get case(): CasePassport {
 		if (!this._casePassport) {
-			this._casePassport = new MemberCasePassport(
-				this._user,
-				this._member,
-				this._community,
-			);
+			this._casePassport = new MemberCasePassport(this._user, this._member, this._community);
 		}
 		return this._casePassport;
 	}
 
 	public get community(): CommunityPassport {
 		if (!this._communityPassport) {
-			this._communityPassport = new MemberCommunityPassport(
-				this._user,
-				this._member,
-				this._community,
-			);
+			this._communityPassport = new MemberCommunityPassport(this._user, this._member, this._community);
 		}
 		return this._communityPassport;
 	}
 
 	public get property(): PropertyPassport {
 		if (!this._propertyPassport) {
-			this._propertyPassport = new MemberPropertyPassport(
-				this._user,
-				this._member,
-				this._community,
-			);
+			this._propertyPassport = new MemberPropertyPassport(this._user, this._member, this._community);
 		}
 		return this._propertyPassport;
 	}
 
 	public get service(): ServicePassport {
 		if (!this._servicePassport) {
-			this._servicePassport = new MemberServicePassport(
-				this._user,
-				this._member,
-				this._community,
-			);
+			this._servicePassport = new MemberServicePassport(this._user, this._member, this._community);
 		}
 		return this._servicePassport;
 	}
 
 	public get user(): UserPassport {
 		if (!this._userPassport) {
-			this._userPassport = new MemberUserPassport(
-				this._user,
-				this._member,
-				this._community,
-			);
+			this._userPassport = new MemberUserPassport(this._user, this._member, this._community);
 		}
 		return this._userPassport;
 	}

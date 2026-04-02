@@ -3,10 +3,7 @@ import type { PropertyPassport } from '../../../contexts/property/property.passp
 import { MemberPassportBase } from '../member.passport-base.ts';
 import { MemberPropertyVisa } from './member.property.visa.ts';
 
-export class MemberPropertyPassport
-	extends MemberPassportBase
-	implements PropertyPassport
-{
+export class MemberPropertyPassport extends MemberPassportBase implements PropertyPassport {
 	forProperty(root: PropertyEntityReference) {
 		return new MemberPropertyVisa(root, this._member);
 	}

@@ -1,37 +1,16 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
-import {
-	PropertyCreatedEvent,
-	type PropertyCreatedProps,
-} from '../../../events/types/property-created.ts';
-import {
-	PropertyDeletedEvent,
-	type PropertyDeletedEventProps,
-} from '../../../events/types/property-deleted.ts';
-import {
-	PropertyUpdatedEvent,
-	type PropertyUpdatedProps,
-} from '../../../events/types/property-updated.ts';
-import {
-	Community,
-	type CommunityEntityReference,
-	type CommunityProps,
-} from '../../community/community/community.ts';
+import { PropertyCreatedEvent, type PropertyCreatedProps } from '../../../events/types/property-created.ts';
+import { PropertyDeletedEvent, type PropertyDeletedEventProps } from '../../../events/types/property-deleted.ts';
+import { PropertyUpdatedEvent, type PropertyUpdatedProps } from '../../../events/types/property-updated.ts';
+import { Community, type CommunityEntityReference, type CommunityProps } from '../../community/community/community.ts';
 import type { MemberEntityReference } from '../../community/member/member.ts';
 import type { Passport } from '../../passport.ts';
 import type { PropertyVisa } from '../property.visa.ts';
 import * as ValueObjects from './property.value-objects.ts';
-import {
-	PropertyListingDetail,
-	type PropertyListingDetailEntityReference,
-	type PropertyListingDetailProps,
-} from './property-listing-detail.entity.ts';
-import {
-	PropertyLocation,
-	type PropertyLocationEntityReference,
-	type PropertyLocationProps,
-} from './property-location.entity.ts';
+import { PropertyListingDetail, type PropertyListingDetailEntityReference, type PropertyListingDetailProps } from './property-listing-detail.entity.ts';
+import { PropertyLocation, type PropertyLocationEntityReference, type PropertyLocationProps } from './property-location.entity.ts';
 
 export interface PropertyProps extends DomainEntityProps {
 	community: CommunityProps;
@@ -53,37 +32,18 @@ export interface PropertyProps extends DomainEntityProps {
 	readonly schemaVersion: string;
 }
 
-export interface PropertyEntityReference
-	extends Readonly<
-		Omit<
-			PropertyProps,
-			| 'community'
-			| 'setCommunityRef'
-			| 'location'
-			| 'owner'
-			| 'setOwnerRef'
-			| 'listingDetail'
-		>
-	> {
+export interface PropertyEntityReference extends Readonly<Omit<PropertyProps, 'community' | 'setCommunityRef' | 'location' | 'owner' | 'setOwnerRef' | 'listingDetail'>> {
 	readonly community: CommunityEntityReference;
 	readonly location: PropertyLocationEntityReference;
 	readonly owner: MemberEntityReference | null;
 	readonly listingDetail: PropertyListingDetailEntityReference;
 }
 
-export class Property<props extends PropertyProps>
-	extends AggregateRoot<props, Passport>
-	implements PropertyEntityReference
-{
+export class Property<props extends PropertyProps> extends AggregateRoot<props, Passport> implements PropertyEntityReference {
 	private isNew: boolean = false;
 	private visaCache: PropertyVisa | undefined;
 
-	public static getNewInstance<props extends PropertyProps>(
-		newProps: props,
-		propertyName: string,
-		community: CommunityEntityReference,
-		passport: Passport,
-	): Property<props> {
+	public static getNewInstance<props extends PropertyProps>(newProps: props, propertyName: string, community: CommunityEntityReference, passport: Passport): Property<props> {
 		const property = new Property(newProps, passport);
 		property.isNew = true;
 		property.propertyName = propertyName;
@@ -92,57 +52,36 @@ export class Property<props extends PropertyProps>
 		property.listedForRent = false;
 		property.listedForLease = false;
 		property.listedInDirectory = false;
-		property.addIntegrationEvent<PropertyCreatedProps, PropertyCreatedEvent>(
-			PropertyCreatedEvent,
-			{
-				id: property.props.id,
-			},
-		);
+		property.addIntegrationEvent<PropertyCreatedProps, PropertyCreatedEvent>(PropertyCreatedEvent, {
+			id: property.props.id,
+		});
 		property.isNew = false;
 		return property;
 	}
 
-    	public requestDelete(): void {
+	public requestDelete(): void {
 		this.ensureCanManage('You do not have permission to delete this property');
 		if (!this.isDeleted) {
 			this.isDeleted = true;
-			this.addIntegrationEvent<PropertyDeletedEventProps, PropertyDeletedEvent>(
-				PropertyDeletedEvent,
-				{ id: this.props.id },
-			);
+			this.addIntegrationEvent<PropertyDeletedEventProps, PropertyDeletedEvent>(PropertyDeletedEvent, { id: this.props.id });
 		}
 	}
 
 	public override onSave(isModified: boolean): void {
 		super.onSave(isModified);
 		if (isModified && !this.isDeleted) {
-			this.addIntegrationEvent<PropertyUpdatedProps, PropertyUpdatedEvent>(
-				PropertyUpdatedEvent,
-				{ id: this.props.id },
-			);
+			this.addIntegrationEvent<PropertyUpdatedProps, PropertyUpdatedEvent>(PropertyUpdatedEvent, { id: this.props.id });
 		}
 	}
 
 	private ensureCanManage(message: string): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount || permissions.canManageProperties,
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageProperties)) {
 			throw new PermissionError(message);
 		}
 	}
 
 	private ensureCanManageOrEditOwn(message: string): void {
-		if (
-			!this.visa.determineIf(
-				(permissions) =>
-					permissions.isSystemAccount ||
-					permissions.canManageProperties ||
-					(permissions.canEditOwnProperty && permissions.isEditingOwnProperty),
-			)
-		) {
+		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageProperties || (permissions.canEditOwnProperty && permissions.isEditingOwnProperty))) {
 			throw new PermissionError(message);
 		}
 	}
@@ -166,9 +105,7 @@ export class Property<props extends PropertyProps>
 
 	private set community(value: CommunityEntityReference) {
 		if (!this.isNew) {
-			this.ensureCanManage(
-				"You do not have permission to update this property's community",
-			);
+			this.ensureCanManage("You do not have permission to update this property's community");
 		}
 		this.props.community = value;
 	}
@@ -178,16 +115,12 @@ export class Property<props extends PropertyProps>
 	}
 
 	set location(value: PropertyLocationProps) {
-		this.ensureCanManageOrEditOwn(
-			"You do not have permission to update this property's location",
-		);
+		this.ensureCanManageOrEditOwn("You do not have permission to update this property's location");
 		this.props.location = {
 			address: { ...value.address },
 			position: {
 				type: value.position.type,
-				coordinates: value.position.coordinates
-					? [...value.position.coordinates]
-					: null,
+				coordinates: value.position.coordinates ? [...value.position.coordinates] : null,
 			},
 		};
 	}
@@ -198,9 +131,7 @@ export class Property<props extends PropertyProps>
 
 	set owner(owner: MemberEntityReference | null) {
 		if (!this.isNew) {
-			this.ensureCanManage(
-				"You do not have permission to update this property's owner",
-			);
+			this.ensureCanManage("You do not have permission to update this property's owner");
 		}
 		this.props.owner = owner;
 	}
@@ -211,13 +142,9 @@ export class Property<props extends PropertyProps>
 
 	set propertyName(propertyName: string) {
 		if (!this.isNew) {
-			this.ensureCanManage(
-				"You do not have permission to update this property's name",
-			);
+			this.ensureCanManage("You do not have permission to update this property's name");
 		}
-		this.props.propertyName = new ValueObjects.PropertyName(
-			propertyName,
-		).valueOf();
+		this.props.propertyName = new ValueObjects.PropertyName(propertyName).valueOf();
 	}
 
 	get propertyType(): string {
@@ -225,12 +152,8 @@ export class Property<props extends PropertyProps>
 	}
 
 	set propertyType(propertyType: string) {
-		this.ensureCanManage(
-			"You do not have permission to update this property's type",
-		);
-		this.props.propertyType = new ValueObjects.PropertyType(
-			propertyType,
-		).valueOf();
+		this.ensureCanManage("You do not have permission to update this property's type");
+		this.props.propertyType = new ValueObjects.PropertyType(propertyType).valueOf();
 	}
 
 	get listedForSale(): boolean {
@@ -238,9 +161,7 @@ export class Property<props extends PropertyProps>
 	}
 
 	set listedForSale(listed: boolean) {
-		this.ensureCanManageOrEditOwn(
-			'You do not have permission to update the sale status of this property',
-		);
+		this.ensureCanManageOrEditOwn('You do not have permission to update the sale status of this property');
 		this.props.listedForSale = listed;
 	}
 
@@ -249,9 +170,7 @@ export class Property<props extends PropertyProps>
 	}
 
 	set listedForRent(listed: boolean) {
-		this.ensureCanManageOrEditOwn(
-			'You do not have permission to update the rental status of this property',
-		);
+		this.ensureCanManageOrEditOwn('You do not have permission to update the rental status of this property');
 		this.props.listedForRent = listed;
 	}
 
@@ -260,9 +179,7 @@ export class Property<props extends PropertyProps>
 	}
 
 	set listedForLease(listed: boolean) {
-		this.ensureCanManageOrEditOwn(
-			'You do not have permission to update the lease status of this property',
-		);
+		this.ensureCanManageOrEditOwn('You do not have permission to update the lease status of this property');
 		this.props.listedForLease = listed;
 	}
 
@@ -271,9 +188,7 @@ export class Property<props extends PropertyProps>
 	}
 
 	set listedInDirectory(listed: boolean) {
-		this.ensureCanManageOrEditOwn(
-			'You do not have permission to update the directory visibility for this property',
-		);
+		this.ensureCanManageOrEditOwn('You do not have permission to update the directory visibility for this property');
 		this.props.listedInDirectory = listed;
 	}
 
@@ -286,9 +201,7 @@ export class Property<props extends PropertyProps>
 	}
 
 	set tags(tags: string[]) {
-		this.ensureCanManageOrEditOwn(
-			'You do not have permission to update the tags for this property',
-		);
+		this.ensureCanManageOrEditOwn('You do not have permission to update the tags for this property');
 		this.props.tags = this.normalizeTags(tags);
 	}
 
@@ -297,9 +210,7 @@ export class Property<props extends PropertyProps>
 	}
 
 	set hash(hash: string | null) {
-		this.ensureCanManageOrEditOwn(
-			'You do not have permission to update the index hash for this property',
-		);
+		this.ensureCanManageOrEditOwn('You do not have permission to update the index hash for this property');
 		this.props.hash = hash;
 	}
 
@@ -308,9 +219,7 @@ export class Property<props extends PropertyProps>
 	}
 
 	set lastIndexed(lastIndexed: Date | null) {
-		this.ensureCanManageOrEditOwn(
-			'You do not have permission to update the index timestamp for this property',
-		);
+		this.ensureCanManageOrEditOwn('You do not have permission to update the index timestamp for this property');
 		this.props.lastIndexed = lastIndexed;
 	}
 
@@ -319,9 +228,7 @@ export class Property<props extends PropertyProps>
 	}
 
 	set updateIndexFailedDate(updateIndexFailedDate: Date | null) {
-		this.ensureCanManageOrEditOwn(
-			'You do not have permission to update the failed index timestamp for this property',
-		);
+		this.ensureCanManageOrEditOwn('You do not have permission to update the failed index timestamp for this property');
 		this.props.updateIndexFailedDate = updateIndexFailedDate;
 	}
 
