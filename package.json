@@ -49,7 +49,7 @@
     "edgescan:run": "docker run --tty --rm edgescan/cicd-integration:latest --api-token $ES_API_TOKEN --asset-id $ES_ASSET_ID --start-scan --max-risk-threshold 3 --wait --color"
   },
   "devDependencies": {
-    "@amiceli/vitest-cucumber": "^5.1.2",
+    "@amiceli/vitest-cucumber": "^6.3.0",
     "@biomejs/biome": "2.4.10",
     "@cellix/graphql-codegen": "workspace:*",
     "@graphql-codegen/cli": "^5.0.7",
