@@ -75,6 +75,8 @@ Chosen option: "Wait for the official TypeScript 7.0 release", because the tempo
 - Remove any remaining `skipLibCheck` flags and stub type facades once the official mongoose typings can coexist with tsgo.
 - Unpin `@types/chai` when the Vitest conflict is fully fixed and the default types align with our usage.
 - Run `pnpm run verify` again to prove that linting, building, testing, SonarCloud, and Snyk scans pass without requiring temporary compiler workarounds for tsgo.
+- Re-run `pnpm run build` and `pnpm run test:coverage` with `"stableTypeOrdering": true` in `tsconfig.base.json` as the first diagnostic step — see ADR-0027 for the TS 6.0 baseline result (all 54 tasks passed with zero ordering differences).
+- Resolve the `ignoreDeprecations: "6.0"` suppression in `apps/docs/tsconfig.json` once `@docusaurus/tsconfig` drops its `baseUrl` option; without this, the docs build will fail under TS 7.0 (which removes all TS 6.0 deprecated options entirely).
 
 ### Tracking tsgo progress
 
