@@ -1,0 +1,4 @@
+{
+  "overallStatus": "fail",
+  "failedChecks": ["contract_surface", "release_hardening_notes"]
+}

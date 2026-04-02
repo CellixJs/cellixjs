@@ -17,6 +17,12 @@ CellixJS skills follow the same structure as community skills in [simnova/sharet
 
 ```
 .agents/skills/                      # Primary skills location (agentskills.io standard)
+├── cellix-tdd/                      # Consumer-first TDD workflow for @cellix packages
+│   ├── SKILL.md                    # Main workflow and rules
+│   ├── rubric.md                   # Artifact scoring rubric
+│   ├── references/                 # Manifest/docs guidance
+│   ├── fixtures/                   # Evaluation scenarios
+│   └── evaluator/                  # Rubric-based checker
 ├── madr-enforcement/                # Enforces ADR standards in code
 │   ├── SKILL.md                    # Main skill instructions (required)
 │   ├── EXAMPLES.md                 # Comprehensive code examples (recommended)
@@ -26,6 +32,7 @@ CellixJS skills follow the same structure as community skills in [simnova/sharet
 └── (future skills)/                # Additional skills as needed
 
 .github/skills/                      # Symlinks for GitHub Copilot
+├── cellix-tdd -> ../../.agents/skills/cellix-tdd
 └── madr-enforcement -> ../../.agents/skills/madr-enforcement
 ```
 
@@ -41,6 +48,41 @@ CellixJS skills follow the same structure as community skills in [simnova/sharet
 - This dual approach is also used in simnova/sharethrift
 
 ## Available Skills
+
+### Cellix TDD
+
+**Purpose:** Drive consumer-first, TDD-based development for `@cellix/*` framework packages while keeping `manifest.md`, `README.md`, TSDoc, tests, and release hardening aligned.
+
+**Use Cases:**
+- Adding or changing public behavior in an existing `@cellix/*` package
+- Refactoring internals while preserving the public contract
+- Starting a new `@cellix/*` package from consumer usage first
+- Repairing drift between package docs and the shipped API
+- Narrowing leaky or overbroad public exports before release
+
+**What This Skill Does:**
+- Requires discovery of consumer usage and package intent before implementation
+- Forces public-contract-first testing instead of internal helper testing
+- Requires `manifest.md`, consumer-facing `README.md`, and public-export TSDoc alignment
+- Adds release-hardening and validation expectations to package work
+- Ships fixtures plus an evaluator for rubric-based artifact scoring
+
+**What This Skill Does NOT Do:**
+- ❌ Does NOT treat tests as a post-implementation cleanup step
+- ❌ Does NOT allow deep-import testing of internals
+- ❌ Does NOT treat `README.md` as maintainer-only design notes
+- ✅ DOES bias toward minimal, intentional public APIs
+
+**Key Features:**
+- Required workflow sections for package maturity work summaries
+- Manifest and documentation templates captured inside the skill
+- Mixed pass/fail fixtures covering the expected edge cases
+- A standalone evaluator for public-contract and docs-alignment checks
+
+**References:**
+- [SKILL.md](cellix-tdd/SKILL.md) - Workflow, rules, and output structure
+- [rubric.md](cellix-tdd/rubric.md) - Artifact scoring rubric
+- [fixtures/README.md](cellix-tdd/fixtures/README.md) - Included scenario coverage
 
 ### MADR Enforcement
 
@@ -86,6 +128,8 @@ Skills in `.agents/skills/` and `.github/skills/` are automatically discovered b
 ### 2. Copilot Instructions
 Skills are referenced in `.github/instructions/` files:
 - `.github/instructions/madr.instructions.md` - MADR enforcement in code
+
+Some skills, such as `cellix-tdd`, are intentionally discoverable through `.agents/skills/` and `.github/skills/` only so they stay on-demand instead of adding always-on instructions to unrelated tasks.
 
 ## Community Skills from ShareThrift
 
