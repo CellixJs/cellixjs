@@ -30,13 +30,7 @@ export interface MockOAuth2ServerConfig {
 	getUserProfile: () => MockOAuth2UserProfile;
 }
 
-async function buildTokenResponse(
-	profile: TokenProfile,
-	privateKey: webcrypto.CryptoKey | KeyObject | JWK | Uint8Array,
-	jwk: { alg?: string; kid?: string },
-	baseUrl: string,
-	existingRefreshToken?: string,
-) {
+async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.CryptoKey | KeyObject | JWK | Uint8Array, jwk: { alg?: string; kid?: string }, baseUrl: string, existingRefreshToken?: string) {
 	const now = Math.floor(Date.now() / 1000);
 	const expiresIn = 3600;
 	const exp = now + expiresIn;
@@ -228,9 +222,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
 		const requestedRedirectUri = redirect_uri ?? config.allowedRedirectUri;
 		const normalizedRequestedRedirectUri = normalizeUrl(requestedRedirectUri);
-		const isAllowed =
-			[...config.allowedRedirectUris].some((value) => normalizeUrl(value) === normalizedRequestedRedirectUri) ||
-			normalizeUrl(config.allowedRedirectUri) === normalizedRequestedRedirectUri;
+		const isAllowed = [...config.allowedRedirectUris].some((value) => normalizeUrl(value) === normalizedRequestedRedirectUri) || normalizeUrl(config.allowedRedirectUri) === normalizedRequestedRedirectUri;
 		if (!isAllowed) {
 			res.status(400).send('Invalid redirect_uri');
 			return;
