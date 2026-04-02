@@ -24,7 +24,7 @@ The manifest and README continue to describe the root merge helper for consumers
 
 ## Release hardening notes
 
-Release readiness still needs a deliberate review because this snapshot is exporting more than the intended contract.
+This section was not completed before this snapshot was recorded.
 
 ## Validation performed
 

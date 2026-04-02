@@ -1,6 +1,7 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import process from "node:process";
+import { directoryExists, fileExists, getDefaultSummaryPath } from "./utils.ts";
 
 const requiredOutputSections = [
 	"package framing",
@@ -176,26 +177,6 @@ function readText(filePath: string): string {
 
 function readJson<T>(filePath: string): T {
 	return JSON.parse(readText(filePath)) as T;
-}
-
-function getDefaultSummaryPath(packageRoot: string): string {
-	const resolvedPackageRoot = resolve(packageRoot);
-	const relativePackagePath = relative(process.cwd(), resolvedPackageRoot);
-
-	return join(
-		process.cwd(),
-		".agents/skills/cellix-tdd/runs",
-		relativePackagePath,
-		"summary.md",
-	);
-}
-
-function fileExists(filePath: string): boolean {
-	return existsSync(filePath) && statSync(filePath).isFile();
-}
-
-function directoryExists(filePath: string): boolean {
-	return existsSync(filePath) && statSync(filePath).isDirectory();
 }
 
 function listFiles(root: string): string[] {
@@ -402,13 +383,24 @@ function extractImportSpecifiers(source: string): string[] {
 	return [...specifiers];
 }
 
-function findExportDeclarations(filePath: string): ExportDeclaration[] {
+function findExportDeclarations(
+	filePath: string,
+	packageRoot: string,
+	visited: Set<string> = new Set(),
+): ExportDeclaration[] {
+	if (visited.has(filePath)) {
+		return [];
+	}
+
+	visited.add(filePath);
+
 	const source = readText(filePath);
 	const declarations: ExportDeclaration[] = [];
-	const exportPattern =
-		/(\/\*\*[\s\S]*?\*\/\s*)?export\s+(?:declare\s+)?(?:async\s+)?(function|const|class|interface|type)\s+([A-Za-z0-9_]+)/g;
 
-	for (const match of source.matchAll(exportPattern)) {
+	// Direct named export declarations: export function/const/class/interface/type Name
+	const directPattern =
+		/(\/\*\*[\s\S]*?\*\/\s*)?export\s+(?:declare\s+)?(?:async\s+)?(function|const|class|interface|type)\s+([A-Za-z0-9_]+)/g;
+	for (const match of source.matchAll(directPattern)) {
 		declarations.push({
 			filePath,
 			hasDoc: Boolean(match[1]?.trim()),
@@ -417,14 +409,93 @@ function findExportDeclarations(filePath: string): ExportDeclaration[] {
 		});
 	}
 
+	// export default function / export default class
+	const defaultPattern =
+		/(\/\*\*[\s\S]*?\*\/\s*)?export\s+default\s+(?:async\s+)?(function|class)\s*([A-Za-z0-9_]*)/g;
+	for (const match of source.matchAll(defaultPattern)) {
+		declarations.push({
+			filePath,
+			hasDoc: Boolean(match[1]?.trim()),
+			kind: match[2] ?? "unknown",
+			name: match[3] || "default",
+		});
+	}
+
+	// Named re-exports: export { Name [as Alias], ... } from './source'
+	const namedReExportPattern = /export\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/g;
+	for (const match of source.matchAll(namedReExportPattern)) {
+		const namesStr = match[1];
+		const specifier = match[2];
+
+		if (!namesStr || !specifier || !specifier.startsWith(".")) {
+			continue;
+		}
+
+		const resolvedSource = resolvePackageFile(dirname(filePath), specifier);
+		if (!resolvedSource || !isInside(resolvedSource, packageRoot)) {
+			continue;
+		}
+
+		const names = namesStr
+			.split(",")
+			.map((n) => {
+				const parts = n.trim().split(/\s+as\s+/);
+				return {
+					exportedName: (parts[1] ?? parts[0] ?? "").trim(),
+					originalName: (parts[0] ?? "").trim(),
+				};
+			})
+			.filter((n) => n.originalName !== "");
+
+		// A /** ... */ block immediately preceding this re-export line counts as TSDoc
+		const prelude = source.slice(0, match.index ?? 0);
+		const reExportHasDoc = /\/\*\*[\s\S]*?\*\/\s*$/.test(prelude.trimEnd());
+		const sourceDeclarations = findExportDeclarations(resolvedSource, packageRoot, visited);
+
+		for (const { originalName, exportedName } of names) {
+			const sourceDecl = sourceDeclarations.find((d) => d.name === originalName);
+			declarations.push(
+				sourceDecl !== undefined
+					? { ...sourceDecl, name: exportedName, hasDoc: sourceDecl.hasDoc || reExportHasDoc }
+					: { filePath: resolvedSource, hasDoc: reExportHasDoc, kind: "unknown", name: exportedName },
+			);
+		}
+	}
+
+	// Star re-exports: export * from './source' and export * as ns from './source'
+	const starReExportPattern = /export\s*\*\s*(?:as\s+\w+\s+)?from\s*["']([^"']+)["']/g;
+	for (const match of source.matchAll(starReExportPattern)) {
+		const specifier = match[1];
+
+		if (!specifier || !specifier.startsWith(".")) {
+			continue;
+		}
+
+		const resolvedSource = resolvePackageFile(dirname(filePath), specifier);
+		if (!resolvedSource || !isInside(resolvedSource, packageRoot)) {
+			continue;
+		}
+
+		declarations.push(...findExportDeclarations(resolvedSource, packageRoot, visited));
+	}
+
 	return declarations;
 }
 
-function getPublicDeclarations(allowedEntryFiles: Set<string>): ExportDeclaration[] {
+function getPublicDeclarations(
+	allowedEntryFiles: Set<string>,
+	packageRoot: string,
+): ExportDeclaration[] {
+	const seen = new Set<string>();
 	const declarations: ExportDeclaration[] = [];
 
 	for (const filePath of allowedEntryFiles) {
-		declarations.push(...findExportDeclarations(filePath));
+		for (const declaration of findExportDeclarations(filePath, packageRoot, new Set())) {
+			if (!seen.has(declaration.name)) {
+				seen.add(declaration.name);
+				declarations.push(declaration);
+			}
+		}
 	}
 
 	return declarations;
@@ -524,7 +595,7 @@ function evaluateDocumentationAlignment(
 		return pattern.test(manifestText) || pattern.test(readmeText);
 	});
 	const readmeConsumerFacing =
-		/##\s+(usage|example|examples|get started|quick start)/i.test(readmeText) &&
+		/##\s+(usage|examples?|getting?\s+started|quick\s+start|installation|install|api(?:\s+reference)?|overview|how\s+to(?:\s+use)?|guide)/i.test(readmeText) &&
 		!/(internal notes|maintainers only|for maintainers|contributors only)/i.test(readmeText);
 	const details: string[] = [];
 
@@ -552,7 +623,7 @@ function evaluateDocumentationAlignment(
 function evaluatePublicExportTsdoc(publicDeclarations: ExportDeclaration[]): CheckResult {
 	if (publicDeclarations.length === 0) {
 		return createCheckResult("public_export_tsdoc", false, [
-			"No direct public export declarations were found in the evaluated entrypoints.",
+			"No public export declarations were found in the evaluated entrypoints.",
 		]);
 	}
 
@@ -601,7 +672,7 @@ function isSuspiciousPublicPath(value: string): boolean {
 function evaluateReleaseHardening(outputText: string): CheckResult {
 	const section = parseMarkdownSections(outputText).get("release hardening notes") ?? "";
 	const mentionsCompatibility = /\b(semver|compatible|backward|breaking|major|minor|patch)\b/i.test(section);
-	const mentionsSurface = /\b(export surface|public surface|public entrypoint|exports?)\b/i.test(section);
+	const mentionsSurface = /\b(export surface|public surface|public entrypoint|exports?|exported|exporting)\b/i.test(section);
 	const mentionsRisk = /\b(risk|follow-up|follow up|blocker|publish|release-ready|ready)\b/i.test(section);
 	const details: string[] = [];
 
@@ -675,7 +746,7 @@ function evaluatePackage(
 	const outputText = readText(outputPath);
 	const packageJson = resolvePackageJson(packageRoot);
 	const exportTargets = resolveExports(packageRoot, packageJson);
-	const publicDeclarations = getPublicDeclarations(collectAllowedEntryFiles(packageRoot, exportTargets));
+	const publicDeclarations = getPublicDeclarations(collectAllowedEntryFiles(packageRoot, exportTargets), packageRoot);
 	const checks = [
 		evaluateRequiredWorkflowSections(outputText),
 		evaluatePublicContractOnlyTests(packageRoot, packageJson, exportTargets),

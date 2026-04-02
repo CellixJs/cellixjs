@@ -185,6 +185,34 @@ Useful options:
 - Letting `README.md` drift into maintainer-only rationale
 - Claiming release readiness without validation evidence
 
+## Copilot Agent Notes
+
+These notes apply to GitHub Copilot CLI agents running this skill.
+
+### Collaboration and clarification
+
+Use the `ask_user` tool when package boundaries, intended consumers, or key behavioral decisions are materially unclear before writing tests or code. Do not skip the collaboration step — address ambiguity up front so the contract reflects actual requirements rather than guesswork.
+
+### Discovery phase
+
+Use the `task` tool with `agent_type: "explore"` to inspect the existing package and codebase before writing any code. Batch all discovery questions into a single call — ask for the public API shape, existing test patterns, README and manifest state, and any neighboring `@cellix/*` packages that may be relevant, all at once. The explore agent is stateless and loses all context between calls, so avoid sequential discovery calls.
+
+To find existing consumers of a package within the monorepo, search for workspace imports: `grep -r "from \"@cellix/package-name" --include="*.ts" packages/ apps/`. This tells you what the package's real dependents are and what they actually use, which is the most grounded starting point for consumer usage exploration.
+
+### Running tests and builds
+
+Use the `task` tool with `agent_type: "task"` to run package-scoped test commands. Prefer targeted commands (`pnpm --filter <package> test`) over full-workspace runs unless the change justifies wider verification.
+
+### Iterative evaluation
+
+After producing the required output sections, run the evaluator to check your artifacts:
+
+```bash
+pnpm run skill:cellix-tdd:check -- --package <package-path>
+```
+
+Read the output, address any failed checks, and re-run. The evaluator uses heuristics — treat its output as a checklist to verify your work, not as a final verdict. A passing score confirms the observable artifacts meet the rubric; it does not replace your own judgment about contract quality.
+
 ## References
 
 - [rubric.md](rubric.md) for evaluation criteria

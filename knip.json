@@ -62,6 +62,8 @@
   "ignoreWorkspaces": ["packages/cellix/config-typescript"],
   "ignore": [
     "build-pipeline/scripts/**",
+    ".agents/skills/**",
+    ".github/skills/**",
     "**/*.test.ts",
     "**/*.spec.ts",
     "**/*.stories.tsx",

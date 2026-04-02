@@ -1,6 +1,8 @@
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import process from "node:process";
+import { directoryExists, fileExists, getDefaultSummaryPath } from "./utils.ts";
 
 interface ParsedArgs {
 	force: boolean;
@@ -48,29 +50,10 @@ function printUsage(): void {
   node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/init-cellix-tdd-summary.ts --package <package-root> [--output <summary.md>] [--force]`);
 }
 
-function fileExists(filePath: string): boolean {
-	return existsSync(filePath) && statSync(filePath).isFile();
-}
-
-function directoryExists(filePath: string): boolean {
-	return existsSync(filePath) && statSync(filePath).isDirectory();
-}
-
-function getDefaultSummaryPath(packageRoot: string): string {
-	const resolvedPackageRoot = resolve(packageRoot);
-	const relativePackagePath = relative(process.cwd(), resolvedPackageRoot);
-
-	return join(
-		process.cwd(),
-		".agents/skills/cellix-tdd/runs",
-		relativePackagePath,
-		"summary.md",
-	);
-}
-
 function readTemplate(): string {
+	const scriptDir = dirname(fileURLToPath(import.meta.url));
 	return readFileSync(
-		resolve(".agents/skills/cellix-tdd/templates/summary-template.md"),
+		join(scriptDir, "../templates/summary-template.md"),
 		"utf8",
 	);
 }

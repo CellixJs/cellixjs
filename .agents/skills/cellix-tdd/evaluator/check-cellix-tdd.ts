@@ -1,7 +1,7 @@
-import { existsSync, statSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import process from "node:process";
+import { fileExists, getDefaultSummaryPath } from "./utils.ts";
 
 interface ParsedArgs {
 	forceInit: boolean;
@@ -57,22 +57,6 @@ function parseArgs(argv: string[]): ParsedArgs {
 function printUsage(): void {
 	console.log(`Usage:
   node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/check-cellix-tdd.ts --package <package-root> [--output <summary.md>] [--init-only] [--force-init] [--json]`);
-}
-
-function fileExists(filePath: string): boolean {
-	return existsSync(filePath) && statSync(filePath).isFile();
-}
-
-function getDefaultSummaryPath(packageRoot: string): string {
-	const resolvedPackageRoot = resolve(packageRoot);
-	const relativePackagePath = relative(process.cwd(), resolvedPackageRoot);
-
-	return join(
-		process.cwd(),
-		".agents/skills/cellix-tdd/runs",
-		relativePackagePath,
-		"summary.md",
-	);
 }
 
 function runScript(scriptPath: string, args: string[]): number {
