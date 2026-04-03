@@ -1,6 +1,8 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import process from "node:process";
+import { parseEvaluateArgs, printEvaluateUsage } from "./cli-utils.ts";
+import { parseMarkdownSections, isTemplateBoilerplate, hasHeading, escapeRegExp } from "./markdown-utils.ts";
 import { directoryExists, fileExists, getDefaultSummaryPath } from "./utils.ts";
 
 const requiredOutputSections = [
@@ -120,57 +122,11 @@ interface ParsedArgs {
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
-	const parsed: ParsedArgs = {
-		verifyExpected: false,
-		json: false,
-	};
-
-	for (let index = 0; index < argv.length; index += 1) {
-		const arg = argv[index];
-		const next = argv[index + 1];
-
-		switch (arg) {
-			case "--":
-				break;
-			case "--fixture":
-				parsed.fixtureDir = next;
-				index += 1;
-				break;
-			case "--fixtures-root":
-				parsed.fixturesRoot = next;
-				index += 1;
-				break;
-			case "--package":
-				parsed.packageRoot = next;
-				index += 1;
-				break;
-			case "--output":
-				parsed.outputPath = next;
-				index += 1;
-				break;
-			case "--verify-expected":
-				parsed.verifyExpected = true;
-				break;
-			case "--json":
-				parsed.json = true;
-				break;
-			case "--help":
-				printUsage();
-				process.exit(0);
-				break;
-			default:
-				throw new Error(`Unknown argument: ${arg}`);
-		}
-	}
-
-	return parsed;
+	return parseEvaluateArgs(argv);
 }
 
 function printUsage(): void {
-	console.log(`Usage:
-  node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --fixture <fixture-dir> [--verify-expected] [--json]
-  node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --fixtures-root <fixtures-dir> --verify-expected [--json]
-  node --experimental-strip-types .agents/skills/cellix-tdd/evaluator/evaluate-cellix-tdd.ts --package <package-root> [--output <skill-summary.md>] [--json]`);
+	printEvaluateUsage();
 }
 
 function readText(filePath: string): string {
@@ -200,40 +156,6 @@ function listFiles(root: string): string[] {
 	}
 
 	return files;
-}
-
-function normalizeHeading(value: string): string {
-	return value.trim().toLowerCase();
-}
-
-function parseMarkdownSections(markdown: string): Map<string, string> {
-	const matches = [...markdown.matchAll(/^##\s+(.+)$/gm)];
-	const sections = new Map<string, string>();
-
-	for (let index = 0; index < matches.length; index += 1) {
-		const current = matches[index];
-		const next = matches[index + 1];
-		const heading = normalizeHeading(current[1] ?? "");
-		const start = (current.index ?? 0) + current[0].length;
-		const end = next?.index ?? markdown.length;
-		const body = markdown.slice(start, end).trim();
-		sections.set(heading, body);
-	}
-
-	return sections;
-}
-
-function isTemplateBoilerplate(value: string): boolean {
-	return /\bTODO:\b/i.test(value) || /\breplace this section\b/i.test(value) || /\{\{.+\}\}/.test(value);
-}
-
-function hasHeading(markdown: string, heading: string): boolean {
-	const pattern = new RegExp(`^##\\s+${escapeRegExp(heading)}\\s*$`, "im");
-	return pattern.test(markdown);
-}
-
-function escapeRegExp(value: string): string {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function findDocFile(packageRoot: string, names: string[]): string | null {
@@ -323,7 +245,7 @@ function resolveExports(
 
 function resolvePackageFile(packageRoot: string, target: string): string | null {
 	const basePath = resolve(packageRoot, target);
-	const candidates = target.match(/\.[a-z]+$/i)
+	const candidates = /\.[a-z]+$/i.exec(target)
 		? [basePath]
 		: [
 			basePath,
@@ -401,7 +323,7 @@ function findExportDeclarations(
 
 	// Direct named export declarations: export function/const/class/interface/type Name
 	const directPattern =
-		/(\/\*\*[\s\S]*?\*\/\s*)?export\s+(?:declare\s+)?(?:async\s+)?(function|const|class|interface|type)\s+([A-Za-z0-9_]+)/g;
+		/(\/\*\*[\s\S]*?\*\/\s*)?export\s+(?:declare\s+)?(?:async\s+)?(function|const|class|interface|type)\s+(\w+)/g;
 	for (const match of source.matchAll(directPattern)) {
 		declarations.push({
 			filePath,
@@ -414,7 +336,7 @@ function findExportDeclarations(
 
 	// export default function / export default class
 	const defaultPattern =
-		/(\/\*\*[\s\S]*?\*\/\s*)?export\s+default\s+(?:async\s+)?(function|class)\s*([A-Za-z0-9_]*)/g;
+		/(\/\*\*[\s\S]*?\*\/\s*)?export\s+default\s+(?:async\s+)?(function|class)\s*(\w*)/g;
 	for (const match of source.matchAll(defaultPattern)) {
 		declarations.push({
 			filePath,
@@ -431,7 +353,7 @@ function findExportDeclarations(
 		const namesStr = match[1];
 		const specifier = match[2];
 
-		if (!namesStr || !specifier || !specifier.startsWith(".")) {
+		if (!namesStr || !specifier?.startsWith(".")) {
 			continue;
 		}
 
@@ -453,14 +375,14 @@ function findExportDeclarations(
 
 		// A /** ... */ block immediately preceding this re-export line counts as TSDoc
 		const prelude = source.slice(0, match.index ?? 0);
-		const reExportDocText = prelude.match(/\/\*\*[\s\S]*?\*\/\s*$/)?.[0]?.trim() ?? "";
+		const reExportDocText = /\/\*\*[\s\S]*?\*\/\s*$/.exec(prelude)?.[0]?.trim() ?? "";
 		const reExportHasDoc = reExportDocText.length > 0;
 		const sourceDeclarations = findExportDeclarations(resolvedSource, packageRoot, visited);
 
 		for (const { originalName, exportedName } of names) {
 			const sourceDecl = sourceDeclarations.find((d) => d.name === originalName);
 			declarations.push(
-				sourceDecl !== undefined
+				sourceDecl
 					? {
 						...sourceDecl,
 						name: exportedName,
@@ -483,7 +405,7 @@ function findExportDeclarations(
 	for (const match of source.matchAll(starReExportPattern)) {
 		const specifier = match[1];
 
-		if (!specifier || !specifier.startsWith(".")) {
+		if (!specifier?.startsWith(".")) {
 			continue;
 		}
 
@@ -522,7 +444,7 @@ function stripTsdocDelimiters(docText: string): string {
 	return docText
 		.replace(/^\/\*\*\s*/, "")
 		.replace(/\s*\*\/$/, "")
-		.replace(/^\s*\*\s?/gm, "")
+		.replaceAll(/^\s*\*\s?/gm, "")
 		.trim();
 }
 
@@ -543,20 +465,16 @@ function exportAcceptsParameters(declaration: ExportDeclaration): boolean | null
 	const source = readText(declaration.filePath);
 
 	if (declaration.kind === "function") {
-		const match = source.match(
-			new RegExp(
-				`export\\s+(?:declare\\s+)?(?:async\\s+)?function\\s+${escapeRegExp(declaration.name)}\\s*\\(([^)]*)\\)`,
-			),
-		);
+		const match = new RegExp(
+			String.raw`export\s+(?:declare\s+)?(?:async\s+)?function\s+${escapeRegExp(declaration.name)}\s*\(([^)]*)\)`,
+		).exec(source);
 		return match ? match[1].trim().length > 0 : null;
 	}
 
 	if (declaration.kind === "const") {
-		const match = source.match(
-			new RegExp(
-				`export\\s+const\\s+${escapeRegExp(declaration.name)}(?:\\s*:[^=]+)?\\s*=\\s*(?:async\\s*)?\\(([^)]*)\\)\\s*=>`,
-			),
-		);
+		const match = new RegExp(
+			String.raw`export\s+const\s+${escapeRegExp(declaration.name)}(?:\s*:[^=]+)?\s*=\s*(?:async\s*)?\(([^)]*)\)\s*=>`,
+		).exec(source);
 		return match ? match[1].trim().length > 0 : null;
 	}
 

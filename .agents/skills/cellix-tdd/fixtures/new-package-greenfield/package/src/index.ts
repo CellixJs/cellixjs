@@ -20,7 +20,7 @@ export function slugify(input: string, options: SlugifyOptions = {}): string {
 	return input
 		.trim()
 		.toLowerCase()
-		replace(/[^a-z0-9]+/g, separator)
-		replace(new RegExp(`${separator}+`, "g"), separator)
-		replace(new RegExp(`^${separator}|${separator}$`, "g"), "");
+		.replaceAll(/[^a-z0-9]+/g, separator)
+		.replaceAll(new RegExp(`${separator}+`, "g"), separator)
+		.replaceAll(new RegExp(`^${separator}|${separator}$`, "g"), "");
 }
