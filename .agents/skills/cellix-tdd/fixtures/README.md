@@ -14,6 +14,7 @@ Each fixture directory contains:
 - `existing-package-add-feature`
 - `existing-package-internal-refactor`
 - `new-package-greenfield`
+- `ambiguous-flat-tests`
 - `docs-lagging-implementation`
 - `leaky-overbroad-api`
 - `tempting-internal-helper`

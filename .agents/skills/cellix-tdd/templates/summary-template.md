@@ -24,7 +24,7 @@ TODO: replace this section with the intended public exports, the observable beha
 
 ## Test plan
 
-TODO: replace this section with the failing or preserved public-contract tests, including the public entrypoints used and the main success and failure scenarios covered.
+TODO: replace this section with the failing or preserved public-contract tests, grouped by exported member, including the public entrypoints used, the main success, failure, and branch-driving scenarios covered, and how duplicate narrower tests were avoided or justified.
 
 ## Changes made
 
@@ -32,7 +32,7 @@ TODO: replace this section with the implementation or refactor work that emerged
 
 ## Documentation updates
 
-TODO: replace this section with how `manifest.md`, `README.md`, and TSDoc were reviewed or updated to match the contract.
+TODO: replace this section with how `manifest.md`, `README.md`, and rich TSDoc were reviewed or updated to match the contract, including standalone consumer framing and usage examples where relevant.
 
 ## Release hardening notes
 
@@ -40,4 +40,4 @@ TODO: replace this section with export-surface review, semver or compatibility i
 
 ## Validation performed
 
-TODO: replace this section with the concrete verification steps you ran and the result, including commands, package tests, or anything intentionally left unverified.
+TODO: replace this section with the concrete verification steps you ran and the result, including commands for the package build, the existing package test suite, any wider dependent or monorepo verification, any public behaviors that were intentionally left unverified, and any narrower tests that were intentionally retained beyond the public contract suite.

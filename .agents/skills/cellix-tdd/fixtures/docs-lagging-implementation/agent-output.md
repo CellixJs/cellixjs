@@ -32,4 +32,4 @@ The current behavior remains backward compatible and keeps the same root-only pu
 
 ## Validation performed
 
-Ran targeted Vitest coverage against the root entrypoint, confirmed the implementation behavior still passes, and then inspected the docs gap that remains unresolved.
+Ran targeted Vitest coverage against the root entrypoint, re-ran the existing package tests, confirmed the package build still passes, and then inspected the docs gap that remains unresolved.

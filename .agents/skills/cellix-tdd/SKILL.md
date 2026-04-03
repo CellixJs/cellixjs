@@ -40,10 +40,12 @@ TDD is central. Expected behavior must be clarified before implementation, publi
 - If expected behavior, consumer usage, or package boundaries are materially unclear, collaborate with the user before writing tests or code.
 - Maintain `manifest.md` for maintainers. Create it if missing.
 - Keep `README.md` consumer-facing. Do not turn it into maintainer design notes.
-- Document meaningful public exports with useful TSDoc at the point of export.
+- Document meaningful public exports with rich TSDoc at the point of export. Thin one-line summaries are not enough for public release work.
 - Verify behavior through documented public APIs only.
 - Do not deep-import internals from tests.
+- Prefer one contract-focused test path per public behavior. If a package entrypoint test already proves a consumer-visible behavior, do not add another narrower test that only restates it.
 - Any public behavior or export change requires documentation alignment.
+- Before handoff, ensure the package builds and its existing test suite passes. Do not stop at newly added targeted tests if the package or justified wider verification is still failing.
 - Leave an explicit validation summary.
 
 ## Discovery First
@@ -114,7 +116,10 @@ If any of those are unclear enough to change the contract guesswork, stop and co
 - Write or preserve tests against package entrypoints only.
 - Add failing tests before implementation when public behavior is being added or changed.
 - For refactors, keep or strengthen public-contract tests before moving internals.
-- Cover success paths, important failures, and edge cases from the consumer flows.
+- Organize tests so the exported member under test is obvious from the file structure or `describe` names.
+- Let public-contract tests take precedence over duplicate narrower tests. If a public behavior is already covered through the package entrypoint, do not add another test that only re-proves the same behavior.
+- Keep additional narrower tests only when they cover a distinct observable state, failure mode, or branch-shaping condition that the contract suite would otherwise miss. Explain that distinction in the Test plan summary.
+- For each public export, cover the main success path plus the major observable states, failures, and branch-driving parameters that change consumer-visible behavior.
 - Reject tests that import from `internal`, deep `src/` paths, or private helpers.
 
 ### 6. Implementation and Refactor
@@ -127,8 +132,8 @@ If any of those are unclear enough to change the contract guesswork, stop and co
 
 - Keep `manifest.md`, `README.md`, and TSDoc aligned with the resulting contract.
 - `manifest.md` is for maintainers and package boundaries.
-- `README.md` is for consumers, usage, concepts, and caveats.
-- TSDoc belongs on meaningful public exports and should cover purpose, parameters, returns, errors, side effects, and examples where useful.
+- `README.md` is for consumers, usage, concepts, and caveats. Frame the package as a standalone installable dependency, not as a sample-app or monorepo-only artifact.
+- TSDoc belongs on meaningful public exports and should cover purpose, parameters, returns, errors, side effects, and at least one usage example for function-like public exports.
 - Use [references/package-docs-model.md](references/package-docs-model.md) when deciding what belongs in each documentation layer.
 
 ### 8. Release Hardening
@@ -142,8 +147,10 @@ If any of those are unclear enough to change the contract guesswork, stop and co
 ### 9. Validation
 
 - Run the smallest useful validation set that proves the contract and docs alignment.
-- Prefer targeted package tests first, then wider verification if the change justifies it.
-- Summarize exactly what was run and what passed or remains unverified.
+- Start with targeted contract tests while iterating, but before handoff always run the package build and the package's existing test suite.
+- When changes affect shared config, downstream dependents, workspace tooling, or broadly reused behavior, add wider verification up to affected dependents or the monorepo build/test as justified.
+- Do not present the work as complete if the new targeted tests pass but the existing package build, existing package tests, or justified wider verification is still failing.
+- Summarize exactly what was run and what passed or remains unverified, including package build, package tests, any wider verification, and any public states or branches that were intentionally left uncovered.
 - When useful, score the resulting artifacts with [evaluator/evaluate-cellix-tdd.ts](evaluator/evaluate-cellix-tdd.ts).
 - A passing evaluator score confirms that the observable artifacts, such as tests, docs, and export-surface notes, meet the rubric heuristics. It does not confirm that the public contract is correct, complete, or ready for npm publication.
 - Do not represent a passing evaluator score as release readiness. Human review of the public contract is still required before any package version is published.
@@ -170,6 +177,11 @@ The work is not done until you can explain:
 
 - what public contract was validated
 - which tests were added or preserved before implementation
+- which package build command was run and whether it passed
+- which existing package test command was run and whether it passed
+- whether wider verification was required, what additional build/test commands were run, or why it was intentionally deferred
+- how the tests are grouped by public export and which major public states remain unverified
+- how duplicate public-behavior coverage was avoided, and why any additional narrower tests were still needed
 - how docs were aligned
 - whether the export surface is appropriately narrow
 - what release risks or follow-ups remain
@@ -204,9 +216,13 @@ Useful options:
 - Writing implementation before clarifying consumer usage
 - Treating tests as a post-implementation confirmation step
 - Importing internals or deep source files from tests
+- Writing flat or ambiguously named tests where the exported member under test is not obvious
+- Duplicating consumer-visible behavior in narrower tests after a public-contract test already proves it
 - Expanding exports to make testing easier
 - Leaving public exports undocumented
+- Accepting thin public-export TSDoc that omits examples or signature behavior
 - Letting `README.md` drift into maintainer-only rationale
+- Framing `README.md` around sample applications, repo workspaces, or monorepo-only usage instead of standalone package consumption
 - Claiming release readiness without validation evidence
 - Proceeding to Public Contract Definition without surfacing the proposed surface when the task warrants human review
 - Adding an export because it makes a test easier to write rather than because a consumer needs it
@@ -228,7 +244,7 @@ To find existing consumers of a package within the monorepo, search for workspac
 
 ### Running tests and builds
 
-Use the `task` tool with `agent_type: "task"` to run package-scoped test commands. Prefer targeted commands (`pnpm --filter <package> test`) over full-workspace runs unless the change justifies wider verification.
+Use the `task` tool with `agent_type: "task"` to run build and test commands. Prefer targeted package commands such as `pnpm --filter <package> build` and `pnpm --filter <package> test` while iterating, but do not hand off until both the package build and the existing package test suite have passed. If the change can affect shared consumers, workspace tooling, or downstream dependents, add wider verification up to the affected dependents or the full monorepo.
 
 ### Iterative evaluation
 

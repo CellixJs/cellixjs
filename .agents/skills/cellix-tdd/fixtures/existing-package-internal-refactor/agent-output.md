@@ -32,4 +32,4 @@ The export surface remains unchanged and backward compatible. This work should n
 
 ## Validation performed
 
-Re-ran package-level public contract tests through the root entrypoint and confirmed the docs still describe the same public export and usage pattern.
+Re-ran package-level public contract tests through the root entrypoint, confirmed the existing package tests still pass, verified the package build succeeds, and confirmed the docs still describe the same public export and usage pattern.

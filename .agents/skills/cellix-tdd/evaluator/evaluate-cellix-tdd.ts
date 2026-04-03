@@ -39,7 +39,7 @@ const checkDefinitions = [
 		id: "public_contract_only_tests",
 		weight: 4,
 		critical: true,
-		description: "Tests exercise the package through public entrypoints only.",
+		description: "Tests exercise the package through public entrypoints only, with export-focused suites and no obvious duplicate lower-level coverage.",
 	},
 	{
 		id: "documentation_alignment",
@@ -69,7 +69,7 @@ const checkDefinitions = [
 		id: "validation_summary",
 		weight: 2,
 		critical: true,
-		description: "Validation performed is summarized with concrete evidence.",
+		description: "Validation performed is summarized with concrete build and test evidence.",
 	},
 ] as const;
 
@@ -80,6 +80,7 @@ type CheckId = (typeof checkDefinitions)[number]["id"];
 
 interface ExportDeclaration {
 	filePath: string;
+	docText: string;
 	name: string;
 	hasDoc: boolean;
 	kind: string;
@@ -404,6 +405,7 @@ function findExportDeclarations(
 	for (const match of source.matchAll(directPattern)) {
 		declarations.push({
 			filePath,
+			docText: match[1]?.trim() ?? "",
 			hasDoc: Boolean(match[1]?.trim()),
 			kind: match[2] ?? "unknown",
 			name: match[3] ?? "unknown",
@@ -416,6 +418,7 @@ function findExportDeclarations(
 	for (const match of source.matchAll(defaultPattern)) {
 		declarations.push({
 			filePath,
+			docText: match[1]?.trim() ?? "",
 			hasDoc: Boolean(match[1]?.trim()),
 			kind: match[2] ?? "unknown",
 			name: match[3] || "default",
@@ -450,15 +453,27 @@ function findExportDeclarations(
 
 		// A /** ... */ block immediately preceding this re-export line counts as TSDoc
 		const prelude = source.slice(0, match.index ?? 0);
-		const reExportHasDoc = /\/\*\*[\s\S]*?\*\/\s*$/.test(prelude.trimEnd());
+		const reExportDocText = prelude.match(/\/\*\*[\s\S]*?\*\/\s*$/)?.[0]?.trim() ?? "";
+		const reExportHasDoc = reExportDocText.length > 0;
 		const sourceDeclarations = findExportDeclarations(resolvedSource, packageRoot, visited);
 
 		for (const { originalName, exportedName } of names) {
 			const sourceDecl = sourceDeclarations.find((d) => d.name === originalName);
 			declarations.push(
 				sourceDecl !== undefined
-					? { ...sourceDecl, name: exportedName, hasDoc: sourceDecl.hasDoc || reExportHasDoc }
-					: { filePath: resolvedSource, hasDoc: reExportHasDoc, kind: "unknown", name: exportedName },
+					? {
+						...sourceDecl,
+						name: exportedName,
+						hasDoc: sourceDecl.hasDoc || reExportHasDoc,
+						docText: reExportDocText || sourceDecl.docText,
+					}
+					: {
+						docText: reExportDocText,
+						filePath: resolvedSource,
+						hasDoc: reExportHasDoc,
+						kind: "unknown",
+						name: exportedName,
+					},
 			);
 		}
 	}
@@ -503,6 +518,83 @@ function getPublicDeclarations(
 	return declarations;
 }
 
+function stripTsdocDelimiters(docText: string): string {
+	return docText
+		.replace(/^\/\*\*\s*/, "")
+		.replace(/\s*\*\/$/, "")
+		.replace(/^\s*\*\s?/gm, "")
+		.trim();
+}
+
+function isFunctionLikeExport(kind: string): boolean {
+	return kind === "function" || kind === "const" || kind === "class";
+}
+
+function hasNamedDescribeBlock(source: string, exportName: string): boolean {
+	const patterns = [
+		new RegExp(`\\bdescribe\\s*\\(\\s*["'\`]${escapeRegExp(exportName)}\\b`),
+		new RegExp(`\\bdescribe\\s*\\(\\s*["'\`][^"'\`]*\\b${escapeRegExp(exportName)}\\b`),
+	];
+
+	return patterns.some((pattern) => pattern.test(source));
+}
+
+function exportAcceptsParameters(declaration: ExportDeclaration): boolean | null {
+	const source = readText(declaration.filePath);
+
+	if (declaration.kind === "function") {
+		const match = source.match(
+			new RegExp(
+				`export\\s+(?:declare\\s+)?(?:async\\s+)?function\\s+${escapeRegExp(declaration.name)}\\s*\\(([^)]*)\\)`,
+			),
+		);
+		return match ? match[1].trim().length > 0 : null;
+	}
+
+	if (declaration.kind === "const") {
+		const match = source.match(
+			new RegExp(
+				`export\\s+const\\s+${escapeRegExp(declaration.name)}(?:\\s*:[^=]+)?\\s*=\\s*(?:async\\s*)?\\(([^)]*)\\)\\s*=>`,
+			),
+		);
+		return match ? match[1].trim().length > 0 : null;
+	}
+
+	return null;
+}
+
+function getTsdocQualityIssues(declaration: ExportDeclaration): string[] {
+	if (!declaration.hasDoc) {
+		return [];
+	}
+
+	const issues: string[] = [];
+	const cleanedDoc = stripTsdocDelimiters(declaration.docText);
+
+	if (cleanedDoc.length < 24) {
+		issues.push("TSDoc is too thin to be useful.");
+	}
+
+	if (!isFunctionLikeExport(declaration.kind)) {
+		return issues;
+	}
+
+	if (!/@example\b/i.test(declaration.docText)) {
+		issues.push("TSDoc should include at least one @example.");
+	}
+
+	if (!/@returns?\b/i.test(declaration.docText)) {
+		issues.push("TSDoc should describe the return contract with @returns.");
+	}
+
+	const acceptsParameters = exportAcceptsParameters(declaration);
+	if (acceptsParameters === true && !/@param\b/i.test(declaration.docText)) {
+		issues.push("TSDoc should describe function parameters with @param.");
+	}
+
+	return issues;
+}
+
 function evaluateRequiredWorkflowSections(outputText: string): CheckResult {
 	const sections = parseMarkdownSections(outputText);
 	const missing = requiredOutputSections.filter((heading) => {
@@ -519,6 +611,7 @@ function evaluatePublicContractOnlyTests(
 	packageRoot: string,
 	packageJson: Record<string, unknown>,
 	exportTargets: Map<string, string[]>,
+	publicDeclarations: ExportDeclaration[],
 ): CheckResult {
 	const packageName = typeof packageJson.name === "string" ? packageJson.name : null;
 	const allowedEntryFiles = collectAllowedEntryFiles(packageRoot, exportTargets);
@@ -533,8 +626,9 @@ function evaluatePublicContractOnlyTests(
 		]);
 	}
 
+	const testSources = testFiles.map((testFile) => ({ path: testFile, source: readText(testFile) }));
 	for (const testFile of testFiles) {
-		const source = readText(testFile);
+		const source = testSources.find((entry) => entry.path === testFile)?.source ?? "";
 		for (const specifier of extractImportSpecifiers(source)) {
 			if (specifier.startsWith(".")) {
 				const resolved = resolvePackageFile(dirname(testFile), specifier);
@@ -568,8 +662,21 @@ function evaluatePublicContractOnlyTests(
 		}
 	}
 
+	const namedPublicExports = [...new Set(
+		publicDeclarations
+			.filter((declaration) => declaration.name !== "default" && isFunctionLikeExport(declaration.kind))
+			.map((declaration) => declaration.name),
+	)];
+
+	for (const exportName of namedPublicExports) {
+		const hasExportNamedSuite = testSources.some(({ source }) => hasNamedDescribeBlock(source, exportName));
+		if (!hasExportNamedSuite) {
+			violations.push(`Tests do not identify public export ${exportName} in a describe block.`);
+		}
+	}
+
 	return createCheckResult("public_contract_only_tests", violations.length === 0, violations.length === 0 ? [
-		`Found ${testFiles.length} contract-focused test file(s) using public entrypoints.`,
+		`Found ${testFiles.length} contract-focused test file(s) using public entrypoints and named export suites.`,
 	] : violations);
 }
 
@@ -588,6 +695,8 @@ function evaluateDocumentationAlignment(
 
 	const manifestText = readText(manifestPath);
 	const readmeText = readText(readmePath);
+	const readmeSections = parseMarkdownSections(readmeText);
+	const installSection = readmeSections.get("install") ?? readmeSections.get("installation") ?? "";
 	const missingManifestSections = requiredManifestSections.filter(
 		(section) => !hasHeading(manifestText, section),
 	);
@@ -607,6 +716,14 @@ function evaluateDocumentationAlignment(
 
 	if (!readmeConsumerFacing) {
 		details.push("README.md is not clearly consumer-facing or lacks usage/example guidance.");
+	}
+
+	if (installSection.length > 0 && /\b(-w|--filter)\b/.test(installSection)) {
+		details.push("README install guidance looks workspace-specific instead of standalone.");
+	}
+
+	if (/@apps\//.test(readmeText)) {
+		details.push("README.md references repo-local app packages instead of staying package-centric.");
 	}
 
 	if (!docsReferencePublicContract) {
@@ -630,16 +747,27 @@ function evaluatePublicExportTsdoc(publicDeclarations: ExportDeclaration[]): Che
 	}
 
 	const undocumented = publicDeclarations.filter((declaration) => !declaration.hasDoc);
+	const lowQualityDocs = publicDeclarations
+		.filter((declaration) => declaration.hasDoc)
+		.flatMap((declaration) =>
+			getTsdocQualityIssues(declaration).map((issue) => ({ declaration, issue })),
+		);
 
 	return createCheckResult(
 		"public_export_tsdoc",
-		undocumented.length === 0,
-		undocumented.length === 0
+		undocumented.length === 0 && lowQualityDocs.length === 0,
+		undocumented.length === 0 && lowQualityDocs.length === 0
 			? [`Documented ${publicDeclarations.length} public export declaration(s) with TSDoc.`]
-			: undocumented.map(
-				(declaration) =>
-					`${relative(process.cwd(), declaration.filePath)} exports ${declaration.kind} ${declaration.name} without TSDoc.`,
-			),
+			: [
+				...undocumented.map(
+					(declaration) =>
+						`${relative(process.cwd(), declaration.filePath)} exports ${declaration.kind} ${declaration.name} without TSDoc.`,
+				),
+				...lowQualityDocs.map(
+					({ declaration, issue }) =>
+						`${relative(process.cwd(), declaration.filePath)} exports ${declaration.kind} ${declaration.name}: ${issue}`,
+				),
+			],
 	);
 }
 
@@ -700,23 +828,31 @@ function evaluateReleaseHardening(outputText: string): CheckResult {
 function evaluateValidationSummary(outputText: string): CheckResult {
 	const section = parseMarkdownSections(outputText).get("validation performed") ?? "";
 	const mentionsWork = /\b(validated|verified|ran|re-ran|tested|confirmed)\b/i.test(section);
-	const mentionsEvidence =
-		/\b(pnpm|npm|node|vitest|turbo)\b/i.test(section) ||
-		/\b(pass|passed|fail|failed|confirmed|unverified|skipped)\b/i.test(section);
+	const mentionsBuild = /\b(build|built|compiled|compile|tsc|rolldown|vite build|turbo run build)\b/i.test(section);
+	const mentionsTests = /\b(test|tests|vitest|jest|turbo run test)\b/i.test(section);
+	const mentionsOutcome = /\b(pass|passed|fail|failed|confirmed|verified|unverified|skipped|success|succeeds?|succeeded)\b/i.test(section);
 	const details: string[] = [];
 
 	if (!mentionsWork) {
 		details.push("Validation performed does not describe the work that was run.");
 	}
 
-	if (!mentionsEvidence) {
-		details.push("Validation performed does not include concrete tools or outcomes.");
+	if (!mentionsBuild) {
+		details.push("Validation performed does not mention a package build or equivalent compile verification.");
+	}
+
+	if (!mentionsTests) {
+		details.push("Validation performed does not mention the existing package tests or equivalent test verification.");
+	}
+
+	if (!mentionsOutcome) {
+		details.push("Validation performed does not include concrete pass/fail or verified/unverified outcomes.");
 	}
 
 	return createCheckResult(
 		"validation_summary",
 		details.length === 0,
-		details.length === 0 ? ["Validation performed includes concrete verification evidence."] : details,
+		details.length === 0 ? ["Validation performed includes concrete build and test verification evidence."] : details,
 	);
 }
 
@@ -751,7 +887,7 @@ function evaluatePackage(
 	const publicDeclarations = getPublicDeclarations(collectAllowedEntryFiles(packageRoot, exportTargets), packageRoot);
 	const checks = [
 		evaluateRequiredWorkflowSections(outputText),
-		evaluatePublicContractOnlyTests(packageRoot, packageJson, exportTargets),
+		evaluatePublicContractOnlyTests(packageRoot, packageJson, exportTargets, publicDeclarations),
 		evaluateDocumentationAlignment(packageRoot, publicDeclarations),
 		evaluatePublicExportTsdoc(publicDeclarations),
 		evaluateContractSurface(exportTargets),

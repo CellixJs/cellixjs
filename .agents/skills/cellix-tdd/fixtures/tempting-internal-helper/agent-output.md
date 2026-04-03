@@ -32,4 +32,4 @@ The public surface stays root-only and backward compatible. The remaining releas
 
 ## Validation performed
 
-Validated root-entrypoint behavior with Vitest and noted the internal-helper import that still needs to be removed from the tests.
+Validated root-entrypoint behavior with Vitest, re-ran the existing package tests, confirmed the package build passes, and noted the internal-helper import that still needs to be removed from the tests.

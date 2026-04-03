@@ -41,4 +41,4 @@ The export surface is intentionally minimal and release-ready for early adopters
 
 ## Validation performed
 
-Validated the root-entrypoint contract with targeted Vitest cases and confirmed that the README and manifest both describe the same single-export package.
+Validated the root-entrypoint contract with targeted Vitest cases, re-ran the package test suite, confirmed the package build passes, and confirmed that the README and manifest both describe the same single-export package.

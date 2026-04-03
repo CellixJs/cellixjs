@@ -1,4 +1,4 @@
 {
   "overallStatus": "fail",
-  "failedChecks": ["contract_surface", "release_hardening_notes"]
+  "failedChecks": ["public_contract_only_tests", "public_export_tsdoc", "contract_surface", "release_hardening_notes"]
 }

@@ -41,4 +41,4 @@ This section was not completed before this snapshot was recorded.
 
 ## Validation performed
 
-Ran the root-entrypoint Vitest checks and confirmed they pass, then noted that the package still ships an unnecessary public subpath.
+Ran the root-entrypoint Vitest checks, re-ran the existing package tests, confirmed the package build passes, and then noted that the package still ships an unnecessary public subpath.

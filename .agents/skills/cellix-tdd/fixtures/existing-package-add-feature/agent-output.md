@@ -41,4 +41,4 @@ Reviewed the export surface and kept the package root as the only public entrypo
 
 ## Validation performed
 
-Validated the public contract with targeted Vitest coverage for the package entrypoint and manually checked that manifest, README, and TSDoc describe the same two exports.
+Validated the public contract with targeted Vitest coverage for the package entrypoint, re-ran the existing package tests, confirmed the package build passes, and manually checked that manifest, README, and TSDoc describe the same two exports.
