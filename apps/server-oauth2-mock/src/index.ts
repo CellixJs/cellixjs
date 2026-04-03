@@ -3,18 +3,7 @@ import { setupEnvironment } from './setup-environment.ts';
 
 setupEnvironment();
 
-const {
-	PORT,
-	PORTLESS_URL,
-	BASE_URL,
-	ALLOWED_REDIRECT_URI,
-	CLIENT_ID,
-	SUB,
-	TID,
-	EMAIL,
-	GIVEN_NAME,
-	FAMILY_NAME,
-} = process.env;
+const { PORT, PORTLESS_URL, BASE_URL, ALLOWED_REDIRECT_URI, CLIENT_ID, SUB, TID, EMAIL, GIVEN_NAME, FAMILY_NAME } = process.env;
 
 const port = Number(PORT ?? 4000);
 const baseUrl = (PORTLESS_URL ?? BASE_URL ?? `http://localhost:${port}`).replace(/\/$/, '');

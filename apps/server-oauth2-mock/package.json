@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"prebuild": "biome lint",
+		"prebuild": "pnpm run lint && pnpm run format",
 		"build": "tsc --build",
 		"clean": "rimraf dist tsconfig.tsbuildinfo",
 		"lint": "biome lint",
