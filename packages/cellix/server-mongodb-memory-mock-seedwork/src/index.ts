@@ -7,7 +7,11 @@ export interface MongoMemoryReplicaSetConfig {
 	binaryVersion?: string;
 }
 
-export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetConfig) {
+export interface MongoMemoryReplicaSetDisposer {
+	stop: () => Promise<void>;
+}
+
+export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetConfig): Promise<{ replicaSet: MongoMemoryReplSet; disposer: MongoMemoryReplicaSetDisposer }> {
 	console.log('Starting MongoDB Memory Replica Set', {
 		port: config.port,
 		dbName: config.dbName,
@@ -26,5 +30,22 @@ export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetCo
 
 	const uri = replicaSet.getUri(config.dbName);
 	console.log('MongoDB Memory Replica Set ready at:', uri);
-	return replicaSet;
+
+	const disposer: MongoMemoryReplicaSetDisposer = {
+		stop: async () => {
+			console.log('Stopping MongoDB Memory Replica Set');
+			await replicaSet.stop();
+		},
+	};
+
+	// Hook process signals to stop the replica set on shutdown
+	const stopHandler = async () => {
+		await disposer.stop();
+		process.exit(0);
+	};
+
+	process.on('SIGINT', stopHandler);
+	process.on('SIGTERM', stopHandler);
+
+	return { replicaSet, disposer };
 }

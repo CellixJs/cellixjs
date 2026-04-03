@@ -1,6 +1,6 @@
 import crypto, { type KeyObject, type webcrypto } from 'node:crypto';
 import express from 'express';
-import { exportJWK, exportPKCS8, generateKeyPair, type JWK, SignJWT } from 'jose';
+import { exportJWK, exportPKCS8, generateKeyPair, type JWK, SignJWT, jwtVerify, errors as joseErrors } from 'jose';
 
 interface TokenProfile {
 	aud: string;
@@ -122,7 +122,7 @@ const normalizeOrigin = (value: string) => {
 	}
 };
 
-export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
+export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Promise<void> {
 	const app = express();
 	app.disable('x-powered-by');
 
@@ -187,6 +187,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 
 		if (allowOrigin && typeof originHeader === 'string') {
 			res.setHeader('Access-Control-Allow-Origin', originHeader);
+			res.setHeader('Vary', 'Origin');
 		}
 
 		res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -295,34 +296,92 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 		}
 	});
 
-	app.get('/userinfo', (req, res) => {
+	app.get('/userinfo', async (req, res) => {
 		const authHeader = req.headers.authorization;
 		if (!authHeader?.startsWith('Bearer ')) {
 			res.status(401).json({ error: 'unauthorized' });
 			return;
 		}
 
+		const token = authHeader.substring(7);
+		const parts = token.split('.');
+		if (parts.length !== 3 || !parts[1]) {
+			res.status(401).json({
+				error: 'invalid_token',
+				error_description: 'malformed_bearer_token',
+			});
+			return;
+		}
+
 		try {
-			const token = authHeader.substring(7);
-			const parts = token.split('.');
-			if (parts.length !== 3 || !parts[1]) {
-				res.status(401).json({ error: 'invalid_token' });
+			// Validate JWT signature, expiry, and required claims to exercise realistic validation paths.
+			// Configuration mirrors what was used when issuing the tokens.
+			const { USERINFO_JWT_SECRET, OAUTH_ISSUER, OAUTH_AUDIENCE } = process.env;
+			const secret = new TextEncoder().encode(USERINFO_JWT_SECRET ?? 'dev-userinfo-secret');
+
+			const verifyOptions: Parameters<typeof jwtVerify>[2] = {};
+			if (OAUTH_ISSUER) {
+				verifyOptions.issuer = OAUTH_ISSUER;
+			}
+			if (OAUTH_AUDIENCE) {
+				verifyOptions.audience = OAUTH_AUDIENCE;
+			}
+
+			const { payload } = await jwtVerify(token, secret, verifyOptions);
+
+			// Ensure required claims are present, even in mock mode
+			if (!payload.sub) {
+				res.status(401).json({
+					error: 'invalid_token',
+					error_description: 'missing_sub_claim',
+				});
 				return;
 			}
 
-			const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
-			const username = payload.email ? String(payload.email).split('@')[0] : '';
+			if (!payload.iss) {
+				res.status(401).json({
+					error: 'invalid_token',
+					error_description: 'missing_iss_claim',
+				});
+				return;
+			}
+
+			if (!payload.aud) {
+				res.status(401).json({
+					error: 'invalid_token',
+					error_description: 'missing_aud_claim',
+				});
+				return;
+			}
+
+			const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
+			const email = typeof emailProp === 'string' ? emailProp : undefined;
+			const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
+			const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
+
+			const username = email?.includes('@') ? email.split('@')[0] : payload.sub;
 
 			res.json({
 				sub: payload.sub,
-				email: payload.email,
-				given_name: payload.given_name,
-				family_name: payload.family_name,
-				name: `${payload.given_name} ${payload.family_name}`,
+				email,
+				given_name: givenName,
+				family_name: familyName,
+				name: givenName && familyName ? `${givenName} ${familyName}` : (givenName ?? familyName ?? username),
 				username,
 			});
-		} catch {
-			res.status(401).json({ error: 'invalid_token' });
+		} catch (error: unknown) {
+			if (error instanceof joseErrors.JWTExpired) {
+				res.status(401).json({
+					error: 'invalid_token',
+					error_description: 'token_expired',
+				});
+				return;
+			}
+
+			res.status(401).json({
+				error: 'invalid_token',
+				error_description: 'token_verification_failed',
+			});
 		}
 	});
 
@@ -349,8 +408,13 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 		}
 	});
 
-	app.listen(config.port, config.host ?? 'localhost', () => {
-		console.log(`Mock OAuth2 server running on ${config.baseUrl}`);
-		console.log(`JWKS endpoint running on ${config.baseUrl}/.well-known/jwks.json`);
+	return new Promise<void>((resolve, reject) => {
+		const server = app.listen(config.port, config.host ?? 'localhost', () => {
+			console.log(`Mock OAuth2 server running on ${config.baseUrl}`);
+			console.log(`JWKS endpoint running on ${config.baseUrl}/.well-known/jwks.json`);
+			resolve();
+		});
+
+		server.on('error', reject);
 	});
 }
