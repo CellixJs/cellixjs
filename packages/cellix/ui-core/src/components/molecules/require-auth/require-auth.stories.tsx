@@ -186,11 +186,11 @@ export const ForceLoginAutoSignIn: Story = {
 			const [storageValue, setStorageValue] = useState('');
 
 			// Mock the sessionStorage to capture redirectTo setting - this is evidence of the useEffect running
-			const originalSetItem = window.sessionStorage.setItem;
-			window.sessionStorage.setItem = (key, value) => {
+			const originalSetItem = globalThis.sessionStorage.setItem;
+			globalThis.sessionStorage.setItem = (key, value) => {
 				setStorageKey(key);
 				setStorageValue(value);
-				return originalSetItem.call(window.sessionStorage, key, value);
+				return originalSetItem.call(globalThis.sessionStorage, key, value);
 			};
 
 			const auth = useMemo(

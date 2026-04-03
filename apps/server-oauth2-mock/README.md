@@ -1,6 +1,6 @@
 # Mock OAuth2 Server
 
-A lightweight OpenID Connect compliant mock OAuth2 server for local development and testing. This server simulates OAuth2/OIDC flows without requiring external authentication infrastructure.
+A lightweight OpenID Connect-compliant mock OAuth2 server for local development and testing. This server simulates OAuth2/OIDC flows without requiring external authentication infrastructure.
 
 ## Quick Start
 
@@ -40,7 +40,7 @@ All configuration is done via environment variables in `.env` or `.env.local`:
 | `FAMILY_NAME` | `User` | User family name in tokens |
 | `SUB` | *auto-generated* | User subject ID (optional - see below) |
 | `TID` | `test-tenant-id` | Tenant ID in tokens |
-| `PORT` | `4000` | Server port (dev mode only) |
+| `PORT` | `4000` | Server port (assigned automatically by portless) |
 | `PORTLESS_URL` | *not set* | Portless proxy URL (set automatically in dev mode) |
 
 ### User Identity & Session Persistence

@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
 
 const envPort = process.env.PORT;
 
@@ -7,10 +9,12 @@ if (!envPort) {
 	process.exit(1);
 }
 
+const portlessCaPath = process.env.PORTLESS_CA_PATH ?? path.join(os.homedir(), '.portless', 'ca.pem');
+
 const childEnv = {
 	...process.env,
-	NODE_EXTRA_CA_CERTS: `${process.env.HOME}/.portless/ca.pem`,
-	NODE_OPTIONS: '--use-system-ca',
+	NODE_EXTRA_CA_CERTS: portlessCaPath,
+	NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --use-system-ca`.trim(),
 };
 
 const child = spawn('func', ['start', '--typescript', '--script-root', 'deploy/', '--port', envPort], {

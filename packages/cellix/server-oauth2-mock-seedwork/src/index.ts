@@ -30,7 +30,7 @@ export interface MockOAuth2ServerConfig {
 	getUserProfile: () => MockOAuth2UserProfile;
 }
 
-async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.CryptoKey | KeyObject | JWK | Uint8Array, jwk: { alg?: string; kid?: string }, baseUrl: string, existingRefreshToken?: string) {
+async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.CryptoKey | KeyObject | JWK | Uint8Array, jwk: { alg?: string; kid?: string }, baseUrl: string) {
 	const now = Math.floor(Date.now() / 1000);
 	const expiresIn = 3600;
 	const exp = now + expiresIn;
@@ -74,8 +74,8 @@ async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.C
 		.setExpirationTime(exp)
 		.sign(privateKey);
 
-	// Use existing refresh_token if provided (for refresh flow), otherwise generate new
-	const refresh_token = existingRefreshToken || crypto.randomUUID();
+	// Generate a new refresh token for each token response (mock server does not persist refresh tokens)
+	const refresh_token = crypto.randomUUID();
 	return {
 		id_token,
 		session_state: null,
@@ -152,7 +152,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 	});
 
 	app.post('/token', async (req, res) => {
-		const { grant_type, refresh_token, tid, code } = req.body as {
+		const { grant_type, tid, code } = req.body as {
 			grant_type?: string;
 			refresh_token?: string;
 			tid?: string;
@@ -197,7 +197,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 			family_name: userProfile.family_name,
 			tid: tid ?? userProfile.tid ?? 'test-tenant-id',
 		};
-		const tokenResponse = await buildTokenResponse(profile, keyObject, publicJwk, config.baseUrl, refresh_token);
+		const tokenResponse = await buildTokenResponse(profile, keyObject, publicJwk, config.baseUrl);
 		res.json(tokenResponse);
 	});
 
@@ -229,7 +229,10 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 		}
 
 		try {
-			const code = `mock-auth-code-${Buffer.from(requestedRedirectUri).toString('base64')}`;
+			// Use the normalized redirect URI when embedding into the auth code so that
+			// the `/token` handler can later decode and perform audience lookup on a
+			// normalized value consistent with validation.
+			const code = `mock-auth-code-${Buffer.from(normalizedRequestedRedirectUri).toString('base64')}`;
 			const redirectUrl = new URL(requestedRedirectUri);
 			redirectUrl.searchParams.set('code', code);
 			if (typeof state === 'string' && state.length <= 2048) {
