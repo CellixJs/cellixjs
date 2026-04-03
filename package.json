@@ -7,6 +7,7 @@
   "license": "MIT",
   "packageManager": "pnpm@10.30.1",
   "scripts": {
+    "antd": "antd",
     "audit": "(pnpm audit --audit-level=high --prod) && (pnpm audit --audit-level=critical --dev)",
     "build": "turbo run build",
     "test": "turbo run test",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^6.3.0",
+    "@ant-design/cli": "^6.3.5",
     "@biomejs/biome": "2.4.10",
     "@cellix/graphql-codegen": "workspace:*",
     "@graphql-codegen/cli": "^5.0.7",
