@@ -25,6 +25,9 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
         * `brew upgrade azure-functions-core-tools@4`
 
 - [MongoDB](https://www.mongodb.com/try/download/community) or access to a MongoDB instance
+- `portless` local HTTPS proxy support:
+  - installed automatically from repo dependencies
+  - on first use, trust the local CA when `pnpm run dev` starts the proxy
 
 ## Clone and Setup
 
@@ -109,21 +112,28 @@ pnpm run snyk:iac     # IaC - scan Bicep templates for misconfigurations
 Run the development environment:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 This command will:
-- Build all workspace packages with linting
-- Start mock emulator services (Azurite for Azure Storage, MongoDB in-memory replica set, OAuth2/OIDC mock server)
-- Launch the backend Azure Functions runtime
-- Start the frontend React UI
-- Start the documentation site
+- Stop and start the local portless HTTPS proxy
+- Start Azurite for Azure Storage
+- Launch the API, UI, docs, and mock-service app `dev` tasks
+
+Builds happen through the Turbo task graph because each app `dev` task depends on its corresponding `build` task.
 
 The development server will be available at:
-- **API**: http://localhost:7071 (Azure Functions)
-- **GraphQL Playground**: http://localhost:7071/api/graphql
-- **Frontend**: http://localhost:3000 (React UI)
-- **Docs**: http://localhost:3001 (Docusaurus)
+- **Frontend**: https://ownercommunity.localhost
+- **API**: https://data-access.ownercommunity.localhost
+- **GraphQL endpoint**: https://data-access.ownercommunity.localhost/api/graphql
+- **Mock OIDC**: https://mock-auth.ownercommunity.localhost/.well-known/openid-configuration
+- **Docs**: https://docs.ownercommunity.localhost
+
+If your browser or OS has not yet trusted the local portless certificate authority, run:
+
+```bash
+pnpm exec portless trust
+```
 
 ## Verify Code Quality Locally
 

@@ -1,31 +1,27 @@
 {
-	"name": "@cellix/mock-oauth2-server",
+	"name": "@cellix/server-oauth2-mock-seedwork",
 	"version": "1.0.0",
 	"author": "",
-	"license": "MIT",
-	"description": "Local OAuth2/OIDC mock server for dev/testing",
+	"description": "Reusable OAuth2/OIDC mock server seedwork for local development and testing",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"lint": "biome lint",
-		"format": "biome format --write",
 		"prebuild": "pnpm run lint && pnpm run format",
-		"start": "node dist/index.js",
-		"dev": "tsx watch src/index.ts",
 		"build": "tsc --build",
-		"clean": "rimraf dist node_modules tsconfig.tsbuildinfo && tsc --build --clean"
+		"clean": "rimraf dist tsconfig.tsbuildinfo && tsc --build --clean",
+		"lint": "biome lint",
+		"format": "biome format --write"
 	},
 	"dependencies": {
-		"dotenv": "^16.4.5",
 		"express": "^4.22.0",
+		"express-rate-limit": "^8.3.2",
 		"jose": "^5.9.6"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@types/express": "^5.0.3",
 		"rimraf": "catalog:",
-		"tsx": "^4.20.3",
 		"typescript": "catalog:"
 	}
 }

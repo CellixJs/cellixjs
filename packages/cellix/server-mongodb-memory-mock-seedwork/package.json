@@ -1,22 +1,19 @@
 {
-	"name": "@cellix/mock-mongodb-memory-server",
+	"name": "@cellix/server-mongodb-memory-mock-seedwork",
 	"version": "1.0.0",
 	"author": "",
-	"license": "MIT",
-	"description": "MongoDB Memory Server service for CellixJS monorepo.",
+	"description": "Reusable MongoDB memory replica set seedwork for local development and testing.",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"lint": "biome lint",
-		"format": "biome format --write",
 		"prebuild": "pnpm run lint && pnpm run format",
 		"build": "tsc --build",
-		"start": "node dist/index.js",
-		"clean": "rimraf dist"
+		"clean": "rimraf dist tsconfig.tsbuildinfo",
+		"lint": "biome lint",
+		"format": "biome format --write"
 	},
 	"dependencies": {
-		"dotenv": "^16.4.5",
 		"mongodb-memory-server": "^10.1.4"
 	},
 	"devDependencies": {
