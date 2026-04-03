@@ -199,7 +199,7 @@ const config: MockOAuth2ServerConfig = {
 
 This would require changes to `MockOAuth2ServerConfig`, route handlers, and OIDC discovery endpoints.
 
-For now, **Option A (multiple instances) is recommended**. In the future, we should look to evolve to a more flexible approach to serve our needs, **Option B will be designed and implemented as a focused enhancement**.
+For now, **Option A (multiple instances) is recommended**. In the future, we should look to evolve to a more flexible approach to serve our needs, and **Option B will be designed and implemented as a focused enhancement**.
 
 ## More Information
 

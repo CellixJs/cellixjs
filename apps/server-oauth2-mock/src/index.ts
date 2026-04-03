@@ -21,6 +21,14 @@ const baseUrl = (PORTLESS_URL ?? BASE_URL ?? `http://localhost:${port}`).replace
 const allowedRedirectUri = ALLOWED_REDIRECT_URI ?? 'https://ownercommunity.localhost/auth-redirect';
 const clientId = CLIENT_ID ?? 'mock-client';
 
+const userProfile = {
+	email: EMAIL ?? 'test@example.com',
+	given_name: GIVEN_NAME ?? 'Test',
+	family_name: FAMILY_NAME ?? 'User',
+	...(SUB ? { sub: SUB } : {}),
+	...(TID ? { tid: TID } : {}),
+};
+
 const config: MockOAuth2ServerConfig = {
 	port,
 	baseUrl,
@@ -28,15 +36,7 @@ const config: MockOAuth2ServerConfig = {
 	allowedRedirectUris: new Set([allowedRedirectUri]),
 	allowedRedirectUri,
 	redirectUriToAudience: new Map([[allowedRedirectUri, clientId]]),
-	getUserProfile: () => {
-		return {
-			email: EMAIL ?? 'test@example.com',
-			given_name: GIVEN_NAME ?? 'Test',
-			family_name: FAMILY_NAME ?? 'User',
-			...(SUB ? { sub: SUB } : {}),
-			...(TID ? { tid: TID } : {}),
-		};
-	},
+	getUserProfile: () => userProfile,
 };
 
 startMockOAuth2Server(config).catch((error: unknown) => {

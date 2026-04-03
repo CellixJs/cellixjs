@@ -112,6 +112,16 @@ const normalizeUrl = (value: string) => {
 	}
 };
 
+// Normalize an origin (scheme + host + port) from a full URL string
+const normalizeOrigin = (value: string) => {
+	try {
+		const url = new URL(value);
+		return `${url.protocol}//${url.host}`;
+	} catch {
+		return value;
+	}
+};
+
 export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 	const app = express();
 	app.disable('x-powered-by');
@@ -132,6 +142,20 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 	const cachedUserProfile = config.getUserProfile();
 	const persistedSub = cachedUserProfile.sub ?? crypto.randomUUID();
 
+	// Precompute normalized redirect URIs and origin sets once at startup to avoid
+	// per-request overhead and to ensure consistent normalization logic across
+	// `/authorize` and `/token` handlers.
+	const normalizedAllowedRedirectUris = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeUrl(u)));
+	normalizedAllowedRedirectUris.add(normalizeUrl(config.allowedRedirectUri));
+
+	const normalizedRedirectUriToAudience = new Map<string, string>();
+	for (const [key, val] of config.redirectUriToAudience.entries()) {
+		normalizedRedirectUriToAudience.set(normalizeUrl(key), val);
+	}
+
+	const normalizedAllowedOrigins = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeOrigin(u)));
+	normalizedAllowedOrigins.add(normalizeOrigin(config.allowedRedirectUri));
+
 	// Serve JWKS endpoint from Express
 	app.get('/.well-known/jwks.json', (_req, res) => {
 		res.json({ keys: [publicJwk] });
@@ -145,31 +169,16 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 	app.use((req, res, next) => {
 		const originHeader = req.headers.origin;
 
-		const normalizeOrigin = (u: string) => {
-			try {
-				const parsed = new URL(u);
-				return `${parsed.protocol}//${parsed.host}`;
-			} catch {
-				return u;
-			}
-		};
-
 		let allowOrigin = false;
 		if (typeof originHeader === 'string') {
 			try {
 				const originUrl = new URL(originHeader);
 				const { hostname } = originUrl;
 
-				// Allow explicit localhost addresses and any subdomain under `.localhost`
-				if (hostname === '127.0.0.1' || hostname === 'localhost' || hostname.endsWith('.localhost')) {
+				// Allow explicit localhost addresses, any subdomain under `.localhost`,
+				// or configured redirect-origin matches.
+				if (hostname === '127.0.0.1' || hostname === 'localhost' || hostname.endsWith('.localhost') || normalizedAllowedOrigins.has(normalizeOrigin(originHeader))) {
 					allowOrigin = true;
-				} else {
-					// Allow origins that exactly match configured redirect URIs (origin portion only)
-					const allowedOrigins = new Set<string>([...config.allowedRedirectUris].map(normalizeOrigin));
-					allowedOrigins.add(normalizeOrigin(config.allowedRedirectUri));
-					if (allowedOrigins.has(normalizeOrigin(originHeader))) {
-						allowOrigin = true;
-					}
 				}
 			} catch {
 				// ignore parse errors and deny
@@ -211,14 +220,16 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 			return;
 		}
 
-		let aud = config.redirectUriToAudience.get(config.allowedRedirectUri) ?? 'mock-client';
+		const defaultAud = normalizedRedirectUriToAudience.get(normalizeUrl(config.allowedRedirectUri)) ?? 'mock-client';
+		let aud = defaultAud;
 
 		if (code.startsWith('mock-auth-code-')) {
 			try {
 				const base64Part = code.replace('mock-auth-code-', '');
 				const decodedRedirectUri = Buffer.from(base64Part, 'base64').toString('utf-8');
-				if (config.allowedRedirectUris.has(decodedRedirectUri)) {
-					aud = config.redirectUriToAudience.get(decodedRedirectUri) ?? aud;
+				const normalizedDecoded = normalizeUrl(decodedRedirectUri);
+				if (normalizedAllowedRedirectUris.has(normalizedDecoded)) {
+					aud = normalizedRedirectUriToAudience.get(normalizedDecoded) ?? aud;
 				}
 			} catch (error) {
 				console.error('Failed to decode redirect_uri from code:', error);
