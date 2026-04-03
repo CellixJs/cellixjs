@@ -25,3 +25,15 @@ Feature: Member resolvers
     Given a user without a verified JWT
     When the membersForCurrentEndUser query is executed
     Then it should throw an "Unauthorized" error
+
+  Scenario: Querying members by community ID
+    Given a signed in user with subject "user-sub-456"
+    And the member service can return members for community "community-abc"
+    When the membersByCommunityId query is executed with communityId "community-abc"
+    Then it should call Community.Member.listByCommunityId with communityId "community-abc"
+    And it should return the list of members for that community
+
+  Scenario: Querying members by community ID without authentication
+    Given a user without a verified JWT
+    When the membersByCommunityId query is executed with communityId "community-abc"
+    Then it should throw an "Unauthorized" error

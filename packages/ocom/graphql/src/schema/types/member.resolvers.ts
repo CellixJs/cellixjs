@@ -28,6 +28,14 @@ const member: Resolvers = {
 				externalId,
 			});
 		},
+		membersByCommunityId: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
+			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+				throw new Error('Unauthorized');
+			}
+			return await context.applicationServices.Community.Member.listByCommunityId({
+				communityId: args.communityId,
+			});
+		},
 	},
 };
 

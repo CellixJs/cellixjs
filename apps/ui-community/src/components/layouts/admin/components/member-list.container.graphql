@@ -1,0 +1,22 @@
+query AdminMemberListContainerMembersByCommunityId($communityId: ObjectID!) {
+	membersByCommunityId(communityId: $communityId) {
+		...AdminMemberListContainerMemberFields
+	}
+}
+
+fragment AdminMemberListContainerMemberFields on Member {
+	id
+	memberName
+	isAdmin
+	accounts {
+		id
+		firstName
+		lastName
+		statusCode
+		createdAt
+	}
+	profile {
+		email
+		avatarDocumentId
+	}
+}

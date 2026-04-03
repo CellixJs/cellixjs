@@ -41,7 +41,7 @@ type MemberProfile {
 
 extend type Query {
 	# member(id: ObjectID!): Member!
-	# membersByCommunityId(communityId: ObjectID!): [Member!]!
+	membersByCommunityId(communityId: ObjectID!): [Member!]!
 	# memberForCurrentCommunity: Member!
 	membersForCurrentEndUser: [Member!]!
 }
