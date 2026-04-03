@@ -154,6 +154,11 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		normalizedRedirectUriToAudience.set(normalizeUrl(key), val);
 	}
 
+	// Derive the set of allowed audiences from the configured redirect-uri->audience map.
+	// Include a default mock client id so tokens issued with the fallback audience remain valid.
+	const allowedAudiences = new Set<string>(...normalizedRedirectUriToAudience.values());
+	allowedAudiences.add('mock-client');
+
 	const normalizedAllowedOrigins = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeOrigin(u)));
 	normalizedAllowedOrigins.add(normalizeOrigin(config.allowedRedirectUri));
 
@@ -209,8 +214,12 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 			code?: string;
 		};
 
-		if (grant_type === 'refresh_token') {
-			res.status(400).json({ error: 'invalid_grant' });
+		// This mock server only supports the authorization_code flow for token issuance.
+		if (grant_type !== 'authorization_code') {
+			res.status(400).json({
+				error: 'unsupported_grant_type',
+				error_description: 'Only grant_type=authorization_code is supported by this mock server',
+			});
 			return;
 		}
 
@@ -323,8 +332,11 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 		try {
 			// Verify token using the same RSA public key that was used to sign it in /token.
-			// This ensures that access tokens issued by this mock server can be validated.
-			const { payload } = await jwtVerify(token, publicKey, {});
+			// Validate issuer and audience to better match real IdP behaviour and surface client misconfiguration.
+			const { payload } = await jwtVerify(token, publicKey, {
+				issuer: config.baseUrl,
+				audience: Array.from(allowedAudiences),
+			});
 
 			// Ensure required claims are present, even in mock mode
 			if (!payload.sub) {
