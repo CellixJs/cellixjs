@@ -12,7 +12,7 @@ This package provides the reusable server logic used by app-level mock OAuth2 se
 - JWKS: `/.well-known/jwks.json` (RS256)
 - `GET /authorize` — redirects to a configured redirect URI with a mock `code`
 - `POST /token` — returns `{ id_token, access_token, refresh_token, ... }`
-- CORS locked down to local origins (localhost/127.0.0.1)
+- CORS restricted to local origins (127.0.0.1, localhost, and `*.localhost`) and configured redirect origins
 
 ## Usage
 
@@ -36,7 +36,7 @@ The app package supplies runtime configuration such as:
 
 - `baseUrl`
 - `allowedRedirectUris`
-- `defaultRedirectUri`
+- `allowedRedirectUri` (singular) — the primary redirect URI used when no `redirect_uri` is provided to `/authorize`
 - user profile generation
 
 ### Endpoints

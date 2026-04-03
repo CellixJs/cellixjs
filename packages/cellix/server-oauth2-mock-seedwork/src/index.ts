@@ -139,8 +139,47 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig) {
 
 	app.use(express.urlencoded({ extended: true }));
 	app.use(express.json());
+	// CORS: only allow local development origins (127.0.0.1, localhost, *.localhost)
+	// and any origins derived from the configured redirect URIs. This keeps the
+	// server suitable for local testing while avoiding a permissive "*" policy.
 	app.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', '*');
+		const originHeader = req.headers.origin;
+
+		const normalizeOrigin = (u: string) => {
+			try {
+				const parsed = new URL(u);
+				return `${parsed.protocol}//${parsed.host}`;
+			} catch {
+				return u;
+			}
+		};
+
+		let allowOrigin = false;
+		if (typeof originHeader === 'string') {
+			try {
+				const originUrl = new URL(originHeader);
+				const { hostname } = originUrl;
+
+				// Allow explicit localhost addresses and any subdomain under `.localhost`
+				if (hostname === '127.0.0.1' || hostname === 'localhost' || hostname.endsWith('.localhost')) {
+					allowOrigin = true;
+				} else {
+					// Allow origins that exactly match configured redirect URIs (origin portion only)
+					const allowedOrigins = new Set<string>([...config.allowedRedirectUris].map(normalizeOrigin));
+					allowedOrigins.add(normalizeOrigin(config.allowedRedirectUri));
+					if (allowedOrigins.has(normalizeOrigin(originHeader))) {
+						allowOrigin = true;
+					}
+				}
+			} catch {
+				// ignore parse errors and deny
+			}
+		}
+
+		if (allowOrigin && typeof originHeader === 'string') {
+			res.setHeader('Access-Control-Allow-Origin', originHeader);
+		}
+
 		res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
 		res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
 
