@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { fn } from 'storybook/test';
 import type { AdminMemberListContainerMemberFieldsFragment } from '../../../../generated.tsx';
 import { MemberList } from './member-list.tsx';
@@ -107,6 +108,18 @@ const meta = {
 	argTypes: {
 		onSearchChange: { action: 'onSearchChange' },
 	},
+	decorators: [
+		(Story) => (
+			<MemoryRouter initialEntries={['/community/community-123/admin/member-001/members']}>
+				<Routes>
+					<Route
+						path="/community/:communityId/admin/:adminMemberId/members/*"
+						element={<Story />}
+					/>
+				</Routes>
+			</MemoryRouter>
+		),
+	],
 } satisfies Meta<typeof MemberList>;
 
 export default meta;
@@ -117,6 +130,7 @@ export const Default: Story = {
 		data: mockMembers,
 		searchValue: '',
 		onSearchChange: fn(),
+		communityId: 'community-123',
 	},
 };
 
@@ -125,6 +139,7 @@ export const WithSearch: Story = {
 		data: mockMembers,
 		searchValue: 'smith',
 		onSearchChange: fn(),
+		communityId: 'community-123',
 	},
 };
 
@@ -133,6 +148,7 @@ export const Empty: Story = {
 		data: [],
 		searchValue: '',
 		onSearchChange: fn(),
+		communityId: 'community-123',
 	},
 };
 
@@ -141,5 +157,6 @@ export const NoResults: Story = {
 		data: mockMembers,
 		searchValue: 'zzz-no-match',
 		onSearchChange: fn(),
+		communityId: 'community-123',
 	},
 };

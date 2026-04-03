@@ -1,15 +1,16 @@
-import { Badge, Input, Table, Tag, Typography } from 'antd';
+import { Badge, Button, Input, Table, Tag } from 'antd';
 import dayjs from 'dayjs';
 import type React from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { AdminMemberListContainerMemberFieldsFragment } from '../../../../generated.tsx';
 
-const { Title } = Typography;
 const { Search } = Input;
 
 export interface MemberListProps {
 	data: AdminMemberListContainerMemberFieldsFragment[];
 	searchValue: string;
 	onSearchChange: (value: string) => void;
+	communityId: string;
 }
 
 const getStatusColor = (statusCode?: string | null): 'success' | 'warning' | 'error' | 'default' => {
@@ -39,19 +40,30 @@ const getStatusLabel = (statusCode?: string | null): string => {
 };
 
 export const MemberList: React.FC<MemberListProps> = (props) => {
+	const navigate = useNavigate();
 	const filteredMembers = props.data.filter((member) => {
 		const search = props.searchValue.toLocaleLowerCase();
 		if (!search) return true;
 		const nameMatch = member.memberName?.toLocaleLowerCase().includes(search);
 		const emailMatch = member.profile?.email?.toLocaleLowerCase().includes(search);
-		const accountNameMatch = member.accounts.some(
-			(account) =>
-				account.firstName.toLocaleLowerCase().includes(search) || account.lastName?.toLocaleLowerCase().includes(search),
-		);
+		const accountNameMatch = member.accounts.some((account) => account.firstName.toLocaleLowerCase().includes(search) || account.lastName?.toLocaleLowerCase().includes(search));
 		return nameMatch || emailMatch || accountNameMatch;
 	});
 
 	const columns = [
+		{
+			title: 'Action',
+			key: 'action',
+			render: (_: unknown, record: AdminMemberListContainerMemberFieldsFragment) => (
+				<Button
+					type="primary"
+					size="small"
+					onClick={() => navigate(record.id)}
+				>
+					Edit
+				</Button>
+			),
+		},
 		{
 			title: 'Member Name',
 			key: 'memberName',
@@ -117,7 +129,6 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 	return (
 		<div>
 			<div className="flex justify-between items-center mb-4">
-				<Title level={4}>Community Members</Title>
 				<Search
 					placeholder="Search by name or email"
 					value={props.searchValue}
@@ -126,21 +137,13 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 					allowClear
 				/>
 			</div>
-			{filteredMembers.length > 0 ? (
-				<Table
-					dataSource={tableData}
-					columns={columns}
-					pagination={{ position: ['bottomRight'] }}
-					size="middle"
-				/>
-			) : (
-				<Title
-					level={5}
-					style={{ display: 'flex', justifyContent: 'center' }}
-				>
-					No members found.
-				</Title>
-			)}
+			<Table
+				dataSource={tableData}
+				columns={columns}
+				pagination={{ position: ['bottomRight'] }}
+				size="middle"
+				locale={{ emptyText: 'No members found.' }}
+			/>
 		</div>
 	);
 };

@@ -53,7 +53,7 @@ export const Admin: React.FC = () => {
 					element={<Home />}
 				/>
 				<Route
-					path="members"
+					path="members/*"
 					element={<Members />}
 				/>
 				<Route

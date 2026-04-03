@@ -1,6 +1,9 @@
 import { PageHeader } from '@ant-design/pro-layout';
 import { theme } from 'antd';
+import { Route, Routes } from 'react-router-dom';
 import { MemberListContainer } from '../components/member-list.container.tsx';
+import { MembersCreateContainer } from '../components/members-create.container.tsx';
+import { MembersDetailContainer } from '../components/members-detail.container.tsx';
 import { SubPageLayout } from '../sub-page-layout.tsx';
 
 export const Members: React.FC = () => {
@@ -13,7 +16,20 @@ export const Members: React.FC = () => {
 			fixedHeader={false}
 			header={<PageHeader title={<span style={{ color: colorTextBase }}>Members</span>} />}
 		>
-			<MemberListContainer />
+			<Routes>
+				<Route
+					path=""
+					element={<MemberListContainer />}
+				/>
+				<Route
+					path="create"
+					element={<MembersCreateContainer />}
+				/>
+				<Route
+					path=":memberId/*"
+					element={<MembersDetailContainer />}
+				/>
+			</Routes>
 		</SubPageLayout>
 	);
 };

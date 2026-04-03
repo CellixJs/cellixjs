@@ -39,9 +39,52 @@ type MemberProfile {
 	showProperties: Boolean
 }
 
+type MemberMutationResult implements MutationResult {
+	status: MutationStatus!
+	member: Member
+}
+
 extend type Query {
-	# member(id: ObjectID!): Member!
+	member(id: ObjectID!): Member
 	membersByCommunityId(communityId: ObjectID!): [Member!]!
 	# memberForCurrentCommunity: Member!
 	membersForCurrentEndUser: [Member!]!
+}
+
+extend type Mutation {
+	memberCreate(input: MemberCreateInput!): MemberMutationResult!
+	memberUpdate(input: MemberUpdateInput!): MemberMutationResult!
+	memberAccountAdd(input: MemberAccountAddInput!): MemberMutationResult!
+	memberAccountEdit(input: MemberAccountEditInput!): MemberMutationResult!
+	memberAccountRemove(input: MemberAccountRemoveInput!): MemberMutationResult!
+}
+
+input MemberCreateInput {
+	memberName: String!
+	communityId: ObjectID!
+}
+
+input MemberUpdateInput {
+	id: ObjectID!
+	memberName: String
+}
+
+input MemberAccountAddInput {
+	memberId: ObjectID!
+	userId: ObjectID!
+	firstName: String!
+	lastName: String
+}
+
+input MemberAccountEditInput {
+	memberId: ObjectID!
+	accountId: ObjectID!
+	firstName: String
+	lastName: String
+	statusCode: String
+}
+
+input MemberAccountRemoveInput {
+	memberId: ObjectID!
+	accountId: ObjectID!
 }
