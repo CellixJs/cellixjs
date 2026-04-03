@@ -147,7 +147,9 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	// per-request overhead and to ensure consistent normalization logic across
 	// `/authorize` and `/token` handlers.
 	const normalizedAllowedRedirectUris = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeUrl(u)));
-	normalizedAllowedRedirectUris.add(normalizeUrl(config.allowedRedirectUri));
+	const primaryRedirectUri = normalizeUrl(config.allowedRedirectUri);
+	// Ensure the configured primary redirect URI is included in the normalized set
+	normalizedAllowedRedirectUris.add(primaryRedirectUri);
 
 	const normalizedRedirectUriToAudience = new Map<string, string>();
 	for (const [key, val] of config.redirectUriToAudience.entries()) {
@@ -231,7 +233,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 			return;
 		}
 
-		const defaultAud = normalizedRedirectUriToAudience.get(normalizeUrl(config.allowedRedirectUri)) ?? 'mock-client';
+		const defaultAud = normalizedRedirectUriToAudience.get(primaryRedirectUri) ?? 'mock-client';
 		let aud = defaultAud;
 
 		if (code.startsWith('mock-auth-code-')) {
@@ -281,9 +283,9 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 	app.get('/authorize', (req, res) => {
 		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
-		const requestedRedirectUri = redirect_uri ?? config.allowedRedirectUri;
+		const requestedRedirectUri = redirect_uri ?? primaryRedirectUri;
 		const normalizedRequestedRedirectUri = normalizeUrl(requestedRedirectUri);
-		const isAllowed = [...config.allowedRedirectUris].some((value) => normalizeUrl(value) === normalizedRequestedRedirectUri) || normalizeUrl(config.allowedRedirectUri) === normalizedRequestedRedirectUri;
+		const isAllowed = normalizedAllowedRedirectUris.has(normalizedRequestedRedirectUri);
 		if (!isAllowed) {
 			res.status(400).send('Invalid redirect_uri');
 			return;

@@ -16,8 +16,12 @@ export const RequireAuth: React.FC<RequireAuthProps> = (props) => {
 	// automatically sign-in
 	useEffect(() => {
 		if (!hasAuthParams() && props.forceLogin === true && !auth.isAuthenticated && !auth.activeNavigator && !auth.isLoading && !auth.error) {
-			if ('sessionStorage' in globalThis) {
-				globalThis.sessionStorage.setItem('redirectTo', `${location.pathname}${location.search}`);
+			try {
+				if ('sessionStorage' in globalThis && typeof globalThis.sessionStorage.setItem === 'function') {
+					globalThis.sessionStorage.setItem('redirectTo', `${location.pathname}${location.search}`);
+				}
+			} catch {
+				// Ignore storage failures (e.g. restricted/private browsing environments)
 			}
 
 			auth.signinRedirect();
