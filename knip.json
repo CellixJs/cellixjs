@@ -58,6 +58,12 @@
       "entry": ["src/index.ts"],
       "project": ["src/**/*.{ts,tsx}"]
     }
+    ,
+    "apps/server-oauth2-mock": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["tsx"]
+    }
   },
   "ignoreWorkspaces": ["packages/cellix/config-typescript"],
   "ignore": [

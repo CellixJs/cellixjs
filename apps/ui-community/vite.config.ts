@@ -8,7 +8,9 @@ const isDev = NODE_ENV === 'development';
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [react() as PluginOption, ...(isDev ? [visualizer() as PluginOption] : [])],
-	server: {
-		port: 3000,
-	},
+	server: process.env.PORTLESS_URL
+		? undefined
+		: {
+				port: 3000,
+			},
 });

@@ -8,9 +8,9 @@ const { Title } = Typography;
 
 export const Home: React.FC = () => {
 	return (
-		// biome-ignore lint:noUselessFragments
 		<SubPageLayout
 			fixedHeader={false}
+			// biome-ignore lint:noUselessFragments
 			header={<></>}
 		>
 			<Helmet>
