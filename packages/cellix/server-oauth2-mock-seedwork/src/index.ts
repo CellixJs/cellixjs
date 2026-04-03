@@ -1,7 +1,8 @@
-import crypto, { type KeyObject, type webcrypto } from 'node:crypto';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { exportJWK, exportPKCS8, generateKeyPair, type JWK, SignJWT, jwtVerify, errors as joseErrors } from 'jose';
+import { SignJWT, exportJWK, exportPKCS8, generateKeyPair, errors as joseErrors, jwtVerify, type JWK } from 'jose';
+import crypto, { type KeyObject, type webcrypto } from 'node:crypto';
+import type { Server } from 'node:http';
 
 interface TokenProfile {
 	aud: string;
@@ -123,7 +124,14 @@ const normalizeOrigin = (value: string) => {
 	}
 };
 
-export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Promise<void> {
+export interface MockOAuth2ServerHandle {
+	server: Server;
+	disposer: {
+		stop: () => Promise<void>;
+	};
+}
+
+export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Promise<MockOAuth2ServerHandle> {
 	const app = express();
 	app.disable('x-powered-by');
 
@@ -147,9 +155,27 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	// per-request overhead and to ensure consistent normalization logic across
 	// `/authorize` and `/token` handlers.
 	const normalizedAllowedRedirectUris = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeUrl(u)));
-	const primaryRedirectUri = normalizeUrl(config.allowedRedirectUri);
-	// Ensure the configured primary redirect URI is included in the normalized set
-	normalizedAllowedRedirectUris.add(primaryRedirectUri);
+
+	// Derive a single primary redirect URI from the configured set to avoid
+	// divergence between `allowedRedirectUris` and a separate `allowedRedirectUri` field.
+	// Prefer the first value from the normalized set when available. If the set is
+	// empty, fall back to the configured singular value.
+	let primaryRedirectUri: string;
+	if (normalizedAllowedRedirectUris.size > 0) {
+		// Extract the first value from the Set iterator. Use a safe fallback
+		// in case the iterator yields `undefined` (defensive, though size>0
+		// should guarantee a value).
+		const iter = normalizedAllowedRedirectUris.values();
+		const first = iter.next().value;
+		primaryRedirectUri = first ?? normalizeUrl(config.allowedRedirectUri);
+		if (!first) {
+			// ensure the fallback primary is present in the normalized set
+			normalizedAllowedRedirectUris.add(primaryRedirectUri);
+		}
+	} else {
+		primaryRedirectUri = normalizeUrl(config.allowedRedirectUri);
+		normalizedAllowedRedirectUris.add(primaryRedirectUri);
+	}
 
 	const normalizedRedirectUriToAudience = new Map<string, string>();
 	for (const [key, val] of config.redirectUriToAudience.entries()) {
@@ -161,8 +187,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	const allowedAudiences = new Set(normalizedRedirectUriToAudience.values());
 	allowedAudiences.add('mock-client');
 
-	const normalizedAllowedOrigins = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeOrigin(u)));
-	normalizedAllowedOrigins.add(normalizeOrigin(config.allowedRedirectUri));
+	const normalizedAllowedOrigins = new Set<string>([...normalizedAllowedRedirectUris].map((u) => normalizeOrigin(u)));
 
 	// Serve JWKS endpoint from Express
 	app.get('/.well-known/jwks.json', (_req, res) => {
@@ -409,9 +434,22 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 		try {
 			const redirectUrl = new URL(post_logout_redirect_uri);
+
+			// Restrict logout redirect targets to local development origins to
+			// remain consistent with `/authorize` and avoid surprising open-redirect
+			// behaviour, even in a mock server.
+			const origin = normalizeOrigin(post_logout_redirect_uri);
+			const isLocalHost = redirectUrl.hostname === '127.0.0.1' || redirectUrl.hostname === 'localhost' || redirectUrl.hostname.endsWith('.localhost') || normalizedAllowedOrigins.has(origin);
+
+			if (!isLocalHost) {
+				res.status(400).send('Invalid post_logout_redirect_uri');
+				return;
+			}
+
 			if (typeof state === 'string' && state.length <= 2048) {
 				redirectUrl.searchParams.set('state', state);
 			}
+
 			res.setHeader('Location', redirectUrl.toString());
 			res.status(302).end();
 		} catch {
@@ -419,11 +457,23 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		}
 	});
 
-	return new Promise<void>((resolve, reject) => {
+	return new Promise<MockOAuth2ServerHandle>((resolve, reject) => {
 		const server = app.listen(config.port, config.host ?? 'localhost', () => {
 			console.log(`Mock OAuth2 server running on ${config.baseUrl}`);
 			console.log(`JWKS endpoint running on ${config.baseUrl}/.well-known/jwks.json`);
-			resolve();
+
+			const disposer = {
+				stop: () => {
+					return new Promise<void>((resolveStop, rejectStop) => {
+						server.close((err) => {
+							if (err) rejectStop(err);
+							else resolveStop();
+						});
+					});
+				},
+			};
+
+			resolve({ server, disposer });
 		});
 
 		server.on('error', reject);
