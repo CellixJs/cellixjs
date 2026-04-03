@@ -1,5 +1,6 @@
 import crypto, { type KeyObject, type webcrypto } from 'node:crypto';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { exportJWK, exportPKCS8, generateKeyPair, type JWK, SignJWT, jwtVerify, errors as joseErrors } from 'jose';
 
 interface TokenProfile {
@@ -296,7 +297,14 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		}
 	});
 
-	app.get('/userinfo', async (req, res) => {
+	// Rate limit the /userinfo endpoint to prevent brute force attacks on JWT validation
+	const userinfoRateLimiter = rateLimit({
+		windowMs: 15 * 60 * 1000, // 15 minutes
+		max: 100, // limit each IP to 100 requests per windowMs
+		message: 'Too many /userinfo requests, please try again later.',
+	});
+
+	app.get('/userinfo', userinfoRateLimiter as unknown as Parameters<typeof app.get>[1], async (req, res) => {
 		const authHeader = req.headers.authorization;
 		if (!authHeader?.startsWith('Bearer ')) {
 			res.status(401).json({ error: 'unauthorized' });
