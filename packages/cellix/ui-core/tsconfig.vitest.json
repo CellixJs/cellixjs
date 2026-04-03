@@ -1,3 +1,8 @@
 {
-	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"]
+	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
+	"compilerOptions": {
+		"paths": {
+			"@cellix/ui-core": ["./src/index.ts"]
+		}
+	}
 }
