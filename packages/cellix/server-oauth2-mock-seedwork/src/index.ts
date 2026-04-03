@@ -156,7 +156,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 	// Derive the set of allowed audiences from the configured redirect-uri->audience map.
 	// Include a default mock client id so tokens issued with the fallback audience remain valid.
-	const allowedAudiences = new Set<string>(...normalizedRedirectUriToAudience.values());
+	const allowedAudiences = new Set(normalizedRedirectUriToAudience.values());
 	allowedAudiences.add('mock-client');
 
 	const normalizedAllowedOrigins = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeOrigin(u)));

@@ -15,14 +15,16 @@ This starts the mock server with [Portless](https://portless.io/) for local doma
 - **JWKS Endpoint**: `https://mock-auth.ownercommunity.localhost/.well-known/jwks.json`
 - **OpenID Configuration**: `https://mock-auth.ownercommunity.localhost/.well-known/openid-configuration`
 
-### Production/Direct Mode
+### Direct Mode (no Portless)
 
 ```bash
 pnpm run build
 pnpm run start
 ```
 
-Server listens on `http://localhost:4000` by default (configurable via `PORT` env variable).
+Note: This mock server is intended for local development and testing only — do not run it in production.
+
+When running without Portless the server binds directly to the configured `PORT`. In dev/Portless mode Portless will assign the runtime port and set the `PORT` environment variable automatically; if Portless does not provide a port the server falls back to `4000`.
 
 ## Configuration
 
@@ -40,7 +42,7 @@ All configuration is done via environment variables in `.env` or `.env.local`:
 | `FAMILY_NAME` | `User` | User family name in tokens |
 | `SUB` | *auto-generated* | User subject ID (optional - see below) |
 | `TID` | `test-tenant-id` | Tenant ID in tokens |
-| `PORT` | `4000` | Server port (assigned automatically by portless) |
+| `PORT` | `4000` | Server port. In dev/portless mode the port is assigned automatically; in direct/production mode this controls the bind port (default 4000). |
 | `PORTLESS_URL` | *not set* | Portless proxy URL (set automatically in dev mode) |
 
 ### User Identity & Session Persistence

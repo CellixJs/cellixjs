@@ -15,15 +15,15 @@ const config: MongoMemoryReplicaSetConfig = {
 try {
 	const { disposer } = await startMongoMemoryReplicaSet(config);
 
-	const shutdown = async (signal?: string) => {
+	const shutdown = async (signal?: string, exitCode = 0) => {
 		try {
 			console.log(`Shutting down MongoDB memory replica set (${signal ?? 'signal'})`);
 			await disposer.stop();
 		} catch (err) {
 			console.error('Error during MongoDB replica set shutdown:', err);
 		} finally {
-			// Ensure process exits after cleanup
-			process.exit(0);
+			// Exit with provided code so CI can detect crash paths when appropriate
+			process.exit(exitCode);
 		}
 	};
 
@@ -32,13 +32,12 @@ try {
 	process.once('SIGQUIT', () => void shutdown('SIGQUIT'));
 	process.once('uncaughtException', async (err) => {
 		console.error('Uncaught exception, shutting down:', err);
-		await shutdown('uncaughtException');
+		await shutdown('uncaughtException', 1);
 	});
 	process.once('unhandledRejection', async (reason) => {
 		console.error('Unhandled rejection, shutting down:', reason);
-		await shutdown('unhandledRejection');
+		await shutdown('unhandledRejection', 1);
 	});
-
 } catch (error: unknown) {
 	console.error('Failed to start MongoDB memory replica set:', error);
 	process.exit(1);
