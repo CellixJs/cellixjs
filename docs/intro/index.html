@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">Introduction 👋 | CellixJs Docs</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://cellixjs.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://cellixjs.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://cellixjs.github.io/docs/intro"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Introduction 👋 | CellixJs Docs"><meta data-rh="true" name="description" content="Let&#x27;s discover CellixJs in less than 5 minutes."><meta data-rh="true" property="og:description" content="Let&#x27;s discover CellixJs in less than 5 minutes."><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://cellixjs.github.io/docs/intro"><link data-rh="true" rel="alternate" href="https://cellixjs.github.io/docs/intro" hreflang="en"><link data-rh="true" rel="alternate" href="https://cellixjs.github.io/docs/intro" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Introduction 👋","item":"https://cellixjs.github.io/docs/intro"}]}</script><link rel="alternate" type="application/rss+xml" href="/blog/rss.xml" title="CellixJs Docs RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/blog/atom.xml" title="CellixJs Docs Atom Feed"><link rel="stylesheet" href="/assets/css/styles.c4adb48b.css">
-<script src="/assets/js/runtime~main.6f1d97bd.js" defer="defer"></script>
-<script src="/assets/js/main.a5e4619a.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.0c02fc9e.js" defer="defer"></script>
+<script src="/assets/js/main.86e95293.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -44,6 +44,13 @@
 <li class="">
 <p><a href="https://www.mongodb.com/try/download/community" target="_blank" rel="noopener noreferrer" class="">MongoDB</a> or access to a MongoDB instance</p>
 </li>
+<li class="">
+<p><code>portless</code> local HTTPS proxy support:</p>
+<ul>
+<li class="">installed automatically from repo dependencies</li>
+<li class="">on first use, trust the local CA when <code>pnpm run dev</code> starts the proxy</li>
+</ul>
+</li>
 </ul>
 <h2 class="anchor anchorTargetStickyNavbar_Kpy5" id="clone-and-setup">Clone and Setup<a href="#clone-and-setup" class="hash-link" aria-label="Direct link to Clone and Setup" title="Direct link to Clone and Setup" translate="no">​</a></h2>
 <p>Clone the CellixJs repository and set up the development environment:</p>
@@ -79,22 +86,24 @@
 </blockquote>
 <h2 class="anchor anchorTargetStickyNavbar_Kpy5" id="start-development">Start Development<a href="#start-development" class="hash-link" aria-label="Direct link to Start Development" title="Direct link to Start Development" translate="no">​</a></h2>
 <p>Run the development environment:</p>
-<div class="language-bash codeBlockContainer_wZbH theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_REc5"><pre tabindex="0" class="prism-code language-bash codeBlock_tuF0 thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_TlpM"><span class="token-line" style="color:#393A34"><span class="token plain">npm run dev</span><br></span></code></pre></div></div>
+<div class="language-bash codeBlockContainer_wZbH theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_REc5"><pre tabindex="0" class="prism-code language-bash codeBlock_tuF0 thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_TlpM"><span class="token-line" style="color:#393A34"><span class="token plain">pnpm run dev</span><br></span></code></pre></div></div>
 <p>This command will:</p>
 <ul>
-<li class="">Build all workspace packages with linting</li>
-<li class="">Start mock emulator services (Azurite for Azure Storage, MongoDB in-memory replica set, OAuth2/OIDC mock server)</li>
-<li class="">Launch the backend Azure Functions runtime</li>
-<li class="">Start the frontend React UI</li>
-<li class="">Start the documentation site</li>
+<li class="">Stop and start the local portless HTTPS proxy</li>
+<li class="">Start Azurite for Azure Storage</li>
+<li class="">Launch the API, UI, docs, and mock-service app <code>dev</code> tasks</li>
 </ul>
+<p>Builds happen through the Turbo task graph because each app <code>dev</code> task depends on its corresponding <code>build</code> task.</p>
 <p>The development server will be available at:</p>
 <ul>
-<li class=""><strong>API</strong>: <a href="http://localhost:7071" target="_blank" rel="noopener noreferrer" class="">http://localhost:7071</a> (Azure Functions)</li>
-<li class=""><strong>GraphQL Playground</strong>: <a href="http://localhost:7071/api/graphql" target="_blank" rel="noopener noreferrer" class="">http://localhost:7071/api/graphql</a></li>
-<li class=""><strong>Frontend</strong>: <a href="http://localhost:3000" target="_blank" rel="noopener noreferrer" class="">http://localhost:3000</a> (React UI)</li>
-<li class=""><strong>Docs</strong>: <a href="http://localhost:3001" target="_blank" rel="noopener noreferrer" class="">http://localhost:3001</a> (Docusaurus)</li>
+<li class=""><strong>Frontend</strong>: <a href="https://ownercommunity.localhost" target="_blank" rel="noopener noreferrer" class="">https://ownercommunity.localhost</a></li>
+<li class=""><strong>API</strong>: <a href="https://data-access.ownercommunity.localhost" target="_blank" rel="noopener noreferrer" class="">https://data-access.ownercommunity.localhost</a></li>
+<li class=""><strong>GraphQL endpoint</strong>: <a href="https://data-access.ownercommunity.localhost/api/graphql" target="_blank" rel="noopener noreferrer" class="">https://data-access.ownercommunity.localhost/api/graphql</a></li>
+<li class=""><strong>Mock OIDC</strong>: <a href="https://mock-auth.ownercommunity.localhost/.well-known/openid-configuration" target="_blank" rel="noopener noreferrer" class="">https://mock-auth.ownercommunity.localhost/.well-known/openid-configuration</a></li>
+<li class=""><strong>Docs</strong>: <a href="https://docs.ownercommunity.localhost" target="_blank" rel="noopener noreferrer" class="">https://docs.ownercommunity.localhost</a></li>
 </ul>
+<p>If your browser or OS has not yet trusted the local portless certificate authority, run:</p>
+<div class="language-bash codeBlockContainer_wZbH theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_REc5"><pre tabindex="0" class="prism-code language-bash codeBlock_tuF0 thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_TlpM"><span class="token-line" style="color:#393A34"><span class="token plain">pnpm exec portless trust</span><br></span></code></pre></div></div>
 <h2 class="anchor anchorTargetStickyNavbar_Kpy5" id="verify-code-quality-locally">Verify Code Quality Locally<a href="#verify-code-quality-locally" class="hash-link" aria-label="Direct link to Verify Code Quality Locally" title="Direct link to Verify Code Quality Locally" translate="no">​</a></h2>
 <p>Run all verification steps (lint, build, test, sonarcloud quality gate):</p>
 <div class="language-bash codeBlockContainer_wZbH theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_REc5"><pre tabindex="0" class="prism-code language-bash codeBlock_tuF0 thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_TlpM"><span class="token-line" style="color:#393A34"><span class="token plain">npm run verify</span><br></span></code></pre></div></div>
