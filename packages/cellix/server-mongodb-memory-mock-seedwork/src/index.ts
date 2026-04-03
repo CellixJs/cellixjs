@@ -38,14 +38,5 @@ export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetCo
 		},
 	};
 
-	// Hook process signals to stop the replica set on shutdown
-	const stopHandler = async () => {
-		await disposer.stop();
-		process.exit(0);
-	};
-
-	process.on('SIGINT', stopHandler);
-	process.on('SIGTERM', stopHandler);
-
 	return { replicaSet, disposer };
 }

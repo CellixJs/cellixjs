@@ -322,20 +322,9 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		}
 
 		try {
-			// Validate JWT signature, expiry, and required claims to exercise realistic validation paths.
-			// Configuration mirrors what was used when issuing the tokens.
-			const { USERINFO_JWT_SECRET, OAUTH_ISSUER, OAUTH_AUDIENCE } = process.env;
-			const secret = new TextEncoder().encode(USERINFO_JWT_SECRET ?? 'dev-userinfo-secret');
-
-			const verifyOptions: Parameters<typeof jwtVerify>[2] = {};
-			if (OAUTH_ISSUER) {
-				verifyOptions.issuer = OAUTH_ISSUER;
-			}
-			if (OAUTH_AUDIENCE) {
-				verifyOptions.audience = OAUTH_AUDIENCE;
-			}
-
-			const { payload } = await jwtVerify(token, secret, verifyOptions);
+			// Verify token using the same RSA public key that was used to sign it in /token.
+			// This ensures that access tokens issued by this mock server can be validated.
+			const { payload } = await jwtVerify(token, publicKey, {});
 
 			// Ensure required claims are present, even in mock mode
 			if (!payload.sub) {
