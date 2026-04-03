@@ -2,7 +2,7 @@ import path from 'node:path';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import { playwright } from '@vitest/browser-playwright';
 import { mergeConfig, type ViteUserConfig } from 'vitest/config';
-import { baseConfig } from './base.config.ts';
+import { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns } from './base.config.ts';
 
 export type StorybookVitestConfigOptions = {
   storybookDirRelativeToPackage?: string; // default: '.storybook'
@@ -35,6 +35,15 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
       projects: [
         {
           extends: true,
+          test: {
+            name: 'unit',
+            include: [...defaultTestIncludePatterns],
+            environment: 'jsdom',
+            typecheck: createDefaultTypecheckConfig(),
+          },
+        },
+        {
+          extends: true,
           plugins: [
             storybookTest({
               configDir: path.join(pkgDirname, STORYBOOK_DIR),
@@ -42,12 +51,11 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
           ],
           test: {
             name: 'storybook',
+            typecheck: {
+              enabled: false,
+            },
             browser: {
               enabled: true,
-              api: {
-                host: '127.0.0.1',
-                port: browserApiPort,
-              },
               headless: true,
               provider: playwright(),
               instances,

@@ -1,9 +1,10 @@
 import { defineConfig, mergeConfig } from "vitest/config";
-import { baseConfig } from "./base.config.ts";
+import { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns } from "./base.config.ts";
 
 export const nodeConfig = mergeConfig(baseConfig, defineConfig({
   test: {
-    include: ["src/**/*.test.ts"],
+    typecheck: createDefaultTypecheckConfig(),
+    include: [...defaultTestIncludePatterns],
     environment: "node",
     testTimeout: 5000,
     coverage: {
