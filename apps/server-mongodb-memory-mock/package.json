@@ -1,0 +1,25 @@
+{
+	"name": "@apps/server-mongodb-memory-mock",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"prebuild": "pnpm run lint && pnpm run format",
+		"build": "tsc --build",
+		"clean": "rimraf dist tsconfig.tsbuildinfo",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"start": "node dist/index.js",
+		"dev": "tsx watch src/index.ts"
+	},
+	"dependencies": {
+		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",
+		"dotenv": "^16.4.5"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"rimraf": "catalog:",
+		"tsx": "catalog:",
+		"typescript": "catalog:"
+	}
+}

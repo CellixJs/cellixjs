@@ -237,7 +237,7 @@ async function findPackageJsonFiles(rootDir: string): Promise<string[]> {
 }
 
 function skipDir(name: string): boolean {
-	return ['node_modules', 'dist', 'deploy', 'coverage', '.turbo'].includes(name);
+	return ['node_modules', 'dist', 'build', 'deploy', 'coverage', '.turbo'].includes(name);
 }
 
 function isWorkspacePackage(name: string, workspaceNamespaces: string[]): boolean {

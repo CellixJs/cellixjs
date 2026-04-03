@@ -26,7 +26,7 @@ Our Docusaurus website will help you get started in running and contributing to 
 
 ## Developer usage
 
-- Full local dev (lints, builds, starts Azurite, emulators, and the OwnerCommunity app):
+- Full local dev (builds, starts the portless HTTPS proxy, starts Azurite, and runs the app-level dev servers):
 
   ```bash
   pnpm run dev
@@ -38,26 +38,29 @@ Our Docusaurus website will help you get started in running and contributing to 
   pnpm run verify
   ```
 
-- Start only the API app:
+- Start only the API development stack:
 
   ```bash
-  pnpm run start:api
+  pnpm --filter @apps/api run dev
   ```
 
-- Start the UI (frontend):
+- Start only the UI development server:
 
   ```bash
-  pnpm run start:ui-community
+  pnpm --filter @apps/ui-community run dev
   ```
 
-- Start emulators individually:
+- Start only the docs development server:
 
   ```bash
-  # MongoDB in-memory replica set
-  pnpm run start-emulator:mongo-memory-server
+  pnpm --filter @apps/docs run dev
+  ```
 
-  # OAuth2/OIDC mock server
-  pnpm run start-emulator:auth-server
+- Start only the local mock services:
+
+  ```bash
+  pnpm --filter @apps/server-oauth2-mock run dev
+  pnpm --filter @apps/server-mongodb-memory-mock run dev
   ```
 
 ## Scripts
@@ -83,7 +86,7 @@ Our Docusaurus website will help you get started in running and contributing to 
 This monorepo uses [Turborepo](https://turbo.build/) for optimized builds and testing:
 
 - **Selective Builds**: Only affected packages are built/tested in CI
-- **Remote Caching**: Shared build cache across team and CI (when configured)
+- **Remote Caching**: Shared build cache across team and CI (if configured later)
 - **Local Caching**: Faster subsequent builds on your machine
 - **Package Categories**: 
   - Frontend: `ui-*` packages

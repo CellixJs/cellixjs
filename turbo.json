@@ -48,6 +48,10 @@
 			"cache": false,
 			"persistent": true
 		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
 		"azurite": {
 			"cache": false,
 			"persistent": true

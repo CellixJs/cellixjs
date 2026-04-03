@@ -8,6 +8,7 @@
 		"format": "biome format --write",
 		"prebuild": "pnpm run lint && pnpm run format",
 		"build": "tsc --build && vite build",
+		"dev": "portless ownercommunity.localhost vite",
 		"start": "vite",
 		"preview": "vite preview",
 		"test": "vitest run --silent --reporter=dot",
