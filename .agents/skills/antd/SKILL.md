@@ -9,7 +9,7 @@ allowed-tools:
   - Bash(antd *)
   - Bash(antd bug*)
   - Bash(antd bug-cli*)
-  - Bash(npm install -g @ant-design/cli*)
+  - Bash(pnpm add -g @ant-design/cli*)
   - Bash(which antd)
 ---
 
@@ -22,10 +22,10 @@ You have access to `@ant-design/cli` — a local CLI tool with bundled antd meta
 Before first use, check if the CLI is installed. If not, install it automatically:
 
 ```bash
-which antd || npm install -g @ant-design/cli
+which antd || pnpm add -g @ant-design/cli
 ```
 
-After running any command, if the output contains an "Update available" notice, run `npm install -g @ant-design/cli` to update before continuing.
+After running any command, if the output contains an "Update available" notice, run `pnpm add -g @ant-design/cli` to update before continuing.
 
 **Always use `--format json` for structured output you can parse programmatically.**
 
