@@ -42,6 +42,36 @@ CellixJS skills follow the same structure as community skills in [simnova/sharet
 
 ## Available Skills
 
+### Turborepo Task Graph Optimization
+
+**Purpose:** Autonomously analyze and optimize Turborepo task graphs to eliminate unnecessary transitive dependencies and improve build performance.
+
+**Use Cases:**
+- Build slowdown investigation (identifying task graph bloat)
+- New package added pulling in unnecessary upstream tasks
+- Periodic hygiene (quarterly/semi-annual reviews)
+- Pre-release verification of build targets
+- CI/CD optimization to reduce pipeline build time
+
+**What This Skill Does:**
+- Discovers build targets dynamically via `turbo query` (repo-agnostic)
+- Analyzes transitive dependencies and identifies unnecessary tasks
+- Proposes optimizations verified via static import analysis
+- Applies safe changes and verifies build succeeds
+- Flags unsafe changes (dynamic imports, runtime deps) for human review
+- Generates before/after comparison tables with results
+
+**Key Features:**
+- Fully autonomous workflow (no user confirmation steps)
+- Works with any Turborepo 2.9+ monorepo (not hardcoded to CellixJS)
+- Safety verification through import analysis and build testing
+- Formatted results with task type breakdown and percentages
+
+**References:**
+- [SKILL.md](turbo-graph-optimization/SKILL.md) - Complete skill documentation
+- [ADR-0019: Monorepo Structure and Turborepo](../../apps/docs/docs/decisions/0019-monorepo-turborepo.md) - CellixJS context
+- [ADR-0024: Agent Skills Framework](../../apps/docs/docs/decisions/0024-madr-agent-skills.md) - Skills framework
+
 ### MADR Enforcement
 
 **Purpose:** Ensure code adheres to architectural standards defined in MADRs (ADR-0003, ADR-0012, ADR-0013, ADR-0022, etc.)

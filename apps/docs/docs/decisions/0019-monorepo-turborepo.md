@@ -154,6 +154,61 @@ Packages are categorized by tags for selective deployments:
 - **config**: Shared configurations
 - **docs**: Documentation
 
+## Task Graph Optimization
+
+### Overview
+
+Turborepo task graphs can accumulate unnecessary transitive dependencies over time, increasing 
+build times. The `turbo-graph-optimization` agent skill automates analysis and optimization 
+(located in `.agents/skills/turbo-graph-optimization/SKILL.md`, with symlink at 
+`.github/skills/turbo-graph-optimization`).
+
+The skill autonomously discovers build targets, analyzes task graphs, proposes safe optimizations 
+(verifying via static import analysis), flags risky changes for human review, and verifies the 
+build succeeds.
+
+### When to Optimize
+
+- New package added pulling in unnecessary upstream tasks
+- Build slowdown investigation (task graph bloat)
+- Periodic hygiene (quarterly or semi-annually)
+- Pre-release verification
+- CI/CD optimization
+
+Current CellixJS build targets: `@apps/api#build`, `@apps/ui-community#build`, `@apps/docs#build`
+
+### Safety Approach
+
+1. **Static import analysis** verifies removed tasks aren't consumed
+2. **Build verification** runs `turbo run build` to confirm success
+3. **Flagging** (not applying) changes unverifiable via static analysis (dynamic imports, 
+   conditional requires, runtime dependencies)
+4. **Before/after tables** document results with task breakdown and percentages
+
+See [ADR-0020](./0020-azure-devops-monorepo-pipeline.md) for CI change detection notes — 
+task graph updates may affect change detection in Azure Pipelines.
+
+### Example Usage
+
+```bash
+# Via GitHub Copilot or Claude:
+# "Optimize the Turborepo task graph using the turbo-graph-optimization skill"
+```
+
+Example results:
+```
+Total tasks: 87 → 64 (-23, -26%)
+  build: 58 → 58 (no change)
+  type-check: 15 → 0 (removed, not consumed by target)
+  typegen: 14 → 6 (cleaned up unnecessary dependencies)
+```
+
+### References
+
+- [Agent Skill: turbo-graph-optimization](../../.agents/skills/turbo-graph-optimization/SKILL.md)
+- [ADR-0020: Azure DevOps Pipeline](./0020-azure-devops-monorepo-pipeline.md)
+- [ADR-0024: Agent Skills Framework](./0024-madr-agent-skills.md)
+- [turbo query Docs](https://turborepo.dev/docs/reference/query)
 
 ## More Information
 
