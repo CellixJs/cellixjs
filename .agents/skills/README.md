@@ -13,36 +13,46 @@ Agent Skills are folders of instructions and resources that AI agents can discov
 
 ## Directory Structure
 
-CellixJS skills follow the same structure as community skills in [simnova/sharethrift](https://github.com/simnova/sharethrift/.agents/skills), aligning with the agentskills.io specification:
+CellixJS skills follow the agentskills.io directory convention:
 
 ```
-.agents/skills/                      # Primary skills location (agentskills.io standard)
-├── madr-enforcement/                # Enforces ADR standards in code
-│   ├── SKILL.md                    # Main skill instructions (required)
-│   ├── EXAMPLES.md                 # Comprehensive code examples (recommended)
-│   └── assets/                     # Additional resources (optional)
-│       ├── adr-template.md         # Full MADR template
-│       └── adr-short-template.md   # Short MADR template
-└── (future skills)/                # Additional skills as needed
+.agents/skills/                      # Primary skills location and source of truth
+├── madr-enforcement/                # CellixJS-authored ADR enforcement skill
+├── turborepo/                       # Community skill for Turborepo workflows
+├── vitest/                          # Community skill for Vitest workflows
+├── ant-design/                      # Community skill for Ant Design component guidance
+├── antd/                            # Community skill for @ant-design/cli workflows
+├── mongodb-connection/              # Community skill for MongoDB connection tuning
+├── mongodb-mcp-setup/               # Community skill for MongoDB MCP configuration
+├── mongodb-query-optimizer/         # Community skill for MongoDB query/index performance
+└── mongodb-schema-design/           # Community skill for MongoDB schema modeling
 
-.github/skills/                      # Symlinks for GitHub Copilot
-└── madr-enforcement -> ../../.agents/skills/madr-enforcement
+.github/skills/                      # Symlinks for GitHub Copilot discovery
+└── <skill-name> -> ../../.agents/skills/<skill-name>
+
+skills-lock.json                     # Upstream source + hash metadata for installed community skills
+.vscode/mcp.json                     # Workspace MongoDB MCP configuration for local development
 ```
 
-**Structure Pattern (aligned with sharethrift community skills):**
+**Structure Pattern:**
 - `SKILL.md` - Main instructions with YAML frontmatter (required for all skills)
-- `EXAMPLES.md` - Detailed code examples and patterns (recommended, following sharethrift pattern)
+- `EXAMPLES.md` - Detailed code examples and patterns (optional)
 - `assets/` or `references/` - Supporting materials like templates or extended docs (optional)
 - Skills can have additional subdirectories as needed (e.g., `command/` for CLI tools)
 
 **Why two locations?**
 - `.agents/skills/` is the standard location per agentskills.io specification
 - `.github/skills/` provides symlinks for GitHub Copilot discovery
-- This dual approach is also used in simnova/sharethrift
+- The `.github/skills/` entries are symlinks only, not duplicate copies of skill contents
+
+**Managed skill set:**
+- A skill is considered part of the managed repo skill set when it has a source directory in `.agents/skills/`, a matching symlink in `.github/skills/`, and if community-installed, an entry in `skills-lock.json`
 
 ## Available Skills
 
-### MADR Enforcement
+### CellixJS-Authored Skills
+
+#### MADR Enforcement
 
 **Purpose:** Ensure code adheres to architectural standards defined in MADRs (ADR-0003, ADR-0012, ADR-0013, ADR-0022, etc.)
 
@@ -76,55 +86,56 @@ CellixJS skills follow the same structure as community skills in [simnova/sharet
 - [EXAMPLES.md](madr-enforcement/EXAMPLES.md) - Code examples following ADRs
 - [All ADRs](../../apps/docs/docs/decisions/) - Source of architectural standards
 
+### Installed Community Skills
+
+| Skill | Source | Why it is kept in this repo |
+|-------|--------|-----------------------------|
+| **turborepo** | [vercel/turborepo](https://github.com/vercel/turborepo) | Monorepo task graph, caching, pipeline, and workspace orchestration guidance aligned with ADR-0019 |
+| **vitest** | [antfu/skills](https://github.com/antfu/skills) | Testing patterns, mocking, filtering, and coverage guidance aligned with the repo's Vitest test suite |
+| **ant-design** | [ant-design/antd-skill](https://github.com/ant-design/antd-skill) | Ant Design component selection, theming, and UI guidance for repo UI work |
+| **antd** | [ant-design/antd-skill](https://github.com/ant-design/antd-skill) | `@ant-design/cli` workflow guidance for offline API lookups, linting, and migrations |
+| **mongodb-connection** | [mongodb/agent-skills](https://github.com/mongodb/agent-skills) | Connection and pool tuning guidance for the repo's Mongoose and Cosmos/local MongoDB connection setup |
+| **mongodb-mcp-setup** | [mongodb/agent-skills](https://github.com/mongodb/agent-skills) | MongoDB MCP setup and troubleshooting guidance for the committed local MCP workflow in `.vscode/mcp.json` |
+| **mongodb-query-optimizer** | [mongodb/agent-skills](https://github.com/mongodb/agent-skills) | Query and index performance guidance for repository and read-model work using MongoDB/Mongoose |
+| **mongodb-schema-design** | [mongodb/agent-skills](https://github.com/mongodb/agent-skills) | Schema and modeling guidance for the repo's Mongoose model layer |
+
+**Intentionally excluded community MongoDB skills:**
+- Atlas Stream Processing was not installed because the repo does not implement Atlas stream processing workflows
+- Atlas Search / Vector Search guidance was not kept because the repo does not currently use Atlas Search or semantic/vector search workflows
+- MongoDB natural-language query generation was removed because it is not a strong fit for routine code work in this repo
+
 ## Integration with GitHub Copilot
 
 Skills are integrated with GitHub Copilot through two mechanisms:
 
 ### 1. Agent Skills Format
 Skills in `.agents/skills/` and `.github/skills/` are automatically discovered by GitHub Copilot and other AI agents that support the Agent Skills specification.
+For this repo, `.agents/skills/` remains the source of truth and `.github/skills/` mirrors the managed set through symlinks only. Can be extended for other AI providers in the future as needed.
 
 ### 2. Copilot Instructions
 Skills are referenced in `.github/instructions/` files:
 - `.github/instructions/madr.instructions.md` - MADR enforcement in code
 
-## Community Skills from ShareThrift
+## Community Skill Sources
 
-The [simnova/sharethrift](https://github.com/simnova/sharethrift) repository maintains a collection of community skills that our madr-enforcement skill aligns with structurally. ShareThrift skills follow the same agentskills.io specification and provide excellent examples of skill organization.
+The current community skills committed to this repo come from these upstream sources:
 
-**ShareThrift Community Skills:**
+| Upstream source | Installed skills |
+|----------------|------------------|
+| [vercel/turborepo](https://github.com/vercel/turborepo) | `turborepo` |
+| [antfu/skills](https://github.com/antfu/skills) | `vitest` |
+| [ant-design/antd-skill](https://github.com/ant-design/antd-skill) | `ant-design`, `antd` |
+| [mongodb/agent-skills](https://github.com/mongodb/agent-skills) | `mongodb-connection`, `mongodb-mcp-setup`, `mongodb-query-optimizer`, `mongodb-schema-design` |
 
-| Skill | Source | Purpose | Structure |
-|-------|--------|---------|-----------|
-| **apollo-client** | [apollographql/skills](https://github.com/apollographql/skills) | Apollo Client 4.x patterns | SKILL.md + references/ |
-| **apollo-server** | [apollographql/skills](https://github.com/apollographql/skills) | Apollo Server 4.x patterns | SKILL.md + references/ |
-| **graphql-operations** | [apollographql/skills](https://github.com/apollographql/skills) | GraphQL query/mutation patterns | SKILL.md + references/ |
-| **graphql-schema** | [apollographql/skills](https://github.com/apollographql/skills) | GraphQL schema design | SKILL.md + references/ |
-| **turborepo** | [vercel/turborepo](https://github.com/vercel/turborepo) | Turborepo orchestration (aligns with ADR-0019) | SKILL.md + command/ + references/ |
-| **vercel-react-best-practices** | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | React 19 patterns | SKILL.md + references/ |
-| **enterprise-architecture-patterns** | Community | DDD, CQRS, Event Sourcing (aligns with ADR-0003) | SKILL.md + EXAMPLES.md |
-
-**Structure Patterns Observed:**
-- **SKILL.md** - Always present, contains main instructions with YAML frontmatter
-- **EXAMPLES.md** - Used for comprehensive code examples (enterprise-architecture-patterns, madr-enforcement)
-- **references/** - Directory for extended documentation organized by topic (apollo-client, turborepo)
-- **command/** - Directory for CLI-related skills (turborepo)
-- Flexibility in organization while maintaining discoverability
-
-**Our Alignment:**
-The madr-enforcement skill follows the **SKILL.md + EXAMPLES.md + assets/** pattern, similar to:
-- `enterprise-architecture-patterns` (SKILL.md + EXAMPLES.md for comprehensive examples)
-- While other skills use `references/` for extended docs, we use `assets/` for MADR templates
-
-**To explore ShareThrift skills:**
-Visit [simnova/sharethrift/.agents/skills/](https://github.com/simnova/sharethrift/tree/main/.agents/skills)
+The exact upstream hashes currently installed in the repo are tracked in [skills-lock.json](../../skills-lock.json).
 
 ## Creating New Skills
 
-When creating a new skill for CellixJS, follow the structure patterns from sharethrift community skills:
+When creating a new skill for CellixJS, follow the patterns already present in this directory and the broader community skills ecosystem:
 
 ### 1. Choose Your Structure Pattern
 
-Based on sharethrift community skills, choose the appropriate pattern:
+Choose the structure pattern that best matches the skill you are adding:
 
 **Pattern A: SKILL.md + EXAMPLES.md** (for skills with extensive code examples)
 ```
@@ -133,7 +144,7 @@ my-skill/
 ├── EXAMPLES.md     # Comprehensive code examples
 └── assets/         # Templates or resources (optional)
 ```
-*Use for:* Code enforcement, pattern guidance (like madr-enforcement, enterprise-architecture-patterns)
+*Use for:* Code enforcement and pattern guidance (like madr-enforcement)
 
 **Pattern B: SKILL.md + references/** (for skills with topical documentation)
 ```
@@ -144,7 +155,7 @@ my-skill/
     ├── patterns.md
     └── troubleshooting.md
 ```
-*Use for:* Framework integrations, API usage (like apollo-client, graphql-operations)
+*Use for:* Framework integrations, API usage (like mongodb-schema-design)
 
 **Pattern C: SKILL.md + command/** (for CLI-focused skills)
 ```
@@ -217,8 +228,9 @@ ln -s ../../.agents/skills/my-skill .github/skills/my-skill
 Create an ADR documenting why the skill is needed, what it enforces, and how it aligns with existing patterns.
 
 **Example References:**
-- See [ADR-0024](../../apps/docs/docs/decisions/0024-madr-agent-skills.md) for how madr-enforcement skill was documented
-- Review [sharethrift skills](https://github.com/simnova/sharethrift/tree/main/.agents/skills) for structural inspiration
+- See [ADR-0024](../../apps/docs/docs/decisions/0024-madr-agent-skills.md) for how the repo adopts Agent Skills
+- Review the current local skills in this directory for structure examples
+- Use the upstream sources recorded in [skills-lock.json](../../skills-lock.json) when evaluating additional community skills
 
 ## Skill Development Best Practices
 
@@ -267,8 +279,10 @@ This decision covers:
 
 ### Community Resources
 
-- **[simnova/sharethrift](https://github.com/simnova/sharethrift)** - Community skills and examples
-- **[sharethrift ADR-0024](https://github.com/simnova/sharethrift/blob/main/apps/docs/docs/decisions/0024-madr-agent-skills.md)** - Similar implementation
+- **[vercel/turborepo](https://github.com/vercel/turborepo)** - Source for the installed Turborepo skill
+- **[antfu/skills](https://github.com/antfu/skills)** - Source for the installed Vitest skill
+- **[ant-design/antd-skill](https://github.com/ant-design/antd-skill)** - Source for the installed Ant Design skills
+- **[mongodb/agent-skills](https://github.com/mongodb/agent-skills)** - Source for the installed MongoDB skills
 
 ## Contributing
 
@@ -279,11 +293,11 @@ To contribute a new skill:
 3. **Create Skill**: Follow creation guidelines above
 4. **Document Decision**: Create ADR if introducing new enforcement pattern
 5. **Test Thoroughly**: Verify AI agents can use the skill effectively
-6. **Share Knowledge**: Consider contributing useful skills to simnova/sharethrift
+6. **Share Knowledge**: Consider contributing useful skills upstream when appropriate
 
 ## Questions?
 
 - **Agent Skills Format**: See [agentskills.io/specification](https://agentskills.io/specification)
-- **ADRs and Standards**: See [apps/docs/docs/decisions/](../apps/docs/docs/decisions/)
-- **CellixJS Patterns**: See [Copilot Instructions](../.github/copilot-instructions.md)
-- **Community Skills**: See [simnova/sharethrift](https://github.com/simnova/sharethrift)
+- **ADRs and Standards**: See [apps/docs/docs/decisions/](../../apps/docs/docs/decisions/)
+- **CellixJS Patterns**: See [Copilot Instructions](../../.github/copilot-instructions.md)
+- **Community Skills**: See the upstream sources listed in [skills-lock.json](../../skills-lock.json)

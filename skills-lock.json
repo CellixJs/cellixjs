@@ -1,0 +1,45 @@
+{
+	"version": 1,
+	"skills": {
+		"ant-design": {
+			"source": "ant-design/antd-skill",
+			"sourceType": "github",
+			"computedHash": "096d4ac9513e43030f960aab49b50168a3d5eb35be86926ac6e96e5998ea9466"
+		},
+		"antd": {
+			"source": "ant-design/antd-skill",
+			"sourceType": "github",
+			"computedHash": "5e26c8042060bb811118927b5daf637af7929a00fa973dd8f5f804f3ba6e2bf2"
+		},
+		"mongodb-connection": {
+			"source": "mongodb/agent-skills",
+			"sourceType": "github",
+			"computedHash": "5eb79fab35b821215eb5dbb5f1f49ef6c621efcbe3b20f276b9b0a279b298cd2"
+		},
+		"mongodb-mcp-setup": {
+			"source": "mongodb/agent-skills",
+			"sourceType": "github",
+			"computedHash": "2de6425d24ddc7f2dc7d1db8ad5184a6c747d99c80531ecd71cd6c8f9436cf8f"
+		},
+		"mongodb-query-optimizer": {
+			"source": "mongodb/agent-skills",
+			"sourceType": "github",
+			"computedHash": "661ff75d8dc771b96aba5ccab7fb0cb689fcb9a902c4a0ce1a36c4be984d6518"
+		},
+		"mongodb-schema-design": {
+			"source": "mongodb/agent-skills",
+			"sourceType": "github",
+			"computedHash": "46d658eaab2b13e9b8e571b5b084ae62cc9b3866bbbd98d23e4b9af9c1c26626"
+		},
+		"turborepo": {
+			"source": "vercel/turborepo",
+			"sourceType": "github",
+			"computedHash": "632e1f08972f55532e817819f857d47f19d6a8b8b2b407541c2840e28ac5e13e"
+		},
+		"vitest": {
+			"source": "antfu/skills",
+			"sourceType": "github",
+			"computedHash": "669c7275f7e1379b06b2bcfa593603aead4c983b951c7e8edbc09640aa38d0a1"
+		}
+	}
+}

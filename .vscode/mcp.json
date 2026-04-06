@@ -1,0 +1,11 @@
+{
+	"servers": {
+		"mongodb": {
+			"command": "npx",
+			"args": ["-y", "mongodb-mcp-server"],
+			"env": {
+				"MDB_MCP_CONNECTION_STRING": "mongodb://localhost:50000"
+			}
+		}
+	}
+}
