@@ -236,7 +236,7 @@ When run, the skill will:
 
 ### References
 
-- [Agent Skill: turbo-graph-optimization](../../.agents/skills/turbo-graph-optimization/SKILL.md)
+- [Agent Skill: turbo-graph-optimization](https://github.com/CellixJs/cellixjs/blob/main/.agents/skills/turbo-graph-optimization/SKILL.md)
 - [ADR-0020: Azure DevOps Pipeline](./0020-azure-devops-monorepo-pipeline.md)
 - [ADR-0024: Agent Skills Framework](./0024-madr-agent-skills.md)
 - [turbo query Docs](https://turborepo.dev/docs/reference/query)
