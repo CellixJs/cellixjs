@@ -3,13 +3,7 @@ import { useMutation } from '@apollo/client';
 import { AdminMemberAddContainerMemberAddDocument, AdminMemberListContainerMembersByCommunityIdDocument } from '../../../../generated.tsx';
 import { MemberAddModal } from './member-add-modal.tsx';
 
-export interface MemberAddModalContainerProps {
-	communityId: string;
-	open: boolean;
-	onClose: () => void;
-}
-
-export const MemberAddModalContainer: React.FC<MemberAddModalContainerProps> = ({ communityId, open, onClose }) => {
+export const MemberAddModalContainer: React.FC<{ communityId: string; open: boolean; onClose: () => void }> = ({ communityId, open, onClose }) => {
 	const { message } = App.useApp();
 
 	const [addMember, { loading }] = useMutation(AdminMemberAddContainerMemberAddDocument, {
@@ -42,7 +36,6 @@ export const MemberAddModalContainer: React.FC<MemberAddModalContainerProps> = (
 
 	return (
 		<MemberAddModal
-			communityId={communityId}
 			open={open}
 			loading={loading}
 			onAdd={handleAdd}

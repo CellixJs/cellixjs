@@ -1,13 +1,5 @@
 import { Button, Form, Input, Modal } from 'antd';
 
-export interface MemberAddModalProps {
-	communityId: string;
-	open: boolean;
-	loading?: boolean;
-	onAdd: (values: { memberName: string; firstName: string; lastName?: string; userExternalId: string }) => void;
-	onCancel: () => void;
-}
-
 interface MemberAddFormValues {
 	memberName: string;
 	firstName: string;
@@ -15,7 +7,7 @@ interface MemberAddFormValues {
 	userExternalId: string;
 }
 
-export const MemberAddModal: React.FC<MemberAddModalProps> = ({ open, loading, onAdd, onCancel }) => {
+export const MemberAddModal: React.FC<{ open: boolean; loading?: boolean; onAdd: (values: MemberAddFormValues) => void; onCancel: () => void }> = ({ open, loading, onAdd, onCancel }) => {
 	const [form] = Form.useForm<MemberAddFormValues>();
 
 	const handleOk = () => {
