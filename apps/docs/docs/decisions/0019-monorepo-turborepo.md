@@ -154,6 +154,92 @@ Packages are categorized by tags for selective deployments:
 - **config**: Shared configurations
 - **docs**: Documentation
 
+## Task Graph Optimization
+
+### Overview
+
+Turborepo task graphs can accumulate unnecessary transitive dependencies over time, increasing 
+build times. The `turbo-graph-optimization` agent skill automates analysis and optimization 
+(located in `.agents/skills/turbo-graph-optimization/SKILL.md`, with symlink at 
+`.github/skills/turbo-graph-optimization`).
+
+The skill autonomously discovers build targets, analyzes task graphs, proposes safe optimizations 
+(verifying via static import analysis), flags risky changes for human review, and verifies the 
+build succeeds.
+
+### When to Optimize
+
+- New package added pulling in unnecessary upstream tasks
+- Build slowdown investigation (task graph bloat)
+- Periodic hygiene (quarterly or semi-annually)
+- Pre-release verification
+- CI/CD optimization
+
+Current CellixJS build targets: `@apps/api#build`, `@apps/ui-community#build`, `@apps/docs#build`
+
+### Safety Approach
+
+1. **Static import analysis** verifies removed tasks aren't consumed
+2. **Build verification** runs `turbo run build` to confirm success
+3. **Flagging** (not applying) changes unverifiable via static analysis (dynamic imports, 
+   conditional requires, runtime dependencies)
+4. **Before/after tables** document results with task breakdown and percentages
+
+See [ADR-0020](./0020-azure-devops-monorepo-pipeline.md) for CI change detection notes — 
+task graph updates may affect change detection in Azure Pipelines.
+
+### CellixJS Task Graph Analysis (April 2026)
+
+**Baseline Analysis** — Turborepo 2.9.3 with `turbo query --dry=json`:
+
+Per-target task counts:
+- **@apps/api#build**: 26 tasks (24 build, 1 gen, 1 audit)
+- **@apps/ui-community#build**: 7 tasks (5 build, 1 gen, 1 audit)
+- **@apps/docs#build**: 5 tasks (3 build, 1 gen, 1 audit)
+
+Full monorepo build (`turbo run build`):
+- **Total tasks**: 36 (34 build, 1 gen, 1 audit)
+
+**Optimization Scan Results**:
+```
+✓ No unnecessary transitive dependencies found
+✓ Task graph is clean and well-optimized
+✓ All dependencies are necessary for build outputs
+```
+
+**Key Findings**:
+- All `build` tasks correctly depend on `^build` (upstream packages)
+- `//#gen` (monorepo-wide code generation) runs once, appropriately scoped
+- `//#audit` (monorepo-wide audit) runs once, appropriately scoped
+- No uncacheable tasks blocking critical path
+- No diamond dependencies inflating task count
+
+**Conclusion**: The CellixJS task graph is currently well-optimized with no low-hanging optimization 
+opportunities. Future optimization candidates would emerge as:
+1. New packages with unnecessary upstream dependencies are added
+2. New task types (e.g., typegen, type-check) are introduced
+3. Build time regressions trigger periodic reviews
+
+### Usage
+
+```bash
+# Via GitHub Copilot or Claude:
+# "Optimize the Turborepo task graph using the turbo-graph-optimization skill"
+```
+
+When run, the skill will:
+1. Discover build targets (`@apps/api`, `@apps/ui-community`, `@apps/docs`)
+2. Analyze current task graph (as captured above)
+3. Identify optimization opportunities (if any emerge)
+4. Apply safe changes and verify build succeeds
+5. Present before/after comparison with summary
+
+### References
+
+- [Agent Skill: turbo-graph-optimization](https://github.com/CellixJs/cellixjs/blob/main/.agents/skills/turbo-graph-optimization/SKILL.md)
+- [ADR-0020: Azure DevOps Pipeline](./0020-azure-devops-monorepo-pipeline.md)
+- [ADR-0024: Agent Skills Framework](./0024-madr-agent-skills.md)
+- [turbo query Docs](https://turborepo.dev/docs/reference/query)
 
 ## More Information
 

@@ -12,7 +12,7 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "dev": "pnpm run build && pnpm run proxy:stop && pnpm run proxy:start && turbo run azurite gen:watch dev",
+    "dev": "pnpm run build && pnpm run proxy:stop && pnpm run proxy:start && turbo run --watch azurite gen:watch dev",
     "start": "turbo run build && concurrently --kill-others-on-fail \"pnpm run start:api\" \"pnpm run start:ui-community\"",
     "proxy:stop": "portless proxy stop || true",
     "proxy:start": "portless proxy start -p 1355 --https",
