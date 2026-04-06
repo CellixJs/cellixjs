@@ -158,7 +158,7 @@ Examples of situations that cannot be verified via static import analysis:
   explicitly imported
 - **Cross-cutting concerns**: Setup/teardown tasks that affect the entire build environment
 
-These are listed in the final output with reason for deferral, and the rest of the optimizations 
+These are listed in the final output with a reason for deferral, and the rest of the optimizations 
 continue.
 
 ## Output Format
@@ -209,7 +209,7 @@ review.
   loads plugins dynamically)
 
 - #: setup task required for CI environment
-  → May affect CI change detection if removed (check ADR-0020)
+  → May affect CI change detection if removed
 ```
 
 ## Verification & Validation
@@ -401,3 +401,18 @@ Result: -15 duplicate tasks in graph
 - [Anthony Shew's turbo query + agent workflow](https://x.com/anthonysheww/status/2039812921845502371)
   — Demonstrates the manual version of this workflow that the skill automates
 
+
+## CellixJS-Specific Guidance
+
+For CellixJS monorepo users, additional context is available in project-specific documentation:
+
+- **[ADR-0019: Monorepo Structure and Turborepo](../../apps/docs/docs/decisions/0019-monorepo-turborepo.md)** 
+  — Documents CellixJS task graph configuration, baseline analysis, and optimization strategy.
+
+- **[ADR-0020: Azure DevOps Monorepo Pipeline](../../apps/docs/docs/decisions/0020-azure-devops-monorepo-pipeline.md)** 
+  — Covers CI/CD change detection behavior and how task graph updates interact with Azure Pipelines.
+  When flagging items for review (Step 5), note that setup/teardown tasks may affect CI change 
+  detection — refer to this ADR for context specific to your CI/CD platform.
+
+These references provide CellixJS-specific implementation details and are not required for using 
+this skill in other Turborepo monorepos.
