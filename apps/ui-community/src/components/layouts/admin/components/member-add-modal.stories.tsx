@@ -6,7 +6,6 @@ const meta: Meta<typeof MemberAddModal> = {
 	title: 'Admin/MemberAddModal',
 	component: MemberAddModal,
 	args: {
-		communityId: 'community-123',
 		open: true,
 		loading: false,
 		onAdd: fn(),
