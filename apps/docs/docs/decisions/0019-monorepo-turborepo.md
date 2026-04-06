@@ -188,6 +188,37 @@ Current CellixJS build targets: `@apps/api#build`, `@apps/ui-community#build`, `
 See [ADR-0020](./0020-azure-devops-monorepo-pipeline.md) for CI change detection notes — 
 task graph updates may affect change detection in Azure Pipelines.
 
+### Current CellixJS Task Graph (Baseline)
+
+Analysis performed with Turborepo 2.9.3 on CellixJS (April 2026):
+
+**@apps/api#build**
+```
+Total tasks: 26
+  - build: 24
+  - gen: 1
+  - audit: 1
+```
+
+**@apps/ui-community#build**
+```
+Total tasks: 7
+  - build: 5
+  - gen: 1
+  - audit: 1
+```
+
+**@apps/docs#build**
+```
+Total tasks: 5
+  - build: 3
+  - gen: 1
+  - audit: 1
+```
+
+These results represent the baseline task graph. When the skill is run to optimize, results 
+will show which tasks were identified as unnecessary transitive dependencies and removed.
+
 ### Example Usage
 
 ```bash
@@ -195,13 +226,8 @@ task graph updates may affect change detection in Azure Pipelines.
 # "Optimize the Turborepo task graph using the turbo-graph-optimization skill"
 ```
 
-Example results:
-```
-Total tasks: 87 → 64 (-23, -26%)
-  build: 58 → 58 (no change)
-  type-check: 15 → 0 (removed, not consumed by target)
-  typegen: 14 → 6 (cleaned up unnecessary dependencies)
-```
+The skill will analyze these baseline configurations, identify optimization opportunities, 
+apply safe changes, and present before/after results with the breakdown above as the baseline.
 
 ### References
 
