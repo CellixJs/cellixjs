@@ -1,4 +1,5 @@
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import process from "node:process";
 import { parseCheckArgs, printCheckUsage } from "./cli-utils.ts";
@@ -35,8 +36,8 @@ function main(): void {
 
 	const packageRoot = resolve(args.packageRoot);
 	const outputPath = args.outputPath ? resolve(args.outputPath) : getDefaultSummaryPath(packageRoot);
-	const initScriptPath = new URL("./init-cellix-tdd-summary.ts", import.meta.url);
-	const evaluateScriptPath = new URL("./evaluate-cellix-tdd.ts", import.meta.url);
+	const initScriptPath = fileURLToPath(new URL("./init-cellix-tdd-summary.ts", import.meta.url));
+	const evaluateScriptPath = fileURLToPath(new URL("./evaluate-cellix-tdd.ts", import.meta.url));
 
 	if (!fileExists(outputPath) || args.forceInit) {
 		console.log(`No summary found. Creating scaffold at ${outputPath}`);
@@ -44,7 +45,7 @@ function main(): void {
 		if (args.forceInit) {
 			initArgs.push("--force");
 		}
-		const initStatus = runScript(initScriptPath.pathname, initArgs);
+		const initStatus = runScript(initScriptPath, initArgs);
 		if (initStatus !== 0) {
 			process.exit(initStatus);
 		}
@@ -60,7 +61,7 @@ function main(): void {
 		evaluateArgs.push("--json");
 	}
 
-	const evaluateStatus = runScript(evaluateScriptPath.pathname, evaluateArgs);
+	const evaluateStatus = runScript(evaluateScriptPath, evaluateArgs);
 	process.exit(evaluateStatus);
 }
 

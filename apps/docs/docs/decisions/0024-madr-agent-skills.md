@@ -55,7 +55,7 @@ This decision aligns with ADR-0001 (MADR for architectural decisions) by providi
 - Catch violations (e.g., using ESLint vs Biome, domain code mixing with infrastructure) during coding
 - Reduce manual code review burden for ADR compliance
 - Standardized format works across multiple AI agent products
-- Can leverage community skills from simnova/sharethrift
+- Can leverage community skills from trusted upstream repositories
 - Skills serve as both AI guidance and developer documentation
 
 **Bad:**
@@ -85,7 +85,7 @@ Standardized format for packaging AI agent context and capabilities.
 - Community ecosystem of shareable skills
 - Clear specification at agentskills.io
 - Folder-based structure is simple and Git-friendly
-- Can integrate skills from simnova/sharethrift project
+- Can integrate skills from trusted upstream community repositories
 - Perfect for enforcing ADR standards in code
 
 **Neutral:**
@@ -213,19 +213,39 @@ Following Agent Skills specification:
 
 ### 3. Community Skills Integration
 
-Investigate and integrate relevant skills from simnova/sharethrift:
+Community skills should be installed from trusted upstream repositories and then kept in the repo under the standard CellixJS layout.
 
-**Available Community Skills:**
-- **apollo-client**: Apollo Client 4.x best practices
-- **apollo-server**: Apollo Server 4.x patterns
-- **graphql-operations**: GraphQL query/mutation conventions
-- **graphql-schema**: GraphQL schema design
-- **turborepo**: Turborepo task orchestration (aligns with ADR-0019)
-- **vercel-react-best-practices**: React 19 patterns
-- **enterprise-architecture-patterns**: DDD, CQRS, Event Sourcing (aligns with ADR-0003)
+**Current examples:**
+- **vercel/turborepo**: `turborepo`
+- **mongodb/agent-skills**: `mongodb-connection`, `mongodb-mcp-setup`, `mongodb-query-optimizer`, `mongodb-schema-design`
+- **ant-design/antd-skill**: `ant-design`, `antd`
+- **antfu/skills**: `vitest`
 
-**Integration Method:**
-Future phase - evaluate and integrate relevant community skills
+**Standard workflow for adding a community skill:**
+
+1. Confirm the skill matches current CellixJS tooling and does not conflict with existing ADRs.
+2. Install it into the managed skills directory using the Skills CLI pattern documented by Vercel, adapted for this pnpm workspace:
+
+   ```bash
+   pnpm dlx skills add <owner/repo> --dir .agents/skills
+   pnpm dlx skills add <owner/repo> --skill <skill-name> --dir .agents/skills
+   ```
+
+3. Verify the installed skill exists at `.agents/skills/<skill-name>/SKILL.md` and that `skills-lock.json` records the upstream source.
+4. Create the matching GitHub Copilot symlink:
+
+   ```bash
+   ln -s ../../.agents/skills/<skill-name> .github/skills/<skill-name>
+   ```
+
+5. Document why the skill is kept, which upstream it came from, and any local constraints or adaptations.
+6. If upstream guidance conflicts with CellixJS ADRs, add a local wrapper or companion skill instead of editing the vendorized community skill in place.
+
+**Optional discovery command:**
+
+```bash
+pnpm dlx skills find <query>
+```
 
 ### 4. Skill Authoring Guidelines
 
@@ -256,7 +276,7 @@ The MADR enforcement skill references and enforces:
 - **ADR-0014**: Azure Functions v4 patterns
 - And all other documented ADRs
 
-## Migration Plan
+## Migration Checklist
 
 ### Phase 1: MADR Enforcement Skill (Completed)
 - ✅ Create `.agents/skills/madr-enforcement/` with SKILL.md
@@ -266,11 +286,20 @@ The MADR enforcement skill references and enforces:
 - ✅ Add `.github/instructions/madr.instructions.md`
 - ✅ Create symlink in `.github/skills/`
 
-### Phase 2: Community Skills Integration (Next)
-- [ ] Research available skills in simnova/sharethrift
-- [ ] Identify applicable skills (apollo-client, turborepo, enterprise-architecture-patterns)
-- [ ] Install or adapt skills for CellixJS context
-- [ ] Document integration in README
+### Phase 2: Community Skills Integration (Completed)
+- ✅ Install approved community skills into `.agents/skills/` with `pnpm dlx skills add ... --dir .agents/skills`
+- ✅ Create matching `.github/skills/` symlinks for Copilot discovery
+- ✅ Track installed upstream sources in `skills-lock.json`
+- ✅ Add repo-specific dependencies and configuration required by installed skills
+- ✅ Document the managed community skills and their purpose
+
+### Ongoing Checklist for Future Community Skill Adoption
+- [ ] Confirm the skill fits current tooling and existing ADRs
+- [ ] Install with `pnpm dlx skills add <owner/repo> --dir .agents/skills`
+- [ ] Use `--skill <skill-name>` when the upstream repository contains multiple skills
+- [ ] Verify `.agents/skills/<skill-name>/SKILL.md` and `skills-lock.json`
+- [ ] Add `.github/skills/<skill-name>` -> `../../.agents/skills/<skill-name>`
+- [ ] Document the upstream source, purpose, and any local wrapper or adaptation
 
 ### Phase 3: Additional CellixJS Skills (Future)
 - [ ] Create additional enforcement skills as needed for new ADRs
@@ -327,13 +356,12 @@ Instructions on enforcing standards, code examples, anti-patterns...
 - [Agent Skills Home](https://agentskills.io/home)
 - [Agent Skills Specification](https://agentskills.io/specification)
 - [Agent Skills GitHub](https://github.com/agentskills/agentskills)
-- [simnova/sharethrift Repository](https://github.com/simnova/sharethrift)
-- [simnova/sharethrift ADR-0024](https://github.com/simnova/sharethrift/blob/main/apps/docs/docs/decisions/0024-madr-agent-skills.md)
+- [Vercel Agent Skills Docs](https://vercel.com/docs/agent-resources/skills#installing-skills)
 - [Skills CLI](https://github.com/skills-sh/skills)
 
 ### Future Considerations
 
-- **Skills CLI Integration**: Use `pnpm dlx skills` commands for managing community skills
+- **Skills CLI Usage**: Continue using `pnpm dlx skills` commands for skill management
 - **Skill Versioning**: Track skill versions alongside ADR versions
 - **Cross-Repository Skills**: Share CellixJS skills with broader community
 - **Lock File Support**: Monitor Skills CLI for lock file feature

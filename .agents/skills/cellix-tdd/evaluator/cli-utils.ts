@@ -21,6 +21,7 @@ export function parseEvaluateArgs(argv: string[]): EvaluateParsedArgs {
 
 		switch (arg) {
 			case "--":
+				index = argv.length;
 				break;
 			case "--fixture":
 				parsed.fixtureDir = next;
@@ -84,6 +85,7 @@ export function parseCheckArgs(argv: string[]): CheckParsedArgs {
 
 		switch (arg) {
 			case "--":
+				index = argv.length;
 				break;
 			case "--package":
 				parsed.packageRoot = next;
