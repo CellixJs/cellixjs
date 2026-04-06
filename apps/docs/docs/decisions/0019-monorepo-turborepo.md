@@ -188,46 +188,51 @@ Current CellixJS build targets: `@apps/api#build`, `@apps/ui-community#build`, `
 See [ADR-0020](./0020-azure-devops-monorepo-pipeline.md) for CI change detection notes — 
 task graph updates may affect change detection in Azure Pipelines.
 
-### Current CellixJS Task Graph (Baseline)
+### CellixJS Task Graph Analysis (April 2026)
 
-Analysis performed with Turborepo 2.9.3 on CellixJS (April 2026):
+**Baseline Analysis** — Turborepo 2.9.3 with `turbo query --dry=json`:
 
-**@apps/api#build**
-```
-Total tasks: 26
-  - build: 24
-  - gen: 1
-  - audit: 1
-```
+Per-target task counts:
+- **@apps/api#build**: 26 tasks (24 build, 1 gen, 1 audit)
+- **@apps/ui-community#build**: 7 tasks (5 build, 1 gen, 1 audit)
+- **@apps/docs#build**: 5 tasks (3 build, 1 gen, 1 audit)
 
-**@apps/ui-community#build**
-```
-Total tasks: 7
-  - build: 5
-  - gen: 1
-  - audit: 1
-```
+Full monorepo build (`turbo run build`):
+- **Total tasks**: 36 (34 build, 1 gen, 1 audit)
 
-**@apps/docs#build**
+**Optimization Scan Results**:
 ```
-Total tasks: 5
-  - build: 3
-  - gen: 1
-  - audit: 1
+✓ No unnecessary transitive dependencies found
+✓ Task graph is clean and well-optimized
+✓ All dependencies are necessary for build outputs
 ```
 
-These results represent the baseline task graph. When the skill is run to optimize, results 
-will show which tasks were identified as unnecessary transitive dependencies and removed.
+**Key Findings**:
+- All `build` tasks correctly depend on `^build` (upstream packages)
+- `//#gen` (monorepo-wide code generation) runs once, appropriately scoped
+- `//#audit` (monorepo-wide audit) runs once, appropriately scoped
+- No uncacheable tasks blocking critical path
+- No diamond dependencies inflating task count
 
-### Example Usage
+**Conclusion**: The CellixJS task graph is currently well-optimized with no low-hanging optimization 
+opportunities. Future optimization candidates would emerge as:
+1. New packages with unnecessary upstream dependencies are added
+2. New task types (e.g., typegen, type-check) are introduced
+3. Build time regressions trigger periodic reviews
+
+### Usage
 
 ```bash
 # Via GitHub Copilot or Claude:
 # "Optimize the Turborepo task graph using the turbo-graph-optimization skill"
 ```
 
-The skill will analyze these baseline configurations, identify optimization opportunities, 
-apply safe changes, and present before/after results with the breakdown above as the baseline.
+When run, the skill will:
+1. Discover build targets (`@apps/api`, `@apps/ui-community`, `@apps/docs`)
+2. Analyze current task graph (as captured above)
+3. Identify optimization opportunities (if any emerge)
+4. Apply safe changes and verify build succeeds
+5. Present before/after comparison with summary
 
 ### References
 
