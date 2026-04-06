@@ -5,7 +5,7 @@ description: >
   introspection. Works with any Turborepo 2.9+ monorepo — discovers build targets, task types, and 
   dependencies dynamically at runtime. Fully autonomous workflow: invoke and the agent completes 
   end-to-end analysis, optimization, verification, and presents formatted before/after results. 
-  No user prompts, no ambiguity steps. Flags changes that cannot be verified via static import 
+  No user prompts, no ambiguous steps. Flags changes that cannot be verified via static import 
   analysis for human review; continues with all other optimizations.
 license: MIT
 compatibility: Turborepo 2.9+
@@ -13,7 +13,7 @@ metadata:
   author: CellixJS Team
   version: "1.0"
   repository: https://github.com/CellixJs/cellixjs
-allowed-tools: Bash(turbo:*) Bash(find:*) Bash(cat:*) Bash(grep:*) Read Write Glob Grep
+allowed-tools: Bash(turbo:query) Bash(turbo:run) Bash(find) Bash(cat) Bash(grep) Read Write Glob Grep
 ---
 
 # Turborepo Task Graph Optimization Skill
@@ -48,7 +48,13 @@ propose & apply → verify → after capture → formatted results output
 
 1. **Discover Build Targets** (Autonomous)
    - Introspect the repository using `turbo query ls` to identify all packages
-   - Detect deployable application build targets (packages with a `build` task)
+   - Detect deployable application build targets by finding packages with the primary build task
+   - Primary task detection strategy:
+     - First, check for the `build` task (the standard Turborepo convention)
+     - If not found, query the `turbo.json` configuration for task definitions and infer the primary 
+       task from the `tasks` section ordering or documentation
+     - As fallback, use the first task defined in a package's `package.json` scripts if it's 
+       semantically a build task (contains keywords: `build`, `bundle`, `dist`)
    - Use workspace configuration to understand package structure
    - No user selection or confirmation — analyze all discovered targets
 
@@ -80,9 +86,13 @@ propose & apply → verify → after capture → formatted results output
    - Document reasoning for each flagged item
 
 6. **Verify Build** (Autonomous)
-   - Execute `turbo run build` (or the repo's equivalent primary task)
+   - Detect the primary build task using the same strategy as Step 1 (look for `build`, infer from 
+     `turbo.json`, or fallback to package scripts)
+   - Execute `turbo run <primary-task>` where `<primary-task>` is the dynamically detected build task
    - Confirm the build succeeds with optimized graph
    - If build fails, halt and report the failure
+   - If the primary task cannot be reliably determined, document the limitation and continue with 
+     snapshot comparison only (defer verification to human review)
 
 7. **Capture After State** (Autonomous)
    - Re-run the same queries from step 3 to capture **After** snapshot
@@ -278,15 +288,22 @@ turbo query --schema
 # Analyze transitive dependencies for a specific target
 turbo query "{ @package_name { taskGraph { id taskType dependsOn outputs } } }"
 
-# Verify build after changes
-turbo run build
+# Detect primary build task (example for repos without 'build' task)
+cat turbo.json | grep -A 10 '"tasks"'
+cat package.json | grep -A 5 '"scripts"'
+
+# Verify build with detected primary task
+turbo run build        # if 'build' task exists
+turbo run dist         # or alternative primary task if detected
+turbo run compile      # or other task depending on repository
 
 # Compare before/after snapshots
 turbo query ...
 ```
 
 The specific commands are determined by the agent based on the repository's structure and 
-Turborepo configuration.
+Turborepo configuration. The verification step uses the dynamically detected primary task rather 
+than assuming a specific task name.
 
 ## Common Optimization Patterns
 
