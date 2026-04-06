@@ -659,6 +659,52 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Deleting a member with permission to manage members', ({ Given, When, Then }) => {
+		Given('a Member aggregate with permission to manage members', () => {
+			passport = makePassport({ canManageMembers: true });
+			baseProps = makeBaseProps();
+			member = new Member(baseProps, passport);
+		});
+		When('I call requestDelete', () => {
+			member.requestDelete();
+		});
+		Then('the member should be marked as deleted', () => {
+			expect(member.isDeleted).toBe(true);
+		});
+	});
+
+	Scenario('Deleting a member with system account permission', ({ Given, When, Then }) => {
+		Given('a Member aggregate with system account permission', () => {
+			passport = makePassport({ isSystemAccount: true });
+			baseProps = makeBaseProps();
+			member = new Member(baseProps, passport);
+		});
+		When('I call requestDelete', () => {
+			member.requestDelete();
+		});
+		Then('the member should be marked as deleted', () => {
+			expect(member.isDeleted).toBe(true);
+		});
+	});
+
+	Scenario('Deleting a member without permission', ({ Given, When, Then }) => {
+		let requestDelete: () => void;
+		Given('a Member aggregate without permission to manage members or system account', () => {
+			passport = makePassport({ canManageMembers: false, isSystemAccount: false });
+			baseProps = makeBaseProps();
+			member = new Member(baseProps, passport);
+		});
+		When('I try to call requestDelete', () => {
+			requestDelete = () => {
+				member.requestDelete();
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(requestDelete).toThrow(PermissionError);
+			expect(requestDelete).toThrow('Cannot delete member');
+		});
+	});
+
 	Scenario('Getting profile, accounts, customViews, createdAt, updatedAt, and schemaVersion', ({ Given, Then, And }) => {
 		Given('a Member aggregate', () => {
 			passport = makePassport();

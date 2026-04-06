@@ -1,0 +1,37 @@
+query AdminMemberListContainerMembersByCommunityId($communityId: ObjectID!) {
+	membersByCommunityId(communityId: $communityId) {
+		...AdminMemberListContainerMemberFields
+	}
+}
+
+mutation AdminMemberListContainerMemberRemove($input: MemberRemoveInput!) {
+	memberRemove(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		member {
+			...AdminMemberListContainerMemberFields
+		}
+	}
+}
+
+fragment AdminMemberListContainerMemberFields on Member {
+	id
+	memberName
+	isAdmin
+	createdAt
+	updatedAt
+	profile {
+		name
+		email
+		avatarDocumentId
+	}
+	accounts {
+		id
+		firstName
+		lastName
+		statusCode
+		createdAt
+	}
+}

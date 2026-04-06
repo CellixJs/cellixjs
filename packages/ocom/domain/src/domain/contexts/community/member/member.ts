@@ -10,6 +10,7 @@ import * as ValueObjects from './member.value-objects.ts';
 import { MemberAccount, type MemberAccountEntityReference, type MemberAccountProps } from './member-account.ts';
 import { MemberCustomView, type MemberCustomViewEntityReference, type MemberCustomViewProps } from './member-custom-view.ts';
 import { MemberProfile, type MemberProfileEntityReference, type MemberProfileProps } from './member-profile.ts';
+import { MemberRemovedEvent, type MemberRemovedProps } from '../../../events/types/member-removed.ts';
 
 export interface MemberProps extends DomainEntityProps {
 	memberName: string;
@@ -91,6 +92,17 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 		}
 		console.log(customView.name);
 		this.props.customViews.removeItem(customView.props);
+	}
+
+	public requestDelete(): void {
+		if (!this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot delete member');
+		}
+		super.isDeleted = true;
+		this.addIntegrationEvent<MemberRemovedProps, MemberRemovedEvent>(MemberRemovedEvent, {
+			memberId: this.props.id,
+			communityId: this.communityId,
+		});
 	}
 
 	async loadCommunity(): Promise<CommunityEntityReference> {

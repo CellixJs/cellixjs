@@ -152,6 +152,21 @@ Feature: <AggregateRoot> Member
     When I try to call requestRemoveCustomView with a valid MemberCustomView
     Then a PermissionError should be thrown
 
+  Scenario: Deleting a member with permission to manage members
+    Given a Member aggregate with permission to manage members
+    When I call requestDelete
+    Then the member should be marked as deleted
+
+  Scenario: Deleting a member with system account permission
+    Given a Member aggregate with system account permission
+    When I call requestDelete
+    Then the member should be marked as deleted
+
+  Scenario: Deleting a member without permission
+    Given a Member aggregate without permission to manage members or system account
+    When I try to call requestDelete
+    Then a PermissionError should be thrown
+
   Scenario: Getting profile, accounts, customViews, createdAt, updatedAt, and schemaVersion
     Given a Member aggregate
     Then the profile property should return a MemberProfile entity

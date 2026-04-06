@@ -25,3 +25,50 @@ Feature: Member resolvers
     Given a user without a verified JWT
     When the membersForCurrentEndUser query is executed
     Then it should throw an "Unauthorized" error
+
+  Scenario: Querying members by community ID
+    Given a signed in user with subject "user-sub-123"
+    And the member service can return members for community "community-456"
+    When the membersByCommunityId query is executed with communityId "community-456"
+    Then it should call Community.Member.queryByCommunityId with the communityId
+    And it should return the list of members for that community
+
+  Scenario: Querying members by community ID without authentication
+    Given a user without a verified JWT
+    When the membersByCommunityId query is executed with communityId "community-456"
+    Then it should throw an "Unauthorized" error
+
+  Scenario: Adding a member to a community
+    Given a signed in user with subject "admin-sub-456"
+    And the member add service returns a new member
+    When the memberAdd mutation is executed
+    Then it should return a MemberMutationResult with success true and the new member
+
+  Scenario: Adding a member to a community fails
+    Given a signed in user with subject "admin-sub-456"
+    And the member add service throws an error "Cannot add member"
+    When the memberAdd mutation is executed
+    Then it should return a MemberMutationResult with success false and the error message
+
+  Scenario: Removing a member from a community
+    Given a signed in user with subject "admin-sub-456"
+    And the member remove service returns the removed member
+    When the memberRemove mutation is executed
+    Then it should return a MemberMutationResult with success true
+
+  Scenario: Removing a member from a community fails
+    Given a signed in user with subject "admin-sub-456"
+    And the member remove service throws an error "Cannot remove member"
+    When the memberRemove mutation is executed
+    Then it should return a MemberMutationResult with success false and the error message
+
+  Scenario: Updating a member's role
+    Given a signed in user with subject "admin-sub-456"
+    And the member role update service returns the updated member
+    When the memberRoleUpdate mutation is executed
+    Then it should return a MemberMutationResult with success true
+
+  Scenario: Adding a member without authentication
+    Given a user without a verified JWT
+    When the memberAdd mutation is executed unauthenticated
+    Then it should return a MemberMutationResult with success false and the error message
