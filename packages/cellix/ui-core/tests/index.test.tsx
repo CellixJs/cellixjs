@@ -1,5 +1,5 @@
 import type React from 'react';
-// @ts-expect-error react-dom/server doesn't have types in react-dom v19
+// @ts-ignore react-dom v19 doesn't ship type definitions for server exports
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentQueryLoader, RequireAuth } from '@cellix/ui-core';
