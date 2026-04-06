@@ -1,0 +1,112 @@
+query AdminMemberListContainerMembers($communityId: ObjectID!) {
+	membersByCommunityId(communityId: $communityId) {
+		...AdminMemberListContainerMemberFields
+	}
+}
+
+# Member Management Mutations
+mutation AdminMemberListContainerActivateMember($input: ActivateMemberInput!) {
+	activateMember(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		member {
+			...AdminMemberListContainerMemberFields
+		}
+	}
+}
+
+mutation AdminMemberListContainerDeactivateMember($input: DeactivateMemberInput!) {
+	deactivateMember(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		member {
+			...AdminMemberListContainerMemberFields
+		}
+	}
+}
+
+mutation AdminMemberListContainerRemoveMember($input: RemoveMemberInput!) {
+	removeMember(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		member {
+			...AdminMemberListContainerMemberFields
+		}
+	}
+}
+
+# Bulk Operations
+mutation AdminMemberListContainerBulkActivateMembers($input: BulkActivateMembersInput!) {
+	bulkActivateMembers(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		members {
+			...AdminMemberListContainerMemberFields
+		}
+		successCount
+		failedCount
+	}
+}
+
+mutation AdminMemberListContainerBulkDeactivateMembers($input: BulkDeactivateMembersInput!) {
+	bulkDeactivateMembers(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		members {
+			...AdminMemberListContainerMemberFields
+		}
+		successCount
+		failedCount
+	}
+}
+
+mutation AdminMemberListContainerBulkRemoveMembers($input: BulkRemoveMembersInput!) {
+	bulkRemoveMembers(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		members {
+			...AdminMemberListContainerMemberFields
+		}
+		successCount
+		failedCount
+	}
+}
+
+fragment AdminMemberListContainerMemberFields on Member {
+	id
+	memberName
+	isAdmin
+	accounts {
+		id
+		firstName
+		lastName
+		statusCode
+		user {
+			id
+			externalId
+		}
+		createdAt
+		updatedAt
+	}
+	profile {
+		name
+		email
+		bio
+		showEmail
+		showProfile
+	}
+	createdAt
+	updatedAt
+}

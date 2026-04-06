@@ -1,7 +1,7 @@
 type Member implements MongoBase {
 	memberName: String
 	community: Community
-	# role: EndUserRole
+	# role: EndUserRole # TODO: Define EndUserRole type
 	accounts: [MemberAccount!]!
 	profile: MemberProfile
 	# cybersourceCustomerId: String
@@ -41,7 +41,220 @@ type MemberProfile {
 
 extend type Query {
 	# member(id: ObjectID!): Member!
-	# membersByCommunityId(communityId: ObjectID!): [Member!]!
+	membersByCommunityId(communityId: ObjectID!): [Member!]!
 	# memberForCurrentCommunity: Member!
 	membersForCurrentEndUser: [Member!]!
+}
+
+extend type Mutation {
+	memberCreateAccount(input: MemberCreateAccountInput!): MemberMutationResult!
+	memberRemoveAccount(input: MemberRemoveAccountInput!): MemberMutationResult!
+	memberUpdateProfile(input: MemberUpdateProfileInput!): MemberMutationResult!
+
+	# Member Management Operations
+	activateMember(input: ActivateMemberInput!): MemberMutationResult!
+	deactivateMember(input: DeactivateMemberInput!): MemberMutationResult!
+	removeMember(input: RemoveMemberInput!): MemberMutationResult!
+
+	# Member Invitation Operations
+	inviteMember(input: InviteMemberInput!): MemberInvitationMutationResult!
+	bulkInviteMembers(input: BulkInviteMembersInput!): BulkMemberInvitationMutationResult!
+
+	# Bulk Operations
+	bulkActivateMembers(input: BulkActivateMembersInput!): BulkMemberMutationResult!
+	bulkDeactivateMembers(input: BulkDeactivateMembersInput!): BulkMemberMutationResult!
+	bulkRemoveMembers(input: BulkRemoveMembersInput!): BulkMemberMutationResult!
+
+	# Additional Member Management Operations
+	inviteMembersBulk(input: InviteMembersBulkInput!): InviteMembersBulkPayload!
+	activateMembersBulk(input: ActivateMembersBulkInput!): ActivateMembersBulkPayload!
+	deactivateMembersBulk(input: DeactivateMembersBulkInput!): DeactivateMembersBulkPayload!
+	removeMembersBulk(input: RemoveMembersBulkInput!): RemoveMembersBulkPayload!
+
+	# Role Management
+	updateMemberRole(input: UpdateMemberRoleInput!): MemberMutationResult!
+}
+
+type MemberMutationResult implements MutationResult {
+	status: MutationStatus!
+	member: Member
+}
+
+type MemberInvitationMutationResult implements MutationResult {
+	status: MutationStatus!
+	invitation: MemberInvitation
+}
+
+type BulkMemberMutationResult implements MutationResult {
+	status: MutationStatus!
+	members: [Member!]
+	failedCount: Int
+	successCount: Int
+}
+
+type BulkMemberInvitationMutationResult implements MutationResult {
+	status: MutationStatus!
+	invitations: [MemberInvitation!]
+	failedCount: Int
+	successCount: Int
+}
+
+type MemberInvitation {
+	id: ObjectID!
+	email: String!
+	message: String
+	status: String!
+	expiresAt: DateTime!
+	invitedBy: EndUser!
+	acceptedBy: EndUser
+	communityId: ObjectID!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+input MemberCreateAccountInput {
+	memberId: ObjectID!
+	firstName: String!
+	lastName: String
+}
+
+input MemberRemoveAccountInput {
+	memberId: ObjectID!
+	accountId: ObjectID!
+}
+
+input MemberUpdateProfileInput {
+	memberId: ObjectID!
+	profile: MemberProfileInput!
+}
+
+# Member Management Input Types
+
+input ActivateMemberInput {
+	memberId: ObjectID!
+	communityId: ObjectID!
+}
+
+input DeactivateMemberInput {
+	memberId: ObjectID!
+	communityId: ObjectID!
+	reason: String
+}
+
+input RemoveMemberInput {
+	memberId: ObjectID!
+	communityId: ObjectID!
+	reason: String
+}
+
+input BulkActivateMembersInput {
+	memberIds: [ObjectID!]!
+	communityId: ObjectID!
+}
+
+input BulkDeactivateMembersInput {
+	memberIds: [ObjectID!]!
+	communityId: ObjectID!
+	reason: String
+}
+
+input BulkRemoveMembersInput {
+	memberIds: [ObjectID!]!
+	communityId: ObjectID!
+	reason: String
+}
+
+# Member Invitation Input Types
+
+input InviteMemberInput {
+	communityId: ObjectID!
+	email: String!
+	message: String
+	expiresInDays: Int # Default to 7 days if not specified
+}
+
+input BulkInviteMembersInput {
+	communityId: ObjectID!
+	invitations: [MemberInvitationInput!]!
+	expiresInDays: Int # Default to 7 days if not specified
+}
+
+input MemberInvitationInput {
+	email: String!
+	message: String
+}
+
+# Additional Bulk Operation Input/Output Types
+
+input InviteMembersBulkInput {
+	emails: [String!]!
+	message: String
+}
+
+type InviteMembersBulkPayload {
+	status: MutationStatus!
+	results: [InviteMembersBulkResult!]!
+}
+
+type InviteMembersBulkResult {
+	email: String!
+	success: Boolean!
+	errorMessage: String
+}
+
+input ActivateMembersBulkInput {
+	memberIds: [String!]!
+	reason: String!
+}
+
+type ActivateMembersBulkPayload {
+	status: MutationStatus!
+	results: [MemberBulkOperationResult!]!
+}
+
+input DeactivateMembersBulkInput {
+	memberIds: [String!]!
+	reason: String!
+}
+
+type DeactivateMembersBulkPayload {
+	status: MutationStatus!
+	results: [MemberBulkOperationResult!]!
+}
+
+input RemoveMembersBulkInput {
+	memberIds: [String!]!
+	reason: String!
+}
+
+type RemoveMembersBulkPayload {
+	status: MutationStatus!
+	results: [MemberBulkOperationResult!]!
+}
+
+type MemberBulkOperationResult {
+	memberId: String!
+	success: Boolean!
+	errorMessage: String
+}
+
+# Role Management Input Types
+
+input UpdateMemberRoleInput {
+	memberId: String!
+	roleId: String!
+	reason: String!
+}
+
+input MemberProfileInput {
+	name: String
+	email: String
+	bio: String
+	avatarDocumentId: String
+	interests: [String!]
+	showInterests: Boolean
+	showEmail: Boolean
+	showProfile: Boolean
+	showLocation: Boolean
+	showProperties: Boolean
 }
