@@ -10,9 +10,7 @@ description: >
 license: MIT
 compatibility: Turborepo 2.9+
 metadata:
-  author: CellixJS Team
   version: "1.0"
-  repository: https://github.com/CellixJs/cellixjs
 allowed-tools: Bash(turbo:query) Bash(turbo:run) Bash(find) Bash(cat) Bash(grep) Read Write Glob Grep
 ---
 
@@ -120,11 +118,11 @@ platform references**:
 - **CI coordination**: Skill notes that changes may affect CI change detection but does not reference 
   any specific platform
 
-This means the skill works equally on:
-- CellixJS (with `@ocom` and `@cellix` packages)
-- Any future reorganization of CellixJS
-- Any other Turborepo 2.9+ monorepo
-- Community use outside your projects
+This means the skill works equally on any Turborepo 2.9+ monorepo, regardless of:
+- Workspace layout (e.g., `packages/` and `apps/`, or custom structures)
+- Naming conventions (e.g., scoped vs. non-scoped package names)
+- Task naming (e.g., `build`, `dist`, `compile`, etc.)
+- Organizational strategy (e.g., feature-based, layer-based, etc.)
 
 ### Autonomous by Default
 
@@ -246,47 +244,76 @@ pnpm add -D turbo@latest
 ## CI Coordination Notes
 
 Task graph changes may affect CI change detection and build optimization. When updating 
-`turbo.json` or task dependencies:
+`turbo.json` or task dependencies, be aware of:
 
 - **Local Turborepo Cache**: Changes will affect remote caching behavior in CI/CD
 - **Change Detection**: Updates to `dependsOn` may alter which packages are detected as changed
 - **Build Time**: Removing unnecessary tasks should improve overall CI/CD pipeline time
 
-Reference your project's CI/CD configuration (e.g., ADR-0020 for CellixJS using Azure Pipelines) 
-for notes on change detection and how task graph updates interact with CI optimization.
+Consult your project's CI/CD configuration and task graph documentation when making changes.
 
-## Integration with Monorepo Patterns
+## Repo Patterns
 
-The skill adapts to different monorepo structures:
+The skill adapts to different monorepo structures. Example workspace layouts it supports:
 
-### CellixJS Example
+**Flat structure**
+```
+packages/
+  ├── ui/
+  ├── api/
+  ├── shared/
+```
 
-- **Workspace structure**: `packages/cellix/`, `packages/ocom/`, `apps/api/`, `apps/ui-community/`
-- **Build targets**: `@apps/api#build`, `@apps/ui-community#build`, `@apps/docs#build`
-- **Task types**: `build`, `test`, `gen`, `lint`, etc. (discovered dynamically)
-- **Transitive dependencies**: Analyzed per target to remove unused upstream tasks
+**Nested/scoped structure**
+```
+packages/
+  ├── core/
+  │   ├── domain/
+  │   └── persistence/
+  ├── apps/
+  │   ├── api/
+  │   └── web/
+```
 
-### Any Turborepo 2.9+ Monorepo
+**Hybrid structure**
+```
+packages/scope1/component1/
+packages/scope1/component2/
+apps/app1/
+apps/app2/
+```
 
-- **Discovery**: Works with any workspace layout discovered via `turbo query ls`
-- **Targets**: Finds all packages with build tasks (no hardcoding)
-- **Task types**: Adapts to whatever tasks are present in the actual graph
-- **Analysis**: Same process applies regardless of naming or structure
+The skill discovers whatever structure exists via `turbo query ls` and analyzes accordingly. Task types and naming are inferred dynamically—no assumptions about `build`, `test`, `gen`, etc.
 
 ## Example Commands
 
-The agent may execute commands like these during analysis:
+The agent uses `turbo query` to introspect the repository structure. Here are common valid queries:
 
 ```bash
-# Discover packages and structure
-turbo query ls --graph
-turbo query ls --json
-
-# Load schema for introspection
+# Get the GraphQL schema to understand available fields
 turbo query --schema
 
-# Analyze transitive dependencies for a specific target
-turbo query "{ @package_name { taskGraph { id taskType dependsOn outputs } } }"
+# List all packages in the repository
+turbo query 'query { packages }'
+
+# Get packages with their paths
+turbo query 'query { 
+  packages { 
+    path 
+    name 
+    allDependencies { 
+      path 
+    } 
+  } 
+}'
+
+# Query task information for a specific package
+turbo query 'query {
+  package(name: "@scope/package-name") {
+    path
+    name
+  }
+}'
 
 # Detect primary build task (example for repos without 'build' task)
 cat turbo.json | grep -A 10 '"tasks"'
@@ -297,13 +324,11 @@ turbo run build        # if 'build' task exists
 turbo run dist         # or alternative primary task if detected
 turbo run compile      # or other task depending on repository
 
-# Compare before/after snapshots
-turbo query ...
+# Analyze task graph for a specific target
+turbo run build --dry=json
 ```
 
-The specific commands are determined by the agent based on the repository's structure and 
-Turborepo configuration. The verification step uses the dynamically detected primary task rather 
-than assuming a specific task name.
+The specific queries used are determined by the agent based on the repository's structure and the Turborepo `turbo query` GraphQL schema. The agent dynamically discovers available query fields and adapts accordingly.
 
 ## Common Optimization Patterns
 
@@ -374,10 +399,3 @@ Result: -15 duplicate tasks in graph
 - [Anthony Shew's turbo query + agent workflow](https://x.com/anthonysheww/status/2039812921845502371)
   — Demonstrates the manual version of this workflow that the skill automates
 
-### Related ADRs (for CellixJS context)
-- [ADR-0019: Monorepo Structure and Turborepo](../../apps/docs/docs/decisions/0019-monorepo-turborepo.md) 
-  — Monorepo design and task configuration
-- [ADR-0020: Azure DevOps Monorepo Pipeline](../../apps/docs/docs/decisions/0020-azure-devops-monorepo-pipeline.md) 
-  — CI/CD change detection and task graph interaction
-- [ADR-0024: Agent Skills Framework](../../apps/docs/docs/decisions/0024-madr-agent-skills.md) 
-  — Framework this skill follows
