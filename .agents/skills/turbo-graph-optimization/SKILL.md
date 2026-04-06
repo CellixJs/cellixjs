@@ -10,7 +10,9 @@ description: >
 license: MIT
 compatibility: Turborepo 2.9+
 metadata:
+  author: CellixJS Team
   version: "1.0"
+  repository: https://github.com/CellixJs/cellixjs
 allowed-tools: Bash(turbo:query) Bash(turbo:run) Bash(find) Bash(cat) Bash(grep) Read Write Glob Grep
 ---
 
