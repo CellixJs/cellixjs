@@ -98,13 +98,24 @@ For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 
 CellixJS integrates [Agent Skills](https://agentskills.io) to provide AI coding assistants with structured, project-specific context for enforcing architectural standards defined in our MADRs.
 
-**Available Skills:**
-- **madr-enforcement**: Ensures code adheres to architectural standards documented in ADRs (DDD patterns, Biome linting, Vitest testing, Snyk security, etc.)
+The managed skill set lives in [`.agents/skills/`](.agents/skills/) and is mirrored for Copilot discovery through symlinks in [`.github/skills/`](.github/skills/). Only skills relevant to normal work in this repo are committed.
 
-**What the skill does:**
-- Enforces patterns from ADR-0003 (Domain-Driven Design), ADR-0012 (Biome), ADR-0013 (Vitest), ADR-0022 (Snyk), and other ADRs
-- Provides code examples showing correct and incorrect implementations
-- Identifies common violations and how to fix them
+**Current managed skills:**
+- **madr-enforcement**: Enforces ADR-defined architectural standards across the codebase
+- **turborepo**: Guides monorepo task graph, caching, and pipeline work
+- **vitest**: Guides test structure, mocking, filtering, and coverage work
+- **ant-design** and **antd**: Support Ant Design component usage and `@ant-design/cli` workflows for UI work
+- **mongodb-connection**: Guides MongoDB/Mongoose connection and pool tuning
+- **mongodb-mcp-setup**: Guides MongoDB MCP configuration and troubleshooting for the local MCP workflow
+- **mongodb-query-optimizer**: Guides MongoDB query and index performance work
+- **mongodb-schema-design**: Guides MongoDB schema and modeling decisions for Mongoose models
+
+**MongoDB MCP support:**
+- Workspace MCP configuration is committed in [`.vscode/mcp.json`](.vscode/mcp.json)
+- Local development can target the in-memory replica set started by `pnpm run start-emulator:mongo-memory-server`
+
+**Community install metadata:**
+- `skills-lock.json` records the upstream source and hash for each installed community skill
 
 **Learn more:** See [.agents/skills/README.md](.agents/skills/README.md) and [ADR-0024](apps/docs/docs/decisions/0024-madr-agent-skills.md)
 
