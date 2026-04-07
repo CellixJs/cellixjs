@@ -1,6 +1,9 @@
 {
 	"extends": ["//"],
 	"tasks": {
+		"dev": {
+			"persistent": true
+		},
 		"test": {
 			"inputs": ["$TURBO_EXTENDS$", "!docs/**", "!blog/**", "!static/**"]
 		},

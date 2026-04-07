@@ -2,13 +2,14 @@
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "tui",
 	"futureFlags": {
-		"affectedUsingTaskInputs": true
+		"affectedUsingTaskInputs": true,
+		"watchUsingTaskInputs": true
 	},
 	"tasks": {
 		"build": {
 			"description": "Compiles TypeScript and bundles each package",
 			"dependsOn": ["//#audit", "^build", "//#gen"],
-			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!tests/**", "!**/*.test.*", "!**/*.spec.*", "!vitest*.config.*"],
+			"inputs": ["src/**/*.ts", "tsconfig*.json", "rolldown.config.ts", "!coverage/**", "!target/**", "!tests/**", "!**/*.test.*", "!**/*.spec.*", "!vitest*.config.*"],
 			"outputs": ["dist/**", "build/**", "*.tsbuildinfo"]
 		},
 		"test": {
@@ -58,6 +59,7 @@
 			"persistent": true
 		},
 		"dev": {
+			"dependsOn": ["^build"],
 			"cache": false,
 			"persistent": true
 		},
@@ -83,7 +85,7 @@
 		"//#gen": {
 			"description": "Runs graphql-codegen to generate static SDL arrays and resolver manifests from .graphql schema files",
 			"cache": true,
-			"inputs": ["codegen.yml", "**/*.graphql", "**/*.resolvers.ts", "**/*.permissions.ts", "packages/cellix/graphql-codegen/plugins/**"],
+			"inputs": ["codegen.yml", "**/*.graphql", "**/*.resolvers.ts", "**/*.permissions.ts", "packages/cellix/graphql-codegen/plugins/**", "!src/generated/**", "!**/*.generated.ts", "!**/generated.ts", "!**/generated.tsx", "!**/graphql.schema.json"],
 			"outputs": ["**/generated.ts", "**/*.generated.ts", "**/graphql.schema.json", "**/generated.tsx"]
 		},
 		"//#gen:watch": {

@@ -1,4 +1,9 @@
 {
 	"extends": ["//"],
-	"tags": ["mock"]
+	"tags": ["mock"],
+	"tasks": {
+		"dev": {
+			"dependsOn": ["^build", "build"]
+		}
+	}
 }
