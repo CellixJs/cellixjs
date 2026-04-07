@@ -72,7 +72,7 @@ extend type Mutation {
 	removeMembersBulk(input: RemoveMembersBulkInput!): RemoveMembersBulkPayload!
 
 	# Role Management
-	updateMemberRole(input: UpdateMemberRoleInput!): MemberMutationResult!
+	memberRoleUpdate(input: UpdateMemberRoleInput!): MemberMutationResult!
 }
 
 type MemberMutationResult implements MutationResult {

@@ -23,7 +23,6 @@ fragment AdminMemberDetailContainerMemberFields on Member {
 			externalId
 		}
 	}
-	
 }
 
 query AdminMemberDetailContainerMembersByCommunity($communityId: ObjectID!) {
@@ -33,7 +32,7 @@ query AdminMemberDetailContainerMembersByCommunity($communityId: ObjectID!) {
 }
 
 mutation AdminMemberDetailContainerUpdateMemberRole($input: UpdateMemberRoleInput!) {
-	updateMemberRole(input: $input) {
+	memberRoleUpdate(input: $input) {
 		status {
 			success
 			errorMessage

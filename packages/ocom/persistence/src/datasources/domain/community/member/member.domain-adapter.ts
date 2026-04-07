@@ -131,7 +131,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
 		this.doc = doc;
 	}
 	public get id(): string {
-		return this.doc.id?.valueOf() as string;
+		return this.doc._id?.toString() as string;
 	}
 
 	get firstName() {
@@ -153,7 +153,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
 			throw new Error('User is not populated');
 		}
 		if (this.doc.user instanceof MongooseSeedwork.ObjectId) {
-			throw new Error('User is not populated or is not of the correct type');
+			return { id: this.doc.user.toString() } as Domain.Contexts.User.EndUser.EndUserEntityReference;
 		}
 		return new EndUserDomainAdapter(this.doc.user as EndUser);
 	}
@@ -183,7 +183,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
 			throw new Error('createdBy is not populated');
 		}
 		if (this.doc.createdBy instanceof MongooseSeedwork.ObjectId) {
-			throw new Error('createdBy is not populated or is not of the correct type');
+			return { id: this.doc.createdBy.toString() } as Domain.Contexts.User.EndUser.EndUserEntityReference;
 		}
 		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}

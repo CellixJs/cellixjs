@@ -6,7 +6,7 @@ import { determineIfAdmin, type MemberDetermineIfAdminCommand } from './determin
 import {
 	// inviteMember,
 	// bulkInviteMembers,
-	// updateMemberRole,
+	updateMemberRole,
 	activateMember,
 	deactivateMember,
 	removeMember,
@@ -15,7 +15,7 @@ import {
 	bulkRemoveMembers,
 	// type MemberInviteCommand,
 	// type BulkMemberInviteCommand,
-	// type UpdateMemberRoleCommand,
+	type UpdateMemberRoleCommand,
 	type ActivateMemberCommand,
 	type DeactivateMemberCommand,
 	type RemoveMemberCommand,
@@ -32,7 +32,7 @@ export interface MemberApplicationService {
 	// Member management operations
 	// inviteMember: (command: MemberInviteCommand) => Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference>;
 	// bulkInviteMembers: (command: BulkMemberInviteCommand) => Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference[]>;
-	// updateMemberRole: (command: UpdateMemberRoleCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
+	updateMemberRole: (command: UpdateMemberRoleCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 	activateMember: (command: ActivateMemberCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 	deactivateMember: (command: DeactivateMemberCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 	removeMember: (command: RemoveMemberCommand) => Promise<void>;
@@ -52,7 +52,7 @@ export const Member = (dataSources: DataSources): MemberApplicationService => {
 		// Member management operations
 		// inviteMember: inviteMember(dataSources),
 		// bulkInviteMembers: bulkInviteMembers(dataSources),
-		// updateMemberRole: updateMemberRole(dataSources),
+		updateMemberRole: updateMemberRole(dataSources),
 		activateMember: activateMember(dataSources),
 		deactivateMember: deactivateMember(dataSources),
 		removeMember: removeMember(dataSources),

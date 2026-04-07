@@ -1,73 +1,79 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
-//#region Invite Member Operations (TODO: Implement when repository methods are available)
-
-/*
-export interface MemberInviteCommand {
-	communityId: string;
-	email: string;
-	role?: string; // Default to 'member' if not specified
-	message?: string;
-	expiresInDays?: number; // Default to 7 days if not specified
-}
-
-export interface BulkMemberInviteCommand {
-	communityId: string;
-	invitations: Array<{
-		email: string;
-		role?: string;
-		message?: string;
-	}>;
-	expiresInDays?: number; // Default to 7 days if not specified
-}
-
-export const inviteMember = (dataSources: DataSources) => {
-	return async (command: MemberInviteCommand): Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference> => {
-		// TODO: Implement when MemberInvitation repository methods are available
-		throw new Error('Member invitation functionality not yet implemented');
-	};
-};
-
-export const bulkInviteMembers = (dataSources: DataSources) => {
-	return async (command: BulkMemberInviteCommand): Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference[]> => {
-		// TODO: Implement when MemberInvitation repository methods are available
-		throw new Error('Bulk member invitation functionality not yet implemented');
-	};
-};
+//#region Role Management Operations
 
 export interface UpdateMemberRoleCommand {
 	memberId: string;
-	communityId: string;
 	roleId: string;
+	reason?: string;
 }
 
 export const updateMemberRole = (dataSources: DataSources) => {
 	return async (command: UpdateMemberRoleCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
-		// TODO: Implement when updateRole method is added to Member domain class
-		throw new Error('Update member role functionality not yet implemented');
+		let updatedMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
+		let communityId: string | undefined;
+
+		// First, get the member to derive the communityId
+		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (memberRepository) => {
+			const member = await memberRepository.getById(command.memberId);
+			communityId = member.props.communityId;
+		});
+
+		if (!communityId) {
+			throw new Error('Unable to determine community from member');
+		}
+
+		// Then, get and validate the role using the derived communityId
+		let newRole: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference | undefined;
+
+		await dataSources.domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withScopedTransaction(async (roleRepo) => {
+			newRole = await roleRepo.getById(command.roleId);
+		});
+
+		if (!newRole) {
+			throw new Error('Role not found');
+		}
+
+		// Verify role belongs to the same community as the member
+		if (newRole.community.id !== communityId) {
+			throw new Error('Role does not belong to the same community as the member');
+		}
+
+		// Now update the member with the validated role
+		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (memberRepository) => {
+			// Get the member again
+			const member = await memberRepository.getById(command.memberId);
+
+			// Update the member's role
+			if (!newRole) {
+				throw new Error('Role validation failed');
+			}
+			member.role = newRole;
+
+			// Save the updated member
+			updatedMember = await memberRepository.save(member);
+		});
+
+		if (!updatedMember) {
+			throw new Error('Unable to update member role');
+		}
+
+		return updatedMember;
 	};
 };
-*/
-
-//#endregion
-
-//#region Member Management Operations
 
 export interface ActivateMemberCommand {
 	memberId: string;
-	communityId: string;
 }
 
 export interface DeactivateMemberCommand {
 	memberId: string;
-	communityId: string;
 	reason?: string;
 }
 
 export interface RemoveMemberCommand {
 	memberId: string;
-	communityId: string;
 	reason?: string;
 }
 
@@ -77,10 +83,6 @@ export const activateMember = (dataSources: DataSources) => {
 
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
 			const member = await repository.getById(command.memberId);
-
-			if (member.props.communityId !== command.communityId) {
-				throw new Error('Member does not belong to the specified community');
-			}
 
 			// Activate member using the domain method we already implemented
 			member.requestActivateMember();
@@ -103,10 +105,6 @@ export const deactivateMember = (dataSources: DataSources) => {
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
 			const member = await repository.getById(command.memberId);
 
-			if (member.props.communityId !== command.communityId) {
-				throw new Error('Member does not belong to the specified community');
-			}
-
 			// Deactivate member using the domain method we already implemented
 			member.requestDeactivateMember();
 
@@ -126,10 +124,6 @@ export const removeMember = (dataSources: DataSources) => {
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
 			const member = await repository.getById(command.memberId);
 
-			if (member.props.communityId !== command.communityId) {
-				throw new Error('Member does not belong to the specified community');
-			}
-
 			// Remove member using the domain method we already implemented
 			member.requestRemoveMember();
 
@@ -144,18 +138,15 @@ export const removeMember = (dataSources: DataSources) => {
 
 export interface BulkActivateMembersCommand {
 	memberIds: string[];
-	communityId: string;
 }
 
 export interface BulkDeactivateMembersCommand {
 	memberIds: string[];
-	communityId: string;
 	reason?: string;
 }
 
 export interface BulkRemoveMembersCommand {
 	memberIds: string[];
-	communityId: string;
 	reason?: string;
 }
 
@@ -167,10 +158,6 @@ export const bulkActivateMembers = (dataSources: DataSources) => {
 			for (const memberId of command.memberIds) {
 				try {
 					const member = await repository.getById(memberId);
-
-					if (member.props.communityId !== command.communityId) {
-						continue; // Skip members not in the specified community
-					}
 
 					member.requestActivateMember();
 					const activatedMember = await repository.save(member);
@@ -195,10 +182,6 @@ export const bulkDeactivateMembers = (dataSources: DataSources) => {
 				try {
 					const member = await repository.getById(memberId);
 
-					if (member.props.communityId !== command.communityId) {
-						continue; // Skip members not in the specified community
-					}
-
 					member.requestDeactivateMember();
 					const deactivatedMember = await repository.save(member);
 					results.push(deactivatedMember);
@@ -219,10 +202,6 @@ export const bulkRemoveMembers = (dataSources: DataSources) => {
 			for (const memberId of command.memberIds) {
 				try {
 					const member = await repository.getById(memberId);
-
-					if (member.props.communityId !== command.communityId) {
-						continue; // Skip members not in the specified community
-					}
 
 					member.requestRemoveMember();
 					await repository.save(member);

@@ -48,7 +48,7 @@ export const MemberDetailContainer: React.FC<MemberDetailContainerProps> = ({ me
 				},
 			});
 
-			const status = result.data?.updateMemberRole?.status;
+			const status = result.data?.memberRoleUpdate?.status;
 			if (status?.success) {
 				message.success('Member role updated successfully');
 				await refetch();

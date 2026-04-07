@@ -14,8 +14,7 @@ import type {
 	MutationDeactivateMembersBulkArgs,
 	MutationRemoveMembersBulkArgs,
 	MutationInviteMembersBulkArgs,
-	MutationUpdateMemberRoleArgs,
-	MemberMutationResult,
+	MutationMemberRoleUpdateArgs,
 } from '../builder/generated.ts';
 import type { DeactivateMemberCommand, RemoveMemberCommand, BulkDeactivateMembersCommand, BulkRemoveMembersCommand } from '../../../../application-services/src/contexts/community/member/member-management.js';
 
@@ -26,12 +25,23 @@ const member: Resolvers = {
 				id: parent.communityId,
 			});
 		},
+
 		// role: async (parent, _args: unknown, _context: GraphContext, _info: GraphQLResolveInfo) => {
 		//     return await parent.loadRole();
 		// },
 		isAdmin: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			return await context.applicationServices.Community.Member.determineIfAdmin({
 				memberId: parent.id,
+			});
+		},
+	},
+	MemberAccount: {
+		user: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
+			if (!parent.user?.id) {
+				return null;
+			}
+			return await context.applicationServices.User.EndUser.queryById({
+				id: parent.user?.id,
 			});
 		},
 	},
@@ -68,7 +78,6 @@ const member: Resolvers = {
 
 				const result = await context.applicationServices.Community.Member.activateMember({
 					memberId: args.input.memberId,
-					communityId: args.input.communityId,
 				});
 
 				return {
@@ -99,7 +108,6 @@ const member: Resolvers = {
 
 				const command: DeactivateMemberCommand = {
 					memberId: args.input.memberId,
-					communityId: args.input.communityId,
 				};
 
 				if (args.input.reason) {
@@ -136,7 +144,6 @@ const member: Resolvers = {
 
 				const command: RemoveMemberCommand = {
 					memberId: args.input.memberId,
-					communityId: args.input.communityId,
 				};
 
 				if (args.input.reason) {
@@ -175,7 +182,6 @@ const member: Resolvers = {
 
 				const members = await context.applicationServices.Community.Member.bulkActivateMembers({
 					memberIds: [...args.input.memberIds], // Convert readonly to mutable array
-					communityId: args.input.communityId,
 				});
 
 				return {
@@ -208,7 +214,6 @@ const member: Resolvers = {
 
 				const command: BulkDeactivateMembersCommand = {
 					memberIds: [...args.input.memberIds], // Convert readonly to mutable array
-					communityId: args.input.communityId,
 				};
 
 				if (args.input.reason) {
@@ -247,7 +252,6 @@ const member: Resolvers = {
 
 				const command: BulkRemoveMembersCommand = {
 					memberIds: [...args.input.memberIds], // Convert readonly to mutable array
-					communityId: args.input.communityId,
 				};
 
 				if (args.input.reason) {
@@ -452,7 +456,7 @@ const member: Resolvers = {
 			}
 		},
 
-		memberRoleUpdat: (_parent: unknown, args: MutationUpdateMemberRoleArgs, context: GraphContext): MemberMutationResult => {
+		memberRoleUpdate: async (_parent: unknown, args: MutationMemberRoleUpdateArgs, context: GraphContext) => {
 			try {
 				// Validate authentication
 				if (!context.applicationServices.verifiedUser?.verifiedJwt) {
@@ -465,23 +469,20 @@ const member: Resolvers = {
 					};
 				}
 
-				const { memberId, roleId: _roleId, reason: _reason } = args.input;
+				const { memberId, roleId, reason } = args.input;
+
+				// Call the application service to update the member role
+				const result = await context.applicationServices.Community.Member.updateMemberRole({
+					memberId,
+					roleId,
+					reason,
+				});
 
 				return {
 					status: {
 						success: true,
 					},
-					member: {
-						// Return minimal member data - will be properly implemented when application service is available
-						id: memberId,
-						memberName: 'Updated Member',
-						//community: { id: 'community-id' },
-						accounts: [],
-						profile: null,
-						isAdmin: false,
-						createdAt: new Date().toISOString(),
-						updatedAt: new Date().toISOString(),
-					},
+					member: result,
 				};
 			} catch (error: unknown) {
 				return {
