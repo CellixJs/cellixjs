@@ -3,13 +3,23 @@
 	"tasks": {
 		"build": {
 			"cache": true,
-			"inputs": ["$TURBO_EXTENDS$", "rolldown.config.ts", "host.json", "$TURBO_ROOT$/build-pipeline/scripts/**"],
-			"outputs": ["$TURBO_EXTENDS$", "deploy/**"]
+			"inputs": [
+				"$TURBO_EXTENDS$",
+				"rolldown.config.ts",
+				"host.json",
+				"$TURBO_ROOT$/build-pipeline/scripts/**"
+			],
+			"outputs": [
+				"$TURBO_EXTENDS$",
+				"deploy/**"
+			]
 		},
 		"dev": {
-			"dependsOn": ["^build", "//#gen"],
-			"interruptible": true,
-			"inputs": []
+			"dependsOn": [
+				"^watch",
+				"//#gen"
+			],
+			"interruptible": true
 		}
 	}
 }

@@ -2,9 +2,10 @@
 	"extends": ["//"],
 	"tasks": {
 		"dev": {
-			"dependsOn": ["^build"],
-			"persistent": true,
-			"inputs": []
+			"dependsOn": [
+				"^watch",
+				"//#gen"
+			]
 		}
 	}
 }

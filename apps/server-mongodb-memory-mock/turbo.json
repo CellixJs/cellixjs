@@ -3,8 +3,11 @@
 	"tags": ["mock"],
 	"tasks": {
 		"dev": {
-			"dependsOn": ["^build", "build"],
-			"inputs": []
+			"interruptible": true,
+			"dependsOn": [
+				"^watch",
+				"//#gen"
+			]
 		}
 	}
 }

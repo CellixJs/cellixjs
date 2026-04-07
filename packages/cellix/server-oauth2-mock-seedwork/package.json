@@ -9,6 +9,7 @@
 	"scripts": {
 		"prebuild": "pnpm run lint && pnpm run format",
 		"build": "tsc --build",
+		"watch": "tsc --build --watch",
 		"clean": "rimraf dist tsconfig.tsbuildinfo && tsc --build --clean",
 		"lint": "biome lint",
 		"format": "biome format --write"

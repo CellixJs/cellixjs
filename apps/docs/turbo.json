@@ -1,23 +1,40 @@
 {
-	"extends": ["//"],
+	"extends": [
+		"//"
+	],
 	"tasks": {
-		"dev": {
-			"persistent": true,
-			"inputs": []
-		},
 		"test": {
-			"inputs": ["$TURBO_EXTENDS$", "!docs/**", "!blog/**", "!static/**"]
+			"inputs": [
+				"$TURBO_EXTENDS$",
+				"!docs/**",
+				"!blog/**",
+				"!static/**"
+			]
 		},
 		"test:coverage": {
-			"inputs": ["$TURBO_EXTENDS$", "!docs/**", "!blog/**", "!static/**"]
+			"inputs": [
+				"$TURBO_EXTENDS$",
+				"!docs/**",
+				"!blog/**",
+				"!static/**"
+			]
 		},
 		"test:watch": {
 			"cache": false,
 			"persistent": true,
-			"inputs": ["$TURBO_EXTENDS$", "!docs/**", "!blog/**", "!static/**"]
+			"inputs": [
+				"$TURBO_EXTENDS$",
+				"!docs/**",
+				"!blog/**",
+				"!static/**"
+			]
 		},
 		"lint": {
-			"inputs": ["$TURBO_EXTENDS$", "!static/**", "!**/*.md"]
+			"inputs": [
+				"$TURBO_EXTENDS$",
+				"!static/**",
+				"!**/*.md"
+			]
 		}
 	}
 }

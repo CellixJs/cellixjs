@@ -2,9 +2,11 @@
 	"extends": ["//"],
 	"tasks": {
 		"dev": {
-			"dependsOn": ["^build", "build"],
 			"interruptible": true,
-			"inputs": []
+			"dependsOn": [
+				"^watch",
+				"//#gen"
+			]
 		}
 	}
 }

@@ -8,61 +8,196 @@
 	"tasks": {
 		"build": {
 			"description": "Compiles TypeScript and bundles each package",
-			"dependsOn": ["//#audit", "^build", "//#gen"],
-			"inputs": ["src/**/*.ts", "tsconfig*.json", "rolldown.config.ts", "!coverage/**", "!target/**", "!tests/**", "!**/*.test.*", "!**/*.spec.*", "!vitest*.config.*"],
-			"outputs": ["dist/**", "build/**", "*.tsbuildinfo"]
+			"dependsOn": [
+				"//#audit",
+				"^build",
+				"//#gen"
+			],
+			"inputs": [
+				"src/**/*.ts",
+				"tsconfig*.json",
+				"rolldown.config.ts",
+				"!coverage/**",
+				"!target/**",
+				"!tests/**",
+				"!**/*.test.*",
+				"!**/*.spec.*",
+				"!vitest*.config.*"
+			],
+			"outputs": [
+				"dist/**",
+				"build/**",
+				"*.tsbuildinfo"
+			]
+		},
+		"watch": {
+			"description": "Watches package source files and rebuilds on changes (one-shot completion)",
+			"cache": false,
+			"persistent": false,
+			"inputs": [
+				"src/**/*.ts",
+				"tsconfig*.json",
+				"rolldown.config.ts",
+				"!coverage/**",
+				"!target/**",
+				"!tests/**",
+				"!**/*.test.*",
+				"!**/*.spec.*",
+				"!vitest*.config.*"
+			],
+			"outputs": [
+				"dist/**",
+				"build/**",
+				"*.tsbuildinfo"
+			]
 		},
 		"test": {
 			"description": "Runs the default test suite for each package",
-			"dependsOn": ["^build", "@cellix/config-vitest#build"],
-			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"]
+			"dependsOn": [
+				"^build",
+				"@cellix/config-vitest#build"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"!coverage/**",
+				"!target/**",
+				"!dist/**",
+				"!build/**",
+				"!deploy/**"
+			]
 		},
 		"test:coverage": {
 			"description": "Runs the coverage test suite and writes coverage reports",
-			"dependsOn": ["build", "^build", "@cellix/config-vitest#build"],
-			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
-			"outputs": ["coverage/**"]
+			"dependsOn": [
+				"build",
+				"^build",
+				"@cellix/config-vitest#build"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"!coverage/**",
+				"!target/**",
+				"!dist/**",
+				"!build/**",
+				"!deploy/**"
+			],
+			"outputs": [
+				"coverage/**"
+			]
 		},
 		"test:watch": {
 			"description": "Runs tests in watch mode for active packages",
-			"dependsOn": ["build", "^build"],
+			"dependsOn": [
+				"build",
+				"^build"
+			],
 			"cache": false,
 			"persistent": true
 		},
 		"test:unit": {
 			"description": "Runs unit tests for each package",
-			"dependsOn": ["^build"],
-			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
-			"outputs": ["coverage/**"]
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"!coverage/**",
+				"!target/**",
+				"!dist/**",
+				"!build/**",
+				"!deploy/**"
+			],
+			"outputs": [
+				"coverage/**"
+			]
 		},
 		"test:integration": {
 			"description": "Runs integration tests for each package",
-			"dependsOn": ["^build"],
-			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
-			"outputs": ["coverage/**"]
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"!coverage/**",
+				"!target/**",
+				"!dist/**",
+				"!build/**",
+				"!deploy/**"
+			],
+			"outputs": [
+				"coverage/**"
+			]
 		},
 		"test:serenity": {
 			"description": "Runs SerenityJS end-to-end test suites",
-			"dependsOn": ["^build"],
-			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
-			"outputs": ["target/**"]
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"!coverage/**",
+				"!target/**",
+				"!dist/**",
+				"!build/**",
+				"!deploy/**"
+			],
+			"outputs": [
+				"target/**"
+			]
 		},
 		"storybook": {
 			"description": "Starts Storybook for packages that expose it",
-			"dependsOn": ["^build", "//#gen"],
+			"dependsOn": [
+				"^build",
+				"//#gen"
+			],
 			"cache": false,
 			"persistent": true
+		},
+		"dev": {
+			"description": "Starts application packages dev servers in watch mode",
+			"dependsOn": [
+				"^watch",
+				"//#gen"
+			],
+			"cache": false,
+			"persistent": true,
+			"interruptible": true,
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"!coverage/**",
+				"!target/**",
+				"!dist/**",
+				"!build/**",
+				"!deploy/**",
+				"!**/*.tsbuildinfo"
+			]
+		},
+		"watch": {
+			"description": "Runs native library/package watch tasks during development",
+			"cache": false,
+			"persistent": false,
+			"inputs": [
+				"src/**/*.ts",
+				"tsconfig*.json",
+				"rolldown.config.ts",
+				"!coverage/**",
+				"!target/**",
+				"!tests/**",
+				"!**/*.test.*",
+				"!**/*.spec.*",
+				"!vitest*.config.*"
+			],
+			"outputs": [
+				"dist/**",
+				"build/**",
+				"*.tsbuildinfo"
+			]
 		},
 		"start": {
 			"description": "Starts long-running package start scripts",
 			"cache": false,
 			"persistent": true
-		},
-		"dev": {
-			"dependsOn": ["^build"],
-			"cache": false,
-			"persistent": true,
-			"inputs": []
 		},
 		"azurite": {
 			"description": "Starts the Azurite storage emulator",
@@ -71,7 +206,15 @@
 		},
 		"lint": {
 			"description": "Runs the Biome linter",
-			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.json", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/biome.json",
+				"!coverage/**",
+				"!target/**",
+				"!dist/**",
+				"!build/**",
+				"!deploy/**"
+			],
 			"outputs": []
 		},
 		"format": {
@@ -86,13 +229,47 @@
 		"//#gen": {
 			"description": "Runs graphql-codegen to generate static SDL arrays and resolver manifests from .graphql schema files",
 			"cache": true,
-			"inputs": ["codegen.yml", "**/*.graphql", "**/*.resolvers.ts", "**/*.permissions.ts", "packages/cellix/graphql-codegen/plugins/**", "!src/generated/**", "!**/*.generated.ts", "!**/generated.ts", "!**/generated.tsx", "!**/graphql.schema.json"],
-			"outputs": ["**/generated.ts", "**/*.generated.ts", "**/graphql.schema.json", "**/generated.tsx"]
+			"inputs": [
+				"codegen.yml",
+				"**/*.graphql",
+				"**/*.resolvers.ts",
+				"**/*.permissions.ts",
+				"packages/cellix/graphql-codegen/plugins/**",
+				"!src/generated/**",
+				"!**/*.generated.ts",
+				"!**/generated.ts",
+				"!**/generated.tsx",
+				"!**/graphql.schema.json"
+			],
+			"outputs": [
+				"**/generated.ts",
+				"**/*.generated.ts",
+				"**/graphql.schema.json",
+				"**/generated.tsx"
+			]
 		},
 		"//#gen:watch": {
 			"description": "Runs graphql-codegen in watch mode",
 			"cache": false,
-			"persistent": true
+			"persistent": false,
+			"inputs": [
+				"codegen.yml",
+				"**/*.graphql",
+				"**/*.resolvers.ts",
+				"**/*.permissions.ts",
+				"packages/cellix/graphql-codegen/plugins/**",
+				"!src/generated/**",
+				"!**/*.generated.ts",
+				"!**/generated.ts",
+				"!**/generated.tsx",
+				"!**/graphql.schema.json"
+			],
+			"outputs": [
+				"**/generated.ts",
+				"**/*.generated.ts",
+				"**/graphql.schema.json",
+				"**/generated.tsx"
+			]
 		},
 		"//#audit": {
 			"description": "Runs package audit checks before build tasks",
