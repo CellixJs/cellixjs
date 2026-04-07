@@ -30,6 +30,68 @@ export class MemberInvitation<props extends MemberInvitationProps> extends Domai
 		this._visa = visa;
 	}
 
+	//#region Actions
+	/**
+	 * Mark invitation as sent
+	 */
+	public requestMarkAsSent(): void {
+		if (!this.isPending) {
+			throw new Error('Can only mark pending invitations as sent');
+		}
+		if (!this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new Error('Cannot mark invitation as sent');
+		}
+		this.status = 'SENT';
+	}
+
+	/**
+	 * Accept the invitation
+	 */
+	public requestAccept(acceptedBy: EndUserEntityReference): void {
+		if (!this.isActive) {
+			throw new Error('Cannot accept inactive invitation');
+		}
+		if (this.isExpired) {
+			throw new Error('Cannot accept expired invitation');
+		}
+		this.status = 'ACCEPTED';
+		this.props.acceptedBy = acceptedBy;
+	}
+
+	/**
+	 * Reject the invitation
+	 */
+	public requestReject(): void {
+		if (!this.isActive) {
+			throw new Error('Cannot reject inactive invitation');
+		}
+		this.status = 'REJECTED';
+	}
+
+	/**
+	 * Mark invitation as expired
+	 */
+	public requestMarkAsExpired(): void {
+		if (!this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new Error('Cannot mark invitation as expired');
+		}
+		this.status = 'EXPIRED';
+	}
+
+	/**
+	 * Extend invitation expiration
+	 */
+	public requestExtendExpiration(newExpiresAt: Date): void {
+		if (!this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new Error('Cannot extend invitation expiration');
+		}
+		if (!this.isActive) {
+			throw new Error('Cannot extend inactive invitation');
+		}
+		this.expiresAt = newExpiresAt;
+	}
+	//#endregion Actions
+
 	//#region Properties
 	get email(): string {
 		return this.props.email;
@@ -122,66 +184,4 @@ export class MemberInvitation<props extends MemberInvitationProps> extends Domai
 		return new ValueObjects.InvitationExpiresAt(this.expiresAt).daysUntilExpiration;
 	}
 	//#endregion Status Helpers
-
-	//#region Actions
-	/**
-	 * Mark invitation as sent
-	 */
-	public requestMarkAsSent(): void {
-		if (!this.isPending) {
-			throw new Error('Can only mark pending invitations as sent');
-		}
-		if (!this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
-			throw new Error('Cannot mark invitation as sent');
-		}
-		this.status = 'SENT';
-	}
-
-	/**
-	 * Accept the invitation
-	 */
-	public requestAccept(acceptedBy: EndUserEntityReference): void {
-		if (!this.isActive) {
-			throw new Error('Cannot accept inactive invitation');
-		}
-		if (this.isExpired) {
-			throw new Error('Cannot accept expired invitation');
-		}
-		this.status = 'ACCEPTED';
-		this.props.acceptedBy = acceptedBy;
-	}
-
-	/**
-	 * Reject the invitation
-	 */
-	public requestReject(): void {
-		if (!this.isActive) {
-			throw new Error('Cannot reject inactive invitation');
-		}
-		this.status = 'REJECTED';
-	}
-
-	/**
-	 * Mark invitation as expired
-	 */
-	public requestMarkAsExpired(): void {
-		if (!this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
-			throw new Error('Cannot mark invitation as expired');
-		}
-		this.status = 'EXPIRED';
-	}
-
-	/**
-	 * Extend invitation expiration
-	 */
-	public requestExtendExpiration(newExpiresAt: Date): void {
-		if (!this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
-			throw new Error('Cannot extend invitation expiration');
-		}
-		if (!this.isActive) {
-			throw new Error('Cannot extend inactive invitation');
-		}
-		this.expiresAt = newExpiresAt;
-	}
-	//#endregion Actions
 }

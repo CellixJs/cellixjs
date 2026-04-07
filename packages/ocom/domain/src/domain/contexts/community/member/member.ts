@@ -168,6 +168,18 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 		});
 	}
 
+	//#endregion Member Management Operations
+
+	async loadCommunity(): Promise<CommunityEntityReference> {
+		return await this.props.loadCommunity();
+	}
+
+	async loadRole(): Promise<EndUserRoleEntityReference> {
+		return await this.props.loadRole();
+	}
+	//#endregion Methods
+
+	//#region Properties
 	/**
 	 * Checks if member has active accounts
 	 */
@@ -182,18 +194,6 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 		return this.accounts.some((account) => account.statusCode === 'CREATED');
 	}
 
-	//#endregion Member Management Operations
-
-	async loadCommunity(): Promise<CommunityEntityReference> {
-		return await this.props.loadCommunity();
-	}
-
-	async loadRole(): Promise<EndUserRoleEntityReference> {
-		return await this.props.loadRole();
-	}
-	//#endregion Methods
-
-	//#region Properties
 	private get visa(): CommunityVisa {
 		if (!this._visa) {
 			if (!this.props.community) {

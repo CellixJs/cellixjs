@@ -127,14 +127,15 @@ export const Default: Story = {
 		expect(canvas.getByRole('button', { name: /invite member/i })).toBeInTheDocument();
 
 		// Verify first member (admin) is displayed with crown icon
-		expect(canvas.getByText('John Doe')).toBeInTheDocument();
+		// John Doe appears in both Member column (profile.name) and Accounts column (firstName + lastName)
+		expect(canvas.getAllByText('John Doe')[0]).toBeInTheDocument();
 		expect(canvas.getByText('john.doe@example.com')).toBeInTheDocument();
 
 		// Verify admin status is shown
 		expect(canvas.getByRole('img', { name: /crown/i })).toBeInTheDocument();
 
-		// Verify member status badges
-		expect(canvas.getByText('ACCEPTED')).toBeInTheDocument();
+		// Verify member status badges (ACCEPTED appears for both John Doe and Bob Johnson)
+		expect(canvas.getAllByText('ACCEPTED')[0]).toBeInTheDocument();
 		expect(canvas.getByText('CREATED')).toBeInTheDocument();
 	},
 };
@@ -165,7 +166,8 @@ export const SingleMember: Story = {
 		expect(canvas.getByText('Community Members (1)')).toBeInTheDocument();
 
 		// Verify the member is displayed
-		expect(canvas.getByText('John Doe')).toBeInTheDocument();
+		// John Doe appears in both Member column (profile.name) and Accounts column (firstName + lastName)
+		expect(canvas.getAllByText('John Doe')[0]).toBeInTheDocument();
 		expect(canvas.getByText('ACCEPTED')).toBeInTheDocument();
 	},
 };

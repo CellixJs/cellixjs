@@ -18,13 +18,17 @@ export class MemberSearchName extends VOString({
 	}
 
 	public isEmpty(): boolean {
-		return this.toString() === '';
+		return this.valueOf() === '';
+	}
+
+	public override toString(): string {
+		return this.valueOf();
 	}
 
 	public matches(memberName: string, searchFields?: { profile?: { displayName?: string } }): boolean {
 		if (this.isEmpty()) return true;
 
-		const searchTerm = this.toString().toLowerCase();
+		const searchTerm = this.valueOf().toLowerCase();
 		const nameMatches = memberName.toLowerCase().includes(searchTerm);
 		const displayNameMatches = searchFields?.profile?.displayName?.toLowerCase().includes(searchTerm) ?? false;
 
@@ -45,13 +49,17 @@ export class MemberSearchEmail extends VOString({
 	}
 
 	public isEmpty(): boolean {
-		return this.toString() === '';
+		return this.valueOf() === '';
+	}
+
+	public override toString(): string {
+		return this.valueOf();
 	}
 
 	public matches(memberAccounts: { emailAddress: string }[]): boolean {
 		if (this.isEmpty()) return true;
 
-		const searchTerm = this.toString().toLowerCase();
+		const searchTerm = this.valueOf().toLowerCase();
 		return memberAccounts.some((account) => account.emailAddress.toLowerCase().includes(searchTerm));
 	}
 }
@@ -118,8 +126,8 @@ export class MemberSearchSpec {
 		roleFilter?: MemberRoleFilter;
 	} {
 		return {
-			...(this.name.isEmpty() ? {} : { nameSearch: this.name.toString() }),
-			...(this.email.isEmpty() ? {} : { emailSearch: this.email.toString() }),
+			...(this.name.isEmpty() ? {} : { nameSearch: this.name.valueOf() }),
+			...(this.email.isEmpty() ? {} : { emailSearch: this.email.valueOf() }),
 			...(this.status === 'all' ? {} : { statusFilter: this.status }),
 			...(this.role === 'all' ? {} : { roleFilter: this.role }),
 		};
