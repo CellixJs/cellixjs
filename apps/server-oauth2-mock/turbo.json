@@ -3,7 +3,8 @@
 	"tasks": {
 		"dev": {
 			"dependsOn": ["^build", "build"],
-			"interruptible": true
+			"interruptible": true,
+			"inputs": []
 		}
 	}
 }

@@ -61,7 +61,8 @@
 		"dev": {
 			"dependsOn": ["^build"],
 			"cache": false,
-			"persistent": true
+			"persistent": true,
+			"inputs": []
 		},
 		"azurite": {
 			"description": "Starts the Azurite storage emulator",
