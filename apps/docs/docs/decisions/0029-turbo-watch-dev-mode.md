@@ -84,10 +84,10 @@ Chosen option: "turbo watch dev with proper dependencies, portless as background
 
 **Dev script:**
 ```json
-"dev": "nohup pnpm proxy:start > /dev/null 2>&1 & turbo watch dev"
+"dev": "pnpm proxy:start > /dev/null 2>&1 & turbo watch dev"
 ```
 
-The `nohup` command fully detaches portless from the terminal session (prevents HUP signal on parent exit). The `> /dev/null 2>&1` suppresses all portless output (both stdout and stderr) so it doesn't interfere with turbo's TUI. The `&` makes it non-blocking. Turbo watch begins immediately with a clean terminal UI.
+The command starts portless in the background with `&`. Output is suppressed to `/dev/null` so the TUI stays clean. Turbo watch begins immediately and doesn't wait for portless to complete initialization.
 
 **Proxy start script:**
 ```json
@@ -341,7 +341,7 @@ pnpm run dev
 ```
 
 ### Troubleshooting: Portless output interferes with turbo TUI
-Portless output is intentionally suppressed (`nohup ... > /dev/null 2>&1`) using `nohup` for full terminal detachment. This keeps turbo's TUI completely clean. The `nohup` command ensures portless won't receive a HUP (hang up) signal even if the parent shell session ends.
+Portless output is intentionally suppressed (`> /dev/null 2>&1`) to keep turbo's TUI clean. The `&` operator runs portless in the background, allowing turbo watch to start immediately.
 
 If you need to see portless logs:
 
@@ -353,11 +353,6 @@ portless proxy status
 pnpm proxy:stop
 portless proxy start -p 1355 --https  # Will show diagnostic output
 # Then stop dev mode (Ctrl+C) and restart: pnpm run dev
-
-# If portless is still showing output in your terminal:
-# 1. Make sure you're using the updated dev script with nohup
-# 2. Try: nohup portless proxy start -p 1355 --https > /dev/null 2>&1 &
-# 3. Verify by checking: pnpm proxy:stop && sleep 1 && pnpm run dev
 ```
 
 ### Troubleshooting: Port Conflicts

@@ -2,10 +2,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"dev": {
-			"dependsOn": [
-				"^watch",
-				"//#gen"
-			]
+			"dependsOn": ["^watch", "//#gen"]
 		}
 	}
 }
