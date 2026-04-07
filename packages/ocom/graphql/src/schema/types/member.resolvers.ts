@@ -17,8 +17,39 @@ import type {
 	MutationMemberRoleUpdateArgs,
 } from '../builder/generated.ts';
 import type { DeactivateMemberCommand, RemoveMemberCommand, BulkDeactivateMembersCommand, BulkRemoveMembersCommand } from '../../../../application-services/src/contexts/community/member/member-management.js';
+import type { MemberInvitationEntityReference } from '../../../../domain/src/domain/contexts/community/member/member-invitation.js';
+
+const toGraphQLInvitation = (inv: MemberInvitationEntityReference) => ({
+	id: inv.id,
+	email: inv.email,
+	message: inv.message,
+	status: inv.status,
+	expiresAt: inv.expiresAt,
+	communityId: inv.communityId,
+	createdAt: inv.createdAt,
+	updatedAt: inv.updatedAt,
+	invitedBy: inv.invitedBy,
+	acceptedBy: inv.acceptedBy ?? null,
+});
 
 const member: Resolvers = {
+	MemberInvitation: {
+		invitedBy: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
+			const user = await context.applicationServices.User.EndUser.queryById({
+				id: parent.invitedBy.id,
+			});
+			if (!user) throw new Error('Invited by user not found');
+			return user;
+		},
+		acceptedBy: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
+			if (!parent.acceptedBy?.id) {
+				return null;
+			}
+			return await context.applicationServices.User.EndUser.queryById({
+				id: parent.acceptedBy.id,
+			});
+		},
+	},
 	Member: {
 		community: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			return await context.applicationServices.Community.Community.queryById({
@@ -280,7 +311,7 @@ const member: Resolvers = {
 		},
 
 		// Member Invitation Mutations
-		inviteMember: (_parent, _args: MutationInviteMemberArgs, context: GraphContext, _info: GraphQLResolveInfo) => {
+		inviteMember: async (_parent, args: MutationInviteMemberArgs, context: GraphContext, _info: GraphQLResolveInfo) => {
 			try {
 				if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 					return {
@@ -291,12 +322,19 @@ const member: Resolvers = {
 					};
 				}
 
-				// TODO: Implement when application service is available
+				const invitation = await context.applicationServices.Community.Member.inviteMember({
+					communityId: args.input.communityId,
+					email: args.input.email,
+					...(args.input.message != null ? { message: args.input.message } : {}),
+					...(args.input.expiresInDays != null ? { expiresInDays: args.input.expiresInDays } : {}),
+					invitedByExternalId: context.applicationServices.verifiedUser.verifiedJwt.sub,
+				});
+
 				return {
 					status: {
-						success: false,
-						errorMessage: 'Member invitation functionality not yet implemented',
+						success: true,
 					},
+					invitation: toGraphQLInvitation(invitation),
 				};
 			} catch (error) {
 				return {
@@ -308,7 +346,7 @@ const member: Resolvers = {
 			}
 		},
 
-		bulkInviteMembers: (_parent, args: MutationBulkInviteMembersArgs, context: GraphContext, _info: GraphQLResolveInfo) => {
+		bulkInviteMembers: async (_parent, args: MutationBulkInviteMembersArgs, context: GraphContext, _info: GraphQLResolveInfo) => {
 			try {
 				if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 					return {
@@ -316,18 +354,31 @@ const member: Resolvers = {
 							success: false,
 							errorMessage: 'Unauthorized',
 						},
+						invitations: [],
+						successCount: 0,
+						failedCount: args.input.invitations.length,
 					};
 				}
 
-				// TODO: Implement when application service is available
+				const invitations = await context.applicationServices.Community.Member.bulkInviteMembers({
+					communityId: args.input.communityId,
+					invitations: args.input.invitations.map((inv) => ({
+						email: inv.email,
+						...(inv.message != null ? { message: inv.message } : {}),
+					})),
+					...(args.input.expiresInDays != null ? { expiresInDays: args.input.expiresInDays } : {}),
+					invitedByExternalId: context.applicationServices.verifiedUser.verifiedJwt.sub,
+				});
+
+				const failedCount = args.input.invitations.length - invitations.length;
+
 				return {
 					status: {
-						success: false,
-						errorMessage: 'Bulk member invitation functionality not yet implemented',
+						success: true,
 					},
-					invitations: [],
-					successCount: 0,
-					failedCount: args.input.invitations.length,
+					invitations: invitations.map(toGraphQLInvitation),
+					successCount: invitations.length,
+					failedCount,
 				};
 			} catch (error) {
 				return {
@@ -335,6 +386,9 @@ const member: Resolvers = {
 						success: false,
 						errorMessage: error instanceof Error ? error.message : 'Unknown error',
 					},
+					invitations: [],
+					successCount: 0,
+					failedCount: args.input.invitations.length,
 				};
 			}
 		},

@@ -4,8 +4,8 @@ import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId } 
 import { type MemberQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
 import { determineIfAdmin, type MemberDetermineIfAdminCommand } from './determine-if-admin.ts';
 import {
-	// inviteMember,
-	// bulkInviteMembers,
+	inviteMember,
+	bulkInviteMembers,
 	updateMemberRole,
 	activateMember,
 	deactivateMember,
@@ -13,8 +13,8 @@ import {
 	bulkActivateMembers,
 	bulkDeactivateMembers,
 	bulkRemoveMembers,
-	// type MemberInviteCommand,
-	// type BulkMemberInviteCommand,
+	type MemberInviteCommand,
+	type BulkMemberInviteCommand,
 	type UpdateMemberRoleCommand,
 	type ActivateMemberCommand,
 	type DeactivateMemberCommand,
@@ -29,9 +29,11 @@ export interface MemberApplicationService {
 	queryByEndUserExternalId: (command: MemberQueryByEndUserExternalIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 	queryByCommunityId: (command: MemberQueryByCommunityIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 
+	// Member invitation operations
+	inviteMember: (command: MemberInviteCommand) => Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference>;
+	bulkInviteMembers: (command: BulkMemberInviteCommand) => Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference[]>;
+
 	// Member management operations
-	// inviteMember: (command: MemberInviteCommand) => Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference>;
-	// bulkInviteMembers: (command: BulkMemberInviteCommand) => Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference[]>;
 	updateMemberRole: (command: UpdateMemberRoleCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 	activateMember: (command: ActivateMemberCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 	deactivateMember: (command: DeactivateMemberCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
@@ -49,9 +51,11 @@ export const Member = (dataSources: DataSources): MemberApplicationService => {
 		queryByEndUserExternalId: queryByEndUserExternalId(dataSources),
 		queryByCommunityId: queryByCommunityId(dataSources),
 
+		// Member invitation operations
+		inviteMember: inviteMember(dataSources),
+		bulkInviteMembers: bulkInviteMembers(dataSources),
+
 		// Member management operations
-		// inviteMember: inviteMember(dataSources),
-		// bulkInviteMembers: bulkInviteMembers(dataSources),
 		updateMemberRole: updateMemberRole(dataSources),
 		activateMember: activateMember(dataSources),
 		deactivateMember: deactivateMember(dataSources),

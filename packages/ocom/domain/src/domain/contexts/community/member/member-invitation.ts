@@ -1,6 +1,8 @@
-import { DomainEntity } from '@cellix/domain-seedwork/domain-entity';
+import { AggregateRoot, type RootEventRegistry } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { CommunityVisa } from '../community.visa.ts';
+import type { Passport } from '../../passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import * as ValueObjects from './member-invitation.value-objects.ts';
 
@@ -10,7 +12,7 @@ export interface MemberInvitationProps extends DomainEntityProps {
 	status: string;
 	expiresAt: Date;
 	invitedBy: Readonly<EndUserEntityReference>;
-	acceptedBy?: Readonly<EndUserEntityReference>;
+	acceptedBy: Readonly<EndUserEntityReference> | undefined;
 	communityId: string;
 
 	readonly createdAt: Date;
@@ -22,12 +24,38 @@ export interface MemberInvitationEntityReference extends Readonly<Omit<MemberInv
 	readonly acceptedBy: EndUserEntityReference | undefined;
 }
 
-export class MemberInvitation<props extends MemberInvitationProps> extends DomainEntity<props> implements MemberInvitationEntityReference {
-	private readonly _visa: CommunityVisa;
+export class MemberInvitation<props extends MemberInvitationProps> extends AggregateRoot<props, Passport> implements MemberInvitationEntityReference, RootEventRegistry {
+	private _visa!: CommunityVisa;
+	private _isNew: boolean = false;
 
-	constructor(props: props, visa: CommunityVisa) {
-		super(props);
-		this._visa = visa;
+	constructor(props: props, passport: Passport) {
+		super(props, passport);
+		this._visa = passport.community.forCommunity({ id: props.communityId } as Parameters<typeof passport.community.forCommunity>[0]);
+	}
+
+	public static getNewInstance<props extends MemberInvitationProps>(
+		newProps: props,
+		passport: Passport,
+		communityId: string,
+		email: string,
+		message: string,
+		expiresAt: Date,
+		invitedBy: EndUserEntityReference,
+	): MemberInvitation<props> {
+		const visa = passport.community.forCommunity({ id: communityId } as Parameters<typeof passport.community.forCommunity>[0]);
+		if (!visa.determineIf((p) => p.canManageMembers || p.isSystemAccount)) {
+			throw new PermissionError('Cannot create member invitation');
+		}
+		const instance = new MemberInvitation(newProps, passport);
+		instance._isNew = true;
+		instance.email = email;
+		instance.message = message;
+		instance.expiresAt = expiresAt;
+		instance.props.invitedBy = invitedBy;
+		instance.props.communityId = communityId;
+		instance.props.status = new ValueObjects.InvitationStatus('PENDING').valueOf();
+		instance._isNew = false;
+		return instance;
 	}
 
 	//#region Actions
@@ -98,7 +126,7 @@ export class MemberInvitation<props extends MemberInvitationProps> extends Domai
 	}
 
 	set email(email: string) {
-		if (!this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+		if (!this._isNew && !this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
 			throw new Error('Cannot modify invitation email');
 		}
 		this.props.email = new ValueObjects.InvitationEmail(email).valueOf();
@@ -109,7 +137,7 @@ export class MemberInvitation<props extends MemberInvitationProps> extends Domai
 	}
 
 	set message(message: string) {
-		if (!this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+		if (!this._isNew && !this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
 			throw new Error('Cannot modify invitation message');
 		}
 		this.props.message = new ValueObjects.InvitationMessage(message).valueOf();
@@ -128,7 +156,7 @@ export class MemberInvitation<props extends MemberInvitationProps> extends Domai
 	}
 
 	set expiresAt(expiresAt: Date) {
-		if (!this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+		if (!this._isNew && !this._visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
 			throw new Error('Cannot modify invitation expiration');
 		}
 		this.props.expiresAt = new ValueObjects.InvitationExpiresAt(expiresAt).valueOf();
@@ -173,7 +201,7 @@ export class MemberInvitation<props extends MemberInvitationProps> extends Domai
 	}
 
 	get isExpired(): boolean {
-		return new ValueObjects.InvitationExpiresAt(this.expiresAt).isExpired || new ValueObjects.InvitationStatus(this.status).isExpired;
+		return this.props.expiresAt <= new Date() || new ValueObjects.InvitationStatus(this.status).isExpired;
 	}
 
 	get isActive(): boolean {
@@ -181,7 +209,9 @@ export class MemberInvitation<props extends MemberInvitationProps> extends Domai
 	}
 
 	get daysUntilExpiration(): number {
-		return new ValueObjects.InvitationExpiresAt(this.expiresAt).daysUntilExpiration;
+		const now = new Date();
+		const diffTime = this.props.expiresAt.getTime() - now.getTime();
+		return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 	}
 	//#endregion Status Helpers
 }

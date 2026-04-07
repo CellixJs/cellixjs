@@ -9,6 +9,80 @@ export interface UpdateMemberRoleCommand {
 	reason?: string;
 }
 
+//#region Invitation Operations
+
+export interface MemberInviteCommand {
+	communityId: string;
+	email: string;
+	message?: string;
+	expiresInDays?: number;
+	invitedByExternalId: string;
+}
+
+export interface BulkMemberInviteCommand {
+	communityId: string;
+	invitations: Array<{ email: string; message?: string }>;
+	expiresInDays?: number;
+	invitedByExternalId: string;
+}
+
+export const inviteMember = (dataSources: DataSources) => {
+	return async (command: MemberInviteCommand): Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference> => {
+		const invitedBy = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.invitedByExternalId);
+		if (!invitedBy) {
+			throw new Error('Inviting user not found');
+		}
+
+		const expiresInDays = command.expiresInDays ?? 7;
+		const expiresAt = new Date();
+		expiresAt.setDate(expiresAt.getDate() + expiresInDays);
+
+		let invitation: Domain.Contexts.Community.Member.MemberInvitationEntityReference | undefined;
+
+		await dataSources.domainDataSource.Community.Member.MemberInvitationUnitOfWork.withScopedTransaction(async (repository) => {
+			const newInvitation = await repository.getNewInstance(command.communityId, command.email, command.message ?? '', expiresAt, invitedBy.id);
+			invitation = await repository.save(newInvitation);
+		});
+
+		if (!invitation) {
+			throw new Error('Unable to create member invitation');
+		}
+
+		return invitation;
+	};
+};
+
+export const bulkInviteMembers = (dataSources: DataSources) => {
+	return async (command: BulkMemberInviteCommand): Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference[]> => {
+		const invitedBy = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.invitedByExternalId);
+		if (!invitedBy) {
+			throw new Error('Inviting user not found');
+		}
+
+		const expiresInDays = command.expiresInDays ?? 7;
+		const expiresAt = new Date();
+		expiresAt.setDate(expiresAt.getDate() + expiresInDays);
+
+		const invitations: Domain.Contexts.Community.Member.MemberInvitationEntityReference[] = [];
+
+		await dataSources.domainDataSource.Community.Member.MemberInvitationUnitOfWork.withScopedTransaction(async (repository) => {
+			for (const inv of command.invitations) {
+				try {
+					const newInvitation = await repository.getNewInstance(command.communityId, inv.email, inv.message ?? '', expiresAt, invitedBy.id);
+					const saved = await repository.save(newInvitation);
+					invitations.push(saved);
+				} catch (error) {
+					console.error(`Failed to create invitation for ${inv.email}:`, error);
+				}
+			}
+		});
+
+		return invitations;
+	};
+};
+
+//#endregion
+
 export const updateMemberRole = (dataSources: DataSources) => {
 	return async (command: UpdateMemberRoleCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
 		let updatedMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
