@@ -157,7 +157,7 @@
 		"dev": {
 			"description": "Starts application packages dev servers in watch mode",
 			"dependsOn": [
-				"^watch",
+				"^build",
 				"//#gen"
 			],
 			"cache": false,
