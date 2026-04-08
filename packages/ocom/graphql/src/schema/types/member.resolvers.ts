@@ -70,9 +70,14 @@ const member: Resolvers = {
 			});
 		},
 
-		// role: async (parent, _args: unknown, _context: GraphContext, _info: GraphQLResolveInfo) => {
-		//     return await parent.loadRole();
-		// },
+		role: (parent, _args: unknown, _context: GraphContext, _info: GraphQLResolveInfo) => {
+			try {
+				// biome-ignore lint/suspicious/noExplicitAny: GraphQL codegen type mismatch with domain types
+				return (parent.role ?? null) as any;
+			} catch {
+				return null;
+			}
+		},
 		isAdmin: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			return await context.applicationServices.Community.Member.determineIfAdmin({
 				memberId: parent.id,

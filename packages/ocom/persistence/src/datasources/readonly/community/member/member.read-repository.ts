@@ -10,6 +10,7 @@ export interface MemberReadRepository {
 	getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
 	getByIdWithRole: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
 	getByIdWithCommunityAndRoleAndUser: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
+	memberNameExistsInCommunity: (memberName: string, communityId: string) => Promise<boolean>;
 	/**
 	 * Retrieves all Member entities for a given end-user external ID.
 	 * Finds members whose accounts reference a user with the specified external ID.
@@ -94,6 +95,18 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
 			return null;
 		}
 		return this.converter.toDomain(result, this.passport);
+	}
+
+	/**
+	 * Checks whether a member with the given name already exists in the specified community.
+	 * Used for duplicate-name validation before creating a new member.
+	 */
+	async memberNameExistsInCommunity(memberName: string, communityId: string): Promise<boolean> {
+		const result = await this.mongoDataSource.findOne({
+			community: new MongooseSeedwork.ObjectId(communityId) as unknown,
+			memberName,
+		} as Parameters<typeof this.mongoDataSource.findOne>[0]);
+		return result !== null;
 	}
 
 	async getMembersForEndUserExternalId(externalId: string): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {

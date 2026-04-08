@@ -8,6 +8,12 @@ export interface MemberCreateCommand {
 
 export const createMember = (dataSources: DataSources) => {
 	return async (command: MemberCreateCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
+		// Validate: check for duplicate member name in the same community
+		const nameExists = await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.memberNameExistsInCommunity(command.memberName, command.communityId);
+		if (nameExists) {
+			throw new Error(`A member with the name "${command.memberName}" already exists in this community`);
+		}
+
 		let createdMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
 
 		// First, get the default role for the community
