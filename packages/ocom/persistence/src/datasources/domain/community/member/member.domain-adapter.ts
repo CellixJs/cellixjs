@@ -77,7 +77,10 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
 			throw new Error('community reference is missing id');
 		}
 
-		this.doc.set('community', community);
+		// Convert community ID to ObjectId for mongoose.
+		// When we receive a minimal community reference (just {id: "..."}),
+		// we need to convert it to a proper ObjectId for the mongoose schema.
+		this.doc.set('community', new MongooseSeedwork.ObjectId(community.id));
 	}
 
 	get accounts(): PropArray<Domain.Contexts.Community.Member.MemberAccountEntityReference> {

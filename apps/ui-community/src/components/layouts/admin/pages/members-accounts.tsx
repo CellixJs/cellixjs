@@ -1,13 +1,38 @@
+import { Route, Routes, useParams } from 'react-router-dom';
 import { Helmet } from '@dr.pogodin/react-helmet';
+import { MembersAccountsListContainer } from '../components/members-accounts-list.container.tsx';
+import { MembersAccountsAddContainer } from '../components/members-accounts-add.container.tsx';
+import { MembersAccountsEditContainer } from '../components/members-accounts-edit.container.tsx';
+
+interface MembersAccountsParams {
+	id?: string;
+	communityId?: string;
+	[key: string]: string | undefined;
+}
 
 export const MembersAccounts: React.FC = () => {
+	const params = useParams<MembersAccountsParams>();
+
 	return (
 		<div>
 			<Helmet>
 				<title>Members Accounts</title>
 			</Helmet>
 			<h1>Members Accounts</h1>
-			<p>Account management coming soon...</p>
+			<Routes>
+				<Route
+					path=""
+					element={<MembersAccountsListContainer data={{ id: params.id ?? '' }} />}
+				/>
+				<Route
+					path="/add"
+					element={<MembersAccountsAddContainer data={{ id: params.id ?? '' }} />}
+				/>
+				<Route
+					path="/:accountId"
+					element={<MembersAccountsEditContainer data={{ memberId: params.id ?? '' }} />}
+				/>
+			</Routes>
 		</div>
 	);
 };

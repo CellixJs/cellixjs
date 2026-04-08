@@ -3,6 +3,9 @@ import type { GraphContext } from '../context.ts';
 import type {
 	Resolvers,
 	MutationMemberCreateArgs,
+	MutationMemberCreateAccountArgs,
+	MutationMemberUpdateAccountArgs,
+	MutationMemberRemoveAccountArgs,
 	MutationActivateMemberArgs,
 	MutationDeactivateMemberArgs,
 	MutationRemoveMemberArgs,
@@ -17,7 +20,16 @@ import type {
 	MutationInviteMembersBulkArgs,
 	MutationMemberRoleUpdateArgs,
 } from '../builder/generated.ts';
-import type { MemberCreateCommand, DeactivateMemberCommand, RemoveMemberCommand, BulkDeactivateMembersCommand, BulkRemoveMembersCommand } from '../../../../application-services/src/contexts/community/member/member-management.js';
+import type {
+	MemberCreateCommand,
+	MemberCreateAccountCommand,
+	MemberUpdateAccountCommand,
+	MemberRemoveAccountCommand,
+	DeactivateMemberCommand,
+	RemoveMemberCommand,
+	BulkDeactivateMembersCommand,
+	BulkRemoveMembersCommand,
+} from '../../../../application-services/src/contexts/community/member/member-management.js';
 import type { MemberInvitationEntityReference } from '../../../../domain/src/domain/contexts/community/member/member-invitation.js';
 
 const toGraphQLInvitation = (inv: MemberInvitationEntityReference) => ({
@@ -78,6 +90,15 @@ const member: Resolvers = {
 		},
 	},
 	Query: {
+		member: async (_parent, args: { id: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
+			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+				throw new Error('Unauthorized');
+			}
+			// We'll add a queryById application service method
+			return await context.applicationServices.Community.Member.queryById({
+				id: args.id,
+			});
+		},
 		membersForCurrentEndUser: async (_parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 				throw new Error('Unauthorized');
@@ -586,6 +607,114 @@ const member: Resolvers = {
 					status: {
 						success: false,
 						errorMessage: error instanceof Error ? error.message : 'Failed to update member role',
+					},
+					member: null,
+				};
+			}
+		},
+
+		memberCreateAccount: async (_parent: unknown, args: MutationMemberCreateAccountArgs, context: GraphContext) => {
+			try {
+				if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'Unauthorized',
+						},
+					};
+				}
+
+				const command: MemberCreateAccountCommand = {
+					memberId: args.input.memberId,
+					firstName: args.input.firstName,
+					...(args.input.lastName && { lastName: args.input.lastName }),
+				};
+
+				const result = await context.applicationServices.Community.Member.createMemberAccount(command);
+
+				return {
+					status: {
+						success: true,
+					},
+					member: result,
+				};
+			} catch (error: unknown) {
+				return {
+					status: {
+						success: false,
+						errorMessage: error instanceof Error ? error.message : 'Failed to create member account',
+					},
+					member: null,
+				};
+			}
+		},
+
+		memberUpdateAccount: async (_parent: unknown, args: MutationMemberUpdateAccountArgs, context: GraphContext) => {
+			try {
+				if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'Unauthorized',
+						},
+					};
+				}
+
+				const command: MemberUpdateAccountCommand = {
+					memberId: args.input.memberId,
+					accountId: args.input.accountId,
+					firstName: args.input.firstName,
+					...(args.input.lastName && { lastName: args.input.lastName }),
+				};
+
+				const result = await context.applicationServices.Community.Member.updateMemberAccount(command);
+
+				return {
+					status: {
+						success: true,
+					},
+					member: result,
+				};
+			} catch (error: unknown) {
+				return {
+					status: {
+						success: false,
+						errorMessage: error instanceof Error ? error.message : 'Failed to update member account',
+					},
+					member: null,
+				};
+			}
+		},
+
+		memberRemoveAccount: async (_parent: unknown, args: MutationMemberRemoveAccountArgs, context: GraphContext) => {
+			try {
+				if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'Unauthorized',
+						},
+					};
+				}
+
+				const command: MemberRemoveAccountCommand = {
+					memberId: args.input.memberId,
+					accountId: args.input.accountId,
+				};
+
+				const result = await context.applicationServices.Community.Member.removeMemberAccount(command);
+
+				return {
+					status: {
+						success: true,
+					},
+					member: result,
+				};
+			} catch (error: unknown) {
+				return {
+					status: {
+						success: false,
+						errorMessage: error instanceof Error ? error.message : 'Failed to remove member account',
 					},
 					member: null,
 				};

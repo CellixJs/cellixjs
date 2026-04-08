@@ -1,0 +1,47 @@
+query AdminMembersAccountsEditContainerMember($id: ObjectID!) {
+	member(id: $id) {
+		...AdminMembersAccountEditContainerMemberFields
+	}
+}
+
+mutation AdminMembersAccountsEditContainerMemberUpdateAccount($input: MemberUpdateAccountInput!) {
+	memberUpdateAccount(input: $input) {
+		...AdminMembersAccountsEditContainerMemberMutationResultFields
+	}
+}
+
+mutation AdminMembersAccountsEditContainerMemberRemoveAccount($input: MemberRemoveAccountInput!) {
+	memberRemoveAccount(input: $input) {
+		...AdminMembersAccountsEditContainerMemberMutationResultFields
+	}
+}
+
+fragment AdminMembersAccountsEditContainerMemberMutationResultFields on MemberMutationResult {
+	status {
+		success
+		errorMessage
+	}
+	member {
+		...AdminMembersAccountEditContainerMemberFields
+	}
+}
+
+fragment AdminMembersAccountEditContainerMemberFields on Member {
+	accounts {
+		firstName
+		lastName
+		user {
+			personalInformation {
+				contactInformation {
+					email
+				}
+			}
+			id
+		}
+		statusCode
+		id
+		createdAt
+		updatedAt
+	}
+	id
+}

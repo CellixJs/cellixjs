@@ -10,12 +10,28 @@ export const createMember = (dataSources: DataSources) => {
 	return async (command: MemberCreateCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
 		let createdMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
 
+		// First, get the default role for the community
+		let defaultRole: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference | undefined;
+
+		await dataSources.domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withScopedTransaction(async (roleRepository) => {
+			const roles = await roleRepository.getByCommunityId(command.communityId);
+			defaultRole = roles.find((role) => role.isDefault);
+		});
+
+		if (!defaultRole) {
+			throw new Error('No default role found for this community');
+		}
+
 		// Create the new member
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (memberRepository) => {
 			// Get community reference - we'll use a minimal community object
 			const communityRef = { id: command.communityId } as Domain.Contexts.Community.Community.CommunityEntityReference;
 
 			const newMember = await memberRepository.getNewInstance(command.memberName, communityRef);
+
+			// Assign the default role to the member
+			newMember.role = defaultRole as Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference;
+
 			createdMember = await memberRepository.save(newMember);
 		});
 
@@ -311,6 +327,109 @@ export const bulkRemoveMembers = (dataSources: DataSources) => {
 				}
 			}
 		});
+	};
+};
+
+//#endregion
+
+//#region Member Account Management Operations
+
+export interface MemberCreateAccountCommand {
+	memberId: string;
+	firstName: string;
+	lastName?: string;
+}
+
+export const createMemberAccount = (dataSources: DataSources) => {
+	return async (command: MemberCreateAccountCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
+		let updatedMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
+
+		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
+			const member = await repository.getById(command.memberId);
+
+			const newAccount = member.requestNewAccount();
+			newAccount.firstName = command.firstName;
+			if (command.lastName) {
+				newAccount.lastName = command.lastName;
+			}
+
+			updatedMember = await repository.save(member);
+		});
+
+		if (!updatedMember) {
+			throw new Error('Unable to create member account');
+		}
+
+		return updatedMember;
+	};
+};
+
+export interface MemberUpdateAccountCommand {
+	memberId: string;
+	accountId: string;
+	firstName: string;
+	lastName?: string;
+}
+
+export const updateMemberAccount = (dataSources: DataSources) => {
+	return async (command: MemberUpdateAccountCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
+		let updatedMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
+
+		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
+			const member = await repository.getById(command.memberId);
+
+			// Find the account to update
+			const account = member.accounts.find((acc) => acc.id === command.accountId);
+			if (!account) {
+				throw new Error(`Account ${command.accountId} not found for member ${command.memberId}`);
+			}
+
+			// Update the account properties
+			account.firstName = command.firstName;
+			if (command.lastName !== undefined) {
+				account.lastName = command.lastName;
+			}
+
+			updatedMember = await repository.save(member);
+		});
+
+		if (!updatedMember) {
+			throw new Error('Unable to update member account');
+		}
+
+		return updatedMember;
+	};
+};
+
+export interface MemberRemoveAccountCommand {
+	memberId: string;
+	accountId: string;
+}
+
+export const removeMemberAccount = (dataSources: DataSources) => {
+	return async (command: MemberRemoveAccountCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
+		let updatedMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
+
+		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
+			const member = await repository.getById(command.memberId);
+
+			// Find the account to remove
+			const accountToRemove = member.accounts.find((acc) => acc.id === command.accountId);
+			if (!accountToRemove) {
+				throw new Error(`Account ${command.accountId} not found for member ${command.memberId}`);
+			}
+
+			// Remove the account from the member using the domain method
+			member.requestRemoveAccount(accountToRemove.props);
+
+			updatedMember = await repository.save(member);
+		});
+
+		if (!updatedMember) {
+			throw new Error('Unable to remove member account');
+		}
+
+		return updatedMember;
 	};
 };
 

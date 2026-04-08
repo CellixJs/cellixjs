@@ -40,7 +40,7 @@ type MemberProfile {
 }
 
 extend type Query {
-	# member(id: ObjectID!): Member!
+	member(id: ObjectID!): Member!
 	membersByCommunityId(communityId: ObjectID!): [Member!]!
 	# memberForCurrentCommunity: Member!
 	membersForCurrentEndUser: [Member!]!
@@ -49,6 +49,7 @@ extend type Query {
 extend type Mutation {
 	memberCreate(input: MemberCreateInput!): MemberMutationResult!
 	memberCreateAccount(input: MemberCreateAccountInput!): MemberMutationResult!
+	memberUpdateAccount(input: MemberUpdateAccountInput!): MemberMutationResult!
 	memberRemoveAccount(input: MemberRemoveAccountInput!): MemberMutationResult!
 	memberUpdateProfile(input: MemberUpdateProfileInput!): MemberMutationResult!
 
@@ -119,6 +120,13 @@ input MemberCreateInput {
 
 input MemberCreateAccountInput {
 	memberId: ObjectID!
+	firstName: String!
+	lastName: String
+}
+
+input MemberUpdateAccountInput {
+	memberId: ObjectID!
+	accountId: ObjectID!
 	firstName: String!
 	lastName: String
 }

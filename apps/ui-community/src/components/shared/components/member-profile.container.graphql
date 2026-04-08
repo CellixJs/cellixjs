@@ -1,0 +1,22 @@
+query MemberProfileContainerMemberProfile($communityId: ObjectID!) {
+	memberForCurrentCommunity: membersForCurrentEndUser {
+		...MemberProfileContainerMemberFields
+	}
+}
+
+fragment MemberProfileContainerMemberFields on Member {
+	id
+	memberName
+	profile {
+		name
+		email
+		bio
+		showInterests
+		showEmail
+		showProfile
+		showLocation
+		showProperties
+	}
+	createdAt
+	updatedAt
+}

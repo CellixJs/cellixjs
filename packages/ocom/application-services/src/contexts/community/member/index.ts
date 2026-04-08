@@ -1,6 +1,6 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
-import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
+import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId, type MemberQueryByIdCommand, queryById } from './query-by-end-user-external-id.ts';
 import { type MemberQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
 import { determineIfAdmin, type MemberDetermineIfAdminCommand } from './determine-if-admin.ts';
 import {
@@ -14,6 +14,9 @@ import {
 	bulkActivateMembers,
 	bulkDeactivateMembers,
 	bulkRemoveMembers,
+	createMemberAccount,
+	updateMemberAccount,
+	removeMemberAccount,
 	type MemberCreateCommand,
 	type MemberInviteCommand,
 	type BulkMemberInviteCommand,
@@ -24,15 +27,24 @@ import {
 	type BulkActivateMembersCommand,
 	type BulkDeactivateMembersCommand,
 	type BulkRemoveMembersCommand,
+	type MemberCreateAccountCommand,
+	type MemberUpdateAccountCommand,
+	type MemberRemoveAccountCommand,
 } from './member-management.ts';
 
 export interface MemberApplicationService {
 	determineIfAdmin: (command: MemberDetermineIfAdminCommand) => Promise<boolean>;
+	queryById: (command: MemberQueryByIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 	queryByEndUserExternalId: (command: MemberQueryByEndUserExternalIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 	queryByCommunityId: (command: MemberQueryByCommunityIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 
 	// Member creation operations
 	createMember: (command: MemberCreateCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
+
+	// Member account operations
+	createMemberAccount: (command: MemberCreateAccountCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
+	updateMemberAccount: (command: MemberUpdateAccountCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
+	removeMemberAccount: (command: MemberRemoveAccountCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 
 	// Member invitation operations
 	inviteMember: (command: MemberInviteCommand) => Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference>;
@@ -53,11 +65,17 @@ export interface MemberApplicationService {
 export const Member = (dataSources: DataSources): MemberApplicationService => {
 	return {
 		determineIfAdmin: determineIfAdmin(dataSources),
+		queryById: queryById(dataSources),
 		queryByEndUserExternalId: queryByEndUserExternalId(dataSources),
 		queryByCommunityId: queryByCommunityId(dataSources),
 
 		// Member creation operations
 		createMember: createMember(dataSources),
+
+		// Member account operations
+		createMemberAccount: createMemberAccount(dataSources),
+		updateMemberAccount: updateMemberAccount(dataSources),
+		removeMemberAccount: removeMemberAccount(dataSources),
 
 		// Member invitation operations
 		inviteMember: inviteMember(dataSources),

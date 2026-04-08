@@ -1,0 +1,22 @@
+mutation AdminMembersAccountsAddContainerMemberCreateAccount($input: MemberCreateAccountInput!) {
+	memberCreateAccount(input: $input) {
+		...AdminMembersAccountsAddContainerMemberMutationResultFields
+	}
+}
+
+fragment AdminMembersAccountsAddContainerMemberMutationResultFields on MemberMutationResult {
+	status {
+		success
+		errorMessage
+	}
+	member {
+		...AdminMembersAccountsAddContainerMemberFields
+	}
+}
+
+fragment AdminMembersAccountsAddContainerMemberFields on Member {
+	memberName
+	id
+	createdAt
+	updatedAt
+}
