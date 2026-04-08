@@ -6,6 +6,10 @@
 			"env": {
 				"MDB_MCP_CONNECTION_STRING": "mongodb://localhost:50000"
 			}
+		},
+		"playwright": {
+			"command": "npx",
+			"args": ["@playwright/mcp@latest"]
 		}
 	}
 }
