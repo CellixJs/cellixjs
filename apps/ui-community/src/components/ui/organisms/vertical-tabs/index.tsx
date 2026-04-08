@@ -31,6 +31,28 @@ export const VerticalTabs: React.FC<VerticalTabsProps> = ({ pages }) => {
 
 	const matchedPages = matchRoutes(convertedRoutes, location);
 	const matchedIds = matchedPages ? matchedPages.map((match) => match.route.id?.toString() || '') : [];
+	// Compute a stable base path for tabs by stripping any of the known tab segments
+	// from the current pathname. This avoids building links that nest under the
+	// currently active child route (e.g. "/profile/accounts").
+	const tabLinks = pages.map((p) => p.link).filter((l) => !!l) as string[];
+
+	const getTabBasePath = () => {
+		const pathname = location.pathname;
+		const indices = tabLinks.map((link) => pathname.indexOf(`/${link}`)).filter((i) => i >= 0);
+
+		if (indices.length === 0) {
+			return pathname;
+		}
+
+		const firstIndex = Math.min(...indices);
+		return pathname.slice(0, firstIndex);
+	};
+
+	const tabBasePath = getTabBasePath();
+	const toTabHref = (link: string) => {
+		const normalizedBase = tabBasePath.endsWith('/') ? tabBasePath.slice(0, -1) : tabBasePath;
+		return link ? `${normalizedBase}/${link}` : normalizedBase;
+	};
 
 	const {
 		token: { colorTextBase },
@@ -53,7 +75,7 @@ export const VerticalTabs: React.FC<VerticalTabsProps> = ({ pages }) => {
 							key={page.id}
 							icon={page.icon}
 						>
-							<Link to={page.link}>{page.title}</Link>
+							<Link to={toTabHref(page.link)}>{page.title}</Link>
 						</Menu.Item>
 					))}
 				</Menu>

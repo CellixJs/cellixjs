@@ -11,15 +11,7 @@ export interface MemberProfileContainerProps {
 }
 
 export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (props) => {
-	const {
-		data: memberData,
-		loading: memberLoading,
-		error: memberError,
-	} = useQuery(MemberProfileContainerMemberProfileDocument, {
-		variables: {
-			communityId: props.data.communityId,
-		},
-	});
+	const { data: memberData, loading: memberLoading, error: memberError } = useQuery(MemberProfileContainerMemberProfileDocument);
 
 	const memberProfileProps = {
 		data: memberData?.memberForCurrentCommunity?.[0] || null,

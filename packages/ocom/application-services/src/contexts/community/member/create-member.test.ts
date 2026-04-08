@@ -10,6 +10,15 @@ interface MockRepository {
 }
 
 interface MockDataSources {
+	readonlyDataSource: {
+		Community: {
+			Member: {
+				MemberReadRepo: {
+					memberNameExistsInCommunity: ReturnType<typeof vi.fn>;
+				};
+			};
+		};
+	};
 	domainDataSource: {
 		Community: {
 			Member: {
@@ -54,6 +63,15 @@ describe('createMember', () => {
 		};
 
 		mockDataSources = {
+			readonlyDataSource: {
+				Community: {
+					Member: {
+						MemberReadRepo: {
+							memberNameExistsInCommunity: vi.fn().mockResolvedValue(false),
+						},
+					},
+				},
+			},
 			domainDataSource: {
 				Community: {
 					Member: {
