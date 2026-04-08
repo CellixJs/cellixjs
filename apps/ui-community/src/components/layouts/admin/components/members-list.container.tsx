@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { App } from 'antd';
 import { useState } from 'react';
 import type { AdminMemberListContainerMemberFieldsFragment } from '../../../../generated.tsx';
@@ -13,11 +13,12 @@ import {
 	AdminMemberListContainerBulkDeactivateMembersDocument,
 	AdminMemberListContainerBulkRemoveMembersDocument,
 } from '../../../../generated.tsx';
-import { MemberList, type MemberListProps } from './member-list.tsx';
+import { MemberList, type MemberListProps } from './members-list.tsx';
 import { MemberInviteModalContainer } from './member-invite-modal.container.tsx';
 
 export const MemberListContainer: React.FC = () => {
 	const { communityId } = useParams<{ communityId: string }>();
+	const navigate = useNavigate();
 	const { message } = App.useApp();
 	const [inviteModalVisible, setInviteModalVisible] = useState(false);
 
@@ -175,6 +176,10 @@ export const MemberListContainer: React.FC = () => {
 		}
 	};
 
+	const handleMemberEdit = (memberId: string) => {
+		navigate(memberId);
+	};
+
 	const handleOpenInviteModal = () => {
 		setInviteModalVisible(true);
 	};
@@ -197,6 +202,7 @@ export const MemberListContainer: React.FC = () => {
 		onBulkDeactivateMembers: handleBulkDeactivateMembers,
 		onBulkRemoveMembers: handleBulkRemoveMembers,
 		onInviteMember: handleOpenInviteModal,
+		onMemberEdit: handleMemberEdit,
 		loading: activateLoading || deactivateLoading || removeLoading || bulkActivateLoading || bulkDeactivateLoading || bulkRemoveLoading,
 	};
 

@@ -1,7 +1,7 @@
 type Member implements MongoBase {
 	memberName: String
 	community: Community
-	# role: EndUserRole # TODO: Define EndUserRole type
+	role: EndUserRole
 	accounts: [MemberAccount!]!
 	profile: MemberProfile
 	# cybersourceCustomerId: String
@@ -47,6 +47,7 @@ extend type Query {
 }
 
 extend type Mutation {
+	memberCreate(input: MemberCreateInput!): MemberMutationResult!
 	memberCreateAccount(input: MemberCreateAccountInput!): MemberMutationResult!
 	memberRemoveAccount(input: MemberRemoveAccountInput!): MemberMutationResult!
 	memberUpdateProfile(input: MemberUpdateProfileInput!): MemberMutationResult!
@@ -110,6 +111,10 @@ type MemberInvitation {
 	communityId: ObjectID!
 	createdAt: DateTime!
 	updatedAt: DateTime!
+}
+
+input MemberCreateInput {
+	memberName: String!
 }
 
 input MemberCreateAccountInput {

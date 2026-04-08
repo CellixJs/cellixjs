@@ -1,19 +1,30 @@
-import { PageHeader } from '@ant-design/pro-layout';
-import { theme } from 'antd';
-import { MemberListContainer } from '../components/member-list.container.tsx';
-import { SubPageLayout } from '../sub-page-layout.tsx';
+import type React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { Helmet } from '@dr.pogodin/react-helmet';
+import { MembersList } from './members-list.tsx';
+import { MembersCreate } from './members-create.tsx';
+import { MembersDetail } from './members-detail.tsx';
 
 export const Members: React.FC = () => {
-	const {
-		token: { colorTextBase },
-	} = theme.useToken();
-
 	return (
-		<SubPageLayout
-			fixedHeader={false}
-			header={<PageHeader title={<span style={{ color: colorTextBase }}>Members</span>} />}
-		>
-			<MemberListContainer />
-		</SubPageLayout>
+		<>
+			<Helmet>
+				<title>Members</title>
+			</Helmet>
+			<Routes>
+				<Route
+					path=""
+					element={<MembersList />}
+				/>
+				<Route
+					path="/create"
+					element={<MembersCreate />}
+				/>
+				<Route
+					path="/:id/*"
+					element={<MembersDetail />}
+				/>
+			</Routes>
+		</>
 	);
 };

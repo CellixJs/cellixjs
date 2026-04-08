@@ -1,0 +1,16 @@
+fragment AdminMembersDetailContainerMemberFields on Member {
+	id
+	memberName
+	role {
+		id
+		roleName
+	}
+	createdAt
+	updatedAt
+}
+
+query AdminMembersDetailContainerMembersByCommunity($communityId: ObjectID!) {
+	membersByCommunityId(communityId: $communityId) {
+		...AdminMembersDetailContainerMemberFields
+	}
+}

@@ -1,0 +1,18 @@
+mutation AdminMembersCreateContainerMemberCreate($input: MemberCreateInput!) {
+	memberCreate(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		member {
+			...AdminMembersCreateContainerMemberFields
+		}
+	}
+}
+
+fragment AdminMembersCreateContainerMemberFields on Member {
+	id
+	memberName
+	createdAt
+	updatedAt
+}

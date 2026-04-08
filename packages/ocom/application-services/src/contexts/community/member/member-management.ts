@@ -1,6 +1,32 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
+export interface MemberCreateCommand {
+	memberName: string;
+	communityId: string;
+}
+
+export const createMember = (dataSources: DataSources) => {
+	return async (command: MemberCreateCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
+		let createdMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
+
+		// Create the new member
+		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (memberRepository) => {
+			// Get community reference - we'll use a minimal community object
+			const communityRef = { id: command.communityId } as Domain.Contexts.Community.Community.CommunityEntityReference;
+
+			const newMember = await memberRepository.getNewInstance(command.memberName, communityRef);
+			createdMember = await memberRepository.save(newMember);
+		});
+
+		if (!createdMember) {
+			throw new Error('Unable to create member');
+		}
+
+		return createdMember;
+	};
+};
+
 //#region Role Management Operations
 
 export interface UpdateMemberRoleCommand {

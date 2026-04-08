@@ -4,6 +4,7 @@ import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId } 
 import { type MemberQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
 import { determineIfAdmin, type MemberDetermineIfAdminCommand } from './determine-if-admin.ts';
 import {
+	createMember,
 	inviteMember,
 	bulkInviteMembers,
 	updateMemberRole,
@@ -13,6 +14,7 @@ import {
 	bulkActivateMembers,
 	bulkDeactivateMembers,
 	bulkRemoveMembers,
+	type MemberCreateCommand,
 	type MemberInviteCommand,
 	type BulkMemberInviteCommand,
 	type UpdateMemberRoleCommand,
@@ -28,6 +30,9 @@ export interface MemberApplicationService {
 	determineIfAdmin: (command: MemberDetermineIfAdminCommand) => Promise<boolean>;
 	queryByEndUserExternalId: (command: MemberQueryByEndUserExternalIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 	queryByCommunityId: (command: MemberQueryByCommunityIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
+
+	// Member creation operations
+	createMember: (command: MemberCreateCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 
 	// Member invitation operations
 	inviteMember: (command: MemberInviteCommand) => Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference>;
@@ -50,6 +55,9 @@ export const Member = (dataSources: DataSources): MemberApplicationService => {
 		determineIfAdmin: determineIfAdmin(dataSources),
 		queryByEndUserExternalId: queryByEndUserExternalId(dataSources),
 		queryByCommunityId: queryByCommunityId(dataSources),
+
+		// Member creation operations
+		createMember: createMember(dataSources),
 
 		// Member invitation operations
 		inviteMember: inviteMember(dataSources),

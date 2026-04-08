@@ -2,6 +2,7 @@ import type { GraphQLResolveInfo } from 'graphql';
 import type { GraphContext } from '../context.ts';
 import type {
 	Resolvers,
+	MutationMemberCreateArgs,
 	MutationActivateMemberArgs,
 	MutationDeactivateMemberArgs,
 	MutationRemoveMemberArgs,
@@ -16,7 +17,7 @@ import type {
 	MutationInviteMembersBulkArgs,
 	MutationMemberRoleUpdateArgs,
 } from '../builder/generated.ts';
-import type { DeactivateMemberCommand, RemoveMemberCommand, BulkDeactivateMembersCommand, BulkRemoveMembersCommand } from '../../../../application-services/src/contexts/community/member/member-management.js';
+import type { MemberCreateCommand, DeactivateMemberCommand, RemoveMemberCommand, BulkDeactivateMembersCommand, BulkRemoveMembersCommand } from '../../../../application-services/src/contexts/community/member/member-management.js';
 import type { MemberInvitationEntityReference } from '../../../../domain/src/domain/contexts/community/member/member-invitation.js';
 
 const toGraphQLInvitation = (inv: MemberInvitationEntityReference) => ({
@@ -96,6 +97,48 @@ const member: Resolvers = {
 		},
 	},
 	Mutation: {
+		memberCreate: async (_parent, args: MutationMemberCreateArgs, context: GraphContext, _info: GraphQLResolveInfo) => {
+			try {
+				if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'Unauthorized',
+						},
+					};
+				}
+
+				const command: MemberCreateCommand = {
+					memberName: args.input.memberName,
+					communityId: context.applicationServices.verifiedUser?.hints?.communityId || '',
+				};
+
+				if (!command.communityId) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'No current community found',
+						},
+					};
+				}
+
+				const result = await context.applicationServices.Community.Member.createMember(command);
+
+				return {
+					status: {
+						success: true,
+					},
+					member: result,
+				};
+			} catch (error) {
+				return {
+					status: {
+						success: false,
+						errorMessage: error instanceof Error ? error.message : 'Unknown error',
+					},
+				};
+			}
+		},
 		activateMember: async (_parent, args: MutationActivateMemberArgs, context: GraphContext, _info: GraphQLResolveInfo) => {
 			try {
 				if (!context.applicationServices.verifiedUser?.verifiedJwt) {

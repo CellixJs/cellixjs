@@ -41,7 +41,7 @@ export const RequireAuth: React.FC<RequireAuthProps> = (props) => {
 			>
 				<Space
 					size={'large'}
-					orientation="vertical"
+					direction="vertical"
 					style={{ textAlign: 'center' }}
 				>
 					<Spin size="large" />

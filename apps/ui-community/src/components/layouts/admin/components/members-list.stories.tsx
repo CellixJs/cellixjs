@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
 import type { AdminMemberListContainerMemberFieldsFragment } from '../../../../generated.tsx';
-import { MemberList } from './member-list.tsx';
+import { MemberList } from './members-list.tsx';
 
 const mockMemberData: AdminMemberListContainerMemberFieldsFragment[] = [
 	{
@@ -116,8 +116,10 @@ type Story = StoryObj<typeof MemberList>;
 export const Default: Story = {
 	args: {
 		data: mockMemberData,
+		onInviteMember: () => console.log('Invite member clicked'),
+		onMemberEdit: (memberId) => console.log('Edit member:', memberId),
 	},
-	play: ({ canvasElement }) => {
+	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify the member count is displayed
@@ -126,25 +128,26 @@ export const Default: Story = {
 		// Verify the invite button is present
 		expect(canvas.getByRole('button', { name: /invite member/i })).toBeInTheDocument();
 
-		// Verify first member (admin) is displayed with crown icon
-		// John Doe appears in both Member column (profile.name) and Accounts column (firstName + lastName)
-		expect(canvas.getAllByText('John Doe')[0]).toBeInTheDocument();
-		expect(canvas.getByText('john.doe@example.com')).toBeInTheDocument();
+		// Verify member names are displayed in the table
+		expect(canvas.getByText('John Doe')).toBeInTheDocument();
+		expect(canvas.getByText('Jane Smith')).toBeInTheDocument();
+		expect(canvas.getByText('Bob Johnson')).toBeInTheDocument();
 
-		// Verify admin status is shown
-		expect(canvas.getByRole('img', { name: /crown/i })).toBeInTheDocument();
+		// Verify "No Role" is shown for members without roles
+		expect(canvas.getAllByText('No Role')).toHaveLength(3);
 
-		// Verify member status badges (ACCEPTED appears for both John Doe and Bob Johnson)
-		expect(canvas.getAllByText('ACCEPTED')[0]).toBeInTheDocument();
-		expect(canvas.getByText('CREATED')).toBeInTheDocument();
+		// Verify Edit buttons are present for each member
+		expect(canvas.getAllByRole('button', { name: /edit/i })).toHaveLength(3);
 	},
 };
 
 export const EmptyState: Story = {
 	args: {
 		data: [],
+		onInviteMember: () => console.log('Invite member clicked'),
+		onMemberEdit: (memberId) => console.log('Edit member:', memberId),
 	},
-	play: ({ canvasElement }) => {
+	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify empty state shows zero members
@@ -158,16 +161,19 @@ export const EmptyState: Story = {
 export const SingleMember: Story = {
 	args: {
 		data: mockMemberData.slice(0, 1),
+		onInviteMember: () => console.log('Invite member clicked'),
+		onMemberEdit: (memberId) => console.log('Edit member:', memberId),
 	},
-	play: ({ canvasElement }) => {
+	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
 		const canvas = within(canvasElement);
 
 		// Verify single member count
 		expect(canvas.getByText('Community Members (1)')).toBeInTheDocument();
 
-		// Verify the member is displayed
-		// John Doe appears in both Member column (profile.name) and Accounts column (firstName + lastName)
-		expect(canvas.getAllByText('John Doe')[0]).toBeInTheDocument();
-		expect(canvas.getByText('ACCEPTED')).toBeInTheDocument();
+		// Verify the member is displayed by name
+		expect(canvas.getByText('John Doe')).toBeInTheDocument();
+
+		// Verify one Edit button is present
+		expect(canvas.getByRole('button', { name: /edit/i })).toBeInTheDocument();
 	},
 };

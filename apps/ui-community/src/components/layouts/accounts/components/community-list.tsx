@@ -133,7 +133,7 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 						sticky={{
 							offsetHeader: 0,
 						}}
-						pagination={{ placement: ['topEnd'] }}
+						pagination={{ position: ['topRight'] }}
 					/>
 				) : (
 					<Title

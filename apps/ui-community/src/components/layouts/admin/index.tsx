@@ -1,3 +1,4 @@
+import type React from 'react';
 import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import { Route, Routes } from 'react-router-dom';
 import type { Member } from '../../../generated.tsx';
