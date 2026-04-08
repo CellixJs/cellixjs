@@ -10,7 +10,7 @@
 		"lint": "biome lint",
 		"format": "biome format --write",
 		"start": "node dist/index.js",
-		"dev": "portless mock-auth.ownercommunity.localhost tsx watch src/index.ts"
+		"dev": "portless --force mock-auth.ownercommunity.localhost tsx watch src/index.ts || [ $? -eq 130 ]"
 	},
 	"dependencies": {
 		"@cellix/server-oauth2-mock-seedwork": "workspace:*",

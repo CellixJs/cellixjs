@@ -1,10 +1,9 @@
 {
 	"extends": ["//"],
-	"tags": ["mock"],
 	"tasks": {
 		"dev": {
 			"dependsOn": ["^build", "build"],
-			"persistent": true,
+			"interruptible": true,
 			"inputs": []
 		}
 	}

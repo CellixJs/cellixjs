@@ -1,6 +1,12 @@
 {
 	"extends": ["//"],
 	"tasks": {
+		"dev": {
+			"dependsOn": [],
+			"persistent": true,
+			"interruptible": false,
+			"inputs": []
+		},
 		"test": {
 			"inputs": ["$TURBO_EXTENDS$", "!docs/**", "!blog/**", "!static/**"]
 		},
