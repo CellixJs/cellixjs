@@ -83,13 +83,13 @@ jobs:
       - name: Start Playwright MCP (HTTP, background)
         run: |
           echo "Starting Playwright MCP on port 8931 (pnpm dlx)..."
-          nohup pnpm dlx @playwright/mcp@0.0.70 --port 8931 --headless --ignore-https-errors --allowed-hosts='localhost' --allowed-origins='http://localhost,https://localhost' > mcp.log 2>&1 &
+          nohup pnpm run mcp:start > mcp.log 2>&1 &
           # Wait briefly for MCP to open the port
           for i in $(seq 1 30); do
             ss -ltn | grep -q ':8931' && break || sleep 1
           done
-          echo "MCP log (first 200 lines):"
-          sed -n '1,200p' mcp.log || true
+          echo "MCP log (last 200 lines):"
+          tail -n 200 mcp.log || true
         env:
           PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
 
@@ -107,7 +107,7 @@ jobs:
           if [ "$ready" -ne 1 ]; then
             echo "Playwright MCP did not become ready after 30s"
             echo "MCP log (last 200 lines):"
-            sed -n '1,200p' mcp.log || true
+            tail -n 200 mcp.log || true
             exit 1
           fi
 

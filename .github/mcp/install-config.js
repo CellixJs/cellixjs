@@ -6,7 +6,7 @@ import os from 'os';
 const argv = process.argv.slice(2).filter(a => a !== '--');
 
 function printUsage() {
-  console.log(`Usage: node install-config.js [--force] [--source <path>]\n\nOptions:\n  --force, -f    Overwrite existing config without creating a backup\n  --source, -s   Path to source mcp-config.json (defaults to ./.copilot/mcp-config.json in the repo)\n  --help, -h     Show this help message`);
+  console.log(`Usage: node install-config.js [--force] [--source <path>]\n\nOptions:\n  --force, -f    Overwrite existing config without creating a backup\n  --source, -s   Path to source mcp-config.json (defaults to ./.copilot/mcp-config.json in the repo)\n  --help, -h     Show this help message\n\nNote: Unknown extra arguments are ignored to allow wrapper passthrough.`);
 }
 
 let force = false;
@@ -29,9 +29,9 @@ for (let i = 0; i < argv.length; i++) {
     printUsage();
     process.exit(0);
   } else {
-    console.error('Unknown argument:', a);
-    printUsage();
-    process.exit(1);
+    console.warn('Warning: Ignoring unknown argument:', a);
+    // Allow passthrough of extra args from wrappers; ignore unknown flags
+    continue;
   }
 }
 
