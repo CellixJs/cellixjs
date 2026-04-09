@@ -7,4 +7,5 @@ export interface MemberRepository<props extends MemberProps> extends Repository<
 	getById(id: string): Promise<Member<props>>;
 	getAssignedToRole(roleId: string): Promise<Member<props>[]>;
 	getAll(): Promise<Member<props>[]>;
+	getByCommunityId(communityId: string): Promise<Member<props>[]>;
 }

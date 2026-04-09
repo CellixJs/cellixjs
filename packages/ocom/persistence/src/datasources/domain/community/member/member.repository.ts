@@ -26,6 +26,14 @@ export class MemberRepository //<
 		return mongoMembers.map((member) => this.typeConverter.toDomain(member, this.passport));
 	}
 
+	async getByCommunityId(communityId: string): Promise<Domain.Contexts.Community.Member.Member<PropType>[]> {
+		const mongoMembers = await this.model
+			.find({ community: new MongooseSeedwork.ObjectId(communityId) })
+			.populate(['community'])
+			.exec();
+		return mongoMembers.map((member) => this.typeConverter.toDomain(member, this.passport));
+	}
+
 	async getAssignedToRole(roleId: string): Promise<Domain.Contexts.Community.Member.Member<MemberDomainAdapter>[]> {
 		const mongoMembers = await this.model
 			.find({ role: new MongooseSeedwork.ObjectId(roleId) })

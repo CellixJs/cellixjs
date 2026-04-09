@@ -1,7 +1,8 @@
-import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
+import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import { Route, Routes } from 'react-router-dom';
 import type { Member } from '../../../generated.tsx';
 import { Home } from './pages/home.tsx';
+import { Members } from './pages/members.tsx';
 import { Settings } from './pages/settings.tsx';
 import { SectionLayoutContainer } from './section-layout.container.tsx';
 
@@ -21,6 +22,13 @@ export const Admin: React.FC = () => {
 			title: 'Home',
 			icon: <HomeOutlined />,
 			id: 'ROOT',
+		},
+		{
+			path: '/community/:communityId/admin/:memberId/members',
+			title: 'Members',
+			icon: <TeamOutlined />,
+			id: 3,
+			parent: 'ROOT',
 		},
 		{
 			path: '/community/:communityId/admin/:memberId/settings/*',
@@ -43,6 +51,10 @@ export const Admin: React.FC = () => {
 				<Route
 					path=""
 					element={<Home />}
+				/>
+				<Route
+					path="members/*"
+					element={<Members />}
 				/>
 				<Route
 					path="settings/*"

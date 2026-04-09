@@ -25,3 +25,51 @@ Feature: Member resolvers
     Given a user without a verified JWT
     When the membersForCurrentEndUser query is executed
     Then it should throw an "Unauthorized" error
+
+  Scenario: Querying members by community ID
+    Given a signed in user with subject "user-sub-456"
+    And the member service can return members for community "community-abc"
+    When the membersByCommunityId query is executed with communityId "community-abc"
+    Then it should call Community.Member.listByCommunityId with communityId "community-abc"
+    And it should return the list of members for that community
+
+  Scenario: Querying members by community ID without authentication
+    Given a user without a verified JWT
+    When the membersByCommunityId query is executed with communityId "community-abc"
+    Then it should throw an "Unauthorized" error
+
+  Scenario: Getting a member by ID
+    Given a signed in user with subject "user-sub-789"
+    And the member service can return a member for id "member-777"
+    When the member query is executed with id "member-777"
+    Then it should call Community.Member.getById with id "member-777"
+    And it should return the member
+
+  Scenario: Getting a member by ID without authentication
+    Given a user without a verified JWT
+    When the member query is executed with id "member-777"
+    Then it should throw an "Unauthorized" error
+
+  Scenario: Creating a member
+    Given a signed in user with subject "user-sub-create"
+    And the member service can create a member
+    When the memberCreate mutation is executed with memberName "New Member" and communityId "community-create"
+    Then it should call Community.Member.create with memberName "New Member" and communityId "community-create"
+    And it should return a successful mutation result with the created member
+
+  Scenario: Creating a member without authentication
+    Given a user without a verified JWT
+    When the memberCreate mutation is executed with memberName "New Member" and communityId "community-create"
+    Then it should throw an "Unauthorized" error
+
+  Scenario: Updating a member
+    Given a signed in user with subject "user-sub-update"
+    And the member service can update a member
+    When the memberUpdate mutation is executed with id "member-upd" and memberName "Updated Name"
+    Then it should call Community.Member.update with id "member-upd" and memberName "Updated Name"
+    And it should return a successful mutation result with the updated member
+
+  Scenario: Updating a member without authentication
+    Given a user without a verified JWT
+    When the memberUpdate mutation is executed with id "member-upd" and memberName "Updated Name"
+    Then it should throw an "Unauthorized" error

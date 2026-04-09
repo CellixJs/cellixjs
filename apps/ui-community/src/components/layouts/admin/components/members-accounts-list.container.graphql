@@ -1,0 +1,29 @@
+query AdminMembersAccountsListContainerMember($id: ObjectID!) {
+	member(id: $id) {
+		...AdminMembersAccountsListContainerMemberFields
+	}
+}
+
+mutation AdminMembersAccountsListContainerMemberAccountRemove($input: MemberAccountRemoveInput!) {
+	memberAccountRemove(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		member {
+			...AdminMembersAccountsListContainerMemberFields
+		}
+	}
+}
+
+fragment AdminMembersAccountsListContainerMemberFields on Member {
+	id
+	accounts {
+		id
+		firstName
+		lastName
+		statusCode
+		createdAt
+		updatedAt
+	}
+}
