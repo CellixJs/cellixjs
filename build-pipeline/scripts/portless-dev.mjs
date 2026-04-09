@@ -28,7 +28,11 @@ export const installPortlessSignalHandlers = () => {
 
 	process.on('SIGINT', () => forwardSignal('SIGINT'));
 	process.on('SIGTERM', () => forwardSignal('SIGTERM'));
-	process.on('SIGQUIT', () => forwardSignal('SIGQUIT'));
+	try {
+		process.on('SIGQUIT', () => forwardSignal('SIGQUIT'));
+	} catch {
+		// SIGQUIT is not available on some platforms (for example Windows).
+	}
 	signalsInstalled = true;
 };
 
@@ -58,6 +62,9 @@ const runPortlessOnce = (routeName, commandArgs) =>
 		child.stderr.on('data', onData(process.stderr));
 
 		child.on('error', (error) => {
+			if (activeChild === child) {
+				activeChild = null;
+			}
 			if (error?.code === 'ENOENT') {
 				console.error('Failed to start "portless": command not found. Run "pnpm install" in the repo root, then retry.');
 			}
@@ -66,36 +73,44 @@ const runPortlessOnce = (routeName, commandArgs) =>
 		});
 
 		child.on('close', (code, signal) => {
+			if (activeChild === child) {
+				activeChild = null;
+			}
 			resolve({ code: code ?? 1, signal, routeLockError: sawRouteLockError });
 		});
 	});
 
 export const runPortlessWithRetries = async (routeName, commandArgs) => {
-	for (let attempt = 1; attempt <= MAX_RETRIES; attempt += 1) {
-		const { code, signal, routeLockError } = await runPortlessOnce(routeName, commandArgs);
+	terminating = false;
+	try {
+		for (let attempt = 1; attempt <= MAX_RETRIES; attempt += 1) {
+			const { code, signal, routeLockError } = await runPortlessOnce(routeName, commandArgs);
 
-		if (code === 0) {
-			return 0;
+			if (code === 0) {
+				return 0;
+			}
+
+			if (terminating) {
+				return 0;
+			}
+
+			if (isGracefulInterruptExit(signal, code)) {
+				return 0;
+			}
+
+			if (!routeLockError || attempt === MAX_RETRIES) {
+				return code || 1;
+			}
+
+			const delayMs = Math.min(BASE_DELAY_MS * attempt, MAX_DELAY_MS);
+			console.error(`portless route lock busy for "${routeName}", retrying (${attempt}/${MAX_RETRIES}) in ${delayMs}ms...`);
+			await sleep(delayMs);
 		}
 
-		if (terminating) {
-			return 0;
-		}
-
-		if (isGracefulInterruptExit(signal, code)) {
-			return 0;
-		}
-
-		if (!routeLockError || attempt === MAX_RETRIES) {
-			return code || 1;
-		}
-
-		const delayMs = Math.min(BASE_DELAY_MS * attempt, MAX_DELAY_MS);
-		console.error(`portless route lock busy for "${routeName}", retrying (${attempt}/${MAX_RETRIES}) in ${delayMs}ms...`);
-		await sleep(delayMs);
+		return 1;
+	} finally {
+		terminating = false;
 	}
-
-	return 1;
 };
 
 const runCli = async () => {
