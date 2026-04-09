@@ -9,7 +9,7 @@ import {
 	type AdminMembersDetailContainerMembersByCommunityQueryVariables,
 } from '../../../../generated.tsx';
 
-export interface MembersDetailContainerProps {
+interface MembersDetailContainerProps {
 	data: {
 		id: string;
 		communityId: string;

@@ -3,7 +3,7 @@ import { UserDeleteOutlined } from '@ant-design/icons';
 import { Button, Form, Input } from 'antd';
 import type { MemberUpdateAccountInput } from '../../../../generated.tsx';
 
-export interface MembersAccountsEditProps {
+interface MembersAccountsEditProps {
 	data: MemberUpdateAccountInput;
 	onSave: (member: MemberUpdateAccountInput) => Promise<void>;
 	onRemove: () => Promise<void>;

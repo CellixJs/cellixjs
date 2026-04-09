@@ -6,7 +6,7 @@ import type { MemberUpdateAccountInput } from '../../../../generated.tsx';
 import { AdminMembersAccountsEditContainerMemberDocument, AdminMembersAccountsEditContainerMemberUpdateAccountDocument, AdminMembersAccountsEditContainerMemberRemoveAccountDocument } from '../../../../generated.tsx';
 import { MembersAccountsEdit } from './members-accounts-edit.tsx';
 
-export interface MembersAccountsEditContainerProps {
+interface MembersAccountsEditContainerProps {
 	data: {
 		memberId: string;
 	};

@@ -4,7 +4,7 @@ import { App } from 'antd';
 import { AdminMemberInviteModalContainerInviteMemberDocument, AdminMemberInviteModalContainerBulkInviteMembersDocument } from '../../../../generated.tsx';
 import { MemberInviteModal, type MemberInviteModalProps } from './member-invite-modal.tsx';
 
-export interface MemberInviteModalContainerProps {
+interface MemberInviteModalContainerProps {
 	open: boolean;
 	onClose: () => void;
 	onSuccess?: () => void;

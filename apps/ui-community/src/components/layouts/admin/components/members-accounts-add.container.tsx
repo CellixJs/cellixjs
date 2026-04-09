@@ -5,7 +5,7 @@ import type { MemberCreateAccountInput } from '../../../../generated.tsx';
 import { AdminMembersAccountsAddContainerMemberCreateAccountDocument } from '../../../../generated.tsx';
 import { MembersAccountsAdd } from './members-accounts-add.tsx';
 
-export interface MembersAccountsAddContainerProps {
+interface MembersAccountsAddContainerProps {
 	data: {
 		id: string;
 	};

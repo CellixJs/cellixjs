@@ -2,7 +2,7 @@ import { Button, Form, Input } from 'antd';
 import React from 'react';
 import type { MemberCreateAccountInput } from '../../../../generated.tsx';
 
-export interface MembersAccountsAddProps {
+interface MembersAccountsAddProps {
 	data: MemberCreateAccountInput;
 	onSave: (member: MemberCreateAccountInput) => Promise<void>;
 }

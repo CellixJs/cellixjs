@@ -3,7 +3,7 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import { MemberProfileContainerMemberProfileDocument } from '../../../generated.tsx';
 import { MemberProfile } from './member-profile.tsx';
 
-export interface MemberProfileContainerProps {
+interface MemberProfileContainerProps {
 	data: {
 		communityId: string;
 	};

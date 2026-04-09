@@ -4,7 +4,7 @@ import type { MemberProfileContainerMemberFieldsFragment } from '../../../genera
 
 const { Title } = Typography;
 
-export interface MemberProfileProps {
+interface MemberProfileProps {
 	data: MemberProfileContainerMemberFieldsFragment | null;
 	isAdmin: boolean;
 }

@@ -54,6 +54,11 @@
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"]
     },
+    "packages/ocom/graphql": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.{ts,tsx,graphql}"],
+      "ignore": ["src/schema/types/end-user-role.resolvers.ts"]
+    },
     "packages/ocom/ui-components": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.{ts,tsx}"]
@@ -93,5 +98,5 @@
     "@vitest/coverage-v8",
     "ts-scope-trimmer-plugin"
   ],
-  "ignoreBinaries": ["func"]
+  "ignoreBinaries": ["func", "antd"]
 }

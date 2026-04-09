@@ -1,7 +1,7 @@
 import { Button, Form, Input } from 'antd';
 import type { MemberCreateInput } from '../../../../generated.tsx';
 
-export interface MembersCreateProps {
+interface MembersCreateProps {
 	data: MemberCreateInput;
 	onSave: (member: MemberCreateInput) => void;
 }

@@ -127,17 +127,24 @@ export const Default: Story = {
 
 		// Verify the invite button is present
 		expect(canvas.getByRole('button', { name: /invite member/i })).toBeInTheDocument();
+		expect(canvas.getByPlaceholderText(/search by member name or email/i)).toBeInTheDocument();
+		expect(canvas.getByText(/all statuses/i)).toBeInTheDocument();
 
 		// Verify member names are displayed in the table
 		expect(canvas.getByText('John Doe')).toBeInTheDocument();
 		expect(canvas.getByText('Jane Smith')).toBeInTheDocument();
 		expect(canvas.getByText('Bob Johnson')).toBeInTheDocument();
 
+		// Verify member status tags are rendered
+		expect(canvas.getAllByText('Active').length).toBeGreaterThan(0);
+		expect(canvas.getByText('Invited')).toBeInTheDocument();
+
 		// Verify "No Role" is shown for members without roles
 		expect(canvas.getAllByText('No Role')).toHaveLength(3);
 
 		// Verify Edit buttons are present for each member
 		expect(canvas.getAllByRole('button', { name: /edit/i })).toHaveLength(3);
+		expect(canvas.getAllByRole('button', { name: /remove/i })).toHaveLength(3);
 	},
 };
 

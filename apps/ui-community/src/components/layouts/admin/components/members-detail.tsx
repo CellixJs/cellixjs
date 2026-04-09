@@ -2,7 +2,7 @@ import { Descriptions } from 'antd';
 import dayjs from 'dayjs';
 import type { AdminMembersDetailContainerMemberFieldsFragment } from '../../../../generated.tsx';
 
-export interface MembersDetailProps {
+interface MembersDetailProps {
 	data: {
 		member: AdminMembersDetailContainerMemberFieldsFragment;
 	};
