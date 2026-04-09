@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-
 import fs from 'fs/promises';
-import fsSync from 'fs';
 import path from 'path';
 import os from 'os';
 
@@ -19,7 +17,13 @@ for (let i = 0; i < argv.length; i++) {
   if (a === '--force' || a === '-f') {
     force = true;
   } else if (a === '--source' || a === '-s') {
-    source = argv[i + 1];
+    const val = argv[i + 1];
+    if (!val || val.startsWith('-')) {
+      console.error('Error: --source requires a path argument');
+      printUsage();
+      process.exit(1);
+    }
+    source = val;
     i++;
   } else if (a === '--help' || a === '-h') {
     printUsage();
@@ -37,9 +41,13 @@ if (!source) {
   source = path.resolve(process.cwd(), source);
 }
 
-async function main() {
+async function exists(p) {
+  try { await fs.access(p); return true } catch { return false }
+}
+
+async function main(){
   try {
-    if (!fsSync.existsSync(source)) {
+    if (!await exists(source)){
       console.error(`Source config not found at ${source}`);
       process.exit(2);
     }
@@ -49,8 +57,8 @@ async function main() {
 
     await fs.mkdir(destDir, { recursive: true });
 
-    if (fsSync.existsSync(destFile)) {
-      if (force) {
+    if (await exists(destFile)){
+      if (force){
         console.log('Overwriting existing config due to --force');
       } else {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -63,7 +71,7 @@ async function main() {
     await fs.copyFile(source, destFile);
     console.log(`Installed MCP config from ${source} to ${destFile}`);
     process.exit(0);
-  } catch (err) {
+  } catch (err){
     console.error('Failed to install MCP config:', err);
     process.exit(1);
   }

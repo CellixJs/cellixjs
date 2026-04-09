@@ -83,7 +83,7 @@ jobs:
       - name: Start Playwright MCP (HTTP, background)
         run: |
           echo "Starting Playwright MCP on port 8931 (pnpm dlx)..."
-          nohup pnpm dlx @playwright/mcp@latest --port 8931 --headless --ignore-https-errors --allowed-hosts='localhost' --allowed-origins='http://localhost,https://localhost' > mcp.log 2>&1 &
+          nohup pnpm dlx @playwright/mcp@1.59.0 --port 8931 --headless --ignore-https-errors --allowed-hosts='localhost' --allowed-origins='http://localhost,https://localhost' > mcp.log 2>&1 &
           # Wait briefly for MCP to open the port
           for i in $(seq 1 30); do
             ss -ltn | grep -q ':8931' && break || sleep 1
@@ -95,13 +95,21 @@ jobs:
 
       - name: Wait for MCP readiness
         run: |
+          ready=0
           for i in $(seq 1 30); do
-            if curl -sS http://localhost:8931/ >/dev/null 2>&1 || ss -ltn | grep -q ':8931'; then
+            if curl -fsS http://localhost:8931/ >/dev/null 2>&1 || ss -ltn | grep -q ':8931'; then
               echo "Playwright MCP seems ready"
+              ready=1
               break
             fi
             sleep 1
           done
+          if [ "$ready" -ne 1 ]; then
+            echo "Playwright MCP did not become ready after 30s"
+            echo "MCP log (last 200 lines):"
+            sed -n '1,200p' mcp.log || true
+            exit 1
+          fi
 
       - name: Install Java SDK (Required for SonarCloud)
         uses: actions/setup-java@v4
