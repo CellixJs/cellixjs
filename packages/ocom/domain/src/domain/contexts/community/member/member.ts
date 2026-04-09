@@ -89,7 +89,6 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
 			throw new PermissionError('Cannot remove custom view');
 		}
-		console.log(customView.name);
 		this.props.customViews.removeItem(customView.props);
 	}
 
@@ -168,7 +167,6 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 	}
 
 	get updatedAt() {
-        console.log(this.props.updatedAt);
 		return this.props.updatedAt;
 	}
 
