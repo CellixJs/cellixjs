@@ -95,6 +95,19 @@ describe('Member Management Domain Operations', () => {
 			expect(accountItems[0]?.statusCode).toBe('ACCEPTED');
 		});
 
+		it('should reactivate a member with deactivated account and raise MemberActivatedEvent', () => {
+			const passport = createMockPassport({ canManageMembers: true });
+			const accountItems = [{ id: 'account-1', statusCode: 'REJECTED' } as unknown as MemberAccountProps];
+			const member = new Member(createMemberProps(accountItems), passport);
+
+			member.requestActivateMember();
+
+			const events = member.getDomainEvents();
+			expect(events).toHaveLength(1);
+			expect(events[0]).toBeInstanceOf(MemberActivatedEvent);
+			expect(accountItems[0]?.statusCode).toBe('ACCEPTED');
+		});
+
 		it('should fail when user lacks management permissions', () => {
 			const passport = createMockPassport({ canManageMembers: false });
 			const member = new Member(createMemberProps([{ id: 'account-1', statusCode: 'CREATED' } as unknown as MemberAccountProps]), passport);
@@ -161,9 +174,7 @@ describe('Member Management Domain Operations', () => {
 			expect(event.payload.memberId).toBe('test-member-id');
 			expect(event.payload.communityId).toBe('test-community-id');
 			expect(event.payload.removedBy).toBe('system');
-
-			expect(accountItems[0]?.statusCode).toBe('REJECTED');
-			expect(accountItems[1]?.statusCode).toBe('REJECTED');
+			expect(member.isDeleted).toBe(true);
 		});
 
 		it('should fail when user lacks management permissions', () => {

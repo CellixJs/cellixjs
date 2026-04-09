@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@apollo/client';
+import { useApolloClient, useQuery, useMutation } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { useParams, useNavigate } from 'react-router-dom';
 import { App } from 'antd';
@@ -6,6 +6,8 @@ import { useState } from 'react';
 import type { AdminMemberListContainerMemberFieldsFragment } from '../../../../generated.tsx';
 import {
 	AdminMemberListContainerMembersDocument,
+	type AdminMemberListContainerMembersQuery,
+	type AdminMemberListContainerMembersQueryVariables,
 	AdminMemberListContainerActivateMemberDocument,
 	AdminMemberListContainerDeactivateMemberDocument,
 	AdminMemberListContainerRemoveMemberDocument,
@@ -19,6 +21,7 @@ import { MemberInviteModalContainer } from './member-invite-modal.container.tsx'
 export const MemberListContainer: React.FC = () => {
 	const { communityId } = useParams<{ communityId: string }>();
 	const navigate = useNavigate();
+	const apolloClient = useApolloClient();
 	const { message } = App.useApp();
 	const [inviteModalVisible, setInviteModalVisible] = useState(false);
 
@@ -39,6 +42,32 @@ export const MemberListContainer: React.FC = () => {
 	const [bulkActivateMembersMutation, { loading: bulkActivateLoading }] = useMutation(AdminMemberListContainerBulkActivateMembersDocument);
 	const [bulkDeactivateMembersMutation, { loading: bulkDeactivateLoading }] = useMutation(AdminMemberListContainerBulkDeactivateMembersDocument);
 	const [bulkRemoveMembersMutation, { loading: bulkRemoveLoading }] = useMutation(AdminMemberListContainerBulkRemoveMembersDocument);
+
+	const removeMembersFromCache = (memberIds: string[]) => {
+		if (!communityId || memberIds.length === 0) {
+			return;
+		}
+
+		const variables: AdminMemberListContainerMembersQueryVariables = { communityId };
+		const existing = membersData ?? null;
+		const filteredMembers = existing?.membersByCommunityId.filter((member) => !memberIds.includes(String(member.id)));
+		if (!filteredMembers) {
+			return;
+		}
+
+		const next: AdminMemberListContainerMembersQuery = {
+			...existing,
+			membersByCommunityId: filteredMembers,
+		};
+
+		// Keep UI consistent with remove semantics by pruning removed members from the member list query cache.
+		// Remove operations are soft-delete in domain and otherwise remain visible in list queries.
+		apolloClient.writeQuery({
+			query: AdminMemberListContainerMembersDocument,
+			variables,
+			data: next,
+		});
+	};
 
 	const handleActivateMember = async (memberId: string) => {
 		try {
@@ -85,7 +114,7 @@ export const MemberListContainer: React.FC = () => {
 		}
 	};
 
-	const handleRemoveMember = async (memberId: string, reason?: string) => {
+	const handleRemoveMember = async (memberId: string, reason?: string): Promise<boolean> => {
 		try {
 			const result = await removeMemberMutation({
 				variables: {
@@ -99,16 +128,18 @@ export const MemberListContainer: React.FC = () => {
 
 			if (result.data?.removeMember?.status?.success) {
 				message.success('Member removed successfully');
-				await refetchMembers();
+				removeMembersFromCache([memberId]);
+				return true;
 			} else {
 				message.error(result.data?.removeMember?.status?.errorMessage || 'Failed to remove member');
 			}
 		} catch (_error) {
 			message.error('An error occurred while removing member');
 		}
+		return false;
 	};
 
-	const handleBulkActivateMembers = async (memberIds: string[]) => {
+	const handleBulkActivateMembers = async (memberIds: string[]): Promise<boolean> => {
 		try {
 			const result = await bulkActivateMembersMutation({
 				variables: {
@@ -119,18 +150,25 @@ export const MemberListContainer: React.FC = () => {
 				},
 			});
 
-			if (result.data?.bulkActivateMembers?.status?.success) {
-				message.success(`${memberIds.length} member(s) activated successfully`);
+			const successCount = result.data?.bulkActivateMembers?.successCount ?? 0;
+			const failedCount = result.data?.bulkActivateMembers?.failedCount ?? 0;
+			if (result.data?.bulkActivateMembers?.status?.success && successCount > 0) {
+				message.success(`${successCount} member(s) activated successfully`);
 				await refetchMembers();
+				if (failedCount > 0) {
+					message.error(`${failedCount} member(s) could not be activated`);
+				}
+				return true;
 			} else {
-				message.error(result.data?.bulkActivateMembers?.status?.errorMessage || 'Failed to activate members');
+				message.error(result.data?.bulkActivateMembers?.status?.errorMessage || 'Failed to activate selected members');
 			}
 		} catch (_error) {
 			message.error('An error occurred while activating members');
 		}
+		return false;
 	};
 
-	const handleBulkDeactivateMembers = async (memberIds: string[], reason: string) => {
+	const handleBulkDeactivateMembers = async (memberIds: string[], reason: string): Promise<boolean> => {
 		try {
 			const result = await bulkDeactivateMembersMutation({
 				variables: {
@@ -142,18 +180,25 @@ export const MemberListContainer: React.FC = () => {
 				},
 			});
 
-			if (result.data?.bulkDeactivateMembers?.status?.success) {
-				message.success(`${memberIds.length} member(s) deactivated successfully`);
+			const successCount = result.data?.bulkDeactivateMembers?.successCount ?? 0;
+			const failedCount = result.data?.bulkDeactivateMembers?.failedCount ?? 0;
+			if (result.data?.bulkDeactivateMembers?.status?.success && successCount > 0) {
+				message.success(`${successCount} member(s) deactivated successfully`);
 				await refetchMembers();
+				if (failedCount > 0) {
+					message.error(`${failedCount} member(s) could not be deactivated`);
+				}
+				return true;
 			} else {
-				message.error(result.data?.bulkDeactivateMembers?.status?.errorMessage || 'Failed to deactivate members');
+				message.error(result.data?.bulkDeactivateMembers?.status?.errorMessage || 'Failed to deactivate selected members');
 			}
 		} catch (_error) {
 			message.error('An error occurred while deactivating members');
 		}
+		return false;
 	};
 
-	const handleBulkRemoveMembers = async (memberIds: string[], reason: string) => {
+	const handleBulkRemoveMembers = async (memberIds: string[], reason: string): Promise<boolean> => {
 		try {
 			const result = await bulkRemoveMembersMutation({
 				variables: {
@@ -165,15 +210,18 @@ export const MemberListContainer: React.FC = () => {
 				},
 			});
 
-			if (result.data?.bulkRemoveMembers?.status?.success) {
-				message.success(`${memberIds.length} member(s) removed successfully`);
-				await refetchMembers();
+			const successCount = result.data?.bulkRemoveMembers?.successCount ?? 0;
+			if (result.data?.bulkRemoveMembers?.status?.success && successCount > 0) {
+				message.success(`${successCount} member(s) removed successfully`);
+				removeMembersFromCache(memberIds);
+				return true;
 			} else {
-				message.error(result.data?.bulkRemoveMembers?.status?.errorMessage || 'Failed to remove members');
+				message.error(result.data?.bulkRemoveMembers?.status?.errorMessage || 'Failed to remove selected members');
 			}
 		} catch (_error) {
 			message.error('An error occurred while removing members');
 		}
+		return false;
 	};
 
 	const handleMemberEdit = (memberId: string) => {

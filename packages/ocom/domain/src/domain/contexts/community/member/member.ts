@@ -106,8 +106,8 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 			throw new PermissionError('Cannot activate member');
 		}
 
-		// Find the first created account and activate it
-		const pendingAccount = this.accounts.find((account) => account.statusCode === 'CREATED');
+		// Allow both invited and previously deactivated members to be activated.
+		const pendingAccount = this.accounts.find((account) => account.statusCode === 'CREATED' || account.statusCode === 'REJECTED');
 		if (pendingAccount) {
 			pendingAccount.statusCode = 'ACCEPTED';
 
@@ -153,12 +153,7 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 			throw new PermissionError('Cannot remove member');
 		}
 
-		// Mark all accounts as rejected to effectively remove the member
-		this.accounts.forEach((account) => {
-			if (account.statusCode !== 'REJECTED') {
-				account.statusCode = 'REJECTED';
-			}
-		});
+		this.isDeleted = true;
 
 		// Raise domain event
 		this.addDomainEvent<MemberRemovedProps, MemberRemovedEvent>(MemberRemovedEvent, {

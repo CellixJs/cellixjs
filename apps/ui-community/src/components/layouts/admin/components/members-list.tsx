@@ -11,6 +11,10 @@ type MemberStatusFilter = 'all' | 'active' | 'invited' | 'inactive' | 'unknown';
 const getMemberStatus = (member: AdminMemberListContainerMemberFieldsFragment): MemberStatusFilter => {
 	const normalizedStatuses = member.accounts.map((account) => account.statusCode?.toUpperCase()).filter((status): status is string => Boolean(status));
 
+	if (normalizedStatuses.length === 0) {
+		return 'invited';
+	}
+
 	if (normalizedStatuses.some((status) => ['ACCEPTED', 'ACTIVE'].includes(status))) {
 		return 'active';
 	}
@@ -19,7 +23,7 @@ const getMemberStatus = (member: AdminMemberListContainerMemberFieldsFragment): 
 		return 'invited';
 	}
 
-	if (normalizedStatuses.some((status) => ['INACTIVE', 'DEACTIVATED', 'REMOVED'].includes(status))) {
+	if (normalizedStatuses.some((status) => ['INACTIVE', 'DEACTIVATED', 'REMOVED', 'REJECTED'].includes(status))) {
 		return 'inactive';
 	}
 
@@ -39,17 +43,17 @@ export interface MemberListProps {
 	communityId?: string;
 	onActivateMember?: (memberId: string, reason?: string) => Promise<void>;
 	onDeactivateMember?: (memberId: string, reason?: string) => Promise<void>;
-	onRemoveMember?: (memberId: string, reason?: string) => Promise<void>;
-	onBulkActivateMembers?: (memberIds: string[]) => Promise<void>;
-	onBulkDeactivateMembers?: (memberIds: string[], reason: string) => Promise<void>;
-	onBulkRemoveMembers?: (memberIds: string[], reason: string) => Promise<void>;
+	onRemoveMember?: (memberId: string, reason?: string) => Promise<boolean>;
+	onBulkActivateMembers?: (memberIds: string[]) => Promise<boolean>;
+	onBulkDeactivateMembers?: (memberIds: string[], reason: string) => Promise<boolean>;
+	onBulkRemoveMembers?: (memberIds: string[], reason: string) => Promise<boolean>;
 	onInviteMember?: () => void;
 	onMemberEdit?: (memberId: string) => void;
 	loading?: boolean;
 }
 
 export const MemberList: React.FC<MemberListProps> = (props) => {
-	const { data, onInviteMember, onMemberEdit, onRemoveMember, onBulkActivateMembers, onBulkDeactivateMembers, onBulkRemoveMembers, loading } = props;
+	const { data, onInviteMember, onMemberEdit, onActivateMember, onDeactivateMember, onRemoveMember, onBulkActivateMembers, onBulkDeactivateMembers, onBulkRemoveMembers, loading } = props;
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>('all');
 	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
@@ -67,18 +71,36 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 	const clearSelection = () => setSelectedMemberIds([]);
 
 	const handleBulkActivate = async () => {
-		await onBulkActivateMembers?.(selectedMemberIds);
-		clearSelection();
+		const success = await onBulkActivateMembers?.(selectedMemberIds);
+		if (success) {
+			clearSelection();
+		}
 	};
 
 	const handleBulkDeactivate = async () => {
-		await onBulkDeactivateMembers?.(selectedMemberIds, 'Bulk deactivation from member list');
-		clearSelection();
+		const success = await onBulkDeactivateMembers?.(selectedMemberIds, 'Bulk deactivation from member list');
+		if (success) {
+			clearSelection();
+		}
 	};
 
 	const handleBulkRemove = async () => {
-		await onBulkRemoveMembers?.(selectedMemberIds, 'Bulk remove from member list');
-		clearSelection();
+		const success = await onBulkRemoveMembers?.(selectedMemberIds, 'Bulk remove from member list');
+		if (success) {
+			clearSelection();
+		}
+	};
+
+	const handleRemoveMember = async (memberId: string) => {
+		await onRemoveMember?.(memberId, 'Removed from member list');
+	};
+
+	const handleActivateMember = async (memberId: string) => {
+		await onActivateMember?.(memberId, 'Activated from member list');
+	};
+
+	const handleDeactivateMember = async (memberId: string) => {
+		await onDeactivateMember?.(memberId, 'Deactivated from member list');
 	};
 
 	const columns: TableColumnsType<AdminMemberListContainerMemberFieldsFragment> = [
@@ -122,23 +144,44 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 		{
 			title: 'Action',
 			key: 'action',
-			render: (_text: unknown, record: AdminMemberListContainerMemberFieldsFragment) => (
-				<Space size="small">
-					<Button
-						type="link"
-						onClick={() => onMemberEdit?.(record.id)}
-					>
-						Edit
-					</Button>
-					<Button
-						type="link"
-						danger
-						onClick={() => onRemoveMember?.(record.id, 'Removed from member list')}
-					>
-						Remove
-					</Button>
-				</Space>
-			),
+			render: (_text: unknown, record: AdminMemberListContainerMemberFieldsFragment) => {
+				const status = getMemberStatus(record);
+				return (
+					<Space size="small">
+						<Button
+							type="link"
+							onClick={() => onMemberEdit?.(record.id)}
+						>
+							Edit
+						</Button>
+						{status === 'active' ? (
+							<Button
+								type="link"
+								loading={loading}
+								onClick={() => void handleDeactivateMember(String(record.id))}
+							>
+								Deactivate
+							</Button>
+						) : (
+							<Button
+								type="link"
+								loading={loading}
+								onClick={() => void handleActivateMember(String(record.id))}
+							>
+								Activate
+							</Button>
+						)}
+						<Button
+							type="link"
+							danger
+							loading={loading}
+							onClick={() => void handleRemoveMember(String(record.id))}
+						>
+							Remove
+						</Button>
+					</Space>
+				);
+			},
 		},
 	];
 

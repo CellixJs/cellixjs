@@ -3,6 +3,7 @@ import { Helmet } from '@dr.pogodin/react-helmet';
 import { MemberProfileContainer } from '../../../shared/components/member-profile.container.tsx';
 
 interface MembersProfileParams {
+	id?: string;
 	communityId?: string;
 	[key: string]: string | undefined;
 }
@@ -15,9 +16,8 @@ export const MembersProfile: React.FC = () => {
 			<Helmet>
 				<title>Members Profile</title>
 			</Helmet>
-			<h1>Members Profile</h1>
 			<MemberProfileContainer
-				data={{ communityId: params.communityId ?? '' }}
+				data={{ communityId: params.communityId ?? '', id: params.id ?? '' }}
 				isAdmin
 			/>
 		</div>
