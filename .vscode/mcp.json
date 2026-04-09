@@ -6,6 +6,16 @@
 			"env": {
 				"MDB_MCP_CONNECTION_STRING": "mongodb://localhost:50000"
 			}
+		},
+		"chrome-devtools": {
+			"name": "chrome-devtools",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"open -na \"/Applications/Google Chrome.app\" --args --remote-debugging-port=9222 --user-data-dir=\"$PWD/.vscode/.mcp-chrome-user-data-$(date +%s)-$$\" --no-first-run --no-default-browser-check &\n\n# give Chrome a moment to start its remote debugging socket\nsleep 1\n\n# start chrome-devtools-mcp attached to the same debugging port and write logs to /tmp\npnpm exec -- chrome-devtools-mcp --slim --no-usage-statistics --remote-debugging-port=9222 --logFile \"/tmp/chrome-devtools-mcp.auto.log\""
+			],
+			"port": 9222,
+			"autoAttach": true
 		}
 	}
 }
