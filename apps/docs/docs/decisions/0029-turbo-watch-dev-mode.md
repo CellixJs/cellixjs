@@ -6,7 +6,7 @@ Status: Accepted
 
 Context
 -------
-The repository uses Turborepo to orchestrate build, test and dev tasks across multiple packages. Developers expect a responsive local development experience: long-running processes (dev servers, storybook, emulators) should remain running while one-shot tasks (codegen, type checks, builds) re-run when sources change.
+The repository uses Turborepo to orchestrate build, test and dev tasks across multiple packages. Developers expect a responsive local development experience: long-running processes (dev servers, Storybook, emulators) should remain running while one-shot tasks (codegen, type checks, builds) re-run when sources change.
 
 Turborepo provides `turbo run` for single-shot execution and `turbo watch` for persistent watch-mode workflows. `turbo watch` keeps persistent tasks running and restarts interruptible tasks when their inputs change; it also provides a daemon that improves responsiveness for watch workflows.
 
