@@ -78,10 +78,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Install repo MCP config
-        run: |
-          echo "Installing repo Copilot MCP config into runner's home (~/.copilot)..."
-          mkdir -p ~/.copilot
-          cp -v ./.copilot/mcp-config.json ~/.copilot/mcp-config.json
+        run: pnpm run mcp:install-config -- --force
 
       - name: Start Playwright MCP (HTTP, background)
         run: |
