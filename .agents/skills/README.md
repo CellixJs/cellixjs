@@ -129,6 +129,7 @@ skills-lock.json                     # Upstream source + hash metadata for insta
 | **mongodb-mcp-setup** | [mongodb/agent-skills](https://github.com/mongodb/agent-skills) | MongoDB MCP setup and troubleshooting guidance for the committed local MCP workflow in `.vscode/mcp.json` |
 | **mongodb-query-optimizer** | [mongodb/agent-skills](https://github.com/mongodb/agent-skills) | Query and index performance guidance for repository and read-model work using MongoDB/Mongoose |
 | **mongodb-schema-design** | [mongodb/agent-skills](https://github.com/mongodb/agent-skills) | Schema and modeling guidance for the repo's Mongoose model layer |
+| **browser-testing-with-devtools** | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Chrome DevTools MCP guidance for live browser testing: DOM inspection, console/network tracing, screenshots, and performance profiling |
 
 **Intentionally excluded community MongoDB skills:**
 - Atlas Stream Processing was not installed because the repo does not implement Atlas stream processing workflows

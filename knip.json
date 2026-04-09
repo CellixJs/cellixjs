@@ -96,7 +96,8 @@
     "@cellix/graphql-codegen",
     "@graphql-typed-document-node/core",
     "@vitest/coverage-v8",
-    "ts-scope-trimmer-plugin"
+    "ts-scope-trimmer-plugin",
+    "chrome-devtools-mcp"
   ],
   "ignoreBinaries": ["func", "antd"]
 }

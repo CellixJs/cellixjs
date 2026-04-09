@@ -31,3 +31,6 @@ apps/api/deploy/
 
 # Rolldown-generated bundler manifests
 **/*.generated.ts
+
+# Ignore vscode mcp chrome user data
+.vscode/.mcp-chrome-user-data*
