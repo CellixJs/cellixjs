@@ -168,11 +168,11 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 	}
 
 	get updatedAt() {
+        console.log(this.props.updatedAt);
 		return this.props.updatedAt;
 	}
 
 	get schemaVersion() {
-		console.log(this.props.schemaVersion);
 		return this.props.schemaVersion;
 	}
 
