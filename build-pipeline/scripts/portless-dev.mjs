@@ -4,13 +4,12 @@ import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { isGracefulInterruptExit } from './dev-process-exit.mjs';
 
 const MAX_RETRIES = Number.parseInt(process.env.PORTLESS_ROUTE_LOCK_RETRIES ?? '20', 10);
 const BASE_DELAY_MS = Number.parseInt(process.env.PORTLESS_ROUTE_LOCK_DELAY_MS ?? '250', 10);
 const MAX_DELAY_MS = Number.parseInt(process.env.PORTLESS_ROUTE_LOCK_MAX_DELAY_MS ?? '2000', 10);
 const ROUTE_LOCK_ERROR = 'Failed to acquire route lock';
-const INTERRUPT_EXIT_CODES = new Set([130, 143]);
-
 let activeChild = null;
 let terminating = false;
 let signalsInstalled = false;
@@ -59,6 +58,9 @@ const runPortlessOnce = (routeName, commandArgs) =>
 		child.stderr.on('data', onData(process.stderr));
 
 		child.on('error', (error) => {
+			if (error?.code === 'ENOENT') {
+				console.error('Failed to start "portless": command not found. Run "pnpm install" in the repo root, then retry.');
+			}
 			console.error(error);
 			resolve({ code: 1, signal: null, routeLockError: sawRouteLockError });
 		});
@@ -69,7 +71,7 @@ const runPortlessOnce = (routeName, commandArgs) =>
 	});
 
 export const runPortlessWithRetries = async (routeName, commandArgs) => {
-	for (let attempt = 1; attempt <= MAX_RETRIES + 1; attempt += 1) {
+	for (let attempt = 1; attempt <= MAX_RETRIES; attempt += 1) {
 		const { code, signal, routeLockError } = await runPortlessOnce(routeName, commandArgs);
 
 		if (code === 0) {
@@ -80,11 +82,11 @@ export const runPortlessWithRetries = async (routeName, commandArgs) => {
 			return 0;
 		}
 
-		if (signal === 'SIGINT' || signal === 'SIGTERM' || signal === 'SIGQUIT' || INTERRUPT_EXIT_CODES.has(code)) {
+		if (isGracefulInterruptExit(signal, code)) {
 			return 0;
 		}
 
-		if (!routeLockError || attempt > MAX_RETRIES) {
+		if (!routeLockError || attempt === MAX_RETRIES) {
 			return code || 1;
 		}
 
