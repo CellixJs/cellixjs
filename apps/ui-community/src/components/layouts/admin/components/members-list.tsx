@@ -9,9 +9,7 @@ const { Title, Text } = Typography;
 type MemberStatusFilter = 'all' | 'active' | 'invited' | 'inactive' | 'unknown';
 
 const getMemberStatus = (member: AdminMemberListContainerMemberFieldsFragment): MemberStatusFilter => {
-	const normalizedStatuses = member.accounts
-		.map((account) => account.statusCode?.toUpperCase())
-		.filter((status): status is string => Boolean(status));
+	const normalizedStatuses = member.accounts.map((account) => account.statusCode?.toUpperCase()).filter((status): status is string => Boolean(status));
 
 	if (normalizedStatuses.some((status) => ['ACCEPTED', 'ACTIVE'].includes(status))) {
 		return 'active';
@@ -51,16 +49,7 @@ export interface MemberListProps {
 }
 
 export const MemberList: React.FC<MemberListProps> = (props) => {
-	const {
-		data,
-		onInviteMember,
-		onMemberEdit,
-		onRemoveMember,
-		onBulkActivateMembers,
-		onBulkDeactivateMembers,
-		onBulkRemoveMembers,
-		loading,
-	} = props;
+	const { data, onInviteMember, onMemberEdit, onRemoveMember, onBulkActivateMembers, onBulkDeactivateMembers, onBulkRemoveMembers, loading } = props;
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>('all');
 	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
@@ -68,10 +57,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 	const filteredData = useMemo(() => {
 		const normalizedSearch = searchTerm.trim().toLowerCase();
 		return data.filter((member) => {
-			const matchesSearch =
-				normalizedSearch.length === 0 ||
-				member.memberName?.toLowerCase().includes(normalizedSearch) ||
-				member.profile?.email?.toLowerCase().includes(normalizedSearch);
+			const matchesSearch = normalizedSearch.length === 0 || member.memberName?.toLowerCase().includes(normalizedSearch) || member.profile?.email?.toLowerCase().includes(normalizedSearch);
 			const memberStatus = getMemberStatus(member);
 			const matchesStatus = statusFilter === 'all' || memberStatus === statusFilter;
 			return matchesSearch && matchesStatus;
