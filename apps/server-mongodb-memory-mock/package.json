@@ -4,13 +4,14 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"prebuild": "pnpm run lint && pnpm run format",
+		"prebuild": "pnpm run lint",
 		"build": "tsc --build",
 		"clean": "rimraf dist tsconfig.tsbuildinfo",
 		"lint": "biome lint",
 		"format": "biome format --write",
+		"format:check": "biome format .",
 		"start": "node dist/index.js",
-		"dev": "tsx watch --exclude ../../packages/cellix/server-mongodb-memory-mock-seedwork/dist src/index.ts"
+		"dev": "tsx src/index.ts"
 	},
 	"dependencies": {
 		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",

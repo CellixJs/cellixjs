@@ -96,6 +96,10 @@
 			"description": "Formats source files with Biome",
 			"outputs": []
 		},
+		"format:check": {
+			"description": "Checks source formatting with Biome without writing changes",
+			"outputs": []
+		},
 		"clean": {
 			"description": "Removes generated build artifacts and caches",
 			"cache": false,

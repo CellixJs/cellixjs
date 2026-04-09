@@ -8,7 +8,7 @@
 			"outputs": ["$TURBO_EXTENDS$", "deploy/**"]
 		},
 		"dev": {
-			"dependsOn": ["^build", "build", "//#gen"],
+			"dependsOn": ["build"],
 			"interruptible": true,
 			"inputs": []
 		}

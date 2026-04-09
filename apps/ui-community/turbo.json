@@ -5,7 +5,7 @@
 			"dependsOn": ["^build"],
 			"persistent": true,
 			"interruptible": false,
-			"inputs": []
+			"inputs": [".env", "package.json", "vite.config.ts", "tsconfig.json", "tsconfig.app.json", "tsconfig.node.json"]
 		}
 	}
 }

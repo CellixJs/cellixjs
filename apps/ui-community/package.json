@@ -6,9 +6,10 @@
 	"scripts": {
 		"lint": "biome lint",
 		"format": "biome format --write",
-		"prebuild": "pnpm run lint && pnpm run format",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint",
 		"build": "tsc --build && vite build",
-		"dev": "portless --force ownercommunity.localhost vite || [ $? -eq 130 ]",
+		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs ownercommunity.localhost vite",
 		"start": "vite",
 		"preview": "vite preview",
 		"test": "vitest run --silent --reporter=dot",

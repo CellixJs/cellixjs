@@ -24,7 +24,7 @@ const child = spawn('func', ['start', '--typescript', '--script-root', 'deploy/'
 
 child.on('exit', (code, signal) => {
 	// Turbo sends signals to interrupt persistent tasks; treat those as graceful exits.
-	if (signal === 'SIGINT' || signal === 'SIGTERM' || signal === 'SIGQUIT') {
+	if (signal === 'SIGINT' || signal === 'SIGTERM' || signal === 'SIGQUIT' || code === 130 || code === 143) {
 		process.exitCode = 0;
 		return;
 	}
