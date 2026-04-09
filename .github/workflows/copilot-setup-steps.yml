@@ -83,7 +83,7 @@ jobs:
       - name: Start Playwright MCP (HTTP, background)
         run: |
           echo "Starting Playwright MCP on port 8931 (pnpm dlx)..."
-          nohup pnpm dlx @playwright/mcp@1.59.0 --port 8931 --headless --ignore-https-errors --allowed-hosts='localhost' --allowed-origins='http://localhost,https://localhost' > mcp.log 2>&1 &
+          nohup pnpm dlx @playwright/mcp@0.0.70 --port 8931 --headless --ignore-https-errors --allowed-hosts='localhost' --allowed-origins='http://localhost,https://localhost' > mcp.log 2>&1 &
           # Wait briefly for MCP to open the port
           for i in $(seq 1 30); do
             ss -ltn | grep -q ':8931' && break || sleep 1

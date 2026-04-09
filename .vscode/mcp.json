@@ -10,7 +10,7 @@
 },
 "playwright": {
 "command": "npx",
-"args": ["@playwright/mcp@latest"],
+"args": ["@playwright/mcp@0.0.70"],
 "type": "stdio",
 "tools": ["*"]
 },
