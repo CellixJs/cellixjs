@@ -68,6 +68,7 @@
     "@types/node": "catalog:",
     "@vitest/coverage-istanbul": "catalog:",
     "azurite": "^3.35.0",
+    "chrome-devtools-mcp": "^0.21.0",
     "concurrently": "^9.1.2",
     "husky": "^9.1.7",
     "knip": "^5.64.2",
