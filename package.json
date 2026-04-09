@@ -12,7 +12,7 @@
 		"build": "turbo run build",
 		"test": "turbo run test",
 		"lint": "turbo run lint",
-		"dev": "pnpm proxy:stop && pnpm proxy:start && turbo watch azurite dev --filter='./apps/*' --filter='./packages/*'",
+		"dev": "pnpm run audit && pnpm proxy:stop && pnpm proxy:start && turbo watch azurite dev --filter='./apps/*' --filter='./packages/*'",
 		"start": "turbo run build && concurrently --kill-others-on-fail \"pnpm run start:api\" \"pnpm run start:ui-community\"",
 		"proxy:stop": "portless proxy stop || true",
 		"proxy:start": "portless proxy start -p 1355 --https",
@@ -91,7 +91,7 @@
 			]
 		},
 		"overrides": {
-            "axios": "^1.15.0",
+			"axios": "^1.15.0",
 			"vite": "catalog:",
 			"jiti": "2.6.1",
 			"rollup": "^4.59.0",
