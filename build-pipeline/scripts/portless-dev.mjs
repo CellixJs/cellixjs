@@ -6,10 +6,23 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { isGracefulInterruptExit } from './dev-process-exit.mjs';
 
-const MAX_RETRIES = Number.parseInt(process.env.PORTLESS_ROUTE_LOCK_RETRIES ?? '20', 10);
-const BASE_DELAY_MS = Number.parseInt(process.env.PORTLESS_ROUTE_LOCK_DELAY_MS ?? '250', 10);
-const MAX_DELAY_MS = Number.parseInt(process.env.PORTLESS_ROUTE_LOCK_MAX_DELAY_MS ?? '2000', 10);
+const parseEnvInt = (envVarName, defaultValue) => {
+	const raw = process.env[envVarName];
+	if (raw === undefined) {
+		return defaultValue;
+	}
+
+	const parsed = Number.parseInt(raw, 10);
+	return Number.isFinite(parsed) ? parsed : defaultValue;
+};
+
+const MAX_RETRIES = parseEnvInt('PORTLESS_ROUTE_LOCK_RETRIES', 20);
+const BASE_DELAY_MS = parseEnvInt('PORTLESS_ROUTE_LOCK_DELAY_MS', 250);
+const MAX_DELAY_MS = parseEnvInt('PORTLESS_ROUTE_LOCK_MAX_DELAY_MS', 2000);
 const ROUTE_LOCK_ERROR = 'Failed to acquire route lock';
+const modulePath = fileURLToPath(import.meta.url);
+const moduleDir = path.dirname(modulePath);
+const localPortlessBin = path.resolve(moduleDir, '../../node_modules/.bin/portless');
 let activeChild = null;
 let terminating = false;
 let signalsInstalled = false;
@@ -62,11 +75,33 @@ const runPortlessOnce = (routeName, commandArgs) =>
 		child.stderr.on('data', onData(process.stderr));
 
 		child.on('error', (error) => {
+			if (error?.code === 'ENOENT') {
+				const fallbackChild = spawn(localPortlessBin, ['--force', routeName, ...commandArgs], {
+					stdio: ['inherit', 'pipe', 'pipe'],
+					env: process.env,
+				});
+				activeChild = fallbackChild;
+				fallbackChild.stdout.on('data', onData(process.stdout));
+				fallbackChild.stderr.on('data', onData(process.stderr));
+				fallbackChild.on('error', (fallbackError) => {
+					if (activeChild === fallbackChild) {
+						activeChild = null;
+					}
+					console.error('Failed to start "portless" from PATH and local node_modules/.bin.');
+					console.error(fallbackError);
+					resolve({ code: 1, signal: null, routeLockError: sawRouteLockError });
+				});
+				fallbackChild.on('close', (code, signal) => {
+					if (activeChild === fallbackChild) {
+						activeChild = null;
+					}
+					resolve({ code: code ?? 1, signal, routeLockError: sawRouteLockError });
+				});
+				return;
+			}
+
 			if (activeChild === child) {
 				activeChild = null;
-			}
-			if (error?.code === 'ENOENT') {
-				console.error('Failed to start "portless": command not found. Run "pnpm install" in the repo root, then retry.');
 			}
 			console.error(error);
 			resolve({ code: 1, signal: null, routeLockError: sawRouteLockError });
@@ -125,7 +160,6 @@ const runCli = async () => {
 	return runPortlessWithRetries(routeName, commandArgs);
 };
 
-const modulePath = fileURLToPath(import.meta.url);
 const argvPath = process.argv[1] ? path.resolve(process.cwd(), process.argv[1]) : '';
 if (argvPath === modulePath) {
 	runCli().then((code) => {
