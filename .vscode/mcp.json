@@ -2,14 +2,23 @@
 	"servers": {
 		"mongodb": {
 			"command": "npx",
-			"args": ["-y", "mongodb-mcp-server"],
+			"args": [
+				"-y",
+				"mongodb-mcp-server"
+			],
 			"env": {
 				"MDB_MCP_CONNECTION_STRING": "mongodb://localhost:50000"
-			}
+			},
+			"type": "stdio"
 		},
 		"playwright": {
 			"command": "npx",
-			"args": ["@playwright/mcp@latest"]
+			"args": [
+				"@playwright/mcp@latest"
+			],
+			"type": "stdio",
+			"tools": ["*"]
 		}
-	}
+	},
+	"inputs": []
 }
