@@ -1,6 +1,6 @@
 import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 
-export interface MemberInvitedProps {
+interface MemberInvitedProps {
 	memberId: string;
 	communityId: string;
 	email: string;

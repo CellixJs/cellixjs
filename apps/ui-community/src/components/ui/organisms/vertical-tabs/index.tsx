@@ -12,7 +12,7 @@ export interface RouteDefinition {
 	element: React.ReactNode;
 }
 
-export interface VerticalTabsProps {
+interface VerticalTabsProps {
 	pages: RouteDefinition[];
 }
 

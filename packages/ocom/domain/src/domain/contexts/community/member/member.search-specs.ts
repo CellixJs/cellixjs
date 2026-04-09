@@ -64,8 +64,8 @@ export class MemberSearchEmail extends VOString({
 	}
 }
 
-export type MemberStatusFilter = 'all' | 'active' | 'inactive';
-export type MemberRoleFilter = 'all' | string; // specific role ID or 'all'
+type MemberStatusFilter = 'all' | 'active' | 'inactive';
+type MemberRoleFilter = 'all' | string; // specific role ID or 'all'
 
 export class MemberSearchSpec {
 	public readonly name: MemberSearchName;
