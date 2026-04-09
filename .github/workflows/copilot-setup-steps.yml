@@ -65,7 +65,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
 
@@ -76,6 +76,35 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
         if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Install repo MCP config
+        run: |
+          echo "Installing repo Copilot MCP config into runner's home (~/.copilot)..."
+          mkdir -p ~/.copilot
+          cp -v ./.copilot/mcp-config.json ~/.copilot/mcp-config.json
+
+      - name: Start Playwright MCP (HTTP, background)
+        run: |
+          echo "Starting Playwright MCP on port 8931 (pnpm dlx)..."
+          nohup pnpm dlx @playwright/mcp@latest --port 8931 --headless --ignore-https-errors --allowed-hosts='localhost' --allowed-origins='http://localhost,https://localhost' > mcp.log 2>&1 &
+          # Wait briefly for MCP to open the port
+          for i in $(seq 1 30); do
+            ss -ltn | grep -q ':8931' && break || sleep 1
+          done
+          echo "MCP log (first 200 lines):"
+          sed -n '1,200p' mcp.log || true
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
+
+      - name: Wait for MCP readiness
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sS http://localhost:8931/ >/dev/null 2>&1 || ss -ltn | grep -q ':8931'; then
+              echo "Playwright MCP seems ready"
+              break
+            fi
+            sleep 1
+          done
 
       - name: Install Java SDK (Required for SonarCloud)
         uses: actions/setup-java@v4
