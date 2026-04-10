@@ -43,7 +43,19 @@ cellix.registerAzureFunctionHandler('graphql', { route: 'graphql' }, graphHandle
 ### Essential Commands
 ```bash
 # Initial setup (Node v22 required)
-mise install && pnpm run clean && pnpm install && pnpm run build
+# If mise is not installed, install it (see https://mise.jdx.dev/getting-started.html)
+# Install mise (example):
+# curl https://mise.run | sh
+# Activate mise (restart shell or run the shell-activation command shown by the installer)
+# Install project tools and the Node version configured in mise.toml (node = 22.22.2)
+mise install
+
+# Ensure pnpm is available (recommended):
+corepack enable && corepack prepare pnpm@10.30.1 --activate
+# Alternative: npm i -g pnpm
+
+# Clean, install dependencies, and build
+pnpm run clean && pnpm install && pnpm run build
 
 # Development startup
 pnpm run dev  # Builds all workspace packages, starts mock emulator services, backend Azure Functions entry point, and frontend React UI

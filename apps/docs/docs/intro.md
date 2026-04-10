@@ -45,9 +45,15 @@ Install dependencies and build the project: (we recommend using mise)
 ```bash
 # Install mise (if not installed)
 curl https://mise.run | sh
+# Ensure mise is on your PATH and activated (restart your shell or run the activation command shown by the installer)
+# e.g., eval "$(~/.local/bin/mise activate zsh)"
 
 # Install project tools (Node 22.22.2 will be installed from mise.toml)
 mise install
+
+# Ensure pnpm is available (recommended):
+corepack enable && corepack prepare pnpm@10.30.1 --activate
+# Alternative: npm i -g pnpm
 
 # Clean, install dependencies, and build
 pnpm run clean

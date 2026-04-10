@@ -1,3 +1,10 @@
+This package expects Node.js v22.22.2 (managed via the repository's mise.toml).
+If mise is not installed, install it and activate it (see https://mise.jdx.dev/getting-started.html):
+
+curl https://mise.run | sh
+# Restart your shell or activate mise for your shell (e.g. eval "$(~/.local/bin/mise activate zsh)")
+
+# Then install project tools and the Node version configured in the workspace:
 mise install
 
 
