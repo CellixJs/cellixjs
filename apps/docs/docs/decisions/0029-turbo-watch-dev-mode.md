@@ -25,7 +25,7 @@ Decision
 Consequences
 ------------
 - Improved local developer feedback loops: persistent servers remain available while build/codegen tasks rerun on change.
-- Task design must account for persistent vs. interruptible semantics. Persistent tasks cannot be depended-on by other tasks; use `^build` or explicit package-level orchestration to preserve build ordering.
+- Task design must account for persistent vs. interruptible semantics. Persistent tasks cannot be depended on by other tasks; use `^build` or explicit package-level orchestration to preserve build ordering.
 - Package.json script chaining should avoid POSIX-only separators (`;`) and instead use `&&`/`||` patterns that work on both Unix shells and Windows `cmd.exe` in npm scripts.
 
 Implementation notes

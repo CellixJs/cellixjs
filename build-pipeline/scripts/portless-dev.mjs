@@ -56,7 +56,7 @@ const runPortlessOnce = (routeName, commandArgs) =>
 		let sawRouteLockError = false;
 		let streamTail = '';
 
-		const child = spawn('portless', ['--force', routeName, ...commandArgs], {
+		const child = spawn(localPortlessBin, ['--force', routeName, ...commandArgs], {
 			stdio: ['inherit', 'pipe', 'pipe'],
 			env: process.env,
 		});
@@ -76,7 +76,7 @@ const runPortlessOnce = (routeName, commandArgs) =>
 
 		child.on('error', (error) => {
 			if (error?.code === 'ENOENT') {
-				const fallbackChild = spawn(localPortlessBin, ['--force', routeName, ...commandArgs], {
+				const fallbackChild = spawn('portless', ['--force', routeName, ...commandArgs], {
 					stdio: ['inherit', 'pipe', 'pipe'],
 					env: process.env,
 				});
@@ -87,7 +87,7 @@ const runPortlessOnce = (routeName, commandArgs) =>
 					if (activeChild === fallbackChild) {
 						activeChild = null;
 					}
-					console.error('Failed to start "portless" from PATH and local node_modules/.bin.');
+					console.error('Failed to start "portless" from local node_modules/.bin and PATH.');
 					console.error(fallbackError);
 					resolve({ code: 1, signal: null, routeLockError: sawRouteLockError });
 				});
