@@ -94,6 +94,13 @@
 		"//#audit": {
 			"description": "Runs package audit checks before build tasks",
 			"cache": false
-		}
+		},
+        "topo": { 
+            "dependsOn": ["^topo"]
+        },
+		"check-types": {
+            "dependsOn": ["topo"],
+            "inputs": ["src/**/*.ts", "src/**/*.tsx", "tsconfig.json", "tsconfig.*.json"]
+        }
 	}
 }

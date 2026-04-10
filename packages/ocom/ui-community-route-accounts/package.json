@@ -1,0 +1,35 @@
+{
+  "name": "@ocom/ui-community-route-accounts",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "biome lint ./src",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.0.2",
+    "@ant-design/pro-layout": "^7.22.7",
+    "@apollo/client": "^3.13.9",
+    "@cellix/ui-core": "workspace:*",
+    "@dr.pogodin/react-helmet": "^3.0.2",
+    "@ocom/ui-components": "workspace:*",
+    "antd": "catalog:",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "catalog:"
+  },
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@storybook/react": "^9.1.9",
+		"@types/react": "^19.1.11",
+		"@types/react-dom": "^19.1.6",
+		"storybook": "catalog:",
+		"vite": "catalog:",
+		"typescript": "catalog:"
+	}
+}

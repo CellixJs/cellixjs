@@ -1,0 +1,46 @@
+import { useQuery } from '@apollo/client';
+import { ComponentQueryLoader } from '@cellix/ui-core';
+import {
+	AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
+	type AccountsCommunityListContainerCommunityFieldsFragment,
+	type AccountsCommunityListContainerMemberFieldsFragment,
+	AccountsCommunityListContainerMembersForCurrentEndUserDocument,
+} from '../../../../../../apps/ui-community/src/generated.js';
+import { CommunityList } from './community-list.js';
+
+export const CommunityListContainer: React.FC = () => {
+	const { loading: communityLoading, error: communityError, data: communityData } = useQuery(AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument);
+
+	const {
+		loading: membersLoading,
+		error: membersError,
+		data: membersData,
+	} = useQuery(AccountsCommunityListContainerMembersForCurrentEndUserDocument, {
+		fetchPolicy: 'network-only',
+	});
+
+	const members: AccountsCommunityListContainerMemberFieldsFragment[][] = [];
+	if (membersData?.membersForCurrentEndUser && membersData?.membersForCurrentEndUser.length > 0 && communityData?.communitiesForCurrentEndUser) {
+		for (const community of communityData.communitiesForCurrentEndUser) {
+			members.push(membersData.membersForCurrentEndUser.filter((member: AccountsCommunityListContainerMemberFieldsFragment) => member?.community?.id === community?.id));
+		}
+	}
+
+	return (
+		<ComponentQueryLoader
+			loading={communityLoading || membersLoading}
+			hasData={communityData?.communitiesForCurrentEndUser && members}
+			hasDataComponent={
+				<CommunityList
+					data={{
+						communities: communityData?.communitiesForCurrentEndUser as AccountsCommunityListContainerCommunityFieldsFragment[],
+						members: members as AccountsCommunityListContainerMemberFieldsFragment[][],
+					}}
+				/>
+			}
+			noDataComponent={<div>No Data...</div>}
+			error={communityError || membersError}
+			errorComponent={communityError ? <div>Error :( {JSON.stringify(communityError)}</div> : <div>Error :( {JSON.stringify(membersError)}</div>}
+		/>
+	);
+};

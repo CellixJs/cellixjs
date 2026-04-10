@@ -1,0 +1,29 @@
+{
+	"extends": "@cellix/config-typescript/base",
+	"compilerOptions": {
+		"target": "ES2022",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"moduleDetection": "force",
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
+		"jsx": "react-jsx",
+		"lib": ["ES2023", "DOM"],
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"erasableSyntaxOnly": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true,
+		"exactOptionalPropertyTypes": false,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"composite": false,
+		"declaration": false,
+		"sourceMap": false,
+		"incremental": false,
+		"types": ["vite/client"]
+	},
+	"include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"]
+}

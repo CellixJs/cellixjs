@@ -82,7 +82,11 @@ generates:
 
   # UI community client types
   './apps/ui-community/src/generated.tsx':
-    documents: './apps/ui-community/src/components/**/**.graphql'
+    documents:
+      - './apps/ui-community/src/components/**/**.graphql'
+      - './packages/ocom/ui-community-route-accounts/src/**/**.graphql'
+      - './packages/ocom/ui-community-route-admin/src/**/**.graphql'
+      - './packages/ocom/ui-community-route-root/src/**/**.graphql'
     config:
       withHooks: true
       withHOC: false
