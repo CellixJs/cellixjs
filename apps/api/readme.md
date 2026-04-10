@@ -1,4 +1,4 @@
-nvm use v20
+mise install
 
 
 

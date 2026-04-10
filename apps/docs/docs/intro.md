@@ -40,22 +40,19 @@ cd cellixjs
 
 
 
-Install dependencies and build the project: (we recommend using NVM)
+Install dependencies and build the project: (we recommend using mise)
 
 ```bash
-# Install Node.js v22
-nvm install v22
+# Install mise (if not installed)
+curl https://mise.run | sh
 
-# Install Latest NPM (v11+)
-nvm install-latest-npm
-
-# Use Node.js v22
-nvm use v22
+# Install project tools (Node 22.22.2 will be installed from mise.toml)
+mise install
 
 # Clean, install dependencies, and build
-npm run clean
-npm install 
-npm run build
+pnpm run clean
+pnpm install
+pnpm run build
 ```
 
 ## Install VSCode plugins

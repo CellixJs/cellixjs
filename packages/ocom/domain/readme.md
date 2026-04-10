@@ -8,7 +8,7 @@ Recipe:
 
 
 ```shell
-nvm use v20
+mise install
 
 npm i -D jest @types/jest -w @ocom/domain
 npm i -D eslint @eslint/js typescript-eslint -w @ocom/domain

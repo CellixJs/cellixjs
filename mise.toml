@@ -1,0 +1,12 @@
+# See https://mise.jdx.dev/schema/mise.json
+
+[tools]
+node = "22.22.2"
+python = "3.13"
+
+[settings]
+auto_install = true
+
+[env]
+_.path = ["./node_modules/.bin"]
+_.python.venv = { path = ".venv", create = true }

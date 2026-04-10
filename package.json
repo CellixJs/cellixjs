@@ -108,6 +108,7 @@
       "picomatch": "^4.0.4",
       "webpack": "^5.105.4",
       "playwright-core": "1.59.0",
+      "axios": "^1.15.0",
       "playwright": "1.59.0"
     },
     "patchedDependencies": {
