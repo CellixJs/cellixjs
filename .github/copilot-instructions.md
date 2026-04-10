@@ -45,7 +45,8 @@ cellix.registerAzureFunctionHandler('graphql', { route: 'graphql' }, graphHandle
 # Initial setup (Node v22 required)
 # If mise is not installed, install it (see https://mise.jdx.dev/getting-started.html)
 # Install mise (example):
-# curl https://mise.run | sh
+# curl -fsSL https://get.mise.dev | sh
+# For full onboarding steps, see apps/docs/docs/setup.md
 # Activate mise (restart shell or run the shell-activation command shown by the installer)
 # Install project tools and the Node version configured in mise.toml (node = 22.22.2)
 mise install

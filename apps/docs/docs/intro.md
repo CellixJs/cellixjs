@@ -57,27 +57,16 @@ Before you clone or build the project, install these tools and ensure they are a
 - Azure Functions Core Tools (func) — required for local Functions runtime; follow the official install guide linked above
 - MongoDB (local or remote) or use Azurite for local Azure storage emulation (used by this repo)
 
-Clone and Setup
+Clone and Set up
 
 ```bash
 # Clone the repo
 git clone https://github.com/CellixJs/cellixjs.git
 cd cellixjs
+```
 
-# Install workspace tools (installs Node 22.22.2 per mise.toml)
-# On macOS (recommended):
-brew install mise || true
-# Fallback (any OS):
-curl https://mise.run | sh
-# Activate mise if needed (restart your shell or run the activation command shown by the installer)
-# e.g., eval "$(~/.local/bin/mise activate zsh)"
+For full developer onboarding (mise installation, Corepack/pnpm setup, build, and verification), see the Developer setup guide: [Developer setup](./setup.md)
 
-# Install tools specified in mise.toml (Node will be installed automatically)
-mise install
-
-# Ensure pnpm is available (recommended):
-corepack enable && corepack prepare pnpm@10.30.1 --activate
-# Alternative: npm i -g pnpm
 
 # Clean, install dependencies, and build
 pnpm run clean
