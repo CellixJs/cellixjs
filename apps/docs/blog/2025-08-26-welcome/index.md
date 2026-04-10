@@ -26,4 +26,30 @@ CellixJs provides comprehensive examples for DDD implementation:
 
 The documentation supports categorized content as well!
 
-**Getting Started**: Clone the repository, run `npm run clean && npm install && npm run build`, then use `npm run dev` to start the full development environment. You can simulate the CI pipeline locally with `npm run verify`.
+**Getting Started**: Clone the repository, ensure mise is installed and available on your PATH (see note below), activate the repository Node version, and use pnpm (via Corepack) to install and build:
+
+```bash
+# macOS (recommended)
+brew install mise
+
+# Or use the installer script (fallback)
+curl -fsSL https://get.mise.dev | sh
+
+# Activate the repo Node version and install dependencies
+mise install
+
+# Enable Corepack and activate the pinned pnpm version
+corepack enable && corepack prepare pnpm@10.30.1 --activate
+
+# Clean, install, build, and start dev server
+pnpm run clean && pnpm install && pnpm run build
+pnpm run dev
+
+# Run full verification locally (lint, tests, Snyk, SonarCloud, etc.)
+pnpm run verify
+```
+
+Notes:
+- The above assumes mise is installed and on your PATH. On macOS, prefer `brew install mise`; otherwise use the curl installer as a fallback.
+- Corepack is used to manage pnpm; if Corepack is not enabled on your system, run `corepack enable` first.
+
