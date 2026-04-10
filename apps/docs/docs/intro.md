@@ -40,15 +40,39 @@ cd cellixjs
 
 
 
-Install dependencies and build the project: (we recommend using mise)
+Prerequisites
+
+Before you clone or build the project, install these tools and ensure they are available on your system:
+
+- mise (Node version manager)
+  - macOS (recommended): brew install mise
+  - Fallback (any OS): curl https://mise.run | sh
+  - After installation, ensure mise is activated (restart your shell or run the activation command shown by the installer), e.g.:
+    eval "$(~/.local/bin/mise activate zsh)"
+- Node.js: managed by mise. The workspace root mise.toml pins node = "22.22.2" — mise install will provision this version for the project
+- pnpm: recommended via Corepack (preferred):
+  corepack enable && corepack prepare pnpm@10.30.1 --activate
+  or install globally: npm i -g pnpm (or brew install pnpm on macOS)
+- Git (for cloning and pushing)
+- Azure Functions Core Tools (func) — required for local Functions runtime; follow the official install guide linked above
+- MongoDB (local or remote) or use Azurite for local Azure storage emulation (used by this repo)
+
+Clone and Setup
 
 ```bash
-# Install mise (if not installed)
+# Clone the repo
+git clone https://github.com/CellixJs/cellixjs.git
+cd cellixjs
+
+# Install workspace tools (installs Node 22.22.2 per mise.toml)
+# On macOS (recommended):
+brew install mise || true
+# Fallback (any OS):
 curl https://mise.run | sh
-# Ensure mise is on your PATH and activated (restart your shell or run the activation command shown by the installer)
+# Activate mise if needed (restart your shell or run the activation command shown by the installer)
 # e.g., eval "$(~/.local/bin/mise activate zsh)"
 
-# Install project tools (Node 22.22.2 will be installed from mise.toml)
+# Install tools specified in mise.toml (Node will be installed automatically)
 mise install
 
 # Ensure pnpm is available (recommended):
@@ -143,7 +167,7 @@ pnpm exec portless trust
 Run all verification steps (lint, build, test, sonarcloud quality gate):
 
 ```bash
-npm run verify
+pnpm run verify
 ```
  Expected output:
 ```bash
