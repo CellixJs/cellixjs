@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
-import { Header } from './header.js';
+import { Header } from './header.tsx';
 
 const meta = {
 	title: 'Components/Root/Header',

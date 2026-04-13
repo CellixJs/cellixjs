@@ -1,7 +1,7 @@
 import { PageHeader } from '@ant-design/pro-layout';
 import { theme } from 'antd';
-import { SubPageLayout } from '../sub-page-layout.js';
-import { SettingsGeneral } from './settings-general.js';
+import { SubPageLayout } from '../sub-page-layout.tsx';
+import { SettingsGeneral } from './settings-general.tsx';
 
 export const Settings: React.FC = () => {
 	const {

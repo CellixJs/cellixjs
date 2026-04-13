@@ -1,8 +1,8 @@
 import { PageHeader } from '@ant-design/pro-layout';
 import { theme } from 'antd';
 import { useParams } from 'react-router-dom';
-import { CommunityDetailContainer, type CommunityDetailContainerProps } from '../components/community-detail.container.js';
-import { SubPageLayout } from '../sub-page-layout.js';
+import { CommunityDetailContainer, type CommunityDetailContainerProps } from '../components/community-detail.container.tsx';
+import { SubPageLayout } from '../sub-page-layout.tsx';
 
 export const Home: React.FC = () => {
 	const {
@@ -12,7 +12,7 @@ export const Home: React.FC = () => {
 
 	const communityDetailContainerProps: CommunityDetailContainerProps = {
 		// biome-ignore lint:useLiteralKeys
-		data: { id: params['communityId'] },
+		data: params['communityId'] ? { id: params['communityId'] } : {},
 	};
 
 	return (

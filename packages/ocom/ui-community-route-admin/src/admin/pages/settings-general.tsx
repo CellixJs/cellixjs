@@ -1,4 +1,4 @@
-import { SettingsGeneralContainer } from '../components/settings-general.container.js';
+import { SettingsGeneralContainer } from '../components/settings-general.container.tsx';
 
 export const SettingsGeneral: React.FC = () => {
 	return (

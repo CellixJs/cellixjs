@@ -2,7 +2,7 @@ import { DownOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Input as Search, Space, Table, Typography } from 'antd';
 import { type ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { AccountsCommunityListContainerCommunityFieldsFragment, AccountsCommunityListContainerMemberFieldsFragment } from '../../../../../../apps/ui-community/src/generated.js';
+import type { AccountsCommunityListContainerCommunityFieldsFragment, AccountsCommunityListContainerMemberFieldsFragment } from '../generated.tsx';
 
 const { Title } = Typography;
 

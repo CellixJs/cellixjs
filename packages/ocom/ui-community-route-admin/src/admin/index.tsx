@@ -1,18 +1,9 @@
 import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
+import type { PageLayoutProps } from '@ocom/ui-components';
 import { Route, Routes } from 'react-router-dom';
-import type { Member } from '../../../../../apps/ui-community/src/generated.js';
-import { Home } from './pages/home.js';
-import { Settings } from './pages/settings.js';
-import { SectionLayoutContainer } from './section-layout.container.js';
-
-export interface PageLayoutProps {
-	path: string;
-	title: string;
-	icon: React.JSX.Element;
-	id: string | number;
-	parent?: string;
-	hasPermissions?: (member: Member) => boolean;
-}
+import { Home } from './pages/home.tsx';
+import { Settings } from './pages/settings.tsx';
+import { SectionLayoutContainer } from './section-layout.container.tsx';
 
 export const Admin: React.FC = () => {
 	const pageLayouts: PageLayoutProps[] = [

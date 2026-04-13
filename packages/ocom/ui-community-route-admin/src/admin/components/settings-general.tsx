@@ -1,7 +1,7 @@
 import { Button, Descriptions, Form, Input, Typography } from 'antd';
 import dayjs from 'dayjs';
 import type React from 'react';
-import type { AdminSettingsGeneralContainerCommunityFieldsFragment, CommunityUpdateSettingsInput } from '../../../../../../apps/ui-community/src/generated.js';
+import type { AdminSettingsGeneralContainerCommunityFieldsFragment, CommunityUpdateSettingsInput } from '../../generated.tsx';
 
 const { Text } = Typography;
 
@@ -101,7 +101,7 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 					type="primary"
 					htmlType="submit"
 					value={'save'}
-					loading={props.loading}
+					loading={props.loading ?? false}
 				>
 					Save
 				</Button>

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
-import { UserInfo, type UserInfoProps } from './user-info.js';
+import { UserInfo, type UserInfoProps } from './user-info.tsx';
 
 const meta = {
 	title: 'Components/Accounts/UserInfo',

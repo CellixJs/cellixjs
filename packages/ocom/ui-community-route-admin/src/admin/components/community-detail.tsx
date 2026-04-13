@@ -1,5 +1,5 @@
 import { Descriptions, Typography, theme } from 'antd';
-import type { AdminCommunityDetailContainerCommunityFieldsFragment } from '../../../../../../apps/ui-community/src/generated.js';
+import type { AdminCommunityDetailContainerCommunityFieldsFragment } from '../../generated.tsx';
 
 const { Text, Title } = Typography;
 

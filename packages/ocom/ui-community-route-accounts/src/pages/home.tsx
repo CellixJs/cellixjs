@@ -1,8 +1,8 @@
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { Typography } from 'antd';
-import { CommunityListContainer } from '../components/community-list.container.js';
-import { UserInfoContainer } from '../components/user-info.container.js';
-import { SubPageLayout } from '../sub-page-layout.js';
+import { CommunityListContainer } from '../components/community-list.container.tsx';
+import { UserInfoContainer } from '../components/user-info.container.tsx';
+import { SubPageLayout } from '../sub-page-layout.tsx';
 
 const { Title } = Typography;
 

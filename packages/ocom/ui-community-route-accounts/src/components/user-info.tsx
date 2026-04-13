@@ -1,5 +1,5 @@
 import React from 'react';
-import type { AccountsUserInfoContainerEndUserFieldsFragment } from '../../../../../../apps/ui-community/src/generated.js';
+import type { AccountsUserInfoContainerEndUserFieldsFragment } from '../generated.tsx';
 
 export type UserInfoProps = {
 userData?: AccountsUserInfoContainerEndUserFieldsFragment;

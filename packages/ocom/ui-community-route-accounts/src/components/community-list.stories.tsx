@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
-import { CommunityList, type CommunityListProps } from './community-list.js';
+import { CommunityList, type CommunityListProps } from './community-list.tsx';
 
 const meta = {
 	title: 'Components/Accounts/CommunityList',

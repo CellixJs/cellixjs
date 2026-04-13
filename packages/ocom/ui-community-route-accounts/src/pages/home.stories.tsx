@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, within } from 'storybook/test';
-import { Accounts } from '../index.js';
+import { Accounts } from '../index.ts';
 
 const meta = {
 	title: 'Pages/Accounts/Home',

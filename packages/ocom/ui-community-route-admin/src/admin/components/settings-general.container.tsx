@@ -6,8 +6,8 @@ import {
 	AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
 	AdminSettingsGeneralContainerCurrentCommunityDocument,
 	type CommunityUpdateSettingsInput,
-} from '../../../../../../apps/ui-community/src/generated.js';
-import { SettingsGeneral, type SettingsGeneralProps } from './settings-general.js';
+} from '../../generated.tsx';
+import { SettingsGeneral, type SettingsGeneralProps } from './settings-general.tsx';
 
 export const SettingsGeneralContainer: React.FC = () => {
 	const { message } = App.useApp();

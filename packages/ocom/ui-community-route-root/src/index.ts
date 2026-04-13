@@ -1,1 +1,1 @@
-export { Root } from './root/index.js';
+export { Root } from './root/index.tsx';

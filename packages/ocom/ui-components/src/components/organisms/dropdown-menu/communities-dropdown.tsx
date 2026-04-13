@@ -1,12 +1,20 @@
-import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, type MenuProps } from 'antd';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { Member } from '../../../../generated.tsx';
+
+interface MemberSummary {
+	id: string;
+	memberName?: string | null;
+	isAdmin?: boolean | null;
+	community?: {
+		id?: string | null;
+		name?: string | null;
+	} | null;
+}
 
 export interface CommunitiesDropdownProps {
 	data: {
-		members: Member[];
+		members: MemberSummary[];
 	};
 }
 
@@ -20,62 +28,42 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (props) =
 		(member) => member.id === params['memberId'],
 	);
 
-	const populateItems = (
-		member: Member,
-		itemsMap: {
-			[key: string]: {
-				key: string;
-				label: string | undefined;
-				children: { key: string; label: string; onClick: () => void }[];
-			};
-		},
-	) => {
-		const communityId = member?.community?.id;
-		if (!communityId) return;
+	const itemsMap: Record<string, { key: string; label: string; children: { key: string; label: string; onClick: () => void }[] }> = {};
 
-		// Initialize community in itemsMap if it doesn't exist
+	for (const member of props.data.members ?? []) {
+		const communityId = member.community?.id;
+		if (!communityId) {
+			continue;
+		}
+
 		itemsMap[communityId] ??= {
 			key: communityId,
-			label: member?.community?.name,
+			label: member.community?.name ?? '',
 			children: [],
 		};
 
-		// Add member to the community's children
-		const memberPath = `/community/${communityId}/member/${member?.id}`;
-		const memberItem = {
-			key: member?.id ?? '',
-			label: member?.memberName ?? '',
+		const memberPath = `/community/${communityId}/member/${member.id}`;
+		itemsMap[communityId].children.push({
+			key: member.id,
+			label: member.memberName ?? '',
 			onClick: () => {
 				setDropdownVisible(false);
 				navigate(memberPath);
 			},
-		};
-		itemsMap[communityId].children.push(memberItem);
+		});
 
-		// Add admin variant if applicable
-		if (member?.isAdmin) {
-			const adminPath = `/community/${communityId}/admin/${member?.id}`;
+		if (member.isAdmin) {
+			const adminPath = `/community/${communityId}/admin/${member.id}`;
 			itemsMap[communityId].children.push({
-				key: `${member?.id}-admin`,
-				label: `${member?.memberName} (Admin)`,
+				key: `${member.id}-admin`,
+				label: `${member.memberName ?? ''} (Admin)`,
 				onClick: () => {
 					setDropdownVisible(false);
 					navigate(adminPath);
 				},
 			});
 		}
-	};
-
-	const itemsMap: {
-		[key: string]: {
-			key: string;
-			label: string | undefined;
-			children: { key: string; label: string; onClick: () => void }[];
-		};
-	} = {};
-	props.data.members?.forEach((member: Member) => {
-		populateItems(member, itemsMap);
-	});
+	}
 
 	const items: MenuProps['items'] = Object.values(itemsMap);
 
@@ -96,7 +84,7 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (props) =
 				className="ant-dropdown-link"
 				style={{ minHeight: '50px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
 			>
-				{currentMember?.community?.name} | {currentMember?.memberName} <DownOutlined />
+				{currentMember?.community?.name} | {currentMember?.memberName}
 			</button>
 		</Dropdown>
 	);

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
-import type { AdminCommunityDetailContainerCommunityFieldsFragment } from '../../../../../../apps/ui-community/src/generated.js';
-import { CommunityDetail } from './community-detail.js';
+import type { AdminCommunityDetailContainerCommunityFieldsFragment } from '../../generated.tsx';
+import { CommunityDetail } from './community-detail.tsx';
 
 const mockData: AdminCommunityDetailContainerCommunityFieldsFragment = {
 	__typename: 'Community',

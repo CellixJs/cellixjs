@@ -2,8 +2,8 @@ import { App as AntdApp } from 'antd';
 import type { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
-import { AccountsCommunityCreateContainerCommunityCreateDocument, AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument } from '../../../../../../apps/ui-community/src/generated.js';
-import { CommunityCreateContainer } from './community-create.container.js';
+import { AccountsCommunityCreateContainerCommunityCreateDocument, AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument } from '../generated.tsx';
+import { CommunityCreateContainer } from './community-create.container.tsx';
 
 const meta = {
 	title: 'Components/Accounts/CommunityCreateContainer',

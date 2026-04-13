@@ -1,1 +1,1 @@
-export { Accounts } from './accounts/index.js';
+export { Accounts } from './accounts.tsx';

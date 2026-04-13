@@ -1,7 +1,6 @@
 import { Menu, type MenuTheme } from 'antd';
 import type { RouteObject } from 'react-router-dom';
 import { generatePath, Link, matchRoutes, useLocation, useParams } from 'react-router-dom';
-import type { Member } from '../../../../generated.tsx';
 
 const { SubMenu } = Menu;
 
@@ -11,14 +10,14 @@ export interface PageLayoutProps {
 	icon: React.JSX.Element;
 	id: string | number;
 	parent?: string;
-	hasPermissions?: (member: Member) => boolean;
+	hasPermissions?: (member: unknown) => boolean;
 }
 
 export interface MenuComponentProps {
 	pageLayouts: PageLayoutProps[];
 	theme: MenuTheme | undefined;
 	mode: 'vertical' | 'horizontal' | 'inline' | undefined;
-	memberData?: Member;
+	memberData?: unknown;
 }
 
 export const MenuComponent: React.FC<MenuComponentProps> = ({ pageLayouts, memberData, ...props }) => {
@@ -37,7 +36,9 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ pageLayouts, membe
 		return children
 			.map((x) => {
 				const child = pageLayouts.find((y) => y.id === x.id);
-				if (!child) return null;
+				if (!child) {
+					return null;
+				}
 
 				const grandChildren = pageLayouts.filter((gc) => gc.parent === child.id);
 
@@ -67,12 +68,14 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ pageLayouts, membe
 					</Menu.Item>
 				);
 			})
-			.filter(Boolean);
+			.filter(Boolean) as React.ReactNode[];
 	};
 
 	const topMenu = () => {
 		const root = pageLayouts.find((x) => x.id === 'ROOT');
-		if (!root) return null;
+		if (!root) {
+			return null;
+		}
 
 		const matchedPages = matchRoutes(pageLayouts as RouteObject[], location);
 		const matchedIds = matchedPages ? matchedPages.map((x) => x.route.id?.toString() ?? '') : [];

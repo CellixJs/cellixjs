@@ -1,11 +1,8 @@
-import { LoggedInUserContainer } from '@ocom/ui-components';
+import { LoggedInUserContainer, CommunitiesDropdownContainer, MenuComponent, type MenuComponentProps, type PageLayoutProps } from '@ocom/ui-components';
 import { Layout, theme } from 'antd';
 import { useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
-import type { Member } from '../../../../../apps/ui-community/src/generated.js';
-import { CommunitiesDropdownContainer } from '../../../../../apps/ui-community/src/components/ui/organisms/dropdown-menu/communities-dropdown.container.js';
-import { MenuComponent, type MenuComponentProps } from '../../../../../apps/ui-community/src/components/layouts/shared/components/menu-component.js';
-import type { PageLayoutProps } from './index.js';
+import type { Member } from '../generated.tsx';
 import './section-layout.css';
 
 const { Sider, Header } = Layout;
@@ -68,7 +65,7 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 					>
 						<CommunitiesDropdownContainer
 							// biome-ignore lint:useLiteralKeys
-							data={{ id: params['communityId'] }}
+							data={params['communityId'] ? { id: params['communityId'] } : {}}
 						/>
 					</div>
 					<Link

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
-import { Root } from '../index.js';
+import { Root } from '../index.tsx';
 
 const meta = {
 	title: 'Pages/Root/Cms Page',

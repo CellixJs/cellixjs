@@ -1,9 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
+import type { PageLayoutProps } from '@ocom/ui-components';
 import { useParams } from 'react-router-dom';
-import { AdminSectionLayoutContainerMembersForCurrentEndUserDocument, type Member } from '../../../../../apps/ui-community/src/generated.js';
-import type { PageLayoutProps } from './index.js';
-import { SectionLayout } from './section-layout.js';
+import { AdminSectionLayoutContainerMembersForCurrentEndUserDocument, type Member } from '../generated.tsx';
+import { SectionLayout } from './section-layout.tsx';
 
 interface SectionLayoutContainerProps {
 	pageLayouts: PageLayoutProps[];

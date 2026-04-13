@@ -80,13 +80,25 @@ generates:
     plugins:
       - introspection
 
-  # UI community client types
-  './apps/ui-community/src/generated.tsx':
+# UI community client types
+  './packages/ocom/ui-community-route-admin/src/generated.tsx':
     documents:
-      - './apps/ui-community/src/components/**/**.graphql'
-      - './packages/ocom/ui-community-route-accounts/src/**/**.graphql'
       - './packages/ocom/ui-community-route-admin/src/**/**.graphql'
-      - './packages/ocom/ui-community-route-root/src/**/**.graphql'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
+# UI community client types
+  './packages/ocom/ui-community-route-accounts/src/generated.tsx':
+    documents:
+      - './packages/ocom/ui-community-route-accounts/src/**/**.graphql'
     config:
       withHooks: true
       withHOC: false

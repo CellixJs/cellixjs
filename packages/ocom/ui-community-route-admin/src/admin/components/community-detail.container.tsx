@@ -1,8 +1,8 @@
 import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import type { AdminCommunityDetailContainerCommunityFieldsFragment } from '../../../../../../apps/ui-community/src/generated.js';
-import { AdminCommunityDetailContainerCommunityByIdDocument } from '../../../../../../apps/ui-community/src/generated.js';
-import { CommunityDetail, type CommunityDetailProps } from './community-detail.js';
+import type { AdminCommunityDetailContainerCommunityFieldsFragment } from '../../generated.tsx';
+import { AdminCommunityDetailContainerCommunityByIdDocument } from '../../generated.tsx';
+import { CommunityDetail, type CommunityDetailProps } from './community-detail.tsx';
 
 export interface CommunityDetailContainerProps {
 	data: { id?: string };

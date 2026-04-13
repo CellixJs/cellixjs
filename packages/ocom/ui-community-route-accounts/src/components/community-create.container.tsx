@@ -1,8 +1,8 @@
 import { useMutation } from '@apollo/client';
 import { App } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { AccountsCommunityCreateContainerCommunityCreateDocument, AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument, type CommunityCreateInput } from '../../../../../../apps/ui-community/src/generated.js';
-import { CommunityCreate } from './community-create.js';
+import { AccountsCommunityCreateContainerCommunityCreateDocument, AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument, type CommunityCreateInput } from '../generated.tsx';
+import { CommunityCreate } from './community-create.tsx';
 
 export const CommunityCreateContainer: React.FC = () => {
 	const { message } = App.useApp();
@@ -10,9 +10,12 @@ export const CommunityCreateContainer: React.FC = () => {
 		update(cache, { data }) {
 			// update the list with the new item
 			const newCommunity = data?.communityCreate?.community;
-			const communities = cache.readQuery({
+			const communitiesQuery = cache.readQuery<{
+				communitiesForCurrentEndUser: NonNullable<typeof newCommunity>[];
+			}>({
 				query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-			})?.communitiesForCurrentEndUser;
+			});
+			const communities = communitiesQuery?.communitiesForCurrentEndUser;
 			if (newCommunity && communities) {
 				cache.writeQuery({
 					query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,

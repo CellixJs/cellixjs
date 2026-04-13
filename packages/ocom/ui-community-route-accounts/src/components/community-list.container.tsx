@@ -5,8 +5,8 @@ import {
 	type AccountsCommunityListContainerCommunityFieldsFragment,
 	type AccountsCommunityListContainerMemberFieldsFragment,
 	AccountsCommunityListContainerMembersForCurrentEndUserDocument,
-} from '../../../../../../apps/ui-community/src/generated.js';
-import { CommunityList } from './community-list.js';
+} from '../generated.tsx';
+import { CommunityList } from './community-list.tsx';
 
 export const CommunityListContainer: React.FC = () => {
 	const { loading: communityLoading, error: communityError, data: communityData } = useQuery(AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument);
