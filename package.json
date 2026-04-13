@@ -17,6 +17,7 @@
     "proxy:stop": "portless proxy stop || true",
     "proxy:start": "portless proxy start -p 1355 --https",
     "format": "turbo run format",
+    "format:staged": "pnpm run format",
     "gen": "graphql-codegen --config codegen.yml",
     "gen:watch": "graphql-codegen --config codegen.yml --watch",
     "clean": "turbo run clean && rimraf dist node_modules **/coverage",
