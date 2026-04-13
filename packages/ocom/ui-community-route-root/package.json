@@ -16,9 +16,7 @@
   "dependencies": {
     "antd": "catalog:",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "@storybook/builder-webpack5": "^7.0.0",
-    "@storybook/manager-webpack5": "^7.0.0"
+    "react-dom": "^19.1.1"
   },
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
@@ -28,9 +26,6 @@
 		"@types/react-dom": "^19.1.6",
 		"storybook": "catalog:",
 		"vite": "catalog:",
-		"typescript": "catalog:",
-		"@storybook/addon-links": "^7.0.0",
-		"@storybook/addon-essentials": "^7.0.0",
-		"@storybook/addon-interactions": "^7.0.0"
+		"typescript": "catalog:"
 	}
 }
