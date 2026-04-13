@@ -14,7 +14,8 @@
 	},
 	"scripts": {
 		"format": "biome format --write",
-		"prebuild": "pnpm run lint && pnpm run format",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint",
 		"build": "tsc --build",
 		"watch": "tsc --watch",
 		"test": "vitest run --silent --reporter=dot",
@@ -29,7 +30,7 @@
 		"@apollo/client": "^3.13.9",
 		"@cellix/ui-core": "workspace:*",
 		"@graphql-typed-document-node/core": "^3.2.0",
-		"antd": "^5.27.1",
+		"antd": "catalog:",
 		"graphql": "catalog:",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",

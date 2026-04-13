@@ -15,7 +15,8 @@
 	},
 	"scripts": {
 		"format": "biome format --write",
-		"prebuild": "pnpm run lint && pnpm run format",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint",
 		"build": "tsc --build",
 		"watch": "tsc --watch",
 		"test": "vitest run --silent --reporter=dot",
