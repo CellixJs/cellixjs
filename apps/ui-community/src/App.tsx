@@ -4,8 +4,7 @@ import './App.css';
 import { Accounts } from '@ocom/ui-community-route-accounts';
 import { Admin } from '@ocom/ui-community-route-admin';
 import { Root } from '@ocom/ui-community-route-root';
-import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
-import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
+import { AuthLanding, ApolloConnection } from '@ocom/ui-community-route-shared';
 
 export default function App() {
 	const authSection = (

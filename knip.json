@@ -69,6 +69,10 @@
     "packages/ocom/ui-community-route-root": {
       "entry": ["src/index.tsx"],
       "project": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/ocom/ui-community-route-shared": {
+      "entry": ["src/index.tsx"],
+      "project": ["src/**/*.{ts,tsx}"]
     }
     ,
     "apps/server-oauth2-mock": {

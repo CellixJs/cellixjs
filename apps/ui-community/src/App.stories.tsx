@@ -4,7 +4,7 @@ import { AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
 import { expect } from 'storybook/test';
 import App from './App.tsx';
-import { client } from './components/ui/organisms/apollo-connection/apollo-client-links.tsx';
+import { client } from '@ocom/ui-community-route-shared';
 
 // Mock environment variables
 const mockEnv = {

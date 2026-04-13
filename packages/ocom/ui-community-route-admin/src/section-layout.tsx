@@ -1,10 +1,10 @@
 import { LoggedInUserContainer } from '@ocom/ui-components';
+import { MenuComponent, type MenuComponentProps } from '@ocom/ui-community-route-shared';
 import { Layout, theme } from 'antd';
 import { useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
 import type { Member } from './generated.tsx';
 import { CommunitiesDropdownContainer } from './ui/communities-dropdown.container.tsx';
-import { MenuComponent, type MenuComponentProps } from './shared/menu-component.tsx';
 import type { PageLayoutProps } from './index.tsx';
 import './section-layout.css';
 
@@ -37,7 +37,7 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 		token: { colorBgContainer },
 	} = theme.useToken();
 
-	const menuComponentProps: MenuComponentProps = {
+	const menuComponentProps: MenuComponentProps<Member> = {
 		pageLayouts: props.pageLayouts,
 		memberData: props.memberData,
 		theme: 'light',

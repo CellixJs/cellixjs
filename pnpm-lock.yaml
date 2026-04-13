@@ -370,9 +370,6 @@ importers:
       '@dr.pogodin/react-helmet':
         specifier: ^3.0.2
         version: 3.0.4(react@19.2.0)
-      '@graphql-typed-document-node/core':
-        specifier: ^3.2.0
-        version: 3.2.0(graphql@16.12.0)
       '@ocom/ui-community-route-accounts':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-community-route-accounts
@@ -382,15 +379,12 @@ importers:
       '@ocom/ui-community-route-root':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-community-route-root
-      '@ocom/ui-components':
+      '@ocom/ui-community-route-shared':
         specifier: workspace:*
-        version: link:../../packages/ocom/ui-components
+        version: link:../../packages/ocom/ui-community-route-shared
       antd:
         specifier: 'catalog:'
         version: 6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      apollo-link-rest:
-        specifier: ^0.9.0
-        version: 0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(graphql@16.12.0)(qs@6.15.0)
       less:
         specifier: ^4.4.0
         version: 4.4.2
@@ -1377,6 +1371,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/ui-community-route-shared':
+        specifier: workspace:*
+        version: link:../ui-community-route-shared
       '@ocom/ui-components':
         specifier: workspace:*
         version: link:../ui-components
@@ -1420,6 +1417,43 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.2.0(react@19.2.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.8
+        version: 19.2.7
+      '@types/react-dom':
+        specifier: ^19.1.6
+        version: 19.2.3(@types/react@19.2.7)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.2
+      vite:
+        specifier: 8.0.5
+        version: 8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/ocom/ui-community-route-shared:
+    dependencies:
+      '@apollo/client':
+        specifier: ^3.13.9
+        version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      antd:
+        specifier: 'catalog:'
+        version: 6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      apollo-link-rest:
+        specifier: ^0.9.0
+        version: 0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(graphql@16.12.0)(qs@6.15.0)
+      react:
+        specifier: ^19.1.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.0(react@19.2.0)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
+      react-router-dom:
+        specifier: 'catalog:'
+        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@types/react':
         specifier: ^19.1.8

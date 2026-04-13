@@ -1,27 +1,26 @@
 import { Menu, type MenuTheme } from 'antd';
 import type { RouteObject } from 'react-router-dom';
 import { generatePath, Link, matchRoutes, useLocation, useParams } from 'react-router-dom';
-import type { Member } from '../generated.tsx';
 
 const { SubMenu } = Menu;
 
-export interface PageLayoutProps {
+export interface PageLayoutProps<T = unknown> {
 	path: string;
 	title: string;
 	icon: React.JSX.Element;
 	id: string | number;
 	parent?: string;
-	hasPermissions?: (member: Member) => boolean;
+	hasPermissions?: (member: T) => boolean;
 }
 
-export interface MenuComponentProps {
-	pageLayouts: PageLayoutProps[];
+export interface MenuComponentProps<T = unknown> {
+	pageLayouts: PageLayoutProps<T>[];
 	theme: MenuTheme | undefined;
 	mode: 'vertical' | 'horizontal' | 'inline' | undefined;
-	memberData?: Member;
+	memberData?: T;
 }
 
-export const MenuComponent: React.FC<MenuComponentProps> = ({ pageLayouts, memberData, ...props }) => {
+export function MenuComponent<T = unknown>({ pageLayouts, memberData, ...props }: MenuComponentProps<T>) {
 	const params = useParams();
 	const location = useLocation();
 
@@ -96,4 +95,4 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ pageLayouts, membe
 	};
 
 	return topMenu();
-};
+}

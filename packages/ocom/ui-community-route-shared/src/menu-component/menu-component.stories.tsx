@@ -2,10 +2,19 @@ import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import type { Meta, StoryObj } from '@storybook/react';
 import { BrowserRouter } from 'react-router-dom';
 import { expect, within } from 'storybook/test';
-import type { Member } from '../generated.tsx';
 import { MenuComponent, type PageLayoutProps } from './menu-component.tsx';
 
-const mockPageLayouts: PageLayoutProps[] = [
+// Local mock type for stories — avoids importing from any generated.tsx
+interface MockMember {
+	__typename: 'Member';
+	id: string;
+	memberName: string;
+	isAdmin?: boolean | null;
+}
+
+const TypedMenuComponent = MenuComponent<MockMember>;
+
+const mockPageLayouts: PageLayoutProps<MockMember>[] = [
 	{
 		path: '',
 		title: 'Home',
@@ -28,21 +37,16 @@ const mockPageLayouts: PageLayoutProps[] = [
 	},
 ];
 
-const mockMember: Member = {
+const mockMember: MockMember = {
 	__typename: 'Member',
 	id: 'member1',
 	memberName: 'Test Member',
 	isAdmin: true,
-	community: {
-		__typename: 'Community',
-		id: 'community1',
-		name: 'Test Community',
-	} as Member['community'],
-} as Member;
+};
 
 const meta = {
 	title: 'Components/Layouts/Shared/MenuComponent',
-	component: MenuComponent,
+	component: TypedMenuComponent,
 	parameters: {
 		layout: 'padded',
 	},
@@ -55,10 +59,10 @@ const meta = {
 			</BrowserRouter>
 		),
 	],
-} satisfies Meta<typeof MenuComponent>;
+} satisfies Meta<typeof TypedMenuComponent>;
 
 export default meta;
-type Story = StoryObj<typeof MenuComponent>;
+type Story = StoryObj<typeof TypedMenuComponent>;
 
 export const Default: Story = {
 	args: {
@@ -69,7 +73,6 @@ export const Default: Story = {
 	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
-		// Verify menu items are rendered
 		expect(canvas.getByText('Home')).toBeInTheDocument();
 		expect(canvas.getByText('Settings')).toBeInTheDocument();
 		expect(canvas.getByText('Members')).toBeInTheDocument();
@@ -116,7 +119,7 @@ export const WithPermissions: Story = {
 				icon: <SettingOutlined />,
 				id: 'settings',
 				parent: 'ROOT',
-				hasPermissions: (member: Member) => member.isAdmin ?? false,
+				hasPermissions: (member: MockMember) => member.isAdmin ?? false,
 			},
 			{
 				path: 'members/*',
@@ -132,8 +135,6 @@ export const WithPermissions: Story = {
 	},
 	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-
-		// Verify admin-only menu item is visible for admin member
 		expect(canvas.getByText('Settings')).toBeInTheDocument();
 	},
 };
@@ -153,7 +154,7 @@ export const NoPermissions: Story = {
 				icon: <SettingOutlined />,
 				id: 'settings',
 				parent: 'ROOT',
-				hasPermissions: (member: Member) => member.isAdmin ?? false,
+				hasPermissions: (member: MockMember) => member.isAdmin ?? false,
 			},
 			{
 				path: 'members/*',
@@ -172,8 +173,6 @@ export const NoPermissions: Story = {
 	},
 	play: ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-
-		// Verify admin-only menu item is NOT visible for non-admin member
 		expect(canvas.queryByText('Settings')).not.toBeInTheDocument();
 		expect(canvas.getByText('Home')).toBeInTheDocument();
 		expect(canvas.getByText('Members')).toBeInTheDocument();
