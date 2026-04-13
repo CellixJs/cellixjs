@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
+import { isGracefulInterruptExit } from '../../build-pipeline/scripts/dev-process-exit.mjs';
 
 const envPort = process.env.PORT;
 
@@ -23,5 +24,10 @@ const child = spawn('func', ['start', '--typescript', '--script-root', 'deploy/'
 });
 
 child.on('exit', (code, signal) => {
-	process.exitCode = signal ? 1 : (code ?? 1);
+	// Turbo sends signals to interrupt persistent tasks; treat those as graceful exits.
+	if (isGracefulInterruptExit(signal, code)) {
+		process.exitCode = 0;
+		return;
+	}
+	process.exitCode = code ?? 1;
 });

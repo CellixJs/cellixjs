@@ -3,15 +3,15 @@
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**", "!**/dist/", "!**/build", "!**/deploy", "!**/node_modules", "!**/coverage", "!**/generated.*"]
+		"includes": ["**", "!**/dist", "!**/build", "!**/deploy", "!**/node_modules", "!**/coverage", "!**/.turbo", "!**/*.tsbuildinfo", "!**/generated.*"]
 	},
 	"css": { "parser": { "cssModules": true } },
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
 		"indentWidth": 2,
-        "attributePosition": "multiline",
-        "lineWidth": 230
+		"attributePosition": "multiline",
+		"lineWidth": 230
 	},
 	"linter": {
 		"enabled": true,
@@ -97,8 +97,8 @@
 		},
 		"includes": [
 			"**/src/**",
-            "**/tests/**",
-            "**/docs/**",
+			"**/tests/**",
+			"**/docs/**",
 			"!*.config.*",
 			"!**/*.config.*",
 			"!**/node_modules/**",
@@ -159,10 +159,7 @@
 			}
 		},
 		{
-			"includes": [
-				"packages/ocom/persistence/**/*.ts",
-				"packages/ocom/data-sources-mongoose-models/**/*.ts"
-			],
+			"includes": ["packages/ocom/persistence/**/*.ts", "packages/ocom/data-sources-mongoose-models/**/*.ts"],
 			"linter": {
 				"rules": {
 					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
