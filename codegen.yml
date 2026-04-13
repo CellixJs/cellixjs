@@ -145,7 +145,3 @@ generates:
           typesDir: 'packages/ocom/graphql/src/schema/types'
           resolversExportName: 'ocomGraphqlResolvers'
           permissionsExportName: 'ocomGraphqlPermissions'
-
-hooks:
-  afterAllFileWrite:
-    - 'pnpm exec biome format --write'
