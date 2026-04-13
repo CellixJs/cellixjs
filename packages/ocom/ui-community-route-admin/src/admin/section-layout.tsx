@@ -1,4 +1,10 @@
-import { LoggedInUserContainer, CommunitiesDropdownContainer, MenuComponent, type MenuComponentProps, type PageLayoutProps } from '@ocom/ui-components';
+import { 
+  LoggedInUserContainer,
+  CommunitiesDropdownContainer,
+  MenuComponent, 
+  type MenuComponentProps, 
+  type PageLayoutProps 
+} from '@ocom/ui-components';
 import { Layout, theme } from 'antd';
 import { useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
