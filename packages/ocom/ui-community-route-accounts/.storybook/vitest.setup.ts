@@ -1,10 +1,7 @@
-import { nodeConfig } from '@cellix/config-vitest';
-import { defineConfig, mergeConfig } from 'vitest/config';
+import * as a11yAddonAnnotations from '@storybook/addon-a11y/preview';
+import { setProjectAnnotations } from '@storybook/react-vite';
+import * as projectAnnotations from './preview.tsx';
 
-export default mergeConfig(
-	nodeConfig,
-	defineConfig({
-		// Add package-specific overrides here if needed
-	}),
-);
+// This is an important step to apply the right configuration when testing your stories.
+setProjectAnnotations([a11yAddonAnnotations, projectAnnotations]);
 
