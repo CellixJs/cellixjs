@@ -1,0 +1,25 @@
+{
+	"name": "@ocom/ui-community-route-root",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.tsx"
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"check-types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"antd": "catalog:",
+		"react": "^19.1.0",
+		"react-dom": "^19.1.0"
+	},
+	"devDependencies": {
+		"@types/react": "^19.1.8",
+		"@types/react-dom": "^19.1.6",
+		"typescript": "catalog:",
+		"vite": "catalog:"
+	}
+}

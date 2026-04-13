@@ -94,6 +94,12 @@
 		"//#audit": {
 			"description": "Runs package audit checks before build tasks",
 			"cache": false
+		},
+		"check-types": {
+			"description": "Runs tsc --noEmit for JIT route packages that have no build step",
+			"dependsOn": ["//#gen"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!dist/**"],
+			"outputs": []
 		}
 	}
 }
