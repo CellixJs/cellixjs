@@ -4,13 +4,14 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"prebuild": "pnpm run lint && pnpm run format",
+		"prebuild": "pnpm run lint",
 		"build": "tsc --build",
 		"clean": "rimraf dist tsconfig.tsbuildinfo",
 		"lint": "biome lint",
 		"format": "biome format --write",
+		"format:check": "biome format .",
 		"start": "node dist/index.js",
-		"dev": "portless mock-auth.ownercommunity.localhost tsx watch src/index.ts"
+		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs mock-auth.ownercommunity.localhost tsx src/index.ts"
 	},
 	"dependencies": {
 		"@cellix/server-oauth2-mock-seedwork": "workspace:*",

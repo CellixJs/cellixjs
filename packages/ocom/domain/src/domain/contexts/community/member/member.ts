@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import type { Passport } from '../../passport.ts';
 import { Community, type CommunityEntityReference } from '../community/community.ts';
@@ -89,7 +89,6 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
 			throw new PermissionError('Cannot remove custom view');
 		}
-		console.log(customView.name);
 		this.props.customViews.removeItem(customView.props);
 	}
 
