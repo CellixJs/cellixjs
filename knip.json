@@ -50,6 +50,10 @@
     "packages/ocom/archunit-tests": {
       "project": ["src/**/*.ts"]
     },
+    "packages/ocom/ui-community-route-*": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
     "packages/ocom/*": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"]
@@ -77,7 +81,9 @@
     "**/tests/**"
   ],
   "ignoreIssues": {
-    "codegen.yml": ["unlisted"]
+    "codegen.yml": ["unlisted"],
+    "apps/ui-community/src/components/ui/organisms/dropdown-menu/communities-dropdown.container.tsx": ["exports"],
+    "apps/ui-community/src/components/layouts/shared/components/menu-component.tsx": ["types"]
   },
   "ignoreDependencies": [
     "@types/*",

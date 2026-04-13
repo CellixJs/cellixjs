@@ -12,16 +12,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ant-design/icons": "^6.0.2",
-    "@ant-design/pro-layout": "^7.22.7",
-    "@apollo/client": "^3.13.9",
-    "@cellix/ui-core": "workspace:*",
-    "@ocom/ui-components": "workspace:*",
     "antd": "catalog:",
-    "dayjs": "^1.11.19",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-router-dom": "catalog:"
+    "react-dom": "^19.1.1"
   },
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",

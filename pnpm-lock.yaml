@@ -364,9 +364,6 @@ importers:
       '@ant-design/icons':
         specifier: ^6.0.2
         version: 6.1.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@ant-design/pro-layout':
-        specifier: ^7.22.7
-        version: 7.22.7(antd@6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@apollo/client':
         specifier: ^3.13.9
         version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -388,18 +385,12 @@ importers:
       '@ocom/ui-community-route-root':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-community-route-root
-      '@ocom/ui-components':
-        specifier: workspace:*
-        version: link:../../packages/ocom/ui-components
       antd:
         specifier: 'catalog:'
         version: 6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       apollo-link-rest:
         specifier: ^0.9.0
         version: 0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(graphql@16.12.0)(qs@6.15.0)
-      dayjs:
-        specifier: ^1.11.19
-        version: 1.11.19
       less:
         specifier: ^4.4.0
         version: 4.4.2
@@ -1432,43 +1423,22 @@ importers:
 
   packages/ocom/ui-community-route-root:
     dependencies:
-      '@ant-design/icons':
-        specifier: ^6.0.2
-        version: 6.1.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@ant-design/pro-layout':
-        specifier: ^7.22.7
-        version: 7.22.7(antd@6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@apollo/client':
-        specifier: ^3.13.9
-        version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@cellix/ui-core':
-        specifier: workspace:*
-        version: link:../../cellix/ui-core
-      '@ocom/ui-components':
-        specifier: workspace:*
-        version: link:../ui-components
       antd:
         specifier: 'catalog:'
         version: 6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      dayjs:
-        specifier: ^1.11.19
-        version: 1.11.19
       react:
         specifier: ^19.1.1
         version: 19.2.0
       react-dom:
         specifier: ^19.1.1
         version: 19.2.0(react@19.2.0)
-      react-router-dom:
-        specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../cellix/config-typescript
       '@storybook/react':
         specifier: ^9.1.9
-        version: 9.1.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)))(typescript@6.0.2)
+        version: 9.1.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)))(typescript@6.0.2)
       '@types/react':
         specifier: ^19.1.11
         version: 19.2.7
@@ -1477,13 +1447,13 @@ importers:
         version: 19.2.3(@types/react@19.2.7)
       storybook:
         specifier: 'catalog:'
-        version: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
       vite:
         specifier: 8.0.5
-        version: 8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
+        version: 8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/ocom/ui-components:
     dependencies:
@@ -17288,12 +17258,6 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
-  '@storybook/react-dom-shim@9.1.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)))':
-    dependencies:
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
-      storybook: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
-
   '@storybook/react-dom-shim@9.1.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)))':
     dependencies:
       react: 19.2.0
@@ -17319,16 +17283,6 @@ snapshots:
       - rollup
       - supports-color
       - typescript
-
-  '@storybook/react@9.1.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)))(typescript@6.0.2)':
-    dependencies:
-      '@storybook/global': 5.0.0
-      '@storybook/react-dom-shim': 9.1.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)))
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
-      storybook: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
-    optionalDependencies:
-      typescript: 6.0.2
 
   '@storybook/react@9.1.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)))(typescript@6.0.2)':
     dependencies:
@@ -17886,14 +17840,6 @@ snapshots:
       '@vitest/utils': 4.1.2
       chai: 6.2.2
       tinyrainbow: 3.1.0
-
-  '@vitest/mocker@3.2.4(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))':
-    dependencies:
-      '@vitest/spy': 3.2.4
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
 
   '@vitest/mocker@3.2.4(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))':
     dependencies:
@@ -24337,28 +24283,6 @@ snapshots:
       graphql: 16.12.0
       react: 19.2.0
 
-  storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)):
-    dependencies:
-      '@storybook/global': 5.0.0
-      '@testing-library/jest-dom': 6.9.1
-      '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
-      '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
-      '@vitest/spy': 3.2.4
-      better-opn: 3.0.2
-      esbuild: 0.25.12
-      esbuild-register: 3.6.0(esbuild@0.25.12)
-      recast: 0.23.11
-      semver: 7.7.3
-      ws: 8.20.0
-    transitivePeerDependencies:
-      - '@testing-library/dom'
-      - bufferutil
-      - msw
-      - supports-color
-      - utf-8-validate
-      - vite
-
   storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
       '@storybook/global': 5.0.0
@@ -25081,26 +25005,6 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.19.15
       esbuild: 0.27.4
-      fsevents: 2.3.3
-      jiti: 2.6.1
-      less: 4.4.2
-      terser: 5.44.1
-      tsx: 4.21.0
-      yaml: 2.8.3
-    transitivePeerDependencies:
-      - '@emnapi/core'
-      - '@emnapi/runtime'
-
-  vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3):
-    dependencies:
-      lightningcss: 1.32.0
-      picomatch: 4.0.4
-      postcss: 8.5.8
-      rolldown: 1.0.0-rc.12(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 24.10.1
-      esbuild: 0.25.12
       fsevents: 2.3.3
       jiti: 2.6.1
       less: 4.4.2
