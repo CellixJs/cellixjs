@@ -2,8 +2,19 @@ import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import type { Meta, StoryObj } from '@storybook/react';
 import { BrowserRouter } from 'react-router-dom';
 import { expect, within } from 'storybook/test';
-import type { Member } from '../../../../generated.tsx';
 import { MenuComponent, type PageLayoutProps } from './menu-component.tsx';
+
+interface MockMember {
+	__typename: 'Member';
+	id: string;
+	memberName: string;
+	isAdmin: boolean | null | undefined;
+	community: {
+		__typename: 'Community';
+		id: string;
+		name: string;
+	};
+}
 
 const mockPageLayouts: PageLayoutProps[] = [
 	{
@@ -28,7 +39,7 @@ const mockPageLayouts: PageLayoutProps[] = [
 	},
 ];
 
-const mockMember: Member = {
+const mockMember: MockMember = {
 	__typename: 'Member',
 	id: 'member1',
 	memberName: 'Test Member',
@@ -37,8 +48,8 @@ const mockMember: Member = {
 		__typename: 'Community',
 		id: 'community1',
 		name: 'Test Community',
-	} as Member['community'],
-} as Member;
+	} as MockMember['community'],
+} as MockMember;
 
 const meta = {
 	title: 'Components/Layouts/Shared/MenuComponent',
@@ -116,7 +127,7 @@ export const WithPermissions: Story = {
 				icon: <SettingOutlined />,
 				id: 'settings',
 				parent: 'ROOT',
-				hasPermissions: (member: Member) => member.isAdmin ?? false,
+				hasPermissions: (member: MockMember) => member.isAdmin ?? false,
 			},
 			{
 				path: 'members/*',
@@ -153,7 +164,7 @@ export const NoPermissions: Story = {
 				icon: <SettingOutlined />,
 				id: 'settings',
 				parent: 'ROOT',
-				hasPermissions: (member: Member) => member.isAdmin ?? false,
+				hasPermissions: (member: MockMember) => member.isAdmin ?? false,
 			},
 			{
 				path: 'members/*',
