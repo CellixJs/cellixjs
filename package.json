@@ -90,6 +90,7 @@
       ]
     },
     "overrides": {
+      "axios": "^1.15.0",
       "vite": "catalog:",
       "jiti": "2.6.1",
       "rollup": "^4.59.0",
