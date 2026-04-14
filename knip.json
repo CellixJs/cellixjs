@@ -53,7 +53,7 @@
 		}
 	},
 	"ignoreWorkspaces": ["packages/cellix/config-typescript"],
-	"ignore": ["build-pipeline/scripts/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**"],
+	"ignore": ["build-pipeline/scripts/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**", ".agents/skills/**", ".github/skills/**"],
 	"ignoreIssues": {
 		"codegen.yml": ["unlisted"]
 	},
