@@ -12,6 +12,6 @@
 		"noEmit": true,
 		"types": ["vite/client"]
 	},
-	"include": ["components/**/*.ts", "components/**/*.tsx", "components/**/*.d.ts"],
-	"exclude": ["components/**/*.stories.ts", "components/**/*.stories.tsx", "components/**/*.test.ts", "components/**/*.test.tsx"]
+	"include": ["src/components/**/*.ts", "src/components/**/*.tsx", "src/components/**/*.d.ts"],
+	"exclude": ["src/components/**/*.stories.ts", "src/components/**/*.stories.tsx", "src/components/**/*.test.ts", "src/components/**/*.test.tsx"]
 }

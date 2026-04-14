@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./components/index.ts"
+    ".": "./src/components/index.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
-    "lint": "biome lint ./components",
+    "lint": "biome lint ./src/components",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest"

@@ -6,13 +6,13 @@ const dirname = getDirnameFromImportMetaUrl(import.meta.url);
 export default mergeConfig(
 	defineConfig(
 		createStorybookVitestConfig(dirname, {
-			additionalCoverageExclude: ['components/index.ts'],
+			additionalCoverageExclude: ['src/components/index.ts'],
 		}),
 	),
 	defineConfig({
 		test: {
 			coverage: {
-				include: ['components/**/*.{ts,tsx}'],
+				include: ['src/components/**/*.{ts,tsx}'],
 			},
 		},
 	}),
