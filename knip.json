@@ -51,8 +51,8 @@
       "project": ["src/**/*.ts"]
     },
     "packages/ocom/ui-community-route-shared": {
-      "entry": ["components/index.ts"],
-      "project": ["components/**/*.{ts,tsx}"]
+      "entry": ["src/components/index.ts"],
+      "project": ["src/components/**/*.{ts,tsx}"]
     },
     "packages/ocom/ui-community-route-*": {
       "entry": ["src/index.ts"],
