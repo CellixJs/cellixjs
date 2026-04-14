@@ -7,8 +7,9 @@
     ".": "./src/components/index.ts"
   },
   "scripts": {
+    "prebuild": "pnpm run lint",
     "build": "tsc --noEmit",
-    "lint": "biome lint ./src/components",
+    "lint": "biome lint",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest"
