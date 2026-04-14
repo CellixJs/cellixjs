@@ -1,7 +1,7 @@
 import { Button, Descriptions, Form, Input, Typography } from 'antd';
 import dayjs from 'dayjs';
 import type React from 'react';
-import type { AdminSettingsGeneralContainerCommunityFieldsFragment, CommunityUpdateSettingsInput } from '../../generated.tsx';
+import type { AdminSettingsGeneralContainerCommunityFieldsFragment, CommunityUpdateSettingsInput } from '../generated.tsx';
 
 const { Text } = Typography;
 

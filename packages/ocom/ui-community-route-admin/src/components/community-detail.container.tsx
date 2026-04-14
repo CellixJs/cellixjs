@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import type { AdminCommunityDetailContainerCommunityFieldsFragment } from '../../generated.tsx';
-import { AdminCommunityDetailContainerCommunityByIdDocument } from '../../generated.tsx';
+import type { AdminCommunityDetailContainerCommunityFieldsFragment } from '../generated.tsx';
+import { AdminCommunityDetailContainerCommunityByIdDocument } from '../generated.tsx';
 import { CommunityDetail, type CommunityDetailProps } from './community-detail.tsx';
 
 export interface CommunityDetailContainerProps {

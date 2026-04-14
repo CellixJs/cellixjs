@@ -6,7 +6,7 @@ import {
 	AdminSettingsGeneralContainerCommunityUpdateSettingsDocument,
 	AdminSettingsGeneralContainerCurrentCommunityDocument,
 	type CommunityUpdateSettingsInput,
-} from '../../generated.tsx';
+} from '../generated.tsx';
 import { SettingsGeneral, type SettingsGeneralProps } from './settings-general.tsx';
 
 export const SettingsGeneralContainer: React.FC = () => {

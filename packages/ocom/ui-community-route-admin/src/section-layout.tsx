@@ -8,7 +8,7 @@ import {
 import { Layout, theme } from 'antd';
 import { useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
-import type { Member } from '../generated.tsx';
+import type { Member } from './generated.tsx';
 import './section-layout.css';
 
 const { Sider, Header } = Layout;

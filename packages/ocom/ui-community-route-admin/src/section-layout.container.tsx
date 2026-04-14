@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import type { PageLayoutProps } from '@ocom/ui-components';
 import { useParams } from 'react-router-dom';
-import { AdminSectionLayoutContainerMembersForCurrentEndUserDocument, type Member } from '../generated.tsx';
+import { AdminSectionLayoutContainerMembersForCurrentEndUserDocument, type Member } from './generated.tsx';
 import { SectionLayout } from './section-layout.tsx';
 
 interface SectionLayoutContainerProps {
