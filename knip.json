@@ -42,11 +42,11 @@
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.ts"]
 		},
-        "packages/ocom/graphql": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.{ts,tsx,graphql}"],
-            "ignore": ["src/schema/types/end-user-role.resolvers.ts"]
-        },
+		"packages/ocom/graphql": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.{ts,tsx,graphql}"],
+			"ignore": ["src/schema/types/end-user-role.resolvers.ts"]
+		},
 		"packages/ocom/ui-components": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.{ts,tsx}"]
@@ -77,5 +77,5 @@
 		"ts-scope-trimmer-plugin",
 		"chrome-devtools-mcp"
 	],
-	"ignoreBinaries": ["func", "antd"]
+	"ignoreBinaries": ["func"]
 }
