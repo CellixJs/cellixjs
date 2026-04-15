@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import { Link, Route, Routes, matchRoutes, useLocation } from 'react-router-dom';
 
-export interface RouteDefinition {
+interface RouteDefinition {
 	id: string;
 	link: string;
 	path: string;

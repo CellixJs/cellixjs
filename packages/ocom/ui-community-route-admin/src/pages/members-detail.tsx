@@ -1,7 +1,7 @@
 import { IdcardOutlined, ProfileOutlined, TeamOutlined } from '@ant-design/icons';
 import { PageHeader } from '@ant-design/pro-layout';
 import { Tabs } from 'antd';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { SubPageLayout } from '../sub-page-layout.tsx';
 import { MembersAccounts } from './members-accounts.tsx';
 import { MembersGeneral } from './members-general.tsx';
@@ -10,10 +10,17 @@ import { MembersProfile } from './members-profile.tsx';
 export const MembersDetail: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const params = useParams<{ communityId?: string; memberId?: string; id?: string }>();
+	const communityId = params.communityId ?? '';
+	const memberId = params.memberId ?? '';
+	const memberIdParam = params.id ?? '';
+	const basePath = `/community/${communityId}/admin/${memberId}/members/${memberIdParam}`;
+
 	const activeTab = location.pathname.includes('/accounts') ? 'accounts' : location.pathname.includes('/profile') ? 'profile' : 'general';
 
 	const handleTabChange = (key: string) => {
-		const route = key === 'general' ? '' : key;
+		// Build absolute path to ensure sibling tab navigation works from any current nested route
+		const route = key === 'general' ? basePath : `${basePath}/${key}`;
 		navigate(route);
 	};
 

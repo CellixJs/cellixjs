@@ -21,11 +21,11 @@ export const MembersAccounts: React.FC = () => {
 					element={<MembersAccountsListContainer data={{ id: params.id ?? '' }} />}
 				/>
 				<Route
-					path="/add"
+					path="add"
 					element={<MembersAccountsAddContainer data={{ id: params.id ?? '' }} />}
 				/>
 				<Route
-					path="/:accountId"
+					path=":accountId"
 					element={<MembersAccountsEditContainer data={{ memberId: params.id ?? '' }} />}
 				/>
 			</Routes>

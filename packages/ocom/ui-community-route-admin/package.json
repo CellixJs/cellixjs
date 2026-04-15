@@ -20,6 +20,7 @@
 		"@apollo/client": "^3.13.9",
 		"@cellix/ui-core": "workspace:*",
 		"@graphql-typed-document-node/core": "^3.2.0",
+        "@dr.pogodin/react-helmet": "^3.0.2",
 		"@ocom/ui-components": "workspace:*",
 		"antd": "catalog:",
 		"dayjs": "^1.11.19",
