@@ -2,8 +2,8 @@ import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { App } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { MemberUpdateAccountInput } from '../../../../generated.tsx';
-import { AdminMembersAccountsEditContainerMemberDocument, AdminMembersAccountsEditContainerMemberRemoveAccountDocument, AdminMembersAccountsEditContainerMemberUpdateAccountDocument } from '../../../../generated.tsx';
+import type { MemberUpdateAccountInput } from '../generated.tsx';
+import { AdminMembersAccountsEditContainerMemberDocument, AdminMembersAccountsEditContainerMemberRemoveAccountDocument, AdminMembersAccountsEditContainerMemberUpdateAccountDocument } from '../generated.tsx';
 import { MembersAccountsEdit } from './members-accounts-edit.tsx';
 
 interface MembersAccountsEditContainerProps {
@@ -71,7 +71,7 @@ export const MembersAccountsEditContainer: React.FC<MembersAccountsEditContainer
 		}
 	};
 
-	const accountToEdit = memberData?.member?.accounts?.find((x) => x?.id === params.accountId);
+	const accountToEdit = memberData?.member?.accounts?.find((account) => account.id === params.accountId);
 
 	if (accountToEdit) {
 		const defaultValues: MemberUpdateAccountInput = {

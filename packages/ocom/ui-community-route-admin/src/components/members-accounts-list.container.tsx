@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } from '../../../../generated.tsx';
-import { AdminMembersAccountsListContainerMemberDocument } from '../../../../generated.tsx';
+import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } from '../generated.tsx';
+import { AdminMembersAccountsListContainerMemberDocument } from '../generated.tsx';
 import { MembersAccountsList, type MembersAccountsListProps } from './members-accounts-list.tsx';
 
 interface MembersAccountsListContainerProps {

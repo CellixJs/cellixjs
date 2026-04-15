@@ -3,18 +3,18 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import { App } from 'antd';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { AdminMemberListContainerMemberFieldsFragment } from '../../../../generated.tsx';
 import {
 	AdminMemberListContainerActivateMemberDocument,
 	AdminMemberListContainerBulkActivateMembersDocument,
 	AdminMemberListContainerBulkDeactivateMembersDocument,
 	AdminMemberListContainerBulkRemoveMembersDocument,
 	AdminMemberListContainerDeactivateMemberDocument,
+	type AdminMemberListContainerMemberFieldsFragment,
 	AdminMemberListContainerMembersDocument,
 	type AdminMemberListContainerMembersQuery,
 	type AdminMemberListContainerMembersQueryVariables,
 	AdminMemberListContainerRemoveMemberDocument,
-} from '../../../../generated.tsx';
+} from '../generated.tsx';
 import { MemberInviteModalContainer } from './member-invite-modal.container.tsx';
 import { MemberList, type MemberListProps } from './members-list.tsx';
 
@@ -93,13 +93,14 @@ export const MemberListContainer: React.FC = () => {
 
 	const handleDeactivateMember = async (memberId: string, reason?: string) => {
 		try {
+			const input = {
+				memberId,
+				communityId: communityId ?? '',
+				...(reason !== undefined ? { reason } : {}),
+			};
 			const result = await deactivateMemberMutation({
 				variables: {
-					input: {
-						memberId,
-						communityId: communityId ?? '',
-						reason,
-					},
+					input,
 				},
 			});
 
@@ -116,13 +117,14 @@ export const MemberListContainer: React.FC = () => {
 
 	const handleRemoveMember = async (memberId: string, reason?: string): Promise<boolean> => {
 		try {
+			const input = {
+				memberId,
+				communityId: communityId ?? '',
+				...(reason !== undefined ? { reason } : {}),
+			};
 			const result = await removeMemberMutation({
 				variables: {
-					input: {
-						memberId,
-						communityId: communityId ?? '',
-						reason,
-					},
+					input,
 				},
 			});
 
@@ -241,8 +243,8 @@ export const MemberListContainer: React.FC = () => {
 	};
 
 	const memberListProps: MemberListProps = {
-		data: membersData?.membersByCommunityId as AdminMemberListContainerMemberFieldsFragment[],
-		communityId,
+		data: (membersData?.membersByCommunityId ?? []) as AdminMemberListContainerMemberFieldsFragment[],
+		...(communityId !== undefined ? { communityId } : {}),
 		onActivateMember: handleActivateMember,
 		onDeactivateMember: handleDeactivateMember,
 		onRemoveMember: handleRemoveMember,

@@ -2,7 +2,7 @@ import { UsergroupAddOutlined } from '@ant-design/icons';
 import { Button, Table, type TableColumnsType } from 'antd';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } from '../../../../generated.tsx';
+import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } from '../generated.tsx';
 
 export interface MembersAccountsListProps {
 	data: AdminMembersAccountsListContainerMemberAccountFieldsFragment[];

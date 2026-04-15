@@ -1,8 +1,8 @@
 import { useMutation } from '@apollo/client';
 import { App } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { MemberCreateInput } from '../../../../generated.tsx';
-import { AdminMemberListContainerMembersDocument, AdminMembersCreateContainerMemberCreateDocument } from '../../../../generated.tsx';
+import type { MemberCreateInput } from '../generated.tsx';
+import { AdminMemberListContainerMembersDocument, AdminMembersCreateContainerMemberCreateDocument } from '../generated.tsx';
 import { MembersCreate } from './members-create.tsx';
 
 interface MembersCreateContainerProps {

@@ -1,5 +1,5 @@
 import { Button, Form, Input } from 'antd';
-import type { MemberCreateInput } from '../../../../generated.tsx';
+import type { MemberCreateInput } from '../generated.tsx';
 
 interface MembersCreateProps {
 	data: MemberCreateInput;

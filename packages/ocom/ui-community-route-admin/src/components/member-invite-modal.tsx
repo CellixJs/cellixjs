@@ -26,6 +26,7 @@ interface BulkInviteForm {
 
 export const MemberInviteModal: React.FC<MemberInviteModalProps> = (props) => {
 	const { open, onClose, onSingleInvite, onBulkInvite, loading } = props;
+	const isLoading = loading ?? false;
 	const [singleForm] = Form.useForm<SingleInviteForm>();
 	const [bulkForm] = Form.useForm<BulkInviteForm>();
 	const [activeTab, setActiveTab] = useState<string>('single');
@@ -118,7 +119,7 @@ export const MemberInviteModal: React.FC<MemberInviteModalProps> = (props) => {
 										<Button
 											type="primary"
 											htmlType="submit"
-											loading={loading}
+											loading={isLoading}
 										>
 											Send Invitation
 										</Button>
@@ -234,7 +235,7 @@ export const MemberInviteModal: React.FC<MemberInviteModalProps> = (props) => {
 										<Button
 											type="primary"
 											htmlType="submit"
-											loading={loading}
+											loading={isLoading}
 										>
 											Send All Invitations
 										</Button>

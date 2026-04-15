@@ -6,7 +6,7 @@ import {
 	AdminMembersDetailContainerMembersByCommunityDocument,
 	type AdminMembersDetailContainerMembersByCommunityQuery,
 	type AdminMembersDetailContainerMembersByCommunityQueryVariables,
-} from '../../../../generated.tsx';
+} from '../generated.tsx';
 import { MembersDetail } from './members-detail.tsx';
 
 interface MembersDetailContainerProps {

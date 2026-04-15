@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { App } from 'antd';
 import { useParams } from 'react-router-dom';
-import { AdminMemberInviteModalContainerBulkInviteMembersDocument, AdminMemberInviteModalContainerInviteMemberDocument } from '../../../../generated.tsx';
+import { AdminMemberInviteModalContainerBulkInviteMembersDocument, AdminMemberInviteModalContainerInviteMemberDocument } from '../generated.tsx';
 import { MemberInviteModal, type MemberInviteModalProps } from './member-invite-modal.tsx';
 
 interface MemberInviteModalContainerProps {
@@ -22,14 +22,15 @@ export const MemberInviteModalContainer: React.FC<MemberInviteModalContainerProp
 		if (!communityId) return;
 
 		try {
+			const input = {
+				communityId,
+				email,
+				...(inviteMessage !== undefined ? { message: inviteMessage } : {}),
+				...(expiresInDays !== undefined ? { expiresInDays } : {}),
+			};
 			const result = await inviteMemberMutation({
 				variables: {
-					input: {
-						communityId,
-						email,
-						message: inviteMessage,
-						expiresInDays,
-					},
+					input,
 				},
 			});
 
@@ -49,13 +50,14 @@ export const MemberInviteModalContainer: React.FC<MemberInviteModalContainerProp
 		if (!communityId) return;
 
 		try {
+			const input = {
+				communityId,
+				invitations,
+				...(expiresInDays !== undefined ? { expiresInDays } : {}),
+			};
 			const result = await bulkInviteMembersMutation({
 				variables: {
-					input: {
-						communityId,
-						invitations,
-						expiresInDays,
-					},
+					input,
 				},
 			});
 

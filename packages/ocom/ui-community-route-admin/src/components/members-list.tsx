@@ -2,7 +2,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import { Button, Input, Select, Space, Table, Tag, Typography } from 'antd';
 import { useMemo, useState } from 'react';
-import type { AdminMemberListContainerMemberFieldsFragment } from '../../../../generated.tsx';
+import type { AdminMemberListContainerMemberFieldsFragment } from '../generated.tsx';
 
 const { Title, Text } = Typography;
 
@@ -54,6 +54,7 @@ export interface MemberListProps {
 
 export const MemberList: React.FC<MemberListProps> = (props) => {
 	const { data, onInviteMember, onMemberEdit, onActivateMember, onDeactivateMember, onRemoveMember, onBulkActivateMembers, onBulkDeactivateMembers, onBulkRemoveMembers, loading } = props;
+	const isLoading = loading ?? false;
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>('all');
 	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
@@ -157,7 +158,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 						{status === 'active' ? (
 							<Button
 								type="link"
-								loading={loading}
+								loading={isLoading}
 								onClick={() => void handleDeactivateMember(String(record.id))}
 							>
 								Deactivate
@@ -165,7 +166,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 						) : (
 							<Button
 								type="link"
-								loading={loading}
+								loading={isLoading}
 								onClick={() => void handleActivateMember(String(record.id))}
 							>
 								Activate
@@ -174,7 +175,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 						<Button
 							type="link"
 							danger
-							loading={loading}
+							loading={isLoading}
 							onClick={() => void handleRemoveMember(String(record.id))}
 						>
 							Remove
@@ -237,20 +238,20 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 					<Space size="small">
 						<Button
 							onClick={handleBulkActivate}
-							loading={loading}
+							loading={isLoading}
 						>
 							Activate Selected
 						</Button>
 						<Button
 							onClick={handleBulkDeactivate}
-							loading={loading}
+							loading={isLoading}
 						>
 							Deactivate Selected
 						</Button>
 						<Button
 							danger
 							onClick={handleBulkRemove}
-							loading={loading}
+							loading={isLoading}
 						>
 							Remove Selected
 						</Button>
@@ -262,7 +263,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 				dataSource={filteredData}
 				columns={columns}
 				rowKey="id"
-				loading={loading}
+				loading={isLoading}
 				rowSelection={{
 					selectedRowKeys: selectedMemberIds,
 					onChange: (selectedRowKeys) => setSelectedMemberIds(selectedRowKeys.map((key) => String(key))),

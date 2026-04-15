@@ -1,4 +1,3 @@
-import { Helmet } from '@dr.pogodin/react-helmet';
 import { Route, Routes, useParams } from 'react-router-dom';
 import { MembersAccountsAddContainer } from '../components/members-accounts-add.container.tsx';
 import { MembersAccountsEditContainer } from '../components/members-accounts-edit.container.tsx';
@@ -15,9 +14,6 @@ export const MembersAccounts: React.FC = () => {
 
 	return (
 		<div>
-			<Helmet>
-				<title>Members Accounts</title>
-			</Helmet>
 			<h1>Members Accounts</h1>
 			<Routes>
 				<Route
