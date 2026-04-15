@@ -35,6 +35,18 @@
 			"entry": ["src/index.ts", "src/datasources/**/index.ts"],
 			"project": ["src/**/*.ts"]
 		},
+		"packages/ocom/ui-community-route-shared": {
+			"entry": ["src/components/index.ts"],
+			"project": ["src/components/**/*.{ts,tsx}"]
+		},
+		"packages/ocom/ui-community-route-admin": {
+			"entry": ["src/index.ts", "src/index.tsx"],
+			"project": ["src/**/*.{ts,tsx}"]
+		},
+		"packages/ocom/ui-community-route-*": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.{ts,tsx}"]
+		},
 		"packages/ocom/archunit-tests": {
 			"project": ["src/**/*.ts"]
 		},

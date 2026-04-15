@@ -97,6 +97,7 @@
 		},
 		"includes": [
 			"**/src/**",
+			"**/components/**",
 			"**/tests/**",
 			"**/docs/**",
 			"!*.config.*",

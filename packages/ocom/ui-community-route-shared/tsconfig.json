@@ -1,0 +1,17 @@
+{
+	"extends": "@cellix/config-typescript/base",
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
+		"jsx": "react-jsx",
+		"lib": ["ES2023", "DOM"],
+		"skipLibCheck": true,
+		"noEmit": true,
+		"types": ["vite/client"]
+	},
+	"include": ["src/components/**/*.ts", "src/components/**/*.tsx", "src/components/**/*.d.ts"],
+	"exclude": ["src/components/**/*.stories.ts", "src/components/**/*.stories.tsx", "src/components/**/*.test.ts", "src/components/**/*.test.tsx"]
+}
