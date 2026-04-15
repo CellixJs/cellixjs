@@ -3,7 +3,7 @@
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**", "!**/dist", "!**/build", "!**/deploy", "!**/node_modules", "!**/coverage", "!**/.turbo", "!**/*.tsbuildinfo", "!**/generated.*"]
+		"includes": ["**", "!**/dist", "!**/build", "!**/deploy", "!**/node_modules", "!**/coverage", "!**/.turbo", "!**/*.tsbuildinfo", "!**/generated.*", "!**/*.generated.*", "!**/graphql.schema.json"]
 	},
 	"css": { "parser": { "cssModules": true } },
 	"formatter": {
@@ -109,6 +109,11 @@
 			"!**/coverage/**",
 			"!**/generated.ts",
 			"!**/generated.tsx",
+			"!**/*.generated.ts",
+			"!**/*.generated.tsx",
+			"!**/*.generated.js",
+			"!**/*.generated.json",
+			"!**/graphql.schema.json",
 			"!**/App.css"
 		]
 	},
