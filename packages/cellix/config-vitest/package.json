@@ -11,7 +11,7 @@
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest"
   },
-  "devDependencies": {
+  "dependencies": {
     "@cellix/config-typescript": "workspace:*",
     "@storybook/addon-vitest": "^9.1.20",
     "@vitest/browser-playwright": "^4.1.2",

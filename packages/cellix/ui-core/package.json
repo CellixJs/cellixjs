@@ -48,7 +48,7 @@
 		"@vitest/browser": "^4.1.2",
 		"@vitest/browser-playwright": "^4.1.2",
 		"@vitest/coverage-istanbul": "catalog:",
-		"jsdom": "^26.1.0",
+		"jsdom": "catalog:",
 		"@testing-library/react": "^16.3.0",
 		"react-oidc-context": "^3.3.0",
 		"react-router-dom": "catalog:",

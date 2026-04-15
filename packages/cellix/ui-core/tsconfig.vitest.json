@@ -1,6 +1,7 @@
 {
 	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
 	"compilerOptions": {
+		"baseUrl": ".",
 		"paths": {
 			"@cellix/ui-core": ["./src/index.ts"]
 		}

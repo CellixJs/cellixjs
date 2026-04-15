@@ -1,6 +1,6 @@
 import { RequireAuth } from '@cellix/ui-core';
 import { render, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { hasAuthParamsMock, useAuthMock, useLocationMock } = vi.hoisted(() => ({
 	hasAuthParamsMock: vi.fn(),
@@ -35,6 +35,11 @@ function createAuthState(overrides: Partial<ReturnType<typeof baseAuthState>> = 
 }
 
 describe('RequireAuth useEffect behavior', () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+		window.sessionStorage.clear();
+	});
+
 	beforeEach(() => {
 		hasAuthParamsMock.mockReturnValue(false);
 		useAuthMock.mockReturnValue(createAuthState());
@@ -44,10 +49,7 @@ describe('RequireAuth useEffect behavior', () => {
 	it('sets sessionStorage.redirectTo when forceLogin true and unauthenticated (useEffect)', async () => {
 		const signinRedirectSpy = vi.fn(() => Promise.resolve());
 		useAuthMock.mockReturnValue(createAuthState({ isAuthenticated: false, signinRedirect: signinRedirectSpy }));
-
-		const originalSessionStorage = (globalThis as unknown as { sessionStorage?: { setItem?: (k: string, v: string) => void } }).sessionStorage;
-		const setItemMock = vi.fn();
-		(globalThis as unknown as { sessionStorage?: { setItem?: (k: string, v: string) => void } }).sessionStorage = { setItem: setItemMock };
+		const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
 
 		render(
 			<RequireAuth forceLogin={true}>
@@ -56,9 +58,7 @@ describe('RequireAuth useEffect behavior', () => {
 		);
 
 		await waitFor(() => {
-			expect(setItemMock).toHaveBeenCalledWith('redirectTo', '/private?tab=overview');
+			expect(setItemSpy).toHaveBeenCalledWith('redirectTo', '/private?tab=overview');
 		});
-
-		(globalThis as unknown as { sessionStorage?: { setItem?: (k: string, v: string) => void } }).sessionStorage = originalSessionStorage;
 	});
 });

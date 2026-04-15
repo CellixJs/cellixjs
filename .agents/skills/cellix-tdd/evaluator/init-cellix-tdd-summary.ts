@@ -21,7 +21,7 @@ function parseArgs(argv: string[]): ParsedArgs {
 
 		switch (arg) {
 			case "--":
-				break;
+				return parsed;
 			case "--package":
 				parsed.packageRoot = next;
 				index += 1;
