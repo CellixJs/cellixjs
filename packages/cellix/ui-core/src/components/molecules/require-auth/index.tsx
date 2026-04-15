@@ -34,7 +34,7 @@ export interface RequireAuthProps {
  * Side effects:
  *
  * - When `forceLogin` is `true`, the component stores the current route in
- *   `sessionStorage.redirectTo` before starting the redirect flow.
+ *   the `redirectTo` sessionStorage key before starting the redirect flow.
  * - When the user is unauthenticated, the component triggers `signinRedirect()` and
  *   returns no markup while navigation takes over.
  *

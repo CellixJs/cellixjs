@@ -1,8 +1,7 @@
+import { ComponentQueryLoader, RequireAuth } from '@cellix/ui-core';
 import type React from 'react';
-// @ts-ignore react-dom v19 doesn't ship type definitions for server exports
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ComponentQueryLoader, RequireAuth } from '@cellix/ui-core';
 
 const { hasAuthParamsMock, messageErrorMock, useAuthMock, useLocationMock } = vi.hoisted(() => ({
 	hasAuthParamsMock: vi.fn(),
