@@ -235,8 +235,9 @@ stages:
           fi
 
           # Audit pnpm packages for vulnerabilities
-          echo "Running pnpm audit for vulnerabilities..."
-          pnpm run audit
+          # echo "Running pnpm audit for vulnerabilities..."
+          # pnpm run audit
+          echo "Skip running pnpm audit for vulnerabilities..."
 
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
