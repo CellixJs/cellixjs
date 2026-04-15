@@ -8,7 +8,7 @@
 		"apps/ui-community": {
 			"entry": ["src/main.tsx"],
 			"project": ["src/**/*.{ts,tsx}"],
-			"ignore": ["**/apollo-client-links.tsx"]
+			"ignore": ["**/apollo-client-links.tsx", "**/member-profile.container.tsx"]
 		},
 		"apps/docs": {
 			"entry": ["src/**/*.{ts,tsx,js,jsx}"],

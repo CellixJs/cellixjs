@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { MemberProfile } from './member-profile.tsx';
-import type { MemberProfileContainerMemberFieldsFragment } from '../../../generated.tsx';
+import type { MemberProfileData } from './member-profile.tsx';
 
 const meta: Meta<typeof MemberProfile> = {
 	title: 'Shared/Components/MemberProfile',
@@ -14,7 +14,7 @@ const meta: Meta<typeof MemberProfile> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mockMemberData: MemberProfileContainerMemberFieldsFragment = {
+const mockMemberData: MemberProfileData = {
 	id: 'member-123',
 	memberName: 'johndoe',
 	profile: {

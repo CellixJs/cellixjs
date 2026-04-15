@@ -1,7 +1,6 @@
-import { useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import { AdminMemberListContainerMembersDocument, type AdminMemberListContainerMembersQuery, type AdminMemberListContainerMembersQueryVariables, type MemberProfileContainerMemberFieldsFragment } from '../../../generated.tsx';
-import { MemberProfile } from './member-profile.tsx';
+import { MemberProfile, type MemberProfileData } from './member-profile.tsx';
 
 interface MemberProfileContainerProps {
 	data: {
@@ -11,19 +10,48 @@ interface MemberProfileContainerProps {
 	isAdmin?: boolean;
 }
 
+interface MemberProfileContainerQuery {
+	membersByCommunityId: MemberProfileData[];
+}
+
+interface MemberProfileContainerQueryVariables {
+	communityId: string;
+}
+
+const MemberProfileContainerMembersDocument = gql`
+	query MemberProfileContainerMembers($communityId: ObjectID!) {
+		membersByCommunityId(communityId: $communityId) {
+			id
+			memberName
+			profile {
+				name
+				email
+				bio
+				showInterests
+				showEmail
+				showProfile
+				showLocation
+				showProperties
+			}
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
 export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (props) => {
 	const {
 		data: memberData,
 		loading: memberLoading,
 		error: memberError,
-	} = useQuery<AdminMemberListContainerMembersQuery, AdminMemberListContainerMembersQueryVariables>(AdminMemberListContainerMembersDocument, {
+	} = useQuery<MemberProfileContainerQuery, MemberProfileContainerQueryVariables>(MemberProfileContainerMembersDocument, {
 		variables: { communityId: props.data.communityId },
 	});
 
-	const selectedMember = memberData?.membersByCommunityId?.find((m) => m.id === props.data.id) || null;
+	const selectedMember = memberData?.membersByCommunityId?.find((member: MemberProfileData) => member.id === props.data.id) || null;
 
 	const memberProfileProps = {
-		data: selectedMember as MemberProfileContainerMemberFieldsFragment | null,
+		data: selectedMember,
 		isAdmin: props.isAdmin || false,
 	};
 

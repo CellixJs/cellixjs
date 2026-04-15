@@ -1,11 +1,27 @@
 import { Card, Descriptions, Typography } from 'antd';
 import dayjs from 'dayjs';
-import type { MemberProfileContainerMemberFieldsFragment } from '../../../generated.tsx';
 
 const { Title } = Typography;
 
+export interface MemberProfileData {
+	id: string;
+	memberName: string;
+	profile: {
+		name: string | null;
+		email: string | null;
+		bio: string | null;
+		showInterests: boolean;
+		showEmail: boolean;
+		showProfile: boolean;
+		showLocation: boolean;
+		showProperties: boolean;
+	} | null;
+	createdAt: Date | string;
+	updatedAt: Date | string;
+}
+
 interface MemberProfileProps {
-	data: MemberProfileContainerMemberFieldsFragment | null;
+	data: MemberProfileData | null;
 	isAdmin: boolean;
 }
 
