@@ -51,7 +51,11 @@
 		"snyk:iac:report": "snyk iac test iac/build/**/*.json --org=cellixjs --remote-repo-url=https://github.com/CellixJs/cellixjs --target-reference=main --target-name=cellixjs-iac --report",
 		"analyze": "pnpm dlx @e18e/cli analyze",
 		"prepare": "husky",
-		"edgescan:run": "docker run --tty --rm edgescan/cicd-integration:latest --api-token $ES_API_TOKEN --asset-id $ES_ASSET_ID --start-scan --max-risk-threshold 3 --wait --color"
+		"edgescan:run": "docker run --tty --rm edgescan/cicd-integration:latest --api-token $ES_API_TOKEN --asset-id $ES_ASSET_ID --start-scan --max-risk-threshold 3 --wait --color",
+		"mcp:start": "pnpm dlx @playwright/mcp@0.0.70 --port 8931 --headless --ignore-https-errors --allowed-hosts='localhost' --allowed-origins='http://localhost,https://localhost'",
+		"mcp:playwright:start": "pnpm run mcp:start",
+		"mcp:playwright:stdio": "pnpm dlx @playwright/mcp@0.0.70",
+		"mcp:install-config": "node .github/mcp/install-config.js"
 	},
 	"devDependencies": {
 		"@amiceli/vitest-cucumber": "^6.3.0",
@@ -74,6 +78,7 @@
 		"concurrently": "^9.1.2",
 		"husky": "^9.1.7",
 		"knip": "^5.64.2",
+		"playwright": "1.59.0",
 		"portless": "0.9.1",
 		"rimraf": "^6.0.1",
 		"snyk": "^1.1300.2",

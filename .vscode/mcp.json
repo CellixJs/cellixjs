@@ -7,6 +7,11 @@
 				"MDB_MCP_CONNECTION_STRING": "mongodb://localhost:50000"
 			}
 		},
+		"playwright": {
+			"command": "npx",
+			"args": ["@playwright/mcp@0.0.70"],
+			"type": "stdio"
+		},
 		"chrome-devtools": {
 			"name": "chrome-devtools",
 			"command": "bash",

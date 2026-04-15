@@ -37,7 +37,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.18.2
+          version: 10.30.1
 
       - name: Cache pnpm store
         uses: actions/cache@v4
@@ -65,7 +65,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
 
@@ -76,6 +76,40 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
         if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Install repo MCP config
+        run: pnpm run mcp:install-config -- --force
+
+      - name: Start Playwright MCP (HTTP, background)
+        run: |
+          echo "Starting Playwright MCP on port 8931 (pnpm dlx)..."
+          nohup pnpm run mcp:start > mcp.log 2>&1 &
+          # Wait briefly for MCP to open the port
+          for i in $(seq 1 30); do
+            ss -ltn | grep -q ':8931' && break || sleep 1
+          done
+          echo "MCP log (last 200 lines):"
+          tail -n 200 mcp.log || true
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
+
+      - name: Wait for MCP readiness
+        run: |
+          ready=0
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8931/ >/dev/null 2>&1 || ss -ltn | grep -q ':8931'; then
+              echo "Playwright MCP seems ready"
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "Playwright MCP did not become ready after 30s"
+            echo "MCP log (last 200 lines):"
+            tail -n 200 mcp.log || true
+            exit 1
+          fi
 
       - name: Install Java SDK (Required for SonarCloud)
         uses: actions/setup-java@v4
