@@ -1,84 +1,84 @@
-import { readFileSync, readdirSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
-import process from "node:process";
-import { parseEvaluateArgs, printEvaluateUsage } from "./cli-utils.ts";
-import { parseMarkdownSections, isTemplateBoilerplate, hasHeading, escapeRegExp } from "./markdown-utils.ts";
-import { directoryExists, fileExists, getDefaultSummaryPath } from "./utils.ts";
+import { readdirSync, readFileSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
+import process from 'node:process';
+import { parseEvaluateArgs, printEvaluateUsage } from './cli-utils.ts';
+import { escapeRegExp, hasHeading, isTemplateBoilerplate, parseMarkdownSections } from './markdown-utils.ts';
+import { directoryExists, fileExists, getDefaultSummaryPath } from './utils.ts';
 
 const requiredOutputSections = [
-	"package framing",
-	"consumer usage exploration",
-	"contract gate summary",
-	"public contract",
-	"test plan",
-	"changes made",
-	"documentation updates",
-	"release hardening notes",
-	"validation performed",
+	'package framing',
+	'consumer usage exploration',
+	'contract gate summary',
+	'public contract',
+	'test plan',
+	'changes made',
+	'documentation updates',
+	'release hardening notes',
+	'validation performed',
 ] as const;
 
 const requiredManifestSections = [
-	"Purpose",
-	"Scope",
-	"Non-goals",
-	"Public API shape",
-	"Core concepts",
-	"Package boundaries",
-	"Dependencies / relationships",
-	"Testing strategy",
-	"Documentation obligations",
-	"Release-readiness standards",
+	'Purpose',
+	'Scope',
+	'Non-goals',
+	'Public API shape',
+	'Core concepts',
+	'Package boundaries',
+	'Dependencies / relationships',
+	'Testing strategy',
+	'Documentation obligations',
+	'Release-readiness standards',
 ] as const;
 
 const checkDefinitions = [
 	{
-		id: "required_workflow_sections",
+		id: 'required_workflow_sections',
 		weight: 3,
 		critical: true,
-		description: "Required workflow sections are present with meaningful content.",
+		description: 'Required workflow sections are present with meaningful content.',
 	},
 	{
-		id: "public_contract_only_tests",
+		id: 'public_contract_only_tests',
 		weight: 4,
 		critical: true,
-		description: "Tests exercise the package through public entrypoints only, with export-focused suites and no obvious duplicate lower-level coverage.",
+		description: 'Tests exercise the package through public entrypoints only, with export-focused suites and no obvious duplicate lower-level coverage.',
 	},
 	{
-		id: "documentation_alignment",
+		id: 'documentation_alignment',
 		weight: 4,
 		critical: true,
-		description: "manifest.md, README.md, and the public contract stay aligned.",
+		description: 'manifest.md, README.md, and the public contract stay aligned.',
 	},
 	{
-		id: "public_export_tsdoc",
+		id: 'public_export_tsdoc',
 		weight: 3,
 		critical: true,
-		description: "Meaningful public exports have TSDoc.",
+		description: 'Meaningful public exports have TSDoc.',
 	},
 	{
-		id: "contract_surface",
+		id: 'contract_surface',
 		weight: 2,
 		critical: true,
-		description: "The package does not expose obvious internal helper exports.",
+		description: 'The package does not expose obvious internal helper exports.',
 	},
 	{
-		id: "release_hardening_notes",
+		id: 'release_hardening_notes',
 		weight: 2,
 		critical: true,
-		description: "Release hardening notes cover compatibility, export review, and remaining risk.",
+		description: 'Release hardening notes cover compatibility, export review, and remaining risk.',
 	},
 	{
-		id: "validation_summary",
+		id: 'validation_summary',
 		weight: 2,
 		critical: true,
-		description: "Validation performed is summarized with concrete build and test evidence.",
+		description: 'Validation performed is summarized with concrete build and test evidence.',
 	},
 ] as const;
 
 const maxScore = checkDefinitions.reduce((total, check) => total + check.weight, 0);
 const passingScore = 16;
 
-type CheckId = (typeof checkDefinitions)[number]["id"];
+type CheckId = (typeof checkDefinitions)[number]['id'];
 
 interface ExportDeclaration {
 	filePath: string;
@@ -102,35 +102,21 @@ interface EvaluationResult {
 	packageRoot: string;
 	outputPath: string;
 	totalScore: number;
-	overallStatus: "pass" | "fail";
+	overallStatus: 'pass' | 'fail';
 	failedChecks: CheckId[];
 	checks: CheckResult[];
 }
 
 interface ExpectedReport {
-	overallStatus: "pass" | "fail";
+	overallStatus: 'pass' | 'fail';
 	failedChecks: CheckId[];
 }
 
-interface ParsedArgs {
-	fixtureDir?: string;
-	fixturesRoot?: string;
-	packageRoot?: string;
-	outputPath?: string;
-	verifyExpected: boolean;
-	json: boolean;
-}
-
-function parseArgs(argv: string[]): ParsedArgs {
-	return parseEvaluateArgs(argv);
-}
-
-function printUsage(): void {
-	printEvaluateUsage();
-}
+// Delegate argument parsing and usage printing to cli-utils.ts
+// parseEvaluateArgs and printEvaluateUsage are imported from ./cli-utils.ts
 
 function readText(filePath: string): string {
-	return readFileSync(filePath, "utf8");
+	return readFileSync(filePath, 'utf8');
 }
 
 function readJson<T>(filePath: string): T {
@@ -141,7 +127,7 @@ function listFiles(root: string): string[] {
 	const files: string[] = [];
 
 	for (const entry of readdirSync(root, { withFileTypes: true })) {
-		if (entry.name === "node_modules" || entry.name === "coverage" || entry.name === "dist") {
+		if (entry.name === 'node_modules' || entry.name === 'coverage' || entry.name === 'dist') {
 			continue;
 		}
 
@@ -170,7 +156,7 @@ function findDocFile(packageRoot: string, names: string[]): string | null {
 }
 
 function resolvePackageJson(packageRoot: string): Record<string, unknown> {
-	const packageJsonPath = join(packageRoot, "package.json");
+	const packageJsonPath = join(packageRoot, 'package.json');
 	if (!fileExists(packageJsonPath)) {
 		return {};
 	}
@@ -178,12 +164,8 @@ function resolvePackageJson(packageRoot: string): Record<string, unknown> {
 	return readJson<Record<string, unknown>>(packageJsonPath);
 }
 
-function collectExportTargets(
-	value: unknown,
-	exportKey: string,
-	results: Map<string, string[]>,
-): void {
-	if (typeof value === "string") {
+function collectExportTargets(value: unknown, exportKey: string, results: Map<string, string[]>): void {
+	if (typeof value === 'string') {
 		const existing = results.get(exportKey) ?? [];
 		existing.push(value);
 		results.set(exportKey, existing);
@@ -197,12 +179,12 @@ function collectExportTargets(
 		return;
 	}
 
-	if (!value || typeof value !== "object") {
+	if (!value || typeof value !== 'object') {
 		return;
 	}
 
 	const entries = Object.entries(value as Record<string, unknown>);
-	const hasSubpathKeys = entries.some(([key]) => key === "." || key.startsWith("./"));
+	const hasSubpathKeys = entries.some(([key]) => key === '.' || key.startsWith('./'));
 
 	if (hasSubpathKeys) {
 		for (const [key, child] of entries) {
@@ -216,26 +198,23 @@ function collectExportTargets(
 	}
 }
 
-function resolveExports(
-	packageRoot: string,
-	packageJson: Record<string, unknown>,
-): Map<string, string[]> {
+function resolveExports(packageRoot: string, packageJson: Record<string, unknown>): Map<string, string[]> {
 	const exportsMap = new Map<string, string[]>();
 	const packageExports = packageJson.exports;
 
 	if (packageExports !== undefined) {
-		collectExportTargets(packageExports, ".", exportsMap);
+		collectExportTargets(packageExports, '.', exportsMap);
 	}
 
 	if (exportsMap.size > 0) {
 		return exportsMap;
 	}
 
-	const fallbackTargets = ["./src/index.ts", "./index.ts", "./src/index.js", "./index.js"];
+	const fallbackTargets = ['./src/index.ts', './index.ts', './src/index.js', './index.js'];
 	for (const target of fallbackTargets) {
 		const resolved = resolvePackageFile(packageRoot, target);
 		if (resolved) {
-			exportsMap.set(".", [target]);
+			exportsMap.set('.', [target]);
 			break;
 		}
 	}
@@ -247,17 +226,7 @@ function resolvePackageFile(packageRoot: string, target: string): string | null 
 	const basePath = resolve(packageRoot, target);
 	const candidates = /\.[a-z]+$/i.exec(target)
 		? [basePath]
-		: [
-			basePath,
-			`${basePath}.ts`,
-			`${basePath}.tsx`,
-			`${basePath}.js`,
-			`${basePath}.jsx`,
-			join(basePath, "index.ts"),
-			join(basePath, "index.tsx"),
-			join(basePath, "index.js"),
-			join(basePath, "index.jsx"),
-		];
+		: [basePath, `${basePath}.ts`, `${basePath}.tsx`, `${basePath}.js`, `${basePath}.jsx`, join(basePath, 'index.ts'), join(basePath, 'index.tsx'), join(basePath, 'index.js'), join(basePath, 'index.jsx')];
 
 	for (const candidate of candidates) {
 		if (fileExists(candidate)) {
@@ -270,13 +239,10 @@ function resolvePackageFile(packageRoot: string, target: string): string | null 
 
 function isInside(childPath: string, parentPath: string): boolean {
 	const relation = relative(parentPath, childPath);
-	return relation !== ".." && !relation.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`);
+	return relation !== '..' && !relation.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`);
 }
 
-function collectAllowedEntryFiles(
-	packageRoot: string,
-	exportTargets: Map<string, string[]>,
-): Set<string> {
+function collectAllowedEntryFiles(packageRoot: string, exportTargets: Map<string, string[]>): Set<string> {
 	const allowed = new Set<string>();
 
 	for (const targets of exportTargets.values()) {
@@ -307,11 +273,7 @@ function extractImportSpecifiers(source: string): string[] {
 	return [...specifiers];
 }
 
-function findExportDeclarations(
-	filePath: string,
-	packageRoot: string,
-	visited: Set<string> = new Set(),
-): ExportDeclaration[] {
+function findExportDeclarations(filePath: string, packageRoot: string, visited: Set<string> = new Set()): ExportDeclaration[] {
 	if (visited.has(filePath)) {
 		return [];
 	}
@@ -322,28 +284,26 @@ function findExportDeclarations(
 	const declarations: ExportDeclaration[] = [];
 
 	// Direct named export declarations: export function/const/class/interface/type Name
-	const directPattern =
-		/(\/\*\*[\s\S]*?\*\/\s*)?export\s+(?:declare\s+)?(?:async\s+)?(function|const|class|interface|type)\s+(\w+)/g;
+	const directPattern = /(\/\*\*[\s\S]*?\*\/\s*)?export\s+(?:declare\s+)?(?:async\s+)?(function|const|class|interface|type)\s+(\w+)/g;
 	for (const match of source.matchAll(directPattern)) {
 		declarations.push({
 			filePath,
-			docText: match[1]?.trim() ?? "",
+			docText: match[1]?.trim() ?? '',
 			hasDoc: Boolean(match[1]?.trim()),
-			kind: match[2] ?? "unknown",
-			name: match[3] ?? "unknown",
+			kind: match[2] ?? 'unknown',
+			name: match[3] ?? 'unknown',
 		});
 	}
 
 	// export default function / export default class
-	const defaultPattern =
-		/(\/\*\*[\s\S]*?\*\/\s*)?export\s+default\s+(?:async\s+)?(function|class)\s*(\w*)/g;
+	const defaultPattern = /(\/\*\*[\s\S]*?\*\/\s*)?export\s+default\s+(?:async\s+)?(function|class)\s*(\w*)/g;
 	for (const match of source.matchAll(defaultPattern)) {
 		declarations.push({
 			filePath,
-			docText: match[1]?.trim() ?? "",
+			docText: match[1]?.trim() ?? '',
 			hasDoc: Boolean(match[1]?.trim()),
-			kind: match[2] ?? "unknown",
-			name: match[3] || "default",
+			kind: match[2] ?? 'unknown',
+			name: match[3] || 'default',
 		});
 	}
 
@@ -353,7 +313,7 @@ function findExportDeclarations(
 		const namesStr = match[1];
 		const specifier = match[2];
 
-		if (!namesStr || !specifier?.startsWith(".")) {
+		if (!namesStr || !specifier?.startsWith('.')) {
 			continue;
 		}
 
@@ -363,19 +323,19 @@ function findExportDeclarations(
 		}
 
 		const names = namesStr
-			.split(",")
+			.split(',')
 			.map((n) => {
 				const parts = n.trim().split(/\s+as\s+/);
 				return {
-					exportedName: (parts[1] ?? parts[0] ?? "").trim(),
-					originalName: (parts[0] ?? "").trim(),
+					exportedName: (parts[1] ?? parts[0] ?? '').trim(),
+					originalName: (parts[0] ?? '').trim(),
 				};
 			})
-			.filter((n) => n.originalName !== "");
+			.filter((n) => n.originalName !== '');
 
 		// A /** ... */ block immediately preceding this re-export line counts as TSDoc
 		const prelude = source.slice(0, match.index ?? 0);
-		const reExportDocText = /\/\*\*[\s\S]*?\*\/\s*$/.exec(prelude)?.[0]?.trim() ?? "";
+		const reExportDocText = /\/\*\*[\s\S]*?\*\/\s*$/.exec(prelude)?.[0]?.trim() ?? '';
 		const reExportHasDoc = reExportDocText.length > 0;
 		const sourceDeclarations = findExportDeclarations(resolvedSource, packageRoot, visited);
 
@@ -384,18 +344,18 @@ function findExportDeclarations(
 			declarations.push(
 				sourceDecl
 					? {
-						...sourceDecl,
-						name: exportedName,
-						hasDoc: sourceDecl.hasDoc || reExportHasDoc,
-						docText: reExportDocText || sourceDecl.docText,
-					}
+							...sourceDecl,
+							name: exportedName,
+							hasDoc: sourceDecl.hasDoc || reExportHasDoc,
+							docText: reExportDocText || sourceDecl.docText,
+						}
 					: {
-						docText: reExportDocText,
-						filePath: resolvedSource,
-						hasDoc: reExportHasDoc,
-						kind: "unknown",
-						name: exportedName,
-					},
+							docText: reExportDocText,
+							filePath: resolvedSource,
+							hasDoc: reExportHasDoc,
+							kind: 'unknown',
+							name: exportedName,
+						},
 			);
 		}
 	}
@@ -405,7 +365,7 @@ function findExportDeclarations(
 	for (const match of source.matchAll(starReExportPattern)) {
 		const specifier = match[1];
 
-		if (!specifier?.startsWith(".")) {
+		if (!specifier?.startsWith('.')) {
 			continue;
 		}
 
@@ -420,10 +380,7 @@ function findExportDeclarations(
 	return declarations;
 }
 
-function getPublicDeclarations(
-	allowedEntryFiles: Set<string>,
-	packageRoot: string,
-): ExportDeclaration[] {
+function getPublicDeclarations(allowedEntryFiles: Set<string>, packageRoot: string): ExportDeclaration[] {
 	const seen = new Set<string>();
 	const declarations: ExportDeclaration[] = [];
 
@@ -442,21 +399,18 @@ function getPublicDeclarations(
 
 function stripTsdocDelimiters(docText: string): string {
 	return docText
-		.replace(/^\/\*\*\s*/, "")
-		.replace(/\s*\*\/$/, "")
-		.replaceAll(/^\s*\*\s?/gm, "")
+		.replace(/^\/\*\*\s*/, '')
+		.replace(/\s*\*\/$/, '')
+		.replaceAll(/^\s*\*\s?/gm, '')
 		.trim();
 }
 
 function isFunctionLikeExport(kind: string): boolean {
-	return kind === "function" || kind === "const" || kind === "class";
+	return kind === 'function' || kind === 'const' || kind === 'class';
 }
 
 function hasNamedDescribeBlock(source: string, exportName: string): boolean {
-	const patterns = [
-		new RegExp(`\\bdescribe\\s*\\(\\s*["'\`]${escapeRegExp(exportName)}\\b`),
-		new RegExp(`\\bdescribe\\s*\\(\\s*["'\`][^"'\`]*\\b${escapeRegExp(exportName)}\\b`),
-	];
+	const patterns = [new RegExp(`\\bdescribe\\s*\\(\\s*["'\`]${escapeRegExp(exportName)}\\b`), new RegExp(`\\bdescribe\\s*\\(\\s*["'\`][^"'\`]*\\b${escapeRegExp(exportName)}\\b`)];
 
 	return patterns.some((pattern) => pattern.test(source));
 }
@@ -464,17 +418,13 @@ function hasNamedDescribeBlock(source: string, exportName: string): boolean {
 function exportAcceptsParameters(declaration: ExportDeclaration): boolean | null {
 	const source = readText(declaration.filePath);
 
-	if (declaration.kind === "function") {
-		const match = new RegExp(
-			String.raw`export\s+(?:declare\s+)?(?:async\s+)?function\s+${escapeRegExp(declaration.name)}\s*\(([^)]*)\)`,
-		).exec(source);
+	if (declaration.kind === 'function') {
+		const match = new RegExp(String.raw`export\s+(?:declare\s+)?(?:async\s+)?function\s+${escapeRegExp(declaration.name)}\s*\(([^)]*)\)`).exec(source);
 		return match ? match[1].trim().length > 0 : null;
 	}
 
-	if (declaration.kind === "const") {
-		const match = new RegExp(
-			String.raw`export\s+const\s+${escapeRegExp(declaration.name)}(?:\s*:[^=]+)?\s*=\s*(?:async\s*)?\(([^)]*)\)\s*=>`,
-		).exec(source);
+	if (declaration.kind === 'const') {
+		const match = new RegExp(String.raw`export\s+const\s+${escapeRegExp(declaration.name)}(?:\s*:[^=]+)?\s*=\s*(?:async\s*)?\(([^)]*)\)\s*=>`).exec(source);
 		return match ? match[1].trim().length > 0 : null;
 	}
 
@@ -490,7 +440,7 @@ function getTsdocQualityIssues(declaration: ExportDeclaration): string[] {
 	const cleanedDoc = stripTsdocDelimiters(declaration.docText);
 
 	if (cleanedDoc.length < 24) {
-		issues.push("TSDoc is too thin to be useful.");
+		issues.push('TSDoc is too thin to be useful.');
 	}
 
 	if (!isFunctionLikeExport(declaration.kind)) {
@@ -498,16 +448,16 @@ function getTsdocQualityIssues(declaration: ExportDeclaration): string[] {
 	}
 
 	if (!/@example\b/i.test(declaration.docText)) {
-		issues.push("TSDoc should include at least one @example.");
+		issues.push('TSDoc should include at least one @example.');
 	}
 
 	if (!/@returns?\b/i.test(declaration.docText)) {
-		issues.push("TSDoc should describe the return contract with @returns.");
+		issues.push('TSDoc should describe the return contract with @returns.');
 	}
 
 	const acceptsParameters = exportAcceptsParameters(declaration);
 	if (acceptsParameters === true && !/@param\b/i.test(declaration.docText)) {
-		issues.push("TSDoc should describe function parameters with @param.");
+		issues.push('TSDoc should describe function parameters with @param.');
 	}
 
 	return issues;
@@ -520,40 +470,27 @@ function evaluateRequiredWorkflowSections(outputText: string): CheckResult {
 		return !content || content.length < 30 || isTemplateBoilerplate(content);
 	});
 
-	return createCheckResult("required_workflow_sections", missing.length === 0, missing.length === 0 ? [
-		"All required sections are present.",
-	] : [`Missing or thin sections: ${missing.join(", ")}.`]);
+	return createCheckResult('required_workflow_sections', missing.length === 0, missing.length === 0 ? ['All required sections are present.'] : [`Missing or thin sections: ${missing.join(', ')}.`]);
 }
 
-function evaluatePublicContractOnlyTests(
-	packageRoot: string,
-	packageJson: Record<string, unknown>,
-	exportTargets: Map<string, string[]>,
-	publicDeclarations: ExportDeclaration[],
-): CheckResult {
-	const packageName = typeof packageJson.name === "string" ? packageJson.name : null;
+function evaluatePublicContractOnlyTests(packageRoot: string, packageJson: Record<string, unknown>, exportTargets: Map<string, string[]>, publicDeclarations: ExportDeclaration[]): CheckResult {
+	const packageName = typeof packageJson.name === 'string' ? packageJson.name : null;
 	const allowedEntryFiles = collectAllowedEntryFiles(packageRoot, exportTargets);
-	const testFiles = listFiles(packageRoot).filter((filePath) =>
-		/\.(test|spec)\.[cm]?[jt]sx?$/.test(filePath),
-	);
+	const testFiles = listFiles(packageRoot).filter((filePath) => /\.(test|spec)\.[cm]?[jt]sx?$/.test(filePath));
 	const violations: string[] = [];
 
 	if (testFiles.length === 0) {
-		return createCheckResult("public_contract_only_tests", false, [
-			"No test files were found under the package root.",
-		]);
+		return createCheckResult('public_contract_only_tests', false, ['No test files were found under the package root.']);
 	}
 
 	const testSources = testFiles.map((testFile) => ({ path: testFile, source: readText(testFile) }));
 	for (const testFile of testFiles) {
-		const source = testSources.find((entry) => entry.path === testFile)?.source ?? "";
+		const source = testSources.find((entry) => entry.path === testFile)?.source ?? '';
 		for (const specifier of extractImportSpecifiers(source)) {
-			if (specifier.startsWith(".")) {
+			if (specifier.startsWith('.')) {
 				const resolved = resolvePackageFile(dirname(testFile), specifier);
 				if (resolved && isInside(resolved, packageRoot) && !allowedEntryFiles.has(resolved)) {
-					violations.push(
-						`${relative(packageRoot, testFile)} imports non-public file ${relative(packageRoot, resolved)}.`,
-					);
+					violations.push(`${relative(packageRoot, testFile)} imports non-public file ${relative(packageRoot, resolved)}.`);
 				}
 				continue;
 			}
@@ -565,26 +502,18 @@ function evaluatePublicContractOnlyTests(
 			if (packageName && specifier.startsWith(`${packageName}/`)) {
 				const subpath = `./${specifier.slice(packageName.length + 1)}`;
 				if (!exportTargets.has(subpath)) {
-					violations.push(
-						`${relative(packageRoot, testFile)} imports undeclared package subpath ${specifier}.`,
-					);
+					violations.push(`${relative(packageRoot, testFile)} imports undeclared package subpath ${specifier}.`);
 					continue;
 				}
 
 				if (isSuspiciousPublicPath(subpath)) {
-					violations.push(
-						`${relative(packageRoot, testFile)} imports suspicious public subpath ${specifier}.`,
-					);
+					violations.push(`${relative(packageRoot, testFile)} imports suspicious public subpath ${specifier}.`);
 				}
 			}
 		}
 	}
 
-	const namedPublicExports = [...new Set(
-		publicDeclarations
-			.filter((declaration) => declaration.name !== "default" && isFunctionLikeExport(declaration.kind))
-			.map((declaration) => declaration.name),
-	)];
+	const namedPublicExports = [...new Set(publicDeclarations.filter((declaration) => declaration.name !== 'default' && isFunctionLikeExport(declaration.kind)).map((declaration) => declaration.name))];
 
 	for (const exportName of namedPublicExports) {
 		const hasExportNamedSuite = testSources.some(({ source }) => hasNamedDescribeBlock(source, exportName));
@@ -593,31 +522,26 @@ function evaluatePublicContractOnlyTests(
 		}
 	}
 
-	return createCheckResult("public_contract_only_tests", violations.length === 0, violations.length === 0 ? [
-		`Found ${testFiles.length} contract-focused test file(s) using public entrypoints and named export suites.`,
-	] : violations);
+	return createCheckResult(
+		'public_contract_only_tests',
+		violations.length === 0,
+		violations.length === 0 ? [`Found ${testFiles.length} contract-focused test file(s) using public entrypoints and named export suites.`] : violations,
+	);
 }
 
-function evaluateDocumentationAlignment(
-	packageRoot: string,
-	publicDeclarations: ExportDeclaration[],
-): CheckResult {
-	const manifestPath = findDocFile(packageRoot, ["manifest.md"]);
-	const readmePath = findDocFile(packageRoot, ["README.md", "readme.md"]);
+function evaluateDocumentationAlignment(packageRoot: string, publicDeclarations: ExportDeclaration[]): CheckResult {
+	const manifestPath = findDocFile(packageRoot, ['manifest.md']);
+	const readmePath = findDocFile(packageRoot, ['README.md', 'readme.md']);
 
 	if (!manifestPath || !readmePath) {
-		return createCheckResult("documentation_alignment", false, [
-			`${!manifestPath ? "manifest.md is missing." : ""}${!manifestPath && !readmePath ? " " : ""}${!readmePath ? "README.md is missing." : ""}`.trim(),
-		]);
+		return createCheckResult('documentation_alignment', false, [`${!manifestPath ? 'manifest.md is missing.' : ''}${!manifestPath && !readmePath ? ' ' : ''}${!readmePath ? 'README.md is missing.' : ''}`.trim()]);
 	}
 
 	const manifestText = readText(manifestPath);
 	const readmeText = readText(readmePath);
 	const readmeSections = parseMarkdownSections(readmeText);
-	const installSection = readmeSections.get("install") ?? readmeSections.get("installation") ?? "";
-	const missingManifestSections = requiredManifestSections.filter(
-		(section) => !hasHeading(manifestText, section),
-	);
+	const installSection = readmeSections.get('install') ?? readmeSections.get('installation') ?? '';
+	const missingManifestSections = requiredManifestSections.filter((section) => !hasHeading(manifestText, section));
 	const exportNames = [...new Set(publicDeclarations.map((declaration) => declaration.name))];
 	const docsReferencePublicContract = exportNames.some((name) => {
 		const pattern = new RegExp(`\\b${escapeRegExp(name)}\\b`);
@@ -629,63 +553,45 @@ function evaluateDocumentationAlignment(
 	const details: string[] = [];
 
 	if (missingManifestSections.length > 0) {
-		details.push(`Missing manifest sections: ${missingManifestSections.join(", ")}.`);
+		details.push(`Missing manifest sections: ${missingManifestSections.join(', ')}.`);
 	}
 
 	if (!readmeConsumerFacing) {
-		details.push("README.md is not clearly consumer-facing or lacks usage/example guidance.");
+		details.push('README.md is not clearly consumer-facing or lacks usage/example guidance.');
 	}
 
 	if (installSection.length > 0 && /\b(-w|--filter)\b/.test(installSection)) {
-		details.push("README install guidance looks workspace-specific instead of standalone.");
+		details.push('README install guidance looks workspace-specific instead of standalone.');
 	}
 
 	if (/@apps\//.test(readmeText)) {
-		details.push("README.md references repo-local app packages instead of staying package-centric.");
+		details.push('README.md references repo-local app packages instead of staying package-centric.');
 	}
 
 	if (!docsReferencePublicContract) {
-		details.push("The manifest or README does not clearly reference the evaluated public contract.");
+		details.push('The manifest or README does not clearly reference the evaluated public contract.');
 	}
 
-	return createCheckResult(
-		"documentation_alignment",
-		details.length === 0,
-		details.length === 0
-			? ["manifest.md and README.md align with the public contract."]
-			: details,
-	);
+	return createCheckResult('documentation_alignment', details.length === 0, details.length === 0 ? ['manifest.md and README.md align with the public contract.'] : details);
 }
 
 function evaluatePublicExportTsdoc(publicDeclarations: ExportDeclaration[]): CheckResult {
 	if (publicDeclarations.length === 0) {
-		return createCheckResult("public_export_tsdoc", false, [
-			"No public export declarations were found in the evaluated entrypoints.",
-		]);
+		return createCheckResult('public_export_tsdoc', false, ['No public export declarations were found in the evaluated entrypoints.']);
 	}
 
 	const undocumented = publicDeclarations.filter((declaration) => !declaration.hasDoc);
-	const lowQualityDocs = publicDeclarations
-		.filter((declaration) => declaration.hasDoc)
-		.flatMap((declaration) =>
-			getTsdocQualityIssues(declaration).map((issue) => ({ declaration, issue })),
-		);
+	const lowQualityDocs = publicDeclarations.filter((declaration) => declaration.hasDoc).flatMap((declaration) => getTsdocQualityIssues(declaration).map((issue) => ({ declaration, issue })));
 
 	return createCheckResult(
-		"public_export_tsdoc",
+		'public_export_tsdoc',
 		undocumented.length === 0 && lowQualityDocs.length === 0,
 		undocumented.length === 0 && lowQualityDocs.length === 0
 			? [`Documented ${publicDeclarations.length} public export declaration(s) with TSDoc.`]
 			: [
-				...undocumented.map(
-					(declaration) =>
-						`${relative(process.cwd(), declaration.filePath)} exports ${declaration.kind} ${declaration.name} without TSDoc.`,
-				),
-				...lowQualityDocs.map(
-					({ declaration, issue }) =>
-						`${relative(process.cwd(), declaration.filePath)} exports ${declaration.kind} ${declaration.name}: ${issue}`,
-				),
-			],
+					...undocumented.map((declaration) => `${relative(process.cwd(), declaration.filePath)} exports ${declaration.kind} ${declaration.name} without TSDoc.`),
+					...lowQualityDocs.map(({ declaration, issue }) => `${relative(process.cwd(), declaration.filePath)} exports ${declaration.kind} ${declaration.name}: ${issue}`),
+				],
 	);
 }
 
@@ -704,13 +610,7 @@ function evaluateContractSurface(exportTargets: Map<string, string[]>): CheckRes
 		}
 	}
 
-	return createCheckResult(
-		"contract_surface",
-		suspiciousTargets.length === 0,
-		suspiciousTargets.length === 0
-			? ["The declared export surface does not expose obvious internals."]
-			: suspiciousTargets,
-	);
+	return createCheckResult('contract_surface', suspiciousTargets.length === 0, suspiciousTargets.length === 0 ? ['The declared export surface does not expose obvious internals.'] : suspiciousTargets);
 }
 
 function isSuspiciousPublicPath(value: string): boolean {
@@ -718,33 +618,29 @@ function isSuspiciousPublicPath(value: string): boolean {
 }
 
 function evaluateReleaseHardening(outputText: string): CheckResult {
-	const section = parseMarkdownSections(outputText).get("release hardening notes") ?? "";
+	const section = parseMarkdownSections(outputText).get('release hardening notes') ?? '';
 	const mentionsCompatibility = /\b(semver|compatible|backward|breaking|major|minor|patch)\b/i.test(section);
 	const mentionsSurface = /\b(export surface|public surface|public entrypoint|exports?|exported|exporting)\b/i.test(section);
 	const mentionsRisk = /\b(risk|follow-up|follow up|blocker|publish|release-ready|ready)\b/i.test(section);
 	const details: string[] = [];
 
 	if (!mentionsCompatibility) {
-		details.push("Release hardening notes do not mention compatibility or semver impact.");
+		details.push('Release hardening notes do not mention compatibility or semver impact.');
 	}
 
 	if (!mentionsSurface) {
-		details.push("Release hardening notes do not mention export or public surface review.");
+		details.push('Release hardening notes do not mention export or public surface review.');
 	}
 
 	if (!mentionsRisk) {
-		details.push("Release hardening notes do not mention remaining risk, follow-up, or publish readiness.");
+		details.push('Release hardening notes do not mention remaining risk, follow-up, or publish readiness.');
 	}
 
-	return createCheckResult(
-		"release_hardening_notes",
-		details.length === 0,
-		details.length === 0 ? ["Release hardening notes cover compatibility, surface review, and remaining risk."] : details,
-	);
+	return createCheckResult('release_hardening_notes', details.length === 0, details.length === 0 ? ['Release hardening notes cover compatibility, surface review, and remaining risk.'] : details);
 }
 
 function evaluateValidationSummary(outputText: string): CheckResult {
-	const section = parseMarkdownSections(outputText).get("validation performed") ?? "";
+	const section = parseMarkdownSections(outputText).get('validation performed') ?? '';
 	const mentionsWork = /\b(validated|verified|ran|re-ran|tested|confirmed)\b/i.test(section);
 	const mentionsBuild = /\b(build|built|compiled|compile|tsc|rolldown|vite build|turbo run build)\b/i.test(section);
 	const mentionsTests = /\b(test|tests|vitest|jest|turbo run test)\b/i.test(section);
@@ -752,26 +648,22 @@ function evaluateValidationSummary(outputText: string): CheckResult {
 	const details: string[] = [];
 
 	if (!mentionsWork) {
-		details.push("Validation performed does not describe the work that was run.");
+		details.push('Validation performed does not describe the work that was run.');
 	}
 
 	if (!mentionsBuild) {
-		details.push("Validation performed does not mention a package build or equivalent compile verification.");
+		details.push('Validation performed does not mention a package build or equivalent compile verification.');
 	}
 
 	if (!mentionsTests) {
-		details.push("Validation performed does not mention the existing package tests or equivalent test verification.");
+		details.push('Validation performed does not mention the existing package tests or equivalent test verification.');
 	}
 
 	if (!mentionsOutcome) {
-		details.push("Validation performed does not include concrete pass/fail or verified/unverified outcomes.");
+		details.push('Validation performed does not include concrete pass/fail or verified/unverified outcomes.');
 	}
 
-	return createCheckResult(
-		"validation_summary",
-		details.length === 0,
-		details.length === 0 ? ["Validation performed includes concrete build and test verification evidence."] : details,
-	);
+	return createCheckResult('validation_summary', details.length === 0, details.length === 0 ? ['Validation performed includes concrete build and test verification evidence.'] : details);
 }
 
 function createCheckResult(id: CheckId, passed: boolean, details: string[]): CheckResult {
@@ -790,11 +682,7 @@ function createCheckResult(id: CheckId, passed: boolean, details: string[]): Che
 	};
 }
 
-function evaluatePackage(
-	label: string,
-	packageRoot: string,
-	outputPath: string,
-): EvaluationResult {
+function evaluatePackage(label: string, packageRoot: string, outputPath: string): EvaluationResult {
 	if (!fileExists(outputPath)) {
 		throw new Error(`Output summary not found: ${outputPath}`);
 	}
@@ -812,10 +700,7 @@ function evaluatePackage(
 		evaluateReleaseHardening(outputText),
 		evaluateValidationSummary(outputText),
 	];
-	const totalScore = checks.reduce(
-		(total, check) => total + (check.passed ? check.weight : 0),
-		0,
-	);
+	const totalScore = checks.reduce((total, check) => total + (check.passed ? check.weight : 0), 0);
 	const failedChecks = checks.filter((check) => !check.passed).map((check) => check.id);
 	const hasCriticalFailure = checks.some((check) => check.critical && !check.passed);
 
@@ -824,7 +709,7 @@ function evaluatePackage(
 		failedChecks,
 		label,
 		outputPath,
-		overallStatus: !hasCriticalFailure && totalScore >= passingScore ? "pass" : "fail",
+		overallStatus: !hasCriticalFailure && totalScore >= passingScore ? 'pass' : 'fail',
 		packageRoot,
 		totalScore,
 	};
@@ -840,9 +725,7 @@ function compareExpected(result: EvaluationResult, expected: ExpectedReport): { 
 	}
 
 	if (JSON.stringify(actualFailed) !== JSON.stringify(expectedFailed)) {
-		problems.push(
-			`Expected failed checks [${expectedFailed.join(", ")}] but got [${actualFailed.join(", ")}].`,
-		);
+		problems.push(`Expected failed checks [${expectedFailed.join(', ')}] but got [${actualFailed.join(', ')}].`);
 	}
 
 	return {
@@ -852,35 +735,34 @@ function compareExpected(result: EvaluationResult, expected: ExpectedReport): { 
 }
 
 function formatResult(result: EvaluationResult): string {
-	const lines = [
-		`${result.label}: ${result.overallStatus.toUpperCase()} (${result.totalScore}/${maxScore})`,
-	];
+	const lines = [`${result.label}: ${result.overallStatus.toUpperCase()} (${result.totalScore}/${maxScore})`];
 
 	for (const check of result.checks) {
-		lines.push(
-			`- [${check.passed ? "pass" : "fail"}] ${check.id} (${check.passed ? check.weight : 0}/${check.weight})`,
-		);
+		lines.push(`- [${check.passed ? 'pass' : 'fail'}] ${check.id} (${check.passed ? check.weight : 0}/${check.weight})`);
 		for (const detail of check.details) {
 			lines.push(`  ${detail}`);
 		}
 	}
 
-	return lines.join("\n");
+	return lines.join('\n');
 }
 
-function evaluateFixture(fixtureDir: string, verifyExpected: boolean): {
+function evaluateFixture(
+	fixtureDir: string,
+	verifyExpected: boolean,
+): {
 	result: EvaluationResult;
 	comparison?: { matches: boolean; problems: string[] };
 } {
-	const packageRoot = join(fixtureDir, "package");
-	const outputPath = join(fixtureDir, "agent-output.md");
+	const packageRoot = join(fixtureDir, 'package');
+	const outputPath = join(fixtureDir, 'agent-output.md');
 	const result = evaluatePackage(relative(process.cwd(), fixtureDir), packageRoot, outputPath);
 
 	if (!verifyExpected) {
 		return { result };
 	}
 
-	const expectedPath = join(fixtureDir, "expected-report.json");
+	const expectedPath = join(fixtureDir, 'expected-report.json');
 	if (!fileExists(expectedPath)) {
 		throw new Error(`Expected report not found: ${expectedPath}`);
 	}
@@ -899,7 +781,7 @@ function getFixtureDirectories(fixturesRoot: string): string[] {
 }
 
 function main(): void {
-	const args = parseArgs(process.argv.slice(2));
+	const args = parseEvaluateArgs(process.argv.slice(2));
 
 	if (args.fixturesRoot) {
 		const fixtureDirs = getFixtureDirectories(resolve(args.fixturesRoot));
@@ -921,11 +803,7 @@ function main(): void {
 			for (const entry of results) {
 				console.log(formatResult(entry.result));
 				if (entry.comparison) {
-					console.log(
-						entry.comparison.matches
-							? "  Expected report matched."
-							: `  Expected report mismatch: ${entry.comparison.problems.join(" ")}`,
-					);
+					console.log(entry.comparison.matches ? '  Expected report matched.' : `  Expected report mismatch: ${entry.comparison.problems.join(' ')}`);
 				}
 			}
 		}
@@ -941,33 +819,17 @@ function main(): void {
 		} else {
 			console.log(formatResult(evaluation.result));
 			if (evaluation.comparison) {
-				console.log(
-					evaluation.comparison.matches
-						? "Expected report matched."
-						: `Expected report mismatch: ${evaluation.comparison.problems.join(" ")}`,
-				);
+				console.log(evaluation.comparison.matches ? 'Expected report matched.' : `Expected report mismatch: ${evaluation.comparison.problems.join(' ')}`);
 			}
 		}
 
-		process.exit(
-			evaluation.comparison
-				? evaluation.comparison.matches
-					? 0
-					: 1
-				: evaluation.result.overallStatus === "pass"
-					? 0
-					: 1,
-		);
+		process.exit(evaluation.comparison ? (evaluation.comparison.matches ? 0 : 1) : evaluation.result.overallStatus === 'pass' ? 0 : 1);
 	}
 
 	if (args.packageRoot && args.outputPath) {
 		const resolvedPackageRoot = resolve(args.packageRoot);
 		const outputPath = resolve(args.outputPath);
-		const result = evaluatePackage(
-			relative(process.cwd(), resolvedPackageRoot),
-			resolvedPackageRoot,
-			outputPath,
-		);
+		const result = evaluatePackage(relative(process.cwd(), resolvedPackageRoot), resolvedPackageRoot, outputPath);
 
 		if (args.json) {
 			console.log(JSON.stringify(result, null, 2));
@@ -975,7 +837,7 @@ function main(): void {
 			console.log(formatResult(result));
 		}
 
-		process.exit(result.overallStatus === "pass" ? 0 : 1);
+		process.exit(result.overallStatus === 'pass' ? 0 : 1);
 	}
 
 	if (args.packageRoot) {
@@ -983,16 +845,10 @@ function main(): void {
 		const outputPath = getDefaultSummaryPath(resolvedPackageRoot);
 
 		if (!fileExists(outputPath)) {
-			throw new Error(
-				`Summary not found at default path: ${outputPath}\nRun pnpm run skill:cellix-tdd:check -- --package ${relative(process.cwd(), resolvedPackageRoot)} first, or pass --output explicitly.`,
-			);
+			throw new Error(`Summary not found at default path: ${outputPath}\nRun pnpm run skill:cellix-tdd:check -- --package ${relative(process.cwd(), resolvedPackageRoot)} first, or pass --output explicitly.`);
 		}
 
-		const result = evaluatePackage(
-			relative(process.cwd(), resolvedPackageRoot),
-			resolvedPackageRoot,
-			outputPath,
-		);
+		const result = evaluatePackage(relative(process.cwd(), resolvedPackageRoot), resolvedPackageRoot, outputPath);
 
 		if (args.json) {
 			console.log(JSON.stringify(result, null, 2));
@@ -1000,10 +856,10 @@ function main(): void {
 			console.log(formatResult(result));
 		}
 
-		process.exit(result.overallStatus === "pass" ? 0 : 1);
+		process.exit(result.overallStatus === 'pass' ? 0 : 1);
 	}
 
-	printUsage();
+	printEvaluateUsage();
 	process.exit(1);
 }
 
