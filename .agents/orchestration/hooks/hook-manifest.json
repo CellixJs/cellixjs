@@ -1,0 +1,35 @@
+{
+	"version": 1,
+	"hooks": {
+		"session-init": {
+			"script": ".agents/orchestration/cli/orchestration-hook.ts",
+			"subcommand": "session-init",
+			"description": "Initialize orchestration session state after intake and lane selection."
+		},
+		"transition": {
+			"script": ".agents/orchestration/cli/orchestration-hook.ts",
+			"subcommand": "transition",
+			"description": "Validate and apply workflow state transitions."
+		},
+		"agent-check": {
+			"script": ".agents/orchestration/cli/orchestration-hook.ts",
+			"subcommand": "agent-check",
+			"description": "Check whether an agent role is valid for the current session state."
+		},
+		"tool-check": {
+			"script": ".agents/orchestration/cli/orchestration-hook.ts",
+			"subcommand": "tool-check",
+			"description": "Check whether an abstract action is valid for the current session state."
+		},
+		"evidence-log": {
+			"script": ".agents/orchestration/cli/orchestration-hook.ts",
+			"subcommand": "evidence-log",
+			"description": "Log validation evidence or review evidence against the active session."
+		},
+		"blocked": {
+			"script": ".agents/orchestration/cli/orchestration-hook.ts",
+			"subcommand": "blocked",
+			"description": "Move a session into blocked with explicit blocker context."
+		}
+	}
+}

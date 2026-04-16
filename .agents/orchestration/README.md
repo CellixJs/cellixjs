@@ -35,3 +35,9 @@ Hooks and validators enforce the model, but they do not invent policy outside th
 ## Current Repo Adoption
 
 The CellixJS mixed-repository example lives at the repo root in `orchestration.spec.yaml`.
+
+## Validation Commands
+
+- `pnpm run orchestration:validate` validates the repo-local orchestration spec, model wiring, required skills, agents, and hook manifest.
+- `pnpm run test:orchestration` runs the orchestration validator/runtime/hook unit tests.
+- `pnpm run orchestration:hook -- <subcommand> ...` runs the first-pass hook runtime for session init, transitions, agent checks, tool checks, evidence logging, and blocked handling.
