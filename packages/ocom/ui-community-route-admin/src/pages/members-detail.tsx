@@ -5,6 +5,7 @@ import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router
 import { SubPageLayout } from '../sub-page-layout.tsx';
 import { MembersAccounts } from './members-accounts.tsx';
 import { MembersGeneral } from './members-general.tsx';
+import { MembersProfileEdit } from './members-profile-edit.tsx';
 import { MembersProfile } from './members-profile.tsx';
 
 export const MembersDetail: React.FC = () => {
@@ -49,8 +50,12 @@ export const MembersDetail: React.FC = () => {
 					element={<MembersGeneral />}
 				/>
 				<Route
-					path="profile/*"
+					path="profile"
 					element={<MembersProfile />}
+				/>
+				<Route
+					path="profile/edit"
+					element={<MembersProfileEdit />}
 				/>
 				<Route
 					path="accounts/*"

@@ -3,12 +3,20 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import { App } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { MemberUpdateAccountInput } from '../generated.tsx';
-import { AdminMembersAccountsEditContainerMemberDocument, AdminMembersAccountsEditContainerMemberRemoveAccountDocument, AdminMembersAccountsEditContainerMemberUpdateAccountDocument } from '../generated.tsx';
-import { MembersAccountsEdit } from './members-accounts-edit.tsx';
+import {
+	AdminMembersAccountsEditContainerEndUsersByCommunityDocument,
+	AdminMembersAccountsEditContainerMemberDocument,
+	AdminMembersAccountsEditContainerMemberRemoveAccountDocument,
+	AdminMembersAccountsEditContainerMemberUpdateAccountDocument,
+	AdminMembersAccountsListContainerMemberDocument,
+	type AdminMembersAccountsEditContainerEndUserFieldsFragment,
+} from '../generated.tsx';
+import { MembersAccountsEdit, type MembersAccountsEditProps } from './members-accounts-edit.tsx';
 
 interface MembersAccountsEditContainerProps {
 	data: {
 		memberId: string;
+		communityId: string;
 	};
 }
 
@@ -17,8 +25,32 @@ export const MembersAccountsEditContainer: React.FC<MembersAccountsEditContainer
 	const navigate = useNavigate();
 	const { message } = App.useApp();
 
-	const [memberUpdateAccount] = useMutation(AdminMembersAccountsEditContainerMemberUpdateAccountDocument);
-	const [memberRemoveAccount] = useMutation(AdminMembersAccountsEditContainerMemberRemoveAccountDocument);
+	const [memberUpdateAccount, { loading: memberUpdateAccountLoading }] = useMutation(AdminMembersAccountsEditContainerMemberUpdateAccountDocument, {
+		refetchQueries: [
+			{
+				query: AdminMembersAccountsListContainerMemberDocument,
+				variables: { id: props.data.memberId },
+			},
+			{
+				query: AdminMembersAccountsEditContainerMemberDocument,
+				variables: { id: props.data.memberId },
+			},
+		],
+		awaitRefetchQueries: true,
+	});
+	const [memberRemoveAccount, { loading: memberRemoveAccountLoading }] = useMutation(AdminMembersAccountsEditContainerMemberRemoveAccountDocument, {
+		refetchQueries: [
+			{
+				query: AdminMembersAccountsListContainerMemberDocument,
+				variables: { id: props.data.memberId },
+			},
+			{
+				query: AdminMembersAccountsEditContainerMemberDocument,
+				variables: { id: props.data.memberId },
+			},
+		],
+		awaitRefetchQueries: true,
+	});
 
 	const {
 		data: memberData,
@@ -27,6 +59,15 @@ export const MembersAccountsEditContainer: React.FC<MembersAccountsEditContainer
 	} = useQuery(AdminMembersAccountsEditContainerMemberDocument, {
 		variables: {
 			id: props.data.memberId,
+		},
+	});
+	const {
+		data: endUsersData,
+		loading: endUsersLoading,
+		error: endUsersError,
+	} = useQuery(AdminMembersAccountsEditContainerEndUsersByCommunityDocument, {
+		variables: {
+			communityId: props.data.communityId,
 		},
 	});
 
@@ -53,11 +94,13 @@ export const MembersAccountsEditContainer: React.FC<MembersAccountsEditContainer
 
 	const handleSave = async (values: MemberUpdateAccountInput) => {
 		try {
-			values.memberId = props.data.memberId;
-			values.accountId = params.accountId || '';
 			const result = await memberUpdateAccount({
 				variables: {
-					input: values,
+					input: {
+						...values,
+						memberId: props.data.memberId,
+						accountId: params.accountId || '',
+					},
 				},
 			});
 			if (result.data?.memberUpdateAccount.status.success) {
@@ -77,22 +120,23 @@ export const MembersAccountsEditContainer: React.FC<MembersAccountsEditContainer
 		const defaultValues: MemberUpdateAccountInput = {
 			memberId: props.data.memberId,
 			accountId: params.accountId || '',
-			firstName: accountToEdit.firstName || '',
-			lastName: accountToEdit.lastName || '',
+			endUserId: accountToEdit.user?.id || '',
 		};
 
-		const membersAccountsEditProps = {
+		const membersAccountsEditProps: MembersAccountsEditProps = {
 			data: defaultValues,
 			onSave: handleSave,
 			onRemove: handleRemove,
+			endUsers: (endUsersData?.endUsersByCommunityId as AdminMembersAccountsEditContainerEndUserFieldsFragment[]) || [],
+			loading: memberUpdateAccountLoading || memberRemoveAccountLoading,
 		};
 
 		return (
 			<ComponentQueryLoader
-				loading={memberLoading}
+				loading={memberLoading || endUsersLoading}
 				hasData={memberData?.member}
 				hasDataComponent={<MembersAccountsEdit {...membersAccountsEditProps} />}
-				error={memberError}
+				error={memberError || endUsersError}
 				noDataComponent={<div>Account not found for {params.accountId}</div>}
 			/>
 		);
@@ -100,10 +144,10 @@ export const MembersAccountsEditContainer: React.FC<MembersAccountsEditContainer
 
 	return (
 		<ComponentQueryLoader
-			loading={memberLoading}
+			loading={memberLoading || endUsersLoading}
 			hasData={memberData?.member}
 			hasDataComponent={<div>Account not found for {params.accountId}</div>}
-			error={memberError}
+			error={memberError || endUsersError}
 			noDataComponent={<div>No Data...</div>}
 		/>
 	);

@@ -17,6 +17,7 @@ import {
 	createMemberAccount,
 	updateMemberAccount,
 	removeMemberAccount,
+	updateMemberProfile,
 	type MemberCreateCommand,
 	type MemberInviteCommand,
 	type BulkMemberInviteCommand,
@@ -30,6 +31,7 @@ import {
 	type MemberCreateAccountCommand,
 	type MemberUpdateAccountCommand,
 	type MemberRemoveAccountCommand,
+	type MemberUpdateProfileCommand,
 } from './member-management.ts';
 
 export interface MemberApplicationService {
@@ -45,6 +47,7 @@ export interface MemberApplicationService {
 	createMemberAccount: (command: MemberCreateAccountCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 	updateMemberAccount: (command: MemberUpdateAccountCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 	removeMemberAccount: (command: MemberRemoveAccountCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
+	updateMemberProfile: (command: MemberUpdateProfileCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 
 	// Member invitation operations
 	inviteMember: (command: MemberInviteCommand) => Promise<Domain.Contexts.Community.Member.MemberInvitationEntityReference>;
@@ -76,6 +79,7 @@ export const Member = (dataSources: DataSources): MemberApplicationService => {
 		createMemberAccount: createMemberAccount(dataSources),
 		updateMemberAccount: updateMemberAccount(dataSources),
 		removeMemberAccount: removeMemberAccount(dataSources),
+		updateMemberProfile: updateMemberProfile(dataSources),
 
 		// Member invitation operations
 		inviteMember: inviteMember(dataSources),

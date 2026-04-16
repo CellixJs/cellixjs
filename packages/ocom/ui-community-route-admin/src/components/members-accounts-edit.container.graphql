@@ -4,6 +4,12 @@ query AdminMembersAccountsEditContainerMember($id: ObjectID!) {
 	}
 }
 
+query AdminMembersAccountsEditContainerEndUsersByCommunity($communityId: ObjectID!) {
+	endUsersByCommunityId(communityId: $communityId) {
+		...AdminMembersAccountsEditContainerEndUserFields
+	}
+}
+
 mutation AdminMembersAccountsEditContainerMemberUpdateAccount($input: MemberUpdateAccountInput!) {
 	memberUpdateAccount(input: $input) {
 		...AdminMembersAccountsEditContainerMemberMutationResultFields
@@ -44,4 +50,14 @@ fragment AdminMembersAccountEditContainerMemberFields on Member {
 		updatedAt
 	}
 	id
+}
+
+fragment AdminMembersAccountsEditContainerEndUserFields on EndUser {
+	id
+	displayName
+	personalInformation {
+		contactInformation {
+			email
+		}
+	}
 }

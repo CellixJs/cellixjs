@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import type { AdminMembersDetailContainerMemberFieldsFragment } from '../../../../generated.tsx';
+import type { AdminMembersDetailContainerMemberFieldsFragment } from '../generated.tsx';
 import { MembersDetail } from './members-detail.tsx';
 
 const mockMember: AdminMembersDetailContainerMemberFieldsFragment = {

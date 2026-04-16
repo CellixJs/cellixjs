@@ -19,12 +19,14 @@ import type {
 	MutationRemoveMembersBulkArgs,
 	MutationInviteMembersBulkArgs,
 	MutationMemberRoleUpdateArgs,
+	MutationMemberUpdateProfileArgs,
 } from '../builder/generated.ts';
 import type {
 	MemberCreateCommand,
 	MemberCreateAccountCommand,
 	MemberUpdateAccountCommand,
 	MemberRemoveAccountCommand,
+	MemberUpdateProfileCommand,
 	DeactivateMemberCommand,
 	RemoveMemberCommand,
 	BulkDeactivateMembersCommand,
@@ -631,8 +633,7 @@ const member: Resolvers = {
 
 				const command: MemberCreateAccountCommand = {
 					memberId: args.input.memberId,
-					firstName: args.input.firstName,
-					...(args.input.lastName && { lastName: args.input.lastName }),
+					endUserId: args.input.endUserId,
 				};
 
 				const result = await context.applicationServices.Community.Member.createMemberAccount(command);
@@ -668,8 +669,7 @@ const member: Resolvers = {
 				const command: MemberUpdateAccountCommand = {
 					memberId: args.input.memberId,
 					accountId: args.input.accountId,
-					firstName: args.input.firstName,
-					...(args.input.lastName && { lastName: args.input.lastName }),
+					endUserId: args.input.endUserId,
 				};
 
 				const result = await context.applicationServices.Community.Member.updateMemberAccount(command);
@@ -720,6 +720,51 @@ const member: Resolvers = {
 					status: {
 						success: false,
 						errorMessage: error instanceof Error ? error.message : 'Failed to remove member account',
+					},
+					member: null,
+				};
+			}
+		},
+		memberUpdateProfile: async (_parent: unknown, args: MutationMemberUpdateProfileArgs, context: GraphContext) => {
+			try {
+				if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'Unauthorized',
+						},
+						member: null,
+					};
+				}
+
+				const command: MemberUpdateProfileCommand = {
+					memberId: args.input.memberId,
+					profile: {
+						...(args.input.profile.name !== undefined ? { name: args.input.profile.name } : {}),
+						...(args.input.profile.email !== undefined ? { email: args.input.profile.email } : {}),
+						...(args.input.profile.bio !== undefined ? { bio: args.input.profile.bio } : {}),
+						...(args.input.profile.avatarDocumentId !== undefined ? { avatarDocumentId: args.input.profile.avatarDocumentId } : {}),
+						...(args.input.profile.interests != null ? { interests: [...args.input.profile.interests] } : {}),
+						...(args.input.profile.showInterests !== undefined ? { showInterests: args.input.profile.showInterests } : {}),
+						...(args.input.profile.showEmail !== undefined ? { showEmail: args.input.profile.showEmail } : {}),
+						...(args.input.profile.showProfile !== undefined ? { showProfile: args.input.profile.showProfile } : {}),
+						...(args.input.profile.showLocation !== undefined ? { showLocation: args.input.profile.showLocation } : {}),
+						...(args.input.profile.showProperties !== undefined ? { showProperties: args.input.profile.showProperties } : {}),
+					},
+				};
+
+				const result = await context.applicationServices.Community.Member.updateMemberProfile(command);
+				return {
+					status: {
+						success: true,
+					},
+					member: result,
+				};
+			} catch (error: unknown) {
+				return {
+					status: {
+						success: false,
+						errorMessage: error instanceof Error ? error.message : 'Failed to update member profile',
 					},
 					member: null,
 				};

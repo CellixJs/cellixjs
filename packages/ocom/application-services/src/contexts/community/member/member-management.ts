@@ -342,9 +342,29 @@ export const bulkRemoveMembers = (dataSources: DataSources) => {
 
 export interface MemberCreateAccountCommand {
 	memberId: string;
-	firstName: string;
-	lastName?: string;
+	endUserId: string;
 }
+
+const getAccountNameFromEndUser = (endUser: Domain.Contexts.User.EndUser.EndUserEntityReference): { firstName: string; lastName?: string } => {
+	const firstName = endUser.personalInformation.identityDetails.restOfName?.trim() || endUser.displayName?.trim();
+	if (!firstName) {
+		throw new Error(`Selected end user (${endUser.id}) does not have a usable display name`);
+	}
+
+	const lastName = endUser.personalInformation.identityDetails.lastName?.trim();
+	return {
+		firstName,
+		...(lastName ? { lastName } : {}),
+	};
+};
+
+const ensureEndUserIsAlreadyInCommunity = async (dataSources: DataSources, communityId: string, endUserId: string): Promise<void> => {
+	const membersInCommunity = await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByCommunityId(communityId);
+	const isExistingCommunityEndUser = membersInCommunity.some((communityMember) => communityMember.accounts.some((account) => account.user.id === endUserId));
+	if (!isExistingCommunityEndUser) {
+		throw new Error('Selected user is not associated with this community. Invite the user first.');
+	}
+};
 
 export const createMemberAccount = (dataSources: DataSources) => {
 	return async (command: MemberCreateAccountCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
@@ -352,11 +372,24 @@ export const createMemberAccount = (dataSources: DataSources) => {
 
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
 			const member = await repository.getById(command.memberId);
+			const endUser = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getById(command.endUserId);
+			if (!endUser) {
+				throw new Error(`End user ${command.endUserId} not found`);
+			}
+
+			await ensureEndUserIsAlreadyInCommunity(dataSources, member.communityId, command.endUserId);
+
+			if (member.accounts.some((account) => account.user.id === command.endUserId)) {
+				throw new Error('Selected user is already associated with this member');
+			}
+
+			const accountName = getAccountNameFromEndUser(endUser);
 
 			const newAccount = member.requestNewAccount();
-			newAccount.firstName = command.firstName;
-			if (command.lastName) {
-				newAccount.lastName = command.lastName;
+			newAccount.user = endUser;
+			newAccount.firstName = accountName.firstName;
+			if (accountName.lastName) {
+				newAccount.lastName = accountName.lastName;
 			}
 
 			updatedMember = await repository.save(member);
@@ -373,8 +406,7 @@ export const createMemberAccount = (dataSources: DataSources) => {
 export interface MemberUpdateAccountCommand {
 	memberId: string;
 	accountId: string;
-	firstName: string;
-	lastName?: string;
+	endUserId: string;
 }
 
 export const updateMemberAccount = (dataSources: DataSources) => {
@@ -390,10 +422,24 @@ export const updateMemberAccount = (dataSources: DataSources) => {
 				throw new Error(`Account ${command.accountId} not found for member ${command.memberId}`);
 			}
 
+			const endUser = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getById(command.endUserId);
+			if (!endUser) {
+				throw new Error(`End user ${command.endUserId} not found`);
+			}
+
+			await ensureEndUserIsAlreadyInCommunity(dataSources, member.communityId, command.endUserId);
+
+			if (member.accounts.some((acc) => acc.id !== command.accountId && acc.user.id === command.endUserId)) {
+				throw new Error('Selected user is already associated with this member');
+			}
+
+			const accountName = getAccountNameFromEndUser(endUser);
+
 			// Update the account properties
-			account.firstName = command.firstName;
-			if (command.lastName !== undefined) {
-				account.lastName = command.lastName;
+			account.user = endUser;
+			account.firstName = accountName.firstName;
+			if (accountName.lastName !== undefined) {
+				account.lastName = accountName.lastName;
 			}
 
 			updatedMember = await repository.save(member);
@@ -410,6 +456,22 @@ export const updateMemberAccount = (dataSources: DataSources) => {
 export interface MemberRemoveAccountCommand {
 	memberId: string;
 	accountId: string;
+}
+
+export interface MemberUpdateProfileCommand {
+	memberId: string;
+	profile: {
+		name?: string | null;
+		email?: string | null;
+		bio?: string | null;
+		avatarDocumentId?: string | null;
+		interests?: string[] | null;
+		showInterests?: boolean | null;
+		showEmail?: boolean | null;
+		showProfile?: boolean | null;
+		showLocation?: boolean | null;
+		showProperties?: boolean | null;
+	};
 }
 
 export const removeMemberAccount = (dataSources: DataSources) => {
@@ -433,6 +495,57 @@ export const removeMemberAccount = (dataSources: DataSources) => {
 
 		if (!updatedMember) {
 			throw new Error('Unable to remove member account');
+		}
+
+		return updatedMember;
+	};
+};
+
+export const updateMemberProfile = (dataSources: DataSources) => {
+	return async (command: MemberUpdateProfileCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
+		let updatedMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
+
+		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
+			const member = await repository.getById(command.memberId);
+			const profile = member.profile;
+
+			if (command.profile.name !== undefined && command.profile.name !== null) {
+				profile.name = command.profile.name;
+				member.memberName = command.profile.name;
+			}
+			if (command.profile.email !== undefined && command.profile.email !== null) {
+				profile.email = command.profile.email;
+			}
+			if (command.profile.bio !== undefined && command.profile.bio !== null) {
+				profile.bio = command.profile.bio;
+			}
+			if (command.profile.avatarDocumentId !== undefined && command.profile.avatarDocumentId !== null) {
+				profile.avatarDocumentId = command.profile.avatarDocumentId;
+			}
+			if (command.profile.interests !== undefined && command.profile.interests !== null) {
+				profile.interests = command.profile.interests;
+			}
+			if (command.profile.showInterests !== undefined && command.profile.showInterests !== null) {
+				profile.showInterests = command.profile.showInterests;
+			}
+			if (command.profile.showEmail !== undefined && command.profile.showEmail !== null) {
+				profile.showEmail = command.profile.showEmail;
+			}
+			if (command.profile.showProfile !== undefined && command.profile.showProfile !== null) {
+				profile.showProfile = command.profile.showProfile;
+			}
+			if (command.profile.showLocation !== undefined && command.profile.showLocation !== null) {
+				profile.showLocation = command.profile.showLocation;
+			}
+			if (command.profile.showProperties !== undefined && command.profile.showProperties !== null) {
+				profile.showProperties = command.profile.showProperties;
+			}
+
+			updatedMember = await repository.save(member);
+		});
+
+		if (!updatedMember) {
+			throw new Error('Unable to update member profile');
 		}
 
 		return updatedMember;

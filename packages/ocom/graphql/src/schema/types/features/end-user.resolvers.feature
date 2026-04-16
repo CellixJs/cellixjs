@@ -16,6 +16,12 @@ Feature: End User Resolvers
     Then it should call User.EndUser.queryById with the provided ID and requested fields
     And it should return the corresponding EndUser entity
 
+  Scenario: Querying end users by community ID
+    Given a valid community ID
+    When the endUsersByCommunityId query is executed with that ID
+    Then it should call User.EndUser.queryByCommunityId with the provided community ID and requested fields
+    And it should return the corresponding list of EndUser entities
+
   Scenario: Unauthorized access to currentEndUserAndCreateIfNotExists
     Given a user without a verifiedJwt in their context
     When the currentEndUserAndCreateIfNotExists query is executed

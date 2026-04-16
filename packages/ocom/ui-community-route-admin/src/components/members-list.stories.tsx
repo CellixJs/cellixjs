@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
-import type { AdminMemberListContainerMemberFieldsFragment } from '../../../../generated.tsx';
+import type { AdminMemberListContainerMemberFieldsFragment } from '../generated.tsx';
 import { MemberList } from './members-list.tsx';
 
 const mockMemberData: AdminMemberListContainerMemberFieldsFragment[] = [

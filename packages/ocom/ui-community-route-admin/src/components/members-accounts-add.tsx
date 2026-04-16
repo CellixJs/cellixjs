@@ -1,28 +1,19 @@
-import { Button, Form, Input } from 'antd';
-import React from 'react';
-import type { MemberCreateAccountInput } from '../generated.tsx';
+import { Button, Form, Select } from 'antd';
+import type { AdminMembersAccountsAddContainerEndUserFieldsFragment, MemberCreateAccountInput } from '../generated.tsx';
 
-interface MembersAccountsAddProps {
+export interface MembersAccountsAddProps {
 	data: MemberCreateAccountInput;
 	onSave: (member: MemberCreateAccountInput) => Promise<void>;
+	endUsers: AdminMembersAccountsAddContainerEndUserFieldsFragment[];
+	loading: boolean;
 }
 
 export const MembersAccountsAdd: React.FC<MembersAccountsAddProps> = (props) => {
 	const [form] = Form.useForm<MemberCreateAccountInput>();
-	const [formLoading, setFormLoading] = React.useState<boolean>(false);
-
-	const handleFinish = async (values: MemberCreateAccountInput) => {
-		setFormLoading(true);
-		try {
-			// Ensure memberId is preserved from props
-			values.memberId = props.data.memberId;
-			await props.onSave(values);
-		} catch (error) {
-			console.error('Failed to add Member Account:', error);
-		} finally {
-			setFormLoading(false);
-		}
-	};
+	const endUserOptions = props.endUsers.map((endUser) => ({
+		value: endUser.id,
+		label: endUser.displayName || endUser.personalInformation?.contactInformation?.email || endUser.id,
+	}));
 
 	return (
 		<div>
@@ -30,32 +21,27 @@ export const MembersAccountsAdd: React.FC<MembersAccountsAddProps> = (props) => 
 				layout="vertical"
 				form={form}
 				initialValues={props.data}
-				onFinish={handleFinish}
+				onFinish={(values) => props.onSave({ ...values, memberId: props.data.memberId })}
 			>
 				<Form.Item
-					name="firstName"
-					label="First Name"
-					rules={[{ required: true, message: 'First name is required.' }]}
+					name="endUserId"
+					label="End User"
+					rules={[{ required: true, message: 'An end user is required.' }]}
 				>
-					<Input
-						placeholder="First Name"
-						maxLength={200}
-					/>
-				</Form.Item>
-				<Form.Item
-					name="lastName"
-					label="Last Name"
-				>
-					<Input
-						placeholder="Last Name"
-						maxLength={200}
+					<Select
+						placeholder="Select end user"
+						options={endUserOptions}
+						showSearch
+						optionFilterProp="label"
+						allowClear
 					/>
 				</Form.Item>
 
 				<Button
 					type="primary"
 					htmlType="submit"
-					loading={formLoading}
+					loading={props.loading}
+					disabled={props.endUsers.length === 0}
 				>
 					Add Member Account
 				</Button>

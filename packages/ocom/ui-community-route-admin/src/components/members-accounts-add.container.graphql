@@ -4,6 +4,12 @@ mutation AdminMembersAccountsAddContainerMemberCreateAccount($input: MemberCreat
 	}
 }
 
+query AdminMembersAccountsAddContainerEndUsersByCommunity($communityId: ObjectID!) {
+	endUsersByCommunityId(communityId: $communityId) {
+		...AdminMembersAccountsAddContainerEndUserFields
+	}
+}
+
 fragment AdminMembersAccountsAddContainerMemberMutationResultFields on MemberMutationResult {
 	status {
 		success
@@ -19,4 +25,14 @@ fragment AdminMembersAccountsAddContainerMemberFields on Member {
 	id
 	createdAt
 	updatedAt
+}
+
+fragment AdminMembersAccountsAddContainerEndUserFields on EndUser {
+	id
+	displayName
+	personalInformation {
+		contactInformation {
+			email
+		}
+	}
 }

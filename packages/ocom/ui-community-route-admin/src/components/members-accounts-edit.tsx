@@ -1,39 +1,21 @@
 import { UserDeleteOutlined } from '@ant-design/icons';
-import { Button, Form, Input } from 'antd';
-import React from 'react';
-import type { MemberUpdateAccountInput } from '../generated.tsx';
+import { Button, Form, Select } from 'antd';
+import type { AdminMembersAccountsEditContainerEndUserFieldsFragment, MemberUpdateAccountInput } from '../generated.tsx';
 
-interface MembersAccountsEditProps {
+export interface MembersAccountsEditProps {
 	data: MemberUpdateAccountInput;
 	onSave: (member: MemberUpdateAccountInput) => Promise<void>;
 	onRemove: () => Promise<void>;
+	endUsers: AdminMembersAccountsEditContainerEndUserFieldsFragment[];
+	loading: boolean;
 }
 
 export const MembersAccountsEdit: React.FC<MembersAccountsEditProps> = (props) => {
 	const [form] = Form.useForm<MemberUpdateAccountInput>();
-	const [formLoading, setFormLoading] = React.useState<boolean>(false);
-
-	const handleFinish = async (values: MemberUpdateAccountInput) => {
-		setFormLoading(true);
-		try {
-			await props.onSave(values);
-		} catch (error) {
-			console.error('Failed to save Member Account:', error);
-		} finally {
-			setFormLoading(false);
-		}
-	};
-
-	const handleRemove = async () => {
-		setFormLoading(true);
-		try {
-			await props.onRemove();
-		} catch (error) {
-			console.error('Failed to remove Member Account:', error);
-		} finally {
-			setFormLoading(false);
-		}
-	};
+	const endUserOptions = props.endUsers.map((endUser) => ({
+		value: endUser.id,
+		label: endUser.displayName || endUser.personalInformation?.contactInformation?.email || endUser.id,
+	}));
 
 	return (
 		<div>
@@ -41,32 +23,27 @@ export const MembersAccountsEdit: React.FC<MembersAccountsEditProps> = (props) =
 				layout="vertical"
 				form={form}
 				initialValues={props.data}
-				onFinish={handleFinish}
+				onFinish={(values) => props.onSave(values)}
 			>
 				<Form.Item
-					name="firstName"
-					label="First Name"
-					rules={[{ required: true, message: 'First name is required.' }]}
+					name="endUserId"
+					label="End User"
+					rules={[{ required: true, message: 'An end user is required.' }]}
 				>
-					<Input
-						placeholder="First Name"
-						maxLength={200}
-					/>
-				</Form.Item>
-				<Form.Item
-					name="lastName"
-					label="Last Name"
-				>
-					<Input
-						placeholder="Last Name"
-						maxLength={200}
+					<Select
+						placeholder="Select end user"
+						options={endUserOptions}
+						showSearch
+						optionFilterProp="label"
+						allowClear
 					/>
 				</Form.Item>
 
 				<Button
 					type="primary"
 					htmlType="submit"
-					loading={formLoading}
+					loading={props.loading}
+					disabled={props.endUsers.length === 0}
 				>
 					Save Member Account
 				</Button>
@@ -75,9 +52,9 @@ export const MembersAccountsEdit: React.FC<MembersAccountsEditProps> = (props) =
 					type="primary"
 					danger
 					icon={<UserDeleteOutlined />}
-					onClick={handleRemove}
+					onClick={props.onRemove}
 					className="float-right"
-					loading={formLoading}
+					loading={props.loading}
 				>
 					Remove Member Account
 				</Button>

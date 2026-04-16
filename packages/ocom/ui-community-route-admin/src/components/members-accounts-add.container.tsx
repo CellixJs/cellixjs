@@ -1,25 +1,44 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import { ComponentQueryLoader } from '@cellix/ui-core';
 import { App } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { MemberCreateAccountInput } from '../generated.tsx';
-import { AdminMembersAccountsAddContainerMemberCreateAccountDocument } from '../generated.tsx';
-import { MembersAccountsAdd } from './members-accounts-add.tsx';
+import {
+	AdminMembersAccountsAddContainerEndUsersByCommunityDocument,
+	AdminMembersAccountsAddContainerMemberCreateAccountDocument,
+	AdminMembersAccountsListContainerMemberDocument,
+	type AdminMembersAccountsAddContainerEndUserFieldsFragment,
+} from '../generated.tsx';
+import { MembersAccountsAdd, type MembersAccountsAddProps } from './members-accounts-add.tsx';
 
 interface MembersAccountsAddContainerProps {
 	data: {
 		id: string;
+		communityId: string;
 	};
 }
 
 export const MembersAccountsAddContainer: React.FC<MembersAccountsAddContainerProps> = (props) => {
 	const navigate = useNavigate();
 	const { message } = App.useApp();
-	const [memberCreateAccount] = useMutation(AdminMembersAccountsAddContainerMemberCreateAccountDocument);
+	const [memberCreateAccount, { loading: memberCreateAccountLoading }] = useMutation(AdminMembersAccountsAddContainerMemberCreateAccountDocument, {
+		refetchQueries: [
+			{
+				query: AdminMembersAccountsListContainerMemberDocument,
+				variables: { id: props.data.id },
+			},
+		],
+		awaitRefetchQueries: true,
+	});
+	const { data: endUsersData, loading: endUsersLoading, error: endUsersError } = useQuery(AdminMembersAccountsAddContainerEndUsersByCommunityDocument, {
+		variables: {
+			communityId: props.data.communityId,
+		},
+	});
 
 	const defaultValues: MemberCreateAccountInput = {
 		memberId: props.data.id,
-		firstName: '',
-		lastName: '',
+		endUserId: '',
 	};
 
 	const handleSave = async (values: MemberCreateAccountInput) => {
@@ -40,10 +59,19 @@ export const MembersAccountsAddContainer: React.FC<MembersAccountsAddContainerPr
 		}
 	};
 
+	const membersAccountsAddProps: MembersAccountsAddProps = {
+		onSave: handleSave,
+		data: defaultValues,
+		endUsers: (endUsersData?.endUsersByCommunityId as AdminMembersAccountsAddContainerEndUserFieldsFragment[]) || [],
+		loading: memberCreateAccountLoading,
+	};
+
 	return (
-		<MembersAccountsAdd
-			onSave={handleSave}
-			data={defaultValues}
+		<ComponentQueryLoader
+			loading={endUsersLoading}
+			hasData={endUsersData?.endUsersByCommunityId}
+			hasDataComponent={<MembersAccountsAdd {...membersAccountsAddProps} />}
+			error={endUsersError}
 		/>
 	);
 };

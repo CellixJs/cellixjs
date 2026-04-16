@@ -1,0 +1,32 @@
+query AdminMembersProfileMember($id: ObjectID!) {
+	member(id: $id) {
+		...AdminMembersProfileMemberFields
+	}
+}
+
+mutation AdminMembersProfileUpdate($input: MemberUpdateProfileInput!) {
+	memberUpdateProfile(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		member {
+			...AdminMembersProfileMemberFields
+		}
+	}
+}
+
+fragment AdminMembersProfileMemberFields on Member {
+	id
+	memberName
+	profile {
+		name
+		email
+		bio
+		showProfile
+		showEmail
+		showInterests
+		showLocation
+		showProperties
+	}
+}

@@ -25,6 +25,7 @@ function createContext(): GraphContext {
 					createMemberAccount: vi.fn(),
 					updateMemberAccount: vi.fn(),
 					removeMemberAccount: vi.fn(),
+					updateMemberProfile: vi.fn(),
 				},
 			},
 			User: {
@@ -245,10 +246,10 @@ describe('member resolvers additional coverage', () => {
 	it('covers member role and account mutation branches', async () => {
 		const context = createContext();
 		const memberRoleUpdate = memberResolvers.Mutation?.memberRoleUpdate as (parent: unknown, args: { input: { memberId: string; roleId: string; reason?: string } }, context: GraphContext) => Promise<unknown>;
-		const createAccount = memberResolvers.Mutation?.memberCreateAccount as (parent: unknown, args: { input: { memberId: string; firstName: string; lastName?: string } }, context: GraphContext) => Promise<unknown>;
+		const createAccount = memberResolvers.Mutation?.memberCreateAccount as (parent: unknown, args: { input: { memberId: string; endUserId: string } }, context: GraphContext) => Promise<unknown>;
 		const updateAccount = memberResolvers.Mutation?.memberUpdateAccount as (
 			parent: unknown,
-			args: { input: { memberId: string; accountId: string; firstName: string; lastName?: string } },
+			args: { input: { memberId: string; accountId: string; endUserId: string } },
 			context: GraphContext,
 		) => Promise<unknown>;
 		const removeAccount = memberResolvers.Mutation?.memberRemoveAccount as (parent: unknown, args: { input: { memberId: string; accountId: string } }, context: GraphContext) => Promise<unknown>;
@@ -265,18 +266,49 @@ describe('member resolvers additional coverage', () => {
 		vi.mocked(context.applicationServices.Community.Member.updateMemberAccount).mockResolvedValue({ id: 'member-1' } as never);
 		vi.mocked(context.applicationServices.Community.Member.removeMemberAccount).mockResolvedValue({ id: 'member-1' } as never);
 
-		await expect(createAccount(null, { input: { memberId: 'member-1', firstName: 'Jane', lastName: 'Doe' } }, context)).resolves.toMatchObject({ status: { success: true } });
-		expect(context.applicationServices.Community.Member.createMemberAccount).toHaveBeenCalledWith({ memberId: 'member-1', firstName: 'Jane', lastName: 'Doe' });
+		await expect(createAccount(null, { input: { memberId: 'member-1', endUserId: 'end-user-1' } }, context)).resolves.toMatchObject({ status: { success: true } });
+		expect(context.applicationServices.Community.Member.createMemberAccount).toHaveBeenCalledWith({ memberId: 'member-1', endUserId: 'end-user-1' });
 
-		await expect(updateAccount(null, { input: { memberId: 'member-1', accountId: 'acc-1', firstName: 'Jane' } }, context)).resolves.toMatchObject({ status: { success: true } });
-		expect(context.applicationServices.Community.Member.updateMemberAccount).toHaveBeenCalledWith({ memberId: 'member-1', accountId: 'acc-1', firstName: 'Jane' });
+		await expect(updateAccount(null, { input: { memberId: 'member-1', accountId: 'acc-1', endUserId: 'end-user-2' } }, context)).resolves.toMatchObject({ status: { success: true } });
+		expect(context.applicationServices.Community.Member.updateMemberAccount).toHaveBeenCalledWith({ memberId: 'member-1', accountId: 'acc-1', endUserId: 'end-user-2' });
 
 		await expect(removeAccount(null, { input: { memberId: 'member-1', accountId: 'acc-1' } }, context)).resolves.toMatchObject({ status: { success: true } });
 
 		setVerifiedUser(context, undefined);
 		await expect(memberRoleUpdate(null, { input: { memberId: 'member-1', roleId: 'role-1' } }, context)).resolves.toMatchObject({ status: { success: false, errorMessage: 'Unauthorized' } });
-		await expect(createAccount(null, { input: { memberId: 'member-1', firstName: 'Jane' } }, context)).resolves.toMatchObject({ status: { success: false, errorMessage: 'Unauthorized' } });
-		await expect(updateAccount(null, { input: { memberId: 'member-1', accountId: 'acc-1', firstName: 'Jane' } }, context)).resolves.toMatchObject({ status: { success: false, errorMessage: 'Unauthorized' } });
+		await expect(createAccount(null, { input: { memberId: 'member-1', endUserId: 'end-user-1' } }, context)).resolves.toMatchObject({ status: { success: false, errorMessage: 'Unauthorized' } });
+		await expect(updateAccount(null, { input: { memberId: 'member-1', accountId: 'acc-1', endUserId: 'end-user-2' } }, context)).resolves.toMatchObject({ status: { success: false, errorMessage: 'Unauthorized' } });
 		await expect(removeAccount(null, { input: { memberId: 'member-1', accountId: 'acc-1' } }, context)).resolves.toMatchObject({ status: { success: false, errorMessage: 'Unauthorized' } });
+	});
+
+	it('covers member update profile mutation branches', async () => {
+		const context = createContext();
+		const memberUpdateProfile = memberResolvers.Mutation?.memberUpdateProfile as (
+			parent: unknown,
+			args: { input: { memberId: string; profile: { name?: string; showProfile?: boolean } } },
+			context: GraphContext,
+		) => Promise<unknown>;
+
+		vi.mocked(context.applicationServices.Community.Member.updateMemberProfile).mockResolvedValue({ id: 'member-1' } as never);
+		await expect(memberUpdateProfile(null, { input: { memberId: 'member-1', profile: { name: 'Updated Name', showProfile: true } } }, context)).resolves.toMatchObject({
+			status: { success: true },
+			member: { id: 'member-1' },
+		});
+		expect(context.applicationServices.Community.Member.updateMemberProfile).toHaveBeenCalledWith({
+			memberId: 'member-1',
+			profile: { name: 'Updated Name', showProfile: true },
+		});
+
+		vi.mocked(context.applicationServices.Community.Member.updateMemberProfile).mockRejectedValue(new Error('profile fail'));
+		await expect(memberUpdateProfile(null, { input: { memberId: 'member-1', profile: { name: 'Updated Name' } } }, context)).resolves.toMatchObject({
+			status: { success: false, errorMessage: 'profile fail' },
+			member: null,
+		});
+
+		setVerifiedUser(context, undefined);
+		await expect(memberUpdateProfile(null, { input: { memberId: 'member-1', profile: {} } }, context)).resolves.toMatchObject({
+			status: { success: false, errorMessage: 'Unauthorized' },
+			member: null,
+		});
 	});
 });

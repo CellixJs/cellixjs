@@ -8,6 +8,7 @@ import {
 	deactivateMember,
 	removeMember,
 	removeMemberAccount,
+	updateMemberProfile,
 	updateMemberAccount,
 	updateMemberRole,
 } from './member-management.ts';
@@ -23,6 +24,12 @@ describe('member-management operations', () => {
 	let roleRepository: {
 		getById: ReturnType<typeof vi.fn>;
 	};
+	let endUserReadRepository: {
+		getById: ReturnType<typeof vi.fn>;
+	};
+	let memberReadRepository: {
+		getByCommunityId: ReturnType<typeof vi.fn>;
+	};
 
 	beforeEach(() => {
 		memberRepository = {
@@ -31,6 +38,12 @@ describe('member-management operations', () => {
 		};
 		roleRepository = {
 			getById: vi.fn(),
+		};
+		endUserReadRepository = {
+			getById: vi.fn(),
+		};
+		memberReadRepository = {
+			getByCommunityId: vi.fn(),
 		};
 
 		dataSources = {
@@ -47,6 +60,18 @@ describe('member-management operations', () => {
 								withScopedTransaction: vi.fn(async (callback: (repo: typeof roleRepository) => Promise<void>) => callback(roleRepository)),
 							},
 						},
+					},
+				},
+			},
+			readonlyDataSource: {
+				User: {
+					EndUser: {
+						EndUserReadRepo: endUserReadRepository,
+					},
+				},
+				Community: {
+					Member: {
+						MemberReadRepo: memberReadRepository,
 					},
 				},
 			},
@@ -146,42 +171,79 @@ describe('member-management operations', () => {
 		consoleErrorSpy.mockRestore();
 	});
 
-	it('creates and updates account fields, including optional lastName', async () => {
-		const newAccount = { firstName: '', lastName: '' };
-		const existingAccount = { id: 'account-1', firstName: 'Old', lastName: 'Name' };
+	it('creates and updates account user association and derives names from end user', async () => {
+		const endUserOne = {
+			id: 'end-user-1',
+			displayName: 'Jane Doe',
+			personalInformation: {
+				identityDetails: {
+					restOfName: 'Jane',
+					lastName: 'Doe',
+				},
+			},
+		};
+		const endUserTwo = {
+			id: 'end-user-2',
+			displayName: 'John Smith',
+			personalInformation: {
+				identityDetails: {
+					restOfName: 'John',
+					lastName: 'Smith',
+				},
+			},
+		};
+		const newAccount = { firstName: '', lastName: '', user: null };
+		const existingAccount = { id: 'account-1', firstName: 'Old', lastName: 'Name', user: { id: 'end-user-old' } };
 		const member = {
 			requestNewAccount: vi.fn(() => newAccount),
 			accounts: [existingAccount],
+			communityId: 'community-1',
 		};
 		memberRepository.getById.mockResolvedValue(member);
+		endUserReadRepository.getById.mockImplementation((id: string) => (id === 'end-user-1' ? endUserOne : endUserTwo));
+		memberReadRepository.getByCommunityId.mockResolvedValue([{ accounts: [{ user: { id: 'end-user-1' } }, { user: { id: 'end-user-2' } }] }]);
 		memberRepository.save.mockResolvedValue({ id: 'member-1' });
 
-		const created = await createMemberAccount(dataSources)({ memberId: 'member-1', firstName: 'Jane' });
+		const created = await createMemberAccount(dataSources)({ memberId: 'member-1', endUserId: 'end-user-1' });
 		const updated = await updateMemberAccount(dataSources)({
 			memberId: 'member-1',
 			accountId: 'account-1',
-			firstName: 'John',
-			lastName: 'Smith',
+			endUserId: 'end-user-2',
 		});
 
 		expect(created.id).toBe('member-1');
 		expect(updated.id).toBe('member-1');
 		expect(newAccount.firstName).toBe('Jane');
+		expect(newAccount.lastName).toBe('Doe');
+		expect(newAccount.user).toBe(endUserOne);
 		expect(existingAccount.firstName).toBe('John');
 		expect(existingAccount.lastName).toBe('Smith');
+		expect(existingAccount.user).toBe(endUserTwo);
 	});
 
 	it('throws when account update/remove target account is missing', async () => {
 		memberRepository.getById.mockResolvedValue({
 			accounts: [],
+			communityId: 'community-1',
 			requestRemoveAccount: vi.fn(),
 		});
+		endUserReadRepository.getById.mockResolvedValue({
+			id: 'end-user-1',
+			displayName: 'Sample User',
+			personalInformation: {
+				identityDetails: {
+					restOfName: 'Sample',
+					lastName: 'User',
+				},
+			},
+		});
+		memberReadRepository.getByCommunityId.mockResolvedValue([{ accounts: [{ user: { id: 'end-user-1' } }] }]);
 
 		await expect(
 			updateMemberAccount(dataSources)({
 				memberId: 'member-1',
 				accountId: 'missing',
-				firstName: 'A',
+				endUserId: 'end-user-1',
 			}),
 		).rejects.toThrow('Account missing not found for member member-1');
 
@@ -202,5 +264,40 @@ describe('member-management operations', () => {
 		expect(member.requestRemoveAccount).toHaveBeenCalledWith(account.props);
 
 		await expect(removeMemberAccount(dataSources)({ memberId: 'member-1', accountId: 'account-1' })).rejects.toThrow('Unable to remove member account');
+	});
+
+	it('updates member profile fields', async () => {
+		const member = {
+			memberName: 'Old Name',
+			profile: {
+				name: '',
+				email: '',
+				bio: '',
+				showProfile: false,
+				showEmail: false,
+				showInterests: false,
+				showLocation: false,
+				showProperties: false,
+			},
+		};
+		memberRepository.getById.mockResolvedValue(member);
+		memberRepository.save.mockResolvedValue({ id: 'member-1' });
+
+		const result = await updateMemberProfile(dataSources)({
+			memberId: 'member-1',
+			profile: {
+				name: 'Jane Doe',
+				email: 'jane@example.com',
+				bio: 'Hello',
+				showProfile: true,
+			},
+		});
+
+		expect(result.id).toBe('member-1');
+		expect(member.profile.name).toBe('Jane Doe');
+		expect(member.memberName).toBe('Jane Doe');
+		expect(member.profile.email).toBe('jane@example.com');
+		expect(member.profile.bio).toBe('Hello');
+		expect(member.profile.showProfile).toBe(true);
 	});
 });

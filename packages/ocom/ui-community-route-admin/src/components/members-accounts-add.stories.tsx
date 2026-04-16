@@ -17,12 +17,26 @@ export const Default: Story = {
 	args: {
 		data: {
 			memberId: 'member-123',
-			firstName: '',
-			lastName: '',
+			endUserId: '',
 		},
 		onSave: async () => {
 			/* Story handler */
 		},
+		endUsers: [
+			{
+				__typename: 'EndUser',
+				id: 'end-user-1',
+				displayName: 'Jane Doe',
+				personalInformation: {
+					__typename: 'EndUserPersonalInformation',
+					contactInformation: {
+						__typename: 'EndUserContactInformation',
+						email: 'jane@example.com',
+					},
+				},
+			},
+		],
+		loading: false,
 	},
 };
 
@@ -30,11 +44,25 @@ export const WithInitialData: Story = {
 	args: {
 		data: {
 			memberId: 'member-123',
-			firstName: 'John',
-			lastName: 'Doe',
+			endUserId: 'end-user-1',
 		},
 		onSave: async () => {
 			/* Story handler */
 		},
+		endUsers: [
+			{
+				__typename: 'EndUser',
+				id: 'end-user-1',
+				displayName: 'John Doe',
+				personalInformation: {
+					__typename: 'EndUserPersonalInformation',
+					contactInformation: {
+						__typename: 'EndUserContactInformation',
+						email: 'john@example.com',
+					},
+				},
+			},
+		],
+		loading: false,
 	},
 };

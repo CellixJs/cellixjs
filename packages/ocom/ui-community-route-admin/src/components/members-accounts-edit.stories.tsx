@@ -18,8 +18,7 @@ export const Default: Story = {
 		data: {
 			memberId: 'member-123',
 			accountId: 'account-456',
-			firstName: 'John',
-			lastName: 'Doe',
+			endUserId: 'end-user-1',
 		},
 		onSave: async () => {
 			/* Story handler */
@@ -27,6 +26,21 @@ export const Default: Story = {
 		onRemove: async () => {
 			/* Story handler */
 		},
+		endUsers: [
+			{
+				__typename: 'EndUser',
+				id: 'end-user-1',
+				displayName: 'John Doe',
+				personalInformation: {
+					__typename: 'EndUserPersonalInformation',
+					contactInformation: {
+						__typename: 'EndUserContactInformation',
+						email: 'john@example.com',
+					},
+				},
+			},
+		],
+		loading: false,
 	},
 };
 
@@ -35,8 +49,7 @@ export const WithMinimalData: Story = {
 		data: {
 			memberId: 'member-123',
 			accountId: 'account-456',
-			firstName: 'Jane',
-			lastName: '',
+			endUserId: 'end-user-2',
 		},
 		onSave: async () => {
 			/* Story handler */
@@ -44,5 +57,20 @@ export const WithMinimalData: Story = {
 		onRemove: async () => {
 			/* Story handler */
 		},
+		endUsers: [
+			{
+				__typename: 'EndUser',
+				id: 'end-user-2',
+				displayName: 'Jane Smith',
+				personalInformation: {
+					__typename: 'EndUserPersonalInformation',
+					contactInformation: {
+						__typename: 'EndUserContactInformation',
+						email: 'jane@example.com',
+					},
+				},
+			},
+		],
+		loading: false,
 	},
 };

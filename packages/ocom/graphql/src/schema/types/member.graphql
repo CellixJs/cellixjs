@@ -120,15 +120,13 @@ input MemberCreateInput {
 
 input MemberCreateAccountInput {
 	memberId: ObjectID!
-	firstName: String!
-	lastName: String
+	endUserId: ObjectID!
 }
 
 input MemberUpdateAccountInput {
 	memberId: ObjectID!
 	accountId: ObjectID!
-	firstName: String!
-	lastName: String
+	endUserId: ObjectID!
 }
 
 input MemberRemoveAccountInput {

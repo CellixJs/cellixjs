@@ -22,6 +22,15 @@ const endUser: Resolvers = {
 				fields: getRequestedFieldPaths(info),
 			});
 		},
+		endUsersByCommunityId: async (_parent, args: { communityId: string }, context: GraphContext, info: GraphQLResolveInfo) => {
+			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+				throw new Error('Unauthorized');
+			}
+			return await context.applicationServices.User.EndUser.queryByCommunityId({
+				communityId: args.communityId,
+				fields: getRequestedFieldPaths(info),
+			});
+		},
 	},
 };
 

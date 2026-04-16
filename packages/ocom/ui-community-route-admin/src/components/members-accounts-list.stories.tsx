@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter } from 'react-router-dom';
-import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } from '../../../../generated.tsx';
+import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } from '../generated.tsx';
 import { MembersAccountsList } from './members-accounts-list.tsx';
 
 const meta: Meta<typeof MembersAccountsList> = {
