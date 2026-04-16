@@ -16,6 +16,8 @@ jobs:
   copilot-setup-steps:
     environment: copilot
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     # Set the permissions to the lowest permissions possible needed for your steps.
     # Copilot will be given its own token for its operations.
@@ -27,17 +29,15 @@ jobs:
     # If you do not check out your code, Copilot will do this for you.
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: "22.22.2"
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10.18.2
 
       - name: Cache pnpm store
         uses: actions/cache@v4

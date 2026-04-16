@@ -50,7 +50,7 @@
 		"@types/react-dom": "^19.1.6",
 		"@vitest/browser": "^4.1.2",
 		"@vitest/coverage-istanbul": "catalog:",
-		"jsdom": "^26.1.0",
+		"jsdom": "catalog:",
 		"rimraf": "catalog:",
 		"storybook": "catalog:",
 		"storybook-addon-apollo-client": "^9.0.0",

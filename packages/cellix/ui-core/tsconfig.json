@@ -13,6 +13,6 @@
 		"exactOptionalPropertyTypes": false,
 		"skipLibCheck": true
 	},
-	"exclude": ["dist"],
+	"exclude": ["dist", "src/**/*.stories.ts", "src/**/*.stories.tsx"],
 	"include": ["src"]
 }

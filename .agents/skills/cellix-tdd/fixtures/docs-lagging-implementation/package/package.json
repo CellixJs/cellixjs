@@ -1,0 +1,8 @@
+{
+	"name": "@cellix/env-reader",
+	"version": "0.3.0",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	}
+}
