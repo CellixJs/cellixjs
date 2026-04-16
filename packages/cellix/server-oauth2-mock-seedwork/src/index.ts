@@ -2,7 +2,7 @@ import crypto, { type KeyObject, type webcrypto } from 'node:crypto';
 import type { Server } from 'node:http';
 import express, { type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
-import { exportJWK, exportPKCS8, generateKeyPair, type JWK, errors as joseErrors, jwtVerify, SignJWT } from 'jose';
+import { exportJWK, generateKeyPair, type JWK, errors as joseErrors, jwtVerify, SignJWT } from 'jose';
 
 interface TokenProfile {
 	aud: string;
@@ -50,14 +50,16 @@ export interface MockOAuth2ServerConfig {
 export function resolveProviderConfig(config: MockOAuth2ServerConfig, providerName?: string): OidcProviderConfig {
 	// If a providerName was explicitly requested, prefer an exact match or fail
 	if (typeof providerName === 'string' && providerName.length > 0) {
-		if (config.providers && providerName in config.providers) return config.providers[providerName];
+		if (config.providers && providerName in config.providers) return config.providers[providerName] as OidcProviderConfig;
 		throw new Error(`provider_not_found:${providerName}`);
 	}
 
 	// No explicit provider requested - if single provider exists return it
 	if (config.providers && Object.keys(config.providers).length === 1) {
-		const key = Object.keys(config.providers)[0];
-		return config.providers[key];
+		const keys = Object.keys(config.providers);
+		const key = keys[0];
+		if (!key) throw new Error('provider_resolution_failed');
+		return config.providers[key] as OidcProviderConfig;
 	}
 
 	// Legacy single-provider fallback
@@ -178,17 +180,42 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	const app = express();
 	app.disable('x-powered-by');
 
-	const { publicKey, privateKey } = await generateKeyPair('RS256');
-	const publicJwk = await exportJWK(publicKey);
-	const pkcs8 = await exportPKCS8(privateKey);
-	const keyObject = crypto.createPrivateKey({
-		key: pkcs8,
-		format: 'pem',
-		type: 'pkcs8',
-	});
-	publicJwk.use = 'sig';
-	publicJwk.alg = 'RS256';
-	publicJwk.kid = publicJwk.kid || 'mock-key';
+	// Build per-provider key pairs when providers configured, else keep a single legacy key
+	type ProviderKeyPair = {
+		publicKey: KeyObject;
+		privateKey: KeyObject;
+		publicJwk: JWK;
+	};
+
+	const serverKeyPairs: { default?: ProviderKeyPair; providers?: Record<string, ProviderKeyPair> } = {};
+
+	if (config.providers && Object.keys(config.providers).length > 0) {
+		serverKeyPairs.providers = {};
+		for (const [name] of Object.entries(config.providers)) {
+			const { publicKey: pPublicKey, privateKey: pPrivateKey } = await generateKeyPair('RS256');
+			const pPublicJwk = await exportJWK(pPublicKey);
+			pPublicJwk.use = 'sig';
+			pPublicJwk.alg = 'RS256';
+			pPublicJwk.kid = pPublicJwk.kid || `mock-key-${name}`;
+			serverKeyPairs.providers[name] = {
+				publicKey: pPublicKey as KeyObject,
+				privateKey: pPrivateKey as KeyObject,
+				publicJwk: pPublicJwk as unknown as JWK,
+			};
+		}
+	} else {
+		// legacy single key (for backwards compatibility)
+		const { publicKey: legacyPublicKey, privateKey: legacyPrivateKey } = await generateKeyPair('RS256');
+		const legacyPublicJwk = await exportJWK(legacyPublicKey);
+		legacyPublicJwk.use = 'sig';
+		legacyPublicJwk.alg = 'RS256';
+		legacyPublicJwk.kid = legacyPublicJwk.kid || 'mock-key';
+		serverKeyPairs.default = {
+			publicKey: legacyPublicKey as KeyObject,
+			privateKey: legacyPrivateKey as KeyObject,
+			publicJwk: legacyPublicJwk as unknown as JWK,
+		};
+	}
 
 	// Cache the sub value once at startup to ensure session persistence across multiple logins
 	const cachedUserProfile = config.getUserProfile();
@@ -233,7 +260,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	const normalizedAllowedOrigins = new Set<string>([...normalizedAllowedRedirectUris].map((u) => normalizeOrigin(u)));
 
 	// helper to resolve provider for a request and handle errors consistently
-	const resolveOrHandle = (reqProvider?: string, res?: Response | undefined) => {
+	const resolveOrHandle = (reqProvider?: string, res?: Response | undefined): OidcProviderConfig | null => {
 		try {
 			return resolveProviderConfig(config, reqProvider);
 		} catch (err: unknown) {
@@ -253,8 +280,47 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	};
 
 	// Serve JWKS endpoint from Express (both legacy and provider-prefixed)
-	const jwksHandler = (_req: Request, res: Response) => {
-		res.json({ keys: [publicJwk] });
+	const jwksHandler = (req: Request, res: Response) => {
+		const providerName = (req.params as { provider?: string } | undefined)?.provider as string | undefined;
+		if (serverKeyPairs.providers) {
+			if (providerName && providerName.length > 0) {
+				const pk = serverKeyPairs.providers[providerName];
+				if (!pk) {
+					res.status(404).json({ error: 'provider_not_found', error_description: `Provider not found: ${providerName}` });
+					return;
+				}
+				res.json({ keys: [pk.publicJwk] });
+				return;
+			}
+			const providerNames = Object.keys(serverKeyPairs.providers);
+			if (providerNames.length === 1) {
+				const only = providerNames[0];
+				if (!only) {
+					res.status(500).json({ error: 'server_error', error_description: 'provider_resolution_failed' });
+					return;
+				}
+				const providers = serverKeyPairs.providers as Record<string, ProviderKeyPair>;
+				const pk = providers[only];
+				if (!pk) {
+					res.status(500).json({ error: 'server_error', error_description: 'provider_resolution_failed' });
+					return;
+				}
+				res.json({ keys: [pk.publicJwk] });
+				return;
+			}
+			res.status(400).json({
+				error: 'missing_provider',
+				error_description: 'Multiple providers configured; specify a provider by prefixing the path (e.g. /{provider}/.well-known/jwks.json).',
+			});
+			return;
+		} else {
+			if (!serverKeyPairs.default) {
+				res.status(500).json({ error: 'server_error', error_description: 'No signing key configured' });
+				return;
+			}
+			res.json({ keys: [serverKeyPairs.default.publicJwk] });
+			return;
+		}
 	};
 	app.get('/.well-known/jwks.json', jwksHandler);
 	app.get('/:provider/.well-known/jwks.json', jwksHandler);
@@ -300,7 +366,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 	// Token handler (supports legacy and provider-prefixed)
 	const tokenHandler = async (req: Request, res: Response) => {
-		const providerName = req.params?.provider;
+		const providerName = (req.params as { provider?: string } | undefined)?.provider;
 		const provider = resolveOrHandle(providerName, res);
 		if (!provider) return;
 
@@ -355,7 +421,27 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 			family_name: userProfile.family_name,
 			tid: tid ?? userProfile.tid ?? 'test-tenant-id',
 		};
-		const tokenResponse = await buildTokenResponse(profile, keyObject, publicJwk, provider.issuer);
+
+		// Select signing key pair for this provider (per-provider JWKS when available)
+		let signingPair: ProviderKeyPair | undefined;
+		if (serverKeyPairs.providers) {
+			const providers = serverKeyPairs.providers as Record<string, ProviderKeyPair>;
+			let selectedProviderName = (req.params as { provider?: string } | undefined)?.provider as string | undefined;
+			if (!selectedProviderName && Object.keys(providers).length === 1) {
+				const providerKeys = Object.keys(providers);
+				selectedProviderName = providerKeys[0];
+			}
+			if (selectedProviderName) {
+				signingPair = providers[selectedProviderName];
+			}
+		} else {
+			signingPair = serverKeyPairs.default;
+		}
+		if (!signingPair) {
+			res.status(500).json({ error: 'server_error', error_description: 'No signing key available for provider' });
+			return;
+		}
+		const tokenResponse = await buildTokenResponse(profile, signingPair.privateKey, signingPair.publicJwk, provider.issuer);
 		res.json(tokenResponse);
 	};
 	app.post('/token', tokenHandler);
@@ -363,7 +449,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 	// OpenID configuration (legacy + provider-prefixed)
 	const openidHandler = (_req: Request, res: Response) => {
-		const providerName = _req.params?.provider as string | undefined;
+		const providerName = (_req.params as { provider?: string } | undefined)?.provider as string | undefined;
 		let provider: OidcProviderConfig | null = null;
 		try {
 			provider = resolveProviderConfig(config, providerName);
@@ -401,7 +487,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 	// Authorize endpoint (legacy + provider-prefixed)
 	const authorizeHandler = (req: Request, res: Response) => {
-		const providerName = req.params?.provider as string | undefined;
+		const providerName = (req.params as { provider?: string } | undefined)?.provider as string | undefined;
 		const provider = resolveOrHandle(providerName, res);
 		if (!provider) return;
 
@@ -438,7 +524,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	});
 
 	const userinfoHandler = async (req: Request, res: Response) => {
-		const providerName = req.params?.provider as string | undefined;
+		const providerName = (req.params as { provider?: string } | undefined)?.provider as string | undefined;
 		const provider = resolveOrHandle(providerName, res);
 		if (!provider) return;
 
@@ -459,9 +545,34 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		}
 
 		try {
-			// Verify token using the same RSA public key that was used to sign it in /token.
+			// Verify token using the provider-specific public key that was used to sign it in /token.
 			// Validate issuer and audience to better match real IdP behaviour and surface client misconfiguration.
-			const { payload } = await jwtVerify(token, publicKey, {
+			let verifierKey: KeyObject | undefined;
+			if (serverKeyPairs.providers) {
+				const providers = serverKeyPairs.providers as Record<string, ProviderKeyPair>;
+				let selectedProviderName = providerName;
+				if (!selectedProviderName && Object.keys(providers).length === 1) {
+					const providerKeys = Object.keys(providers);
+					selectedProviderName = providerKeys[0];
+				}
+				if (selectedProviderName) {
+					const pk = providers[selectedProviderName];
+					if (pk) verifierKey = pk.publicKey;
+				}
+			} else {
+				if (!serverKeyPairs.default) {
+					res.status(401).json({ error: 'invalid_token', error_description: 'token_verification_failed' });
+					return;
+				}
+				verifierKey = serverKeyPairs.default.publicKey;
+			}
+
+			if (!verifierKey) {
+				res.status(401).json({ error: 'invalid_token', error_description: 'token_verification_failed' });
+				return;
+			}
+
+			const { payload } = await jwtVerify(token, verifierKey, {
 				issuer: provider.issuer,
 				audience: Array.from(allowedAudiences),
 			});
@@ -563,7 +674,9 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 	return new Promise<MockOAuth2ServerHandle>((resolve, reject) => {
 		const server = app.listen(config.port, config.host ?? 'localhost', () => {
-			const baseForLog = (config.baseUrl ?? (config.providers ? Object.values(config.providers)[0].issuer : 'unknown')).replace(/\/$/, '');
+			const firstProviderIssuer = config.providers ? Object.values(config.providers)[0]?.issuer : undefined;
+			const baseForLogValue = config.baseUrl ?? firstProviderIssuer ?? 'unknown';
+			const baseForLog = baseForLogValue.replace(/\/$/, '');
 			console.log(`Mock OAuth2 server running${baseForLog ? ` on ${baseForLog}` : ''}`);
 			console.log(`JWKS endpoint running on ${baseForLog}/.well-known/jwks.json`);
 
