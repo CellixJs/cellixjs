@@ -1,0 +1,273 @@
+{
+	"version": 1,
+	"authorityOrder": [
+		{
+			"rank": 1,
+			"layer": "orchestration-spec",
+			"description": "Repo-local control-plane contract that selects the capability profile, maps abstract classes, and defines narrow overrides."
+		},
+		{
+			"rank": 2,
+			"layer": "adr",
+			"description": "Architecture-policy intent that explains why the orchestration system exists and what invariants must hold."
+		},
+		{
+			"rank": 3,
+			"layer": "instructions",
+			"description": "Repo-wide and path-scoped instructions that apply the orchestration contract to concrete code paths."
+		},
+		{
+			"rank": 4,
+			"layer": "skills",
+			"description": "Reusable workflows that execute lane-specific behavior."
+		},
+		{
+			"rank": 5,
+			"layer": "agents",
+			"description": "Thin role prompts that operate within enforced phases and delegate to skills."
+		},
+		{
+			"rank": 6,
+			"layer": "runtime-artifacts",
+			"description": "Session summaries and working notes that record the current run but never override policy."
+		}
+	],
+	"pathClasses": {
+		"reusableFramework": {
+			"description": "Packages that define reusable Cellix framework behavior and may expose public contracts to downstream consumers."
+		},
+		"applicationPackages": {
+			"description": "Reference applications or product/application packages that consume framework behavior rather than define framework contracts."
+		},
+		"tooling": {
+			"description": "Repository automation, validation, scripts, CI wiring, hooks, and developer workflow assets."
+		},
+		"docs": {
+			"description": "Architecture, contributor, and product documentation that is not itself executable application or framework code."
+		}
+	},
+	"laneFamilies": {
+		"reusable-framework": {
+			"description": "Work on reusable framework packages, contracts, and internal implementation details."
+		},
+		"application-delivery": {
+			"description": "Bounded application or reference-app feature work."
+		},
+		"tooling-workflow": {
+			"description": "Developer workflow, repository tooling, CI, automation, and validation work."
+		},
+		"docs-planning": {
+			"description": "Documentation, architecture, planning, and decision-record work."
+		}
+	},
+	"lanes": {
+		"reusable-framework-public-surface": {
+			"family": "reusable-framework",
+			"entryClasses": ["reusableFramework"],
+			"description": "Public-surface framework work that changes or validates reusable package contracts."
+		},
+		"reusable-framework-internal": {
+			"family": "reusable-framework",
+			"entryClasses": ["reusableFramework"],
+			"description": "Internal reusable framework work that preserves or hardens existing contracts."
+		},
+		"application-feature-delivery": {
+			"family": "application-delivery",
+			"entryClasses": ["applicationPackages"],
+			"description": "Application or reference-app feature delivery with bounded planning, implementation, and review."
+		},
+		"tooling-workflow": {
+			"family": "tooling-workflow",
+			"entryClasses": ["tooling"],
+			"description": "Tooling, workflow, automation, hooks, and CI changes."
+		},
+		"docs-architecture-planning": {
+			"family": "docs-planning",
+			"entryClasses": ["docs", "tooling"],
+			"description": "Architecture docs, contributor guidance, ADRs, and planning work."
+		}
+	},
+	"profiles": {
+		"mixed-framework-and-app": {
+			"description": "Repository contains both reusable framework packages and application/reference-app code.",
+			"laneFamilies": ["reusable-framework", "application-delivery", "tooling-workflow", "docs-planning"],
+			"defaultArtifactMode": "minimal",
+			"frameworkExtensions": ["cellix-tdd"]
+		},
+		"framework-only": {
+			"description": "Repository contains reusable framework packages but no application/reference-app code.",
+			"laneFamilies": ["reusable-framework", "tooling-workflow", "docs-planning"],
+			"defaultArtifactMode": "minimal",
+			"frameworkExtensions": ["cellix-tdd"]
+		},
+		"application-only": {
+			"description": "Repository consumes Cellix but does not develop reusable Cellix framework packages.",
+			"laneFamilies": ["application-delivery", "tooling-workflow", "docs-planning"],
+			"defaultArtifactMode": "minimal",
+			"frameworkExtensions": []
+		}
+	},
+	"roles": {
+		"senior-orchestrator": {
+			"description": "Owns intake, lane classification, bounded planning, gating, escalation, and merge/readiness decisions."
+		},
+		"discovery-planner": {
+			"description": "Gathers repo truth and prepares the bounded execution plan."
+		},
+		"implementation-engineer": {
+			"description": "Executes the bounded implementation or revision phase."
+		},
+		"qa-reviewer": {
+			"description": "Performs review, validation, and gate checks for a bounded phase."
+		},
+		"framework-surface-reviewer": {
+			"description": "Performs additional reusable-framework public-surface review when the selected lane requires framework scrutiny."
+		}
+	},
+	"states": {
+		"initialized": {
+			"phase": "intake",
+			"allowedRoles": ["senior-orchestrator"],
+			"transitions": {
+				"planning": {
+					"requires": ["task-lane-selected", "session-created"]
+				},
+				"blocked": {
+					"requires": ["blocker-recorded"]
+				}
+			}
+		},
+		"planning": {
+			"phase": "planning",
+			"allowedRoles": ["senior-orchestrator", "discovery-planner"],
+			"transitions": {
+				"plan-complete": {
+					"requires": ["bounded-plan", "phase-owner-recorded"]
+				},
+				"blocked": {
+					"requires": ["blocker-recorded"]
+				}
+			}
+		},
+		"plan-complete": {
+			"phase": "planning",
+			"allowedRoles": ["senior-orchestrator"],
+			"transitions": {
+				"implementing": {
+					"requires": ["implementation-owner-recorded"]
+				},
+				"blocked": {
+					"requires": ["blocker-recorded"]
+				}
+			}
+		},
+		"implementing": {
+			"phase": "implementation",
+			"allowedRoles": ["senior-orchestrator", "implementation-engineer"],
+			"transitions": {
+				"reviewing": {
+					"requires": ["change-summary", "validation-evidence"]
+				},
+				"blocked": {
+					"requires": ["blocker-recorded"]
+				}
+			}
+		},
+		"reviewing": {
+			"phase": "review",
+			"allowedRoles": ["senior-orchestrator", "qa-reviewer", "framework-surface-reviewer"],
+			"transitions": {
+				"revising": {
+					"requires": ["review-findings"]
+				},
+				"done": {
+					"requires": ["completion-gates-satisfied", "final-summary"]
+				},
+				"blocked": {
+					"requires": ["blocker-recorded"]
+				}
+			}
+		},
+		"revising": {
+			"phase": "revision",
+			"allowedRoles": ["senior-orchestrator", "implementation-engineer"],
+			"transitions": {
+				"reviewing": {
+					"requires": ["revision-summary", "validation-evidence"]
+				},
+				"blocked": {
+					"requires": ["blocker-recorded"]
+				}
+			}
+		},
+		"blocked": {
+			"phase": "escalation",
+			"allowedRoles": ["senior-orchestrator"],
+			"transitions": {
+				"planning": {
+					"requires": ["blocker-resolved", "replan-required"]
+				},
+				"implementing": {
+					"requires": ["blocker-resolved", "existing-plan-still-valid"]
+				},
+				"revising": {
+					"requires": ["blocker-resolved", "review-findings-still-open"]
+				}
+			}
+		},
+		"done": {
+			"phase": "complete",
+			"allowedRoles": ["senior-orchestrator"],
+			"transitions": {}
+		}
+	},
+	"laneSpecificRoleRules": [
+		{
+			"lane": "reusable-framework-public-surface",
+			"role": "framework-surface-reviewer",
+			"allowedStates": ["reviewing"],
+			"requiresProfiles": ["mixed-framework-and-app", "framework-only"]
+		},
+		{
+			"lane": "reusable-framework-internal",
+			"role": "framework-surface-reviewer",
+			"allowedStates": [],
+			"requiresProfiles": ["mixed-framework-and-app", "framework-only"]
+		},
+		{
+			"laneFamily": "application-delivery",
+			"role": "framework-surface-reviewer",
+			"allowedStates": [],
+			"requiresProfiles": []
+		}
+	],
+	"frameworkExtensions": {
+		"cellix-tdd": {
+			"description": "Framework-contract skill used only for reusable framework work.",
+			"allowedProfiles": ["mixed-framework-and-app", "framework-only"],
+			"allowedLanes": ["reusable-framework-public-surface", "reusable-framework-internal"]
+		}
+	},
+	"artifactPolicy": {
+		"defaultMode": "minimal",
+		"modes": {
+			"minimal": {
+				"requiredArtifacts": ["intake.md", "plan.md", "final-summary.md"],
+				"description": "Default posture for most tasks. Keep runtime artifact depth intentionally light."
+			},
+			"elevated": {
+				"requiredArtifacts": ["intake.md", "plan.md", "final-summary.md"],
+				"recommendedArtifacts": ["validation.md", "review.md", "blocked.md", "dogfood.md"],
+				"description": "Used when risk, parallelism, or profile-specific behavior requires more evidence."
+			}
+		},
+		"promotionSignals": ["high-risk-change", "parallel-agent-work", "cross-cutting-surface", "explicit-artifact-request"]
+	},
+	"completionGates": {
+		"reusable-framework-public-surface": ["public-contract-evidence", "documentation-alignment", "validation-summary"],
+		"reusable-framework-internal": ["targeted-validation", "regression-risk-check", "validation-summary"],
+		"application-feature-delivery": ["acceptance-validation", "changed-path-review", "validation-summary"],
+		"tooling-workflow": ["targeted-validation", "workflow-impact-summary", "validation-summary"],
+		"docs-architecture-planning": ["document-review", "consistency-check", "summary"]
+	}
+}
