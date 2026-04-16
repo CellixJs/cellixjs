@@ -300,4 +300,165 @@ describe('member-management operations', () => {
 		expect(member.profile.bio).toBe('Hello');
 		expect(member.profile.showProfile).toBe(true);
 	});
+
+	it('throws when unable to determine community during member role update', async () => {
+		memberRepository.getById.mockResolvedValue({ props: { communityId: undefined } });
+
+		await expect(updateMemberRole(dataSources)({ memberId: 'member-1', roleId: 'role-1' })).rejects.toThrow('Unable to determine community from member');
+	});
+
+	it('throws when update member role save returns nothing', async () => {
+		const role = { id: 'role-1', community: { id: 'community-1' } };
+		const member = { props: { communityId: 'community-1' }, role: null };
+		memberRepository.getById.mockResolvedValue(member);
+		roleRepository.getById.mockResolvedValue(role);
+		memberRepository.save.mockResolvedValue(undefined);
+
+		await expect(updateMemberRole(dataSources)({ memberId: 'member-1', roleId: 'role-1' })).rejects.toThrow('Unable to update member role');
+	});
+
+	it('throws when creating member account for missing end user', async () => {
+		memberRepository.getById.mockResolvedValue({
+			accounts: [],
+			communityId: 'community-1',
+			requestNewAccount: vi.fn(),
+		});
+		endUserReadRepository.getById.mockResolvedValue(undefined);
+
+		await expect(createMemberAccount(dataSources)({ memberId: 'member-1', endUserId: 'missing-end-user' })).rejects.toThrow('End user missing-end-user not found');
+	});
+
+	it('throws when selected end user is not part of the member community', async () => {
+		const endUser = {
+			id: 'end-user-1',
+			displayName: 'Jane Doe',
+			personalInformation: {
+				identityDetails: {
+					restOfName: 'Jane',
+					lastName: 'Doe',
+				},
+			},
+		};
+		memberRepository.getById.mockResolvedValue({
+			accounts: [],
+			communityId: 'community-1',
+			requestNewAccount: vi.fn(),
+		});
+		endUserReadRepository.getById.mockResolvedValue(endUser);
+		memberReadRepository.getByCommunityId.mockResolvedValue([{ accounts: [] }]);
+
+		await expect(createMemberAccount(dataSources)({ memberId: 'member-1', endUserId: 'end-user-1' })).rejects.toThrow(
+			'Selected user is not associated with this community. Invite the user first.',
+		);
+	});
+
+	it('throws when selected end user is already associated with the member', async () => {
+		const existingUser = {
+			id: 'end-user-1',
+			displayName: 'Jane Doe',
+			personalInformation: {
+				identityDetails: {
+					restOfName: 'Jane',
+					lastName: 'Doe',
+				},
+			},
+		};
+		memberRepository.getById.mockResolvedValue({
+			accounts: [{ id: 'acc-1', user: { id: 'end-user-1' } }],
+			communityId: 'community-1',
+			requestNewAccount: vi.fn(),
+		});
+		endUserReadRepository.getById.mockResolvedValue(existingUser);
+		memberReadRepository.getByCommunityId.mockResolvedValue([{ accounts: [{ user: { id: 'end-user-1' } }] }]);
+
+		await expect(createMemberAccount(dataSources)({ memberId: 'member-1', endUserId: 'end-user-1' })).rejects.toThrow(
+			'Selected user is already associated with this member',
+		);
+	});
+
+	it('uses displayName when end user restOfName is empty during account update', async () => {
+		const endUser = {
+			id: 'end-user-2',
+			displayName: 'Display Name',
+			personalInformation: {
+				identityDetails: {
+					restOfName: '   ',
+					lastName: '',
+				},
+			},
+		};
+		const account = { id: 'account-1', firstName: 'Old', lastName: 'Last', user: { id: 'end-user-old' } };
+		memberRepository.getById.mockResolvedValue({
+			accounts: [account],
+			communityId: 'community-1',
+		});
+		endUserReadRepository.getById.mockResolvedValue(endUser);
+		memberReadRepository.getByCommunityId.mockResolvedValue([{ accounts: [{ user: { id: 'end-user-2' } }] }]);
+		memberRepository.save.mockResolvedValue({ id: 'member-1' });
+
+		const updated = await updateMemberAccount(dataSources)({
+			memberId: 'member-1',
+			accountId: 'account-1',
+			endUserId: 'end-user-2',
+		});
+
+		expect(updated.id).toBe('member-1');
+		expect(account.firstName).toBe('Display Name');
+		expect(account.lastName).toBe('Last');
+	});
+
+	it('throws when updating member account to a user already assigned to another account', async () => {
+		memberRepository.getById.mockResolvedValue({
+			accounts: [
+				{ id: 'account-1', user: { id: 'end-user-1' }, firstName: 'A', lastName: 'A' },
+				{ id: 'account-2', user: { id: 'end-user-2' }, firstName: 'B', lastName: 'B' },
+			],
+			communityId: 'community-1',
+		});
+		endUserReadRepository.getById.mockResolvedValue({
+			id: 'end-user-2',
+			displayName: 'End User Two',
+			personalInformation: {
+				identityDetails: {
+					restOfName: 'End',
+					lastName: 'User',
+				},
+			},
+		});
+		memberReadRepository.getByCommunityId.mockResolvedValue([{ accounts: [{ user: { id: 'end-user-2' } }] }]);
+
+		await expect(
+			updateMemberAccount(dataSources)({
+				memberId: 'member-1',
+				accountId: 'account-1',
+				endUserId: 'end-user-2',
+			}),
+		).rejects.toThrow('Selected user is already associated with this member');
+	});
+
+	it('throws when update member profile save returns nothing', async () => {
+		memberRepository.getById.mockResolvedValue({
+			memberName: 'Old Name',
+			profile: {
+				name: '',
+				email: '',
+				bio: '',
+				showProfile: false,
+				showEmail: false,
+				showInterests: false,
+				showLocation: false,
+				showProperties: false,
+			},
+		});
+		memberRepository.save.mockResolvedValue(undefined);
+
+		await expect(
+			updateMemberProfile(dataSources)({
+				memberId: 'member-1',
+				profile: {
+					name: 'New Name',
+				},
+			}),
+		).rejects.toThrow('Unable to update member profile');
+	});
 });

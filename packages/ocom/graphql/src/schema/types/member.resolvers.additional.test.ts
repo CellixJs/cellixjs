@@ -311,4 +311,96 @@ describe('member resolvers additional coverage', () => {
 			member: null,
 		});
 	});
+
+	it('maps optional fields for deactivate/remove and bulk invite command payloads', async () => {
+		const context = createContext();
+		const deactivateResolver = memberResolvers.Mutation?.deactivateMember as (parent: unknown, args: { input: { memberId: string; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
+		const removeResolver = memberResolvers.Mutation?.removeMember as (parent: unknown, args: { input: { memberId: string; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
+		const bulkInviteResolver = memberResolvers.Mutation?.bulkInviteMembers as (
+			parent: unknown,
+			args: { input: { communityId: string; invitations: Array<{ email: string; message?: string }>; expiresInDays?: number } },
+			context: GraphContext,
+			info: unknown,
+		) => Promise<unknown>;
+
+		vi.mocked(context.applicationServices.Community.Member.deactivateMember).mockResolvedValue({ id: 'member-1' } as never);
+		vi.mocked(context.applicationServices.Community.Member.removeMember).mockResolvedValue(undefined as never);
+		vi.mocked(context.applicationServices.Community.Member.bulkInviteMembers).mockResolvedValue([] as never);
+
+		await deactivateResolver(null, { input: { memberId: 'member-1' } }, context, {});
+		expect(context.applicationServices.Community.Member.deactivateMember).toHaveBeenCalledWith({ memberId: 'member-1' });
+
+		await removeResolver(null, { input: { memberId: 'member-1' } }, context, {});
+		expect(context.applicationServices.Community.Member.removeMember).toHaveBeenCalledWith({ memberId: 'member-1' });
+
+		await bulkInviteResolver(
+			null,
+			{
+				input: {
+					communityId: 'community-1',
+					invitations: [{ email: 'a@example.com', message: null as unknown as string }, { email: 'b@example.com' }],
+					expiresInDays: 12,
+				},
+			},
+			context,
+			{},
+		);
+		expect(context.applicationServices.Community.Member.bulkInviteMembers).toHaveBeenCalledWith({
+			communityId: 'community-1',
+			invitations: [{ email: 'a@example.com' }, { email: 'b@example.com' }],
+			expiresInDays: 12,
+			invitedByExternalId: 'user-sub-1',
+		});
+	});
+
+	it('returns fallback non-Error messages in resolver catch blocks', async () => {
+		const context = createContext();
+		const deactivateResolver = memberResolvers.Mutation?.deactivateMember as (parent: unknown, args: { input: { memberId: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
+		const removeResolver = memberResolvers.Mutation?.removeMember as (parent: unknown, args: { input: { memberId: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
+		const bulkInviteResolver = memberResolvers.Mutation?.bulkInviteMembers as (
+			parent: unknown,
+			args: { input: { communityId: string; invitations: Array<{ email: string }> } },
+			context: GraphContext,
+			info: unknown,
+		) => Promise<unknown>;
+		const roleUpdateResolver = memberResolvers.Mutation?.memberRoleUpdate as (
+			parent: unknown,
+			args: { input: { memberId: string; roleId: string } },
+			context: GraphContext,
+		) => Promise<unknown>;
+
+		vi.mocked(context.applicationServices.Community.Member.deactivateMember).mockRejectedValue('bad');
+		vi.mocked(context.applicationServices.Community.Member.removeMember).mockRejectedValue('bad');
+		vi.mocked(context.applicationServices.Community.Member.bulkInviteMembers).mockRejectedValue('bad');
+		vi.mocked(context.applicationServices.Community.Member.updateMemberRole).mockRejectedValue('bad');
+
+		await expect(deactivateResolver(null, { input: { memberId: 'member-1' } }, context, {})).resolves.toMatchObject({
+			status: { success: false, errorMessage: 'Unknown error' },
+		});
+		await expect(removeResolver(null, { input: { memberId: 'member-1' } }, context, {})).resolves.toMatchObject({
+			status: { success: false, errorMessage: 'Unknown error' },
+		});
+		await expect(
+			bulkInviteResolver(
+				null,
+				{
+					input: {
+						communityId: 'community-1',
+						invitations: [{ email: 'a@example.com' }],
+					},
+				},
+				context,
+				{},
+			),
+		).resolves.toMatchObject({
+			status: { success: false, errorMessage: 'Unknown error' },
+			invitations: [],
+			successCount: 0,
+			failedCount: 1,
+		});
+		await expect(roleUpdateResolver(null, { input: { memberId: 'member-1', roleId: 'role-1' } }, context)).resolves.toMatchObject({
+			status: { success: false, errorMessage: 'Failed to update member role' },
+			member: null,
+		});
+	});
 });
