@@ -31,6 +31,18 @@ The lane boundaries stayed coherent:
 
 The hook runtime was dogfooded through sequential session runs.
 
+## Explicit Orchestrator Bootstrap
+
+The most reliable startup path in Copilot CLI is explicit orchestrator selection rather than expecting the repo workflow to be picked up automatically.
+
+The current workflow therefore treats this as the supported path:
+
+1. select `senior-orchestrator` through `/agents`
+2. give the orchestrator the task prompt
+3. let the orchestrator run `pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...`
+
+When the changed paths fit one lane cleanly, the helper creates the session and moves it into `planning`. When the paths span both application and reusable-framework classes, it tells the orchestrator to split the work into bounded phases instead of pretending one lane fits the whole task.
+
 ### Valid transition path
 
 This command sequence successfully advanced a tooling session from `initialized` into `planning`:
@@ -127,6 +139,12 @@ This matters for portability:
 - The hook runtime currently assumes the orchestrator has already selected the lane. It validates the workflow after classification but does not yet automate lane selection from changed paths.
 - The current dogfooding evidence is strongest around validation, gating, and documentation. It is lighter on fully automated mixed-repo task routing.
 - Alternate-profile validation needed a small `--spec` affordance in the validator CLI to make the examples practical instead of theoretical.
+
+## What Tightened
+
+- The workflow now has an explicit bootstrap helper for orchestrator-led runs instead of relying on ambient discovery.
+- The supported Copilot CLI path is now documented as `/agents -> senior-orchestrator -> task prompt`.
+- Mixed app/framework changed paths now have a first-class bootstrap response: split phases or escalate before any implementation delegation.
 
 ## Follow-Up Tightening
 

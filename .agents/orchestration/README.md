@@ -36,8 +36,24 @@ Hooks and validators enforce the model, but they do not invent policy outside th
 
 The CellixJS mixed-repository example lives at the repo root in `orchestration.spec.yaml`.
 
+## Supported Bootstrap
+
+The supported startup path is explicit orchestrator selection.
+
+- In Copilot CLI, select the `senior-orchestrator` agent first, then provide the task prompt.
+- After that, bootstrap the run from the concrete changed paths or expected paths:
+
+```bash
+pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...
+```
+
+- If the bootstrap report returns a clean lane, the helper creates the session and advances it into `planning`.
+- If the bootstrap report says the paths span both `reusableFramework` and `applicationPackages`, split the work into bounded phases or escalate instead of forcing one lane.
+- If the selected lane is reusable-framework work, the bootstrap report also surfaces `cellix-tdd` as the framework extension to carry into planning and implementation.
+
 ## Validation Commands
 
+- `pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...` resolves changed paths through the repo-local orchestration spec and starts a planning session when the lane is explicit.
 - `pnpm run orchestration:validate` validates the repo-local orchestration spec, model wiring, required skills, agents, and hook manifest.
 - `pnpm run orchestration:suggest-lane -- <changed-path>...` suggests a likely primary lane from changed paths and surfaces ambiguous cases that still need orchestrator judgment.
 - `node --experimental-strip-types .agents/orchestration/cli/validate-orchestration.ts --repo . --spec .agents/orchestration/examples/framework-only.orchestration.spec.yaml` validates an alternate repo-local spec such as the framework-only or application-only examples.

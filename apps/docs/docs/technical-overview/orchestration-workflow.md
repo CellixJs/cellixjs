@@ -16,6 +16,12 @@ The workflow introduced by issue [#218](https://github.com/CellixJs/cellixjs/iss
 
 The repo-local entrypoint is [`orchestration.spec.yaml`](https://github.com/CellixJs/cellixjs/blob/main/orchestration.spec.yaml). The shared defaults live in [`.agents/orchestration/model/orchestration-model.v1.json`](https://github.com/CellixJs/cellixjs/blob/main/.agents/orchestration/model/orchestration-model.v1.json).
 
+In Copilot CLI, the supported startup path is explicit:
+
+1. select the `senior-orchestrator` agent through `/agents`
+2. provide the task prompt to that orchestrator
+3. let the orchestrator bootstrap the run from the changed paths instead of relying on ambient repo pickup
+
 ## Why This Exists
 
 The design goal is to keep the senior-led delivery protocol primary:
@@ -93,6 +99,20 @@ A task run resolves to one primary lane:
 Do not blend lane families in one execution phase. If a task spans framework and application work, split the phases or escalate.
 
 For changed-path triage, use `pnpm run orchestration:suggest-lane -- <path>...` as a helper. It can suggest obvious application, docs, or tooling fits and intentionally refuses to over-claim when reusable-framework changes still require human judgment between internal and public-surface work.
+
+For explicit orchestrator startup, use:
+
+```bash
+pnpm run orchestration:bootstrap -- --session <session-id> <path>...
+```
+
+This helper is intentionally narrow:
+
+- it resolves the paths through the repo-local class mappings
+- it reuses the shared lane-suggestion logic
+- it starts the session and advances it into `planning` only when the lane is explicit
+- it tells the orchestrator to split phases when the task spans both application and reusable-framework classes
+- it surfaces applicable framework extensions such as `cellix-tdd` for reusable-framework lanes
 
 ## Workflow States And Transitions
 

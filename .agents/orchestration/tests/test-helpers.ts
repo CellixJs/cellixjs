@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { afterEach } from 'vitest';
@@ -16,21 +16,17 @@ export function createTempRepoFixture(specContents?: string): string {
 	copyFile(root, '.agents/orchestration/model/orchestration-model.v1.json');
 	copyFile(root, '.agents/orchestration/hooks/hook-manifest.json');
 	copyFile(root, '.agents/orchestration/cli/orchestration-hook.ts');
+	copyFile(root, '.agents/orchestration/cli/bootstrap-orchestration.ts');
 	copyFile(root, '.agents/orchestration/cli/validate-orchestration.ts');
 	copyFile(root, '.agents/orchestration/lib/types.ts');
 	copyFile(root, '.agents/orchestration/lib/yaml-lite.ts');
+	copyFile(root, '.agents/orchestration/lib/orchestration-bootstrap.ts');
 	copyFile(root, '.agents/orchestration/lib/orchestration-loader.ts');
+	copyFile(root, '.agents/orchestration/lib/orchestration-routing.ts');
 	copyFile(root, '.agents/orchestration/lib/orchestration-runtime.ts');
 	copyFile(root, '.agents/orchestration/lib/orchestration-validator.ts');
 
-	const skills = [
-		'cellix-task-intake',
-		'cellix-session-state',
-		'cellix-feature-delivery',
-		'cellix-phase-review',
-		'cellix-framework-surface-review',
-		'cellix-tdd',
-	];
+	const skills = ['cellix-task-intake', 'cellix-session-state', 'cellix-feature-delivery', 'cellix-phase-review', 'cellix-framework-surface-review', 'cellix-tdd'];
 
 	for (const skill of skills) {
 		copyFile(root, `.agents/skills/${skill}/SKILL.md`);
@@ -41,9 +37,7 @@ export function createTempRepoFixture(specContents?: string): string {
 		copyFile(root, `.github/agents/${agent}.agent.md`);
 	}
 
-	const defaultSpec =
-		specContents ??
-		readFileSync(join(repoRoot(), 'orchestration.spec.yaml'), 'utf8');
+	const defaultSpec = specContents ?? readFileSync(join(repoRoot(), 'orchestration.spec.yaml'), 'utf8');
 
 	writeFixtureFile(root, 'orchestration.spec.yaml', defaultSpec);
 	return root;
