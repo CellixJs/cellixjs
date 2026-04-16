@@ -2,7 +2,7 @@ import {
 	AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
 	AccountsCommunityListContainerMembersForCurrentEndUserDocument,
 	AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument,
-} from '../../../packages/ocom/ui-community-route-accounts/src/generated';
+} from '../../../packages/ocom/ui-community-route-accounts/src/generated.tsx';
 
 // Mock data for communities
 const mockCommunities = [
