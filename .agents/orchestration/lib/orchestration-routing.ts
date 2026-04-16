@@ -21,12 +21,21 @@ function globToRegExp(pattern: string): RegExp {
 
 function matchesMapping(path: string, mapping: ClassMapping): boolean {
 	const normalizedPath = normalizePath(path);
-	const included = mapping.include.some((pattern) => globToRegExp(pattern).test(normalizedPath));
+	const candidatePaths = normalizedPath.endsWith('/') ? [normalizedPath] : [normalizedPath, `${normalizedPath}/`];
+	const included = mapping.include.some((pattern) => {
+		const expression = globToRegExp(pattern);
+		return candidatePaths.some((candidatePath) => expression.test(candidatePath));
+	});
 	if (!included) {
 		return false;
 	}
 
-	if (mapping.exclude?.some((pattern) => globToRegExp(pattern).test(normalizedPath))) {
+	if (
+		mapping.exclude?.some((pattern) => {
+			const expression = globToRegExp(pattern);
+			return candidatePaths.some((candidatePath) => expression.test(candidatePath));
+		})
+	) {
 		return false;
 	}
 

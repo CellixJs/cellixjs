@@ -11,6 +11,14 @@ describe('orchestration lane suggestion', () => {
 		expect(report.matchedClasses).toContain('applicationPackages');
 	});
 
+	test('suggests the application delivery lane for application directories', () => {
+		const report = suggestLaneForChangedPaths(repoRoot(), ['apps/server-oauth2-mock']);
+
+		expect(report.suggestedLane).toBe('application-feature-delivery');
+		expect(report.confidence).toBe('high');
+		expect(report.matchedClasses).toContain('applicationPackages');
+	});
+
 	test('suggests the docs lane for docs-only paths', () => {
 		const report = suggestLaneForChangedPaths(repoRoot(), ['apps/docs/docs/technical-overview/orchestration-workflow.md']);
 

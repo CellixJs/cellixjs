@@ -15,11 +15,13 @@ When working with AI agents:
 - in Copilot CLI, explicitly select the `senior-orchestrator` agent before giving a substantive development prompt when you want the repo orchestration workflow
 - classify work into one primary lane before substantial implementation
 - bootstrap the task from changed paths with `pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...`
+- if bootstrap reports `Requires lane decision: yes`, stop and choose the lane explicitly instead of continuing with an assumed lane
 - follow the explicit workflow states `initialized -> planning -> plan-complete -> implementing -> reviewing -> revising/done`
 - use `blocked` only for real blockers or unresolved ambiguity
 - keep runtime artifact depth minimal by default
 - activate `cellix-tdd` only for reusable framework work in profiles that support framework behavior
 - if changed paths span application and reusable framework classes, split the task into bounded phases instead of delegating one blended implementation pass
+- use `pnpm run orchestration:hook -- transition planning --session <session-id> --role senior-orchestrator` and `pnpm run orchestration:hook -- agent-check --session <session-id> --role discovery-planner` as the default planning handoff commands
 
 ## Architecture Overview
 

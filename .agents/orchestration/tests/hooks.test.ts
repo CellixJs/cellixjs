@@ -110,4 +110,35 @@ describe('orchestration hook checks', () => {
 			message: 'Unknown subcommand "unknown-command"',
 		});
 	});
+
+	test('accepts shorthand transition invocations used by orchestrator prompts', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'transition-shorthand',
+			lane: 'application-feature-delivery',
+			role: 'senior-orchestrator',
+		});
+
+		const result = spawnSync(
+			process.execPath,
+			['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'transition', 'planning', '--repo', fixtureRoot, '--session', 'transition-shorthand', '--owner', 'senior-orchestrator'],
+			{
+				cwd: repoRoot(),
+				encoding: 'utf8',
+			},
+		);
+
+		expect(result.status).toBe(0);
+		expect(JSON.parse(result.stdout)).toMatchObject({
+			result: {
+				allowed: true,
+				code: 'transition-allowed',
+				state: 'planning',
+			},
+			session: {
+				state: 'planning',
+				recentRole: 'senior-orchestrator',
+			},
+		});
+	});
 });

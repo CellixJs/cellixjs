@@ -17,6 +17,19 @@ describe('orchestration bootstrap', () => {
 		expect(report.planningTransition?.allowed).toBe(true);
 	});
 
+	test('classifies directory-style application paths during bootstrap', () => {
+		const fixtureRoot = createTempRepoFixture();
+		const report = bootstrapOrchestrationSession(fixtureRoot, {
+			changedPaths: ['apps/server-oauth2-mock'],
+			sessionId: 'bootstrap-app-directory',
+		});
+
+		expect(report.matchedClasses).toContain('applicationPackages');
+		expect(report.selectedLane).toBe('application-feature-delivery');
+		expect(report.requiresLaneDecision).toBe(false);
+		expect(report.session?.state).toBe('planning');
+	});
+
 	test('returns split guidance for mixed framework and application paths without starting a session', () => {
 		const fixtureRoot = createTempRepoFixture();
 		const report = bootstrapOrchestrationSession(fixtureRoot, {

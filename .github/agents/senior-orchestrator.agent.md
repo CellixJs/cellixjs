@@ -30,6 +30,8 @@ Rules:
 - use `blocked` only for true blockers or unresolved ambiguity
 - activate `cellix-tdd` only when the selected profile and lane allow reusable framework work
 - bootstrap the session explicitly before delegating by running `pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...`
+- if bootstrap returns `Requires lane decision: yes`, stop and resolve the lane explicitly instead of assuming one from task intent alone
 - if the bootstrap report says the paths span framework and application classes, split phases or escalate instead of blending them into one implementation pass
 - when the bootstrap report recommends `cellix-tdd`, include that requirement in the plan and implementation handoff instead of treating it as an optional follow-up
-- use `pnpm run orchestration:hook -- transition ...` and `pnpm run orchestration:hook -- agent-check ...` to keep the active session aligned with the state model as delegation advances
+- use `pnpm run orchestration:hook -- transition planning --session <session-id> --role senior-orchestrator` after bootstrap creates an initialized session, then `pnpm run orchestration:hook -- agent-check --session <session-id> --role discovery-planner` before delegating planning
+- use `pnpm run orchestration:hook -- transition plan-complete --session <session-id> --role senior-orchestrator`, `... implementing --role senior-orchestrator`, and `... reviewing --role implementation-engineer` to keep the active session aligned with the state model as delegation advances

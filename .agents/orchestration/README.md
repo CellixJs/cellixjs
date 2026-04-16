@@ -48,8 +48,10 @@ pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...
 ```
 
 - If the bootstrap report returns a clean lane, the helper creates the session and advances it into `planning`.
+- If the bootstrap report returns `Requires lane decision: yes`, stop and choose a lane explicitly instead of continuing with an assumed one.
 - If the bootstrap report says the paths span both `reusableFramework` and `applicationPackages`, split the work into bounded phases or escalate instead of forcing one lane.
 - If the selected lane is reusable-framework work, the bootstrap report also surfaces `cellix-tdd` as the framework extension to carry into planning and implementation.
+- The hook CLI accepts the common orchestrator shorthand `pnpm run orchestration:hook -- transition planning --session <session-id> --role senior-orchestrator` and infers the stable event id plus default transition evidence for non-`done` states.
 
 ## Validation Commands
 
