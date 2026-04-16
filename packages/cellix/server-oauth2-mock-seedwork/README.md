@@ -39,6 +39,31 @@ The app package supplies runtime configuration such as:
 - `allowedRedirectUri` (singular) — the primary redirect URI used when no `redirect_uri` is provided to `/authorize`
 - user profile generation
 
+### Multiple named providers
+
+This seedwork now supports multiple named OIDC providers through a providers map. Use the app-level environment variable `OIDC_PROVIDERS_JSON` to configure providers as a JSON object mapping names to provider config objects.
+
+Example:
+
+```
+OIDC_PROVIDERS_JSON='{"owner": {"issuer":"https://mock-auth.owner.local","jwksUri":"https://mock-auth.owner.local/.well-known/jwks.json","clientId":"owner-cli","clientSecret":"s3cr3t"}, "partner": {"issuer":"https://mock-auth.partner.local","jwksUri":"https://mock-auth.partner.local/.well-known/jwks.json"}}'
+```
+
+When multiple providers are configured, endpoints are also exposed under a provider path prefix. For example:
+
+- `GET /owner/.well-known/openid-configuration`
+- `GET /partner/.well-known/openid-configuration`
+- `POST /owner/token`
+- `POST /partner/token`
+
+Compatibility note: If no `OIDC_PROVIDERS_JSON` is provided, the server preserves legacy behavior and continues to expose unprefixed endpoints (e.g. `/.well-known/openid-configuration`, `/token`).
+
+Behavior when multiple providers are configured:
+
+- Requests to legacy unprefixed endpoints (e.g. `/.well-known/openid-configuration`) will return HTTP 400 and instruct the client to choose a provider.
+- Requests to a non-existent provider name return HTTP 404.
+
+
 ### Endpoints
 
 - `GET /.well-known/openid-configuration` — standard discovery document

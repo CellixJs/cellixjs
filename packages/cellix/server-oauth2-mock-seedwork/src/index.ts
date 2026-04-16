@@ -1,8 +1,8 @@
-import express from 'express';
-import rateLimit from 'express-rate-limit';
-import { SignJWT, exportJWK, exportPKCS8, generateKeyPair, errors as joseErrors, jwtVerify, type JWK } from 'jose';
 import crypto, { type KeyObject, type webcrypto } from 'node:crypto';
 import type { Server } from 'node:http';
+import express, { type Request, type Response } from 'express';
+import rateLimit from 'express-rate-limit';
+import { exportJWK, exportPKCS8, generateKeyPair, type JWK, errors as joseErrors, jwtVerify, SignJWT } from 'jose';
 
 interface TokenProfile {
 	aud: string;
@@ -22,14 +22,57 @@ export interface MockOAuth2UserProfile {
 	tid?: string;
 }
 
+export interface OidcProviderConfig {
+	issuer: string;
+	jwksUri?: string;
+	authorizationEndpoint?: string;
+	tokenEndpoint?: string;
+	userinfoEndpoint?: string;
+	clientId?: string;
+	clientSecret?: string;
+	// allow extensible additional fields
+	[k: string]: unknown;
+}
+
 export interface MockOAuth2ServerConfig {
 	port: number;
-	baseUrl: string;
+	// legacy single-provider baseUrl is still supported for backward compatibility
+	baseUrl?: string;
 	host?: string;
 	allowedRedirectUris: Set<string>;
 	allowedRedirectUri: string;
 	redirectUriToAudience: Map<string, string>;
 	getUserProfile: () => MockOAuth2UserProfile;
+	// new: named providers mapping
+	providers?: Record<string, OidcProviderConfig>;
+}
+
+export function resolveProviderConfig(config: MockOAuth2ServerConfig, providerName?: string): OidcProviderConfig {
+	// If a providerName was explicitly requested, prefer an exact match or fail
+	if (typeof providerName === 'string' && providerName.length > 0) {
+		if (config.providers && providerName in config.providers) return config.providers[providerName];
+		throw new Error(`provider_not_found:${providerName}`);
+	}
+
+	// No explicit provider requested - if single provider exists return it
+	if (config.providers && Object.keys(config.providers).length === 1) {
+		const key = Object.keys(config.providers)[0];
+		return config.providers[key];
+	}
+
+	// Legacy single-provider fallback
+	if (config.baseUrl) {
+		return {
+			issuer: config.baseUrl,
+			jwksUri: `${config.baseUrl.replace(/\/$/, '')}/.well-known/jwks.json`,
+			authorizationEndpoint: `${config.baseUrl.replace(/\/$/, '')}/authorize`,
+			tokenEndpoint: `${config.baseUrl.replace(/\/$/, '')}/token`,
+			userinfoEndpoint: `${config.baseUrl.replace(/\/$/, '')}/userinfo`,
+		};
+	}
+
+	// Nothing to resolve
+	throw new Error('multiple_providers_no_default');
 }
 
 async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.CryptoKey | KeyObject | JWK | Uint8Array, jwk: { alg?: string; kid?: string }, baseUrl: string) {
@@ -189,10 +232,32 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 	const normalizedAllowedOrigins = new Set<string>([...normalizedAllowedRedirectUris].map((u) => normalizeOrigin(u)));
 
-	// Serve JWKS endpoint from Express
-	app.get('/.well-known/jwks.json', (_req, res) => {
+	// helper to resolve provider for a request and handle errors consistently
+	const resolveOrHandle = (reqProvider?: string, res?: Response | undefined) => {
+		try {
+			return resolveProviderConfig(config, reqProvider);
+		} catch (err: unknown) {
+			if (res) {
+				if (typeof err === 'object' && err !== null && 'message' in err && String(err.message).startsWith('provider_not_found:')) {
+					res.status(404).json({ error: 'provider_not_found', error_description: `Provider not found: ${String(err).split(':').pop()}` });
+					return null;
+				}
+				// multiple providers configured and request used legacy path
+				if (String(err) === 'multiple_providers_no_default') {
+					res.status(400).json({ error: 'missing_provider', error_description: 'Multiple providers configured; specify a provider by prefixing the path (e.g. /{provider}/.well-known/openid-configuration).' });
+					return null;
+				}
+			}
+			throw err;
+		}
+	};
+
+	// Serve JWKS endpoint from Express (both legacy and provider-prefixed)
+	const jwksHandler = (_req: Request, res: Response) => {
 		res.json({ keys: [publicJwk] });
-	});
+	};
+	app.get('/.well-known/jwks.json', jwksHandler);
+	app.get('/:provider/.well-known/jwks.json', jwksHandler);
 
 	app.use(express.urlencoded({ extended: true }));
 	app.use(express.json());
@@ -233,7 +298,12 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		next();
 	});
 
-	app.post('/token', async (req, res) => {
+	// Token handler (supports legacy and provider-prefixed)
+	const tokenHandler = async (req: Request, res: Response) => {
+		const providerName = req.params?.provider;
+		const provider = resolveOrHandle(providerName, res);
+		if (!provider) return;
+
 		const { grant_type, tid, code } = req.body as {
 			grant_type?: string;
 			refresh_token?: string;
@@ -279,24 +349,45 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		const profile: TokenProfile = {
 			aud,
 			sub: persistedSub,
-			iss: config.baseUrl,
+			iss: provider.issuer,
 			email: userProfile.email,
 			given_name: userProfile.given_name,
 			family_name: userProfile.family_name,
 			tid: tid ?? userProfile.tid ?? 'test-tenant-id',
 		};
-		const tokenResponse = await buildTokenResponse(profile, keyObject, publicJwk, config.baseUrl);
+		const tokenResponse = await buildTokenResponse(profile, keyObject, publicJwk, provider.issuer);
 		res.json(tokenResponse);
-	});
+	};
+	app.post('/token', tokenHandler);
+	app.post('/:provider/token', tokenHandler);
 
-	app.get('/.well-known/openid-configuration', (_req, res) => {
+	// OpenID configuration (legacy + provider-prefixed)
+	const openidHandler = (_req: Request, res: Response) => {
+		const providerName = _req.params?.provider as string | undefined;
+		let provider: OidcProviderConfig | null = null;
+		try {
+			provider = resolveProviderConfig(config, providerName);
+		} catch (err: unknown) {
+			if (String(err) === 'multiple_providers_no_default') {
+				res.status(400).json({ error: 'missing_provider', error_description: 'Multiple providers configured; specify a provider by prefixing the path (e.g. /{provider}/.well-known/openid-configuration).' });
+				return;
+			}
+			if (typeof err === 'object' && err !== null && 'message' in err && String(err.message).startsWith('provider_not_found:')) {
+				res.status(404).json({ error: 'provider_not_found', error_description: `Provider not found: ${String(err).split(':').pop()}` });
+				return;
+			}
+			throw err;
+		}
+
+		const issuer = provider.issuer;
+		const issuerBase = issuer.replace(/\/$/, '');
 		res.json({
-			issuer: config.baseUrl,
-			authorization_endpoint: `${config.baseUrl}/authorize`,
-			token_endpoint: `${config.baseUrl}/token`,
-			userinfo_endpoint: `${config.baseUrl}/userinfo`,
-			jwks_uri: `${config.baseUrl}/.well-known/jwks.json`,
-			end_session_endpoint: `${config.baseUrl}/logout`,
+			issuer,
+			authorization_endpoint: provider.authorizationEndpoint ?? `${issuerBase}/authorize`,
+			token_endpoint: provider.tokenEndpoint ?? `${issuerBase}/token`,
+			userinfo_endpoint: provider.userinfoEndpoint ?? `${issuerBase}/userinfo`,
+			jwks_uri: provider.jwksUri ?? `${issuerBase}/.well-known/jwks.json`,
+			end_session_endpoint: `${issuerBase}/logout`,
 			response_types_supported: ['code', 'token'],
 			subject_types_supported: ['public'],
 			id_token_signing_alg_values_supported: ['RS256'],
@@ -304,9 +395,16 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 			token_endpoint_auth_methods_supported: ['client_secret_post'],
 			claims_supported: ['sub', 'email', 'name', 'aud'],
 		});
-	});
+	};
+	app.get('/.well-known/openid-configuration', openidHandler);
+	app.get('/:provider/.well-known/openid-configuration', openidHandler);
 
-	app.get('/authorize', (req, res) => {
+	// Authorize endpoint (legacy + provider-prefixed)
+	const authorizeHandler = (req: Request, res: Response) => {
+		const providerName = req.params?.provider as string | undefined;
+		const provider = resolveOrHandle(providerName, res);
+		if (!provider) return;
+
 		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
 		const requestedRedirectUri = redirect_uri ?? primaryRedirectUri;
 		const normalizedRequestedRedirectUri = normalizeUrl(requestedRedirectUri);
@@ -317,9 +415,6 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		}
 
 		try {
-			// Use the normalized redirect URI when embedding into the auth code so that
-			// the `/token` handler can later decode and perform audience lookup on a
-			// normalized value consistent with validation.
 			const code = `mock-auth-code-${Buffer.from(normalizedRequestedRedirectUri).toString('base64')}`;
 			const redirectUrl = new URL(requestedRedirectUri);
 			redirectUrl.searchParams.set('code', code);
@@ -331,7 +426,9 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		} catch {
 			res.status(400).send('Invalid redirect_uri format');
 		}
-	});
+	};
+	app.get('/authorize', authorizeHandler);
+	app.get('/:provider/authorize', authorizeHandler);
 
 	// Rate limit the /userinfo endpoint to prevent brute force attacks on JWT validation
 	const userinfoRateLimiter = rateLimit({
@@ -340,7 +437,11 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		message: 'Too many /userinfo requests, please try again later.',
 	});
 
-	app.get('/userinfo', userinfoRateLimiter as unknown as Parameters<typeof app.get>[1], async (req, res) => {
+	const userinfoHandler = async (req: Request, res: Response) => {
+		const providerName = req.params?.provider as string | undefined;
+		const provider = resolveOrHandle(providerName, res);
+		if (!provider) return;
+
 		const authHeader = req.headers.authorization;
 		if (!authHeader?.startsWith('Bearer ')) {
 			res.status(401).json({ error: 'unauthorized' });
@@ -361,7 +462,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 			// Verify token using the same RSA public key that was used to sign it in /token.
 			// Validate issuer and audience to better match real IdP behaviour and surface client misconfiguration.
 			const { payload } = await jwtVerify(token, publicKey, {
-				issuer: config.baseUrl,
+				issuer: provider.issuer,
 				audience: Array.from(allowedAudiences),
 			});
 
@@ -419,7 +520,10 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 				error_description: 'token_verification_failed',
 			});
 		}
-	});
+	};
+
+	app.get('/userinfo', userinfoRateLimiter as unknown as Parameters<typeof app.get>[1], userinfoHandler);
+	app.get('/:provider/userinfo', userinfoRateLimiter as unknown as Parameters<typeof app.get>[1], userinfoHandler);
 
 	app.get('/logout', (req, res) => {
 		const { post_logout_redirect_uri, state } = req.query as {
@@ -459,8 +563,9 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 	return new Promise<MockOAuth2ServerHandle>((resolve, reject) => {
 		const server = app.listen(config.port, config.host ?? 'localhost', () => {
-			console.log(`Mock OAuth2 server running on ${config.baseUrl}`);
-			console.log(`JWKS endpoint running on ${config.baseUrl}/.well-known/jwks.json`);
+			const baseForLog = (config.baseUrl ?? (config.providers ? Object.values(config.providers)[0].issuer : 'unknown')).replace(/\/$/, '');
+			console.log(`Mock OAuth2 server running${baseForLog ? ` on ${baseForLog}` : ''}`);
+			console.log(`JWKS endpoint running on ${baseForLog}/.well-known/jwks.json`);
 
 			const disposer = {
 				stop: () => {

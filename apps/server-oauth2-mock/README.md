@@ -44,6 +44,29 @@ All configuration is done via environment variables in `.env` or `.env.local`:
 | `TID` | `test-tenant-id` | Tenant ID in tokens |
 | `PORT` | `4000` | Server port. In dev/portless mode the port is assigned automatically; in direct/production mode this controls the bind port (default 4000). |
 | `PORTLESS_URL` | *not set* | Portless proxy URL (set automatically in dev mode) |
+| `OIDC_PROVIDERS_JSON` | *not set* | Optional JSON map of named providers. See below.
+
+### Multiple named providers
+
+This server supports configuring multiple named OIDC providers via the `OIDC_PROVIDERS_JSON` environment variable. The value should be a JSON string mapping provider names to provider config objects. Example:
+
+```
+OIDC_PROVIDERS_JSON='{"owner": {"issuer":"https://mock-auth.owner.local","jwksUri":"https://mock-auth.owner.local/.well-known/jwks.json","clientId":"owner-cli","clientSecret":"s3cr3t"}, "partner": {"issuer":"https://mock-auth.partner.local","jwksUri":"https://mock-auth.partner.local/.well-known/jwks.json"}}'
+```
+
+When multiple providers are configured, endpoints are exposed under a provider path prefix, for example:
+
+```
+GET /owner/.well-known/openid-configuration
+POST /partner/token
+```
+
+Compatibility:
+
+- If `OIDC_PROVIDERS_JSON` is not set, the server preserves legacy behaviour and exposes unprefixed endpoints such as `/.well-known/openid-configuration` and `/token`.
+- If multiple providers are configured and a client calls an unprefixed endpoint, the server will return HTTP 400 instructing the client to choose a provider.
+- Requests to an unknown provider name return HTTP 404.
+
 
 ### User Identity & Session Persistence
 
