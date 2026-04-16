@@ -131,7 +131,7 @@ skills-lock.json                     # Upstream source + hash metadata for insta
 **What These Skills Do:**
 - classify work into one primary orchestration lane
 - keep session state aligned with the explicit workflow state machine
-- provide a bounded, TDD-driven delivery workflow for application and reference-app behavior
+- provide a bounded, TDD-driven delivery workflow for scenario-based application and reference-app behavior
 - provide explicit review and completion-gate behavior
 - add reusable framework public-surface review without duplicating `cellix-tdd`
 
