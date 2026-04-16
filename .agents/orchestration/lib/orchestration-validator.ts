@@ -198,9 +198,9 @@ function validateRepoAssets(repoRoot: string, spec: OrchestrationSpec, model: Or
 	return errors;
 }
 
-export function validateRepoConfiguration(repoRoot: string): ValidationReport {
+export function validateRepoConfiguration(repoRoot: string, options?: { specPath?: string }): ValidationReport {
 	const model = loadOrchestrationModel(repoRoot);
-	const spec = loadOrchestrationSpec(repoRoot);
+	const spec = loadOrchestrationSpec(repoRoot, options?.specPath);
 	const errors = [...validateModel(model), ...validateSpec(spec, model), ...validateRepoAssets(repoRoot, spec, model)];
 
 	return {

@@ -11,8 +11,8 @@ export function getOrchestrationModelPath(repoRoot: string): string {
 	return join(repoRoot, '.agents/orchestration/model/orchestration-model.v1.json');
 }
 
-export function getOrchestrationSpecPath(repoRoot: string): string {
-	return join(repoRoot, 'orchestration.spec.yaml');
+export function getOrchestrationSpecPath(repoRoot: string, specPath?: string): string {
+	return specPath ? join(repoRoot, specPath) : join(repoRoot, 'orchestration.spec.yaml');
 }
 
 export function getHookManifestPath(repoRoot: string): string {
@@ -46,8 +46,8 @@ function toClassMapping(value: unknown): { include: string[]; exclude?: string[]
 	};
 }
 
-export function loadOrchestrationSpec(repoRoot: string): OrchestrationSpec {
-	const rawValue = parseYamlLite(readFileSync(getOrchestrationSpecPath(repoRoot), 'utf8')) as Record<string, unknown>;
+export function loadOrchestrationSpec(repoRoot: string, specPath?: string): OrchestrationSpec {
+	const rawValue = parseYamlLite(readFileSync(getOrchestrationSpecPath(repoRoot, specPath), 'utf8')) as Record<string, unknown>;
 	const classes = (rawValue.classes ?? {}) as Record<string, unknown>;
 	const overrides = (rawValue.overrides ?? {}) as Record<string, unknown>;
 	const frameworkExtensions = (overrides.frameworkExtensions ?? {}) as Record<string, unknown>;

@@ -9,6 +9,20 @@ describe('orchestration validator', () => {
 		expect(report.errors).toHaveLength(0);
 	});
 
+	test('passes for framework-only and application-only example specs', () => {
+		const frameworkOnlyReport = validateRepoConfiguration(repoRoot(), {
+			specPath: '.agents/orchestration/examples/framework-only.orchestration.spec.yaml',
+		});
+		const applicationOnlyReport = validateRepoConfiguration(repoRoot(), {
+			specPath: '.agents/orchestration/examples/application-only.orchestration.spec.yaml',
+		});
+
+		expect(frameworkOnlyReport.ok).toBe(true);
+		expect(frameworkOnlyReport.errors).toHaveLength(0);
+		expect(applicationOnlyReport.ok).toBe(true);
+		expect(applicationOnlyReport.errors).toHaveLength(0);
+	});
+
 	test('fails when application-only enables cellix-tdd', () => {
 		const fixtureRoot = createTempRepoFixture(`
 version: 1
