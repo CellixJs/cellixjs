@@ -35,6 +35,7 @@
 		"test:unit": "turbo run test:unit",
 		"test:watch": "turbo run test:watch --concurrency 15",
 		"orchestration:validate": "node --experimental-strip-types .agents/orchestration/cli/validate-orchestration.ts",
+		"orchestration:suggest-lane": "node --experimental-strip-types .agents/orchestration/cli/suggest-orchestration-lane.ts",
 		"orchestration:hook": "node --experimental-strip-types .agents/orchestration/cli/orchestration-hook.ts",
 		"test:orchestration": "vitest run --config .agents/orchestration/vitest.config.ts --reporter verbose",
 		"orchestration:verify": "pnpm run orchestration:validate && pnpm run test:orchestration",

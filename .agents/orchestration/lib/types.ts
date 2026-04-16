@@ -137,3 +137,12 @@ export interface HookManifest {
 	version: number;
 	hooks: Record<string, { script: string; subcommand: string; description: string }>;
 }
+
+export interface LaneSuggestionReport {
+	paths: string[];
+	matchedClasses: PathClassId[];
+	candidateLanes: LaneId[];
+	suggestedLane?: LaneId;
+	confidence: 'high' | 'medium' | 'low';
+	reasons: string[];
+}

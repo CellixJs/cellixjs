@@ -27,6 +27,12 @@ function buildGuidance(prefix: string, details: string[]): string[] {
 	return [prefix, ...details];
 }
 
+function resolveCompletionGates(repoRoot: string, session: RuntimeSession): string[] {
+	const spec = loadOrchestrationSpec(repoRoot);
+	const model = loadOrchestrationModel(repoRoot);
+	return spec.overrides?.completionGates?.[session.lane] ?? model.completionGates[session.lane] ?? [];
+}
+
 function isRoleAllowedForLane(repoRoot: string, role: RoleId, lane: RuntimeSession['lane'], state: StateId, profile: RuntimeSession['profile']): boolean {
 	const model = loadOrchestrationModel(repoRoot);
 	const laneFamily = model.lanes[lane].family;
@@ -197,6 +203,23 @@ export function transitionSession(
 		session.processedEvents[input.eventId] = denial;
 		saveSession(repoRoot, session);
 		return { result: denial, session };
+	}
+
+	if (input.toState === 'done') {
+		const laneCompletionGates = resolveCompletionGates(repoRoot, session);
+		const missingCompletionGates = laneCompletionGates.filter((gate) => !input.evidence.includes(gate));
+
+		if (missingCompletionGates.length > 0) {
+			const denial = deny(
+				'missing-completion-gates',
+				`Transition to "done" is missing lane-specific completion gates for "${session.lane}".`,
+				buildGuidance('Provide the completion-gate evidence required for the active lane.', [`Missing: ${missingCompletionGates.join(', ')}`]),
+				session.state,
+			);
+			session.processedEvents[input.eventId] = denial;
+			saveSession(repoRoot, session);
+			return { result: denial, session };
+		}
 	}
 
 	if (input.toState === 'revising' && session.counters.revisionCount >= MAX_REVISIONS) {

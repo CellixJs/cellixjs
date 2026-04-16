@@ -92,6 +92,8 @@ A task run resolves to one primary lane:
 
 Do not blend lane families in one execution phase. If a task spans framework and application work, split the phases or escalate.
 
+For changed-path triage, use `pnpm run orchestration:suggest-lane -- <path>...` as a helper. It can suggest obvious application, docs, or tooling fits and intentionally refuses to over-claim when reusable-framework changes still require human judgment between internal and public-surface work.
+
 ## Workflow States And Transitions
 
 Every run follows the same state machine:
@@ -112,6 +114,14 @@ The hooks enforce both valid transitions and the evidence required to move:
 | `plan-complete -> implementing` | `implementation-owner-recorded` |
 | `implementing -> reviewing` | `change-summary`, `validation-evidence` |
 | `reviewing -> done` | `completion-gates-satisfied`, `final-summary` |
+
+When a session moves to `done`, the runtime also checks the lane-specific completion gates for the active lane. The generic `completion-gates-satisfied` token is not enough by itself.
+
+Examples:
+
+- `tooling-workflow` also requires `targeted-validation`, `workflow-impact-summary`, and `validation-summary`
+- `application-feature-delivery` also requires `acceptance-validation`, `changed-path-review`, and `validation-summary`
+- `reusable-framework-public-surface` also requires `public-contract-evidence`, `documentation-alignment`, and `validation-summary`
 
 ## `cellix-tdd` Versus `cellix-feature-delivery`
 

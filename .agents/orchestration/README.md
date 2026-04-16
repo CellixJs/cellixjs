@@ -39,6 +39,7 @@ The CellixJS mixed-repository example lives at the repo root in `orchestration.s
 ## Validation Commands
 
 - `pnpm run orchestration:validate` validates the repo-local orchestration spec, model wiring, required skills, agents, and hook manifest.
+- `pnpm run orchestration:suggest-lane -- <changed-path>...` suggests a likely primary lane from changed paths and surfaces ambiguous cases that still need orchestrator judgment.
 - `node --experimental-strip-types .agents/orchestration/cli/validate-orchestration.ts --repo . --spec .agents/orchestration/examples/framework-only.orchestration.spec.yaml` validates an alternate repo-local spec such as the framework-only or application-only examples.
 - `pnpm run test:orchestration` runs the orchestration validator/runtime/hook unit tests.
 - `pnpm run orchestration:hook -- <subcommand> ...` runs the first-pass hook runtime for session init, transitions, agent checks, tool checks, evidence logging, and blocked handling.

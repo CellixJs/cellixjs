@@ -73,4 +73,103 @@ describe('orchestration runtime', () => {
 		expect(result.code).toBe('invalid-transition');
 		expect(result.guidance[1]).toContain('planning');
 	});
+
+	test('requires lane-specific completion gates before transitioning to done', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'done-gates',
+			lane: 'tooling-workflow',
+			role: 'senior-orchestrator',
+		});
+
+		transitionSession(fixtureRoot, {
+			sessionId: 'done-gates',
+			role: 'senior-orchestrator',
+			toState: 'planning',
+			evidence: ['task-lane-selected', 'session-created'],
+			eventId: 'evt-plan',
+		});
+		transitionSession(fixtureRoot, {
+			sessionId: 'done-gates',
+			role: 'senior-orchestrator',
+			toState: 'plan-complete',
+			evidence: ['bounded-plan', 'phase-owner-recorded'],
+			eventId: 'evt-plan-complete',
+		});
+		transitionSession(fixtureRoot, {
+			sessionId: 'done-gates',
+			role: 'senior-orchestrator',
+			toState: 'implementing',
+			evidence: ['implementation-owner-recorded'],
+			eventId: 'evt-implementing',
+		});
+		transitionSession(fixtureRoot, {
+			sessionId: 'done-gates',
+			role: 'implementation-engineer',
+			toState: 'reviewing',
+			evidence: ['change-summary', 'validation-evidence'],
+			eventId: 'evt-reviewing',
+		});
+
+		const { result } = transitionSession(fixtureRoot, {
+			sessionId: 'done-gates',
+			role: 'senior-orchestrator',
+			toState: 'done',
+			evidence: ['completion-gates-satisfied', 'final-summary', 'targeted-validation'],
+			eventId: 'evt-done',
+		});
+
+		expect(result.allowed).toBe(false);
+		expect(result.code).toBe('missing-completion-gates');
+		expect(result.guidance[1]).toContain('workflow-impact-summary');
+	});
+
+	test('allows done transition when lane-specific completion gates are present', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'done-complete',
+			lane: 'tooling-workflow',
+			role: 'senior-orchestrator',
+		});
+
+		transitionSession(fixtureRoot, {
+			sessionId: 'done-complete',
+			role: 'senior-orchestrator',
+			toState: 'planning',
+			evidence: ['task-lane-selected', 'session-created'],
+			eventId: 'evt-plan',
+		});
+		transitionSession(fixtureRoot, {
+			sessionId: 'done-complete',
+			role: 'senior-orchestrator',
+			toState: 'plan-complete',
+			evidence: ['bounded-plan', 'phase-owner-recorded'],
+			eventId: 'evt-plan-complete',
+		});
+		transitionSession(fixtureRoot, {
+			sessionId: 'done-complete',
+			role: 'senior-orchestrator',
+			toState: 'implementing',
+			evidence: ['implementation-owner-recorded'],
+			eventId: 'evt-implementing',
+		});
+		transitionSession(fixtureRoot, {
+			sessionId: 'done-complete',
+			role: 'implementation-engineer',
+			toState: 'reviewing',
+			evidence: ['change-summary', 'validation-evidence'],
+			eventId: 'evt-reviewing',
+		});
+
+		const { result, session } = transitionSession(fixtureRoot, {
+			sessionId: 'done-complete',
+			role: 'senior-orchestrator',
+			toState: 'done',
+			evidence: ['completion-gates-satisfied', 'final-summary', 'targeted-validation', 'workflow-impact-summary', 'validation-summary'],
+			eventId: 'evt-done',
+		});
+
+		expect(result.allowed).toBe(true);
+		expect(session?.state).toBe('done');
+	});
 });
