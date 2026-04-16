@@ -38,6 +38,10 @@
 		"packages/ocom/archunit-tests": {
 			"project": ["src/**/*.ts"]
 		},
+		"packages/ocom/graphql": {
+			"entry": ["src/index.ts", "src/schema/types/*.resolvers.ts"],
+			"project": ["src/**/*.ts"]
+		},
 		"packages/ocom/ui-community-route-shared": {
 			"entry": ["src/components/index.ts"],
 			"project": ["src/components/**/*.{ts,tsx}"]
