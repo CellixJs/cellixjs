@@ -118,6 +118,10 @@ function main(): void {
 		console.log(report.planningTransition.message);
 	}
 
+	if (report.artifactPaths) {
+		console.log(`Plan artifact: ${report.artifactPaths.plan}`);
+	}
+
 	if (report.nextActions.length > 0) {
 		console.log('Next actions:');
 		for (const nextAction of report.nextActions) {

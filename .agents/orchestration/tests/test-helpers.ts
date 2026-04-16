@@ -16,6 +16,7 @@ export function createTempRepoFixture(specContents?: string): string {
 	copyFile(root, '.agents/orchestration/model/orchestration-model.v1.json');
 	copyFile(root, '.agents/orchestration/hooks/hook-manifest.json');
 	copyFile(root, '.agents/orchestration/cli/orchestration-hook.ts');
+	copyFile(root, '.agents/orchestration/cli/orchestration-session-status.ts');
 	copyFile(root, '.agents/orchestration/cli/bootstrap-orchestration.ts');
 	copyFile(root, '.agents/orchestration/cli/validate-orchestration.ts');
 	copyFile(root, '.agents/orchestration/lib/types.ts');

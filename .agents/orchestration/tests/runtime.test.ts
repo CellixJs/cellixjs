@@ -1,4 +1,6 @@
+import { writeFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
+import { buildSessionArtifactPaths } from '../lib/orchestration-loader.ts';
 import { createSession, transitionSession } from '../lib/orchestration-runtime.ts';
 import { createTempRepoFixture } from './test-helpers.ts';
 
@@ -74,6 +76,67 @@ describe('orchestration runtime', () => {
 		expect(result.guidance[1]).toContain('planning');
 	});
 
+	test('requires plan artifact before transitioning to plan-complete', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'missing-plan-artifact',
+			lane: 'tooling-workflow',
+			role: 'senior-orchestrator',
+			changedPaths: ['.agents/orchestration/lib/orchestration-runtime.ts'],
+		});
+
+		transitionSession(fixtureRoot, {
+			sessionId: 'missing-plan-artifact',
+			role: 'senior-orchestrator',
+			toState: 'planning',
+			evidence: ['task-lane-selected', 'session-created'],
+			eventId: 'evt-plan',
+		});
+
+		const { result } = transitionSession(fixtureRoot, {
+			sessionId: 'missing-plan-artifact',
+			role: 'senior-orchestrator',
+			toState: 'plan-complete',
+			evidence: ['bounded-plan', 'phase-owner-recorded'],
+			eventId: 'evt-plan-complete',
+		});
+
+		expect(result.allowed).toBe(false);
+		expect(result.code).toBe('missing-artifact');
+		expect(result.guidance[1]).toContain('plan.md');
+	});
+
+	test('allows plan-complete once the canonical plan artifact exists', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'plan-artifact-present',
+			lane: 'tooling-workflow',
+			role: 'senior-orchestrator',
+			changedPaths: ['.agents/orchestration/lib/orchestration-runtime.ts'],
+		});
+
+		transitionSession(fixtureRoot, {
+			sessionId: 'plan-artifact-present',
+			role: 'senior-orchestrator',
+			toState: 'planning',
+			evidence: ['task-lane-selected', 'session-created'],
+			eventId: 'evt-plan',
+		});
+
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'plan-artifact-present').plan, '# Plan\n', 'utf8');
+
+		const { result, session } = transitionSession(fixtureRoot, {
+			sessionId: 'plan-artifact-present',
+			role: 'senior-orchestrator',
+			toState: 'plan-complete',
+			evidence: ['bounded-plan', 'phase-owner-recorded'],
+			eventId: 'evt-plan-complete',
+		});
+
+		expect(result.allowed).toBe(true);
+		expect(session?.state).toBe('plan-complete');
+	});
+
 	test('requires lane-specific completion gates before transitioning to done', () => {
 		const fixtureRoot = createTempRepoFixture();
 		createSession(fixtureRoot, {
@@ -89,6 +152,7 @@ describe('orchestration runtime', () => {
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
 		});
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'done-gates').plan, '# Plan\n', 'utf8');
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-gates',
 			role: 'senior-orchestrator',
@@ -139,6 +203,7 @@ describe('orchestration runtime', () => {
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
 		});
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'done-complete').plan, '# Plan\n', 'utf8');
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-complete',
 			role: 'senior-orchestrator',

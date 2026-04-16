@@ -1,6 +1,6 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import type { HookManifest, OrchestrationModel, OrchestrationSpec, RuntimeSession } from './types.ts';
+import type { HookManifest, OrchestrationModel, OrchestrationSpec, RuntimeSession, SessionArtifactPaths } from './types.ts';
 import { parseYamlLite } from './yaml-lite.ts';
 
 function readJsonFile<T>(filePath: string): T {
@@ -21,6 +21,42 @@ export function getHookManifestPath(repoRoot: string): string {
 
 export function getSessionFilePath(repoRoot: string, sessionId: string): string {
 	return join(repoRoot, '.agents-work/orchestration/sessions', `${sessionId}.json`);
+}
+
+export function getSessionArtifactsDirectoryPath(repoRoot: string, sessionId: string): string {
+	return join(repoRoot, '.agents-work/orchestration/sessions', sessionId);
+}
+
+export function buildSessionArtifactPaths(repoRoot: string, sessionId: string): SessionArtifactPaths {
+	const artifactsDirectory = getSessionArtifactsDirectoryPath(repoRoot, sessionId);
+	return {
+		intake: join(artifactsDirectory, 'intake.md'),
+		plan: join(artifactsDirectory, 'plan.md'),
+		finalSummary: join(artifactsDirectory, 'final-summary.md'),
+	};
+}
+
+export function ensureSessionArtifactsDirectory(repoRoot: string, sessionId: string): void {
+	mkdirSync(getSessionArtifactsDirectoryPath(repoRoot, sessionId), { recursive: true });
+}
+
+export function getSessionArtifactStatus(repoRoot: string, sessionId: string): Record<keyof SessionArtifactPaths, { path: string; exists: boolean }> {
+	const artifactPaths = buildSessionArtifactPaths(repoRoot, sessionId);
+
+	return {
+		intake: {
+			path: artifactPaths.intake,
+			exists: existsSync(artifactPaths.intake),
+		},
+		plan: {
+			path: artifactPaths.plan,
+			exists: existsSync(artifactPaths.plan),
+		},
+		finalSummary: {
+			path: artifactPaths.finalSummary,
+			exists: existsSync(artifactPaths.finalSummary),
+		},
+	};
 }
 
 export function loadOrchestrationModel(repoRoot: string): OrchestrationModel {
@@ -79,9 +115,17 @@ export function loadOrchestrationSpec(repoRoot: string, specPath?: string): Orch
 	};
 }
 
+function normalizeSession(repoRoot: string, sessionId: string, session: RuntimeSession): RuntimeSession {
+	return {
+		...session,
+		changedPaths: Array.isArray(session.changedPaths) ? session.changedPaths.map((entry) => String(entry)) : [],
+		artifactPaths: session.artifactPaths ?? buildSessionArtifactPaths(repoRoot, session.sessionId || sessionId),
+	};
+}
+
 export function loadSession(repoRoot: string, sessionId: string): RuntimeSession | undefined {
 	try {
-		return readJsonFile<RuntimeSession>(getSessionFilePath(repoRoot, sessionId));
+		return normalizeSession(repoRoot, sessionId, readJsonFile<RuntimeSession>(getSessionFilePath(repoRoot, sessionId)));
 	} catch {
 		return undefined;
 	}
@@ -90,5 +134,6 @@ export function loadSession(repoRoot: string, sessionId: string): RuntimeSession
 export function saveSession(repoRoot: string, session: RuntimeSession): void {
 	const sessionPath = getSessionFilePath(repoRoot, session.sessionId);
 	mkdirSync(dirname(sessionPath), { recursive: true });
+	ensureSessionArtifactsDirectory(repoRoot, session.sessionId);
 	writeFileSync(sessionPath, `${JSON.stringify(session, null, 2)}\n`, 'utf8');
 }

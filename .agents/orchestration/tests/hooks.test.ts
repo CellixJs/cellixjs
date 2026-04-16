@@ -1,5 +1,7 @@
 import { spawnSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
+import { buildSessionArtifactPaths } from '../lib/orchestration-loader.ts';
 import { checkActionAllowed, checkRoleAllowed, createSession, transitionSession } from '../lib/orchestration-runtime.ts';
 import { createTempRepoFixture, repoRoot } from './test-helpers.ts';
 
@@ -52,6 +54,7 @@ describe('orchestration hook checks', () => {
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
 		});
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'tool-check').plan, '# Plan\n', 'utf8');
 		transitionSession(fixtureRoot, {
 			sessionId: 'tool-check',
 			role: 'senior-orchestrator',
@@ -138,6 +141,33 @@ describe('orchestration hook checks', () => {
 			session: {
 				state: 'planning',
 				recentRole: 'senior-orchestrator',
+			},
+		});
+	});
+
+	test('reports session artifact status for planner verification', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'session-status',
+			lane: 'application-feature-delivery',
+			role: 'senior-orchestrator',
+			changedPaths: ['apps/server-oauth2-mock/src/index.ts'],
+		});
+
+		const result = spawnSync(process.execPath, ['--experimental-strip-types', '.agents/orchestration/cli/orchestration-session-status.ts', '--repo', fixtureRoot, '--session', 'session-status', '--json'], {
+			cwd: repoRoot(),
+			encoding: 'utf8',
+		});
+
+		expect(result.status).toBe(0);
+		expect(JSON.parse(result.stdout)).toMatchObject({
+			sessionId: 'session-status',
+			state: 'initialized',
+			changedPaths: ['apps/server-oauth2-mock/src/index.ts'],
+			artifactStatus: {
+				plan: {
+					exists: false,
+				},
 			},
 		});
 	});

@@ -1,4 +1,4 @@
-import { loadOrchestrationModel, loadOrchestrationSpec, loadSession, saveSession } from './orchestration-loader.ts';
+import { buildSessionArtifactPaths, getSessionArtifactStatus, loadOrchestrationModel, loadOrchestrationSpec, loadSession, saveSession } from './orchestration-loader.ts';
 import type { ActionId, HookResult, RoleId, RuntimeSession, StateId } from './types.ts';
 
 const MAX_REVISIONS = 3;
@@ -51,12 +51,22 @@ function isRoleAllowedForLane(repoRoot: string, role: RoleId, lane: RuntimeSessi
 
 export function createSession(
 	repoRoot: string,
-	input: { sessionId: string; lane: RuntimeSession['lane']; role: RuntimeSession['recentRole']; artifactMode?: RuntimeSession['artifactMode'] },
+	input: {
+		sessionId: string;
+		lane: RuntimeSession['lane'];
+		role: RuntimeSession['recentRole'];
+		artifactMode?: RuntimeSession['artifactMode'];
+		changedPaths?: string[];
+	},
 ): RuntimeSession {
 	const spec = loadOrchestrationSpec(repoRoot);
 	const existingSession = loadSession(repoRoot, input.sessionId);
 
 	if (existingSession) {
+		if (existingSession.changedPaths.length === 0 && (input.changedPaths?.length ?? 0) > 0) {
+			existingSession.changedPaths = [...(input.changedPaths ?? [])];
+			saveSession(repoRoot, existingSession);
+		}
 		return existingSession;
 	}
 
@@ -68,6 +78,8 @@ export function createSession(
 		state: 'initialized',
 		recentRole: input.role,
 		artifactMode: input.artifactMode ?? spec.overrides?.artifactMode ?? loadOrchestrationModel(repoRoot).profiles[spec.profile].defaultArtifactMode,
+		changedPaths: [...(input.changedPaths ?? [])],
+		artifactPaths: buildSessionArtifactPaths(repoRoot, input.sessionId),
 		transitionHistory: [],
 		evidenceLog: [],
 		counters: {
@@ -82,6 +94,36 @@ export function createSession(
 
 	saveSession(repoRoot, session);
 	return session;
+}
+
+function resolveSessionArtifacts(repoRoot: string, session: RuntimeSession): RuntimeSession['artifactPaths'] {
+	const artifactStatus = getSessionArtifactStatus(repoRoot, session.sessionId);
+	return {
+		intake: artifactStatus.intake.path,
+		plan: artifactStatus.plan.path,
+		finalSummary: artifactStatus.finalSummary.path,
+	};
+}
+
+function validateRequiredArtifacts(repoRoot: string, session: RuntimeSession, toState: StateId): HookResult | undefined {
+	if (toState !== 'plan-complete') {
+		return undefined;
+	}
+
+	const artifactStatus = getSessionArtifactStatus(repoRoot, session.sessionId);
+	if (artifactStatus.plan.exists) {
+		return undefined;
+	}
+
+	return deny(
+		'missing-artifact',
+		`Transition to "plan-complete" requires plan.md at "${artifactStatus.plan.path}".`,
+		buildGuidance('Create the bounded plan artifact before advancing the session.', [
+			`Expected artifact: ${artifactStatus.plan.path}`,
+			'Use the discovery-planner to write the plan artifact, then verify it with `pnpm run orchestration:session-status -- --session <session-id>`.',
+		]),
+		session.state,
+	);
 }
 
 export function checkRoleAllowed(repoRoot: string, sessionId: string, role: RoleId): HookResult {
@@ -192,6 +234,13 @@ export function transitionSession(
 		return { result: denial, session };
 	}
 
+	const missingArtifact = validateRequiredArtifacts(repoRoot, session, input.toState);
+	if (missingArtifact) {
+		session.processedEvents[input.eventId] = missingArtifact;
+		saveSession(repoRoot, session);
+		return { result: missingArtifact, session };
+	}
+
 	const missingEvidence = transitionDefinition.requires.filter((requiredItem) => !input.evidence.includes(requiredItem));
 	if (missingEvidence.length > 0) {
 		const denial = deny(
@@ -249,6 +298,7 @@ export function transitionSession(
 	const fromState = session.state;
 	session.state = input.toState;
 	session.recentRole = input.role;
+	session.artifactPaths = resolveSessionArtifacts(repoRoot, session);
 	session.updatedAt = new Date().toISOString();
 	session.transitionHistory.push({
 		eventId: input.eventId,

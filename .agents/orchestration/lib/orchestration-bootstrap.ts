@@ -58,6 +58,7 @@ export interface BootstrapReport {
 	recommendedFrameworkExtensions: string[];
 	nextActions: string[];
 	session?: RuntimeSession;
+	artifactPaths?: RuntimeSession['artifactPaths'];
 	sessionInit?: { allowed: true; code: 'session-created'; message: string };
 	planningTransition?: HookResult;
 }
@@ -98,6 +99,7 @@ export function bootstrapOrchestrationSession(
 
 	if (selectedLane && !requiresLaneDecision && !shouldSplitPhases && input.sessionId) {
 		nextActions.push('Delegate planning to discovery-planner after the session reaches planning.');
+		nextActions.push('Write the bounded plan to the session plan artifact before transitioning to plan-complete.');
 	}
 
 	const result: BootstrapReport = {
@@ -140,9 +142,11 @@ export function bootstrapOrchestrationSession(
 		lane: selectedLane,
 		role,
 		artifactMode,
+		changedPaths: report.paths,
 	});
 
 	result.session = session;
+	result.artifactPaths = session.artifactPaths;
 	if (!sessionBefore) {
 		result.sessionInit = {
 			allowed: true,

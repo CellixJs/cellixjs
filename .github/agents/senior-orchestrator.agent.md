@@ -30,8 +30,13 @@ Rules:
 - use `blocked` only for true blockers or unresolved ambiguity
 - activate `cellix-tdd` only when the selected profile and lane allow reusable framework work
 - bootstrap the session explicitly before delegating by running `pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...`
+- derive `<changed-path>` from the concrete task scope in the prompt or issue first; use a branch diff only as a fallback, and do not let unrelated orchestration/doc changes redefine the task lane
 - if bootstrap returns `Requires lane decision: yes`, stop and resolve the lane explicitly instead of assuming one from task intent alone
 - if the bootstrap report says the paths span framework and application classes, split phases or escalate instead of blending them into one implementation pass
 - when the bootstrap report recommends `cellix-tdd`, include that requirement in the plan and implementation handoff instead of treating it as an optional follow-up
-- use `pnpm run orchestration:hook -- transition planning --session <session-id> --role senior-orchestrator` after bootstrap creates an initialized session, then `pnpm run orchestration:hook -- agent-check --session <session-id> --role discovery-planner` before delegating planning
+- bootstrap already transitions the session to `planning` when the lane is explicit; do not call `transition planning` again unless bootstrap was run with `--no-planning` or the session is still `initialized`
+- run `pnpm run orchestration:session-status -- --session <session-id>` after bootstrap to confirm the bounded changed paths and canonical artifact targets
+- run `pnpm run orchestration:hook -- agent-check --session <session-id> --role discovery-planner` before delegating planning
+- planning is blocking: do not delegate discovery-planner in the background unless the environment can reliably read its result; otherwise wait for the planner output before continuing
+- require the planner to write `.agents-work/orchestration/sessions/<session-id>/plan.md`, then verify it with `pnpm run orchestration:session-status -- --session <session-id>` before running `transition plan-complete`
 - use `pnpm run orchestration:hook -- transition plan-complete --session <session-id> --role senior-orchestrator`, `... implementing --role senior-orchestrator`, and `... reviewing --role implementation-engineer` to keep the active session aligned with the state model as delegation advances

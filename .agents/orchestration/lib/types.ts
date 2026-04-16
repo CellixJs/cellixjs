@@ -4,23 +4,13 @@ export type PathClassId = 'reusableFramework' | 'applicationPackages' | 'tooling
 
 export type LaneFamilyId = 'reusable-framework' | 'application-delivery' | 'tooling-workflow' | 'docs-planning';
 
-export type LaneId =
-	| 'reusable-framework-public-surface'
-	| 'reusable-framework-internal'
-	| 'application-feature-delivery'
-	| 'tooling-workflow'
-	| 'docs-architecture-planning';
+export type LaneId = 'reusable-framework-public-surface' | 'reusable-framework-internal' | 'application-feature-delivery' | 'tooling-workflow' | 'docs-architecture-planning';
 
 export type StateId = 'initialized' | 'planning' | 'plan-complete' | 'implementing' | 'reviewing' | 'revising' | 'blocked' | 'done';
 
 export type ArtifactMode = 'minimal' | 'elevated';
 
-export type RoleId =
-	| 'senior-orchestrator'
-	| 'discovery-planner'
-	| 'implementation-engineer'
-	| 'qa-reviewer'
-	| 'framework-surface-reviewer';
+export type RoleId = 'senior-orchestrator' | 'discovery-planner' | 'implementation-engineer' | 'qa-reviewer' | 'framework-surface-reviewer';
 
 export type ActionId = 'inspect' | 'classify' | 'plan' | 'document' | 'delegate' | 'edit' | 'execute' | 'validate' | 'finalize' | 'escalate';
 
@@ -106,6 +96,12 @@ export interface EvidenceRecord {
 	timestamp: string;
 }
 
+export interface SessionArtifactPaths {
+	intake: string;
+	plan: string;
+	finalSummary: string;
+}
+
 export interface RuntimeSession {
 	sessionId: string;
 	profile: ProfileId;
@@ -113,6 +109,8 @@ export interface RuntimeSession {
 	state: StateId;
 	recentRole: RoleId;
 	artifactMode: ArtifactMode;
+	changedPaths: string[];
+	artifactPaths: SessionArtifactPaths;
 	transitionHistory: TransitionRecord[];
 	evidenceLog: EvidenceRecord[];
 	counters: {

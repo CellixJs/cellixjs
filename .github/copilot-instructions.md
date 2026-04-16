@@ -15,13 +15,18 @@ When working with AI agents:
 - in Copilot CLI, explicitly select the `senior-orchestrator` agent before giving a substantive development prompt when you want the repo orchestration workflow
 - classify work into one primary lane before substantial implementation
 - bootstrap the task from changed paths with `pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...`
+- choose `<changed-path>` from the concrete task scope first; do not default to the full branch diff when the branch already contains unrelated orchestration or documentation work
 - if bootstrap reports `Requires lane decision: yes`, stop and choose the lane explicitly instead of continuing with an assumed lane
 - follow the explicit workflow states `initialized -> planning -> plan-complete -> implementing -> reviewing -> revising/done`
 - use `blocked` only for real blockers or unresolved ambiguity
 - keep runtime artifact depth minimal by default
 - activate `cellix-tdd` only for reusable framework work in profiles that support framework behavior
 - if changed paths span application and reusable framework classes, split the task into bounded phases instead of delegating one blended implementation pass
-- use `pnpm run orchestration:hook -- transition planning --session <session-id> --role senior-orchestrator` and `pnpm run orchestration:hook -- agent-check --session <session-id> --role discovery-planner` as the default planning handoff commands
+- bootstrap normally advances the session into `planning`; do not call `transition planning` again unless bootstrap was intentionally run with `--no-planning`
+- use `pnpm run orchestration:session-status -- --session <session-id>` to inspect bounded changed paths and canonical artifact targets
+- require discovery planning to write `.agents-work/orchestration/sessions/<session-id>/plan.md`, then verify that artifact with `orchestration:session-status` before `transition plan-complete`
+- delegate discovery planning in a blocking/foreground way unless the environment has a reliable result-retrieval path for background agents
+- use `pnpm run orchestration:hook -- agent-check --session <session-id> --role discovery-planner` as the default planning handoff check
 
 ## Architecture Overview
 

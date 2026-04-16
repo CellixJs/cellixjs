@@ -14,6 +14,8 @@ describe('orchestration bootstrap', () => {
 		expect(report.requiresLaneDecision).toBe(false);
 		expect(report.shouldSplitPhases).toBe(false);
 		expect(report.session?.state).toBe('planning');
+		expect(report.session?.changedPaths).toEqual(['.agents/orchestration/tests/runtime.test.ts']);
+		expect(report.artifactPaths?.plan).toContain('.agents-work/orchestration/sessions/bootstrap-tooling/plan.md');
 		expect(report.planningTransition?.allowed).toBe(true);
 	});
 

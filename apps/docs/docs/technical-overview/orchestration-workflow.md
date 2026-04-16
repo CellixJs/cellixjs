@@ -22,6 +22,8 @@ In Copilot CLI, the supported startup path is explicit:
 2. provide the task prompt to that orchestrator
 3. let the orchestrator bootstrap the run from the changed paths instead of relying on ambient repo pickup
 
+When the branch already contains unrelated orchestration, tooling, or documentation work, those changed paths should come from the concrete task scope in the prompt or issue rather than the full branch diff.
+
 ## Why This Exists
 
 The design goal is to keep the senior-led delivery protocol primary:
@@ -105,6 +107,16 @@ For explicit orchestrator startup, use:
 ```bash
 pnpm run orchestration:bootstrap -- --session <session-id> <path>...
 ```
+
+`orchestration:bootstrap` normally advances the session into `planning` immediately when the lane is explicit. Do not issue a second `transition planning` call unless bootstrap was run with `--no-planning` or the session remains `initialized`.
+
+After planning is delegated, verify the canonical session artifacts with:
+
+```bash
+pnpm run orchestration:session-status -- --session <session-id>
+```
+
+The discovery planner is expected to write `.agents-work/orchestration/sessions/<session-id>/plan.md`, and `planning -> plan-complete` is blocked until that artifact exists.
 
 This helper is intentionally narrow:
 
