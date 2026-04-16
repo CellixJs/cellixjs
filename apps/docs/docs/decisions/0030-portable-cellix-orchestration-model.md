@@ -50,6 +50,7 @@ The orchestration system is defined by two machine-readable artifacts:
 - Good, because the orchestration state model is explicit and enforceable instead of prompt-only
 - Good, because framework-oriented behavior can be activated only where the selected profile and lane support it
 - Good, because application-only repos can omit framework behavior without redesigning the core
+- Neutral, because lane selection remains orchestrator-led today and is enforced after classification rather than inferred automatically from changed paths
 - Neutral, because some control-plane metadata now lives in JSON and YAML rather than prose alone
 - Bad, because the orchestration system itself becomes product code that must be validated and maintained
 - Bad, because the repo must keep the orchestration model, instructions, skills, agents, hooks, and docs aligned as the system evolves
@@ -59,9 +60,11 @@ The orchestration system is defined by two machine-readable artifacts:
 This decision is validated through the orchestration artifacts introduced with issue `#218`:
 
 1. The repo-local `orchestration.spec.yaml` selects the `mixed-framework-and-app` profile for CellixJS.
-2. Example specs prove that the same orchestration core also fits `framework-only` and `application-only` repositories.
-3. The shared model formalizes lane families, workflow states, transition rules, authority order, artifact posture, and framework extensions in a machine-readable file.
-4. Follow-up validator and hook work can consume the same control-plane artifacts instead of re-encoding orchestration logic from prose.
+2. Example specs and the `validate-orchestration.ts --spec <path>` flow prove that the same orchestration core also fits `framework-only` and `application-only` repositories.
+3. The shared model formalizes lane families, workflow states, transition rules, authority order, artifact posture, completion gates, and framework extensions in a machine-readable file.
+4. The validator CLI and orchestration unit tests validate repo wiring, required skills and agents, hook manifest integrity, and example-profile conformance without re-encoding orchestration logic from prose.
+5. The hook manifest and runtime enforce session initialization, state transitions, role validity, action validity, blocker handling, and evidence logging from the same control-plane rules.
+6. Contributor-facing workflow and dogfooding docs capture mixed-repo adoption, framework-only/application-only posture, and failure-path evidence from issue `#222`.
 
 ## Pros and Cons of the Options
 
@@ -169,6 +172,15 @@ Richer artifacts are allowed only when profile defaults, task risk, or parallel 
 - available in `framework-only`
 - unavailable in `application-only`
 - activated only for reusable framework lanes
+
+### Framework versus application TDD
+
+The orchestration system intentionally keeps framework and application TDD separate:
+
+- `cellix-tdd` is the reusable-framework contract workflow for public behavior from an external consumer perspective
+- `cellix-feature-delivery` is the application-delivery workflow for scenario-based TDD of application or reference-app behavior
+
+This boundary prevents application tasks from inheriting reusable-framework public-contract process by default while still allowing framework work to opt into stricter contract review.
 
 ### ADR numbering note
 
