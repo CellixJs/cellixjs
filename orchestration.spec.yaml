@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=.agents/orchestration/schema/orchestration-spec.schema.json
+version: 1
+profile: mixed-framework-and-app
+classes:
+  reusableFramework:
+    include:
+      - packages/cellix/**
+  applicationPackages:
+    include:
+      - apps/api/**
+      - apps/server-mongodb-memory-mock/**
+      - apps/server-oauth2-mock/**
+      - apps/ui-community/**
+      - packages/ocom/**
+  tooling:
+    include:
+      - .agents/**
+      - .github/**
+      - .husky/**
+      - build-pipeline/**
+      - package.json
+      - pnpm-workspace.yaml
+      - turbo.json
+      - biome.json
+  docs:
+    include:
+      - README.md
+      - apps/docs/**

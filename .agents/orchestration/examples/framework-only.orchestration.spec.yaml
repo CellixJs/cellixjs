@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../schema/orchestration-spec.schema.json
+version: 1
+profile: framework-only
+classes:
+  reusableFramework:
+    include:
+      - packages/cellix/**
+  applicationPackages:
+    include: []
+  tooling:
+    include:
+      - .agents/**
+      - .github/**
+      - build-pipeline/**
+      - package.json
+      - pnpm-workspace.yaml
+      - turbo.json
+  docs:
+    include:
+      - README.md
+      - docs/**
+overrides:
+  artifactMode: minimal

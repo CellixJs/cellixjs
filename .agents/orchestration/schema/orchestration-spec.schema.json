@@ -1,0 +1,111 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://cellixjs.dev/schemas/orchestration-spec.schema.json",
+	"title": "Cellix Orchestration Spec",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["version", "profile", "classes"],
+	"properties": {
+		"version": {
+			"type": "integer",
+			"const": 1
+		},
+		"profile": {
+			"type": "string",
+			"enum": ["mixed-framework-and-app", "framework-only", "application-only"]
+		},
+		"classes": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["reusableFramework", "applicationPackages", "tooling", "docs"],
+			"properties": {
+				"reusableFramework": {
+					"$ref": "#/$defs/classMapping"
+				},
+				"applicationPackages": {
+					"$ref": "#/$defs/classMapping"
+				},
+				"tooling": {
+					"$ref": "#/$defs/classMapping"
+				},
+				"docs": {
+					"$ref": "#/$defs/classMapping"
+				}
+			}
+		},
+		"overrides": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"artifactMode": {
+					"type": "string",
+					"enum": ["minimal", "elevated"]
+				},
+				"disableLaneFamilies": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"enum": ["reusable-framework", "application-delivery", "tooling-workflow", "docs-planning"]
+					},
+					"uniqueItems": true
+				},
+				"completionGates": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "array",
+						"items": {
+							"type": "string",
+							"minLength": 1
+						},
+						"uniqueItems": true
+					}
+				},
+				"frameworkExtensions": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"enable": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["cellix-tdd"]
+							},
+							"uniqueItems": true
+						},
+						"disable": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["cellix-tdd"]
+							},
+							"uniqueItems": true
+						}
+					}
+				}
+			}
+		}
+	},
+	"$defs": {
+		"classMapping": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["include"],
+			"properties": {
+				"include": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"minLength": 1
+					}
+				},
+				"exclude": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"minLength": 1
+					}
+				}
+			}
+		}
+	}
+}
