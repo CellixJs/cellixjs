@@ -1,9 +1,10 @@
 import process from 'node:process';
 import { validateRepoConfiguration } from '../lib/orchestration-validator.ts';
 
-function parseArgs(argv: string[]): { repoRoot: string; json: boolean } {
+function parseArgs(argv: string[]): { repoRoot: string; json: boolean; specPath?: string } {
 	let repoRoot = process.cwd();
 	let json = false;
+	let specPath: string | undefined;
 
 	for (let index = 0; index < argv.length; index += 1) {
 		const arg = argv[index];
@@ -16,14 +17,19 @@ function parseArgs(argv: string[]): { repoRoot: string; json: boolean } {
 		if (arg === '--json') {
 			json = true;
 		}
+
+		if (arg === '--spec') {
+			specPath = argv[index + 1];
+			index += 1;
+		}
 	}
 
-	return { repoRoot, json };
+	return { repoRoot, json, specPath };
 }
 
 function printReport(): void {
 	const args = parseArgs(process.argv.slice(2));
-	const report = validateRepoConfiguration(args.repoRoot);
+	const report = validateRepoConfiguration(args.repoRoot, { specPath: args.specPath });
 
 	if (args.json) {
 		console.log(JSON.stringify(report, null, 2));
