@@ -86,12 +86,12 @@
     "**/dist/**",
     "**/coverage/**",
     "**/__tests__/**",
-    "**/tests/**"
+    "**/tests/**",
+    ".agents/**",
+    ".github/**"
   ],
   "ignoreIssues": {
-    "codegen.yml": ["unlisted"],
-    "apps/ui-community/src/components/ui/organisms/dropdown-menu/communities-dropdown.container.tsx": ["exports"],
-    "apps/ui-community/src/components/layouts/shared/components/menu-component.tsx": ["types"]
+    "codegen.yml": ["unlisted"]
   },
   "ignoreDependencies": [
     "@types/*",

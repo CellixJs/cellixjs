@@ -4,11 +4,53 @@ import { useEffect } from 'react';
 import { hasAuthParams, useAuth } from 'react-oidc-context';
 import { Navigate, useLocation } from 'react-router-dom';
 
+/**
+ * Props for {@link RequireAuth}.
+ */
 export interface RequireAuthProps {
+	/**
+	 * Protected content to render once the active auth state is authenticated.
+	 */
 	children: React.JSX.Element;
+	/**
+	 * Whether the component should preserve the current route and trigger the redirect flow
+	 * as soon as it confirms that the user is unauthenticated.
+	 *
+	 * @defaultValue false
+	 */
 	forceLogin?: boolean;
 }
 
+/**
+ * Guards a UI branch behind the active OIDC authentication state.
+ *
+ * @param props - Protected children and redirect behavior options.
+ * @returns Protected content, a blocking loading UI, a redirect element, or no markup while sign-in begins.
+ *
+ * @remarks
+ * Authenticated users receive the protected children, loading states render a blocking
+ * spinner, and auth failures redirect back to `/`.
+ *
+ * Side effects:
+ *
+ * - When `forceLogin` is `true`, the component stores the current route in
+ *   the `redirectTo` sessionStorage key before starting the redirect flow.
+ * - When the user is unauthenticated, the component triggers `signinRedirect()` and
+ *   returns no markup while navigation takes over.
+ *
+ * @example
+ * ```tsx
+ * import { RequireAuth } from "@cellix/ui-core";
+ *
+ * function ProtectedRoute() {
+ *   return (
+ *     <RequireAuth forceLogin={true}>
+ *       <AccountSettings />
+ *     </RequireAuth>
+ *   );
+ * }
+ * ```
+ */
 export const RequireAuth: React.FC<RequireAuthProps> = (props) => {
 	const auth = useAuth();
 	const location = useLocation();

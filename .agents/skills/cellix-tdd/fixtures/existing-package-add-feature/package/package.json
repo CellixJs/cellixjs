@@ -1,0 +1,8 @@
+{
+  "name": "@cellix/query-params",
+  "version": "0.4.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

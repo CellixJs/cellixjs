@@ -1,0 +1,4 @@
+{
+  "overallStatus": "fail",
+  "failedChecks": ["documentation_alignment", "public_export_tsdoc"]
+}

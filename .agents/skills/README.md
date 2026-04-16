@@ -16,8 +16,19 @@ Agent Skills are folders of instructions and resources that AI agents can discov
 CellixJS skills follow the agentskills.io directory convention:
 
 ```
-.agents/skills/                      # Primary skills location and source of truth
-├── madr-enforcement/                # CellixJS-authored ADR enforcement skill
+.agents/skills/                      # Primary skills location (agentskills.io standard)
+├── cellix-tdd/                      # Consumer-first TDD workflow for @cellix packages
+│   ├── SKILL.md                    # Main workflow and rules
+│   ├── rubric.md                   # Artifact scoring rubric
+│   ├── references/                 # Manifest/docs guidance
+│   ├── fixtures/                   # Evaluation scenarios
+│   └── evaluator/                  # Rubric-based checker
+├── madr-enforcement/                # Enforces ADR standards in code
+│   ├── SKILL.md                    # Main skill instructions (required)
+│   ├── EXAMPLES.md                 # Comprehensive code examples (recommended)
+│   └── assets/                     # Additional resources (optional)
+│       ├── adr-template.md         # Full MADR template
+│       └── adr-short-template.md   # Short MADR template
 ├── turborepo/                       # Community skill for Turborepo workflows
 ├── vitest/                          # Community skill for Vitest workflows
 ├── ant-design/                      # Community skill for Ant Design component guidance
@@ -26,9 +37,13 @@ CellixJS skills follow the agentskills.io directory convention:
 ├── mongodb-mcp-setup/               # Community skill for MongoDB MCP configuration
 ├── mongodb-query-optimizer/         # Community skill for MongoDB query/index performance
 ├── mongodb-schema-design/           # Community skill for MongoDB schema modeling
-└── turbo-graph-optimization/        # CellixJS-authored skill for Turborepo task graph optimization
+├── turbo-graph-optimization/        # CellixJS-authored skill for Turborepo task graph optimization
+└── (future skills)/                # Additional skills as needed
 
 .github/skills/                      # Symlinks for GitHub Copilot discovery
+├── cellix-tdd -> ../../.agents/skills/cellix-tdd
+├── madr-enforcement -> ../../.agents/skills/madr-enforcement
+├── turbo-graph-optimization -> ../../.agents/skills/turbo-graph-optimization
 └── <skill-name> -> ../../.agents/skills/<skill-name>
 
 skills-lock.json                     # Upstream source + hash metadata for installed community skills
@@ -52,6 +67,45 @@ skills-lock.json                     # Upstream source + hash metadata for insta
 ## Available Skills
 
 ### CellixJS-Authored Skills
+
+#### Cellix TDD
+
+**Purpose:** Drive consumer-first, TDD-based development for `@cellix/*` framework packages while keeping `manifest.md`, `README.md`, TSDoc, tests, and release hardening aligned.
+
+**Use Cases:**
+- Adding or changing public behavior in an existing `@cellix/*` package
+- Refactoring internals while preserving the public contract
+- Starting a new `@cellix/*` package from consumer usage first
+- Repairing drift between package docs and the shipped API
+- Narrowing leaky or overbroad public exports before release
+
+**What This Skill Does:**
+- Requires discovery of consumer usage and package intent before implementation
+- Forces public-contract-first testing instead of internal helper testing
+- Requires `manifest.md`, consumer-facing `README.md`, and public-export TSDoc alignment
+- Adds release-hardening and validation expectations to package work
+- Ships fixtures plus an evaluator for rubric-based artifact scoring
+
+**What This Skill Does NOT Do:**
+- ❌ Does NOT treat tests as a post-implementation cleanup step
+- ❌ Does NOT allow deep-import testing of internals
+- ❌ Does NOT treat `README.md` as maintainer-only design notes
+- ✅ DOES bias toward minimal, intentional public APIs
+
+**Key Features:**
+- Required workflow sections for package maturity work summaries
+- Manifest and documentation templates captured inside the skill
+- Mixed pass/fail fixtures covering the expected edge cases
+- A standalone evaluator for public-contract and docs-alignment checks
+
+**References:**
+- [SKILL.md](cellix-tdd/SKILL.md) - Workflow, rules, and output structure
+- [rubric.md](cellix-tdd/rubric.md) - Artifact scoring rubric
+- [fixtures/README.md](cellix-tdd/fixtures/README.md) - Included scenario coverage
+
+**Verification Commands:**
+- `pnpm run test:skill:cellix-tdd` - run the fixture regression suite
+- `pnpm run skill:cellix-tdd:check -- --package <pkg>` - scaffold the summary if needed, then evaluate it
 
 #### MADR Enforcement
 
@@ -147,6 +201,8 @@ For this repo, `.agents/skills/` remains the source of truth and `.github/skills
 ### 2. Copilot Instructions
 Skills are referenced in `.github/instructions/` files:
 - `.github/instructions/madr.instructions.md` - MADR enforcement in code
+
+Some skills, such as `cellix-tdd`, are intentionally discoverable through `.agents/skills/` and `.github/skills/` only so they stay on-demand instead of adding always-on instructions to unrelated tasks.
 
 ## Community Skill Sources
 

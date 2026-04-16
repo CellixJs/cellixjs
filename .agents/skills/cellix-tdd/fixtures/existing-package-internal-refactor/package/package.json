@@ -1,0 +1,8 @@
+{
+  "name": "@cellix/retry-policy",
+  "version": "0.7.1",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

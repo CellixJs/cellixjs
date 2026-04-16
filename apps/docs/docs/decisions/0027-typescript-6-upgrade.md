@@ -40,6 +40,7 @@ Chosen option: "Upgrade to TypeScript 6.0.2 with targeted fixes", because it res
 - Good, because Playwright tooling was aligned on 1.59.0, resolving deprecated `module` namespace declarations in `playwright-core` while keeping the test runner and runtime in sync.
 - Neutral, because the `DOM.Iterable` removal from UI tsconfigs is a cosmetic simplification with no runtime impact.
 - Neutral, because the docs package's `@docusaurus/tsconfig` still depends on the deprecated `baseUrl` option; this is suppressed with `ignoreDeprecations: "6.0"` until Docusaurus ships an updated config.
+- Neutral, because `packages/cellix/ui-core/tsconfig.vitest.json` needs a local `paths` alias for Vitest typechecking, and TypeScript 6.0 still requires the deprecated `baseUrl` option whenever `paths` is used.
 
 ## Changes Made
 
@@ -69,7 +70,21 @@ TypeScript 6.0 merges `lib.dom.iterable.d.ts` and `lib.dom.asynciterable.d.ts` i
 
 ### 4. `apps/docs` tsconfig: `baseUrl` removed, `ignoreDeprecations: "6.0"` added
 
-`baseUrl` is deprecated in TypeScript 6.0. The `apps/docs` tsconfig extended both `@cellix/config-typescript/base` and `@docusaurus/tsconfig`. The latter defines `"baseUrl": "."` internally and the docs tsconfig duplicated it. The duplicate was removed. Because `@docusaurus/tsconfig` still carries `baseUrl` and we cannot change a third-party package, `"ignoreDeprecations": "6.0"` was added to the docs tsconfig as a temporary suppression for the inherited config until Docusaurus drops the deprecated option. All other packages are unaffected since none use `baseUrl`.
+`baseUrl` is deprecated in TypeScript 6.0. The `apps/docs` tsconfig extended both `@cellix/config-typescript/base` and `@docusaurus/tsconfig`. The latter defines `"baseUrl": "."` internally and the docs tsconfig duplicated it. The duplicate was removed. Because `@docusaurus/tsconfig` still carries `baseUrl` and we cannot change a third-party package, `"ignoreDeprecations": "6.0"` was added to the docs tsconfig as a temporary suppression for the inherited config until Docusaurus drops the deprecated option.
+
+### 5. `packages/cellix/ui-core/tsconfig.vitest.json`: `baseUrl` retained for local `paths` alias, `ignoreDeprecations: "6.0"` added
+
+`packages/cellix/ui-core/tests/index.test.tsx` exercises the package strictly through the public root import (`@cellix/ui-core`) to enforce the package's contract. During Vitest typechecking, those imports need to resolve to the package's local `src/index.ts` entrypoint rather than built output or workspace package-link behavior. The package's `tsconfig.vitest.json` therefore defines:
+
+```json
+"paths": {
+  "@cellix/ui-core": ["./src/index.ts"]
+}
+```
+
+Under TypeScript 6.0, `paths` is only honored when `baseUrl` is also set, even though `baseUrl` itself is now deprecated. That makes `baseUrl` a temporary compatibility requirement for this Vitest-only config. To keep `tsc --project tsconfig.vitest.json` passing under TS 6.0, `"ignoreDeprecations": "6.0"` is paired with `"baseUrl": "."`.
+
+This suppression is narrower than the docs case: it is not inherited from a third-party config, it exists only because TS 6.0 has not yet provided a non-deprecated replacement for `paths`-based local test aliasing. Before migrating to TS 7.0, this config should be revisited and the aliasing approach replaced if TypeScript removes `baseUrl` support entirely.
 
 ## TypeScript 7.0 Readiness Validation (`--stableTypeOrdering`)
 
@@ -96,6 +111,7 @@ The following are config improvements that can be adopted now to further align w
 | Upgrade `lib` from `"ES2023"` to `"ES2025"` | TS 6.0 adds `es2025` lib support (adds `RegExp.escape`, `Promise.try`, `Iterator` and `Set` methods). Update `tsconfig.base.json` `lib` when the team confirms target runtimes support ES2025. |
 | Update `@docusaurus/tsconfig` dependency | Track Docusaurus for a config update that drops `baseUrl`, at which point `ignoreDeprecations: "6.0"` can be removed from `apps/docs/tsconfig.json`. |
 | Reassess `ignoreDeprecations: "6.0"` in docs | TypeScript 7.0 will not support any TS 6.0 deprecated options at all. Before migrating to TS 7.0, Docusaurus must drop `baseUrl` or the docs build will need a different resolution (e.g., `paths`-only config). |
+| Rework `ui-core` Vitest aliasing before TS 7.0 | `packages/cellix/ui-core/tsconfig.vitest.json` currently needs `baseUrl` because TypeScript 6.0 still requires it for `paths`. Before TS 7.0, replace this with a non-deprecated local-resolution approach for root-import contract tests. |
 | Continue monitoring ADR-0023 blockers | The `stableTypeOrdering` validation result removes one uncertainty from the TS 7.0 migration plan; the remaining blockers (mongoose TS4109, TS2742 inferred-type errors) are tracked in ADR-0023. |
 
 ## Validation
