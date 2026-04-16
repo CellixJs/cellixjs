@@ -1,5 +1,23 @@
 # CellixJS Development Guide
 
+## AI Orchestration Workflow
+
+CellixJS uses a profile-driven orchestration workflow defined by:
+
+- `orchestration.spec.yaml`
+- `.agents/orchestration/model/orchestration-model.v1.json`
+- `.github/instructions/orchestration-*.instructions.md`
+- `.github/agents/*.agent.md`
+- `AGENTS.md`
+
+When working with AI agents:
+
+- classify work into one primary lane before substantial implementation
+- follow the explicit workflow states `initialized -> planning -> plan-complete -> implementing -> reviewing -> revising/done`
+- use `blocked` only for real blockers or unresolved ambiguity
+- keep runtime artifact depth minimal by default
+- activate `cellix-tdd` only for reusable framework work in profiles that support framework behavior
+
 ## Architecture Overview
 
 CellixJS is a Domain-Driven Design (DDD) monorepo built on Azure Functions, implementing a modular architecture with strict separation of concerns:

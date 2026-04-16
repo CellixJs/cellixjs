@@ -23,6 +23,11 @@ CellixJS skills follow the agentskills.io directory convention:
 │   ├── references/                 # Manifest/docs guidance
 │   ├── fixtures/                   # Evaluation scenarios
 │   └── evaluator/                  # Rubric-based checker
+├── cellix-task-intake/             # Task intake and lane classification for orchestration
+├── cellix-session-state/           # Workflow-state discipline for orchestration sessions
+├── cellix-feature-delivery/        # Application and reference-app delivery workflow
+├── cellix-phase-review/            # Review and completion-gate workflow
+├── cellix-framework-surface-review/ # Reusable framework public-surface review
 ├── madr-enforcement/                # Enforces ADR standards in code
 │   ├── SKILL.md                    # Main skill instructions (required)
 │   ├── EXAMPLES.md                 # Comprehensive code examples (recommended)
@@ -42,6 +47,11 @@ CellixJS skills follow the agentskills.io directory convention:
 
 .github/skills/                      # Symlinks for GitHub Copilot discovery
 ├── cellix-tdd -> ../../.agents/skills/cellix-tdd
+├── cellix-task-intake -> ../../.agents/skills/cellix-task-intake
+├── cellix-session-state -> ../../.agents/skills/cellix-session-state
+├── cellix-feature-delivery -> ../../.agents/skills/cellix-feature-delivery
+├── cellix-phase-review -> ../../.agents/skills/cellix-phase-review
+├── cellix-framework-surface-review -> ../../.agents/skills/cellix-framework-surface-review
 ├── madr-enforcement -> ../../.agents/skills/madr-enforcement
 ├── turbo-graph-optimization -> ../../.agents/skills/turbo-graph-optimization
 └── <skill-name> -> ../../.agents/skills/<skill-name>
@@ -106,6 +116,30 @@ skills-lock.json                     # Upstream source + hash metadata for insta
 **Verification Commands:**
 - `pnpm run test:skill:cellix-tdd` - run the fixture regression suite
 - `pnpm run skill:cellix-tdd:check -- --package <pkg>` - scaffold the summary if needed, then evaluate it
+
+#### Cellix Orchestration Core
+
+**Purpose:** Provide the portable execution-layer skills for the orchestration control plane introduced in issue `#218`.
+
+**Managed Skills:**
+- `cellix-task-intake`
+- `cellix-session-state`
+- `cellix-feature-delivery`
+- `cellix-phase-review`
+- `cellix-framework-surface-review`
+
+**What These Skills Do:**
+- classify work into one primary orchestration lane
+- keep session state aligned with the explicit workflow state machine
+- provide a bounded, TDD-driven delivery workflow for scenario-based application and reference-app behavior
+- provide explicit review and completion-gate behavior
+- add reusable framework public-surface review without duplicating `cellix-tdd`
+
+**What These Skills Do NOT Do:**
+- ❌ Do NOT replace the orchestration spec or ADRs as the policy source of truth
+- ❌ Do NOT enable `cellix-tdd` globally for unrelated application or tooling tasks
+- ❌ Do NOT pretend application-delivery TDD is the same thing as reusable-framework public-consumer contract TDD
+- ❌ Do NOT require heavyweight runtime artifacts for every task by default
 
 #### MADR Enforcement
 
@@ -201,6 +235,7 @@ For this repo, `.agents/skills/` remains the source of truth and `.github/skills
 ### 2. Copilot Instructions
 Skills are referenced in `.github/instructions/` files:
 - `.github/instructions/madr.instructions.md` - MADR enforcement in code
+- `.github/instructions/orchestration-*.instructions.md` - orchestration lane routing and path-class guidance
 
 Some skills, such as `cellix-tdd`, are intentionally discoverable through `.agents/skills/` and `.github/skills/` only so they stay on-demand instead of adding always-on instructions to unrelated tasks.
 
