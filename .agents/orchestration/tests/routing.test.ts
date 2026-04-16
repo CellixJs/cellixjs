@@ -49,4 +49,32 @@ classes:
 		expect(report.suggestedLane).toBe('application-feature-delivery');
 		expect(report.matchedClasses).toEqual(['applicationPackages']);
 	});
+
+	test('does not suggest disabled lane families even when paths match a class', () => {
+		const fixtureRoot = createTempRepoFixture(`version: 1
+profile: mixed-framework-and-app
+classes:
+  reusableFramework:
+    include:
+      - packages/**
+  applicationPackages:
+    include:
+      - src/**
+  tooling:
+    include:
+      - .agents/**
+  docs:
+    include:
+      - docs/**
+overrides:
+  disableLaneFamilies:
+    - application-delivery
+`);
+
+		const report = suggestLaneForChangedPaths(fixtureRoot, ['src/features/dashboard.ts']);
+		expect(report.suggestedLane).toBeUndefined();
+		expect(report.confidence).toBe('low');
+		expect(report.candidateLanes).toEqual([]);
+		expect(report.reasons[0]).toContain('disabled or unavailable');
+	});
 });

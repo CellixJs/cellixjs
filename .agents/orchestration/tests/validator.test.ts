@@ -50,6 +50,30 @@ overrides:
 		expect(report.errors.some((issue) => issue.code === 'framework-extension-in-application-only')).toBe(true);
 	});
 
+	test('reports invalid profiles instead of throwing', () => {
+		const fixtureRoot = createTempRepoFixture(`
+version: 1
+profile: invalid-profile
+classes:
+  reusableFramework:
+    include:
+      - packages/**
+  applicationPackages:
+    include:
+      - apps/**
+  tooling:
+    include:
+      - .agents/**
+  docs:
+    include:
+      - docs/**
+`);
+
+		const report = validateRepoConfiguration(fixtureRoot);
+		expect(report.ok).toBe(false);
+		expect(report.errors.some((issue) => issue.code === 'invalid-profile')).toBe(true);
+	});
+
 	test('fails when a required hook script is missing', () => {
 		const fixtureRoot = createTempRepoFixture();
 		writeFixtureFile(

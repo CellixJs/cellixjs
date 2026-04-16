@@ -1,6 +1,7 @@
+import { spawnSync } from 'node:child_process';
 import { describe, expect, test } from 'vitest';
 import { checkActionAllowed, checkRoleAllowed, createSession, transitionSession } from '../lib/orchestration-runtime.ts';
-import { createTempRepoFixture } from './test-helpers.ts';
+import { createTempRepoFixture, repoRoot } from './test-helpers.ts';
 
 describe('orchestration hook checks', () => {
 	test('denies reviewer role during implementing', () => {
@@ -77,5 +78,36 @@ describe('orchestration hook checks', () => {
 		expect(result.allowed).toBe(false);
 		expect(result.code).toBe('action-not-allowed');
 		expect(result.guidance[1]).toContain('inspect');
+	});
+
+	test('returns structured json when a required option is missing', () => {
+		const fixtureRoot = createTempRepoFixture();
+		const result = spawnSync(process.execPath, ['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'session-init', '--repo', fixtureRoot], {
+			cwd: repoRoot(),
+			encoding: 'utf8',
+		});
+
+		expect(result.status).toBe(1);
+		expect(result.stderr).toBe('');
+		expect(JSON.parse(result.stdout)).toMatchObject({
+			allowed: false,
+			code: 'invalid-invocation',
+			message: 'Missing required option --session',
+		});
+	});
+
+	test('returns structured json for unknown subcommands', () => {
+		const result = spawnSync(process.execPath, ['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'unknown-command'], {
+			cwd: repoRoot(),
+			encoding: 'utf8',
+		});
+
+		expect(result.status).toBe(1);
+		expect(result.stderr).toBe('');
+		expect(JSON.parse(result.stdout)).toMatchObject({
+			allowed: false,
+			code: 'invalid-invocation',
+			message: 'Unknown subcommand "unknown-command"',
+		});
 	});
 });

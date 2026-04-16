@@ -56,15 +56,26 @@ function resolveCandidateLanes(spec: OrchestrationSpec, model: OrchestrationMode
 	});
 }
 
+function hasCandidate(candidates: LaneId[], laneId: LaneId): boolean {
+	return candidates.includes(laneId);
+}
+
 function suggestLaneFromCandidates(matchedClasses: PathClassId[], candidates: LaneId[]): { suggestedLane?: LaneId; confidence: LaneSuggestionReport['confidence']; reasons: string[] } {
-	if (matchedClasses.length === 0 || candidates.length === 0) {
+	if (matchedClasses.length === 0) {
 		return {
 			confidence: 'low',
 			reasons: ['No changed paths matched the repo class mappings, so lane selection still needs manual classification.'],
 		};
 	}
 
-	if (matchedClasses.includes('applicationPackages') && !matchedClasses.includes('reusableFramework')) {
+	if (candidates.length === 0) {
+		return {
+			confidence: 'low',
+			reasons: ['Changed paths matched repo classes, but every matching lane family is disabled or unavailable in the active profile.'],
+		};
+	}
+
+	if (matchedClasses.includes('applicationPackages') && !matchedClasses.includes('reusableFramework') && hasCandidate(candidates, 'application-feature-delivery')) {
 		return {
 			suggestedLane: 'application-feature-delivery',
 			confidence: 'high',
@@ -72,7 +83,7 @@ function suggestLaneFromCandidates(matchedClasses: PathClassId[], candidates: La
 		};
 	}
 
-	if (matchedClasses.includes('docs') && !matchedClasses.includes('reusableFramework') && !matchedClasses.includes('applicationPackages')) {
+	if (matchedClasses.includes('docs') && !matchedClasses.includes('reusableFramework') && !matchedClasses.includes('applicationPackages') && hasCandidate(candidates, 'docs-architecture-planning')) {
 		return {
 			suggestedLane: 'docs-architecture-planning',
 			confidence: 'high',
@@ -80,7 +91,7 @@ function suggestLaneFromCandidates(matchedClasses: PathClassId[], candidates: La
 		};
 	}
 
-	if (matchedClasses.length === 1 && matchedClasses[0] === 'tooling') {
+	if (matchedClasses.length === 1 && matchedClasses[0] === 'tooling' && hasCandidate(candidates, 'tooling-workflow')) {
 		return {
 			suggestedLane: 'tooling-workflow',
 			confidence: 'high',
@@ -101,10 +112,7 @@ function suggestLaneFromCandidates(matchedClasses: PathClassId[], candidates: La
 	if (matchedClasses.includes('reusableFramework') && matchedClasses.includes('applicationPackages')) {
 		return {
 			confidence: 'low',
-			reasons: [
-				'Changed paths span both reusable framework and application packages.',
-				'Split phases or escalate instead of blending lane families into one implementation pass.',
-			],
+			reasons: ['Changed paths span both reusable framework and application packages.', 'Split phases or escalate instead of blending lane families into one implementation pass.'],
 		};
 	}
 

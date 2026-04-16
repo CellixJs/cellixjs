@@ -17,7 +17,12 @@ function pushError(errors: ValidationIssue[], code: string, message: string, sug
 }
 
 export function resolveActiveLaneFamilies(spec: OrchestrationSpec, model: OrchestrationModel): LaneFamilyId[] {
-	const defaults = model.profiles[spec.profile].laneFamilies;
+	const profile = model.profiles[spec.profile];
+	if (!profile) {
+		return [];
+	}
+
+	const defaults = profile.laneFamilies;
 	const disabled = new Set(spec.overrides?.disableLaneFamilies ?? []);
 	return defaults.filter((family) => !disabled.has(family));
 }
@@ -108,7 +113,12 @@ export function validateSpec(spec: OrchestrationSpec, model: OrchestrationModel)
 		}
 	}
 
-	for (const requiredClass of REQUIRED_CLASSES_BY_PROFILE[spec.profile]) {
+	const requiredClasses = REQUIRED_CLASSES_BY_PROFILE[spec.profile];
+	if (!requiredClasses) {
+		return errors;
+	}
+
+	for (const requiredClass of requiredClasses) {
 		if (spec.classes[requiredClass].include.length === 0) {
 			pushError(errors, 'empty-required-class-mapping', `Profile "${spec.profile}" requires a non-empty include mapping for "${requiredClass}".`);
 		}
