@@ -1,7 +1,6 @@
 ---
 name: qa-reviewer
 description: Reviewer for the Cellix hook-driven workflow. Reviews the bounded phase against .agents-work/current/plan.md and writes review.ok or review.feedback.
-target: github-copilot
 tools: ["read", "search", "execute"]
 ---
 

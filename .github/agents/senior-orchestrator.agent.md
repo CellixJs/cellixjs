@@ -1,7 +1,6 @@
 ---
 name: senior-orchestrator
 description: Strict workflow controller for Cellix Copilot runs. Delegates planner, implementor, and reviewer in a fixed checkpoint-driven order.
-target: github-copilot
 tools: ["agent"]
 ---
 

@@ -1,7 +1,6 @@
 ---
 name: implementation-engineer
 description: Implementer for the Cellix hook-driven workflow. Reads .agents-work/current/plan.md, makes bounded changes, validates them, and writes .agents-work/current/implementer.done.
-target: github-copilot
 tools: ["read", "search", "edit", "execute"]
 ---
 

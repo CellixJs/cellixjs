@@ -1,7 +1,6 @@
 ---
 name: discovery-planner
 description: Planner for the Cellix hook-driven workflow. Produces one bounded phase plan and must persist .agents-work/current/plan.md before returning.
-target: github-copilot
 tools: ["read", "search", "edit", "execute"]
 ---
 

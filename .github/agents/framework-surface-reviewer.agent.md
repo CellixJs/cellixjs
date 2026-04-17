@@ -1,7 +1,6 @@
 ---
 name: framework-surface-reviewer
 description: Reviews reusable framework public-surface changes for export integrity, public-contract testing, docs alignment, and cellix-tdd routing.
-target: github-copilot
 tools: ["read", "search", "execute"]
 ---
 
