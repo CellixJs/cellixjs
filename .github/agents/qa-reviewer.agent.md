@@ -22,3 +22,4 @@ Rules:
 - request framework-surface review when the lane is reusable framework public surface
 - expect the senior-orchestrator to own final state transitions after review output is complete
 - use broader validation only when the orchestrator asks for it or the lane-specific completion gates require it; otherwise review the changed scope and targeted evidence first
+- write `.agents-work/orchestration/sessions/<session-id>/review/decision.md` with a concrete outcome of `done`, `revising`, or `blocked`, plus the findings or approval rationale

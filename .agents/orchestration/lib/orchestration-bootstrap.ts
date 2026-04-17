@@ -99,7 +99,7 @@ export function bootstrapOrchestrationSession(
 
 	if (selectedLane && !requiresLaneDecision && !shouldSplitPhases && input.sessionId) {
 		nextActions.push('Delegate planning to discovery-planner after the session reaches planning.');
-		nextActions.push('Write the bounded plan to the session plan artifact before transitioning to plan-complete.');
+		nextActions.push('Write the bounded plan to the session plan artifact, then use the implementing handoff to advance automatically.');
 	}
 
 	const result: BootstrapReport = {

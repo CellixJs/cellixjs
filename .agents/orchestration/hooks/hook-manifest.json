@@ -11,6 +11,16 @@
 			"subcommand": "transition",
 			"description": "Validate and apply workflow state transitions."
 		},
+		"handoff": {
+			"script": ".agents/orchestration/cli/orchestration-hook.ts",
+			"subcommand": "handoff",
+			"description": "Advance implicitly to implementing or reviewing when the required checkpoints exist."
+		},
+		"complete": {
+			"script": ".agents/orchestration/cli/orchestration-hook.ts",
+			"subcommand": "complete",
+			"description": "Resolve reviewing into done, revising, or blocked using canonical checkpoint artifacts."
+		},
 		"agent-check": {
 			"script": ".agents/orchestration/cli/orchestration-hook.ts",
 			"subcommand": "agent-check",

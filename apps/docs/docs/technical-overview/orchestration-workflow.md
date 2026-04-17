@@ -116,9 +116,17 @@ After planning is delegated, verify the canonical session artifacts with:
 pnpm run orchestration:session-status -- --session <session-id>
 ```
 
-The discovery planner is expected to write `.agents-work/orchestration/sessions/<session-id>/plan.md`, and `planning -> plan-complete` is blocked until that artifact exists.
+The discovery planner is expected to write `.agents-work/orchestration/sessions/<session-id>/plan.md`.
 
-The same status command also prints the canonical session directory plus `implementation/` and `review/` subdirectories so later handoffs do not have to reconstruct those paths manually.
+The same status command also prints the canonical session directory, the `implementation/` and `review/` subdirectories, the checkpoint files under those directories, and the recommended next step so later handoffs do not have to reconstruct those paths manually.
+
+Once `plan.md` exists, advance with:
+
+```bash
+pnpm run orchestration:hook -- handoff implementing --session <session-id> --role senior-orchestrator
+```
+
+That handoff absorbs the `planning -> plan-complete -> implementing` choreography when the canonical plan artifact is present.
 
 For implementation handoff, keep the prompt short:
 
@@ -127,7 +135,17 @@ For implementation handoff, keep the prompt short:
 - canonical plan/session paths from `orchestration:session-status`
 - success criteria and targeted validation expectations
 
-Do not restate the entire plan inline when the implementation agent can read `plan.md` directly.
+Do not restate the entire plan inline when the implementation agent can read `plan.md` directly. Require the implementation agent to write `.agents-work/orchestration/sessions/<session-id>/implementation/result.md`, then advance review with:
+
+```bash
+pnpm run orchestration:hook -- handoff reviewing --session <session-id> --role senior-orchestrator
+```
+
+Require the reviewer to write `.agents-work/orchestration/sessions/<session-id>/review/decision.md`, then resolve the review with:
+
+```bash
+pnpm run orchestration:hook -- complete done|revising --session <session-id> --role senior-orchestrator
+```
 
 This helper is intentionally narrow:
 

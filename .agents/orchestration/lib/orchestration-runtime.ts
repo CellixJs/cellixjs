@@ -1,5 +1,5 @@
-import { buildSessionArtifactPaths, getSessionArtifactStatus, loadOrchestrationModel, loadOrchestrationSpec, loadSession, saveSession } from './orchestration-loader.ts';
-import type { ActionId, HookResult, RoleId, RuntimeSession, StateId } from './types.ts';
+import { buildSessionArtifactPaths, getSessionArtifactStatus, getSessionCheckpointStatus, loadOrchestrationModel, loadOrchestrationSpec, loadSession, saveSession } from './orchestration-loader.ts';
+import type { ActionId, HookResult, LaneId, RoleId, RuntimeSession, StateId } from './types.ts';
 
 const MAX_REVISIONS = 3;
 const MAX_BLOCKED_RESUMES = 3;
@@ -31,6 +31,35 @@ function resolveCompletionGates(repoRoot: string, session: RuntimeSession): stri
 	const spec = loadOrchestrationSpec(repoRoot);
 	const model = loadOrchestrationModel(repoRoot);
 	return spec.overrides?.completionGates?.[session.lane] ?? model.completionGates[session.lane] ?? [];
+}
+
+function resolveCompletionGateEvidence(repoRoot: string, lane: LaneId): string[] {
+	const spec = loadOrchestrationSpec(repoRoot);
+	const model = loadOrchestrationModel(repoRoot);
+	return spec.overrides?.completionGates?.[lane] ?? model.completionGates[lane] ?? [];
+}
+
+function resolveTransitionEvidence(repoRoot: string, toState: StateId, fromState?: StateId, lane?: LaneId): string[] {
+	switch (toState) {
+		case 'planning':
+			return ['task-lane-selected', 'session-created'];
+		case 'plan-complete':
+			return ['bounded-plan', 'phase-owner-recorded'];
+		case 'implementing':
+			return ['implementation-owner-recorded'];
+		case 'reviewing':
+			return fromState === 'revising' ? ['revision-summary', 'validation-evidence'] : ['change-summary', 'validation-evidence'];
+		case 'revising':
+			return ['review-findings'];
+		case 'done': {
+			const evidence = ['completion-gates-satisfied', 'final-summary'];
+			return lane ? [...evidence, ...resolveCompletionGateEvidence(repoRoot, lane)] : evidence;
+		}
+		case 'blocked':
+			return ['blocker-recorded'];
+		default:
+			return [];
+	}
 }
 
 function isRoleAllowedForLane(repoRoot: string, role: RoleId, lane: RuntimeSession['lane'], state: StateId, profile: RuntimeSession['profile']): boolean {
@@ -126,6 +155,47 @@ function validateRequiredArtifacts(repoRoot: string, session: RuntimeSession, to
 	);
 }
 
+function validateCheckpointArtifact(repoRoot: string, session: RuntimeSession, checkpoint: 'implementationResult' | 'reviewDecision' | 'finalSummary'): HookResult | undefined {
+	if (checkpoint === 'finalSummary') {
+		const artifactStatus = getSessionArtifactStatus(repoRoot, session.sessionId);
+		if (artifactStatus.finalSummary.exists) {
+			return undefined;
+		}
+
+		return deny(
+			'missing-artifact',
+			`Completion requires final-summary.md at "${artifactStatus.finalSummary.path}".`,
+			buildGuidance('Write the final summary before completing the session.', [`Expected artifact: ${artifactStatus.finalSummary.path}`]),
+			session.state,
+		);
+	}
+
+	const checkpointStatus = getSessionCheckpointStatus(repoRoot, session.sessionId);
+	if (checkpointStatus[checkpoint].exists) {
+		return undefined;
+	}
+
+	const labels: Record<'implementationResult' | 'reviewDecision', string> = {
+		implementationResult: 'implementation/result.md',
+		reviewDecision: 'review/decision.md',
+	};
+
+	return deny(
+		'missing-checkpoint',
+		`Expected checkpoint "${labels[checkpoint]}" before continuing.`,
+		buildGuidance('Write the canonical checkpoint artifact before advancing the session.', [`Expected artifact: ${checkpointStatus[checkpoint].path}`]),
+		session.state,
+	);
+}
+
+function ensureTransitionSucceeded(result: { result: HookResult; session?: RuntimeSession }): RuntimeSession | undefined {
+	return result.result.allowed ? result.session : undefined;
+}
+
+function handoffAllowedRoles(phase: 'implementing' | 'reviewing'): RoleId[] {
+	return phase === 'implementing' ? ['implementation-engineer'] : ['qa-reviewer', 'framework-surface-reviewer'];
+}
+
 export function checkRoleAllowed(repoRoot: string, sessionId: string, role: RoleId): HookResult {
 	const session = loadSession(repoRoot, sessionId);
 	if (!session) {
@@ -215,8 +285,6 @@ export function transitionSession(
 
 	const roleCheck = checkRoleAllowed(repoRoot, input.sessionId, input.role);
 	if (!roleCheck.allowed) {
-		session.processedEvents[input.eventId] = roleCheck;
-		saveSession(repoRoot, session);
 		return { result: roleCheck, session };
 	}
 
@@ -229,15 +297,11 @@ export function transitionSession(
 			buildGuidance('Use a valid next state.', [`Valid transitions from "${session.state}": ${Object.keys(model.states[session.state].transitions).join(', ') || 'none'}`]),
 			session.state,
 		);
-		session.processedEvents[input.eventId] = denial;
-		saveSession(repoRoot, session);
 		return { result: denial, session };
 	}
 
 	const missingArtifact = validateRequiredArtifacts(repoRoot, session, input.toState);
 	if (missingArtifact) {
-		session.processedEvents[input.eventId] = missingArtifact;
-		saveSession(repoRoot, session);
 		return { result: missingArtifact, session };
 	}
 
@@ -249,8 +313,6 @@ export function transitionSession(
 			buildGuidance('Provide the required evidence keys for this transition.', [`Missing: ${missingEvidence.join(', ')}`]),
 			session.state,
 		);
-		session.processedEvents[input.eventId] = denial;
-		saveSession(repoRoot, session);
 		return { result: denial, session };
 	}
 
@@ -265,8 +327,6 @@ export function transitionSession(
 				buildGuidance('Provide the completion-gate evidence required for the active lane.', [`Missing: ${missingCompletionGates.join(', ')}`]),
 				session.state,
 			);
-			session.processedEvents[input.eventId] = denial;
-			saveSession(repoRoot, session);
 			return { result: denial, session };
 		}
 	}
@@ -278,8 +338,6 @@ export function transitionSession(
 			buildGuidance('Stop revising the same phase repeatedly.', ['Escalate the task or return to planning with a narrower scope.']),
 			session.state,
 		);
-		session.processedEvents[input.eventId] = denial;
-		saveSession(repoRoot, session);
 		return { result: denial, session };
 	}
 
@@ -290,8 +348,6 @@ export function transitionSession(
 			buildGuidance('Avoid retrying the same blocked flow indefinitely.', ['Escalate the blocker with new context or reset the plan.']),
 			session.state,
 		);
-		session.processedEvents[input.eventId] = denial;
-		saveSession(repoRoot, session);
 		return { result: denial, session };
 	}
 
@@ -326,6 +382,209 @@ export function transitionSession(
 	session.processedEvents[input.eventId] = success;
 	saveSession(repoRoot, session);
 	return { result: success, session };
+}
+
+export function handoffPhase(
+	repoRoot: string,
+	input: {
+		sessionId: string;
+		role: RoleId;
+		phase: 'implementing' | 'reviewing';
+		owner: RoleId;
+		eventId?: string;
+		note?: string;
+	},
+): { result: HookResult; session?: RuntimeSession } {
+	const session = loadSession(repoRoot, input.sessionId);
+	if (!session) {
+		return {
+			result: deny('missing-session', `Session "${input.sessionId}" does not exist.`, ['Initialize the session first with orchestration:bootstrap.']),
+		};
+	}
+
+	const allowedOwners = handoffAllowedRoles(input.phase);
+	if (!allowedOwners.includes(input.owner)) {
+		return {
+			result: deny('invalid-owner', `Role "${input.owner}" cannot own the "${input.phase}" handoff.`, buildGuidance('Use a role that matches the target phase.', [`Allowed owners: ${allowedOwners.join(', ')}`]), session.state),
+			session,
+		};
+	}
+
+	if (input.phase === 'implementing') {
+		if (session.state === 'implementing' || session.state === 'revising') {
+			const ownerCheck = checkRoleAllowed(repoRoot, input.sessionId, input.owner);
+			return {
+				result: ownerCheck.allowed ? allow('phase-ready', `Phase "${session.state}" is ready for "${input.owner}".`, ['Delegate the bounded implementation work.'], session.state) : ownerCheck,
+				session,
+			};
+		}
+
+		if (session.state === 'planning') {
+			const planReady = validateRequiredArtifacts(repoRoot, session, 'plan-complete');
+			if (planReady) {
+				return { result: planReady, session };
+			}
+
+			const planComplete = transitionSession(repoRoot, {
+				sessionId: input.sessionId,
+				role: input.role,
+				toState: 'plan-complete',
+				evidence: resolveTransitionEvidence(repoRoot, 'plan-complete', session.state, session.lane),
+				eventId: input.eventId ? `${input.eventId}-plan-complete` : `${input.sessionId}-planning-plan-complete`,
+				note: input.note ?? 'Plan artifact is present; advancing to implementation handoff.',
+			});
+			if (!planComplete.result.allowed) {
+				return planComplete;
+			}
+		}
+
+		const sessionAfterPlan = loadSession(repoRoot, input.sessionId);
+		if (!sessionAfterPlan || sessionAfterPlan.state !== 'plan-complete') {
+			return {
+				result: deny(
+					'phase-not-ready',
+					`Session "${input.sessionId}" is not ready to enter implementing from state "${sessionAfterPlan?.state ?? session.state}".`,
+					['Ensure planning completed and the canonical plan artifact exists before delegating implementation.'],
+					sessionAfterPlan?.state ?? session.state,
+				),
+				session: sessionAfterPlan ?? session,
+			};
+		}
+
+		const implementing = transitionSession(repoRoot, {
+			sessionId: input.sessionId,
+			role: input.role,
+			toState: 'implementing',
+			evidence: resolveTransitionEvidence(repoRoot, 'implementing', sessionAfterPlan.state, sessionAfterPlan.lane),
+			eventId: input.eventId ? `${input.eventId}-implementing` : `${input.sessionId}-plan-complete-implementing`,
+			note: input.note ?? `Delegated bounded implementation to ${input.owner}.`,
+		});
+		const updatedSession = ensureTransitionSucceeded(implementing) ?? implementing.session;
+		if (!implementing.result.allowed || !updatedSession) {
+			return implementing;
+		}
+
+		const ownerCheck = checkRoleAllowed(repoRoot, input.sessionId, input.owner);
+		return {
+			result: ownerCheck.allowed ? allow('phase-ready', `Session "${input.sessionId}" is ready for "${input.owner}" in "${updatedSession.state}".`, ['Delegate the bounded implementation work.'], updatedSession.state) : ownerCheck,
+			session: updatedSession,
+		};
+	}
+
+	if (session.state === 'reviewing') {
+		const ownerCheck = checkRoleAllowed(repoRoot, input.sessionId, input.owner);
+		return {
+			result: ownerCheck.allowed ? allow('phase-ready', `Phase "reviewing" is ready for "${input.owner}".`, ['Delegate the review work using the canonical review checkpoint path.'], session.state) : ownerCheck,
+			session,
+		};
+	}
+
+	if (!['implementing', 'revising'].includes(session.state)) {
+		return {
+			result: deny(
+				'phase-not-ready',
+				`Session "${input.sessionId}" cannot enter reviewing from "${session.state}".`,
+				['Implementation or revision work must complete first.', 'Write the implementation result checkpoint before delegating review.'],
+				session.state,
+			),
+			session,
+		};
+	}
+
+	const implementationCheckpoint = validateCheckpointArtifact(repoRoot, session, 'implementationResult');
+	if (implementationCheckpoint) {
+		return { result: implementationCheckpoint, session };
+	}
+
+	const reviewing = transitionSession(repoRoot, {
+		sessionId: input.sessionId,
+		role: input.role,
+		toState: 'reviewing',
+		evidence: resolveTransitionEvidence(repoRoot, 'reviewing', session.state, session.lane),
+		eventId: input.eventId ? `${input.eventId}-reviewing` : `${input.sessionId}-${session.state}-reviewing`,
+		note: input.note ?? `Delegated bounded review to ${input.owner}.`,
+	});
+	const updatedSession = ensureTransitionSucceeded(reviewing) ?? reviewing.session;
+	if (!reviewing.result.allowed || !updatedSession) {
+		return reviewing;
+	}
+
+	const ownerCheck = checkRoleAllowed(repoRoot, input.sessionId, input.owner);
+	return {
+		result: ownerCheck.allowed ? allow('phase-ready', `Session "${input.sessionId}" is ready for "${input.owner}" in "reviewing".`, ['Delegate the bounded review work.'], updatedSession.state) : ownerCheck,
+		session: updatedSession,
+	};
+}
+
+export function completeSession(
+	repoRoot: string,
+	input: {
+		sessionId: string;
+		role: RoleId;
+		outcome: 'done' | 'revising' | 'blocked';
+		eventId?: string;
+		note?: string;
+	},
+): { result: HookResult; session?: RuntimeSession } {
+	const session = loadSession(repoRoot, input.sessionId);
+	if (!session) {
+		return {
+			result: deny('missing-session', `Session "${input.sessionId}" does not exist.`, ['Initialize the session first with orchestration:bootstrap.']),
+		};
+	}
+
+	if (input.outcome === 'blocked') {
+		return blockSession(repoRoot, {
+			sessionId: input.sessionId,
+			role: input.role,
+			eventId: input.eventId ?? `${input.sessionId}-blocked`,
+			note: input.note ?? 'Blocked during orchestration completion.',
+		});
+	}
+
+	if (session.state === input.outcome) {
+		return {
+			result: allow('phase-ready', `Session "${input.sessionId}" is already in "${session.state}".`, ['Proceed with the next bounded step or finalize the session output.'], session.state),
+			session,
+		};
+	}
+
+	if (session.state !== 'reviewing') {
+		return {
+			result: deny('phase-not-ready', `Session "${input.sessionId}" cannot complete with outcome "${input.outcome}" from "${session.state}".`, ['Only the reviewing phase can resolve to done or revising.'], session.state),
+			session,
+		};
+	}
+
+	const reviewCheckpoint = validateCheckpointArtifact(repoRoot, session, 'reviewDecision');
+	if (reviewCheckpoint) {
+		return { result: reviewCheckpoint, session };
+	}
+
+	if (input.outcome === 'revising') {
+		return transitionSession(repoRoot, {
+			sessionId: input.sessionId,
+			role: input.role,
+			toState: 'revising',
+			evidence: resolveTransitionEvidence(repoRoot, 'revising', session.state, session.lane),
+			eventId: input.eventId ?? `${input.sessionId}-reviewing-revising`,
+			note: input.note ?? 'Review requested revision.',
+		});
+	}
+
+	const finalSummary = validateCheckpointArtifact(repoRoot, session, 'finalSummary');
+	if (finalSummary) {
+		return { result: finalSummary, session };
+	}
+
+	return transitionSession(repoRoot, {
+		sessionId: input.sessionId,
+		role: input.role,
+		toState: 'done',
+		evidence: resolveTransitionEvidence(repoRoot, 'done', session.state, session.lane),
+		eventId: input.eventId ?? `${input.sessionId}-reviewing-done`,
+		note: input.note ?? 'Review approved completion.',
+	});
 }
 
 export function blockSession(repoRoot: string, input: { sessionId: string; role: RoleId; eventId: string; note: string }): { result: HookResult; session?: RuntimeSession } {

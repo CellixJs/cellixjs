@@ -1,6 +1,6 @@
 import process from 'node:process';
 import { loadSession } from '../lib/orchestration-loader.ts';
-import { blockSession, checkActionAllowed, checkRoleAllowed, createSession, logEvidence, transitionSession } from '../lib/orchestration-runtime.ts';
+import { blockSession, checkActionAllowed, checkRoleAllowed, completeSession, createSession, handoffPhase, logEvidence, transitionSession } from '../lib/orchestration-runtime.ts';
 import type { ActionId, RoleId, StateId } from '../lib/types.ts';
 
 function parseOptions(argv: string[]): { subcommand: string; options: Record<string, string>; positionals: string[] } {
@@ -102,6 +102,32 @@ function resolveTransitionEvidence(repoRoot: string, sessionId: string, toState:
 	return evidenceDefaults[toState] ?? [];
 }
 
+function resolveHandoffPhase(options: Record<string, string>, positionals: string[]): 'implementing' | 'reviewing' {
+	const phase = options.phase || positionals[0] || '';
+	if (phase === 'implementing' || phase === 'reviewing') {
+		return phase;
+	}
+
+	throw new Error('Missing required option --phase');
+}
+
+function resolveOwner(options: Record<string, string>, phase: 'implementing' | 'reviewing'): RoleId {
+	if (options.owner) {
+		return options.owner as RoleId;
+	}
+
+	return (phase === 'implementing' ? 'implementation-engineer' : 'qa-reviewer') as RoleId;
+}
+
+function resolveOutcome(options: Record<string, string>, positionals: string[]): 'done' | 'revising' | 'blocked' {
+	const outcome = options.outcome || positionals[0] || '';
+	if (outcome === 'done' || outcome === 'revising' || outcome === 'blocked') {
+		return outcome;
+	}
+
+	throw new Error('Missing required option --outcome');
+}
+
 function main(): void {
 	try {
 		const { subcommand, options, positionals } = parseOptions(process.argv.slice(2));
@@ -134,6 +160,33 @@ function main(): void {
 					toState,
 					evidence: resolveTransitionEvidence(repoRoot, sessionId, toState, options),
 					eventId: options.event || resolveTransitionEventId(repoRoot, sessionId, toState),
+					note: options.note,
+				});
+				printJson({ result, session }, result.allowed ? 0 : 1);
+			}
+
+			case 'handoff': {
+				const sessionId = requireOption(options, 'session');
+				const phase = resolveHandoffPhase(options, positionals);
+				const { result, session } = handoffPhase(repoRoot, {
+					sessionId,
+					role: resolveRoleOption(options),
+					phase,
+					owner: resolveOwner(options, phase),
+					eventId: options.event,
+					note: options.note,
+				});
+				printJson({ result, session }, result.allowed ? 0 : 1);
+			}
+
+			case 'complete': {
+				const sessionId = requireOption(options, 'session');
+				const outcome = resolveOutcome(options, positionals);
+				const { result, session } = completeSession(repoRoot, {
+					sessionId,
+					role: resolveRoleOption(options),
+					outcome,
+					eventId: options.event,
 					note: options.note,
 				});
 				printJson({ result, session }, result.allowed ? 0 : 1);

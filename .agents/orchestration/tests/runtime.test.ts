@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
-import { buildSessionArtifactPaths } from '../lib/orchestration-loader.ts';
-import { createSession, transitionSession } from '../lib/orchestration-runtime.ts';
+import { buildSessionArtifactPaths, buildSessionCheckpointPaths } from '../lib/orchestration-loader.ts';
+import { completeSession, createSession, handoffPhase, transitionSession } from '../lib/orchestration-runtime.ts';
 import { createTempRepoFixture } from './test-helpers.ts';
 
 describe('orchestration runtime', () => {
@@ -106,7 +106,7 @@ describe('orchestration runtime', () => {
 		expect(result.guidance[1]).toContain('plan.md');
 	});
 
-	test('allows plan-complete once the canonical plan artifact exists', () => {
+	test('allows retry after a missing plan artifact once the canonical plan exists', () => {
 		const fixtureRoot = createTempRepoFixture();
 		createSession(fixtureRoot, {
 			sessionId: 'plan-artifact-present',
@@ -123,6 +123,15 @@ describe('orchestration runtime', () => {
 			eventId: 'evt-plan',
 		});
 
+		const deniedAttempt = transitionSession(fixtureRoot, {
+			sessionId: 'plan-artifact-present',
+			role: 'senior-orchestrator',
+			toState: 'plan-complete',
+			evidence: ['bounded-plan', 'phase-owner-recorded'],
+			eventId: 'evt-plan-complete',
+		});
+		expect(deniedAttempt.result.allowed).toBe(false);
+
 		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'plan-artifact-present').plan, '# Plan\n', 'utf8');
 
 		const { result, session } = transitionSession(fixtureRoot, {
@@ -135,6 +144,79 @@ describe('orchestration runtime', () => {
 
 		expect(result.allowed).toBe(true);
 		expect(session?.state).toBe('plan-complete');
+	});
+
+	test('handoff implementing auto-promotes planning once the plan checkpoint exists', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'handoff-implementing',
+			lane: 'application-feature-delivery',
+			role: 'senior-orchestrator',
+		});
+
+		transitionSession(fixtureRoot, {
+			sessionId: 'handoff-implementing',
+			role: 'senior-orchestrator',
+			toState: 'planning',
+			evidence: ['task-lane-selected', 'session-created'],
+			eventId: 'evt-plan',
+		});
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'handoff-implementing').plan, '# Plan\n', 'utf8');
+
+		const { result, session } = handoffPhase(fixtureRoot, {
+			sessionId: 'handoff-implementing',
+			role: 'senior-orchestrator',
+			phase: 'implementing',
+			owner: 'implementation-engineer',
+		});
+
+		expect(result.allowed).toBe(true);
+		expect(result.code).toBe('phase-ready');
+		expect(session?.state).toBe('implementing');
+	});
+
+	test('handoff reviewing requires implementation result checkpoint', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'handoff-reviewing',
+			lane: 'application-feature-delivery',
+			role: 'senior-orchestrator',
+		});
+
+		transitionSession(fixtureRoot, {
+			sessionId: 'handoff-reviewing',
+			role: 'senior-orchestrator',
+			toState: 'planning',
+			evidence: ['task-lane-selected', 'session-created'],
+			eventId: 'evt-plan',
+		});
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'handoff-reviewing').plan, '# Plan\n', 'utf8');
+		handoffPhase(fixtureRoot, {
+			sessionId: 'handoff-reviewing',
+			role: 'senior-orchestrator',
+			phase: 'implementing',
+			owner: 'implementation-engineer',
+		});
+
+		const blockedReview = handoffPhase(fixtureRoot, {
+			sessionId: 'handoff-reviewing',
+			role: 'senior-orchestrator',
+			phase: 'reviewing',
+			owner: 'qa-reviewer',
+		});
+		expect(blockedReview.result.allowed).toBe(false);
+		expect(blockedReview.result.code).toBe('missing-checkpoint');
+
+		writeFileSync(buildSessionCheckpointPaths(fixtureRoot, 'handoff-reviewing').implementationResult, '# Implementation result\n', 'utf8');
+		const reviewReady = handoffPhase(fixtureRoot, {
+			sessionId: 'handoff-reviewing',
+			role: 'senior-orchestrator',
+			phase: 'reviewing',
+			owner: 'qa-reviewer',
+		});
+
+		expect(reviewReady.result.allowed).toBe(true);
+		expect(reviewReady.session?.state).toBe('reviewing');
 	});
 
 	test('requires lane-specific completion gates before transitioning to done', () => {
@@ -236,5 +318,56 @@ describe('orchestration runtime', () => {
 
 		expect(result.allowed).toBe(true);
 		expect(session?.state).toBe('done');
+	});
+
+	test('complete session uses review checkpoints instead of manual evidence wiring', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'complete-with-checkpoints',
+			lane: 'application-feature-delivery',
+			role: 'senior-orchestrator',
+		});
+
+		transitionSession(fixtureRoot, {
+			sessionId: 'complete-with-checkpoints',
+			role: 'senior-orchestrator',
+			toState: 'planning',
+			evidence: ['task-lane-selected', 'session-created'],
+			eventId: 'evt-plan',
+		});
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'complete-with-checkpoints').plan, '# Plan\n', 'utf8');
+		handoffPhase(fixtureRoot, {
+			sessionId: 'complete-with-checkpoints',
+			role: 'senior-orchestrator',
+			phase: 'implementing',
+			owner: 'implementation-engineer',
+		});
+		writeFileSync(buildSessionCheckpointPaths(fixtureRoot, 'complete-with-checkpoints').implementationResult, '# Implementation result\n', 'utf8');
+		handoffPhase(fixtureRoot, {
+			sessionId: 'complete-with-checkpoints',
+			role: 'senior-orchestrator',
+			phase: 'reviewing',
+			owner: 'qa-reviewer',
+		});
+
+		const missingReviewDecision = completeSession(fixtureRoot, {
+			sessionId: 'complete-with-checkpoints',
+			role: 'senior-orchestrator',
+			outcome: 'done',
+		});
+		expect(missingReviewDecision.result.allowed).toBe(false);
+		expect(missingReviewDecision.result.code).toBe('missing-checkpoint');
+
+		writeFileSync(buildSessionCheckpointPaths(fixtureRoot, 'complete-with-checkpoints').reviewDecision, '# Approved\n', 'utf8');
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'complete-with-checkpoints').finalSummary, '# Final summary\n', 'utf8');
+
+		const done = completeSession(fixtureRoot, {
+			sessionId: 'complete-with-checkpoints',
+			role: 'senior-orchestrator',
+			outcome: 'done',
+		});
+
+		expect(done.result.allowed).toBe(true);
+		expect(done.session?.state).toBe('done');
 	});
 });

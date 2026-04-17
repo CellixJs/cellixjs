@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import type { HookManifest, OrchestrationModel, OrchestrationSpec, RuntimeSession, SessionArtifactPaths } from './types.ts';
+import type { HookManifest, OrchestrationModel, OrchestrationSpec, RuntimeSession, SessionArtifactPaths, SessionCheckpointPaths } from './types.ts';
 import { parseYamlLite } from './yaml-lite.ts';
 
 function readJsonFile<T>(filePath: string): T {
@@ -40,8 +40,17 @@ export function buildSessionArtifactPaths(repoRoot: string, sessionId: string): 
 	};
 }
 
+export function buildSessionCheckpointPaths(repoRoot: string, sessionId: string): SessionCheckpointPaths {
+	return {
+		implementationResult: join(getSessionPhaseDirectoryPath(repoRoot, sessionId, 'implementation'), 'result.md'),
+		reviewDecision: join(getSessionPhaseDirectoryPath(repoRoot, sessionId, 'review'), 'decision.md'),
+	};
+}
+
 export function ensureSessionArtifactsDirectory(repoRoot: string, sessionId: string): void {
 	mkdirSync(getSessionArtifactsDirectoryPath(repoRoot, sessionId), { recursive: true });
+	mkdirSync(getSessionPhaseDirectoryPath(repoRoot, sessionId, 'implementation'), { recursive: true });
+	mkdirSync(getSessionPhaseDirectoryPath(repoRoot, sessionId, 'review'), { recursive: true });
 }
 
 export function getSessionArtifactStatus(repoRoot: string, sessionId: string): Record<keyof SessionArtifactPaths, { path: string; exists: boolean }> {
@@ -59,6 +68,21 @@ export function getSessionArtifactStatus(repoRoot: string, sessionId: string): R
 		finalSummary: {
 			path: artifactPaths.finalSummary,
 			exists: existsSync(artifactPaths.finalSummary),
+		},
+	};
+}
+
+export function getSessionCheckpointStatus(repoRoot: string, sessionId: string): Record<keyof SessionCheckpointPaths, { path: string; exists: boolean }> {
+	const checkpointPaths = buildSessionCheckpointPaths(repoRoot, sessionId);
+
+	return {
+		implementationResult: {
+			path: checkpointPaths.implementationResult,
+			exists: existsSync(checkpointPaths.implementationResult),
+		},
+		reviewDecision: {
+			path: checkpointPaths.reviewDecision,
+			exists: existsSync(checkpointPaths.reviewDecision),
 		},
 	};
 }

@@ -23,4 +23,5 @@ Rules:
 - read the canonical `plan.md` path and session directories from the orchestrator handoff or `orchestration:session-status`; do not reconstruct session artifact paths manually
 - prefer targeted validation for the changed scope; do not default to full-repo `pnpm run verify` unless the orchestrator explicitly requires that wider gate
 - if validation fails inside the changed scope, perform at most one focused repair pass; if the repair still fails, stop and return the exact blocker instead of looping
-- return changed paths, targeted validation evidence, artifact paths, and any commit SHA to the senior-orchestrator; do not manage workflow state transitions unless explicitly instructed
+- write `.agents-work/orchestration/sessions/<session-id>/implementation/result.md` with the changed paths, targeted validation evidence, and any commit SHA, then return the same summary inline to the senior-orchestrator
+- do not manage workflow state transitions unless explicitly instructed

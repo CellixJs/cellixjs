@@ -19,6 +19,7 @@ Rules:
 - work only in `planning`
 - do not implement code
 - write the bounded plan to `.agents-work/orchestration/sessions/<session-id>/plan.md` unless the orchestrator explicitly gives a different artifact path
+- choose one executable bounded approach by default; recommend alternatives only when they materially change lane, public contract, or validation scope
 - return the same `plan.md` content inline along with a concise machine-friendly handoff summary so the orchestrator can continue even if artifact discovery is limited
 - return concrete changed-path assumptions, validation targets, and risk notes
 - if the bootstrap path list includes unrelated branch noise, restate the bounded subset that actually belongs to the task before writing the plan

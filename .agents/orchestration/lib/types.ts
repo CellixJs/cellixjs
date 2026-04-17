@@ -102,6 +102,11 @@ export interface SessionArtifactPaths {
 	finalSummary: string;
 }
 
+export interface SessionCheckpointPaths {
+	implementationResult: string;
+	reviewDecision: string;
+}
+
 export interface RuntimeSession {
 	sessionId: string;
 	profile: ProfileId;

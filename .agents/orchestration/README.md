@@ -53,19 +53,23 @@ pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...
 - If the bootstrap report returns `Requires lane decision: yes`, stop and choose a lane explicitly instead of continuing with an assumed one.
 - If the bootstrap report says the paths span both `reusableFramework` and `applicationPackages`, split the work into bounded phases or escalate instead of forcing one lane.
 - If the selected lane is reusable-framework work, the bootstrap report also surfaces `cellix-tdd` as the framework extension to carry into planning and implementation.
-- Bootstrap usually performs the `initialized -> planning` transition for you, so the common shorthand `pnpm run orchestration:hook -- transition planning --session <session-id> --role senior-orchestrator` should only be used when bootstrap did not already move the session into `planning`.
-- Use `pnpm run orchestration:session-status -- --session <session-id>` to inspect bounded changed paths, the canonical session directory, and the implementation/review subdirectories.
-- Discovery planning must write `.agents-work/orchestration/sessions/<session-id>/plan.md`; `transition plan-complete` now refuses to advance if that artifact is missing.
+- Bootstrap usually performs the `initialized -> planning` transition for you. After that, prefer checkpoint-driven handoffs instead of raw transition choreography.
+- Use `pnpm run orchestration:session-status -- --session <session-id>` to inspect bounded changed paths, the canonical session directory, checkpoint paths, and the recommended next step.
+- Discovery planning must write `.agents-work/orchestration/sessions/<session-id>/plan.md`.
+- Once `plan.md` exists, run `pnpm run orchestration:hook -- handoff implementing --session <session-id> --role senior-orchestrator` to advance automatically through `plan-complete` into `implementing`.
 - Keep implementation delegation narrow: pass the session id, changed-path scope, and canonical plan/session paths, then let the implementation agent read `plan.md` instead of embedding the whole plan again.
-- Prefer targeted validation during `implementing`. The orchestrator should verify delegate outputs and own the transition into `reviewing` rather than requiring implementation agents to manage workflow state directly.
+- Prefer targeted validation during `implementing`. The implementation agent should write `.agents-work/orchestration/sessions/<session-id>/implementation/result.md`, and the orchestrator should use `pnpm run orchestration:hook -- handoff reviewing --session <session-id> --role senior-orchestrator` to enter review.
+- The reviewer should write `.agents-work/orchestration/sessions/<session-id>/review/decision.md`; the orchestrator then resolves the review with `pnpm run orchestration:hook -- complete done|revising --session <session-id> --role senior-orchestrator`.
 - If a bounded implementation failure occurs within the changed scope, allow one focused repair pass. If it still fails, stop and surface the blocker instead of continuing an open-ended fix loop.
 
 ## Validation Commands
 
 - `pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...` resolves changed paths through the repo-local orchestration spec and starts a planning session when the lane is explicit.
-- `pnpm run orchestration:session-status -- --session <session-id>` reports the current session state, stored changed paths, canonical session/phase directories, and whether `intake.md`, `plan.md`, and `final-summary.md` exist at their canonical session paths.
+- `pnpm run orchestration:session-status -- --session <session-id>` reports the current session state, stored changed paths, canonical session/phase directories, checkpoint files, and the recommended next step.
 - `pnpm run orchestration:validate` validates the repo-local orchestration spec, model wiring, required skills, agents, and hook manifest.
 - `pnpm run orchestration:suggest-lane -- <changed-path>...` suggests a likely primary lane from changed paths and surfaces ambiguous cases that still need orchestrator judgment.
 - `node --experimental-strip-types .agents/orchestration/cli/validate-orchestration.ts --repo . --spec .agents/orchestration/examples/framework-only.orchestration.spec.yaml` validates an alternate repo-local spec such as the framework-only or application-only examples.
 - `pnpm run test:orchestration` runs the orchestration validator/runtime/hook unit tests.
-- `pnpm run orchestration:hook -- <subcommand> ...` runs the first-pass hook runtime for session init, transitions, agent checks, tool checks, evidence logging, and blocked handling.
+- `pnpm run orchestration:hook -- handoff implementing|reviewing ...` advances into the next execution phase when the canonical checkpoint artifacts exist.
+- `pnpm run orchestration:hook -- complete done|revising|blocked ...` resolves the reviewing phase without manually supplying evidence keys.
+- `pnpm run orchestration:hook -- <subcommand> ...` still exposes lower-level compatibility hooks such as `session-init`, `transition`, `agent-check`, `tool-check`, `evidence-log`, and `blocked`.

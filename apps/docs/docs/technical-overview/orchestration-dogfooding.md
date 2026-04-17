@@ -65,10 +65,8 @@ This framework-oriented sequence exercised the public-surface lane through revie
 ```bash
 pnpm run orchestration:hook -- session-init --session dogfood-framework-1 --lane reusable-framework-public-surface --role senior-orchestrator
 pnpm run orchestration:hook -- transition --session dogfood-framework-1 --role senior-orchestrator --to planning --event dogfood-framework-plan-1 --evidence task-lane-selected,session-created
-pnpm run orchestration:hook -- transition --session dogfood-framework-1 --role senior-orchestrator --to plan-complete --event dogfood-framework-plan-complete-1 --evidence bounded-plan,phase-owner-recorded
-pnpm run orchestration:hook -- transition --session dogfood-framework-1 --role senior-orchestrator --to implementing --event dogfood-framework-implementing-1 --evidence implementation-owner-recorded
-pnpm run orchestration:hook -- transition --session dogfood-framework-1 --role implementation-engineer --to reviewing --event dogfood-framework-reviewing-1 --evidence change-summary,validation-evidence
-pnpm run orchestration:hook -- agent-check --session dogfood-framework-1 --role framework-surface-reviewer
+pnpm run orchestration:hook -- handoff implementing --session dogfood-framework-1 --role senior-orchestrator --owner implementation-engineer
+pnpm run orchestration:hook -- handoff reviewing --session dogfood-framework-1 --role senior-orchestrator --owner framework-surface-reviewer
 ```
 
 Observed result:
@@ -99,16 +97,14 @@ The runtime also blocked an intentionally disallowed reviewer phase owner:
 ```bash
 pnpm run orchestration:hook -- session-init --session dogfood-app-2 --lane application-feature-delivery --role senior-orchestrator
 pnpm run orchestration:hook -- transition --session dogfood-app-2 --role senior-orchestrator --to planning --event dogfood-app-plan-2 --evidence task-lane-selected,session-created
-pnpm run orchestration:hook -- transition --session dogfood-app-2 --role senior-orchestrator --to plan-complete --event dogfood-app-plan-complete-2 --evidence bounded-plan,phase-owner-recorded
-pnpm run orchestration:hook -- transition --session dogfood-app-2 --role senior-orchestrator --to implementing --event dogfood-app-implementing-2 --evidence implementation-owner-recorded
-pnpm run orchestration:hook -- agent-check --session dogfood-app-2 --role qa-reviewer
+pnpm run orchestration:hook -- handoff reviewing --session dogfood-app-2 --role senior-orchestrator --owner qa-reviewer
 ```
 
 Observed result:
 
-- the hook returned `role-not-allowed`
-- the denial guidance listed the implementation-phase role set instead of only saying "no"
-- the orchestrator can recover cleanly by keeping the implementation owner in place until the session enters `reviewing`
+- the hook returned `phase-not-ready`
+- the denial guidance pointed back to the missing implementation checkpoint instead of only saying "no"
+- the orchestrator can recover cleanly by keeping the implementation owner in place until the session is actually ready for review
 
 ## Alternate-Profile Validation
 

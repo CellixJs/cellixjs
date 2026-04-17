@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
-import { buildSessionArtifactPaths } from '../lib/orchestration-loader.ts';
+import { buildSessionArtifactPaths, buildSessionCheckpointPaths } from '../lib/orchestration-loader.ts';
 import { checkActionAllowed, checkRoleAllowed, createSession, transitionSession } from '../lib/orchestration-runtime.ts';
 import { createTempRepoFixture, repoRoot } from './test-helpers.ts';
 
@@ -173,6 +173,114 @@ describe('orchestration hook checks', () => {
 				plan: {
 					exists: false,
 				},
+			},
+			checkpointStatus: {
+				implementationResult: {
+					exists: false,
+				},
+				reviewDecision: {
+					exists: false,
+				},
+			},
+		});
+	});
+
+	test('handoff subcommand advances planning into implementing once the plan exists', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'handoff-cli',
+			lane: 'application-feature-delivery',
+			role: 'senior-orchestrator',
+		});
+		transitionSession(fixtureRoot, {
+			sessionId: 'handoff-cli',
+			role: 'senior-orchestrator',
+			toState: 'planning',
+			evidence: ['task-lane-selected', 'session-created'],
+			eventId: 'evt-plan',
+		});
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'handoff-cli').plan, '# Plan\n', 'utf8');
+
+		const result = spawnSync(
+			process.execPath,
+			['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'handoff', 'implementing', '--repo', fixtureRoot, '--session', 'handoff-cli', '--role', 'senior-orchestrator'],
+			{
+				cwd: repoRoot(),
+				encoding: 'utf8',
+			},
+		);
+
+		expect(result.status).toBe(0);
+		expect(JSON.parse(result.stdout)).toMatchObject({
+			result: {
+				allowed: true,
+				code: 'phase-ready',
+				state: 'implementing',
+			},
+			session: {
+				state: 'implementing',
+			},
+		});
+	});
+
+	test('complete subcommand resolves reviewing into done from checkpoints', () => {
+		const fixtureRoot = createTempRepoFixture();
+		createSession(fixtureRoot, {
+			sessionId: 'complete-cli',
+			lane: 'application-feature-delivery',
+			role: 'senior-orchestrator',
+		});
+		transitionSession(fixtureRoot, {
+			sessionId: 'complete-cli',
+			role: 'senior-orchestrator',
+			toState: 'planning',
+			evidence: ['task-lane-selected', 'session-created'],
+			eventId: 'evt-plan',
+		});
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'complete-cli').plan, '# Plan\n', 'utf8');
+		transitionSession(fixtureRoot, {
+			sessionId: 'complete-cli',
+			role: 'senior-orchestrator',
+			toState: 'plan-complete',
+			evidence: ['bounded-plan', 'phase-owner-recorded'],
+			eventId: 'evt-plan-complete',
+		});
+		transitionSession(fixtureRoot, {
+			sessionId: 'complete-cli',
+			role: 'senior-orchestrator',
+			toState: 'implementing',
+			evidence: ['implementation-owner-recorded'],
+			eventId: 'evt-implementing',
+		});
+		writeFileSync(buildSessionCheckpointPaths(fixtureRoot, 'complete-cli').implementationResult, '# Implementation result\n', 'utf8');
+		transitionSession(fixtureRoot, {
+			sessionId: 'complete-cli',
+			role: 'implementation-engineer',
+			toState: 'reviewing',
+			evidence: ['change-summary', 'validation-evidence'],
+			eventId: 'evt-reviewing',
+		});
+		writeFileSync(buildSessionCheckpointPaths(fixtureRoot, 'complete-cli').reviewDecision, '# Approved\n', 'utf8');
+		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'complete-cli').finalSummary, '# Final summary\n', 'utf8');
+
+		const result = spawnSync(
+			process.execPath,
+			['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'complete', 'done', '--repo', fixtureRoot, '--session', 'complete-cli', '--role', 'senior-orchestrator'],
+			{
+				cwd: repoRoot(),
+				encoding: 'utf8',
+			},
+		);
+
+		expect(result.status).toBe(0);
+		expect(JSON.parse(result.stdout)).toMatchObject({
+			result: {
+				allowed: true,
+				code: 'transition-allowed',
+				state: 'done',
+			},
+			session: {
+				state: 'done',
 			},
 		});
 	});
