@@ -118,6 +118,17 @@ pnpm run orchestration:session-status -- --session <session-id>
 
 The discovery planner is expected to write `.agents-work/orchestration/sessions/<session-id>/plan.md`, and `planning -> plan-complete` is blocked until that artifact exists.
 
+The same status command also prints the canonical session directory plus `implementation/` and `review/` subdirectories so later handoffs do not have to reconstruct those paths manually.
+
+For implementation handoff, keep the prompt short:
+
+- session id
+- bounded changed-path scope
+- canonical plan/session paths from `orchestration:session-status`
+- success criteria and targeted validation expectations
+
+Do not restate the entire plan inline when the implementation agent can read `plan.md` directly.
+
 This helper is intentionally narrow:
 
 - it resolves the paths through the repo-local class mappings

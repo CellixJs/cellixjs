@@ -41,6 +41,8 @@ The distinction matters:
 - Preserve existing application conventions and path-scoped instructions instead of importing framework-specific contract requirements by default.
 - Do not skip straight to implementation when behavior is changing; write or update the failing test first unless the task is purely non-behavioral.
 - Prefer scenario-based tests that describe user or workflow behavior over narrow internal helper assertions.
+- Prefer targeted package or path-scoped validation during implementation. Do not default to full-repo `pnpm run verify` unless the user or orchestrator explicitly asks for that broader gate.
+- If targeted validation fails within the bounded changed scope, do one focused repair pass. If the same bounded issue still fails afterward, stop and hand the blocker back for orchestration instead of continuing to thrash.
 
 ## Review Handoff
 

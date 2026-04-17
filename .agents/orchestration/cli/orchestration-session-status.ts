@@ -1,5 +1,5 @@
 import process from 'node:process';
-import { getSessionArtifactStatus, loadSession } from '../lib/orchestration-loader.ts';
+import { getSessionArtifactStatus, getSessionArtifactsDirectoryPath, getSessionPhaseDirectoryPath, loadSession } from '../lib/orchestration-loader.ts';
 
 function parseArgs(argv: string[]): { repoRoot: string; sessionId?: string; json: boolean } {
 	const normalizedArgs = argv[0] === '--' ? argv.slice(1) : argv;
@@ -71,6 +71,11 @@ function main(): void {
 		state: session.state,
 		artifactMode: session.artifactMode,
 		changedPaths: session.changedPaths,
+		sessionDirectory: getSessionArtifactsDirectoryPath(args.repoRoot, args.sessionId),
+		phaseDirectories: {
+			implementation: getSessionPhaseDirectoryPath(args.repoRoot, args.sessionId, 'implementation'),
+			review: getSessionPhaseDirectoryPath(args.repoRoot, args.sessionId, 'review'),
+		},
 		artifactStatus,
 	};
 
@@ -84,6 +89,9 @@ function main(): void {
 	console.log(`State: ${report.state}`);
 	console.log(`Artifact mode: ${report.artifactMode}`);
 	console.log(`Changed paths: ${report.changedPaths.join(', ') || 'none recorded'}`);
+	console.log(`Session directory: ${report.sessionDirectory}`);
+	console.log(`Implementation directory: ${report.phaseDirectories.implementation}`);
+	console.log(`Review directory: ${report.phaseDirectories.review}`);
 	console.log('Artifacts:');
 	console.log(`- intake.md: ${artifactStatus.intake.path} (${artifactStatus.intake.exists ? 'present' : 'missing'})`);
 	console.log(`- plan.md: ${artifactStatus.plan.path} (${artifactStatus.plan.exists ? 'present' : 'missing'})`);

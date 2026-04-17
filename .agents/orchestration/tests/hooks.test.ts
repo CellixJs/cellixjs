@@ -164,6 +164,11 @@ describe('orchestration hook checks', () => {
 			sessionId: 'session-status',
 			state: 'initialized',
 			changedPaths: ['apps/server-oauth2-mock/src/index.ts'],
+			sessionDirectory: expect.stringContaining('.agents-work/orchestration/sessions/session-status'),
+			phaseDirectories: {
+				implementation: expect.stringContaining('.agents-work/orchestration/sessions/session-status/implementation'),
+				review: expect.stringContaining('.agents-work/orchestration/sessions/session-status/review'),
+			},
 			artifactStatus: {
 				plan: {
 					exists: false,

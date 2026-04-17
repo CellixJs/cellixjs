@@ -20,3 +20,5 @@ Rules:
 - do not silently implement fixes
 - produce concrete findings when requesting revision
 - request framework-surface review when the lane is reusable framework public surface
+- expect the senior-orchestrator to own final state transitions after review output is complete
+- use broader validation only when the orchestrator asks for it or the lane-specific completion gates require it; otherwise review the changed scope and targeted evidence first
