@@ -45,6 +45,23 @@ All configuration is done via environment variables in `.env` or `.env.local`:
 | `PORT` | `4000` | Server port. In dev/portless mode the port is assigned automatically; in direct/production mode this controls the bind port (default 4000). |
 | `PORTLESS_URL` | *not set* | Portless proxy URL (set automatically in dev mode) |
 
+### Multiple named OIDC configurations (OIDC_CONFIGS)
+
+The server also supports a JSON array environment variable `OIDC_CONFIGS` to start multiple independent mock instances in a single process. Each entry should provide at minimum a `name` and either `baseUrl` or `port`. Example:
+
+```bash
+export OIDC_CONFIGS='[
+  { "name": "ownercommunity", "port": 6011, "baseUrl": "http://localhost:6011", "allowedRedirectUri": "http://localhost:6011/redirect", "clientId": "owner-client" },
+  { "name": "other", "port": 6012, "baseUrl": "http://localhost:6012", "allowedRedirectUri": "http://localhost:6012/redirect", "clientId": "other-client" }
+]'
+```
+
+When `OIDC_CONFIGS` is present the app will start one server per configured object and log the mapping of `name -> baseUrl -> port`.
+
+If `OIDC_CONFIGS` is not set the server preserves the single-config behavior described above.
+
+| `PORTLESS_URL` | *not set* | Portless proxy URL (set automatically in dev mode) |
+
 ### User Identity & Session Persistence
 
 **Important**: The mock server ensures the **same user identity persists across multiple logins** automatically.
