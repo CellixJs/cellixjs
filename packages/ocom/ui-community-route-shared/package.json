@@ -16,12 +16,14 @@
 	},
 	"dependencies": {
 		"@ocom/ui-components": "workspace:*",
+        "antd": "catalog:",
+		"dayjs": "^1.11.19",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
 		"react-router-dom": "catalog:"
 	},
 	"devDependencies": {
-		"@ant-design/icons": "^6.0.2",
+        "@ant-design/icons": "^6.0.2",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@chromatic-com/storybook": "^4.1.1",

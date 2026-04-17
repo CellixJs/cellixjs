@@ -1,6 +1,5 @@
 import { Card, Descriptions, Typography } from 'antd';
 import dayjs from 'dayjs';
-
 const { Title } = Typography;
 
 export interface MemberProfileData {

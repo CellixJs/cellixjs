@@ -19,7 +19,6 @@
 		"build-storybook": "storybook build"
 	},
 	"dependencies": {
-		"@ant-design/icons": "^6.1.1",
 		"@apollo/client": "^3.13.9",
 		"@cellix/ui-core": "workspace:*",
 		"@dr.pogodin/react-helmet": "^3.0.2",
@@ -29,7 +28,6 @@
 		"@ocom/ui-community-route-root": "workspace:*",
 		"antd": "catalog:",
 		"apollo-link-rest": "^0.9.0",
-		"dayjs": "^1.11.19",
 		"less": "^4.4.0",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
