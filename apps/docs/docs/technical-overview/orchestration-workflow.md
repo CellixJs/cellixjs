@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 sidebar_label: Orchestration Workflow
-description: Portable Cellix orchestration workflow, capability profiles, task lanes, and enforcement layers.
+description: Portable Cellix orchestration workflow, capability profiles, task lanes, and simplified checkpoint-based enforcement.
 ---
 
 # Orchestration Workflow
@@ -18,11 +18,11 @@ The repo-local entrypoint is [`orchestration.spec.yaml`](https://github.com/Cell
 
 In Copilot CLI, the supported startup path is explicit:
 
-1. select the `senior-orchestrator` agent through `/agents`
+1. select the `orchestrator` agent through `/agents`
 2. provide the task prompt to that orchestrator
-3. let the orchestrator bootstrap the run from the changed paths instead of relying on ambient repo pickup
+3. let the hooks enforce the run through checkpoint files under `.agents-work/current/`
 
-When the branch already contains unrelated orchestration, tooling, or documentation work, those changed paths should come from the concrete task scope in the prompt or issue rather than the full branch diff.
+`senior-orchestrator` remains available as a compatibility alias, but `orchestrator` is the recommended entrypoint.
 
 ## Why This Exists
 
@@ -37,6 +37,13 @@ The design goal is to keep the senior-led delivery protocol primary:
 7. summarize or escalate
 
 Persona prompts are secondary. The repo-level contract, instructions, skills, agents, and hooks all exist to support that protocol.
+
+The current Cellix implementation now follows a slimmer Sharethrift-style pattern:
+
+- the orchestrator is a thin controller
+- the hooks enforce order
+- checkpoint files prove progress
+- planners and implementers are responsible for producing concrete artifacts, not discussing workflow mechanics
 
 ## Control-Plane Layers
 
@@ -58,7 +65,7 @@ Each layer has a different job:
 | Instructions | Apply routing and repo conventions to concrete paths | Duplicate lane workflows already encoded in skills |
 | Skills | Define reusable delivery workflows for a lane or concern | Override repo policy |
 | Agents | Provide thin role prompts for a current phase | Invent new process rules |
-| Hooks | Enforce transitions, role gating, and action gating at runtime | Replace the control-plane policy |
+| Hooks | Enforce checkpoint order and action gating at runtime | Replace the control-plane policy |
 | Runtime artifacts | Record the current run | Become a source of truth over the spec or ADRs |
 
 ## Capability Profiles
@@ -102,87 +109,47 @@ Do not blend lane families in one execution phase. If a task spans framework and
 
 For changed-path triage, use `pnpm run orchestration:suggest-lane -- <path>...` as a helper. It can suggest obvious application, docs, or tooling fits and intentionally refuses to over-claim when reusable-framework changes still require human judgment between internal and public-surface work.
 
-For explicit orchestrator startup, use:
+## Checkpoint Workflow
 
-```bash
-pnpm run orchestration:bootstrap -- --session <session-id> <path>...
-```
+The active Copilot workflow is intentionally small. It uses:
 
-`orchestration:bootstrap` normally advances the session into `planning` immediately when the lane is explicit. Do not issue a second `transition planning` call unless bootstrap was run with `--no-planning` or the session remains `initialized`.
+- `.github/hooks/workflow-enforcement.json`
+- `.github/hooks/session-bootstrap.sh`
+- `.github/hooks/enforce-agent-workflow.sh`
+- `.github/hooks/check-gate.sh`
+- `.agents-work/current/`
 
-After planning is delegated, verify the canonical session artifacts with:
+The hooks are aligned with the documented Copilot CLI hook events:
 
-```bash
-pnpm run orchestration:session-status -- --session <session-id>
-```
+- `sessionStart` initializes the checkpoint directory
+- `preToolUse` blocks out-of-order agent delegation and unsafe publish actions
 
-The discovery planner is expected to write `.agents-work/orchestration/sessions/<session-id>/plan.md`.
+The runtime checkpoints are:
 
-The same status command also prints the canonical session directory, the `implementation/` and `review/` subdirectories, the checkpoint files under those directories, and the recommended next step so later handoffs do not have to reconstruct those paths manually.
+- `phase`
+- `plan.md`
+- `implementer.done`
+- `review.ok`
+- `review.feedback`
 
-Once `plan.md` exists, advance with:
+The enforced order is:
 
-```bash
-pnpm run orchestration:hook -- handoff implementing --session <session-id> --role senior-orchestrator
-```
+1. `planner`
+2. `implementor`
+3. `reviewer`
+4. one repair cycle only if `review.feedback` exists
 
-That handoff absorbs the `planning -> plan-complete -> implementing` choreography when the canonical plan artifact is present.
+This keeps the workflow tolerant of weaker models by reducing the number of workflow decisions they have to reconstruct from prose.
 
-For implementation handoff, keep the prompt short:
+## Legacy Helpers
 
-- session id
-- bounded changed-path scope
-- canonical plan/session paths from `orchestration:session-status`
-- success criteria and targeted validation expectations
+The `.agents/orchestration` CLI commands remain in the repo as helper utilities for validation and offline routing:
 
-Do not restate the entire plan inline when the implementation agent can read `plan.md` directly. Require the implementation agent to write `.agents-work/orchestration/sessions/<session-id>/implementation/result.md`, then advance review with:
+- `pnpm run orchestration:validate`
+- `pnpm run test:orchestration`
+- `pnpm run orchestration:suggest-lane -- <path>...`
 
-```bash
-pnpm run orchestration:hook -- handoff reviewing --session <session-id> --role senior-orchestrator
-```
-
-Require the reviewer to write `.agents-work/orchestration/sessions/<session-id>/review/decision.md`, then resolve the review with:
-
-```bash
-pnpm run orchestration:hook -- complete done|revising --session <session-id> --role senior-orchestrator
-```
-
-This helper is intentionally narrow:
-
-- it resolves the paths through the repo-local class mappings
-- it reuses the shared lane-suggestion logic
-- it starts the session and advances it into `planning` only when the lane is explicit
-- it tells the orchestrator to split phases when the task spans both application and reusable-framework classes
-- it surfaces applicable framework extensions such as `cellix-tdd` for reusable-framework lanes
-
-## Workflow States And Transitions
-
-Every run follows the same state machine:
-
-`initialized -> planning -> plan-complete -> implementing -> reviewing -> done`
-
-Two exceptional states are available:
-
-- `revising` for review-driven rework
-- `blocked` for escalations and resumptions
-
-The hooks enforce both valid transitions and the evidence required to move:
-
-| Transition | Required evidence |
-| --- | --- |
-| `initialized -> planning` | `task-lane-selected`, `session-created` |
-| `planning -> plan-complete` | `bounded-plan`, `phase-owner-recorded` |
-| `plan-complete -> implementing` | `implementation-owner-recorded` |
-| `implementing -> reviewing` | `change-summary`, `validation-evidence` |
-| `reviewing -> done` | `completion-gates-satisfied`, `final-summary` |
-
-When a session moves to `done`, the runtime also checks the lane-specific completion gates for the active lane. The generic `completion-gates-satisfied` token is not enough by itself.
-
-Examples:
-
-- `tooling-workflow` also requires `targeted-validation`, `workflow-impact-summary`, and `validation-summary`
-- `application-feature-delivery` also requires `acceptance-validation`, `changed-path-review`, and `validation-summary`
-- `reusable-framework-public-surface` also requires `public-contract-evidence`, `documentation-alignment`, and `validation-summary`
+They are no longer the primary Copilot execution path.
 
 ## `cellix-tdd` Versus `cellix-feature-delivery`
 
@@ -204,18 +171,11 @@ It is not a global default for tooling, docs, or application delivery.
 
 Runtime artifact depth stays intentionally small by default.
 
-The default `minimal` mode requires only:
+The active checkpoint flow requires only:
 
-- `intake.md`
 - `plan.md`
-- `final-summary.md`
-
-The workflow can promote to `elevated` mode when risk, parallelism, or cross-cutting work justifies more evidence. In that mode, the model recommends additional artifacts such as:
-
-- `validation.md`
-- `review.md`
-- `blocked.md`
-- `dogfood.md`
+- `implementer.done`
+- `review.ok` or `review.feedback`
 
 This keeps trivial tasks light while still leaving room for heavier auditability when the task actually needs it.
 

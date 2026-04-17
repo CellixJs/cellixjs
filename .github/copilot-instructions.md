@@ -2,35 +2,42 @@
 
 ## AI Orchestration Workflow
 
-CellixJS uses a profile-driven orchestration workflow defined by:
+CellixJS now uses a simpler hook-driven agent workflow for Copilot CLI.
+
+The primary workflow files are:
+
+- `.github/hooks/workflow-enforcement.json`
+- `.github/hooks/session-bootstrap.sh`
+- `.github/hooks/enforce-agent-workflow.sh`
+- `.github/agents/*.agent.md`
+
+Cellix-specific policy still comes from:
 
 - `orchestration.spec.yaml`
 - `.agents/orchestration/model/orchestration-model.v1.json`
 - `.github/instructions/orchestration-*.instructions.md`
-- `.github/agents/*.agent.md`
 - `AGENTS.md`
 
 When working with AI agents:
 
-- in Copilot CLI, explicitly select the `senior-orchestrator` agent before giving a substantive development prompt when you want the repo orchestration workflow
-- classify work into one primary lane before substantial implementation
-- bootstrap the task from changed paths with `pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...`
-- choose `<changed-path>` from the concrete task scope first; do not default to the full branch diff when the branch already contains unrelated orchestration or documentation work
-- if bootstrap reports `Requires lane decision: yes`, stop and choose the lane explicitly instead of continuing with an assumed lane
-- follow the explicit workflow states `initialized -> planning -> plan-complete -> implementing -> reviewing -> revising/done`
-- use `blocked` only for real blockers or unresolved ambiguity
-- keep runtime artifact depth minimal by default
-- activate `cellix-tdd` only for reusable framework work in profiles that support framework behavior
-- if changed paths span application and reusable framework classes, split the task into bounded phases instead of delegating one blended implementation pass
-- bootstrap normally advances the session into `planning`; do not call `transition planning` again unless bootstrap was intentionally run with `--no-planning`
-- use `pnpm run orchestration:session-status -- --session <session-id>` to inspect bounded changed paths, canonical checkpoint targets, and the recommended next step
-- require discovery planning to write `.agents-work/orchestration/sessions/<session-id>/plan.md`, then use `pnpm run orchestration:hook -- handoff implementing --session <session-id> --role senior-orchestrator`
-- delegate discovery planning in a blocking/foreground way unless the environment has a reliable result-retrieval path for background agents
-- keep implementation prompts concise and plan-driven: pass the session id, changed-path scope, and canonical artifact paths from `orchestration:session-status`, then have the implementation agent read `plan.md` instead of restating the full plan inline
-- during `implementing`, prefer targeted validation for the changed scope; reserve `pnpm run verify` for explicit user requests or a later review/final gate
-- senior-orchestrator should own post-delegate transitions by default: verify `.agents-work/orchestration/sessions/<session-id>/implementation/result.md`, then use `pnpm run orchestration:hook -- handoff reviewing --session <session-id> --role senior-orchestrator`
-- require the reviewer to write `.agents-work/orchestration/sessions/<session-id>/review/decision.md`, then resolve the outcome with `pnpm run orchestration:hook -- complete done|revising --session <session-id> --role senior-orchestrator`
-- if a bounded implementation failure occurs inside the changed scope, run at most one focused repair pass automatically; if it still fails, stop and summarize instead of looping
+- in Copilot CLI, explicitly select the `orchestrator` agent before giving a substantive development prompt when you want the repo orchestration workflow
+- `senior-orchestrator` remains available as a compatibility alias, but `orchestrator` is the recommended entrypoint
+- let the orchestrator delegate in the enforced order: `planner -> implementor -> reviewer -> [one repair cycle]`
+- the workflow state lives in `.agents-work/current/`
+- the required checkpoints are:
+  - `plan.md`
+  - `implementer.done`
+  - `review.ok`
+  - `review.feedback`
+- the planner must create `plan.md` on disk before returning
+- the implementor must create `implementer.done` on disk before returning
+- the reviewer must write either `review.ok` or `review.feedback`
+- if a task spans both `packages/cellix/**` and application paths, split it into bounded phases instead of one blended plan
+- prefer framework-first planning when app work depends on reusable `@cellix/*` changes
+- use `bash .github/hooks/check-gate.sh status` to inspect the current checkpoint state when needed
+- keep implementation validation targeted by default
+- do not run `git commit` or `git push` during orchestrated sessions
+- rely on the checkpoint hooks for workflow order; do not try to manually recreate the older `orchestration:hook` state machine during Copilot runs
 
 ## Architecture Overview
 
@@ -94,7 +101,7 @@ pnpm run gen      # Generate code (e.g., GraphQL types)
 - Use `pnpm run verify` to ensure code quality before commits
 - *Note*: Be patient when you run the `verify` command; wait at least 6 minutes for all checks to complete before assuming unexpected failure.
 - Use `pnpm run snyk` to run security scans before commits
-cop- If you encounter this error when attempting to push changes `hook git error: Command failed with exit code 1: git commit -m REDACTED`, it indicates that pre-commit hooks have failed due to unmet code quality or security standards. Review the output from the hooks, fix the reported issues, and try committing again. Be aware that this error has nothing to do with firewall rules or network connectivity; it is expected to fail if your changes do not meet the project's standards.
+- If you encounter this error when attempting to push changes `hook git error: Command failed with exit code 1: git commit -m REDACTED`, it indicates that pre-commit hooks have failed due to unmet code quality or security standards. Review the output from the hooks, fix the reported issues, and try committing again. Be aware that this error has nothing to do with firewall rules or network connectivity; it is expected to fail if your changes do not meet the project's standards.
 - Address any reported issues across all packages before pushing changes (if something fails, it was due to your changes and is considered to be "your code").
 
 ### Security Scanning Workflow

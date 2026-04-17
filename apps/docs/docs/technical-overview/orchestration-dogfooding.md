@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 sidebar_label: Orchestration Dogfooding
-description: Evidence from adopting and dogfooding the portable orchestration workflow in CellixJS.
+description: Evidence from adopting and dogfooding the simplified checkpoint-based orchestration workflow in CellixJS.
 ---
 
 # Orchestration Dogfooding
@@ -27,84 +27,39 @@ The lane boundaries stayed coherent:
 - application and reference-app work stay in the application-delivery lane
 - tooling and docs work do not inherit framework-only behavior accidentally
 
-## Hook And State-Machine Validation
+## Hook Validation
 
-The hook runtime was dogfooded through sequential session runs.
+The hook runtime is now intentionally small.
 
-## Explicit Orchestrator Bootstrap
+The supported startup path is:
 
-The most reliable startup path in Copilot CLI is explicit orchestrator selection rather than expecting the repo workflow to be picked up automatically.
-
-The current workflow therefore treats this as the supported path:
-
-1. select `senior-orchestrator` through `/agents`
+1. select `orchestrator` through `/agents`
 2. give the orchestrator the task prompt
-3. let the orchestrator run `pnpm run orchestration:bootstrap -- --session <session-id> <changed-path>...`
+3. let the hooks enforce `planner -> implementor -> reviewer`
 
-When the changed paths fit one lane cleanly, the helper creates the session and moves it into `planning`. When the paths span both application and reusable-framework classes, it tells the orchestrator to split the work into bounded phases instead of pretending one lane fits the whole task.
+The key runtime checkpoints are:
 
-### Valid transition path
+- `.agents-work/current/plan.md`
+- `.agents-work/current/implementer.done`
+- `.agents-work/current/review.ok`
+- `.agents-work/current/review.feedback`
 
-This command sequence successfully advanced a tooling session from `initialized` into `planning`:
+`sessionStart` initializes `.agents-work/current`, and `preToolUse` prevents the orchestrator from skipping directly to implementation or review.
 
-```bash
-pnpm run orchestration:hook -- session-init --session dogfood-tooling --lane tooling-workflow --role senior-orchestrator
-pnpm run orchestration:hook -- transition --session dogfood-tooling --role senior-orchestrator --to planning --event dogfood-tooling-plan --evidence task-lane-selected,session-created
-```
+### Valid checkpoint path
 
-Observed result:
+A valid run now looks like this:
 
-- the session was created with the repo profile set to `mixed-framework-and-app`
-- the transition returned `transition-allowed`
-- the guidance correctly handed ownership to the next phase
-
-### Framework review-path validation
-
-This framework-oriented sequence exercised the public-surface lane through review:
-
-```bash
-pnpm run orchestration:hook -- session-init --session dogfood-framework-1 --lane reusable-framework-public-surface --role senior-orchestrator
-pnpm run orchestration:hook -- transition --session dogfood-framework-1 --role senior-orchestrator --to planning --event dogfood-framework-plan-1 --evidence task-lane-selected,session-created
-pnpm run orchestration:hook -- handoff implementing --session dogfood-framework-1 --role senior-orchestrator --owner implementation-engineer
-pnpm run orchestration:hook -- handoff reviewing --session dogfood-framework-1 --role senior-orchestrator --owner framework-surface-reviewer
-```
+1. the planner creates `plan.md`
+2. the implementor creates `implementer.done`
+3. the reviewer creates `review.ok` or `review.feedback`
+4. if feedback exists, one repair cycle is allowed
 
 Observed result:
 
-- the session advanced cleanly to `reviewing`
-- `framework-surface-reviewer` was allowed in `reviewing` for `reusable-framework-public-surface`
-- the behavior matches the intended boundary where extra framework scrutiny is available only on framework public-surface work
-
-### Invalid transition denial
-
-The runtime also blocked an intentionally invalid jump:
-
-```bash
-pnpm run orchestration:hook -- session-init --session dogfood-invalid --lane tooling-workflow --role senior-orchestrator
-pnpm run orchestration:hook -- transition --session dogfood-invalid --role senior-orchestrator --to implementing --event dogfood-invalid-implementing-2 --evidence implementation-owner-recorded
-```
-
-Observed result:
-
-- the hook returned `invalid-transition`
-- the denial guidance listed the valid next states from `initialized`
-- recovery was straightforward: move through `planning` first instead of bypassing the gate
-
-### Disallowed role denial
-
-The runtime also blocked an intentionally disallowed reviewer phase owner:
-
-```bash
-pnpm run orchestration:hook -- session-init --session dogfood-app-2 --lane application-feature-delivery --role senior-orchestrator
-pnpm run orchestration:hook -- transition --session dogfood-app-2 --role senior-orchestrator --to planning --event dogfood-app-plan-2 --evidence task-lane-selected,session-created
-pnpm run orchestration:hook -- handoff reviewing --session dogfood-app-2 --role senior-orchestrator --owner qa-reviewer
-```
-
-Observed result:
-
-- the hook returned `phase-not-ready`
-- the denial guidance pointed back to the missing implementation checkpoint instead of only saying "no"
-- the orchestrator can recover cleanly by keeping the implementation owner in place until the session is actually ready for review
+- the workflow is easier to recover because the checkpoint files are the state
+- denial messages point to the missing artifact instead of an abstract transition name
+- the orchestrator no longer has to manually assemble `session-init`, `transition`, and evidence commands
 
 ## Alternate-Profile Validation
 
@@ -132,18 +87,18 @@ This matters for portability:
 
 ## What Felt Heavy
 
-- The hook runtime currently assumes the orchestrator has already selected the lane. It validates the workflow after classification but does not yet automate lane selection from changed paths.
-- The current dogfooding evidence is strongest around validation, gating, and documentation. It is lighter on fully automated mixed-repo task routing.
-- Alternate-profile validation needed a small `--spec` affordance in the validator CLI to make the examples practical instead of theoretical.
+- multi-lane mixed framework and app tasks still need clear planner discipline; the hook can enforce order, but it cannot invent correct task decomposition
+- weaker models still struggle if the planner is allowed to produce option menus instead of one recommended bounded phase
+- alternate-profile validation still lives in the legacy `.agents/orchestration` helper layer rather than the checkpoint runtime itself
 
 ## What Tightened
 
-- The workflow now has an explicit bootstrap helper for orchestrator-led runs instead of relying on ambient discovery.
-- The supported Copilot CLI path is now documented as `/agents -> senior-orchestrator -> task prompt`.
-- Mixed app/framework changed paths now have a first-class bootstrap response: split phases or escalate before any implementation delegation.
+- the supported Copilot CLI path is now documented as `/agents -> orchestrator -> task prompt`
+- the active runtime is checkpoint-based instead of command-choreography-based
+- mixed app/framework tasks are expected to be split by the planner into bounded phases before implementation starts
 
 ## Follow-Up Tightening
 
-- Add a narrow helper that can suggest a lane from changed paths without turning the spec into a large policy engine.
-- Keep `cellix-feature-delivery` focused on scenario-based TDD so application delivery does not drift toward framework-contract language.
-- Continue using real repo tasks to refine whether any state evidence names are awkward or overly specific.
+- improve planner prompts further for mixed-lane tasks such as framework-plus-app deliveries
+- keep `cellix-feature-delivery` focused on scenario-based TDD so application delivery does not drift toward framework-contract language
+- continue using real repo tasks to validate that the smaller checkpoint workflow degrades gracefully on weaker models
