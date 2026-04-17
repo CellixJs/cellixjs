@@ -38,6 +38,12 @@ The CellixJS mixed-repository example lives at the repo root in `orchestration.s
 
 The Copilot CLI workflow is now primarily enforced by `.github/hooks/workflow-enforcement.json` and the agent prompts in `.github/agents/`.
 
+The current runtime is checkpoint-driven:
+
+- `sessionStart` initializes `.agents-work/current/`
+- `preToolUse` gates planner -> implementor -> reviewer order
+- `postToolUse` reconciles `plan.md`, `implementer.done`, `review.ok`, and `review.feedback` from delegate results when background-agent file writes are not visible in the parent workspace
+
 Use the utilities in this directory for:
 
 - repo path-class routing

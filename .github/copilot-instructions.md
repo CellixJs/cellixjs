@@ -29,9 +29,10 @@ When working with AI agents:
   - `implementer.done`
   - `review.ok`
   - `review.feedback`
-- the planner must create `plan.md` on disk before returning
-- the implementor must create `implementer.done` on disk before returning
-- the reviewer must write either `review.ok` or `review.feedback`
+- planners should write `plan.md` and also return the exact plan between `BEGIN PLAN.MD` and `END PLAN.MD`
+- implementors should write `implementer.done` and also return the exact checkpoint between `BEGIN IMPLEMENTER.DONE` and `END IMPLEMENTER.DONE`
+- reviewers should write either `review.ok` or `review.feedback` and also return the exact checkpoint between the matching `BEGIN REVIEW.*` and `END REVIEW.*` markers
+- the hook layer reconciles repo-visible checkpoints from those response blocks; do not invent separate checkpoint-repair subflows
 - if a task spans both `packages/cellix/**` and application paths, split it into bounded phases instead of one blended plan
 - prefer framework-first planning when app work depends on reusable `@cellix/*` changes
 - use `bash .github/hooks/check-gate.sh status` to inspect the current checkpoint state when needed

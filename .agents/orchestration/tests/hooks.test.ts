@@ -1,9 +1,22 @@
 import { spawnSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { buildSessionArtifactPaths, buildSessionCheckpointPaths } from '../lib/orchestration-loader.ts';
 import { checkActionAllowed, checkRoleAllowed, createSession, transitionSession } from '../lib/orchestration-runtime.ts';
-import { createTempRepoFixture, repoRoot } from './test-helpers.ts';
+import { createTempRepoFixture, repoRoot, writeFixtureFile } from './test-helpers.ts';
+
+function runWorkspaceHook(scriptName: string, fixtureRoot: string, payload: unknown) {
+	return spawnSync('bash', [join(repoRoot(), `.github/hooks/${scriptName}`)], {
+		cwd: repoRoot(),
+		encoding: 'utf8',
+		input: JSON.stringify(payload),
+		env: {
+			...process.env,
+			CELLIX_WORKFLOW_REPO_ROOT: fixtureRoot,
+		},
+	});
+}
 
 describe('orchestration hook checks', () => {
 	test('denies reviewer role during implementing', () => {
@@ -283,5 +296,93 @@ describe('orchestration hook checks', () => {
 				state: 'done',
 			},
 		});
+	});
+
+	test('postToolUse reconciles plan.md from planner response markers', () => {
+		const fixtureRoot = createTempRepoFixture();
+		const result = runWorkspaceHook('reconcile-agent-workflow.sh', fixtureRoot, {
+			toolName: 'read_agent',
+			toolArgs: {
+				agent_id: 'task211-planner',
+			},
+			toolResult: {
+				resultType: 'success',
+				textResultForLlm:
+					'Agent completed. agent_id: task211-planner, agent_type: planner, status: completed\n\nBEGIN PLAN.MD\n# Plan\n\n## Lane\nreusable-framework-public-surface\n\n## Scope\n- packages/cellix/server-oauth2-mock-seedwork/src/index.ts\nEND PLAN.MD\n\nSummary: framework-first phase.',
+			},
+		});
+
+		expect(result.status).toBe(0);
+		expect(readFileSync(join(fixtureRoot, '.agents-work/current/plan.md'), 'utf8')).toContain('# Plan');
+		expect(readFileSync(join(fixtureRoot, '.agents-work/current/phase'), 'utf8')).toContain('planning');
+	});
+
+	test('postToolUse reconciles missing implementer.done so review can start', () => {
+		const fixtureRoot = createTempRepoFixture();
+		writeFixtureFile(fixtureRoot, '.agents-work/current/plan.md', '# Plan\n');
+		writeFixtureFile(fixtureRoot, '.agents-work/current/phase', 'implementing\n');
+
+		const reconcileResult = runWorkspaceHook('reconcile-agent-workflow.sh', fixtureRoot, {
+			toolName: 'read_agent',
+			toolArgs: {
+				agent_id: 'task211-implementor',
+			},
+			toolResult: {
+				resultType: 'success',
+				textResultForLlm:
+					'Agent completed. agent_id: task211-implementor, agent_type: implementor, status: completed\n\nimplementer.done created .agents-work/current/implementer.done',
+			},
+		});
+
+		expect(reconcileResult.status).toBe(0);
+		expect(readFileSync(join(fixtureRoot, '.agents-work/current/implementer.done'), 'utf8')).toContain('Checkpoint reconciled from the implementor result');
+
+		const reviewStart = runWorkspaceHook('enforce-agent-workflow.sh', fixtureRoot, {
+			toolName: 'task',
+			toolArgs: {
+				agent_type: 'framework-surface-reviewer',
+				name: 'task211-framework-reviewer',
+				mode: 'background',
+			},
+		});
+
+		expect(reviewStart.status).toBe(0);
+		expect(reviewStart.stdout).toBe('');
+		expect(readFileSync(join(fixtureRoot, '.agents-work/current/phase'), 'utf8')).toContain('reviewing');
+	});
+
+	test('postToolUse reconciles review.feedback so implementor retry is allowed', () => {
+		const fixtureRoot = createTempRepoFixture();
+		writeFixtureFile(fixtureRoot, '.agents-work/current/plan.md', '# Plan\n');
+		writeFixtureFile(fixtureRoot, '.agents-work/current/implementer.done', '{"summary":"done"}\n');
+		writeFixtureFile(fixtureRoot, '.agents-work/current/phase', 'reviewing\n');
+
+		const reconcileResult = runWorkspaceHook('reconcile-agent-workflow.sh', fixtureRoot, {
+			toolName: 'read_agent',
+			toolArgs: {
+				agent_id: 'task211-framework-reviewer-3',
+			},
+			toolResult: {
+				resultType: 'success',
+				textResultForLlm:
+					'Agent completed. agent_id: task211-framework-reviewer-3, agent_type: framework-surface-reviewer, status: completed\n\nstatus: fail\nsummary: "Need fix"\nfindings:\n  - file: packages/cellix/server-oauth2-mock-seedwork/src/index.ts\n    issue: "Root/default mismatch"\nretry_required: true\n',
+			},
+		});
+
+		expect(reconcileResult.status).toBe(0);
+		expect(readFileSync(join(fixtureRoot, '.agents-work/current/review.feedback'), 'utf8')).toContain('status: fail');
+
+		const implementorRetry = runWorkspaceHook('enforce-agent-workflow.sh', fixtureRoot, {
+			toolName: 'task',
+			toolArgs: {
+				agent_type: 'implementor',
+				name: 'task211-implementor-retry-2',
+				mode: 'background',
+			},
+		});
+
+		expect(implementorRetry.status).toBe(0);
+		expect(implementorRetry.stdout).toBe('');
+		expect(readFileSync(join(fixtureRoot, '.agents-work/current/phase'), 'utf8')).toContain('implementing');
 	});
 });

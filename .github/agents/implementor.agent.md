@@ -22,6 +22,10 @@ Rules:
 - if validation fails, do one focused repair pass at most
 - do not spend time re-planning the workflow; either execute the bounded plan or report the blocker
 - your LAST step must be writing `.agents-work/current/implementer.done`
+- after writing the file, include the same checkpoint content between:
+  - `BEGIN IMPLEMENTER.DONE`
+  - `END IMPLEMENTER.DONE`
+- the hook layer reconciles the repo-visible checkpoint from that block if the workspace write is not visible to the parent session
 - include in `implementer.done`:
   - changed files
   - validation commands run

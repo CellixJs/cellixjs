@@ -16,6 +16,14 @@
 				"cwd": ".",
 				"timeoutSec": 30
 			}
+		],
+		"postToolUse": [
+			{
+				"type": "command",
+				"bash": "bash .github/hooks/reconcile-agent-workflow.sh",
+				"cwd": ".",
+				"timeoutSec": 30
+			}
 		]
 	}
 }
