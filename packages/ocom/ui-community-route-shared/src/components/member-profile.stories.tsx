@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { MemberProfile } from './member-profile.tsx';
-import type { MemberProfileData } from './member-profile.tsx';
+import { MemberProfileView } from './member-profile-view.tsx';
+import type { MemberProfileData } from './member-profile-view.tsx';
 
-const meta: Meta<typeof MemberProfile> = {
+const meta: Meta<typeof MemberProfileView> = {
 	title: 'Shared/Components/MemberProfile',
-	component: MemberProfile,
+	component: MemberProfileView,
 	parameters: {
 		layout: 'centered',
 	},

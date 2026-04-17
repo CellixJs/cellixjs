@@ -16,6 +16,8 @@
 	},
 	"dependencies": {
 		"@ocom/ui-components": "workspace:*",
+        "@apollo/client": "^3.13.9",
+		"@cellix/ui-core": "workspace:*",
         "antd": "catalog:",
 		"dayjs": "^1.11.19",
 		"react": "^19.1.1",

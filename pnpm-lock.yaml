@@ -1547,6 +1547,12 @@ importers:
 
   packages/ocom/ui-community-route-shared:
     dependencies:
+      '@apollo/client':
+        specifier: ^3.13.9
+        version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@cellix/ui-core':
+        specifier: workspace:*
+        version: link:../../cellix/ui-core
       '@ocom/ui-components':
         specifier: workspace:*
         version: link:../ui-components
