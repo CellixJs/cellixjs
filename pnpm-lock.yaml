@@ -365,9 +365,6 @@ importers:
 
   apps/ui-community:
     dependencies:
-      '@ant-design/icons':
-        specifier: ^6.1.1
-        version: 6.1.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@apollo/client':
         specifier: ^3.13.9
         version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -395,9 +392,6 @@ importers:
       apollo-link-rest:
         specifier: ^0.9.0
         version: 0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(graphql@16.12.0)(qs@6.15.0)
-      dayjs:
-        specifier: ^1.11.19
-        version: 1.11.19
       less:
         specifier: ^4.4.0
         version: 4.4.2
