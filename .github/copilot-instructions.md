@@ -27,6 +27,10 @@ When working with AI agents:
 - require discovery planning to write `.agents-work/orchestration/sessions/<session-id>/plan.md`, then verify that artifact with `orchestration:session-status` before `transition plan-complete`
 - delegate discovery planning in a blocking/foreground way unless the environment has a reliable result-retrieval path for background agents
 - use `pnpm run orchestration:hook -- agent-check --session <session-id> --role discovery-planner` as the default planning handoff check
+- keep implementation prompts concise and plan-driven: pass the session id, changed-path scope, and canonical artifact paths from `orchestration:session-status`, then have the implementation agent read `plan.md` instead of restating the full plan inline
+- during `implementing`, prefer targeted validation for the changed scope; reserve `pnpm run verify` for explicit user requests or a later review/final gate
+- senior-orchestrator should own post-delegate transitions by default: verify the returned artifacts and validation summary, then advance to `reviewing` itself
+- if a bounded implementation failure occurs inside the changed scope, run at most one focused repair pass automatically; if it still fails, stop and summarize instead of looping
 
 ## Architecture Overview
 

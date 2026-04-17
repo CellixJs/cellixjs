@@ -20,7 +20,8 @@ Use this skill in the `reviewing` phase.
 1. Confirm the session is actually in `reviewing`.
 2. Check the lane-specific completion gates from `.agents/orchestration/model/orchestration-model.v1.json`.
 3. Review changed paths for behavioral regressions, requirement gaps, and missing validation.
-4. Decide one outcome:
+4. Decide whether broader validation is still needed for the final gate, or whether the targeted implementation evidence is sufficient for the active lane.
+5. Decide one outcome:
    - `done` when the completion gates are satisfied
    - `revising` when findings are actionable and bounded
    - `blocked` when an external blocker prevents safe progress
@@ -31,6 +32,7 @@ Use this skill in the `reviewing` phase.
 - Do not silently implement fixes while acting as the reviewer.
 - If the lane is `reusable-framework-public-surface`, require framework-surface review before final completion.
 - Use the minimal artifact posture unless the task risk or complexity clearly requires more.
+- When broader validation is run during review, treat failures as review findings or blockers; do not silently repair them while acting as reviewer.
 
 ## Output Contract
 

@@ -27,6 +27,10 @@ export function getSessionArtifactsDirectoryPath(repoRoot: string, sessionId: st
 	return join(repoRoot, '.agents-work/orchestration/sessions', sessionId);
 }
 
+export function getSessionPhaseDirectoryPath(repoRoot: string, sessionId: string, phase: 'implementation' | 'review'): string {
+	return join(getSessionArtifactsDirectoryPath(repoRoot, sessionId), phase);
+}
+
 export function buildSessionArtifactPaths(repoRoot: string, sessionId: string): SessionArtifactPaths {
 	const artifactsDirectory = getSessionArtifactsDirectoryPath(repoRoot, sessionId);
 	return {
