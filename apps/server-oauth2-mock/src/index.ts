@@ -1,6 +1,6 @@
 import { type MockOAuth2ServerConfig, startMockOAuth2Server } from '@cellix/server-oauth2-mock-seedwork';
-import { parseConfigs } from './config2';
-import { setupEnvironment } from './setup-environment.ts';
+import { parseConfigs } from './config.js';
+import { setupEnvironment } from './setup-environment.js';
 
 setupEnvironment();
 
