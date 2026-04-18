@@ -47,10 +47,10 @@ Require lightweight evidence before transitions:
 
 ## Role Validity
 
-- `senior-orchestrator` may own intake, planning gates, escalation, and completion.
-- `discovery-planner` is valid in `planning`.
-- `implementation-engineer` is valid in `implementing` and `revising`.
-- `qa-reviewer` is valid in `reviewing`.
+- `orchestrator` may own intake, planning gates, escalation, and completion.
+- `planner` is valid in `planning`.
+- `implementor` is valid in `implementing` and `revising`.
+- `reviewer` is valid in `reviewing`.
 - `framework-surface-reviewer` is only valid in `reviewing` for reusable framework public-surface work.
 
 ## Recovery Rules

@@ -3,19 +3,19 @@ import { getSessionArtifactStatus, getSessionArtifactsDirectoryPath, getSessionC
 
 function resolveNextStep(state: string, artifactStatus: ReturnType<typeof getSessionArtifactStatus>, checkpointStatus: ReturnType<typeof getSessionCheckpointStatus>): string {
 	if (state === 'planning' && !artifactStatus.plan.exists) {
-		return 'Write plan.md, then run `pnpm run orchestration:hook -- handoff implementing --session <session-id> --role senior-orchestrator`.';
+		return 'Write plan.md, then run `pnpm run orchestration:hook -- handoff implementing --session <session-id> --role orchestrator`.';
 	}
 
 	if ((state === 'planning' || state === 'plan-complete') && artifactStatus.plan.exists) {
-		return 'Run `pnpm run orchestration:hook -- handoff implementing --session <session-id> --role senior-orchestrator` to enter implementation.';
+		return 'Run `pnpm run orchestration:hook -- handoff implementing --session <session-id> --role orchestrator` to enter implementation.';
 	}
 
 	if ((state === 'implementing' || state === 'revising') && !checkpointStatus.implementationResult.exists) {
-		return 'Write implementation/result.md, then run `pnpm run orchestration:hook -- handoff reviewing --session <session-id> --role senior-orchestrator`.';
+		return 'Write implementation/result.md, then run `pnpm run orchestration:hook -- handoff reviewing --session <session-id> --role orchestrator`.';
 	}
 
 	if ((state === 'implementing' || state === 'revising') && checkpointStatus.implementationResult.exists) {
-		return 'Run `pnpm run orchestration:hook -- handoff reviewing --session <session-id> --role senior-orchestrator` to enter review.';
+		return 'Run `pnpm run orchestration:hook -- handoff reviewing --session <session-id> --role orchestrator` to enter review.';
 	}
 
 	if (state === 'reviewing' && !checkpointStatus.reviewDecision.exists) {
@@ -23,11 +23,11 @@ function resolveNextStep(state: string, artifactStatus: ReturnType<typeof getSes
 	}
 
 	if (state === 'reviewing' && checkpointStatus.reviewDecision.exists && !artifactStatus.finalSummary.exists) {
-		return 'Write final-summary.md for approval, or run `pnpm run orchestration:hook -- complete revising --session <session-id> --role senior-orchestrator` if review found issues.';
+		return 'Write final-summary.md for approval, or run `pnpm run orchestration:hook -- complete revising --session <session-id> --role orchestrator` if review found issues.';
 	}
 
 	if (state === 'reviewing' && checkpointStatus.reviewDecision.exists && artifactStatus.finalSummary.exists) {
-		return 'Run `pnpm run orchestration:hook -- complete done --session <session-id> --role senior-orchestrator` when the review is approved.';
+		return 'Run `pnpm run orchestration:hook -- complete done --session <session-id> --role orchestrator` when the review is approved.';
 	}
 
 	return 'Session is initialized. Bootstrap or continue the active phase.';

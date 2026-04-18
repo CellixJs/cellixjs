@@ -149,7 +149,7 @@ function validateRequiredArtifacts(repoRoot: string, session: RuntimeSession, to
 		`Transition to "plan-complete" requires plan.md at "${artifactStatus.plan.path}".`,
 		buildGuidance('Create the bounded plan artifact before advancing the session.', [
 			`Expected artifact: ${artifactStatus.plan.path}`,
-			'Use the discovery-planner to write the plan artifact, then verify it with `pnpm run orchestration:session-status -- --session <session-id>`.',
+			'Use the planner to write the plan artifact, then verify it with `pnpm run orchestration:session-status -- --session <session-id>`.',
 		]),
 		session.state,
 	);
@@ -193,7 +193,7 @@ function ensureTransitionSucceeded(result: { result: HookResult; session?: Runti
 }
 
 function handoffAllowedRoles(phase: 'implementing' | 'reviewing'): RoleId[] {
-	return phase === 'implementing' ? ['implementation-engineer'] : ['qa-reviewer', 'framework-surface-reviewer'];
+	return phase === 'implementing' ? ['implementor'] : ['reviewer', 'framework-surface-reviewer'];
 }
 
 export function checkRoleAllowed(repoRoot: string, sessionId: string, role: RoleId): HookResult {

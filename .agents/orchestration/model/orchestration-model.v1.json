@@ -108,16 +108,16 @@
 		}
 	},
 	"roles": {
-		"senior-orchestrator": {
+		"orchestrator": {
 			"description": "Owns intake, lane classification, bounded planning, gating, escalation, and merge/readiness decisions."
 		},
-		"discovery-planner": {
+		"planner": {
 			"description": "Gathers repo truth and prepares the bounded execution plan."
 		},
-		"implementation-engineer": {
+		"implementor": {
 			"description": "Executes the bounded implementation or revision phase."
 		},
-		"qa-reviewer": {
+		"reviewer": {
 			"description": "Performs review, validation, and gate checks for a bounded phase."
 		},
 		"framework-surface-reviewer": {
@@ -127,7 +127,7 @@
 	"states": {
 		"initialized": {
 			"phase": "intake",
-			"allowedRoles": ["senior-orchestrator"],
+			"allowedRoles": ["orchestrator"],
 			"transitions": {
 				"planning": {
 					"requires": ["task-lane-selected", "session-created"]
@@ -139,7 +139,7 @@
 		},
 		"planning": {
 			"phase": "planning",
-			"allowedRoles": ["senior-orchestrator", "discovery-planner"],
+			"allowedRoles": ["orchestrator", "planner"],
 			"transitions": {
 				"plan-complete": {
 					"requires": ["bounded-plan", "phase-owner-recorded"]
@@ -151,7 +151,7 @@
 		},
 		"plan-complete": {
 			"phase": "planning",
-			"allowedRoles": ["senior-orchestrator"],
+			"allowedRoles": ["orchestrator"],
 			"transitions": {
 				"implementing": {
 					"requires": ["implementation-owner-recorded"]
@@ -163,7 +163,7 @@
 		},
 		"implementing": {
 			"phase": "implementation",
-			"allowedRoles": ["senior-orchestrator", "implementation-engineer"],
+			"allowedRoles": ["orchestrator", "implementor"],
 			"transitions": {
 				"reviewing": {
 					"requires": ["change-summary", "validation-evidence"]
@@ -175,7 +175,7 @@
 		},
 		"reviewing": {
 			"phase": "review",
-			"allowedRoles": ["senior-orchestrator", "qa-reviewer", "framework-surface-reviewer"],
+			"allowedRoles": ["orchestrator", "reviewer", "framework-surface-reviewer"],
 			"transitions": {
 				"revising": {
 					"requires": ["review-findings"]
@@ -190,7 +190,7 @@
 		},
 		"revising": {
 			"phase": "revision",
-			"allowedRoles": ["senior-orchestrator", "implementation-engineer"],
+			"allowedRoles": ["orchestrator", "implementor"],
 			"transitions": {
 				"reviewing": {
 					"requires": ["revision-summary", "validation-evidence"]
@@ -202,7 +202,7 @@
 		},
 		"blocked": {
 			"phase": "escalation",
-			"allowedRoles": ["senior-orchestrator"],
+			"allowedRoles": ["orchestrator"],
 			"transitions": {
 				"planning": {
 					"requires": ["blocker-resolved", "replan-required"]
@@ -217,7 +217,7 @@
 		},
 		"done": {
 			"phase": "complete",
-			"allowedRoles": ["senior-orchestrator"],
+			"allowedRoles": ["orchestrator"],
 			"transitions": {}
 		}
 	},

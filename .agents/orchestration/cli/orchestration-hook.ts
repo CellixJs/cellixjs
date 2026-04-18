@@ -116,7 +116,7 @@ function resolveOwner(options: Record<string, string>, phase: 'implementing' | '
 		return options.owner as RoleId;
 	}
 
-	return (phase === 'implementing' ? 'implementation-engineer' : 'qa-reviewer') as RoleId;
+	return (phase === 'implementing' ? 'implementor' : 'reviewer') as RoleId;
 }
 
 function resolveOutcome(options: Record<string, string>, positionals: string[]): 'done' | 'revising' | 'blocked' {

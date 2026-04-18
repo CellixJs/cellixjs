@@ -98,7 +98,7 @@ export function bootstrapOrchestrationSession(
 	}
 
 	if (selectedLane && !requiresLaneDecision && !shouldSplitPhases && input.sessionId) {
-		nextActions.push('Delegate planning to discovery-planner after the session reaches planning.');
+		nextActions.push('Delegate planning to planner after the session reaches planning.');
 		nextActions.push('Write the bounded plan to the session plan artifact, then use the implementing handoff to advance automatically.');
 	}
 
@@ -135,7 +135,7 @@ export function bootstrapOrchestrationSession(
 		return result;
 	}
 
-	const role = input.role ?? 'senior-orchestrator';
+	const role = input.role ?? 'orchestrator';
 	const sessionBefore = loadSession(repoRoot, input.sessionId);
 	const session = createSession(repoRoot, {
 		sessionId: input.sessionId,
@@ -165,7 +165,7 @@ export function bootstrapOrchestrationSession(
 		toState: 'planning',
 		evidence: ['task-lane-selected', 'session-created'],
 		eventId: input.eventId ?? `${input.sessionId}-planning`,
-		note: 'Bootstrapped by the senior orchestrator after lane classification.',
+		note: 'Bootstrapped by the orchestrator after lane classification.',
 	});
 
 	result.planningTransition = planningTransition.result;

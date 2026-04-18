@@ -10,7 +10,7 @@ const REQUIRED_CLASSES_BY_PROFILE: Record<ProfileId, PathClassId[]> = {
 };
 
 const BASE_REQUIRED_SKILLS = ['cellix-task-intake', 'cellix-session-state', 'cellix-feature-delivery', 'cellix-phase-review'];
-const BASE_REQUIRED_AGENTS = ['senior-orchestrator', 'discovery-planner', 'implementation-engineer', 'qa-reviewer'];
+const BASE_REQUIRED_AGENTS = ['orchestrator', 'planner', 'implementor', 'reviewer'];
 
 function pushError(errors: ValidationIssue[], code: string, message: string, suggestion?: string, path?: string): void {
 	errors.push({ code, message, suggestion, path });

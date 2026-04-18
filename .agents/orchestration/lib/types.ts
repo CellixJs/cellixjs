@@ -10,7 +10,7 @@ export type StateId = 'initialized' | 'planning' | 'plan-complete' | 'implementi
 
 export type ArtifactMode = 'minimal' | 'elevated';
 
-export type RoleId = 'senior-orchestrator' | 'discovery-planner' | 'implementation-engineer' | 'qa-reviewer' | 'framework-surface-reviewer';
+export type RoleId = 'orchestrator' | 'planner' | 'implementor' | 'reviewer' | 'framework-surface-reviewer';
 
 export type ActionId = 'inspect' | 'classify' | 'plan' | 'document' | 'delegate' | 'edit' | 'execute' | 'validate' | 'finalize' | 'escalate';
 

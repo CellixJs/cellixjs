@@ -33,7 +33,7 @@ export function createTempRepoFixture(specContents?: string): string {
 		copyFile(root, `.agents/skills/${skill}/SKILL.md`);
 	}
 
-	const agents = ['senior-orchestrator', 'discovery-planner', 'implementation-engineer', 'qa-reviewer', 'framework-surface-reviewer'];
+	const agents = ['orchestrator', 'planner', 'implementor', 'reviewer', 'framework-surface-reviewer'];
 	for (const agent of agents) {
 		copyFile(root, `.github/agents/${agent}.agent.md`);
 	}

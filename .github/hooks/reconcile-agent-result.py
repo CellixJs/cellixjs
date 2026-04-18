@@ -8,18 +8,12 @@ from pathlib import Path
 
 KNOWN_AGENTS = [
     "planner",
-    "discovery-planner",
     "implementor",
-    "implementer",
-    "implementation-engineer",
-    "implementer-research",
     "reviewer",
-    "qa-reviewer",
     "framework-surface-reviewer",
     "validator",
     "security",
     "orchestrator",
-    "senior-orchestrator",
 ]
 
 STRUCTURED_AGENT_KEYS = [
@@ -34,9 +28,9 @@ STRUCTURED_AGENT_KEYS = [
     "name",
 ]
 
-PLANNER_AGENTS = {"planner", "discovery-planner"}
-IMPLEMENTOR_AGENTS = {"implementor", "implementer", "implementation-engineer", "implementer-research"}
-REVIEWER_AGENTS = {"reviewer", "qa-reviewer", "framework-surface-reviewer"}
+PLANNER_AGENTS = {"planner"}
+IMPLEMENTOR_AGENTS = {"implementor"}
+REVIEWER_AGENTS = {"reviewer", "framework-surface-reviewer"}
 
 MARKERS = {
     "plan.md": ("BEGIN PLAN.MD", "END PLAN.MD"),

@@ -10,14 +10,14 @@ describe('orchestration runtime', () => {
 		const session = createSession(fixtureRoot, {
 			sessionId: 'demo',
 			lane: 'tooling-workflow',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 
 		expect(session.state).toBe('initialized');
 
 		const { result, session: updatedSession } = transitionSession(fixtureRoot, {
 			sessionId: 'demo',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-1',
@@ -32,19 +32,19 @@ describe('orchestration runtime', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'dup',
 			lane: 'tooling-workflow',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 
 		const first = transitionSession(fixtureRoot, {
 			sessionId: 'dup',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'same-event',
 		});
 		const second = transitionSession(fixtureRoot, {
 			sessionId: 'dup',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'same-event',
@@ -60,12 +60,12 @@ describe('orchestration runtime', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'bad-transition',
 			lane: 'tooling-workflow',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 
 		const { result } = transitionSession(fixtureRoot, {
 			sessionId: 'bad-transition',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'implementing',
 			evidence: ['implementation-owner-recorded'],
 			eventId: 'evt-invalid',
@@ -81,13 +81,13 @@ describe('orchestration runtime', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'missing-plan-artifact',
 			lane: 'tooling-workflow',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			changedPaths: ['.agents/orchestration/lib/orchestration-runtime.ts'],
 		});
 
 		transitionSession(fixtureRoot, {
 			sessionId: 'missing-plan-artifact',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -95,7 +95,7 @@ describe('orchestration runtime', () => {
 
 		const { result } = transitionSession(fixtureRoot, {
 			sessionId: 'missing-plan-artifact',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'plan-complete',
 			evidence: ['bounded-plan', 'phase-owner-recorded'],
 			eventId: 'evt-plan-complete',
@@ -111,13 +111,13 @@ describe('orchestration runtime', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'plan-artifact-present',
 			lane: 'tooling-workflow',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			changedPaths: ['.agents/orchestration/lib/orchestration-runtime.ts'],
 		});
 
 		transitionSession(fixtureRoot, {
 			sessionId: 'plan-artifact-present',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -125,7 +125,7 @@ describe('orchestration runtime', () => {
 
 		const deniedAttempt = transitionSession(fixtureRoot, {
 			sessionId: 'plan-artifact-present',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'plan-complete',
 			evidence: ['bounded-plan', 'phase-owner-recorded'],
 			eventId: 'evt-plan-complete',
@@ -136,7 +136,7 @@ describe('orchestration runtime', () => {
 
 		const { result, session } = transitionSession(fixtureRoot, {
 			sessionId: 'plan-artifact-present',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'plan-complete',
 			evidence: ['bounded-plan', 'phase-owner-recorded'],
 			eventId: 'evt-plan-complete',
@@ -151,12 +151,12 @@ describe('orchestration runtime', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'handoff-implementing',
 			lane: 'application-feature-delivery',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 
 		transitionSession(fixtureRoot, {
 			sessionId: 'handoff-implementing',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -165,9 +165,9 @@ describe('orchestration runtime', () => {
 
 		const { result, session } = handoffPhase(fixtureRoot, {
 			sessionId: 'handoff-implementing',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			phase: 'implementing',
-			owner: 'implementation-engineer',
+			owner: 'implementor',
 		});
 
 		expect(result.allowed).toBe(true);
@@ -180,12 +180,12 @@ describe('orchestration runtime', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'handoff-reviewing',
 			lane: 'application-feature-delivery',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 
 		transitionSession(fixtureRoot, {
 			sessionId: 'handoff-reviewing',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -193,16 +193,16 @@ describe('orchestration runtime', () => {
 		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'handoff-reviewing').plan, '# Plan\n', 'utf8');
 		handoffPhase(fixtureRoot, {
 			sessionId: 'handoff-reviewing',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			phase: 'implementing',
-			owner: 'implementation-engineer',
+			owner: 'implementor',
 		});
 
 		const blockedReview = handoffPhase(fixtureRoot, {
 			sessionId: 'handoff-reviewing',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			phase: 'reviewing',
-			owner: 'qa-reviewer',
+			owner: 'reviewer',
 		});
 		expect(blockedReview.result.allowed).toBe(false);
 		expect(blockedReview.result.code).toBe('missing-checkpoint');
@@ -210,9 +210,9 @@ describe('orchestration runtime', () => {
 		writeFileSync(buildSessionCheckpointPaths(fixtureRoot, 'handoff-reviewing').implementationResult, '# Implementation result\n', 'utf8');
 		const reviewReady = handoffPhase(fixtureRoot, {
 			sessionId: 'handoff-reviewing',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			phase: 'reviewing',
-			owner: 'qa-reviewer',
+			owner: 'reviewer',
 		});
 
 		expect(reviewReady.result.allowed).toBe(true);
@@ -224,12 +224,12 @@ describe('orchestration runtime', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'done-gates',
 			lane: 'tooling-workflow',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-gates',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -237,21 +237,21 @@ describe('orchestration runtime', () => {
 		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'done-gates').plan, '# Plan\n', 'utf8');
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-gates',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'plan-complete',
 			evidence: ['bounded-plan', 'phase-owner-recorded'],
 			eventId: 'evt-plan-complete',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-gates',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'implementing',
 			evidence: ['implementation-owner-recorded'],
 			eventId: 'evt-implementing',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-gates',
-			role: 'implementation-engineer',
+			role: 'implementor',
 			toState: 'reviewing',
 			evidence: ['change-summary', 'validation-evidence'],
 			eventId: 'evt-reviewing',
@@ -259,7 +259,7 @@ describe('orchestration runtime', () => {
 
 		const { result } = transitionSession(fixtureRoot, {
 			sessionId: 'done-gates',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'done',
 			evidence: ['completion-gates-satisfied', 'final-summary', 'targeted-validation'],
 			eventId: 'evt-done',
@@ -275,12 +275,12 @@ describe('orchestration runtime', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'done-complete',
 			lane: 'tooling-workflow',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-complete',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -288,21 +288,21 @@ describe('orchestration runtime', () => {
 		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'done-complete').plan, '# Plan\n', 'utf8');
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-complete',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'plan-complete',
 			evidence: ['bounded-plan', 'phase-owner-recorded'],
 			eventId: 'evt-plan-complete',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-complete',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'implementing',
 			evidence: ['implementation-owner-recorded'],
 			eventId: 'evt-implementing',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'done-complete',
-			role: 'implementation-engineer',
+			role: 'implementor',
 			toState: 'reviewing',
 			evidence: ['change-summary', 'validation-evidence'],
 			eventId: 'evt-reviewing',
@@ -310,7 +310,7 @@ describe('orchestration runtime', () => {
 
 		const { result, session } = transitionSession(fixtureRoot, {
 			sessionId: 'done-complete',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'done',
 			evidence: ['completion-gates-satisfied', 'final-summary', 'targeted-validation', 'workflow-impact-summary', 'validation-summary'],
 			eventId: 'evt-done',
@@ -325,12 +325,12 @@ describe('orchestration runtime', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'complete-with-checkpoints',
 			lane: 'application-feature-delivery',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 
 		transitionSession(fixtureRoot, {
 			sessionId: 'complete-with-checkpoints',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -338,21 +338,21 @@ describe('orchestration runtime', () => {
 		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'complete-with-checkpoints').plan, '# Plan\n', 'utf8');
 		handoffPhase(fixtureRoot, {
 			sessionId: 'complete-with-checkpoints',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			phase: 'implementing',
-			owner: 'implementation-engineer',
+			owner: 'implementor',
 		});
 		writeFileSync(buildSessionCheckpointPaths(fixtureRoot, 'complete-with-checkpoints').implementationResult, '# Implementation result\n', 'utf8');
 		handoffPhase(fixtureRoot, {
 			sessionId: 'complete-with-checkpoints',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			phase: 'reviewing',
-			owner: 'qa-reviewer',
+			owner: 'reviewer',
 		});
 
 		const missingReviewDecision = completeSession(fixtureRoot, {
 			sessionId: 'complete-with-checkpoints',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			outcome: 'done',
 		});
 		expect(missingReviewDecision.result.allowed).toBe(false);
@@ -363,7 +363,7 @@ describe('orchestration runtime', () => {
 
 		const done = completeSession(fixtureRoot, {
 			sessionId: 'complete-with-checkpoints',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			outcome: 'done',
 		});
 

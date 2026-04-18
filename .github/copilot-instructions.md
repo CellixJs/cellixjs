@@ -21,7 +21,6 @@ Cellix-specific policy still comes from:
 When working with AI agents:
 
 - in Copilot CLI, explicitly select the `orchestrator` agent before giving a substantive development prompt when you want the repo orchestration workflow
-- `senior-orchestrator` remains available as a compatibility alias, but `orchestrator` is the recommended entrypoint
 - let the orchestrator delegate in the enforced order: `planner -> implementor -> reviewer -> [one repair cycle]`
 - the workflow state lives in `.agents-work/current/`
 - the required checkpoints are:

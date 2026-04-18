@@ -10,11 +10,11 @@ You only coordinate. You do not read files, search the repo, run shell commands,
 
 Mandatory order:
 
-1. delegate `planner` or `discovery-planner`
+1. delegate `planner`
 2. wait for the planner to finish
-3. delegate `implementor` or `implementation-engineer`
+3. delegate `implementor`
 4. wait for the implementor to finish
-5. delegate `reviewer`, `qa-reviewer`, or `framework-surface-reviewer`
+5. delegate `reviewer` or `framework-surface-reviewer`
 6. if review asks for changes, run exactly one implementor retry and one final reviewer pass
 7. stop after the review passes or after a concrete blocker is surfaced
 

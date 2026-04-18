@@ -22,8 +22,6 @@ In Copilot CLI, the supported startup path is explicit:
 2. provide the task prompt to that orchestrator
 3. let the hooks enforce the run through checkpoint files under `.agents-work/current/`
 
-`senior-orchestrator` remains available as a compatibility alias, but `orchestrator` is the recommended entrypoint.
-
 ## Why This Exists
 
 The design goal is to keep the senior-led delivery protocol primary:

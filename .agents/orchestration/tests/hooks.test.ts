@@ -24,31 +24,31 @@ describe('orchestration hook checks', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'agent-check',
 			lane: 'tooling-workflow',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'agent-check',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'agent-check',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'plan-complete',
 			evidence: ['bounded-plan', 'phase-owner-recorded'],
 			eventId: 'evt-plan-complete',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'agent-check',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'implementing',
 			evidence: ['implementation-owner-recorded'],
 			eventId: 'evt-implementing',
 		});
 
-		const result = checkRoleAllowed(fixtureRoot, 'agent-check', 'qa-reviewer');
+		const result = checkRoleAllowed(fixtureRoot, 'agent-check', 'reviewer');
 		expect(result.allowed).toBe(false);
 		expect(result.code).toBe('role-not-allowed');
 	});
@@ -58,11 +58,11 @@ describe('orchestration hook checks', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'tool-check',
 			lane: 'tooling-workflow',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'tool-check',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -70,27 +70,27 @@ describe('orchestration hook checks', () => {
 		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'tool-check').plan, '# Plan\n', 'utf8');
 		transitionSession(fixtureRoot, {
 			sessionId: 'tool-check',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'plan-complete',
 			evidence: ['bounded-plan', 'phase-owner-recorded'],
 			eventId: 'evt-plan-complete',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'tool-check',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'implementing',
 			evidence: ['implementation-owner-recorded'],
 			eventId: 'evt-implementing',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'tool-check',
-			role: 'implementation-engineer',
+			role: 'implementor',
 			toState: 'reviewing',
 			evidence: ['change-summary', 'validation-evidence'],
 			eventId: 'evt-reviewing',
 		});
 
-		const result = checkActionAllowed(fixtureRoot, 'tool-check', 'qa-reviewer', 'edit');
+		const result = checkActionAllowed(fixtureRoot, 'tool-check', 'reviewer', 'edit');
 		expect(result.allowed).toBe(false);
 		expect(result.code).toBe('action-not-allowed');
 		expect(result.guidance[1]).toContain('inspect');
@@ -132,12 +132,12 @@ describe('orchestration hook checks', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'transition-shorthand',
 			lane: 'application-feature-delivery',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 
 		const result = spawnSync(
 			process.execPath,
-			['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'transition', 'planning', '--repo', fixtureRoot, '--session', 'transition-shorthand', '--owner', 'senior-orchestrator'],
+			['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'transition', 'planning', '--repo', fixtureRoot, '--session', 'transition-shorthand', '--owner', 'orchestrator'],
 			{
 				cwd: repoRoot(),
 				encoding: 'utf8',
@@ -153,7 +153,7 @@ describe('orchestration hook checks', () => {
 			},
 			session: {
 				state: 'planning',
-				recentRole: 'senior-orchestrator',
+				recentRole: 'orchestrator',
 			},
 		});
 	});
@@ -163,7 +163,7 @@ describe('orchestration hook checks', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'session-status',
 			lane: 'application-feature-delivery',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			changedPaths: ['apps/server-oauth2-mock/src/index.ts'],
 		});
 
@@ -203,11 +203,11 @@ describe('orchestration hook checks', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'handoff-cli',
 			lane: 'application-feature-delivery',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'handoff-cli',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -216,7 +216,7 @@ describe('orchestration hook checks', () => {
 
 		const result = spawnSync(
 			process.execPath,
-			['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'handoff', 'implementing', '--repo', fixtureRoot, '--session', 'handoff-cli', '--role', 'senior-orchestrator'],
+			['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'handoff', 'implementing', '--repo', fixtureRoot, '--session', 'handoff-cli', '--role', 'orchestrator'],
 			{
 				cwd: repoRoot(),
 				encoding: 'utf8',
@@ -241,11 +241,11 @@ describe('orchestration hook checks', () => {
 		createSession(fixtureRoot, {
 			sessionId: 'complete-cli',
 			lane: 'application-feature-delivery',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'complete-cli',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'planning',
 			evidence: ['task-lane-selected', 'session-created'],
 			eventId: 'evt-plan',
@@ -253,14 +253,14 @@ describe('orchestration hook checks', () => {
 		writeFileSync(buildSessionArtifactPaths(fixtureRoot, 'complete-cli').plan, '# Plan\n', 'utf8');
 		transitionSession(fixtureRoot, {
 			sessionId: 'complete-cli',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'plan-complete',
 			evidence: ['bounded-plan', 'phase-owner-recorded'],
 			eventId: 'evt-plan-complete',
 		});
 		transitionSession(fixtureRoot, {
 			sessionId: 'complete-cli',
-			role: 'senior-orchestrator',
+			role: 'orchestrator',
 			toState: 'implementing',
 			evidence: ['implementation-owner-recorded'],
 			eventId: 'evt-implementing',
@@ -268,7 +268,7 @@ describe('orchestration hook checks', () => {
 		writeFileSync(buildSessionCheckpointPaths(fixtureRoot, 'complete-cli').implementationResult, '# Implementation result\n', 'utf8');
 		transitionSession(fixtureRoot, {
 			sessionId: 'complete-cli',
-			role: 'implementation-engineer',
+			role: 'implementor',
 			toState: 'reviewing',
 			evidence: ['change-summary', 'validation-evidence'],
 			eventId: 'evt-reviewing',
@@ -278,7 +278,7 @@ describe('orchestration hook checks', () => {
 
 		const result = spawnSync(
 			process.execPath,
-			['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'complete', 'done', '--repo', fixtureRoot, '--session', 'complete-cli', '--role', 'senior-orchestrator'],
+			['--experimental-strip-types', '.agents/orchestration/cli/orchestration-hook.ts', 'complete', 'done', '--repo', fixtureRoot, '--session', 'complete-cli', '--role', 'orchestrator'],
 			{
 				cwd: repoRoot(),
 				encoding: 'utf8',

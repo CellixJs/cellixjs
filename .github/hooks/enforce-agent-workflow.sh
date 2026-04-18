@@ -76,7 +76,7 @@ case "$TOOL_NAME" in
 esac
 
 case "$AGENT_NAME" in
-  planner|discovery-planner|implementor|implementer|implementation-engineer|implementer-research|reviewer|qa-reviewer|framework-surface-reviewer|validator|security)
+  planner|implementor|reviewer|framework-surface-reviewer|validator|security)
     ;;
   *)
     exit 0
@@ -89,19 +89,19 @@ date -u +"%Y-%m-%dT%H:%M:%SZ" > "$WORKFLOW_SESSION"
 PHASE="$(current_phase)"
 
 case "$AGENT_NAME" in
-  planner|discovery-planner)
+  planner)
     case "$PHASE" in
       ""|planning)
         write_phase "planning"
         exit 0
         ;;
       *)
-        deny "Planning is already complete for this workflow. Delegate the implementer next. [$(state_summary)]"
+        deny "Planning is already complete for this workflow. Delegate the implementor next. [$(state_summary)]"
         ;;
     esac
     ;;
 
-  implementor|implementer|implementation-engineer|implementer-research)
+  implementor)
     if [[ ! -f "${WORK_DIR}/plan.md" ]]; then
       deny "The planner must create .agents-work/current/plan.md before implementation can start. [$(state_summary)]"
     fi
@@ -130,13 +130,13 @@ case "$AGENT_NAME" in
     esac
     ;;
 
-  reviewer|qa-reviewer|framework-surface-reviewer)
+  reviewer|framework-surface-reviewer)
     if [[ ! -f "${WORK_DIR}/plan.md" ]]; then
       deny "A review requires .agents-work/current/plan.md so the reviewer can compare changes against the plan. [$(state_summary)]"
     fi
 
     if [[ ! -f "${WORK_DIR}/implementer.done" ]]; then
-      deny "The implementer must finish and write .agents-work/current/implementer.done before review can start. [$(state_summary)]"
+      deny "The implementor must finish and write .agents-work/current/implementer.done before review can start. [$(state_summary)]"
     fi
 
     case "$PHASE" in

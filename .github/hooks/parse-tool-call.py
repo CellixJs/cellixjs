@@ -4,18 +4,12 @@ import sys
 
 KNOWN_AGENTS = [
     "planner",
-    "discovery-planner",
     "implementor",
-    "implementer",
-    "implementation-engineer",
-    "implementer-research",
     "reviewer",
-    "qa-reviewer",
     "framework-surface-reviewer",
     "validator",
     "security",
     "orchestrator",
-    "senior-orchestrator",
 ]
 
 STRUCTURED_AGENT_KEYS = [
