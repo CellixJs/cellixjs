@@ -58,7 +58,7 @@ case "$GATE" in
     fi
     echo ""
     echo "State files:"
-    for f in phase plan.md review.ok review.feedback; do
+    for f in phase plan.md implementer.done review.ok review.feedback security.ok security.blocked workflow.session session.started; do
       if [[ -f "$WORK_DIR/$f" ]]; then
         echo -e "  ${GREEN}✓${NC} $f"
       else

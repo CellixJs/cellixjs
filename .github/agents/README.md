@@ -59,11 +59,11 @@ so the CLI can relay subagent output.
 | Agent | Role | Tools | Writes |
 |-------|------|-------|--------|
 | `orchestrator` | Coordinates workflow, delegates everything | agent | — |
-| `planner` | Analyzes goal, creates task breakdown | read, edit, search, web | plan.md |
+| `planner` | Analyzes goal, creates task breakdown | read, edit, write, create, search, execute, web | plan.md |
 | `implementer` | Implements code changes, validates own work | agent, read, edit, search, execute, web | (code files) |
 | `reviewer` | Reviews all code changes once | read, search, execute | review.ok / review.feedback |
 | `implementer-research` | Research helper for implementer | read, search, web | (none) |
-| `security` | Security assessment (optional) | read, search, execute | security.ok |
+| `security` | Security assessment | read, search, execute | security.ok / security.blocked |
 | `validator` | Build/test verification (optional) | read, search, execute | (none) |
 
 ## State Files
@@ -74,8 +74,12 @@ All state lives in `.agents-work/current/`:
 .agents-work/current/
 ├── phase              # Current workflow phase (planning/implementing/reviewing/feedback/final-review)
 ├── plan.md            # Task breakdown from planner (prerequisite for implementers)
+├── implementer.done   # Implementer checkpoint that unlocks review
 ├── review.ok          # Review passed (written by reviewer)
 ├── review.feedback    # Review findings for feedback cycle (written by reviewer)
+├── security.ok        # Security review passed
+├── security.blocked   # Security review requires action or decision
+├── workflow.session   # Active workflow marker used across subagent sessions
 └── session.started    # Session timestamp
 ```
 
