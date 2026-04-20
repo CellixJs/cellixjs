@@ -135,7 +135,7 @@ const member: Resolvers = {
 				communityId: args.communityId,
 			});
 		},
-		memberForCurrentCommunity: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
+		memberForCurrentCommunity: async (_parent: unknown, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 				throw new Error('Unauthorized');
 			}
