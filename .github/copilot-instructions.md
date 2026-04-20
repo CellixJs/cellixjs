@@ -33,6 +33,7 @@ When working with AI agents:
 - reviewers should write either `review.ok` or `review.feedback` and also return the exact checkpoint between the matching `BEGIN REVIEW.*` and `END REVIEW.*` markers
 - the hook layer reconciles repo-visible checkpoints from those response blocks; do not invent separate checkpoint-repair subflows
 - if a reviewer or implementor launch fails before writing its next checkpoint, retry the same delegate; the workflow preserves the prior checkpoint until reconciliation records the new verdict
+- if a previous run already finished or checkpoint files were manually cleaned up into an impossible state, simply delegate the planner again; the hooks will reset that stale state automatically
 - if a task spans both `packages/cellix/**` and application paths, split it into bounded phases instead of one blended plan
 - prefer framework-first planning when app work depends on reusable `@cellix/*` changes
 - use `bash .github/hooks/check-gate.sh status` to inspect the current checkpoint state when needed

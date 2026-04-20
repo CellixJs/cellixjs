@@ -20,6 +20,8 @@ AGENT_ALIASES = {
     "qa-reviewer": "reviewer",
 }
 
+DELEGATION_TOOLS = {"agent", "custom-agent", "task", "subagent"}
+
 STRUCTURED_AGENT_KEYS = [
     "agent",
     "agentName",
@@ -99,11 +101,11 @@ except Exception:
 
 tool_name = normalize(payload.get("toolName", ""))
 tool_args = load_tool_args(payload)
-agent_name = find_structured_agent(tool_args)
+agent_name = canonical_agent(tool_name)
 if not agent_name:
+    agent_name = find_structured_agent(tool_args)
+if not agent_name and tool_name in DELEGATION_TOOLS:
     agent_name = find_agent_in_text(tool_args)
-if not agent_name:
-    agent_name = canonical_agent(tool_name)
 
 print(tool_name)
 print(agent_name)

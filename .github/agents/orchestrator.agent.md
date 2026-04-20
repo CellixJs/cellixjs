@@ -38,6 +38,7 @@ Rules:
 - delegates should still try to write the checkpoint files, but the hook layer reconciles the parent-session files from those response blocks
 - do not launch separate checkpoint-repair tasks just because a delegate says it wrote a checkpoint file
 - if a reviewer or implementor delegate fails before its next checkpoint appears, simply retry that same delegate; do not invent a reset flow
+- if a previous run already finished or the checkpoint files were manually cleaned into an impossible state, simply delegate the planner again; the hooks will reset that stale state automatically
 - if the task spans both `packages/cellix/**` and application paths, require the planner to split it into bounded phases instead of blending framework and app work into one pass
 - prefer a framework-first bounded phase when application work depends on reusable `@cellix/*` changes
 - if the reviewer returns `review.feedback`, run one repair cycle only without asking for extra confirmation; if that still fails, stop and surface the blocker clearly
