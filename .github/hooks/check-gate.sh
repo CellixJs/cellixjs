@@ -21,6 +21,9 @@
 
 set -euo pipefail
 
+GATE_STATE_FILES=(phase plan.md implementer.done review.ok review.feedback)
+INFO_STATE_FILES=(security.ok security.blocked workflow.session session.started)
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -57,8 +60,17 @@ case "$GATE" in
       echo -e "Phase: ${YELLOW}(not started)${NC}"
     fi
     echo ""
-    echo "State files:"
-    for f in phase plan.md implementer.done review.ok review.feedback security.ok security.blocked workflow.session session.started; do
+    echo "Gate-driving state files:"
+    for f in "${GATE_STATE_FILES[@]}"; do
+      if [[ -f "$WORK_DIR/$f" ]]; then
+        echo -e "  ${GREEN}✓${NC} $f"
+      else
+        echo -e "  ○ $f"
+      fi
+    done
+    echo ""
+    echo "Informational state files:"
+    for f in "${INFO_STATE_FILES[@]}"; do
       if [[ -f "$WORK_DIR/$f" ]]; then
         echo -e "  ${GREEN}✓${NC} $f"
       else

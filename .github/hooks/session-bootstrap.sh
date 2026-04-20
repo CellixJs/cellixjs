@@ -27,7 +27,8 @@ if [[ "$SOURCE" == "new" ]]; then
     # first delegation was allowed.
     :
   else
-    # Genuinely new conversation — clear all workflow state
+    # Genuinely new conversation — clear workflow state used by the current
+    # phase machine plus informational markers written by helper agents/hooks.
     rm -f \
       "$WORK_DIR/phase" \
       "$WORK_DIR/plan.md" \
@@ -38,7 +39,6 @@ if [[ "$SOURCE" == "new" ]]; then
       "$WORK_DIR/review.blocked" \
       "$WORK_DIR/security.ok" \
       "$WORK_DIR/security.blocked" \
-      "$WORK_DIR/validation.ok" \
       "$WORK_DIR/implementer.done" \
       "$WORK_DIR/workflow.mode" \
       "$WORK_DIR/workflow.session" \

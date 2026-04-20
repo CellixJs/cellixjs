@@ -68,7 +68,9 @@ so the CLI can relay subagent output.
 
 ## State Files
 
-All state lives in `.agents-work/current/`:
+All state lives in `.agents-work/current/`.
+
+Gate-driving files used by `enforce-agent-workflow.sh`:
 
 ```
 .agents-work/current/
@@ -76,7 +78,13 @@ All state lives in `.agents-work/current/`:
 ├── plan.md            # Task breakdown from planner (prerequisite for implementers)
 ├── implementer.done   # Implementer checkpoint that unlocks review
 ├── review.ok          # Review passed (written by reviewer)
-├── review.feedback    # Review findings for feedback cycle (written by reviewer)
+└── review.feedback    # Review findings for feedback cycle (written by reviewer)
+```
+
+Informational files that are surfaced in status output but do not change the phase machine:
+
+```
+.agents-work/current/
 ├── security.ok        # Security review passed
 ├── security.blocked   # Security review requires action or decision
 ├── workflow.session   # Active workflow marker used across subagent sessions
@@ -104,6 +112,9 @@ The feedback cycle is complete. No more implementer spawns allowed. The orchestr
 should proceed to reporting.
 
 ### Agent delegation detection
+Known agent names are derived from `.github/agents/*.agent.md`, so adding or renaming
+an agent definition updates both the parser and the hook automatically.
+
 The hook recognizes agent delegations via three methods (in priority order):
 1. `toolName` matches a known agent name (e.g., `"planner"`, `"reviewer"`) — **authoritative**, overrides arg scanning
 2. Structured arg field (`agent`, `agent_type`, `agentName`, `name`, etc.) matches an agent — **reliable**, checked before text

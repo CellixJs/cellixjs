@@ -4,7 +4,7 @@
 
 - Start Copilot CLI from the repository root so repository-level hooks, custom agents, and skills are loaded from `.github/`
 - Agent workflow state lives in `.agents-work/current/`
-- The agent workflow uses `.github/hooks/check-gate.sh` together with `.github/hooks/workflow-enforcement.json` to gate planner, implementer, reviewer, and security transitions
+- The agent workflow uses `.github/hooks/check-gate.sh` together with `.github/hooks/workflow-enforcement.json` to gate planner, implementer, and reviewer transitions; security markers are reported for visibility but do not drive phase changes
 - For trivial tasks, write `.agents-work/current/workflow.mode` with `lean` before delegating to the implementer; otherwise use `full`
 
 ## Architecture Overview

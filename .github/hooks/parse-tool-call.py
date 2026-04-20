@@ -13,16 +13,30 @@ Agent detection priority:
 
 import json
 import sys
+from pathlib import Path
 
-AGENTS = (
-    "implementer-research",
-    "orchestrator",
-    "implementer",
-    "validator",
-    "planner",
-    "reviewer",
-    "security",
-)
+
+def load_agents():
+    """Derive known agent names from .github/agents/*.agent.md."""
+    agents_dir = Path(__file__).resolve().parent.parent / "agents"
+    agents = {
+        path.name.removesuffix(".agent.md")
+        for path in agents_dir.glob("*.agent.md")
+    }
+    if not agents:
+        agents = {
+            "implementer-research",
+            "orchestrator",
+            "implementer",
+            "validator",
+            "planner",
+            "reviewer",
+            "security",
+        }
+    return tuple(sorted(agents, key=lambda agent: (-len(agent), agent)))
+
+
+AGENTS = load_agents()
 
 # Tool names that represent an agent delegation call
 DELEGATION_TOOLS = frozenset({"agent", "custom-agent", "task", "subagent"})

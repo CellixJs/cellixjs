@@ -16,6 +16,10 @@
 #   review.feedback   → reviewer done (issues), must delegate implementer
 #   review.ok         → reviewer done (pass), allow DONE reporting
 #
+# Informational markers that appear in status/denial output but do NOT drive
+# phase transitions:
+#   security.ok / security.blocked / workflow.session / session.started
+#
 # workflow.session — marker created on first delegation. Prevents session-bootstrap
 # from clearing state when subagent sessions fire sessionStart.
 #
@@ -29,6 +33,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 REPO_ROOT_REAL="$(cd -- "${REPO_ROOT}" && pwd -P)"
+AGENTS_DIR="${REPO_ROOT}/.github/agents"
 WORK_DIR="${REPO_ROOT}/.agents-work/current"
 PHASE_FILE="${WORK_DIR}/phase"
 WORKFLOW_SESSION="${WORK_DIR}/workflow.session"
@@ -56,9 +61,11 @@ case "$TOOL_NAME" in
   agent|custom-agent|task|subagent)
     [[ -n "$AGENT_NAME" ]] && IS_AGENT_DELEGATION=true
     ;;
-  orchestrator|planner|implementer|implementer-research|reviewer|security|validator)
-    IS_AGENT_DELEGATION=true
-    AGENT_NAME="$TOOL_NAME"
+  *)
+    if [[ -f "${AGENTS_DIR}/${TOOL_NAME}.agent.md" ]]; then
+      IS_AGENT_DELEGATION=true
+      AGENT_NAME="$TOOL_NAME"
+    fi
     ;;
 esac
 
@@ -80,6 +87,10 @@ state_summary() {
   [[ -f "${WORK_DIR}/implementer.done" ]]   && parts+=", implementer.done=YES"
   [[ -f "${WORK_DIR}/review.ok" ]]          && parts+=", review.ok=YES"
   [[ -f "${WORK_DIR}/review.feedback" ]]    && parts+=", review.feedback=YES"
+  [[ -f "${WORK_DIR}/security.ok" ]]        && parts+=", security.ok=YES"
+  [[ -f "${WORK_DIR}/security.blocked" ]]   && parts+=", security.blocked=YES"
+  [[ -f "${WORK_DIR}/workflow.session" ]]   && parts+=", workflow.session=YES"
+  [[ -f "${WORK_DIR}/session.started" ]]    && parts+=", session.started=YES"
   printf '%s' "$parts"
 }
 
