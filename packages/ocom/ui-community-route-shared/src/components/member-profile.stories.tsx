@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { MemberProfile } from './member-profile';
 import type { MemberProfileContainerMemberFieldsFragment } from '../generated.tsx';
+import { MemberProfile } from './member-profile';
 
 const meta: Meta<typeof MemberProfile> = {
 	title: 'Shared/Components/MemberProfile',
@@ -35,6 +35,8 @@ export const Default: Story = {
 	args: {
 		data: mockMemberData,
 		isAdmin: false,
+		loading: false,
+		onSave: async () => true,
 	},
 };
 
@@ -42,6 +44,8 @@ export const AdminView: Story = {
 	args: {
 		data: mockMemberData,
 		isAdmin: true,
+		loading: false,
+		onSave: async () => true,
 	},
 };
 
@@ -61,12 +65,7 @@ export const MinimalProfile: Story = {
 			},
 		},
 		isAdmin: false,
-	},
-};
-
-export const NoData: Story = {
-	args: {
-		data: undefined,
-		isAdmin: false,
+		loading: false,
+		onSave: async () => true,
 	},
 };
