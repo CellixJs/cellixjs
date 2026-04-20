@@ -11,6 +11,11 @@ ensure_work_dir() {
   mkdir -p "$WORK_DIR"
 }
 
+fail() {
+  echo "$1" >&2
+  exit 1
+}
+
 phase() {
   [[ -f "$WORK_DIR/phase" ]] && cat "$WORK_DIR/phase" || echo "(not started)"
 }
@@ -42,7 +47,17 @@ case "$GATE" in
     ;;
   pre-review)
     ensure_work_dir
-    [[ -f "$WORK_DIR/implementer.done" ]]
+    if [[ ! -f "$WORK_DIR/implementer.done" ]]; then
+      fail "implementer.done does not exist. Run implementor first."
+    fi
+
+    if ! changed_files="$(git -C "$REPO_ROOT" status --short --untracked-files=all -- . ':(exclude).agents-work' 2>/dev/null)"; then
+      fail "Failed to read git status for pre-review gate."
+    fi
+
+    if [[ -z "$changed_files" ]]; then
+      fail "No changed files to review."
+    fi
     ;;
   *)
     echo "Unknown gate: $GATE" >&2
