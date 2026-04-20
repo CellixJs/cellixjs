@@ -32,17 +32,12 @@ if [[ "$SOURCE" == "new" ]]; then
     rm -f \
       "$WORK_DIR/phase" \
       "$WORK_DIR/plan.md" \
-      "$WORK_DIR/plan.approved" \
-      "$WORK_DIR/plan.implementer.md" \
       "$WORK_DIR/review.ok" \
       "$WORK_DIR/review.feedback" \
-      "$WORK_DIR/review.blocked" \
       "$WORK_DIR/security.ok" \
       "$WORK_DIR/security.blocked" \
       "$WORK_DIR/implementer.done" \
-      "$WORK_DIR/workflow.mode" \
       "$WORK_DIR/workflow.session" \
-      "$WORK_DIR/notes.md" \
       "$WORK_DIR/hook-debug.log"
   fi
 fi
