@@ -10,7 +10,7 @@ import {
 	type MemberProfileContainerMemberProfileQuery,
 	type MemberProfileContainerMemberProfileQueryVariables,
 } from '../generated.tsx';
-import { MemberProfile, type MemberProfileFormValues } from './member-profile';
+import { MemberProfile, type MemberProfileFormValues } from './member-profile.tsx';
 
 export interface MemberProfileContainerProps {
 	communityId: string;
