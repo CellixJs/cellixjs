@@ -8,7 +8,7 @@ import {
 	type MemberProfileContainerMemberProfileQuery,
 	type MemberProfileContainerMemberProfileQueryVariables,
 } from '../generated.tsx';
-import { MemberProfile } from './member-profile';
+import { MemberProfile } from './member-profile.js';
 
 export interface MemberProfileContainerProps {
 	communityId: string;

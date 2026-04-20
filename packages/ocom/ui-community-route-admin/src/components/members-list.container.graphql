@@ -2,6 +2,9 @@ query AdminMemberListContainerMembers($communityId: ObjectID!) {
 	membersByCommunityId(communityId: $communityId) {
 		...AdminMemberListContainerMemberFields
 	}
+	memberForCurrentCommunity(communityId: $communityId) {
+		id
+	}
 }
 
 # Member Management Mutations

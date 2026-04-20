@@ -41,6 +41,7 @@ const statusDisplayMap: Record<MemberStatusFilter, { label: string; color: strin
 export interface MemberListProps {
 	data: AdminMemberListContainerMemberFieldsFragment[];
 	communityId?: string;
+	currentMemberId?: string | null;
 	onActivateMember?: (memberId: string, reason?: string) => Promise<void>;
 	onDeactivateMember?: (memberId: string, reason?: string) => Promise<void>;
 	onRemoveMember?: (memberId: string, reason?: string) => Promise<boolean>;
@@ -53,7 +54,7 @@ export interface MemberListProps {
 }
 
 export const MemberList: React.FC<MemberListProps> = (props) => {
-	const { data, onInviteMember, onMemberEdit, onActivateMember, onDeactivateMember, onRemoveMember, onBulkActivateMembers, onBulkDeactivateMembers, onBulkRemoveMembers, loading } = props;
+	const { data, currentMemberId, onInviteMember, onMemberEdit, onActivateMember, onDeactivateMember, onRemoveMember, onBulkActivateMembers, onBulkDeactivateMembers, onBulkRemoveMembers, loading } = props;
 	const isLoading = loading ?? false;
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>('all');
@@ -147,6 +148,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 			key: 'action',
 			render: (_text: unknown, record: AdminMemberListContainerMemberFieldsFragment) => {
 				const status = getMemberStatus(record);
+				const isCurrentMember = currentMemberId != null && String(record.id) === currentMemberId;
 				return (
 					<Space size="small">
 						<Button
@@ -159,6 +161,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 							<Button
 								type="link"
 								loading={isLoading}
+								disabled={isCurrentMember}
 								onClick={() => void handleDeactivateMember(String(record.id))}
 							>
 								Deactivate
@@ -176,6 +179,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 							type="link"
 							danger
 							loading={isLoading}
+							disabled={isCurrentMember}
 							onClick={() => void handleRemoveMember(String(record.id))}
 						>
 							Remove
@@ -267,6 +271,9 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 				rowSelection={{
 					selectedRowKeys: selectedMemberIds,
 					onChange: (selectedRowKeys) => setSelectedMemberIds(selectedRowKeys.map((key) => String(key))),
+					getCheckboxProps: (record: AdminMemberListContainerMemberFieldsFragment) => ({
+						disabled: currentMemberId != null && String(record.id) === currentMemberId,
+					}),
 				}}
 				pagination={{
 					pageSize: 10,

@@ -34,6 +34,18 @@ import type {
 } from '../../../../application-services/src/contexts/community/member/member-management.js';
 import type { MemberInvitationEntityReference } from '../../../../domain/src/domain/contexts/community/member/member-invitation.js';
 
+/**
+ * Resolves the acting user's member record in the given community.
+ * Used to enforce self-protection guards on destructive mutations.
+ */
+const getActorMemberIdForCommunity = async (context: GraphContext, communityId: string): Promise<string | null> => {
+	const externalId = context.applicationServices.verifiedUser?.verifiedJwt?.sub;
+	if (!externalId) return null;
+	const members = await context.applicationServices.Community.Member.queryByEndUserExternalId({ externalId });
+	const found = members.find((m) => String(m.communityId) === String(communityId));
+	return found ? String(found.id) : null;
+};
+
 const toGraphQLInvitation = (inv: MemberInvitationEntityReference) => ({
 	id: inv.id,
 	email: inv.email,
@@ -123,6 +135,14 @@ const member: Resolvers = {
 				communityId: args.communityId,
 			});
 		},
+		memberForCurrentCommunity: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
+			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+				throw new Error('Unauthorized');
+			}
+			const externalId = context.applicationServices.verifiedUser.verifiedJwt.sub;
+			const members = await context.applicationServices.Community.Member.queryByEndUserExternalId({ externalId });
+			return members.find((m) => String(m.communityId) === String(args.communityId)) ?? null;
+		},
 	},
 	Mutation: {
 		memberCreate: async (_parent, args: MutationMemberCreateArgs, context: GraphContext, _info: GraphQLResolveInfo) => {
@@ -208,6 +228,17 @@ const member: Resolvers = {
 					};
 				}
 
+				const targetMember = await context.applicationServices.Community.Member.queryById({ id: args.input.memberId });
+				const actorMemberId = await getActorMemberIdForCommunity(context, String(targetMember.communityId));
+				if (actorMemberId && actorMemberId === String(args.input.memberId)) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'You cannot deactivate your own membership.',
+						},
+					};
+				}
+
 				const command: DeactivateMemberCommand = {
 					memberId: args.input.memberId,
 				};
@@ -240,6 +271,17 @@ const member: Resolvers = {
 						status: {
 							success: false,
 							errorMessage: 'Unauthorized',
+						},
+					};
+				}
+
+				const targetMember = await context.applicationServices.Community.Member.queryById({ id: args.input.memberId });
+				const actorMemberId = await getActorMemberIdForCommunity(context, String(targetMember.communityId));
+				if (actorMemberId && actorMemberId === String(args.input.memberId)) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'You cannot remove your own membership.',
 						},
 					};
 				}
@@ -314,8 +356,26 @@ const member: Resolvers = {
 					};
 				}
 
+				const communityId = args.input.communityId;
+				const actorMemberId = await getActorMemberIdForCommunity(context, communityId);
+				const filteredMemberIds = actorMemberId
+					? args.input.memberIds.filter((id) => String(id) !== actorMemberId)
+					: [...args.input.memberIds];
+
+				if (filteredMemberIds.length === 0) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'No eligible members to deactivate.',
+						},
+						members: [],
+						successCount: 0,
+						failedCount: args.input.memberIds.length,
+					};
+				}
+
 				const command: BulkDeactivateMembersCommand = {
-					memberIds: [...args.input.memberIds], // Convert readonly to mutable array
+					memberIds: filteredMemberIds,
 				};
 
 				if (args.input.reason) {
@@ -352,8 +412,26 @@ const member: Resolvers = {
 					};
 				}
 
+				const communityId = args.input.communityId;
+				const actorMemberId = await getActorMemberIdForCommunity(context, communityId);
+				const filteredMemberIds = actorMemberId
+					? args.input.memberIds.filter((id) => String(id) !== actorMemberId)
+					: [...args.input.memberIds];
+
+				if (filteredMemberIds.length === 0) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'No eligible members to remove.',
+						},
+						members: [],
+						successCount: 0,
+						failedCount: args.input.memberIds.length,
+					};
+				}
+
 				const command: BulkRemoveMembersCommand = {
-					memberIds: [...args.input.memberIds], // Convert readonly to mutable array
+					memberIds: filteredMemberIds,
 				};
 
 				if (args.input.reason) {
@@ -368,8 +446,8 @@ const member: Resolvers = {
 						success: true,
 					},
 					members: [],
-					successCount: args.input.memberIds.length, // Assume all succeeded since no error was thrown
-					failedCount: 0,
+					successCount: filteredMemberIds.length,
+					failedCount: args.input.memberIds.length - filteredMemberIds.length,
 				};
 			} catch (error) {
 				return {

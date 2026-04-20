@@ -245,6 +245,7 @@ export const MemberListContainer: React.FC = () => {
 	const memberListProps: MemberListProps = {
 		data: (membersData?.membersByCommunityId ?? []) as AdminMemberListContainerMemberFieldsFragment[],
 		...(communityId !== undefined ? { communityId } : {}),
+		currentMemberId: membersData?.memberForCurrentCommunity?.id ? String(membersData.memberForCurrentCommunity.id) : null,
 		onActivateMember: handleActivateMember,
 		onDeactivateMember: handleDeactivateMember,
 		onRemoveMember: handleRemoveMember,
