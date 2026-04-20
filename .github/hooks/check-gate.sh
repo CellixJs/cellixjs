@@ -19,8 +19,16 @@ case "$GATE" in
   status)
     ensure_work_dir
     echo "Phase: $(phase)"
-    echo "State files:"
+    echo "Gate-driving state files:"
     for f in phase plan.md implementer.done review.ok review.feedback; do
+      if [[ -f "$WORK_DIR/$f" ]]; then
+        echo "  yes $f"
+      else
+        echo "  no  $f"
+      fi
+    done
+    echo "Informational state files:"
+    for f in workflow.session session.started; do
       if [[ -f "$WORK_DIR/$f" ]]; then
         echo "  yes $f"
       else

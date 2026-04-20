@@ -16,6 +16,14 @@ KNOWN_AGENTS = [
     "orchestrator",
 ]
 
+AGENT_ALIASES = {
+    "discovery-planner": "planner",
+    "implementer": "implementor",
+    "implementer-research": "implementor",
+    "implementation-engineer": "implementor",
+    "qa-reviewer": "reviewer",
+}
+
 STRUCTURED_AGENT_KEYS = [
     "agent",
     "agentName",
@@ -44,6 +52,13 @@ def normalize(value: object) -> str:
     return str(value).strip().lower()
 
 
+def canonical_agent(value: object) -> str:
+    text = normalize(value)
+    if text in KNOWN_AGENTS:
+        return text
+    return AGENT_ALIASES.get(text, "")
+
+
 def load_tool_args(payload: dict) -> object:
     value = payload.get("toolArgs", {})
     if isinstance(value, str):
@@ -57,8 +72,8 @@ def load_tool_args(payload: dict) -> object:
 def find_structured_agent(value: object) -> str:
     if isinstance(value, dict):
         for key in STRUCTURED_AGENT_KEYS:
-            candidate = normalize(value.get(key))
-            if candidate in KNOWN_AGENTS:
+            candidate = canonical_agent(value.get(key))
+            if candidate:
                 return candidate
         for nested in value.values():
             candidate = find_structured_agent(nested)
@@ -76,7 +91,15 @@ def find_agent_in_text(value: str) -> str:
     text = normalize(value)
     if not text:
         return ""
-    matches = [(text.find(agent), agent) for agent in KNOWN_AGENTS if text.find(agent) >= 0]
+    matches = []
+    for agent in KNOWN_AGENTS:
+        pos = text.find(agent)
+        if pos >= 0:
+            matches.append((pos, agent))
+    for alias, canonical in AGENT_ALIASES.items():
+        pos = text.find(alias)
+        if pos >= 0:
+            matches.append((pos, canonical))
     matches.sort()
     return matches[0][1] if matches else ""
 
@@ -90,8 +113,8 @@ def find_agent_in_result_text(text: str) -> str:
     for pattern in patterns:
         matches = re.findall(pattern, text, flags=re.IGNORECASE)
         for candidate in reversed(matches):
-            value = normalize(candidate)
-            if value in KNOWN_AGENTS:
+            value = canonical_agent(candidate)
+            if value:
                 return value
     return find_agent_in_text(text)
 
@@ -232,6 +255,7 @@ def main() -> int:
         if not content and (not implementer_done.exists()) and ("implementer.done" in text_result.lower() or "validation_runs" in text_result or "changed_files" in text_result):
             content = build_fallback_implementer_done(text_result)
         if content:
+            remove_if_exists(review_feedback)
             write_text(implementer_done, content)
             write_phase(phase_file, "implementing")
         return 0
@@ -240,11 +264,13 @@ def main() -> int:
         ok_content = extract_marked_block(text_result, *MARKERS["review.ok"])
         feedback_content = extract_marked_block(text_result, *MARKERS["review.feedback"])
         if ok_content:
+            remove_if_exists(implementer_done)
             remove_if_exists(review_feedback)
             write_text(review_ok, ok_content)
             write_phase(phase_file, "reviewing")
             return 0
         if feedback_content:
+            remove_if_exists(implementer_done)
             remove_if_exists(review_ok)
             write_text(review_feedback, feedback_content)
             write_phase(phase_file, "reviewing")
@@ -252,11 +278,13 @@ def main() -> int:
 
         status, status_document = extract_status_document(text_result)
         if status == "pass":
+            remove_if_exists(implementer_done)
             remove_if_exists(review_feedback)
             write_text(review_ok, status_document)
             write_phase(phase_file, "reviewing")
             return 0
         if status in {"fail", "blocked", "revising"}:
+            remove_if_exists(implementer_done)
             remove_if_exists(review_ok)
             write_text(review_feedback, status_document)
             write_phase(phase_file, "reviewing")

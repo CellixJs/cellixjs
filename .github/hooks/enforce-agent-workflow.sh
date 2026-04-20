@@ -41,8 +41,14 @@ state_summary() {
   [[ -f "${WORK_DIR}/implementer.done" ]] && parts+=", implementer.done=YES"
   [[ -f "${WORK_DIR}/review.ok" ]] && parts+=", review.ok=YES"
   [[ -f "${WORK_DIR}/review.feedback" ]] && parts+=", review.feedback=YES"
+  [[ -f "${WORK_DIR}/workflow.session" ]] && parts+=", workflow.session=YES"
+  [[ -f "${WORK_DIR}/session.started" ]] && parts+=", session.started=YES"
   printf '%s' "$parts"
 }
+
+# Review launches must be retryable until a reviewer actually produces
+# review.ok or review.feedback. We therefore preserve implementer.done and
+# review.feedback until postToolUse reconciliation observes the next checkpoint.
 
 recover_phase() {
   mkdir -p "$WORK_DIR"
@@ -118,7 +124,6 @@ case "$AGENT_NAME" in
       reviewing)
         if [[ -f "${WORK_DIR}/review.feedback" ]]; then
           rm -f "${WORK_DIR}/implementer.done"
-          rm -f "${WORK_DIR}/review.feedback"
           write_phase "implementing"
           exit 0
         fi
@@ -136,13 +141,21 @@ case "$AGENT_NAME" in
     fi
 
     if [[ ! -f "${WORK_DIR}/implementer.done" ]]; then
-      deny "The implementor must finish and write .agents-work/current/implementer.done before review can start. [$(state_summary)]"
+      if [[ "$PHASE" != "reviewing" ]]; then
+        deny "The implementor must finish and write .agents-work/current/implementer.done before review can start. [$(state_summary)]"
+      fi
+    fi
+
+    if [[ -f "${WORK_DIR}/review.ok" ]]; then
+      deny "Review already passed. Proceed to validation or finish the workflow. [$(state_summary)]"
+    fi
+
+    if [[ -f "${WORK_DIR}/review.feedback" ]]; then
+      deny "Review already produced feedback. Delegate the implementor to address it before requesting another review. [$(state_summary)]"
     fi
 
     case "$PHASE" in
       implementing|reviewing)
-        rm -f "${WORK_DIR}/review.ok"
-        rm -f "${WORK_DIR}/review.feedback"
         write_phase "reviewing"
         exit 0
         ;;
