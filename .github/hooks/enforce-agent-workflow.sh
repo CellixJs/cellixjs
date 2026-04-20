@@ -28,6 +28,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
+REPO_ROOT_REAL="$(cd -- "${REPO_ROOT}" && pwd -P)"
 WORK_DIR="${REPO_ROOT}/.agents-work/current"
 PHASE_FILE="${WORK_DIR}/phase"
 WORKFLOW_SESSION="${WORK_DIR}/workflow.session"
@@ -111,7 +112,56 @@ recover_phase
 if [[ "$TOOL_NAME" == "execute" || "$TOOL_NAME" == "bash" || "$TOOL_NAME" == "shell" ]]; then
   CMD_BLOB="$(printf '%s' "$INPUT" | python3 "${SCRIPT_DIR}/extract-command.py")"
 
-  if printf '%s' "$CMD_BLOB" | grep -qE 'git\s+(commit|push)'; then
+  if python3 - "$CMD_BLOB" <<'PY'
+import shlex
+import sys
+
+blob = sys.argv[1]
+try:
+    tokens = shlex.split(blob, posix=True)
+except Exception:
+    tokens = blob.split()
+
+git_flags_with_value = {
+    "-c",
+    "-C",
+    "--git-dir",
+    "--work-tree",
+    "--namespace",
+    "--super-prefix",
+    "--config-env",
+}
+
+found = False
+i = 0
+while i < len(tokens):
+    if tokens[i] != "git":
+        i += 1
+        continue
+
+    j = i + 1
+    while j < len(tokens):
+        token = tokens[j]
+        if token in {"commit", "push"}:
+            found = True
+            break
+        if token in {"&&", "||", ";", "|"}:
+            break
+        if token in git_flags_with_value:
+            j += 2
+            continue
+        if token.startswith("-"):
+            j += 1
+            continue
+        break
+
+    if found:
+        break
+    i += 1
+
+raise SystemExit(0 if found else 1)
+PY
+  then
     deny "BLOCKED: git commit/push. All changes must remain local and uncommitted. [$(state_summary)]"
   fi
 fi
@@ -159,8 +209,18 @@ try:
 except:
     print('')" 2>/dev/null)"
       # Absolute path NOT under repo root → external file (agent output) → allow
-      if [[ -n "$TOOL_PATH" ]] && [[ "$TOOL_PATH" == /* ]] && [[ "$TOOL_PATH" != "${REPO_ROOT}"* ]]; then
-        exit 0
+      if [[ -n "$TOOL_PATH" ]] && [[ "$TOOL_PATH" == /* ]]; then
+        TOOL_REAL="$(python3 - "$TOOL_PATH" <<'PY'
+import os
+import sys
+
+path = sys.argv[1]
+print(os.path.realpath(path) if os.path.exists(path) else os.path.abspath(path))
+PY
+)"
+        if [[ "$TOOL_REAL" != "$REPO_ROOT_REAL" ]] && [[ "$TOOL_REAL" != "$REPO_ROOT_REAL"/* ]]; then
+          exit 0
+        fi
       fi
       ;;
   esac

@@ -24,7 +24,7 @@ or finish until STEP 5 (DONE) is reached.
 - Return before completing ALL 5 steps
 - Skip the reviewer step (STEP 3 is MANDATORY)
 
-**YOUR ONLY TOOL IS `agent`** — to spawn subagents.
+**YOUR ONLY TOOL IS `agent`** — use it to spawn subagents and drive the workflow.
 
 ---
 
@@ -171,10 +171,8 @@ Declare: **DONE**. This is the ONLY step where you may finish and return.
 4. **Follow THE FLOW step by step.** Hooks deny out-of-order delegations.
 5. **Do not redo subagent work.** After each subagent returns, proceed to the NEXT step.
 
-Your `execute` tool is RESTRICTED to:
-- Reading checkpoint files in `.agents-work/current/`
-- `git diff`, `git status` — for final reporting only
-- `pnpm run build`, `pnpm run test`, `pnpm run lint` — only if needed to verify
+You do not have an `execute` tool. Any validation or reporting commands must be
+delegated to subagents such as `validator`.
 
 ---
 

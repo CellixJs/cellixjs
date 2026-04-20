@@ -44,19 +44,21 @@ which agent delegations are allowed:
 | Reviewer after implementation | Hook only allows reviewer when phase is `implementing` or `feedback` |
 | One feedback cycle max | After `reviewing` → `feedback` → `final-review`, no more implementers |
 | Git commit/push blocked | Hook denies any execute tool call containing `git commit` or `git push` |
-| Non-agent tools always pass | Read, search, execute, etc. are never blocked — only agent delegations are gated |
+| Between-phase non-agent tools blocked | After a phase completes, non-delegation tools are denied until the orchestrator delegates the next agent |
 
 ### What Does NOT Get Blocked
 
-Unlike the previous version, non-agent tools (read, search, execute, edit, view, etc.)
-are **never blocked**. Agents need full tool access to do their work. Only agent
-**delegations** (spawning a new subagent) are gated by the phase machine.
+During an active subagent phase, non-agent tools needed by the running agent
+(read, search, execute, edit, view, etc.) are allowed. Between phases, the hook
+blocks non-delegation tools so the orchestrator must immediately delegate the next
+agent. A small set of infrastructure reads for external temp files is also allowed
+so the CLI can relay subagent output.
 
 ## Agents
 
 | Agent | Role | Tools | Writes |
 |-------|------|-------|--------|
-| `orchestrator` | Coordinates workflow, delegates everything | agent, read, execute | — |
+| `orchestrator` | Coordinates workflow, delegates everything | agent | — |
 | `planner` | Analyzes goal, creates task breakdown | read, edit, search, web | plan.md |
 | `implementer` | Implements code changes, validates own work | agent, read, edit, search, execute, web | (code files) |
 | `reviewer` | Reviews all code changes once | read, search, execute | review.ok / review.feedback |
