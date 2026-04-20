@@ -15,7 +15,7 @@ import {
 	type AdminMemberListContainerMembersQueryVariables,
 	AdminMemberListContainerRemoveMemberDocument,
 } from '../generated.tsx';
-import { MemberInviteModalContainer } from './member-invite-modal.container.tsx';
+import { MembersInviteModalContainer } from './members-invite-modal.container.tsx';
 import { MemberList, type MemberListProps } from './members-list.tsx';
 
 export const MemberListContainer: React.FC = () => {
@@ -264,7 +264,7 @@ export const MemberListContainer: React.FC = () => {
 				hasDataComponent={<MemberList {...memberListProps} />}
 				error={membersError}
 			/>
-			<MemberInviteModalContainer
+			<MembersInviteModalContainer
 				open={inviteModalVisible}
 				onClose={handleCloseInviteModal}
 				onSuccess={handleInviteSuccess}

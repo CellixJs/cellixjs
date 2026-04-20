@@ -7,11 +7,10 @@ mutation AdminMemberInviteModalContainerInviteMember($input: InviteMemberInput!)
 		invitation {
 			id
 			email
-			message
 			status
-			expiresAt
 			communityId
 			createdAt
+			updatedAt
 		}
 	}
 }
@@ -25,11 +24,10 @@ mutation AdminMemberInviteModalContainerBulkInviteMembers($input: BulkInviteMemb
 		invitations {
 			id
 			email
-			message
 			status
-			expiresAt
 			communityId
 			createdAt
+			updatedAt
 		}
 		successCount
 		failedCount

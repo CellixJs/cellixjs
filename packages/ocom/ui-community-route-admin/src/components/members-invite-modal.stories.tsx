@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { MemberInviteModal } from './member-invite-modal.tsx';
+import { MembersInviteModal } from './members-invite-modal.tsx';
 
-const meta: Meta<typeof MemberInviteModal> = {
-	title: 'Admin/Components/MemberInviteModal',
-	component: MemberInviteModal,
+const meta: Meta<typeof MembersInviteModal> = {
+	title: 'Admin/Components/MembersInviteModal',
+	component: MembersInviteModal,
 	parameters: {
 		layout: 'centered',
 	},

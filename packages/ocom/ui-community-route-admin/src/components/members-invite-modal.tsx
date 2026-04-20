@@ -5,7 +5,7 @@ import { useState } from 'react';
 const { TextArea } = Input;
 const { Text } = Typography;
 
-export interface MemberInviteModalProps {
+export interface MembersInviteModalProps {
 	open: boolean;
 	onClose: () => void;
 	onSingleInvite: (email: string, message?: string, expiresInDays?: number) => Promise<void>;
@@ -24,7 +24,7 @@ interface BulkInviteForm {
 	expiresInDays?: number;
 }
 
-export const MemberInviteModal: React.FC<MemberInviteModalProps> = (props) => {
+export const MembersInviteModal: React.FC<MembersInviteModalProps> = (props) => {
 	const { open, onClose, onSingleInvite, onBulkInvite, loading } = props;
 	const isLoading = loading ?? false;
 	const [singleForm] = Form.useForm<SingleInviteForm>();
@@ -201,16 +201,16 @@ export const MemberInviteModal: React.FC<MemberInviteModalProps> = (props) => {
 											))}
 
 											<Form.Item>
-												<Button
-													type="dashed"
-													onClick={() => add()}
-													block
-													icon={<PlusOutlined />}
-												>
-													Add Another Invitation
-												</Button>
-											</Form.Item>
-										</>
+											<Button
+												type="dashed"
+												onClick={() => add()}
+												block
+												icon={<PlusOutlined />}
+											>
+												Add Another Invitation
+											</Button>
+										</Form.Item>
+									</>
 									)}
 								</Form.List>
 
@@ -245,7 +245,7 @@ export const MemberInviteModal: React.FC<MemberInviteModalProps> = (props) => {
 						),
 					},
 				]}
-			/>
-		</Modal>
-	);
+				/>
+			</Modal>
+		);
 };

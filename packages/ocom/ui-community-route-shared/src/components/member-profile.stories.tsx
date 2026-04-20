@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { MemberProfileView } from './member-profile-view.tsx';
-import type { MemberProfileData } from './member-profile-view.tsx';
+import { MemberProfile } from './member-profile';
+import type { MemberProfileContainerMemberFieldsFragment } from '../generated.tsx';
 
-const meta: Meta<typeof MemberProfileView> = {
+const meta: Meta<typeof MemberProfile> = {
 	title: 'Shared/Components/MemberProfile',
-	component: MemberProfileView,
+	component: MemberProfile,
 	parameters: {
 		layout: 'centered',
 	},
@@ -14,7 +14,7 @@ const meta: Meta<typeof MemberProfileView> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mockMemberData: MemberProfileData = {
+const mockMemberData: MemberProfileContainerMemberFieldsFragment = {
 	id: 'member-123',
 	memberName: 'johndoe',
 	profile: {
@@ -66,7 +66,7 @@ export const MinimalProfile: Story = {
 
 export const NoData: Story = {
 	args: {
-		data: null,
+		data: undefined,
 		isAdmin: false,
 	},
 };

@@ -9,8 +9,8 @@ fragment AdminMembersDetailContainerMemberFields on Member {
 	updatedAt
 }
 
-query AdminMembersDetailContainerMembersByCommunity($communityId: ObjectID!) {
-	membersByCommunityId(communityId: $communityId) {
+query AdminMembersDetailContainerMember($id: ObjectID!) {
+	member(id: $id) {
 		...AdminMembersDetailContainerMemberFields
 	}
 }

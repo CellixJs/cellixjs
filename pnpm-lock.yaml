@@ -1423,6 +1423,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/ui-community-route-shared':
+        specifier: workspace:*
+        version: link:../ui-community-route-shared
       '@ocom/ui-components':
         specifier: workspace:*
         version: link:../ui-components
@@ -1554,6 +1557,9 @@ importers:
       '@cellix/ui-core':
         specifier: workspace:*
         version: link:../../cellix/ui-core
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.12.0)
       '@ocom/ui-components':
         specifier: workspace:*
         version: link:../ui-components

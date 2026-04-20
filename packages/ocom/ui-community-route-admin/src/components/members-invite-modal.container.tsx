@@ -2,15 +2,15 @@ import { useMutation } from '@apollo/client';
 import { App } from 'antd';
 import { useParams } from 'react-router-dom';
 import { AdminMemberInviteModalContainerBulkInviteMembersDocument, AdminMemberInviteModalContainerInviteMemberDocument } from '../generated.tsx';
-import { MemberInviteModal, type MemberInviteModalProps } from './member-invite-modal.tsx';
+import { MembersInviteModal, type MembersInviteModalProps } from './members-invite-modal.tsx';
 
-interface MemberInviteModalContainerProps {
+interface MembersInviteModalContainerProps {
 	open: boolean;
 	onClose: () => void;
 	onSuccess?: () => void;
 }
 
-export const MemberInviteModalContainer: React.FC<MemberInviteModalContainerProps> = (props) => {
+export const MembersInviteModalContainer: React.FC<MembersInviteModalContainerProps> = (props) => {
 	const { open, onClose, onSuccess } = props;
 	const { communityId } = useParams<{ communityId: string }>();
 	const { message } = App.useApp();
@@ -80,7 +80,7 @@ export const MemberInviteModalContainer: React.FC<MemberInviteModalContainerProp
 		}
 	};
 
-	const memberInviteModalProps: MemberInviteModalProps = {
+	const membersInviteModalProps: MembersInviteModalProps = {
 		open,
 		onClose,
 		onSingleInvite: handleSingleInvite,
@@ -88,5 +88,5 @@ export const MemberInviteModalContainer: React.FC<MemberInviteModalContainerProp
 		loading: inviteLoading || bulkInviteLoading,
 	};
 
-	return <MemberInviteModal {...memberInviteModalProps} />;
+	return <MembersInviteModal {...membersInviteModalProps} />;
 };

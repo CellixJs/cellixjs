@@ -2,10 +2,10 @@ import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import type React from 'react';
 import {
+	AdminMembersDetailContainerMemberDocument,
 	type AdminMembersDetailContainerMemberFieldsFragment,
-	AdminMembersDetailContainerMembersByCommunityDocument,
-	type AdminMembersDetailContainerMembersByCommunityQuery,
-	type AdminMembersDetailContainerMembersByCommunityQueryVariables,
+	type AdminMembersDetailContainerMemberQuery,
+	type AdminMembersDetailContainerMemberQueryVariables,
 } from '../generated.tsx';
 import { MembersDetail } from './members-detail.tsx';
 
@@ -17,20 +17,18 @@ interface MembersDetailContainerProps {
 }
 
 export const MembersDetailContainer: React.FC<MembersDetailContainerProps> = (props) => {
-	const { data, loading, error } = useQuery<AdminMembersDetailContainerMembersByCommunityQuery, AdminMembersDetailContainerMembersByCommunityQueryVariables>(AdminMembersDetailContainerMembersByCommunityDocument, {
+	const { data, loading, error } = useQuery<AdminMembersDetailContainerMemberQuery, AdminMembersDetailContainerMemberQueryVariables>(AdminMembersDetailContainerMemberDocument, {
 		variables: {
-			communityId: props.data.communityId,
+			id: props.data.id,
 		},
+		skip: !props.data.id,
 	});
-
-	// Find the specific member by ID
-	const selectedMember = data?.membersByCommunityId?.find((member) => member.id === props.data.id);
 
 	return (
 		<ComponentQueryLoader
 			loading={loading}
-			hasData={selectedMember}
-			hasDataComponent={<MembersDetail data={{ member: selectedMember as AdminMembersDetailContainerMemberFieldsFragment }} />}
+			hasData={data?.member}
+			hasDataComponent={<MembersDetail data={{ member: data?.member as AdminMembersDetailContainerMemberFieldsFragment }} />}
 			error={error}
 		/>
 	);

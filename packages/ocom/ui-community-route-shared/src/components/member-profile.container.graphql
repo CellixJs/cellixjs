@@ -1,5 +1,5 @@
-query MemberProfileContainerMemberProfile {
-	memberForCurrentCommunity: membersForCurrentEndUser {
+query MemberProfileContainerMemberProfile($id: ObjectID!) {
+	member(id: $id) {
 		...MemberProfileContainerMemberFields
 	}
 }

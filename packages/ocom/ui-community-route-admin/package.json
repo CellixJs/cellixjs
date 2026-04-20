@@ -22,6 +22,7 @@
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"@dr.pogodin/react-helmet": "^3.0.2",
 		"@ocom/ui-components": "workspace:*",
+		"@ocom/ui-community-route-shared": "workspace:*",
 		"antd": "catalog:",
 		"dayjs": "^1.11.19",
 		"react": "^19.1.1",

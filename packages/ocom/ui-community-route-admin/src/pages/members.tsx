@@ -17,11 +17,11 @@ export const Members: React.FC = () => {
 					element={<MembersList />}
 				/>
 				<Route
-					path="/create"
+					path="create"
 					element={<MembersCreate />}
 				/>
 				<Route
-					path="/:id/*"
+					path=":id/*"
 					element={<MembersDetail />}
 				/>
 			</Routes>
