@@ -38,12 +38,28 @@ import type { MemberInvitationEntityReference } from '../../../../domain/src/dom
  * Resolves the acting user's member record in the given community.
  * Used to enforce self-protection guards on destructive mutations.
  */
-const getActorMemberIdForCommunity = async (context: GraphContext, communityId: string): Promise<string | null> => {
+const getActorMemberIdForCommunity = async (context: GraphContext, communityId?: string): Promise<string | null> => {
+	if (!communityId) {
+		return null;
+	}
+
 	const externalId = context.applicationServices.verifiedUser?.verifiedJwt?.sub;
-	if (!externalId) return null;
-	const members = await context.applicationServices.Community.Member.queryByEndUserExternalId({ externalId });
-	const found = members.find((m) => String(m.communityId) === String(communityId));
-	return found ? String(found.id) : null;
+	if (!externalId) {
+		return null;
+	}
+
+	const queryByEndUserExternalId = context.applicationServices.Community.Member.queryByEndUserExternalId;
+	if (typeof queryByEndUserExternalId !== 'function') {
+		return null;
+	}
+
+	try {
+		const members = await queryByEndUserExternalId({ externalId });
+		const found = members.find((m) => String(m.communityId) === String(communityId));
+		return found ? String(found.id) : null;
+	} catch {
+		return null;
+	}
 };
 
 const toGraphQLInvitation = (inv: MemberInvitationEntityReference) => ({
@@ -229,14 +245,16 @@ const member: Resolvers = {
 				}
 
 				const targetMember = await context.applicationServices.Community.Member.queryById({ id: args.input.memberId });
-				const actorMemberId = await getActorMemberIdForCommunity(context, String(targetMember.communityId));
-				if (actorMemberId && actorMemberId === String(args.input.memberId)) {
-					return {
-						status: {
-							success: false,
-							errorMessage: 'You cannot deactivate your own membership.',
-						},
-					};
+				if (targetMember?.communityId) {
+					const actorMemberId = await getActorMemberIdForCommunity(context, String(targetMember.communityId));
+					if (actorMemberId && actorMemberId === String(args.input.memberId)) {
+						return {
+							status: {
+								success: false,
+								errorMessage: 'You cannot deactivate your own membership.',
+							},
+						};
+					}
 				}
 
 				const command: DeactivateMemberCommand = {
@@ -276,14 +294,16 @@ const member: Resolvers = {
 				}
 
 				const targetMember = await context.applicationServices.Community.Member.queryById({ id: args.input.memberId });
-				const actorMemberId = await getActorMemberIdForCommunity(context, String(targetMember.communityId));
-				if (actorMemberId && actorMemberId === String(args.input.memberId)) {
-					return {
-						status: {
-							success: false,
-							errorMessage: 'You cannot remove your own membership.',
-						},
-					};
+				if (targetMember?.communityId) {
+					const actorMemberId = await getActorMemberIdForCommunity(context, String(targetMember.communityId));
+					if (actorMemberId && actorMemberId === String(args.input.memberId)) {
+						return {
+							status: {
+								success: false,
+								errorMessage: 'You cannot remove your own membership.',
+							},
+						};
+					}
 				}
 
 				const command: RemoveMemberCommand = {
@@ -356,7 +376,7 @@ const member: Resolvers = {
 					};
 				}
 
-				const communityId = args.input.communityId;
+				const communityId = args.input.communityId ? String(args.input.communityId) : undefined;
 				const actorMemberId = await getActorMemberIdForCommunity(context, communityId);
 				const filteredMemberIds = actorMemberId
 					? args.input.memberIds.filter((id) => String(id) !== actorMemberId)
@@ -412,7 +432,7 @@ const member: Resolvers = {
 					};
 				}
 
-				const communityId = args.input.communityId;
+				const communityId = args.input.communityId ? String(args.input.communityId) : undefined;
 				const actorMemberId = await getActorMemberIdForCommunity(context, communityId);
 				const filteredMemberIds = actorMemberId
 					? args.input.memberIds.filter((id) => String(id) !== actorMemberId)
