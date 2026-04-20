@@ -4,6 +4,18 @@ query MemberProfileContainerMemberProfile($id: ObjectID!) {
 	}
 }
 
+mutation MemberProfileContainerMemberUpdateProfile($input: MemberUpdateProfileInput!) {
+	memberUpdateProfile(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		member {
+			...MemberProfileContainerMemberFields
+		}
+	}
+}
+
 fragment MemberProfileContainerMemberFields on Member {
 	id
 	memberName
