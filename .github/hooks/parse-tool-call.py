@@ -7,7 +7,8 @@ Reads JSON from stdin. Prints two lines to stdout:
 
 Agent detection priority:
   1. toolName IS a known agent name
-  2. Structured arg field (agent, agent_type, name, etc.) matches an agent
+  2. Agent-specific structured arg field (agent, agent_type, agentName, etc.)
+     matches an agent
   3. Earliest text occurrence of agent name (only for delegation-style tool names)
 """
 
@@ -96,7 +97,7 @@ def main():
     if not agent_name and isinstance(tool_args, dict):
         for field in (
             "agent", "agent_type", "agentName", "agent_name",
-            "agentId", "name", "type", "role", "subagent",
+            "agentId", "subagent", "customAgent",
         ):
             val = str(tool_args.get(field, "")).strip().lower()
             if val:

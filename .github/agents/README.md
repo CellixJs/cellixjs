@@ -117,7 +117,7 @@ an agent definition updates both the parser and the hook automatically.
 
 The hook recognizes agent delegations via three methods (in priority order):
 1. `toolName` matches a known agent name (e.g., `"planner"`, `"reviewer"`) — **authoritative**, overrides arg scanning
-2. Structured arg field (`agent`, `agent_type`, `agentName`, `name`, etc.) matches an agent — **reliable**, checked before text
+2. Structured arg field (`agent`, `agent_type`, `agentName`, `agent_name`, `agentId`, `subagent`, `customAgent`) matches an agent — **reliable**, checked before text
 3. Earliest occurrence of agent name in full arg text — **last resort**, handles unstructured payloads
 
 All matching is case-insensitive. When the CLI wraps delegations in a generic tool (like `"task"`), structured fields in Priority 2 ensure correct routing even when prompts mention multiple agents.
@@ -129,7 +129,15 @@ AGENT_WORKFLOW_DEBUG=1 gh copilot agent orchestrator "..."
 ```
 
 ### Stale state from previous session
-Clear state manually:
+If a previous run ended unexpectedly, request a reset before starting a fresh top-level session:
 ```bash
-rm -f .agents-work/current/{phase,plan.md,review.ok,review.feedback,hook-debug.log}
+mkdir -p .agents-work/current
+touch .agents-work/current/reset.requested
+```
+
+The next `sessionStart` hook clears the workflow state and removes `reset.requested`.
+
+You can also force the same reset with an environment override:
+```bash
+AGENT_WORKFLOW_FORCE_RESET=1 gh copilot agent orchestrator "..."
 ```

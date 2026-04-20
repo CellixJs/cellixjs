@@ -22,7 +22,7 @@
 set -euo pipefail
 
 GATE_STATE_FILES=(phase plan.md implementer.done review.ok review.feedback)
-INFO_STATE_FILES=(security.ok security.blocked workflow.session session.started)
+INFO_STATE_FILES=(security.ok security.blocked workflow.session reset.requested session.started)
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
