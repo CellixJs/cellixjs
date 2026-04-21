@@ -1,8 +1,8 @@
-import express from 'express';
-import rateLimit from 'express-rate-limit';
-import { SignJWT, exportJWK, exportPKCS8, generateKeyPair, errors as joseErrors, jwtVerify, type JWK } from 'jose';
 import crypto, { type KeyObject, type webcrypto } from 'node:crypto';
 import type { Server } from 'node:http';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import { exportJWK, exportPKCS8, generateKeyPair, type JWK, errors as joseErrors, jwtVerify, SignJWT } from 'jose';
 
 interface TokenProfile {
 	aud: string;
@@ -478,4 +478,30 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 
 		server.on('error', reject);
 	});
+}
+
+export function createMockOAuth2Manager(): {
+	register(name: string, config: MockOAuth2ServerConfig): Promise<MockOAuth2ServerHandle & { baseUrl: string; name: string }>;
+	stopAll(): Promise<void>;
+} {
+	const handles = new Map<string, MockOAuth2ServerHandle>();
+
+	return {
+		async register(name: string, config: MockOAuth2ServerConfig) {
+			if (handles.has(name)) throw new Error(`Registration with name ${name} already exists`);
+			const handle = await startMockOAuth2Server(config);
+			handles.set(name, handle);
+			return Object.assign({}, handle, { baseUrl: config.baseUrl, name });
+		},
+		async stopAll() {
+			const stops: Promise<void>[] = [];
+			for (const [, h] of handles.entries()) {
+				if (h?.disposer && typeof h.disposer.stop === 'function') {
+					stops.push(h.disposer.stop());
+				}
+			}
+			await Promise.all(stops);
+			handles.clear();
+		},
+	};
 }
