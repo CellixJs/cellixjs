@@ -14,10 +14,6 @@ import type {
 	MutationBulkRemoveMembersArgs,
 	MutationInviteMemberArgs,
 	MutationBulkInviteMembersArgs,
-	MutationActivateMembersBulkArgs,
-	MutationDeactivateMembersBulkArgs,
-	MutationRemoveMembersBulkArgs,
-	MutationInviteMembersBulkArgs,
 	MutationMemberRoleUpdateArgs,
 	MutationMemberUpdateProfileArgs,
 } from '../builder/generated.ts';
@@ -558,123 +554,6 @@ const member: Resolvers = {
 					invitations: [],
 					successCount: 0,
 					failedCount: args.input.invitations.length,
-				};
-			}
-		},
-
-		// Additional bulk operations for the new mutation names
-
-		activateMembersBulk(_parent: unknown, args: MutationActivateMembersBulkArgs, context: GraphContext) {
-			try {
-				// Validate authentication and permissions (same as activateMembers)
-				if (!context.applicationServices.verifiedUser?.verifiedJwt?.sub) {
-					throw new Error('User not authenticated');
-				}
-
-				return {
-					status: {
-						success: false,
-						errorMessage: 'Activate members bulk functionality not yet implemented',
-					},
-					results: args.input.memberIds.map((memberId) => ({
-						memberId,
-						success: false,
-						errorMessage: 'Not implemented',
-					})),
-				};
-			} catch (error: unknown) {
-				return {
-					status: {
-						success: false,
-						errorMessage: error instanceof Error ? error.message : 'Failed to activate members',
-					},
-					results: [],
-				};
-			}
-		},
-
-		deactivateMembersBulk(_parent: unknown, args: MutationDeactivateMembersBulkArgs, context: GraphContext) {
-			try {
-				// Validate authentication and permissions
-				if (!context.applicationServices.verifiedUser?.verifiedJwt?.sub) {
-					throw new Error('User not authenticated');
-				}
-
-				return {
-					status: {
-						success: false,
-						errorMessage: 'Deactivate members bulk functionality not yet implemented',
-					},
-					results: args.input.memberIds.map((memberId) => ({
-						memberId,
-						success: false,
-						errorMessage: 'Not implemented',
-					})),
-				};
-			} catch (error: unknown) {
-				return {
-					status: {
-						success: false,
-						errorMessage: error instanceof Error ? error.message : 'Failed to deactivate members',
-					},
-					results: [],
-				};
-			}
-		},
-
-		removeMembersBulk(_parent: unknown, args: MutationRemoveMembersBulkArgs, context: GraphContext) {
-			try {
-				// Validate authentication and permissions
-				if (!context.applicationServices.verifiedUser?.verifiedJwt?.sub) {
-					throw new Error('User not authenticated');
-				}
-
-				return {
-					status: {
-						success: false,
-						errorMessage: 'Remove members bulk functionality not yet implemented',
-					},
-					results: args.input.memberIds.map((memberId) => ({
-						memberId,
-						success: false,
-						errorMessage: 'Not implemented',
-					})),
-				};
-			} catch (error: unknown) {
-				return {
-					status: {
-						success: false,
-						errorMessage: error instanceof Error ? error.message : 'Failed to remove members',
-					},
-					results: [],
-				};
-			}
-		},
-
-		inviteMembersBulk(_parent: unknown, args: MutationInviteMembersBulkArgs, _context: GraphContext) {
-			try {
-				// TODO: Implement bulk member invitation
-				// This is a placeholder implementation for UI completeness
-				const { emails } = args.input;
-
-				return {
-					status: {
-						success: false,
-						errorMessage: 'Bulk member invitation functionality not yet implemented',
-					},
-					results: emails.map((email: string) => ({
-						email,
-						success: false,
-						errorMessage: 'Not implemented',
-					})),
-				};
-			} catch (error: unknown) {
-				return {
-					status: {
-						success: false,
-						errorMessage: error instanceof Error ? error.message : 'Failed to invite members',
-					},
-					results: [],
 				};
 			}
 		},

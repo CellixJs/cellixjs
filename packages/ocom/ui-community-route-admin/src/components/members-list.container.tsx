@@ -75,7 +75,6 @@ export const MemberListContainer: React.FC = () => {
 				variables: {
 					input: {
 						memberId,
-						communityId: communityId ?? '',
 					},
 				},
 			});
@@ -95,7 +94,6 @@ export const MemberListContainer: React.FC = () => {
 		try {
 			const input = {
 				memberId,
-				communityId: communityId ?? '',
 				...(reason !== undefined ? { reason } : {}),
 			};
 			const result = await deactivateMemberMutation({
@@ -119,7 +117,6 @@ export const MemberListContainer: React.FC = () => {
 		try {
 			const input = {
 				memberId,
-				communityId: communityId ?? '',
 				...(reason !== undefined ? { reason } : {}),
 			};
 			const result = await removeMemberMutation({
@@ -244,7 +241,6 @@ export const MemberListContainer: React.FC = () => {
 
 	const memberListProps: MemberListProps = {
 		data: (membersData?.membersByCommunityId ?? []) as AdminMemberListContainerMemberFieldsFragment[],
-		...(communityId !== undefined ? { communityId } : {}),
 		currentMemberId: membersData?.memberForCurrentCommunity?.id ? String(membersData.memberForCurrentCommunity.id) : null,
 		onActivateMember: handleActivateMember,
 		onDeactivateMember: handleDeactivateMember,

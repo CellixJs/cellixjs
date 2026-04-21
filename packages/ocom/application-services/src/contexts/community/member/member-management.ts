@@ -112,6 +112,7 @@ export const bulkInviteMembers = (dataSources: DataSources) => {
 		expiresAt.setDate(expiresAt.getDate() + expiresInDays);
 
 		const invitations: Domain.Contexts.Community.Member.MemberInvitationEntityReference[] = [];
+		const errors: { email: string; error: unknown }[] = [];
 
 		await dataSources.domainDataSource.Community.Member.MemberInvitationUnitOfWork.withScopedTransaction(async (repository) => {
 			for (const inv of command.invitations) {
@@ -120,10 +121,14 @@ export const bulkInviteMembers = (dataSources: DataSources) => {
 					const saved = await repository.save(newInvitation);
 					invitations.push(saved);
 				} catch (error) {
-					console.error(`Failed to create invitation for ${inv.email}:`, error);
+					errors.push({ email: inv.email, error });
 				}
 			}
 		});
+
+		if (errors.length > 0 && invitations.length === 0) {
+			throw new Error(`Failed to create all invitations: ${errors.map((e) => e.email).join(', ')}`);
+		}
 
 		return invitations;
 	};
@@ -133,20 +138,7 @@ export const bulkInviteMembers = (dataSources: DataSources) => {
 
 export const updateMemberRole = (dataSources: DataSources) => {
 	return async (command: UpdateMemberRoleCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
-		let updatedMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
-		let communityId: string | undefined;
-
-		// First, get the member to derive the communityId
-		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (memberRepository) => {
-			const member = await memberRepository.getById(command.memberId);
-			communityId = member.props.communityId;
-		});
-
-		if (!communityId) {
-			throw new Error('Unable to determine community from member');
-		}
-
-		// Then, get and validate the role using the derived communityId
+		// Fetch and validate the target role first (read-only, cheap check before opening the write transaction)
 		let newRole: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference | undefined;
 
 		await dataSources.domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withScopedTransaction(async (roleRepo) => {
@@ -157,23 +149,21 @@ export const updateMemberRole = (dataSources: DataSources) => {
 			throw new Error('Role not found');
 		}
 
-		// Verify role belongs to the same community as the member
-		if (newRole.community.id !== communityId) {
-			throw new Error('Role does not belong to the same community as the member');
-		}
+		// Update the member and validate community ownership within a single transaction
+		let updatedMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
 
-		// Now update the member with the validated role
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (memberRepository) => {
-			// Get the member again
 			const member = await memberRepository.getById(command.memberId);
 
-			// Update the member's role
+			if (String(newRole?.community.id) !== String(member.communityId)) {
+				throw new Error('Role does not belong to the same community as the member');
+			}
+
 			if (!newRole) {
 				throw new Error('Role validation failed');
 			}
-			member.role = newRole;
 
-			// Save the updated member
+			member.role = newRole;
 			updatedMember = await memberRepository.save(member);
 		});
 
@@ -275,21 +265,24 @@ export interface BulkRemoveMembersCommand {
 export const bulkActivateMembers = (dataSources: DataSources) => {
 	return async (command: BulkActivateMembersCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> => {
 		const results: Domain.Contexts.Community.Member.MemberEntityReference[] = [];
+		const errors: { memberId: string; error: unknown }[] = [];
 
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
 			for (const memberId of command.memberIds) {
 				try {
 					const member = await repository.getById(memberId);
-
 					member.requestActivateMember();
 					const activatedMember = await repository.save(member);
 					results.push(activatedMember);
 				} catch (error) {
-					// Log error and continue with other members
-					console.error(`Failed to activate member ${memberId}:`, error);
+					errors.push({ memberId, error });
 				}
 			}
 		});
+
+		if (errors.length > 0 && results.length === 0) {
+			throw new Error(`Failed to activate all members: ${errors.map((e) => e.memberId).join(', ')}`);
+		}
 
 		return results;
 	};
@@ -298,21 +291,24 @@ export const bulkActivateMembers = (dataSources: DataSources) => {
 export const bulkDeactivateMembers = (dataSources: DataSources) => {
 	return async (command: BulkDeactivateMembersCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> => {
 		const results: Domain.Contexts.Community.Member.MemberEntityReference[] = [];
+		const errors: { memberId: string; error: unknown }[] = [];
 
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
 			for (const memberId of command.memberIds) {
 				try {
 					const member = await repository.getById(memberId);
-
 					member.requestDeactivateMember();
 					const deactivatedMember = await repository.save(member);
 					results.push(deactivatedMember);
 				} catch (error) {
-					// Log error and continue with other members
-					console.error(`Failed to deactivate member ${memberId}:`, error);
+					errors.push({ memberId, error });
 				}
 			}
 		});
+
+		if (errors.length > 0 && results.length === 0) {
+			throw new Error(`Failed to deactivate all members: ${errors.map((e) => e.memberId).join(', ')}`);
+		}
 
 		return results;
 	};
@@ -320,19 +316,23 @@ export const bulkDeactivateMembers = (dataSources: DataSources) => {
 
 export const bulkRemoveMembers = (dataSources: DataSources) => {
 	return async (command: BulkRemoveMembersCommand): Promise<void> => {
+		const errors: { memberId: string; error: unknown }[] = [];
+
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
 			for (const memberId of command.memberIds) {
 				try {
 					const member = await repository.getById(memberId);
-
 					member.requestRemoveMember();
 					await repository.save(member);
 				} catch (error) {
-					// Log error and continue with other members
-					console.error(`Failed to remove member ${memberId}:`, error);
+					errors.push({ memberId, error });
 				}
 			}
 		});
+
+		if (errors.length > 0) {
+			throw new Error(`Failed to remove member(s): ${errors.map((e) => e.memberId).join(', ')}`);
+		}
 	};
 };
 

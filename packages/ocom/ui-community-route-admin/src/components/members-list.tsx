@@ -40,7 +40,6 @@ const statusDisplayMap: Record<MemberStatusFilter, { label: string; color: strin
 
 export interface MemberListProps {
 	data: AdminMemberListContainerMemberFieldsFragment[];
-	communityId?: string;
 	currentMemberId?: string | null;
 	onActivateMember?: (memberId: string, reason?: string) => Promise<void>;
 	onDeactivateMember?: (memberId: string, reason?: string) => Promise<void>;

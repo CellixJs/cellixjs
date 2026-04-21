@@ -67,12 +67,6 @@ extend type Mutation {
 	bulkDeactivateMembers(input: BulkDeactivateMembersInput!): BulkMemberMutationResult!
 	bulkRemoveMembers(input: BulkRemoveMembersInput!): BulkMemberMutationResult!
 
-	# Additional Member Management Operations
-	inviteMembersBulk(input: InviteMembersBulkInput!): InviteMembersBulkPayload!
-	activateMembersBulk(input: ActivateMembersBulkInput!): ActivateMembersBulkPayload!
-	deactivateMembersBulk(input: DeactivateMembersBulkInput!): DeactivateMembersBulkPayload!
-	removeMembersBulk(input: RemoveMembersBulkInput!): RemoveMembersBulkPayload!
-
 	# Role Management
 	memberRoleUpdate(input: UpdateMemberRoleInput!): MemberMutationResult!
 }
@@ -143,18 +137,15 @@ input MemberUpdateProfileInput {
 
 input ActivateMemberInput {
 	memberId: ObjectID!
-	communityId: ObjectID!
 }
 
 input DeactivateMemberInput {
 	memberId: ObjectID!
-	communityId: ObjectID!
 	reason: String
 }
 
 input RemoveMemberInput {
 	memberId: ObjectID!
-	communityId: ObjectID!
 	reason: String
 }
 
@@ -193,60 +184,6 @@ input BulkInviteMembersInput {
 input MemberInvitationInput {
 	email: String!
 	message: String
-}
-
-# Additional Bulk Operation Input/Output Types
-
-input InviteMembersBulkInput {
-	emails: [String!]!
-	message: String
-}
-
-type InviteMembersBulkPayload {
-	status: MutationStatus!
-	results: [InviteMembersBulkResult!]!
-}
-
-type InviteMembersBulkResult {
-	email: String!
-	success: Boolean!
-	errorMessage: String
-}
-
-input ActivateMembersBulkInput {
-	memberIds: [String!]!
-	reason: String!
-}
-
-type ActivateMembersBulkPayload {
-	status: MutationStatus!
-	results: [MemberBulkOperationResult!]!
-}
-
-input DeactivateMembersBulkInput {
-	memberIds: [String!]!
-	reason: String!
-}
-
-type DeactivateMembersBulkPayload {
-	status: MutationStatus!
-	results: [MemberBulkOperationResult!]!
-}
-
-input RemoveMembersBulkInput {
-	memberIds: [String!]!
-	reason: String!
-}
-
-type RemoveMembersBulkPayload {
-	status: MutationStatus!
-	results: [MemberBulkOperationResult!]!
-}
-
-type MemberBulkOperationResult {
-	memberId: String!
-	success: Boolean!
-	errorMessage: String
 }
 
 # Role Management Input Types
