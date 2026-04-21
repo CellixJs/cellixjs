@@ -1,12 +1,13 @@
 import { SearchOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
-import { Button, Input, Select, Space, Table, Tag, Typography } from 'antd';
+import { Button, Input, Modal, Select, Space, Table, Tag, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import type { AdminMemberListContainerMemberFieldsFragment } from '../generated.tsx';
 
 const { Title, Text } = Typography;
 
 type MemberStatusFilter = 'all' | 'active' | 'invited' | 'inactive' | 'unknown';
+type BulkActionType = 'deactivate' | 'remove';
 
 const getMemberStatus = (member: AdminMemberListContainerMemberFieldsFragment): MemberStatusFilter => {
 	const normalizedStatuses = member.accounts.map((account) => account.statusCode?.toUpperCase()).filter((status): status is string => Boolean(status));
@@ -45,8 +46,8 @@ export interface MemberListProps {
 	onDeactivateMember?: (memberId: string, reason?: string) => Promise<void>;
 	onRemoveMember?: (memberId: string, reason?: string) => Promise<boolean>;
 	onBulkActivateMembers?: (memberIds: string[]) => Promise<boolean>;
-	onBulkDeactivateMembers?: (memberIds: string[], reason: string) => Promise<boolean>;
-	onBulkRemoveMembers?: (memberIds: string[], reason: string) => Promise<boolean>;
+	onBulkDeactivateMembers?: (memberIds: string[], reason?: string) => Promise<boolean>;
+	onBulkRemoveMembers?: (memberIds: string[], reason?: string) => Promise<boolean>;
 	onInviteMember?: () => void;
 	onMemberEdit?: (memberId: string) => void;
 	loading?: boolean;
@@ -58,6 +59,9 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>('all');
 	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
+	const [bulkActionModalOpen, setBulkActionModalOpen] = useState(false);
+	const [bulkActionType, setBulkActionType] = useState<BulkActionType>('deactivate');
+	const [bulkActionReason, setBulkActionReason] = useState('');
 
 	const filteredData = useMemo(() => {
 		const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -78,18 +82,26 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 		}
 	};
 
-	const handleBulkDeactivate = async () => {
-		const success = await onBulkDeactivateMembers?.(selectedMemberIds, 'Bulk deactivation from member list');
+	const closeBulkActionModal = () => {
+		setBulkActionModalOpen(false);
+		setBulkActionReason('');
+	};
+
+	const handleBulkActionConfirm = async () => {
+		const reason = bulkActionReason.trim();
+		const success = bulkActionType === 'deactivate'
+			? await onBulkDeactivateMembers?.(selectedMemberIds, reason.length > 0 ? reason : undefined)
+			: await onBulkRemoveMembers?.(selectedMemberIds, reason.length > 0 ? reason : undefined);
 		if (success) {
 			clearSelection();
+			closeBulkActionModal();
 		}
 	};
 
-	const handleBulkRemove = async () => {
-		const success = await onBulkRemoveMembers?.(selectedMemberIds, 'Bulk remove from member list');
-		if (success) {
-			clearSelection();
-		}
+	const openBulkActionModal = (action: BulkActionType) => {
+		setBulkActionType(action);
+		setBulkActionReason('');
+		setBulkActionModalOpen(true);
 	};
 
 	const handleRemoveMember = async (memberId: string) => {
@@ -246,14 +258,14 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 							Activate Selected
 						</Button>
 						<Button
-							onClick={handleBulkDeactivate}
+							onClick={() => openBulkActionModal('deactivate')}
 							loading={isLoading}
 						>
 							Deactivate Selected
 						</Button>
 						<Button
 							danger
-							onClick={handleBulkRemove}
+							onClick={() => openBulkActionModal('remove')}
 							loading={isLoading}
 						>
 							Remove Selected
@@ -281,6 +293,35 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 					showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} filtered members`,
 				}}
 			/>
+			<Modal
+				open={bulkActionModalOpen}
+				title={bulkActionType === 'deactivate' ? 'Deactivate selected members?' : 'Remove selected members?'}
+				okText={bulkActionType === 'deactivate' ? 'Deactivate Members' : 'Remove Members'}
+				okButtonProps={bulkActionType === 'remove' ? { danger: true } : {}}
+				confirmLoading={isLoading}
+				onCancel={closeBulkActionModal}
+				onOk={() => void handleBulkActionConfirm()}
+			>
+				<Space
+					direction="vertical"
+					size="small"
+					style={{ width: '100%' }}
+				>
+					<Text>
+						{bulkActionType === 'deactivate'
+							? `This will deactivate ${selectedMemberIds.length} selected member(s).`
+							: `This will remove ${selectedMemberIds.length} selected member(s).`}
+					</Text>
+					<Input.TextArea
+						value={bulkActionReason}
+						onChange={(event) => setBulkActionReason(event.target.value)}
+						placeholder="Optional reason for audit log"
+						rows={3}
+						maxLength={500}
+						showCount
+					/>
+				</Space>
+			</Modal>
 		</Space>
 	);
 };

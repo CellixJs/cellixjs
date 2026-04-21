@@ -12,6 +12,7 @@ function createContext(): GraphContext {
 				Member: {
 					queryById: vi.fn(),
 					queryByCommunityId: vi.fn(),
+					queryByEndUserExternalId: vi.fn(),
 					createMember: vi.fn(),
 					activateMember: vi.fn(),
 					deactivateMember: vi.fn(),
@@ -139,18 +140,20 @@ describe('member resolvers additional coverage', () => {
 
 	it('handles bulk activate/deactivate/remove members branches', async () => {
 		const context = createContext();
-		const bulkActivate = memberResolvers.Mutation?.bulkActivateMembers as (parent: unknown, args: { input: { memberIds: readonly string[] } }, context: GraphContext, info: unknown) => Promise<unknown>;
-		const bulkDeactivate = memberResolvers.Mutation?.bulkDeactivateMembers as (parent: unknown, args: { input: { memberIds: readonly string[]; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
-		const bulkRemove = memberResolvers.Mutation?.bulkRemoveMembers as (parent: unknown, args: { input: { memberIds: readonly string[]; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
+		const bulkActivate = memberResolvers.Mutation?.bulkActivateMembers as (parent: unknown, args: { input: { memberIds: readonly string[]; communityId: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
+		const bulkDeactivate = memberResolvers.Mutation?.bulkDeactivateMembers as (parent: unknown, args: { input: { memberIds: readonly string[]; communityId: string; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
+		const bulkRemove = memberResolvers.Mutation?.bulkRemoveMembers as (parent: unknown, args: { input: { memberIds: readonly string[]; communityId: string; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
 
 		vi.mocked(context.applicationServices.Community.Member.bulkActivateMembers).mockResolvedValue([{ id: 'm1' }] as never);
 		vi.mocked(context.applicationServices.Community.Member.bulkDeactivateMembers).mockResolvedValue([{ id: 'm1' }] as never);
 		vi.mocked(context.applicationServices.Community.Member.bulkRemoveMembers).mockResolvedValue(undefined as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'self', communityId: 'community-1' }] as never);
 
-		await expect(bulkActivate(null, { input: { memberIds: ['m1', 'm2'] } }, context, {})).resolves.toMatchObject({ status: { success: true }, successCount: 1, failedCount: 1 });
-		await expect(bulkDeactivate(null, { input: { memberIds: ['m1', 'm2'], reason: 'policy' } }, context, {})).resolves.toMatchObject({ status: { success: true }, successCount: 1, failedCount: 1 });
+		await expect(bulkActivate(null, { input: { memberIds: ['self', 'm1'], communityId: 'community-1' } }, context, {})).resolves.toMatchObject({ status: { success: true }, successCount: 1, failedCount: 1 });
+		expect(context.applicationServices.Community.Member.bulkActivateMembers).toHaveBeenCalledWith({ memberIds: ['m1'] });
+		await expect(bulkDeactivate(null, { input: { memberIds: ['m1', 'm2'], communityId: 'community-1', reason: 'policy' } }, context, {})).resolves.toMatchObject({ status: { success: true }, successCount: 1, failedCount: 1 });
 		expect(context.applicationServices.Community.Member.bulkDeactivateMembers).toHaveBeenCalledWith({ memberIds: ['m1', 'm2'], reason: 'policy' });
-		await expect(bulkRemove(null, { input: { memberIds: ['m1', 'm2'], reason: 'policy' } }, context, {})).resolves.toMatchObject({
+		await expect(bulkRemove(null, { input: { memberIds: ['m1', 'm2'], communityId: 'community-1', reason: 'policy' } }, context, {})).resolves.toMatchObject({
 			status: { success: true },
 			members: [],
 			successCount: 2,
@@ -158,7 +161,14 @@ describe('member resolvers additional coverage', () => {
 		});
 
 		vi.mocked(context.applicationServices.Community.Member.bulkRemoveMembers).mockRejectedValue(new Error('bulk remove failed'));
-		await expect(bulkRemove(null, { input: { memberIds: ['m1'] } }, context, {})).resolves.toMatchObject({ status: { success: false, errorMessage: 'bulk remove failed' } });
+		await expect(bulkRemove(null, { input: { memberIds: ['m1'], communityId: 'community-1' } }, context, {})).resolves.toMatchObject({ status: { success: false, errorMessage: 'bulk remove failed' } });
+
+		await expect(bulkActivate(null, { input: { memberIds: ['self'], communityId: 'community-1' } }, context, {})).resolves.toMatchObject({
+			status: { success: false, errorMessage: 'No eligible members to activate.' },
+			members: [],
+			successCount: 0,
+			failedCount: 1,
+		});
 	});
 
 	it('handles invite and bulk invite branches and invitation mapping', async () => {

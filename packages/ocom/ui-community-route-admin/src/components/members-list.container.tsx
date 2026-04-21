@@ -167,15 +167,16 @@ export const MemberListContainer: React.FC = () => {
 		return false;
 	};
 
-	const handleBulkDeactivateMembers = async (memberIds: string[], reason: string): Promise<boolean> => {
+	const handleBulkDeactivateMembers = async (memberIds: string[], reason?: string): Promise<boolean> => {
 		try {
+			const input = {
+				memberIds: [...memberIds],
+				communityId: communityId ?? '',
+				...(reason !== undefined ? { reason } : {}),
+			};
 			const result = await bulkDeactivateMembersMutation({
 				variables: {
-					input: {
-						memberIds: [...memberIds],
-						communityId: communityId ?? '',
-						reason,
-					},
+					input,
 				},
 			});
 
@@ -197,15 +198,16 @@ export const MemberListContainer: React.FC = () => {
 		return false;
 	};
 
-	const handleBulkRemoveMembers = async (memberIds: string[], reason: string): Promise<boolean> => {
+	const handleBulkRemoveMembers = async (memberIds: string[], reason?: string): Promise<boolean> => {
 		try {
+			const input = {
+				memberIds: [...memberIds],
+				communityId: communityId ?? '',
+				...(reason !== undefined ? { reason } : {}),
+			};
 			const result = await bulkRemoveMembersMutation({
 				variables: {
-					input: {
-						memberIds: [...memberIds],
-						communityId: communityId ?? '',
-						reason,
-					},
+					input,
 				},
 			});
 

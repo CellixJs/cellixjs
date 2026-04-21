@@ -340,8 +340,26 @@ const member: Resolvers = {
 					};
 				}
 
+				const communityId = args.input.communityId ? String(args.input.communityId) : undefined;
+				const actorMemberId = await getActorMemberIdForCommunity(context, communityId);
+				const filteredMemberIds = actorMemberId
+					? args.input.memberIds.filter((id) => String(id) !== actorMemberId)
+					: [...args.input.memberIds];
+
+				if (filteredMemberIds.length === 0) {
+					return {
+						status: {
+							success: false,
+							errorMessage: 'No eligible members to activate.',
+						},
+						members: [],
+						successCount: 0,
+						failedCount: args.input.memberIds.length,
+					};
+				}
+
 				const members = await context.applicationServices.Community.Member.bulkActivateMembers({
-					memberIds: [...args.input.memberIds], // Convert readonly to mutable array
+					memberIds: filteredMemberIds,
 				});
 
 				return {
