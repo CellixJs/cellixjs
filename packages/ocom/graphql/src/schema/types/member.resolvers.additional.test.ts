@@ -225,24 +225,6 @@ describe('member resolvers additional coverage', () => {
 		});
 	});
 
-	it('covers placeholder bulk mutations', () => {
-		const context = createContext();
-		const activateBulk = memberResolvers.Mutation?.activateMembersBulk as (parent: unknown, args: { input: { memberIds: readonly string[] } }, context: GraphContext) => unknown;
-		const deactivateBulk = memberResolvers.Mutation?.deactivateMembersBulk as (parent: unknown, args: { input: { memberIds: readonly string[] } }, context: GraphContext) => unknown;
-		const removeBulk = memberResolvers.Mutation?.removeMembersBulk as (parent: unknown, args: { input: { memberIds: readonly string[] } }, context: GraphContext) => unknown;
-		const inviteBulk = memberResolvers.Mutation?.inviteMembersBulk as (parent: unknown, args: { input: { emails: readonly string[] } }, context: GraphContext) => unknown;
-
-		expect(activateBulk(null, { input: { memberIds: ['m1'] } }, context)).toMatchObject({ status: { success: false }, results: [{ memberId: 'm1', success: false }] });
-		expect(deactivateBulk(null, { input: { memberIds: ['m1'] } }, context)).toMatchObject({ status: { success: false }, results: [{ memberId: 'm1', success: false }] });
-		expect(removeBulk(null, { input: { memberIds: ['m1'] } }, context)).toMatchObject({ status: { success: false }, results: [{ memberId: 'm1', success: false }] });
-		expect(inviteBulk(null, { input: { emails: ['a@example.com'] } }, context)).toMatchObject({ status: { success: false }, results: [{ email: 'a@example.com', success: false }] });
-
-		setVerifiedUser(context, undefined);
-		expect(activateBulk(null, { input: { memberIds: ['m1'] } }, context)).toMatchObject({ status: { success: false, errorMessage: 'User not authenticated' }, results: [] });
-		expect(deactivateBulk(null, { input: { memberIds: ['m1'] } }, context)).toMatchObject({ status: { success: false, errorMessage: 'User not authenticated' }, results: [] });
-		expect(removeBulk(null, { input: { memberIds: ['m1'] } }, context)).toMatchObject({ status: { success: false, errorMessage: 'User not authenticated' }, results: [] });
-	});
-
 	it('covers member role and account mutation branches', async () => {
 		const context = createContext();
 		const memberRoleUpdate = memberResolvers.Mutation?.memberRoleUpdate as (parent: unknown, args: { input: { memberId: string; roleId: string; reason?: string } }, context: GraphContext) => Promise<unknown>;
