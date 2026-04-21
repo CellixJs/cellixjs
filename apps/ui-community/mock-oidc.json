@@ -1,13 +1,14 @@
 {
 	"name": "community",
-	"baseUrl": "https://mock-auth.ownercommunity.localhost:1355",
-	"clientId": "mock-client",
-	"redirectUri": "https://ownercommunity.localhost:1355/auth-redirect",
+	"envVars": {
+		"clientId": "VITE_AAD_B2C_ACCOUNT_CLIENTID",
+		"redirectUri": "VITE_AAD_B2C_REDIRECT_URI"
+	},
 	"claims": {
 		"sub": "00000000-0000-0000-0000-000000000001",
-		"email": "test@example.com",
-		"given_name": "Test",
-		"family_name": "User",
+		"email": "john.doe@example.com",
+		"given_name": "John",
+		"family_name": "Doe",
 		"tid": "test-tenant-id"
 	}
 }

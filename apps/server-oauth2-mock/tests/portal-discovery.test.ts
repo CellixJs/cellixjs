@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { discoverPortalConfigs, type PortalOidcConfig } from '../src/setup-environment.js';
+import { discoverPortalConfigs } from '../src/setup-environment.js';
 
 function makeTempAppsDir() {
 	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'server-oauth2-mock-tests-'));
@@ -13,6 +13,12 @@ function writeJson(dir: string, relPath: string, obj: unknown) {
 	const p = path.join(dir, relPath);
 	fs.mkdirSync(path.dirname(p), { recursive: true });
 	fs.writeFileSync(p, JSON.stringify(obj, null, 2), 'utf-8');
+}
+
+function writeEnv(dir: string, relPath: string, content: string) {
+	const p = path.join(dir, relPath);
+	fs.mkdirSync(path.dirname(p), { recursive: true });
+	fs.writeFileSync(p, content, 'utf-8');
 }
 
 describe('discoverPortalConfigs', () => {
@@ -35,21 +41,20 @@ describe('discoverPortalConfigs', () => {
 
 		writeJson(tmp, 'ui-a/mock-oidc.json', {
 			name: 'a',
-			baseUrl: 'https://a',
-			clientId: 'cid-a',
-			redirectUri: 'https://a/redirect',
+			envVars: { clientId: 'CLIENT_A', redirectUri: 'REDIR_A' },
 			claims: { sub: '1' },
 		});
 
+		writeEnv(tmp, 'ui-a/.env', 'CLIENT_A=cid-a\nREDIR_A=https://a/redirect\n');
+
 		writeJson(tmp, 'ui-b/mock-oidc.json', {
 			name: 'b',
-			baseUrl: 'https://b',
-			clientId: 'cid-b',
-			redirectUri: 'https://b/redirect',
+			envVars: { clientId: 'CLIENT_B', redirectUri: 'REDIR_B' },
 			claims: { sub: '2' },
 		});
+		writeEnv(tmp, 'ui-b/.env', 'CLIENT_B=cid-b\nREDIR_B=https://b/redirect\n');
 
-		const portals = discoverPortalConfigs(tmp, 4000);
+		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
 		expect(portals.length).toBe(2);
 		const names = portals.map((p) => p.name).sort();
 		expect(names).toEqual(['a', 'b']);
@@ -60,17 +65,16 @@ describe('discoverPortalConfigs', () => {
 
 		writeJson(tmp, 'ui-x/mock-oidc.json', {
 			name: 'x',
-			baseUrl: 'https://x',
-			clientId: 'cid-x',
-			redirectUri: 'https://x/redirect',
+			envVars: { clientId: 'CIDX', redirectUri: 'REDIRX' },
 			claims: { sub: 'orig', email: 'orig@example.com', extra: 'keep' },
 		});
+		writeEnv(tmp, 'ui-x/.env', 'CIDX=cid-x\nREDIRX=https://x/redirect\n');
 
 		writeJson(tmp, 'ui-x/mock-oidc.local.json', {
 			claims: { email: 'local@example.com', sub: 'local' },
 		});
 
-		const portals = discoverPortalConfigs(tmp, 5000);
+		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
 		expect(portals.length).toBe(1);
 		const p = portals[0];
 		expect(p.claims.sub).toBe('local');
@@ -78,35 +82,33 @@ describe('discoverPortalConfigs', () => {
 		expect(p.claims.extra).toBe('keep');
 	});
 
-	it('assigns ports sequentially starting from portBase (sorted by dir name)', () => {
+	it('returns portals sorted alphabetically by ui-* directory name', () => {
 		if (!tmp) throw new Error('tmp not created');
 
 		writeJson(tmp, 'ui-a/mock-oidc.json', {
 			name: 'a',
-			baseUrl: 'https://a',
-			clientId: 'cid-a',
-			redirectUri: 'https://a/redirect',
+			envVars: { clientId: 'A_C', redirectUri: 'A_R' },
 			claims: { sub: '1' },
 		});
+		writeEnv(tmp, 'ui-a/.env', 'A_C=cid-a\nA_R=https://a/redirect\n');
+
 		writeJson(tmp, 'ui-c/mock-oidc.json', {
 			name: 'c',
-			baseUrl: 'https://c',
-			clientId: 'cid-c',
-			redirectUri: 'https://c/redirect',
+			envVars: { clientId: 'C_C', redirectUri: 'C_R' },
 			claims: { sub: '3' },
 		});
+		writeEnv(tmp, 'ui-c/.env', 'C_C=cid-c\nC_R=https://c/redirect\n');
+
 		writeJson(tmp, 'ui-b/mock-oidc.json', {
 			name: 'b',
-			baseUrl: 'https://b',
-			clientId: 'cid-b',
-			redirectUri: 'https://b/redirect',
+			envVars: { clientId: 'B_C', redirectUri: 'B_R' },
 			claims: { sub: '2' },
 		});
+		writeEnv(tmp, 'ui-b/.env', 'B_C=cid-b\nB_R=https://b/redirect\n');
 
-		const portals = discoverPortalConfigs(tmp, 6000);
-		// directories sorted: ui-a, ui-b, ui-c
-		const ports = portals.map((p) => p.port);
-		expect(ports).toEqual([6000, 6001, 6002]);
+		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		const names = portals.map((p) => p.name);
+		expect(names).toEqual(['a', 'b', 'c']);
 	});
 
 	it('skips invalid mock-oidc.json (missing required fields) with a warning', () => {
@@ -114,25 +116,66 @@ describe('discoverPortalConfigs', () => {
 
 		writeJson(tmp, 'ui-good/mock-oidc.json', {
 			name: 'good',
-			baseUrl: 'https://good',
-			clientId: 'cid-good',
-			redirectUri: 'https://good/redirect',
+			envVars: { clientId: 'G_C', redirectUri: 'G_R' },
 			claims: { sub: 'g' },
 		});
+		writeEnv(tmp, 'ui-good/.env', 'G_C=cid-good\nG_R=https://good/redirect\n');
 
 		// invalid: missing claims
 		writeJson(tmp, 'ui-bad/mock-oidc.json', {
 			name: 'bad',
-			baseUrl: 'https://bad',
-			clientId: 'cid-bad',
-			redirectUri: 'https://bad/redirect',
+			envVars: { clientId: 'B_C', redirectUri: 'B_R' },
 			// claims omitted
 		} as unknown as Record<string, unknown>);
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-		const portals = discoverPortalConfigs(tmp, 7000);
+		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
 		expect(portals.find((p) => p.name === 'good')).toBeDefined();
 		expect(portals.find((p) => p.name === 'bad')).toBeUndefined();
+		expect(warnSpy).toHaveBeenCalled();
+	});
+
+	it('skips portal when .env is missing with a warning', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-missing-env/mock-oidc.json', {
+			name: 'missing-env',
+			envVars: { clientId: 'M_C', redirectUri: 'M_R' },
+			claims: { sub: 'm' },
+		});
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		expect(portals.length).toBe(0);
+		expect(warnSpy).toHaveBeenCalled();
+	});
+
+	it('skips portal when env var is not present in .env with a warning', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-bad-env/mock-oidc.json', {
+			name: 'bad-env',
+			envVars: { clientId: 'X_C', redirectUri: 'X_R' },
+			claims: { sub: 'x' },
+		});
+		writeEnv(tmp, 'ui-bad-env/.env', 'OTHER=1\n');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		expect(portals.length).toBe(0);
+		expect(warnSpy).toHaveBeenCalled();
+	});
+
+	it('skips malformed mock-oidc.json with a warning', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		const p = path.join(tmp, 'ui-bad/mock-oidc.json');
+		fs.mkdirSync(path.dirname(p), { recursive: true });
+		fs.writeFileSync(p, '{ invalid json', 'utf-8');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		expect(portals.length).toBe(0);
 		expect(warnSpy).toHaveBeenCalled();
 	});
 
@@ -140,7 +183,7 @@ describe('discoverPortalConfigs', () => {
 		if (!tmp) throw new Error('tmp not created');
 
 		fs.mkdirSync(path.join(tmp, 'ui-empty'));
-		const portals = discoverPortalConfigs(tmp, 8000);
+		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
 		expect(portals.length).toBe(0);
 	});
 });

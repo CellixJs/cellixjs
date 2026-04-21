@@ -131,9 +131,8 @@ export interface MockOAuth2ServerHandle {
 	};
 }
 
-export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Promise<MockOAuth2ServerHandle> {
-	const app = express();
-	app.disable('x-powered-by');
+export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2PortalConfig): Promise<express.Router> {
+	const router = express.Router();
 
 	const { publicKey, privateKey } = await generateKeyPair('RS256');
 	const publicJwk = await exportJWK(publicKey);
@@ -162,14 +161,10 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	// empty, fall back to the configured singular value.
 	let primaryRedirectUri: string;
 	if (normalizedAllowedRedirectUris.size > 0) {
-		// Extract the first value from the Set iterator. Use a safe fallback
-		// in case the iterator yields `undefined` (defensive, though size>0
-		// should guarantee a value).
 		const iter = normalizedAllowedRedirectUris.values();
 		const first = iter.next().value;
 		primaryRedirectUri = first ?? normalizeUrl(config.allowedRedirectUri);
 		if (!first) {
-			// ensure the fallback primary is present in the normalized set
 			normalizedAllowedRedirectUris.add(primaryRedirectUri);
 		}
 	} else {
@@ -190,16 +185,15 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	const normalizedAllowedOrigins = new Set<string>([...normalizedAllowedRedirectUris].map((u) => normalizeOrigin(u)));
 
 	// Serve JWKS endpoint from Express
-	app.get('/.well-known/jwks.json', (_req, res) => {
+	router.get('/.well-known/jwks.json', (_req, res) => {
 		res.json({ keys: [publicJwk] });
 	});
 
-	app.use(express.urlencoded({ extended: true }));
-	app.use(express.json());
-	// CORS: only allow local development origins (127.0.0.1, localhost, *.localhost)
-	// and any origins derived from the configured redirect URIs. This keeps the
-	// server suitable for local testing while avoiding a permissive "*" policy.
-	app.use((req, res, next) => {
+	router.use(express.urlencoded({ extended: true }));
+	router.use(express.json());
+
+	// CORS middleware
+	router.use((req, res, next) => {
 		const originHeader = req.headers.origin;
 
 		let allowOrigin = false;
@@ -208,8 +202,6 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 				const originUrl = new URL(originHeader);
 				const { hostname } = originUrl;
 
-				// Allow explicit localhost addresses, any subdomain under `.localhost`,
-				// or configured redirect-origin matches.
 				if (hostname === '127.0.0.1' || hostname === 'localhost' || hostname.endsWith('.localhost') || normalizedAllowedOrigins.has(normalizeOrigin(originHeader))) {
 					allowOrigin = true;
 				}
@@ -233,7 +225,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		next();
 	});
 
-	app.post('/token', async (req, res) => {
+	router.post('/token', async (req, res) => {
 		const { grant_type, tid, code } = req.body as {
 			grant_type?: string;
 			refresh_token?: string;
@@ -241,7 +233,6 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 			code?: string;
 		};
 
-		// This mock server only supports the authorization_code flow for token issuance.
 		if (grant_type !== 'authorization_code') {
 			res.status(400).json({
 				error: 'unsupported_grant_type',
@@ -279,24 +270,24 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		const profile: TokenProfile = {
 			aud,
 			sub: persistedSub,
-			iss: config.baseUrl,
+			iss: issuerBaseUrl,
 			email: userProfile.email,
 			given_name: userProfile.given_name,
 			family_name: userProfile.family_name,
 			tid: tid ?? userProfile.tid ?? 'test-tenant-id',
 		};
-		const tokenResponse = await buildTokenResponse(profile, keyObject, publicJwk, config.baseUrl);
+		const tokenResponse = await buildTokenResponse(profile, keyObject, publicJwk, issuerBaseUrl);
 		res.json(tokenResponse);
 	});
 
-	app.get('/.well-known/openid-configuration', (_req, res) => {
+	router.get('/.well-known/openid-configuration', (_req, res) => {
 		res.json({
-			issuer: config.baseUrl,
-			authorization_endpoint: `${config.baseUrl}/authorize`,
-			token_endpoint: `${config.baseUrl}/token`,
-			userinfo_endpoint: `${config.baseUrl}/userinfo`,
-			jwks_uri: `${config.baseUrl}/.well-known/jwks.json`,
-			end_session_endpoint: `${config.baseUrl}/logout`,
+			issuer: issuerBaseUrl,
+			authorization_endpoint: `${issuerBaseUrl}/authorize`,
+			token_endpoint: `${issuerBaseUrl}/token`,
+			userinfo_endpoint: `${issuerBaseUrl}/userinfo`,
+			jwks_uri: `${issuerBaseUrl}/.well-known/jwks.json`,
+			end_session_endpoint: `${issuerBaseUrl}/logout`,
 			response_types_supported: ['code', 'token'],
 			subject_types_supported: ['public'],
 			id_token_signing_alg_values_supported: ['RS256'],
@@ -306,7 +297,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		});
 	});
 
-	app.get('/authorize', (req, res) => {
+	router.get('/authorize', (req, res) => {
 		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
 		const requestedRedirectUri = redirect_uri ?? primaryRedirectUri;
 		const normalizedRequestedRedirectUri = normalizeUrl(requestedRedirectUri);
@@ -317,9 +308,6 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		}
 
 		try {
-			// Use the normalized redirect URI when embedding into the auth code so that
-			// the `/token` handler can later decode and perform audience lookup on a
-			// normalized value consistent with validation.
 			const code = `mock-auth-code-${Buffer.from(normalizedRequestedRedirectUri).toString('base64')}`;
 			const redirectUrl = new URL(requestedRedirectUri);
 			redirectUrl.searchParams.set('code', code);
@@ -333,14 +321,13 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		}
 	});
 
-	// Rate limit the /userinfo endpoint to prevent brute force attacks on JWT validation
 	const userinfoRateLimiter = rateLimit({
 		windowMs: 15 * 60 * 1000, // 15 minutes
 		max: 100, // limit each IP to 100 requests per windowMs
 		message: 'Too many /userinfo requests, please try again later.',
 	});
 
-	app.get('/userinfo', userinfoRateLimiter as unknown as Parameters<typeof app.get>[1], async (req, res) => {
+	router.get('/userinfo', userinfoRateLimiter as unknown as Parameters<typeof router.get>[1], async (req, res) => {
 		const authHeader = req.headers.authorization;
 		if (!authHeader?.startsWith('Bearer ')) {
 			res.status(401).json({ error: 'unauthorized' });
@@ -358,14 +345,11 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		}
 
 		try {
-			// Verify token using the same RSA public key that was used to sign it in /token.
-			// Validate issuer and audience to better match real IdP behaviour and surface client misconfiguration.
 			const { payload } = await jwtVerify(token, publicKey, {
-				issuer: config.baseUrl,
+				issuer: issuerBaseUrl,
 				audience: Array.from(allowedAudiences),
 			});
 
-			// Ensure required claims are present, even in mock mode
 			if (!payload.sub) {
 				res.status(401).json({
 					error: 'invalid_token',
@@ -421,7 +405,7 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		}
 	});
 
-	app.get('/logout', (req, res) => {
+	router.get('/logout', (req, res) => {
 		const { post_logout_redirect_uri, state } = req.query as {
 			post_logout_redirect_uri?: string;
 			state?: string;
@@ -435,9 +419,6 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 		try {
 			const redirectUrl = new URL(post_logout_redirect_uri);
 
-			// Restrict logout redirect targets to local development origins to
-			// remain consistent with `/authorize` and avoid surprising open-redirect
-			// behaviour, even in a mock server.
 			const origin = normalizeOrigin(post_logout_redirect_uri);
 			const isLocalHost = redirectUrl.hostname === '127.0.0.1' || redirectUrl.hostname === 'localhost' || redirectUrl.hostname.endsWith('.localhost') || normalizedAllowedOrigins.has(origin);
 
@@ -456,6 +437,16 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 			res.status(400).send('Invalid post_logout_redirect_uri');
 		}
 	});
+
+	return router;
+}
+
+export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Promise<MockOAuth2ServerHandle> {
+	const app = express();
+	app.disable('x-powered-by');
+
+	const router = await buildOidcRouter(config.baseUrl, config);
+	app.use('/', router);
 
 	return new Promise<MockOAuth2ServerHandle>((resolve, reject) => {
 		const server = app.listen(config.port, config.host ?? 'localhost', () => {
@@ -480,28 +471,56 @@ export async function startMockOAuth2Server(config: MockOAuth2ServerConfig): Pro
 	});
 }
 
-export function createMockOAuth2Manager(): {
-	register(name: string, config: MockOAuth2ServerConfig): Promise<MockOAuth2ServerHandle & { baseUrl: string; name: string }>;
-	stopAll(): Promise<void>;
-} {
-	const handles = new Map<string, MockOAuth2ServerHandle>();
+export interface MockOAuth2PortalConfig {
+	allowedRedirectUris: Set<string>;
+	allowedRedirectUri: string;
+	redirectUriToAudience: Map<string, string>;
+	getUserProfile: () => MockOAuth2UserProfile;
+}
+
+export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string }) {
+	let app: express.Express | null = null;
+	let serverHandle: MockOAuth2ServerHandle | null = null;
+	const registeredNames = new Set<string>();
+
+	async function ensureStarted(): Promise<express.Express> {
+		if (app) return app;
+		app = express();
+		app.disable('x-powered-by');
+
+		serverHandle = await new Promise<MockOAuth2ServerHandle>((resolve, reject) => {
+			const a = app;
+			if (!a) return reject(new Error('express app not initialized'));
+			const s = a.listen(serverConfig.port, serverConfig.host ?? 'localhost', () => {
+				console.log(`Mock OAuth2 server running on ${serverConfig.baseUrl}`);
+				resolve({ server: s, disposer: { stop: () => new Promise<void>((res, rej) => s.close((err) => (err ? rej(err) : res()))) } });
+			});
+			s.on('error', reject);
+		});
+
+		return app;
+	}
 
 	return {
-		async register(name: string, config: MockOAuth2ServerConfig) {
-			if (handles.has(name)) throw new Error(`Registration with name ${name} already exists`);
-			const handle = await startMockOAuth2Server(config);
-			handles.set(name, handle);
-			return Object.assign({}, handle, { baseUrl: config.baseUrl, name });
+		async register(name: string, config: MockOAuth2PortalConfig) {
+			if (registeredNames.has(name)) throw new Error(`Registration with name ${name} already exists`);
+
+			const expressApp = await ensureStarted();
+			const issuerBase = `${serverConfig.baseUrl.replace(/\/$/, '')}/${name}`;
+			const router = await buildOidcRouter(issuerBase, config);
+			expressApp.use(`/${name}`, router);
+			registeredNames.add(name);
+
+			if (!serverHandle) throw new Error('server not started');
+			return { server: serverHandle.server, disposer: serverHandle.disposer, baseUrl: issuerBase, name };
 		},
 		async stopAll() {
-			const stops: Promise<void>[] = [];
-			for (const [, h] of handles.entries()) {
-				if (h?.disposer && typeof h.disposer.stop === 'function') {
-					stops.push(h.disposer.stop());
-				}
+			if (serverHandle) {
+				await serverHandle.disposer.stop();
+				serverHandle = null;
 			}
-			await Promise.all(stops);
-			handles.clear();
+			app = null;
+			registeredNames.clear();
 		},
 	};
 }

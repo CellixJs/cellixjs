@@ -1,16 +1,16 @@
 import crypto from 'node:crypto';
 import path from 'node:path';
-import { createMockOAuth2Manager, type MockOAuth2ServerConfig } from '@cellix/server-oauth2-mock-seedwork';
+import { createMockOAuth2Manager, type MockOAuth2PortalConfig } from '@cellix/server-oauth2-mock-seedwork';
 import { discoverPortalConfigs, type PortalOidcConfig, setupEnvironment } from './setup-environment.js';
 
 setupEnvironment();
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const appsDir = path.resolve(__dirname, '../../');
-const env = process.env as Record<string, string | undefined>;
-const portBase = Number.parseInt(env['PORT_BASE'] ?? '3001', 10);
+const port = Number.parseInt(process.env.PORT ?? '1355', 10);
+const baseUrl = process.env.BASE_URL ?? `https://mock-auth.ownercommunity.localhost:${port}`;
 
-const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir, portBase);
+const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir, baseUrl);
 
 if (portals.length === 0) {
 	console.error('[server-oauth2-mock] No portal configs discovered. Ensure at least one apps/ui-*/mock-oidc.json exists.');
@@ -18,28 +18,25 @@ if (portals.length === 0) {
 }
 
 try {
-	const manager = createMockOAuth2Manager();
+	const manager = createMockOAuth2Manager({ port, host: '127.0.0.1', baseUrl });
 
 	for (const portal of portals) {
-		const config: MockOAuth2ServerConfig = {
-			port: portal.port,
-			baseUrl: portal.baseUrl,
-			host: '127.0.0.1',
+		const config: MockOAuth2PortalConfig = {
 			allowedRedirectUris: new Set([portal.redirectUri]),
 			allowedRedirectUri: portal.redirectUri,
 			redirectUriToAudience: new Map([[portal.redirectUri, portal.clientId]]),
 			getUserProfile: () => ({
-				sub: portal.claims['sub'] ?? crypto.randomUUID(),
-				email: portal.claims['email'] ?? 'test@example.com',
-				given_name: portal.claims['given_name'] ?? 'Test',
-				family_name: portal.claims['family_name'] ?? 'User',
-				tid: portal.claims['tid'] ?? 'test-tenant-id',
+				sub: portal.claims.sub ?? crypto.randomUUID(),
+				email: portal.claims.email ?? 'test@example.com',
+				given_name: portal.claims.given_name ?? 'Test',
+				family_name: portal.claims.family_name ?? 'User',
+				tid: portal.claims.tid ?? 'test-tenant-id',
 				...portal.claims,
 			}),
 		};
 
 		await manager.register(portal.name, config);
-		console.log(`[server-oauth2-mock] Registered OIDC config "${portal.name}" on port ${portal.port}`);
+		console.log(`[server-oauth2-mock] Registered OIDC config "${portal.name}"`);
 	}
 
 	const shutdown = async (signal?: string, exitCode = 0) => {

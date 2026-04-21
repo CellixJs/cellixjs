@@ -1,21 +1,18 @@
-import { createMockOAuth2Manager, type MockOAuth2ServerConfig, startMockOAuth2Server } from '@cellix/server-oauth2-mock-seedwork';
+import { createMockOAuth2Manager, type MockOAuth2PortalConfig, type MockOAuth2ServerConfig, startMockOAuth2Server } from '@cellix/server-oauth2-mock-seedwork';
 import { describe, expect, it } from 'vitest';
 
-// Helper to create a basic config with specified port and basePath
-function makeConfig(port: number): MockOAuth2ServerConfig {
-	const baseUrl = `http://localhost:${port}`;
+// Helper to create a basic portal config with specified client port
+function makeConfig(port: number): MockOAuth2PortalConfig & { clientPort: number } {
+	const clientBase = `http://localhost:${port}`;
 	return {
-		port,
-		baseUrl,
-		allowedRedirectUris: new Set([`${baseUrl}/callback`]),
-		allowedRedirectUri: `${baseUrl}/callback`,
-		redirectUriToAudience: new Map([[`${baseUrl}/callback`, `mock-client-${port}`]]),
-		host: 'localhost',
+		clientPort: port,
+		allowedRedirectUris: new Set([`${clientBase}/callback`]),
+		allowedRedirectUri: `${clientBase}/callback`,
+		redirectUriToAudience: new Map([[`${clientBase}/callback`, `mock-client-${port}`]]),
 		getUserProfile: () => ({
 			email: `user${port}@example.com`,
 			given_name: 'Test',
 			family_name: 'User',
-			// sub left undefined to ensure server generates persistent sub
 		}),
 	};
 }
@@ -28,9 +25,10 @@ async function fetchJson(url: string) {
 
 describe('multi-registration contract', () => {
 	it('registers two named OIDC configs and exposes distinct metadata/jwks', async () => {
-		const manager = createMockOAuth2Manager();
-		const cfg1 = makeConfig(38200);
-		const cfg2 = makeConfig(38201);
+		const port = 38200;
+		const manager = createMockOAuth2Manager({ port, host: 'localhost', baseUrl: `http://localhost:${port}` });
+		const cfg1 = makeConfig(38210);
+		const cfg2 = makeConfig(38211);
 
 		const handle1 = await manager.register('portal', cfg1);
 		const handle2 = await manager.register('admin', cfg2);
@@ -53,9 +51,10 @@ describe('multi-registration contract', () => {
 	});
 
 	it('per-config auth flow is isolated (authorize -> token)', async () => {
-		const manager = createMockOAuth2Manager();
-		const cfg1 = makeConfig(38202);
-		const cfg2 = makeConfig(38203);
+		const port = 38202;
+		const manager = createMockOAuth2Manager({ port, host: 'localhost', baseUrl: `http://localhost:${port}` });
+		const cfg1 = makeConfig(38212);
+		const cfg2 = makeConfig(38213);
 
 		const h1 = await manager.register('one', cfg1);
 		const h2 = await manager.register('two', cfg2);
@@ -78,7 +77,7 @@ describe('multi-registration contract', () => {
 			});
 			const tokenJson = await tokenRes.json();
 			expect(tokenJson).toHaveProperty('access_token');
-			expect(tokenJson.profile.aud).toBe(`mock-client-${cfg1.port}`);
+			expect(tokenJson.profile.aud).toBe(`mock-client-${cfg1.clientPort}`);
 
 			// ensure h2 tokens are independent by performing authorize/token on h2
 			const authRes2 = await fetch(`${h2.baseUrl}/authorize?redirect_uri=${encodeURIComponent(cfg2.allowedRedirectUri)}`, { redirect: 'manual' });
@@ -93,14 +92,22 @@ describe('multi-registration contract', () => {
 				body: JSON.stringify({ grant_type: 'authorization_code', code: code2 }),
 			});
 			const tokenJson2 = await tokenRes2.json();
-			expect(tokenJson2.profile.aud).toBe(`mock-client-${cfg2.port}`);
+			expect(tokenJson2.profile.aud).toBe(`mock-client-${cfg2.clientPort}`);
 		} finally {
 			await manager.stopAll();
 		}
 	});
 
 	it('single-config backward compatibility with startMockOAuth2Server', async () => {
-		const cfg = makeConfig(38204);
+		const cfg: MockOAuth2ServerConfig = {
+			port: 38204,
+			baseUrl: 'http://localhost:38204',
+			allowedRedirectUris: new Set(['http://localhost:38204/callback']),
+			allowedRedirectUri: 'http://localhost:38204/callback',
+			redirectUriToAudience: new Map([['http://localhost:38204/callback', 'mock-client-38204']]),
+			host: 'localhost',
+			getUserProfile: () => ({ email: 'x@example.com', given_name: 'T', family_name: 'U' }),
+		};
 		const handle = await startMockOAuth2Server(cfg);
 		try {
 			const meta = await fetchJson(`${cfg.baseUrl}/.well-known/openid-configuration`);
