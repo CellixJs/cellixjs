@@ -123,7 +123,7 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 	/**
 	 * Deactivates a member by rejecting their account
 	 */
-	public requestDeactivateMember(): void {
+	public requestDeactivateMember(actorId?: string, reason?: string): void {
 		if (!this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
 			throw new PermissionError('Cannot deactivate member');
 		}
@@ -137,7 +137,8 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 			this.addDomainEvent<MemberDeactivatedProps, MemberDeactivatedEvent>(MemberDeactivatedEvent, {
 				memberId: this.props.id,
 				communityId: this.props.communityId,
-				deactivatedBy: 'system', // TODO: Get current user from context properly
+				deactivatedBy: actorId ?? 'system', // prefer caller-provided actorId; fallback to 'system'
+				reason: reason ?? '',
 			});
 		} else {
 			throw new Error('No active account found to deactivate');
@@ -147,19 +148,20 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 	/**
 	 * Removes a member from the community (marks for deletion)
 	 */
-	public requestRemoveMember(): void {
+	public requestRemoveMember(actorId?: string, reason?: string): void {
 		if (!this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
 			throw new PermissionError('Cannot remove member');
 		}
 
 		this.isDeleted = true;
 
-		// Raise domain event
-		this.addDomainEvent<MemberRemovedProps, MemberRemovedEvent>(MemberRemovedEvent, {
-			memberId: this.props.id,
-			communityId: this.props.communityId,
-			removedBy: 'system', // TODO: Get current user from context properly
-		});
+			// Raise domain event
+			this.addDomainEvent<MemberRemovedProps, MemberRemovedEvent>(MemberRemovedEvent, {
+				memberId: this.props.id,
+				communityId: this.props.communityId,
+				removedBy: actorId ?? 'system', // prefer caller-provided actorId; fallback to 'system'
+				reason: reason ?? '',
+			});
 	}
 
 	//#endregion Member Management Operations

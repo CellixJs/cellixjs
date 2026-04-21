@@ -19,6 +19,7 @@ export const MembersAccountsListContainer: React.FC<MembersAccountsListContainer
 		variables: {
 			id: props.data.id,
 		},
+		skip: !props.data.id,
 	});
 
 	const membersAccountsListProps: MembersAccountsListProps = {
