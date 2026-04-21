@@ -102,10 +102,10 @@ export function discoverPortalConfigs(appsDir: string, _serverBaseUrl: string): 
 
 function isValidMockOidcConfig(config: unknown): config is MockOidcConfig {
 	if (typeof config !== 'object' || config === null) return false;
-	const c = config as Record<string, unknown>;
+	const c = config as { name?: unknown; envVars?: unknown; claims?: unknown };
 	if (typeof c.name !== 'string') return false;
 	if (typeof c.envVars !== 'object' || c.envVars === null) return false;
-	const env = c.envVars as Record<string, unknown>;
+	const env = c.envVars as { clientId?: unknown; redirectUri?: unknown };
 	if (typeof env.clientId !== 'string' || typeof env.redirectUri !== 'string') return false;
 	if (typeof c.claims !== 'object' || c.claims === null) return false;
 	return true;

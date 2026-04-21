@@ -7,8 +7,8 @@ setupEnvironment();
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const appsDir = path.resolve(__dirname, '../../');
-const port = Number.parseInt(process.env.PORT ?? '1355', 10);
-const baseUrl = process.env.BASE_URL ?? `https://mock-auth.ownercommunity.localhost:${port}`;
+const port = Number.parseInt(process.env['PORT'] ?? '1355', 10);
+const baseUrl = process.env['BASE_URL'] ?? `https://mock-auth.ownercommunity.localhost:${port}`;
 
 const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir, baseUrl);
 
@@ -26,11 +26,11 @@ try {
 			allowedRedirectUri: portal.redirectUri,
 			redirectUriToAudience: new Map([[portal.redirectUri, portal.clientId]]),
 			getUserProfile: () => ({
-				sub: portal.claims.sub ?? crypto.randomUUID(),
-				email: portal.claims.email ?? 'test@example.com',
-				given_name: portal.claims.given_name ?? 'Test',
-				family_name: portal.claims.family_name ?? 'User',
-				tid: portal.claims.tid ?? 'test-tenant-id',
+				sub: portal.claims['sub'] ?? crypto.randomUUID(),
+				email: portal.claims['email'] ?? 'test@example.com',
+				given_name: portal.claims['given_name'] ?? 'Test',
+				family_name: portal.claims['family_name'] ?? 'User',
+				tid: portal.claims['tid'] ?? 'test-tenant-id',
 				...portal.claims,
 			}),
 		};
