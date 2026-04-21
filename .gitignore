@@ -34,3 +34,6 @@ apps/api/deploy/
 
 # Ignore vscode mcp chrome user data
 .vscode/.mcp-chrome-user-data*
+
+# Agent runtime artifacts (per-session working state)
+.agents-work/
