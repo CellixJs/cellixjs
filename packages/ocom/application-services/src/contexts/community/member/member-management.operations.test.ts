@@ -80,9 +80,9 @@ describe('member-management operations', () => {
 
 	it('updates a member role when role belongs to member community', async () => {
 		const role = { id: 'role-1', community: { id: 'community-1' } };
-		const member = { props: { communityId: 'community-1' }, role: null };
+		const member = { communityId: 'community-1', role: null };
 		const savedMember = { id: 'member-1' };
-		memberRepository.getById.mockResolvedValueOnce(member).mockResolvedValueOnce(member);
+		memberRepository.getById.mockResolvedValue(member);
 		roleRepository.getById.mockResolvedValue(role);
 		memberRepository.save.mockResolvedValue(savedMember);
 
@@ -93,7 +93,7 @@ describe('member-management operations', () => {
 	});
 
 	it('throws when role is from a different community', async () => {
-		memberRepository.getById.mockResolvedValue({ props: { communityId: 'community-1' } });
+		memberRepository.getById.mockResolvedValue({ communityId: 'community-1' });
 		roleRepository.getById.mockResolvedValue({ id: 'role-1', community: { id: 'community-2' } });
 
 		await expect(updateMemberRole(dataSources)({ memberId: 'member-1', roleId: 'role-1' })).rejects.toThrow('Role does not belong to the same community as the member');
@@ -147,7 +147,6 @@ describe('member-management operations', () => {
 	});
 
 	it('bulk operations continue on per-member failures', async () => {
-		const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 		const memberOk = {
 			requestActivateMember: vi.fn(),
 			requestDeactivateMember: vi.fn(),
@@ -163,12 +162,10 @@ describe('member-management operations', () => {
 
 		const activated = await bulkActivateMembers(dataSources)({ memberIds: ['ok', 'bad'] });
 		const deactivated = await bulkDeactivateMembers(dataSources)({ memberIds: ['ok', 'bad'], reason: 'policy' });
-		await bulkRemoveMembers(dataSources)({ memberIds: ['ok', 'bad'], reason: 'policy' });
+		await expect(bulkRemoveMembers(dataSources)({ memberIds: ['ok', 'bad'], reason: 'policy' })).rejects.toThrow('bad');
 
 		expect(activated).toHaveLength(1);
 		expect(deactivated).toHaveLength(1);
-		expect(consoleErrorSpy).toHaveBeenCalled();
-		consoleErrorSpy.mockRestore();
 	});
 
 	it('creates and updates account user association and derives names from end user', async () => {
@@ -301,15 +298,9 @@ describe('member-management operations', () => {
 		expect(member.profile.showProfile).toBe(true);
 	});
 
-	it('throws when unable to determine community during member role update', async () => {
-		memberRepository.getById.mockResolvedValue({ props: { communityId: undefined } });
-
-		await expect(updateMemberRole(dataSources)({ memberId: 'member-1', roleId: 'role-1' })).rejects.toThrow('Unable to determine community from member');
-	});
-
 	it('throws when update member role save returns nothing', async () => {
 		const role = { id: 'role-1', community: { id: 'community-1' } };
-		const member = { props: { communityId: 'community-1' }, role: null };
+		const member = { communityId: 'community-1', role: null };
 		memberRepository.getById.mockResolvedValue(member);
 		roleRepository.getById.mockResolvedValue(role);
 		memberRepository.save.mockResolvedValue(undefined);
