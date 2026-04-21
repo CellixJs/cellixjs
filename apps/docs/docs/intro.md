@@ -40,22 +40,38 @@ cd cellixjs
 
 
 
-Install dependencies and build the project: (we recommend using NVM)
+Prerequisites
+
+Before you clone or build the project, install these tools and ensure they are available on your system:
+
+- mise (Node version manager)
+  - macOS (recommended): brew install mise
+  - Fallback (any OS): curl https://mise.run | sh
+  - After installation, ensure mise is activated (restart your shell or run the activation command shown by the installer), e.g.:
+    eval "$(~/.local/bin/mise activate zsh)"
+- Node.js: managed by mise. The workspace root mise.toml pins node = "22.22.2" — mise install will provision this version for the project
+- pnpm: recommended via Corepack (preferred):
+  corepack enable && corepack prepare pnpm@10.30.1 --activate
+  or install globally: npm i -g pnpm (or brew install pnpm on macOS)
+- Git (for cloning and pushing)
+- Azure Functions Core Tools (func) — required for local Functions runtime; follow the official install guide linked above
+- MongoDB (local or remote) or use Azurite for local Azure storage emulation (used by this repo)
+
+Clone and Set up
 
 ```bash
-# Install Node.js v22
-nvm install v22
+# Clone the repo
+git clone https://github.com/CellixJs/cellixjs.git
+cd cellixjs
+```
 
-# Install Latest NPM (v11+)
-nvm install-latest-npm
+For full developer onboarding (mise installation, Corepack/pnpm setup, build, and verification), see the Developer setup guide: [Developer setup](./setup.md)
 
-# Use Node.js v22
-nvm use v22
 
 # Clean, install dependencies, and build
-npm run clean
-npm install 
-npm run build
+pnpm run clean
+pnpm install
+pnpm run build
 ```
 
 ## Install VSCode plugins
@@ -140,7 +156,7 @@ pnpm exec portless trust
 Run all verification steps (lint, build, test, sonarcloud quality gate):
 
 ```bash
-npm run verify
+pnpm run verify
 ```
  Expected output:
 ```bash

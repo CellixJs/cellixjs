@@ -26,4 +26,6 @@ CellixJs provides comprehensive examples for DDD implementation:
 
 The documentation supports categorized content as well!
 
-**Getting Started**: Clone the repository, run `npm run clean && npm install && npm run build`, then use `npm run dev` to start the full development environment. You can simulate the CI pipeline locally with `npm run verify`.
+**Getting Started**: See the Developer Setup guide for full installation and onboarding steps: [Developer setup](/docs/setup)
+
+
