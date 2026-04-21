@@ -63,6 +63,33 @@ Our Docusaurus website will help you get started in running and contributing to 
   pnpm --filter @apps/server-mongodb-memory-mock run dev
   ```
 
+
+Mock OIDC server
+
+The local mock OpenID Connect provider used for UI development is configured per-portal via JSON files placed in the UI app directories.
+
+- Location: apps/ui-*/mock-oidc.json
+- Schema: {
+  - name: string
+  - baseUrl: string
+  - clientId: string
+  - redirectUri: string
+  - claims: Record<string, string> (e.g. sub, email, given_name, family_name, tid)
+}
+
+Per-developer overrides
+
+If you need to override claims for local testing, create a file named mock-oidc.local.json alongside mock-oidc.json in the UI app directory. This file is gitignored and merges claim values into the base mock-oidc.json at startup.
+
+Adding a new portal
+
+To add a new UI portal for local mock auth, create a directory apps/ui-<name> and add a mock-oidc.json file with the schema above. The mock server auto-discovers portals on startup.
+
+PORT_BASE
+
+The mock server starts portals beginning at PORT_BASE (default 3001). Each discovered portal receives PORT_BASE + index where index is the discovery order (sorted by directory name).
+
+
 ## Scripts
 
 - Build all workspaces: `pnpm run build`

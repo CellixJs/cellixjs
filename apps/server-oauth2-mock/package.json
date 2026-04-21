@@ -11,7 +11,9 @@
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"start": "node dist/index.js",
-		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs mock-auth.ownercommunity.localhost tsx src/index.ts"
+		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs mock-auth.ownercommunity.localhost tsx src/index.ts",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@cellix/server-oauth2-mock-seedwork": "workspace:*",
@@ -21,6 +23,7 @@
 		"@cellix/config-typescript": "workspace:*",
 		"rimraf": "catalog:",
 		"tsx": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "workspace:*"
 	}
 }

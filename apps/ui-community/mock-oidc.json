@@ -1,0 +1,13 @@
+{
+	"name": "community",
+	"baseUrl": "https://mock-auth.ownercommunity.localhost:1355",
+	"clientId": "mock-client",
+	"redirectUri": "https://ownercommunity.localhost:1355/auth-redirect",
+	"claims": {
+		"sub": "00000000-0000-0000-0000-000000000001",
+		"email": "test@example.com",
+		"given_name": "Test",
+		"family_name": "User",
+		"tid": "test-tenant-id"
+	}
+}
