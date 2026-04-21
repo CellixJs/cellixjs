@@ -1,6 +1,6 @@
 import { SearchOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
-import { Button, Input, Modal, Select, Space, Table, Tag, Typography } from 'antd';
+import { Button, Form, Input, Modal, Select, Space, Table, Tag, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import type { AdminMemberListContainerMemberFieldsFragment } from '../generated.tsx';
 
@@ -8,6 +8,9 @@ const { Title, Text } = Typography;
 
 type MemberStatusFilter = 'all' | 'active' | 'invited' | 'inactive' | 'unknown';
 type BulkActionType = 'deactivate' | 'remove';
+type BulkActionFormValues = {
+	reason?: string;
+};
 
 const getMemberStatus = (member: AdminMemberListContainerMemberFieldsFragment): MemberStatusFilter => {
 	const normalizedStatuses = member.accounts.map((account) => account.statusCode?.toUpperCase()).filter((status): status is string => Boolean(status));
@@ -56,12 +59,12 @@ export interface MemberListProps {
 export const MemberList: React.FC<MemberListProps> = (props) => {
 	const { data, currentMemberId, onInviteMember, onMemberEdit, onActivateMember, onDeactivateMember, onRemoveMember, onBulkActivateMembers, onBulkDeactivateMembers, onBulkRemoveMembers, loading } = props;
 	const isLoading = loading ?? false;
+	const [bulkActionForm] = Form.useForm<BulkActionFormValues>();
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>('all');
 	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
 	const [bulkActionModalOpen, setBulkActionModalOpen] = useState(false);
 	const [bulkActionType, setBulkActionType] = useState<BulkActionType>('deactivate');
-	const [bulkActionReason, setBulkActionReason] = useState('');
 
 	const filteredData = useMemo(() => {
 		const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -84,14 +87,14 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 
 	const closeBulkActionModal = () => {
 		setBulkActionModalOpen(false);
-		setBulkActionReason('');
+		bulkActionForm.resetFields();
 	};
 
-	const handleBulkActionConfirm = async () => {
-		const reason = bulkActionReason.trim();
+	const handleBulkActionSubmit = async (values: BulkActionFormValues) => {
+		const reason = values.reason?.trim();
 		const success = bulkActionType === 'deactivate'
-			? await onBulkDeactivateMembers?.(selectedMemberIds, reason.length > 0 ? reason : undefined)
-			: await onBulkRemoveMembers?.(selectedMemberIds, reason.length > 0 ? reason : undefined);
+			? await onBulkDeactivateMembers?.(selectedMemberIds, reason ? reason : undefined)
+			: await onBulkRemoveMembers?.(selectedMemberIds, reason ? reason : undefined);
 		if (success) {
 			clearSelection();
 			closeBulkActionModal();
@@ -100,7 +103,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 
 	const openBulkActionModal = (action: BulkActionType) => {
 		setBulkActionType(action);
-		setBulkActionReason('');
+		bulkActionForm.resetFields();
 		setBulkActionModalOpen(true);
 	};
 
@@ -300,7 +303,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 				okButtonProps={bulkActionType === 'remove' ? { danger: true } : {}}
 				confirmLoading={isLoading}
 				onCancel={closeBulkActionModal}
-				onOk={() => void handleBulkActionConfirm()}
+				onOk={() => void bulkActionForm.submit()}
 			>
 				<Space
 					direction="vertical"
@@ -312,14 +315,20 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 							? `This will deactivate ${selectedMemberIds.length} selected member(s).`
 							: `This will remove ${selectedMemberIds.length} selected member(s).`}
 					</Text>
-					<Input.TextArea
-						value={bulkActionReason}
-						onChange={(event) => setBulkActionReason(event.target.value)}
-						placeholder="Optional reason for audit log"
-						rows={3}
-						maxLength={500}
-						showCount
-					/>
+					<Form
+						form={bulkActionForm}
+						layout="vertical"
+						onFinish={handleBulkActionSubmit}
+					>
+						<Form.Item name="reason">
+							<Input.TextArea
+								placeholder="Optional reason for audit log"
+								rows={3}
+								maxLength={500}
+								showCount
+							/>
+						</Form.Item>
+					</Form>
 				</Space>
 			</Modal>
 		</Space>
