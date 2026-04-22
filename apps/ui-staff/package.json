@@ -1,0 +1,51 @@
+{
+	"name": "@apps/ui-staff",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint",
+		"build": "tsc --build && vite build",
+		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs staff.localhost vite",
+		"start": "vite",
+		"preview": "vite preview",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"storybook": "storybook dev -p 6008",
+		"build-storybook": "storybook build"
+	},
+	"dependencies": {
+		"@apollo/client": "^3.13.9",
+		"@dr.pogodin/react-helmet": "^3.0.2",
+		"@cellix/ui-core": "workspace:*",
+		"@graphql-typed-document-node/core": "^3.2.0",
+		"@ocom/ui-staff-route-root": "workspace:*",
+		"antd": "catalog:",
+		"less": "^4.4.0",
+		"react": "^19.1.0",
+		"react-dom": "^19.1.0",
+		"react-oidc-context": "^3.3.0",
+		"react-router-dom": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@types/react": "^19.1.8",
+		"@types/react-dom": "^19.1.6",
+		"@vitejs/plugin-react": "^6.0.1",
+		"rollup-plugin-visualizer": "^6.0.5",
+		"@vitest/coverage-istanbul": "catalog:",
+		"esbuild": "catalog:",
+		"jsdom": "^26.1.0",
+		"storybook": "catalog:",
+		"storybook-addon-apollo-client": "^9.0.0",
+		"tailwindcss": "^3.4.17",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
+	}
+}

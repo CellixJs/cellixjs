@@ -12,6 +12,11 @@
         "**/apollo-client-links.tsx"
       ]
     },
+    "apps/ui-staff": {
+      "entry": ["src/main.tsx"],
+      "project": ["src/**/*.{ts,tsx}"],
+      "ignore": []
+    },
     "apps/docs": {
       "entry": ["src/**/*.{ts,tsx,js,jsx}"],
       "project": ["src/**/*.{ts,tsx,js,jsx}"]
@@ -59,6 +64,10 @@
       "project": ["src/**/*.{ts,tsx}"]
     },
     "packages/ocom/ui-community-route-*": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/ocom/ui-staff-route-*": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.{ts,tsx}"]
     },
