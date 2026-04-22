@@ -29,7 +29,7 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 	const entries = fs.readdirSync(appsDir, { withFileTypes: true });
 	const portals: PortalOidcConfig[] = [];
 
-	for (const entry of entries.toSorted((a, b) => a.name.localeCompare(b.name))) {
+	for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
 		if (!entry.isDirectory() || !entry.name.startsWith('ui-')) continue;
 
 		const mockOidcPath = path.join(appsDir, entry.name, 'mock-oidc.json');

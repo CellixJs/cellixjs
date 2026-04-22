@@ -507,7 +507,9 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 			});
 			s.on('error', (err) => {
 				app = null; // reset so manager can be retried
-					registeredNames.clear(); // clear registered names so subsequent retries can reuse names
+				// Both must be cleared: leaving registeredNames populated would cause
+				// "already registered" errors on retry even though no server is running.
+				registeredNames.clear(); // clear registered names so subsequent retries can reuse names
 				reject(err);
 			});
 		});

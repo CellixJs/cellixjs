@@ -226,4 +226,47 @@ describe('discoverPortalConfigs', () => {
 		expect(portals[0].claims.roles).toEqual(['admin', 'editor']);
 		expect(portals[0].claims.level).toBe(2);
 	});
+
+	it('prefers .env.local values over .env when both exist', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-envlocal/mock-oidc.json', {
+			name: 'envlocal-test',
+			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			claims: { sub: '00000000-0000-4000-8000-000000000001' },
+		});
+		fs.writeFileSync(
+			path.join(tmp, 'ui-envlocal', '.env'),
+			'VITE_CLIENT_ID=base-client-id\nVITE_REDIRECT_URI=https://base/cb\n',
+		);
+		fs.writeFileSync(
+			path.join(tmp, 'ui-envlocal', '.env.local'),
+			'VITE_CLIENT_ID=local-client-id\n',
+		);
+
+		const portals = discoverPortalConfigs(tmp);
+		const portal = portals.find((p) => p.name === 'envlocal-test');
+		expect(portal).toBeDefined();
+		expect(portal?.clientId).toBe('local-client-id');
+	});
+
+	it('discovers portal when only .env.local exists and .env is absent', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-localonly/mock-oidc.json', {
+			name: 'localonly-test',
+			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			claims: { sub: '00000000-0000-4000-8000-000000000001' },
+		});
+		// No .env file - only .env.local
+		fs.writeFileSync(
+			path.join(tmp, 'ui-localonly', '.env.local'),
+			'VITE_CLIENT_ID=localonly-client-id\nVITE_REDIRECT_URI=https://local/cb\n',
+		);
+
+		const portals = discoverPortalConfigs(tmp);
+		const portal = portals.find((p) => p.name === 'localonly-test');
+		expect(portal).toBeDefined();
+		expect(portal?.clientId).toBe('localonly-client-id');
+	});
 });

@@ -57,12 +57,12 @@ Example:
 ```ts
 import { createMockOAuth2Manager } from '@cellix/server-oauth2-mock-seedwork';
 
-const manager = createMockOAuth2Manager();
+// Create the manager with the server process configuration
+const manager = createMockOAuth2Manager({ port: 38200, host: 'localhost', baseUrl: 'http://localhost:38200' });
 
-const handle = await manager.register('portal', {
-  port: 38200,
-  baseUrl: 'http://localhost:38200',
-  host: 'localhost',
+// Register named portals on the running server. Each portal config maps to a
+// path under the manager's baseUrl (e.g. `${baseUrl}/portal`).
+await manager.register('portal', {
   allowedRedirectUris: new Set(['http://localhost:3000/callback']),
   allowedRedirectUri: 'http://localhost:3000/callback',
   redirectUriToAudience: new Map([['http://localhost:3000/callback', 'mock-client']]),
