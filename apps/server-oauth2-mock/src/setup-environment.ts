@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import * as dotenv from 'dotenv';
 
-export interface MockOidcConfig {
+interface MockOidcConfig {
 	name: string;
 	envVars: {
 		clientId: string;
