@@ -1,5 +1,5 @@
-import { createMockOAuth2Manager } from '@cellix/server-oauth2-mock-seedwork';
 import { describe, expect, it } from 'vitest';
+import { createMockOAuth2Manager } from '../src/index.ts';
 
 // Test that caller-provided reserved claims (iss, aud) do not override server values
 describe('reserved claims precedence', () => {

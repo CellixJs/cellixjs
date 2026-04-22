@@ -1,5 +1,5 @@
-import { createMockOAuth2Manager, type MockOAuth2PortalConfig, type MockOAuth2ServerConfig, startMockOAuth2Server } from '@cellix/server-oauth2-mock-seedwork';
 import { describe, expect, it } from 'vitest';
+import { createMockOAuth2Manager, type MockOAuth2PortalConfig, type MockOAuth2ServerConfig, startMockOAuth2Server } from '../src/index.ts';
 
 // Helper to create a basic portal config with specified client port
 function makeConfig(port: number): MockOAuth2PortalConfig & { clientPort: number } {
