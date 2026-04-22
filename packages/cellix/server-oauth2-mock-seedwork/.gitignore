@@ -4,4 +4,5 @@
 .DS_Store
 __*
 
-.env.local
+.env.local.vitest-types/
+dist/tsconfig.vitest.tsbuildinfo
