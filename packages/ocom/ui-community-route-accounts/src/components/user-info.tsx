@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import type { AccountsUserInfoContainerEndUserFieldsFragment } from '../generated.tsx';
 
 export type UserInfoProps = {
