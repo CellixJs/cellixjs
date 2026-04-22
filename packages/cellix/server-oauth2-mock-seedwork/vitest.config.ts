@@ -1,18 +1,21 @@
-import path from 'node:path';
-import { nodeConfig } from '@cellix/config-vitest';
-import { defineConfig, mergeConfig } from 'vitest/config';
+import { join } from 'node:path';
+import { getDirnameFromImportMetaUrl, nodeConfig } from '@cellix/config-vitest';
+import { mergeConfig } from 'vitest/config';
+
+const dirname = getDirnameFromImportMetaUrl(import.meta.url);
 
 export default mergeConfig(
-    nodeConfig,
-    defineConfig({
-        test: {
-            include: ['tests/**/*.test.ts'],
-            environment: 'node',
-        },
-        resolve: {
-            alias: {
-                '@cellix/server-oauth2-mock-seedwork': path.resolve(__dirname, 'src/index.ts'),
-            },
-        },
-    }),
+nodeConfig,
+{
+test: {
+typecheck: {
+tsconfig: './tsconfig.vitest.json',
+},
+},
+resolve: {
+alias: {
+'@cellix/server-oauth2-mock-seedwork': join(dirname, 'src/index.ts'),
+},
+},
+},
 );

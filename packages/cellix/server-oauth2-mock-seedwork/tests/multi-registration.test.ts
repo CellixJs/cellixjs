@@ -17,10 +17,10 @@ function makeConfig(port: number): MockOAuth2PortalConfig & { clientPort: number
 	};
 }
 
-async function fetchJson(url: string): Promise<unknown> {
+async function fetchJson<T>(url: string): Promise<T> {
 	const res = await fetch(url);
 	if (!res.ok) throw new Error(`Failed fetch ${url}: ${res.status}`);
-	return res.json();
+	return res.json() as Promise<T>;
 }
 
 describe('multi-registration contract', () => {
@@ -34,14 +34,14 @@ describe('multi-registration contract', () => {
 		const handle2 = await manager.register('admin', cfg2);
 
 		try {
-			const meta1 = await fetchJson(`${handle1.baseUrl}/.well-known/openid-configuration`);
-			const meta2 = await fetchJson(`${handle2.baseUrl}/.well-known/openid-configuration`);
+			const meta1 = await fetchJson<{ issuer: string }>(`${handle1.baseUrl}/.well-known/openid-configuration`);
+			const meta2 = await fetchJson<{ issuer: string }>(`${handle2.baseUrl}/.well-known/openid-configuration`);
 
 			expect(meta1.issuer).toBe(handle1.baseUrl);
 			expect(meta2.issuer).toBe(handle2.baseUrl);
 
-			const jwks1 = await fetchJson(`${handle1.baseUrl}/.well-known/jwks.json`);
-			const jwks2 = await fetchJson(`${handle2.baseUrl}/.well-known/jwks.json`);
+			const jwks1 = await fetchJson<{ keys: unknown[] }>(`${handle1.baseUrl}/.well-known/jwks.json`);
+			const jwks2 = await fetchJson<{ keys: unknown[] }>(`${handle2.baseUrl}/.well-known/jwks.json`);
 
 			expect(Array.isArray(jwks1.keys)).toBe(true);
 			expect(Array.isArray(jwks2.keys)).toBe(true);
@@ -110,7 +110,7 @@ describe('multi-registration contract', () => {
 		};
 		const handle = await startMockOAuth2Server(cfg);
 		try {
-			const meta = await fetchJson(`${cfg.baseUrl}/.well-known/openid-configuration`);
+			const meta = await fetchJson<{ issuer: string }>(`${cfg.baseUrl}/.well-known/openid-configuration`);
 			expect(meta.issuer).toBe(cfg.baseUrl);
 		} finally {
 			await handle.disposer.stop();

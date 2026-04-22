@@ -39,7 +39,10 @@ describe('reserved claims precedence', () => {
 					client_id: 'server-aud',
 				}),
 			});
-			const tokens = await tokenRes.json() as { id_token: string };
+			const tokens = await tokenRes.json() as { 
+			id_token: string; 
+			profile: { iss: string; aud: string };
+		};
 
 			// Decode id_token payload
 			const payloadB64 = tokens.id_token.split('.')[1] as string;
