@@ -1,4 +1,9 @@
 {
 	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
-    "include": ["tests/**/*.test.ts"]
+	"compilerOptions": {
+		"paths": {
+			"@cellix/server-oauth2-mock-seedwork": ["./src/index.ts"]
+		}
+	},
+	"include": ["tests/**/*.test.ts"]
 }
