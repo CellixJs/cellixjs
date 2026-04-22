@@ -113,6 +113,6 @@ function isValidMockOidcConfig(config: unknown): config is MockOidcConfig {
 	if (typeof c.envVars !== 'object' || c.envVars === null) return false;
 	const env = c.envVars as { clientId?: unknown; redirectUri?: unknown };
 	if (typeof env.clientId !== 'string' || typeof env.redirectUri !== 'string') return false;
-	if (typeof c.claims !== 'object' || c.claims === null || Array.isArray(c.claims)) return false;
+	if (typeof c.claims !== 'object' || c.claims === null) return false;
 	return true;
 }

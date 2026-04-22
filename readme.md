@@ -79,7 +79,7 @@ The local mock OpenID Connect provider used for UI development is configured per
 
 Per-developer overrides
 
-If you need to override claims for local testing, create a file named mock-oidc.local.json alongside mock-oidc.json in the UI app directory. This file is gitignored and merges claim values into the base mock-oidc.json at startup.
+If you need to override claims for local testing, create a file named mock-oidc.local.json alongside mock-oidc.json in the UI app directory. This file is git-ignored and merges claim values into the base mock-oidc.json at startup.
 
 Adding a new portal
 
