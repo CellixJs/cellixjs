@@ -3,6 +3,4 @@
 /node_modules
 .DS_Store
 __*
-
-.env.local.vitest-types/
-dist/tsconfig.vitest.tsbuildinfo
+.env.local
