@@ -1,9 +1,14 @@
 {
-	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
-	"compilerOptions": {
-		"paths": {
-			"@cellix/server-oauth2-mock-seedwork": ["./src/index.ts"]
-		}
-	},
-	"include": ["tests/**/*.test.ts"]
+"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
+"compilerOptions": {
+"composite": true,
+"noEmit": false,
+"emitDeclarationOnly": true,
+"outDir": ".vitest-types",
+"tsBuildInfoFile": ".vitest-types/tsconfig.vitest.tsbuildinfo",
+"paths": {
+"@cellix/server-oauth2-mock-seedwork": ["./src/index.ts"]
+}
+},
+"include": ["src/**/*.ts", "tests/**/*.test.ts"]
 }
