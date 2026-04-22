@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import * as fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -268,5 +268,32 @@ describe('discoverPortalConfigs', () => {
 		const portal = portals.find((p) => p.name === 'localonly-test');
 		expect(portal).toBeDefined();
 		expect(portal?.clientId).toBe('localonly-client-id');
+	});
+
+	it('skips portal and warns when reading .env throws', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-envthrow/mock-oidc.json', {
+			name: 'envthrow-test',
+			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			claims: { sub: '00000000-0000-4000-8000-000000000001' },
+		});
+		fs.writeFileSync(path.join(tmp, 'ui-envthrow', '.env'), 'VITE_CLIENT_ID=x\nVITE_REDIRECT_URI=https://x/cb\n');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const envPath = path.join(tmp, 'ui-envthrow', '.env');
+		// make the env file unreadable to cause read failure
+		fs.chmodSync(envPath, 0o000);
+
+		try {
+			const portals = discoverPortalConfigs(tmp);
+			const portal = portals.find((p) => p.name === 'envthrow-test');
+			expect(portal).toBeUndefined();
+			expect(warnSpy).toHaveBeenCalled();
+		} finally {
+			// try to restore permissions to allow cleanup; ignore errors
+			try { fs.chmodSync(envPath, 0o644); } catch (_e) { /* ignore */ }
+			warnSpy.mockRestore();
+		}
 	});
 });
