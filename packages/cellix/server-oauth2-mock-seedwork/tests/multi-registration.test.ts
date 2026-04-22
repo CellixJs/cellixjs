@@ -116,4 +116,59 @@ describe('multi-registration contract', () => {
 			await handle.disposer.stop();
 		}
 	});
+
+	it('includes array and custom claims verbatim in issued JWT', async () => {
+		const manager = createMockOAuth2Manager({
+			port: 19003,
+			host: '127.0.0.1',
+			baseUrl: 'http://127.0.0.1:19003',
+		});
+		
+		await manager.register('claims-test', {
+			allowedRedirectUris: new Set(['http://localhost/cb']),
+			allowedRedirectUri: 'http://localhost/cb',
+			redirectUriToAudience: new Map([['http://localhost/cb', 'test-aud']]),
+			getUserProfile: () => ({
+				sub: '00000000-0000-4000-8000-000000000099',
+				email: 'test@example.com',
+				given_name: 'Test',
+				family_name: 'User',
+				tid: 'test-tenant',
+				roles: ['admin', 'editor'],
+				department: 'engineering',
+			}),
+		});
+
+		try {
+			// Get auth code
+			const authRes = await fetch(
+				'http://127.0.0.1:19003/claims-test/authorize?response_type=code&client_id=test-aud&redirect_uri=http%3A%2F%2Flocalhost%2Fcb&state=s&nonce=n',
+				{ redirect: 'manual' }
+			);
+			const location = authRes.headers.get('location') ?? '';
+			const code = new URL(location, 'http://base').searchParams.get('code') ?? '';
+
+			// Exchange for token
+			const tokenRes = await fetch('http://127.0.0.1:19003/claims-test/token', {
+				method: 'POST',
+				headers: { 'content-type': 'application/x-www-form-urlencoded' },
+				body: new URLSearchParams({
+					grant_type: 'authorization_code',
+					code,
+					redirect_uri: 'http://localhost/cb',
+					client_id: 'test-aud',
+				}),
+			});
+			const tokens = await tokenRes.json() as { id_token: string };
+			
+			// Decode JWT payload (no verification needed — just inspect claims)
+			const payloadB64 = tokens.id_token.split('.')[1];
+			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
+
+			expect(payload['roles']).toEqual(['admin', 'editor']);
+			expect(payload['department']).toBe('engineering');
+		} finally {
+			await manager.stopAll();
+		}
+	});
 });

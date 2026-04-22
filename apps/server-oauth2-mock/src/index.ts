@@ -26,12 +26,13 @@ try {
 			allowedRedirectUri: portal.redirectUri,
 			redirectUriToAudience: new Map([[portal.redirectUri, portal.clientId]]),
 			getUserProfile: () => ({
-				sub: portal.claims['sub'] ?? crypto.randomUUID(),
-				email: portal.claims['email'] ?? 'test@example.com',
-				given_name: portal.claims['given_name'] ?? 'Test',
-				family_name: portal.claims['family_name'] ?? 'User',
-				tid: portal.claims['tid'] ?? 'test-tenant-id',
+				// spread custom claims first so known string fields we set below always win and are correctly typed
 				...portal.claims,
+				sub: String(portal.claims['sub'] ?? crypto.randomUUID()),
+				email: String(portal.claims['email'] ?? 'test@example.com'),
+				given_name: String(portal.claims['given_name'] ?? 'Test'),
+				family_name: String(portal.claims['family_name'] ?? 'User'),
+				tid: String(portal.claims['tid'] ?? 'test-tenant-id'),
 			}),
 		};
 

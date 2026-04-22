@@ -186,4 +186,20 @@ describe('discoverPortalConfigs', () => {
 		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
 		expect(portals.length).toBe(0);
 	});
+
+	it('preserves array-valued claims from mock-oidc.json', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-roles/mock-oidc.json', {
+			name: 'roles-test',
+			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			claims: { sub: '00000000-0000-4000-8000-000000000001', roles: ['admin', 'editor'], level: 2 },
+		});
+		fs.writeFileSync(path.join(tmp, 'ui-roles', '.env'), 'VITE_CLIENT_ID=cid\nVITE_REDIRECT_URI=https://r/cb\n');
+
+		const portals = discoverPortalConfigs(tmp, 'https://mock-auth.example.localhost:1355');
+		expect(portals).toHaveLength(1);
+		expect(portals[0].claims['roles']).toEqual(['admin', 'editor']);
+		expect(portals[0].claims['level']).toBe(2);
+	});
 });

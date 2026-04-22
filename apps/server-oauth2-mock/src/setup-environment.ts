@@ -8,7 +8,7 @@ export interface MockOidcConfig {
 		clientId: string;
 		redirectUri: string;
 	};
-	claims: Record<string, string>;
+	claims: Record<string, unknown>;
 }
 
 // Resolved config after reading the UI app's .env
@@ -16,7 +16,7 @@ export interface PortalOidcConfig {
 	name: string;
 	clientId: string;
 	redirectUri: string;
-	claims: Record<string, string>;
+	claims: Record<string, unknown>;
 }
 
 export function setupEnvironment(): void {

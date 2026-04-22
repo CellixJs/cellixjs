@@ -12,6 +12,7 @@ interface TokenProfile {
 	given_name: string;
 	family_name: string;
 	tid: string;
+	[key: string]: unknown;
 }
 
 export interface MockOAuth2UserProfile {
@@ -20,6 +21,7 @@ export interface MockOAuth2UserProfile {
 	family_name: string;
 	sub?: string;
 	tid?: string;
+	[key: string]: unknown;
 }
 
 export interface MockOAuth2ServerConfig {
@@ -37,15 +39,18 @@ async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.C
 	const expiresIn = 3600;
 	const exp = now + expiresIn;
 
+	// Include any extra custom claims from the profile, but ensure required OIDC fields always win
+	const { sub, aud, email, given_name, family_name, tid, ...extraClaims } = profile;
 	// Manually sign the id_token as a JWT with all claims using jose
 	const idTokenPayload = {
+		...extraClaims,
 		iss: baseUrl,
-		sub: profile.sub,
-		aud: profile.aud,
-		email: profile.email,
-		given_name: profile.given_name,
-		family_name: profile.family_name,
-		tid: profile.tid,
+		sub,
+		aud,
+		email,
+		given_name,
+		family_name,
+		tid,
 		exp,
 		iat: now,
 		typ: 'id_token',
@@ -59,13 +64,14 @@ async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.C
 
 	// Manually sign the access_token as a JWT with all claims using jose
 	const accessTokenPayload = {
+		...extraClaims,
 		iss: baseUrl,
-		sub: profile.sub,
-		aud: profile.aud,
-		email: profile.email,
-		given_name: profile.given_name,
-		family_name: profile.family_name,
-		tid: profile.tid,
+		sub,
+		aud,
+		email,
+		given_name,
+		family_name,
+		tid,
 		exp,
 		iat: now,
 		typ: 'access_token',
@@ -86,16 +92,17 @@ async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.C
 		token_type: 'Bearer',
 		scope: 'openid',
 		profile: {
+			...extraClaims,
 			exp,
 			ver: '1.0',
 			iss: baseUrl,
-			sub: profile.sub,
-			aud: profile.aud,
+			sub,
+			aud,
 			iat: now,
-			email: profile.email,
-			given_name: profile.given_name,
-			family_name: profile.family_name,
-			tid: profile.tid,
+			email,
+			given_name,
+			family_name,
+			tid,
 		},
 		expires_at: exp,
 	};
@@ -267,14 +274,17 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		const userProfile = config.getUserProfile();
 
+		// Preserve extra claims from the user profile by spreading unknown keys into the TokenProfile
+		const { sub: upSub, email: upEmail, given_name: upGiven, family_name: upFamily, tid: upTid, ...extra } = userProfile as Record<string, unknown>;
 		const profile: TokenProfile = {
+			...extra,
 			aud,
-			sub: persistedSub,
+			sub: (upSub as string) ?? persistedSub,
 			iss: issuerBaseUrl,
-			email: userProfile.email,
-			given_name: userProfile.given_name,
-			family_name: userProfile.family_name,
-			tid: tid ?? userProfile.tid ?? 'test-tenant-id',
+			email: (upEmail as string) ?? undefined,
+			given_name: (upGiven as string) ?? undefined,
+			family_name: (upFamily as string) ?? undefined,
+			tid: (tid as string) ?? (upTid as string) ?? 'test-tenant-id',
 		};
 		const tokenResponse = await buildTokenResponse(profile, keyObject, publicJwk, issuerBaseUrl);
 		res.json(tokenResponse);

@@ -1,0 +1,4 @@
+{
+	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
+    "include": ["tests/**/*.test.ts"]
+}
