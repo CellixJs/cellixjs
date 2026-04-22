@@ -39,15 +39,15 @@ describe('reserved claims precedence', () => {
 					client_id: 'server-aud',
 				}),
 			});
-			const tokens = await tokenRes.json() as { id_token: string, access_token: string, profile: Record<string, unknown> };
+			const tokens = await tokenRes.json() as { id_token: string };
 
 			// Decode id_token payload
-			const payloadB64 = tokens.id_token.split('.')[1];
+			const payloadB64 = tokens.id_token.split('.')[1] as string;
 			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
 
 			// Assert server values are present (issuer is router base URL, aud matches redirect->aud mapping)
-			expect(payload.iss).toBe('http://127.0.0.1:19010/reserved-claims');
-			expect(payload.aud).toBe('server-aud');
+			expect(payload['iss']).toBe('http://127.0.0.1:19010/reserved-claims');
+			expect(payload['aud']).toBe('server-aud');
 
 			// profile wrapper should also reflect server aud and issuer
 			expect(tokens.profile.iss).toBe('http://127.0.0.1:19010/reserved-claims');

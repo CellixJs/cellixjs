@@ -17,7 +17,7 @@ function makeConfig(port: number): MockOAuth2PortalConfig & { clientPort: number
 	};
 }
 
-async function fetchJson(url: string) {
+async function fetchJson(url: string): Promise<unknown> {
 	const res = await fetch(url);
 	if (!res.ok) throw new Error(`Failed fetch ${url}: ${res.status}`);
 	return res.json();
@@ -75,7 +75,7 @@ describe('multi-registration contract', () => {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ grant_type: 'authorization_code', code }),
 			});
-			const tokenJson = await tokenRes.json();
+			const tokenJson = await tokenRes.json() as { profile: { aud: string }; access_token: string };
 			expect(tokenJson).toHaveProperty('access_token');
 			expect(tokenJson.profile.aud).toBe(`mock-client-${cfg1.clientPort}`);
 
@@ -91,7 +91,7 @@ describe('multi-registration contract', () => {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ grant_type: 'authorization_code', code: code2 }),
 			});
-			const tokenJson2 = await tokenRes2.json();
+			const tokenJson2 = await tokenRes2.json() as { profile: { aud: string } };
 			expect(tokenJson2.profile.aud).toBe(`mock-client-${cfg2.clientPort}`);
 		} finally {
 			await manager.stopAll();
@@ -162,7 +162,7 @@ describe('multi-registration contract', () => {
 			const tokens = await tokenRes.json() as { id_token: string };
 			
 			// Decode JWT payload (no verification needed — just inspect claims)
-			const payloadB64 = tokens.id_token.split('.')[1];
+			const payloadB64 = tokens.id_token.split('.')[1] as string;
 			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
 
 			expect(payload['roles']).toEqual(['admin', 'editor']);
