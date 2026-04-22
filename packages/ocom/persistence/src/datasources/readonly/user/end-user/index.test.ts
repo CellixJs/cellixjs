@@ -94,6 +94,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('the EndUserReadRepo should have all required methods', () => {
 			expect(typeof result.EndUserReadRepo.getAll).toBe('function');
 			expect(typeof result.EndUserReadRepo.getById).toBe('function');
+			expect(typeof result.EndUserReadRepo.getByIds).toBe('function');
 			expect(typeof result.EndUserReadRepo.getByExternalId).toBe('function');
 			expect(typeof result.EndUserReadRepo.getByName).toBe('function');
 		});

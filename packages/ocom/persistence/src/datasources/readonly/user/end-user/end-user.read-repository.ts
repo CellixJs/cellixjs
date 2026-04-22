@@ -7,6 +7,7 @@ import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-
 export interface EndUserReadRepository {
 	getAll: (options?: FindOptions) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]>;
 	getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference | null>;
+	getByIds: (ids: string[], options?: FindOneOptions) => Promise<Array<Domain.Contexts.User.EndUser.EndUserEntityReference | null>>;
 	getByName: (displayName: string, options?: FindOneOptions) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]>;
 	getByExternalId: (externalId: string, options?: FindOneOptions) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference | null>;
 }
@@ -32,6 +33,10 @@ export class EndUserReadRepositoryImpl implements EndUserReadRepository {
 			return null;
 		}
 		return this.converter.toDomain(result, this.passport);
+	}
+
+	async getByIds(ids: string[], options?: FindOneOptions): Promise<Array<Domain.Contexts.User.EndUser.EndUserEntityReference | null>> {
+		return await Promise.all(ids.map(async (id) => await this.getById(id, options)));
 	}
 
 	async getByName(displayName: string, options?: FindOneOptions): Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]> {

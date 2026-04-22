@@ -118,6 +118,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('the repository should have all required methods', () => {
 			expect(typeof repository.getAll).toBe('function');
 			expect(typeof repository.getById).toBe('function');
+			expect(typeof repository.getByIds).toBe('function');
 			expect(typeof repository.getByExternalId).toBe('function');
 			expect(typeof repository.getByName).toBe('function');
 		});
