@@ -8,7 +8,7 @@ setupEnvironment();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const appsDir = path.join(__dirname, '../../..');
+const appsDir = path.join(__dirname, '../..');
 const port = Number.parseInt(process.env['PORT'] ?? '1355', 10);
 const baseUrl = process.env['BASE_URL'] ?? `https://mock-auth.ownercommunity.localhost:${port}`;
 
