@@ -25,11 +25,11 @@ export function setupEnvironment(): void {
 	dotenv.config({ path: '.env.local', override: true });
 }
 
-export function discoverPortalConfigs(appsDir: string, _serverBaseUrl: string): PortalOidcConfig[] {
+export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 	const entries = fs.readdirSync(appsDir, { withFileTypes: true });
 	const portals: PortalOidcConfig[] = [];
 
-	for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+	for (const entry of entries.toSorted((a, b) => a.name.localeCompare(b.name))) {
 		if (!entry.isDirectory() || !entry.name.startsWith('ui-')) continue;
 
 		const mockOidcPath = path.join(appsDir, entry.name, 'mock-oidc.json');
@@ -62,17 +62,23 @@ export function discoverPortalConfigs(appsDir: string, _serverBaseUrl: string): 
 			}
 		}
 
-		// Read the UI app's .env to resolve env vars
+		// Read the UI app's .env to resolve env vars. Also merge .env.local on top if present
 		const appDir = path.join(appsDir, entry.name);
 		const envPath = path.join(appDir, '.env');
-		if (!fs.existsSync(envPath)) {
+		const envLocalPath = path.join(appDir, '.env.local');
+		if (!fs.existsSync(envPath) && !fs.existsSync(envLocalPath)) {
 			console.warn(`[server-oauth2-mock] Skipping ${entry.name}: .env not found`);
 			continue;
 		}
 
-		let parsedEnv: Record<string, string>;
+		let parsedEnv: Record<string, string> = {};
 		try {
-			parsedEnv = dotenv.parse(fs.readFileSync(envPath, 'utf-8'));
+			if (fs.existsSync(envPath)) {
+				parsedEnv = { ...parsedEnv, ...dotenv.parse(fs.readFileSync(envPath, 'utf-8')) };
+			}
+			if (fs.existsSync(envLocalPath)) {
+				parsedEnv = { ...parsedEnv, ...dotenv.parse(fs.readFileSync(envLocalPath, 'utf-8')) };
+			}
 		} catch (err) {
 			console.warn(`[server-oauth2-mock] Skipping ${entry.name}: failed to read .env`, err);
 			continue;

@@ -505,7 +505,11 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 				console.log(`Mock OAuth2 server running on ${serverConfig.baseUrl}`);
 				resolve({ server: s, disposer: { stop: () => new Promise<void>((res, rej) => s.close((err) => (err ? rej(err) : res()))) } });
 			});
-			s.on('error', reject);
+			s.on('error', (err) => {
+				app = null; // reset so manager can be retried
+					registeredNames.clear(); // clear registered names so subsequent retries can reuse names
+				reject(err);
+			});
 		});
 
 		return app;

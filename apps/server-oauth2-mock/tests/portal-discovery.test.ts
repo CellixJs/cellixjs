@@ -54,7 +54,7 @@ describe('discoverPortalConfigs', () => {
 		});
 		writeEnv(tmp, 'ui-b/.env', 'CLIENT_B=cid-b\nREDIR_B=https://b/redirect\n');
 
-		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(2);
 		const names = portals.map((p) => p.name).sort();
 		expect(names).toEqual(['a', 'b']);
@@ -74,12 +74,36 @@ describe('discoverPortalConfigs', () => {
 			claims: { email: 'local@example.com', sub: 'local' },
 		});
 
-		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(1);
 		const p = portals[0];
 		expect(p.claims.sub).toBe('local');
 		expect(p.claims.email).toBe('local@example.com');
 		expect(p.claims.extra).toBe('keep');
+	});
+
+	it('warns and falls back to base config when mock-oidc.local.json is malformed', () => {
+		if (!tmp) throw new Error('tmp not created');
+		
+		// Write valid base config
+		writeJson(tmp, 'ui-bad-local/mock-oidc.json', {
+			name: 'bad-local-test',
+			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			claims: { sub: '00000000-0000-4000-8000-000000000001' },
+		});
+		fs.writeFileSync(path.join(tmp, 'ui-bad-local', '.env'), 'VITE_CLIENT_ID=cid\nVITE_REDIRECT_URI=https://r/cb\n');
+		// Write malformed local override
+		fs.writeFileSync(path.join(tmp, 'ui-bad-local', 'mock-oidc.local.json'), '{ invalid json }');
+		
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			const portals = discoverPortalConfigs(tmp);
+			expect(portals).toHaveLength(1);
+			expect(portals[0].claims.sub).toBe('00000000-0000-4000-8000-000000000001');
+			expect(warnSpy).toHaveBeenCalled();
+		} finally {
+			warnSpy.mockRestore();
+		}
 	});
 
 	it('returns portals sorted alphabetically by ui-* directory name', () => {
@@ -106,7 +130,7 @@ describe('discoverPortalConfigs', () => {
 		});
 		writeEnv(tmp, 'ui-b/.env', 'B_C=cid-b\nB_R=https://b/redirect\n');
 
-		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		const portals = discoverPortalConfigs(tmp);
 		const names = portals.map((p) => p.name);
 		expect(names).toEqual(['a', 'b', 'c']);
 	});
@@ -129,7 +153,7 @@ describe('discoverPortalConfigs', () => {
 		} as unknown as Record<string, unknown>);
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		const portals = discoverPortalConfigs(tmp);
 		expect(portals.find((p) => p.name === 'good')).toBeDefined();
 		expect(portals.find((p) => p.name === 'bad')).toBeUndefined();
 		expect(warnSpy).toHaveBeenCalled();
@@ -145,7 +169,7 @@ describe('discoverPortalConfigs', () => {
 		});
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(0);
 		expect(warnSpy).toHaveBeenCalled();
 	});
@@ -161,7 +185,7 @@ describe('discoverPortalConfigs', () => {
 		writeEnv(tmp, 'ui-bad-env/.env', 'OTHER=1\n');
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(0);
 		expect(warnSpy).toHaveBeenCalled();
 	});
@@ -174,7 +198,7 @@ describe('discoverPortalConfigs', () => {
 		fs.writeFileSync(p, '{ invalid json', 'utf-8');
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(0);
 		expect(warnSpy).toHaveBeenCalled();
 	});
@@ -183,7 +207,7 @@ describe('discoverPortalConfigs', () => {
 		if (!tmp) throw new Error('tmp not created');
 
 		fs.mkdirSync(path.join(tmp, 'ui-empty'));
-		const portals = discoverPortalConfigs(tmp, 'http://localhost:1355');
+		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(0);
 	});
 
@@ -197,9 +221,9 @@ describe('discoverPortalConfigs', () => {
 		});
 		fs.writeFileSync(path.join(tmp, 'ui-roles', '.env'), 'VITE_CLIENT_ID=cid\nVITE_REDIRECT_URI=https://r/cb\n');
 
-		const portals = discoverPortalConfigs(tmp, 'https://mock-auth.example.localhost:1355');
+		const portals = discoverPortalConfigs(tmp);
 		expect(portals).toHaveLength(1);
-		expect(portals[0].claims['roles']).toEqual(['admin', 'editor']);
-		expect(portals[0].claims['level']).toBe(2);
+		expect(portals[0].claims.roles).toEqual(['admin', 'editor']);
+		expect(portals[0].claims.level).toBe(2);
 	});
 });

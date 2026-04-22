@@ -1,16 +1,18 @@
 import crypto from 'node:crypto';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createMockOAuth2Manager, type MockOAuth2PortalConfig } from '@cellix/server-oauth2-mock-seedwork';
 import { discoverPortalConfigs, type PortalOidcConfig, setupEnvironment } from './setup-environment.js';
 
 setupEnvironment();
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-const appsDir = path.resolve(__dirname, '../../');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const appsDir = path.join(__dirname, '../../..');
 const port = Number.parseInt(process.env['PORT'] ?? '1355', 10);
 const baseUrl = process.env['BASE_URL'] ?? `https://mock-auth.ownercommunity.localhost:${port}`;
 
-const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir, baseUrl);
+const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir);
 
 if (portals.length === 0) {
 	console.error('[server-oauth2-mock] No portal configs discovered. Ensure at least one apps/ui-*/mock-oidc.json exists.');
@@ -31,7 +33,7 @@ try {
 				sub: String(portal.claims['sub'] ?? crypto.randomUUID()),
 				email: String(portal.claims['email'] ?? 'test@example.com'),
 				given_name: String(portal.claims['given_name'] ?? 'Test'),
-				family_name: String(portal.claims['family_name'] ?? 'User'),
+				'family_name': String(portal.claims['family_name'] ?? 'User'),
 				tid: String(portal.claims['tid'] ?? 'test-tenant-id'),
 			}),
 		};

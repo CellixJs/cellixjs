@@ -24,6 +24,20 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 describe('multi-registration contract', () => {
+	it('rejects duplicate portal names', async () => {
+		const manager = createMockOAuth2Manager({
+			port: 38199,
+			host: 'localhost',
+			baseUrl: 'http://localhost:38199',
+		});
+		const cfg = makeConfig(38299);
+		try {
+			await manager.register('duplicate', cfg);
+			await expect(manager.register('duplicate', cfg)).rejects.toThrow();
+		} finally {
+			await manager.stopAll();
+		}
+	});
 	it('registers two named OIDC configs and exposes distinct metadata/jwks', async () => {
 		const port = 38200;
 		const manager = createMockOAuth2Manager({ port, host: 'localhost', baseUrl: `http://localhost:${port}` });
@@ -117,6 +131,19 @@ describe('multi-registration contract', () => {
 		}
 	});
 
+	it('throws when registering the same portal name twice', async () => {
+		const manager = createMockOAuth2Manager({ port: 19010, host: '127.0.0.1', baseUrl: 'http://127.0.0.1:19010' });
+		const config: MockOAuth2PortalConfig = {
+			allowedRedirectUris: new Set(['http://localhost/cb']),
+			allowedRedirectUri: 'http://localhost/cb',
+			redirectUriToAudience: new Map([['http://localhost/cb', 'aud']]),
+			getUserProfile: () => ({ sub: '00000000-0000-4000-8000-000000000001', email: 'a@b.com', given_name: 'A', family_name: 'B', tid: 't' }),
+		};
+		await manager.register('dupe', config);
+		await expect(manager.register('dupe', config)).rejects.toThrow();
+		await manager.stopAll();
+	});
+
 	it('includes array and custom claims verbatim in issued JWT', async () => {
 		const manager = createMockOAuth2Manager({
 			port: 19003,
@@ -159,7 +186,7 @@ describe('multi-registration contract', () => {
 					client_id: 'test-aud',
 				}),
 			});
-			const tokens = await tokenRes.json() as { id_token: string };
+			const tokens = await tokenRes.json() as { id_token: string; access_token: string; profile: Record<string, unknown> };
 			
 			// Decode JWT payload (no verification needed — just inspect claims)
 			const payloadB64 = tokens.id_token.split('.')[1] as string;
@@ -167,6 +194,16 @@ describe('multi-registration contract', () => {
 
 			expect(payload['roles']).toEqual(['admin', 'editor']);
 			expect(payload['department']).toBe('engineering');
+
+			// Also verify access_token contains the custom claims
+			const accessPayloadB64 = tokens.access_token.split('.')[1] as string;
+			const accessPayload = JSON.parse(Buffer.from(accessPayloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
+			expect(accessPayload['roles']).toEqual(['admin', 'editor']);
+			expect(accessPayload['department']).toBe('engineering');
+
+			// And the token response profile object should also include them
+			expect(tokens.profile['roles']).toEqual(['admin', 'editor']);
+			expect(tokens.profile['department']).toBe('engineering');
 		} finally {
 			await manager.stopAll();
 		}
