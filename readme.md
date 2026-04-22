@@ -85,9 +85,14 @@ Adding a new portal
 
 To add a new UI portal for local mock auth, create a directory apps/ui-<name> and add a mock-oidc.json file with the schema above. The mock server auto-discovers portals on startup.
 
-PORT_BASE
+PORT and BASE_URL
 
-The mock server starts portals beginning at PORT_BASE (default 3001). Each discovered portal receives PORT_BASE + index where index is the discovery order (sorted by directory name).
+The mock auth server now runs as a single instance. Configure it using the following environment variables:
+
+- PORT — port the HTTP server listens on (default: 1355)
+- BASE_URL — externally-visible origin used as the OIDC issuer (in local development this is handled by the portless dev proxy; set BASE_URL to the proxy origin when necessary)
+
+Per-portal port allocation (PORT_BASE) is no longer used.
 
 
 ## Scripts

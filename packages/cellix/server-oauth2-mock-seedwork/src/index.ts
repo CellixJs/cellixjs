@@ -8,17 +8,17 @@ interface TokenProfile {
 	aud: string;
 	sub: string;
 	iss: string;
-	email: string;
-	given_name: string;
-	family_name: string;
-	tid: string;
+	email?: string;
+	given_name?: string;
+	family_name?: string;
+	tid?: string;
 	[key: string]: unknown;
 }
 
 export interface MockOAuth2UserProfile {
-	email: string;
-	given_name: string;
-	family_name: string;
+	email?: string;
+	given_name?: string;
+	family_name?: string;
 	sub?: string;
 	tid?: string;
 	[key: string]: unknown;
@@ -42,6 +42,7 @@ async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.C
 	// Include any extra custom claims from the profile, but ensure required OIDC fields always win
 	const { sub, aud, email, given_name, family_name, tid, ...extraClaims } = profile;
 	// Manually sign the id_token as a JWT with all claims using jose
+	// Undefined values are intentionally omitted by JSON.stringify
 	const idTokenPayload = {
 		...extraClaims,
 		iss: baseUrl,
@@ -63,6 +64,7 @@ async function buildTokenResponse(profile: TokenProfile, privateKey: webcrypto.C
 		.sign(privateKey);
 
 	// Manually sign the access_token as a JWT with all claims using jose
+	// Undefined values are intentionally omitted by JSON.stringify
 	const accessTokenPayload = {
 		...extraClaims,
 		iss: baseUrl,
@@ -276,15 +278,16 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		// Preserve extra claims from the user profile by spreading unknown keys into the TokenProfile
 		const { sub: upSub, email: upEmail, given_name: upGiven, family_name: upFamily, tid: upTid, ...extra } = userProfile as Record<string, unknown>;
+		const resolvedTid = typeof tid === 'string' ? (tid as string) : (typeof upTid === 'string' ? (upTid as string) : 'test-tenant-id');
 		const profile: TokenProfile = {
 			...extra,
 			aud,
-			sub: (upSub as string) ?? persistedSub,
+			sub: typeof upSub === 'string' ? (upSub as string) : persistedSub,
 			iss: issuerBaseUrl,
-			email: (upEmail as string) ?? undefined,
-			given_name: (upGiven as string) ?? undefined,
-			family_name: (upFamily as string) ?? undefined,
-			tid: (tid as string) ?? (upTid as string) ?? 'test-tenant-id',
+			...(typeof upEmail === 'string' ? { email: upEmail } : {}),
+			...(typeof upGiven === 'string' ? { given_name: upGiven } : {}),
+			...(typeof upFamily === 'string' ? { family_name: upFamily } : {}),
+			tid: resolvedTid,
 		};
 		const tokenResponse = await buildTokenResponse(profile, keyObject, publicJwk, issuerBaseUrl);
 		res.json(tokenResponse);
