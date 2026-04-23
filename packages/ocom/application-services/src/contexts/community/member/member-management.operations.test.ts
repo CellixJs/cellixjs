@@ -121,7 +121,7 @@ describe('member-management operations', () => {
 		expect(activated).toBe(saved);
 		expect(deactivated).toBe(saved);
 		expect(member.requestActivateMember).toHaveBeenCalledTimes(1);
-		expect(member.requestDeactivateMember).toHaveBeenCalledTimes(1);
+		expect(member.requestDeactivateMember).toHaveBeenCalledWith(undefined, 'manual');
 	});
 
 	it('throws when activate/deactivate save returns nothing', async () => {
@@ -142,8 +142,31 @@ describe('member-management operations', () => {
 
 		await removeMember(dataSources)({ memberId: 'member-1', reason: 'cleanup' });
 
-		expect(member.requestRemoveMember).toHaveBeenCalledTimes(1);
+		expect(member.requestRemoveMember).toHaveBeenCalledWith(undefined, 'cleanup');
 		expect(memberRepository.save).toHaveBeenCalled();
+	});
+
+	it('passes reason to bulk deactivate and bulk remove domain methods', async () => {
+		const member = {
+			requestDeactivateMember: vi.fn(),
+			requestRemoveMember: vi.fn(),
+		};
+		memberRepository.getById.mockResolvedValue(member);
+		memberRepository.save.mockResolvedValue({ id: 'member-1' });
+
+		await bulkDeactivateMembers(dataSources)({ memberIds: ['m1'], reason: 'policy' });
+		await bulkRemoveMembers(dataSources)({ memberIds: ['m1'], reason: 'cleanup' });
+
+		expect(member.requestDeactivateMember).toHaveBeenCalledWith(undefined, 'policy');
+		expect(member.requestRemoveMember).toHaveBeenCalledWith(undefined, 'cleanup');
+	});
+
+	it('rejects bulk operations that exceed the maximum batch size', async () => {
+		const oversizedIds = Array.from({ length: 101 }, (_, i) => `member-${i}`);
+
+		await expect(bulkActivateMembers(dataSources)({ memberIds: oversizedIds })).rejects.toThrow('maximum batch size of 100');
+		await expect(bulkDeactivateMembers(dataSources)({ memberIds: oversizedIds })).rejects.toThrow('maximum batch size of 100');
+		await expect(bulkRemoveMembers(dataSources)({ memberIds: oversizedIds })).rejects.toThrow('maximum batch size of 100');
 	});
 
 	it('bulk operations continue on per-member failures', async () => {

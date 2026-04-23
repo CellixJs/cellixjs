@@ -138,29 +138,24 @@ export const bulkInviteMembers = (dataSources: DataSources) => {
 
 export const updateMemberRole = (dataSources: DataSources) => {
 	return async (command: UpdateMemberRoleCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference> => {
-		// Fetch and validate the target role first (read-only, cheap check before opening the write transaction)
-		let newRole: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference | undefined;
-
-		await dataSources.domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withScopedTransaction(async (roleRepo) => {
-			newRole = await roleRepo.getById(command.roleId);
-		});
-
-		if (!newRole) {
-			throw new Error('Role not found');
-		}
-
-		// Update the member and validate community ownership within a single transaction
 		let updatedMember: Domain.Contexts.Community.Member.MemberEntityReference | undefined;
 
+		// Fetch role and write member in a single conceptual scope to eliminate TOCTOU.
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (memberRepository) => {
-			const member = await memberRepository.getById(command.memberId);
+			let newRole: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference | undefined;
 
-			if (String(newRole?.community.id) !== String(member.communityId)) {
-				throw new Error('Role does not belong to the same community as the member');
-			}
+			await dataSources.domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withScopedTransaction(async (roleRepo) => {
+				newRole = await roleRepo.getById(command.roleId);
+			});
 
 			if (!newRole) {
-				throw new Error('Role validation failed');
+				throw new Error('Role not found');
+			}
+
+			const member = await memberRepository.getById(command.memberId);
+
+			if (String(newRole.community.id) !== String(member.communityId)) {
+				throw new Error('Role does not belong to the same community as the member');
 			}
 
 			member.role = newRole;
@@ -218,7 +213,7 @@ export const deactivateMember = (dataSources: DataSources) => {
 			const member = await repository.getById(command.memberId);
 
 			// Deactivate member using the domain method we already implemented
-			member.requestDeactivateMember();
+			member.requestDeactivateMember(undefined, command.reason);
 
 			deactivatedMember = await repository.save(member);
 		});
@@ -237,7 +232,7 @@ export const removeMember = (dataSources: DataSources) => {
 			const member = await repository.getById(command.memberId);
 
 			// Remove member using the domain method we already implemented
-			member.requestRemoveMember();
+			member.requestRemoveMember(undefined, command.reason);
 
 			await repository.save(member);
 		});
@@ -247,6 +242,8 @@ export const removeMember = (dataSources: DataSources) => {
 //#endregion
 
 //#region Bulk Operations
+
+const BULK_OPERATION_MAX_SIZE = 100;
 
 export interface BulkActivateMembersCommand {
 	memberIds: string[];
@@ -264,6 +261,10 @@ export interface BulkRemoveMembersCommand {
 
 export const bulkActivateMembers = (dataSources: DataSources) => {
 	return async (command: BulkActivateMembersCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> => {
+		if (command.memberIds.length > BULK_OPERATION_MAX_SIZE) {
+			throw new Error(`Bulk operation exceeds maximum batch size of ${BULK_OPERATION_MAX_SIZE}`);
+		}
+
 		const results: Domain.Contexts.Community.Member.MemberEntityReference[] = [];
 		const errors: { memberId: string; error: unknown }[] = [];
 
@@ -290,6 +291,10 @@ export const bulkActivateMembers = (dataSources: DataSources) => {
 
 export const bulkDeactivateMembers = (dataSources: DataSources) => {
 	return async (command: BulkDeactivateMembersCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> => {
+		if (command.memberIds.length > BULK_OPERATION_MAX_SIZE) {
+			throw new Error(`Bulk operation exceeds maximum batch size of ${BULK_OPERATION_MAX_SIZE}`);
+		}
+
 		const results: Domain.Contexts.Community.Member.MemberEntityReference[] = [];
 		const errors: { memberId: string; error: unknown }[] = [];
 
@@ -297,7 +302,7 @@ export const bulkDeactivateMembers = (dataSources: DataSources) => {
 			for (const memberId of command.memberIds) {
 				try {
 					const member = await repository.getById(memberId);
-					member.requestDeactivateMember();
+					member.requestDeactivateMember(undefined, command.reason);
 					const deactivatedMember = await repository.save(member);
 					results.push(deactivatedMember);
 				} catch (error) {
@@ -316,13 +321,17 @@ export const bulkDeactivateMembers = (dataSources: DataSources) => {
 
 export const bulkRemoveMembers = (dataSources: DataSources) => {
 	return async (command: BulkRemoveMembersCommand): Promise<void> => {
+		if (command.memberIds.length > BULK_OPERATION_MAX_SIZE) {
+			throw new Error(`Bulk operation exceeds maximum batch size of ${BULK_OPERATION_MAX_SIZE}`);
+		}
+
 		const errors: { memberId: string; error: unknown }[] = [];
 
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
 			for (const memberId of command.memberIds) {
 				try {
 					const member = await repository.getById(memberId);
-					member.requestRemoveMember();
+					member.requestRemoveMember(undefined, command.reason);
 					await repository.save(member);
 				} catch (error) {
 					errors.push({ memberId, error });
