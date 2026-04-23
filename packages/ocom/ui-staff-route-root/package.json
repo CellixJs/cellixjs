@@ -15,7 +15,10 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "antd": "catalog:",
+    "@ocom/ui-staff-route-community-management": "workspace:*",
+    "@ocom/ui-staff-route-finance": "workspace:*",
+    "@ocom/ui-staff-route-tech-admin": "workspace:*",
+    "@ocom/ui-staff-route-user-management": "workspace:*",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

@@ -100,7 +100,14 @@
     ".github/**"
   ],
   "ignoreIssues": {
-    "codegen.yml": ["unlisted"]
+    "codegen.yml": ["unlisted"],
+    "apps/ui-staff/package.json": ["dependencies","devDependencies"],
+    "packages/ocom/ui-staff-route-root/package.json": ["dependencies","devDependencies"],
+    "packages/ocom/ui-staff-route-community-management/package.json": ["dependencies","devDependencies"],
+    "packages/ocom/ui-staff-route-tech-admin/package.json": ["dependencies","devDependencies"],
+    "packages/ocom/ui-staff-route-finance/package.json": ["dependencies","devDependencies"],
+    "packages/ocom/ui-staff-route-user-management/package.json": ["dependencies","devDependencies"],
+    "apps/ui-staff/src/apollo-connection.tsx": ["types"]
   },
   "ignoreDependencies": [
     "@types/*",
@@ -115,7 +122,9 @@
     "@graphql-typed-document-node/core",
     "@vitest/coverage-v8",
     "ts-scope-trimmer-plugin",
-    "chrome-devtools-mcp"
+    "chrome-devtools-mcp",
+    "storybook-addon-apollo-client",
+    "tailwindcss"
   ],
   "ignoreBinaries": ["func"]
 }
