@@ -26,7 +26,13 @@ export function setupEnvironment(): void {
 }
 
 export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
-	const entries = fs.readdirSync(appsDir, { withFileTypes: true });
+	let entries: fs.Dirent[];
+	try {
+		entries = fs.readdirSync(appsDir, { withFileTypes: true });
+	} catch (error) {
+		console.warn(`[server-oauth2-mock] Warning: failed to read apps directory "${appsDir}"; returning no portals.`, error);
+		return [];
+	}
 	const portals: PortalOidcConfig[] = [];
 
 	for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {

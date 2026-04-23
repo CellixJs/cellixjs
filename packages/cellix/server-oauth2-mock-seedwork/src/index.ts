@@ -133,6 +133,12 @@ const normalizeOrigin = (value: string) => {
 	}
 };
 
+// SAFE_NAME_RE: allow only ASCII letters, digits, underscore and hyphen.
+// This prevents path-traversal and multi-segment names (no slashes, no dots).
+// Kept at module scope to avoid reallocating the RegExp on each call and to
+// make the allowed pattern easier to document and reuse.
+const SAFE_NAME_RE = /^[a-zA-Z0-9_-]+$/;
+
 export interface MockOAuth2ServerHandle {
 	server: Server;
 	disposer: {
@@ -523,6 +529,10 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 
 	return {
 		async register(name: string, config: MockOAuth2PortalConfig) {
+			// Validate portal name to prevent path-traversal or multi-segment names
+			if (!SAFE_NAME_RE.test(name)) {
+				throw new Error(`[server-oauth2-mock] Invalid portal name "${name}": must match /^[a-zA-Z0-9_-]+$/`);
+			}
 			if (registeredNames.has(name)) throw new Error(`Registration with name ${name} already exists`);
 
 			const expressApp = await ensureStarted();

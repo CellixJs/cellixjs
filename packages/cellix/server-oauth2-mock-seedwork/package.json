@@ -13,8 +13,8 @@
 		"lint": "biome lint",
 		"format": "biome format --write",
 		"format:check": "biome format .",
-		"test": "vitest run --silent --reporter=dot",
-		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test": "vitest run --reporter=dot",
+		"test:coverage": "vitest run --coverage --reporter=dot",
 		"test:watch": "vitest"
 	},
 	"dependencies": {

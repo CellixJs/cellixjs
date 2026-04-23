@@ -291,4 +291,19 @@ describe('discoverPortalConfigs', () => {
 			warnSpy.mockRestore();
 		}
 	});
+
+	it('returns empty array and warns when readdirSync throws', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		// Use a non-existent directory so fs.readdirSync will throw ENOENT
+		const nonExistent = tmp + '-no-such-dir';
+		try {
+			const portals = discoverPortalConfigs(nonExistent);
+			expect(portals).toEqual([]);
+			expect(warnSpy).toHaveBeenCalled();
+		} finally {
+			warnSpy.mockRestore();
+		}
+	});
 });
