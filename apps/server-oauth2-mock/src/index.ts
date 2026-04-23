@@ -1,13 +1,10 @@
 import crypto from 'node:crypto';
-import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createMockOAuth2Manager, type MockOAuth2PortalConfig } from '@cellix/server-oauth2-mock-seedwork';
 import { discoverPortalConfigs, type PortalOidcConfig, setupEnvironment } from './setup-environment.js';
 
 setupEnvironment();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const appsDir = fileURLToPath(new URL('../..', import.meta.url));
 const port = Number.parseInt(process.env['PORT'] ?? '1355', 10);
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.

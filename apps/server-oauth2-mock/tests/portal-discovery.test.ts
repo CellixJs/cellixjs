@@ -84,7 +84,7 @@ describe('discoverPortalConfigs', () => {
 
 	it('warns and falls back to base config when mock-oidc.local.json is malformed', () => {
 		if (!tmp) throw new Error('tmp not created');
-		
+
 		// Write valid base config
 		writeJson(tmp, 'ui-bad-local/mock-oidc.json', {
 			name: 'bad-local-test',
@@ -94,7 +94,7 @@ describe('discoverPortalConfigs', () => {
 		fs.writeFileSync(path.join(tmp, 'ui-bad-local', '.env'), 'VITE_CLIENT_ID=cid\nVITE_REDIRECT_URI=https://r/cb\n');
 		// Write malformed local override
 		fs.writeFileSync(path.join(tmp, 'ui-bad-local', 'mock-oidc.local.json'), '{ invalid json }');
-		
+
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 		try {
 			const portals = discoverPortalConfigs(tmp);
@@ -235,14 +235,8 @@ describe('discoverPortalConfigs', () => {
 			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
 			claims: { sub: '00000000-0000-4000-8000-000000000001' },
 		});
-		fs.writeFileSync(
-			path.join(tmp, 'ui-envlocal', '.env'),
-			'VITE_CLIENT_ID=base-client-id\nVITE_REDIRECT_URI=https://base/cb\n',
-		);
-		fs.writeFileSync(
-			path.join(tmp, 'ui-envlocal', '.env.local'),
-			'VITE_CLIENT_ID=local-client-id\n',
-		);
+		fs.writeFileSync(path.join(tmp, 'ui-envlocal', '.env'), 'VITE_CLIENT_ID=base-client-id\nVITE_REDIRECT_URI=https://base/cb\n');
+		fs.writeFileSync(path.join(tmp, 'ui-envlocal', '.env.local'), 'VITE_CLIENT_ID=local-client-id\n');
 
 		const portals = discoverPortalConfigs(tmp);
 		const portal = portals.find((p) => p.name === 'envlocal-test');
@@ -259,10 +253,7 @@ describe('discoverPortalConfigs', () => {
 			claims: { sub: '00000000-0000-4000-8000-000000000001' },
 		});
 		// No .env file - only .env.local
-		fs.writeFileSync(
-			path.join(tmp, 'ui-localonly', '.env.local'),
-			'VITE_CLIENT_ID=localonly-client-id\nVITE_REDIRECT_URI=https://local/cb\n',
-		);
+		fs.writeFileSync(path.join(tmp, 'ui-localonly', '.env.local'), 'VITE_CLIENT_ID=localonly-client-id\nVITE_REDIRECT_URI=https://local/cb\n');
 
 		const portals = discoverPortalConfigs(tmp);
 		const portal = portals.find((p) => p.name === 'localonly-test');
@@ -292,7 +283,11 @@ describe('discoverPortalConfigs', () => {
 			expect(warnSpy).toHaveBeenCalled();
 		} finally {
 			// try to restore permissions to allow cleanup; ignore errors
-			try { fs.chmodSync(envPath, 0o644); } catch (_e) { /* ignore */ }
+			try {
+				fs.chmodSync(envPath, 0o644);
+			} catch (_e) {
+				/* ignore */
+			}
 			warnSpy.mockRestore();
 		}
 	});

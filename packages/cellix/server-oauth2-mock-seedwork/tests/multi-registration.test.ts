@@ -89,7 +89,7 @@ describe('multi-registration contract', () => {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ grant_type: 'authorization_code', code }),
 			});
-			const tokenJson = await tokenRes.json() as { profile: { aud: string }; access_token: string };
+			const tokenJson = (await tokenRes.json()) as { profile: { aud: string }; access_token: string };
 			expect(tokenJson).toHaveProperty('access_token');
 			expect(tokenJson.profile.aud).toBe(`mock-client-${cfg1.clientPort}`);
 
@@ -105,7 +105,7 @@ describe('multi-registration contract', () => {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ grant_type: 'authorization_code', code: code2 }),
 			});
-			const tokenJson2 = await tokenRes2.json() as { profile: { aud: string } };
+			const tokenJson2 = (await tokenRes2.json()) as { profile: { aud: string } };
 			expect(tokenJson2.profile.aud).toBe(`mock-client-${cfg2.clientPort}`);
 		} finally {
 			await manager.stopAll();
@@ -150,7 +150,7 @@ describe('multi-registration contract', () => {
 			host: '127.0.0.1',
 			baseUrl: 'http://127.0.0.1:19003',
 		});
-		
+
 		await manager.register('claims-test', {
 			allowedRedirectUris: new Set(['http://localhost/cb']),
 			allowedRedirectUri: 'http://localhost/cb',
@@ -168,10 +168,7 @@ describe('multi-registration contract', () => {
 
 		try {
 			// Get auth code
-			const authRes = await fetch(
-				'http://127.0.0.1:19003/claims-test/authorize?response_type=code&client_id=test-aud&redirect_uri=http%3A%2F%2Flocalhost%2Fcb&state=s&nonce=n',
-				{ redirect: 'manual' }
-			);
+			const authRes = await fetch('http://127.0.0.1:19003/claims-test/authorize?response_type=code&client_id=test-aud&redirect_uri=http%3A%2F%2Flocalhost%2Fcb&state=s&nonce=n', { redirect: 'manual' });
 			const location = authRes.headers.get('location') ?? '';
 			const code = new URL(location, 'http://base').searchParams.get('code') ?? '';
 
@@ -186,8 +183,8 @@ describe('multi-registration contract', () => {
 					client_id: 'test-aud',
 				}),
 			});
-			const tokens = await tokenRes.json() as { id_token: string; access_token: string; profile: Record<string, unknown> };
-			
+			const tokens = (await tokenRes.json()) as { id_token: string; access_token: string; profile: Record<string, unknown> };
+
 			// Decode JWT payload (no verification needed — just inspect claims)
 			const payloadB64 = tokens.id_token.split('.')[1] as string;
 			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
