@@ -1,5 +1,5 @@
 {
-	"extends": "@cellix/config-typescript/tsconfig.node.json",
+	"extends": "@cellix/config-typescript/node",
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"erasableSyntaxOnly": false,
