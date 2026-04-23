@@ -1,15 +1,17 @@
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { createMockOAuth2Manager, type MockOAuth2PortalConfig } from '@cellix/server-oauth2-mock-seedwork';
 import { discoverPortalConfigs, type PortalOidcConfig, setupEnvironment } from './setup-environment.js';
 
 setupEnvironment();
 
-const appsDir = fileURLToPath(new URL('../..', import.meta.url));
-const port = Number.parseInt(process.env['PORT'] ?? '1355', 10);
+const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
+const appsDir = path.join(repoRoot, 'apps');
+const port = Number.parseInt(process.env.PORT ?? '1355', 10);
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.
 // In local dev the portless proxy handles TLS termination and host mapping.
-const baseUrl = process.env['BASE_URL'] ?? `https://mock-auth.ownercommunity.localhost:${port}`;
+const baseUrl = process.env.BASE_URL ?? `https://mock-auth.ownercommunity.localhost:${port}`;
 
 const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir);
 
@@ -29,11 +31,11 @@ try {
 			getUserProfile: () => ({
 				// spread custom claims first so known string fields we set below always win and are correctly typed
 				...portal.claims,
-				sub: String(portal.claims['sub'] ?? crypto.randomUUID()),
-				email: String(portal.claims['email'] ?? 'test@example.com'),
-				given_name: String(portal.claims['given_name'] ?? 'Test'),
-				family_name: String(portal.claims['family_name'] ?? 'User'),
-				tid: String(portal.claims['tid'] ?? 'test-tenant-id'),
+			sub: String(portal.claims.sub ?? crypto.randomUUID()),
+			email: String(portal.claims.email ?? 'test@example.com'),
+			given_name: String(portal.claims.given_name ?? 'Test'),
+			family_name: String(portal.claims.family_name ?? 'User'),
+			tid: String(portal.claims.tid ?? 'test-tenant-id'),
 			}),
 		};
 

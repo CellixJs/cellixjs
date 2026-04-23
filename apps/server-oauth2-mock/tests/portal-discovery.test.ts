@@ -269,12 +269,9 @@ describe('discoverPortalConfigs', () => {
 			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
 			claims: { sub: '00000000-0000-4000-8000-000000000001' },
 		});
-		fs.writeFileSync(path.join(tmp, 'ui-envthrow', '.env'), 'VITE_CLIENT_ID=x\nVITE_REDIRECT_URI=https://x/cb\n');
+		fs.mkdirSync(path.join(tmp, 'ui-envthrow', '.env'));
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-		const envPath = path.join(tmp, 'ui-envthrow', '.env');
-		// make the env file unreadable to cause read failure
-		fs.chmodSync(envPath, 0o000);
 
 		try {
 			const portals = discoverPortalConfigs(tmp);
@@ -282,12 +279,6 @@ describe('discoverPortalConfigs', () => {
 			expect(portal).toBeUndefined();
 			expect(warnSpy).toHaveBeenCalled();
 		} finally {
-			// try to restore permissions to allow cleanup; ignore errors
-			try {
-				fs.chmodSync(envPath, 0o644);
-			} catch (_e) {
-				/* ignore */
-			}
 			warnSpy.mockRestore();
 		}
 	});
@@ -297,7 +288,7 @@ describe('discoverPortalConfigs', () => {
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 		// Use a non-existent directory so fs.readdirSync will throw ENOENT
-		const nonExistent = tmp + '-no-such-dir';
+		const nonExistent = `${tmp}-no-such-dir`;
 		try {
 			const portals = discoverPortalConfigs(nonExistent);
 			expect(portals).toEqual([]);
