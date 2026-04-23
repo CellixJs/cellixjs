@@ -15,6 +15,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@ocom/ui-staff-route-shared": "workspace:*",
     "@ocom/ui-staff-route-community-management": "workspace:*",
     "@ocom/ui-staff-route-finance": "workspace:*",
     "@ocom/ui-staff-route-tech-admin": "workspace:*",

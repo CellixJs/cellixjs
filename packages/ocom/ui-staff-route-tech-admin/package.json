@@ -15,6 +15,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@ocom/ui-staff-route-shared": "workspace:*",
     "antd": "catalog:",
     "react": "^19.1.1"
   },

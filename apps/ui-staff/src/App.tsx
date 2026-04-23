@@ -6,8 +6,8 @@ import { Root as UserManagement } from '@ocom/ui-staff-route-user-management';
 import { Root as Finance } from '@ocom/ui-staff-route-finance';
 import { Root as TechAdmin } from '@ocom/ui-staff-route-tech-admin';
 import './App.css';
-import { ApolloConnection } from './apollo-connection.tsx';
-import { AuthLanding } from './index.tsx';
+import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
+import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
 import { Unauthorized } from './unauthorized.tsx';
 
 export default function App() {

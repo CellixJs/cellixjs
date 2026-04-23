@@ -3,11 +3,12 @@ import { RestLink } from 'apollo-link-rest';
 import { type FC, useCallback, useEffect } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { useLocation } from 'react-router-dom';
-import { ApolloLinkToAddAuthHeader, ApolloLinkToAddCustomHeader, BaseApolloLink, client, TerminatingApolloLinkForGraphqlServer } from './components/ui/organisms/apollo-connection/apollo-client-links.tsx';
+import { ApolloLinkToAddAuthHeader, ApolloLinkToAddCustomHeader, BaseApolloLink, client, TerminatingApolloLinkForGraphqlServer } from './apollo-client-links.tsx';
 
-export type ApolloConnectionProps = {
+export interface ApolloConnectionProps {
 	children: React.ReactNode;
 }
+
 export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnectionProps) => {
 	const auth = useAuth();
 	const location = useLocation();
@@ -18,7 +19,9 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
 	const apolloLinkChainForGraphqlDataSource = from([
 		BaseApolloLink(),
 		ApolloLinkToAddAuthHeader(auth),
-		// Use the community header name for parity with ui-community and the server expectations.
+		// NOTE: Using the same header name as ui-community for parity (x-community-id).
+		// Issue #212 aims to align UI packages. If the staff backend requires a distinct
+		// header (x-staff-id), coordinate with backend owners before reverting this change.
 		ApolloLinkToAddCustomHeader('x-community-id', communityId, communityId !== 'accounts'),
 		ApolloLinkToAddCustomHeader('x-member-id', memberId),
 		TerminatingApolloLinkForGraphqlServer({
@@ -43,9 +46,6 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
 
 		return ApolloLink.from([
 			ApolloLink.split(
-				// various options to split:
-				// 1. use a custom property in context: (operation) => operation.getContext().dataSource === some DataSourceEnum,
-				// 2. check for string name of the query if it is named: (operation) => operation.operationName === "CountryDetails",
 				(operation) => operation.operationName in linkMap,
 				new ApolloLink((operation, forward) => {
 					const link = linkMap[operation.operationName as keyof typeof linkMap] || linkMap.default;

@@ -63,9 +63,16 @@ export const ApolloLinkToAddCustomHeader = (headerName: string, headerValue: str
 			return forward(operation);
 		}
 		operation.setContext((prevContext: DefaultContext) => {
+			// Avoid mutating prevContext or prevContext.headers. Return a new context object instead.
 			// biome-ignore lint:useLiteralKeys
-			prevContext['headers'][headerName] = headerValue;
-			return prevContext;
+			const prevHeaders = (prevContext && (prevContext as Record<string, unknown>)['headers']) ?? {};
+			return {
+				...prevContext,
+				headers: {
+					...prevHeaders,
+					[headerName]: headerValue,
+				},
+			};
 		});
 		return forward(operation);
 	});
