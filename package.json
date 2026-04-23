@@ -5,7 +5,7 @@
 	"type": "module",
 	"author": "CellixJs",
 	"license": "MIT",
-	"packageManager": "pnpm@10.30.1",
+	"packageManager": "pnpm@10.33.2",
 	"scripts": {
 		"antd": "antd",
 		"audit": "(pnpm audit --audit-level=high --prod) && (pnpm audit --audit-level=critical --dev)",
@@ -118,7 +118,7 @@
 			"playwright-core": "1.59.0",
 			"playwright": "1.59.0",
 			"protobufjs": "7.5.5",
-            "uuid": "^14.0.0"
+			"uuid": "^14.0.0"
 		},
 		"patchedDependencies": {
 			"@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"

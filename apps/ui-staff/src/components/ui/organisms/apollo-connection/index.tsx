@@ -5,7 +5,7 @@ import { useAuth } from 'react-oidc-context';
 import { useLocation } from 'react-router-dom';
 import { ApolloLinkToAddAuthHeader, ApolloLinkToAddCustomHeader, BaseApolloLink, client, TerminatingApolloLinkForGraphqlServer } from './apollo-client-links.tsx';
 
-export interface ApolloConnectionProps {
+interface ApolloConnectionProps {
 	children: React.ReactNode;
 }
 
