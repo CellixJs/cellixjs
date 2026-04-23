@@ -278,7 +278,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		// Preserve extra claims from the user profile by spreading unknown keys into the TokenProfile
 		const { sub: upSub, email: upEmail, given_name: upGiven, family_name: upFamily, tid: upTid, ...extra } = userProfile as Record<string, unknown>;
-		const resolvedTid = typeof tid === 'string' ? (tid as string) : (typeof upTid === 'string' ? (upTid as string) : 'test-tenant-id');
+		const resolvedTid = typeof tid === 'string' ? (tid as string) : typeof upTid === 'string' ? (upTid as string) : 'test-tenant-id';
 		const profile: TokenProfile = {
 			...extra,
 			aud,
@@ -510,6 +510,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 			});
 			s.on('error', (err) => {
 				app = null; // reset so manager can be retried
+				serverHandle = null; // reset server handle alongside app for consistent cleanup
 				// Both must be cleared: leaving registeredNames populated would cause
 				// "already registered" errors on retry even though no server is running.
 				registeredNames.clear(); // clear registered names so subsequent retries can reuse names

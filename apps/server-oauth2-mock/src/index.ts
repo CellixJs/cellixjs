@@ -8,7 +8,7 @@ setupEnvironment();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const appsDir = path.join(__dirname, '../..');
+const appsDir = fileURLToPath(new URL('../..', import.meta.url));
 const port = Number.parseInt(process.env['PORT'] ?? '1355', 10);
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.
 // In local dev the portless proxy handles TLS termination and host mapping.
@@ -35,7 +35,7 @@ try {
 				sub: String(portal.claims['sub'] ?? crypto.randomUUID()),
 				email: String(portal.claims['email'] ?? 'test@example.com'),
 				given_name: String(portal.claims['given_name'] ?? 'Test'),
-				'family_name': String(portal.claims['family_name'] ?? 'User'),
+				family_name: String(portal.claims['family_name'] ?? 'User'),
 				tid: String(portal.claims['tid'] ?? 'test-tenant-id'),
 			}),
 		};

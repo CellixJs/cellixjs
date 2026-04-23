@@ -69,13 +69,25 @@ Mock OIDC server
 The local mock OpenID Connect provider used for UI development is configured per-portal via JSON files placed in the UI app directories.
 
 - Location: apps/ui-*/mock-oidc.json
-- Schema: {
-  - name: string
-  - baseUrl: string
-  - clientId: string
-  - redirectUri: string
-  - claims: Record<string, string> (e.g. sub, email, given_name, family_name, tid)
+- Schema:
+```json
+{
+  "name": "account-portal",
+  "envVars": {
+    "clientId": "VITE_ACCOUNT_PORTAL_OIDC_CLIENT_ID",
+    "redirectUri": "VITE_ACCOUNT_PORTAL_OIDC_REDIRECT_URI"
+  },
+  "claims": {
+    "sub": "00000000-0000-4000-8000-000000000001",
+    "email": "dev@example.com",
+    "given_name": "Dev",
+    "family_name": "User",
+    "roles": ["Owner"]
+  }
 }
+```
+
+The envVars values are environment variable names (from the UI app's `.env` file) that the server resolves to actual values at startup.
 
 Per-developer overrides
 
