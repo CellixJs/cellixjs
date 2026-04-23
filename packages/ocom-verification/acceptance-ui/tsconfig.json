@@ -1,0 +1,10 @@
+{
+	"extends": "@cellix/config-typescript/tsconfig.node.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"erasableSyntaxOnly": false,
+		"rootDir": "./src",
+		"outDir": "./dist"
+	},
+	"include": ["src/**/*.ts", "src/**/*.tsx"]
+}

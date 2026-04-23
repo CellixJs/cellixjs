@@ -1,0 +1,30 @@
+{
+	"name": "@ocom-verification/e2e-tests",
+	"version": "1.0.0",
+	"description": "Cucumber Screenplay E2E tests for CellixJS (Playwright browser tests)",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"verification:test:e2e": "NODE_EXTRA_CA_CERTS=${HOME}/.portless/ca.pem LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js",
+		"playwright:install": "playwright install chromium",
+		"clean": "rimraf dist reports target"
+	},
+	"dependencies": {
+		"@cucumber/cucumber": "^12.7.0",
+		"@serenity-js/assertions": "^3.37.2",
+		"@serenity-js/console-reporter": "^3.37.2",
+		"@serenity-js/core": "^3.37.2",
+		"@serenity-js/cucumber": "^3.37.2",
+		"@serenity-js/serenity-bdd": "^3.37.2",
+		"std-env": "^4.0.0"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@playwright/test": "^1.52.0",
+		"@ocom-verification/verification-shared": "workspace:*",
+		"@types/node": "catalog:",
+		"rimraf": "^6.0.1",
+		"tsx": "^4.20.3",
+		"typescript": "catalog:"
+	}
+}
