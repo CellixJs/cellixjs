@@ -1,5 +1,6 @@
 import { HomeOutlined, ProfileOutlined, SettingOutlined } from '@ant-design/icons';
 import type { Meta, StoryObj } from '@storybook/react';
+import { Route, Routes } from 'react-router-dom';
 import { VerticalTabs } from './index.tsx';
 
 const meta: Meta<typeof VerticalTabs> = {
@@ -39,4 +40,17 @@ export const Default: Story = {
 			},
 		],
 	},
+	parameters: {
+		memoryRouter: {
+			initialEntries: ['/'],
+		},
+	},
+	render: (args) => (
+		<Routes>
+			<Route
+				path="/*"
+				element={<VerticalTabs {...args} />}
+			/>
+		</Routes>
+	),
 };

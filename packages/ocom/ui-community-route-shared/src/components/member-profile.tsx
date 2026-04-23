@@ -2,7 +2,7 @@ import { Button, Card, Descriptions, Form, Input, Space, Switch, Typography } fr
 import dayjs from 'dayjs';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import type { MemberProfileContainerMemberFieldsFragment } from '../generated.tsx';
+import type { SharedMemberProfileContainerMemberFieldsFragment } from '../generated.tsx';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -19,7 +19,7 @@ export interface MemberProfileFormValues {
 }
 
 interface MemberProfileProps {
-	data: MemberProfileContainerMemberFieldsFragment;
+	data: SharedMemberProfileContainerMemberFieldsFragment;
 	isAdmin: boolean;
 	loading: boolean;
 	onSave: (values: MemberProfileFormValues) => Promise<boolean>;

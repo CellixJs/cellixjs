@@ -342,9 +342,7 @@ const member: Resolvers = {
 
 				const communityId = args.input.communityId ? String(args.input.communityId) : undefined;
 				const actorMemberId = await getActorMemberIdForCommunity(context, communityId);
-				const filteredMemberIds = actorMemberId
-					? args.input.memberIds.filter((id) => String(id) !== actorMemberId)
-					: [...args.input.memberIds];
+				const filteredMemberIds = actorMemberId ? args.input.memberIds.filter((id) => String(id) !== actorMemberId) : [...args.input.memberIds];
 
 				if (filteredMemberIds.length === 0) {
 					return {
@@ -392,9 +390,7 @@ const member: Resolvers = {
 
 				const communityId = args.input.communityId ? String(args.input.communityId) : undefined;
 				const actorMemberId = await getActorMemberIdForCommunity(context, communityId);
-				const filteredMemberIds = actorMemberId
-					? args.input.memberIds.filter((id) => String(id) !== actorMemberId)
-					: [...args.input.memberIds];
+				const filteredMemberIds = actorMemberId ? args.input.memberIds.filter((id) => String(id) !== actorMemberId) : [...args.input.memberIds];
 
 				if (filteredMemberIds.length === 0) {
 					return {
@@ -448,9 +444,7 @@ const member: Resolvers = {
 
 				const communityId = args.input.communityId ? String(args.input.communityId) : undefined;
 				const actorMemberId = await getActorMemberIdForCommunity(context, communityId);
-				const filteredMemberIds = actorMemberId
-					? args.input.memberIds.filter((id) => String(id) !== actorMemberId)
-					: [...args.input.memberIds];
+				const filteredMemberIds = actorMemberId ? args.input.memberIds.filter((id) => String(id) !== actorMemberId) : [...args.input.memberIds];
 
 				if (filteredMemberIds.length === 0) {
 					return {

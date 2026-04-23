@@ -1,6 +1,7 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
-import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId, type MemberQueryByIdCommand, queryById } from './query-by-end-user-external-id.ts';
+import { type MemberQueryByIdCommand, queryById } from './query-by-id.ts';
+import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
 import { type MemberQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
 import { determineIfAdmin, type MemberDetermineIfAdminCommand } from './determine-if-admin.ts';
 import {

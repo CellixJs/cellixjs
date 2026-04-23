@@ -189,8 +189,8 @@ input MemberInvitationInput {
 # Role Management Input Types
 
 input UpdateMemberRoleInput {
-	memberId: String!
-	roleId: String!
+	memberId: ObjectID!
+	roleId: ObjectID!
 	reason: String!
 }
 

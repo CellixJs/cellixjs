@@ -155,13 +155,13 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 
 		this.isDeleted = true;
 
-			// Raise domain event
-			this.addDomainEvent<MemberRemovedProps, MemberRemovedEvent>(MemberRemovedEvent, {
-				memberId: this.props.id,
-				communityId: this.props.communityId,
-				removedBy: actorId ?? 'system', // prefer caller-provided actorId; fallback to 'system'
-				reason: reason ?? '',
-			});
+		// Raise domain event
+		this.addDomainEvent<MemberRemovedProps, MemberRemovedEvent>(MemberRemovedEvent, {
+			memberId: this.props.id,
+			communityId: this.props.communityId,
+			removedBy: actorId ?? 'system', // prefer caller-provided actorId; fallback to 'system'
+			reason: reason ?? '',
+		});
 	}
 
 	//#endregion Member Management Operations

@@ -10,5 +10,5 @@ interface MembersGeneralParams {
 export const MembersGeneral: React.FC = () => {
 	const params = useParams<MembersGeneralParams>();
 
-	return <MembersDetailContainer data={{ id: params.id ?? '', communityId: params.communityId ?? '' }} />;
+	return <MembersDetailContainer data={{ id: params.id ?? '' }} />;
 };

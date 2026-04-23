@@ -12,7 +12,6 @@ import { MembersDetail } from './members-detail.tsx';
 interface MembersDetailContainerProps {
 	data: {
 		id: string;
-		communityId: string;
 	};
 }
 

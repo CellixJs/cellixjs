@@ -4,33 +4,33 @@ import { App } from 'antd';
 import type React from 'react';
 import { useParams } from 'react-router-dom';
 import {
-	type MemberProfileContainerMemberFieldsFragment,
-	MemberProfileContainerMemberProfileDocument,
-	type MemberProfileContainerMemberProfileQuery,
-	type MemberProfileContainerMemberProfileQueryVariables,
-	MemberProfileContainerMemberUpdateProfileDocument,
+	type SharedMemberProfileContainerMemberFieldsFragment,
+	SharedMemberProfileContainerMemberProfileDocument,
+	type SharedMemberProfileContainerMemberProfileQuery,
+	type SharedMemberProfileContainerMemberProfileQueryVariables,
+	SharedMemberProfileContainerMemberUpdateProfileDocument,
 } from '../generated.tsx';
 import { MemberProfile, type MemberProfileFormValues } from './member-profile.tsx';
 
 export interface MemberProfileContainerProps {
-	communityId: string;
 	isAdmin?: boolean;
 }
+
 
 export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (props) => {
 	const { message } = App.useApp();
 	const { id, memberId } = useParams<{ id?: string; memberId?: string }>();
 	const memberObjectId = id ?? memberId;
 
-	const [memberUpdateProfile, { loading: profileUpdateLoading, error: profileUpdateError }] = useMutation(MemberProfileContainerMemberUpdateProfileDocument, {
+	const [memberUpdateProfile, { loading: profileUpdateLoading, error: profileUpdateError }] = useMutation(SharedMemberProfileContainerMemberUpdateProfileDocument, {
 		update(cache, { data }) {
 			const updatedMember = data?.memberUpdateProfile.member;
 			if (!updatedMember || !memberObjectId) {
 				return;
 			}
 
-			cache.writeQuery<MemberProfileContainerMemberProfileQuery, MemberProfileContainerMemberProfileQueryVariables>({
-				query: MemberProfileContainerMemberProfileDocument,
+			cache.writeQuery<SharedMemberProfileContainerMemberProfileQuery, SharedMemberProfileContainerMemberProfileQueryVariables>({
+				query: SharedMemberProfileContainerMemberProfileDocument,
 				variables: { id: memberObjectId },
 				data: {
 					member: updatedMember,
@@ -43,7 +43,7 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 		data: memberData,
 		loading: memberLoading,
 		error: memberError,
-	} = useQuery<MemberProfileContainerMemberProfileQuery, MemberProfileContainerMemberProfileQueryVariables>(MemberProfileContainerMemberProfileDocument, {
+	} = useQuery<SharedMemberProfileContainerMemberProfileQuery, SharedMemberProfileContainerMemberProfileQueryVariables>(SharedMemberProfileContainerMemberProfileDocument, {
 		variables: {
 			id: memberObjectId ?? '',
 		},
@@ -80,7 +80,7 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 	};
 
 	const memberProfileProps = {
-		data: memberData?.member as MemberProfileContainerMemberFieldsFragment,
+		data: memberData?.member as SharedMemberProfileContainerMemberFieldsFragment,
 		isAdmin: props.isAdmin ?? false,
 		loading: profileUpdateLoading,
 		onSave: handleSave,

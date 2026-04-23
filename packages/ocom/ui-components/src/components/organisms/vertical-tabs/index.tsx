@@ -1,6 +1,6 @@
 import { Col, Menu, Row, theme } from 'antd';
 import { useMemo } from 'react';
-import type { RouteObject } from 'react-router-dom';
+import type { Location, RouteObject } from 'react-router-dom';
 import { Link, Route, Routes, matchRoutes, useLocation } from 'react-router-dom';
 
 interface RouteDefinition {
@@ -29,8 +29,6 @@ export const VerticalTabs: React.FC<VerticalTabsProps> = ({ pages }) => {
 		);
 	}, [pages]);
 
-	const matchedPages = matchRoutes(convertedRoutes, location);
-	const matchedIds = matchedPages ? matchedPages.map((match) => match.route.id?.toString() || '') : [];
 	// Compute a stable base path for tabs by stripping any of the known tab segments
 	// from the current pathname. This avoids building links that nest under the
 	// currently active child route (e.g. "/profile/accounts").
@@ -49,6 +47,13 @@ export const VerticalTabs: React.FC<VerticalTabsProps> = ({ pages }) => {
 	};
 
 	const tabBasePath = getTabBasePath();
+
+	// Convert absolute pathname to relative pathname for matchRoutes
+	// matchRoutes expects a pathname relative to the tab base path
+	const relativePathname = location.pathname.startsWith(tabBasePath) ? location.pathname.slice(tabBasePath.length) : location.pathname;
+
+	const matchedPages = matchRoutes(convertedRoutes, { pathname: relativePathname } as Location);
+	const matchedIds = matchedPages ? matchedPages.map((match) => match.route.id?.toString() || '') : [];
 	const toTabHref = (link: string) => {
 		const normalizedBase = tabBasePath.endsWith('/') ? tabBasePath.slice(0, -1) : tabBasePath;
 		return link ? `${normalizedBase}/${link}` : normalizedBase;

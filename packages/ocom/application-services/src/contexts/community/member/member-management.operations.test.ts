@@ -361,9 +361,7 @@ describe('member-management operations', () => {
 		endUserReadRepository.getById.mockResolvedValue(endUser);
 		memberReadRepository.getByCommunityId.mockResolvedValue([{ accounts: [] }]);
 
-		await expect(createMemberAccount(dataSources)({ memberId: 'member-1', endUserId: 'end-user-1' })).rejects.toThrow(
-			'Selected user is not associated with this community. Invite the user first.',
-		);
+		await expect(createMemberAccount(dataSources)({ memberId: 'member-1', endUserId: 'end-user-1' })).rejects.toThrow('Selected user is not associated with this community. Invite the user first.');
 	});
 
 	it('throws when selected end user is already associated with the member', async () => {
@@ -385,9 +383,7 @@ describe('member-management operations', () => {
 		endUserReadRepository.getById.mockResolvedValue(existingUser);
 		memberReadRepository.getByCommunityId.mockResolvedValue([{ accounts: [{ user: { id: 'end-user-1' } }] }]);
 
-		await expect(createMemberAccount(dataSources)({ memberId: 'member-1', endUserId: 'end-user-1' })).rejects.toThrow(
-			'Selected user is already associated with this member',
-		);
+		await expect(createMemberAccount(dataSources)({ memberId: 'member-1', endUserId: 'end-user-1' })).rejects.toThrow('Selected user is already associated with this member');
 	});
 
 	it('uses displayName when end user restOfName is empty during account update', async () => {

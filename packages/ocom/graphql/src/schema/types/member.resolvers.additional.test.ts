@@ -141,8 +141,18 @@ describe('member resolvers additional coverage', () => {
 	it('handles bulk activate/deactivate/remove members branches', async () => {
 		const context = createContext();
 		const bulkActivate = memberResolvers.Mutation?.bulkActivateMembers as (parent: unknown, args: { input: { memberIds: readonly string[]; communityId: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
-		const bulkDeactivate = memberResolvers.Mutation?.bulkDeactivateMembers as (parent: unknown, args: { input: { memberIds: readonly string[]; communityId: string; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
-		const bulkRemove = memberResolvers.Mutation?.bulkRemoveMembers as (parent: unknown, args: { input: { memberIds: readonly string[]; communityId: string; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
+		const bulkDeactivate = memberResolvers.Mutation?.bulkDeactivateMembers as (
+			parent: unknown,
+			args: { input: { memberIds: readonly string[]; communityId: string; reason?: string } },
+			context: GraphContext,
+			info: unknown,
+		) => Promise<unknown>;
+		const bulkRemove = memberResolvers.Mutation?.bulkRemoveMembers as (
+			parent: unknown,
+			args: { input: { memberIds: readonly string[]; communityId: string; reason?: string } },
+			context: GraphContext,
+			info: unknown,
+		) => Promise<unknown>;
 
 		vi.mocked(context.applicationServices.Community.Member.bulkActivateMembers).mockResolvedValue([{ id: 'm1' }] as never);
 		vi.mocked(context.applicationServices.Community.Member.bulkDeactivateMembers).mockResolvedValue([{ id: 'm1' }] as never);
@@ -239,11 +249,7 @@ describe('member resolvers additional coverage', () => {
 		const context = createContext();
 		const memberRoleUpdate = memberResolvers.Mutation?.memberRoleUpdate as (parent: unknown, args: { input: { memberId: string; roleId: string; reason?: string } }, context: GraphContext) => Promise<unknown>;
 		const createAccount = memberResolvers.Mutation?.memberCreateAccount as (parent: unknown, args: { input: { memberId: string; endUserId: string } }, context: GraphContext) => Promise<unknown>;
-		const updateAccount = memberResolvers.Mutation?.memberUpdateAccount as (
-			parent: unknown,
-			args: { input: { memberId: string; accountId: string; endUserId: string } },
-			context: GraphContext,
-		) => Promise<unknown>;
+		const updateAccount = memberResolvers.Mutation?.memberUpdateAccount as (parent: unknown, args: { input: { memberId: string; accountId: string; endUserId: string } }, context: GraphContext) => Promise<unknown>;
 		const removeAccount = memberResolvers.Mutation?.memberRemoveAccount as (parent: unknown, args: { input: { memberId: string; accountId: string } }, context: GraphContext) => Promise<unknown>;
 
 		vi.mocked(context.applicationServices.Community.Member.updateMemberRole).mockResolvedValue({ id: 'member-1' } as never);
@@ -355,11 +361,7 @@ describe('member resolvers additional coverage', () => {
 			context: GraphContext,
 			info: unknown,
 		) => Promise<unknown>;
-		const roleUpdateResolver = memberResolvers.Mutation?.memberRoleUpdate as (
-			parent: unknown,
-			args: { input: { memberId: string; roleId: string } },
-			context: GraphContext,
-		) => Promise<unknown>;
+		const roleUpdateResolver = memberResolvers.Mutation?.memberRoleUpdate as (parent: unknown, args: { input: { memberId: string; roleId: string } }, context: GraphContext) => Promise<unknown>;
 
 		vi.mocked(context.applicationServices.Community.Member.deactivateMember).mockRejectedValue('bad');
 		vi.mocked(context.applicationServices.Community.Member.removeMember).mockRejectedValue('bad');

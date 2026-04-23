@@ -1,22 +1,22 @@
-query MemberProfileContainerMemberProfile($id: ObjectID!) {
+query SharedMemberProfileContainerMemberProfile($id: ObjectID!) {
 	member(id: $id) {
-		...MemberProfileContainerMemberFields
+		...SharedMemberProfileContainerMemberFields
 	}
 }
 
-mutation MemberProfileContainerMemberUpdateProfile($input: MemberUpdateProfileInput!) {
+mutation SharedMemberProfileContainerMemberUpdateProfile($input: MemberUpdateProfileInput!) {
 	memberUpdateProfile(input: $input) {
 		status {
 			success
 			errorMessage
 		}
 		member {
-			...MemberProfileContainerMemberFields
+			...SharedMemberProfileContainerMemberFields
 		}
 	}
 }
 
-fragment MemberProfileContainerMemberFields on Member {
+fragment SharedMemberProfileContainerMemberFields on Member {
 	id
 	memberName
 	profile {
