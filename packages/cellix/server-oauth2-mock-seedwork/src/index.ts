@@ -500,31 +500,60 @@ export interface MockOAuth2PortalConfig {
 export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string }) {
 	let app: express.Express | null = null;
 	let serverHandle: MockOAuth2ServerHandle | null = null;
+	let startupPromise: Promise<MockOAuth2ServerHandle> | null = null;
 	const registeredNames = new Set<string>();
 
-	async function ensureStarted(): Promise<express.Express> {
-		if (app) return app;
-		app = express();
-		app.disable('x-powered-by');
+	// ensureStarted is concurrency-safe: callers share startupPromise so only one
+	// listener is ever created and concurrent register() callers will wait for
+	// the same promise to resolve.
+	function ensureStarted(): Promise<MockOAuth2ServerHandle> {
+		if (startupPromise) return startupPromise;
+		if (app && serverHandle) return Promise.resolve(serverHandle);
 
-		serverHandle = await new Promise<MockOAuth2ServerHandle>((resolve, reject) => {
+		// Initialize Express app synchronously so callers can mount routers after
+		// startup completes. The actual server handle is provided via startupPromise.
+		if (!app) {
+			app = express();
+			app.disable('x-powered-by');
+		}
+
+		startupPromise = new Promise<MockOAuth2ServerHandle>((resolve, reject) => {
 			const a = app;
-			if (!a) return reject(new Error('express app not initialized'));
+			if (!a) {
+				startupPromise = null;
+				return reject(new Error('express app not initialized'));
+			}
 			const s = a.listen(serverConfig.port, serverConfig.host ?? 'localhost', () => {
 				console.log(`Mock OAuth2 server running on ${serverConfig.baseUrl}`);
-				resolve({ server: s, disposer: { stop: () => new Promise<void>((res, rej) => s.close((err) => (err ? rej(err) : res()))) } });
+				console.log(`JWKS endpoint running on ${serverConfig.baseUrl}/.well-known/jwks.json`);
+
+				const disposer = {
+					stop: () => {
+						return new Promise<void>((resolveStop, rejectStop) => {
+							s.close((err) => {
+								if (err) rejectStop(err);
+								else resolveStop();
+							});
+						});
+					},
+				};
+
+				serverHandle = { server: s, disposer };
+				resolve(serverHandle);
 			});
+
 			s.on('error', (err) => {
+				// Reset all state on error so future attempts can retry cleanly
 				app = null; // reset so manager can be retried
 				serverHandle = null; // reset server handle alongside app for consistent cleanup
-				// Both must be cleared: leaving registeredNames populated would cause
-				// "already registered" errors on retry even though no server is running.
 				registeredNames.clear(); // clear registered names so subsequent retries can reuse names
-				reject(err);
+				const sp = startupPromise;
+				startupPromise = null;
+				if (sp) reject(err);
 			});
 		});
 
-		return app;
+		return startupPromise;
 	}
 
 	return {
@@ -535,12 +564,17 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 			}
 			if (registeredNames.has(name)) throw new Error(`Registration with name ${name} already exists`);
 
-			const expressApp = await ensureStarted();
+			// Await the shared startup promise so concurrent callers wait for the
+			// server to be listening and serverHandle to be set.
+			await ensureStarted();
 			const issuerBase = `${serverConfig.baseUrl.replace(/\/$/, '')}/${name}`;
 			const router = await buildOidcRouter(issuerBase, config);
-			expressApp.use(`/${name}`, router);
+			// app must be non-null after ensureStarted resolves
+			if (!app) throw new Error('express app not initialized');
+			app.use(`/${name}`, router);
 			registeredNames.add(name);
 
+			// serverHandle is guaranteed to be set after ensureStarted resolves
 			if (!serverHandle) throw new Error('server not started');
 			return { server: serverHandle.server, disposer: serverHandle.disposer, baseUrl: issuerBase, name };
 		},
@@ -550,6 +584,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 				serverHandle = null;
 			}
 			app = null;
+			startupPromise = null;
 			registeredNames.clear();
 		},
 	};
