@@ -512,8 +512,11 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 		if (startupPromise) return startupPromise;
 		if (app && serverHandle) return Promise.resolve(serverHandle);
 
-		// Reset stopping flag when creating a fresh startup
-		stopping = false;
+		// Guard: if shutdown is in progress, reject immediately so concurrent callers
+		// cannot race with stopAll() and issue a second app.listen() call on the same port.
+		if (stopping) {
+			return Promise.reject(new Error('[server-oauth2-mock] Server is shutting down; cannot start'));
+		}
 
 		// Initialize Express app synchronously so callers can mount routers after
 		// startup completes. The actual server handle is provided via startupPromise.
