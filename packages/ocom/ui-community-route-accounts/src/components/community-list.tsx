@@ -48,13 +48,13 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 		},
 	];
 
-	const getSingleAdminMember = (members: AccountsCommunityListContainerMemberFieldsFragment[]) => {
-		return members.find((member) => member.isAdmin) ?? null;
+	const getAdminMembers = (members: AccountsCommunityListContainerMemberFieldsFragment[]) => {
+		return members.filter((member) => member.isAdmin);
 	};
 
 	const items = communityList.map((community, i) => {
 		const communityMembers = props.data?.members[i] ?? [];
-		const singleAdminMember = getSingleAdminMember(communityMembers);
+		const adminMembers = getAdminMembers(communityMembers);
 
 		return {
 			key: community.id,
@@ -89,21 +89,17 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 			adminPortal: (
 				<Dropdown
 					menu={{
-						items: singleAdminMember
-							? [
-									{
-										key: singleAdminMember.id as string,
-										label: (
-											<Button
-												type="link"
-												onClick={() => navigate(`/community/${community.id}/admin/${singleAdminMember.id}`)}
-											>
-												{singleAdminMember.memberName}
-											</Button>
-										),
-									},
-								]
-							: [],
+						items: adminMembers.map((member) => ({
+							key: member.id as string,
+							label: (
+								<Button
+									type="link"
+									onClick={() => navigate(`/community/${community.id}/admin/${member.id}`)}
+								>
+									{member.memberName}
+								</Button>
+							),
+						})),
 					}}
 				>
 					<Button

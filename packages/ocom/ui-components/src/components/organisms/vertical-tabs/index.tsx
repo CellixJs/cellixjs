@@ -51,7 +51,11 @@ export const VerticalTabs: React.FC<VerticalTabsProps> = ({ pages }) => {
 
 	// Convert absolute pathname to relative pathname for matchRoutes
 	// matchRoutes expects a pathname relative to the tab base path
-	const relativePathname = location.pathname.startsWith(tabBasePath) ? location.pathname.slice(tabBasePath.length) : location.pathname;
+	let relativePathname = location.pathname.startsWith(tabBasePath) ? location.pathname.slice(tabBasePath.length) : location.pathname;
+	// Normalize empty pathname to '/' so the default tab (with path: '') matches
+	if (!relativePathname) {
+		relativePathname = '/';
+	}
 
 	const matchedPages = matchRoutes(convertedRoutes, { pathname: relativePathname } as Location);
 	const matchedIds = matchedPages ? matchedPages.map((match) => match.route.id?.toString() || '') : [];

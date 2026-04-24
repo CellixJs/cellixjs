@@ -15,7 +15,7 @@
 		"${configDir}/**/*.test.ts",
 		"${configDir}/**/*.test.tsx",
 		"${configDir}/**/*.spec.ts",
-		"${configDir}/**/*.spec.tsx", 
+        "${configDir}/**/*.spec.tsx",
         "${configDir}/**/*.stories.tsx"
 	],
 	"exclude": ["node_modules", "dist", "coverage", ".turbo"]
