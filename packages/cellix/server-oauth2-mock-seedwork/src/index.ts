@@ -16,12 +16,12 @@ interface TokenProfile {
 }
 
 export interface MockOAuth2UserProfile {
+	sub?: string;
 	email?: string;
 	given_name?: string;
 	family_name?: string;
-	sub?: string;
 	tid?: string;
-	[key: string]: unknown;
+	[claim: string]: unknown;
 }
 
 export interface MockOAuth2ServerConfig {
@@ -283,12 +283,12 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		const userProfile = config.getUserProfile();
 
 		// Preserve extra claims from the user profile by spreading unknown keys into the TokenProfile
-		const { sub: upSub, email: upEmail, given_name: upGiven, family_name: upFamily, tid: upTid, ...extra } = userProfile as Record<string, unknown>;
-		const resolvedTid = typeof tid === 'string' ? (tid as string) : typeof upTid === 'string' ? (upTid as string) : 'test-tenant-id';
+		const { sub: upSub, email: upEmail, given_name: upGiven, family_name: upFamily, tid: upTid, ...extra } = userProfile;
+		const resolvedTid = typeof tid === 'string' ? tid : typeof upTid === 'string' ? upTid : 'test-tenant-id';
 		const profile: TokenProfile = {
 			...extra,
 			aud,
-			sub: typeof upSub === 'string' ? (upSub as string) : persistedSub,
+			sub: typeof upSub === 'string' ? upSub : persistedSub,
 			iss: issuerBaseUrl,
 			...(typeof upEmail === 'string' ? { email: upEmail } : {}),
 			...(typeof upGiven === 'string' ? { given_name: upGiven } : {}),
@@ -501,6 +501,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 	let app: express.Express | null = null;
 	let serverHandle: MockOAuth2ServerHandle | null = null;
 	let startupPromise: Promise<MockOAuth2ServerHandle> | null = null;
+	let stopping = false;
 	const registeredNames = new Set<string>();
 
 	// ensureStarted is concurrency-safe: callers share startupPromise so only one
@@ -509,6 +510,9 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 	function ensureStarted(): Promise<MockOAuth2ServerHandle> {
 		if (startupPromise) return startupPromise;
 		if (app && serverHandle) return Promise.resolve(serverHandle);
+
+		// Reset stopping flag when creating a fresh startup
+		stopping = false;
 
 		// Initialize Express app synchronously so callers can mount routers after
 		// startup completes. The actual server handle is provided via startupPromise.
@@ -538,8 +542,18 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 					},
 				};
 
-				serverHandle = { server: s, disposer };
-				resolve(serverHandle);
+				const handle: MockOAuth2ServerHandle = { server: s, disposer };
+				if (stopping) {
+					// Shutdown was requested before we finished starting — close immediately
+					handle.disposer.stop().catch(() => {
+						/* ignore stop error */
+					});
+					startupPromise = null;
+					return reject(new Error('[server-oauth2-mock] Server stopped before startup completed'));
+				}
+
+				serverHandle = handle;
+				resolve(handle);
 			});
 
 			s.on('error', (err) => {
@@ -547,6 +561,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 				app = null; // reset so manager can be retried
 				serverHandle = null; // reset server handle alongside app for consistent cleanup
 				registeredNames.clear(); // clear registered names so subsequent retries can reuse names
+				stopping = false;
 				const sp = startupPromise;
 				startupPromise = null;
 				if (sp) reject(err);
@@ -560,7 +575,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 		async register(name: string, config: MockOAuth2PortalConfig) {
 			// Validate portal name to prevent path-traversal or multi-segment names
 			if (!SAFE_NAME_RE.test(name)) {
-				throw new Error(`[server-oauth2-mock] Invalid portal name "${name}": must match /^[a-zA-Z0-9_-]+$/`);
+				throw new Error(`[server-oauth2-mock] Invalid portal name "${name}": must match /${SAFE_NAME_RE.source}/`);
 			}
 			if (registeredNames.has(name)) throw new Error(`Registration with name ${name} already exists`);
 
@@ -579,12 +594,15 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 			return { server: serverHandle.server, disposer: serverHandle.disposer, baseUrl: issuerBase, name };
 		},
 		async stopAll() {
+			// Indicate shutdown so an in-progress startup can be cancelled
+			stopping = true;
+			// Cancel any pending startup promise
+			startupPromise = null;
 			if (serverHandle) {
 				await serverHandle.disposer.stop();
 				serverHandle = null;
 			}
 			app = null;
-			startupPromise = null;
 			registeredNames.clear();
 		},
 	};
