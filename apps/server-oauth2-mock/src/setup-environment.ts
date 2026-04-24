@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { SAFE_NAME_RE } from '@cellix/server-oauth2-mock-seedwork';
 import * as dotenv from 'dotenv';
 
 interface MockOidcConfig {
@@ -50,6 +51,14 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 				continue;
 			}
 			config = parsed;
+
+			// Validate portal name early to avoid aborting startup for all portals due
+			// to a single misconfigured file. The register() call will re-validate
+			// defensively as well, but we prefer an early, descriptive warning here.
+			if (!SAFE_NAME_RE.test(config.name)) {
+				console.warn(`[server-oauth2-mock] Skipping "${entry.name}": invalid portal name "${config.name}" in ${mockOidcPath} — must match /${SAFE_NAME_RE.source}/`);
+				continue;
+			}
 		} catch (err) {
 			console.warn(`[server-oauth2-mock] Skipping ${entry.name}: invalid mock-oidc.json`, err);
 			continue;

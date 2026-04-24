@@ -102,7 +102,7 @@ PORT and BASE_URL
 The mock auth server now runs as a single instance. Configure it using the following environment variables:
 
 - PORT — port the HTTP server listens on (default: 1355)
-- BASE_URL — externally-visible origin used as the OIDC issuer (in local development this is handled by the Portless dev proxy; set BASE_URL to the proxy origin when necessary)
+- BASE_URL — externally visible origin used as the OIDC issuer (in local development this is handled by the Portless dev proxy; set BASE_URL to the proxy origin when necessary)
 
 Per-portal port allocation (PORT_BASE) is no longer used.
 

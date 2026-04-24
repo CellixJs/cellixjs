@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createMockOAuth2Manager, type MockOAuth2PortalConfig } from '@cellix/server-oauth2-mock-seedwork';
@@ -32,6 +31,9 @@ try {
 			redirectUriToAudience: new Map([[portal.redirectUri, portal.clientId]]),
 			getUserProfile: () => {
 				const claims = portal.claims ?? {};
+				// Destructure sub separately so we can omit it when not explicitly configured,
+				// allowing the router to fall back to persistedSub (stable per auth-code).
+				const { sub: claimsSub, ...restClaims } = claims as Record<string, unknown>;
 
 				const ensureStringClaim = (key: string, fallback: string): string => {
 					const value = claims[key];
@@ -42,9 +44,11 @@ try {
 				};
 
 				return {
-					// spread custom claims first so known string fields we set below always win
-					...claims,
-					sub: ensureStringClaim('sub', crypto.randomUUID()),
+					// spread restClaims (all except sub) first; known fields below override
+					...restClaims,
+					// Only include sub if explicitly configured as a string; absent sub means
+					// the router uses persistedSub for stable identity across /token calls.
+					...(typeof claimsSub === 'string' ? { sub: claimsSub } : {}),
 					email: ensureStringClaim('email', 'test@example.com'),
 					given_name: ensureStringClaim('given_name', 'Test'),
 					family_name: ensureStringClaim('family_name', 'User'),

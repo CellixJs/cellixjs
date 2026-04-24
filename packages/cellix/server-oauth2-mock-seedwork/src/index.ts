@@ -137,7 +137,7 @@ const normalizeOrigin = (value: string) => {
 // This prevents path-traversal and multi-segment names (no slashes, no dots).
 // Kept at module scope to avoid reallocating the RegExp on each call and to
 // make the allowed pattern easier to document and reuse.
-const SAFE_NAME_RE = /^[a-zA-Z0-9_-]+$/;
+export const SAFE_NAME_RE = /^[a-zA-Z0-9_-]+$/;
 
 export interface MockOAuth2ServerHandle {
 	server: Server;
@@ -510,13 +510,14 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 	// the same promise to resolve.
 	function ensureStarted(): Promise<MockOAuth2ServerHandle> {
 		if (startupPromise) return startupPromise;
-		if (app && serverHandle) return Promise.resolve(serverHandle);
 
-		// Guard: if shutdown is in progress, reject immediately so concurrent callers
-		// cannot race with stopAll() and issue a second app.listen() call on the same port.
+		// Guard: check stopping BEFORE the serverHandle fast path so we never return
+		// a handle to a server that is in the process of being shut down.
 		if (stopping) {
 			return Promise.reject(new Error('[server-oauth2-mock] Server is shutting down; cannot start'));
 		}
+
+		if (app && serverHandle) return Promise.resolve(serverHandle);
 
 		// Initialize Express app synchronously so callers can mount routers after
 		// startup completes. The actual server handle is provided via startupPromise.
@@ -640,6 +641,8 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 			}
 			app = null;
 			registeredNames.clear();
+			// Reset stopping so this manager can be restarted (e.g. in tests).
+			stopping = false;
 		},
 	};
 }
