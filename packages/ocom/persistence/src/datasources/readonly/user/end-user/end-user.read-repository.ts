@@ -1,10 +1,9 @@
 import type { Domain } from '@ocom/domain';
-import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { PipelineStage } from 'mongoose';
 import type { ModelsContext } from '../../../../index.ts';
 import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.ts';
 import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 export interface EndUserReadRepository {
 	getAll: (options?: FindOptions) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]>;
@@ -42,52 +41,19 @@ export class EndUserReadRepositoryImpl implements EndUserReadRepository {
 			return [];
 		}
 
-		// Use aggregation pipeline with $match to batch query IDs
-		// This avoids N+1 queries while properly handling ObjectId typing
-		const objectIds = ids.map((id) => new MongooseSeedwork.ObjectId(id)) as unknown[];
-		const pipeline: PipelineStage[] = [
-			{
-				$match: {
-					_id: { $in: objectIds },
-				},
-			} as PipelineStage,
-		];
+		// Use batched find with populate support — consistent with find/findOne/findById semantics
+		// where populateFields values are Mongoose paths, not MongoDB collection names.
+		// Mongoose casts the string IDs to ObjectIds automatically via the schema.
+		const documents = await this.mongoDataSource.find(
+			{ _id: { $in: ids } } as unknown as Partial<EndUser>,
+			options as FindOptions,
+		);
 
-		// Apply field projection if specified
-		if (options?.fields?.length) {
-			const projection: Record<string, 1 | 0> = {};
-			for (const field of options.fields) {
-				projection[field] = 1;
-			}
-			pipeline.push({ $project: projection } as PipelineStage);
-		}
-
-		// Apply population (lookup) if specified
-		if (options?.populateFields?.length) {
-			for (const field of options.populateFields) {
-				pipeline.push({
-					$lookup: {
-						from: field,
-						localField: field,
-						foreignField: '_id',
-						as: field,
-					},
-				} as PipelineStage);
-			}
-		}
-
-		const documents = await this.mongoDataSource.aggregate(pipeline);
-
-		// Create a map of documents by ID for efficient lookup
+		// Preserve input order, returning null for any missing documents
 		const docMap = new Map(documents.map((doc) => [String(doc.id), doc]));
-
-		// Return results in the same order as input IDs, with null for missing documents
 		return ids.map((id) => {
 			const doc = docMap.get(id);
-			if (!doc) {
-				return null;
-			}
-			return this.converter.toDomain(doc, this.passport);
+			return doc ? this.converter.toDomain(doc, this.passport) : null;
 		});
 	}
 

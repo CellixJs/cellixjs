@@ -1,4 +1,4 @@
-query SharedMemberProfileContainerMemberProfile($id: ObjectID!) {
+query SharedMemberProfileContainerMember($id: ObjectID!) {
 	member(id: $id) {
 		...SharedMemberProfileContainerMemberFields
 	}

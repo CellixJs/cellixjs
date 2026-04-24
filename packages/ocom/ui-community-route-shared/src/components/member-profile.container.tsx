@@ -5,9 +5,9 @@ import type React from 'react';
 import { useParams } from 'react-router-dom';
 import {
 	type SharedMemberProfileContainerMemberFieldsFragment,
-	SharedMemberProfileContainerMemberProfileDocument,
-	type SharedMemberProfileContainerMemberProfileQuery,
-	type SharedMemberProfileContainerMemberProfileQueryVariables,
+	SharedMemberProfileContainerMemberDocument,
+	type SharedMemberProfileContainerMemberQuery,
+	type SharedMemberProfileContainerMemberQueryVariables,
 	SharedMemberProfileContainerMemberUpdateProfileDocument,
 } from '../generated.tsx';
 import { MemberProfile, type MemberProfileFormValues } from './member-profile.tsx';
@@ -29,8 +29,8 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 				return;
 			}
 
-			cache.writeQuery<SharedMemberProfileContainerMemberProfileQuery, SharedMemberProfileContainerMemberProfileQueryVariables>({
-				query: SharedMemberProfileContainerMemberProfileDocument,
+			cache.writeQuery<SharedMemberProfileContainerMemberQuery, SharedMemberProfileContainerMemberQueryVariables>({
+				query: SharedMemberProfileContainerMemberDocument,
 				variables: { id: memberObjectId },
 				data: {
 					member: updatedMember,
@@ -43,7 +43,7 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 		data: memberData,
 		loading: memberLoading,
 		error: memberError,
-	} = useQuery<SharedMemberProfileContainerMemberProfileQuery, SharedMemberProfileContainerMemberProfileQueryVariables>(SharedMemberProfileContainerMemberProfileDocument, {
+	} = useQuery<SharedMemberProfileContainerMemberQuery, SharedMemberProfileContainerMemberQueryVariables>(SharedMemberProfileContainerMemberDocument, {
 		variables: {
 			id: memberObjectId ?? '',
 		},
