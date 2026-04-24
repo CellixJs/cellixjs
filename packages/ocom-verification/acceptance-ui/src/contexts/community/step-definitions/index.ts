@@ -1,1 +1,2 @@
-export * from './create-community.steps.ts';
+// Community context step definitions
+import './create-community.steps.ts';

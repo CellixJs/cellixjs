@@ -1,12 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const defaultStartDir = fileURLToPath(new URL('.', import.meta.url));
 
 /**
  * Walks up from `startDir` looking for pnpm-workspace.yaml to locate the
  * monorepo root. Projects that use a different workspace marker should pass a
  * custom `markerFile`.
  */
-export function findWorkspaceRoot(startDir = import.meta.dirname, markerFile = 'pnpm-workspace.yaml'): string {
+export function findWorkspaceRoot(startDir = defaultStartDir, markerFile = 'pnpm-workspace.yaml'): string {
 	let dir = startDir;
 
 	while (dir !== path.dirname(dir)) {

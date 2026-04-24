@@ -1,9 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { ITestCaseHookParameter, IWorld } from '@cucumber/cucumber';
 import { After, AfterAll, Before, Status, setDefaultTimeout } from '@cucumber/cucumber';
 import { type CellixE2EWorld, stopSharedServers } from '../../world.ts';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
+
+const currentDir = fileURLToPath(new URL('.', import.meta.url));
 
 setDefaultTimeout(120_000);
 
@@ -19,7 +22,7 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 		try {
 			const browseTheWeb = BrowseTheWeb.current();
 			if (browseTheWeb) {
-				const reportsDir = path.resolve(import.meta.dirname, '..', '..', '..', 'reports', 'screenshots');
+				const reportsDir = path.resolve(currentDir, '..', '..', '..', 'reports', 'screenshots');
 				fs.mkdirSync(reportsDir, { recursive: true });
 
 				const safeName = pickle.name.replaceAll(/[^a-zA-Z0-9-_]/g, '_').slice(0, 80);

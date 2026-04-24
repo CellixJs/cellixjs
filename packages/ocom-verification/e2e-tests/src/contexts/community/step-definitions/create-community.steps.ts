@@ -2,11 +2,11 @@ import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import { OAuth2Login } from '../../../shared/support/oauth2-login.ts';
+import type { CommunityE2ENotes } from '../abilities/community-types.ts';
 import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityErrorMessage } from '../questions/community-error-message.ts';
-import { CreatedCommunityName } from '../questions/created-community-name.ts';
+import { CommunityName } from '../questions/community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
-import type { CommunityE2ENotes } from '../types.ts';
 
 let lastActorName = actors.CommunityOwner.name;
 
@@ -50,20 +50,29 @@ Then('the community should be created successfully', async () => {
 
 Then('the community name should be {string}', async (expectedName: string) => {
 	const actor = actorCalled(lastActorName);
-	const actualName = await actor.answer(CreatedCommunityName());
+	const actualName = await actor.answer(CommunityName());
 
 	if (actualName !== expectedName) {
 		throw new Error(`Expected community name "${expectedName}" but got "${actualName}"`);
 	}
 });
 
-Then('{word} should see a community error for {string}', async (actorName: string, _fieldName: string) => {
+Then('{word} should see a community error for {string}', async (actorName: string, fieldName: string) => {
 	const resolvedName = /^(she|he|they)$/i.test(actorName) ? lastActorName : actorName;
 	const actor = actorCalled(resolvedName);
 	const errorMessage = await actor.answer(CommunityErrorMessage());
 
 	if (!errorMessage) {
-		throw new Error(`Expected a validation error for "${_fieldName}" but none was found`);
+		throw new Error(`Expected a validation error for "${fieldName}" but none was found`);
+	}
+
+	const lowerError = errorMessage.toLowerCase();
+	const lowerField = fieldName.toLowerCase();
+	const isFieldMentioned = lowerError.includes(lowerField);
+	const isValidationPattern = /cannot be empty|required|missing|invalid|must not be empty|too short|too long/i.test(errorMessage);
+
+	if (!isFieldMentioned && !isValidationPattern) {
+		throw new Error(`Expected a validation error related to "${fieldName}", but got: "${errorMessage}"`);
 	}
 });
 

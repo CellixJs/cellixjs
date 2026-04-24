@@ -1,4 +1,5 @@
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
+import { actors } from '@ocom-verification/verification-shared/test-data';
 import { Ensure, equals } from '@serenity-js/assertions';
 import { actorCalled, notes } from '@serenity-js/core';
 import { resolveActorName } from '../../../shared/support/domain-test-helpers.ts';
@@ -7,7 +8,7 @@ import { CommunityName } from '../questions/community-name.ts';
 import { CommunityStatus } from '../questions/community-status.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
 
-let lastActorName = 'Alice';
+let lastActorName = actors.CommunityOwner.name;
 
 Given('{word} is an authenticated community owner', (actorName: string) => {
 	lastActorName = actorName;
