@@ -1,0 +1,19 @@
+{
+	"version": 1,
+	"hooks": {
+		"sessionStart": [
+			{
+				"type": "command",
+				"bash": "bash .github/hooks/session-bootstrap.sh",
+				"timeoutSec": 10
+			}
+		],
+		"preToolUse": [
+			{
+				"type": "command",
+				"bash": "bash .github/hooks/enforce-agent-workflow.sh",
+				"timeoutSec": 30
+			}
+		]
+	}
+}
