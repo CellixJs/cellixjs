@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"erasableSyntaxOnly": false,
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
 		"rootDir": "./src",
 		"outDir": "./dist"
 	},

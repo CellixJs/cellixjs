@@ -29,7 +29,7 @@ function createNoOpApolloServerService(): ServiceApolloServer<BaseContext> {
 		throw new Error('ServiceApolloServer not implemented in test session');
 	};
 	return {
-		startUp: () => Promise.resolve({} as ServiceApolloServer<BaseContext>) as ReturnType<ServiceApolloServer<BaseContext>['startUp']>,
+		startUp: () => Promise.resolve({} as unknown as Awaited<ReturnType<ServiceApolloServer<BaseContext>['startUp']>>),
 		shutDown: () => Promise.resolve(),
 		get service(): never {
 			return notImplemented() as never;

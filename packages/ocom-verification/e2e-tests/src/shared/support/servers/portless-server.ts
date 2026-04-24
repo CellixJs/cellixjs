@@ -41,7 +41,7 @@ export abstract class PortlessServer {
 			...this.extraEnv,
 		};
 		// Remove NODE_OPTIONS from child process to avoid tsx import issues
-		delete env.NODE_OPTIONS;
+		delete env['NODE_OPTIONS'];
 
 		this.process = spawn(getPortlessPath(), this.spawnArgs, {
 			cwd: this.cwd,

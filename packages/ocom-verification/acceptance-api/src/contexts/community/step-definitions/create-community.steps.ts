@@ -1,12 +1,12 @@
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { Ensure, equals } from '@serenity-js/assertions';
 import { actorCalled, notes } from '@serenity-js/core';
-import type { CommunityNotes } from '../../questions/community-result.ts';
-import { CommunityName, CommunityStatus } from '../../questions/community-result.ts';
-import { resolveActorName } from '../../shared/support/domain-test-helpers.ts';
-import { type CommunityDetails, CreateCommunity } from '../../tasks/create-community.ts';
+import { resolveActorName } from '../../../shared/support/domain-test-helpers.ts';
+import type { CommunityDetails, CommunityNotes } from '../abilities/community-types.ts';
+import { CommunityName } from '../questions/community-name.ts';
+import { CommunityStatus } from '../questions/community-status.ts';
+import { CreateCommunity } from '../tasks/create-community.ts';
 
-// Track last actor used in When steps so Then steps can reference them
 let lastActorName = 'Alice';
 
 Given('{word} is an authenticated community owner', (actorName: string) => {
@@ -27,7 +27,6 @@ When('{word} attempts to create a community with:', async (actorName: string, da
 	const actor = actorCalled(actorName);
 	const details = dataTable.rowsHash() as unknown as CommunityDetails;
 
-	// Clear notes from any previous scenario to prevent state leakage
 	await actor.attemptsTo(notes<CommunityNotes>().set('lastCommunityId', undefined as unknown as string), notes<CommunityNotes>().set('lastValidationError', undefined as unknown as string));
 
 	try {
@@ -54,7 +53,6 @@ Then('{word} should see a community error for {string}', async (actorName: strin
 	const resolvedActorName = resolveActorName(actorName, lastActorName);
 	const actor = actorCalled(resolvedActorName);
 
-	// Check stored validation error from task execution
 	let storedError: string | undefined;
 	try {
 		storedError = await actor.answer(notes<CommunityNotes>().get('lastValidationError'));
@@ -79,7 +77,7 @@ Then('{word} should see a community error for {string}', async (actorName: strin
 			// expected
 		}
 		if (communityId) {
-			throw new Error(`Expected community creation to be blocked by "${fieldName}" validation, ` + `but a community was created with id: ${communityId}`);
+			throw new Error(`Expected community creation to be blocked by "${fieldName}" validation, but a community was created with id: ${communityId}`);
 		}
 
 		return;
@@ -103,7 +101,7 @@ Then('no community should be created', async () => {
 	try {
 		communityId = await actor.answer(notes<CommunityNotes>().get('lastCommunityId'));
 	} catch {
-		// No community ID — expected
+		// No community ID: expected
 	}
 
 	if (communityId) {
@@ -111,6 +109,6 @@ Then('no community should be created', async () => {
 	}
 
 	if (!hasValidationError) {
-		throw new Error('Expected a validation error to prevent community creation, but no error was captured. ' + 'The test may be passing without actually validating the scenario.');
+		throw new Error('Expected a validation error to prevent community creation, but no error was captured. The test may be passing without actually validating the scenario.');
 	}
 });

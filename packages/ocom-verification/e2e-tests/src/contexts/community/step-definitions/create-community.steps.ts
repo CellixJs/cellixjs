@@ -2,7 +2,9 @@ import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { TestActors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import { OAuth2Login } from '../../../shared/support/oauth2-login.ts';
-import { CommunityCreatedFlag, CommunityErrorMessage, CreatedCommunityName } from '../questions.ts';
+import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
+import { CommunityErrorMessage } from '../questions/community-error-message.ts';
+import { CreatedCommunityName } from '../questions/created-community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
 import type { CommunityE2ENotes } from '../types.ts';
 
@@ -18,7 +20,7 @@ When('{word} creates a community with:', async (actorName: string, dataTable: Da
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	const details = dataTable.rowsHash();
-	const name = details.name ?? '';
+	const name = details['name'] ?? '';
 
 	await actor.attemptsTo(CreateCommunity(name));
 });
@@ -27,7 +29,7 @@ When('{word} attempts to create a community with:', async (actorName: string, da
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	const details = dataTable.rowsHash();
-	const name = details.name ?? '';
+	const name = details['name'] ?? '';
 
 	try {
 		await actor.attemptsTo(CreateCommunity(name));

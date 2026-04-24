@@ -1,4 +1,4 @@
-import { Ability, type Actor } from '@serenity-js/core';
+import { Ability } from '@serenity-js/core';
 
 interface GraphQLResponse {
 	data: Record<string, unknown>;
@@ -12,10 +12,6 @@ export class GraphQLClient extends Ability {
 
 	static at(apiUrl: string): GraphQLClient {
 		return new GraphQLClient(apiUrl);
-	}
-
-	static as(actor: Actor): GraphQLClient {
-		return actor.abilityTo(GraphQLClient);
 	}
 
 	async execute(query: string, variables: Record<string, unknown> = {}): Promise<GraphQLResponse> {

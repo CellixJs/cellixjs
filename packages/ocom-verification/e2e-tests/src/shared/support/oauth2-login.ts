@@ -1,5 +1,5 @@
-import type { Page } from '@playwright/test';
 import { type Actor, Interaction, the } from '@serenity-js/core';
+import type { Page } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 
 /**
@@ -44,7 +44,7 @@ export async function performOAuth2Login(page: Page): Promise<void> {
 export const OAuth2Login = (_email?: string, _password?: string) =>
 	Interaction.where(the`#actor logs in via OAuth2`, async (serenityActor) => {
 		const actor = serenityActor as unknown as Actor;
-		const { page } = BrowseTheWeb.as(actor);
+		const { page } = BrowseTheWeb.withActor(actor);
 
 		// Session tokens live in sessionStorage from pre-auth.
 		try {

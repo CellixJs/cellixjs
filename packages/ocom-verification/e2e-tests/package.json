@@ -20,9 +20,9 @@
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
-		"@playwright/test": "^1.52.0",
 		"@ocom-verification/verification-shared": "workspace:*",
 		"@types/node": "catalog:",
+		"playwright": "catalog:",
 		"rimraf": "^6.0.1",
 		"tsx": "^4.20.3",
 		"typescript": "catalog:"

@@ -1,7 +1,5 @@
+import type { Locator as PlaywrightLocator, Page as PlaywrightPage } from 'playwright';
 import type { ElementHandle, PageAdapter, PageNavigationWaitUntil, PageUrlMatcher } from '../page-adapter.ts';
-
-type PlaywrightPage = import('@playwright/test').Page;
-type PlaywrightLocator = import('@playwright/test').Locator;
 
 class PlaywrightElementHandle implements ElementHandle {
 	constructor(private readonly locator: PlaywrightLocator) {}

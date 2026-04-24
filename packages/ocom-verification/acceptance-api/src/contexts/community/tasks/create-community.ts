@@ -1,34 +1,7 @@
 import { type Actor, notes, Task } from '@serenity-js/core';
-import type { CommunityNotes } from '../questions/community-result.ts';
-import { GraphQLClient } from '../shared/abilities/graphql-client.ts';
-
-export interface CommunityDetails {
-	name: string;
-}
-
-const COMMUNITY_CREATE_MUTATION = `
-	mutation CommunityCreate($input: CommunityCreateInput!) {
-		communityCreate(input: $input) {
-			status {
-				success
-				errorMessage
-			}
-			community {
-				id
-				name
-			}
-		}
-	}
-`;
-
-const GET_COMMUNITY_QUERY = `
-	query CommunityById($id: ObjectID!) {
-		communityById(id: $id) {
-			id
-			name
-		}
-	}
-`;
+import { GraphQLClient } from '../../../shared/abilities/graphql-client.ts';
+import { COMMUNITY_CREATE_MUTATION, GET_COMMUNITY_QUERY } from '../../../shared/graphql/community-operations.ts';
+import type { CommunityDetails, CommunityNotes } from '../abilities/community-types.ts';
 
 export class CreateCommunity extends Task {
 	static withName(name: string) {
@@ -50,18 +23,16 @@ export class CreateCommunity extends Task {
 			input: { name: this.details.name },
 		});
 
-		const mutationResult = response.data.communityCreate as Record<string, unknown>;
-		const status = mutationResult?.status as Record<string, unknown> | undefined;
-		const community = mutationResult?.community as Record<string, unknown> | undefined;
+		const mutationResult = response.data['communityCreate'] as Record<string, unknown>;
+		const status = mutationResult?.['status'] as Record<string, unknown> | undefined;
+		const community = mutationResult?.['community'] as Record<string, unknown> | undefined;
 
-		const success = status?.success === true;
-
-		if (!success) {
-			throw new Error(String(status?.errorMessage ?? 'Failed to create community'));
+		if (status?.['success'] !== true) {
+			throw new Error(String(status?.['errorMessage'] ?? 'Failed to create community'));
 		}
 
-		const communityId = String(community?.id ?? '');
-		const communityName = String(community?.name ?? '');
+		const communityId = String(community?.['id'] ?? '');
+		const communityName = String(community?.['name'] ?? '');
 
 		if (!communityId) {
 			throw new Error('API communityCreate returned a community without an id');
@@ -70,15 +41,14 @@ export class CreateCommunity extends Task {
 			throw new Error(`API communityCreate returned name "${communityName}", expected "${this.details.name}"`);
 		}
 
-		// Re-query to verify persistence
 		const persistedResponse = await graphql.execute(GET_COMMUNITY_QUERY, {
 			id: communityId,
 		});
-		const persistedData = persistedResponse.data.communityById as Record<string, unknown> | undefined;
+		const persistedData = persistedResponse.data['communityById'] as Record<string, unknown> | undefined;
 		if (!persistedData) {
-			throw new Error(`Community ${communityId} was not found on re-query — API backend did not persist the community`);
+			throw new Error(`Community ${communityId} was not found on re-query; API backend did not persist the community`);
 		}
-		const persistedName = String(persistedData.name ?? '');
+		const persistedName = String(persistedData['name'] ?? '');
 		if (persistedName !== this.details.name) {
 			throw new Error(`Re-queried community name "${persistedName}" does not match created name "${this.details.name}"`);
 		}

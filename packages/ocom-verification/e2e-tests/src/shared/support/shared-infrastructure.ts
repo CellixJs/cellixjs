@@ -1,6 +1,6 @@
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { TestActors } from '@ocom-verification/verification-shared/test-data';
-import { type Browser, type BrowserContext, chromium } from '@playwright/test';
+import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
 import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestOAuth2Server, TestViteServer } from './servers/index.ts';
@@ -115,7 +115,7 @@ export async function ensureE2EServers(): Promise<void> {
 	}
 
 	if (!browser) {
-		browser = await chromium.launch({ headless: true });
+		browser = await playwright.chromium.launch({ headless: true });
 	}
 
 	await ensureAuthenticatedBrowserContext({

@@ -6,8 +6,8 @@ export async function unmountComponent(): Promise<void> {
 
 	await act(() => {
 		container.innerHTML = '';
-		delete container.dataset.formSubmitted;
-		delete container.dataset.communityName;
-		delete container.dataset.lastValidationError;
+		delete container.dataset['formSubmitted'];
+		delete container.dataset['communityName'];
+		delete container.dataset['lastValidationError'];
 	});
 }

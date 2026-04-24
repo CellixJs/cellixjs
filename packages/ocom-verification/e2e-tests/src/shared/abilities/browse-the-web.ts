@@ -1,5 +1,5 @@
-import type { BrowserContext, Page } from '@playwright/test';
 import { Ability, type Actor, type UsesAbilities } from '@serenity-js/core';
+import type { BrowserContext, Page } from 'playwright';
 
 const actorBrowserMap = new Map<string, BrowseTheWeb>();
 let fallbackInstance: BrowseTheWeb | undefined;
@@ -32,10 +32,6 @@ export class BrowseTheWeb extends Ability {
 			throw new Error('No BrowseTheWeb ability is active');
 		}
 		return fallbackInstance;
-	}
-
-	static as(actor: UsesAbilities): BrowseTheWeb {
-		return BrowseTheWeb.withActor(actor);
 	}
 
 	static current(): BrowseTheWeb | undefined {

@@ -1,8 +1,11 @@
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { TestActors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
-import { SubmitCommunityForm } from '../tasks.ts';
-import type { CommunityUiNotes } from '../types.ts';
+import type { CommunityUiNotes } from '../abilities/community-types.ts';
+import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
+import { CommunityErrorMessage } from '../questions/community-error-message.ts';
+import { CommunityName } from '../questions/community-name.ts';
+import { CreateCommunity } from '../tasks/create-community.ts';
 
 // Track last actor used in When steps so Then steps can reference them
 let lastActorName = TestActors.CommunityOwner.name;
@@ -37,37 +40,37 @@ Given('{word} is an authenticated community owner', async (actorName: string) =>
 
 	nameInput.addEventListener('input', () => {
 		syncValidity();
-		container.dataset.formSubmitted = 'false';
-		container.dataset.communityName = '';
-		container.dataset.lastValidationError = '';
+		container.dataset['formSubmitted'] = 'false';
+		container.dataset['communityName'] = '';
+		container.dataset['lastValidationError'] = '';
 	});
 
 	nameInput.addEventListener('invalid', () => {
-		container.dataset.formSubmitted = 'false';
-		container.dataset.communityName = '';
-		container.dataset.lastValidationError = nameInput.validationMessage || 'Community name cannot be empty';
+		container.dataset['formSubmitted'] = 'false';
+		container.dataset['communityName'] = '';
+		container.dataset['lastValidationError'] = nameInput.validationMessage || 'Community name cannot be empty';
 	});
 
-	form.addEventListener('submit', (event) => {
+	form.addEventListener('submit', (event: SubmitEvent) => {
 		event.preventDefault();
 
 		const name = nameInput.value;
 		if (!name || name.trim().length === 0) {
-			container.dataset.formSubmitted = 'false';
-			container.dataset.communityName = '';
-			container.dataset.lastValidationError = 'Community name cannot be empty';
+			container.dataset['formSubmitted'] = 'false';
+			container.dataset['communityName'] = '';
+			container.dataset['lastValidationError'] = 'Community name cannot be empty';
 			return;
 		}
 
-		container.dataset.formSubmitted = 'true';
-		container.dataset.communityName = name;
-		container.dataset.lastValidationError = '';
+		container.dataset['formSubmitted'] = 'true';
+		container.dataset['communityName'] = name;
+		container.dataset['lastValidationError'] = '';
 	});
 
 	syncValidity();
-	container.dataset.formSubmitted = 'false';
-	container.dataset.communityName = '';
-	container.dataset.lastValidationError = '';
+	container.dataset['formSubmitted'] = 'false';
+	container.dataset['communityName'] = '';
+	container.dataset['lastValidationError'] = '';
 
 	await actor.attemptsTo(notes<CommunityUiNotes>().set('container', container));
 	await actor.attemptsTo(notes<CommunityUiNotes>().set('formSubmitted', false));
@@ -79,23 +82,23 @@ When('{word} creates a community with:', async (actorName: string, dataTable: Da
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	const details = dataTable.rowsHash();
-	const name = details.name ?? '';
+	const name = details['name'] ?? '';
 
-	await actor.attemptsTo(SubmitCommunityForm(name));
+	await actor.attemptsTo(CreateCommunity(name));
 });
 
 When('{word} attempts to create a community with:', async (actorName: string, dataTable: DataTable) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	const details = dataTable.rowsHash();
-	const name = details.name ?? '';
+	const name = details['name'] ?? '';
 
-	await actor.attemptsTo(SubmitCommunityForm(name));
+	await actor.attemptsTo(CreateCommunity(name));
 });
 
 Then('the community should be created successfully', async () => {
 	const actor = actorCalled(lastActorName);
-	const submitted: boolean = await actor.answer(notes<CommunityUiNotes>().get('formSubmitted'));
+	const submitted = await actor.answer(CommunityCreatedFlag());
 
 	if (!submitted) {
 		throw new Error('Expected community form to be submitted');
@@ -104,7 +107,7 @@ Then('the community should be created successfully', async () => {
 
 Then('the community name should be {string}', async (expectedName: string) => {
 	const actor = actorCalled(lastActorName);
-	const name: string = await actor.answer(notes<CommunityUiNotes>().get('communityName'));
+	const name = await actor.answer(CommunityName());
 
 	if (name !== expectedName) {
 		throw new Error(`Expected community name "${expectedName}" but got "${name}"`);
@@ -117,7 +120,7 @@ Then('{word} should see a community error for {string}', async (actorName: strin
 
 	let storedError: string | undefined;
 	try {
-		storedError = await actor.answer(notes<CommunityUiNotes>().get('lastValidationError'));
+		storedError = await actor.answer(CommunityErrorMessage());
 	} catch {
 		// No error
 	}
@@ -142,7 +145,7 @@ Then('no community should be created', async () => {
 
 	let hasValidationError = false;
 	try {
-		const storedError = await actor.answer(notes<CommunityUiNotes>().get('lastValidationError'));
+		const storedError = await actor.answer(CommunityErrorMessage());
 		hasValidationError = !!storedError;
 	} catch {
 		// No error stored

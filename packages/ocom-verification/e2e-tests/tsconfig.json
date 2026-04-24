@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": ".",
-		"erasableSyntaxOnly": false
+		"erasableSyntaxOnly": false,
+		"lib": ["ES2023", "DOM", "DOM.Iterable"]
 	},
 	"include": ["src/**/*", "features/**/*"],
 	"exclude": ["node_modules", "**/node_modules", "dist", "coverage", "reports", "target"]
