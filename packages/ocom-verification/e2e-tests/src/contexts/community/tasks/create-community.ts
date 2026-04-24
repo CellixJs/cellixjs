@@ -1,4 +1,4 @@
-import { CommunityPage } from '@ocom-verification/verification-shared/pages';
+import { CommunityPage, type E2ECommunityPage } from '@ocom-verification/verification-shared/pages';
 import { PlaywrightPageAdapter } from '@ocom-verification/verification-shared/pages/playwright';
 import { type Actor, Interaction, notes, the } from '@serenity-js/core';
 import { BrowseTheWeb } from '../../../shared/abilities/browse-the-web.ts';
@@ -16,7 +16,7 @@ export const CreateCommunity = (name: string) =>
 		});
 
 		const adapter = new PlaywrightPageAdapter(page);
-		const communityPage = new CommunityPage(adapter);
+		const communityPage: E2ECommunityPage = new CommunityPage(adapter);
 
 		await communityPage.createCommunityButton.click();
 		await communityPage.fillName(name);

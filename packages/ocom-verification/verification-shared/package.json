@@ -11,8 +11,8 @@
 		"./servers": "./src/servers/index.ts",
 		"./settings": "./src/settings/index.ts",
 		"./pages": "./src/pages/index.ts",
-		"./pages/jsdom": "./src/pages/adapters/jsdom.ts",
-		"./pages/playwright": "./src/pages/adapters/playwright.ts"
+		"./pages/jsdom": "./src/pages/adapters/jsdom-adapter.ts",
+		"./pages/playwright": "./src/pages/adapters/playwright-adapter.ts"
 	},
 	"dependencies": {
 		"@apollo/server": "catalog:",

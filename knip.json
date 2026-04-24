@@ -63,8 +63,8 @@
 				"src/formatters/index.ts",
 				"src/helpers/index.ts",
 				"src/pages/index.ts",
-				"src/pages/adapters/jsdom.ts",
-				"src/pages/adapters/playwright.ts",
+				"src/pages/adapters/jsdom-adapter.ts",
+				"src/pages/adapters/playwright-adapter.ts",
 				"src/servers/index.ts",
 				"src/settings/index.ts",
 				"src/test-data/index.ts"

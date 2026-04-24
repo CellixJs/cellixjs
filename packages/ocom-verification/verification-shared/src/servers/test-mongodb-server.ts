@@ -1,7 +1,7 @@
 import { ServiceMongoose } from '@ocom/service-mongoose';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
-import { TestActors } from '../test-data/test-actors.ts';
+import { getAllMockUsers } from '../test-data/index.ts';
 
 const MONGO_BINARY_VERSION = '7.0.14';
 const DEFAULT_DB_NAME = 'owner-community-test';
@@ -19,33 +19,31 @@ export async function seedOwnerCommunityReferenceData(connectionString: string, 
 	try {
 		await client.connect();
 		const db = client.db(dbName);
-		const usersCollection = db.collection('users');
 
-		const testEndUsers = [TestActors.CommunityOwner, TestActors.CommunityMember]
-			.filter((actor) => actor.externalId)
-			.map((actor) => ({
-				externalId: actor.externalId,
-				displayName: `${actor.givenName} ${actor.familyName}`.trim(),
-				email: actor.email,
-				personalInformation: {
-					identityDetails: {
-						lastName: actor.familyName,
-						legalNameConsistsOfOneName: false,
-						restOfName: actor.givenName,
+		const users = getAllMockUsers();
+		if (users.length > 0) {
+			const operations = users.map((user) => ({
+				updateOne: {
+					filter: { _id: new ObjectId(user.id) },
+					update: {
+						$setOnInsert: {
+							_id: new ObjectId(user.id),
+							externalId: user.externalId,
+							displayName: user.displayName,
+							email: user.email,
+							personalInformation: user.personalInformation,
+							accessBlocked: user.accessBlocked,
+							tags: user.tags,
+							userType: user.userType,
+							schemaVersion: user.schemaVersion,
+							createdAt: user.createdAt,
+							updatedAt: user.updatedAt,
+						},
 					},
-					contactInformation: {
-						email: actor.email,
-					},
+					upsert: true,
 				},
-				accessBlocked: false,
-				userType: 'end-users',
-				schemaVersion: '1.0.0',
-				createdAt: new Date(),
-				updatedAt: new Date(),
 			}));
-
-		for (const endUser of testEndUsers) {
-			await usersCollection.updateOne({ externalId: endUser.externalId }, { $setOnInsert: endUser }, { upsert: true });
+			await db.collection('users').bulkWrite(operations);
 		}
 	} finally {
 		await client.close();

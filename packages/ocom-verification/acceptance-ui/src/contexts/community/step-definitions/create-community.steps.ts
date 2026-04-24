@@ -1,5 +1,5 @@
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
-import { TestActors } from '@ocom-verification/verification-shared/test-data';
+import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import type { CommunityUiNotes } from '../abilities/community-types.ts';
 import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
@@ -8,7 +8,7 @@ import { CommunityName } from '../questions/community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
 
 // Track last actor used in When steps so Then steps can reference them
-let lastActorName = TestActors.CommunityOwner.name;
+let lastActorName = actors.CommunityOwner.name;
 
 Given('{word} is an authenticated community owner', async (actorName: string) => {
 	lastActorName = actorName;

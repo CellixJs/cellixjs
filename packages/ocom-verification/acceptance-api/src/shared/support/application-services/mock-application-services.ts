@@ -5,12 +5,12 @@ import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
-import { TestActors } from '@ocom-verification/verification-shared/test-data';
+import { actors } from '@ocom-verification/verification-shared/test-data';
 
 function createMockTokenValidation(): TokenValidation {
 	return {
 		verifyJwt: <ClaimsType>(_token: string): Promise<TokenValidationResult<ClaimsType> | null> => {
-			const actor = TestActors.CommunityOwner;
+			const actor = actors.CommunityOwner;
 			return Promise.resolve({
 				verifiedJwt: {
 					given_name: actor.givenName,

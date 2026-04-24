@@ -1,5 +1,5 @@
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
-import { TestActors } from '@ocom-verification/verification-shared/test-data';
+import { actors } from '@ocom-verification/verification-shared/test-data';
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
@@ -67,9 +67,9 @@ export async function ensureE2EServers(): Promise<void> {
 	mongoDBServer ??= new MongoDBTestServer();
 	oauth2Server ??= new TestOAuth2Server({
 		testUser: {
-			email: TestActors.CommunityOwner.email,
-			given_name: TestActors.CommunityOwner.givenName,
-			family_name: TestActors.CommunityOwner.familyName,
+			email: actors.CommunityOwner.email,
+			given_name: actors.CommunityOwner.givenName,
+			family_name: actors.CommunityOwner.familyName,
 		},
 	});
 	const mongo = mongoDBServer;

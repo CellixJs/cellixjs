@@ -1,5 +1,5 @@
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
-import { TestActors } from '@ocom-verification/verification-shared/test-data';
+import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import { OAuth2Login } from '../../../shared/support/oauth2-login.ts';
 import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
@@ -8,12 +8,12 @@ import { CreatedCommunityName } from '../questions/created-community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
 import type { CommunityE2ENotes } from '../types.ts';
 
-let lastActorName = TestActors.CommunityOwner.name;
+let lastActorName = actors.CommunityOwner.name;
 
 Given('{word} is an authenticated community owner', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	await actor.attemptsTo(OAuth2Login(TestActors.CommunityOwner.email));
+	await actor.attemptsTo(OAuth2Login(actors.CommunityOwner.email));
 });
 
 When('{word} creates a community with:', async (actorName: string, dataTable: DataTable) => {
