@@ -1,5 +1,6 @@
 import { Button, Form, Input } from 'antd';
 import type { MemberCreateInput } from '../generated.tsx';
+import type React from 'react';
 
 interface MembersCreateProps {
 	data: MemberCreateInput;

@@ -6,6 +6,7 @@ import { SubPageLayout } from '../sub-page-layout.tsx';
 import { MembersAccounts } from './members-accounts.tsx';
 import { MembersGeneral } from './members-general.tsx';
 import { MembersProfile } from './members-profile.tsx';
+import type React from 'react';
 
 export const MembersDetail: React.FC = () => {
 	const navigate = useNavigate();

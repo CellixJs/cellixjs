@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { MembersDetailContainer } from '../components/members-detail.container.tsx';
+import type React from 'react';
 
 interface MembersGeneralParams {
 	id?: string;

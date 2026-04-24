@@ -4,6 +4,7 @@ import { Button, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { MemberListContainer } from '../components/members-list.container.tsx';
 import { SubPageLayout } from '../sub-page-layout.tsx';
+import type React from 'react';
 
 export const MembersList: React.FC = () => {
 	const navigate = useNavigate();

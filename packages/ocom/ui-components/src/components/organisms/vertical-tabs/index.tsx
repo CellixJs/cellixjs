@@ -2,6 +2,7 @@ import { Col, Menu, Row, theme } from 'antd';
 import { useMemo } from 'react';
 import type { Location, RouteObject } from 'react-router-dom';
 import { Link, Route, Routes, matchRoutes, useLocation } from 'react-router-dom';
+import type React from 'react';
 
 interface RouteDefinition {
 	id: string;

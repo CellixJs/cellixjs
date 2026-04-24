@@ -110,6 +110,7 @@ type MemberInvitation {
 
 input MemberCreateInput {
 	memberName: String!
+    communityId: ObjectID!
 }
 
 input MemberCreateAccountInput {
