@@ -3,6 +3,17 @@ import path from 'node:path';
 import { SAFE_NAME_RE } from '@cellix/server-oauth2-mock-seedwork';
 import * as dotenv from 'dotenv';
 
+function readEnvFile(filePath: string): Record<string, string> {
+	try {
+		if (!fs.existsSync(filePath)) return {};
+		const contents = fs.readFileSync(filePath, 'utf-8');
+		return dotenv.parse(contents);
+	} catch (err) {
+		console.warn(`[server-oauth2-mock] Warning: failed to read env file at "${filePath}"`, err);
+		return {};
+	}
+}
+
 interface MockOidcConfig {
 	name: string;
 	envVars: {
@@ -56,7 +67,7 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 			// to a single misconfigured file. The register() call will re-validate
 			// defensively as well, but we prefer an early, descriptive warning here.
 			if (!SAFE_NAME_RE.test(config.name)) {
-				console.warn(`[server-oauth2-mock] Skipping "${entry.name}": invalid portal name "${config.name}" in ${mockOidcPath} — must match /${SAFE_NAME_RE.source}/`);
+				console.warn(`[server-oauth2-mock] Skipping "${entry.name}": invalid portal name "${config.name}" in ${mockOidcPath} — must contain letters, digits, '_' and '-' only`);
 				continue;
 			}
 		} catch (err) {
@@ -88,12 +99,8 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 
 		let parsedEnv: Record<string, string> = {};
 		try {
-			if (fs.existsSync(envPath)) {
-				parsedEnv = { ...parsedEnv, ...dotenv.parse(fs.readFileSync(envPath, 'utf-8')) };
-			}
-			if (fs.existsSync(envLocalPath)) {
-				parsedEnv = { ...parsedEnv, ...dotenv.parse(fs.readFileSync(envLocalPath, 'utf-8')) };
-			}
+			parsedEnv = { ...parsedEnv, ...readEnvFile(envPath) };
+			parsedEnv = { ...parsedEnv, ...readEnvFile(envLocalPath) };
 		} catch (err) {
 			console.warn(`[server-oauth2-mock] Skipping ${entry.name}: failed to read .env`, err);
 			continue;

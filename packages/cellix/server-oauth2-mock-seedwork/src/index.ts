@@ -497,7 +497,7 @@ export interface MockOAuth2PortalConfig {
 	getUserProfile: () => MockOAuth2UserProfile;
 }
 
-function normalizeBaseUrl(url: string): string {
+export function normalizeBaseUrl(url: string): string {
 	return url.replace(/\/$/, '');
 }
 
@@ -586,7 +586,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 		async register(name: string, config: MockOAuth2PortalConfig) {
 			// Validate portal name to prevent path-traversal or multi-segment names
 			if (!SAFE_NAME_RE.test(name)) {
-				throw new Error(`[server-oauth2-mock] Invalid portal name "${name}": must match /${SAFE_NAME_RE.source}/`);
+				throw new Error(`[server-oauth2-mock] Invalid portal name "${name}": must contain letters, digits, '_' and '-' only`);
 			}
 			// Fast-fail for the common case
 			if (registeredNames.has(name)) throw new Error(`[server-oauth2-mock] Registration with name "${name}" already exists`);

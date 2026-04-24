@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createMockOAuth2Manager, type MockOAuth2PortalConfig } from '@cellix/server-oauth2-mock-seedwork';
+import { createMockOAuth2Manager, type MockOAuth2PortalConfig, normalizeBaseUrl } from '@cellix/server-oauth2-mock-seedwork';
 import { discoverPortalConfigs, type PortalOidcConfig, setupEnvironment } from './setup-environment.js';
 
 setupEnvironment();
@@ -9,11 +9,11 @@ const { PORT, BASE_URL } = process.env;
 
 const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const appsDir = path.join(repoRoot, 'apps');
-const port = Number.parseInt(PORT ?? '1355', 10);
+const rawPort = Number.parseInt(PORT ?? '1355', 10);
+const port = Number.isFinite(rawPort) && rawPort > 0 ? rawPort : 1355;
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.
 // In local dev the portless proxy handles TLS termination and host mapping.
 const baseUrl = BASE_URL ?? `https://mock-auth.ownercommunity.localhost:${port}`;
-const normalizeBaseUrl = (url: string) => url.replace(/\/$/, '');
 
 const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir);
 
@@ -34,7 +34,7 @@ try {
 				const claims = portal.claims ?? {};
 				// Destructure sub separately so we can omit it when not explicitly configured,
 				// allowing the router to fall back to persistedSub (stable per auth-code).
-				const { sub: claimsSub, ...restClaims } = claims as Record<string, unknown>;
+				const { sub: claimsSub, ...restClaims } = claims;
 
 				const ensureStringClaim = (key: string, fallback: string): string => {
 					const value = claims[key];
