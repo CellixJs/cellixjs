@@ -25,8 +25,9 @@ export const MembersCreateContainer: React.FC<MembersCreateContainerProps> = (pr
 	});
 
 	const defaultValues: MemberCreateInput = {
-		memberName: '',
-	};
+        memberName: '',
+        communityId: props.data.communityId ?? ''
+    };
 
 	const handleSave = async (values: MemberCreateInput) => {
 		try {
