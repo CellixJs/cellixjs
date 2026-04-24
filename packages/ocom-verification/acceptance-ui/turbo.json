@@ -1,0 +1,10 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test:serenity": {
+			"dependsOn": ["^build"],
+			"inputs": ["src/**/*.ts", "src/**/*.tsx", "cucumber.js", "package.json"],
+			"cache": false
+		}
+	}
+}

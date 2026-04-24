@@ -1,0 +1,39 @@
+{
+	"name": "@ocom-verification/verification-shared",
+	"version": "1.0.0",
+	"description": "Shared Serenity verification utilities, servers, scenarios, and helpers",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./test-data": "./src/test-data/index.ts",
+		"./helpers": "./src/helpers/index.ts",
+		"./formatters": "./src/formatters/index.ts",
+		"./servers": "./src/servers/index.ts",
+		"./settings": "./src/settings/index.ts",
+		"./pages": "./src/pages/index.ts",
+		"./pages/jsdom": "./src/pages/adapters/jsdom-adapter.ts",
+		"./pages/playwright": "./src/pages/adapters/playwright-adapter.ts"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@ocom/service-mongoose": "workspace:*",
+		"@cucumber/cucumber": "^12.7.0",
+		"@cucumber/messages": "^32.2.0",
+		"@ocom/graphql": "workspace:*",
+		"@ocom/application-services": "workspace:*",
+		"@testing-library/react": "^16.3.0",
+		"graphql": "catalog:",
+		"graphql-depth-limit": "^1.1.0",
+		"graphql-middleware": "^6.1.35",
+		"mongodb": "catalog:",
+		"mongodb-memory-server": "^10.2.0",
+		"mongoose": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@types/graphql-depth-limit": "^1.1.6",
+		"@types/node": "catalog:",
+		"playwright": "catalog:",
+		"typescript": "catalog:"
+	}
+}

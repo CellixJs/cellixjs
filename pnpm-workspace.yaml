@@ -2,6 +2,7 @@ packages:
   - "apps/*"
   - "packages/cellix/*"
   - "packages/ocom/*"
+  - "packages/ocom-verification/*"
 
 catalog:
   '@apollo/server': 5.5.0
