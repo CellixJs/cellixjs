@@ -497,6 +497,10 @@ export interface MockOAuth2PortalConfig {
 	getUserProfile: () => MockOAuth2UserProfile;
 }
 
+function normalizeBaseUrl(url: string): string {
+	return url.replace(/\/$/, '');
+}
+
 export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string }) {
 	let app: express.Express | null = null;
 	let serverHandle: MockOAuth2ServerHandle | null = null;
@@ -511,13 +515,11 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 	function ensureStarted(): Promise<MockOAuth2ServerHandle> {
 		if (startupPromise) return startupPromise;
 
-		// Guard: check stopping BEFORE the serverHandle fast path so we never return
-		// a handle to a server that is in the process of being shut down.
+		// Guard: check stopping so we never return a handle to a server that is in the
+		// process of being shut down.
 		if (stopping) {
 			return Promise.reject(new Error('[server-oauth2-mock] Server is shutting down; cannot start'));
 		}
-
-		if (app && serverHandle) return Promise.resolve(serverHandle);
 
 		// Initialize Express app synchronously so callers can mount routers after
 		// startup completes. The actual server handle is provided via startupPromise.
@@ -532,7 +534,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 			const a = app;
 			if (!a) {
 				startupPromise = null;
-				return reject(new Error('express app not initialized'));
+				return reject(new Error('[server-oauth2-mock] express app not initialized'));
 			}
 			const s = a.listen(serverConfig.port, serverConfig.host ?? 'localhost', () => {
 				console.log(`Mock OAuth2 server running on ${serverConfig.baseUrl}`);
@@ -587,7 +589,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 				throw new Error(`[server-oauth2-mock] Invalid portal name "${name}": must match /${SAFE_NAME_RE.source}/`);
 			}
 			// Fast-fail for the common case
-			if (registeredNames.has(name)) throw new Error(`Registration with name ${name} already exists`);
+			if (registeredNames.has(name)) throw new Error(`[server-oauth2-mock] Registration with name "${name}" already exists`);
 
 			// Await the shared startup promise so concurrent callers wait for the
 			// server to be listening and serverHandle to be set.
@@ -595,15 +597,15 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 
 			// Re-check after startup: a concurrent register() call with the same name may have
 			// resolved ensureStarted() concurrently and already reserved the name.
-			if (registeredNames.has(name)) throw new Error(`Registration with name ${name} already exists`);
+			if (registeredNames.has(name)) throw new Error(`[server-oauth2-mock] Registration with name "${name}" already exists`);
 			// Reserve the name synchronously before the next await to prevent races with concurrent register() calls.
 			registeredNames.add(name);
 
 			try {
-				const issuerBase = `${serverConfig.baseUrl.replace(/\/$/, '')}/${name}`;
+				const issuerBase = `${normalizeBaseUrl(serverConfig.baseUrl)}/${name}`;
 				const router = await buildOidcRouter(issuerBase, config);
 				if (!app) {
-					throw new Error('express app not initialized');
+					throw new Error('[server-oauth2-mock] express app not initialized');
 				}
 				app.use(`/${name}`, router);
 			} catch (err) {
@@ -613,8 +615,8 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 			}
 
 			// serverHandle is guaranteed to be set after ensureStarted resolves
-			if (!serverHandle) throw new Error('server not started');
-			return { server: serverHandle.server, disposer: serverHandle.disposer, baseUrl: `${serverConfig.baseUrl.replace(/\/$/, '')}/${name}`, name };
+			if (!serverHandle) throw new Error('[server-oauth2-mock] server not started');
+			return { server: serverHandle.server, disposer: serverHandle.disposer, baseUrl: `${normalizeBaseUrl(serverConfig.baseUrl)}/${name}`, name };
 		},
 		async stopAll() {
 			// Indicate shutdown so an in-progress startup can be cancelled

@@ -13,6 +13,7 @@ const port = Number.parseInt(PORT ?? '1355', 10);
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.
 // In local dev the portless proxy handles TLS termination and host mapping.
 const baseUrl = BASE_URL ?? `https://mock-auth.ownercommunity.localhost:${port}`;
+const normalizeBaseUrl = (url: string) => url.replace(/\/$/, '');
 
 const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir);
 
@@ -22,7 +23,7 @@ if (portals.length === 0) {
 }
 
 try {
-	const manager = createMockOAuth2Manager({ port, host: '127.0.0.1', baseUrl });
+	const manager = createMockOAuth2Manager({ port, host: '127.0.0.1', baseUrl: normalizeBaseUrl(baseUrl) });
 
 	for (const portal of portals) {
 		const config: MockOAuth2PortalConfig = {
