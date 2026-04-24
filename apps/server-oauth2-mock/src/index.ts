@@ -6,12 +6,14 @@ import { discoverPortalConfigs, type PortalOidcConfig, setupEnvironment } from '
 
 setupEnvironment();
 
+const { PORT, BASE_URL } = process.env;
+
 const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const appsDir = path.join(repoRoot, 'apps');
-const port = Number.parseInt(process.env['PORT'] ?? '1355', 10);
+const port = Number.parseInt(PORT ?? '1355', 10);
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.
 // In local dev the portless proxy handles TLS termination and host mapping.
-const baseUrl = process.env['BASE_URL'] ?? `https://mock-auth.ownercommunity.localhost:${port}`;
+const baseUrl = BASE_URL ?? `https://mock-auth.ownercommunity.localhost:${port}`;
 
 const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir);
 
@@ -28,15 +30,27 @@ try {
 			allowedRedirectUris: new Set([portal.redirectUri]),
 			allowedRedirectUri: portal.redirectUri,
 			redirectUriToAudience: new Map([[portal.redirectUri, portal.clientId]]),
-			getUserProfile: () => ({
-				// spread custom claims first so known string fields we set below always win and are correctly typed
-				...portal.claims,
-				sub: String(portal.claims['sub'] ?? crypto.randomUUID()),
-				email: String(portal.claims['email'] ?? 'test@example.com'),
-				given_name: String(portal.claims['given_name'] ?? 'Test'),
-				family_name: String(portal.claims['family_name'] ?? 'User'),
-				tid: String(portal.claims['tid'] ?? 'test-tenant-id'),
-			}),
+			getUserProfile: () => {
+				const claims = portal.claims ?? {};
+
+				const ensureStringClaim = (key: string, fallback: string): string => {
+					const value = claims[key];
+					if (value === undefined || value === null) return fallback;
+					if (typeof value === 'string') return value;
+					console.warn(`[server-oauth2-mock] Ignoring non-string value for reserved claim "${key}" in portal "${portal.name}". ` + `Using fallback "${fallback}" instead.`);
+					return fallback;
+				};
+
+				return {
+					// spread custom claims first so known string fields we set below always win
+					...claims,
+					sub: ensureStringClaim('sub', crypto.randomUUID()),
+					email: ensureStringClaim('email', 'test@example.com'),
+					given_name: ensureStringClaim('given_name', 'Test'),
+					family_name: ensureStringClaim('family_name', 'User'),
+					tid: ensureStringClaim('tid', 'test-tenant-id'),
+				};
+			},
 		};
 
 		await manager.register(portal.name, config);

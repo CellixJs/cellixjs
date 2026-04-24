@@ -502,6 +502,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 	let serverHandle: MockOAuth2ServerHandle | null = null;
 	let startupPromise: Promise<MockOAuth2ServerHandle> | null = null;
 	let stopping = false;
+	let startGeneration = 0;
 	const registeredNames = new Set<string>();
 
 	// ensureStarted is concurrency-safe: callers share startupPromise so only one
@@ -520,6 +521,8 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 			app = express();
 			app.disable('x-powered-by');
 		}
+
+		const gen = startGeneration; // capture generation so the listen callback can detect staleness
 
 		startupPromise = new Promise<MockOAuth2ServerHandle>((resolve, reject) => {
 			const a = app;
@@ -543,10 +546,12 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 				};
 
 				const handle: MockOAuth2ServerHandle = { server: s, disposer };
-				if (stopping) {
-					// Shutdown was requested before we finished starting — close immediately
+
+				// Stale: stopAll() was called while startup was in progress.
+				// gen !== startGeneration means stopAll() incremented the generation counter.
+				if (gen !== startGeneration || stopping) {
 					handle.disposer.stop().catch(() => {
-						/* ignore stop error */
+						/* ignore stop error during forced shutdown */
 					});
 					startupPromise = null;
 					return reject(new Error('[server-oauth2-mock] Server stopped before startup completed'));
@@ -577,27 +582,55 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 			if (!SAFE_NAME_RE.test(name)) {
 				throw new Error(`[server-oauth2-mock] Invalid portal name "${name}": must match /${SAFE_NAME_RE.source}/`);
 			}
+			// Fast-fail for the common case
 			if (registeredNames.has(name)) throw new Error(`Registration with name ${name} already exists`);
 
 			// Await the shared startup promise so concurrent callers wait for the
 			// server to be listening and serverHandle to be set.
 			await ensureStarted();
-			const issuerBase = `${serverConfig.baseUrl.replace(/\/$/, '')}/${name}`;
-			const router = await buildOidcRouter(issuerBase, config);
-			// app must be non-null after ensureStarted resolves
-			if (!app) throw new Error('express app not initialized');
-			app.use(`/${name}`, router);
+
+			// Re-check after startup: a concurrent register() call with the same name may have
+			// resolved ensureStarted() concurrently and already reserved the name.
+			if (registeredNames.has(name)) throw new Error(`Registration with name ${name} already exists`);
+			// Reserve the name synchronously before the next await to prevent races with concurrent register() calls.
 			registeredNames.add(name);
+
+			try {
+				const issuerBase = `${serverConfig.baseUrl.replace(/\/$/, '')}/${name}`;
+				const router = await buildOidcRouter(issuerBase, config);
+				if (!app) {
+					throw new Error('express app not initialized');
+				}
+				app.use(`/${name}`, router);
+			} catch (err) {
+				// Roll back name reservation so callers can retry
+				registeredNames.delete(name);
+				throw err;
+			}
 
 			// serverHandle is guaranteed to be set after ensureStarted resolves
 			if (!serverHandle) throw new Error('server not started');
-			return { server: serverHandle.server, disposer: serverHandle.disposer, baseUrl: issuerBase, name };
+			return { server: serverHandle.server, disposer: serverHandle.disposer, baseUrl: `${serverConfig.baseUrl.replace(/\/$/, '')}/${name}`, name };
 		},
 		async stopAll() {
 			// Indicate shutdown so an in-progress startup can be cancelled
 			stopping = true;
-			// Cancel any pending startup promise
+			startGeneration++; // Invalidate any in-flight listen callback so it closes instead of binding
+			const pending = startupPromise;
 			startupPromise = null;
+
+			if (pending) {
+				try {
+					// Wait for in-flight startup to complete or honour the stopping flag.
+					// If it resolves, the server started just before stopAll ran — stop it.
+					const handle = await pending;
+					await handle.disposer.stop();
+					serverHandle = null; // Already stopped above; clear so the block below is a no-op
+				} catch {
+					// Startup was cancelled (gen mismatch / stopping) or failed — nothing to close.
+				}
+			}
+
 			if (serverHandle) {
 				await serverHandle.disposer.stop();
 				serverHandle = null;
