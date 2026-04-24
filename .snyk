@@ -52,3 +52,9 @@ ignore:
         reason: 'Transitive dependency in @mongodb-memory-server; not exploitable in current usage.'
         expires: '2026-03-26T00:00:00.000Z'
         created: '2026-03-12T12:35:00.000Z'
+
+  'SNYK-JS-UUID-16133035':
+    - '* > uuid@11.1.0':
+        reason: 'Required for Azurite compatibility.'
+        expires: '2026-10-24T00:00:00.000Z'
+        created: '2026-04-24T11:48:00.000Z'
