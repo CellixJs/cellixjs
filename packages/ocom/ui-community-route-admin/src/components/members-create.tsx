@@ -3,7 +3,9 @@ import type { MemberCreateInput } from '../generated.tsx';
 import type React from 'react';
 
 interface MembersCreateProps {
-	data: MemberCreateInput;
+	data: {
+		communityId: string;
+	};
 	onSave: (member: MemberCreateInput) => void;
 }
 
@@ -15,7 +17,7 @@ export const MembersCreate: React.FC<MembersCreateProps> = (props) => {
 			<Form
 				layout="vertical"
 				form={form}
-				initialValues={props.data}
+				initialValues={{ memberName: '' }}
 				onFinish={(values) => {
 					props.onSave(values);
 				}}

@@ -24,15 +24,18 @@ export const MembersCreateContainer: React.FC<MembersCreateContainerProps> = (pr
 		],
 	});
 
-	const defaultValues: MemberCreateInput = {
-		memberName: '',
+	const defaultValues: { communityId: string } = {
+		communityId: props.data.communityId ?? '',
 	};
 
 	const handleSave = async (values: MemberCreateInput) => {
 		try {
 			const newMember = await memberCreate({
 				variables: {
-					input: values,
+					input: {
+						...values,
+						communityId: props.data.communityId,
+					},
 				},
 			});
 
@@ -42,8 +45,9 @@ export const MembersCreateContainer: React.FC<MembersCreateContainerProps> = (pr
 			} else {
 				message.error(newMember.data?.memberCreate.status?.errorMessage || 'Failed to create member');
 			}
-		} catch (_error) {
-			message.error('An error occurred while creating member');
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'An error occurred while creating member';
+			message.error(errorMessage);
 		}
 	};
 
