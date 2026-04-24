@@ -118,8 +118,7 @@
 			"playwright-core": "1.59.0",
 			"playwright": "1.59.0",
 			"protobufjs": "^7.5.5",
-            "uuid": "^14.0.0",
-            "postcss": "^8.5.10"
+			"postcss": "^8.5.10"
 		},
 		"patchedDependencies": {
 			"@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"
