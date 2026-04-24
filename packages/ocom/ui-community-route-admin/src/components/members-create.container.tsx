@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { MemberCreateInput } from '../generated.tsx';
 import { AdminMemberListContainerMembersDocument, AdminMembersCreateContainerMemberCreateDocument } from '../generated.tsx';
 import { MembersCreate } from './members-create.tsx';
+import type React from 'react';
 
 interface MembersCreateContainerProps {
 	data: {
@@ -23,10 +24,6 @@ export const MembersCreateContainer: React.FC<MembersCreateContainerProps> = (pr
 			},
 		],
 	});
-
-	const defaultValues: { communityId: string } = {
-		communityId: props.data.communityId ?? '',
-	};
 
 	const handleSave = async (values: MemberCreateInput) => {
 		try {
@@ -53,7 +50,7 @@ export const MembersCreateContainer: React.FC<MembersCreateContainerProps> = (pr
 
 	return (
 		<MembersCreate
-			data={defaultValues}
+			communityId={props.data.communityId}
 			onSave={handleSave}
 		/>
 	);

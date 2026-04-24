@@ -10,6 +10,7 @@ import {
 	type AdminMembersAccountsAddContainerEndUserFieldsFragment,
 } from '../generated.tsx';
 import { MembersAccountsAdd, type MembersAccountsAddProps } from './members-accounts-add.tsx';
+import type React from 'react';
 
 interface MembersAccountsAddContainerProps {
 	data: {

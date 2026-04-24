@@ -1,5 +1,6 @@
 import { Button, Form, Select } from 'antd';
 import type { AdminMembersAccountsAddContainerEndUserFieldsFragment, MemberCreateAccountInput } from '../generated.tsx';
+import type React from 'react';
 
 export interface MembersAccountsAddProps {
 	data: MemberCreateAccountInput;

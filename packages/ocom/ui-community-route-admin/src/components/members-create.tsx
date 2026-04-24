@@ -3,9 +3,7 @@ import type { MemberCreateInput } from '../generated.tsx';
 import type React from 'react';
 
 interface MembersCreateProps {
-	data: {
-		communityId: string;
-	};
+	communityId: string;
 	onSave: (member: MemberCreateInput) => void;
 }
 

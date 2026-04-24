@@ -45,9 +45,12 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
 	 * @returns A promise that resolves to an array of MemberEntityReference objects that belong to the specified community.
 	 */
 	async getByCommunityId(communityId: string, options?: FindOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {
+		const defaultPopulateFields = ['role', 'role.community'];
 		const finalOptions: FindOptions = {
 			...options,
-			populateFields: ['role', 'role.community'],
+			populateFields: options?.populateFields
+				? [...new Set([...defaultPopulateFields, ...options.populateFields])]
+				: defaultPopulateFields,
 		};
 		const result = await this.mongoDataSource.find({ community: new MongooseSeedwork.ObjectId(communityId) }, finalOptions);
 		return result.map((doc) => this.converter.toDomain(doc, this.passport));
