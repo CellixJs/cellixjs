@@ -231,7 +231,6 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		if (allowOrigin && allowedOriginValue) {
 			// Use the normalized, validated origin value instead of reflecting the raw header
 			res.setHeader('Access-Control-Allow-Origin', allowedOriginValue);
-			res.setHeader('Access-Control-Allow-Credentials', 'true');
 			res.setHeader('Vary', 'Origin');
 
 			// Ensure preflight and actual responses share the same methods/headers
