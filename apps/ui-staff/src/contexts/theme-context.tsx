@@ -143,7 +143,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		<ThemeContext.Provider value={{ currentTokens, setTheme }}>
 			<div>
 				<div className={isHidden ? 'hidden' : 'text-center'}>
-					<div className="py-2 flex gap-4 justify-center">
+					<div style={{ display: 'flex', justifyContent: 'center', width: '100%', padding: '8px 0' }}>
 						<Button
 							type="primary"
 							onClick={() => {
@@ -156,12 +156,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 						>
 							Toggle Dark/Light
 						</Button>
-
-						{/* <ModalPopUp /> */}
 					</div>
-					<p>
+					<p style={{ textAlign: 'center', margin: 0, paddingBottom: 8 }}>
 						Hit <strong>Cmd+Shift+K</strong> to hide
-						</p>
+					</p>
 					</div>
 					{children}
 				</div>
