@@ -3,5 +3,4 @@
 /node_modules
 .DS_Store
 __*
-
 .env.local
