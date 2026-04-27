@@ -1,10 +1,14 @@
 {
 	"extends": ["//"],
 	"tasks": {
+		"build": {
+			"inputs": ["$TURBO_EXTENDS$", "../**/mock-oidc*.json"]
+		},
 		"dev": {
 			"dependsOn": ["build"],
 			"interruptible": true,
-			"inputs": []
+			"persistent": true,
+			"inputs": ["$TURBO_DEFAULT$", "../**/mock-oidc*.json"]
 		}
 	}
 }

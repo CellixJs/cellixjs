@@ -37,3 +37,7 @@ apps/api/deploy/
 
 # Agent runtime artifacts (per-session working state)
 .agents-work/
+
+# Local OIDC mock claim overrides (per developer)
+**/mock-oidc.local.json
+
