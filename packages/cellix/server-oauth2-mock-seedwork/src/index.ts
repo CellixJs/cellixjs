@@ -212,21 +212,25 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		const originHeader = req.headers.origin;
 
 		let allowOrigin = false;
+		let allowedOriginValue: string | undefined;
 		if (typeof originHeader === 'string') {
 			try {
 				const originUrl = new URL(originHeader);
 				const { hostname } = originUrl;
+				const normalizedOrigin = normalizeOrigin(originHeader);
 
-				if (hostname === '127.0.0.1' || hostname === 'localhost' || hostname.endsWith('.localhost') || normalizedAllowedOrigins.has(normalizeOrigin(originHeader))) {
+				if (hostname === '127.0.0.1' || hostname === 'localhost' || hostname.endsWith('.localhost') || normalizedAllowedOrigins.has(normalizedOrigin)) {
 					allowOrigin = true;
+					allowedOriginValue = normalizedOrigin;
 				}
 			} catch {
 				// ignore parse errors and deny
 			}
 		}
 
-		if (allowOrigin && typeof originHeader === 'string') {
-			res.setHeader('Access-Control-Allow-Origin', originHeader);
+		if (allowOrigin && allowedOriginValue) {
+			// Use the normalized, validated origin value instead of reflecting the raw header
+			res.setHeader('Access-Control-Allow-Origin', allowedOriginValue);
 			res.setHeader('Access-Control-Allow-Credentials', 'true');
 			res.setHeader('Vary', 'Origin');
 
