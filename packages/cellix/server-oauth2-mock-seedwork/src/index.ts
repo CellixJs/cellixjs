@@ -227,16 +227,24 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		if (allowOrigin && typeof originHeader === 'string') {
 			res.setHeader('Access-Control-Allow-Origin', originHeader);
+			res.setHeader('Access-Control-Allow-Credentials', 'true');
 			res.setHeader('Vary', 'Origin');
+
+			// Ensure preflight and actual responses share the same methods/headers
+			const allowMethods = 'GET,POST,PUT,PATCH,DELETE,OPTIONS';
+			const requestHeaders = (req.headers['access-control-request-headers'] ?? '') as string;
+			const allowHeaders = requestHeaders && requestHeaders.length > 0 ? requestHeaders : 'Content-Type,Authorization';
+
+			res.setHeader('Access-Control-Allow-Methods', allowMethods);
+			res.setHeader('Access-Control-Allow-Headers', allowHeaders);
+
+			if (req.method === 'OPTIONS') {
+				// Explicitly handle CORS preflight
+				res.sendStatus(204);
+				return;
+			}
 		}
 
-		res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-		res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-
-		if (req.method === 'OPTIONS') {
-			res.sendStatus(200);
-			return;
-		}
 		next();
 	});
 
@@ -284,7 +292,14 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		// Preserve extra claims from the user profile by spreading unknown keys into the TokenProfile
 		const { sub: upSub, email: upEmail, given_name: upGiven, family_name: upFamily, tid: upTid, ...extra } = userProfile;
-		const resolvedTid = typeof tid === 'string' ? tid : typeof upTid === 'string' ? upTid : 'test-tenant-id';
+		let resolvedTid: string;
+		if (typeof tid === 'string') {
+			resolvedTid = tid;
+		} else if (typeof upTid === 'string') {
+			resolvedTid = upTid;
+		} else {
+			resolvedTid = 'test-tenant-id';
+		}
 		const profile: TokenProfile = {
 			...extra,
 			aud,
