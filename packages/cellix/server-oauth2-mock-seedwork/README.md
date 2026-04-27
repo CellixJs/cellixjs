@@ -48,6 +48,36 @@ The app package supplies runtime configuration such as:
 
 ## CellixJS integration
 
+Multi-configuration (new API)
+
+This package now exposes a lightweight manager API that allows registering multiple named OIDC configurations in the same test process. This is additive and preserves the existing startMockOAuth2Server() single-server startup.
+
+Example:
+
+```ts
+import { createMockOAuth2Manager } from '@cellix/server-oauth2-mock-seedwork';
+
+// Create the manager with the server process configuration
+const manager = createMockOAuth2Manager({ port: 38200, host: 'localhost', baseUrl: 'http://localhost:38200' });
+
+// Register named portals on the running server. Each portal config maps to a
+// path under the manager's baseUrl (e.g. `${baseUrl}/portal`).
+await manager.register('portal', {
+  allowedRedirectUris: new Set(['http://localhost:3000/callback']),
+  allowedRedirectUri: 'http://localhost:3000/callback',
+  redirectUriToAudience: new Map([['http://localhost:3000/callback', 'mock-client']]),
+  getUserProfile: () => ({ email: 'user@example.com', given_name: 'Test', family_name: 'User' }),
+});
+
+// later
+await manager.stopAll();
+```
+
+The existing startMockOAuth2Server(config) function continues to work for single-server use.
+
+
+## Troubleshooting
+
 CellixJS configures this seedwork through `@apps/server-oauth2-mock` and points `@apps/api` at the app's public URL:
 
 - `ACCOUNT_PORTAL_OIDC_ENDPOINT`: `https://mock-auth.ownercommunity.localhost/.well-known/jwks.json`

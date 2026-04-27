@@ -12,7 +12,10 @@
 		"clean": "rimraf dist tsconfig.tsbuildinfo && tsc --build --clean",
 		"lint": "biome lint",
 		"format": "biome format --write",
-		"format:check": "biome format ."
+		"format:check": "biome format .",
+		"test": "vitest run --reporter=dot",
+		"test:coverage": "vitest run --coverage --reporter=dot",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"express": "^4.22.0",
@@ -21,8 +24,11 @@
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
 		"@types/express": "^5.0.3",
 		"rimraf": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }
