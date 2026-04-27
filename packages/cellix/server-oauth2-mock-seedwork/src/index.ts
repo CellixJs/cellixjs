@@ -146,6 +146,19 @@ export interface MockOAuth2ServerHandle {
 	};
 }
 
+// Return value for a successful registration of a named OIDC mock portal
+export interface MockOAuth2Registration extends MockOAuth2ServerHandle {
+	/** Fully normalized base URL for the registered portal (e.g. https://mock:1234/{name}) */
+	baseUrl: string;
+	/** The registered portal name */
+	name: string;
+}
+
+export interface MockOAuth2Manager {
+	register(name: string, config: MockOAuth2PortalConfig): Promise<MockOAuth2Registration>;
+	stopAll(): Promise<void>;
+}
+
 export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2PortalConfig): Promise<express.Router> {
 	const router = express.Router();
 
@@ -228,24 +241,31 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			}
 		}
 
-		if (allowOrigin && allowedOriginValue) {
-			// Use the normalized, validated origin value instead of reflecting the raw header
-			res.setHeader('Access-Control-Allow-Origin', allowedOriginValue);
-			res.setHeader('Vary', 'Origin');
+		// Ensure preflight and actual responses share the same methods/headers
+		const allowMethods = 'GET,POST,OPTIONS';
+		const requestHeaders = (req.headers['access-control-request-headers'] ?? '') as string;
+		const allowHeaders = requestHeaders && requestHeaders.length > 0 ? requestHeaders : 'Content-Type,Authorization';
 
-			// Ensure preflight and actual responses share the same methods/headers
-			const allowMethods = 'GET,POST,PUT,PATCH,DELETE,OPTIONS';
-			const requestHeaders = (req.headers['access-control-request-headers'] ?? '') as string;
-			const allowHeaders = requestHeaders && requestHeaders.length > 0 ? requestHeaders : 'Content-Type,Authorization';
-
+		// Always respond to OPTIONS preflight with consistent Allow headers so browsers
+		// and developers see a clear, deterministic response even when the origin is rejected.
+		if (req.method === 'OPTIONS') {
 			res.setHeader('Access-Control-Allow-Methods', allowMethods);
 			res.setHeader('Access-Control-Allow-Headers', allowHeaders);
+			res.setHeader('Vary', 'Origin');
 
-			if (req.method === 'OPTIONS') {
-				// Explicitly handle CORS preflight
-				res.sendStatus(204);
-				return;
+			if (allowOrigin && allowedOriginValue) {
+				// Use the normalized, validated origin when allowed
+				res.setHeader('Access-Control-Allow-Origin', allowedOriginValue);
 			}
+
+			res.sendStatus(204);
+			return;
+		}
+
+		// For non-preflight requests, set ACAO only when origin is allowed
+		if (allowOrigin && allowedOriginValue) {
+			res.setHeader('Access-Control-Allow-Origin', allowedOriginValue);
+			res.setHeader('Vary', 'Origin');
 		}
 
 		next();
@@ -519,7 +539,7 @@ export function normalizeBaseUrl(url: string): string {
 	return url.replace(/\/$/, '');
 }
 
-export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string }) {
+export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string }): MockOAuth2Manager {
 	let app: express.Express | null = null;
 	let serverHandle: MockOAuth2ServerHandle | null = null;
 	let startupPromise: Promise<MockOAuth2ServerHandle> | null = null;
