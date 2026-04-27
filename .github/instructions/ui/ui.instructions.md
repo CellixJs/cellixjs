@@ -81,7 +81,7 @@ ui/
     {component-name}/             # Co-locate all files related to the organism
       ...                         # Same as molecules
 
-  ui.instructions.md            # Copilot instructions for this folder 
+  ui.instructions.md            # Copilot instructions for this folder
 ```
 
 **Notes:**

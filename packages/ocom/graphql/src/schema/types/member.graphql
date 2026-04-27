@@ -109,7 +109,7 @@ type MemberInvitation {
 }
 
 input MemberCreateInput {
-	memberName: String!
+    memberName: String!
     communityId: ObjectID!
 }
 

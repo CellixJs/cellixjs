@@ -50,7 +50,6 @@ export const MembersCreateContainer: React.FC<MembersCreateContainerProps> = (pr
 
 	return (
 		<MembersCreate
-			communityId={props.data.communityId}
 			onSave={handleSave}
 		/>
 	);
