@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { discoverPortalConfigs } from '../src/setup-environment.js';
+import { discoverPortalConfigs } from '../src/portal-discovery.ts';
 
 function makeTempAppsDir() {
 	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'server-oauth2-mock-tests-'));
