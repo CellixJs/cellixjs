@@ -9,7 +9,7 @@
 		"format:check": "biome format .",
 		"prebuild": "pnpm run lint",
 		"build": "tsc --build && vite build",
-		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs staff.localhost vite",
+		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs staff.ownercommunity.localhost vite",
 		"start": "vite",
 		"preview": "vite preview",
 		"test": "vitest run --silent --reporter=dot",
