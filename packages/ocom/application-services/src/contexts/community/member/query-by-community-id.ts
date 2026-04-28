@@ -3,7 +3,6 @@ import type { DataSources } from '@ocom/persistence';
 
 export interface MemberQueryByCommunityIdCommand {
 	communityId: string;
-	fields?: string[];
 }
 
 export const queryByCommunityId = (dataSources: DataSources) => {
