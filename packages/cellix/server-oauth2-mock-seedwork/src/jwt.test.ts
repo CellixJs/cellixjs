@@ -2,6 +2,12 @@ import { exportJWK, generateKeyPair, type KeyLike } from 'jose';
 import { describe, expect, it } from 'vitest';
 import { buildTokenResponse } from './jwt.ts';
 
+interface TestIdTokenPayload {
+	iss?: string;
+	sub?: string;
+	aud?: string;
+}
+
 describe('jwt.buildTokenResponse', () => {
 	it('signs id_token and access_token and preserves claims', async () => {
 		const { publicKey, privateKey } = await generateKeyPair('RS256');
@@ -12,10 +18,9 @@ describe('jwt.buildTokenResponse', () => {
 		expect(tokens).toHaveProperty('id_token');
 		expect(tokens).toHaveProperty('access_token');
 		const idPayloadB64 = tokens.id_token.split('.')[1] as string;
-		const idPayload = JSON.parse(Buffer.from(idPayloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
-		const idPayloadTyped = idPayload as { iss?: string; sub?: string; aud?: string };
-		expect(idPayloadTyped.iss).toBe('http://localhost:9100');
-		expect(idPayloadTyped.sub).toBe('user-123');
-		expect(idPayloadTyped.aud).toBe('test-aud');
+		const idPayload = JSON.parse(Buffer.from(idPayloadB64, 'base64url').toString('utf-8')) as TestIdTokenPayload;
+		expect(idPayload.iss).toBe('http://localhost:9100');
+		expect(idPayload.sub).toBe('user-123');
+		expect(idPayload.aud).toBe('test-aud');
 	});
 });
