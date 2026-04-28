@@ -13,7 +13,6 @@
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"archunit": "catalog:",
-		"@typescript/typescript6": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
 	}

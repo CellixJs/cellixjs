@@ -1,5 +1,5 @@
-import ts from '@typescript/typescript6';
 import type { FileInfo } from 'archunit';
+import ts from 'typescript';
 
 interface MemberOrderGroup {
 	name: string;

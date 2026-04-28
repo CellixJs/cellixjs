@@ -1,7 +1,7 @@
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import ts from '@typescript/typescript6';
+import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
 type TsConfig = {
