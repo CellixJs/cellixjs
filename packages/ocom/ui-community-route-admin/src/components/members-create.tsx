@@ -3,9 +3,6 @@ import type { MemberCreateInput } from '../generated.tsx';
 import type React from 'react';
 
 interface MembersCreateProps {
-        data: {
-        communityId: string;
-    }
 	onSave: (member: MemberCreateInput) => void;
 }
 
@@ -19,10 +16,7 @@ export const MembersCreate: React.FC<MembersCreateProps> = (props) => {
 				form={form}
 				initialValues={{ memberName: '' }}
 				onFinish={(values) => {
-					props.onSave({
-                        ...values,
-                        communityId: props.data.communityId,
-                    });
+					props.onSave(values);
 				}}
 			>
 				<Form.Item

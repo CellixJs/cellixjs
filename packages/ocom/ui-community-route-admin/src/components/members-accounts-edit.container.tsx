@@ -88,7 +88,9 @@ export const MembersAccountsEditContainer: React.FC<MembersAccountsEditContainer
 				message.error(`Error Removing Member Account: ${result.data?.memberRemoveAccount.status.errorMessage}`);
 			}
 		} catch (error) {
-			message.error(`Error Removing Member Account: ${JSON.stringify(error)}`);
+			console.error('Error Removing Member Account', error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			message.error(`Error Removing Member Account: ${errorMessage}`);
 		}
 	};
 

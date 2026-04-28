@@ -24,11 +24,7 @@ export const MembersAccountsEdit: React.FC<MembersAccountsEditProps> = (props) =
 				layout="vertical"
 				form={form}
 				initialValues={props.data}
-				onFinish={(values) => props.onSave({
-                    ...values,
-                    memberId: props.data.memberId,
-                    accountId: props.data.accountId,
-                })}
+				onFinish={(values) => props.onSave(values)}
 			>
 				<Form.Item
 					name="endUserId"
