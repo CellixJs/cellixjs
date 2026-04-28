@@ -1,10 +1,10 @@
 import { useMutation } from '@apollo/client';
 import { App } from 'antd';
+import type React from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { MemberCreateInput } from '../generated.tsx';
 import { AdminMemberListContainerMembersDocument, AdminMembersCreateContainerMemberCreateDocument } from '../generated.tsx';
 import { MembersCreate } from './members-create.tsx';
-import type React from 'react';
 
 interface MembersCreateContainerProps {
 	data: {
@@ -48,10 +48,5 @@ export const MembersCreateContainer: React.FC<MembersCreateContainerProps> = (pr
 		}
 	};
 
-	return (
-		<MembersCreate
-			onSave={handleSave}
-            data={{ communityId: props.data.communityId }}
-		/>
-	);
+	return <MembersCreate onSave={handleSave} />;
 };

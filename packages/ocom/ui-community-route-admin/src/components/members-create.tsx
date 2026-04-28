@@ -1,11 +1,8 @@
 import { Button, Form, Input } from 'antd';
-import type { MemberCreateInput } from '../generated.tsx';
 import type React from 'react';
+import type { MemberCreateInput } from '../generated.tsx';
 
 interface MembersCreateProps {
-        data: {
-        communityId: string;
-    }
 	onSave: (member: MemberCreateInput) => void;
 }
 
@@ -19,10 +16,7 @@ export const MembersCreate: React.FC<MembersCreateProps> = (props) => {
 				form={form}
 				initialValues={{ memberName: '' }}
 				onFinish={(values) => {
-					props.onSave({
-                        ...values,
-                        communityId: props.data.communityId,
-                    });
+					props.onSave(values);
 				}}
 			>
 				<Form.Item
@@ -39,6 +33,7 @@ export const MembersCreate: React.FC<MembersCreateProps> = (props) => {
 				<Button
 					type="primary"
 					htmlType="submit"
+					value={'save'}
 				>
 					Create Member
 				</Button>

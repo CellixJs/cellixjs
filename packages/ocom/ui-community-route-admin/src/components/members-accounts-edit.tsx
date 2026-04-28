@@ -1,7 +1,7 @@
 import { UserDeleteOutlined } from '@ant-design/icons';
 import { Button, Form, Select } from 'antd';
-import type { AdminMembersAccountsEditContainerEndUserFieldsFragment, MemberUpdateAccountInput } from '../generated.tsx';
 import type React from 'react';
+import type { AdminMembersAccountsEditContainerEndUserFieldsFragment, MemberUpdateAccountInput } from '../generated.tsx';
 
 export interface MembersAccountsEditProps {
 	data: MemberUpdateAccountInput;
@@ -24,11 +24,7 @@ export const MembersAccountsEdit: React.FC<MembersAccountsEditProps> = (props) =
 				layout="vertical"
 				form={form}
 				initialValues={props.data}
-				onFinish={(values) => props.onSave({
-                    ...values,
-                    memberId: props.data.memberId,
-                    accountId: props.data.accountId,
-                })}
+				onFinish={(values) => props.onSave(values)}
 			>
 				<Form.Item
 					name="endUserId"
