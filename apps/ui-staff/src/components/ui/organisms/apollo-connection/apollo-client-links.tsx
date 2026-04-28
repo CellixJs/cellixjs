@@ -55,32 +55,6 @@ export const ApolloLinkToAddAuthHeader = (auth: AuthContextProps): ApolloLink =>
 			},
 		};
 	});
-// alternate way to add auth header
-export const ApolloLinkToAddAuthHeader1 = (auth: AuthContextProps): ApolloLink =>
-	new ApolloLink((operation, forward) => {
-		const access_token = auth.isAuthenticated ? auth.user?.access_token : undefined;
-		if (!access_token) {
-			return forward(operation);
-		}
-		operation.setContext((prevContext: DefaultContext) => {
-			// biome-ignore lint:useLiteralKeys
-			prevContext['headers']['Authorization'] = `Bearer ${access_token}`;
-			return prevContext;
-		});
-		return forward(operation);
-	});
-// alternate way to add auth header
-export const ApolloLinkToAddAuthHeader2 = (auth: AuthContextProps): ApolloLink => {
-	return setContext((_, { headers }) => {
-		const returnHeaders = { ...headers };
-		const access_token = auth.isAuthenticated === true ? auth.user?.access_token : undefined;
-		if (access_token) {
-			// biome-ignore lint:useLiteralKeys
-			returnHeaders['Authorization'] = `Bearer ${access_token}`;
-		}
-		return { headers: returnHeaders };
-	});
-};
 
 // apollo link to add custom header
 export const ApolloLinkToAddCustomHeader = (headerName: string, headerValue: string | null | undefined, ifTrue?: boolean): ApolloLink =>

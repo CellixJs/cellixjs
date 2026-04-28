@@ -1,0 +1,30 @@
+{
+  "name": "@ocom/ui-staff-route-shared",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.tsx"
+  },
+  "scripts": {
+    "prebuild": "pnpm run lint",
+    "build": "tsc --noEmit",
+    "lint": "biome lint",
+    "test": "vitest run --silent --reporter=dot",
+    "test:coverage": "vitest run --coverage --silent --reporter=dot",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "react": "^19.1.1"
+  },
+  "devDependencies": {
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
+    "@types/react": "^19.1.11",
+    "@types/react-dom": "^19.1.6",
+    "jsdom": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "typescript": "catalog:"
+  }
+}
