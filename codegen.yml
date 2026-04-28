@@ -71,6 +71,7 @@ generates:
         Member: "import('@ocom/domain').Domain.Contexts.Community.Member.MemberEntityReference"
         Community: "import('@ocom/domain').Domain.Contexts.Community.Community.CommunityEntityReference"
         EndUser: "import('@ocom/domain').Domain.Contexts.User.EndUser.EndUserEntityReference"
+        EndUserRole: "import('@ocom/domain').Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference"
     plugins:
       - typescript
       - typescript-resolvers
