@@ -9,6 +9,7 @@ type TsConfig = {
 		outDir?: string;
 		tsBuildInfoFile?: string;
 		rootDir?: string;
+		types?: string[];
 	};
 };
 
@@ -58,6 +59,10 @@ function validateCompilerOptions(tsconfigPath: string, config: TsConfig, violati
 
 	if ('ignoreDeprecations' in compilerOptions) {
 		violations.push(`${tsconfigPath}: compilerOptions.ignoreDeprecations must not be set`);
+	}
+
+	if (Array.isArray(compilerOptions.types) && compilerOptions.types.length === 0) {
+		violations.push(`${tsconfigPath}: compilerOptions.types must not be empty (TS 7.0 defaults to [] — an empty array disables all ambient types)`);
 	}
 
 	const outDir = compilerOptions.outDir;
