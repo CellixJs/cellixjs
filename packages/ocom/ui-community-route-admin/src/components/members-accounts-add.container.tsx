@@ -56,7 +56,8 @@ export const MembersAccountsAddContainer: React.FC<MembersAccountsAddContainerPr
 				message.error(`Error Adding Member Account: ${result.data?.memberCreateAccount.status.errorMessage}`);
 			}
 		} catch (error) {
-			message.error(`Error Adding Member Account: ${JSON.stringify(error)}`);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			message.error(`Error Adding Member Account: ${errorMessage}`);
 		}
 	};
 

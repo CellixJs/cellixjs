@@ -48,5 +48,9 @@ export const MembersCreateContainer: React.FC<MembersCreateContainerProps> = (pr
 		}
 	};
 
-	return <MembersCreate onSave={handleSave} />;
+	return (
+		<MembersCreate
+			onSave={handleSave}
+		/>
+	);
 };
