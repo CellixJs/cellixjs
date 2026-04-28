@@ -52,8 +52,18 @@ function readTsConfig(filePath: string): Promise<TsConfig | null> {
 }
 
 function validateCommonCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
-	const outDir = config.compilerOptions?.outDir;
-	const rootDir = config.compilerOptions?.rootDir;
+	const compilerOptions = config.compilerOptions ?? {};
+
+	if ('baseUrl' in compilerOptions) {
+		violations.push(`${tsconfigPath}: compilerOptions.baseUrl must not be set`);
+	}
+
+	if ('ignoreDeprecations' in compilerOptions) {
+		violations.push(`${tsconfigPath}: compilerOptions.ignoreDeprecations must not be set`);
+	}
+
+	const outDir = compilerOptions.outDir;
+	const rootDir = compilerOptions.rootDir;
 
 	if (outDir !== 'dist' && outDir !== './dist') {
 		violations.push(`${tsconfigPath}: compilerOptions.outDir must be "dist" or "./dist"`);
