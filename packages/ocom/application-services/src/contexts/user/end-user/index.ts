@@ -2,12 +2,14 @@ import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { type EndUserQueryByIdCommand, queryById } from './query-by-id.ts';
 import { type EndUserQueryByNameCommand, queryByName } from './query-by-name.ts';
+import { type EndUserQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
 import { createIfNotExists, type EndUserCreateCommand } from './create-if-not-exists.ts';
 
 export interface EndUserApplicationService {
 	createIfNotExists: (command: EndUserCreateCommand) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference>;
 	queryById: (command: EndUserQueryByIdCommand) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference | null>;
 	queryByName: (command: EndUserQueryByNameCommand) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]>;
+	queryByCommunityId: (command: EndUserQueryByCommunityIdCommand) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]>;
 }
 
 export const EndUser = (dataSources: DataSources): EndUserApplicationService => {
@@ -15,5 +17,6 @@ export const EndUser = (dataSources: DataSources): EndUserApplicationService => 
 		createIfNotExists: createIfNotExists(dataSources),
 		queryById: queryById(dataSources),
 		queryByName: queryByName(dataSources),
+		queryByCommunityId: queryByCommunityId(dataSources),
 	};
 };

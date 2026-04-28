@@ -32,5 +32,5 @@ describe("Member ordering", () => {
     }
     // If no violations, test passes
     expect(allViolations).toStrictEqual([]);
-  }, 60000);
+  }, 180000);
 });

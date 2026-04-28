@@ -1,4 +1,4 @@
-import { buildBackoffSchedule } from "./internal/backoff.ts";
+import { buildBackoffSchedule } from './internal/backoff.ts';
 
 /**
  * Options for creating a retry policy.

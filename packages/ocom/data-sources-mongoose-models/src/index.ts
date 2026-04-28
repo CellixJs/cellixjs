@@ -1,6 +1,7 @@
 import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { CommunityModelFactory } from './models/community/community.model.ts';
 import { MemberModelFactory } from './models/member/member.model.ts';
+import { MemberInvitationModelFactory } from './models/member/member-invitation.model.ts';
 import { EndUserModelFactory } from './models/user/end-user.model.ts';
 import { StaffUserModelFactory } from './models/user/staff-user.model.ts';
 import { VendorUserModelFactory } from './models/user/vendor-user.model.ts';
@@ -21,6 +22,7 @@ export const mongooseContextBuilder = (initializedService: MongooseSeedwork.Mong
 	return {
 		Community: CommunityModelFactory(initializedService),
 		Member: MemberModelFactory(initializedService),
+		MemberInvitation: MemberInvitationModelFactory(initializedService),
 		Property: PropertyModelFactory(initializedService),
 		Service: ServiceModelFactory(initializedService),
 		ServiceTicket: ServiceTicketModelFactory(ticketModel),

@@ -71,7 +71,13 @@ export class MongoDataSourceImpl<TDoc extends MongooseSeedwork.Base> implements 
 
 	async find(filter: Partial<TDoc>, options?: FindOptions): Promise<Lean<TDoc>[]> {
 		const queryOptions = this.buildQueryOptions(options);
-		const docs = await this.model.find(this.buildFilterQuery(filter), this.buildProjection(options?.fields, options?.projectionMode), queryOptions).lean<LeanBase<TDoc>[]>();
+		let query = this.model.find(this.buildFilterQuery(filter), this.buildProjection(options?.fields, options?.projectionMode), queryOptions);
+		if (options?.populateFields?.length) {
+			for (const field of options.populateFields) {
+				query = query.populate(field);
+			}
+		}
+		const docs = await query.lean<LeanBase<TDoc>[]>();
 		return docs.map((doc) => this.appendId(doc));
 	}
 

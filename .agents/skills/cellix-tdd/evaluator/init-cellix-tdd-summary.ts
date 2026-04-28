@@ -1,8 +1,8 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import process from "node:process";
-import { directoryExists, fileExists, getDefaultSummaryPath } from "./utils.ts";
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
+import { directoryExists, fileExists, getDefaultSummaryPath } from './utils.ts';
 
 interface ParsedArgs {
 	force: boolean;
@@ -20,20 +20,20 @@ function parseArgs(argv: string[]): ParsedArgs {
 		const next = argv[index + 1];
 
 		switch (arg) {
-			case "--":
+			case '--':
 				return parsed;
-			case "--package":
+			case '--package':
 				parsed.packageRoot = next;
 				index += 1;
 				break;
-			case "--output":
+			case '--output':
 				parsed.outputPath = next;
 				index += 1;
 				break;
-			case "--force":
+			case '--force':
 				parsed.force = true;
 				break;
-			case "--help":
+			case '--help':
 				printUsage();
 				process.exit(0);
 				break;
@@ -52,20 +52,17 @@ function printUsage(): void {
 
 function readTemplate(): string {
 	const scriptDir = dirname(fileURLToPath(import.meta.url));
-	return readFileSync(
-		join(scriptDir, "../templates/summary-template.md"),
-		"utf8",
-	);
+	return readFileSync(join(scriptDir, '../templates/summary-template.md'), 'utf8');
 }
 
 function readPackageName(packageRoot: string): string {
-	const packageJsonPath = join(packageRoot, "package.json");
+	const packageJsonPath = join(packageRoot, 'package.json');
 	if (!fileExists(packageJsonPath)) {
 		return relative(process.cwd(), packageRoot);
 	}
 
 	try {
-		const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
+		const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
 			name?: string;
 		};
 		return packageJson.name ?? relative(process.cwd(), packageRoot);
@@ -87,9 +84,7 @@ function main(): void {
 		throw new Error(`Package directory not found: ${packageRoot}`);
 	}
 
-	const outputPath = args.outputPath
-		? resolve(args.outputPath)
-		: getDefaultSummaryPath(packageRoot);
+	const outputPath = args.outputPath ? resolve(args.outputPath) : getDefaultSummaryPath(packageRoot);
 
 	if (fileExists(outputPath) && !args.force) {
 		throw new Error(`Summary already exists: ${outputPath}\nUse --force to overwrite it.`);
@@ -98,11 +93,11 @@ function main(): void {
 	mkdirSync(dirname(outputPath), { recursive: true });
 
 	const summary = readTemplate()
-		.replaceAll("{{PACKAGE_NAME}}", readPackageName(packageRoot))
-		.replaceAll("{{PACKAGE_PATH}}", relative(process.cwd(), packageRoot))
-		.replaceAll("{{SUMMARY_PATH}}", relative(process.cwd(), outputPath));
+		.replaceAll('{{PACKAGE_NAME}}', readPackageName(packageRoot))
+		.replaceAll('{{PACKAGE_PATH}}', relative(process.cwd(), packageRoot))
+		.replaceAll('{{SUMMARY_PATH}}', relative(process.cwd(), outputPath));
 
-	writeFileSync(outputPath, summary, "utf8");
+	writeFileSync(outputPath, summary, 'utf8');
 
 	console.log(outputPath);
 }

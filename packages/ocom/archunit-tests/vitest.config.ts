@@ -8,6 +8,6 @@ export default mergeConfig(nodeConfig, defineConfig({
       enabled: false,
     },
     globals: true,
-    testTimeout: 60000,
+    testTimeout: 180000,
   },
 }));

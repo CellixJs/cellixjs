@@ -1,25 +1,30 @@
 {
-  "name": "@ocom/ui-community-route-shared",
-  "version": "0.0.1",
-  "private": true,
-  "type": "module",
-  "exports": {
-    ".": "./src/components/index.ts"
-  },
-  "scripts": {
-    "prebuild": "pnpm run lint",
-    "build": "tsc --noEmit",
-    "lint": "biome lint",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest"
-  },
-  "dependencies": {
-    "@ocom/ui-components": "workspace:*",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-router-dom": "catalog:"
-  },
+	"name": "@ocom/ui-community-route-shared",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.tsx"
+	},
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsc --noEmit",
+		"lint": "biome lint",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
+	},
+	"dependencies": {
+		"@ocom/ui-components": "workspace:*",
+		"@apollo/client": "^3.13.9",
+		"@graphql-typed-document-node/core": "^3.2.0",
+		"@cellix/ui-core": "workspace:*",
+		"antd": "catalog:",
+		"dayjs": "^1.11.19",
+		"react": "^19.1.1",
+		"react-dom": "^19.1.1",
+		"react-router-dom": "catalog:"
+	},
 	"devDependencies": {
 		"@ant-design/icons": "^6.0.2",
 		"@cellix/config-typescript": "workspace:*",
