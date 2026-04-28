@@ -1,13 +1,29 @@
 {
 	"extends": "../../../../packages/cellix/config-typescript/tsconfig.node.json",
 	"compilerOptions": {
+		// Evaluator scripts are run directly via `node --experimental-strip-types`,
+		// not compiled as workspace packages. The relaxations below reflect that
+		// these are standalone developer-tooling scripts, not production code.
+
+		// No JS emit — scripts are executed directly by the Node strip-types loader.
 		"noEmit": true,
 		"rootDir": ".",
+
+		// Not part of the project-reference graph; no incremental build cache needed.
 		"composite": false,
 		"incremental": false,
+
+		// Speed up type-checking — third-party .d.ts accuracy is not critical here.
 		"skipLibCheck": true,
+
+		// Evaluator scripts frequently probe dynamic/optional properties on parsed
+		// JSON or AST nodes; strict optional-property and index-signature rules add
+		// friction without meaningful safety for throwaway tooling code.
 		"exactOptionalPropertyTypes": false,
 		"noPropertyAccessFromIndexSignature": false,
+
+		// Scripts are iterated on rapidly; unused locals/params and unreachable code
+		// are common during development and should not block type-checking.
 		"allowUnreachableCode": true,
 		"noUnusedLocals": false,
 		"noUnusedParameters": false
