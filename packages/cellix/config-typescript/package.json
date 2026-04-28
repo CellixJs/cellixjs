@@ -1,16 +1,16 @@
 {
-  "name": "@cellix/config-typescript",
-  "version": "1.0.0",
-  "private": true,
-  "main": "./tsconfig.base.json",
-  "files": [
-    "tsconfig.base.json",
-    "tsconfig.node.json",
-    "tsconfig.vitest.json"
-  ],
-  "exports": {
-    "./base": "./tsconfig.base.json",
-    "./node": "./tsconfig.node.json",
-    "./vitest": "./tsconfig.vitest.json"
-  }
+	"name": "@cellix/config-typescript",
+	"version": "1.0.3",
+	"private": true,
+	"main": "./tsconfig.base.json",
+	"files": [
+		"tsconfig.base.json",
+		"tsconfig.node.json",
+		"tsconfig.vitest.json"
+	],
+	"exports": {
+		"./base": "./tsconfig.base.json",
+		"./node": "./tsconfig.node.json",
+		"./vitest": "./tsconfig.vitest.json"
+	}
 }

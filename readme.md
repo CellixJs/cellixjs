@@ -171,7 +171,7 @@ The managed skill set lives in [`.agents/skills/`](.agents/skills/) and is mirro
 
 | ADR | ADR Status | GitHub Issue Status | Date Added |
 | --- | --- | --- | --- |
-| [0023 TypeScript Go (tsgo) Migration](https://developers.cellixjs.org/docs/decisions/tsgo-migration) | monitored | not started | 2025-12-17 |
+| [0030 TypeScript 7.0 Upgrade](https://developers.cellixjs.org/docs/decisions/typescript-7-upgrade) | accepted | in progress | 2025-07-17 |
 
 > Monitored ADRs require weekly GitHub issue check-ins; see the ADR’s “Weekly Reassessment” section for the linked blockers to review each week.
 

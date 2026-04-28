@@ -9,6 +9,7 @@ type TsConfig = {
 		outDir?: string;
 		tsBuildInfoFile?: string;
 		rootDir?: string;
+		types?: string[];
 	};
 };
 
@@ -49,14 +50,24 @@ function readTsConfig(filePath: string): Promise<TsConfig | null> {
 	return Promise.resolve(result.config as TsConfig);
 }
 
-function validateCompilerOptions(
-	tsconfigPath: string,
-	config: TsConfig,
-	violations: string[],
-): void {
-	const outDir = config.compilerOptions?.outDir;
-	const rootDir = config.compilerOptions?.rootDir;
-	const tsBuildInfoFile = config.compilerOptions?.tsBuildInfoFile;
+function validateCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
+	const compilerOptions = config.compilerOptions ?? {};
+
+	if ('baseUrl' in compilerOptions) {
+		violations.push(`${tsconfigPath}: compilerOptions.baseUrl must not be set`);
+	}
+
+	if ('ignoreDeprecations' in compilerOptions) {
+		violations.push(`${tsconfigPath}: compilerOptions.ignoreDeprecations must not be set`);
+	}
+
+	if (Array.isArray(compilerOptions.types) && compilerOptions.types.length === 0) {
+		violations.push(`${tsconfigPath}: compilerOptions.types must not be empty (TS 7.0 defaults to [] — an empty array disables all ambient types)`);
+	}
+
+	const outDir = compilerOptions.outDir;
+	const rootDir = compilerOptions.rootDir;
+	const tsBuildInfoFile = compilerOptions.tsBuildInfoFile;
 
 	if (outDir !== 'dist' && outDir !== './dist') {
 		violations.push(`${tsconfigPath}: compilerOptions.outDir must be "dist" or "./dist"`);
@@ -67,9 +78,7 @@ function validateCompilerOptions(
 	}
 
 	if (tsBuildInfoFile !== 'dist/tsconfig.tsbuildinfo') {
-		violations.push(
-			`${tsconfigPath}: compilerOptions.tsBuildInfoFile must be "dist/tsconfig.tsbuildinfo"`,
-		);
+		violations.push(`${tsconfigPath}: compilerOptions.tsBuildInfoFile must be "dist/tsconfig.tsbuildinfo"`);
 	}
 }
 

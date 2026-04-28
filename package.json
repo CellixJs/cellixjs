@@ -84,6 +84,7 @@
 		"ts-scope-trimmer-plugin": "^1.0.2",
 		"turbo": "2.9.3",
 		"typescript": "catalog:",
+		"@typescript/native-preview": "catalog:",
 		"vitest": "catalog:"
 	},
 	"pnpm": {
