@@ -8,47 +8,26 @@ export interface DataSourcesMongooseModelsConventionsConfig {
 export async function checkModelFileConventions(config: Pick<DataSourcesMongooseModelsConventionsConfig, 'modelsGlob'>): Promise<string[]> {
 	const allViolations: string[] = [];
 
-	await projectFiles()
-		.inFolder(config.modelsGlob)
-		.withName('*.model.ts')
-		.should()
-		.adhereTo((file) => {
-			const hasFactory = /export\s+(const|function)\s+\w+ModelFactory\b/.test(file.content);
-			if (!hasFactory) {
-				allViolations.push(`[${file.path}] Model file must export a *ModelFactory`);
-				return false;
-			}
-			return true;
-		}, 'Model files must export a ModelFactory')
-		.check();
+	const requiredExports: Array<{ pattern: RegExp; name: string; description: string }> = [
+		{ pattern: /export\s+(const|function)\s+\w+ModelFactory\b/, name: 'ModelFactory', description: 'Model files must export a ModelFactory' },
+		{ pattern: /export\s+type\s+\w+ModelType\b/, name: 'ModelType type alias', description: 'Model files must export a ModelType type alias' },
+		{ pattern: /export\s+const\s+\w+ModelName\b/, name: 'ModelName constant', description: 'Model files must export a ModelName constant' },
+	];
 
-	await projectFiles()
-		.inFolder(config.modelsGlob)
-		.withName('*.model.ts')
-		.should()
-		.adhereTo((file) => {
-			const hasType = /export\s+type\s+\w+ModelType\b/.test(file.content);
-			if (!hasType) {
-				allViolations.push(`[${file.path}] Model file must export a *ModelType type alias`);
-				return false;
-			}
-			return true;
-		}, 'Model files must export a ModelType type alias')
-		.check();
-
-	await projectFiles()
-		.inFolder(config.modelsGlob)
-		.withName('*.model.ts')
-		.should()
-		.adhereTo((file) => {
-			const hasName = /export\s+const\s+\w+ModelName\b/.test(file.content);
-			if (!hasName) {
-				allViolations.push(`[${file.path}] Model file must export a *ModelName constant`);
-				return false;
-			}
-			return true;
-		}, 'Model files must export a ModelName constant')
-		.check();
+	for (const { pattern, name, description } of requiredExports) {
+		await projectFiles()
+			.inFolder(config.modelsGlob)
+			.withName('*.model.ts')
+			.should()
+			.adhereTo((file) => {
+				if (!pattern.test(file.content)) {
+					allViolations.push(`[${file.path}] Model file must export a *${name}`);
+					return false;
+				}
+				return true;
+			}, description)
+			.check();
+	}
 
 	return allViolations;
 }

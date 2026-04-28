@@ -25,65 +25,23 @@ export async function checkGraphqlResolverDependencies(config: GraphqlResolverCo
 
 	const violations: string[] = [];
 
-	if (config.entityFilesPattern) {
-		try {
-			const rule = projectFiles().inFolder(config.resolversGlob).withName('*.resolvers.ts').shouldNot().dependOnFiles().inPath(config.entityFilesPattern);
-			try {
-				await rule.check();
-			} catch (error_) {
-				violations.push(`Resolver imports domain entities: ${String(error_)}`);
-			}
-		} catch {
-			// Silently skip
-		}
-	}
+	const dependencyChecks: Array<{ pattern: string | undefined; label: string; useFolder: boolean }> = [
+		{ pattern: config.entityFilesPattern, label: 'domain entities', useFolder: false },
+		{ pattern: config.repositoryFilesPattern, label: 'repositories', useFolder: false },
+		{ pattern: config.uowFilesPattern, label: 'unit of work', useFolder: false },
+		{ pattern: config.infrastructureServicesPattern, label: 'infrastructure services', useFolder: false },
+		{ pattern: config.persistenceFolder, label: 'persistence layer', useFolder: true },
+	];
 
-	if (config.repositoryFilesPattern) {
+	for (const { pattern, label, useFolder } of dependencyChecks) {
+		if (!pattern) continue;
 		try {
-			const rule = projectFiles().inFolder(config.resolversGlob).withName('*.resolvers.ts').shouldNot().dependOnFiles().inPath(config.repositoryFilesPattern);
+			const base = projectFiles().inFolder(config.resolversGlob).withName('*.resolvers.ts').shouldNot().dependOnFiles();
+			const rule = useFolder ? base.inFolder(pattern) : base.inPath(pattern);
 			try {
 				await rule.check();
 			} catch (error_) {
-				violations.push(`Resolver imports repositories: ${String(error_)}`);
-			}
-		} catch {
-			// Silently skip
-		}
-	}
-
-	if (config.uowFilesPattern) {
-		try {
-			const rule = projectFiles().inFolder(config.resolversGlob).withName('*.resolvers.ts').shouldNot().dependOnFiles().inPath(config.uowFilesPattern);
-			try {
-				await rule.check();
-			} catch (error_) {
-				violations.push(`Resolver imports unit of work: ${String(error_)}`);
-			}
-		} catch {
-			// Silently skip
-		}
-	}
-
-	if (config.infrastructureServicesPattern) {
-		try {
-			const rule = projectFiles().inFolder(config.resolversGlob).withName('*.resolvers.ts').shouldNot().dependOnFiles().inPath(config.infrastructureServicesPattern);
-			try {
-				await rule.check();
-			} catch (error_) {
-				violations.push(`Resolver imports infrastructure services: ${String(error_)}`);
-			}
-		} catch {
-			// Silently skip
-		}
-	}
-
-	if (config.persistenceFolder) {
-		try {
-			const rule = projectFiles().inFolder(config.resolversGlob).withName('*.resolvers.ts').shouldNot().dependOnFiles().inFolder(config.persistenceFolder);
-			try {
-				await rule.check();
-			} catch (error_) {
-				violations.push(`Resolver imports persistence layer: ${String(error_)}`);
+				violations.push(`Resolver imports ${label}: ${String(error_)}`);
 			}
 		} catch {
 			// Silently skip

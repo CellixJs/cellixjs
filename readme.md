@@ -63,6 +63,50 @@ Our Docusaurus website will help you get started in running and contributing to 
   pnpm --filter @apps/server-mongodb-memory-mock run dev
   ```
 
+
+Mock OIDC server
+
+The local mock OpenID Connect provider used for UI development is configured per-portal via JSON files placed in the UI app directories.
+
+- Location: apps/ui-*/mock-oidc.json
+- Schema:
+```json
+{
+  "name": "account-portal",
+  "envVars": {
+    "clientId": "VITE_ACCOUNT_PORTAL_OIDC_CLIENT_ID",
+    "redirectUri": "VITE_ACCOUNT_PORTAL_OIDC_REDIRECT_URI"
+  },
+  "claims": {
+    "sub": "00000000-0000-4000-8000-000000000001",
+    "email": "dev@example.com",
+    "given_name": "Dev",
+    "family_name": "User",
+    "roles": ["Owner"]
+  }
+}
+```
+
+The envVars values are environment variable names (from the UI app's `.env` file) that the server resolves to actual values at startup.
+
+Per-developer overrides
+
+If you need to override claims for local testing, create a file named mock-oidc.local.json alongside mock-oidc.json in the UI app directory. This file is git-ignored and merges claim values into the base mock-oidc.json at startup.
+
+Adding a new portal
+
+To add a new UI portal for local mock auth, create a directory apps/ui-<name> and add a mock-oidc.json file with the schema above. The mock server auto-discovers portals on startup.
+
+PORT and BASE_URL
+
+The mock auth server now runs as a single instance. Configure it using the following environment variables:
+
+- PORT — port the HTTP server listens on (default: 1355)
+- BASE_URL — externally visible origin used as the OIDC issuer (in local development this is handled by the Portless dev proxy; set BASE_URL to the proxy origin when necessary)
+
+Per-portal port allocation (PORT_BASE) is no longer used.
+
+
 ## Scripts
 
 - Build all workspaces: `pnpm run build`

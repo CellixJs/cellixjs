@@ -116,6 +116,7 @@
 			"node-forge": "^1.4.0",
 			"postcss": "8.5.10",
 			"picomatch": "^4.0.4",
+			"postcss": ">=8.5.10",
 			"webpack": "^5.105.4",
 			"uuid": "14.0.0",
 			"playwright-core": "1.59.0",

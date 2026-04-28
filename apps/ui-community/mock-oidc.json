@@ -1,0 +1,14 @@
+{
+	"name": "community",
+	"envVars": {
+		"clientId": "VITE_AAD_B2C_ACCOUNT_CLIENTID",
+		"redirectUri": "VITE_AAD_B2C_REDIRECT_URI"
+	},
+	"claims": {
+		"sub": "00000000-0000-4000-8000-000000000001",
+		"email": "test@example.com",
+		"given_name": "Test",
+		"family_name": "User",
+		"tid": "test-tenant-id"
+	}
+}

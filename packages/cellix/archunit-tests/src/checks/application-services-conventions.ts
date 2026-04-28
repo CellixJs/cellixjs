@@ -40,65 +40,27 @@ export async function checkApplicationServicesDependencyBoundaries(config: Pick<
 
 	const allViolations: string[] = [];
 
-	await projectFiles()
-		.inPath(config.applicationServicesAllGlob)
-		.should()
-		.adhereTo((file) => {
-			if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
+	const forbiddenImports: Array<{ pattern: RegExp; message: string; description: string }> = [
+		{ pattern: /from\s+['"]mongoose['"]/, message: 'Application services must not import mongoose directly', description: 'Application services must not import mongoose' },
+		{ pattern: /@cellix\/mongoose-seedwork/, message: 'Application services must not import @cellix/mongoose-seedwork', description: 'Application services must not import mongoose seedwork' },
+		{ pattern: /@ocom\/data-sources-mongoose-models/, message: 'Application services must not import @ocom/data-sources-mongoose-models', description: 'Application services must not import data source models directly' },
+		{ pattern: /@ocom\/graphql/, message: 'Application services must not import from @ocom/graphql', description: 'Application services must not depend on GraphQL layer' },
+	];
 
-			const importsMongoose = /from\s+['"]mongoose['"]/.test(file.content);
-			if (importsMongoose) {
-				allViolations.push(`[${file.path}] Application services must not import mongoose directly`);
-				return false;
-			}
-			return true;
-		}, 'Application services must not import mongoose')
-		.check();
-
-	await projectFiles()
-		.inPath(config.applicationServicesAllGlob)
-		.should()
-		.adhereTo((file) => {
-			if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
-
-			const importsMongooseSeedwork = /@cellix\/mongoose-seedwork/.test(file.content);
-			if (importsMongooseSeedwork) {
-				allViolations.push(`[${file.path}] Application services must not import @cellix/mongoose-seedwork`);
-				return false;
-			}
-			return true;
-		}, 'Application services must not import mongoose seedwork')
-		.check();
-
-	await projectFiles()
-		.inPath(config.applicationServicesAllGlob)
-		.should()
-		.adhereTo((file) => {
-			if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
-
-			const importsModels = /@ocom\/data-sources-mongoose-models/.test(file.content);
-			if (importsModels) {
-				allViolations.push(`[${file.path}] Application services must not import @ocom/data-sources-mongoose-models`);
-				return false;
-			}
-			return true;
-		}, 'Application services must not import data source models directly')
-		.check();
-
-	await projectFiles()
-		.inPath(config.applicationServicesAllGlob)
-		.should()
-		.adhereTo((file) => {
-			if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
-
-			const importsGraphql = /@ocom\/graphql/.test(file.content);
-			if (importsGraphql) {
-				allViolations.push(`[${file.path}] Application services must not import from @ocom/graphql`);
-				return false;
-			}
-			return true;
-		}, 'Application services must not depend on GraphQL layer')
-		.check();
+	for (const { pattern, message, description } of forbiddenImports) {
+		await projectFiles()
+			.inPath(config.applicationServicesAllGlob)
+			.should()
+			.adhereTo((file) => {
+				if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
+				if (pattern.test(file.content)) {
+					allViolations.push(`[${file.path}] ${message}`);
+					return false;
+				}
+				return true;
+			}, description)
+			.check();
+	}
 
 	return allViolations;
 }

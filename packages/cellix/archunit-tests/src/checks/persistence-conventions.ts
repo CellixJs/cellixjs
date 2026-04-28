@@ -169,33 +169,25 @@ export async function checkPersistenceDependencyBoundaries(config: Pick<Persiste
 
 	const allViolations: string[] = [];
 
-	await projectFiles()
-		.inPath(config.persistenceAllGlob)
-		.should()
-		.adhereTo((file) => {
-			if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
-			const importsAppServices = /@ocom\/application-services/.test(file.content);
-			if (importsAppServices) {
-				allViolations.push(`[${file.path}] Persistence must not import from @ocom/application-services`);
-				return false;
-			}
-			return true;
-		}, 'Persistence layer must not depend on application services')
-		.check();
+	const forbiddenImports: Array<{ pattern: RegExp; message: string; description: string }> = [
+		{ pattern: /@ocom\/application-services/, message: 'Persistence must not import from @ocom/application-services', description: 'Persistence layer must not depend on application services' },
+		{ pattern: /@ocom\/graphql/, message: 'Persistence must not import from @ocom/graphql', description: 'Persistence layer must not depend on GraphQL layer' },
+	];
 
-	await projectFiles()
-		.inPath(config.persistenceAllGlob)
-		.should()
-		.adhereTo((file) => {
-			if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
-			const importsGraphql = /@ocom\/graphql/.test(file.content);
-			if (importsGraphql) {
-				allViolations.push(`[${file.path}] Persistence must not import from @ocom/graphql`);
-				return false;
-			}
-			return true;
-		}, 'Persistence layer must not depend on GraphQL layer')
-		.check();
+	for (const { pattern, message, description } of forbiddenImports) {
+		await projectFiles()
+			.inPath(config.persistenceAllGlob)
+			.should()
+			.adhereTo((file) => {
+				if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
+				if (pattern.test(file.content)) {
+					allViolations.push(`[${file.path}] ${message}`);
+					return false;
+				}
+				return true;
+			}, description)
+			.check();
+	}
 
 	return allViolations;
 }
@@ -207,37 +199,36 @@ export async function checkPersistenceAbstractionDependencies(config: Pick<Persi
 
 	const allViolations: string[] = [];
 
-	await projectFiles()
-		.inPath(config.persistenceAllGlob)
-		.should()
-		.adhereTo((file) => {
-			if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
-			if (!file.path.includes('/messaging/')) return true;
+	const abstractionChecks: Array<{ folder: string; pattern: RegExp; message: string; description: string }> = [
+		{
+			folder: '/messaging/',
+			pattern: /@cellix\/service-messaging-(?!base)/,
+			message: 'Messaging persistence must depend on @cellix/service-messaging-base, not concrete implementations',
+			description: 'Messaging persistence must depend on abstractions',
+		},
+		{
+			folder: '/payment/',
+			pattern: /@cellix\/service-payment-(?!base)/,
+			message: 'Payment persistence must depend on @cellix/service-payment-base, not concrete implementations',
+			description: 'Payment persistence must depend on abstractions',
+		},
+	];
 
-			const importsConcrete = /@cellix\/service-messaging-(?!base)/.test(file.content);
-			if (importsConcrete) {
-				allViolations.push(`[${file.path}] Messaging persistence must depend on @cellix/service-messaging-base, not concrete implementations`);
-				return false;
-			}
-			return true;
-		}, 'Messaging persistence must depend on abstractions')
-		.check();
-
-	await projectFiles()
-		.inPath(config.persistenceAllGlob)
-		.should()
-		.adhereTo((file) => {
-			if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
-			if (!file.path.includes('/payment/')) return true;
-
-			const importsConcrete = /@cellix\/service-payment-(?!base)/.test(file.content);
-			if (importsConcrete) {
-				allViolations.push(`[${file.path}] Payment persistence must depend on @cellix/service-payment-base, not concrete implementations`);
-				return false;
-			}
-			return true;
-		}, 'Payment persistence must depend on abstractions')
-		.check();
+	for (const { folder, pattern, message, description } of abstractionChecks) {
+		await projectFiles()
+			.inPath(config.persistenceAllGlob)
+			.should()
+			.adhereTo((file) => {
+				if (file.path.includes('.test.ts') || file.path.includes('.feature')) return true;
+				if (!file.path.includes(folder)) return true;
+				if (pattern.test(file.content)) {
+					allViolations.push(`[${file.path}] ${message}`);
+					return false;
+				}
+				return true;
+			}, description)
+			.check();
+	}
 
 	return allViolations;
 }
