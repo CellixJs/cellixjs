@@ -1,7 +1,7 @@
 import { UserDeleteOutlined } from '@ant-design/icons';
 import { Button, Form, Select } from 'antd';
-import type { AdminMembersAccountsEditContainerEndUserFieldsFragment, MemberUpdateAccountInput } from '../generated.tsx';
 import type React from 'react';
+import type { AdminMembersAccountsEditContainerEndUserFieldsFragment, MemberUpdateAccountInput } from '../generated.tsx';
 
 export interface MembersAccountsEditProps {
 	data: MemberUpdateAccountInput;
