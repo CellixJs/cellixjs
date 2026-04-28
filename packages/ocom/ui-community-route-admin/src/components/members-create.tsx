@@ -33,7 +33,6 @@ export const MembersCreate: React.FC<MembersCreateProps> = (props) => {
 				<Button
 					type="primary"
 					htmlType="submit"
-					value={'save'}
 				>
 					Create Member
 				</Button>
