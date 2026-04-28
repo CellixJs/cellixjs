@@ -27,16 +27,17 @@ Those belong in [`@ocom/archunit-tests`](../../ocom/archunit-tests/readme.md).
 Run just this package:
 
 ```bash
-pnpm --filter @cellix/archunit-tests test:coverage
+pnpm --filter @cellix/archunit-tests test
 ```
 
 Or as part of the repo-wide validation flow:
 
 ```bash
-pnpm run test:coverage
+pnpm run test:arch
 ```
 
 ## Notes
 
 - The rules in this package should stay framework-focused and avoid application-specific assumptions where possible.
 - If a new Cellix package intentionally breaks the standard compiled-library shape, add a narrow exception in the relevant test rather than broadening the rule.
+- This package is intentionally excluded from coverage gates; coverage expectations apply to consumer app/framework packages.

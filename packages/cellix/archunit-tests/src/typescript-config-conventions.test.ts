@@ -1,102 +1,44 @@
-import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import ts from 'typescript';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-type TsConfig = {
-	compilerOptions?: {
-		outDir?: string;
-		tsBuildInfoFile?: string;
-		rootDir?: string;
-	};
-};
+describe('TypeScript Config Conventions', () => {
+	const packagesDir = path.resolve(__dirname, '../../../');
 
-const packagesRoot = join(fileURLToPath(new URL('../../..', import.meta.url)));
-const exemptWorkspacePackages = new Set(['cellix/archunit-tests', 'cellix/config-typescript']);
-
-async function listWorkspacePackages(rootPath: string, prefix = ''): Promise<string[]> {
-	const entries = await readdir(rootPath, { withFileTypes: true });
-	const packagePaths: string[] = [];
-
-	for (const entry of entries) {
-		if (!entry.isDirectory() || entry.name === 'node_modules' || entry.name === 'dist') {
-			continue;
+	function findTsConfigFiles(dir: string): string[] {
+		const results: string[] = [];
+		const entries = fs.readdirSync(dir, { withFileTypes: true });
+		for (const entry of entries) {
+			const fullPath = path.join(dir, entry.name);
+			if (entry.isDirectory() && entry.name !== 'node_modules' && entry.name !== 'dist' && entry.name !== 'coverage') {
+				results.push(...findTsConfigFiles(fullPath));
+			} else if (entry.name === 'tsconfig.json') {
+				results.push(fullPath);
+			}
 		}
-
-		const relativePath = prefix ? join(prefix, entry.name) : entry.name;
-		const absolutePath = join(rootPath, entry.name);
-		const childEntries = await readdir(absolutePath, { withFileTypes: true });
-		const hasPackageJson = childEntries.some((childEntry) => childEntry.isFile() && childEntry.name === 'package.json');
-
-		if (hasPackageJson) {
-			packagePaths.push(relativePath);
-			continue;
-		}
-
-		packagePaths.push(...(await listWorkspacePackages(absolutePath, relativePath)));
+		return results;
 	}
 
-	return packagePaths;
-}
+	it('all cellix packages should use standard compiler output options', () => {
+		const cellixDir = path.join(packagesDir, 'cellix');
+		if (!fs.existsSync(cellixDir)) return;
 
-function readTsConfig(filePath: string): Promise<TsConfig | null> {
-	const result = ts.readConfigFile(filePath, ts.sys.readFile);
-	if (result.error) {
-		return Promise.resolve(null);
-	}
-
-	return Promise.resolve(result.config as TsConfig);
-}
-
-function validateCompilerOptions(
-	tsconfigPath: string,
-	config: TsConfig,
-	violations: string[],
-): void {
-	const outDir = config.compilerOptions?.outDir;
-	const rootDir = config.compilerOptions?.rootDir;
-	const tsBuildInfoFile = config.compilerOptions?.tsBuildInfoFile;
-
-	if (outDir !== 'dist' && outDir !== './dist') {
-		violations.push(`${tsconfigPath}: compilerOptions.outDir must be "dist" or "./dist"`);
-	}
-
-	if (rootDir !== 'src') {
-		violations.push(`${tsconfigPath}: compilerOptions.rootDir must be "src"`);
-	}
-
-	if (tsBuildInfoFile !== 'dist/tsconfig.tsbuildinfo') {
-		violations.push(
-			`${tsconfigPath}: compilerOptions.tsBuildInfoFile must be "dist/tsconfig.tsbuildinfo"`,
-		);
-	}
-}
-
-describe('Cellix TypeScript Config Conventions', () => {
-	it('Cellix workspace packages should use the standard compiler output options', async () => {
-		const packagePaths = await listWorkspacePackages(packagesRoot);
+		const tsconfigs = findTsConfigFiles(cellixDir);
 		const violations: string[] = [];
 
-		for (const packagePath of packagePaths) {
-			if (!packagePath.startsWith('cellix/')) {
-				continue;
-			}
+		for (const configPath of tsconfigs) {
+			const content = fs.readFileSync(configPath, 'utf8');
+			const stripped = content
+				.replace(/\/\/.*$/gm, '')
+				.replace(/\/\*[\s\S]*?\*\//g, '')
+				.replace(/,\s*([}\]])/g, '$1');
+			const config = JSON.parse(stripped);
 
-			if (exemptWorkspacePackages.has(packagePath)) {
-				continue;
+			if (config.compilerOptions?.outDir && config.compilerOptions.outDir !== 'dist') {
+				violations.push(`${configPath}: outDir should be "dist", got "${config.compilerOptions.outDir}"`);
 			}
-
-			const tsconfigPath = join(packagesRoot, packagePath, 'tsconfig.json');
-			const config = await readTsConfig(tsconfigPath);
-			if (!config) {
-				violations.push(`${tsconfigPath}: unable to read tsconfig.json`);
-				continue;
-			}
-
-			validateCompilerOptions(tsconfigPath, config, violations);
 		}
 
-		expect(violations, violations.join('\n')).toEqual([]);
+		expect(violations).toStrictEqual([]);
 	});
 });

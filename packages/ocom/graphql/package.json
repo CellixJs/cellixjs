@@ -23,6 +23,7 @@
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",
+		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"clean": "rimraf dist **/*.generated.ts **/graphql.schema.json"
 	},
 	"dependencies": {
@@ -35,8 +36,10 @@
 		"graphql": "catalog:"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@ocom-verification/archunit-tests": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",
 		"typescript": "catalog:",

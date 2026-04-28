@@ -1,19 +1,9 @@
 {
-  "extends": "@cellix/config-typescript/base",
-  "include": [
-    "src/**/*",
-    "../**/*.ts",
-    "../**/*.tsx",
-    "../../ocom/**/*.ts",
-    "../../ocom/**/*.tsx",
-    "../../../apps/**/*.ts",
-    "../../../apps/**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/node_modules",
-    "**/dist",
-    "**/coverage",
-    "**/*.test.ts"
-  ]
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "."
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

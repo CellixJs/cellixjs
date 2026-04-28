@@ -117,6 +117,7 @@
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",
+		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"lint": "biome lint",
 		"clean": "rimraf dist"
 	},
@@ -124,17 +125,19 @@
 		"@cellix/domain-seedwork": "workspace:*",
 		"@cellix/event-bus-seedwork-node": "workspace:*",
 		"@cellix/mongoose-seedwork": "workspace:*",
-		"@ocom/domain": "workspace:*",
 		"@ocom/data-sources-mongoose-models": "workspace:*",
-		"mongoose": "catalog:",
-		"mongodb": "catalog:"
+		"@ocom/domain": "workspace:*",
+		"mongodb": "catalog:",
+		"mongoose": "catalog:"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@ocom-verification/archunit-tests": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
-		"typescript": "catalog:",
 		"rimraf": "catalog:",
+		"typescript": "catalog:",
 		"vitest": "catalog:"
 	}
 }
