@@ -115,6 +115,19 @@ The `@typescript/native-preview` package provides the native Go compiler (`tsgo`
 - Zero `baseUrl` entries remain in any tsconfig.
 - Zero `ignoreDeprecations` entries remain in any tsconfig.
 
+## Future Optimization: Parallel Type-Checking
+
+TypeScript 7.0 introduces `--checkers` and `--builders` flags for parallelizing type-checking within a project and building multiple projects simultaneously.
+
+Since Turborepo already parallelizes builds *across* packages, and most individual packages are relatively small, the per-package benefit of `--checkers` is limited in our current setup. Adding the flag would require modifying all 34+ package build scripts.
+
+When this becomes worth revisiting:
+- If a single large package becomes a build bottleneck, add `--checkers 4` to its build script
+- If Turborepo is ever replaced with a root-level `tsgo --build`, use both `--builders` and `--checkers` for full parallelism
+- Monitor tsgo for a tsconfig-level equivalent of `--checkers` to avoid per-package script changes
+
+Reference: [TypeScript 7.0 Beta — Project Reference Builder Parallelization](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0-beta/)
+
 ## More Information
 
 - [TypeScript 7.0 Beta Announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0-beta/)
