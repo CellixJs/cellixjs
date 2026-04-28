@@ -2,12 +2,12 @@ import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { App } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { MemberCreateAccountInput } from '../generated.tsx';
 import {
 	AdminMembersAccountsAddContainerEndUsersByCommunityDocument,
 	AdminMembersAccountsAddContainerMemberCreateAccountDocument,
 	AdminMembersAccountsListContainerMemberDocument,
 	type AdminMembersAccountsAddContainerEndUserFieldsFragment,
+    type MemberCreateAccountInput
 } from '../generated.tsx';
 import { MembersAccountsAdd, type MembersAccountsAddProps } from './members-accounts-add.tsx';
 import type React from 'react';
