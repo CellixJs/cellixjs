@@ -1,0 +1,17 @@
+{
+	"extends": "../../../../packages/cellix/config-typescript/tsconfig.node.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"rootDir": ".",
+		"composite": false,
+		"incremental": false,
+		"skipLibCheck": true,
+		"exactOptionalPropertyTypes": false,
+		"noPropertyAccessFromIndexSignature": false,
+		"allowUnreachableCode": true,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false
+	},
+	"include": ["*.ts"],
+	"exclude": ["tests"]
+}
