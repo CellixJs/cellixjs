@@ -92,13 +92,6 @@ Version bumped from `1.0.0` → `1.0.3` to reflect the TS 7.0 configuration chan
 
 The archunit-tests packages (`@ocom/archunit-tests`, `@cellix/archunit-tests`) use the TypeScript compiler API programmatically (e.g., `ts.createSourceFile`, `ts.readConfigFile`). They import from `typescript` which resolves to the JS-based TypeScript 6.0.3 compiler via the catalog.
 
-### 9. Added `build:tsgo` and `typecheck:tsgo` convenience scripts
-
-Root `package.json` now includes:
-
-- `build:tsgo`: `tsgo --build` — direct workspace-wide build
-- `typecheck:tsgo`: `tsgo --noEmit` — type-checking only
-
 ## tsgo Status
 
 The `@typescript/native-preview` package provides the native Go compiler (`tsgo`). Key notes:

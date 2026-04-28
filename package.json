@@ -10,8 +10,6 @@
 		"antd": "antd",
 		"audit": "(pnpm audit --audit-level=high --prod) && (pnpm audit --audit-level=critical --dev)",
 		"build": "turbo run build",
-		"build:tsgo": "tsgo --build",
-		"typecheck:tsgo": "tsgo --noEmit",
 		"test": "turbo run test",
 		"lint": "turbo run lint",
 		"dev": "pnpm proxy:stop && pnpm proxy:start && turbo watch azurite dev --filter='./apps/*' --filter='./packages/*'",
@@ -85,7 +83,7 @@
 		"snyk": "^1.1300.2",
 		"ts-scope-trimmer-plugin": "^1.0.2",
 		"turbo": "2.9.3",
-		"typescript": "npm:@typescript/typescript6@6.0.0",
+		"typescript": "catalog:",
 		"@typescript/native-preview": "catalog:",
 		"vitest": "catalog:"
 	},
