@@ -7,11 +7,11 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"prebuild": "pnpm run lint",
-		"build": "tsc --build && rolldown -c rolldown.config.ts",
+		"build": "tsgo --build && rolldown -c rolldown.config.ts",
 		"predev": "pnpm run prepare:deploy && pnpm run sync-local-settings",
 		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs data-access.ownercommunity.localhost node start-dev.mjs",
 		"prepare:deploy": "cellix-prepare-func-deploy",
-		"watch": "tsc --watch",
+		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",

@@ -59,8 +59,8 @@ Package handles its own compilation.
     }
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
+    "build": "tsgo --build",
+    "dev": "tsgo --watch"
   }
 }
 ```

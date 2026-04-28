@@ -13,8 +13,9 @@ describe('jwt.buildTokenResponse', () => {
 		expect(tokens).toHaveProperty('access_token');
 		const idPayloadB64 = tokens.id_token.split('.')[1] as string;
 		const idPayload = JSON.parse(Buffer.from(idPayloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
-		expect(idPayload['iss']).toBe('http://localhost:9100');
-		expect(idPayload['sub']).toBe('user-123');
-		expect(idPayload['aud']).toBe('test-aud');
+		const idPayloadTyped = idPayload as { iss?: string; sub?: string; aud?: string };
+		expect(idPayloadTyped.iss).toBe('http://localhost:9100');
+		expect(idPayloadTyped.sub).toBe('user-123');
+		expect(idPayloadTyped.aud).toBe('test-aud');
 	});
 });

@@ -188,19 +188,22 @@ describe('multi-registration contract', () => {
 			// Decode JWT payload (no verification needed — just inspect claims)
 			const payloadB64 = tokens.id_token.split('.')[1] as string;
 			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
+			const payloadTyped = payload as { roles?: string[]; department?: string };
 
-			expect(payload['roles']).toEqual(['admin', 'editor']);
-			expect(payload['department']).toBe('engineering');
+			expect(payloadTyped.roles).toEqual(['admin', 'editor']);
+			expect(payloadTyped.department).toBe('engineering');
 
 			// Also verify access_token contains the custom claims
 			const accessPayloadB64 = tokens.access_token.split('.')[1] as string;
 			const accessPayload = JSON.parse(Buffer.from(accessPayloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
-			expect(accessPayload['roles']).toEqual(['admin', 'editor']);
-			expect(accessPayload['department']).toBe('engineering');
+			const accessPayloadTyped = accessPayload as { roles?: string[]; department?: string };
+			expect(accessPayloadTyped.roles).toEqual(['admin', 'editor']);
+			expect(accessPayloadTyped.department).toBe('engineering');
 
 			// And the token response profile object should also include them
-			expect(tokens.profile['roles']).toEqual(['admin', 'editor']);
-			expect(tokens.profile['department']).toBe('engineering');
+			const profileTyped = tokens.profile as { roles?: string[]; department?: string };
+			expect(profileTyped.roles).toEqual(['admin', 'editor']);
+			expect(profileTyped.department).toBe('engineering');
 		} finally {
 			await manager.stopAll();
 		}

@@ -1,7 +1,7 @@
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import ts from 'typescript';
+import ts from '@typescript/typescript6';
 import { describe, expect, it } from 'vitest';
 
 type TsConfig = {
@@ -14,10 +14,7 @@ type TsConfig = {
 };
 
 const packagesRoot = join(fileURLToPath(new URL('../..', import.meta.url)));
-const allowedSharedConfigs = new Set([
-	'@cellix/config-typescript/base',
-	'@cellix/config-typescript/node',
-]);
+const allowedSharedConfigs = new Set(['@cellix/config-typescript/base', '@cellix/config-typescript/node']);
 const exemptWorkspacePackages = new Set(['ocom/archunit-tests']);
 
 async function listWorkspacePackages(rootPath: string, prefix = ''): Promise<string[]> {
@@ -54,11 +51,7 @@ function readTsConfig(filePath: string): Promise<TsConfig | null> {
 	return Promise.resolve(result.config as TsConfig);
 }
 
-function validateCommonCompilerOptions(
-	tsconfigPath: string,
-	config: TsConfig,
-	violations: string[],
-): void {
+function validateCommonCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
 	const outDir = config.compilerOptions?.outDir;
 	const rootDir = config.compilerOptions?.rootDir;
 
@@ -71,41 +64,25 @@ function validateCommonCompilerOptions(
 	}
 }
 
-function validateNodeCompilerOptions(
-	tsconfigPath: string,
-	config: TsConfig,
-	violations: string[],
-): void {
+function validateNodeCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
 	validateCommonCompilerOptions(tsconfigPath, config, violations);
 
 	const tsBuildInfoFile = config.compilerOptions?.tsBuildInfoFile;
 	if (tsBuildInfoFile !== 'dist/tsconfig.tsbuildinfo') {
-		violations.push(
-			`${tsconfigPath}: compilerOptions.tsBuildInfoFile must be "dist/tsconfig.tsbuildinfo"`,
-		);
+		violations.push(`${tsconfigPath}: compilerOptions.tsBuildInfoFile must be "dist/tsconfig.tsbuildinfo"`);
 	}
 }
 
-function validateBaseCompilerOptions(
-	tsconfigPath: string,
-	config: TsConfig,
-	violations: string[],
-): void {
+function validateBaseCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
 	validateCommonCompilerOptions(tsconfigPath, config, violations);
 }
 
-function validatePackageConfig(
-	packagePath: string,
-	config: TsConfig,
-	violations: string[],
-): void {
+function validatePackageConfig(packagePath: string, config: TsConfig, violations: string[]): void {
 	const tsconfigPath = join(packagesRoot, packagePath, 'tsconfig.json');
 	const sharedConfig = config.extends;
 
 	if (!sharedConfig || !allowedSharedConfigs.has(sharedConfig)) {
-		violations.push(
-			`${tsconfigPath}: extends must be one of ${Array.from(allowedSharedConfigs).join(', ')}`,
-		);
+		violations.push(`${tsconfigPath}: extends must be one of ${Array.from(allowedSharedConfigs).join(', ')}`);
 		return;
 	}
 

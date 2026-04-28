@@ -1,7 +1,7 @@
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import ts from 'typescript';
+import ts from '@typescript/typescript6';
 import { describe, expect, it } from 'vitest';
 
 type TsConfig = {
@@ -49,11 +49,7 @@ function readTsConfig(filePath: string): Promise<TsConfig | null> {
 	return Promise.resolve(result.config as TsConfig);
 }
 
-function validateCompilerOptions(
-	tsconfigPath: string,
-	config: TsConfig,
-	violations: string[],
-): void {
+function validateCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
 	const outDir = config.compilerOptions?.outDir;
 	const rootDir = config.compilerOptions?.rootDir;
 	const tsBuildInfoFile = config.compilerOptions?.tsBuildInfoFile;
@@ -67,9 +63,7 @@ function validateCompilerOptions(
 	}
 
 	if (tsBuildInfoFile !== 'dist/tsconfig.tsbuildinfo') {
-		violations.push(
-			`${tsconfigPath}: compilerOptions.tsBuildInfoFile must be "dist/tsconfig.tsbuildinfo"`,
-		);
+		violations.push(`${tsconfigPath}: compilerOptions.tsBuildInfoFile must be "dist/tsconfig.tsbuildinfo"`);
 	}
 }
 
