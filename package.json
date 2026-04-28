@@ -27,6 +27,7 @@
 		"start-emulator:mongo-memory-server": "pnpm --filter @cellix/mock-mongodb-memory-server start",
 		"start-emulator:auth-server": "pnpm --filter @cellix/mock-oauth2-server start",
 		"test:all": "turbo run test:all",
+		"test:arch": "turbo run test:arch",
 		"test:coverage": "turbo run test:coverage",
 		"test:coverage:merge": "pnpm run test:coverage && pnpm run merge-lcov-reports",
 		"merge-lcov-reports": "node build-pipeline/scripts/merge-coverage.js",
@@ -113,8 +114,10 @@
 			"lodash": "4.18.1",
 			"lodash-es": "4.18.1",
 			"node-forge": "^1.4.0",
+			"postcss": "8.5.10",
 			"picomatch": "^4.0.4",
 			"webpack": "^5.105.4",
+			"uuid": "14.0.0",
 			"playwright-core": "1.59.0",
 			"playwright": "1.59.0",
 			"protobufjs": "7.5.5"
