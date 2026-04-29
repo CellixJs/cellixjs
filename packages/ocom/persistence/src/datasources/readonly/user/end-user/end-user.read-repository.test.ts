@@ -1,14 +1,14 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
+import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 import type { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
 import type { ModelsContext } from '../../../../index.ts';
-import { EndUserReadRepositoryImpl } from './end-user.read-repository.ts';
-import { EndUserDataSourceImpl } from './end-user.data.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
-import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
+import { EndUserDataSourceImpl } from './end-user.data.ts';
+import { EndUserReadRepositoryImpl } from './end-user.read-repository.ts';
 
 // Mock the data source module
 
@@ -223,10 +223,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		Then('I should receive end users in the same order as the input IDs', () => {
-			expect(mockDataSource.find).toHaveBeenCalledWith(
-				expect.objectContaining({ _id: expect.objectContaining({ $in: expect.any(Array) }) }),
-				undefined,
-			);
+			expect(mockDataSource.find).toHaveBeenCalledWith(expect.objectContaining({ _id: expect.objectContaining({ $in: expect.any(Array) }) }), undefined);
 			expect(result).toHaveLength(2);
 			expect(result[0]).toMatchObject({ id: 'test-id' });
 			expect(result[1]).toMatchObject({ id: 'other-id' });
