@@ -1,11 +1,11 @@
-import type { FC } from 'react';
-import { StaffRouteShell } from '@ocom/ui-staff-route-shared';
+import { Header } from './components/header.tsx';
+import { LoginPage } from './pages/login-page.tsx';
 
-export const SectionLayout: FC = () => {
+export const SectionLayout: React.FC = () => {
 	return (
-		<StaffRouteShell
-			title="Staff Home"
-			description="Welcome to the staff bootstrap app. This root route composes the staff sections exposed by dedicated route packages."
-		/>
+		<div>
+			<Header />
+			<LoginPage />
+		</div>
 	);
 };

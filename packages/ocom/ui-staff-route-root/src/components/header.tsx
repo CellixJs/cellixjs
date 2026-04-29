@@ -1,0 +1,27 @@
+import { Button, theme } from 'antd';
+import styles from './header.module.css';
+
+export const Header: React.FC = () => {
+	const handleLogin = () => {
+		// biome-ignore lint:useLiteralKeys
+		globalThis.location.href = `${import.meta.env['VITE_AAD_B2C_STAFF_REDIRECT_URI']}`;
+	};
+
+	const {
+		token: { colorBgContainer },
+	} = theme.useToken();
+
+	return (
+		<div
+			className={`${styles['top-bar']} flex gap-2`}
+			style={{ backgroundColor: colorBgContainer }}
+		>
+			<Button
+				type="primary"
+				onClick={handleLogin}
+			>
+				Sign In
+			</Button>
+		</div>
+	);
+};

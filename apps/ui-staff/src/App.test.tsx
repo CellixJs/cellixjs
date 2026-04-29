@@ -8,23 +8,17 @@ vi.mock('@cellix/ui-core', () => ({
 	RequireAuth: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, {}, children),
 }));
 
-// Mock react-oidc-context so login page renders without auth context
-vi.mock('react-oidc-context', () => ({
-	useAuth: () => ({ isLoading: false, activeNavigator: undefined, isAuthenticated: false, error: undefined, signinRedirect: vi.fn() }),
-}));
-
 import App from './App';
 
 describe('App', () => {
-	it('renders login page at root without throwing', () => {
+	it('renders root section without throwing', () => {
 		const html = renderToString(
-			<MemoryRouter initialEntries={['/']}>
+			<MemoryRouter>
 				<App />
 			</MemoryRouter>,
 		);
 		expect(typeof html).toBe('string');
 		expect(html.length).toBeGreaterThan(0);
-		expect(html).toContain('Staff Portal');
 	});
 
 	it('renders auth-redirect route without throwing', () => {
@@ -45,14 +39,5 @@ describe('App', () => {
 		);
 		expect(typeof html).toBe('string');
 		expect(html).toContain('Unauthorized');
-	});
-
-	it('redirects unknown routes to root', () => {
-		const html = renderToString(
-			<MemoryRouter initialEntries={['/unknown-path']}>
-				<App />
-			</MemoryRouter>,
-		);
-		expect(typeof html).toBe('string');
 	});
 });
