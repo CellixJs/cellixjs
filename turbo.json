@@ -59,6 +59,20 @@
 			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
 			"outputs": ["coverage/**"]
 		},
+		"test:e2e": {
+			"description": "Runs end-to-end tests from packages that expose them",
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"outputs": ["target/**", "reports/**"],
+			"cache": false
+		},
+		"test:acceptance": {
+			"description": "Runs acceptance tests from packages that expose them",
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"outputs": ["target/**", "reports/**"],
+			"cache": false
+		},
 		"test:serenity": {
 			"description": "Runs SerenityJS end-to-end test suites",
 			"dependsOn": ["^build"],

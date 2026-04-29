@@ -29,6 +29,8 @@
 		"test:all": "turbo run test:all",
 		"test:coverage": "turbo run test:coverage",
 		"test:coverage:merge": "pnpm run test:coverage && pnpm run merge-lcov-reports",
+		"test:e2e": "turbo run test:e2e --filter=@ocom-verification/e2e-tests",
+		"test:acceptance": "turbo run test:acceptance --filter=@ocom-verification/acceptance-api --filter=@ocom-verification/acceptance-ui",
 		"merge-lcov-reports": "node build-pipeline/scripts/merge-coverage.js",
 		"test:integration": "turbo run test:integration",
 		"test:serenity": "turbo run test:serenity",
@@ -43,7 +45,7 @@
 		"sonar:pr": "export PR_NUMBER=$(node build-pipeline/scripts/get-pr-number.cjs) && sonar-scanner -Dsonar.pullrequest.key=$PR_NUMBER -Dsonar.pullrequest.branch=$(git branch --show-current) -Dsonar.pullrequest.base=main",
 		"sonar:pr-windows": "for /f %i in ('node build-pipeline/scripts/get-pr-number.cjs') do set PR_NUMBER=%i && sonar-scanner -Dsonar.pullrequest.key=%PR_NUMBER% -Dsonar.pullrequest.branch=%BRANCH_NAME% -Dsonar.pullrequest.base=main",
 		"check-sonar": "node build-pipeline/scripts/check-sonar-quality-gate.cjs",
-		"verify": "pnpm run format:check && pnpm run test:coverage:merge && pnpm run knip && pnpm run snyk && pnpm run sonar:pr && pnpm run check-sonar",
+		"verify": "pnpm run format:check && pnpm run test:coverage:merge && pnpm run test:e2e && pnpm run knip && pnpm run snyk && pnpm run sonar:pr && pnpm run check-sonar",
 		"knip": "knip",
 		"snyk": "pnpm run snyk:test && pnpm run snyk:code",
 		"snyk:report": "pnpm run snyk:monitor && pnpm run snyk:code:report",
@@ -95,7 +97,8 @@
 			]
 		},
 		"overrides": {
-			"axios": "^1.15.0",
+			"@apollo/protobufjs": "npm:protobufjs@7.5.5",
+			"axios": "1.15.2",
 			"follow-redirects": "^1.16.0",
 			"vite": "catalog:",
 			"jiti": "2.6.1",

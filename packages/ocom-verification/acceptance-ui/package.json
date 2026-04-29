@@ -5,15 +5,15 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"verification:test": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js",
-		"verification:test:serenity": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 cucumber-js"
+		"test:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js",
+		"test:acceptance:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 cucumber-js"
 	},
 	"dependencies": {
-		"@cucumber/cucumber": "^12.7.0",
-		"@serenity-js/core": "^3.37.2",
-		"@serenity-js/cucumber": "^3.37.2",
-		"@serenity-js/console-reporter": "^3.37.2",
-		"@serenity-js/serenity-bdd": "^3.37.2",
+		"@cucumber/cucumber": "catalog:",
+		"@serenity-js/core": "catalog:",
+		"@serenity-js/cucumber": "catalog:",
+		"@serenity-js/console-reporter": "catalog:",
+		"@serenity-js/serenity-bdd": "catalog:",
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {

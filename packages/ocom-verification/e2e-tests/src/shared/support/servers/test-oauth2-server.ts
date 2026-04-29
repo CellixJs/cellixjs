@@ -16,7 +16,7 @@ export class TestOAuth2Server extends PortlessServer {
 		return 30_000;
 	}
 	protected get spawnArgs() {
-		return ['mock-auth.ownercommunity.localhost', 'node', 'dist/index.js'];
+		return ['mock-auth.ownercommunity.localhost', 'pnpm', 'exec', 'tsx', 'src/index.ts'];
 	}
 	protected get cwd() {
 		return apiSettings.oauth2MockDir;

@@ -5,24 +5,22 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"verification:test": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js --format json:./reports/cucumber-report-api.json",
-		"verification:test:serenity": "pnpm run verification:test",
-		"verification:test:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 --allowExternal -- cucumber-js --format json:./reports/cucumber-report-api.json",
+		"test:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js --format json:./reports/cucumber-report-api.json",
+		"test:acceptance:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 --allowExternal -- cucumber-js --format json:./reports/cucumber-report-api.json",
 		"verification:test:coverage:report": "c8 report --allowExternal",
 		"clean": "rimraf dist reports target coverage coverage-c8 coverage-vitest .c8-output"
 	},
 	"dependencies": {
-		"@cucumber/cucumber": "^12.7.0",
-		"@serenity-js/assertions": "^3.37.2",
-		"@serenity-js/console-reporter": "^3.37.2",
-		"@serenity-js/core": "^3.37.2",
-		"@serenity-js/cucumber": "^3.37.2",
-		"@serenity-js/serenity-bdd": "^3.37.2",
+		"@cucumber/cucumber": "catalog:",
+		"@serenity-js/assertions": "catalog:",
+		"@serenity-js/console-reporter": "catalog:",
+		"@serenity-js/core": "catalog:",
+		"@serenity-js/cucumber": "catalog:",
+		"@serenity-js/serenity-bdd": "catalog:",
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
-		"@apollo/server": "catalog:",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
 		"@ocom/persistence": "workspace:*",

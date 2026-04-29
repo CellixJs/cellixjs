@@ -1,4 +1,3 @@
-import type { BaseContext } from '@apollo/server';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Persistence } from '@ocom/persistence';
@@ -24,12 +23,12 @@ function createMockTokenValidation(): TokenValidation {
 	};
 }
 
-function createNoOpApolloServerService(): ServiceApolloServer<BaseContext> {
+function createNoOpApolloServerService(): ServiceApolloServer<Record<string, never>> {
 	const notImplemented = () => {
 		throw new Error('ServiceApolloServer not implemented in test session');
 	};
 	return {
-		startUp: () => Promise.resolve({} as unknown as Awaited<ReturnType<ServiceApolloServer<BaseContext>['startUp']>>),
+		startUp: () => Promise.resolve({} as unknown as Awaited<ReturnType<ServiceApolloServer<Record<string, never>>['startUp']>>),
 		shutDown: () => Promise.resolve(),
 		get service(): never {
 			return notImplemented() as never;

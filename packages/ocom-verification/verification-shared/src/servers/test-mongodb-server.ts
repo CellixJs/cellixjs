@@ -5,6 +5,7 @@ import { getAllMockUsers } from '../test-data/index.ts';
 
 const MONGO_BINARY_VERSION = '7.0.14';
 const DEFAULT_DB_NAME = 'owner-community-test';
+const MAX_REPLSET_START_ATTEMPTS = 5;
 
 export type MongoDBSeedDataFunction = (connectionString: string, dbName: string) => Promise<void>;
 
@@ -69,7 +70,7 @@ export class MongoDBTestServer {
 			...(options?.port && { instanceOpts: [{ port: options.port }] }),
 		};
 
-		this.replSet = await MongoMemoryReplSet.create(config);
+		this.replSet = await this.createReplicaSetWithRetry(config);
 		const uri = this.replSet.getUri();
 
 		this.serviceMongoose = new ServiceMongoose(uri, {
@@ -119,6 +120,31 @@ export class MongoDBTestServer {
 
 	isRunning(): boolean {
 		return this.serviceMongoose !== null;
+	}
+
+	private async createReplicaSetWithRetry(config: Parameters<typeof MongoMemoryReplSet.create>[0]): Promise<MongoMemoryReplSet> {
+		let lastError: unknown;
+
+		for (let attempt = 1; attempt <= MAX_REPLSET_START_ATTEMPTS; attempt += 1) {
+			try {
+				return await MongoMemoryReplSet.create(config);
+			} catch (error) {
+				lastError = error;
+				if (!this.isPortInUseError(error) || attempt === MAX_REPLSET_START_ATTEMPTS || config.instanceOpts) {
+					throw error;
+				}
+			}
+		}
+
+		throw lastError instanceof Error ? lastError : new Error('Failed to start MongoDB replica set');
+	}
+
+	private isPortInUseError(error: unknown): boolean {
+		if (!(error instanceof Error)) {
+			return false;
+		}
+
+		return error.message.includes('already in use') || error.message.includes('EADDRINUSE');
 	}
 
 	static async isReachable(connectionString: string): Promise<boolean> {

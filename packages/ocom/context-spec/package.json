@@ -22,7 +22,6 @@
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
-		"@apollo/server": "catalog:",
 		"@ocom/persistence": "workspace:*",
 		"@ocom/service-apollo-server": "workspace:*",
 		"@ocom/service-token-validation": "workspace:*"
