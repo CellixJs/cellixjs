@@ -6,6 +6,11 @@ interface MemberOrderGroup {
 	match(member: ts.ClassElement): boolean;
 }
 
+// Helper: true for get/set accessors (used in multiple match predicates below)
+function isAccessorDeclaration(m: ts.ClassElement): boolean {
+	return ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m);
+}
+
 /**
  * Default order (you can tweak this):
  *  0. static fields
@@ -19,15 +24,11 @@ interface MemberOrderGroup {
 export const defaultMemberOrder: MemberOrderGroup[] = [
 	{
 		name: 'static fields',
-		match: (m) =>
-			ts.isPropertyDeclaration(m) &&
-			hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		match: (m) => ts.isPropertyDeclaration(m) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 	{
 		name: 'instance fields',
-		match: (m) =>
-			ts.isPropertyDeclaration(m) &&
-			!hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		match: (m) => ts.isPropertyDeclaration(m) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 	{
 		name: 'constructor',
@@ -35,25 +36,19 @@ export const defaultMemberOrder: MemberOrderGroup[] = [
 	},
 	{
 		name: 'static methods',
-		match: (m) =>
-			ts.isMethodDeclaration(m) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		match: (m) => ts.isMethodDeclaration(m) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 	{
 		name: 'instance methods',
-		match: (m) =>
-			ts.isMethodDeclaration(m) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		match: (m) => ts.isMethodDeclaration(m) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 	{
 		name: 'static accessors',
-		match: (m) =>
-			(ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m)) &&
-			hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		match: (m) => isAccessorDeclaration(m) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 	{
 		name: 'instance accessors',
-		match: (m) =>
-			(ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m)) &&
-			!hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		match: (m) => isAccessorDeclaration(m) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 ];
 
@@ -66,12 +61,7 @@ function hasModifier(node: ts.Node, kind: ts.SyntaxKind): boolean {
 
 // Utility: best-effort member “name” for logging
 function getMemberName(member: ts.ClassElement): string {
-	if (
-		ts.isMethodDeclaration(member) ||
-		ts.isPropertyDeclaration(member) ||
-		ts.isGetAccessorDeclaration(member) ||
-		ts.isSetAccessorDeclaration(member)
-	) {
+	if (ts.isMethodDeclaration(member) || ts.isPropertyDeclaration(member) || isAccessorDeclaration(member)) {
 		if (member.name && ts.isIdentifier(member.name)) {
 			return member.name.text;
 		}
@@ -89,10 +79,7 @@ function getMemberName(member: ts.ClassElement): string {
  * Core checker used by ArchUnitTS custom rule.
  * Returns true if all classes in the file respect the ordering.
  */
-export function checkMemberOrdering(
-	file: FileInfo,
-	groups: MemberOrderGroup[] = defaultMemberOrder,
-): true | string[] {
+export function checkMemberOrdering(file: FileInfo, groups: MemberOrderGroup[] = defaultMemberOrder): true | string[] {
 	// Derive ScriptKind from file extension
 	let scriptKind: ts.ScriptKind = ts.ScriptKind.TS;
 	if (file.path.endsWith('.tsx')) {
@@ -104,28 +91,14 @@ export function checkMemberOrdering(
 	} else if (file.path.endsWith('.json')) {
 		scriptKind = ts.ScriptKind.JSON;
 	}
-	const source = ts.createSourceFile(
-		file.path,
-		file.content,
-		ts.ScriptTarget.Latest,
-		true,
-		scriptKind,
-	);
+	const source = ts.createSourceFile(file.path, file.content, ts.ScriptTarget.Latest, true, scriptKind);
 
 	const violations: string[] = [];
 
 	const checkClass = (cls: ts.ClassDeclaration) => {
 		const className = cls.name?.text ?? '<anonymous>';
 
-		// Pick only members we care about, including accessors
-		const relevantMembers = cls.members.filter(
-			(m) =>
-				ts.isPropertyDeclaration(m) ||
-				ts.isConstructorDeclaration(m) ||
-				ts.isMethodDeclaration(m) ||
-				ts.isGetAccessorDeclaration(m) ||
-				ts.isSetAccessorDeclaration(m),
-		);
+		const relevantMembers = cls.members.filter((m) => ts.isPropertyDeclaration(m) || ts.isConstructorDeclaration(m) || ts.isMethodDeclaration(m) || isAccessorDeclaration(m));
 
 		const groupIndexes = relevantMembers.map((m) => {
 			const idx = groups.findIndex((g) => g.match(m));
@@ -143,9 +116,7 @@ export function checkMemberOrdering(
 				const offendingGroup = groups[idx]?.name ?? 'unknown group';
 				const previousGroup = groups[maxSoFar]?.name ?? 'unknown group';
 
-				violations.push(
-					`Class ${className}: member "${memberName}" (group: ${offendingGroup}) appears after a member from later group (${previousGroup}).`,
-				);
+				violations.push(`Class ${className}: member "${memberName}" (group: ${offendingGroup}) appears after a member from later group (${previousGroup}).`);
 			} else {
 				maxSoFar = idx;
 			}
@@ -164,8 +135,8 @@ export function checkMemberOrdering(
 		for (const v of violations) {
 			console.error(`  - ${v}`);
 		}
-        // Do not throw; just return violations
-        return violations;
-    }
-    return true;
+		// Do not throw; just return violations
+		return violations;
+	}
+	return true;
 }

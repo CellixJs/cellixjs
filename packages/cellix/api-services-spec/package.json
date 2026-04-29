@@ -17,8 +17,8 @@
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"prebuild": "pnpm run lint",
-		"build": "tsc --build",
-		"watch": "tsc --watch",
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
 		"clean": "rimraf dist"
 	},
 	"devDependencies": {

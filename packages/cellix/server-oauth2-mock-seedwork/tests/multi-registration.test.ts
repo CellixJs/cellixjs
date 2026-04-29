@@ -1,6 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import { createMockOAuth2Manager, type MockOAuth2PortalConfig, type MockOAuth2ServerConfig, startMockOAuth2Server } from '../src/index.ts';
 
+interface TestTokenResponse {
+	profile: { aud: string };
+	access_token: string;
+}
+
+interface TestTokenWithClaimsResponse {
+	id_token: string;
+	access_token: string;
+	profile: Record<string, unknown>;
+}
+
+interface TestClaimsPayload {
+	roles: string[];
+	department: string;
+}
+
 // Helper to create a basic portal config with specified client port
 function makeConfig(port: number): MockOAuth2PortalConfig & { clientPort: number } {
 	const clientBase = `http://localhost:${port}`;
@@ -89,7 +105,7 @@ describe('multi-registration contract', () => {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ grant_type: 'authorization_code', code }),
 			});
-			const tokenJson = (await tokenRes.json()) as { profile: { aud: string }; access_token: string };
+			const tokenJson = (await tokenRes.json()) as TestTokenResponse;
 			expect(tokenJson).toHaveProperty('access_token');
 			expect(tokenJson.profile.aud).toBe(`mock-client-${cfg1.clientPort}`);
 
@@ -105,7 +121,7 @@ describe('multi-registration contract', () => {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ grant_type: 'authorization_code', code: code2 }),
 			});
-			const tokenJson2 = (await tokenRes2.json()) as { profile: { aud: string } };
+			const tokenJson2 = (await tokenRes2.json()) as TestTokenResponse;
 			expect(tokenJson2.profile.aud).toBe(`mock-client-${cfg2.clientPort}`);
 		} finally {
 			await manager.stopAll();
@@ -183,24 +199,25 @@ describe('multi-registration contract', () => {
 					client_id: 'test-aud',
 				}),
 			});
-			const tokens = (await tokenRes.json()) as { id_token: string; access_token: string; profile: Record<string, unknown> };
+			const tokens = (await tokenRes.json()) as TestTokenWithClaimsResponse;
 
 			// Decode JWT payload (no verification needed — just inspect claims)
 			const payloadB64 = tokens.id_token.split('.')[1] as string;
-			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
+			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as TestClaimsPayload;
 
-			expect(payload['roles']).toEqual(['admin', 'editor']);
-			expect(payload['department']).toBe('engineering');
+			expect(payload.roles).toEqual(['admin', 'editor']);
+			expect(payload.department).toBe('engineering');
 
 			// Also verify access_token contains the custom claims
 			const accessPayloadB64 = tokens.access_token.split('.')[1] as string;
-			const accessPayload = JSON.parse(Buffer.from(accessPayloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
-			expect(accessPayload['roles']).toEqual(['admin', 'editor']);
-			expect(accessPayload['department']).toBe('engineering');
+			const accessPayload = JSON.parse(Buffer.from(accessPayloadB64, 'base64url').toString('utf-8')) as TestClaimsPayload;
+			expect(accessPayload.roles).toEqual(['admin', 'editor']);
+			expect(accessPayload.department).toBe('engineering');
 
 			// And the token response profile object should also include them
-			expect(tokens.profile['roles']).toEqual(['admin', 'editor']);
-			expect(tokens.profile['department']).toBe('engineering');
+			const profileTyped = tokens.profile as unknown as TestClaimsPayload;
+			expect(profileTyped.roles).toEqual(['admin', 'editor']);
+			expect(profileTyped.department).toBe('engineering');
 		} finally {
 			await manager.stopAll();
 		}

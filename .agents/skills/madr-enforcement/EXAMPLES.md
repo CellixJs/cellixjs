@@ -308,7 +308,7 @@ git commit -m "Add new feature"
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc --build",
+    "build": "tsgo --build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },
