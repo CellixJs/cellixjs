@@ -11,6 +11,7 @@ export type StaffAuth = {
 	email?: string;
 	roles?: string[];
 	raw?: Record<string, unknown>;
+	onLogout?: () => Promise<void> | void;
 };
 
 export const StaffAuthContext = createContext<StaffAuth | undefined>(undefined);
@@ -68,6 +69,26 @@ export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }
 							<div style={{ marginTop: 8, fontSize: 13, color: '#111827' }}>
 								<div style={{ fontWeight: 700 }}>Signed in as</div>
 								<div>{name}</div>
+								{auth?.onLogout ? (
+									<button
+										type="button"
+										onClick={() => {
+											void auth.onLogout?.();
+										}}
+										style={{
+											marginTop: 10,
+											padding: '6px 12px',
+											borderRadius: 6,
+											border: '1px solid #d1d5db',
+											background: '#ffffff',
+											color: '#111827',
+											cursor: 'pointer',
+											fontWeight: 600,
+										}}
+									>
+										Log out
+									</button>
+								) : null}
 							</div>
 						) : (
 							<div style={{ marginTop: 8, fontSize: 13, color: '#9ca3af' }}>Not signed in</div>

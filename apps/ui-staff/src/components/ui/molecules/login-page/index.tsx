@@ -1,30 +1,12 @@
-import { Button, Card, Col, Row, Space, Spin, Typography } from 'antd';
-import type { FC } from 'react';
+import { Button, Typography } from 'antd';
+import type React from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Navigate } from 'react-router-dom';
 
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
 
-export const LoginPage: FC = () => {
+export const LoginPage: React.FC = () => {
 	const auth = useAuth();
-
-	if (auth.isLoading || auth.activeNavigator) {
-		return (
-			<Row
-				justify="center"
-				style={{ height: '100vh', alignItems: 'center' }}
-			>
-				<Space
-					direction="vertical"
-					size="large"
-					style={{ textAlign: 'center' }}
-				>
-					<Spin size="large" />
-					<Title level={2}>Please wait...</Title>
-				</Space>
-			</Row>
-		);
-	}
 
 	if (auth.isAuthenticated) {
 		return (
@@ -36,58 +18,19 @@ export const LoginPage: FC = () => {
 	}
 
 	return (
-		<Row
-			justify="center"
-			align="middle"
-			style={{ minHeight: '100vh', background: '#f0f2f5' }}
-		>
-			<Col
-				xs={22}
-				sm={16}
-				md={10}
-				lg={8}
-				xl={6}
-			>
-				<Card
-					style={{
-						borderRadius: 12,
-						boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-						textAlign: 'center',
+		<div style={{ margin: 0, padding: 0, minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#f0f2f5' }}>
+			<div style={{ textAlign: 'center' }}>
+				<Title level={2}>Staff Portal</Title>
+				<Button
+					type="primary"
+					size="large"
+					onClick={() => {
+						void auth.signinRedirect();
 					}}
 				>
-					<Space
-						direction="vertical"
-						size="large"
-						style={{ width: '100%' }}
-					>
-						<div>
-							<Title
-								level={2}
-								style={{ margin: 0 }}
-							>
-								Staff Portal
-							</Title>
-							<Paragraph
-								type="secondary"
-								style={{ marginTop: 8 }}
-							>
-								Sign in to access the CellixJS staff dashboard.
-							</Paragraph>
-						</div>
-
-						{auth.error && <Paragraph type="danger">Sign-in failed: {auth.error.message}</Paragraph>}
-
-						<Button
-							type="primary"
-							size="large"
-							block
-							onClick={() => auth.signinRedirect()}
-						>
-							Sign In
-						</Button>
-					</Space>
-				</Card>
-			</Col>
-		</Row>
+					Login
+				</Button>
+			</div>
+		</div>
 	);
 };

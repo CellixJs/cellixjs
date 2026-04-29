@@ -21,6 +21,10 @@ export default function App() {
 	// attempt to extract display name and roles from this raw profile.
 	const identity = {
 		raw: (auth?.user?.profile as Record<string, unknown>) ?? undefined,
+		onLogout: () =>
+			auth.signoutRedirect({
+				post_logout_redirect_uri: globalThis.location.origin,
+			}),
 	};
 
 	const authSection = (
