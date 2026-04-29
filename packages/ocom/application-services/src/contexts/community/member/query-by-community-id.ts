@@ -8,6 +8,6 @@ export interface MemberQueryByCommunityIdCommand {
 
 export const queryByCommunityId = (dataSources: DataSources) => {
 	return async (command: MemberQueryByCommunityIdCommand): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> => {
-		return await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByCommunityId(command.communityId, {fields: command.fields} );
+		return await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByCommunityId(command.communityId, { fields: command.fields });
 	};
 };

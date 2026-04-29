@@ -1,19 +1,19 @@
 {
-  "name": "@ocom/archunit-tests",
-  "version": "1.0.0",
-  "description": "Architectural fitness tests for the CellixJS monorepo",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "pnpm run test",
-    "test:watch": "vitest"
-  },
-  "devDependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@cellix/config-vitest": "workspace:*",
-    "archunit": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
-  }
+	"name": "@ocom/archunit-tests",
+	"version": "1.0.0",
+	"description": "Architectural fitness tests for the CellixJS monorepo",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "pnpm run test",
+		"test:watch": "vitest"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"archunit": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
 }

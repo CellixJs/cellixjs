@@ -3,7 +3,8 @@
 		"noEmit": true,
 		"rootDir": "${configDir}",
 		"tsBuildInfoFile": "${configDir}/node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"types": ["vitest/globals", "node"]
 	},
 	"include": [
 		"${configDir}/src",
@@ -15,7 +16,7 @@
 		"${configDir}/**/*.test.ts",
 		"${configDir}/**/*.test.tsx",
 		"${configDir}/**/*.spec.ts",
-        "${configDir}/**/*.spec.tsx"
+		"${configDir}/**/*.spec.tsx"
 	],
 	"exclude": ["node_modules", "dist", "coverage", ".turbo"]
 }
