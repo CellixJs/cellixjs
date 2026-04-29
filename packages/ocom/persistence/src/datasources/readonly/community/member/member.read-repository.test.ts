@@ -141,7 +141,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		Then('I should receive an array of MemberEntityReference objects', () => {
-			expect(mockDataSource.find).toHaveBeenCalledWith({ community: expect.any(Object) }, undefined);
+			expect(mockDataSource.find).toHaveBeenCalledWith({ community: expect.objectContaining({ toString: expect.any(Function), equals: expect.any(Function) }) }, { populateFields: ['role', 'role.community'] });
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockMemberDoc, passport);
 		});
 	});

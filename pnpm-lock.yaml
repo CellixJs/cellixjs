@@ -78,11 +78,11 @@ overrides:
   lodash-es: 4.18.1
   node-forge: ^1.4.0
   picomatch: ^4.0.4
+  postcss: ^8.5.10
   webpack: ^5.105.4
   playwright-core: 1.59.0
   playwright: 1.59.0
-  protobufjs: 7.5.5
-  postcss: ^8.5.10
+  protobufjs: ^7.5.5
 
 patchedDependencies:
   '@azure/functions@4.11.0':
@@ -1530,9 +1530,15 @@ importers:
       '@cellix/ui-core':
         specifier: workspace:*
         version: link:../../cellix/ui-core
+      '@dr.pogodin/react-helmet':
+        specifier: ^3.0.2
+        version: 3.0.4(react@19.2.0)
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/ui-community-route-shared':
+        specifier: workspace:*
+        version: link:../ui-community-route-shared
       '@ocom/ui-components':
         specifier: workspace:*
         version: link:../ui-components
@@ -1658,9 +1664,24 @@ importers:
 
   packages/ocom/ui-community-route-shared:
     dependencies:
+      '@apollo/client':
+        specifier: ^3.13.9
+        version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@cellix/ui-core':
+        specifier: workspace:*
+        version: link:../../cellix/ui-core
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.12.0)
       '@ocom/ui-components':
         specifier: workspace:*
         version: link:../ui-components
+      antd:
+        specifier: 'catalog:'
+        version: 6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      dayjs:
+        specifier: ^1.11.19
+        version: 1.11.19
       react:
         specifier: ^19.1.1
         version: 19.2.0
@@ -1722,6 +1743,9 @@ importers:
 
   packages/ocom/ui-components:
     dependencies:
+      '@ant-design/icons':
+        specifier: ^6.0.2
+        version: 6.1.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@apollo/client':
         specifier: ^3.13.9
         version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
