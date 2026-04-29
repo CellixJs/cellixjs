@@ -4,15 +4,9 @@ import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
-type TsConfig = {
-	extends?: string;
-	compilerOptions?: {
-		outDir?: string;
-		tsBuildInfoFile?: string;
-		rootDir?: string;
-		types?: string[];
-	};
-};
+import { readTsConfig, type TsConfig, validateCommonCompilerOptions, validateNodeCompilerOptions } from '../../../cellix/archunit-tests/src/validate-compiler-options';
+
+// shared helper provides TsConfig type and validation helpers
 
 const packagesRoot = join(fileURLToPath(new URL('../..', import.meta.url)));
 const allowedSharedConfigs = new Set(['@cellix/config-typescript/base', '@cellix/config-typescript/node']);
@@ -43,59 +37,6 @@ async function listWorkspacePackages(rootPath: string, prefix = ''): Promise<str
 	return packagePaths;
 }
 
-function readTsConfig(filePath: string): Promise<TsConfig | null> {
-	const result = ts.readConfigFile(filePath, ts.sys.readFile);
-	if (result.error) {
-		return Promise.resolve(null);
-	}
-
-	return Promise.resolve(result.config as TsConfig);
-}
-
-function validateCommonCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
-	const compilerOptions = config.compilerOptions ?? {};
-
-	if ('baseUrl' in compilerOptions) {
-		violations.push(`${tsconfigPath}: compilerOptions.baseUrl must not be set`);
-	}
-
-	if ('ignoreDeprecations' in compilerOptions) {
-		violations.push(`${tsconfigPath}: compilerOptions.ignoreDeprecations must not be set`);
-	}
-
-	// Default types are centralized in @cellix/config-typescript (tsconfig.node.json → ["node"],
-	// tsconfig.vitest.json → ["vitest/globals","node"]). Packages inherit without repeating.
-	// Guard: if types IS explicitly overridden here, it must not be empty — TS 7.0 defaults to []
-	// which silently disables all ambient types when set explicitly.
-	if (Array.isArray(compilerOptions.types) && compilerOptions.types.length === 0) {
-		violations.push(`${tsconfigPath}: compilerOptions.types must not be empty (TS 7.0 defaults to [] — an empty array disables all ambient types)`);
-	}
-
-	const outDir = compilerOptions.outDir;
-	const rootDir = compilerOptions.rootDir;
-
-	if (outDir !== 'dist' && outDir !== './dist') {
-		violations.push(`${tsconfigPath}: compilerOptions.outDir must be "dist" or "./dist"`);
-	}
-
-	if (rootDir !== 'src') {
-		violations.push(`${tsconfigPath}: compilerOptions.rootDir must be "src"`);
-	}
-}
-
-function validateNodeCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
-	validateCommonCompilerOptions(tsconfigPath, config, violations);
-
-	const tsBuildInfoFile = config.compilerOptions?.tsBuildInfoFile;
-	if (tsBuildInfoFile !== 'dist/tsconfig.tsbuildinfo') {
-		violations.push(`${tsconfigPath}: compilerOptions.tsBuildInfoFile must be "dist/tsconfig.tsbuildinfo"`);
-	}
-}
-
-function validateBaseCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
-	validateCommonCompilerOptions(tsconfigPath, config, violations);
-}
-
 function validatePackageConfig(packagePath: string, config: TsConfig, violations: string[]): void {
 	const tsconfigPath = join(packagesRoot, packagePath, 'tsconfig.json');
 	const sharedConfig = config.extends;
@@ -111,7 +52,7 @@ function validatePackageConfig(packagePath: string, config: TsConfig, violations
 	}
 
 	if (!exemptWorkspacePackages.has(packagePath)) {
-		validateBaseCompilerOptions(tsconfigPath, config, violations);
+		validateCommonCompilerOptions(tsconfigPath, config, violations);
 	}
 }
 

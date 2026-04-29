@@ -4,14 +4,9 @@ import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
-type TsConfig = {
-	compilerOptions?: {
-		outDir?: string;
-		tsBuildInfoFile?: string;
-		rootDir?: string;
-		types?: string[];
-	};
-};
+import { readTsConfig, validateNodeCompilerOptions } from './validate-compiler-options';
+
+// re-exported TsConfig is provided by the shared helper
 
 const packagesRoot = join(fileURLToPath(new URL('../../..', import.meta.url)));
 const exemptWorkspacePackages = new Set(['cellix/archunit-tests', 'cellix/config-typescript']);
@@ -41,51 +36,6 @@ async function listWorkspacePackages(rootPath: string, prefix = ''): Promise<str
 	return packagePaths;
 }
 
-function readTsConfig(filePath: string): Promise<TsConfig | null> {
-	const result = ts.readConfigFile(filePath, ts.sys.readFile);
-	if (result.error) {
-		return Promise.resolve(null);
-	}
-
-	return Promise.resolve(result.config as TsConfig);
-}
-
-function validateCompilerOptions(tsconfigPath: string, config: TsConfig, violations: string[]): void {
-	const compilerOptions = config.compilerOptions ?? {};
-
-	if ('baseUrl' in compilerOptions) {
-		violations.push(`${tsconfigPath}: compilerOptions.baseUrl must not be set`);
-	}
-
-	if ('ignoreDeprecations' in compilerOptions) {
-		violations.push(`${tsconfigPath}: compilerOptions.ignoreDeprecations must not be set`);
-	}
-
-	// Default types are centralized in @cellix/config-typescript (tsconfig.node.json → ["node"],
-	// tsconfig.vitest.json → ["vitest/globals","node"]). Packages inherit without repeating.
-	// Guard: if types IS explicitly overridden here, it must not be empty — TS 7.0 defaults to []
-	// which silently disables all ambient types when set explicitly.
-	if (Array.isArray(compilerOptions.types) && compilerOptions.types.length === 0) {
-		violations.push(`${tsconfigPath}: compilerOptions.types must not be empty (TS 7.0 defaults to [] — an empty array disables all ambient types)`);
-	}
-
-	const outDir = compilerOptions.outDir;
-	const rootDir = compilerOptions.rootDir;
-	const tsBuildInfoFile = compilerOptions.tsBuildInfoFile;
-
-	if (outDir !== 'dist' && outDir !== './dist') {
-		violations.push(`${tsconfigPath}: compilerOptions.outDir must be "dist" or "./dist"`);
-	}
-
-	if (rootDir !== 'src') {
-		violations.push(`${tsconfigPath}: compilerOptions.rootDir must be "src"`);
-	}
-
-	if (tsBuildInfoFile !== 'dist/tsconfig.tsbuildinfo') {
-		violations.push(`${tsconfigPath}: compilerOptions.tsBuildInfoFile must be "dist/tsconfig.tsbuildinfo"`);
-	}
-}
-
 describe('Cellix TypeScript Config Conventions', () => {
 	it('Cellix workspace packages should use the standard compiler output options', async () => {
 		const packagePaths = await listWorkspacePackages(packagesRoot);
@@ -107,7 +57,7 @@ describe('Cellix TypeScript Config Conventions', () => {
 				continue;
 			}
 
-			validateCompilerOptions(tsconfigPath, config, violations);
+			validateNodeCompilerOptions(tsconfigPath, config, violations);
 		}
 
 		expect(violations, violations.join('\n')).toEqual([]);

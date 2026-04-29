@@ -13,8 +13,8 @@ interface TestTokenWithClaimsResponse {
 }
 
 interface TestClaimsPayload {
-	roles?: string[];
-	department?: string;
+	roles: string[];
+	department: string;
 }
 
 // Helper to create a basic portal config with specified client port
@@ -215,7 +215,7 @@ describe('multi-registration contract', () => {
 			expect(accessPayload.department).toBe('engineering');
 
 			// And the token response profile object should also include them
-			const profileTyped = tokens.profile as TestClaimsPayload;
+			const profileTyped = tokens.profile as unknown as TestClaimsPayload;
 			expect(profileTyped.roles).toEqual(['admin', 'editor']);
 			expect(profileTyped.department).toBe('engineering');
 		} finally {

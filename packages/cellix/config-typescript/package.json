@@ -8,6 +8,10 @@
 		"tsconfig.node.json",
 		"tsconfig.vitest.json"
 	],
+	"scripts": {
+		"tsgo:build": "tsgo --build",
+		"tsgo:noEmit": "tsgo --noEmit"
+	},
 	"exports": {
 		"./base": "./tsconfig.base.json",
 		"./node": "./tsconfig.node.json",

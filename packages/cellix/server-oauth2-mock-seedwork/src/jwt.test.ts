@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { buildTokenResponse } from './jwt.ts';
 
 interface TestIdTokenPayload {
-	iss?: string;
-	sub?: string;
-	aud?: string;
+	iss: string;
+	sub: string;
+	aud: string;
 }
 
 describe('jwt.buildTokenResponse', () => {

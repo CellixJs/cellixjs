@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { createMockOAuth2Manager } from '../src/index.ts';
 
 interface TestReservedClaimsPayload {
-	iss?: string;
-	aud?: string;
+	iss: string;
+	aud: string;
 }
 
 // Test that caller-provided reserved claims (iss, aud) do not override server values
