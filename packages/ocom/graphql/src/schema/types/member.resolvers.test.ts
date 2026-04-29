@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import type { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
 import type { GraphContext } from '../context.ts';
 import memberResolvers from './member.resolvers.ts';
 
@@ -41,6 +41,13 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
 				Member: {
 					determineIfAdmin: vi.fn(),
 					queryByEndUserExternalId: vi.fn(),
+					inviteMember: vi.fn(),
+					bulkInviteMembers: vi.fn(),
+				},
+			},
+			User: {
+				EndUser: {
+					queryById: vi.fn(),
 				},
 			},
 			verifiedUser: {
@@ -177,6 +184,209 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		Then('it should throw an "Unauthorized" error', () => {
 			// Assertion performed in When step
+		});
+	});
+
+	Scenario('Inviting a member successfully', ({ Given, And, When, Then }) => {
+		type InviteMemberResult = { status: { success: boolean; errorMessage?: string }; invitation?: { email: string } };
+		let inviteResult: InviteMemberResult;
+		const mockInvitation = {
+			id: 'inv-1',
+			email: 'test@example.com',
+			message: '',
+			status: 'PENDING',
+			expiresAt: new Date(),
+			communityId: 'community-123',
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			invitedBy: { id: 'user-sub-123' },
+			acceptedBy: null,
+		};
+
+		Given('a signed in user with subject "user-sub-123"', () => {
+			/* empty */
+		});
+
+		And('the member invitation service can create an invitation', () => {
+			vi.mocked(context.applicationServices.Community.Member.inviteMember).mockResolvedValue(mockInvitation as never);
+		});
+
+		When('the inviteMember mutation is executed with communityId "community-123" and email "test@example.com"', async () => {
+			inviteResult = await (memberResolvers.Mutation?.inviteMember as unknown as (parent: unknown, args: unknown, ctx: GraphContext, info: unknown) => Promise<InviteMemberResult>)(
+				null,
+				{ input: { communityId: 'community-123', email: 'test@example.com' } },
+				context,
+				{},
+			);
+		});
+
+		Then('it should return a status with success true', () => {
+			expect(inviteResult.status.success).toBe(true);
+		});
+
+		And('it should return the invitation with email "test@example.com"', () => {
+			expect(inviteResult.invitation?.email).toBe('test@example.com');
+		});
+	});
+
+	Scenario('Inviting a member without authentication', ({ Given, When, Then, And }) => {
+		type InviteMemberResult = { status: { success: boolean; errorMessage?: string } };
+		let inviteResult: InviteMemberResult;
+
+		Given('a user without a verified JWT', () => {
+			if (context.applicationServices.verifiedUser) {
+				context.applicationServices.verifiedUser.verifiedJwt = undefined;
+			}
+		});
+
+		When('the inviteMember mutation is executed with communityId "community-123" and email "test@example.com"', async () => {
+			inviteResult = await (memberResolvers.Mutation?.inviteMember as unknown as (parent: unknown, args: unknown, ctx: GraphContext, info: unknown) => Promise<InviteMemberResult>)(
+				null,
+				{ input: { communityId: 'community-123', email: 'test@example.com' } },
+				context,
+				{},
+			);
+		});
+
+		Then('it should return a status with success false', () => {
+			expect(inviteResult.status.success).toBe(false);
+		});
+
+		And('the error message should be "Unauthorized"', () => {
+			expect(inviteResult.status.errorMessage).toBe('Unauthorized');
+		});
+	});
+
+	Scenario('Bulk inviting members successfully', ({ Given, And, When, Then }) => {
+		type BulkResult = { status: { success: boolean; errorMessage?: string }; invitations?: { email: string }[]; invitationsCount?: number };
+		let bulkResult: BulkResult;
+		const mockInvitations = [
+			{ id: 'inv-1', email: 'a@example.com', message: '', status: 'PENDING', expiresAt: new Date(), communityId: 'community-123', createdAt: new Date(), updatedAt: new Date(), invitedBy: { id: 'user-sub-123' }, acceptedBy: null },
+			{ id: 'inv-2', email: 'b@example.com', message: '', status: 'PENDING', expiresAt: new Date(), communityId: 'community-123', createdAt: new Date(), updatedAt: new Date(), invitedBy: { id: 'user-sub-123' }, acceptedBy: null },
+		];
+
+		Given('a signed in user with subject "user-sub-123"', () => {
+			/* empty */
+		});
+
+		And('the member bulk invitation service can create invitations', () => {
+			vi.mocked(context.applicationServices.Community.Member.bulkInviteMembers).mockResolvedValue(mockInvitations as never);
+		});
+
+		When('the bulkInviteMembers mutation is executed with communityId "community-123" and emails "a@example.com" and "b@example.com"', async () => {
+			bulkResult = await (memberResolvers.Mutation?.bulkInviteMembers as unknown as (parent: unknown, args: unknown, ctx: GraphContext, info: unknown) => Promise<BulkResult>)(
+				null,
+				{ input: { communityId: 'community-123', invitations: [{ email: 'a@example.com' }, { email: 'b@example.com' }] } },
+				context,
+				{},
+			);
+		});
+
+		Then('it should return a status with success true', () => {
+			expect(bulkResult.status.success).toBe(true);
+		});
+
+		And('it should return 2 invitations', () => {
+			expect(bulkResult.invitations).toHaveLength(2);
+		});
+	});
+
+	Scenario('Bulk inviting members without authentication', ({ Given, When, Then, And }) => {
+		type BulkResult = { status: { success: boolean; errorMessage?: string } };
+		let bulkResult: BulkResult;
+
+		Given('a user without a verified JWT', () => {
+			if (context.applicationServices.verifiedUser) {
+				context.applicationServices.verifiedUser.verifiedJwt = undefined;
+			}
+		});
+
+		When('the bulkInviteMembers mutation is executed with communityId "community-123" and emails "a@example.com" and "b@example.com"', async () => {
+			bulkResult = await (memberResolvers.Mutation?.bulkInviteMembers as unknown as (parent: unknown, args: unknown, ctx: GraphContext, info: unknown) => Promise<BulkResult>)(
+				null,
+				{ input: { communityId: 'community-123', invitations: [{ email: 'a@example.com' }, { email: 'b@example.com' }] } },
+				context,
+				{},
+			);
+		});
+
+		Then('it should return a status with success false', () => {
+			expect(bulkResult.status.success).toBe(false);
+		});
+
+		And('the error message should be "Unauthorized"', () => {
+			expect(bulkResult.status.errorMessage).toBe('Unauthorized');
+		});
+	});
+
+	Scenario('MemberInvitation invitedBy resolver returns end user', ({ Given, And, When, Then }) => {
+		type EndUserResult = { id: string };
+		let resolvedEndUser: EndUserResult | null;
+		const mockEndUser = { id: 'user-id-1' };
+		const mockParent = { invitedBy: { id: 'user-id-1' } };
+
+		Given('a member invitation with invitedBy id "user-id-1"', () => {
+			/* empty */
+		});
+
+		And('the end user service can return a user for that id', () => {
+			vi.mocked(context.applicationServices.User.EndUser.queryById).mockResolvedValue(mockEndUser as never);
+		});
+
+		When('the MemberInvitation.invitedBy resolver is executed', async () => {
+			resolvedEndUser = await (memberResolvers.MemberInvitation?.invitedBy as unknown as (parent: typeof mockParent, args: unknown, ctx: GraphContext, info: unknown) => Promise<EndUserResult>)(mockParent, {}, context, {});
+		});
+
+		Then('it should call User.EndUser.queryById with "user-id-1"', () => {
+			expect(vi.mocked(context.applicationServices.User.EndUser.queryById)).toHaveBeenCalledWith({ id: 'user-id-1' });
+		});
+
+		And('it should return the resolved end user', () => {
+			expect(resolvedEndUser?.id).toBe('user-id-1');
+		});
+	});
+
+	Scenario('MemberInvitation acceptedBy resolver when present', ({ Given, And, When, Then }) => {
+		type EndUserResult = { id: string };
+		let resolvedEndUser: EndUserResult | null;
+		const mockEndUser = { id: 'user-id-2' };
+		const mockParent = { acceptedBy: { id: 'user-id-2' } };
+
+		Given('a member invitation with acceptedBy id "user-id-2"', () => {
+			/* empty */
+		});
+
+		And('the end user service can return a user for that id', () => {
+			vi.mocked(context.applicationServices.User.EndUser.queryById).mockResolvedValue(mockEndUser as never);
+		});
+
+		When('the MemberInvitation.acceptedBy resolver is executed', async () => {
+			resolvedEndUser = await (memberResolvers.MemberInvitation?.acceptedBy as unknown as (parent: typeof mockParent, args: unknown, ctx: GraphContext, info: unknown) => Promise<EndUserResult | null>)(mockParent, {}, context, {});
+		});
+
+		Then('it should call User.EndUser.queryById with "user-id-2"', () => {
+			expect(vi.mocked(context.applicationServices.User.EndUser.queryById)).toHaveBeenCalledWith({ id: 'user-id-2' });
+		});
+
+		And('it should return the resolved end user', () => {
+			expect(resolvedEndUser?.id).toBe('user-id-2');
+		});
+	});
+
+	Scenario('MemberInvitation acceptedBy resolver when absent', ({ Given, When, Then }) => {
+		let resolvedResult: unknown;
+		const mockParent = { acceptedBy: undefined };
+
+		Given('a member invitation with no acceptedBy set', () => {
+			/* empty */
+		});
+
+		When('the MemberInvitation.acceptedBy resolver is executed', async () => {
+			resolvedResult = await (memberResolvers.MemberInvitation?.acceptedBy as unknown as (parent: typeof mockParent, args: unknown, ctx: GraphContext, info: unknown) => Promise<null>)(mockParent, {}, context, {});
+		});
+
+		Then('it should return null', () => {
+			expect(resolvedResult).toBeNull();
 		});
 	});
 });

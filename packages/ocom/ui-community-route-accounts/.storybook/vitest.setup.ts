@@ -4,4 +4,3 @@ import * as projectAnnotations from './preview.tsx';
 
 // This is an important step to apply the right configuration when testing your stories.
 setProjectAnnotations([a11yAddonAnnotations, projectAnnotations]);
-

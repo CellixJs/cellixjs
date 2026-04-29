@@ -30,6 +30,7 @@ type EndUserContactInformation {
 extend type Query {
 	endUserById(id: ObjectID!): EndUser
 	currentEndUserAndCreateIfNotExists: EndUser!
+	endUsersByCommunityId(communityId: ObjectID!): [EndUser!]!
 }
 
 # extend type Mutation {

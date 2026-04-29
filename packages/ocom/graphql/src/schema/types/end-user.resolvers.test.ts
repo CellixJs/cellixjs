@@ -68,6 +68,7 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
 				EndUser: {
 					createIfNotExists: vi.fn(),
 					queryById: vi.fn(),
+					queryByCommunityId: vi.fn(),
 				},
 			},
 			verifiedUser: {
@@ -86,7 +87,7 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let context: GraphContext;
-	let result: EndUserEntity | null;
+	let result: EndUserEntity | EndUserEntity[] | null;
 
 	BeforeEachScenario(() => {
 		context = makeMockGraphContext();
@@ -183,6 +184,52 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('it should return the corresponding EndUser entity', () => {
 			expect(result).toEqual(mockEndUser);
+		});
+	});
+
+	Scenario('Querying end users by community ID', ({ Given, When, Then, And }) => {
+		const communityId = 'community-123';
+		const mockEndUsers = [createMockEndUser({ id: 'end-user-1' }), createMockEndUser({ id: 'end-user-2' })];
+
+		Given('a valid community ID', () => {
+			// communityId is defined
+		});
+
+		When('the endUsersByCommunityId query is executed with that ID', async () => {
+			vi.mocked(context.applicationServices.User.EndUser.queryByCommunityId).mockResolvedValue(mockEndUsers);
+			const mockFieldNode: FieldNode = {
+				kind: Kind.FIELD,
+				name: { kind: Kind.NAME, value: 'endUsersByCommunityId' },
+			};
+			const mockInfo: GraphQLResolveInfo = {
+				fieldName: 'endUsersByCommunityId',
+				fieldNodes: [mockFieldNode],
+				returnType: {} as GraphQLObjectType,
+				parentType: {} as GraphQLObjectType,
+				path: { key: 'endUsersByCommunityId', prev: undefined, typename: undefined },
+				schema: {} as GraphQLSchema,
+				fragments: {},
+				rootValue: {},
+				operation: {} as OperationDefinitionNode,
+				variableValues: {},
+			};
+			result = await (endUserResolvers.Query?.endUsersByCommunityId as unknown as (parent: object, args: { communityId: string }, context: GraphContext, info: GraphQLResolveInfo) => Promise<EndUserEntity[]>)(
+				{},
+				{ communityId },
+				context,
+				mockInfo,
+			);
+		});
+
+		Then('it should call User.EndUser.queryByCommunityId with the provided community ID and requested fields', () => {
+			expect(context.applicationServices.User.EndUser.queryByCommunityId).toHaveBeenCalledWith({
+				communityId,
+				fields: ['id', 'email'],
+			});
+		});
+
+		And('it should return the corresponding list of EndUser entities', () => {
+			expect(result).toEqual(mockEndUsers);
 		});
 	});
 

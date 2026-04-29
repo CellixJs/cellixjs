@@ -16,6 +16,7 @@ export interface DomainDataSource {
 		};
 		Member: {
 			MemberUnitOfWork: Contexts.Community.Member.MemberUnitOfWork;
+			MemberInvitationUnitOfWork: Contexts.Community.Member.MemberInvitationUnitOfWork;
 		};
 		Role: {
 			EndUserRole: {

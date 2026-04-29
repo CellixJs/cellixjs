@@ -1,0 +1,19 @@
+type EndUserRole implements MongoBase {
+	roleName: String!
+	community: Community!
+	isDefault: Boolean!
+	roleType: String
+
+	id: ObjectID!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	# Get all roles for a community
+	endUserRolesByCommunityId(communityId: ObjectID!): [EndUserRole!]!
+
+	# Get a specific role by ID
+	endUserRole(id: ObjectID!): EndUserRole
+}

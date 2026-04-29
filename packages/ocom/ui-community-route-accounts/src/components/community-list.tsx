@@ -47,42 +47,49 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 			key: 'adminPortal',
 		},
 	];
-	const items = communityList.map((community, i) => ({
-		key: community.id,
-		community: community.name,
-		memberPortal: (
-			<Dropdown
-				menu={{
-					items: (props.data?.members[i] ?? []).map((member) => ({
-						key: member.id as string,
-						label: (
-							<Button
-								type="link"
-								onClick={() => navigate(`/community/${community.id}/member/${member.id}`)}
-							>
-								{member.memberName}
-							</Button>
-						),
-					})),
-				}}
-			>
-				<Button
-					type="link"
-					onClick={(e) => e.preventDefault()}
+
+	const getAdminMembers = (members: AccountsCommunityListContainerMemberFieldsFragment[]) => {
+		return members.filter((member) => member.isAdmin);
+	};
+
+	const items = communityList.map((community, i) => {
+		const communityMembers = props.data?.members[i] ?? [];
+		const adminMembers = getAdminMembers(communityMembers);
+
+		return {
+			key: community.id,
+			community: community.name,
+			memberPortal: (
+				<Dropdown
+					menu={{
+						items: communityMembers.map((member) => ({
+							key: member.id as string,
+							label: (
+								<Button
+									type="link"
+									onClick={() => navigate(`/community/${community.id}/member/${member.id}`)}
+								>
+									{member.memberName}
+								</Button>
+							),
+						})),
+					}}
 				>
-					<Space>
-						Member Portals
-						<DownOutlined />
-					</Space>
-				</Button>
-			</Dropdown>
-		),
-		adminPortal: (
-			<Dropdown
-				menu={{
-					items: (props.data?.members[i] ?? [])
-						.filter((member) => member.isAdmin)
-						.map((member) => ({
+					<Button
+						type="link"
+						onClick={(e) => e.preventDefault()}
+					>
+						<Space>
+							Member Portals
+							<DownOutlined />
+						</Space>
+					</Button>
+				</Dropdown>
+			),
+			adminPortal: (
+				<Dropdown
+					menu={{
+						items: adminMembers.map((member) => ({
 							key: member.id as string,
 							label: (
 								<Button
@@ -93,20 +100,21 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 								</Button>
 							),
 						})),
-				}}
-			>
-				<Button
-					type="link"
-					onClick={(e) => e.preventDefault()}
+					}}
 				>
-					<Space>
-						Admin Portals
-						<DownOutlined />
-					</Space>
-				</Button>
-			</Dropdown>
-		),
-	}));
+					<Button
+						type="link"
+						onClick={(e) => e.preventDefault()}
+					>
+						<Space>
+							Admin Portals
+							<DownOutlined />
+						</Space>
+					</Button>
+				</Dropdown>
+			),
+		};
+	});
 
 	return (
 		<div>
@@ -133,7 +141,7 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 						sticky={{
 							offsetHeader: 0,
 						}}
-						pagination={{ placement: ['topEnd'] }}
+						pagination={{ position: ['topRight'] }}
 					/>
 				) : (
 					<Title

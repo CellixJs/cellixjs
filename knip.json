@@ -1,112 +1,92 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
-  "workspaces": {
-    "apps/api": {
-      "entry": ["src/index.ts"],
-      "project": ["src/**/*.ts"]
-    },
-    "apps/ui-community": {
-      "entry": ["src/main.tsx"],
-      "project": ["src/**/*.{ts,tsx}"],
-      "ignore": [
-        "**/apollo-client-links.tsx"
-      ]
-    },
-    "apps/docs": {
-      "entry": ["src/**/*.{ts,tsx,js,jsx}"],
-      "project": ["src/**/*.{ts,tsx,js,jsx}"]
-    },
-    "packages/cellix/*": {
-      "project": ["src/**/*.ts"],
-      "ignore": [
-        "**/graphql-tools-scalars.ts"
-      ]
-    },
-    "packages/cellix/mongoose-seedwork": {
-        "entry": ["src/index.ts"],
-        "project": ["src/**/*.ts"],
-        "ignore": [
-            "**/mongo-connection.ts"
-        ]
-    },
-    "packages/cellix/ui-core/*": {
-      "entry": ["src/index.ts"],
-      "project": ["src/**/*.{ts,tsx}"]
-    },
-    "packages/ocom/data-sources-mongoose-models": {
-      "entry": [
-        "src/index.ts",
-        "src/models/**/*.model.ts"
-      ],
-      "project": ["src/**/*.ts"]
-    },
-    "packages/ocom/persistence": {
-      "entry": [
-        "src/index.ts",
-        "src/datasources/**/index.ts"
-      ],
-      "project": ["src/**/*.ts"]
-    },
-    "packages/ocom/archunit-tests": {
-      "project": ["src/**/*.ts"]
-    },
-    "packages/ocom/ui-community-route-shared": {
-      "entry": ["src/components/index.ts"],
-      "project": ["src/components/**/*.{ts,tsx}"]
-    },
-    "packages/ocom/ui-community-route-admin": {
-      "entry": ["src/index.ts", "src/index.tsx"],
-      "project": ["src/**/*.{ts,tsx}"]
-    },
-    "packages/ocom/ui-community-route-*": {
-      "entry": ["src/index.ts"],
-      "project": ["src/**/*.{ts,tsx}"]
-    },
-    "packages/ocom/*": {
-      "entry": ["src/index.ts"],
-      "project": ["src/**/*.ts"]
-    },
-    "packages/ocom/ui-components": {
-      "entry": ["src/index.ts"],
-      "project": ["src/**/*.{ts,tsx}"]
-    }
-    ,
-    "apps/server-oauth2-mock": {
-      "entry": ["src/index.ts"],
-      "project": ["src/**/*.ts"],
-      "ignoreDependencies": ["tsx"]
-    }
-  },
-  "ignoreWorkspaces": ["packages/cellix/config-typescript"],
-  "ignore": [
-    "build-pipeline/scripts/**",
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "**/*.stories.tsx",
-    "**/dist/**",
-    "**/coverage/**",
-    "**/__tests__/**",
-    "**/tests/**",
-    ".agents/**",
-    ".github/**"
-  ],
-  "ignoreIssues": {
-    "codegen.yml": ["unlisted"]
-  },
-  "ignoreDependencies": [
-    "@types/*",
-    "@cucumber/node",
-    "@cucumber/pretty-formatter",
-    "@serenity-js/assertions",
-    "@serenity-js/console-reporter",
-    "@serenity-js/core",
-    "@serenity-js/cucumber",
-    "@serenity-js/serenity-bdd",
-    "@cellix/graphql-codegen",
-    "@graphql-typed-document-node/core",
-    "@vitest/coverage-v8",
-    "ts-scope-trimmer-plugin",
-    "chrome-devtools-mcp"
-  ],
-  "ignoreBinaries": ["func"]
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"workspaces": {
+		"apps/api": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"apps/ui-community": {
+			"entry": ["src/main.tsx"],
+			"project": ["src/**/*.{ts,tsx}"],
+			"ignore": ["**/apollo-client-links.tsx"]
+		},
+		"apps/docs": {
+			"entry": ["src/**/*.{ts,tsx,js,jsx}"],
+			"project": ["src/**/*.{ts,tsx,js,jsx}"]
+		},
+		"packages/cellix/*": {
+			"project": ["src/**/*.ts"],
+			"ignore": ["**/graphql-tools-scalars.ts"]
+		},
+		"packages/cellix/mongoose-seedwork": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.ts"],
+			"ignore": ["**/mongo-connection.ts"]
+		},
+		"packages/cellix/ui-core/*": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.{ts,tsx}"]
+		},
+		"packages/ocom/data-sources-mongoose-models": {
+			"entry": ["src/index.ts", "src/models/**/*.model.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"packages/ocom/persistence": {
+			"entry": ["src/index.ts", "src/datasources/**/index.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"packages/ocom/archunit-tests": {
+			"project": ["src/**/*.ts"]
+		},
+		"packages/ocom/graphql": {
+			"entry": ["src/index.ts", "src/schema/types/*.resolvers.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"packages/ocom/ui-community-route-shared": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.{ts,tsx}"]
+		},
+		"packages/ocom/ui-community-route-admin": {
+			"entry": ["src/index.ts", "src/index.tsx"],
+			"project": ["src/**/*.{ts,tsx}"]
+		},
+		"packages/ocom/ui-community-route-*": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.{ts,tsx}"]
+		},
+		"packages/ocom/*": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"packages/ocom/ui-components": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.{ts,tsx}"]
+		},
+		"apps/server-oauth2-mock": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.ts"],
+			"ignoreDependencies": ["tsx"]
+		}
+	},
+	"ignoreWorkspaces": ["packages/cellix/config-typescript"],
+	"ignore": ["build-pipeline/scripts/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**", ".agents/**", ".github/**"],
+	"ignoreIssues": {
+		"codegen.yml": ["unlisted"]
+	},
+	"ignoreDependencies": [
+		"@types/*",
+		"@cucumber/node",
+		"@cucumber/pretty-formatter",
+		"@serenity-js/assertions",
+		"@serenity-js/console-reporter",
+		"@serenity-js/core",
+		"@serenity-js/cucumber",
+		"@serenity-js/serenity-bdd",
+		"@cellix/graphql-codegen",
+		"@graphql-typed-document-node/core",
+		"@vitest/coverage-v8",
+		"ts-scope-trimmer-plugin",
+		"chrome-devtools-mcp"
+	],
+	"ignoreBinaries": ["func"]
 }

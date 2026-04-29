@@ -20,6 +20,12 @@ export class EndUserRoleRepository //<
 		}
 		return this.typeConverter.toDomain(mongoEndUserRole, this.passport);
 	}
+
+	async getByCommunityId(communityId: string): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>[]> {
+		const mongoEndUserRoles = await this.model.find({ community: new MongooseSeedwork.ObjectId(communityId) }).exec();
+		return mongoEndUserRoles.map((role) => this.typeConverter.toDomain(role, this.passport));
+	}
+
 	// biome-ignore lint:noRequireAwait
 	async getNewInstance(roleName: string, isDefault: boolean, community: Domain.Contexts.Community.Community.CommunityEntityReference): Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRole<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
