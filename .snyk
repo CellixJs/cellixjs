@@ -69,5 +69,5 @@ ignore:
       reason: No patch available for @apollo/protobufjs@1.2.7. Dependency transitive
         from @apollo/server. Risk mitigated by not exposing protobufjs APIs directly
         in application code.
-      expires: '2027-04-29T14:24:20.000Z'
+      expires: '2026-05-29T14:24:20.000Z'
       created: '2026-04-29T14:24:20.000Z'
