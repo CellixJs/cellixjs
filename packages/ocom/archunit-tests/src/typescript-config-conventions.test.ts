@@ -63,6 +63,10 @@ function validateCommonCompilerOptions(tsconfigPath: string, config: TsConfig, v
 		violations.push(`${tsconfigPath}: compilerOptions.ignoreDeprecations must not be set`);
 	}
 
+	// Default types are centralized in @cellix/config-typescript (tsconfig.node.json → ["node"],
+	// tsconfig.vitest.json → ["vitest/globals","node"]). Packages inherit without repeating.
+	// Guard: if types IS explicitly overridden here, it must not be empty — TS 7.0 defaults to []
+	// which silently disables all ambient types when set explicitly.
 	if (Array.isArray(compilerOptions.types) && compilerOptions.types.length === 0) {
 		violations.push(`${tsconfigPath}: compilerOptions.types must not be empty (TS 7.0 defaults to [] — an empty array disables all ambient types)`);
 	}

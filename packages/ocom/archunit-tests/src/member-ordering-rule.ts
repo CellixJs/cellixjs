@@ -6,6 +6,11 @@ interface MemberOrderGroup {
 	match(member: ts.ClassElement): boolean;
 }
 
+// Helper: true for get/set accessors (used in multiple match predicates below)
+function isAccessorDeclaration(m: ts.ClassElement): boolean {
+	return ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m);
+}
+
 /**
  * Default order (you can tweak this):
  *  0. static fields
@@ -39,11 +44,11 @@ export const defaultMemberOrder: MemberOrderGroup[] = [
 	},
 	{
 		name: 'static accessors',
-		match: (m) => (ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m)) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		match: (m) => isAccessorDeclaration(m) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 	{
 		name: 'instance accessors',
-		match: (m) => (ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m)) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		match: (m) => isAccessorDeclaration(m) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 ];
 
@@ -56,7 +61,7 @@ function hasModifier(node: ts.Node, kind: ts.SyntaxKind): boolean {
 
 // Utility: best-effort member “name” for logging
 function getMemberName(member: ts.ClassElement): string {
-	if (ts.isMethodDeclaration(member) || ts.isPropertyDeclaration(member) || ts.isGetAccessorDeclaration(member) || ts.isSetAccessorDeclaration(member)) {
+	if (ts.isMethodDeclaration(member) || ts.isPropertyDeclaration(member) || isAccessorDeclaration(member)) {
 		if (member.name && ts.isIdentifier(member.name)) {
 			return member.name.text;
 		}
@@ -93,8 +98,7 @@ export function checkMemberOrdering(file: FileInfo, groups: MemberOrderGroup[] =
 	const checkClass = (cls: ts.ClassDeclaration) => {
 		const className = cls.name?.text ?? '<anonymous>';
 
-		// Pick only members we care about, including accessors
-		const relevantMembers = cls.members.filter((m) => ts.isPropertyDeclaration(m) || ts.isConstructorDeclaration(m) || ts.isMethodDeclaration(m) || ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m));
+		const relevantMembers = cls.members.filter((m) => ts.isPropertyDeclaration(m) || ts.isConstructorDeclaration(m) || ts.isMethodDeclaration(m) || isAccessorDeclaration(m));
 
 		const groupIndexes = relevantMembers.map((m) => {
 			const idx = groups.findIndex((g) => g.match(m));
