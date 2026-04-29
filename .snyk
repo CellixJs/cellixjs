@@ -53,11 +53,11 @@ ignore:
         expires: '2026-03-26T00:00:00.000Z'
         created: '2026-03-12T12:35:00.000Z'
   'SNYK-JS-UUID-16133035':
-    - '* > uuid@11.1.0':
-        reason: 'Transitive dependency in @apollo/server; no compatible fix path available yet from upstream.'
-        expires: '2026-10-23T00:00:00.000Z'
-        created: '2026-04-23T00:00:00.000Z'
     - '* > uuid@8.3.2':
         reason: 'Transitive dependency in Docusaurus and Azurite dev-only stacks; no compatible fix path available yet from upstream.'
         expires: '2026-10-23T00:00:00.000Z'
         created: '2026-04-23T00:00:00.000Z'
+    - '* > uuid':
+        reason: 'Transitive dependency in @apollo/server; override to uuid 14.0.0 breaks azurite.'
+        expires: '2026-05-24T00:00:00.000Z'
+        created: '2026-04-24T10:00:00.000Z'
