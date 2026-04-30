@@ -33,10 +33,10 @@ const ConfigProviderWrapper = () => {
 						<AuthProvider {...oidcConfig}>
 							<App />
 						</AuthProvider>
-						</BrowserRouter>
-					</HelmetProvider>
-				</AntdApp>
-			</ConfigProvider>
+					</BrowserRouter>
+				</HelmetProvider>
+			</AntdApp>
+		</ConfigProvider>
 	);
 };
 

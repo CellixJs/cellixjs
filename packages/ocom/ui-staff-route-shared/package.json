@@ -8,7 +8,7 @@
   },
   "scripts": {
     "prebuild": "pnpm run lint",
-    "build": "tsc --noEmit",
+    "build": "tsgo --noEmit",
     "lint": "biome lint",
     "test": "vitest run --silent --reporter=dot",
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
@@ -25,6 +25,8 @@
     "jsdom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "react-router-dom": "catalog:",
+    "@testing-library/react": "catalog:"
   }
 }

@@ -10,6 +10,6 @@ export default defineConfig({
 	server: process.env.PORTLESS_URL
 		? undefined
 		: {
-			port: 3001,
-		},
+				port: 3001,
+			},
 });
