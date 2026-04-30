@@ -113,7 +113,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		} else {
 			const valueToSet = {
 				type: 'light',
-				tokens: theme.defaultSeed,
+				token: theme.defaultSeed,
 				hardCodedTokens: {
 					textColor: '#000000',
 					backgroundColor: '#ffffff',
@@ -161,7 +161,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 						Hit <strong>Cmd+Shift+K</strong> to hide
 					</p>
 					</div>
-					{children}
+				{children}
 				</div>
 			</ThemeContext.Provider>
 	);
