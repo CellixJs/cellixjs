@@ -9,6 +9,7 @@
 	"scripts": {
 		"prebuild": "pnpm run lint",
 		"format": "biome format --write",
+		"format:check": "biome format .",
 		"build": "tsgo --noEmit",
 		"lint": "biome lint",
 		"test": "vitest run --silent --reporter=dot",

@@ -106,8 +106,7 @@
     "packages/ocom/ui-staff-route-community-management/package.json": ["dependencies","devDependencies"],
     "packages/ocom/ui-staff-route-tech-admin/package.json": ["dependencies","devDependencies"],
     "packages/ocom/ui-staff-route-finance/package.json": ["dependencies","devDependencies"],
-    "packages/ocom/ui-staff-route-user-management/package.json": ["dependencies","devDependencies"],
-    "apps/ui-staff/src/apollo-connection.tsx": ["types"]
+    "packages/ocom/ui-staff-route-user-management/package.json": ["dependencies","devDependencies"]
   },
   "ignoreDependencies": [
     "@types/*",

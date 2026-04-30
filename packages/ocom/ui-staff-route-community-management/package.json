@@ -10,6 +10,7 @@
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --noEmit",
 		"format": "biome format --write",
+		"format:check": "biome format .",
 		"lint": "biome lint",
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
