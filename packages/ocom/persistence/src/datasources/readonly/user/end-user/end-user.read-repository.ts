@@ -1,12 +1,14 @@
+import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 import type { Domain } from '@ocom/domain';
 import type { ModelsContext } from '../../../../index.ts';
-import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.ts';
-import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
+import type { FindOneOptions, FindOptions } from '../../mongo-data-source.ts';
+import { type EndUserDataSource, EndUserDataSourceImpl } from './end-user.data.ts';
 
 export interface EndUserReadRepository {
 	getAll: (options?: FindOptions) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]>;
 	getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference | null>;
+	getByIds: (ids: string[], options?: FindOptions) => Promise<Array<Domain.Contexts.User.EndUser.EndUserEntityReference | null>>;
 	getByName: (displayName: string, options?: FindOneOptions) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]>;
 	getByExternalId: (externalId: string, options?: FindOneOptions) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference | null>;
 }
@@ -32,6 +34,24 @@ export class EndUserReadRepositoryImpl implements EndUserReadRepository {
 			return null;
 		}
 		return this.converter.toDomain(result, this.passport);
+	}
+
+	async getByIds(ids: string[], options?: FindOptions): Promise<Array<Domain.Contexts.User.EndUser.EndUserEntityReference | null>> {
+		if (ids.length === 0) {
+			return [];
+		}
+
+		// Use batched find with populate support — consistent with find/findOne/findById semantics
+		// where populateFields values are Mongoose paths, not MongoDB collection names.
+		// Mongoose casts the string IDs to ObjectIds automatically via the schema.
+		const documents = await this.mongoDataSource.find({ _id: { $in: ids } } as unknown as Partial<EndUser>, options as FindOptions);
+
+		// Preserve input order, returning null for any missing documents
+		const docMap = new Map(documents.map((doc) => [String(doc.id), doc]));
+		return ids.map((id) => {
+			const doc = docMap.get(id);
+			return doc ? this.converter.toDomain(doc, this.passport) : null;
+		});
 	}
 
 	async getByName(displayName: string, options?: FindOneOptions): Promise<Domain.Contexts.User.EndUser.EndUserEntityReference[]> {

@@ -1,0 +1,35 @@
+mutation AdminMemberInviteModalContainerInviteMember($input: InviteMemberInput!) {
+	inviteMember(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		invitation {
+			id
+			email
+			status
+			communityId
+			createdAt
+			updatedAt
+		}
+	}
+}
+
+mutation AdminMemberInviteModalContainerBulkInviteMembers($input: BulkInviteMembersInput!) {
+	bulkInviteMembers(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		invitations {
+			id
+			email
+			status
+			communityId
+			createdAt
+			updatedAt
+		}
+		successCount
+		failedCount
+	}
+}

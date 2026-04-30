@@ -19,6 +19,10 @@
 			"types": "./dist/models/member/member.model.d.ts",
 			"default": "./dist/models/member/member.model.js"
 		},
+		"./member/member-invitation": {
+			"types": "./dist/models/member/member-invitation.model.d.ts",
+			"default": "./dist/models/member/member-invitation.model.js"
+		},
 		"./user/end-user": {
 			"types": "./dist/models/user/end-user.model.d.ts",
 			"default": "./dist/models/user/end-user.model.js"
@@ -65,8 +69,8 @@
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"prebuild": "pnpm run lint",
-		"build": "tsc --build",
-		"watch": "tsc --watch",
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
 		"clean": "rimraf dist"
 	},
 	"dependencies": {

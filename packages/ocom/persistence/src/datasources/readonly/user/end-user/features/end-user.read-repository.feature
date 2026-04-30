@@ -33,3 +33,17 @@ Feature: EndUserReadRepository
     Given end users exist with display name "Test User"
     When I call getByName with "Test User"
     Then I should receive an array of EndUserEntityReference objects
+
+  Scenario: Getting end users by IDs returns results in input order
+    Given end users exist with IDs "test-id" and "other-id"
+    When I call getByIds with those IDs
+    Then I should receive end users in the same order as the input IDs
+
+  Scenario: Getting end users by IDs returns null for missing entries
+    Given only end user with ID "test-id" exists
+    When I call getByIds with "test-id" and "missing-id"
+    Then I should receive the found end user and null for the missing ID
+
+  Scenario: Getting end users by IDs with an empty list returns empty array
+    When I call getByIds with an empty list
+    Then I should receive an empty array

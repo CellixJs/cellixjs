@@ -1,14 +1,14 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
+import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 
 import type { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
 import type { ModelsContext } from '../../../../index.ts';
-import { EndUserReadRepositoryImpl } from './end-user.read-repository.ts';
-import { EndUserDataSourceImpl } from './end-user.data.ts';
 import { EndUserConverter } from '../../../domain/user/end-user/end-user.domain-adapter.ts';
-import type { EndUser, EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
+import { EndUserDataSourceImpl } from './end-user.data.ts';
+import { EndUserReadRepositoryImpl } from './end-user.read-repository.ts';
 
 // Mock the data source module
 
@@ -118,6 +118,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('the repository should have all required methods', () => {
 			expect(typeof repository.getAll).toBe('function');
 			expect(typeof repository.getById).toBe('function');
+			expect(typeof repository.getByIds).toBe('function');
 			expect(typeof repository.getByExternalId).toBe('function');
 			expect(typeof repository.getByName).toBe('function');
 		});
@@ -205,6 +206,58 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('I should receive an array of EndUserEntityReference objects', () => {
 			expect(mockDataSource.find).toHaveBeenCalledWith({ displayName: 'Test User' }, undefined);
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockEndUserDoc, passport);
+		});
+	});
+
+	Scenario('Getting end users by IDs returns results in input order', ({ Given, When, Then }) => {
+		let otherDoc: EndUser;
+		let result: Awaited<ReturnType<typeof repository.getByIds>>;
+
+		Given('end users exist with IDs "test-id" and "other-id"', () => {
+			otherDoc = { ...makeMockEndUserDocument(), _id: 'other-id', id: 'other-id', externalId: 'ext-other' } as unknown as EndUser;
+			mockDataSource.find.mockResolvedValueOnce([mockEndUserDoc, otherDoc]);
+		});
+
+		When('I call getByIds with those IDs', async () => {
+			result = await repository.getByIds(['test-id', 'other-id']);
+		});
+
+		Then('I should receive end users in the same order as the input IDs', () => {
+			expect(mockDataSource.find).toHaveBeenCalledWith(expect.objectContaining({ _id: expect.objectContaining({ $in: expect.any(Array) }) }), undefined);
+			expect(result).toHaveLength(2);
+			expect(result[0]).toMatchObject({ id: 'test-id' });
+			expect(result[1]).toMatchObject({ id: 'other-id' });
+		});
+	});
+
+	Scenario('Getting end users by IDs returns null for missing entries', ({ Given, When, Then }) => {
+		let result: Awaited<ReturnType<typeof repository.getByIds>>;
+
+		Given('only end user with ID "test-id" exists', () => {
+			mockDataSource.find.mockResolvedValueOnce([mockEndUserDoc]);
+		});
+
+		When('I call getByIds with "test-id" and "missing-id"', async () => {
+			result = await repository.getByIds(['test-id', 'missing-id']);
+		});
+
+		Then('I should receive the found end user and null for the missing ID', () => {
+			expect(result).toHaveLength(2);
+			expect(result[0]).toMatchObject({ id: 'test-id' });
+			expect(result[1]).toBeNull();
+		});
+	});
+
+	Scenario('Getting end users by IDs with an empty list returns empty array', ({ When, Then }) => {
+		let result: Awaited<ReturnType<typeof repository.getByIds>>;
+
+		When('I call getByIds with an empty list', async () => {
+			result = await repository.getByIds([]);
+		});
+
+		Then('I should receive an empty array', () => {
+			expect(result).toEqual([]);
+			expect(mockDataSource.find).not.toHaveBeenCalled();
 		});
 	});
 });

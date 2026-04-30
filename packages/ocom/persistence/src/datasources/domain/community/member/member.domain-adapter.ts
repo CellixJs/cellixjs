@@ -1,14 +1,13 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-
-import { Domain } from '@ocom/domain';
-import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
-import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
-import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member, MemberAccount, MemberCustomView, MemberProfile } from '@ocom/data-sources-mongoose-models/member';
 import type { EndUserRole } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
+import { Domain } from '@ocom/domain';
+import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
+import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
+import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';
 
 export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<Member, MemberDomainAdapter, Domain.Passport, Domain.Contexts.Community.Member.Member<MemberDomainAdapter>> {
 	constructor() {
@@ -77,7 +76,10 @@ export class MemberDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
 			throw new Error('community reference is missing id');
 		}
 
-		this.doc.set('community', community);
+		// Convert community ID to ObjectId for mongoose.
+		// When we receive a minimal community reference (just {id: "..."}),
+		// we need to convert it to a proper ObjectId for the mongoose schema.
+		this.doc.set('community', new MongooseSeedwork.ObjectId(community.id));
 	}
 
 	get accounts(): PropArray<Domain.Contexts.Community.Member.MemberAccountEntityReference> {
@@ -131,7 +133,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
 		this.doc = doc;
 	}
 	public get id(): string {
-		return this.doc.id?.valueOf() as string;
+		return this.doc._id?.toString() as string;
 	}
 
 	get firstName() {
@@ -153,7 +155,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
 			throw new Error('User is not populated');
 		}
 		if (this.doc.user instanceof MongooseSeedwork.ObjectId) {
-			throw new Error('User is not populated or is not of the correct type');
+			return { id: this.doc.user.toString() } as Domain.Contexts.User.EndUser.EndUserEntityReference;
 		}
 		return new EndUserDomainAdapter(this.doc.user as EndUser);
 	}
@@ -183,7 +185,7 @@ export class MemberAccountDomainAdapter implements Domain.Contexts.Community.Mem
 			throw new Error('createdBy is not populated');
 		}
 		if (this.doc.createdBy instanceof MongooseSeedwork.ObjectId) {
-			throw new Error('createdBy is not populated or is not of the correct type');
+			return { id: this.doc.createdBy.toString() } as Domain.Contexts.User.EndUser.EndUserEntityReference;
 		}
 		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}

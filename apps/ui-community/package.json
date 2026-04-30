@@ -8,7 +8,7 @@
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"prebuild": "pnpm run lint",
-		"build": "tsc --build && vite build",
+		"build": "tsgo --build && vite build",
 		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs ownercommunity.localhost vite",
 		"start": "vite",
 		"preview": "vite preview",

@@ -1,24 +1,24 @@
 {
-  "name": "@ocom/ui-community-route-root",
-  "version": "0.0.1",
-  "private": true,
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "scripts": {
-    "prebuild": "pnpm run lint", 
-    "build": "tsc --noEmit",
-    "lint": "biome lint",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest"
-  },
-  "dependencies": {
-    "antd": "catalog:",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
-  },
+	"name": "@ocom/ui-community-route-root",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.tsx"
+	},
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --noEmit",
+		"lint": "biome lint",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
+	},
+	"dependencies": {
+		"antd": "catalog:",
+		"react": "^19.1.1",
+		"react-dom": "^19.1.1"
+	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",

@@ -4,7 +4,7 @@ import { buildUrl } from './test-environment.ts';
 
 export class TestOAuth2Server extends PortlessServer {
 	protected get probeUrl() {
-		return `${buildUrl('mock-auth.ownercommunity.localhost')}/.well-known/jwks.json`;
+		return apiSettings.accountPortalOidcEndpoint;
 	}
 	protected get readyMarker() {
 		return 'Mock OAuth2 server running';
@@ -55,7 +55,7 @@ export class TestOAuth2Server extends PortlessServer {
 	}
 
 	getUrl(): string {
-		return buildUrl('mock-auth.ownercommunity.localhost');
+		return apiSettings.accountPortalOidcIssuer;
 	}
 
 	async generateAccessToken(_audience = 'mock-client'): Promise<string> {

@@ -1,4 +1,4 @@
 {
-  "overallStatus": "fail",
-  "failedChecks": ["public_contract_only_tests"]
+	"overallStatus": "fail",
+	"failedChecks": ["public_contract_only_tests"]
 }

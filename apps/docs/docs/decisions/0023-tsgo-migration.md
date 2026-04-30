@@ -2,7 +2,7 @@
 sidebar_position: 23
 sidebar_label: 0023 TypeScript Go (tsgo) Migration
 description: "Documenting the decision to postpone the tsgo migration until TypeScript 7 and surrounding typings stabilize."
-status: monitored
+status: superseded
 date: 2025-12-17
 contact: nnoce14
 deciders: gidich nnoce14
@@ -81,3 +81,5 @@ Chosen option: "Wait for the official TypeScript 7.0 release", because the tempo
 ### Tracking tsgo progress
 
 - Keep an eye on the [TypeScript Go README](https://github.com/microsoft/TypeScript-Go?tab=readme-ov-file#what-works-so-far) for updates on `tsgo`/`@typescript/native-preview` feature parity and resolver improvements so we can reassess the temporary `.js` import extensions when relevant.
+
+**Superseded by [ADR-0030: TypeScript 7.0 Upgrade](./0030-typescript-7-upgrade.md)** — The TS 7.0 native Go compiler and ecosystem have stabilized sufficiently to proceed with the migration documented in ADR-0030.

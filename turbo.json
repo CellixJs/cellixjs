@@ -8,7 +8,7 @@
 	"tasks": {
 		"build": {
 			"description": "Compiles TypeScript and bundles each package",
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "//#gen"],
 			"inputs": [
 				"src/**/*.ts",
 				"src/**/*.tsx",

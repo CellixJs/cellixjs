@@ -1,9 +1,9 @@
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { spawnSync } from "node:child_process";
-import process from "node:process";
-import { parseCheckArgs, printCheckUsage } from "./cli-utils.ts";
-import { fileExists, getDefaultSummaryPath } from "./utils.ts";
+import { spawnSync } from 'node:child_process';
+import { resolve } from 'node:path';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
+import { parseCheckArgs, printCheckUsage } from './cli-utils.ts';
+import { fileExists, getDefaultSummaryPath } from './utils.ts';
 
 interface ParsedArgs {
 	forceInit: boolean;
@@ -14,9 +14,9 @@ interface ParsedArgs {
 }
 
 function runScript(scriptPath: string, args: string[]): number {
-	const result = spawnSync(process.execPath, ["--experimental-strip-types", scriptPath, ...args], {
+	const result = spawnSync(process.execPath, ['--experimental-strip-types', scriptPath, ...args], {
 		cwd: process.cwd(),
-		stdio: "inherit",
+		stdio: 'inherit',
 	});
 
 	if (result.error) {
@@ -36,29 +36,29 @@ function main(): void {
 
 	const packageRoot = resolve(args.packageRoot);
 	const outputPath = args.outputPath ? resolve(args.outputPath) : getDefaultSummaryPath(packageRoot);
-	const initScriptPath = fileURLToPath(new URL("./init-cellix-tdd-summary.ts", import.meta.url));
-	const evaluateScriptPath = fileURLToPath(new URL("./evaluate-cellix-tdd.ts", import.meta.url));
+	const initScriptPath = fileURLToPath(new URL('./init-cellix-tdd-summary.ts', import.meta.url));
+	const evaluateScriptPath = fileURLToPath(new URL('./evaluate-cellix-tdd.ts', import.meta.url));
 
 	if (!fileExists(outputPath) || args.forceInit) {
 		console.log(`No summary found. Creating scaffold at ${outputPath}`);
-		const initArgs = ["--package", packageRoot, "--output", outputPath];
+		const initArgs = ['--package', packageRoot, '--output', outputPath];
 		if (args.forceInit) {
-			initArgs.push("--force");
+			initArgs.push('--force');
 		}
 		const initStatus = runScript(initScriptPath, initArgs);
 		if (initStatus !== 0) {
 			process.exit(initStatus);
 		}
-		console.log("Summary scaffold created. Replace the TODO sections, then re-run the check.");
+		console.log('Summary scaffold created. Replace the TODO sections, then re-run the check.');
 	}
 
 	if (args.initOnly) {
 		process.exit(0);
 	}
 
-	const evaluateArgs = ["--package", packageRoot, "--output", outputPath];
+	const evaluateArgs = ['--package', packageRoot, '--output', outputPath];
 	if (args.json) {
-		evaluateArgs.push("--json");
+		evaluateArgs.push('--json');
 	}
 
 	const evaluateStatus = runScript(evaluateScriptPath, evaluateArgs);
