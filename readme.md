@@ -106,7 +106,7 @@ The mock auth server now runs as a single instance. Configure it using the follo
 
 Per-portal port allocation (PORT_BASE) is no longer used.
 
-First-time setup: run `pnpm exec portless trust` to configure TLS trust for portless local domains; this command may prompt for elevated privileges (sudo/administrator) on your platform. Portless binds HTTPS custom domains to port 443; the initial run may require privilege to create the binding, but subsequent starts should be faster because the trust is cached. If binding fails or you prefer manual setup, see the portless troubleshooting guide: https://portless.dev/docs (or your internal wiki).
+First-time setup: configure TLS trust for portless local domains. See ADR 0028 — [Portless Local Development](https://developers.cellixjs.org/docs/decisions/0028-portless-local-development) for detailed, OS-specific instructions. If binding fails or you prefer manual setup, see the portless troubleshooting guide: https://portless.dev/docs (or your internal wiki).
 
 
 ## Scripts

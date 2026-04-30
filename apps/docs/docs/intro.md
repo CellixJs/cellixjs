@@ -26,12 +26,7 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
         * `brew upgrade azure-functions-core-tools@4`
 
 - [MongoDB](https://www.mongodb.com/try/download/community) or access to a MongoDB instance
-- `portless` local HTTPS proxy support:
-  - installed automatically from repo dependencies
-  - You can either:
-    - Run `pnpm exec portless trust` beforehand (recommended for a smooth developer experience — avoids a prompt when starting dev), OR
-    - Start with `pnpm run dev` and allow the first run to prompt you to trust the local CA.
-  - See [Portless TLS trust & OS-specific prompts](#portless-tls-trust--os-specific-prompts) for details about OS-specific prompts.
+- `portless` local HTTPS proxy support: see [ADR 0028 — Portless Local Development](./decisions/0028-portless-local-development.md) for TLS trust setup, OS-specific prompts, and troubleshooting. You can run `pnpm exec portless trust` beforehand to avoid interactive prompts on the first dev run.
 
 ## Clone and Setup
 
@@ -66,40 +61,9 @@ npm run build
 
 Before starting the development environment for the first time, configure TLS trust for local custom domains used by the portless HTTPS proxy. This is a one-time setup per machine and is a prerequisite for a smooth development experience.
 
-You have two options (choose one):
+For detailed, OS-specific instructions and troubleshooting see ADR 0028 — [Portless Local Development](./decisions/0028-portless-local-development.md).
 
-- Run the trust command before starting the development environment (recommended):
-
-```bash
-pnpm exec portless trust
-```
-
-  Running the command beforehand configures your system to trust certificates for .localhost domains (for example: https://ownercommunity.localhost). This avoids any interactive prompts when you later run `pnpm run dev`.
-
-- Or let `pnpm run dev` start the proxy and prompt you to trust the CA on its first run. The prompt will appear only the first time; subsequent runs will not prompt again.
-
-See [Portless TLS trust & OS-specific prompts](#portless-tls-trust--os-specific-prompts) for details about OS-specific prompts.
-
-> Note: portless is installed automatically from the repo dependencies. Running the command manually before the first `pnpm run dev` is optional but recommended for a smoother experience.
-
-### Portless TLS trust & OS-specific prompts
-
-The portless local HTTPS proxy uses a local certificate authority (CA) to issue .localhost certificates for the development custom domains. To avoid browser warnings you must trust the CA once per machine.
-
-Recommended command (run once per machine):
-
-```bash
-pnpm exec portless trust
-```
-
-OS-specific behavior (what to expect):
-
-- macOS: A Keychain prompt or system password dialog may appear. Allow the change and, if asked, add the certificate to the System keychain.
-- Windows: You may see a UAC/admin prompt to install the certificate authority. Approve to complete the installation.
-- Linux: Depending on your distribution, you may be prompted for sudo or may need to run the command as root to install the certificate authority.
-
-Re-running the trust command is safe and harmless if you need to repeat the setup.
-
+> Note: portless is installed automatically from the repo dependencies. Running the `pnpm exec portless trust` command manually before the first `pnpm run dev` is optional but recommended for a smoother experience.
 ## Install VSCode plugins
 You will be prompted to install the [recommended VSCode Plugins](https://github.com/CellixJs/cellixjs/blob/main/.vscode/extensions.json) upon opening the project in VSCode. Go ahead and do so.
 
@@ -177,7 +141,7 @@ If your browser or OS has not yet trusted the local portless certificate authori
 pnpm exec portless trust
 ```
 
-See [Portless TLS trust & OS-specific prompts](#portless-tls-trust--os-specific-prompts) for details about OS-specific prompts.
+See ADR 0028 — [Portless Local Development](./decisions/0028-portless-local-development.md) for details about OS-specific prompts.
 
 ## Verify Code Quality Locally
 

@@ -165,7 +165,34 @@ Evidence used to validate the adoption:
 
 - `pnpm run dev` is the canonical full local-development entry point.
 - Public local URLs should use the portless domains, not explicit browser-facing localhost ports.
-- If HTTPS trust has not yet been established on a machine, run `pnpm exec portless trust`.
+### TLS Trust & Development Setup
+
+To establish HTTPS trust for portless-developed custom domains, run the repository-local trust command once per machine:
+
+```bash
+pnpm exec portless trust
+```
+
+Notes:
+
+- Running the command beforehand configures your machine to trust the development CA and avoids an interactive prompt when starting the dev environment. Re-running the command is idempotent.
+- OS-specific prompts you may see:
+  - macOS: the Keychain may prompt for permission to modify trusted certificates (approve and enter your password if prompted).
+  - Windows: UAC may prompt for administrator approval to add the CA to the system certificate store.
+  - Linux: behavior varies by distribution; some distros require `sudo` or manual placement of the CA into `/usr/local/share/ca-certificates/` followed by `sudo update-ca-certificates`.
+- When restarting the root dev flow after changing proxy/network configuration, use the `--force` flag to ensure portless restarts cleanly:
+
+```bash
+pnpm run dev -- --force
+```
+
+Security:
+
+- The CA created by portless is for development only. Do not reuse or export the private key for production.
+- Treat portless and its CA as development-only artifacts; do not publish private keys or CA artifacts.
+
+This section consolidates the TLS trust guidance previously documented separately; for troubleshooting and platform-specific details see the surrounding ADR text above.
+
 - When wiring a new browser-facing app or HTTP mock service, prefer a dedicated portless subdomain under `*.ownercommunity.localhost`.
 - When wiring a non-HTTP dependency, evaluate it separately; portless should not be used just for consistency if the protocol does not benefit from HTTP routing.
 

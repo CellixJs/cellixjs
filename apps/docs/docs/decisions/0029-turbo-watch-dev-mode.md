@@ -18,7 +18,7 @@ Decision
 
 3. Invoke watch with package filters in the npm script (e.g., `turbo watch dev --filter='./apps/*' --filter='./packages/*'`) so common development sessions are scoped and fast by default.
 
-4. Start a local HTTP/HTTPS proxy (portless) before `turbo watch` to ensure local assets, authentication, and cross-origin flows behave like production. Avoid POSIX-only script chaining in package.json; prefer safe command chaining at the npm-script level (e.g., `pnpm proxy:stop && pnpm proxy:start && turbo watch ...`).
+4. Start a local HTTP/HTTPS proxy (portless) before `turbo watch` to ensure local assets, authentication, and cross-origin flows behave like production. See ADR 0028 — [Portless Local Development](../decisions/0028-portless-local-development.md) for one-time TLS trust steps. Avoid POSIX-only script chaining in package.json; prefer safe command chaining at the npm-script level (e.g., `pnpm proxy:stop && pnpm proxy:start && turbo watch ...`).
 
 5. Enable Turborepo future flags used by this workflow (e.g., `watchUsingTaskInputs`) in `turbo.json` to stabilize watch semantics and avoid cache misses or false cache hits for watch-triggered runs.
 
