@@ -61,3 +61,8 @@ ignore:
         reason: 'Transitive dependency in @apollo/server; override to uuid 14.0.0 breaks azurite.'
         expires: '2026-05-24T00:00:00.000Z'
         created: '2026-04-24T10:00:00.000Z'
+  'SNYK-JS-APOLLOPROTOBUFJS-16321047':
+    - '* > @apollo/protobufjs':
+        reason: 'Apollo usage-reporting-protobuf depends on @apollo/protobufjs and Snyk reports no fixed version. We are accepting this temporarily until Apollo provides a non-vulnerable upgrade path.'
+        expires: '2026-07-31T00:00:00.000Z'
+        created: '2026-04-30T00:00:00.000Z'
