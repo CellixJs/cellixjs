@@ -25,7 +25,6 @@ export const oidcConfig: OIDCConfig = {
 	// biome-ignore lint:useLiteralKeys
 	scope: import.meta.env['VITE_AAD_B2C_ACCOUNT_SCOPES'] ?? 'openid',
 	onSigninCallback: (): void => {
-		console.log('onSigninCallback');
 		globalThis.history.replaceState({}, document.title, globalThis.location.pathname);
 		const redirectToPath = globalThis.sessionStorage.getItem('redirectTo');
 		if (redirectToPath) {

@@ -82,7 +82,18 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	useEffect(() => {
-		const extractFromLocal = JSON.parse(localStorage.getItem('themeProp') || '{}');
+		let extractFromLocal: {
+			type?: string;
+			hardCodedTokens?: {
+				textColor?: string;
+				backgroundColor?: string;
+			};
+		} = {};
+		try {
+			extractFromLocal = JSON.parse(localStorage.getItem('themeProp') || '{}');
+		} catch {
+			localStorage.removeItem('themeProp');
+		}
 		if (extractFromLocal && extractFromLocal.type === 'dark') {
 			setTheme(
 				{
@@ -104,8 +115,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		} else if (extractFromLocal && extractFromLocal.type === 'custom') {
 			setTheme(
 				{
-					colorTextBase: extractFromLocal.hardCodedTokens.textColor,
-					colorBgBase: extractFromLocal.hardCodedTokens.backgroundColor,
+					colorTextBase: extractFromLocal.hardCodedTokens?.textColor,
+					colorBgBase: extractFromLocal.hardCodedTokens?.backgroundColor,
 				},
 				'custom',
 			);
