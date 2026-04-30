@@ -9,7 +9,7 @@
 		"format:check": "biome format .",
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build && vite build",
-		"dev": "pnpm exec portless ownercommunity.localhost vite",
+		"dev": "pnpm exec portless ownercommunity.localhost --force vite",
 		"start": "vite",
 		"preview": "vite preview",
 		"test": "vitest run --silent --reporter=dot",
