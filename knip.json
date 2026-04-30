@@ -56,19 +56,19 @@
       "project": ["src/**/*.ts"]
     },
     "packages/ocom/ui-community-route-shared": {
-      "entry": ["src/components/index.ts"],
-      "project": ["src/components/**/*.{ts,tsx}"]
+      "entry": ["src/index.tsx"],
+      "project": ["src/**/*.{ts,tsx}"]
     },
     "packages/ocom/ui-community-route-admin": {
-      "entry": ["src/index.ts", "src/index.tsx"],
+      "entry": ["src/index.tsx"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "packages/ocom/ui-community-route-*": {
-      "entry": ["src/index.ts"],
+      "entry": ["src/index.tsx"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "packages/ocom/ui-staff-route-*": {
-      "entry": ["src/index.ts"],
+      "entry": ["src/index.tsx"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "packages/ocom/*": {
@@ -121,9 +121,7 @@
     "@graphql-typed-document-node/core",
     "@vitest/coverage-v8",
     "ts-scope-trimmer-plugin",
-    "chrome-devtools-mcp",
-    "storybook-addon-apollo-client",
-    "tailwindcss"
+    "chrome-devtools-mcp"
   ],
   "ignoreBinaries": ["func"]
 }
