@@ -32,7 +32,7 @@ Implementation notes
 --------------------
 - Root `turbo.json` defines `dev` and `start` tasks; `dev` is `persistent: true` and depends on `^build`.
 - The root `dev` npm script runs `pnpm proxy:stop && pnpm proxy:start && turbo watch dev --filter='./apps/*' --filter='./packages/*'`.
-- Keep an explicit `proxy:stop` script that tolerates missing proxy (`portless proxy stop || true`) and a `proxy:start` script that only starts the proxy (`portless proxy start -p 1355 --https`).
+- Keep an explicit `proxy:stop` script that tolerates missing proxy (`portless proxy stop || true`) and a `proxy:start` script that only starts the proxy (`portless proxy start --https`).
 
 Alternatives considered
 -----------------------

@@ -101,10 +101,12 @@ PORT and BASE_URL
 
 The mock auth server now runs as a single instance. Configure it using the following environment variables:
 
-- PORT — port the HTTP server listens on (default: 1355)
-- BASE_URL — externally visible origin used as the OIDC issuer (in local development this is handled by the Portless dev proxy; set BASE_URL to the proxy origin when necessary)
+- PORT — port the HTTP server listens on (default: 1355). For local development with portless and HTTPS custom domains we recommend setting `PORT=443` in your `.env`; portless maps custom domains to the standard HTTPS port so the origin will not show an explicit port.
+- BASE_URL — externally visible origin used as the OIDC issuer (in local development this is handled by the portless dev proxy). Example: `https://mock-auth.ownercommunity.localhost` (do not include `:443` when using the standard HTTPS port).
 
 Per-portal port allocation (PORT_BASE) is no longer used.
+
+First-time setup: run `pnpm exec portless trust` to configure TLS trust for portless local domains; this command may prompt for elevated privileges (sudo/administrator) on your platform. Portless binds HTTPS custom domains to port 443; the initial run may require privilege to create the binding, but subsequent starts should be faster because the trust is cached. If binding fails or you prefer manual setup, see the portless troubleshooting guide: https://portless.dev/docs (or your internal wiki).
 
 
 ## Scripts

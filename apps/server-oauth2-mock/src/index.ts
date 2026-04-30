@@ -14,7 +14,7 @@ const rawPort = Number.parseInt(PORT ?? '1355', 10);
 const port = Number.isFinite(rawPort) && rawPort > 0 ? rawPort : 1355;
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.
 // In local dev the portless proxy handles TLS termination and host mapping.
-const baseUrl = BASE_URL ?? `https://mock-auth.ownercommunity.localhost:${port}`;
+const baseUrl = BASE_URL ?? `https://mock-auth.ownercommunity.localhost${port === 443 ? '' : `:${port}`}`;
 
 const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir);
 

@@ -14,8 +14,9 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
 
 ### What you'll need
 
-- [Node.js](https://nodejs.org/en/download/) version 22.0 or above:
+- [Node.js](https://nodejs.org/en/download/) version 22.0 or above (recommended):
   - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+  - Note: the portless local HTTPS proxy requires Node 20+; CellixJs recommends Node 22+ for development.
 - [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local) for local development
 
     * `func --version`
@@ -27,7 +28,10 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
 - [MongoDB](https://www.mongodb.com/try/download/community) or access to a MongoDB instance
 - `portless` local HTTPS proxy support:
   - installed automatically from repo dependencies
-  - on first use, trust the local CA when `pnpm run dev` starts the proxy
+  - You can either:
+    - Run `pnpm exec portless trust` beforehand (recommended for a smooth developer experience — avoids a prompt when starting dev), OR
+    - Start with `pnpm run dev` and allow the first run to prompt you to trust the local CA.
+  - Platform note: the trust prompt varies by OS (macOS: system password or Keychain dialog; Windows: UAC/admin prompt; Linux: sudo prompt). Re-running `pnpm exec portless trust` is safe/harmless if needed.
 
 ## Clone and Setup
 
@@ -57,6 +61,26 @@ npm run clean
 npm install 
 npm run build
 ```
+
+### Configure TLS for Development (one-time)
+
+Before starting the development environment for the first time, configure TLS trust for local custom domains used by the portless HTTPS proxy. This is a one-time setup per machine and is a prerequisite for a smooth development experience.
+
+You have two options (choose one):
+
+- Run the trust command before starting the development environment (recommended):
+
+```bash
+pnpm exec portless trust
+```
+
+  Running the command beforehand configures your system to trust certificates for .localhost domains (for example: https://ownercommunity.localhost). This avoids any interactive prompts when you later run `pnpm run dev`.
+
+- Or let `pnpm run dev` start the proxy and prompt you to trust the CA on its first run. The prompt will appear only the first time; subsequent runs will not prompt again.
+
+Platform behaviour note: the trust prompt is OS-specific — macOS may show a system password or Keychain dialog; Windows will show a UAC/admin prompt; Linux typically shows a sudo prompt. Re-running `pnpm exec portless trust` is safe/harmless if you need to do it again.
+
+> Note: portless is installed automatically from the repo dependencies. Running the command manually before the first `pnpm run dev` is optional but recommended for a smoother experience.
 
 ## Install VSCode plugins
 You will be prompted to install the [recommended VSCode Plugins](https://github.com/CellixJs/cellixjs/blob/main/.vscode/extensions.json) upon opening the project in VSCode. Go ahead and do so.
@@ -134,6 +158,8 @@ If your browser or OS has not yet trusted the local portless certificate authori
 ```bash
 pnpm exec portless trust
 ```
+
+Note: the trust prompt is OS-dependent — macOS may show a system password or Keychain dialog; Windows will show a UAC/admin prompt; Linux typically shows a sudo prompt. Re-running this command is safe if needed.
 
 ## Verify Code Quality Locally
 
