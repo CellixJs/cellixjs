@@ -196,6 +196,56 @@ This section consolidates the TLS trust guidance previously documented separatel
 - When wiring a new browser-facing app or HTTP mock service, prefer a dedicated portless subdomain under `*.ownercommunity.localhost`.
 - When wiring a non-HTTP dependency, evaluate it separately; portless should not be used just for consistency if the protocol does not benefit from HTTP routing.
 
+### Turborepo Integration (Portless 0.11.1+)
+
+Portless 0.11.1 introduced optional delegation of app-level `dev`/`watch` commands to Turborepo's task runner when the workspace-level configuration enables `turbo: true`. This means the repository can preserve the Turbo task graph, caching, and dependency ordering while still providing per-app environment injection for portless-managed routes.
+
+Why use it
+
+- Preserves Turborepo's task graph, incremental caching, and ordered dependency execution for `dev` flows.
+- Keeps app-level `dev` scripts documented and visible to Turbo while allowing portless to manage the public HTTPS routing layer.
+
+Config example
+
+Add (or update) the repository-level portless configuration to opt into Turbo delegation:
+
+```js
+// portless.config.cjs
+module.exports = {
+	turbo: true, // delegate dev/watch to turbo when available
+};
+```
+
+How it works
+
+- When `turbo: true` is set, portless delegates the execution of `dev` and `watch` lifecycle scripts to `turbo` (e.g., `pnpm exec turbo run dev`).
+- Portless still injects per-app environment variables (for example, PORT, HOST, and PORTLESS_URL) into each spawned app process via a small `--require` loader that runs before the app's entrypoint. This loader sets the run-time environment for the child process so apps receive the correct internal listener port and public URL.
+
+Environment variable precedence
+
+- The injected variables are applied at process spawn time by the loader and therefore appear in `process.env` for the spawned application.
+- These injected values may be overridden by application-level `.env` files, explicit `process.env` assignments in app startup code, or subsequent scripts that mutate environment variables before the application binds. In other words, the portless-injected values are the defaults for the spawned process but not immutable.
+
+Opt-out and tradeoffs
+
+- If you prefer not to delegate to Turbo (for example to preserve an existing custom start flow or loader ordering), set `turbo: false` in `portless.config.cjs`.
+- Opting out preserves current portless behavior but loses Turborepo's task-graph optimizations (incremental rebuilds, remote caching, and ordered dependency execution) for delegated `dev` flows.
+
+Verification
+
+To confirm delegation is active and environment injection is functioning:
+
+1. Run the canonical dev flow at the repo root:
+
+   ```bash
+   pnpm run dev
+   ```
+
+2. Confirm Turbo is driving the `dev` tasks (you should see `turbo` in the process tree or in the CLI output when the root `dev` flow starts).
+3. In a running app, inspect `process.env` (for example by logging `process.env.PORT` and `process.env.PORTLESS_URL` at early startup) to verify the injected values are present and match the portless route configuration.
+
+If delegation is not desired or if you observe incompatible loader ordering, disable `turbo: true` and run the app's `dev` script directly. Note this tradeoff removes Turbo's caching and task-graph benefits for those delegated flows.
+
 ## Future Evolution: Multi-Provider OIDC Support
 
 CellixJS applications may eventually require multiple independent OIDC providers running simultaneously (e.g., B2C on `/b2c/*` and AAD B2C on `/aadb2c/*`). Two approaches are viable:
