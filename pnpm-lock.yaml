@@ -1615,6 +1615,9 @@ importers:
       react-dom:
         specifier: ^19.1.1
         version: 19.2.0(react@19.2.0)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1929,6 +1932,9 @@ importers:
       react-dom:
         specifier: ^19.1.1
         version: 19.2.0(react@19.2.0)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
