@@ -3,7 +3,7 @@ type OIDCConfig = {
 	client_id: string;
 	redirect_uri: string;
 	code_verifier: boolean;
-	noonce: boolean;
+	nonce: boolean;
 	response_type: string;
 	scope: string;
 	onSigninCallback: () => void;
@@ -20,7 +20,7 @@ export const oidcConfig: OIDCConfig = {
 		// biome-ignore lint:useLiteralKeys
 		import.meta.env['VITE_AAD_B2C_STAFF_REDIRECT_URI'] ?? 'https://staff.ownercommunity.localhost:1355/auth-redirect',
 	code_verifier: true,
-	noonce: true,
+	nonce: true,
 	response_type: 'code',
 	// biome-ignore lint:useLiteralKeys
 	scope: import.meta.env['VITE_AAD_B2C_STAFF_SCOPES'] ?? 'openid',
