@@ -31,7 +31,7 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
   - You can either:
     - Run `pnpm exec portless trust` beforehand (recommended for a smooth developer experience — avoids a prompt when starting dev), OR
     - Start with `pnpm run dev` and allow the first run to prompt you to trust the local CA.
-  - Platform note: the trust prompt varies by OS (macOS: system password or Keychain dialog; Windows: UAC/admin prompt; Linux: sudo prompt). Re-running `pnpm exec portless trust` is safe/harmless if needed.
+  - See [Portless TLS trust & OS-specific prompts](#portless-tls-trust--os-specific-prompts) for details about OS-specific prompts.
 
 ## Clone and Setup
 
@@ -78,9 +78,27 @@ pnpm exec portless trust
 
 - Or let `pnpm run dev` start the proxy and prompt you to trust the CA on its first run. The prompt will appear only the first time; subsequent runs will not prompt again.
 
-Platform behaviour note: the trust prompt is OS-specific — macOS may show a system password or Keychain dialog; Windows will show a UAC/admin prompt; Linux typically shows a sudo prompt. Re-running `pnpm exec portless trust` is safe/harmless if you need to do it again.
+See [Portless TLS trust & OS-specific prompts](#portless-tls-trust--os-specific-prompts) for details about OS-specific prompts.
 
 > Note: portless is installed automatically from the repo dependencies. Running the command manually before the first `pnpm run dev` is optional but recommended for a smoother experience.
+
+### Portless TLS trust & OS-specific prompts
+
+The portless local HTTPS proxy uses a local certificate authority (CA) to issue .localhost certificates for the development custom domains. To avoid browser warnings you must trust the CA once per machine.
+
+Recommended command (run once per machine):
+
+```bash
+pnpm exec portless trust
+```
+
+OS-specific behavior (what to expect):
+
+- macOS: A Keychain prompt or system password dialog may appear. Allow the change and, if asked, add the certificate to the System keychain.
+- Windows: You may see a UAC/admin prompt to install the certificate authority. Approve to complete the installation.
+- Linux: Depending on your distribution, you may be prompted for sudo or may need to run the command as root to install the certificate authority.
+
+Re-running the trust command is safe and harmless if you need to repeat the setup.
 
 ## Install VSCode plugins
 You will be prompted to install the [recommended VSCode Plugins](https://github.com/CellixJs/cellixjs/blob/main/.vscode/extensions.json) upon opening the project in VSCode. Go ahead and do so.
@@ -159,7 +177,7 @@ If your browser or OS has not yet trusted the local portless certificate authori
 pnpm exec portless trust
 ```
 
-Note: the trust prompt is OS-dependent — macOS may show a system password or Keychain dialog; Windows will show a UAC/admin prompt; Linux typically shows a sudo prompt. Re-running this command is safe if needed.
+See [Portless TLS trust & OS-specific prompts](#portless-tls-trust--os-specific-prompts) for details about OS-specific prompts.
 
 ## Verify Code Quality Locally
 
