@@ -35,9 +35,9 @@ export const ApolloLinkToAddAuthHeader = (auth: AuthContextProps): ApolloLink =>
 		if (!access_token && typeof globalThis !== 'undefined' && !import.meta.env.PROD) {
 			try {
 				// biome-ignore lint:useLiteralKeys
-				const authority = import.meta.env['VITE_AAD_B2C_ACCOUNT_AUTHORITY'] ?? '';
+				const authority = import.meta.env['VITE_AAD_B2C_STAFF_AUTHORITY'] ?? '';
 				// biome-ignore lint:useLiteralKeys
-				const client_id = import.meta.env['VITE_AAD_B2C_ACCOUNT_CLIENTID'] ?? '';
+				const client_id = import.meta.env['VITE_AAD_B2C_STAFF_CLIENTID'] ?? '';
 				const storageKey = `oidc.user:${authority}:${client_id}`;
 				const raw = globalThis.sessionStorage.getItem(storageKey) ?? globalThis.localStorage.getItem(storageKey);
 				if (raw) {

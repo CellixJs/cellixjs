@@ -13,7 +13,7 @@ interface ThemeContextType {
 			type: string;
 		}
 		| undefined;
-	setTheme: (tokens: Partial<SeedToken>, types: string) => void;
+	setTheme: (tokens: Partial<SeedToken>, type: string) => void;
 }
 
 export const ThemeContext = createContext<ThemeContextType>({

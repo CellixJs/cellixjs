@@ -1,5 +1,6 @@
 import { Button, theme } from 'antd';
 import styles from './header.module.css';
+import type React from 'react'
 
 export const Header: React.FC = () => {
 	const handleLogin = () => {

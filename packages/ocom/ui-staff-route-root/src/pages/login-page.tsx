@@ -1,4 +1,5 @@
 import { Typography } from 'antd';
+import type React from 'react'
 
 const { Text } = Typography;
 
