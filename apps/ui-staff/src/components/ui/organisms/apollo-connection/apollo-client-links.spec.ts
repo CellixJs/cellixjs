@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
 import type { Operation } from '@apollo/client';
+import { describe, expect, it } from 'vitest';
 import { ApolloLinkToAddCustomHeader } from './apollo-client-links';
 
 describe('ApolloLinkToAddCustomHeader', () => {
@@ -10,8 +10,8 @@ describe('ApolloLinkToAddCustomHeader', () => {
 		type OpContext = Record<string, unknown> & { headers?: Record<string, unknown> };
 		type MockOperation = {
 			_context: OpContext;
-			setContext: ((fnOrObj: ((prev: OpContext) => OpContext) | OpContext) => void);
-			getContext: (() => OpContext);
+			setContext: (fnOrObj: ((prev: OpContext) => OpContext) | OpContext) => void;
+			getContext: () => OpContext;
 			operationName: string;
 			query: unknown;
 			variables: unknown;

@@ -5,13 +5,13 @@ import { createContext, type ReactNode, useCallback, useEffect, useState } from 
 interface ThemeContextType {
 	currentTokens:
 		| {
-			token: Partial<SeedToken>;
-			hardCodedTokens: {
-				textColor: string | undefined;
-				backgroundColor: string | undefined;
-			};
-			type: string;
-		}
+				token: Partial<SeedToken>;
+				hardCodedTokens: {
+					textColor: string | undefined;
+					backgroundColor: string | undefined;
+				};
+				type: string;
+		  }
 		| undefined;
 	setTheme: (tokens: Partial<SeedToken>, type: string) => void;
 }
@@ -160,9 +160,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 					<p style={{ textAlign: 'center', margin: 0, paddingBottom: 8 }}>
 						Hit <strong>Cmd+Shift+K</strong> to hide
 					</p>
-					</div>
-				{children}
 				</div>
-			</ThemeContext.Provider>
+				{children}
+			</div>
+		</ThemeContext.Provider>
 	);
 };
