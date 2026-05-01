@@ -43,25 +43,13 @@
 		"packages/ocom/archunit-tests": {
 			"project": ["src/**/*.ts"]
 		},
-		"packages/ocom/ui-community-shared": {
-			"entry": ["src/index.tsx"],
-			"project": ["src/**/*.{ts,tsx}"]
-		},
-		"packages/ocom/ui-community-route-admin": {
-			"entry": ["src/index.tsx"],
-			"project": ["src/**/*.{ts,tsx}"]
-		},
-		"packages/ocom/ui-community-route-*": {
-			"entry": ["src/index.tsx"],
-			"project": ["src/**/*.{ts,tsx}"]
-		},
-		"packages/ocom/ui-staff-route-*": {
-			"entry": ["src/index.tsx"],
-			"project": ["src/**/*.{ts,tsx}"]
-		},
 		"packages/ocom/*": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.ts"]
+		},
+		"packages/ocom/ui-*": {
+			"entry": ["src/index.tsx"],
+			"project": ["src/**/*.{ts,tsx}"]
 		},
 		"packages/ocom/ui-shared": {
 			"entry": ["src/index.ts"],
