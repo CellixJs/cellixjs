@@ -14,12 +14,12 @@ describe('Cellix Dependency Rules', () => {
   });
 
   describe('Framework Boundaries', () => {
-    it('ui-core should not depend on ocom ui-components', async () => {
+    it('ui-core should not depend on ocom ui-shared', async () => {
       const rule = projectFiles()
         .inFolder('../ui-core/src')
         .shouldNot()
         .dependOnFiles()
-        .inPath('../../ocom/ui-components/src/**');
+        .inPath('../../ocom/ui-shared/src/**');
 
       await expect(rule).toPassAsync();
     });

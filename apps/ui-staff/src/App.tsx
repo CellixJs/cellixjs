@@ -2,7 +2,7 @@ import { RequireAuth } from '@cellix/ui-core';
 import { Root } from '@ocom/ui-staff-route-root';
 import { Root as CommunityManagement } from '@ocom/ui-staff-route-community-management';
 import { Root as Finance } from '@ocom/ui-staff-route-finance';
-import { StaffAuthProvider } from '@ocom/ui-staff-route-shared';
+import { StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { Root as TechAdmin } from '@ocom/ui-staff-route-tech-admin';
 import { Root as UserManagement } from '@ocom/ui-staff-route-user-management';
 import { useAuth } from 'react-oidc-context';

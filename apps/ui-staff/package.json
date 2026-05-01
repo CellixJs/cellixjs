@@ -26,7 +26,7 @@
 		"@ocom/ui-staff-route-user-management": "workspace:*",
 		"@ocom/ui-staff-route-finance": "workspace:*",
 		"@ocom/ui-staff-route-tech-admin": "workspace:*",
-		"@ocom/ui-staff-route-shared": "workspace:*",
+		"@ocom/ui-staff-shared": "workspace:*",
 		"antd": "catalog:",
 		"apollo-link-rest": "^0.9.0",
 		"less": "^4.4.0",

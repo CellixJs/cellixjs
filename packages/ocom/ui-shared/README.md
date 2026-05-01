@@ -1,4 +1,4 @@
-# @ocom/ui-components
+# @ocom/ui-shared
 
 Owner Community specific UI components library that provides reusable UI components for OCOM application portals. This package demonstrates how shared UI components can be developed and maintained across different client-facing portals within the Cellix framework implementation.
 
@@ -9,16 +9,16 @@ Owner Community specific UI components library that provides reusable UI compone
 ## Install
 
 ```sh
-npm i -w @ocom/ui-components
+npm i -w @ocom/ui-shared
 # or if you only need it at compile-time
-npm i -D -w @ocom/ui-components
+npm i -D -w @ocom/ui-shared
 ```
 
 ## Entry points
 
 - Public API is exposed via the package root:
 ```ts
-import { LoggedInUser, LoggedInUserContainer } from '@ocom/ui-components';
+import { LoggedInUser, LoggedInUserContainer } from '@ocom/ui-shared';
 ```
 - Deep imports into `src/**` are not part of the public API and are not recommended.
 
@@ -37,7 +37,7 @@ For detailed API documentation, see:
 ## Folder structure
 
 ```
-packages/ui-components/
+packages/ui-shared/
 ├── src/
 │   ├── components/                        # UI components organized by atomic design principles
 │   │   ├── molecules/                     # Smaller, focused components
@@ -82,7 +82,7 @@ To develop and test components in isolation:
 
 ```sh
 # Start Storybook development server
-npm run storybook -w @ocom/ui-components
+npm run storybook -w @ocom/ui-shared
 ```
 
 ## Testing
@@ -91,25 +91,25 @@ Components are tested with Vitest:
 
 ```sh
 # Run tests
-npm run test -w @ocom/ui-components
+npm run test -w @ocom/ui-shared
 
 # Run tests with coverage
-npm run test:coverage -w @ocom/ui-components
+npm run test:coverage -w @ocom/ui-shared
 
 # Watch mode for development
-npm run test:watch -w @ocom/ui-components
+npm run test:watch -w @ocom/ui-shared
 ```
 
 ## Scripts
 
 Common scripts from `package.json` (executed in this workspace):
 
-- Build: `npm run build -w @ocom/ui-components`
-- Clean: `npm run clean -w @ocom/ui-components`
-- Test: `npm run test -w @ocom/ui-components`
-- Lint/Format: `npm run lint -w @ocom/ui-components` / `npm run format -w @ocom/ui-components`
-- Storybook: `npm run storybook -w @ocom/ui-components`
-- Build Storybook: `npm run build-storybook -w @ocom/ui-components`
+- Build: `npm run build -w @ocom/ui-shared`
+- Clean: `npm run clean -w @ocom/ui-shared`
+- Test: `npm run test -w @ocom/ui-shared`
+- Lint/Format: `npm run lint -w @ocom/ui-shared` / `npm run format -w @ocom/ui-shared`
+- Storybook: `npm run storybook -w @ocom/ui-shared`
+- Build Storybook: `npm run build-storybook -w @ocom/ui-shared`
 
 ## Dependencies
 
