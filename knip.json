@@ -55,7 +55,7 @@
     "packages/ocom/archunit-tests": {
       "project": ["src/**/*.ts"]
     },
-    "packages/ocom/ui-community-route-shared": {
+    "packages/ocom/ui-community-shared": {
       "entry": ["src/index.tsx"],
       "project": ["src/**/*.{ts,tsx}"]
     },
