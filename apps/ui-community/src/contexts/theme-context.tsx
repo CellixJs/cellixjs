@@ -138,7 +138,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		} else {
 			const valueToSet = {
 				type: 'light',
-				tokens: theme.defaultSeed,
+				token: theme.defaultSeed,
 				hardCodedTokens: {
 					textColor: '#000000',
 					backgroundColor: '#ffffff',
