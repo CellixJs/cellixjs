@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { StaffRouteShell } from '@ocom/ui-staff-route-shared';
+import { StaffRouteShell } from '@ocom/ui-staff-shared';
 
 export const SectionLayout: FC = () => {
 	return (

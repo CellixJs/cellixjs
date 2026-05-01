@@ -84,10 +84,10 @@ describe('Dependency Rules', () => {
     });
   });
 
-  describe('ui-community', () => {
-    it('ui-components should not depend on ui-community app', async () => {
+  describe('ui-shared', () => {
+    it('ui-shared should not depend on ui-community app', async () => {
       const rule = projectFiles()
-        .inFolder('../ui-components')
+        .inFolder('../ui-shared')
         .shouldNot()
         .dependOnFiles()
         .inFolder('../../../apps/ui-community');

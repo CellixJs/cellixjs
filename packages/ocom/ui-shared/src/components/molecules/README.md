@@ -19,7 +19,7 @@ A component that displays the user's authentication state and provides appropria
 #### Usage
 
 ```tsx
-import { LoggedInUser } from '@ocom/ui-components';
+import { LoggedInUser } from '@ocom/ui-shared';
 
 const Header = () => {
   const handleLogin = () => {

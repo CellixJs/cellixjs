@@ -75,7 +75,7 @@
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"]
     },
-    "packages/ocom/ui-components": {
+    "packages/ocom/ui-shared": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.{ts,tsx}"]
     }

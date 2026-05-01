@@ -19,7 +19,7 @@ A container component that fetches user authentication data and renders the appr
 #### Usage
 
 ```tsx
-import { LoggedInUserContainer } from '@ocom/ui-components';
+import { LoggedInUserContainer } from '@ocom/ui-shared';
 
 const Header = () => {
   return (
