@@ -1,10 +1,10 @@
 import { RequireAuth } from '@cellix/ui-core';
-import { Root } from '@ocom/ui-staff-route-root';
 import { Root as CommunityManagement } from '@ocom/ui-staff-route-community-management';
 import { Root as Finance } from '@ocom/ui-staff-route-finance';
-import { StaffAuthProvider } from '@ocom/ui-staff-shared';
+import { Root } from '@ocom/ui-staff-route-root';
 import { Root as TechAdmin } from '@ocom/ui-staff-route-tech-admin';
 import { Root as UserManagement } from '@ocom/ui-staff-route-user-management';
+import { RequireRole, StaffAuthProvider, staffRouteRoles } from '@ocom/ui-staff-shared';
 import { useAuth } from 'react-oidc-context';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
@@ -40,23 +40,43 @@ export default function App() {
 				<Routes>
 					<Route
 						path="/"
-						element={<CommunityManagement />}
+						element={
+							<RequireRole roles={staffRouteRoles['/staff/community']}>
+								<CommunityManagement />
+							</RequireRole>
+						}
 					/>
 					<Route
 						path="/community/*"
-						element={<CommunityManagement />}
+						element={
+							<RequireRole roles={staffRouteRoles['/staff/community']}>
+								<CommunityManagement />
+							</RequireRole>
+						}
 					/>
 					<Route
 						path="/users/*"
-						element={<UserManagement />}
+						element={
+							<RequireRole roles={staffRouteRoles['/staff/users']}>
+								<UserManagement />
+							</RequireRole>
+						}
 					/>
 					<Route
 						path="/finance/*"
-						element={<Finance />}
+						element={
+							<RequireRole roles={staffRouteRoles['/staff/finance']}>
+								<Finance />
+							</RequireRole>
+						}
 					/>
 					<Route
 						path="/tech/*"
-						element={<TechAdmin />}
+						element={
+							<RequireRole roles={staffRouteRoles['/staff/tech']}>
+								<TechAdmin />
+							</RequireRole>
+						}
 					/>
 				</Routes>
 			</StaffAuthProvider>

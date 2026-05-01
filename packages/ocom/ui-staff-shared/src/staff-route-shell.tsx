@@ -1,4 +1,5 @@
-import { type FC, createContext, useContext, type ReactNode } from 'react';
+import { createContext, type FC, type ReactNode, useContext } from 'react';
+import { extractRoles, staffRouteRoles } from './staff-app-roles.ts';
 
 export interface StaffRouteShellProps {
 	title: string;
@@ -16,44 +17,23 @@ export type StaffAuth = {
 
 export const StaffAuthContext = createContext<StaffAuth | undefined>(undefined);
 
-export const StaffAuthProvider: FC<{ value: StaffAuth; children?: ReactNode }> = ({ value, children }) => (
-	<StaffAuthContext.Provider value={value}>{children}</StaffAuthContext.Provider>
-);
+export const StaffAuthProvider: FC<{ value: StaffAuth; children?: ReactNode }> = ({ value, children }) => <StaffAuthContext.Provider value={value}>{children}</StaffAuthContext.Provider>;
 
-const navLinks = [
-	{ label: 'Community Management', href: '/staff/community' },
-	{ label: 'User Management', href: '/staff/users' },
-	{ label: 'Finance', href: '/staff/finance' },
-	{ label: 'Tech Admin', href: '/staff/tech' },
+const allNavLinks = [
+	{ label: 'Community Management', href: '/staff/community', roles: staffRouteRoles['/staff/community'] },
+	{ label: 'User Management', href: '/staff/users', roles: staffRouteRoles['/staff/users'] },
+	{ label: 'Finance', href: '/staff/finance', roles: staffRouteRoles['/staff/finance'] },
+	{ label: 'Tech Admin', href: '/staff/tech', roles: staffRouteRoles['/staff/tech'] },
 ];
-
-const extractRoles = (raw: Record<string, unknown> | undefined): string[] | undefined => {
-	if (!raw) return undefined;
-	const r = raw as Record<string, unknown>;
-	const candidates: Array<string | string[] | undefined> = [
-		(r['roles'] as string | string[] | undefined),
-		(r['role'] as string | string[] | undefined),
-		(r['groups'] as string | string[] | undefined),
-		(r['app_roles'] as string | string[] | undefined),
-		((r['realm_access'] as Record<string, unknown> | undefined)?.['roles'] as string[] | undefined),
-	];
-	const roles: string[] = [];
-	for (const c of candidates) {
-		if (Array.isArray(c)) {
-			roles.push(...c.filter((x) => typeof x === 'string') as string[]);
-		} else if (typeof c === 'string') {
-			roles.push(c);
-		}
-	}
-	return roles.length ? Array.from(new Set(roles)) : undefined;
-};
 
 export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }) => {
 	const auth = useContext(StaffAuthContext);
 	const raw = auth?.raw as Record<string, unknown> | undefined;
+	// biome-ignore lint/complexity/useLiteralKeys: dynamic OIDC profile claim names
 	const fallbackName = raw ? ((raw['name'] as string | undefined) ?? (raw['preferred_username'] as string | undefined) ?? (raw['email'] as string | undefined)) : undefined;
 	const name = auth?.name ?? auth?.username ?? auth?.email ?? fallbackName;
 	const roles = auth?.roles ?? extractRoles(auth?.raw);
+	const navLinks = allNavLinks.filter((link) => link.roles.length === 0 || (roles !== undefined && link.roles.some((r) => roles.includes(r))));
 
 	return (
 		<div style={{ minHeight: '100%', background: '#f5f7fb', padding: '24px' }}>
@@ -65,7 +45,7 @@ export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }
 					</div>
 					<div style={{ textAlign: 'right' }}>
 						<div style={{ fontSize: 12, color: '#6b7280', fontStyle: 'italic' }}>Placeholder</div>
-						{ name ? (
+						{name ? (
 							<div style={{ marginTop: 8, fontSize: 13, color: '#111827' }}>
 								<div style={{ fontWeight: 700 }}>Signed in as</div>
 								<div>{name}</div>
@@ -124,11 +104,11 @@ export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }
 							{description}
 							<div style={{ marginTop: 12, fontSize: 13, color: '#374151' }}>
 								<div style={{ fontWeight: 700, marginBottom: 6 }}>Identity</div>
-								{ name ? <div>{name}</div> : <div style={{ color: '#9ca3af' }}>No authenticated identity available</div> }
+								{name ? <div>{name}</div> : <div style={{ color: '#9ca3af' }}>No authenticated identity available</div>}
 							</div>
 							<div style={{ marginTop: 12, fontSize: 13, color: '#374151' }}>
 								<div style={{ fontWeight: 700, marginBottom: 6 }}>Resolved Roles</div>
-								{ roles?.length ? (
+								{roles?.length ? (
 									<ul style={{ margin: 0, paddingLeft: 18 }}>
 										{roles.map((r) => (
 											<li key={r}>{r}</li>
