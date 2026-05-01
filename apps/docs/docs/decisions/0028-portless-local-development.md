@@ -177,6 +177,15 @@ To establish HTTPS trust for portless-developed custom domains, run the reposito
 pnpm exec portless trust
 ```
 
+Repository script guidance (canonical):
+```bash
+# stop a running portless proxy (port-agnostic)
+pnpm exec portless proxy stop || true
+
+# start the repository-recommended non-privileged proxy mode
+pnpm exec portless proxy start --https -p 1355
+```
+
 Notes:
 
 - Running the command beforehand configures your machine to trust the development CA and avoids an interactive prompt when starting the dev environment. Re-running the command is idempotent.

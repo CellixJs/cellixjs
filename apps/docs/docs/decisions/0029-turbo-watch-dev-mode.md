@@ -32,7 +32,7 @@ Implementation notes
 --------------------
 - Root `turbo.json` defines `dev` and `start` tasks; `dev` is `persistent: true` and depends on `^build`.
 - The root `dev` npm script runs `pnpm proxy:stop && pnpm proxy:start && turbo watch dev --filter='./apps/*' --filter='./packages/*'`.
-- Keep an explicit `proxy:stop` script that tolerates missing proxy (`pnpm exec portless proxy stop || true`) and a `proxy:start` script that only starts the proxy (`pnpm exec portless proxy start --https`).
+- Keep an explicit `proxy:stop` script that tolerates missing proxy (`pnpm exec portless proxy stop || true`). For the repository's supported non-privileged developer mode we recommend `proxy:start` include the 1355 flag so the repo scripts are explicit about non-privileged mode: `pnpm exec portless proxy start --https -p 1355`. 
 - Note: when invoking the repository-local `portless` binary, use `pnpm exec portless ...` so the package manager resolves the local binary instead of relying on a globally installed one.
 
 Alternatives considered

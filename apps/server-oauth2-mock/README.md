@@ -41,6 +41,12 @@ Notes about the schema and overrides:
 - PORT - port the single mock server listens on (default: 1355). For local development with portless and HTTPS custom domains we recommend setting `PORT=443` in your `.env` so the server binds to the standard HTTPS port.
 - BASE_URL - public base URL for the mock server (e.g. `https://mock-auth.ownercommunity.localhost`) — do not include `:443` when using the standard HTTPS port; portless maps custom domains to 443.
 
+Recommended repo commands for non-privileged mode:
+```bash
+pnpm proxy:start  # pnpm exec portless proxy start --https -p 1355
+pnpm proxy:stop   # pnpm exec portless proxy stop || true
+```
+
 ## Running
 
 - Start the server as before. It will discover portals and register them under `/{name}` on the single HTTP server.

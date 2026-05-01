@@ -16,6 +16,7 @@ import { MemberProfile, type MemberProfileEntityReference, type MemberProfilePro
 
 export interface MemberProps extends DomainEntityProps {
 	memberName: string;
+
 	cybersourceCustomerId: string;
 	communityId: string;
 	community: Readonly<CommunityEntityReference>;

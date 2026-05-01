@@ -28,6 +28,13 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
 - [MongoDB](https://www.mongodb.com/try/download/community) or access to a MongoDB instance
 - `portless` local HTTPS proxy support: see [ADR 0028 — Portless Local Development](./decisions/0028-portless-local-development.md) for TLS trust setup, OS-specific prompts, and troubleshooting. You can run `pnpm exec portless trust` beforehand to avoid interactive prompts on the first dev run, or run mock services on the non-privileged port 1355 and include `:1355` in BASE_URL to avoid requiring portless trust.
 
+If you prefer non-privileged mode, start the repo proxy with:
+```bash
+pnpm proxy:start       # runs: pnpm exec portless proxy start --https -p 1355
+# or to stop the proxy safely (port-agnostic):
+pnpm proxy:stop        # runs: pnpm exec portless proxy stop || true
+```
+
 ## Clone and Setup
 
 Clone the CellixJs repository and set up the development environment:
@@ -142,6 +149,13 @@ pnpm exec portless trust
 ```
 
 Or, if you prefer not to configure portless trust, run mock services on the non-privileged port 1355 and include `:1355` in the appropriate BASE_URL values. See ADR 0028 — [Portless Local Development](./decisions/0028-portless-local-development.md) for details about OS-specific prompts.
+
+If you prefer non-privileged mode, start the repo proxy with:
+```bash
+pnpm proxy:start       # runs: pnpm exec portless proxy start --https -p 1355
+# or to stop the proxy safely (port-agnostic):
+pnpm proxy:stop        # runs: pnpm exec portless proxy stop || true
+```
 
 ## Verify Code Quality Locally
 
