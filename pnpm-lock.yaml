@@ -1840,15 +1840,9 @@ importers:
       '@ocom/ui-staff-shared':
         specifier: workspace:*
         version: link:../ui-staff-shared
-      antd:
-        specifier: 'catalog:'
-        version: 6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
         specifier: ^19.1.1
         version: 19.2.0
-      react-dom:
-        specifier: ^19.1.1
-        version: 19.2.0(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1865,9 +1859,6 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
-      storybook:
-        specifier: 'catalog:'
-        version: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1883,15 +1874,9 @@ importers:
       '@ocom/ui-staff-shared':
         specifier: workspace:*
         version: link:../ui-staff-shared
-      antd:
-        specifier: 'catalog:'
-        version: 6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
         specifier: ^19.1.1
         version: 19.2.0
-      react-dom:
-        specifier: ^19.1.1
-        version: 19.2.0(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1908,9 +1893,6 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
-      storybook:
-        specifier: 'catalog:'
-        version: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1951,9 +1933,6 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
-      storybook:
-        specifier: 'catalog:'
-        version: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1969,9 +1948,6 @@ importers:
       '@ocom/ui-staff-shared':
         specifier: workspace:*
         version: link:../ui-staff-shared
-      antd:
-        specifier: 'catalog:'
-        version: 6.3.5(luxon@3.6.1)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
         specifier: ^19.1.1
         version: 19.2.0
@@ -1991,9 +1967,6 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
-      storybook:
-        specifier: 'catalog:'
-        version: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2028,9 +2001,6 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
-      storybook:
-        specifier: 'catalog:'
-        version: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

@@ -16,10 +16,7 @@ vi.mock('@graphql-tools/merge', () => ({
 }));
 
 vi.mock('./resolver-manifest.generated.ts', () => ({
-	ocomGraphqlResolvers: [
-		{ Query: { hello: vi.fn() } },
-		{ Query: { currentCommunity: vi.fn() }, Mutation: { communityCreate: vi.fn() } },
-	],
+	ocomGraphqlResolvers: [{ Query: { hello: vi.fn() } }, { Query: { currentCommunity: vi.fn() }, Mutation: { communityCreate: vi.fn() } }],
 	ocomGraphqlPermissions: [],
 }));
 
