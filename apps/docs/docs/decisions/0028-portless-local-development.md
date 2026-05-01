@@ -62,6 +62,10 @@ Instead, CellixJS uses the current portless model:
 
 This keeps local URLs cleaner and aligned with current portless behavior.
 
+> Addendum (2026-05-01): Optional non-privileged port 1355
+>
+> For developers who prefer to avoid configuring system certificate trust, the repository supports an alternative non-privileged mode using port 1355. In this mode, mock and browser-facing services may be started on port 1355 and their public BASE_URLs should include `:1355` (for example `https://mock-auth.ownercommunity.localhost:1355`). When using port 1355 the `portless trust` step is optional and the portless proxy is not required for HTTPS access to those explicit origins. See the project README and `apps/*/.env` examples for guidance.
+
 ### 2. Standardize on `ownercommunity.localhost` naming
 
 We adopted a domain convention based on the application name rather than a generic or historical prefix:

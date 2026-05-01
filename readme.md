@@ -101,8 +101,8 @@ PORT and BASE_URL
 
 The mock auth server now runs as a single instance. Configure it using the following environment variables:
 
-- PORT — port the HTTP server listens on (default: 1355). For local development with portless and HTTPS custom domains we recommend setting `PORT=443` in your `.env`; portless maps custom domains to the standard HTTPS port so the origin will not show an explicit port.
-- BASE_URL — externally visible origin used as the OIDC issuer (in local development this is handled by the portless dev proxy). Example: `https://mock-auth.ownercommunity.localhost` (do not include `:443` when using the standard HTTPS port).
+- PORT — port the HTTP server listens on (default: 1355). For local development you may either use the portless HTTPS proxy with `PORT=443` (recommended for a production-like experience), or run services on the non-privileged port 1355 and include `:1355` in BASE_URL values to avoid TLS trust prompts.
+- BASE_URL — externally visible origin used as the OIDC issuer (in local development this is typically handled by the portless dev proxy). Example: `https://mock-auth.ownercommunity.localhost` (do not include `:443` when using the standard HTTPS port). When running on port 1355 include the explicit port: `https://mock-auth.ownercommunity.localhost:1355`.
 
 Per-portal port allocation (PORT_BASE) is no longer used.
 
