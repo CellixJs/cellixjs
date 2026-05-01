@@ -18,7 +18,7 @@ Decision
 
 3. Invoke watch with package filters in the npm script (e.g., `turbo watch dev --filter='./apps/*' --filter='./packages/*'`) so common development sessions are scoped and fast by default.
 
-4. Start a local HTTP/HTTPS proxy (portless) before `turbo watch` to ensure local assets, authentication, and cross-origin flows behave like production. See ADR 0028 — [Portless Local Development](../decisions/0028-portless-local-development.md) for one-time TLS trust steps. Avoid POSIX-only script chaining in package.json; prefer safe command chaining at the npm-script level (e.g., `pnpm proxy:stop && pnpm proxy:start && turbo watch ...`).
+4. Start a local HTTP/HTTPS proxy (portless) before `turbo watch` to ensure local assets, authentication, and cross-origin flows behave like production. See ADR 0028 — [Portless Local Development](../decisions/0028-portless-local-development.md) for one-time TLS trust steps and the canonical proxy start/stop commands. Avoid POSIX-only script chaining in package.json; prefer safe command chaining at the npm-script level as documented in ADR-0028.
 
 5. Enable Turborepo future flags used by this workflow (e.g., `watchUsingTaskInputs`) in `turbo.json` to stabilize watch semantics and avoid cache misses or false cache hits for watch-triggered runs.
 
@@ -31,8 +31,7 @@ Consequences
 Implementation notes
 --------------------
 - Root `turbo.json` defines `dev` and `start` tasks; `dev` is `persistent: true` and depends on `^build`.
-- The root `dev` npm script runs `pnpm proxy:stop && pnpm proxy:start && turbo watch dev --filter='./apps/*' --filter='./packages/*'`.
-- Keep an explicit `proxy:stop` script that tolerates missing proxy (`pnpm exec portless proxy stop || true`). For the repository's supported non-privileged developer mode we recommend `proxy:start` include the 1355 flag so the repo scripts are explicit about non-privileged mode: `pnpm exec portless proxy start --https -p 1355`. 
+- The root `dev` npm script coordinates proxy lifecycle and `turbo watch` invocation; see ADR-0028 — [Portless Local Development](../decisions/0028-portless-local-development.md) for canonical examples of proxy lifecycle commands and recommended non-privileged mode usage (including the `:1355` example).
 - Note: when invoking the repository-local `portless` binary, use `pnpm exec portless ...` so the package manager resolves the local binary instead of relying on a globally installed one.
 
 Alternatives considered

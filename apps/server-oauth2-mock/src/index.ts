@@ -12,18 +12,14 @@ const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const appsDir = path.join(repoRoot, 'apps');
 const rawPort = Number.parseInt(PORT ?? '1355', 10);
 const port = Number.isFinite(rawPort) && rawPort > 0 ? rawPort : 1355;
+
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.
 // In local dev the portless proxy handles TLS termination and host mapping.
+import { ensurePortInUrl } from './utils.ts';
+
 let baseUrl = BASE_URL ?? `https://mock-auth.ownercommunity.localhost${port === 443 ? '' : `:${port}`}`;
 // If BASE_URL was supplied but omits a port, ensure non-standard ports (like 1355) are preserved
-try {
-	const parsed = new URL(baseUrl);
-	if (!parsed.port && port !== 443) {
-		baseUrl = `${parsed.protocol}//${parsed.hostname}:${port}${parsed.pathname}${parsed.search}`;
-	}
-} catch {
-	// leave baseUrl as-is on parse errors
-}
+baseUrl = ensurePortInUrl(baseUrl, port);
 
 const portals: PortalOidcConfig[] = discoverPortalConfigs(appsDir);
 
