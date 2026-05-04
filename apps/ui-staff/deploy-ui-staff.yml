@@ -18,81 +18,23 @@ parameters:
 - name: frontDoorDomainName
   type: string
 
-jobs:
-- job: Infrastructure_UI_Staff
-  displayName: Infrastructure Setup (UI Staff)
-  condition: succeeded()
-  dependsOn: Infrastructure_UI_Community
-  pool:
-    vmImage: ${{parameters.vmImageName}}
-  steps:
-  - task: AzureResourceManagerTemplateDeployment@3
-    name: deployInfrastructure
-    displayName: 'Deploy UI Staff Infrastructure'
-    inputs:
-      connectedServiceName: ${{parameters.ServiceConnectionName}}
-      deploymentName: $(Build.BuildNumber)-ui-staff
-      location: ${{parameters.deploymentDefaultLocation}}
-      resourceGroupName: ${{parameters.resourceGroupName}}
-      csmFile: apps/ui-staff/iac/main.bicep
-      csmParametersFile: apps/ui-staff/iac/${{parameters.environmentNameBicep}}.bicepparam
-      deploymentOutputs: 'armOutputs'
-  
-  - task: PowerShell@2
-    name: captureOutputs
-    displayName: 'Capture Infrastructure Outputs'
-    inputs:
-      targetType: 'inline'
-      script: |
-        Write-Host "Debug - armOutputs: $(armOutputs)"
-        $var = ConvertFrom-Json '$(armOutputs)'
-        $storageAccountName = $var.storageAccountName.value
-        Write-Host "Storage Account Name: $storageAccountName"
-        Write-Host "##vso[task.setvariable variable=storageAccountName;isOutput=true]$storageAccountName"
-
-- deployment: Deploy_UI_Staff
-  displayName: 'Deploy UI Staff (Static Web App)'
-  condition: succeeded()
-  dependsOn: Infrastructure_UI_Staff
-  environment: ${{parameters.environmentNameDevOps}}
-  pool:
-    vmImage: ${{parameters.vmImageName}}
-  variables:
-    storageAccountName: $[ dependencies.Infrastructure_UI_Staff.outputs['captureOutputs.storageAccountName'] ]
-  strategy:
-    runOnce:
-      deploy:
-        steps:
-        - task: CopyFiles@2
-          inputs:
-            SourceFolder: '$(Pipeline.Workspace)'
-            Contents: '**/ui-staff-$(Build.BuildId).zip'
-            TargetFolder: '$(Build.ArtifactStagingDirectory)'
-            flattenFolders: true
-
-        - task: ExtractFiles@1
-          inputs:
-            archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/ui-staff-$(Build.BuildId).zip'
-            destinationFolder: '$(Build.ArtifactStagingDirectory)/deploy'
-            cleanDestinationFolder: true
-            overwriteExistingFiles: false
-
-        - task: Bash@3
-          displayName: Downgrade Azure CLI to 2.76.0
-          inputs:
-            targetType: 'inline'
-            script: |
-              pip install azure-cli==2.76.0 --force-reinstall
-              az --version
-
-        - task: AzureCLI@2
-          displayName: Copy to Blob
-          inputs:
-            azureSubscription: ${{ parameters.ServiceConnectionName }}
-            scriptType: 'pscore'
-            scriptLocation: 'inlineScript'
-            inlineScript: |
-              az storage blob delete-batch -s `$web --pattern * --account-name $(storageAccountName)
-              az storage blob upload-batch --destination `$web --account-name $(storageAccountName) --source $(Build.ArtifactStagingDirectory)/deploy
-              az afd endpoint purge --content-paths "/*" --endpoint-name ${{parameters.frontDoorEndpointName}} --profile-name ${{parameters.frontDoorProfileName}} --resource-group ${{parameters.resourceGroupName}} --domains ${{parameters.frontDoorDomainName}}
-            addSpnToEnvironment: true
+# Thin wrapper that delegates to the shared deploy-ui template and preserves ordering
+- template: ../../build-pipeline/templates/deploy-ui.yml
+  parameters:
+    appId: 'UI_Staff'
+    displayName: 'UI Staff'
+    iacPath: 'apps/ui-staff/iac/main.bicep'
+    iacParamsPath: 'apps/ui-staff/iac/${{ parameters.environmentNameBicep }}.bicepparam'
+    artifactPattern: '**/ui-staff-$(Build.BuildId).zip'
+    artifactZipName: 'ui-staff-$(Build.BuildId).zip'
+    deploymentNameSuffix: '-ui-staff'
+    dependsOnInfrastructure: 'Infrastructure_UI_Community'
+    environmentNameDevOps: ${{ parameters.environmentNameDevOps }}
+    environmentNameBicep: ${{ parameters.environmentNameBicep }}
+    vmImageName: ${{ parameters.vmImageName }}
+    ServiceConnectionName: ${{ parameters.ServiceConnectionName }}
+    deploymentDefaultLocation: ${{ parameters.deploymentDefaultLocation }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    frontDoorProfileName: ${{ parameters.frontDoorProfileName }}
+    frontDoorEndpointName: ${{ parameters.frontDoorEndpointName }}
+    frontDoorDomainName: ${{ parameters.frontDoorDomainName }}

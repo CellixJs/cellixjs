@@ -18,87 +18,22 @@ parameters:
 - name: frontDoorDomainName
   type: string
 
-jobs:
-- job: Infrastructure_UI_Community
-  displayName: Infrastructure Setup (UI Community)
-  condition: succeeded()
-  dependsOn: Infrastructure
-  pool:
-    vmImage: ${{parameters.vmImageName}}
-  steps:
-  - task: AzureResourceManagerTemplateDeployment@3
-    name: deployInfrastructure
-    displayName: 'Deploy UI Community Infrastructure'
-    inputs:
-      connectedServiceName: ${{parameters.ServiceConnectionName}}
-      deploymentName: $(Build.BuildNumber)-ui
-      location: ${{parameters.deploymentDefaultLocation}}
-      resourceGroupName: ${{parameters.resourceGroupName}}
-      csmFile: apps/ui-community/iac/main.bicep
-      csmParametersFile: apps/ui-community/iac/${{parameters.environmentNameBicep}}.bicepparam
-      deploymentOutputs: 'armOutputs'
-  
-  - task: PowerShell@2
-    name: captureOutputs
-    displayName: 'Capture Infrastructure Outputs'
-    inputs:
-      targetType: 'inline'
-      script: |
-        Write-Host "Debug - armOutputs: $(armOutputs)"
-        $var = ConvertFrom-Json '$(armOutputs)'
-        $storageAccountName = $var.storageAccountName.value
-        Write-Host "Storage Account Name: $storageAccountName"
-        Write-Host "##vso[task.setvariable variable=storageAccountName;isOutput=true]$storageAccountName"
-
-- deployment: Deploy_UI_Community
-  displayName: 'Deploy UI Community (Static Web App)'
-  condition: succeeded()
-  dependsOn: Infrastructure_UI_Community
-  environment: ${{parameters.environmentNameDevOps}}
-  pool:
-    vmImage: ${{parameters.vmImageName}}
-  variables:
-    storageAccountName: $[ dependencies.Infrastructure_UI_Community.outputs['captureOutputs.storageAccountName'] ]
-  strategy:
-    runOnce:
-      deploy:
-        steps:
-        # Get the zip file for with proper environment settings already compiled in it.
-        - task: CopyFiles@2
-          inputs:
-            SourceFolder: '$(Pipeline.Workspace)'
-            Contents: '**/ui-community-$(Build.BuildId).zip'
-            TargetFolder: '$(Build.ArtifactStagingDirectory)'
-            flattenFolders: true
-
-        # Extract the files from the zip file.
-        - task: ExtractFiles@1
-          inputs:
-            archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/ui-community-$(Build.BuildId).zip'
-            destinationFolder: '$(Build.ArtifactStagingDirectory)/deploy'
-            cleanDestinationFolder: true
-            overwriteExistingFiles: false
-
-        # Temporary workaround to downgrade Azure CLI
-        # TODO: remove this task when issue is resolved: https://github.com/Azure/azure-cli/issues/32039#issue
-        - task: Bash@3
-          displayName: Downgrade Azure CLI to 2.76.0
-          inputs:
-            targetType: 'inline'
-            script: |
-              pip install azure-cli==2.76.0 --force-reinstall
-              az --version
-
-        # Delete all files in the $web container and replace with extracted files.
-        # Purge the Front Door endpoint to ensure the CDN cache is cleared.
-        - task: AzureCLI@2
-          displayName: Copy to Blob
-          inputs:
-            azureSubscription: ${{ parameters.ServiceConnectionName }}
-            scriptType: 'pscore'
-            scriptLocation: 'inlineScript'
-            inlineScript: |
-              az storage blob delete-batch -s `$web --pattern * --account-name $(storageAccountName)
-              az storage blob upload-batch --destination `$web --account-name $(storageAccountName) --source $(Build.ArtifactStagingDirectory)/deploy
-              az afd endpoint purge --content-paths "/*" --endpoint-name ${{parameters.frontDoorEndpointName}} --profile-name ${{parameters.frontDoorProfileName}} --resource-group ${{parameters.resourceGroupName}} --domains ${{parameters.frontDoorDomainName}}
-            addSpnToEnvironment: true
+# Thin wrapper that delegates to the shared deploy-ui template
+- template: ../../build-pipeline/templates/deploy-ui.yml
+  parameters:
+    appId: 'UI_Community'
+    displayName: 'UI Community'
+    iacPath: 'apps/ui-community/iac/main.bicep'
+    iacParamsPath: 'apps/ui-community/iac/${{ parameters.environmentNameBicep }}.bicepparam'
+    artifactPattern: '**/ui-community-$(Build.BuildId).zip'
+    artifactZipName: 'ui-community-$(Build.BuildId).zip'
+    deploymentNameSuffix: '-ui'
+    environmentNameDevOps: ${{ parameters.environmentNameDevOps }}
+    environmentNameBicep: ${{ parameters.environmentNameBicep }}
+    vmImageName: ${{ parameters.vmImageName }}
+    ServiceConnectionName: ${{ parameters.ServiceConnectionName }}
+    deploymentDefaultLocation: ${{ parameters.deploymentDefaultLocation }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    frontDoorProfileName: ${{ parameters.frontDoorProfileName }}
+    frontDoorEndpointName: ${{ parameters.frontDoorEndpointName }}
+    frontDoorDomainName: ${{ parameters.frontDoorDomainName }}

@@ -1,0 +1,119 @@
+parameters:
+- name: appId
+  type: string
+- name: displayName
+  type: string
+- name: iacPath
+  type: string
+- name: iacParamsPath
+  type: string
+- name: artifactPattern
+  type: string
+- name: artifactZipName
+  type: string
+- name: deploymentNameSuffix
+  type: string
+- name: environmentNameDevOps
+  type: string
+- name: environmentNameBicep
+  type: string
+- name: vmImageName
+  type: string
+- name: ServiceConnectionName
+  type: string
+- name: deploymentDefaultLocation
+  type: string
+- name: resourceGroupName
+  type: string
+- name: frontDoorProfileName
+  type: string
+- name: frontDoorEndpointName
+  type: string
+- name: frontDoorDomainName
+  type: string
+- name: dependsOnInfrastructure
+  type: string
+
+jobs:
+- job: Infrastructure_${{ parameters.appId }}
+  displayName: Infrastructure Setup (${{ parameters.displayName }})
+  condition: succeeded()
+  ${{ if ne(parameters.dependsOnInfrastructure, '') }}:
+    dependsOn: ${{ parameters.dependsOnInfrastructure }}
+  pool:
+    vmImage: ${{ parameters.vmImageName }}
+  steps:
+  - task: AzureResourceManagerTemplateDeployment@3
+    name: deployInfrastructure
+    displayName: 'Deploy ${{ parameters.displayName }} Infrastructure'
+    inputs:
+      connectedServiceName: ${{ parameters.ServiceConnectionName }}
+      deploymentName: $(Build.BuildNumber)${{ parameters.deploymentNameSuffix }}
+      location: ${{ parameters.deploymentDefaultLocation }}
+      resourceGroupName: ${{ parameters.resourceGroupName }}
+      csmFile: ${{ parameters.iacPath }}
+      csmParametersFile: ${{ parameters.iacParamsPath }}
+      deploymentOutputs: 'armOutputs'
+
+  - task: PowerShell@2
+    name: captureOutputs
+    displayName: 'Capture Infrastructure Outputs'
+    inputs:
+      targetType: 'inline'
+      script: |
+        Write-Host "Debug - armOutputs: $(armOutputs)"
+        $var = ConvertFrom-Json '$(armOutputs)'
+        if ($null -eq $var.storageAccountName -or $null -eq $var.storageAccountName.value) {
+          Write-Error "ARM outputs missing expected 'storageAccountName' value. armOutputs: $(armOutputs)"
+          exit 1
+        }
+        $storageAccountName = $var.storageAccountName.value
+        Write-Host "Storage Account Name: $storageAccountName"
+        Write-Host "##vso[task.setvariable variable=storageAccountName;isOutput=true]$storageAccountName"
+
+- deployment: Deploy_${{ parameters.appId }}
+  displayName: 'Deploy ${{ parameters.displayName }} (Static Web App)'
+  condition: succeeded()
+  dependsOn: Infrastructure_${{ parameters.appId }}
+  environment: ${{ parameters.environmentNameDevOps }}
+  pool:
+    vmImage: ${{ parameters.vmImageName }}
+  variables:
+    storageAccountName: $[ dependencies.Infrastructure_${{ parameters.appId }}.outputs['captureOutputs.storageAccountName'] ]
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)'
+            Contents: ${{ parameters.artifactPattern }}
+            TargetFolder: '$(Build.ArtifactStagingDirectory)'
+            flattenFolders: true
+
+        - task: ExtractFiles@1
+          inputs:
+            archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactZipName }}'
+            destinationFolder: '$(Build.ArtifactStagingDirectory)/deploy'
+            cleanDestinationFolder: true
+            overwriteExistingFiles: false
+
+        - task: Bash@3
+          displayName: Downgrade Azure CLI to 2.76.0
+          inputs:
+            targetType: 'inline'
+            script: |
+              pip install azure-cli==2.76.0 --force-reinstall
+              az --version
+
+        - task: AzureCLI@2
+          displayName: Copy to Blob
+          inputs:
+            azureSubscription: ${{ parameters.ServiceConnectionName }}
+            scriptType: 'pscore'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              az storage blob delete-batch -s `$web --pattern * --account-name $(storageAccountName)
+              az storage blob upload-batch --destination `$web --account-name $(storageAccountName) --source $(Build.ArtifactStagingDirectory)/deploy
+              az afd endpoint purge --content-paths "/*" --endpoint-name ${{ parameters.frontDoorEndpointName }} --profile-name ${{ parameters.frontDoorProfileName }} --resource-group ${{ parameters.resourceGroupName }} --domains ${{ parameters.frontDoorDomainName }}
+            addSpnToEnvironment: true
