@@ -9,5 +9,3 @@ export const SectionLayout: React.FC = () => {
 		</div>
 	);
 };
-
-

@@ -5,8 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { discoverPortalConfigs } from '../src/portal-discovery.ts';
 
 function makeTempAppsDir() {
-	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'server-oauth2-mock-tests-'));
-	return dir;
+	return fs.mkdtempSync(path.join(os.tmpdir(), 'server-oauth2-mock-tests-'));
 }
 
 function writeJson(dir: string, relPath: string, obj: unknown) {
@@ -56,7 +55,7 @@ describe('discoverPortalConfigs', () => {
 
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(2);
-		const names = portals.map((p) => p.name).sort();
+		const names = portals.map((p) => p.name).sort((a, b) => a.localeCompare(b));
 		expect(names).toEqual(['a', 'b']);
 	});
 
@@ -77,9 +76,12 @@ describe('discoverPortalConfigs', () => {
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(1);
 		const p = portals[0];
-		expect(p.claims.sub).toBe('local');
-		expect(p.claims.email).toBe('local@example.com');
-		expect(p.claims.extra).toBe('keep');
+		// biome-ignore lint:useLiteralKeys
+		expect(p?.claims?.['sub']).toBe('local');
+		// biome-ignore lint:useLiteralKeys
+		expect(p?.claims?.['email']).toBe('local@example.com');
+		// biome-ignore lint:useLiteralKeys
+		expect(p?.claims?.['extra']).toBe('keep');
 	});
 
 	it('warns and falls back to base config when mock-oidc.local.json is malformed', () => {
@@ -99,7 +101,8 @@ describe('discoverPortalConfigs', () => {
 		try {
 			const portals = discoverPortalConfigs(tmp);
 			expect(portals).toHaveLength(1);
-			expect(portals[0].claims.sub).toBe('00000000-0000-4000-8000-000000000001');
+            // biome-ignore lint:useLiteralKeys
+			expect(portals[0]?.claims?.['sub']).toBe('00000000-0000-4000-8000-000000000001');
 			expect(warnSpy).toHaveBeenCalled();
 		} finally {
 			warnSpy.mockRestore();
@@ -223,8 +226,10 @@ describe('discoverPortalConfigs', () => {
 
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals).toHaveLength(1);
-		expect(portals[0].claims.roles).toEqual(['admin', 'editor']);
-		expect(portals[0].claims.level).toBe(2);
+		// biome-ignore lint:useLiteralKeys
+		expect(portals[0]?.claims?.['roles']).toEqual(['admin', 'editor']);
+		// biome-ignore lint:useLiteralKeys
+		expect(portals[0]?.claims?.['level']).toBe(2);
 	});
 
 	it('prefers .env.local values over .env when both exist', () => {
