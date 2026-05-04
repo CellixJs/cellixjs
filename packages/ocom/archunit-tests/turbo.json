@@ -1,23 +1,23 @@
 {
-  "extends": ["//"],
-  "tasks": {
-    "test:coverage": {
-      "dependsOn": [
-        "@cellix/config-vitest#build",
-        "@ocom/domain#build",
-        "@ocom/persistence#build",
-        "@ocom/application-services#build",
-        "@ocom/graphql#build",
-        "@ocom/rest#build",
-        "@ocom/service-mongoose#build",
-        "@ocom/service-otel#build",
-        "@ocom/service-blob-storage#build",
-        "@ocom/service-token-validation#build",
-        "@ocom/ui-components#build",
-        "@apps/api#build",
-        "@apps/ui-community#build"
-      ],
-      "outputs": []
-    }
-  }
+	"extends": ["//"],
+	"tasks": {
+		"test:coverage": {
+			"dependsOn": [
+				"@cellix/config-vitest#build",
+				"@ocom/domain#build",
+				"@ocom/persistence#build",
+				"@ocom/application-services#build",
+				"@ocom/graphql#build",
+				"@ocom/rest#build",
+				"@ocom/service-mongoose#build",
+				"@ocom/service-otel#build",
+				"@ocom/service-blob-storage#build",
+				"@ocom/service-token-validation#build",
+				"@ocom/ui-shared#build",
+				"@apps/api#build",
+				"@apps/ui-community#build"
+			],
+			"outputs": []
+		}
+	}
 }

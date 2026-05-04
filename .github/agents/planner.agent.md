@@ -122,7 +122,7 @@ Write the plan as a structured markdown file:
 ### Package Dependency Order
 ```
 @cellix/domain-seedwork → @ocom/domain → @ocom/persistence → @ocom/graphql → @apps/api
-@cellix/ui-core → @ocom/ui-components → @ocom/ui-community-route-* → @apps/ui-community
+@cellix/ui-core → @ocom/ui-shared → @ocom/ui-community-route-* → @apps/ui-community
 ```
 
 ### Bounded Context Structure

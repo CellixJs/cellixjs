@@ -1,6 +1,6 @@
 import { IdcardOutlined, ProfileOutlined, TeamOutlined } from '@ant-design/icons';
 import { PageHeader } from '@ant-design/pro-layout';
-import { VerticalTabs } from '@ocom/ui-components';
+import { VerticalTabs } from '@ocom/ui-shared';
 import type React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SubPageLayout } from '../sub-page-layout.tsx';

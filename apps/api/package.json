@@ -9,7 +9,7 @@
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build && rolldown -c rolldown.config.ts",
 		"predev": "pnpm run prepare:deploy && pnpm run sync-local-settings",
-		"dev": "node ../../build-pipeline/scripts/portless-dev.mjs data-access.ownercommunity.localhost node start-dev.mjs",
+		"dev": "pnpm exec portless data-access.ownercommunity.localhost --force node start-dev.mjs",
 		"prepare:deploy": "cellix-prepare-func-deploy",
 		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",

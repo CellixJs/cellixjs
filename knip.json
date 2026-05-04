@@ -10,6 +10,11 @@
 			"project": ["src/**/*.{ts,tsx}"],
 			"ignore": ["**/apollo-client-links.tsx"]
 		},
+		"apps/ui-staff": {
+			"entry": ["src/main.tsx"],
+			"project": ["src/**/*.{ts,tsx}"],
+			"ignore": []
+		},
 		"apps/docs": {
 			"entry": ["src/**/*.{ts,tsx,js,jsx}"],
 			"project": ["src/**/*.{ts,tsx,js,jsx}"]
@@ -42,23 +47,15 @@
 			"entry": ["src/index.ts", "src/schema/types/*.resolvers.ts"],
 			"project": ["src/**/*.ts"]
 		},
-		"packages/ocom/ui-community-route-shared": {
-			"entry": ["src/index.tsx"],
-			"project": ["src/**/*.{ts,tsx}"]
-		},
-		"packages/ocom/ui-community-route-admin": {
-			"entry": ["src/index.ts", "src/index.tsx"],
-			"project": ["src/**/*.{ts,tsx}"]
-		},
-		"packages/ocom/ui-community-route-*": {
-			"entry": ["src/index.ts"],
-			"project": ["src/**/*.{ts,tsx}"]
-		},
 		"packages/ocom/*": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.ts"]
 		},
-		"packages/ocom/ui-components": {
+		"packages/ocom/ui-*": {
+			"entry": ["src/index.tsx"],
+			"project": ["src/**/*.{ts,tsx}"]
+		},
+		"packages/ocom/ui-shared": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.{ts,tsx}"]
 		},
@@ -99,7 +96,7 @@
 		}
 	},
 	"ignoreWorkspaces": ["packages/cellix/config-typescript"],
-	"ignore": ["build-pipeline/scripts/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**", ".agents/**", ".github/**"],
+	"ignore": ["build-pipeline/scripts/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**", ".agents/**", ".github/**", "portless.config.cjs"],
 	"ignoreIssues": {
 		"codegen.yml": ["unlisted"]
 	},

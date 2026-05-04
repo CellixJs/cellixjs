@@ -7,7 +7,7 @@ describe('Naming Conventions', () => {
 		// This is intentionally permissive so new UI packages are automatically covered.
 		// Restrict to UI packages only. UI packages in this repo follow the
 		// pattern `ui-*` and exist under packages/*/ui-* and apps/ui-*
-		// Examples: packages/cellix/ui-core, packages/ocom/ui-components, apps/ui-community
+		// Examples: packages/cellix/ui-core, packages/ocom/ui-shared, apps/ui-community
 		const rule = projectFiles()
 			// Match files that live inside a ui-* package's src folder.
 			// inFolder matches the folder path (without filename) so it's
