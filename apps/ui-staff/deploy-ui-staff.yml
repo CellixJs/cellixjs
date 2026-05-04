@@ -19,23 +19,23 @@ parameters:
   type: string
 
 jobs:
-- job: Infrastructure_UI_Community
-  displayName: Infrastructure Setup (UI Community)
-  condition: and(in(dependencies.Infrastructure.result, 'Succeeded', 'Skipped'), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_COMMUNITY_CHANGES'], 'true'))
+- job: Infrastructure_UI_Staff
+  displayName: Infrastructure Setup (UI Staff)
+  condition: and(in(dependencies.Infrastructure.result, 'Succeeded', 'Skipped'), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_STAFF_CHANGES'], 'true'))
   dependsOn: Infrastructure
   pool:
     vmImage: ${{parameters.vmImageName}}
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
     name: deployInfrastructure
-    displayName: 'Deploy UI Community Infrastructure'
+    displayName: 'Deploy UI Staff Infrastructure'
     inputs:
       connectedServiceName: ${{parameters.ServiceConnectionName}}
-      deploymentName: $(Build.BuildNumber)-ui
+      deploymentName: $(Build.BuildNumber)-ui-staff
       location: ${{parameters.deploymentDefaultLocation}}
       resourceGroupName: ${{parameters.resourceGroupName}}
-      csmFile: apps/ui-community/iac/main.bicep
-      csmParametersFile: apps/ui-community/iac/${{parameters.environmentNameBicep}}.bicepparam
+      csmFile: apps/ui-staff/iac/main.bicep
+      csmParametersFile: apps/ui-staff/iac/${{parameters.environmentNameBicep}}.bicepparam
       deploymentOutputs: 'armOutputs'
   
   - task: PowerShell@2
@@ -50,37 +50,33 @@ jobs:
         Write-Host "Storage Account Name: $storageAccountName"
         Write-Host "##vso[task.setvariable variable=storageAccountName;isOutput=true]$storageAccountName"
 
-- deployment: Deploy_UI_Community
-  displayName: 'Deploy UI Community (Static Web App)'
-  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_COMMUNITY_CHANGES'], 'true'))
-  dependsOn: Infrastructure_UI_Community
+- deployment: Deploy_UI_Staff
+  displayName: 'Deploy UI Staff (Static Web App)'
+  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_STAFF_CHANGES'], 'true'))
+  dependsOn: Infrastructure_UI_Staff
   environment: ${{parameters.environmentNameDevOps}}
   pool:
     vmImage: ${{parameters.vmImageName}}
   variables:
-    storageAccountName: $[ dependencies.Infrastructure_UI_Community.outputs['captureOutputs.storageAccountName'] ]
+    storageAccountName: $[ dependencies.Infrastructure_UI_Staff.outputs['captureOutputs.storageAccountName'] ]
   strategy:
     runOnce:
       deploy:
         steps:
-        # Get the zip file for with proper environment settings already compiled in it.
         - task: CopyFiles@2
           inputs:
             SourceFolder: '$(Pipeline.Workspace)'
-            Contents: '**/ui-community-$(Build.BuildId).zip'
+            Contents: '**/ui-staff-$(Build.BuildId).zip'
             TargetFolder: '$(Build.ArtifactStagingDirectory)'
             flattenFolders: true
 
-        # Extract the files from the zip file.
         - task: ExtractFiles@1
           inputs:
-            archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/ui-community-$(Build.BuildId).zip'
+            archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/ui-staff-$(Build.BuildId).zip'
             destinationFolder: '$(Build.ArtifactStagingDirectory)/deploy'
             cleanDestinationFolder: true
             overwriteExistingFiles: false
 
-        # Temporary workaround to downgrade Azure CLI
-        # TODO: remove this task when issue is resolved: https://github.com/Azure/azure-cli/issues/32039#issue
         - task: Bash@3
           displayName: Downgrade Azure CLI to 2.76.0
           inputs:
@@ -89,8 +85,6 @@ jobs:
               pip install azure-cli==2.76.0 --force-reinstall
               az --version
 
-        # Delete all files in the $web container and replace with extracted files.
-        # Purge the Front Door endpoint to ensure the CDN cache is cleared.
         - task: AzureCLI@2
           displayName: Copy to Blob
           inputs:

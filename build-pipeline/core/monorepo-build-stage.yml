@@ -486,12 +486,23 @@ stages:
     # Package UI Community compiled assets into artifact
     - task: ArchiveFiles@2
       displayName: 'Artifact: Prepare UI Community'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_COMMUNITY_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
       inputs:
         rootFolderOrFile: 'apps/ui-community/dist'
         includeRootFolder: false
         archiveType: zip
         archiveFile: $(Build.ArtifactStagingDirectory)/ui-community-$(Build.BuildId).zip
+        replaceExistingArchive: true
+
+    # Package UI Staff compiled assets into artifact
+    - task: ArchiveFiles@2
+      displayName: 'Artifact: Prepare UI Staff'
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_STAFF_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      inputs:
+        rootFolderOrFile: 'apps/ui-staff/dist'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/ui-staff-$(Build.BuildId).zip
         replaceExistingArchive: true
 
     # Package Docs compiled assets into artifact
@@ -514,8 +525,14 @@ stages:
     # Upload UI Community artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/ui-community-$(Build.BuildId).zip
       displayName: 'Artifact: Publish UI Community'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_COMMUNITY_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: ui-community
+
+    # Upload UI Staff artifact as build result
+    - publish: $(Build.ArtifactStagingDirectory)/ui-staff-$(Build.BuildId).zip
+      displayName: 'Artifact: Publish UI Staff'
+      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_STAFF_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      artifact: ui-staff
 
     # Upload Docs artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/docs-$(Build.BuildId).zip

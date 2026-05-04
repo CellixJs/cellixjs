@@ -32,6 +32,9 @@ parameters:
 - name: frontDoorDomainNameUICommunity
   displayName: 'Front Door Domain Name'
   type: string
+- name: frontDoorDomainNameUIStaff
+  displayName: 'Front Door Domain Name (UI Staff)'
+  type: string
 stages:
 - stage: ${{parameters.stageName}}
   displayName: ${{parameters.stageName}} stage
@@ -61,3 +64,14 @@ stages:
       frontDoorProfileName: ${{parameters.frontDoorProfileName}}
       frontDoorEndpointName: ${{parameters.frontDoorEndpointName}}
       frontDoorDomainName: ${{parameters.frontDoorDomainNameUICommunity}}
+  - template: ../../apps/ui-staff/deploy-ui-staff.yml
+    parameters:
+      environmentNameDevOps: ${{parameters.environmentNameDevOps}}
+      environmentNameBicep: ${{parameters.environmentNameBicep}}
+      vmImageName: ${{parameters.vmImageName}}
+      ServiceConnectionName: ${{parameters.ServiceConnectionName}}
+      deploymentDefaultLocation: ${{parameters.deploymentDefaultLocation}}
+      resourceGroupName: ${{parameters.resourceGroupName}}
+      frontDoorProfileName: ${{parameters.frontDoorProfileName}}
+      frontDoorEndpointName: ${{parameters.frontDoorEndpointName}}
+      frontDoorDomainName: ${{parameters.frontDoorDomainNameUIStaff}}

@@ -27,45 +27,41 @@ function setPipelineVariable(name, value) {
 const FORCE_DEPLOY_VARS = {
 	API: 'FORCE_DEPLOY_API',
 	UI: 'FORCE_DEPLOY_UI',
-	DOCS: 'FORCE_DEPLOY_DOCS'
+	DOCS: 'FORCE_DEPLOY_DOCS',
 };
 
 const DEFAULT_FORCE_DEPLOY = {
 	[FORCE_DEPLOY_VARS.API]: 'false',
 	[FORCE_DEPLOY_VARS.UI]: 'false',
-	[FORCE_DEPLOY_VARS.DOCS]: 'false'
+	[FORCE_DEPLOY_VARS.DOCS]: 'false',
 };
 
-const INFRA_PATTERNS = [
-	'build-pipeline/**',
-	'iac/**',
-	'azure-pipelines.yml',
-	'host.json'
-];
+const INFRA_PATTERNS = ['build-pipeline/**', 'iac/**', 'azure-pipelines.yml', 'host.json'];
 
 const APP_CONFIGS = {
 	backend: { filter: './apps/api', variable: 'HAS_BACKEND_CHANGES' },
-	frontend: { filter: './apps/ui-community', variable: 'HAS_FRONTEND_CHANGES' },
-	docs: { filter: './apps/docs', variable: 'HAS_DOCS_CHANGES' }
+	frontendCommunity: { filter: './apps/ui-community', variable: 'HAS_FRONTEND_COMMUNITY_CHANGES' },
+	frontendStaff: { filter: './apps/ui-staff', variable: 'HAS_FRONTEND_STAFF_CHANGES' },
+	docs: { filter: './apps/docs', variable: 'HAS_DOCS_CHANGES' },
 };
 
 // Parse .force-deploy file and return force deploy settings
 function parseForceDeployFile() {
 	const fs = require('fs');
 	const path = require('path');
-	
+
 	const forceDeployVars = { ...DEFAULT_FORCE_DEPLOY };
 	const forceDeployPath = path.resolve('.force-deploy');
-	
+
 	if (!fs.existsSync(forceDeployPath)) {
 		console.log('.force-deploy file not found, using default force deploy settings');
 		return forceDeployVars;
 	}
-	
+
 	try {
 		const content = fs.readFileSync(forceDeployPath, 'utf8');
 		const lines = content.split('\n');
-		
+
 		for (const line of lines) {
 			const trimmed = line.trim();
 			// Parse variable assignments like: FORCE_DEPLOY_API=true
@@ -77,19 +73,19 @@ function parseForceDeployFile() {
 				forceDeployVars[FORCE_DEPLOY_VARS.DOCS] = trimmed.split('=')[1] || 'false';
 			}
 		}
-		
+
 		console.log('Parsed force deploy settings from .force-deploy file');
 	} catch (error) {
 		console.warn('Could not read .force-deploy file:', error.message);
 	}
-	
+
 	return forceDeployVars;
 }
 
 // Check for infrastructure changes that affect deployments
 async function checkInfrastructureChanges() {
 	let hasInfraChanges = false;
-	
+
 	for (const pattern of INFRA_PATTERNS) {
 		const gitCommand = `git diff --name-only ${process.env.TURBO_SCM_BASE} -- ${pattern}`;
 		const infraOutput = await runCommand(gitCommand);
@@ -98,7 +94,7 @@ async function checkInfrastructureChanges() {
 			hasInfraChanges = true;
 		}
 	}
-	
+
 	return hasInfraChanges;
 }
 
@@ -106,11 +102,11 @@ async function checkInfrastructureChanges() {
 async function getAffectedPackages() {
 	const turboCommand = `npx turbo run build --affected --dry-run=json`;
 	const turboOutput = await runCommand(turboCommand);
-	
+
 	if (turboOutput === 'COMMAND_FAILED') {
 		return { packages: [], error: true };
 	}
-	
+
 	try {
 		const turboData = JSON.parse(turboOutput);
 		const affectedPackages = turboData.packages ? turboData.packages.filter((pkg) => pkg !== '//') : [];
@@ -126,23 +122,23 @@ async function getAffectedPackages() {
 async function checkAppChanges(appConfig, affectedPackages) {
 	const scopeCommand = `npx turbo run build --filter=${appConfig.filter} --dry-run=json`;
 	const scopeOutput = await runCommand(scopeCommand);
-	
+
 	if (scopeOutput === 'COMMAND_FAILED') {
 		console.warn(`Scope detection error for ${appConfig.filter}; assuming affected.`);
 		return true;
 	}
-	
+
 	try {
 		const scopeData = JSON.parse(scopeOutput);
 		const scopePackages = scopeData.packages ? scopeData.packages.filter((pkg) => pkg !== '//') : [];
-		
+
 		const affectedSet = new Set(affectedPackages);
 		const scopeSet = new Set(scopePackages);
 		const hasIntersect = Array.from(affectedSet).some((pkg) => scopeSet.has(pkg));
-		
+
 		console.log(`${appConfig.filter} scope packages:`, scopePackages.join(' '));
 		console.log(`${appConfig.filter} affected: ${hasIntersect}`);
-		
+
 		return hasIntersect;
 	} catch (error) {
 		console.error(`Failed to parse scope JSON for ${appConfig.filter}:`, error.message);
@@ -153,7 +149,7 @@ async function checkAppChanges(appConfig, affectedPackages) {
 // Main function to detect affected packages and map to deployment groups
 async function detectChanges() {
 	const forceDeployVars = parseForceDeployFile();
-	
+
 	// Determine build context
 	const buildReason = process.env.Build_Reason || 'Manual';
 	const isPullRequest = buildReason === 'PullRequest';
@@ -194,6 +190,7 @@ async function detectChanges() {
 	let hasBackendChanges = false;
 	let hasFrontendChanges = false;
 	let hasDocsChanges = false;
+	let changeChecks = [];
 
 	if (globalError) {
 		// Fallback: assume all deployments are affected on global detection failure
@@ -201,20 +198,25 @@ async function detectChanges() {
 		hasBackendChanges = true;
 		hasFrontendChanges = true;
 		hasDocsChanges = true;
+		// In this scenario, mark per-app flags as true
+		changeChecks = [true, true, true, true];
 	} else if (affectedPackages.length === 0 && !hasInfraChanges) {
 		// No changes detected globally and no infrastructure changes
 		console.log('No affected packages or infrastructure changes detected. Skipping all deployments.');
+		changeChecks = [false, false, false, false];
 	} else {
 		// Check each app for changes
-		const changeChecks = await Promise.all([
+		changeChecks = await Promise.all([
 			checkAppChanges(APP_CONFIGS.backend, affectedPackages),
-			checkAppChanges(APP_CONFIGS.frontend, affectedPackages),
-			checkAppChanges(APP_CONFIGS.docs, affectedPackages)
+			checkAppChanges(APP_CONFIGS.frontendCommunity, affectedPackages),
+			checkAppChanges(APP_CONFIGS.frontendStaff, affectedPackages),
+			checkAppChanges(APP_CONFIGS.docs, affectedPackages),
 		]);
 
 		hasBackendChanges = changeChecks[0];
-		hasFrontendChanges = changeChecks[1];
-		hasDocsChanges = changeChecks[2];
+		// Frontend changes when either the community or staff frontends are affected
+		hasFrontendChanges = changeChecks[1] || changeChecks[2];
+		hasDocsChanges = changeChecks[3];
 
 		// If infrastructure changes detected, force deployment of all components
 		if (hasInfraChanges) {
@@ -222,6 +224,7 @@ async function detectChanges() {
 			hasBackendChanges = true;
 			hasFrontendChanges = true;
 			hasDocsChanges = true;
+			changeChecks = [true, true, true, true];
 		}
 	}
 
@@ -229,14 +232,19 @@ async function detectChanges() {
 	if (forceDeployVars[FORCE_DEPLOY_VARS.API] === 'true') {
 		console.log('FORCE_DEPLOY_API=true detected, forcing API deployment');
 		hasBackendChanges = true;
+		changeChecks[0] = true;
 	}
 	if (forceDeployVars[FORCE_DEPLOY_VARS.UI] === 'true') {
 		console.log('FORCE_DEPLOY_UI=true detected, forcing UI deployment');
 		hasFrontendChanges = true;
+		// mark both frontend flags
+		changeChecks[1] = true;
+		changeChecks[2] = true;
 	}
 	if (forceDeployVars[FORCE_DEPLOY_VARS.DOCS] === 'true') {
 		console.log('FORCE_DEPLOY_DOCS=true detected, forcing Docs deployment');
 		hasDocsChanges = true;
+		changeChecks[3] = true;
 	}
 
 	// Log final results
@@ -246,9 +254,13 @@ async function detectChanges() {
 	console.log(`Docs changes: ${hasDocsChanges}`);
 
 	// Set pipeline variables
-	setPipelineVariable('HAS_BACKEND_CHANGES', hasBackendChanges);
-	setPipelineVariable('HAS_FRONTEND_CHANGES', hasFrontendChanges);
-	setPipelineVariable('HAS_DOCS_CHANGES', hasDocsChanges);
+	setPipelineVariable('HAS_BACKEND_CHANGES', hasBackendChanges ? 'true' : 'false');
+	setPipelineVariable('HAS_FRONTEND_CHANGES', hasFrontendChanges ? 'true' : 'false');
+	setPipelineVariable('HAS_DOCS_CHANGES', hasDocsChanges ? 'true' : 'false');
+
+	// Export per-application frontend flags for precise gating
+	setPipelineVariable(APP_CONFIGS.frontendCommunity.variable, changeChecks[1] ? 'true' : 'false');
+	setPipelineVariable(APP_CONFIGS.frontendStaff.variable, changeChecks[2] ? 'true' : 'false');
 }
 
 // Execute the script
@@ -256,7 +268,7 @@ async function detectChanges() {
 	try {
 		await detectChanges();
 	} catch (error) {
-		console.error('Error in detect-changes.js:', error.message);
+		console.error('Error in detect-changes.cjs:', error.message);
 		process.exit(1);
 	}
 })();
