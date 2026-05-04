@@ -6,7 +6,7 @@ import { StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { Root as TechAdmin } from '@ocom/ui-staff-route-tech-admin';
 import { Root as UserManagement } from '@ocom/ui-staff-route-user-management';
 import { useAuth } from 'react-oidc-context';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Outlet } from 'react-router-dom';
 import './App.css';
 import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
 import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
@@ -34,31 +34,12 @@ export default function App() {
 		</RequireAuth>
 	);
 
-	const staffSection = (
+	// Staff section acts as the parent route element and must render an Outlet so
+	// nested child routes declared in the top-level Routes are rendered in place.
+	const staffSectionElement = (
 		<RequireAuth forceLogin={false}>
 			<StaffAuthProvider value={identity}>
-				<Routes>
-					<Route
-						path="/"
-						element={<CommunityManagement />}
-					/>
-					<Route
-						path="/community/*"
-						element={<CommunityManagement />}
-					/>
-					<Route
-						path="/users/*"
-						element={<UserManagement />}
-					/>
-					<Route
-						path="/finance/*"
-						element={<Finance />}
-					/>
-					<Route
-						path="/tech/*"
-						element={<TechAdmin />}
-					/>
-				</Routes>
+				<Outlet />
 			</StaffAuthProvider>
 		</RequireAuth>
 	);
@@ -66,22 +47,19 @@ export default function App() {
 	return (
 		<ApolloConnection>
 			<Routes>
-				<Route
-					path="*"
-					element={rootSection}
-				/>
-				<Route
-					path="/auth-redirect"
-					element={authSection}
-				/>
-				<Route
-					path="/unauthorized"
-					element={<Unauthorized />}
-				/>
-				<Route
-					path="/staff/*"
-					element={staffSection}
-				/>
+				<Route path="*" element={rootSection} />
+				<Route path="/auth-redirect" element={authSection} />
+				<Route path="/unauthorized" element={<Unauthorized />} />
+
+				{/* Parent staff route: child routes must be declared as nested Route elements
+					so relative paths like "users/*" resolve against /staff. */}
+				<Route path="/staff/*" element={staffSectionElement}>
+					<Route index element={<CommunityManagement />} />
+					<Route path="community/*" element={<CommunityManagement />} />
+					<Route path="users/*" element={<UserManagement />} />
+					<Route path="finance/*" element={<Finance />} />
+					<Route path="tech/*" element={<TechAdmin />} />
+				</Route>
 			</Routes>
 		</ApolloConnection>
 	);

@@ -1,11 +1,21 @@
-import type { FC } from 'react';
-import { StaffRouteShell } from '@ocom/ui-staff-shared';
+import { SectionLayout as SharedSectionLayout, type SectionLayoutProps } from '@ocom/ui-staff-shared';
+import { DollarOutlined } from '@ant-design/icons';
 
-export const SectionLayout: FC = () => {
-	return (
-		<StaffRouteShell
-			title="Finance"
-			description="Finance route package mounted under /staff/finance."
-		/>
-	);
+export const SectionLayout: React.FC = () => {
+const pageLayouts: SectionLayoutProps['pageLayouts'] = [
+{
+path: '/staff/finance',
+title: 'Finance',
+icon: <DollarOutlined />,
+id: 'finance',
+},
+];
+
+return (
+<SharedSectionLayout
+title="Finance"
+description="Finance route package mounted under /staff/finance."
+pageLayouts={pageLayouts}
+/>
+);
 };
