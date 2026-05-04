@@ -112,9 +112,9 @@ generates:
       - typed-document-node
 
 # UI community client types
-  './packages/ocom/ui-community-route-shared/src/generated.tsx':
+  './packages/ocom/ui-community-shared/src/generated.tsx':
     documents:
-      - './packages/ocom/ui-community-route-shared/src/**/**.graphql'
+      - './packages/ocom/ui-community-shared/src/**/**.graphql'
     config:
       withHooks: true
       withHOC: false
@@ -126,9 +126,9 @@ generates:
       - typescript-operations
       - typed-document-node
 
-  # UI components client types
-  './packages/ocom/ui-components/src/generated.tsx':
-    documents: './packages/ocom/ui-components/src/components/**/**.graphql'
+  # UI shared components client types
+  './packages/ocom/ui-shared/src/generated.tsx':
+    documents: './packages/ocom/ui-shared/src/components/**/**.graphql'
     config:
       withHooks: true
       withHOC: false

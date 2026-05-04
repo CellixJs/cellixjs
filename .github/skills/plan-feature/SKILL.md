@@ -28,7 +28,7 @@ Reusable procedure for planning a new feature or significant change.
 - Map the change to the package dependency order:
   ```
   @cellix/domain-seedwork -> @ocom/domain -> @ocom/persistence -> @ocom/graphql -> @apps/api
-  @cellix/ui-core -> @ocom/ui-components -> @ocom/ui-community-route-* -> @apps/ui-community
+  @cellix/ui-core -> @ocom/ui-shared -> @ocom/ui-community-route-* -> @apps/ui-community
   ```
 
 ### 3. Identify Instruction Files

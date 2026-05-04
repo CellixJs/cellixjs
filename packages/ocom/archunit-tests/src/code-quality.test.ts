@@ -35,7 +35,7 @@ describe('Code Quality', () => {
 	describe('UI (ui packages)', () => {
 		it.skip('should have higher cohesion (LCOM96b)', async () => {
 			const rule = metrics(tsconfigPath)
-				.inPath('../ui-components/src/**')
+				.inPath('../ui-shared/src/**')
 				.inPath('../../../apps/ui-community/src/**')
 				.lcom()
 				.lcom96b()
@@ -47,7 +47,7 @@ describe('Code Quality', () => {
 
 		it.skip('should limit imports and surface area in UI code', async () => {
 			const rule = metrics(tsconfigPath)
-				.inPath('../ui-components/src/**')
+				.inPath('../ui-shared/src/**')
 				.inPath('../../../apps/ui-community/src/**')
 				.count()
 				.imports()

@@ -66,7 +66,7 @@ TypeScript 6.0 merges `lib.dom.iterable.d.ts` and `lib.dom.asynciterable.d.ts` i
 
 - `packages/cellix/ui-core/tsconfig.json`
 - `apps/ui-community/tsconfig.json`
-- `packages/ocom/ui-components/tsconfig.json`
+- `packages/ocom/ui-shared/tsconfig.json`
 
 ### 4. `apps/docs` tsconfig: `baseUrl` removed, `ignoreDeprecations: "6.0"` added
 
