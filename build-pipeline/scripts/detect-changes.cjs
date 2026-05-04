@@ -27,12 +27,14 @@ function setPipelineVariable(name, value) {
 const FORCE_DEPLOY_VARS = {
 	API: 'FORCE_DEPLOY_API',
 	UI: 'FORCE_DEPLOY_UI',
+	UI_STAFF: 'FORCE_DEPLOY_UI_STAFF',
 	DOCS: 'FORCE_DEPLOY_DOCS',
 };
 
 const DEFAULT_FORCE_DEPLOY = {
 	[FORCE_DEPLOY_VARS.API]: 'false',
 	[FORCE_DEPLOY_VARS.UI]: 'false',
+	[FORCE_DEPLOY_VARS.UI_STAFF]: 'false',
 	[FORCE_DEPLOY_VARS.DOCS]: 'false',
 };
 
@@ -69,6 +71,8 @@ function parseForceDeployFile() {
 				forceDeployVars[FORCE_DEPLOY_VARS.API] = trimmed.split('=')[1] || 'false';
 			} else if (trimmed.startsWith(`${FORCE_DEPLOY_VARS.UI}=`)) {
 				forceDeployVars[FORCE_DEPLOY_VARS.UI] = trimmed.split('=')[1] || 'false';
+			} else if (trimmed.startsWith(`${FORCE_DEPLOY_VARS.UI_STAFF}=`)) {
+				forceDeployVars[FORCE_DEPLOY_VARS.UI_STAFF] = trimmed.split('=')[1] || 'false';
 			} else if (trimmed.startsWith(`${FORCE_DEPLOY_VARS.DOCS}=`)) {
 				forceDeployVars[FORCE_DEPLOY_VARS.DOCS] = trimmed.split('=')[1] || 'false';
 			}
@@ -190,7 +194,7 @@ async function detectChanges() {
 	let hasBackendChanges = false;
 	let hasFrontendChanges = false;
 	let hasDocsChanges = false;
-	let changeChecks = [];
+	let changeChecks = {};
 
 	if (globalError) {
 		// Fallback: assume all deployments are affected on global detection failure
@@ -199,24 +203,24 @@ async function detectChanges() {
 		hasFrontendChanges = true;
 		hasDocsChanges = true;
 		// In this scenario, mark per-app flags as true
-		changeChecks = [true, true, true, true];
+		changeChecks = { backend: true, frontendCommunity: true, frontendStaff: true, docs: true };
 	} else if (affectedPackages.length === 0 && !hasInfraChanges) {
 		// No changes detected globally and no infrastructure changes
 		console.log('No affected packages or infrastructure changes detected. Skipping all deployments.');
-		changeChecks = [false, false, false, false];
+		changeChecks = { backend: false, frontendCommunity: false, frontendStaff: false, docs: false };
 	} else {
 		// Check each app for changes
-		changeChecks = await Promise.all([
-			checkAppChanges(APP_CONFIGS.backend, affectedPackages),
-			checkAppChanges(APP_CONFIGS.frontendCommunity, affectedPackages),
-			checkAppChanges(APP_CONFIGS.frontendStaff, affectedPackages),
-			checkAppChanges(APP_CONFIGS.docs, affectedPackages),
-		]);
+		changeChecks = {
+			backend: await checkAppChanges(APP_CONFIGS.backend, affectedPackages),
+			frontendCommunity: await checkAppChanges(APP_CONFIGS.frontendCommunity, affectedPackages),
+			frontendStaff: await checkAppChanges(APP_CONFIGS.frontendStaff, affectedPackages),
+			docs: await checkAppChanges(APP_CONFIGS.docs, affectedPackages),
+		};
 
-		hasBackendChanges = changeChecks[0];
+		hasBackendChanges = changeChecks.backend;
 		// Frontend changes when either the community or staff frontends are affected
-		hasFrontendChanges = changeChecks[1] || changeChecks[2];
-		hasDocsChanges = changeChecks[3];
+		hasFrontendChanges = changeChecks.frontendCommunity || changeChecks.frontendStaff;
+		hasDocsChanges = changeChecks.docs;
 
 		// If infrastructure changes detected, force deployment of all components
 		if (hasInfraChanges) {
@@ -224,7 +228,7 @@ async function detectChanges() {
 			hasBackendChanges = true;
 			hasFrontendChanges = true;
 			hasDocsChanges = true;
-			changeChecks = [true, true, true, true];
+			changeChecks = { backend: true, frontendCommunity: true, frontendStaff: true, docs: true };
 		}
 	}
 
@@ -232,19 +236,26 @@ async function detectChanges() {
 	if (forceDeployVars[FORCE_DEPLOY_VARS.API] === 'true') {
 		console.log('FORCE_DEPLOY_API=true detected, forcing API deployment');
 		hasBackendChanges = true;
-		changeChecks[0] = true;
+		changeChecks.backend = true;
 	}
 	if (forceDeployVars[FORCE_DEPLOY_VARS.UI] === 'true') {
 		console.log('FORCE_DEPLOY_UI=true detected, forcing UI deployment');
 		hasFrontendChanges = true;
 		// mark both frontend flags
-		changeChecks[1] = true;
-		changeChecks[2] = true;
+		changeChecks.frontendCommunity = true;
+		changeChecks.frontendStaff = true;
+	}
+	// New: explicit FORCE_DEPLOY_UI_STAFF to force only the staff frontend
+	if (forceDeployVars[FORCE_DEPLOY_VARS.UI_STAFF] === 'true') {
+		console.log('FORCE_DEPLOY_UI_STAFF=true detected, forcing UI Staff deployment');
+		hasFrontendChanges = true;
+		// mark only the staff frontend flag
+		changeChecks.frontendStaff = true;
 	}
 	if (forceDeployVars[FORCE_DEPLOY_VARS.DOCS] === 'true') {
 		console.log('FORCE_DEPLOY_DOCS=true detected, forcing Docs deployment');
 		hasDocsChanges = true;
-		changeChecks[3] = true;
+		changeChecks.docs = true;
 	}
 
 	// Log final results
@@ -259,8 +270,8 @@ async function detectChanges() {
 	setPipelineVariable('HAS_DOCS_CHANGES', hasDocsChanges ? 'true' : 'false');
 
 	// Export per-application frontend flags for precise gating
-	setPipelineVariable(APP_CONFIGS.frontendCommunity.variable, changeChecks[1] ? 'true' : 'false');
-	setPipelineVariable(APP_CONFIGS.frontendStaff.variable, changeChecks[2] ? 'true' : 'false');
+	setPipelineVariable(APP_CONFIGS.frontendCommunity.variable, changeChecks.frontendCommunity ? 'true' : 'false');
+	setPipelineVariable(APP_CONFIGS.frontendStaff.variable, changeChecks.frontendStaff ? 'true' : 'false');
 }
 
 // Execute the script

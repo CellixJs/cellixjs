@@ -435,7 +435,7 @@ stages:
     # Prepare API deployment artifact using rolldown-bundled output
     - task: Bash@3
       displayName: 'Artifact: Prepare API'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       inputs:
         targetType: 'inline'
         script: |
@@ -486,7 +486,7 @@ stages:
     # Package UI Community compiled assets into artifact
     - task: ArchiveFiles@2
       displayName: 'Artifact: Prepare UI Community'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_COMMUNITY_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       inputs:
         rootFolderOrFile: 'apps/ui-community/dist'
         includeRootFolder: false
@@ -497,7 +497,7 @@ stages:
     # Package UI Staff compiled assets into artifact
     - task: ArchiveFiles@2
       displayName: 'Artifact: Prepare UI Staff'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_STAFF_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       inputs:
         rootFolderOrFile: 'apps/ui-staff/dist'
         includeRootFolder: false
@@ -508,7 +508,7 @@ stages:
     # Package Docs compiled assets into artifact
     - task: ArchiveFiles@2
       displayName: 'Artifact: Prepare Docs'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_DOCS_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       inputs:
         rootFolderOrFile: 'apps/docs/build'
         includeRootFolder: false
@@ -519,23 +519,23 @@ stages:
     # Upload API artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/api-$(Build.BuildId).zip
       displayName: 'Artifact: Publish API'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: api
 
     # Upload UI Community artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/ui-community-$(Build.BuildId).zip
       displayName: 'Artifact: Publish UI Community'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_COMMUNITY_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: ui-community
 
     # Upload UI Staff artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/ui-staff-$(Build.BuildId).zip
       displayName: 'Artifact: Publish UI Staff'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_FRONTEND_STAFF_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: ui-staff
 
     # Upload Docs artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/docs-$(Build.BuildId).zip
       displayName: 'Artifact: Publish Docs'
-      condition: and(succeeded(), eq(variables['BuildJob.HAS_DOCS_CHANGES'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: docs

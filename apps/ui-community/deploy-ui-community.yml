@@ -21,7 +21,7 @@ parameters:
 jobs:
 - job: Infrastructure_UI_Community
   displayName: Infrastructure Setup (UI Community)
-  condition: and(in(dependencies.Infrastructure.result, 'Succeeded', 'Skipped'), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_COMMUNITY_CHANGES'], 'true'))
+  condition: succeeded()
   dependsOn: Infrastructure
   pool:
     vmImage: ${{parameters.vmImageName}}
@@ -52,7 +52,7 @@ jobs:
 
 - deployment: Deploy_UI_Community
   displayName: 'Deploy UI Community (Static Web App)'
-  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_COMMUNITY_CHANGES'], 'true'))
+  condition: succeeded()
   dependsOn: Infrastructure_UI_Community
   environment: ${{parameters.environmentNameDevOps}}
   pool:
@@ -94,7 +94,7 @@ jobs:
         - task: AzureCLI@2
           displayName: Copy to Blob
           inputs:
-            azureSubscription: $(ServiceConnectionName)
+            azureSubscription: ${{ parameters.ServiceConnectionName }}
             scriptType: 'pscore'
             scriptLocation: 'inlineScript'
             inlineScript: |

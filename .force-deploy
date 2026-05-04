@@ -5,10 +5,12 @@
 
 FORCE_DEPLOY_API=false
 FORCE_DEPLOY_UI=false
+FORCE_DEPLOY_UI_STAFF=true
 FORCE_DEPLOY_DOCS=false
 
 # Developers: Change any value to 'true' to force deployment of that package
 # Example:
 # FORCE_DEPLOY_API=true
 # FORCE_DEPLOY_UI=true
+# FORCE_DEPLOY_UI_STAFF=true
 # FORCE_DEPLOY_DOCS=true

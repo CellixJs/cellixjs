@@ -68,6 +68,9 @@ Pros:
 Cons:
 - Adds complexity if Azure is the sole target environment.
 
+## Deployment ordering note
+Because some Bicep deployments target shared resource groups, the CI now serializes ARM/Bicep deployments in a deterministic order to avoid race conditions. This is a pragmatic choice to increase reliability; teams should consider scoping resources to separate resource groups if concurrent infra deployments are required.
+
 ## MORE INFORMATION
 - [Bicep Documentation](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/)
 

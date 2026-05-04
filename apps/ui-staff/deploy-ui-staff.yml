@@ -21,8 +21,8 @@ parameters:
 jobs:
 - job: Infrastructure_UI_Staff
   displayName: Infrastructure Setup (UI Staff)
-  condition: and(in(dependencies.Infrastructure.result, 'Succeeded', 'Skipped'), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_STAFF_CHANGES'], 'true'))
-  dependsOn: Infrastructure
+  condition: succeeded()
+  dependsOn: Infrastructure_UI_Community
   pool:
     vmImage: ${{parameters.vmImageName}}
   steps:
@@ -52,7 +52,7 @@ jobs:
 
 - deployment: Deploy_UI_Staff
   displayName: 'Deploy UI Staff (Static Web App)'
-  condition: and(succeeded(), eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_STAFF_CHANGES'], 'true'))
+  condition: succeeded()
   dependsOn: Infrastructure_UI_Staff
   environment: ${{parameters.environmentNameDevOps}}
   pool:
@@ -88,7 +88,7 @@ jobs:
         - task: AzureCLI@2
           displayName: Copy to Blob
           inputs:
-            azureSubscription: $(ServiceConnectionName)
+            azureSubscription: ${{ parameters.ServiceConnectionName }}
             scriptType: 'pscore'
             scriptLocation: 'inlineScript'
             inlineScript: |
