@@ -26,7 +26,6 @@
 		"@types/react": "^19.1.11",
 		"@types/react-dom": "^19.1.6",
 		"jsdom": "catalog:",
-		"storybook": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
 		"typescript": "catalog:"
