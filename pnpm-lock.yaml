@@ -160,8 +160,8 @@ importers:
         specifier: ^5.64.2
         version: 5.71.0(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@22.19.15)(typescript@6.0.3)
       portless:
-        specifier: 0.9.1
-        version: 0.9.1
+        specifier: 0.11.1
+        version: 0.11.1
       rimraf:
         specifier: ^6.0.1
         version: 6.1.2
@@ -361,6 +361,12 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.2(vitest@4.1.2)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -10324,8 +10330,8 @@ packages:
     resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
     engines: {node: '>=14.19.0'}
 
-  portless@0.9.1:
-    resolution: {integrity: sha512-wrRtHnzsco4yvfUYLXco6G0DclUtBuHea2vD8pW8DZlSAdEavOX/mXgvSAJjhwVBvUlGoj+Z7T6rAuWl5egb1w==}
+  portless@0.11.1:
+    resolution: {integrity: sha512-A/U6sBo/aC+MDoLjVTzAUeB18KTzJQs7z+MnuyyCjJTOZoCh9xZzOjSqUPA+aWS0uS3UytWPrNLA5AO96TzuKQ==}
     engines: {node: '>=20'}
     os: [darwin, linux, win32]
     hasBin: true
@@ -22976,7 +22982,7 @@ snapshots:
 
   pngjs@7.0.0: {}
 
-  portless@0.9.1: {}
+  portless@0.11.1: {}
 
   possible-typed-array-names@1.1.0: {}
 

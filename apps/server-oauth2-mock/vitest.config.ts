@@ -1,8 +1,9 @@
-import { defineConfig } from 'vitest/config';
+import { nodeConfig } from '@cellix/config-vitest';
+import { defineConfig, mergeConfig } from 'vitest/config';
 
-export default defineConfig({
-	test: {
-		include: ['tests/**/*.test.ts'],
-		environment: 'node',
-	},
-});
+export default mergeConfig(
+	nodeConfig,
+	defineConfig({
+		// Add package-specific overrides here if needed
+	}),
+);
