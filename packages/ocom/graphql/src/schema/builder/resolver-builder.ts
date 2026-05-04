@@ -1,6 +1,6 @@
 import { mergeResolvers } from '@graphql-tools/merge';
-import type { Resolvers } from './generated.ts';
 import endUserRoleResolvers from '../types/end-user-role.resolvers.ts';
+import type { Resolvers } from './generated.ts';
 import { ocomGraphqlPermissions, ocomGraphqlResolvers } from './resolver-manifest.generated.ts';
 
 function mergeResolverModules(modules: Resolvers[]): Resolvers {

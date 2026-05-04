@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MemberSearchName, MemberSearchEmail, MemberSearchSpec } from './member.search-specs.ts';
+import { MemberSearchEmail, MemberSearchName, MemberSearchSpec } from './member.search-specs.ts';
 
 describe('Member Search Specifications', () => {
 	describe('MemberSearchName', () => {

@@ -1,15 +1,15 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
-import { MemberInvitation, type MemberInvitationProps } from './member-invitation.ts';
-import type { Passport } from '../../passport.ts';
+import { expect, vi } from 'vitest';
 import type { CasePassport } from '../../case/case.passport.ts';
+import type { Passport } from '../../passport.ts';
 import type { PropertyPassport } from '../../property/property.passport.ts';
 import type { ServicePassport } from '../../service/service.passport.ts';
-import type { UserPassport } from '../../user/user.passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
+import type { UserPassport } from '../../user/user.passport.ts';
+import { MemberInvitation, type MemberInvitationProps } from './member-invitation.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

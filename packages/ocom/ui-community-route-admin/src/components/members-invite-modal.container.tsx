@@ -1,9 +1,9 @@
 import { useMutation } from '@apollo/client';
 import { App } from 'antd';
+import type React from 'react';
 import { useParams } from 'react-router-dom';
 import { AdminMemberInviteModalContainerBulkInviteMembersDocument, AdminMemberInviteModalContainerInviteMemberDocument } from '../generated.tsx';
 import { MembersInviteModal, type MembersInviteModalProps } from './members-invite-modal.tsx';
-import type React from 'react';
 
 interface MembersInviteModalContainerProps {
 	open: boolean;

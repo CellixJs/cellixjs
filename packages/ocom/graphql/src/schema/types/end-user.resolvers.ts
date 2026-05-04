@@ -1,7 +1,7 @@
-import type { GraphQLResolveInfo } from 'graphql';
-import type { GraphContext } from '../context.ts';
-import type { Resolvers } from '../builder/generated.ts';
 import { getRequestedFieldPaths } from '@cellix/graphql-core/utils';
+import type { GraphQLResolveInfo } from 'graphql';
+import type { Resolvers } from '../builder/generated.ts';
+import type { GraphContext } from '../context.ts';
 
 const endUser: Resolvers = {
 	Query: {

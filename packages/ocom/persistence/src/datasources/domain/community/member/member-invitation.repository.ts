@@ -1,7 +1,7 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { MemberInvitation } from '@ocom/data-sources-mongoose-models/member/member-invitation';
 import { Domain } from '@ocom/domain';
 import type { MemberInvitationDomainAdapter } from './member-invitation.domain-adapter.ts';
-import type { MemberInvitation } from '@ocom/data-sources-mongoose-models/member/member-invitation';
 
 type MemberInvitationModelType = MemberInvitation;
 type PropType = MemberInvitationDomainAdapter;

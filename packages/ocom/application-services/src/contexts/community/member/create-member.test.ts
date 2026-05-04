@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Domain } from '@ocom/domain';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMember, type MemberCreateCommand } from './member-management.js';
 
 // Define proper mock interface types

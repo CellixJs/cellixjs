@@ -1,16 +1,16 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { App } from 'antd';
+import type React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+	type AdminMembersAccountsAddContainerEndUserFieldsFragment,
 	AdminMembersAccountsAddContainerEndUsersByCommunityDocument,
 	AdminMembersAccountsAddContainerMemberCreateAccountDocument,
 	AdminMembersAccountsListContainerMemberDocument,
-	type AdminMembersAccountsAddContainerEndUserFieldsFragment,
-    type MemberCreateAccountInput
+	type MemberCreateAccountInput,
 } from '../generated.tsx';
 import { MembersAccountsAdd, type MembersAccountsAddProps } from './members-accounts-add.tsx';
-import type React from 'react';
 
 interface MembersAccountsAddContainerProps {
 	data: {
@@ -31,7 +31,11 @@ export const MembersAccountsAddContainer: React.FC<MembersAccountsAddContainerPr
 		],
 		awaitRefetchQueries: true,
 	});
-	const { data: endUsersData, loading: endUsersLoading, error: endUsersError } = useQuery(AdminMembersAccountsAddContainerEndUsersByCommunityDocument, {
+	const {
+		data: endUsersData,
+		loading: endUsersLoading,
+		error: endUsersError,
+	} = useQuery(AdminMembersAccountsAddContainerEndUsersByCommunityDocument, {
 		variables: {
 			communityId: props.data.communityId,
 		},

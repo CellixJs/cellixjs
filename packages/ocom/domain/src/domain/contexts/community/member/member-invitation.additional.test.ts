@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { Passport } from '../../passport.ts';
 import type { CasePassport } from '../../case/case.passport.ts';
+import type { Passport } from '../../passport.ts';
 import type { PropertyPassport } from '../../property/property.passport.ts';
 import type { ServicePassport } from '../../service/service.passport.ts';
-import type { UserPassport } from '../../user/user.passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
+import type { UserPassport } from '../../user/user.passport.ts';
 import { MemberInvitation, type MemberInvitationProps } from './member-invitation.ts';
 
 function createMockPassport(permissions: { canManageMembers?: boolean; isSystemAccount?: boolean } = {}): Passport {

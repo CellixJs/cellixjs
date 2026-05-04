@@ -1,8 +1,8 @@
+import type React from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
 import { MembersAccountsAddContainer } from '../components/members-accounts-add.container.tsx';
 import { MembersAccountsEditContainer } from '../components/members-accounts-edit.container.tsx';
 import { MembersAccountsListContainer } from '../components/members-accounts-list.container.tsx';
-import type React from 'react';
 
 interface MembersAccountsParams {
 	id?: string;

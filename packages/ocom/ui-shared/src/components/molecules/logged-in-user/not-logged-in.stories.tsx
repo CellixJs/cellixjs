@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within, fn } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { NotLoggedIn, type NotLoggedInProps } from './not-logged-in.tsx';
 
 const meta = {

@@ -1,39 +1,39 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
-import { type MemberQueryByIdCommand, queryById } from './query-by-id.ts';
-import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
-import { type MemberQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
 import { determineIfAdmin, type MemberDetermineIfAdminCommand } from './determine-if-admin.ts';
 import {
-	createMember,
-	inviteMember,
-	bulkInviteMembers,
-	updateMemberRole,
-	activateMember,
-	deactivateMember,
-	removeMember,
-	bulkActivateMembers,
-	bulkDeactivateMembers,
-	bulkRemoveMembers,
-	createMemberAccount,
-	updateMemberAccount,
-	removeMemberAccount,
-	updateMemberProfile,
-	type MemberCreateCommand,
-	type MemberInviteCommand,
-	type BulkMemberInviteCommand,
-	type UpdateMemberRoleCommand,
 	type ActivateMemberCommand,
-	type DeactivateMemberCommand,
-	type RemoveMemberCommand,
+	activateMember,
 	type BulkActivateMembersCommand,
 	type BulkDeactivateMembersCommand,
+	type BulkMemberInviteCommand,
 	type BulkRemoveMembersCommand,
+	bulkActivateMembers,
+	bulkDeactivateMembers,
+	bulkInviteMembers,
+	bulkRemoveMembers,
+	createMember,
+	createMemberAccount,
+	type DeactivateMemberCommand,
+	deactivateMember,
+	inviteMember,
 	type MemberCreateAccountCommand,
-	type MemberUpdateAccountCommand,
+	type MemberCreateCommand,
+	type MemberInviteCommand,
 	type MemberRemoveAccountCommand,
+	type MemberUpdateAccountCommand,
 	type MemberUpdateProfileCommand,
+	type RemoveMemberCommand,
+	removeMember,
+	removeMemberAccount,
+	type UpdateMemberRoleCommand,
+	updateMemberAccount,
+	updateMemberProfile,
+	updateMemberRole,
 } from './member-management.ts';
+import { type MemberQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
+import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
+import { type MemberQueryByIdCommand, queryById } from './query-by-id.ts';
 
 export interface MemberApplicationService {
 	determineIfAdmin: (command: MemberDetermineIfAdminCommand) => Promise<boolean>;
