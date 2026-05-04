@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import { type EndUserRoleApplicationService, EndUserRole } from './end-user-role/index.ts';
+import { EndUserRole, type EndUserRoleApplicationService } from './end-user-role/index.ts';
 
 export interface RoleContext {
 	EndUserRole: EndUserRoleApplicationService;

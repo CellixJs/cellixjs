@@ -1,8 +1,8 @@
 import { Col, Menu, Row, theme } from 'antd';
+import type React from 'react';
 import { useMemo } from 'react';
 import type { Location, RouteObject } from 'react-router-dom';
-import { Link, Route, Routes, matchRoutes, useLocation } from 'react-router-dom';
-import type React from 'react';
+import { Link, matchRoutes, Route, Routes, useLocation } from 'react-router-dom';
 
 interface RouteDefinition {
 	id: string;

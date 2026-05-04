@@ -19,9 +19,7 @@ export type StaffAuth = {
 
 export const StaffAuthContext = createContext<StaffAuth | undefined>(undefined);
 
-export const StaffAuthProvider: FC<{ value: StaffAuth; children?: ReactNode }> = ({ value, children }) => (
-	<StaffAuthContext.Provider value={value}>{children}</StaffAuthContext.Provider>
-);
+export const StaffAuthProvider: FC<{ value: StaffAuth; children?: ReactNode }> = ({ value, children }) => <StaffAuthContext.Provider value={value}>{children}</StaffAuthContext.Provider>;
 
 export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }) => {
 	const auth = useContext(StaffAuthContext);

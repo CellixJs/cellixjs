@@ -1,34 +1,34 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type { GraphContext } from '../context.ts';
 import type {
-	Resolvers,
-	MutationMemberCreateArgs,
-	MutationMemberCreateAccountArgs,
-	MutationMemberUpdateAccountArgs,
-	MutationMemberRemoveAccountArgs,
-	MutationActivateMemberArgs,
-	MutationDeactivateMemberArgs,
-	MutationRemoveMemberArgs,
-	MutationBulkActivateMembersArgs,
-	MutationBulkDeactivateMembersArgs,
-	MutationBulkRemoveMembersArgs,
-	MutationInviteMemberArgs,
-	MutationBulkInviteMembersArgs,
-	MutationMemberRoleUpdateArgs,
-	MutationMemberUpdateProfileArgs,
-} from '../builder/generated.ts';
-import type {
-	MemberCreateCommand,
-	MemberCreateAccountCommand,
-	MemberUpdateAccountCommand,
-	MemberRemoveAccountCommand,
-	MemberUpdateProfileCommand,
-	DeactivateMemberCommand,
-	RemoveMemberCommand,
 	BulkDeactivateMembersCommand,
 	BulkRemoveMembersCommand,
+	DeactivateMemberCommand,
+	MemberCreateAccountCommand,
+	MemberCreateCommand,
+	MemberRemoveAccountCommand,
+	MemberUpdateAccountCommand,
+	MemberUpdateProfileCommand,
+	RemoveMemberCommand,
 } from '../../../../application-services/src/contexts/community/member/member-management.js';
 import type { MemberInvitationEntityReference } from '../../../../domain/src/domain/contexts/community/member/member-invitation.js';
+import type {
+	MutationActivateMemberArgs,
+	MutationBulkActivateMembersArgs,
+	MutationBulkDeactivateMembersArgs,
+	MutationBulkInviteMembersArgs,
+	MutationBulkRemoveMembersArgs,
+	MutationDeactivateMemberArgs,
+	MutationInviteMemberArgs,
+	MutationMemberCreateAccountArgs,
+	MutationMemberCreateArgs,
+	MutationMemberRemoveAccountArgs,
+	MutationMemberRoleUpdateArgs,
+	MutationMemberUpdateAccountArgs,
+	MutationMemberUpdateProfileArgs,
+	MutationRemoveMemberArgs,
+	Resolvers,
+} from '../builder/generated.ts';
+import type { GraphContext } from '../context.ts';
 
 /**
  * Resolves the acting user's member record in the given community.

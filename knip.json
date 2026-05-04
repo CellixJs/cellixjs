@@ -43,6 +43,10 @@
 		"packages/ocom/archunit-tests": {
 			"project": ["src/**/*.ts"]
 		},
+		"packages/ocom/graphql": {
+			"entry": ["src/index.ts", "src/schema/types/*.resolvers.ts"],
+			"project": ["src/**/*.ts"]
+		},
 		"packages/ocom/*": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.ts"]
@@ -54,6 +58,36 @@
 		"packages/ocom/ui-shared": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.{ts,tsx}"]
+		},
+		"packages/ocom-verification/verification-shared": {
+			"entry": [
+				"src/formatters/index.ts",
+				"src/helpers/index.ts",
+				"src/pages/index.ts",
+				"src/pages/adapters/jsdom-adapter.ts",
+				"src/pages/adapters/playwright-adapter.ts",
+				"src/servers/index.ts",
+				"src/settings/index.ts",
+				"src/test-data/index.ts"
+			],
+			"project": ["src/**/*.ts"]
+		},
+		"packages/ocom-verification/acceptance-api": {
+			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts"],
+			"project": ["src/**/*.ts"],
+			"ignoreBinaries": ["report"],
+			"ignoreUnresolved": ["progress-bar"]
+		},
+		"packages/ocom-verification/acceptance-ui": {
+			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts"],
+			"project": ["src/**/*.{ts,tsx,mjs}"],
+			"ignoreUnresolved": ["progress-bar"],
+			"ignore": ["src/shared/support/ui/**"]
+		},
+		"packages/ocom-verification/e2e-tests": {
+			"entry": ["cucumber.js", "src/world.ts", "src/contexts/**/step-definitions/**/*.steps.ts", "src/shared/support/**/*.ts"],
+			"project": ["src/**/*.ts"],
+			"ignoreUnresolved": ["progress-bar"]
 		},
 		"apps/server-oauth2-mock": {
 			"entry": ["src/index.ts"],

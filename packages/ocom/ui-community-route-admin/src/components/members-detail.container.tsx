@@ -1,12 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import type React from 'react';
-import {
-	AdminMembersDetailContainerMemberDocument,
-	type AdminMembersDetailContainerMemberFieldsFragment,
-	type AdminMembersDetailContainerMemberQuery,
-	type AdminMembersDetailContainerMemberQueryVariables,
-} from '../generated.tsx';
+import { AdminMembersDetailContainerMemberDocument, type AdminMembersDetailContainerMemberFieldsFragment, type AdminMembersDetailContainerMemberQuery, type AdminMembersDetailContainerMemberQueryVariables } from '../generated.tsx';
 import { MembersDetail } from './members-detail.tsx';
 
 interface MembersDetailContainerProps {

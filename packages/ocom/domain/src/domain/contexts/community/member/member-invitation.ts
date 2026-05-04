@@ -1,9 +1,9 @@
 import { AggregateRoot, type RootEventRegistry } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
-import type { CommunityVisa } from '../community.visa.ts';
 import type { Passport } from '../../passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
+import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './member-invitation.value-objects.ts';
 
 export interface MemberInvitationProps extends DomainEntityProps {

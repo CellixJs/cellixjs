@@ -1,10 +1,10 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import type { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
+import { type EndUserDataSource, EndUserDataSourceImpl } from './end-user.data.ts';
 import { EndUserReadRepositoryImpl } from './index.ts';
-import { EndUserDataSourceImpl, type EndUserDataSource } from './end-user.data.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

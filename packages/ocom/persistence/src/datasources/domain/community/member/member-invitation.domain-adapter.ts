@@ -1,7 +1,7 @@
-import { Domain } from '@ocom/domain';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { MemberInvitation } from '@ocom/data-sources-mongoose-models/member/member-invitation';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
+import { Domain } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 
 export class MemberInvitationConverter extends MongooseSeedwork.MongoTypeConverter<

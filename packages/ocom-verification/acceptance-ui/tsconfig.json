@@ -1,0 +1,13 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"erasableSyntaxOnly": false,
+		"composite": false,
+		"incremental": false,
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
+		"rootDir": "./src",
+		"outDir": "./dist"
+	},
+	"include": ["src/**/*.ts", "src/**/*.tsx"]
+}

@@ -1,9 +1,9 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
+import { createIfNotExists, type EndUserCreateCommand } from './create-if-not-exists.ts';
+import { type EndUserQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
 import { type EndUserQueryByIdCommand, queryById } from './query-by-id.ts';
 import { type EndUserQueryByNameCommand, queryByName } from './query-by-name.ts';
-import { type EndUserQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
-import { createIfNotExists, type EndUserCreateCommand } from './create-if-not-exists.ts';
 
 export interface EndUserApplicationService {
 	createIfNotExists: (command: EndUserCreateCommand) => Promise<Domain.Contexts.User.EndUser.EndUserEntityReference>;

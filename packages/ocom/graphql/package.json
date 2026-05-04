@@ -26,7 +26,6 @@
 		"clean": "rimraf dist **/*.generated.ts **/graphql.schema.json"
 	},
 	"dependencies": {
-		"@apollo/server": "catalog:",
 		"@cellix/graphql-codegen": "workspace:*",
 		"@cellix/graphql-core": "workspace:*",
 		"@graphql-tools/merge": "^9.1.6",
