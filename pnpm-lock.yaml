@@ -2291,9 +2291,6 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
-      react-dom:
-        specifier: ^19.1.1
-        version: 19.2.0(react@19.2.0)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
