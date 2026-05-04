@@ -361,6 +361,12 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.2(vitest@4.1.2)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1

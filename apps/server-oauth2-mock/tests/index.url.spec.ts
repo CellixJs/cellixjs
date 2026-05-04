@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ensurePortInUrl } from '../src/utils';
+import { ensurePortInUrl } from '../src/utils.ts';
 
 describe('ensurePortInUrl preserves all URL components', () => {
 	it('preserves username and password when injecting port', () => {
@@ -44,7 +44,7 @@ describe('ensurePortInUrl preserves all URL components', () => {
 		const result = ensurePortInUrl(original, 1355);
 		const parsed = new URL(result);
 		// Extract bare IPv6 address by removing brackets if present
-		const hostname = parsed.hostname.replace(/^\[|\]$/g, '');
+		const hostname = parsed.hostname.replaceAll(/^\[|\]$/g, '');
 		expect(hostname).toBe('::1');
 		expect(parsed.port).toBe('1355');
 		expect(parsed.pathname).toBe('/path');
