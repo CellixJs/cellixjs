@@ -8,8 +8,8 @@ import {
 	deactivateMember,
 	removeMember,
 	removeMemberAccount,
-	updateMemberProfile,
 	updateMemberAccount,
+	updateMemberProfile,
 	updateMemberRole,
 } from './member-management.ts';
 

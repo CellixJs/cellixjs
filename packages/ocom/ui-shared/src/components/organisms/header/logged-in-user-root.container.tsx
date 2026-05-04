@@ -1,7 +1,7 @@
 import { useApolloClient, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { useAuth } from 'react-oidc-context';
-import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument, type LoggedInUserContainerEndUserFieldsFragment } from '../../../generated.tsx';
+import { type LoggedInUserContainerEndUserFieldsFragment, LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } from '../../../generated.tsx';
 import { HandleLogout } from './handle-logout.tsx';
 import { LoggedInUserRoot } from './logged-in-user-root.tsx';
 

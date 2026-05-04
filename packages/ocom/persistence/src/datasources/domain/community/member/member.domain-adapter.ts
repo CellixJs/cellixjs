@@ -1,14 +1,13 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-
-import { Domain } from '@ocom/domain';
-import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
-import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
-import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member, MemberAccount, MemberCustomView, MemberProfile } from '@ocom/data-sources-mongoose-models/member';
 import type { EndUserRole } from '@ocom/data-sources-mongoose-models/role/end-user-role';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
+import { Domain } from '@ocom/domain';
+import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
+import { CommunityDomainAdapter } from '../community/community.domain-adapter.ts';
+import { EndUserRoleDomainAdapter } from '../role/end-user-role/end-user-role.domain-adapter.ts';
 
 export class MemberConverter extends MongooseSeedwork.MongoTypeConverter<Member, MemberDomainAdapter, Domain.Passport, Domain.Contexts.Community.Member.Member<MemberDomainAdapter>> {
 	constructor() {

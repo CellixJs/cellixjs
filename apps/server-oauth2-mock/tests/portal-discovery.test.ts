@@ -101,7 +101,7 @@ describe('discoverPortalConfigs', () => {
 		try {
 			const portals = discoverPortalConfigs(tmp);
 			expect(portals).toHaveLength(1);
-            // biome-ignore lint:useLiteralKeys
+			// biome-ignore lint:useLiteralKeys
 			expect(portals[0]?.claims?.['sub']).toBe('00000000-0000-4000-8000-000000000001');
 			expect(warnSpy).toHaveBeenCalled();
 		} finally {

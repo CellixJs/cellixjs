@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within, fn } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { LoggedInUserContainerEndUserFieldsFragment } from '../../../generated.tsx';
 import { LoggedInUserRoot, type LoggedInUserRootProps } from './logged-in-user-root.tsx';
 

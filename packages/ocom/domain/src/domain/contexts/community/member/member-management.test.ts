@@ -1,20 +1,20 @@
-import { describe, expect, it, vi } from 'vitest';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
-import { Member, type MemberProps } from './member.ts';
+import { describe, expect, it, vi } from 'vitest';
 import { MemberActivatedEvent } from '../../../events/types/member-activated.ts';
 import { MemberDeactivatedEvent } from '../../../events/types/member-deactivated.ts';
 import { MemberRemovedEvent } from '../../../events/types/member-removed.ts';
-import type { Passport } from '../../passport.ts';
 import type { CasePassport } from '../../case/case.passport.ts';
+import type { Passport } from '../../passport.ts';
 import type { PropertyPassport } from '../../property/property.passport.ts';
 import type { ServicePassport } from '../../service/service.passport.ts';
 import type { UserPassport } from '../../user/user.passport.ts';
 import type { CommunityEntityReference } from '../community/community.ts';
 import type { EndUserRoleEntityReference } from '../role/end-user-role/end-user-role.ts';
-import type { MemberProfileProps } from './member-profile.ts';
+import { Member, type MemberProps } from './member.ts';
 import type { MemberAccountProps } from './member-account.ts';
 import type { MemberCustomViewProps } from './member-custom-view.ts';
+import type { MemberProfileProps } from './member-profile.ts';
 
 function createMockPropArray<T extends { id: string }>(items: T[]): PropArray<T & { id: string }> {
 	return {

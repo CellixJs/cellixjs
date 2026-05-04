@@ -2,10 +2,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
+import { type FieldNode, type GraphQLObjectType, type GraphQLResolveInfo, type GraphQLSchema, Kind, type OperationDefinitionNode } from 'graphql';
 import { expect, vi } from 'vitest';
 import type { GraphContext } from '../context.ts';
 import endUserResolvers from './end-user.resolvers.ts';
-import { type FieldNode, type GraphQLResolveInfo, type GraphQLObjectType, type GraphQLSchema, type OperationDefinitionNode, Kind } from 'graphql';
 
 // Mock the resolver helper
 

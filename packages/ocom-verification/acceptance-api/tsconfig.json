@@ -1,0 +1,10 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": ".",
+		"erasableSyntaxOnly": false
+	},
+	"include": ["src/**/*", "features/**/*"],
+	"exclude": ["node_modules", "**/node_modules", "dist", "coverage", "reports", "target"]
+}
