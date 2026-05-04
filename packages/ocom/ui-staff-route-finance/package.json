@@ -19,7 +19,6 @@
 	"dependencies": {
 		"@ant-design/icons": "^6.0.2",
 		"@ocom/ui-staff-shared": "workspace:*",
-		"antd": "catalog:",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
 		"react-router-dom": "catalog:"
@@ -30,7 +29,6 @@
 		"@types/react": "^19.1.11",
 		"@types/react-dom": "^19.1.6",
 		"jsdom": "catalog:",
-		"storybook": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
 		"typescript": "catalog:"

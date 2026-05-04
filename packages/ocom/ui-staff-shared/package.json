@@ -19,7 +19,8 @@
     "@ocom/ui-shared": "workspace:*",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "catalog:"
+    "react-router-dom": "catalog:",
+    "antd": "catalog:"
   },
   "devDependencies": {
     "@cellix/config-typescript": "workspace:*",
