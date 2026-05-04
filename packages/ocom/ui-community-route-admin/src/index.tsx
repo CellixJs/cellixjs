@@ -1,5 +1,5 @@
 import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
-import type { PageLayoutProps } from '@ocom/ui-components';
+import type { PageLayoutProps } from '@ocom/ui-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Home } from './pages/home.tsx';

@@ -41,7 +41,7 @@
 
 - Depends on React and Ant Design for component composition
 - `RequireAuth` depends on `react-router-dom` and `react-oidc-context`
-- `@ocom/ui-components` builds on top of this package for OCOM-specific UI composition
+- `@ocom/ui-shared` builds on top of this package for OCOM-specific UI composition
 - Cellix frontend apps consume this package through the root entrypoint
 
 ## Testing strategy

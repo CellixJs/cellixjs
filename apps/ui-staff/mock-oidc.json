@@ -1,0 +1,14 @@
+{
+	"name": "staff",
+	"envVars": {
+		"clientId": "VITE_AAD_B2C_STAFF_CLIENTID",
+		"redirectUri": "VITE_AAD_B2C_STAFF_REDIRECT_URI"
+	},
+	"claims": {
+		"sub": "10000000-0000-4000-8000-000000000001",
+		"email": "staff@sharethrift.onmicrosoft.com",
+		"given_name": "Staff",
+		"family_name": "User",
+		"tid": "test-staff-tenant-id"
+	}
+}

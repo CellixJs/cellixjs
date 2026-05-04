@@ -21,7 +21,7 @@
 		"@cellix/ui-core": "workspace:*",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"@dr.pogodin/react-helmet": "^3.0.2",
-		"@ocom/ui-components": "workspace:*",
+		"@ocom/ui-shared": "workspace:*",
 		"antd": "catalog:",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
