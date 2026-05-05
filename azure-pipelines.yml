@@ -72,6 +72,7 @@ stages:
       frontDoorProfileName: 'simnova-afd'
       frontDoorEndpointName: 'ocm-fde-ged3a8gxcvfxafaf'
       frontDoorDomainNameUICommunity: 'ownercommunity.org'
+      frontDoorDomainNameUIStaff: 'staff.ownercommunity.org'
 
   - template: ./build-pipeline/core/monorepo-edgescan-stage.yml
     parameters:
