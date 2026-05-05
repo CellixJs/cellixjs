@@ -18,6 +18,7 @@ parameters:
 - name: frontDoorDomainName
   type: string
 
+jobs:
 # Thin wrapper that delegates to the shared deploy-ui template
 - template: ../../build-pipeline/templates/deploy-ui.yml
   parameters:
