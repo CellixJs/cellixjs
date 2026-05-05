@@ -1,6 +1,6 @@
 import { Button, theme } from 'antd';
 import type { SeedToken } from 'antd/lib/theme/interface/index.js';
-import { saveStoredTheme } from '@cellix/ui-core';
+import { type StoredTheme, loadStoredTheme, saveStoredTheme } from '@cellix/ui-core';
 import { createContext, type ReactNode, useCallback, useEffect, useState } from 'react';
 
 interface ThemeContextType {
@@ -11,7 +11,7 @@ interface ThemeContextType {
 					textColor: string | undefined;
 					backgroundColor: string | undefined;
 				};
-				type: string;
+				type: StoredTheme['type'];
 		  }
 		| undefined;
 	setTheme: (tokens: Partial<SeedToken>, type: string) => void;
@@ -77,23 +77,15 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 					type: 'custom',
 				};
 			}
-			saveStoredTheme(valueToSet);
+			if (valueToSet) {
+				saveStoredTheme(valueToSet);
+			}
 			return valueToSet;
 		});
 	}, []);
 
 	useEffect(() => {
-		type StoredTheme = {
-			type?: 'light' | 'dark' | 'custom';
-			hardCodedTokens?: { textColor?: string; backgroundColor?: string };
-			token?: unknown;
-		};
-		let extractFromLocal: StoredTheme = {};
-		try {
-			extractFromLocal = JSON.parse(localStorage.getItem('themeProp') ?? '{}') as StoredTheme;
-		} catch {
-			localStorage.removeItem('themeProp');
-		}
+		const extractFromLocal: StoredTheme = loadStoredTheme();
 		if (extractFromLocal && extractFromLocal.type === 'dark') {
 			setTheme(
 				{
@@ -122,15 +114,6 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			);
 			return;
 		} else {
-			const valueToSet = {
-				type: 'light',
-				token: theme.defaultSeed,
-				hardCodedTokens: {
-					textColor: '#000000',
-					backgroundColor: '#ffffff',
-				},
-			};
-			localStorage.setItem('themeProp', JSON.stringify(valueToSet));
 			setTheme(theme.defaultSeed, 'light');
 			return;
 		}
