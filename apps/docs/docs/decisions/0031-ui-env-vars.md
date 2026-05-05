@@ -17,7 +17,7 @@ Frontend applications (apps/ui-*) expose build-time Vite environment variables (
 
 - Discoverability by tooling (CI, inventory scans, and pipelines)
 - Clear ownership of portal-specific vs shared variables for secrets and governance
-- Automatable validation and enforcement in CI (archunit tests)
+- Automatable validation and enforcement in CI (ArchUnit tests)
 - Minimize operational friction when adding new portals
 
 ## Considered Options
