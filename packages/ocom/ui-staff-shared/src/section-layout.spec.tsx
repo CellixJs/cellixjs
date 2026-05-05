@@ -44,7 +44,7 @@ describe('SectionLayout merging behaviour', () => {
 		await new Promise((r) => setTimeout(r, 10));
 
 		// Top-level menu items expected
-		expect(container.textContent).toContain('Home');
+		expect(container.textContent).not.toContain('Home');
 		expect(container.textContent).toContain('Communities');
 		expect(container.textContent).toContain('Users');
 		expect(container.textContent).toContain('Finance');
@@ -77,7 +77,7 @@ describe('SectionLayout merging behaviour', () => {
 		await new Promise((r) => setTimeout(r, 10));
 
 		// All canonical top-level items should still be present
-		expect(container.textContent).toContain('Home');
+		expect(container.textContent).not.toContain('Home');
 		expect(container.textContent).toContain('Communities');
 		expect(container.textContent).toContain('Users');
 		expect(container.textContent).toContain('Finance');

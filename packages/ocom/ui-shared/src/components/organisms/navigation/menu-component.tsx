@@ -18,6 +18,7 @@ export interface MenuComponentProps {
 	theme: MenuTheme | undefined;
 	mode: 'vertical' | 'horizontal' | 'inline' | undefined;
 	memberData?: unknown;
+	showRootItem?: boolean;
 }
 
 export const MenuComponent: React.FC<MenuComponentProps> = ({ pageLayouts, memberData, ...props }) => {
@@ -87,12 +88,14 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ pageLayouts, membe
 				defaultSelectedKeys={matchedIds}
 				selectedKeys={matchedIds}
 			>
-				<Menu.Item
-					key="ROOT"
-					icon={root.icon}
-				>
-					<Link to={createPath(root.path)}>{root.title}</Link>
-				</Menu.Item>
+				{props.showRootItem !== false && (
+					<Menu.Item
+						key="ROOT"
+						icon={root.icon}
+					>
+						<Link to={createPath(root.path)}>{root.title}</Link>
+					</Menu.Item>
+				)}
 				{buildMenu(root.id)}
 			</Menu>
 		);

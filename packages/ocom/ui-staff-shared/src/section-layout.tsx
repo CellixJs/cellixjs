@@ -159,6 +159,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 		memberData,
 		theme: 'light',
 		mode: 'inline',
+		showRootItem: false,
 	};
 
 	// Helper function to extract user identity from memberData
