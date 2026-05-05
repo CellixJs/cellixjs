@@ -13,6 +13,12 @@ export type StaffAuth = {
 	roles?: string[];
 	raw?: Record<string, unknown>;
 	onLogout?: () => Promise<void> | void;
+	permissions?: {
+		canManageCommunities?: boolean;
+		canManageUser?: boolean;
+		canManageFinance?: boolean;
+		canManageTechAdmin?: boolean;
+	};
 };
 
 export const StaffAuthContext = createContext<StaffAuth | undefined>(undefined);
@@ -20,10 +26,10 @@ export const StaffAuthContext = createContext<StaffAuth | undefined>(undefined);
 export const StaffAuthProvider: FC<{ value: StaffAuth; children?: ReactNode }> = ({ value, children }) => <StaffAuthContext.Provider value={value}>{children}</StaffAuthContext.Provider>;
 
 const allNavLinks = [
-	{ label: 'Community Management', href: '/staff/community', roles: staffRouteRoles['/staff/community'] },
-	{ label: 'User Management', href: '/staff/users', roles: staffRouteRoles['/staff/users'] },
-	{ label: 'Finance', href: '/staff/finance', roles: staffRouteRoles['/staff/finance'] },
-	{ label: 'Tech Admin', href: '/staff/tech', roles: staffRouteRoles['/staff/tech'] },
+	{ label: 'Community Management', href: '/staff/community', roles: staffRouteRoles['/staff/community'], permKey: 'canManageCommunities' as const },
+	{ label: 'User Management', href: '/staff/users', roles: staffRouteRoles['/staff/users'], permKey: 'canManageUser' as const },
+	{ label: 'Finance', href: '/staff/finance', roles: staffRouteRoles['/staff/finance'], permKey: 'canManageFinance' as const },
+	{ label: 'Tech Admin', href: '/staff/tech', roles: staffRouteRoles['/staff/tech'], permKey: 'canManageTechAdmin' as const },
 ];
 
 export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }) => {
@@ -33,7 +39,18 @@ export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }
 	const fallbackName = raw ? ((raw['name'] as string | undefined) ?? (raw['preferred_username'] as string | undefined) ?? (raw['email'] as string | undefined)) : undefined;
 	const name = auth?.name ?? auth?.username ?? auth?.email ?? fallbackName;
 	const roles = auth?.roles ?? extractRoles(auth?.raw);
-	const navLinks = allNavLinks.filter((link) => link.roles.length === 0 || (roles !== undefined && link.roles.some((r) => roles.includes(r))));
+	const perms = auth?.permissions;
+
+	const isNavLinkVisible = (link: { roles: readonly string[]; permKey?: keyof NonNullable<StaffAuth['permissions']> }): boolean => {
+		if (link.roles.length === 0) return true;
+		// Prefer backend permission flags when available
+		if (perms && link.permKey !== undefined) {
+			return perms[link.permKey] === true;
+		}
+		return roles !== undefined && link.roles.some((r) => roles.includes(r));
+	};
+
+	const navLinks = allNavLinks.filter((link) => isNavLinkVisible(link));
 
 	return (
 		<div style={{ minHeight: '100%', background: '#f5f7fb', padding: '24px' }}>

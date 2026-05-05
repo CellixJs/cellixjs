@@ -1,6 +1,14 @@
 import { type Model, type ObjectId, Schema, type SchemaDefinition } from 'mongoose';
 import { type Role, type RoleModelType, roleOptions } from './role.model.ts';
 
+export interface StaffRoleSectionPermissions {
+	id?: ObjectId;
+	canManageCommunities: boolean;
+	canManageUser: boolean;
+	canManageFinance: boolean;
+	canManageTechAdmin: boolean;
+}
+
 export interface StaffRoleServicePermissions {
 	id?: ObjectId;
 	canManageServices: boolean;
@@ -43,6 +51,7 @@ export interface StaffRoleCommunityPermissions {
 
 export interface StaffRolePermissions {
 	id?: ObjectId;
+	sectionPermissions: StaffRoleSectionPermissions;
 	servicePermissions: StaffRoleServicePermissions;
 	serviceTicketPermissions: StaffRoleServiceTicketPermissions;
 	violationTicketPermissions: StaffRoleViolationTicketPermissions;
@@ -61,6 +70,12 @@ export interface StaffRole extends Role {
 const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 	{
 		permissions: {
+			sectionPermissions: {
+				canManageCommunities: { type: Boolean, required: true, default: false },
+				canManageUser: { type: Boolean, required: true, default: false },
+				canManageFinance: { type: Boolean, required: true, default: false },
+				canManageTechAdmin: { type: Boolean, required: true, default: false },
+			} as SchemaDefinition<StaffRoleSectionPermissions>,
 			servicePermissions: {
 				canManageServices: { type: Boolean, required: true, default: false },
 			} as SchemaDefinition<StaffRoleServicePermissions>,

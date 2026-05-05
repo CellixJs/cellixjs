@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock RequireAuth so tests don't depend on OIDC context behavior
 vi.mock('@cellix/ui-core', () => ({
@@ -11,6 +11,12 @@ vi.mock('@cellix/ui-core', () => ({
 // Mock ApolloConnection so tests don't need a GraphQL server
 vi.mock('./components/ui/organisms/apollo-connection/index.tsx', () => ({
 	ApolloConnection: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, {}, children),
+}));
+
+// Mock useStaffPermissions so tests don't need an Apollo client; returning
+// undefined permissions causes RequireRole to fall back to JWT role checking.
+vi.mock('./hooks/use-staff-permissions', () => ({
+	useStaffPermissions: () => ({ permissions: undefined, loading: false, error: undefined }),
 }));
 
 // Mock route packages with identifiable content per section
@@ -53,24 +59,39 @@ import App from './App';
 
 describe('App – static routes', () => {
 	it('renders root section without throwing', () => {
-		const html = renderToString(<MemoryRouter><App /></MemoryRouter>);
+		const html = renderToString(
+			<MemoryRouter>
+				<App />
+			</MemoryRouter>,
+		);
 		expect(typeof html).toBe('string');
 		expect(html.length).toBeGreaterThan(0);
 	});
 
 	it('renders auth-redirect route without throwing', () => {
-		const html = renderToString(<MemoryRouter initialEntries={['/auth-redirect']}><App /></MemoryRouter>);
+		const html = renderToString(
+			<MemoryRouter initialEntries={['/auth-redirect']}>
+				<App />
+			</MemoryRouter>,
+		);
 		expect(typeof html).toBe('string');
 	});
 
 	it('/unauthorized renders the Unauthorized page', () => {
-		const html = renderToString(<MemoryRouter initialEntries={['/unauthorized']}><App /></MemoryRouter>);
+		const html = renderToString(
+			<MemoryRouter initialEntries={['/unauthorized']}>
+				<App />
+			</MemoryRouter>,
+		);
 		expect(html).toContain('Unauthorized');
 	});
 });
 
 describe('App – role authorization: Staff.TechAdmin', () => {
-	beforeEach(() => { mockAuthWithRoles(['Staff.TechAdmin']); vi.resetModules(); });
+	beforeEach(() => {
+		mockAuthWithRoles(['Staff.TechAdmin']);
+		vi.resetModules();
+	});
 
 	it('/staff/tech → renders tech-admin section', async () => {
 		expect(await renderAppAt('/staff/tech')).toContain('tech-admin-section');
@@ -93,7 +114,10 @@ describe('App – role authorization: Staff.TechAdmin', () => {
 });
 
 describe('App – role authorization: Staff.Finance', () => {
-	beforeEach(() => { mockAuthWithRoles(['Staff.Finance']); vi.resetModules(); });
+	beforeEach(() => {
+		mockAuthWithRoles(['Staff.Finance']);
+		vi.resetModules();
+	});
 
 	it('/staff/finance → renders finance section', async () => {
 		expect(await renderAppAt('/staff/finance')).toContain('finance-section');
@@ -116,7 +140,10 @@ describe('App – role authorization: Staff.Finance', () => {
 });
 
 describe('App – role authorization: Staff.CaseManager', () => {
-	beforeEach(() => { mockAuthWithRoles(['Staff.CaseManager']); vi.resetModules(); });
+	beforeEach(() => {
+		mockAuthWithRoles(['Staff.CaseManager']);
+		vi.resetModules();
+	});
 
 	it('/staff/community → renders community-management section', async () => {
 		expect(await renderAppAt('/staff/community')).toContain('community-management-section');
@@ -138,7 +165,10 @@ describe('App – role authorization: Staff.CaseManager', () => {
 });
 
 describe('App – role authorization: Staff.ServiceLineOwner', () => {
-	beforeEach(() => { mockAuthWithRoles(['Staff.ServiceLineOwner']); vi.resetModules(); });
+	beforeEach(() => {
+		mockAuthWithRoles(['Staff.ServiceLineOwner']);
+		vi.resetModules();
+	});
 
 	it('/staff/community → renders community-management section', async () => {
 		expect(await renderAppAt('/staff/community')).toContain('community-management-section');
@@ -160,7 +190,10 @@ describe('App – role authorization: Staff.ServiceLineOwner', () => {
 });
 
 describe('App – role authorization: no roles', () => {
-	beforeEach(() => { mockAuthNoUser(); vi.resetModules(); });
+	beforeEach(() => {
+		mockAuthNoUser();
+		vi.resetModules();
+	});
 
 	it('/staff/community → redirects to /unauthorized', async () => {
 		const html = await renderAppAt('/staff/community');

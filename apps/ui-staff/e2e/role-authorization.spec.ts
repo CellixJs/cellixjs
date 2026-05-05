@@ -6,7 +6,7 @@
  *
  * The OIDC authority / client_id values must match apps/ui-staff/src/config/oidc-config.tsx.
  */
-import { expect, test, type Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 // --- Constants matching oidc-config.tsx ---
 const AUTHORITY = 'https://mock-auth.ownercommunity.localhost:1355/staff';
@@ -89,10 +89,13 @@ const ROLES = {
 async function navigateTo(page: Page, path: string): Promise<void> {
 	await page.goto(path, { waitUntil: 'domcontentloaded' });
 	// Wait for the React root to contain rendered content (i.e., the app mounted)
-	await page.waitForFunction(() => {
-		const root = document.getElementById('root');
-		return root && root.childElementCount > 0;
-	}, { timeout: 8000 });
+	await page.waitForFunction(
+		() => {
+			const root = document.getElementById('root');
+			return root && root.childElementCount > 0;
+		},
+		{ timeout: 8000 },
+	);
 }
 
 /** The section title is rendered as a heading — use heading role to avoid matching nav labels. */

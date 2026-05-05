@@ -5,6 +5,7 @@ import { expect, vi } from 'vitest';
 import { StaffRoleCommunityPermissions } from './staff-role-community-permissions.ts';
 import { StaffRolePermissions } from './staff-role-permissions.ts';
 import { StaffRolePropertyPermissions } from './staff-role-property-permissions.ts';
+import { StaffRoleSectionPermissions } from './staff-role-section-permissions.ts';
 import { StaffRoleServicePermissions } from './staff-role-service-permissions.ts';
 import { StaffRoleServiceTicketPermissions } from './staff-role-service-ticket-permissions.ts';
 import { StaffRoleViolationTicketPermissions } from './staff-role-violation-ticket-permissions.ts';
@@ -26,6 +27,7 @@ function makeProps() {
 		serviceTicketPermissions: {} as StaffRoleServiceTicketPermissions,
 		servicePermissions: {} as StaffRoleServicePermissions,
 		violationTicketPermissions: {} as StaffRoleViolationTicketPermissions,
+		sectionPermissions: {} as StaffRoleSectionPermissions,
 	};
 }
 
@@ -111,6 +113,19 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('I should receive a StaffRoleViolationTicketPermissions entity instance', () => {
 			expect(violationTicketPermissions).toBeInstanceOf(StaffRoleViolationTicketPermissions);
+		});
+	});
+
+	Scenario('Accessing sectionPermissions', ({ Given, When, Then }) => {
+		let sectionPermissions: StaffRoleSectionPermissions;
+		Given('a StaffRolePermissions entity', () => {
+			entity = new StaffRolePermissions(props, visa);
+		});
+		When('I access the sectionPermissions property', () => {
+			sectionPermissions = entity.sectionPermissions;
+		});
+		Then('I should receive a StaffRoleSectionPermissions entity instance', () => {
+			expect(sectionPermissions).toBeInstanceOf(StaffRoleSectionPermissions);
 		});
 	});
 });

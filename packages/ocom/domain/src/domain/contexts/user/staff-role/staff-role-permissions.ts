@@ -1,8 +1,9 @@
-import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
 import { StaffRoleCommunityPermissions, type StaffRoleCommunityPermissionsEntityReference, type StaffRoleCommunityPermissionsProps } from './staff-role-community-permissions.ts';
 import { StaffRolePropertyPermissions, type StaffRolePropertyPermissionsEntityReference, type StaffRolePropertyPermissionsProps } from './staff-role-property-permissions.ts';
+import { StaffRoleSectionPermissions, type StaffRoleSectionPermissionsEntityReference, type StaffRoleSectionPermissionsProps } from './staff-role-section-permissions.ts';
 import { StaffRoleServicePermissions, type StaffRoleServicePermissionsEntityReference, type StaffRoleServicePermissionsProps } from './staff-role-service-permissions.ts';
 import { StaffRoleServiceTicketPermissions, type StaffRoleServiceTicketPermissionsEntityReference, type StaffRoleServiceTicketPermissionsProps } from './staff-role-service-ticket-permissions.ts';
 import { StaffRoleViolationTicketPermissions, type StaffRoleViolationTicketPermissionsEntityReference, type StaffRoleViolationTicketPermissionsProps } from './staff-role-violation-ticket-permissions.ts';
@@ -13,15 +14,17 @@ export interface StaffRolePermissionsProps extends ValueObjectProps {
 	readonly serviceTicketPermissions: StaffRoleServiceTicketPermissionsProps;
 	readonly servicePermissions: StaffRoleServicePermissionsProps;
 	readonly violationTicketPermissions: StaffRoleViolationTicketPermissionsProps;
+	readonly sectionPermissions: StaffRoleSectionPermissionsProps;
 }
 
 export interface StaffRolePermissionsEntityReference
-	extends Readonly<Omit<StaffRolePermissionsProps, 'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions'>> {
+	extends Readonly<Omit<StaffRolePermissionsProps, 'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions' | 'sectionPermissions'>> {
 	readonly communityPermissions: StaffRoleCommunityPermissionsEntityReference;
 	readonly propertyPermissions: StaffRolePropertyPermissionsEntityReference;
 	readonly serviceTicketPermissions: StaffRoleServiceTicketPermissionsEntityReference;
 	readonly servicePermissions: StaffRoleServicePermissionsEntityReference;
 	readonly violationTicketPermissions: StaffRoleViolationTicketPermissionsEntityReference;
+	readonly sectionPermissions: StaffRoleSectionPermissionsEntityReference;
 }
 
 export class StaffRolePermissions extends ValueObject<StaffRolePermissionsProps> implements StaffRolePermissionsEntityReference {
@@ -46,5 +49,8 @@ export class StaffRolePermissions extends ValueObject<StaffRolePermissionsProps>
 	}
 	get violationTicketPermissions(): StaffRoleViolationTicketPermissions {
 		return new StaffRoleViolationTicketPermissions(this.props.violationTicketPermissions, this.visa);
+	}
+	get sectionPermissions(): StaffRoleSectionPermissions {
+		return new StaffRoleSectionPermissions(this.props.sectionPermissions, this.visa);
 	}
 }
