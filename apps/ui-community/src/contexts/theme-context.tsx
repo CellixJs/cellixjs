@@ -16,7 +16,7 @@ interface ThemeContextType {
 					textColor: string | undefined;
 					backgroundColor: string | undefined;
 				};
-				type: string;
+				type: 'light' | 'dark' | 'custom';
 		  }
 		| undefined;
 	setTheme: (tokens: Partial<SeedToken>, types: string) => void;
@@ -92,7 +92,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 					type: 'custom',
 				};
 			}
-			saveStoredTheme(valueToSet);
+			if (valueToSet) {
+				saveStoredTheme(valueToSet);
+			}
 			return valueToSet;
 		});
 	}, []);
@@ -128,7 +130,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			return;
 		} else {
 			const valueToSet = {
-				type: 'light',
+				type: 'light' as const,
 				token: theme.defaultSeed,
 				hardCodedTokens: {
 					textColor: '#000000',
