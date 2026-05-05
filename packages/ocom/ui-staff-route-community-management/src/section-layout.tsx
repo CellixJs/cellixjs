@@ -1,8 +1,9 @@
 import { SectionLayout as SharedSectionLayout, type SectionLayoutProps } from '@ocom/ui-staff-shared';
 import { TeamOutlined } from '@ant-design/icons';
-
+import type React from 'react';
 export const SectionLayout: React.FC = () => {
 const pageLayouts: SectionLayoutProps['pageLayouts'] = [
+    
 {
 path: '/staff/community',
 title: 'Community Management',
