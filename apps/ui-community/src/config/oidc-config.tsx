@@ -23,7 +23,7 @@ export const oidcConfig: OIDCConfig = {
 	nonce: true,
 	response_type: 'code',
 	// biome-ignore lint:useLiteralKeys
-	scope: import.meta.env['VITE_APP_UI_COMMUNITY_B2C_ACCOUNT_SCOPES'] ?? 'openid',
+	scope: import.meta.env['VITE_APP_UI_COMMUNITY_B2C_SCOPES'] ?? 'openid',
 	onSigninCallback: (): void => {
 		globalThis.history.replaceState({}, document.title, globalThis.location.pathname);
 		const redirectToPath = globalThis.sessionStorage.getItem('redirectTo');
