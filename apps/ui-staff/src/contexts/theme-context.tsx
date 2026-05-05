@@ -1,5 +1,6 @@
 import { Button, theme } from 'antd';
 import type { SeedToken } from 'antd/lib/theme/interface/index.js';
+import { loadStoredTheme, saveStoredTheme } from '@cellix/ui-core';
 import { createContext, type ReactNode, useCallback, useEffect, useState } from 'react';
 
 interface ThemeContextType {
@@ -76,7 +77,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 					type: 'custom',
 				};
 			}
-			localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+			saveStoredTheme(valueToSet);
 			return valueToSet;
 		});
 	}, []);

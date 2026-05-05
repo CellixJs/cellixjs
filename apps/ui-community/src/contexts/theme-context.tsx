@@ -1,5 +1,6 @@
 import { Button, theme } from 'antd';
 import type { SeedToken } from 'antd/lib/theme/interface/index.js';
+import { loadStoredTheme, saveStoredTheme } from '@cellix/ui-core';
 import { createContext, type ReactNode, useCallback, useEffect, useState } from 'react';
 
 // import ModalPopUp from './components/modal-popup.tsx';
@@ -91,23 +92,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 					type: 'custom',
 				};
 			}
-			localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+			saveStoredTheme(valueToSet);
 			return valueToSet;
 		});
 	}, []);
 
 	useEffect(() => {
-		type StoredTheme = {
-			type?: 'light' | 'dark' | 'custom';
-			hardCodedTokens?: { textColor?: string; backgroundColor?: string };
-			token?: unknown;
-		};
-		let extractFromLocal: StoredTheme = {};
-		try {
-			extractFromLocal = JSON.parse(localStorage.getItem('themeProp') ?? '{}') as StoredTheme;
-		} catch {
-			localStorage.removeItem('themeProp');
-		}
+		const extractFromLocal = loadStoredTheme();
 		if (extractFromLocal && extractFromLocal.type === 'dark') {
 			setTheme(
 				{
@@ -144,7 +135,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 					backgroundColor: '#ffffff',
 				},
 			};
-			localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+			saveStoredTheme(valueToSet);
 			setTheme(theme.defaultSeed, 'light');
 			return;
 		}
