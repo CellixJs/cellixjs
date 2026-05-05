@@ -1,0 +1,42 @@
+type StaffRoleSectionPermissions {
+	canManageCommunities: Boolean!
+	canManageUser: Boolean!
+	canManageFinance: Boolean!
+	canManageTechAdmin: Boolean!
+}
+
+type StaffRolePermissions {
+	sectionPermissions: StaffRoleSectionPermissions!
+}
+
+type StaffRole implements MongoBase {
+	roleName: String!
+	isDefault: Boolean!
+	roleType: String
+	permissions: StaffRolePermissions!
+
+	id: ObjectID!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+type StaffUser implements MongoBase {
+	externalId: String!
+	firstName: String!
+	lastName: String!
+	email: String!
+	displayName: String!
+	accessBlocked: Boolean!
+	tags: [String!]!
+	role: StaffRole
+
+	id: ObjectID!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	currentStaffUserAndCreateIfNotExists: StaffUser!
+}

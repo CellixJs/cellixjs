@@ -1,15 +1,15 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-
-import { Domain } from '@ocom/domain';
 import type {
 	StaffRole,
 	StaffRoleCommunityPermissions,
 	StaffRolePermissions,
 	StaffRolePropertyPermissions,
+	StaffRoleSectionPermissions,
 	StaffRoleServicePermissions,
 	StaffRoleServiceTicketPermissions,
 	StaffRoleViolationTicketPermissions,
 } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import { Domain } from '@ocom/domain';
 
 export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<StaffRole, StaffRoleDomainAdapter, Domain.Passport, Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>> {
 	constructor() {
@@ -51,6 +51,18 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 
 	constructor(permissions: StaffRolePermissions) {
 		this.doc = permissions;
+	}
+
+	get sectionPermissions(): Domain.Contexts.User.StaffRole.StaffRoleSectionPermissionsProps {
+		if (!this.doc.sectionPermissions) {
+			this.doc.sectionPermissions = {
+				canManageCommunities: false,
+				canManageUser: false,
+				canManageFinance: false,
+				canManageTechAdmin: false,
+			};
+		}
+		return new StaffRoleSectionPermissionsAdapter(this.doc.sectionPermissions);
 	}
 
 	get communityPermissions(): Domain.Contexts.User.StaffRole.StaffRoleCommunityPermissionsProps {
@@ -267,5 +279,49 @@ export class StaffRoleViolationTicketPermissionsAdapter implements Domain.Contex
 	}
 	set canWorkOnTickets(value: boolean) {
 		this.doc.canWorkOnTickets = value;
+	}
+}
+
+class StaffRoleSectionPermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleSectionPermissionsProps {
+	private readonly doc: StaffRoleSectionPermissions;
+
+	constructor(permissions: StaffRoleSectionPermissions) {
+		this.doc = permissions;
+	}
+
+	private ensureValue(value: boolean | undefined): boolean {
+		return value ?? false;
+	}
+
+	get id(): string | undefined {
+		return this.doc.id?.toString();
+	}
+
+	get canManageCommunities(): boolean {
+		return this.ensureValue(this.doc.canManageCommunities);
+	}
+	set canManageCommunities(value: boolean) {
+		this.doc.canManageCommunities = value;
+	}
+
+	get canManageUser(): boolean {
+		return this.ensureValue(this.doc.canManageUser);
+	}
+	set canManageUser(value: boolean) {
+		this.doc.canManageUser = value;
+	}
+
+	get canManageFinance(): boolean {
+		return this.ensureValue(this.doc.canManageFinance);
+	}
+	set canManageFinance(value: boolean) {
+		this.doc.canManageFinance = value;
+	}
+
+	get canManageTechAdmin(): boolean {
+		return this.ensureValue(this.doc.canManageTechAdmin);
+	}
+	set canManageTechAdmin(value: boolean) {
+		this.doc.canManageTechAdmin = value;
 	}
 }

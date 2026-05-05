@@ -28,3 +28,8 @@ Feature: <Entity> StaffRolePermissions
     Given a StaffRolePermissions entity
     When I access the violationTicketPermissions property
     Then I should receive a StaffRoleViolationTicketPermissions entity instance
+
+  Scenario: Accessing sectionPermissions
+    Given a StaffRolePermissions entity
+    When I access the sectionPermissions property
+    Then I should receive a StaffRoleSectionPermissions entity instance

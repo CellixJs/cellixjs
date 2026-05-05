@@ -1,4 +1,5 @@
 import { createContext, type FC, type ReactNode, useContext } from 'react';
+import { extractRoles, staffRouteRoles } from './staff-app-roles.ts';
 
 export interface StaffRouteShellProps {
 	title: string;
@@ -12,46 +13,44 @@ export type StaffAuth = {
 	roles?: string[];
 	raw?: Record<string, unknown>;
 	onLogout?: () => Promise<void> | void;
+	permissions?: {
+		canManageCommunities?: boolean;
+		canManageUser?: boolean;
+		canManageFinance?: boolean;
+		canManageTechAdmin?: boolean;
+	};
 };
 
 export const StaffAuthContext = createContext<StaffAuth | undefined>(undefined);
 
 export const StaffAuthProvider: FC<{ value: StaffAuth; children?: ReactNode }> = ({ value, children }) => <StaffAuthContext.Provider value={value}>{children}</StaffAuthContext.Provider>;
 
-const navLinks = [
-	{ label: 'Community Management', href: '/staff/community' },
-	{ label: 'User Management', href: '/staff/users' },
-	{ label: 'Finance', href: '/staff/finance' },
-	{ label: 'Tech Admin', href: '/staff/tech' },
+const allNavLinks = [
+	{ label: 'Community Management', href: '/staff/community', roles: staffRouteRoles['/staff/community'], permKey: 'canManageCommunities' as const },
+	{ label: 'User Management', href: '/staff/users', roles: staffRouteRoles['/staff/users'], permKey: 'canManageUser' as const },
+	{ label: 'Finance', href: '/staff/finance', roles: staffRouteRoles['/staff/finance'], permKey: 'canManageFinance' as const },
+	{ label: 'Tech Admin', href: '/staff/tech', roles: staffRouteRoles['/staff/tech'], permKey: 'canManageTechAdmin' as const },
 ];
-
-const extractRoles = (raw: Record<string, unknown> | undefined): string[] | undefined => {
-	if (!raw) return undefined;
-	const r = raw as Record<string, unknown>;
-	const candidates: Array<string | string[] | undefined> = [
-		r['roles'] as string | string[] | undefined,
-		r['role'] as string | string[] | undefined,
-		r['groups'] as string | string[] | undefined,
-		r['app_roles'] as string | string[] | undefined,
-		(r['realm_access'] as Record<string, unknown> | undefined)?.['roles'] as string[] | undefined,
-	];
-	const roles: string[] = [];
-	for (const c of candidates) {
-		if (Array.isArray(c)) {
-			roles.push(...(c.filter((x) => typeof x === 'string') as string[]));
-		} else if (typeof c === 'string') {
-			roles.push(c);
-		}
-	}
-	return roles.length ? Array.from(new Set(roles)) : undefined;
-};
 
 export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }) => {
 	const auth = useContext(StaffAuthContext);
 	const raw = auth?.raw as Record<string, unknown> | undefined;
+	// biome-ignore lint/complexity/useLiteralKeys: dynamic OIDC profile claim names
 	const fallbackName = raw ? ((raw['name'] as string | undefined) ?? (raw['preferred_username'] as string | undefined) ?? (raw['email'] as string | undefined)) : undefined;
 	const name = auth?.name ?? auth?.username ?? auth?.email ?? fallbackName;
 	const roles = auth?.roles ?? extractRoles(auth?.raw);
+	const perms = auth?.permissions;
+
+	const isNavLinkVisible = (link: { roles: readonly string[]; permKey?: keyof NonNullable<StaffAuth['permissions']> }): boolean => {
+		if (link.roles.length === 0) return true;
+		// Prefer backend permission flags when available
+		if (perms && link.permKey !== undefined) {
+			return perms[link.permKey] === true;
+		}
+		return roles !== undefined && link.roles.some((r) => roles.includes(r));
+	};
+
+	const navLinks = allNavLinks.filter((link) => isNavLinkVisible(link));
 
 	return (
 		<div style={{ minHeight: '100%', background: '#f5f7fb', padding: '24px' }}>

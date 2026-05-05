@@ -1,5 +1,6 @@
 import { Button, theme } from 'antd';
 import type { SeedToken } from 'antd/lib/theme/interface/index.js';
+import { loadStoredTheme, saveStoredTheme } from '@cellix/ui-core';
 import { createContext, type ReactNode, useCallback, useEffect, useState } from 'react';
 
 // import ModalPopUp from './components/modal-popup.tsx';
@@ -15,7 +16,7 @@ interface ThemeContextType {
 					textColor: string | undefined;
 					backgroundColor: string | undefined;
 				};
-				type: string;
+				type: 'light' | 'dark' | 'custom';
 		  }
 		| undefined;
 	setTheme: (tokens: Partial<SeedToken>, types: string) => void;
@@ -91,13 +92,15 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 					type: 'custom',
 				};
 			}
-			localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+			if (valueToSet) {
+				saveStoredTheme(valueToSet);
+			}
 			return valueToSet;
 		});
 	}, []);
 
 	useEffect(() => {
-		const extractFromLocal = JSON.parse(localStorage.getItem('themeProp') || '{}');
+		const extractFromLocal = loadStoredTheme();
 		if (extractFromLocal && extractFromLocal.type === 'dark') {
 			setTheme(
 				{
@@ -119,22 +122,22 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		} else if (extractFromLocal && extractFromLocal.type === 'custom') {
 			setTheme(
 				{
-					colorTextBase: extractFromLocal.hardCodedTokens.textColor,
-					colorBgBase: extractFromLocal.hardCodedTokens.backgroundColor,
+					colorTextBase: extractFromLocal.hardCodedTokens?.textColor,
+					colorBgBase: extractFromLocal.hardCodedTokens?.backgroundColor,
 				},
 				'custom',
 			);
 			return;
 		} else {
 			const valueToSet = {
-				type: 'light',
+				type: 'light' as const,
 				token: theme.defaultSeed,
 				hardCodedTokens: {
 					textColor: '#000000',
 					backgroundColor: '#ffffff',
 				},
 			};
-			localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+			saveStoredTheme(valueToSet);
 			setTheme(theme.defaultSeed, 'light');
 			return;
 		}
