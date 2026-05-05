@@ -1,7 +1,7 @@
-import { type FC, createContext, useContext, type ReactNode, useMemo } from 'react';
-import { SectionLayout, type SectionLayoutProps } from './section-layout.tsx';
-import type { PageLayoutProps } from '@ocom/ui-shared';
 import { DashboardOutlined, HomeOutlined } from '@ant-design/icons';
+import type { PageLayoutProps } from '@ocom/ui-shared';
+import { createContext, type FC, type ReactNode, useContext, useMemo } from 'react';
+import { SectionLayout, type SectionLayoutProps } from './section-layout.tsx';
 
 export interface StaffRouteShellProps {
 	title: string;
@@ -34,14 +34,14 @@ export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }
 				id: 'ROOT',
 			},
 			{
-				path: '/staff/community/*',
+				path: '/staff/community-management/*',
 				title: 'Community Management',
 				icon: <DashboardOutlined />,
 				id: 'community',
 				parent: 'ROOT',
 			},
 			{
-				path: '/staff/users/*',
+				path: '/staff/user-management/*',
 				title: 'User Management',
 				icon: <DashboardOutlined />,
 				id: 'users',

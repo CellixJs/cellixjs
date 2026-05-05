@@ -1,3 +1,9 @@
+:root {
+	/* Shared app header height used across staff route packages. Ant Design's default header
+	   height is 64px; we use 64px here to match Ant's default and avoid layout mismatch. */
+	--app-header-height: 64px;
+}
+
 .logo {
 	height: 32px;
 	margin: 16px;
@@ -6,6 +12,16 @@
 
 .site-layout .site-layout-background {
 	background: #fff;
+}
+
+/* Ensure sider and content heights align with the header height variable. Use !important
+   to override any inline style values set by components so layout stays consistent. */
+.site-layout .ant-layout-sider {
+	height: calc(100vh - var(--app-header-height, 64px)) !important;
+}
+
+.site-layout > .ant-layout {
+	height: calc(100vh - var(--app-header-height, 64px)) !important;
 }
 
 .ant-dropdown .ant-menu-root.ant-menu-vertical {

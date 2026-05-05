@@ -1,12 +1,12 @@
-import type React from 'react';
-import { describe, it, expect } from 'vitest';
-import { createRoot } from 'react-dom/client';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { SectionLayout } from './section-layout';
 import { TeamOutlined } from '@ant-design/icons';
 import type { PageLayoutProps } from '@ocom/ui-shared';
-
+import type React from 'react';
+import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { describe, expect, it } from 'vitest';
+import { PlaceholderPage, StaffAuthProvider } from './index';
+import { SectionLayout } from './section-layout';
 
 const renderIntoDocument = (node: React.ReactNode) => {
 	const container = document.createElement('div');
@@ -21,7 +21,7 @@ describe('SectionLayout merging behaviour', () => {
 	it('renders canonical staff navigation merged with consumer pageLayouts', async () => {
 		const consumerLayouts = [
 			{
-				path: '/staff/community',
+				path: '/staff/community-management',
 				title: 'Community Management',
 				icon: <TeamOutlined />,
 				id: 'community',
@@ -30,11 +30,14 @@ describe('SectionLayout merging behaviour', () => {
 		];
 
 		const container = renderIntoDocument(
-			<MemoryRouter initialEntries={["/staff"]}>
+			<MemoryRouter initialEntries={['/staff']}>
 				<Routes>
-					<Route path="/staff/*" element={<SectionLayout pageLayouts={consumerLayouts as PageLayoutProps[]} />} />
+					<Route
+						path="/staff/*"
+						element={<SectionLayout pageLayouts={consumerLayouts as PageLayoutProps[]} />}
+					/>
 				</Routes>
-			</MemoryRouter>
+			</MemoryRouter>,
 		);
 
 		// Wait a tick for ant design components to mount
@@ -42,8 +45,8 @@ describe('SectionLayout merging behaviour', () => {
 
 		// Top-level menu items expected
 		expect(container.textContent).toContain('Home');
-		expect(container.textContent).toContain('Community Management');
-		expect(container.textContent).toContain('User Management');
+		expect(container.textContent).toContain('Communities');
+		expect(container.textContent).toContain('Users');
 		expect(container.textContent).toContain('Finance');
 		expect(container.textContent).toContain('Tech Admin');
 	});
@@ -51,7 +54,7 @@ describe('SectionLayout merging behaviour', () => {
 	it('preserves default parent when consumer entry omits parent field', async () => {
 		const consumerLayouts = [
 			{
-				path: '/staff/community',
+				path: '/staff/community-management',
 				title: 'Community Management',
 				icon: <TeamOutlined />,
 				id: 'community',
@@ -60,11 +63,14 @@ describe('SectionLayout merging behaviour', () => {
 		];
 
 		const container = renderIntoDocument(
-			<MemoryRouter initialEntries={["/staff"]}>
+			<MemoryRouter initialEntries={['/staff']}>
 				<Routes>
-					<Route path="/staff/*" element={<SectionLayout pageLayouts={consumerLayouts as PageLayoutProps[]} />} />
+					<Route
+						path="/staff/*"
+						element={<SectionLayout pageLayouts={consumerLayouts as PageLayoutProps[]} />}
+					/>
 				</Routes>
-			</MemoryRouter>
+			</MemoryRouter>,
 		);
 
 		// Wait a tick for ant design components to mount
@@ -72,23 +78,26 @@ describe('SectionLayout merging behaviour', () => {
 
 		// All canonical top-level items should still be present
 		expect(container.textContent).toContain('Home');
-		expect(container.textContent).toContain('Community Management');
-		expect(container.textContent).toContain('User Management');
+		expect(container.textContent).toContain('Communities');
+		expect(container.textContent).toContain('Users');
 		expect(container.textContent).toContain('Finance');
 		expect(container.textContent).toContain('Tech Admin');
 	});
 });
 
-import { PlaceholderPage, StaffAuthProvider } from './index';
-
 describe('PlaceholderPage', () => {
 	it('renders a message when no StaffAuthContext is provided and shows no resolved roles', async () => {
-		const container = renderIntoDocument(<PlaceholderPage sectionName="Test Section" description="desc" />);
+		const container = renderIntoDocument(
+			<PlaceholderPage
+				sectionName="Test Section"
+				description="desc"
+			/>,
+		);
 
 		// Wait a tick for any async mounts
 		await new Promise((r) => setTimeout(r, 10));
 
-		expect(container.textContent).toContain('Placeholder — proof surface');
+		expect(container.textContent).toContain('Placeholder');
 		expect(container.textContent).toContain('No authenticated identity available');
 		expect(container.textContent).toContain('(none)');
 	});
@@ -119,7 +128,10 @@ describe('PlaceholderPage', () => {
 
 		const container = renderIntoDocument(
 			<StaffAuthProvider value={auth}>
-				<PlaceholderPage sectionName="Sec" explicitRoles={["explicit-role"]} />
+				<PlaceholderPage
+					sectionName="Sec"
+					explicitRoles={['explicit-role']}
+				/>
 			</StaffAuthProvider>,
 		);
 

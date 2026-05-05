@@ -6,7 +6,7 @@ import { Root as TechAdmin } from '@ocom/ui-staff-route-tech-admin';
 import { Root as UserManagement } from '@ocom/ui-staff-route-user-management';
 import { StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { useAuth } from 'react-oidc-context';
-import { Route, Routes, Outlet } from 'react-router-dom';
+import { Outlet, Route, Routes } from 'react-router-dom';
 import './App.css';
 import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
 import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
@@ -68,14 +68,14 @@ export default function App() {
 				>
 					<Route
 						index
+						element={<Root />}
+					/>
+					<Route
+						path="community-management/*"
 						element={<CommunityManagement />}
 					/>
 					<Route
-						path="community/*"
-						element={<CommunityManagement />}
-					/>
-					<Route
-						path="users/*"
+						path="user-management/*"
 						element={<UserManagement />}
 					/>
 					<Route

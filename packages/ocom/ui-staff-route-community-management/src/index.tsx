@@ -1,7 +1,7 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { SectionLayout } from './section-layout.tsx';
 import { PlaceholderPage } from '@ocom/ui-staff-shared';
+import type React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { SectionLayout } from './section-layout.tsx';
 
 export const Root: React.FC = () => {
 	return (
@@ -15,7 +15,7 @@ export const Root: React.FC = () => {
 					element={
 						<PlaceholderPage
 							sectionName="Community Management"
-							description="Community management route package mounted under /staff/community."
+							description="Community management route package mounted under /staff/community-management."
 							expectedRoles={['Staff.CommunityAdmin']}
 						/>
 					}
@@ -25,7 +25,7 @@ export const Root: React.FC = () => {
 					element={
 						<PlaceholderPage
 							sectionName="Community Management"
-							description="Community management route package mounted under /staff/community."
+							description="Community management route package mounted under /staff/community-management."
 							expectedRoles={['Staff.CommunityAdmin']}
 						/>
 					}

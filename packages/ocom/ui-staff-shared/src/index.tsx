@@ -1,9 +1,10 @@
 import React, { createElement, type FC } from 'react';
 import { SectionLayout } from './section-layout.tsx';
-export { StaffRouteShell, type StaffRouteShellProps, StaffAuthContext, StaffAuthProvider, type StaffAuth } from './staff-route-shell.tsx';
-export { SectionLayout, type SectionLayoutProps } from './section-layout.tsx';
-export { SubPageLayout } from './sub-page-layout.tsx';
+
 export { VerticalTabs } from '@ocom/ui-shared';
+export { SectionLayout, type SectionLayoutProps } from './section-layout.tsx';
+export { type StaffAuth, StaffAuthContext, StaffAuthProvider, StaffRouteShell, type StaffRouteShellProps } from './staff-route-shell.tsx';
+export { SubPageLayout } from './sub-page-layout.tsx';
 
 export interface PlaceholderProps {
 	sectionName: string;
@@ -12,8 +13,8 @@ export interface PlaceholderProps {
 	explicitRoles?: string[];
 }
 
-import { StaffAuthContext } from './staff-route-shell.tsx';
 import type { StaffAuth } from './staff-route-shell.tsx';
+import { StaffAuthContext } from './staff-route-shell.tsx';
 
 export const PlaceholderPage: React.FC<PlaceholderProps> = ({ sectionName, description, expectedRoles, explicitRoles }) => {
 	const auth = React.useContext(StaffAuthContext);
@@ -39,9 +40,13 @@ export const PlaceholderPage: React.FC<PlaceholderProps> = ({ sectionName, descr
 		const a = auth as StaffAuth;
 		type RawProfile = { roles?: string[] | unknown; role?: string | unknown; name?: string; displayName?: string; preferred_username?: string; username?: string; email?: string };
 		const raw = a.raw as RawProfile | undefined;
+		const displayName = (a.name ?? raw?.name ?? raw?.displayName ?? raw?.preferred_username ?? raw?.username ?? raw?.email ?? 'Staff User') as string;
+		const identifierRaw = (a.username ?? a.email ?? raw?.email ?? raw?.username ?? undefined) as string | undefined;
+		// Only expose an identifier when it is meaningfully different from the display name
+		const identifier = identifierRaw && identifierRaw !== displayName ? identifierRaw : undefined;
 		return {
-			displayName: a.name ?? raw?.name ?? raw?.displayName ?? raw?.preferred_username ?? raw?.username ?? raw?.email ?? 'Staff User',
-			identifier: a.username ?? a.email ?? raw?.email ?? raw?.username ?? undefined,
+			displayName,
+			identifier,
 		};
 	}, [auth]);
 
@@ -50,9 +55,9 @@ export const PlaceholderPage: React.FC<PlaceholderProps> = ({ sectionName, descr
 			<div style={{ marginBottom: 12, fontWeight: 700, fontSize: 18 }}>{sectionName}</div>
 			<div style={{ marginBottom: 8, color: '#888' }}>{description}</div>
 
-			<div style={{ padding: 12, border: '1px dashed #ccc', borderRadius: 6, background: '#fafafa' }}>
-				<div style={{ marginBottom: 8, color: '#c00', fontWeight: 700 }}>Placeholder — proof surface</div>
-				<div style={{ marginBottom: 8 }}>This page is a visible placeholder for the section.</div>
+			<div style={{ padding: 12, borderRadius: 6, background: '#fff', boxShadow: '0 0 4px rgba(0,0,0,0.04)' }}>
+				<div style={{ marginBottom: 8, color: '#333', fontWeight: 700 }}>Placeholder</div>
+				<div style={{ marginBottom: 8, color: '#666' }}>This page is a visible placeholder for the section.</div>
 
 				{identitySummary ? (
 					<div style={{ marginTop: 8 }}>
@@ -96,4 +101,3 @@ export const Root: FC = () =>
 	createElement(SectionLayout, {
 		pageLayouts: [],
 	});
-

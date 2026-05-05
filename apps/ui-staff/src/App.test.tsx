@@ -1,7 +1,10 @@
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+
+// Mock react-oidc-context useAuth to ensure SSR render is deterministic
+vi.mock('react-oidc-context', () => ({ useAuth: () => ({ user: undefined, signoutRedirect: () => Promise.resolve() }) }));
 
 // Mock RequireAuth from @cellix/ui-core so tests don't depend on oidc context behavior
 vi.mock('@cellix/ui-core', () => ({
@@ -64,18 +67,27 @@ describe('App', () => {
 		expect(html).toContain('Unauthorized');
 	});
 
-	it('navigates to staff index and renders CommunityManagement', () => {
+	it('navigates to staff index and renders RootSection', () => {
 		const html = renderToString(
 			<MemoryRouter initialEntries={['/staff']}>
+				<App />
+			</MemoryRouter>,
+		);
+		expect(html).toContain('RootSection');
+	});
+
+	it('navigates to staff/community-management and renders CommunityManagement', () => {
+		const html = renderToString(
+			<MemoryRouter initialEntries={['/staff/community-management']}>
 				<App />
 			</MemoryRouter>,
 		);
 		expect(html).toContain('CommunityManagement');
 	});
 
-	it('navigates to /staff/users and renders UserManagement', () => {
+	it('navigates to /staff/user-management and renders UserManagement', () => {
 		const html = renderToString(
-			<MemoryRouter initialEntries={['/staff/users']}>
+			<MemoryRouter initialEntries={['/staff/user-management']}>
 				<App />
 			</MemoryRouter>,
 		);

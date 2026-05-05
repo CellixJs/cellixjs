@@ -1,6 +1,6 @@
+import { DollarOutlined, HomeOutlined, LogoutOutlined, TeamOutlined, ToolOutlined } from '@ant-design/icons';
 import { MenuComponent, type MenuComponentProps, type PageLayoutProps } from '@ocom/ui-shared';
-import { Layout, theme, Button } from 'antd';
-import { LogoutOutlined, HomeOutlined, TeamOutlined, DollarOutlined, ToolOutlined } from '@ant-design/icons';
+import { Button, Layout, theme } from 'antd';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import './section-layout.css';
@@ -53,21 +53,19 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 	loggedInUser,
 	// NOTE: extension props (communitiesDropdown / loggedInUser) are optional and allow route packages to inject
 }) => {
-
 	// Support both legacy and staff-specific localStorage keys for sidebar collapsed state
 	// Guard access to localStorage so this component is safe during server-side rendering (no window/localStorage)
 	const [isExpanded, setIsExpanded] = useState(() => {
 		if (typeof window === 'undefined') return true; // default to expanded during SSR
 		if (!('localStorage' in window) || typeof window.localStorage === 'undefined') return true;
 		try {
-			const sidebarCollapsed = (window.localStorage.getItem(LocalSettingsKeys.SidebarCollapsed) ?? window.localStorage.getItem(LocalSettingsKeys.LegacySidebarCollapsed));
+			const sidebarCollapsed = window.localStorage.getItem(LocalSettingsKeys.SidebarCollapsed) ?? window.localStorage.getItem(LocalSettingsKeys.LegacySidebarCollapsed);
 			return !sidebarCollapsed;
 		} catch (_err) {
 			// If localStorage access throws, default to expanded
 			return true;
 		}
 	});
-
 
 	const {
 		token: { colorBgContainer },
@@ -84,15 +82,15 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 			id: 'ROOT',
 		},
 		{
-			path: '/staff/community/*',
-			title: 'Community Management',
+			path: '/staff/community-management/*',
+			title: 'Communities',
 			icon: <TeamOutlined />,
 			id: 'community',
 			parent: 'ROOT',
 		},
 		{
-			path: '/staff/users/*',
-			title: 'User Management',
+			path: '/staff/user-management/*',
+			title: 'Users',
 			icon: <TeamOutlined />,
 			id: 'users',
 			parent: 'ROOT',
@@ -123,8 +121,9 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 	for (const p of pageLayouts) {
 		if (mergedMap.has(p.id)) {
 			const existing = mergedMap.get(p.id) as PageLayoutProps;
-			// Preserve default fields when consumer omits them; allow consumer to override when provided
-			mergedMap.set(p.id, { ...existing, ...p });
+			// Preserve default title to enforce canonical short labels while allowing consumer
+			// to override other non-title fields. This ensures consistent sidebar labels.
+			mergedMap.set(p.id, { ...existing, ...p, title: existing.title });
 		} else {
 			mergedMap.set(p.id, p);
 		}
@@ -146,7 +145,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 		}
 		const data = memberData as Record<string, unknown>;
 		// Narrow to a known shape for runtime-provided identity fields
-		type MemberIdentity = { name?: string; username?: string; email?: string; onLogout?: (() => Promise<void> | void) };
+		type MemberIdentity = { name?: string; username?: string; email?: string; onLogout?: () => Promise<void> | void };
 		const d = data as unknown as MemberIdentity;
 		return {
 			displayName: ((d.name as string) || (d.username as string) || (d.email as string) || 'Staff User') as string,
@@ -164,6 +163,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 			<Header
 				style={{
 					backgroundColor: colorBgContainer,
+					height: 'var(--app-header-height, 64px)',
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'space-between',
@@ -182,11 +182,11 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 					}}
 				>
 					{/** Render optional communities dropdown slot (mirrors community-admin pattern) */}
-					{communitiesDropdown ? (
-						// Provided by consumer (e.g., CommunitiesDropdownContainer)
-						communitiesDropdown
-					) : null}
-					
+					{communitiesDropdown
+						? // Provided by consumer (e.g., CommunitiesDropdownContainer)
+							communitiesDropdown
+						: null}
+
 					{title && (
 						<div
 							style={{
@@ -202,33 +202,29 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 				</div>
 
 				{/** Render logged-in user slot if provided, otherwise fallback to simple identity display */}
-				{loggedInUser ? (
-					loggedInUser
-				) : (
-					userIdentity && (
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '12px',
-								marginLeft: 'auto',
-							}}
-						>
-							<span style={{ fontSize: '14px', color: '#666' }}>
-								{userIdentity.displayName}
-							</span>
-							{userIdentity.onLogout && (
-								<Button
-									type="text"
-									icon={<LogoutOutlined />}
-									onClick={userIdentity.onLogout}
-									title="Logout"
-									style={{ color: '#666' }}
-								/>
-							)}
-						</div>
-					)
-				)}
+				{loggedInUser
+					? loggedInUser
+					: userIdentity && (
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									marginLeft: 'auto',
+								}}
+							>
+								<span style={{ fontSize: '14px', color: '#666' }}>{userIdentity.displayName}</span>
+								{userIdentity.onLogout && (
+									<Button
+										type="text"
+										icon={<LogoutOutlined />}
+										onClick={userIdentity.onLogout}
+										title="Logout"
+										style={{ color: '#666' }}
+									/>
+								)}
+							</div>
+						)}
 			</Header>
 
 			<Layout hasSider={true}>
@@ -240,7 +236,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 					onCollapse={() => handleToggler(isExpanded, setIsExpanded)}
 					style={{
 						overflow: 'auto',
-						height: 'calc(100vh - 64px)',
+						height: 'calc(100vh - var(--app-header-height, 64px))',
 						position: 'relative',
 						left: 0,
 						top: 0,
@@ -259,7 +255,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 						flexDirection: 'column',
 						flex: '1 auto',
 						overflowY: 'scroll',
-						height: 'calc(100vh - 64px)',
+						height: 'calc(100vh - var(--app-header-height, 64px))',
 					}}
 				>
 					<Outlet />
@@ -268,4 +264,3 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 		</Layout>
 	);
 };
-
