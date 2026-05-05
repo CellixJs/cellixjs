@@ -43,6 +43,29 @@ export interface SectionLayoutProps {
 	communitiesDropdownData?: Record<string, unknown>;
 }
 
+export const getUserIdentityFromMemberData = (memberData?: unknown) => {
+	if (!memberData || typeof memberData !== 'object') {
+		return null;
+	}
+	const data = memberData as Record<string, unknown>;
+	// Narrow to a known shape for runtime-provided identity fields; support nested `raw` (OIDC profile)
+	type MemberIdentity = {
+		name?: string;
+		username?: string;
+		email?: string;
+		raw?: { name?: string; preferred_username?: string; username?: string; email?: string };
+		onLogout?: () => Promise<void> | void;
+	};
+	const d = data as unknown as MemberIdentity;
+	const name = d.raw?.name ?? d.name;
+	const username = d.raw?.preferred_username ?? d.raw?.username ?? d.username;
+	const email = d.raw?.email ?? d.email;
+	return {
+		displayName: ((name as string) || (username as string) || (email as string) || 'Staff User') as string,
+		onLogout: d.onLogout as (() => Promise<void> | void) | undefined,
+	};
+};
+
 export const SectionLayout: React.FC<SectionLayoutProps> = ({
 	pageLayouts,
 	memberData,
