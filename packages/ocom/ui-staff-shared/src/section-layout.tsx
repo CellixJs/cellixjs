@@ -1,4 +1,4 @@
-import { DollarOutlined, HomeOutlined, LogoutOutlined, TeamOutlined, ToolOutlined } from '@ant-design/icons';
+import { DollarOutlined, LogoutOutlined, TeamOutlined, ToolOutlined } from '@ant-design/icons';
 import { MenuComponent, type MenuComponentProps, type PageLayoutProps } from '@ocom/ui-shared';
 import { Button, Layout, theme } from 'antd';
 import { useState } from 'react';
@@ -99,17 +99,10 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 	// Consumer-provided entries override defaults when ids conflict.
 	const defaultPageLayouts: PageLayoutProps[] = [
 		{
-			path: '/staff',
-			title: 'Home',
-			icon: <HomeOutlined />,
-			id: 'ROOT',
-		},
-		{
-			path: '/staff/community-management/*',
+			path: '/staff/community-management',
 			title: 'Communities',
 			icon: <TeamOutlined />,
-			id: 'community',
-			parent: 'ROOT',
+			id: 'ROOT',
 		},
 		{
 			path: '/staff/user-management/*',
@@ -159,7 +152,6 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 		memberData,
 		theme: 'light',
 		mode: 'inline',
-		showRootItem: false,
 	};
 
 	// Helper function to extract user identity from memberData

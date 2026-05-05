@@ -1,4 +1,4 @@
-import { DashboardOutlined, HomeOutlined } from '@ant-design/icons';
+import { DashboardOutlined } from '@ant-design/icons';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import { createContext, type FC, type ReactNode, useContext, useMemo } from 'react';
 import { SectionLayout, type SectionLayoutProps } from './section-layout.tsx';
@@ -28,17 +28,10 @@ export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }
 	const pageLayouts: PageLayoutProps[] = useMemo(
 		() => [
 			{
-				path: '/staff',
-				title: 'Home',
-				icon: <HomeOutlined />,
-				id: 'ROOT',
-			},
-			{
-				path: '/staff/community-management/*',
-				title: 'Community Management',
+				path: '/staff/community-management',
+				title: 'Communities',
 				icon: <DashboardOutlined />,
-				id: 'community',
-				parent: 'ROOT',
+				id: 'ROOT',
 			},
 			{
 				path: '/staff/user-management/*',

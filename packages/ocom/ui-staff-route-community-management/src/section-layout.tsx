@@ -7,7 +7,7 @@ export const SectionLayout: React.FC = () => {
 			path: '/staff/community-management',
 			title: 'Community Management',
 			icon: <TeamOutlined />,
-			id: 'community',
+			id: 'ROOT',
 		},
 	];
 

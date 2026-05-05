@@ -24,8 +24,7 @@ describe('SectionLayout merging behaviour', () => {
 				path: '/staff/community-management',
 				title: 'Community Management',
 				icon: <TeamOutlined />,
-				id: 'community',
-				parent: 'ROOT',
+				id: 'ROOT',
 			},
 		];
 
@@ -54,10 +53,10 @@ describe('SectionLayout merging behaviour', () => {
 	it('preserves default parent when consumer entry omits parent field', async () => {
 		const consumerLayouts = [
 			{
-				path: '/staff/community-management',
-				title: 'Community Management',
+				path: '/staff/user-management',
+				title: 'User Management',
 				icon: <TeamOutlined />,
-				id: 'community',
+				id: 'users',
 				// parent omitted intentionally to ensure merge preserves default 'ROOT'
 			},
 		];
