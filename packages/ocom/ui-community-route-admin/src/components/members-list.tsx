@@ -92,9 +92,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 
 	const handleBulkActionSubmit = async (values: BulkActionFormValues) => {
 		const reason = values.reason?.trim();
-		const success = bulkActionType === 'deactivate'
-			? await onBulkDeactivateMembers?.(selectedMemberIds, reason ? reason : undefined)
-			: await onBulkRemoveMembers?.(selectedMemberIds, reason ? reason : undefined);
+		const success = bulkActionType === 'deactivate' ? await onBulkDeactivateMembers?.(selectedMemberIds, reason ? reason : undefined) : await onBulkRemoveMembers?.(selectedMemberIds, reason ? reason : undefined);
 		if (success) {
 			clearSelection();
 			closeBulkActionModal();
@@ -310,11 +308,7 @@ export const MemberList: React.FC<MemberListProps> = (props) => {
 					size="small"
 					style={{ width: '100%' }}
 				>
-					<Text>
-						{bulkActionType === 'deactivate'
-							? `This will deactivate ${selectedMemberIds.length} selected member(s).`
-							: `This will remove ${selectedMemberIds.length} selected member(s).`}
-					</Text>
+					<Text>{bulkActionType === 'deactivate' ? `This will deactivate ${selectedMemberIds.length} selected member(s).` : `This will remove ${selectedMemberIds.length} selected member(s).`}</Text>
 					<Form
 						form={bulkActionForm}
 						layout="vertical"

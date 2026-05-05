@@ -4,12 +4,12 @@ import { App } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { MemberUpdateAccountInput } from '../generated.tsx';
 import {
+	type AdminMembersAccountsEditContainerEndUserFieldsFragment,
 	AdminMembersAccountsEditContainerEndUsersByCommunityDocument,
 	AdminMembersAccountsEditContainerMemberDocument,
 	AdminMembersAccountsEditContainerMemberRemoveAccountDocument,
 	AdminMembersAccountsEditContainerMemberUpdateAccountDocument,
 	AdminMembersAccountsListContainerMemberDocument,
-	type AdminMembersAccountsEditContainerEndUserFieldsFragment,
 } from '../generated.tsx';
 import { MembersAccountsEdit, type MembersAccountsEditProps } from './members-accounts-edit.tsx';
 

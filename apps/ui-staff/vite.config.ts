@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react';
-import { defineConfig, type PluginOption } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig, type PluginOption } from 'vite';
 
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === 'development';

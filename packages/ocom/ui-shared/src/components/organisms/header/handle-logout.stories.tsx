@@ -1,8 +1,8 @@
-import type React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within, fn } from 'storybook/test';
 import type { ApolloClient } from '@apollo/client';
+import type { Meta, StoryObj } from '@storybook/react';
+import type React from 'react';
 import type { AuthContextProps } from 'react-oidc-context';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { HandleLogout } from './handle-logout.tsx';
 
 type HarnessProps = {

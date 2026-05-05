@@ -2,7 +2,6 @@
 sidebar_position: 31
 sidebar_label: ADR 0031 — UI env vars
 status: accepted
-contact: Engineering Docs / Platform
 date: 2026-05-05
 contact: nnoce14
 deciders: gidich nnoce14
@@ -36,15 +35,15 @@ Naming rules (authoritative):
 - Allowed prefixes for client runtime variables: VITE_APP_ and VITE_COMMON_
 
 - Portal-specific variables
-  - Format: VITE_APP_<PORTAL_NAME>_<ENV_VAR_NAME>
-  - <PORTAL_NAME>: uppercase, underscore-delimited canonical portal identifier (examples: UI_COMMUNITY, UI_STAFF)
-  - <ENV_VAR_NAME>: uppercase, underscore-delimited identifier for the value (examples: B2C_AUTHORITY, AAD_CLIENTID)
+  - Format: `VITE_APP_<PORTAL_NAME>_<ENV_VAR_NAME>`
+  - `<PORTAL_NAME>`: uppercase, underscore-delimited canonical portal identifier (examples: UI_COMMUNITY, UI_STAFF)
+  - `<ENV_VAR_NAME>`: uppercase, underscore-delimited identifier for the value (examples: B2C_AUTHORITY, AAD_CLIENTID)
   - Example: VITE_APP_UI_COMMUNITY_B2C_CLIENTID
-  - Storage/ownership: store portal-specific values in a portal-specific Azure DevOps variable group (convention: ocm-app-ui-<portal-slug>, e.g., ocm-app-ui-community)
+  - Storage/ownership: store portal-specific values in a portal-specific Azure DevOps variable group (convention: `ocm-app-ui-<portal-slug>`, e.g., ocm-app-ui-community)
   - Usage: Referenced only by that portal's source code
 
 - Shared / common variables
-  - Format: VITE_COMMON_<ENV_NAME>
+  - Format: `VITE_COMMON_<ENV_NAME>`
   - Example: VITE_COMMON_API_ENDPOINT, VITE_COMMON_NODE_ENV
   - Storage/ownership: repository-level common variable group (ocm-common)
   - Usage: Referenced by any portal
@@ -53,7 +52,7 @@ Naming rules (authoritative):
 
   ^(VITE_APP_[A-Z0-9_]+|VITE_COMMON_[A-Z0-9_]+)$
 
-- Portal name validation: the <PORTAL_NAME> segment MUST be one of the canonical portal keys listed in docs/devops/PORTAL_REGISTRY.md. Add new portal keys to that registry when onboarding a portal.
+- Portal name validation: the `<PORTAL_NAME>` segment MUST be one of the canonical portal keys listed in docs/devops/PORTAL_REGISTRY.md. Add new portal keys to that registry when onboarding a portal.
 
 - Secrets: Do NOT place sensitive secrets in client-bundled variables unless explicitly authorized and documented. Secrets should be kept only in secure DevOps variable groups and not checked into the repository.
 
@@ -96,9 +95,9 @@ Library groups (recommended):
 
 1. Choose a canonical portal key (uppercase, underscores), e.g., UI_SUPPORT
 2. Add the portal key to docs/devops/PORTAL_REGISTRY.md
-3. Create a pipeline variable group: ocm-app-ui-<portal-slug> (for example: ocm-app-ui-support)
-4. Add VITE_APP_<PORTAL_KEY>_* variables to that group
-5. Use the variables in portal source code via import.meta.env['VITE_APP_<PORTAL_KEY>_...']
+3. Create a pipeline variable group: `ocm-app-ui-<portal-slug>` (for example: `ocm-app-ui-support`)
+4. Add `VITE_APP_<PORTAL_KEY>_*` variables to that group
+5. Use the variables in portal source code via `import.meta.env['VITE_APP_<PORTAL_KEY>_...']`
 
 ## Examples
 

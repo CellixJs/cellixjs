@@ -201,16 +201,16 @@ export const MembersInviteModal: React.FC<MembersInviteModalProps> = (props) => 
 											))}
 
 											<Form.Item>
-											<Button
-												type="dashed"
-												onClick={() => add()}
-												block
-												icon={<PlusOutlined />}
-											>
-												Add Another Invitation
-											</Button>
-										</Form.Item>
-									</>
+												<Button
+													type="dashed"
+													onClick={() => add()}
+													block
+													icon={<PlusOutlined />}
+												>
+													Add Another Invitation
+												</Button>
+											</Form.Item>
+										</>
 									)}
 								</Form.List>
 
@@ -245,7 +245,7 @@ export const MembersInviteModal: React.FC<MembersInviteModalProps> = (props) => 
 						),
 					},
 				]}
-				/>
-			</Modal>
-		);
+			/>
+		</Modal>
+	);
 };

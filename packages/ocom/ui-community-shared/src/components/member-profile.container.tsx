@@ -4,8 +4,8 @@ import { App } from 'antd';
 import type React from 'react';
 import { useParams } from 'react-router-dom';
 import {
-	type SharedMemberProfileContainerMemberFieldsFragment,
 	SharedMemberProfileContainerMemberDocument,
+	type SharedMemberProfileContainerMemberFieldsFragment,
 	type SharedMemberProfileContainerMemberQuery,
 	type SharedMemberProfileContainerMemberQueryVariables,
 	SharedMemberProfileContainerMemberUpdateProfileDocument,
@@ -15,7 +15,6 @@ import { MemberProfile, type MemberProfileFormValues } from './member-profile.ts
 export interface MemberProfileContainerProps {
 	isAdmin?: boolean;
 }
-
 
 export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (props) => {
 	const { message } = App.useApp();

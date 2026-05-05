@@ -1,5 +1,5 @@
+import { Button, Row, Typography } from 'antd';
 import type React from 'react';
-import { Row, Button, Typography } from 'antd';
 
 export const Unauthorized: React.FC = () => {
 	return (

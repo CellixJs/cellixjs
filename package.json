@@ -29,6 +29,8 @@
 		"test:all": "turbo run test:all",
 		"test:coverage": "turbo run test:coverage",
 		"test:coverage:merge": "pnpm run test:coverage && pnpm run merge-lcov-reports",
+		"test:e2e": "turbo run test:e2e --filter=@ocom-verification/e2e-tests",
+		"test:acceptance": "turbo run test:acceptance --filter=@ocom-verification/acceptance-api --filter=@ocom-verification/acceptance-ui",
 		"merge-lcov-reports": "node build-pipeline/scripts/merge-coverage.js",
 		"test:integration": "turbo run test:integration",
 		"test:serenity": "turbo run test:serenity",
@@ -96,13 +98,16 @@
 			]
 		},
 		"overrides": {
-			"axios": "^1.15.0",
+			"axios": "1.15.2",
 			"follow-redirects": "^1.16.0",
 			"vite": "catalog:",
 			"jiti": "2.6.1",
 			"rollup": "^4.59.0",
 			"@ant-design/pro-layout>path-to-regexp": "^8.4.0",
 			"brace-expansion@1.1.12": "1.1.13",
+			"brace-expansion@5.0.4": "5.0.5",
+			"diff@4.0.2": "4.0.4",
+			"protobufjs@7.5.4": "7.5.5",
 			"serve-handler>minimatch": "3.1.5",
 			"serialize-javascript@6.0.2": "7.0.5",
 			"serialize-javascript@7.0.4": "7.0.5",
@@ -115,12 +120,11 @@
 			"lodash-es": "4.18.1",
 			"node-forge": "^1.4.0",
 			"picomatch": "^4.0.4",
-			"postcss": ">=8.5.10",
 			"webpack": "^5.105.4",
 			"playwright-core": "1.59.0",
 			"playwright": "1.59.0",
-			"protobufjs": "^7.5.5",
-			"postcss": "^8.5.10"
+			"postcss": "8.5.10",
+			"protobufjs": "7.5.5"
 		},
 		"patchedDependencies": {
 			"@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"

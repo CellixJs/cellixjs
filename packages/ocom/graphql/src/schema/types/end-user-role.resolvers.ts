@@ -1,6 +1,6 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type { GraphContext } from '../context.ts';
 import type { Resolvers } from '../builder/generated.ts';
+import type { GraphContext } from '../context.ts';
 
 const endUserRole: Resolvers = {
 	Query: {
