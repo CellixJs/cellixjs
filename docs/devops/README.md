@@ -20,4 +20,4 @@ If you want serialized infra deployments
 
 Contact
 
-If you have questions about the pipeline intent or want to propose a change-to-serialization, open an issue or discussion in the repository and tag the DevOps owners.
+If you have questions about the pipeline intent or want to propose a change to serialization, open an issue or discussion in the repository and tag the DevOps owners.

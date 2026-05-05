@@ -28,7 +28,8 @@ parameters:
     artifactPattern: '**/ui-staff-$(Build.BuildId).zip'
     artifactZipName: 'ui-staff-$(Build.BuildId).zip'
     deploymentNameSuffix: '-ui-staff'
-    dependsOnInfrastructure: 'Infrastructure_UI_Community'
+    dependsOnInfrastructure:
+      - 'Infrastructure_UI_Community'
     environmentNameDevOps: ${{ parameters.environmentNameDevOps }}
     environmentNameBicep: ${{ parameters.environmentNameBicep }}
     vmImageName: ${{ parameters.vmImageName }}

@@ -9,7 +9,7 @@
  */
 
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { existsSync, globSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,7 +17,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '../..');
 
-const iacDirectories = ['iac', 'apps/api/iac', 'apps/ui-community/iac', 'apps/ui-staff/iac'];
+const iacDirectories = [...new Set([...globSync('iac', { cwd: rootDir }), ...globSync('apps/*/iac', { cwd: rootDir })])].filter((dir) => statSync(join(rootDir, dir)).isDirectory()).sort();
 const buildOutputDir = 'iac/build';
 
 function findFiles(dir, ext, out = []) {

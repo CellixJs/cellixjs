@@ -32,15 +32,15 @@ parameters:
 - name: frontDoorDomainName
   type: string
 - name: dependsOnInfrastructure
-  type: string
+  type: object
   # Optional: callers may omit this parameter. When provided (non-empty) the Infrastructure job will dependOn the supplied job name(s).
-  default: ''
+  default: []
 
 jobs:
 - job: Infrastructure_${{ parameters.appId }}
   displayName: Infrastructure Setup (${{ parameters.displayName }})
   condition: succeeded()
-  ${{ if ne(parameters.dependsOnInfrastructure, '') }}:
+  ${{ if ne(length(parameters.dependsOnInfrastructure), 0) }}:
     dependsOn: ${{ parameters.dependsOnInfrastructure }}
   pool:
     vmImage: ${{ parameters.vmImageName }}
