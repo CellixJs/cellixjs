@@ -1,6 +1,6 @@
+import { DollarOutlined, HomeOutlined, LogoutOutlined, TeamOutlined, ToolOutlined } from '@ant-design/icons';
 import { MenuComponent, type MenuComponentProps, type PageLayoutProps } from '@ocom/ui-shared';
-import { Layout, theme, Button } from 'antd';
-import { LogoutOutlined, HomeOutlined, TeamOutlined, DollarOutlined, ToolOutlined } from '@ant-design/icons';
+import { Button, Layout, theme } from 'antd';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import './section-layout.css';
@@ -43,6 +43,29 @@ export interface SectionLayoutProps {
 	communitiesDropdownData?: Record<string, unknown>;
 }
 
+export const getUserIdentityFromMemberData = (memberData?: unknown) => {
+	if (!memberData || typeof memberData !== 'object') {
+		return null;
+	}
+	const data = memberData as Record<string, unknown>;
+	// Narrow to a known shape for runtime-provided identity fields; support nested `raw` (OIDC profile)
+	type MemberIdentity = {
+		name?: string;
+		username?: string;
+		email?: string;
+		raw?: { name?: string; preferred_username?: string; username?: string; email?: string };
+		onLogout?: () => Promise<void> | void;
+	};
+	const d = data as unknown as MemberIdentity;
+	const name = d.raw?.name ?? d.name;
+	const username = d.raw?.preferred_username ?? d.raw?.username ?? d.username;
+	const email = d.raw?.email ?? d.email;
+	return {
+		displayName: ((name as string) || (username as string) || (email as string) || 'Staff User') as string,
+		onLogout: d.onLogout as (() => Promise<void> | void) | undefined,
+	};
+};
+
 export const SectionLayout: React.FC<SectionLayoutProps> = ({
 	pageLayouts,
 	memberData,
@@ -53,21 +76,19 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 	loggedInUser,
 	// NOTE: extension props (communitiesDropdown / loggedInUser) are optional and allow route packages to inject
 }) => {
-
 	// Support both legacy and staff-specific localStorage keys for sidebar collapsed state
 	// Guard access to localStorage so this component is safe during server-side rendering (no window/localStorage)
 	const [isExpanded, setIsExpanded] = useState(() => {
 		if (typeof window === 'undefined') return true; // default to expanded during SSR
 		if (!('localStorage' in window) || typeof window.localStorage === 'undefined') return true;
 		try {
-			const sidebarCollapsed = (window.localStorage.getItem(LocalSettingsKeys.SidebarCollapsed) ?? window.localStorage.getItem(LocalSettingsKeys.LegacySidebarCollapsed));
+			const sidebarCollapsed = window.localStorage.getItem(LocalSettingsKeys.SidebarCollapsed) ?? window.localStorage.getItem(LocalSettingsKeys.LegacySidebarCollapsed);
 			return !sidebarCollapsed;
 		} catch (_err) {
 			// If localStorage access throws, default to expanded
 			return true;
 		}
 	});
-
 
 	const {
 		token: { colorBgContainer },
@@ -139,22 +160,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 		mode: 'inline',
 	};
 
-	// Helper function to extract user identity from memberData
-	const getUserIdentity = () => {
-		if (!memberData || typeof memberData !== 'object') {
-			return null;
-		}
-		const data = memberData as Record<string, unknown>;
-		// Narrow to a known shape for runtime-provided identity fields
-		type MemberIdentity = { name?: string; username?: string; email?: string; onLogout?: (() => Promise<void> | void) };
-		const d = data as unknown as MemberIdentity;
-		return {
-			displayName: ((d.name as string) || (d.username as string) || (d.email as string) || 'Staff User') as string,
-			onLogout: d.onLogout as (() => Promise<void> | void) | undefined,
-		};
-	};
-
-	const userIdentity = getUserIdentity();
+	const userIdentity = getUserIdentityFromMemberData(memberData);
 
 	return (
 		<Layout
@@ -182,11 +188,11 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 					}}
 				>
 					{/** Render optional communities dropdown slot (mirrors community-admin pattern) */}
-					{communitiesDropdown ? (
-						// Provided by consumer (e.g., CommunitiesDropdownContainer)
-						communitiesDropdown
-					) : null}
-					
+					{communitiesDropdown
+						? // Provided by consumer (e.g., CommunitiesDropdownContainer)
+							communitiesDropdown
+						: null}
+
 					{title && (
 						<div
 							style={{
@@ -202,33 +208,29 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 				</div>
 
 				{/** Render logged-in user slot if provided, otherwise fallback to simple identity display */}
-				{loggedInUser ? (
-					loggedInUser
-				) : (
-					userIdentity && (
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '12px',
-								marginLeft: 'auto',
-							}}
-						>
-							<span style={{ fontSize: '14px', color: '#666' }}>
-								{userIdentity.displayName}
-							</span>
-							{userIdentity.onLogout && (
-								<Button
-									type="text"
-									icon={<LogoutOutlined />}
-									onClick={userIdentity.onLogout}
-									title="Logout"
-									style={{ color: '#666' }}
-								/>
-							)}
-						</div>
-					)
-				)}
+				{loggedInUser
+					? loggedInUser
+					: userIdentity && (
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									marginLeft: 'auto',
+								}}
+							>
+								<span style={{ fontSize: '14px', color: '#666' }}>{userIdentity.displayName}</span>
+								{userIdentity.onLogout && (
+									<Button
+										type="text"
+										icon={<LogoutOutlined />}
+										onClick={userIdentity.onLogout}
+										title="Logout"
+										style={{ color: '#666' }}
+									/>
+								)}
+							</div>
+						)}
 			</Header>
 
 			<Layout hasSider={true}>
@@ -268,4 +270,3 @@ export const SectionLayout: React.FC<SectionLayoutProps> = ({
 		</Layout>
 	);
 };
-

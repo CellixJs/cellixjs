@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi, beforeAll } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock RequireAuth from @cellix/ui-core so tests don't depend on oidc context behavior
 vi.mock('@cellix/ui-core', () => ({
