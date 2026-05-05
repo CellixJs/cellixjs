@@ -100,14 +100,6 @@ jobs:
             cleanDestinationFolder: true
             overwriteExistingFiles: false
 
-        - task: Bash@3
-          displayName: Downgrade Azure CLI to 2.76.0
-          inputs:
-            targetType: 'inline'
-            script: |
-              pip install azure-cli==2.76.0 --force-reinstall
-              az --version
-
         - task: AzureCLI@2
           displayName: Copy to Blob
           inputs:
