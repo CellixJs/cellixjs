@@ -47,18 +47,45 @@ export default function App() {
 	return (
 		<ApolloConnection>
 			<Routes>
-				<Route path="*" element={rootSection} />
-				<Route path="/auth-redirect" element={authSection} />
-				<Route path="/unauthorized" element={<Unauthorized />} />
+				<Route
+					path="*"
+					element={rootSection}
+				/>
+				<Route
+					path="/auth-redirect"
+					element={authSection}
+				/>
+				<Route
+					path="/unauthorized"
+					element={<Unauthorized />}
+				/>
 
 				{/* Parent staff route: child routes must be declared as nested Route elements
 					so relative paths like "users/*" resolve against /staff. */}
-				<Route path="/staff/*" element={staffSectionElement}>
-					<Route index element={<CommunityManagement />} />
-					<Route path="community/*" element={<CommunityManagement />} />
-					<Route path="users/*" element={<UserManagement />} />
-					<Route path="finance/*" element={<Finance />} />
-					<Route path="tech/*" element={<TechAdmin />} />
+				<Route
+					path="/staff/*"
+					element={staffSectionElement}
+				>
+					<Route
+						index
+						element={<CommunityManagement />}
+					/>
+					<Route
+						path="community/*"
+						element={<CommunityManagement />}
+					/>
+					<Route
+						path="users/*"
+						element={<UserManagement />}
+					/>
+					<Route
+						path="finance/*"
+						element={<Finance />}
+					/>
+					<Route
+						path="tech/*"
+						element={<TechAdmin />}
+					/>
 				</Route>
 			</Routes>
 		</ApolloConnection>

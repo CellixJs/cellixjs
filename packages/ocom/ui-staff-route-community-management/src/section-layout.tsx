@@ -2,21 +2,20 @@ import { SectionLayout as SharedSectionLayout, type SectionLayoutProps } from '@
 import { TeamOutlined } from '@ant-design/icons';
 import type React from 'react';
 export const SectionLayout: React.FC = () => {
-const pageLayouts: SectionLayoutProps['pageLayouts'] = [
-    
-{
-path: '/staff/community',
-title: 'Community Management',
-icon: <TeamOutlined />,
-id: 'community',
-},
-];
+	const pageLayouts: SectionLayoutProps['pageLayouts'] = [
+		{
+			path: '/staff/community',
+			title: 'Community Management',
+			icon: <TeamOutlined />,
+			id: 'community',
+		},
+	];
 
-return (
-<SharedSectionLayout
-title="Community Management"
-description="Community management route package mounted under /staff/community."
-pageLayouts={pageLayouts}
-/>
-);
+	return (
+		<SharedSectionLayout
+			title="Community Management"
+			description="Community management route package mounted under /staff/community."
+			pageLayouts={pageLayouts}
+		/>
+	);
 };

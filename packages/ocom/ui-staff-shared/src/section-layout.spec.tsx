@@ -6,10 +6,14 @@ import { SectionLayout } from './section-layout';
 import { TeamOutlined } from '@ant-design/icons';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 
+import { act } from 'react-dom/test-utils';
+
 const renderIntoDocument = (node: React.ReactNode) => {
 	const container = document.createElement('div');
 	document.body.appendChild(container);
-	createRoot(container).render(node);
+	act(() => {
+		createRoot(container).render(node);
+	});
 	return container;
 };
 

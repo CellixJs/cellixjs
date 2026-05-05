@@ -66,7 +66,7 @@ describe('App', () => {
 
 	it('navigates to staff index and renders CommunityManagement', () => {
 		const html = renderToString(
-			<MemoryRouter initialEntries={["/staff"]}>
+			<MemoryRouter initialEntries={['/staff']}>
 				<App />
 			</MemoryRouter>,
 		);
@@ -75,7 +75,7 @@ describe('App', () => {
 
 	it('navigates to /staff/users and renders UserManagement', () => {
 		const html = renderToString(
-			<MemoryRouter initialEntries={["/staff/users"]}>
+			<MemoryRouter initialEntries={['/staff/users']}>
 				<App />
 			</MemoryRouter>,
 		);
@@ -84,7 +84,7 @@ describe('App', () => {
 
 	it('navigates to /staff/finance and renders Finance', () => {
 		const html = renderToString(
-			<MemoryRouter initialEntries={["/staff/finance"]}>
+			<MemoryRouter initialEntries={['/staff/finance']}>
 				<App />
 			</MemoryRouter>,
 		);
@@ -93,7 +93,7 @@ describe('App', () => {
 
 	it('navigates to /staff/tech and renders TechAdmin', () => {
 		const html = renderToString(
-			<MemoryRouter initialEntries={["/staff/tech"]}>
+			<MemoryRouter initialEntries={['/staff/tech']}>
 				<App />
 			</MemoryRouter>,
 		);
