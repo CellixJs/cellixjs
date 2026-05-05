@@ -22,7 +22,7 @@ export const apiSettings = {
 
 	apiDir: path.dirname(apiSettingsPath),
 	oauth2MockDir: path.join(workspaceRoot, 'apps', 'server-oauth2-mock'),
-	uiDir: path.dirname(uiEnvPath),
+	uiCommunityDir: path.dirname(uiEnvPath),
 } as const;
 
 export const uiSettings = {

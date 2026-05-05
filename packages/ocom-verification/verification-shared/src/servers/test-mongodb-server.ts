@@ -1,11 +1,10 @@
+import { type MongoMemoryReplicaSetDisposer, startMongoMemoryReplicaSet } from '@cellix/server-mongodb-memory-mock-seedwork';
 import { ServiceMongoose } from '@ocom/service-mongoose';
 import { MongoClient, ObjectId } from 'mongodb';
-import { MongoMemoryReplSet } from 'mongodb-memory-server';
+import { apiSettings } from '../settings/index.ts';
 import { getAllMockUsers } from '../test-data/index.ts';
 
-const MONGO_BINARY_VERSION = '7.0.14';
-const DEFAULT_DB_NAME = 'owner-community-test';
-const MAX_REPLSET_START_ATTEMPTS = 5;
+const DEFAULT_REPL_SET_NAME = 'globaldb';
 
 export type MongoDBSeedDataFunction = (connectionString: string, dbName: string) => Promise<void>;
 
@@ -52,28 +51,34 @@ export async function seedOwnerCommunityReferenceData(connectionString: string, 
 }
 
 /**
- * In-memory MongoDB replica set with a Mongoose service attached.
- * Provides the test database for acceptance tests — callers supply
- * an optional db name and seed function.
+ * Test wrapper around the Cellix MongoDB memory mock seedwork.
+ * The replica set is started by @cellix/server-mongodb-memory-mock-seedwork; this class
+ * owns readiness checks, test seeding, and the Mongoose service used by tests.
  */
 export class MongoDBTestServer {
-	private replSet: MongoMemoryReplSet | null = null;
+	private disposer: MongoMemoryReplicaSetDisposer | null = null;
 	private serviceMongoose: ServiceMongoose | null = null;
-	private dbName = '';
+	private connectionString = '';
+	private dbName = apiSettings.cosmosDbName;
+	private startedByUs = false;
 
 	async start(options?: MongoDBTestServerStartOptions): Promise<void> {
-		this.dbName = options?.dbName ?? DEFAULT_DB_NAME;
+		this.dbName = options?.dbName ?? apiSettings.cosmosDbName;
+		const port = options?.port ?? apiSettings.cosmosDbPort;
+		const replSetName = getReplicaSetName(apiSettings.cosmosDbConnectionString) ?? DEFAULT_REPL_SET_NAME;
+		this.connectionString = buildConnectionString({ port, dbName: this.dbName, replSetName });
 
-		const config = {
-			binary: { version: MONGO_BINARY_VERSION },
-			replSet: { name: 'rs0', count: 1, storageEngine: 'wiredTiger' as const },
-			...(options?.port && { instanceOpts: [{ port: options.port }] }),
-		};
+		if (!(await MongoDBTestServer.isReachable(this.connectionString))) {
+			const { disposer } = await startMongoMemoryReplicaSet({
+				port,
+				dbName: this.dbName,
+				replSetName,
+			});
+			this.disposer = disposer;
+			this.startedByUs = true;
+		}
 
-		this.replSet = await this.createReplicaSetWithRetry(config);
-		const uri = this.replSet.getUri();
-
-		this.serviceMongoose = new ServiceMongoose(uri, {
+		this.serviceMongoose = new ServiceMongoose(this.connectionString, {
 			dbName: this.dbName,
 			autoIndex: true,
 			autoCreate: true,
@@ -90,7 +95,7 @@ export class MongoDBTestServer {
 		}
 
 		const seedFn = options?.seedDataFn ?? seedOwnerCommunityReferenceData;
-		await seedFn(uri, this.dbName);
+		await seedFn(this.connectionString, this.dbName);
 	}
 
 	getServiceMongoose(): ServiceMongoose {
@@ -101,10 +106,10 @@ export class MongoDBTestServer {
 	}
 
 	getConnectionString(): string {
-		if (!this.replSet) {
+		if (!this.connectionString) {
 			throw new Error('MongoDBTestServer not started');
 		}
-		return this.replSet.getUri();
+		return this.connectionString;
 	}
 
 	async stop(): Promise<void> {
@@ -112,39 +117,16 @@ export class MongoDBTestServer {
 			await this.serviceMongoose.shutDown();
 			this.serviceMongoose = null;
 		}
-		if (this.replSet) {
-			await this.replSet.stop();
-			this.replSet = null;
+		if (this.disposer && this.startedByUs) {
+			const disposer = this.disposer;
+			this.disposer = null;
+			this.startedByUs = false;
+			await disposer.stop();
 		}
 	}
 
 	isRunning(): boolean {
 		return this.serviceMongoose !== null;
-	}
-
-	private async createReplicaSetWithRetry(config: Parameters<typeof MongoMemoryReplSet.create>[0]): Promise<MongoMemoryReplSet> {
-		let lastError: unknown;
-
-		for (let attempt = 1; attempt <= MAX_REPLSET_START_ATTEMPTS; attempt += 1) {
-			try {
-				return await MongoMemoryReplSet.create(config);
-			} catch (error) {
-				lastError = error;
-				if (!this.isPortInUseError(error) || attempt === MAX_REPLSET_START_ATTEMPTS || config.instanceOpts) {
-					throw error;
-				}
-			}
-		}
-
-		throw lastError instanceof Error ? lastError : new Error('Failed to start MongoDB replica set');
-	}
-
-	private isPortInUseError(error: unknown): boolean {
-		if (!(error instanceof Error)) {
-			return false;
-		}
-
-		return error.message.includes('already in use') || error.message.includes('EADDRINUSE');
 	}
 
 	static async isReachable(connectionString: string): Promise<boolean> {
@@ -167,4 +149,13 @@ export class MongoDBTestServer {
 	static async seedData(connectionString: string, dbName: string): Promise<void> {
 		await seedOwnerCommunityReferenceData(connectionString, dbName);
 	}
+}
+
+function buildConnectionString(config: { port: number; dbName: string; replSetName: string }): string {
+	return `mongodb://127.0.0.1:${config.port}/${config.dbName}?replicaSet=${config.replSetName}`;
+}
+
+function getReplicaSetName(connectionString: string): string | undefined {
+	const match = /[?&]replicaSet=([^&]+)/.exec(connectionString);
+	return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }

@@ -29,7 +29,7 @@
 		"test:all": "turbo run test:all",
 		"test:coverage": "turbo run test:coverage",
 		"test:coverage:merge": "pnpm run test:coverage && pnpm run merge-lcov-reports",
-		"test:e2e": "turbo run test:e2e --filter=@ocom-verification/e2e-tests",
+		"test:e2e": "pnpm --filter @ocom-verification/e2e-tests test:e2e",
 		"test:acceptance": "turbo run test:acceptance --filter=@ocom-verification/acceptance-api --filter=@ocom-verification/acceptance-ui",
 		"merge-lcov-reports": "node build-pipeline/scripts/merge-coverage.js",
 		"test:integration": "turbo run test:integration",

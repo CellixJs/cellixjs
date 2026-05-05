@@ -4,7 +4,7 @@ import React from 'react';
 import type { CommunityCreateInput } from '../generated.tsx';
 
 export interface CommunityCreateProps {
-	onSave: (values: CommunityCreateInput) => void;
+	onSave: (values: CommunityCreateInput) => Promise<void> | void;
 }
 
 export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
@@ -38,10 +38,13 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 			<Form
 				layout="vertical"
 				form={form}
-				onFinish={(values) => {
+				onFinish={async (values) => {
 					setFormLoading(true);
-					props.onSave(values);
-					setFormLoading(false);
+					try {
+						await props.onSave(values);
+					} finally {
+						setFormLoading(false);
+					}
 				}}
 			>
 				<Form.Item

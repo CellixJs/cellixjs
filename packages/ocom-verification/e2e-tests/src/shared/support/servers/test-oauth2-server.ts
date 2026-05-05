@@ -7,7 +7,7 @@ export class TestOAuth2Server extends PortlessServer {
 		return apiSettings.accountPortalOidcEndpoint;
 	}
 	protected get readyMarker() {
-		return 'Mock OAuth2 server running';
+		return 'Registered OIDC config';
 	}
 	protected get serverName() {
 		return 'TestOAuth2Server';
@@ -16,42 +16,10 @@ export class TestOAuth2Server extends PortlessServer {
 		return 30_000;
 	}
 	protected get spawnArgs() {
-		return ['mock-auth.ownercommunity.localhost', 'pnpm', 'exec', 'tsx', 'src/index.ts'];
+		return ['run', 'dev'];
 	}
 	protected get cwd() {
 		return apiSettings.oauth2MockDir;
-	}
-
-	private readonly testUser: {
-		email: string;
-		given_name: string;
-		family_name: string;
-	};
-
-	constructor(options?: {
-		testUser?: {
-			email?: string;
-			given_name?: string;
-			family_name?: string;
-		};
-	}) {
-		super();
-		this.testUser = {
-			email: options?.testUser?.email ?? 'alice@test.cellix.local',
-			given_name: options?.testUser?.given_name ?? 'Alice',
-			family_name: options?.testUser?.family_name ?? 'Test',
-		};
-	}
-
-	protected override get extraEnv() {
-		return {
-			EMAIL: this.testUser.email,
-			GIVEN_NAME: this.testUser.given_name,
-			FAMILY_NAME: this.testUser.family_name,
-			BASE_URL: buildUrl('mock-auth.ownercommunity.localhost'),
-			ALLOWED_REDIRECT_URI: buildUrl('ownercommunity.localhost', '/auth-redirect'),
-			CLIENT_ID: apiSettings.accountPortalOidcAudience,
-		};
 	}
 
 	getUrl(): string {

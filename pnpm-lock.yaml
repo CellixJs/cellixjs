@@ -1152,6 +1152,9 @@ importers:
       '@apollo/server':
         specifier: 'catalog:'
         version: 5.5.0(graphql@16.12.0)
+      '@cellix/server-mongodb-memory-mock-seedwork':
+        specifier: workspace:*
+        version: link:../../cellix/server-mongodb-memory-mock-seedwork
       '@cucumber/cucumber':
         specifier: 'catalog:'
         version: 12.8.1
@@ -1182,9 +1185,6 @@ importers:
       mongodb:
         specifier: 'catalog:'
         version: 6.18.0
-      mongodb-memory-server:
-        specifier: ^10.2.0
-        version: 10.3.0
       mongoose:
         specifier: 'catalog:'
         version: 8.17.0

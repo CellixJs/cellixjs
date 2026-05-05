@@ -2,7 +2,11 @@ import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { PortlessServer } from './portless-server.ts';
 import { buildUrl } from './test-environment.ts';
 
-export class TestViteServer extends PortlessServer {
+/**
+ * Starts the community (user) portal Vite dev server as a subprocess via `pnpm run dev`.
+ * This is for the owner-community UI only; a separate server class will be needed for the staff portal.
+ */
+export class TestCommunityViteServer extends PortlessServer {
 	protected get probeUrl() {
 		return buildUrl('ownercommunity.localhost');
 	}
@@ -10,16 +14,16 @@ export class TestViteServer extends PortlessServer {
 		return 'ready in';
 	}
 	protected get serverName() {
-		return 'TestViteServer';
+		return 'TestCommunityViteServer';
 	}
 	protected get startupTimeoutMs() {
 		return 60_000;
 	}
 	protected get spawnArgs() {
-		return ['ownercommunity.localhost', 'pnpm', 'exec', 'vite'];
+		return ['run', 'dev'];
 	}
 	protected get cwd() {
-		return apiSettings.uiDir;
+		return apiSettings.uiCommunityDir;
 	}
 
 	protected override get extraEnv() {
