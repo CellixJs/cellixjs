@@ -33,6 +33,8 @@ parameters:
   type: string
 - name: dependsOnInfrastructure
   type: string
+  # Optional: callers may omit this parameter. When provided (non-empty) the Infrastructure job will dependOn the supplied job name(s).
+  default: ''
 
 jobs:
 - job: Infrastructure_${{ parameters.appId }}

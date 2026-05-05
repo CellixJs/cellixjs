@@ -4,7 +4,7 @@ This directory contains Bicep templates to provision the storage account and sta
 
 Validate locally:
 
-- Build the bicep template to generate JSON output:
+- Build the Bicep template to generate JSON output:
   bicep build main.bicep --outdir build
 
 - Validate with az (replace resource group and parameters as appropriate):

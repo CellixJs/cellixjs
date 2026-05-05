@@ -41,6 +41,9 @@ stages:
   dependsOn: Build
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   jobs:
+  # The pipeline runs API and UI Community templates in parallel by default to speed up deployments.
+  # UI Staff currently depends on UI Community (see deploy-ui-staff.yml). detect-changes.cjs still emits per-app flags (HAS_FRONTEND_COMMUNITY_CHANGES / HAS_FRONTEND_STAFF_CHANGES)
+  # for possible future use; the current CI does not gate PR deployments on those flags to keep PR run behaviour deterministic.
   - template: ../../apps/api/deploy-api.yml
     parameters:
       ServiceConnectionName: ${{parameters.ServiceConnectionName}}
