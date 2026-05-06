@@ -263,6 +263,22 @@ stages:
         ${{ each pair in parameters.buildEnvSettings }}:
           ${{ pair.key }}: ${{ pair.value }}
 
+    # Run E2E tests
+    - task: Bash@3
+      displayName: 'Run E2E tests'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          export NODE_OPTIONS=--max_old_space_size=16384
+          export PLAYWRIGHT_BROWSERS_PATH="$(PLAYWRIGHT_BROWSERS_PATH)"
+          echo "Running E2E tests..."
+          pnpm run test:e2e
+        workingDirectory: ''
+      env:
+        TURBO_TELEMETRY_DISABLED: 1
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
+
     # Audit unused dependencies with knip (after packages are built)
     - task: Bash@3
       displayName: 'Audit unused dependencies with knip'
