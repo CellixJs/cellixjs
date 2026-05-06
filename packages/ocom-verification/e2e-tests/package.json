@@ -5,7 +5,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:e2e": "NODE_EXTRA_CA_CERTS=${HOME}/.portless/ca.pem LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js",
+		"test:e2e": "pnpm exec portless proxy start -p 1355 && NODE_EXTRA_CA_CERTS=${HOME}/.portless/ca.pem LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js",
 		"playwright:install": "playwright install chromium",
 		"clean": "rimraf dist reports target"
 	},
