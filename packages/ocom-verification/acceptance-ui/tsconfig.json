@@ -5,8 +5,12 @@
 		"erasableSyntaxOnly": false,
 		"composite": false,
 		"incremental": false,
+		"skipLibCheck": true,
+		"allowImportingTsExtensions": true,
+		"rewriteRelativeImportExtensions": true,
+		"noEmit": true,
 		"lib": ["ES2023", "DOM", "DOM.Iterable"],
-		"rootDir": "./src",
+		"rootDir": "../..",
 		"outDir": "./dist"
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsx"]

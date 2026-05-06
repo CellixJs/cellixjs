@@ -7,6 +7,12 @@ let mongoConnectionString: string | undefined;
 export function initTestEnvironment() {
 	if (proxyInitialized) return;
 
+	// Clean up orphaned route locks from previous runs that crashed or were killed
+	execFileSync(getPortlessPath(), ['prune'], {
+		timeout: 10_000,
+		stdio: 'pipe',
+	});
+
 	execFileSync(getPortlessPath(), ['proxy', 'start', '-p', '1355'], {
 		timeout: 15_000,
 		stdio: 'pipe',

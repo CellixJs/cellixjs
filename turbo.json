@@ -73,6 +73,13 @@
 			"outputs": ["target/**", "reports/**"],
 			"cache": false
 		},
+		"test:coverage:acceptance": {
+			"description": "Runs acceptance test coverage (c8 + Cucumber) for verification packages",
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"outputs": ["coverage/**"],
+			"cache": false
+		},
 		"test:serenity": {
 			"description": "Runs SerenityJS end-to-end test suites",
 			"dependsOn": ["^build"],
