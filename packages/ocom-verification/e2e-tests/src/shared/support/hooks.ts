@@ -21,8 +21,9 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 	const world = this as IWorld & CellixE2EWorld;
 
 	if (result?.status === Status.FAILED) {
+		const browseTheWeb = BrowseTheWeb.current();
+
 		try {
-			const browseTheWeb = BrowseTheWeb.current();
 			if (browseTheWeb) {
 				const reportsDir = path.resolve(currentDir, '..', '..', '..', 'reports', 'screenshots');
 				fs.mkdirSync(reportsDir, { recursive: true });
@@ -33,8 +34,13 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 
 				await browseTheWeb.page.screenshot({ path: screenshotPath, fullPage: true });
 				this.attach(fs.readFileSync(screenshotPath), 'image/png');
+			}
+		} catch {
+			/* Screenshot capture is best-effort */
+		}
 
-				// Diagnostic dump to stdout — visible in CI logs when screenshot artifacts aren't accessible
+		try {
+			if (browseTheWeb) {
 				const { page } = browseTheWeb;
 				const url = page.url();
 				const title = await page.title().catch(() => '<title unavailable>');
@@ -50,16 +56,20 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 					.locator('h1, h2, h3')
 					.allTextContents()
 					.catch(() => []);
-				console.log(`\n=== E2E FAILURE DIAGNOSTICS: ${pickle.name} ===`);
-				console.log(`URL: ${url}`);
-				console.log(`Title: ${title}`);
-				console.log(`Headings: ${JSON.stringify(headings)}`);
-				console.log(`Input placeholders: ${JSON.stringify(placeholders)}`);
-				console.log(`Body text (first 500 chars): ${bodyText.slice(0, 500)}`);
-				console.log(`=== END DIAGNOSTICS ===\n`);
+				const diagnostic = [
+					`=== E2E FAILURE DIAGNOSTICS: ${pickle.name} ===`,
+					`URL: ${url}`,
+					`Title: ${title}`,
+					`Headings: ${JSON.stringify(headings)}`,
+					`Input placeholders: ${JSON.stringify(placeholders)}`,
+					`Body text (first 500 chars): ${bodyText.slice(0, 500)}`,
+					'=== END DIAGNOSTICS ===',
+				].join('\n');
+				this.attach(diagnostic, 'text/plain');
+				process.stderr.write(`\n${diagnostic}\n`);
 			}
 		} catch {
-			/* Screenshot capture is best-effort */
+			/* Diagnostic capture is best-effort */
 		}
 	}
 
