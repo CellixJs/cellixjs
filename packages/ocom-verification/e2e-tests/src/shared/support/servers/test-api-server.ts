@@ -31,9 +31,7 @@ export class TestApiServer extends PortlessServer {
 	protected get serverName() {
 		return 'TestApiServer';
 	}
-	protected get startupTimeoutMs() {
-		return 120_000;
-	}
+
 	protected get spawnArgs() {
 		return ['run', 'dev'];
 	}

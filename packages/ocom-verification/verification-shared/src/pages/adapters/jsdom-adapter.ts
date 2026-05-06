@@ -1,4 +1,4 @@
-import { fireEvent } from '@testing-library/react';
+import { act, fireEvent } from '@testing-library/react';
 import type { ElementHandle, PageAdapter, PageNavigationWaitUntil, PageUrlMatcher } from '../page-adapter.ts';
 
 function getGlobalDocument(container: Element): Document {
@@ -30,28 +30,46 @@ class JsdomElementHandle implements ElementHandle {
 	constructor(private readonly el: Element | null) {}
 
 	fill(value: string): Promise<void> {
-		if (this.el) {
-			fireEvent.input(this.el, { target: { value } });
-			fireEvent.change(this.el, { target: { value } });
-		}
+		if (!this.el) return Promise.resolve();
+
+		const input = this.el as HTMLInputElement;
+		act(() => {
+			const nativeInputValueSetter = Object.getOwnPropertyDescriptor(input instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype, 'value')?.set;
+			if (nativeInputValueSetter) {
+				nativeInputValueSetter.call(input, value);
+			} else {
+				input.value = value;
+			}
+			fireEvent.input(input, { target: { value } });
+			fireEvent.change(input, { target: { value } });
+		});
 		return Promise.resolve();
 	}
 
 	click(): Promise<void> {
 		if (this.el) {
-			fireEvent.click(this.el);
+			const el = this.el;
+			act(() => {
+				fireEvent.click(el);
+			});
 		}
 		return Promise.resolve();
 	}
 
 	check(): Promise<void> {
 		if (this.el instanceof HTMLInputElement) {
-			fireEvent.click(this.el, { target: { checked: true } });
+			const el = this.el;
+			act(() => {
+				fireEvent.click(el, { target: { checked: true } });
+			});
 			return Promise.resolve();
 		}
 
 		if (this.el) {
-			fireEvent.click(this.el);
+			const el = this.el;
+			act(() => {
+				fireEvent.click(el);
+			});
 		}
 		return Promise.resolve();
 	}

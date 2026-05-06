@@ -42,6 +42,8 @@ safeAssign('HTMLButtonElement', dom.window.HTMLButtonElement);
 safeAssign('HTMLSelectElement', dom.window.HTMLSelectElement);
 safeAssign('HTMLAnchorElement', dom.window.HTMLAnchorElement);
 safeAssign('Element', dom.window.Element);
+safeAssign('SVGElement', dom.window.SVGElement);
+safeAssign('ShadowRoot', dom.window.ShadowRoot ?? class ShadowRoot {});
 safeAssign('Node', dom.window.Node);
 safeAssign('NodeList', dom.window.NodeList);
 safeAssign('Event', dom.window.Event);

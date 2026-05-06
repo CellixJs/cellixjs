@@ -12,9 +12,15 @@ export class TestOAuth2Server extends PortlessServer {
 	protected get serverName() {
 		return 'TestOAuth2Server';
 	}
-	protected get startupTimeoutMs() {
+
+	/**
+	 * OAuth2 mock server is lightweight and starts very quickly.
+	 * Using a short timeout (30s vs default 120s) for faster feedback.
+	 */
+	protected override get startupTimeoutMs() {
 		return 30_000;
 	}
+
 	protected get spawnArgs() {
 		return ['run', 'dev'];
 	}

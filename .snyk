@@ -66,3 +66,8 @@ ignore:
         reason: 'Apollo usage-reporting-protobuf depends on @apollo/protobufjs and Snyk reports no fixed version. We are accepting this temporarily until Apollo provides a non-vulnerable upgrade path.'
         expires: '2026-07-31T00:00:00.000Z'
         created: '2026-04-30T00:00:00.000Z'
+  'SNYK-JS-MONGOOSE-16425765':
+    - '* > mongoose@8.17.0':
+        reason: 'Temporary ignore while evaluating a safe Mongoose upgrade path; fixed 8.x releases currently fail strict TypeScript declaration checks in this workspace.'
+        expires: '2026-07-31T00:00:00.000Z'
+        created: '2026-05-06T00:00:00.000Z'

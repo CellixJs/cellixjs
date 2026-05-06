@@ -1,11 +1,15 @@
-import { After, Before } from '@cucumber/cucumber';
+import { After, Before, setDefaultTimeout } from '@cucumber/cucumber';
+import { getTimeout } from '@ocom-verification/verification-shared/settings';
 import type { CellixUiWorld } from '../../world.ts';
-import { unmountComponent } from './ui/react-render.tsx';
+import { unmountComponent } from './ui/react-render.ts';
 
-Before({ timeout: 30_000 }, async function (this: CellixUiWorld) {
+/** Default scenario timeout from centralized configuration */
+setDefaultTimeout(getTimeout('scenario'));
+
+Before({ timeout: getTimeout('uiInit') }, async function (this: CellixUiWorld) {
 	await this.init();
 });
 
-After({ timeout: 10_000 }, async () => {
-	await unmountComponent();
+After({ timeout: getTimeout('uiCleanup') }, () => {
+	unmountComponent();
 });
