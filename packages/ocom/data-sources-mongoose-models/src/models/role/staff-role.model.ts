@@ -1,6 +1,8 @@
 import { type Model, type ObjectId, Schema, type SchemaDefinition } from 'mongoose';
 import { type Role, type RoleModelType, roleOptions } from './role.model.ts';
 
+export const StaffEnterpriseAppRoles = ['Staff.CaseManager', 'Staff.Finance', 'Staff.ServiceLineOwner', 'Staff.TechAdmin'] as const;
+
 export interface StaffRoleSectionPermissions {
 	id?: ObjectId;
 	canManageCommunities: boolean;
@@ -20,6 +22,7 @@ export interface StaffRoleServiceTicketPermissions {
 	canCreateTickets: boolean;
 	canManageTickets: boolean;
 	canAssignTickets: boolean;
+	canUpdateTickets: boolean;
 	canWorkOnTickets: boolean;
 	// isSystemAccount: false;
 }
@@ -29,6 +32,7 @@ export interface StaffRoleViolationTicketPermissions {
 	canCreateTickets: boolean;
 	canManageTickets: boolean;
 	canAssignTickets: boolean;
+	canUpdateTickets: boolean;
 	canWorkOnTickets: boolean;
 	// isSystemAccount: false;
 }
@@ -42,11 +46,34 @@ export interface StaffRolePropertyPermissions {
 
 export interface StaffRoleCommunityPermissions {
 	id?: ObjectId;
+	canManageCommunities: boolean;
 	canManageStaffRolesAndPermissions: boolean;
 	canManageAllCommunities: boolean;
 	canDeleteCommunities: boolean;
 	canChangeCommunityOwner: boolean;
 	canReIndexSearchCollections: boolean;
+}
+
+export interface StaffRoleFinancePermissions {
+	id?: ObjectId;
+	canManageFinance: boolean;
+	canViewGLBatchSummaries: boolean;
+	canViewFinanceConfigs: boolean;
+	canCreateFinanceConfigs: boolean;
+}
+
+export interface StaffRoleTechAdminPermissions {
+	id?: ObjectId;
+	canManageTechAdmin: boolean;
+	canViewDatabaseExplorer: boolean;
+	canViewBlobExplorer: boolean;
+	canViewQueueDashboard: boolean;
+	canSendQueueMessages: boolean;
+}
+
+export interface StaffRoleUserPermissions {
+	id?: ObjectId;
+	canManageUsers: boolean;
 }
 
 export interface StaffRolePermissions {
@@ -56,6 +83,9 @@ export interface StaffRolePermissions {
 	serviceTicketPermissions: StaffRoleServiceTicketPermissions;
 	violationTicketPermissions: StaffRoleViolationTicketPermissions;
 	communityPermissions: StaffRoleCommunityPermissions;
+	financePermissions: StaffRoleFinancePermissions;
+	techAdminPermissions: StaffRoleTechAdminPermissions;
+	userPermissions: StaffRoleUserPermissions;
 	propertyPermissions: StaffRolePropertyPermissions;
 }
 
@@ -63,6 +93,7 @@ export interface StaffRole extends Role {
 	permissions: StaffRolePermissions;
 
 	roleName: string;
+	enterpriseAppRole?: string;
 	roleType?: string;
 	isDefault: boolean;
 }
@@ -83,15 +114,18 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 				canCreateTickets: { type: Boolean, required: true, default: false },
 				canManageTickets: { type: Boolean, required: true, default: false },
 				canAssignTickets: { type: Boolean, required: true, default: false },
+				canUpdateTickets: { type: Boolean, required: true, default: false },
 				canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
 			} as SchemaDefinition<StaffRoleServiceTicketPermissions>,
 			violationTicketPermissions: {
 				canCreateTickets: { type: Boolean, required: true, default: false },
 				canManageTickets: { type: Boolean, required: true, default: false },
 				canAssignTickets: { type: Boolean, required: true, default: false },
+				canUpdateTickets: { type: Boolean, required: true, default: false },
 				canWorkOnTickets: { type: Boolean, required: true, default: false, index: true },
 			} as SchemaDefinition<StaffRoleViolationTicketPermissions>,
 			communityPermissions: {
+				canManageCommunities: { type: Boolean, required: true, default: false },
 				canManageStaffRolesAndPermissions: {
 					type: Boolean,
 					required: true,
@@ -114,19 +148,40 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 					default: false,
 				},
 			} as SchemaDefinition<StaffRoleCommunityPermissions>,
+			financePermissions: {
+				canManageFinance: { type: Boolean, required: true, default: false },
+				canViewGLBatchSummaries: { type: Boolean, required: true, default: false },
+				canViewFinanceConfigs: { type: Boolean, required: true, default: false },
+				canCreateFinanceConfigs: { type: Boolean, required: true, default: false },
+			} as SchemaDefinition<StaffRoleFinancePermissions>,
+			techAdminPermissions: {
+				canManageTechAdmin: { type: Boolean, required: true, default: false },
+				canViewDatabaseExplorer: { type: Boolean, required: true, default: false },
+				canViewBlobExplorer: { type: Boolean, required: true, default: false },
+				canViewQueueDashboard: { type: Boolean, required: true, default: false },
+				canSendQueueMessages: { type: Boolean, required: true, default: false },
+			} as SchemaDefinition<StaffRoleTechAdminPermissions>,
+			userPermissions: {
+				canManageUsers: { type: Boolean, required: true, default: false },
+			} as SchemaDefinition<StaffRoleUserPermissions>,
 			propertyPermissions: {
-				// canManageProperties: { type: Boolean, required: true, default: false },
-				// canEditOwnProperty: { type: Boolean, required: true, default: false },
+				canManageProperties: { type: Boolean, required: true, default: false },
+				canEditOwnProperty: { type: Boolean, required: true, default: false },
 			} as SchemaDefinition<StaffRolePropertyPermissions>,
 		} as SchemaDefinition<StaffRolePermissions>,
-		schemaVersion: { type: String, default: '1.0.0' },
-		roleName: { type: String, required: true, maxlength: 50 },
+		schemaVersion: { type: String, default: '1.0.0', immutable: true },
+		roleName: { type: String, required: true, maxlength: 256 },
+		roleType: { type: String, required: true, default: 'staff-user-role' },
+		enterpriseAppRole: {
+			type: String,
+			required: true,
+		},
 		isDefault: { type: Boolean, required: true, default: false },
 	},
 	roleOptions,
 ).index({ roleName: 1 }, { unique: true });
 
-export const StaffRoleModelName: string = 'staff-roles';
+export const StaffRoleModelName: string = 'staff-user-role';
 
 export const StaffRoleModelFactory = (RoleModel: RoleModelType) => {
 	return RoleModel.discriminator(StaffRoleModelName, StaffRoleSchema);

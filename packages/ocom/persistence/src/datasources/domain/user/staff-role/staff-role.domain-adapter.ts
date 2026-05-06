@@ -68,6 +68,7 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 	get communityPermissions(): Domain.Contexts.User.StaffRole.StaffRoleCommunityPermissionsProps {
 		if (!this.doc.communityPermissions) {
 			this.doc.communityPermissions = {
+				canManageCommunities: false,
 				canManageStaffRolesAndPermissions: false,
 				canManageAllCommunities: false,
 				canDeleteCommunities: false,
@@ -103,6 +104,7 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 				canCreateTickets: false,
 				canManageTickets: false,
 				canAssignTickets: false,
+				canUpdateTickets: false,
 				canWorkOnTickets: false,
 			};
 		}
@@ -115,6 +117,7 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 				canCreateTickets: false,
 				canManageTickets: false,
 				canAssignTickets: false,
+				canUpdateTickets: false,
 				canWorkOnTickets: false,
 			};
 		}

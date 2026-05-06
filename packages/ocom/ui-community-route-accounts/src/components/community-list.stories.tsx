@@ -80,6 +80,7 @@ const mockData = {
 export const Default: Story = {
 	args: {
 		data: mockData,
+		canCreateCommunity: true,
 	} satisfies CommunityListProps,
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
