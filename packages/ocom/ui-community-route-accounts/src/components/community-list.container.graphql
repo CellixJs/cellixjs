@@ -10,6 +10,18 @@ query AccountsCommunityListContainerMembersForCurrentEndUser {
 	}
 }
 
+query AccountsCommunityListContainerCurrentStaffUser {
+	currentStaffUserAndCreateIfNotExists {
+		role {
+			permissions {
+				sectionPermissions {
+					canManageCommunities
+				}
+			}
+		}
+	}
+}
+
 fragment AccountsCommunityListContainerMemberFields on Member {
 	memberName
 	community {

@@ -2,7 +2,11 @@ import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import { useParams } from 'react-router-dom';
-import { AdminSectionLayoutContainerMembersForCurrentEndUserDocument, type Member } from './generated.tsx';
+import {
+	AdminSectionLayoutContainerCurrentStaffUserDocument,
+	AdminSectionLayoutContainerMembersForCurrentEndUserDocument,
+	type Member,
+} from './generated.tsx';
 import { SectionLayout } from './section-layout.tsx';
 
 interface SectionLayoutContainerProps {
@@ -13,6 +17,9 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 	const params = useParams();
 
 	const { data: membersData, loading: membersLoading, error: membersError } = useQuery(AdminSectionLayoutContainerMembersForCurrentEndUserDocument);
+	const { data: staffUserData } = useQuery(AdminSectionLayoutContainerCurrentStaffUserDocument);
+
+	const staffSectionPermissions = staffUserData?.currentStaffUserAndCreateIfNotExists?.role?.permissions?.sectionPermissions ?? null;
 
 	return (
 		<ComponentQueryLoader
@@ -23,6 +30,7 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 					pageLayouts={props.pageLayouts}
 					// biome-ignore lint:useLiteralKeys
 					memberData={membersData?.membersForCurrentEndUser.find((member) => member.id === params['memberId']) as Member}
+					staffSectionPermissions={staffSectionPermissions}
 				/>
 			}
 			error={membersError}
