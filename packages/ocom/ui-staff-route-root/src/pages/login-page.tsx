@@ -5,7 +5,7 @@ const { Text } = Typography;
 
 export const LoginPage: React.FC = () => {
 	return (
-		<div style={{ margin: 0, padding: 24, minHeight: 'calc(100vh - 50px)' }}>
+		<div style={{ margin: 0, padding: 24, minHeight: 'calc(100vh - var(--app-header-height, 50px))' }}>
 			<Text
 				strong
 				style={{ fontSize: 24, display: 'block', marginBottom: 8 }}
