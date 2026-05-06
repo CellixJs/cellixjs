@@ -67,8 +67,8 @@ catalogs:
       specifier: 6.18.0
       version: 6.18.0
     mongoose:
-      specifier: 8.17.0
-      version: 8.17.0
+      specifier: 8.22.1
+      version: 8.22.1
     react-router-dom:
       specifier: 7.12.0
       version: 7.12.0
@@ -836,7 +836,7 @@ importers:
         version: 10.3.0
       mongoose:
         specifier: 'catalog:'
-        version: 8.17.0
+        version: 8.22.1
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1187,7 +1187,7 @@ importers:
         version: 10.3.0
       mongoose:
         specifier: 'catalog:'
-        version: 8.17.0
+        version: 8.22.1
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1280,7 +1280,7 @@ importers:
         version: link:../../cellix/mongoose-seedwork
       mongoose:
         specifier: 'catalog:'
-        version: 8.17.0
+        version: 8.22.1
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1468,7 +1468,7 @@ importers:
         version: 6.18.0
       mongoose:
         specifier: 'catalog:'
-        version: 8.17.0
+        version: 8.22.1
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1580,7 +1580,7 @@ importers:
         version: link:../../cellix/mongoose-seedwork
       mongoose:
         specifier: 'catalog:'
-        version: 8.17.0
+        version: 8.22.1
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -10190,6 +10190,33 @@ packages:
       socks:
         optional: true
 
+  mongodb@6.20.0:
+    resolution: {integrity: sha512-Tl6MEIU3K4Rq3TSHd+sZQqRBoGlFsOgNrH5ltAcFBV62Re3Fd+FcaVf8uSEQFOJ51SDowDVttBTONMfoYWrWlQ==}
+    engines: {node: '>=16.20.1'}
+    peerDependencies:
+      '@aws-sdk/credential-providers': ^3.188.0
+      '@mongodb-js/zstd': ^1.1.0 || ^2.0.0
+      gcp-metadata: ^5.2.0
+      kerberos: ^2.0.1
+      mongodb-client-encryption: '>=6.0.0 <7'
+      snappy: ^7.3.2
+      socks: ^2.7.1
+    peerDependenciesMeta:
+      '@aws-sdk/credential-providers':
+        optional: true
+      '@mongodb-js/zstd':
+        optional: true
+      gcp-metadata:
+        optional: true
+      kerberos:
+        optional: true
+      mongodb-client-encryption:
+        optional: true
+      snappy:
+        optional: true
+      socks:
+        optional: true
+
   mongodb@6.21.0:
     resolution: {integrity: sha512-URyb/VXMjJ4da46OeSXg+puO39XH9DeQpWCslifrRn9JWugy0D+DvvBvkm2WxmHe61O/H19JM66p1z7RHVkZ6A==}
     engines: {node: '>=16.20.1'}
@@ -10217,8 +10244,8 @@ packages:
       socks:
         optional: true
 
-  mongoose@8.17.0:
-    resolution: {integrity: sha512-mxW6TBPHViORfNYOFXCVOnT4d5aRr+CgDxTs1ViYXfuHzNpkelgJQrQa+Lz6hofoEQISnKlXv1L3ZnHyJRkhfA==}
+  mongoose@8.22.1:
+    resolution: {integrity: sha512-c0bzt7ElI1CwWiyFSgg9bfhlFcblAoPwr+gmDcLCryClyKaeixWhP9KDGnr13kRPE8KPAuUN3ZZ3jSDxSPvoTg==}
     engines: {node: '>=16.20.1'}
 
   morgan@1.10.1:
@@ -22926,17 +22953,23 @@ snapshots:
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
 
+  mongodb@6.20.0:
+    dependencies:
+      '@mongodb-js/saslprep': 1.3.2
+      bson: 6.10.4
+      mongodb-connection-string-url: 3.0.2
+
   mongodb@6.21.0:
     dependencies:
       '@mongodb-js/saslprep': 1.3.2
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
 
-  mongoose@8.17.0:
+  mongoose@8.22.1:
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3
-      mongodb: 6.18.0
+      mongodb: 6.20.0
       mpath: 0.9.0
       mquery: 5.0.0
       ms: 2.1.3
