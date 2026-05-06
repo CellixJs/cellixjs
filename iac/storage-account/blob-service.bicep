@@ -36,7 +36,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2025-01-01'
   name: 'default'
   properties: {
     cors: {
-      corsRules: [
+      corsRules: empty(corsAllowedOrigins) ? [] : [
         {
           allowedOrigins: corsAllowedOrigins
           allowedMethods: corsAllowedMethods

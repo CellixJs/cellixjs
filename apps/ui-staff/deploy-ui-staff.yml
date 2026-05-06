@@ -19,16 +19,18 @@ parameters:
   type: string
 
 jobs:
-# Thin wrapper that delegates to the shared deploy-ui template
+# Thin wrapper that delegates to the shared deploy-ui template and preserves ordering
 - template: ../../build-pipeline/templates/deploy-ui.yml
   parameters:
-    appId: 'UI_Community'
-    displayName: 'UI Community'
-    iacPath: 'apps/ui-community/iac/main.bicep'
-    iacParamsPath: 'apps/ui-community/iac/${{ parameters.environmentNameBicep }}.bicepparam'
-    artifactPattern: '**/ui-community-$(Build.BuildId).zip'
-    artifactZipName: 'ui-community-$(Build.BuildId).zip'
-    deploymentNameSuffix: '-ui'
+    appId: 'UI_Staff'
+    displayName: 'UI Staff'
+    iacPath: 'apps/ui-staff/iac/main.bicep'
+    iacParamsPath: 'apps/ui-staff/iac/${{ parameters.environmentNameBicep }}.bicepparam'
+    artifactPattern: '**/ui-staff-$(Build.BuildId).zip'
+    artifactZipName: 'ui-staff-$(Build.BuildId).zip'
+    deploymentNameSuffix: '-ui-staff'
+    dependsOnInfrastructure:
+      - 'Infrastructure_UI_Community'
     environmentNameDevOps: ${{ parameters.environmentNameDevOps }}
     environmentNameBicep: ${{ parameters.environmentNameBicep }}
     vmImageName: ${{ parameters.vmImageName }}

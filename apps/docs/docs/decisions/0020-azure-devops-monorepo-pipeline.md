@@ -44,36 +44,26 @@ The challenge was designing a pipeline that could intelligently detect changes i
 
 ## Decision Outcome
 
-Chosen option: **Conditional Deployment with Change Detection**, implemented through:
+Chosen option (updated): **Always-deploy non-PR runs with deterministic, serialized infrastructure deployments.**
 
-### Pipeline Architecture
+### Pipeline Architecture (updated)
 - **Single main pipeline** (`azure-pipelines.yml`) with template-based stage organization
-- **Monorepo build stage** (`monorepo-build-stage.yml`) handles all build operations
-- **Monorepo deployment stage** (`monorepo-deployment-stage.yml`) orchestrates conditional deployments
-- **Change detection script** (`detect-changes.cjs`) uses Turborepo to determine affected applications
+- **Monorepo build stage** (`monorepo-build-stage.yml`) prepares artifacts for all applications on non-PR runs
+- **Monorepo deployment stage** (`monorepo-deployment-stage.yml`) now always schedules application deployment jobs (for non-PR runs) and serializes Bicep/ARM infrastructure deployments to avoid race conditions
+- **Change detection script** (`detect-changes.cjs`) is retained for informational flags and force-deploy overrides (e.g., FORCE_DEPLOY_UI_STAFF) but no longer gates non-PR deployments
 
-### Change Detection Strategy
-```javascript
-// Turborepo-based affected package detection
-const turboCommand = `npx turbo run build --affected --dry-run=json`;
+### Key behavior changes
+- Build stage: artifacts for API, UI Community, UI Staff, and Docs are produced and published on non-PR runs regardless of change detection results.
+- Deployment stage: application deployment jobs run for all apps on non-PR runs. Infra (Bicep/ARM) deployment jobs are chained with explicit dependsOn ordering to ensure deterministic, serial execution (API -> UI Community -> UI Staff -> Docs where applicable). Application-level deployment/upload steps run as soon as their own infra job completes, allowing safe parallelism for app deployments.
 
-// Per-application dependency scope analysis
-const scopeCommand = `npx turbo run build --filter=${appConfig.filter} --dry-run=json`;
+### Force-deploy overrides
+- `detect-changes.cjs` now supports `FORCE_DEPLOY_UI_STAFF` in addition to existing `FORCE_DEPLOY_UI`, `FORCE_DEPLOY_API`, and `FORCE_DEPLOY_DOCS`.
+- `FORCE_DEPLOY_UI` remains backward compatible and continues to force both frontends; `FORCE_DEPLOY_UI_STAFF=true` forces only the UI Staff deployment when used.
 
-// Pipeline variables for conditional execution
-setPipelineVariable('HAS_BACKEND_CHANGES', hasBackendChanges);
-setPipelineVariable('HAS_FRONTEND_CHANGES', hasFrontendChanges);
-setPipelineVariable('HAS_DOCS_CHANGES', hasDocsChanges);
-```
-
-### Conditional Deployment Logic
-```yaml
-# Build artifacts only for affected applications
-condition: and(succeeded(), eq(variables['BuildJob.HAS_BACKEND_CHANGES'], 'true'))
-
-# Deploy only affected applications
-condition: eq(stageDependencies.Build.Build.outputs['BuildJob.HAS_FRONTEND_CHANGES'], 'true')
-```
+### Rationale
+- Deterministic serial infra avoids ARM race conditions caused by concurrent deployments targeting shared resource groups or resources.
+- Always deploying all apps on non-PR runs simplifies operator expectations and reduces the risk of missing deployments caused by change detection inaccuracies.
+- Retaining change detection for PR builds and force-deploy overrides preserves developer ergonomics for rapid feedback while enabling explicit control when needed.
 
 ### Caching Strategy
 - **PNPM Cache**: Dependency installation caching with pnpm store-dir optimization

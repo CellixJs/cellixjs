@@ -154,3 +154,18 @@ Key ADRs document critical decisions:
 - `.uow.ts` for Unit of Work implementations
 - `azure-functions.ts` for Azure Functions adapters
 - Use kebab-case for directories and files
+
+## UI environment variables naming convention (VITE_*)
+
+Frontend environment variables follow a strict naming convention to enable pipeline automation and discoverability.
+
+- Portal-specific: VITE_APP_<PORTAL_NAME>_<ENV_VAR_NAME> (e.g., VITE_APP_UI_COMMUNITY_B2C_CLIENTID)
+- Shared/common: VITE_COMMON_<ENV_NAME> (e.g., VITE_COMMON_API_ENDPOINT)
+
+See apps/docs/docs/decisions/0031-ui-env-vars.md for full details and examples. Agents and automated tooling MUST validate generated or modified VITE_* names using scripts/validate-env-names.js and must not introduce non-conforming names. The canonical enforcement test lives in packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts.
+
+Example guidance for agents:
+- If a variable is specific to the Community portal, name it VITE_APP_UI_COMMUNITY_<NAME>
+- If a variable is shared across portals, name it VITE_COMMON_<NAME>
+
+Rationale: this naming enables discovery of variable names by CI (azure-pipelines.yml maps pipeline variables into VITE_* names), consistent variable group ownership (ocm-app-ui-community, ocm-app-ui-staff, ocm-common), and safer secret management.

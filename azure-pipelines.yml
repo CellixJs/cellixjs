@@ -12,11 +12,13 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
+  - group: ocm-app-ui-community
+  - group: ocm-app-ui-staff
+  - group: ocm-common
   - group: edgescan-credential-cellixjs
   - group: github-credential-cellixjs
   - group: snyk-credential-cellixjs
   - group: sonarcloud-credential-cellixjs
-  - group: ui-community-settings-cellixjs
   - name: deploymentDefaultLocation
     value: 'eastus2'
   - name: ServiceConnectionName
@@ -45,11 +47,15 @@ stages:
       SonarCloud_cliProjectKey: 'simnova_cellix-data-access'
       SonarCloud_cliProjectName: 'cellix-data-access'
       buildEnvSettings:
-        VITE_AAD_B2C_ACCOUNT_AUTHORITY: $(VITE_AAD_B2C_ACCOUNT_AUTHORITY_DEV)
-        VITE_AAD_B2C_ACCOUNT_CLIENTID: $(VITE_AAD_B2C_ACCOUNT_CLIENTID_DEV)
-        VITE_AAD_B2C_REDIRECT_URI: $(VITE_AAD_B2C_REDIRECT_URI_DEV)
-        VITE_AAD_B2C_ACCOUNT_SCOPES: $(VITE_AAD_B2C_ACCOUNT_SCOPES_DEV)
-        VITE_FUNCTION_ENDPOINT: $(VITE_FUNCTION_ENDPOINT_DEV)
+        VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: $(OCM_APP_UI_COMMUNITY_B2C_AUTHORITY_DEV)
+        VITE_APP_UI_COMMUNITY_B2C_CLIENTID: $(OCM_APP_UI_COMMUNITY_B2C_CLIENTID_DEV)
+        VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI: $(OCM_APP_UI_COMMUNITY_B2C_REDIRECT_URI_DEV)
+        VITE_APP_UI_COMMUNITY_B2C_SCOPES: $(OCM_APP_UI_COMMUNITY_B2C_SCOPES_DEV)
+        VITE_APP_UI_STAFF_AAD_AUTHORITY: $(OCM_APP_UI_STAFF_AAD_AUTHORITY_DEV)
+        VITE_APP_UI_STAFF_AAD_CLIENTID: $(OCM_APP_UI_STAFF_AAD_CLIENTID_DEV)
+        VITE_APP_UI_STAFF_AAD_REDIRECT_URI: $(OCM_APP_UI_STAFF_AAD_REDIRECT_URI_DEV)
+        VITE_APP_UI_STAFF_AAD_SCOPES: $(OCM_APP_UI_STAFF_AAD_SCOPES_DEV)
+        VITE_COMMON_API_ENDPOINT: $(OCM_COMMON_API_ENDPOINT_DEV)
         NODE_ENV: $(NODE_ENV)
 
 
@@ -66,6 +72,7 @@ stages:
       frontDoorProfileName: 'simnova-afd'
       frontDoorEndpointName: 'ocm-fde-ged3a8gxcvfxafaf'
       frontDoorDomainNameUICommunity: 'ownercommunity.org'
+      frontDoorDomainNameUIStaff: 'staff.ownercommunity.org'
 
   - template: ./build-pipeline/core/monorepo-edgescan-stage.yml
     parameters:
