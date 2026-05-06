@@ -1,6 +1,12 @@
 {
 	"extends": ["//"],
 	"tasks": {
+		"test:coverage": {
+			"dependsOn": ["^build"],
+			"inputs": ["src/**/*.ts", "src/**/*.tsx", "cucumber.js", "package.json", ".c8rc.json"],
+			"outputs": ["coverage/**"],
+			"cache": false
+		},
 		"test:acceptance": {
 			"dependsOn": ["^build"],
 			"inputs": ["src/**/*.ts", "src/**/*.tsx", "cucumber.js", "package.json"],

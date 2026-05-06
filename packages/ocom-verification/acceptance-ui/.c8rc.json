@@ -1,21 +1,19 @@
 {
-	"all": true,
 	"allowExternal": true,
-	"src": [
-		"../../ocom/ui-community-route-accounts/src",
-		"../../ocom/ui-community-route-admin/src",
-		"../../ocom/ui-community-route-root/src",
-		"../../ocom/ui-community-shared/src",
-		"../../ocom/ui-shared/src",
-		"../../ocom/ui-staff-route-community-management/src",
-		"../../ocom/ui-staff-route-finance/src",
-		"../../ocom/ui-staff-route-root/src",
-		"../../ocom/ui-staff-route-tech-admin/src",
-		"../../ocom/ui-staff-route-user-management/src",
-		"../../ocom/ui-staff-shared/src"
+	"include": [
+		"**/ocom/ui-community-route-accounts/src/**",
+		"**/ocom/ui-community-route-admin/src/**",
+		"**/ocom/ui-community-route-root/src/**",
+		"**/ocom/ui-community-shared/src/**",
+		"**/ocom/ui-shared/src/**",
+		"**/ocom/ui-staff-route-community-management/src/**",
+		"**/ocom/ui-staff-route-finance/src/**",
+		"**/ocom/ui-staff-route-root/src/**",
+		"**/ocom/ui-staff-route-tech-admin/src/**",
+		"**/ocom/ui-staff-route-user-management/src/**",
+		"**/ocom/ui-staff-shared/src/**"
 	],
-	"include": ["**/*.tsx", "**/*.ts"],
-	"exclude": ["node_modules", "dist", "**/apps/**", "**/ocom-verification/**", "**/generated.*", "**/*.d.ts", "**/*.stories.*", "**/*.test.*", "**/*.spec.*"],
+	"exclude": ["**/node_modules/**", "**/*.generated.*", "**/*.d.ts", "**/*.stories.*", "**/*.test.*", "**/*.spec.*"],
 	"reporter": ["text", "lcovonly"],
 	"report-dir": "coverage"
 }

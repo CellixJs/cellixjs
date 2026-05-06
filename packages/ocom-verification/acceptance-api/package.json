@@ -7,6 +7,7 @@
 	"scripts": {
 		"test:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js --format json:./reports/cucumber-report-api.json",
 		"test:acceptance:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 --allowExternal -- cucumber-js --format json:./reports/cucumber-report-api.json",
+		"test:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 -- cucumber-js --format json:./reports/cucumber-report-api.json",
 		"verification:test:coverage:report": "c8 report --allowExternal",
 		"clean": "rimraf dist reports target coverage coverage-c8 coverage-vitest .c8-output"
 	},
