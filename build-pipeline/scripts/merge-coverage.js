@@ -52,7 +52,7 @@ function mergeLcovFiles() {
 				if (entry.name !== 'node_modules' && entry.name !== '.git') {
 					findLcovFiles(fullPath);
 				}
-			} else if (entry.name === 'lcov.info' && fullPath.includes('/coverage/')) {
+			} else if (entry.name === 'lcov.info' && fullPath.replaceAll('\\', '/').includes('/coverage/')) {
 				lcovFiles.push(fullPath);
 			}
 		}

@@ -1,7 +1,7 @@
 {
 	"extends": ["//"],
 	"tasks": {
-		"test:coverage": {
+		"test:coverage:acceptance": {
 			"dependsOn": ["^build"],
 			"inputs": ["src/**/*.ts", "cucumber.js", "package.json", ".c8rc.json"],
 			"outputs": ["coverage/**"],

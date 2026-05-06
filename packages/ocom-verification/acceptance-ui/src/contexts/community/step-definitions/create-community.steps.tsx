@@ -1,20 +1,18 @@
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { CommunityPage, type UiCommunityPage } from '@ocom-verification/verification-shared/pages';
 import { JsdomPageAdapter } from '@ocom-verification/verification-shared/pages/jsdom';
-import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import { CommunityCreate } from '../../../../../../ocom/ui-community-route-accounts/src/components/community-create.tsx';
 import { mountComponent } from '../../../shared/support/ui/react-render.ts';
+import type { CellixUiWorld } from '../../../world.ts';
 import type { CommunityUiNotes } from '../abilities/community-types.ts';
 import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityErrorMessage } from '../questions/community-error-message.ts';
 import { CommunityName } from '../questions/community-name.ts';
-import { CreateCommunity, getContainer, setContainer } from '../tasks/create-community.ts';
+import { CreateCommunity } from '../tasks/create-community.ts';
 
-let lastActorName = actors.CommunityOwner.name;
-
-Given('{word} is an authenticated community owner', async (actorName: string) => {
-	lastActorName = actorName;
+Given('{word} is an authenticated community owner', async function (this: CellixUiWorld, actorName: string) {
+	this.setCommunityActorName(actorName);
 	const actor = actorCalled(actorName);
 
 	const onSave = async (values: { name: string }): Promise<void> => {
@@ -22,29 +20,29 @@ Given('{word} is an authenticated community owner', async (actorName: string) =>
 	};
 
 	const rendered = mountComponent(<CommunityCreate onSave={onSave} />);
-	setContainer(rendered.container);
+	this.setCommunityContainer(rendered.container);
 
 	await actor.attemptsTo(notes<CommunityUiNotes>().set('formSubmitted', false), notes<CommunityUiNotes>().set('communityName', ''), notes<CommunityUiNotes>().set('lastValidationError', ''));
 });
 
-When('{word} creates a community with:', async (actorName: string, dataTable: DataTable) => {
-	lastActorName = actorName;
+When('{word} creates a community with:', async function (this: CellixUiWorld, actorName: string, dataTable: DataTable) {
+	this.setCommunityActorName(actorName);
 	const actor = actorCalled(actorName);
 	const { name: communityName = '' } = dataTable.rowsHash() as { name?: string };
 
-	await actor.attemptsTo(CreateCommunity(communityName));
+	await actor.attemptsTo(CreateCommunity(this.getCommunityContainer(), communityName));
 });
 
-When('{word} attempts to create a community with:', async (actorName: string, dataTable: DataTable) => {
-	lastActorName = actorName;
+When('{word} attempts to create a community with:', async function (this: CellixUiWorld, actorName: string, dataTable: DataTable) {
+	this.setCommunityActorName(actorName);
 	const actor = actorCalled(actorName);
 	const { name: communityName = '' } = dataTable.rowsHash() as { name?: string };
 
-	await actor.attemptsTo(CreateCommunity(communityName));
+	await actor.attemptsTo(CreateCommunity(this.getCommunityContainer(), communityName));
 });
 
-Then('the community should be created successfully', async () => {
-	const actor = actorCalled(lastActorName);
+Then('the community should be created successfully', async function (this: CellixUiWorld) {
+	const actor = actorCalled(this.getCommunityActorName());
 	const submitted = await actor.answer(CommunityCreatedFlag());
 
 	if (!submitted) {
@@ -52,8 +50,8 @@ Then('the community should be created successfully', async () => {
 	}
 });
 
-Then('the community name should be {string}', async (expectedName: string) => {
-	const actor = actorCalled(lastActorName);
+Then('the community name should be {string}', async function (this: CellixUiWorld, expectedName: string) {
+	const actor = actorCalled(this.getCommunityActorName());
 	const name = await actor.answer(CommunityName());
 
 	if (name !== expectedName) {
@@ -61,10 +59,10 @@ Then('the community name should be {string}', async (expectedName: string) => {
 	}
 });
 
-Then('{word} should see a community error for {string}', async (actorName: string, fieldName: string) => {
-	const resolvedName = /^(she|he|they)$/i.test(actorName) ? lastActorName : actorName;
+Then('{word} should see a community error for {string}', async function (this: CellixUiWorld, actorName: string, fieldName: string) {
+	const resolvedName = /^(she|he|they)$/i.test(actorName) ? this.getCommunityActorName() : actorName;
 
-	const container = getContainer();
+	const container = this.getCommunityContainer();
 	const adapter = new JsdomPageAdapter(container);
 	const page = new CommunityPage(adapter) as UiCommunityPage;
 
@@ -103,10 +101,10 @@ Then('{word} should see a community error for {string}', async (actorName: strin
 	throw new Error(`Expected a validation error for "${fieldName}" but none was found`);
 });
 
-Then('no community should be created', async () => {
+Then('no community should be created', async function (this: CellixUiWorld) {
 	let hasValidationError = false;
 	try {
-		const actor = actorCalled(lastActorName);
+		const actor = actorCalled(this.getCommunityActorName());
 		const storedError = await actor.answer(CommunityErrorMessage());
 		hasValidationError = !!storedError;
 	} catch {
@@ -114,7 +112,7 @@ Then('no community should be created', async () => {
 	}
 
 	if (!hasValidationError) {
-		const container = getContainer();
+		const container = this.getCommunityContainer();
 		const errorElements = container.querySelectorAll('.ant-form-item-explain-error');
 		if (errorElements.length === 0) {
 			throw new Error('Expected a validation error to prevent community creation, but no error was found.');

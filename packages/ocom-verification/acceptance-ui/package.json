@@ -7,7 +7,7 @@
 	"scripts": {
 		"test:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js",
 		"test:acceptance:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 cucumber-js",
-		"test:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 cucumber-js"
+		"test:coverage:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 cucumber-js"
 	},
 	"dependencies": {
 		"@apollo/client": "^3.13.9",

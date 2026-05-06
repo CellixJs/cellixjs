@@ -8,7 +8,6 @@ let rendered: RenderResult | null = null;
 
 export interface MountOptions {
 	mocks?: MockedResponse[];
-	wrapWithRouter?: boolean;
 }
 
 export function mountComponent(ui: React.ReactElement, options?: MountOptions): RenderResult {
