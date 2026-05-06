@@ -1,6 +1,7 @@
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
+import { attachConsoleCapture } from './hooks.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
 import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestCommunityViteServer, TestOAuth2Server } from './servers/index.ts';
 
@@ -134,6 +135,7 @@ async function ensureAuthenticatedBrowserContext(options: { baseURL?: string; ig
 	}
 
 	const seedPage = await authenticatedBrowserContext.newPage();
+	attachConsoleCapture(seedPage);
 
 	try {
 		if (options.performLogin) {
