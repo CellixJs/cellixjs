@@ -121,6 +121,9 @@ patchedDependencies:
   '@azure/functions@4.11.0':
     hash: 69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645
     path: patches/@azure__functions@4.11.0.patch
+  mongoose@8.22.1:
+    hash: 8d25039d06d17a015d86e4a09a9af5ffe4bd77778b02abd09bcec56be5ccc8e6
+    path: patches/mongoose@8.22.1.patch
 
 importers:
 
@@ -836,7 +839,7 @@ importers:
         version: 10.3.0
       mongoose:
         specifier: 'catalog:'
-        version: 8.22.1
+        version: 8.22.1(patch_hash=8d25039d06d17a015d86e4a09a9af5ffe4bd77778b02abd09bcec56be5ccc8e6)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1187,7 +1190,7 @@ importers:
         version: 10.3.0
       mongoose:
         specifier: 'catalog:'
-        version: 8.22.1
+        version: 8.22.1(patch_hash=8d25039d06d17a015d86e4a09a9af5ffe4bd77778b02abd09bcec56be5ccc8e6)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1280,7 +1283,7 @@ importers:
         version: link:../../cellix/mongoose-seedwork
       mongoose:
         specifier: 'catalog:'
-        version: 8.22.1
+        version: 8.22.1(patch_hash=8d25039d06d17a015d86e4a09a9af5ffe4bd77778b02abd09bcec56be5ccc8e6)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1468,7 +1471,7 @@ importers:
         version: 6.18.0
       mongoose:
         specifier: 'catalog:'
-        version: 8.22.1
+        version: 8.22.1(patch_hash=8d25039d06d17a015d86e4a09a9af5ffe4bd77778b02abd09bcec56be5ccc8e6)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1580,7 +1583,7 @@ importers:
         version: link:../../cellix/mongoose-seedwork
       mongoose:
         specifier: 'catalog:'
-        version: 8.22.1
+        version: 8.22.1(patch_hash=8d25039d06d17a015d86e4a09a9af5ffe4bd77778b02abd09bcec56be5ccc8e6)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -22914,7 +22917,7 @@ snapshots:
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
 
-  mongoose@8.22.1:
+  mongoose@8.22.1(patch_hash=8d25039d06d17a015d86e4a09a9af5ffe4bd77778b02abd09bcec56be5ccc8e6):
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3
