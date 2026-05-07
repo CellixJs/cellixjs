@@ -5,6 +5,7 @@ import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jos
 import { buildTokenResponse } from './jwt.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 import { normalizeOrigin, normalizeUrl } from './utils.ts';
+import { buildRedirectWithCode, buildEffectiveProfile, normalizeUserInfo } from './helpers.ts';
 
 function escapeHtml(input: string): string {
 	return input.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -31,11 +32,10 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	publicJwk.kid = publicJwk.kid || 'mock-key';
 
 	const cachedUserProfile = config.getUserProfile();
-	// If a userStore is present, don't pre-fill persistedSub from the portal profile; allow login/signup to set it.
-	let persistedSub: string | undefined;
-	if (!config.userStore) {
-		persistedSub = cachedUserProfile.sub ?? crypto.randomUUID();
-	}
+	// Auth code store: maps one-time auth codes to selected sub and redirectUri
+	const authCodeStore = new Map<string, { sub?: string; redirectUri: string }>();
+	// For prefilled portal profile when no userStore, we may use portal sub as default when issuing codes without an explicit user selection.
+	const portalPrefilledSub = !config.userStore ? (cachedUserProfile.sub ?? crypto.randomUUID()) : undefined;
 
 	const normalizedAllowedRedirectUris = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeUrl(u)));
 
@@ -91,7 +91,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 
 		const allowMethods = 'GET,POST,OPTIONS';
-		const requestHeaders = (req.headers['access-control-request-headers'] ?? '') as string;
+		const requestHeaders = (req.get('access-control-request-headers') ?? '') as string;
 		const allowHeaders = requestHeaders && requestHeaders.length > 0 ? requestHeaders : 'Content-Type,Authorization';
 
 		if (req.method === 'OPTIONS') {
@@ -133,22 +133,26 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		const defaultAud = normalizedRedirectUriToAudience.get(primaryRedirectUri) ?? 'mock-client';
 		let aud = defaultAud;
-
-		if (code.startsWith('mock-auth-code-')) {
+		let resolvedSubFromCode: string | undefined;
+		// check one-time mapping first
+		const mapping = authCodeStore.get(code);
+		if (mapping) {
 			try {
-				const base64Part = code.replace('mock-auth-code-', '');
-				const decodedRedirectUri = Buffer.from(base64Part, 'base64').toString('utf-8');
-				const normalizedDecoded = normalizeUrl(decodedRedirectUri);
+				const normalizedDecoded = normalizeUrl(mapping.redirectUri);
 				if (normalizedAllowedRedirectUris.has(normalizedDecoded)) {
 					aud = normalizedRedirectUriToAudience.get(normalizedDecoded) ?? aud;
 				}
-			} catch (error) {
-				console.error('Failed to decode redirect_uri from code:', error);
+			} catch (_err) {
+				// ignore
 			}
+			// consume one-time code
+			authCodeStore.delete(code);
+			resolvedSubFromCode = mapping.sub;
 		}
 
+
 		const portalProfile = config.getUserProfile();
-		const { sub: upSub, tid: upTid, ...portalExtras } = portalProfile;
+		const { sub: upSub, tid: upTid } = portalProfile;
 		let resolvedTid: string;
 		if (typeof tid === 'string') {
 			resolvedTid = tid;
@@ -158,46 +162,29 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			resolvedTid = 'test-tenant-id';
 		}
 
-		// Resolve user when userStore is present
-		let finalSub: string;
-		let mergedExtras: Record<string, unknown> = { ...portalExtras };
+		// Determine final subject (prefer the code-mapped sub, then portal-profile requested sub)
+		const finalSub = resolvedSubFromCode ?? (typeof upSub === 'string' ? upSub : (portalPrefilledSub ?? crypto.randomUUID()));
+
+		let userClaims: Record<string, unknown> | undefined;
 		if (config.userStore) {
 			const store = config.userStore as MockOAuth2UserStore;
-			let selectedUser: MockOAuth2User | undefined;
-			if (typeof upSub === 'string') {
-				selectedUser = await store.findBySub(upSub);
-			}
-			if (!selectedUser && typeof persistedSub === 'string') {
-				selectedUser = await store.findBySub(persistedSub);
-			}
-			if (selectedUser) {
-				finalSub = selectedUser.sub;
-				mergedExtras = { ...portalExtras, ...(selectedUser.claims ?? {}) } as Record<string, unknown>;
-				// strip password if present in claims
-				if (Object.hasOwn(mergedExtras, 'password')) {
-					const { password: _p, ...rest } = mergedExtras as Record<string, unknown>;
-					mergedExtras = rest;
+			try {
+				if (typeof finalSub === 'string') {
+					const user = await store.findBySub(finalSub);
+					if (user) userClaims = user.claims;
 				}
-			} else {
-				finalSub = typeof upSub === 'string' ? upSub : (persistedSub ?? crypto.randomUUID());
+			} catch (_err) {
+				// ignore errors when resolving user
 			}
-		} else {
-			finalSub = typeof upSub === 'string' ? upSub : (persistedSub ?? crypto.randomUUID());
 		}
 
-		const mergedAs = mergedExtras as { email?: unknown; given_name?: unknown; family_name?: unknown };
-		const emailClaim = typeof (mergedAs.email ?? portalProfile.email) === 'string' ? ((mergedAs.email ?? portalProfile.email) as string) : undefined;
-		const givenClaim = typeof (mergedAs.given_name ?? portalProfile.given_name) === 'string' ? ((mergedAs.given_name ?? portalProfile.given_name) as string) : undefined;
-		const familyClaim = typeof (mergedAs.family_name ?? portalProfile.family_name) === 'string' ? ((mergedAs.family_name ?? portalProfile.family_name) as string) : undefined;
+		const effectiveProfile = buildEffectiveProfile(portalProfile, userClaims, finalSub);
 
 		const profile: TokenProfile = {
-			...mergedExtras,
-			aud,
+			...effectiveProfile,
 			sub: finalSub,
+			aud,
 			iss: issuerBaseUrl,
-			...(emailClaim ? { email: emailClaim } : {}),
-			...(givenClaim ? { given_name: givenClaim } : {}),
-			...(familyClaim ? { family_name: familyClaim } : {}),
 			tid: resolvedTid,
 		};
 		const tokenResponse = await buildTokenResponse(profile, privateKey, publicJwk, issuerBaseUrl);
@@ -233,7 +220,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		// If userStore exists and no persisted selection is present, redirect to login to choose/authorize a user
 		const portalProfile = config.getUserProfile();
-		if (config.userStore && !persistedSub && !portalProfile.sub) {
+		if (config.userStore && !portalProfile.sub) {
 			const q = new URLSearchParams({ ...(typeof state === 'string' ? { state } : {}), ...(typeof redirect_uri === 'string' ? { redirect_uri } : {}) }).toString();
 			res.setHeader('Location', `/login${q ? `?${q}` : ''}`);
 			res.status(302).end();
@@ -241,11 +228,14 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 
 		try {
-			const code = `mock-auth-code-${Buffer.from(normalizedRequestedRedirectUri).toString('base64')}`;
-			const redirectUrl = new URL(requestedRedirectUri);
-			redirectUrl.searchParams.set('code', code);
-			if (typeof state === 'string' && state.length <= 2048) redirectUrl.searchParams.set('state', state);
-			res.setHeader('Location', redirectUrl.toString());
+			const code = `mock-auth-code-${crypto.randomUUID()}`;
+			{
+				const entry: { redirectUri: string; sub?: string } = { redirectUri: normalizedRequestedRedirectUri };
+				if (typeof portalPrefilledSub === 'string') entry.sub = portalPrefilledSub;
+				authCodeStore.set(code, entry);
+			}
+			const location = buildRedirectWithCode(requestedRedirectUri, code, typeof state === 'string' ? state : undefined);
+			res.setHeader('Location', location);
 			res.status(302).end();
 		} catch {
 			res.status(400).send('Invalid redirect_uri format');
@@ -292,20 +282,17 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 				res.status(401).send('Invalid credentials');
 				return;
 			}
-			// Set selected user for subsequent token issuance
-			persistedSub = user.sub;
-			// Redirect back to the requested redirect_uri with auth code
+			// Issue a one-time auth code tied to this user and redirect
 			try {
 				const normalized = normalizeUrl(redirect);
 				if (!normalizedAllowedRedirectUris.has(normalized)) {
 					res.status(400).send('Invalid redirect_uri');
 					return;
 				}
-				const code = `mock-auth-code-${Buffer.from(normalized).toString('base64')}`;
-				const redirectUrl = new URL(redirect);
-				redirectUrl.searchParams.set('code', code);
-				if (typeof state === 'string' && state.length <= 2048) redirectUrl.searchParams.set('state', state);
-				res.setHeader('Location', redirectUrl.toString());
+				const code = `mock-auth-code-${crypto.randomUUID()}`;
+				authCodeStore.set(code, { sub: user.sub, redirectUri: normalized });
+				const location = buildRedirectWithCode(redirect, code, state);
+				res.setHeader('Location', location);
 				res.status(302).end();
 			} catch {
 				res.status(400).send('Invalid redirect_uri format');
@@ -360,20 +347,17 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			const newUser: MockOAuth2User = { username, sub: crypto.randomUUID(), password, claims: claimsObj };
 			const store = config.userStore as MockOAuth2UserStore;
 			await store.addUser(newUser);
-			// Set session
-			persistedSub = newUser.sub;
-			// Redirect with code
+			// Issue a one-time auth code tied to this newly created user and redirect
 			try {
 				const normalized = normalizeUrl(redirect);
 				if (!normalizedAllowedRedirectUris.has(normalized)) {
 					res.status(400).send('Invalid redirect_uri');
 					return;
 				}
-				const code = `mock-auth-code-${Buffer.from(normalized).toString('base64')}`;
-				const redirectUrl = new URL(redirect);
-				redirectUrl.searchParams.set('code', code);
-				if (typeof state === 'string' && state.length <= 2048) redirectUrl.searchParams.set('state', state);
-				res.setHeader('Location', redirectUrl.toString());
+				const code = `mock-auth-code-${crypto.randomUUID()}`;
+				authCodeStore.set(code, { sub: newUser.sub, redirectUri: normalized });
+				const location = buildRedirectWithCode(redirect, code, state);
+				res.setHeader('Location', location);
 				res.status(302).end();
 			} catch {
 				res.status(400).send('Invalid redirect_uri format');
@@ -419,49 +403,37 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 			// Resolve full user claims from userStore when available; otherwise fallback to payload/profile fusion
 			let effectiveProfile: Record<string, unknown> = {};
+			const portalProfile = config.getUserProfile();
 			if (config.userStore) {
 				try {
 					const store = config.userStore as MockOAuth2UserStore;
 					const user = await store.findBySub(sub);
-					const portalProfile = config.getUserProfile();
-					const { sub: portalSub, ...portalRest } = portalProfile;
 					if (user) {
-						let merged = { ...portalRest, ...(user.claims ?? {}) } as Record<string, unknown>;
-						if (Object.hasOwn(merged, 'password')) {
-							const { password: _p, ...rest } = merged as Record<string, unknown>;
-							merged = rest;
-						}
-						effectiveProfile = { sub: user.sub, ...merged };
+						effectiveProfile = buildEffectiveProfile(portalProfile, user.claims, user.sub);
 					} else {
 						const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
 						const email = typeof emailProp === 'string' ? emailProp : undefined;
 						const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
 						const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
-						effectiveProfile = { sub, ...portalRest, ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) };
+						effectiveProfile = buildEffectiveProfile(portalProfile, { ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) }, sub);
 					}
 				} catch (_err) {
 					const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
 					const email = typeof emailProp === 'string' ? emailProp : undefined;
 					const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
 					const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
-					effectiveProfile = { sub, ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) };
+					effectiveProfile = buildEffectiveProfile(portalProfile, { ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) }, sub);
 				}
 			} else {
 				const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
 				const email = typeof emailProp === 'string' ? emailProp : undefined;
 				const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
 				const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
-				const username = email?.includes('@') ? email.split('@')[0] : (payload.sub as string);
-				effectiveProfile = { sub, email, given_name: givenName, family_name: familyName, name: givenName && familyName ? `${givenName} ${familyName}` : (givenName ?? familyName ?? username), username };
+				effectiveProfile = buildEffectiveProfile(portalProfile, { ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) }, sub);
 			}
 
-			// Ensure password never leaked
-			if (effectiveProfile && Object.hasOwn(effectiveProfile, 'password')) {
-				const { password: _p, ...rest } = effectiveProfile as Record<string, unknown>;
-				effectiveProfile = rest;
-			}
-
-			res.json(effectiveProfile);
+			const normalized = normalizeUserInfo(effectiveProfile);
+			res.json(normalized);
 		} catch (error: unknown) {
 			if (error instanceof joseErrors.JWTExpired) {
 				res.status(401).json({ error: 'invalid_token', error_description: 'token_expired' });

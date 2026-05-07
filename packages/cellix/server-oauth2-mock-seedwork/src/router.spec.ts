@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import express from 'express';
-import type { AddressInfo } from 'net';
+import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildOidcRouter } from './router.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
@@ -82,7 +82,7 @@ describe('oauth2 mock router flows', () => {
 		expect(res.status).toBe(302);
 		// user persisted
 		expect(store.users.length).toBe(1);
-		const u = store.users[0]!;
+		const u = store.users[0] as MockOAuth2User;
 		expect(u.username).toBe('alice');
 
 		// duplicate signup should fail (500)
@@ -104,7 +104,7 @@ describe('oauth2 mock router flows', () => {
 	});
 
 	it('/token and /userinfo include full user claims and never include password', async () => {
-		// Signup a new user to set persistedSub
+		// Signup a new user to obtain an auth code mapped in authCodeStore
 		const signupUrl = `http://127.0.0.1:${port}/signup`;
 		const body = new URLSearchParams({ username: 'carol', password: 'secret', email: 'carol@example.com', given_name: 'Carol', family_name: 'Jones', redirect_uri: redirect });
 		const res = await fetch(signupUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
