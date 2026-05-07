@@ -3,8 +3,12 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jose';
 import { buildTokenResponse } from './jwt.ts';
-import type { MockOAuth2PortalConfig } from './types.ts';
+import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 import { normalizeOrigin, normalizeUrl } from './utils.ts';
+
+function escapeHtml(input: string): string {
+	return input.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 interface TokenProfile {
 	aud: string;
@@ -27,7 +31,11 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	publicJwk.kid = publicJwk.kid || 'mock-key';
 
 	const cachedUserProfile = config.getUserProfile();
-	const persistedSub = cachedUserProfile.sub ?? crypto.randomUUID();
+	// If a userStore is present, don't pre-fill persistedSub from the portal profile; allow login/signup to set it.
+	let persistedSub: string | undefined;
+	if (!config.userStore) {
+		persistedSub = cachedUserProfile.sub ?? crypto.randomUUID();
+	}
 
 	const normalizedAllowedRedirectUris = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeUrl(u)));
 
@@ -139,8 +147,8 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			}
 		}
 
-		const userProfile = config.getUserProfile();
-		const { sub: upSub, email: upEmail, given_name: upGiven, family_name: upFamily, tid: upTid, ...extra } = userProfile;
+		const portalProfile = config.getUserProfile();
+		const { sub: upSub, tid: upTid, ...portalExtras } = portalProfile;
 		let resolvedTid: string;
 		if (typeof tid === 'string') {
 			resolvedTid = tid;
@@ -149,14 +157,47 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		} else {
 			resolvedTid = 'test-tenant-id';
 		}
+
+		// Resolve user when userStore is present
+		let finalSub: string;
+		let mergedExtras: Record<string, unknown> = { ...portalExtras };
+		if (config.userStore) {
+			const store = config.userStore as MockOAuth2UserStore;
+			let selectedUser: MockOAuth2User | undefined;
+			if (typeof upSub === 'string') {
+				selectedUser = await store.findBySub(upSub);
+			}
+			if (!selectedUser && typeof persistedSub === 'string') {
+				selectedUser = await store.findBySub(persistedSub);
+			}
+			if (selectedUser) {
+				finalSub = selectedUser.sub;
+				mergedExtras = { ...portalExtras, ...(selectedUser.claims ?? {}) } as Record<string, unknown>;
+				// strip password if present in claims
+				if (Object.hasOwn(mergedExtras, 'password')) {
+					const { password: _p, ...rest } = mergedExtras as Record<string, unknown>;
+					mergedExtras = rest;
+				}
+			} else {
+				finalSub = typeof upSub === 'string' ? upSub : (persistedSub ?? crypto.randomUUID());
+			}
+		} else {
+			finalSub = typeof upSub === 'string' ? upSub : (persistedSub ?? crypto.randomUUID());
+		}
+
+		const mergedAs = mergedExtras as { email?: unknown; given_name?: unknown; family_name?: unknown };
+		const emailClaim = typeof (mergedAs.email ?? portalProfile.email) === 'string' ? ((mergedAs.email ?? portalProfile.email) as string) : undefined;
+		const givenClaim = typeof (mergedAs.given_name ?? portalProfile.given_name) === 'string' ? ((mergedAs.given_name ?? portalProfile.given_name) as string) : undefined;
+		const familyClaim = typeof (mergedAs.family_name ?? portalProfile.family_name) === 'string' ? ((mergedAs.family_name ?? portalProfile.family_name) as string) : undefined;
+
 		const profile: TokenProfile = {
-			...extra,
+			...mergedExtras,
 			aud,
-			sub: typeof upSub === 'string' ? upSub : persistedSub,
+			sub: finalSub,
 			iss: issuerBaseUrl,
-			...(typeof upEmail === 'string' ? { email: upEmail } : {}),
-			...(typeof upGiven === 'string' ? { given_name: upGiven } : {}),
-			...(typeof upFamily === 'string' ? { family_name: upFamily } : {}),
+			...(emailClaim ? { email: emailClaim } : {}),
+			...(givenClaim ? { given_name: givenClaim } : {}),
+			...(familyClaim ? { family_name: familyClaim } : {}),
 			tid: resolvedTid,
 		};
 		const tokenResponse = await buildTokenResponse(profile, privateKey, publicJwk, issuerBaseUrl);
@@ -190,6 +231,15 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			return;
 		}
 
+		// If userStore exists and no persisted selection is present, redirect to login to choose/authorize a user
+		const portalProfile = config.getUserProfile();
+		if (config.userStore && !persistedSub && !portalProfile.sub) {
+			const q = new URLSearchParams({ ...(typeof state === 'string' ? { state } : {}), ...(typeof redirect_uri === 'string' ? { redirect_uri } : {}) }).toString();
+			res.setHeader('Location', `/login${q ? `?${q}` : ''}`);
+			res.status(302).end();
+			return;
+		}
+
 		try {
 			const code = `mock-auth-code-${Buffer.from(normalizedRequestedRedirectUri).toString('base64')}`;
 			const redirectUrl = new URL(requestedRedirectUri);
@@ -199,6 +249,137 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			res.status(302).end();
 		} catch {
 			res.status(400).send('Invalid redirect_uri format');
+		}
+	});
+
+	// If a userStore is provided, expose simple login/signup pages that tie into it.
+	router.get('/login', (req, res) => {
+		if (!config.userStore) {
+			res.status(404).send('Login not available');
+			return;
+		}
+		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
+		const redirect = typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri;
+		const safeState = typeof state === 'string' ? state : '';
+		res.setHeader('Content-Type', 'text/html; charset=utf-8');
+		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
+		<h1>Login</h1>
+		<form method="POST" action="/login">
+		<input type="hidden" name="redirect_uri" value="${escapeHtml(redirect)}" />
+		<input type="hidden" name="state" value="${escapeHtml(safeState)}" />
+		<label>Username: <input name="username" /></label><br/>
+		<label>Password: <input name="password" type="password" /></label><br/>
+		<button type="submit">Login</button>
+		</form>
+		<p><a href="/signup?redirect_uri=${encodeURIComponent(redirect)}&state=${encodeURIComponent(safeState)}">Sign up</a></p>
+		</body></html>`);
+	});
+
+	router.post('/login', async (req, res) => {
+		if (!config.userStore) {
+			res.status(404).send('Login not available');
+			return;
+		}
+		const body = req.body as { username?: unknown; password?: unknown; redirect_uri?: unknown; state?: unknown };
+		const username = typeof body.username === 'string' ? body.username : '';
+		const password = typeof body.password === 'string' ? body.password : '';
+		const redirect = typeof body.redirect_uri === 'string' ? body.redirect_uri : primaryRedirectUri;
+		const state = typeof body.state === 'string' ? body.state : undefined;
+		try {
+			const store = config.userStore as MockOAuth2UserStore;
+			const user = await store.findByUsername(username);
+			if (!user || typeof user.password !== 'string' || user.password !== password) {
+				res.status(401).send('Invalid credentials');
+				return;
+			}
+			// Set selected user for subsequent token issuance
+			persistedSub = user.sub;
+			// Redirect back to the requested redirect_uri with auth code
+			try {
+				const normalized = normalizeUrl(redirect);
+				if (!normalizedAllowedRedirectUris.has(normalized)) {
+					res.status(400).send('Invalid redirect_uri');
+					return;
+				}
+				const code = `mock-auth-code-${Buffer.from(normalized).toString('base64')}`;
+				const redirectUrl = new URL(redirect);
+				redirectUrl.searchParams.set('code', code);
+				if (typeof state === 'string' && state.length <= 2048) redirectUrl.searchParams.set('state', state);
+				res.setHeader('Location', redirectUrl.toString());
+				res.status(302).end();
+			} catch {
+				res.status(400).send('Invalid redirect_uri format');
+			}
+		} catch (_err) {
+			res.status(500).send('Login failed');
+		}
+	});
+
+	router.get('/signup', (req, res) => {
+		if (!config.userStore) {
+			res.status(404).send('Signup not available');
+			return;
+		}
+		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
+		const redirect = typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri;
+		const safeState = typeof state === 'string' ? state : '';
+		res.setHeader('Content-Type', 'text/html; charset=utf-8');
+		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
+		<h1>Sign up</h1>
+		<form method="POST" action="/signup">
+		<input type="hidden" name="redirect_uri" value="${escapeHtml(redirect)}" />
+		<input type="hidden" name="state" value="${escapeHtml(safeState)}" />
+		<label>Username: <input name="username" /></label><br/>
+		<label>Password: <input name="password" type="password" /></label><br/>
+		<label>Email: <input name="email" /></label><br/>
+		<label>Given name: <input name="given_name" /></label><br/>
+		<label>Family name: <input name="family_name" /></label><br/>
+		<button type="submit">Sign up</button>
+		</form>
+		</body></html>`);
+	});
+
+	router.post('/signup', async (req, res) => {
+		if (!config.userStore) {
+			res.status(404).send('Signup not available');
+			return;
+		}
+		const body = req.body as { username?: unknown; password?: unknown; email?: unknown; given_name?: unknown; family_name?: unknown; redirect_uri?: unknown; state?: unknown };
+		const username = typeof body.username === 'string' ? body.username : '';
+		const password = typeof body.password === 'string' ? body.password : '';
+		const email = typeof body.email === 'string' ? body.email : undefined;
+		const given_name = typeof body.given_name === 'string' ? body.given_name : undefined;
+		const family_name = typeof body.family_name === 'string' ? body.family_name : undefined;
+		const redirect = typeof body.redirect_uri === 'string' ? body.redirect_uri : primaryRedirectUri;
+		const state = typeof body.state === 'string' ? body.state : undefined;
+		try {
+			const claimsObj: { email?: unknown; given_name?: unknown; family_name?: unknown; [k: string]: unknown } = {};
+			if (email) claimsObj.email = email;
+			if (given_name) claimsObj.given_name = given_name;
+			if (family_name) claimsObj.family_name = family_name;
+			const newUser: MockOAuth2User = { username, sub: crypto.randomUUID(), password, claims: claimsObj };
+			const store = config.userStore as MockOAuth2UserStore;
+			await store.addUser(newUser);
+			// Set session
+			persistedSub = newUser.sub;
+			// Redirect with code
+			try {
+				const normalized = normalizeUrl(redirect);
+				if (!normalizedAllowedRedirectUris.has(normalized)) {
+					res.status(400).send('Invalid redirect_uri');
+					return;
+				}
+				const code = `mock-auth-code-${Buffer.from(normalized).toString('base64')}`;
+				const redirectUrl = new URL(redirect);
+				redirectUrl.searchParams.set('code', code);
+				if (typeof state === 'string' && state.length <= 2048) redirectUrl.searchParams.set('state', state);
+				res.setHeader('Location', redirectUrl.toString());
+				res.status(302).end();
+			} catch {
+				res.status(400).send('Invalid redirect_uri format');
+			}
+		} catch (_err) {
+			res.status(500).send('Signup failed');
 		}
 	});
 
@@ -230,12 +411,57 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 				res.status(401).json({ error: 'invalid_token', error_description: 'missing_aud_claim' });
 				return;
 			}
-			const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
-			const email = typeof emailProp === 'string' ? emailProp : undefined;
-			const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
-			const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
-			const username = email?.includes('@') ? email.split('@')[0] : payload.sub;
-			res.json({ sub: payload.sub, email, given_name: givenName, family_name: familyName, name: givenName && familyName ? `${givenName} ${familyName}` : (givenName ?? familyName ?? username), username });
+			const sub = typeof payload.sub === 'string' ? payload.sub : undefined;
+			if (!sub) {
+				res.status(401).json({ error: 'invalid_token', error_description: 'missing_sub_claim' });
+				return;
+			}
+
+			// Resolve full user claims from userStore when available; otherwise fallback to payload/profile fusion
+			let effectiveProfile: Record<string, unknown> = {};
+			if (config.userStore) {
+				try {
+					const store = config.userStore as MockOAuth2UserStore;
+					const user = await store.findBySub(sub);
+					const portalProfile = config.getUserProfile();
+					const { sub: portalSub, ...portalRest } = portalProfile;
+					if (user) {
+						let merged = { ...portalRest, ...(user.claims ?? {}) } as Record<string, unknown>;
+						if (Object.hasOwn(merged, 'password')) {
+							const { password: _p, ...rest } = merged as Record<string, unknown>;
+							merged = rest;
+						}
+						effectiveProfile = { sub: user.sub, ...merged };
+					} else {
+						const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
+						const email = typeof emailProp === 'string' ? emailProp : undefined;
+						const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
+						const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
+						effectiveProfile = { sub, ...portalRest, ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) };
+					}
+				} catch (_err) {
+					const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
+					const email = typeof emailProp === 'string' ? emailProp : undefined;
+					const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
+					const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
+					effectiveProfile = { sub, ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) };
+				}
+			} else {
+				const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
+				const email = typeof emailProp === 'string' ? emailProp : undefined;
+				const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
+				const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
+				const username = email?.includes('@') ? email.split('@')[0] : (payload.sub as string);
+				effectiveProfile = { sub, email, given_name: givenName, family_name: familyName, name: givenName && familyName ? `${givenName} ${familyName}` : (givenName ?? familyName ?? username), username };
+			}
+
+			// Ensure password never leaked
+			if (effectiveProfile && Object.hasOwn(effectiveProfile, 'password')) {
+				const { password: _p, ...rest } = effectiveProfile as Record<string, unknown>;
+				effectiveProfile = rest;
+			}
+
+			res.json(effectiveProfile);
 		} catch (error: unknown) {
 			if (error instanceof joseErrors.JWTExpired) {
 				res.status(401).json({ error: 'invalid_token', error_description: 'token_expired' });
