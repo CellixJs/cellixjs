@@ -41,3 +41,6 @@ apps/api/deploy/
 # Local OIDC mock claim overrides (per developer)
 **/mock-oidc.local.json
 
+# Build-time evidence artifacts (generated)
+build-artifacts/
+
