@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { createSplitLink } from './index.js';
+import { ApolloConnection } from './index.tsx';
 
-describe('createSplitLink (basic)', () => {
+describe('ApolloConnection export (basic)', () => {
 	it('is exported and is a function', () => {
-		expect(typeof createSplitLink).toBe('function');
+		expect(typeof ApolloConnection).toBe('function');
 	});
 });

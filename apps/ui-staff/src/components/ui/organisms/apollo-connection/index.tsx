@@ -9,7 +9,7 @@ interface ApolloConnectionProps {
 	children: React.ReactNode;
 }
 
-export const createSplitLink = (linkMap: Record<string, ApolloLink>, defaultLink: ApolloLink) => {
+const createSplitLink = (linkMap: Record<string, ApolloLink>, defaultLink: ApolloLink) => {
 	return ApolloLink.from([
 		ApolloLink.split(
 			(operation) => typeof operation.operationName === 'string' && operation.operationName in linkMap,

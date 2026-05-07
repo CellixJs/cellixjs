@@ -33,7 +33,7 @@ vi.mock('@ocom/ui-staff-route-tech-admin', () => ({
 	Root: () => React.createElement('div', {}, 'TechAdmin'),
 }));
 
-import App from './App.js';
+import App from './App.tsx';
 
 describe('App', () => {
 	it('renders root section without throwing', () => {
