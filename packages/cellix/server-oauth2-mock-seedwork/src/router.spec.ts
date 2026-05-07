@@ -120,23 +120,23 @@ describe('oauth2 mock router flows', () => {
 		expect(tokenJson).toHaveProperty('id_token');
 		expect(tokenJson).toHaveProperty('access_token');
 
-		const idPayload = decodeJwtPayload(tokenJson['id_token'] as string) as Record<string, unknown>;
-		const accessPayload = decodeJwtPayload(tokenJson['access_token'] as string) as Record<string, unknown>;
+		const idPayload = decodeJwtPayload(tokenJson.id_token as string) as Record<string, unknown>;
+		const accessPayload = decodeJwtPayload(tokenJson.access_token as string) as Record<string, unknown>;
 		// Should contain claims from the stored user
-		expect(idPayload['email']).toBe('carol@example.com');
-		expect(idPayload['given_name']).toBe('Carol');
-		expect(idPayload['family_name']).toBe('Jones');
+		expect(idPayload.email).toBe('carol@example.com');
+		expect(idPayload.given_name).toBe('Carol');
+		expect(idPayload.family_name).toBe('Jones');
 		// password must not be present
 		expect(Object.hasOwn(idPayload, 'password')).toBe(false);
 		expect(Object.hasOwn(accessPayload, 'password')).toBe(false);
 
 		// userinfo
-		const infoRes = await fetch(`http://127.0.0.1:${port}/userinfo`, { headers: { Authorization: `Bearer ${tokenJson['access_token']}` } });
+		const infoRes = await fetch(`http://127.0.0.1:${port}/userinfo`, { headers: { Authorization: `Bearer ${tokenJson.access_token}` } });
 		expect(infoRes.status).toBe(200);
 		const info = (await infoRes.json()) as Record<string, unknown>;
-		expect(info['email']).toBe('carol@example.com');
-		expect(info['given_name']).toBe('Carol');
-		expect(info['family_name']).toBe('Jones');
+		expect(info.email).toBe('carol@example.com');
+		expect(info.given_name).toBe('Carol');
+		expect(info.family_name).toBe('Jones');
 		expect(Object.hasOwn(info, 'password')).toBe(false);
 	});
 });

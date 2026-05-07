@@ -17,21 +17,40 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		}
 	}
 
-	function loadCommitted(): MockOAuth2User[] {
-		const raw = readJsonIfExists(committedPath);
+	function validateEntries(raw: unknown, filePath: string): MockOAuth2User[] {
 		if (!raw) return [];
 		if (!Array.isArray(raw)) return [];
-		return raw as MockOAuth2User[];
+		const out: MockOAuth2User[] = [];
+		for (let i = 0; i < raw.length; i++) {
+			const entry = raw[i] as unknown;
+			if (typeof entry === 'object' && entry !== null) {
+				const e = entry as { username?: unknown; sub?: unknown; claims?: { sub?: unknown } | undefined };
+				const username = e.username;
+				const sub = typeof e.sub === 'string' ? e.sub : (typeof e.claims?.sub === 'string' ? e.claims.sub : undefined);
+				if (typeof username === 'string' && sub) {
+					out.push(entry as MockOAuth2User);
+					continue;
+				}
+			}
+			console.warn(`[server-oauth2-mock] Invalid user entry in ${filePath} at index ${i}, skipping`);
+		}
+		return out;
+	}
+
+	function loadCommitted(): MockOAuth2User[] {
+		const raw = readJsonIfExists(committedPath);
+		return validateEntries(raw, committedPath);
 	}
 
 	function loadOverlay(): MockOAuth2User[] {
 		const raw = readJsonIfExists(localPath);
-		if (!raw) return [];
-		if (!Array.isArray(raw)) return [];
-		return raw as MockOAuth2User[];
+		return validateEntries(raw, localPath);
 	}
 
+	let cachedUsers: MockOAuth2User[] | null = null;
+
 	function mergeUsers(): MockOAuth2User[] {
+		if (cachedUsers) return cachedUsers;
 		const committed = loadCommitted();
 		const overlay = loadOverlay();
 		const seenUsernames = new Set<string>();
@@ -51,45 +70,46 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 			seenSubs.add(u.sub);
 			out.push(u);
 		}
+		cachedUsers = out;
 		return out;
 	}
 
-	async function persistOverlay(users: MockOAuth2User[]): Promise<void> {
-		try {
-			const dir = path.dirname(localPath);
-			if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-			const tmpPath = `${localPath}.tmp`;
-			fs.writeFileSync(tmpPath, JSON.stringify(users, null, 2), { encoding: 'utf-8' });
-			fs.renameSync(tmpPath, localPath);
-		} catch (err) {
-			throw err;
-		}
+	function persistOverlay(users: MockOAuth2User[]): Promise<void> {
+		const dir = path.dirname(localPath);
+		if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+		const tmpPath = `${localPath}.tmp`;
+		fs.writeFileSync(tmpPath, JSON.stringify(users, null, 2), { encoding: 'utf-8' });
+		fs.renameSync(tmpPath, localPath);
+		// invalidate cache after successful write
+		cachedUsers = null;
+		return Promise.resolve();
 	}
 
 	return {
-		async listUsers() {
-			return mergeUsers();
+		listUsers() {
+			return Promise.resolve(mergeUsers());
 		},
-		async findByUsername(username: string) {
+		findByUsername(username: string) {
 			const list = mergeUsers();
-			return list.find((u) => u.username === username);
+			return Promise.resolve(list.find((u) => u.username === username));
 		},
-		async findBySub(sub: string) {
+		findBySub(sub: string) {
 			const list = mergeUsers();
-			return list.find((u) => u.sub === sub);
+			return Promise.resolve(list.find((u) => u.sub === sub));
 		},
-		async addUser(user: MockOAuth2User) {
+		addUser(user: MockOAuth2User) {
 			const committed = loadCommitted();
 			const overlay = loadOverlay();
 			// ensure uniqueness
 			const all = [...committed, ...overlay];
-			if (all.find((u) => u.username === user.username)) throw new Error(`[server-oauth2-mock] Username already exists: ${user.username}`);
-			if (all.find((u) => u.sub === user.sub)) throw new Error(`[server-oauth2-mock] Sub already exists: ${user.sub}`);
+			if (all.find((u) => u.username === user.username)) return Promise.reject(new Error(`[server-oauth2-mock] Username already exists: ${user.username}`));
+			if (all.find((u) => u.sub === user.sub)) return Promise.reject(new Error(`[server-oauth2-mock] Sub already exists: ${user.sub}`));
 			overlay.push(user);
-			await persistOverlay(overlay);
+			return persistOverlay(overlay);
 		},
-		async persist() {
+		persist() {
 			// noop - overlay persisted on each add
+			return Promise.resolve();
 		},
 	};
 }
