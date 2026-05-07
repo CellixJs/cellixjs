@@ -143,9 +143,11 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 						return `  - ${s.name}: ${exitDesc}${stderrTail}${stdoutTail}`;
 					})
 					.join('\n');
-				// Critical info (API health, subprocess state) is placed AT THE END
-				// of the diagnostic block so it survives Azure DevOps log display
-				// head-truncation. Less critical context is at the top.
+				// One-line ULTIMATE SUMMARY at the very bottom — Azure DevOps log
+				// display has been hiding everything else. A single dense line is
+				// the only thing guaranteed to survive truncation.
+				const subprocessSummary = serverDiagnostics.map((s) => `${s.name}=${s.exitInfo ? `EXIT_${s.exitInfo.code}` : s.alive ? `alive_${s.pid}` : 'no_proc'}`).join(',');
+				const ultimateSummary = `ULTIMATE_SUMMARY api-health=${JSON.stringify(apiHealth)} variants=${JSON.stringify(apiVariants)} subprocesses=[${subprocessSummary}]`;
 				const diagnostic = [
 					`=== E2E FAILURE DIAGNOSTICS: ${pickle.name} ===`,
 					`URL: ${url}`,
@@ -161,6 +163,7 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 					`>>> CRITICAL: PORTLESS ROUTES:\n${indent(portlessRoutes, '    ')}`,
 					`>>> CRITICAL: SUBPROCESS DIAGNOSTICS:\n${serverSummary}`,
 					'=== END DIAGNOSTICS ===',
+					ultimateSummary,
 				].join('\n');
 				this.attach(diagnostic, 'text/plain');
 				process.stderr.write(`\n${diagnostic}\n`);
