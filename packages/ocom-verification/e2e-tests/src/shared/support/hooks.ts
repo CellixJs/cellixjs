@@ -6,14 +6,33 @@ import { After, AfterAll, Before, Status, setDefaultTimeout } from '@cucumber/cu
 import { getTimeout } from '@ocom-verification/verification-shared/settings';
 import { type CellixE2EWorld, stopSharedServers } from '../../world.ts';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
+import { getServerDiagnostics, probeApiHealth } from './shared-infrastructure.ts';
 
 type PlaywrightPage = BrowseTheWeb['page'];
 
 const consoleMessagesByPage = new WeakMap<PlaywrightPage, string[]>();
 
+function indent(text: string, prefix: string): string {
+	return text
+		.split('\n')
+		.map((line) => prefix + line)
+		.join('\n');
+}
+
 type ConsoleMessageLike = { type(): string; text(): string };
-type RequestLike = { method(): string; url(): string; failure(): { errorText: string } | null };
-type ResponseLike = { status(): number; url(): string; request(): { method(): string } };
+type RequestLike = {
+	method(): string;
+	url(): string;
+	failure(): { errorText: string } | null;
+	headers(): Record<string, string>;
+	postData(): string | null;
+};
+type ResponseLike = {
+	status(): number;
+	url(): string;
+	request(): RequestLike;
+	text(): Promise<string>;
+};
 
 export function attachConsoleCapture(page: PlaywrightPage): void {
 	const buffer: string[] = [];
@@ -27,11 +46,32 @@ export function attachConsoleCapture(page: PlaywrightPage): void {
 	page.on('requestfailed', (req: RequestLike) => {
 		buffer.push(`[requestfailed] ${req.method()} ${req.url()} — ${req.failure()?.errorText ?? 'unknown'}`);
 	});
-	page.on('response', (res: ResponseLike) => {
+	page.on('response', async (res: ResponseLike) => {
 		const status = res.status();
-		if (status >= 400) {
-			buffer.push(`[response ${status}] ${res.request().method()} ${res.url()}`);
+		if (status < 400) return;
+		const req = res.request();
+		const url = res.url();
+		// Skip noisy static-asset 404s (favicons, source maps, vite client probes)
+		// to keep the diagnostic focused on API/data calls.
+		const isStaticNoise = /\.(ico|png|svg|map|webp|woff2?)(\?|$)/i.test(url);
+		if (isStaticNoise) {
+			buffer.push(`[response ${status}] ${req.method()} ${url}`);
+			return;
 		}
+		let body = '';
+		try {
+			body = (await res.text()).slice(0, 500);
+		} catch (err) {
+			body = `<body unavailable: ${err instanceof Error ? err.message : 'unknown'}>`;
+		}
+		const reqBody = req.postData()?.slice(0, 300) ?? '';
+		const reqHeaders = req.headers();
+		const interestingHeaders = ['authorization', 'content-type', 'x-community-id', 'x-member-id', 'apollographql-client-name'];
+		const headerSummary = interestingHeaders
+			.map((h) => (reqHeaders[h] ? `${h}=${h === 'authorization' ? `${reqHeaders[h].slice(0, 20)}…(len=${reqHeaders[h].length})` : reqHeaders[h]}` : null))
+			.filter(Boolean)
+			.join(', ');
+		buffer.push(`[response ${status}] ${req.method()} ${url}\n    req-headers: ${headerSummary}\n    req-body: ${reqBody}\n    res-body: ${body}`);
 	});
 }
 
@@ -93,6 +133,16 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 					.allTextContents()
 					.catch(() => []);
 				const consoleLog = consoleMessagesByPage.get(page) ?? [];
+				const apiHealth = await probeApiHealth();
+				const serverDiagnostics = getServerDiagnostics();
+				const serverSummary = serverDiagnostics
+					.map((s) => {
+						const exitDesc = s.exitInfo ? `EXITED code=${s.exitInfo.code} signal=${s.exitInfo.signal}` : s.alive ? `alive pid=${s.pid}` : 'no process';
+						const stderrTail = s.stderrTail.trim() ? `\n    stderr-tail:\n${indent(s.stderrTail.slice(-2000), '      ')}` : '';
+						const stdoutTail = s.stdoutTail.trim() ? `\n    stdout-tail:\n${indent(s.stdoutTail.slice(-1500), '      ')}` : '';
+						return `  - ${s.name}: ${exitDesc}${stderrTail}${stdoutTail}`;
+					})
+					.join('\n');
 				const diagnostic = [
 					`=== E2E FAILURE DIAGNOSTICS: ${pickle.name} ===`,
 					`URL: ${url}`,
@@ -102,8 +152,10 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 					`Headings: ${JSON.stringify(headings)}`,
 					`Input placeholders: ${JSON.stringify(placeholders)}`,
 					`Body text (first 500 chars): ${bodyText.slice(0, 500)}`,
-					`Browser console (last 30 messages):`,
-					...consoleLog.slice(-30),
+					`API health probe at failure: ${JSON.stringify(apiHealth)}`,
+					`Subprocess diagnostics:\n${serverSummary}`,
+					`Browser console (last 50 messages):`,
+					...consoleLog.slice(-50),
 					'=== END DIAGNOSTICS ===',
 				].join('\n');
 				this.attach(diagnostic, 'text/plain');

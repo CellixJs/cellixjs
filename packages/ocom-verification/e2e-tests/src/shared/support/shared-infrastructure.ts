@@ -27,6 +27,31 @@ export function getState(): InfrastructureState {
 	return { apiUrl, accessToken, browseTheWeb };
 }
 
+export function getServerDiagnostics() {
+	const servers = [mongoDBServer, oauth2Server, apiServer, communityViteServer].filter((s): s is NonNullable<typeof s> => s !== undefined);
+	return servers.map((server) => {
+		if ('getDiagnostics' in server && typeof server.getDiagnostics === 'function') {
+			return server.getDiagnostics();
+		}
+		return { name: 'unknown-server', alive: false, pid: undefined, exitInfo: null, stdoutTail: '', stderrTail: '' };
+	});
+}
+
+export async function probeApiHealth(): Promise<{ alive: boolean; status?: number; error?: string }> {
+	if (!apiUrl) return { alive: false, error: 'apiUrl not set' };
+	try {
+		const res = await fetch(apiUrl, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ query: '{ __typename }' }),
+			signal: AbortSignal.timeout(3_000),
+		});
+		return { alive: res.ok, status: res.status };
+	} catch (err) {
+		return { alive: false, error: err instanceof Error ? err.message : String(err) };
+	}
+}
+
 export async function stopAll(): Promise<void> {
 	if (browseTheWeb) {
 		await browseTheWeb.close().catch(() => undefined);

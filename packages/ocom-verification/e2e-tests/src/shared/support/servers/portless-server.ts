@@ -17,10 +17,20 @@ import { getTimeout } from '@ocom-verification/verification-shared/settings';
  *
  * For faster API tests, use GraphQLTestServer instead.
  */
+const LOG_TAIL_BYTES = 16_384;
+
+function appendCapped(existing: string, chunk: string): string {
+	const combined = existing + chunk;
+	return combined.length > LOG_TAIL_BYTES ? combined.slice(-LOG_TAIL_BYTES) : combined;
+}
+
 export abstract class PortlessServer implements TestServer {
 	private process: ChildProcess | null = null;
 	private startedByUs = false;
 	private readonly useDetachedProcessGroup = process.platform !== 'win32';
+	private capturedStdout = '';
+	private capturedStderr = '';
+	private exitInfo: { code: number | null; signal: NodeJS.Signals | null } | null = null;
 
 	protected abstract get probeUrl(): string;
 	protected abstract get readyMarker(): string;
@@ -136,6 +146,21 @@ export abstract class PortlessServer implements TestServer {
 		return getTimeout('serverStartup');
 	}
 
+	/**
+	 * Diagnostic snapshot for failure reporting. Includes whether the underlying
+	 * process is still alive and the most recent stdout/stderr captured.
+	 */
+	getDiagnostics(): { name: string; alive: boolean; pid: number | undefined; exitInfo: { code: number | null; signal: NodeJS.Signals | null } | null; stdoutTail: string; stderrTail: string } {
+		return {
+			name: this.serverName,
+			alive: this.process !== null && this.exitInfo === null,
+			pid: this.process?.pid,
+			exitInfo: this.exitInfo,
+			stdoutTail: this.capturedStdout,
+			stderrTail: this.capturedStderr,
+		};
+	}
+
 	private waitForReady(): Promise<void> {
 		return new Promise((resolve, reject) => {
 			const proc = this.process;
@@ -149,7 +174,6 @@ export abstract class PortlessServer implements TestServer {
 				reject(new Error(`${this.serverName} did not start within ${startupTimeout}ms`));
 			}, startupTimeout);
 
-			let stderrOutput = '';
 			let ready = false;
 
 			const resolveWhenReachable = () => {
@@ -169,14 +193,18 @@ export abstract class PortlessServer implements TestServer {
 					});
 			};
 
+			// stdout/stderr listeners persist beyond startup so we keep collecting
+			// logs for post-failure diagnostics. Buffers are size-capped.
 			proc.stdout?.on('data', (data: Buffer) => {
-				if (data.toString().includes(this.readyMarker)) {
+				const text = data.toString();
+				this.capturedStdout = appendCapped(this.capturedStdout, text);
+				if (text.includes(this.readyMarker)) {
 					resolveWhenReachable();
 				}
 			});
 
 			proc.stderr?.on('data', (data: Buffer) => {
-				stderrOutput += data.toString();
+				this.capturedStderr = appendCapped(this.capturedStderr, data.toString());
 			});
 
 			proc.on('error', (err) => {
@@ -186,11 +214,15 @@ export abstract class PortlessServer implements TestServer {
 				reject(new Error(`${this.serverName} failed to start: ${err.message}`));
 			});
 
-			proc.on('exit', (code) => {
+			proc.on('exit', (code, signal) => {
 				clearTimeout(timeout);
+				this.exitInfo = { code, signal };
 				this.process = null;
 				this.startedByUs = false;
-				reject(new Error(`${this.serverName} exited unexpectedly (code: ${code}). stderr: ${stderrOutput.slice(-2000)}`));
+				// Reject is a no-op once the promise has settled, but the exitInfo
+				// + log buffers above let the After hook surface a post-startup
+				// crash on the next failed scenario.
+				reject(new Error(`${this.serverName} exited unexpectedly (code: ${code}). stderr: ${this.capturedStderr.slice(-2000)}`));
 			});
 		});
 	}
