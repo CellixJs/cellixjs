@@ -111,3 +111,20 @@ jobs:
               az storage blob upload-batch --destination `$web --account-name $(storageAccountName) --source $(Build.ArtifactStagingDirectory)/deploy
               az afd endpoint purge --content-paths "/*" --endpoint-name ${{ parameters.frontDoorEndpointName }} --profile-name ${{ parameters.frontDoorProfileName }} --resource-group ${{ parameters.resourceGroupName }} --domains ${{ parameters.frontDoorDomainName }}
             addSpnToEnvironment: true
+
+        - bash: |
+            mkdir -p "$(Build.SourcesDirectory)/build-artifacts"
+            cat > "$(Build.SourcesDirectory)/build-artifacts/${{ parameters.appId }}-deploy-evidence.json" <<EOF
+            {
+              "evidenceType": "ui-deploy",
+              "portal": "${{ parameters.appId }}",
+              "displayName": "${{ parameters.displayName }}",
+              "environment": "${{ parameters.environmentNameBicep }}",
+              "storageAccountName": "$(storageAccountName)",
+              "frontDoorDomain": "${{ parameters.frontDoorDomainName }}",
+              "buildId": "$(Build.BuildId)",
+              "commitSha": "$(Build.SourceVersion)",
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }
+            EOF
+          displayName: 'Emit deploy evidence'

@@ -1,3 +1,13 @@
+---
+portal: ui-staff
+portalId: UI_STAFF
+variableGroup: ocm-app-ui-staff
+pipelineTemplate: build-pipeline/templates/deploy-ui.yml
+adr: ADR-0031
+pr: 241
+date: "2026-05-07"
+---
+
 # Portal Addition Evidence: ui-staff
 
 ## Checklist
