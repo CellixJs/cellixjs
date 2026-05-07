@@ -24,9 +24,10 @@ function walkDir(dir, fileList = []) {
 function findEnvVarsInText(text) {
 	const regex = /(VITE_APP_[A-Z0-9_]+|VITE_COMMON_[A-Z0-9_]+)/g;
 	const matches = [];
-	let m;
-	while ((m = regex.exec(text)) !== null) {
-		matches.push({ match: m[0], index: m.index });
+	let match = regex.exec(text);
+	while (match !== null) {
+		matches.push({ match: match[0], index: match.index });
+		match = regex.exec(text);
 	}
 	return matches;
 }
@@ -50,7 +51,7 @@ function validateEnvNames(options = {}) {
 		let text;
 		try {
 			text = fs.readFileSync(filePath, 'utf8');
-		} catch (e) {
+		} catch {
 			continue;
 		}
 		const lines = text.split(/\r?\n/);
@@ -123,7 +124,7 @@ function validateEnvNames(options = {}) {
 	if (!commitSha) {
 		try {
 			commitSha = execSync('git rev-parse --short HEAD').toString().trim();
-		} catch (e) {
+		} catch {
 			commitSha = 'local';
 		}
 	}
@@ -139,7 +140,7 @@ function validateEnvNames(options = {}) {
 			totalVariables: dedupedResults.length,
 			nonCompliantCount,
 		},
-		validatedBy: 'ArchUnit + validate-env-names.cjs',
+		validatedBy: 'ArchUnit + packages/ocom/archunit-tests/src/validate-env-names.cjs',
 		adrReference: 'ADR-0031',
 	};
 }

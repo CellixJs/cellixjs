@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { expect, test } from 'vitest';
-import { validateEnvNames, writeEvidence } from '../../../../build-pipeline/scripts/validate-env-names.cjs';
+import { validateEnvNames, writeEvidence } from './validate-env-names.cjs';
 
 const rootDir = path.resolve(__dirname, '../../../../');
 const packageDir = path.resolve(__dirname, '../');
