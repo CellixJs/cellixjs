@@ -50,11 +50,11 @@ function validateEnvNames(options = {}) {
 		if (!fs.existsSync(d)) continue;
 		const stat = fs.statSync(d);
 		if (stat.isFile()) {
-			if (/\.(yml|yaml|env|json|tsx?|jsx?|cjs|mjs|txt)$/i.test(d)) filesToScan.add(d);
+			if (/\.(yml|yaml|env|json|tsx?|jsx?|cjs|mjs|txt)$/i.test(d) || /\/\.env(\..+)?$/.test(d)) filesToScan.add(d);
 			continue;
 		}
 		for (const f of walkDir(d)) {
-			if (/\.(yml|yaml|env|json|tsx?|jsx?|cjs|mjs|txt)$/i.test(f)) {
+			if (/\.(yml|yaml|env|json|tsx?|jsx?|cjs|mjs|txt)$/i.test(f) || /\/\.env(\..+)?$/.test(f)) {
 				filesToScan.add(f);
 			}
 		}

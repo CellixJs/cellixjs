@@ -546,7 +546,5 @@ stages:
       condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: env-var-evidence
 
-    - publish: $(Build.SourcesDirectory)/build-artifacts
-      displayName: 'Artifact: Publish Deploy Evidence'
-      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-      artifact: deploy-evidence
+    # Note: deploy evidence JSONs (written by deploy-ui.yml) are generated during the deployment
+    # stage, not here. Each deployment job should publish its own build-artifacts/ folder.

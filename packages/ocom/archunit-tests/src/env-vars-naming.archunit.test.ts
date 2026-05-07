@@ -19,6 +19,8 @@ test('env vars naming compliance scan generates evidence file', () => {
 	expect(evidence.portals).toEqual(expect.arrayContaining(CANONICAL_PORTALS));
 	expect(Array.isArray(evidence.results)).toBe(true);
 	expect(typeof evidence.summary).toBe('object');
+	// Guard against misconfigured scan paths producing an empty result
+	expect(evidence.summary.totalVariables).toBeGreaterThan(0);
 
 	// Ensure every result object has required fields
 	for (const r of evidence.results) {
@@ -56,7 +58,60 @@ test('env vars naming compliance scan detects non-compliant variables', () => {
 		expect(evidence).toBeDefined();
 		expect(Array.isArray(evidence.results)).toBe(true);
 		expect(evidence.summary.nonCompliantCount).toBeGreaterThan(0);
-		expect(evidence.results.some((r) => r.status === 'non_compliant')).toBe(true);
+
+		// Assert the specific offending variable and its portal/ownerGroup mapping
+		const offending = evidence.results.find((r) => r.variable === invalidVar);
+		expect(offending).toBeDefined();
+		expect(offending?.status).toBe('non_compliant');
+		expect(offending?.portal).toBe('UNKNOWNPORTAL');
+		expect(offending?.ownerGroup).toBe('ocm-app-unknownportal');
+	} finally {
+		fs.rmSync(tmpRoot, { recursive: true, force: true });
+	}
+});
+
+test('validateEnvNames maps VITE_COMMON_* and portal vars to correct portals and ownerGroups', () => {
+	const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'env-vars-mapping-'));
+	try {
+		// Use a .env.test file — dotfiles named .env.* are explicitly allowed by the scanner
+		fs.writeFileSync(path.join(tmpRoot, '.env.test'), ['VITE_COMMON_API_ENDPOINT=https://example.com', 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=client-id'].join('\n'), 'utf8');
+
+		const evidence = validateEnvNames({ rootDir: tmpRoot, scanPaths: [tmpRoot] });
+
+		const commonVar = evidence.results.find((r) => r.variable === 'VITE_COMMON_API_ENDPOINT');
+		expect(commonVar).toBeDefined();
+		expect(commonVar?.portal).toBe('COMMON');
+		expect(commonVar?.ownerGroup).toBe('ocm-common');
+
+		const communityVar = evidence.results.find((r) => r.variable === 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID');
+		expect(communityVar).toBeDefined();
+		expect(communityVar?.portal).toBe('UI_COMMUNITY');
+		expect(communityVar?.ownerGroup).toBe('ocm-app-ui-community');
+	} finally {
+		fs.rmSync(tmpRoot, { recursive: true, force: true });
+	}
+});
+
+test('validateEnvNames deduplicates results, excluding dist/ from scan', () => {
+	const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'env-vars-dedupe-'));
+	try {
+		const srcFile = path.join(tmpRoot, 'src', 'config.ts');
+		const distFile = path.join(tmpRoot, 'dist', 'config.js');
+		fs.mkdirSync(path.dirname(srcFile), { recursive: true });
+		fs.mkdirSync(path.dirname(distFile), { recursive: true });
+
+		// Use a compliant var name — constructed at runtime to avoid scanner false-positive
+		const varName = `VITE_APP_UI_${'COMMUNITY'}_DEDUP_TEST`;
+		const content = `const v = import.meta.env.${varName};\n`;
+		fs.writeFileSync(srcFile, content, 'utf8');
+		fs.writeFileSync(distFile, content, 'utf8');
+
+		const evidence = validateEnvNames({ rootDir: tmpRoot, scanPaths: [tmpRoot] });
+
+		// dist/ is in SKIP_DIRS so only the src file is scanned — exactly one result
+		const resultsForVar = evidence.results.filter((r) => r.variable === varName);
+		expect(resultsForVar).toHaveLength(1);
+		expect(resultsForVar[0].location).toContain(path.join('src', 'config.ts'));
 	} finally {
 		fs.rmSync(tmpRoot, { recursive: true, force: true });
 	}

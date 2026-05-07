@@ -113,6 +113,8 @@ jobs:
             addSpnToEnvironment: true
 
         - bash: |
+            # Requires jq (pre-installed on Microsoft-hosted ubuntu-latest agents).
+            # On self-hosted agents, ensure jq is available: sudo apt-get install -y jq
             mkdir -p "$(Build.SourcesDirectory)/build-artifacts"
             jq -n \
               --arg evidenceType "ui-deploy" \
