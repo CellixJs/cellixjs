@@ -1,8 +1,9 @@
 import { DollarOutlined, TeamOutlined, ToolOutlined } from '@ant-design/icons';
 import { MenuComponent, type MenuComponentProps, type PageLayoutProps } from '@ocom/ui-shared';
-import { Layout, theme } from 'antd';
-import { useState } from 'react';
+import { Button, Layout, theme } from 'antd';
+import { useContext, useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { StaffAuthContext } from './staff-route-shell.tsx';
 import './section-layout.css';
 
 const { Sider, Header } = Layout;
@@ -32,6 +33,7 @@ export interface SectionLayoutProps {
 }
 
 export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
+	const auth = useContext(StaffAuthContext);
 	// Guard access to localStorage so this component is safe during server-side rendering (no globalThis/localStorage)
 	const [isExpanded, setIsExpanded] = useState(() => {
 		if (typeof globalThis === 'undefined') return true; // default to expanded during SSR
@@ -154,10 +156,17 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 						style={{
 							display: 'flex',
 							alignItems: 'center',
+							gap: '12px',
 							marginLeft: 'auto',
 						}}
 					>
 						<span style={{ fontSize: '14px', color: '#666' }}>Staff User</span>
+						<Button
+							type="link"
+							onClick={() => auth?.onLogout?.()}
+						>
+							Log Out
+						</Button>
 					</div>
 				)}
 			</Header>

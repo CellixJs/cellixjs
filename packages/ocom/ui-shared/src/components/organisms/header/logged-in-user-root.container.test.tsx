@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

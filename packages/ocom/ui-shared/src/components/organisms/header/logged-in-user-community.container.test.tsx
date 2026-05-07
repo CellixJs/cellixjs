@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Skeleton } from 'antd';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react';

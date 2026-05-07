@@ -4,12 +4,14 @@ import { Root as Finance } from '@ocom/ui-staff-route-finance';
 import { Root } from '@ocom/ui-staff-route-root';
 import { Root as TechAdmin } from '@ocom/ui-staff-route-tech-admin';
 import { Root as UserManagement } from '@ocom/ui-staff-route-user-management';
+import { HandleLogout } from '@ocom/ui-shared';
 import { StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { useAuth } from 'react-oidc-context';
 import { Outlet, Route, Routes } from 'react-router-dom';
 import './App.css';
 import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
 import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
+import { client } from './components/ui/organisms/apollo-connection/apollo-client-links.tsx';
 import { Unauthorized } from './unauthorized.tsx';
 
 export default function App() {
@@ -22,10 +24,7 @@ export default function App() {
 	// attempt to extract display name and roles from this raw profile.
 	const identity = {
 		raw: (auth?.user?.profile as Record<string, unknown>) ?? undefined,
-		onLogout: () =>
-			auth.signoutRedirect({
-				post_logout_redirect_uri: globalThis.location.origin,
-			}),
+		onLogout: () => HandleLogout(auth, client, globalThis.location.origin),
 	};
 
 	const authSection = (

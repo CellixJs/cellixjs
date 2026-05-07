@@ -20,6 +20,7 @@
 		"@apollo/client": "^3.13.9",
 		"@dr.pogodin/react-helmet": "^3.0.2",
 		"@cellix/ui-core": "workspace:*",
+		"@ocom/ui-shared": "workspace:*",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"@ocom/ui-staff-route-root": "workspace:*",
 		"@ocom/ui-staff-route-community-management": "workspace:*",
