@@ -5,10 +5,16 @@ const path = require('node:path');
 
 const SKIP_DIRS = new Set(['node_modules', '.turbo', 'build-artifacts', 'dist', 'build', 'coverage', '.git', 'storybook-static', '.next']);
 
+// Single source of truth for known portal identifiers (ADR-0031).
+// Keep this list in sync with apps/docs/docs/portals/PORTAL_REGISTRY.md.
+const CANONICAL_PORTALS = ['UI_COMMUNITY', 'UI_STAFF'];
+
 function walkDir(dir, fileList = []) {
 	const files = fs.readdirSync(dir, { withFileTypes: true });
 	for (const file of files) {
-		if (file.name.startsWith('.')) continue;
+		// Allow .env and .env.* files even though they start with a dot
+		const isDotEnv = /^\.env(\..+)?$/.test(file.name);
+		if (file.name.startsWith('.') && !isDotEnv) continue;
 		const full = path.join(dir, file.name);
 		if (file.isDirectory()) {
 			if (SKIP_DIRS.has(file.name)) continue;
@@ -102,7 +108,7 @@ function validateEnvNames(options = {}) {
 	}
 
 	const uniquePortals = Array.from(new Set(results.map((r) => r.portal))).filter((p) => p && p !== 'UNKNOWN');
-	const canonicalPortals = ['UI_COMMUNITY', 'UI_STAFF'];
+	const canonicalPortals = CANONICAL_PORTALS;
 	const portals = Array.from(new Set([...canonicalPortals, ...uniquePortals])).filter((p) => p && p !== 'UNKNOWN');
 
 	// Deduplicate: one entry per unique variable name, preferring source files over bundled output
@@ -168,7 +174,7 @@ function writeEvidence(evidence, options = {}) {
 	return outPath;
 }
 
-module.exports = { validateEnvNames, writeEvidence };
+module.exports = { validateEnvNames, writeEvidence, CANONICAL_PORTALS };
 
 if (require.main === module) {
 	const evidence = validateEnvNames();

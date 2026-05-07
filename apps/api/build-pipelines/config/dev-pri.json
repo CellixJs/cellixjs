@@ -58,5 +58,20 @@
 		"name": "NODE_ENV",
 		"value": "production",
 		"slotSetting": false
+	},
+	{
+		"name": "STAFF_PORTAL_OIDC_AUDIENCE",
+		"value": "https://staff.ownercommunity.org/auth-redirect",
+		"slotSetting": false
+	},
+	{
+		"name": "STAFF_PORTAL_OIDC_ENDPOINT",
+		"value": "",
+		"slotSetting": false
+	},
+	{
+		"name": "STAFF_PORTAL_OIDC_ISSUER",
+		"value": "",
+		"slotSetting": false
 	}
 ]

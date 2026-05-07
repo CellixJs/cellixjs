@@ -545,3 +545,8 @@ stages:
       displayName: 'Artifact: Publish Env-var Evidence'
       condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: env-var-evidence
+
+    - publish: $(Build.SourcesDirectory)/build-artifacts
+      displayName: 'Artifact: Publish Deploy Evidence'
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      artifact: deploy-evidence

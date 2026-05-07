@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { expect, test } from 'vitest';
-import { validateEnvNames, writeEvidence } from './validate-env-names.cjs';
+import { CANONICAL_PORTALS, validateEnvNames, writeEvidence } from './validate-env-names.cjs';
 
 const rootDir = path.resolve(__dirname, '../../../../');
 const packageDir = path.resolve(__dirname, '../');
@@ -15,8 +15,8 @@ test('env vars naming compliance scan generates evidence file', () => {
 	expect(typeof evidence.timestamp).toBe('string');
 	expect(typeof evidence.buildId).toBe('string');
 	expect(typeof evidence.commitSha).toBe('string');
-	// Portals must include both known portals from ADR-0031
-	expect(evidence.portals).toEqual(expect.arrayContaining(['UI_COMMUNITY', 'UI_STAFF']));
+	// Portals must include all canonical portals from ADR-0031 (sourced from validator)
+	expect(evidence.portals).toEqual(expect.arrayContaining(CANONICAL_PORTALS));
 	expect(Array.isArray(evidence.results)).toBe(true);
 	expect(typeof evidence.summary).toBe('object');
 
@@ -30,6 +30,8 @@ test('env vars naming compliance scan generates evidence file', () => {
 	}
 
 	// Enforce strict compliance: no non-compliant variables allowed
+	const nonCompliantFromResults = evidence.results.filter((r) => r.status === 'non_compliant').length;
+	expect(evidence.summary.nonCompliantCount).toBe(nonCompliantFromResults);
 	expect(evidence.summary.nonCompliantCount).toBe(0);
 
 	// After assertions pass, write the evidence file into this package's build-artifacts/
