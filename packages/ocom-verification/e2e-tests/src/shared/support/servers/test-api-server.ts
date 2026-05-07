@@ -50,8 +50,14 @@ export class TestApiServer extends PortlessServer {
 			NODE_ENV: 'development',
 			languageWorkers__node__arguments: '',
 			COSMOSDB_CONNECTION_STRING: getMongoConnectionString(),
+			COSMOSDB_DBNAME: apiSettings.cosmosDbName,
+			// AZURE_STORAGE_CONNECTION_STRING is required by ServiceBlobStorage
+			// at appStart. Locally set via gitignored local.settings.json; absent
+			// in CI without this override.
+			AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true',
 			ACCOUNT_PORTAL_OIDC_ISSUER: apiSettings.accountPortalOidcIssuer,
 			ACCOUNT_PORTAL_OIDC_ENDPOINT: apiSettings.accountPortalOidcEndpoint,
+			ACCOUNT_PORTAL_OIDC_AUDIENCE: apiSettings.accountPortalOidcAudience,
 			ACCOUNT_PORTAL_OIDC_IGNORE_ISSUER: 'true',
 			STAFF_PORTAL_OIDC_ISSUER: apiSettings.accountPortalOidcIssuer,
 			STAFF_PORTAL_OIDC_ENDPOINT: apiSettings.accountPortalOidcEndpoint,
