@@ -30,8 +30,8 @@
 		"antd": "catalog:",
 		"apollo-link-rest": "^0.9.0",
 		"less": "^4.4.0",
-		"react": "^19.1.0",
-		"react-dom": "^19.1.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"react-oidc-context": "^3.3.0",
 		"react-router-dom": "catalog:"
 	},

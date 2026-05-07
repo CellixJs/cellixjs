@@ -77,9 +77,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 				};
 			}
 			// Guard localStorage access in case this is executed during SSR / non-browser envs
-			if (typeof window !== 'undefined' && 'localStorage' in window && typeof window.localStorage !== 'undefined') {
+			if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis && typeof globalThis.localStorage !== 'undefined') {
 				try {
-					window.localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+					globalThis.localStorage.setItem('themeProp', JSON.stringify(valueToSet));
 				} catch (_err) {
 					// Ignore localStorage errors
 				}
@@ -97,12 +97,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			};
 		} = {};
 		// Guard localStorage access in case this is executed during SSR / non-browser envs
-		if (typeof window !== 'undefined' && 'localStorage' in window && typeof window.localStorage !== 'undefined') {
+		if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis && typeof globalThis.localStorage !== 'undefined') {
 			try {
-				extractFromLocal = JSON.parse(window.localStorage.getItem('themeProp') || '{}');
+				extractFromLocal = JSON.parse(globalThis.localStorage.getItem('themeProp') || '{}');
 			} catch {
 				try {
-					window.localStorage.removeItem('themeProp');
+					globalThis.localStorage.removeItem('themeProp');
 				} catch (_err) {
 					// Ignore localStorage errors
 				}
@@ -147,9 +147,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 				},
 			};
 			// Guard localStorage access when not in browser
-			if (typeof window !== 'undefined' && 'localStorage' in window && typeof window.localStorage !== 'undefined') {
+			if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis && typeof globalThis.localStorage !== 'undefined') {
 				try {
-					window.localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+					globalThis.localStorage.setItem('themeProp', JSON.stringify(valueToSet));
 				} catch (_err) {
 					// Ignore localStorage errors
 				}
@@ -166,13 +166,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			}
 		};
 
-		// Guard window event listener registration in non-browser envs
-		if (typeof window !== 'undefined' && typeof window.addEventListener !== 'undefined') {
-			window.addEventListener('keydown', handleKeyDown);
+		// Guard globalThis event listener registration in non-browser envs
+		if (typeof globalThis !== 'undefined' && typeof globalThis.addEventListener !== 'undefined') {
+			globalThis.addEventListener('keydown', handleKeyDown);
 
 			return () => {
 				try {
-					window.removeEventListener('keydown', handleKeyDown);
+					globalThis.removeEventListener('keydown', handleKeyDown);
 				} catch (_err) {
 					// Ignore
 				}

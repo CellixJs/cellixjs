@@ -1,9 +1,9 @@
-import { ApolloClient, gql, InMemoryCache, useApolloClient, ApolloLink, Observable } from '@apollo/client';
+import { ApolloClient, ApolloLink, gql, InMemoryCache, Observable, useApolloClient } from '@apollo/client';
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState, useMemo } from 'react';
-import { AuthProvider, type AuthContextProps } from 'react-oidc-context';
+import { useMemo, useState } from 'react';
+import { type AuthContextProps, AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
-import { expect, within, waitFor } from 'storybook/test';
+import { expect, waitFor, within } from 'storybook/test';
 import { ApolloLinkToAddAuthHeader, ApolloLinkToAddAuthHeader1, ApolloLinkToAddAuthHeader2, ApolloLinkToAddCustomHeader, BaseApolloLink, TerminatingApolloLinkForGraphqlServer } from './apollo-client-links.tsx';
 import { ApolloConnection } from './index.tsx';
 
@@ -21,7 +21,7 @@ const mockEnv = {
 	PROD: false,
 };
 
-// Mock window.sessionStorage and window.localStorage
+// Mock globalThis.sessionStorage and globalThis.localStorage
 const mockStorage = {
 	store: {} as Record<string, string>,
 	getItem(key: string) {

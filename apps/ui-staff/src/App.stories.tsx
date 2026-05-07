@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock react-oidc-context useAuth to ensure SSR render is deterministic
 vi.mock('react-oidc-context', () => ({ useAuth: () => ({ user: undefined, signoutRedirect: () => Promise.resolve() }) }));
@@ -33,7 +33,7 @@ vi.mock('@ocom/ui-staff-route-tech-admin', () => ({
 	Root: () => React.createElement('div', {}, 'TechAdmin'),
 }));
 
-import App from './App';
+import App from './App.js';
 
 describe('App', () => {
 	it('renders root section without throwing', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createSplitLink } from './index';
+import { createSplitLink } from './index.js';
 
 describe('createSplitLink (basic)', () => {
 	it('is exported and is a function', () => {

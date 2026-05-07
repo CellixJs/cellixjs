@@ -14,7 +14,7 @@ const mockEnv = {
 	NODE_ENV: 'development',
 };
 
-// Mock window.sessionStorage and window.localStorage
+// Mock globalThis.sessionStorage and globalThis.localStorage
 const mockStorage = {
 	getItem: (key: string) => {
 		if (key.includes('oidc.user')) {
@@ -37,11 +37,11 @@ const mockStorage = {
 };
 
 // Setup global mocks
-Object.defineProperty(window, 'sessionStorage', {
+Object.defineProperty(globalThis, 'sessionStorage', {
 	value: mockStorage,
 	writable: true,
 });
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(globalThis, 'localStorage', {
 	value: mockStorage,
 	writable: true,
 });
@@ -63,8 +63,8 @@ const meta = {
 			<AuthProvider
 				authority={mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY}
 				client_id={mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID}
-				redirect_uri={window.location.origin}
-				post_logout_redirect_uri={window.location.origin}
+				redirect_uri={globalThis.location.origin}
+				post_logout_redirect_uri={globalThis.location.origin}
 				userStore={mockStorage}
 			>
 				<ApolloProvider client={client}>
@@ -165,8 +165,8 @@ export const Unauthenticated: Story = {
 			<AuthProvider
 				authority={mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY}
 				client_id={mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID}
-				redirect_uri={window.location.origin}
-				post_logout_redirect_uri={window.location.origin}
+				redirect_uri={globalThis.location.origin}
+				post_logout_redirect_uri={globalThis.location.origin}
 				userStore={mockStorage}
 				onSigninCallback={() => {
 					// Mock unauthenticated state

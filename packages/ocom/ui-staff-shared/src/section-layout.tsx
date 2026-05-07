@@ -32,15 +32,15 @@ export interface SectionLayoutProps {
 }
 
 export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
-	// Guard access to localStorage so this component is safe during server-side rendering (no window/localStorage)
+	// Guard access to localStorage so this component is safe during server-side rendering (no globalThis/localStorage)
 	const [isExpanded, setIsExpanded] = useState(() => {
-		if (typeof window === 'undefined') return true; // default to expanded during SSR
-		if (!('localStorage' in window) || typeof window.localStorage === 'undefined') return true;
+		if (typeof globalThis === 'undefined') return true; // default to expanded during SSR
+		if (!('localStorage' in globalThis) || typeof globalThis.localStorage === 'undefined') return true;
 		try {
-			const sidebarCollapsed = window.localStorage.getItem(LocalSettingsKeys.SidebarCollapsed);
+			const sidebarCollapsed = globalThis.localStorage.getItem(LocalSettingsKeys.SidebarCollapsed);
 			return !sidebarCollapsed;
 		} catch (_err) {
-			// If localStorage access throws, default to expanded
+			console.log('Error accessing localStorage, defaulting sidebar to expanded', _err);
 			return true;
 		}
 	});
