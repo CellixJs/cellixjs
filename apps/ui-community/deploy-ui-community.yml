@@ -29,6 +29,8 @@ jobs:
     artifactPattern: '**/ui-community-$(Build.BuildId).zip'
     artifactZipName: 'ui-community-$(Build.BuildId).zip'
     deploymentNameSuffix: '-ui'
+    dependsOnInfrastructure:
+      - 'Infrastructure'
     environmentNameDevOps: ${{ parameters.environmentNameDevOps }}
     environmentNameBicep: ${{ parameters.environmentNameBicep }}
     vmImageName: ${{ parameters.vmImageName }}
