@@ -145,8 +145,7 @@ function validateEnvNames(options = {}) {
 }
 
 function writeEvidence(evidence, options = {}) {
-	const rootDir = options.rootDir || process.cwd();
-	const outDir = path.join(rootDir, 'build-artifacts');
+	const outDir = options.outDir || path.join(options.rootDir || process.cwd(), 'build-artifacts');
 	if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 	const outPath = path.join(outDir, 'env-var-compliance-evidence.json');
 	fs.writeFileSync(outPath, JSON.stringify(evidence, null, 2), 'utf8');

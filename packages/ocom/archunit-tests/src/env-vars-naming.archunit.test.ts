@@ -2,8 +2,10 @@ import path from 'node:path';
 import { expect, test } from 'vitest';
 import { validateEnvNames, writeEvidence } from '../../../../build-pipeline/scripts/validate-env-names.cjs';
 
+const rootDir = path.resolve(__dirname, '../../../../');
+const packageDir = path.resolve(__dirname, '../');
+
 test('env vars naming compliance scan generates evidence file', () => {
-	const rootDir = path.resolve(__dirname, '../../../../');
 	const evidence = validateEnvNames({ rootDir });
 	// Basic sanity assertions (non-strict to avoid breaking builds)
 	expect(evidence).toBeDefined();
@@ -26,7 +28,7 @@ test('env vars naming compliance scan generates evidence file', () => {
 	// Enforce strict compliance: no non-compliant variables allowed
 	expect(evidence.summary.nonCompliantCount).toBe(0);
 
-	// After assertions pass, write the evidence file
-	const outPath = writeEvidence(evidence, { rootDir });
+	// After assertions pass, write the evidence file into this package's build-artifacts/
+	const outPath = writeEvidence(evidence, { outDir: path.join(packageDir, 'build-artifacts') });
 	console.log('Evidence written to', outPath);
 });
