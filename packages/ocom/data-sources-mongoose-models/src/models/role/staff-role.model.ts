@@ -156,7 +156,6 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 		} as SchemaDefinition<StaffRolePermissions>,
 		schemaVersion: { type: String, default: '1.0.0', immutable: true },
 		roleName: { type: String, required: true, maxlength: 256 },
-		roleType: { type: String, required: true, default: 'staff-user-role' },
 		enterpriseAppRole: {
 			type: String,
 			required: true,
