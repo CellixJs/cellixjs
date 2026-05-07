@@ -114,17 +114,25 @@ jobs:
 
         - bash: |
             mkdir -p "$(Build.SourcesDirectory)/build-artifacts"
-            cat > "$(Build.SourcesDirectory)/build-artifacts/${{ parameters.appId }}-deploy-evidence.json" <<EOF
-            {
-              "evidenceType": "ui-deploy",
-              "portal": "${{ parameters.appId }}",
-              "displayName": "${{ parameters.displayName }}",
-              "environment": "${{ parameters.environmentNameBicep }}",
-              "storageAccountName": "$(storageAccountName)",
-              "frontDoorDomain": "${{ parameters.frontDoorDomainName }}",
-              "buildId": "$(Build.BuildId)",
-              "commitSha": "$(Build.SourceVersion)",
-              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            }
-            EOF
+            jq -n \
+              --arg evidenceType "ui-deploy" \
+              --arg portal "${{ parameters.appId }}" \
+              --arg displayName "${{ parameters.displayName }}" \
+              --arg environment "${{ parameters.environmentNameBicep }}" \
+              --arg storageAccountName "$(storageAccountName)" \
+              --arg frontDoorDomain "${{ parameters.frontDoorDomainName }}" \
+              --arg buildId "$(Build.BuildId)" \
+              --arg commitSha "$(Build.SourceVersion)" \
+              --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              '{
+                evidenceType: $evidenceType,
+                portal: $portal,
+                displayName: $displayName,
+                environment: $environment,
+                storageAccountName: $storageAccountName,
+                frontDoorDomain: $frontDoorDomain,
+                buildId: $buildId,
+                commitSha: $commitSha,
+                timestamp: $timestamp
+              }' > "$(Build.SourcesDirectory)/build-artifacts/${{ parameters.appId }}-deploy-evidence.json"
           displayName: 'Emit deploy evidence'

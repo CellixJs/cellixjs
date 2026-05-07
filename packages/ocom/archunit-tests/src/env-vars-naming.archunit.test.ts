@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { expect, test } from 'vitest';
 import { validateEnvNames, writeEvidence } from './validate-env-names.cjs';
@@ -13,6 +15,8 @@ test('env vars naming compliance scan generates evidence file', () => {
 	expect(typeof evidence.timestamp).toBe('string');
 	expect(typeof evidence.buildId).toBe('string');
 	expect(typeof evidence.commitSha).toBe('string');
+	// Portals must include both known portals from ADR-0031
+	expect(evidence.portals).toEqual(expect.arrayContaining(['UI_COMMUNITY', 'UI_STAFF']));
 	expect(Array.isArray(evidence.results)).toBe(true);
 	expect(typeof evidence.summary).toBe('object');
 
@@ -31,4 +35,27 @@ test('env vars naming compliance scan generates evidence file', () => {
 	// After assertions pass, write the evidence file into this package's build-artifacts/
 	const outPath = writeEvidence(evidence, { outDir: path.join(packageDir, 'build-artifacts') });
 	console.log('Evidence written to', outPath);
+
+	// Assert the evidence file was actually written and contains valid JSON
+	expect(fs.existsSync(outPath)).toBe(true);
+	const parsed = JSON.parse(fs.readFileSync(outPath, 'utf8'));
+	expect(parsed.evidenceType).toBe('env-var-naming-compliance');
+});
+
+test('env vars naming compliance scan detects non-compliant variables', () => {
+	const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'env-vars-naming-'));
+	try {
+		// Construct the invalid var name at runtime so the scanner doesn't pick it up from this source file
+		const invalidVar = `VITE_APP_${'UNKNOWNPORTAL'}_FOO`;
+		fs.writeFileSync(path.join(tmpRoot, 'config.ts'), `const scope = import.meta.env.${invalidVar};\n`, 'utf8');
+
+		const evidence = validateEnvNames({ rootDir: tmpRoot });
+
+		expect(evidence).toBeDefined();
+		expect(Array.isArray(evidence.results)).toBe(true);
+		expect(evidence.summary.nonCompliantCount).toBeGreaterThan(0);
+		expect(evidence.results.some((r) => r.status === 'non_compliant')).toBe(true);
+	} finally {
+		fs.rmSync(tmpRoot, { recursive: true, force: true });
+	}
 });
