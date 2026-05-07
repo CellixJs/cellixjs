@@ -127,8 +127,7 @@
 			"protobufjs": "7.5.5"
 		},
 		"patchedDependencies": {
-			"@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch",
-			"mongoose@8.22.1": "patches/mongoose@8.22.1.patch"
+			"@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"
 		}
 	},
 	"engines": {
