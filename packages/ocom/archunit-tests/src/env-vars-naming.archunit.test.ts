@@ -51,7 +51,7 @@ test('env vars naming compliance scan detects non-compliant variables', () => {
 		const invalidVar = `VITE_APP_${'UNKNOWNPORTAL'}_FOO`;
 		fs.writeFileSync(path.join(tmpRoot, 'config.ts'), `const scope = import.meta.env.${invalidVar};\n`, 'utf8');
 
-		const evidence = validateEnvNames({ rootDir: tmpRoot });
+		const evidence = validateEnvNames({ rootDir: tmpRoot, scanPaths: [tmpRoot] });
 
 		expect(evidence).toBeDefined();
 		expect(Array.isArray(evidence.results)).toBe(true);

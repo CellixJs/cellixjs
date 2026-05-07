@@ -43,10 +43,10 @@ This ensures we only trigger full deployments for changes that affect the overal
 const INFRA_PATTERNS = ['build-pipeline/**', 'iac/**', 'azure-pipelines.yml', 'host.json'];
 
 const APP_CONFIGS = {
-	backend: { filter: './apps/api', variable: 'HAS_BACKEND_CHANGES' },
-	frontendCommunity: { filter: './apps/ui-community', variable: 'HAS_FRONTEND_COMMUNITY_CHANGES' },
-	frontendStaff: { filter: './apps/ui-staff', variable: 'HAS_FRONTEND_STAFF_CHANGES' },
-	docs: { filter: './apps/docs', variable: 'HAS_DOCS_CHANGES' },
+	backend: { filter: './apps/api', packageName: '@apps/api', variable: 'HAS_BACKEND_CHANGES' },
+	frontendCommunity: { filter: './apps/ui-community', packageName: '@apps/ui-community', variable: 'HAS_FRONTEND_COMMUNITY_CHANGES' },
+	frontendStaff: { filter: './apps/ui-staff', packageName: '@apps/ui-staff', variable: 'HAS_FRONTEND_STAFF_CHANGES' },
+	docs: { filter: './apps/docs', packageName: '@apps/docs', variable: 'HAS_DOCS_CHANGES' },
 };
 
 // Parse .force-deploy file and return force deploy settings
@@ -124,33 +124,14 @@ async function getAffectedPackages() {
 	}
 }
 
-// Check if specific app has changes
-async function checkAppChanges(appConfig, affectedPackages) {
-	const scopeCommand = `npx turbo run build --filter=${appConfig.filter} --dry-run=json`;
-	const scopeOutput = await runCommand(scopeCommand);
-
-	if (scopeOutput === 'COMMAND_FAILED') {
-		console.warn(`Scope detection error for ${appConfig.filter}; assuming affected.`);
-		return true;
-	}
-
-	try {
-		const scopeData = JSON.parse(scopeOutput);
-		const scopePackages = scopeData.packages ? scopeData.packages.filter((pkg) => pkg !== '//') : [];
-
-		const affectedSet = new Set(affectedPackages);
-		const scopeSet = new Set(scopePackages);
-		const hasIntersect = Array.from(affectedSet).some((pkg) => scopeSet.has(pkg));
-
-		console.log(`${appConfig.filter} scope packages:`, scopePackages.join(' '));
-		console.log(`${appConfig.filter} affected: ${hasIntersect}`);
-
-		return hasIntersect;
-	} catch (error) {
-		console.error(`Failed to parse scope JSON for ${appConfig.filter}:`, error.message);
-		console.warn(`Scope detection error for ${appConfig.filter}; assuming affected.`);
-		return true;
-	}
+// Check if specific app has changes by looking up its package name in the global
+// affected list. Turborepo --affected already resolves transitive dependents, so
+// if any dependency of the app changed, the app's own package name will appear in
+// affectedPackages — no additional per-app Turbo call needed.
+function checkAppChanges(appConfig, affectedPackages) {
+	const affected = affectedPackages.includes(appConfig.packageName);
+	console.log(`${appConfig.filter} affected: ${affected}`);
+	return affected;
 }
 // Main function to detect affected packages and map to deployment groups
 async function detectChanges() {
@@ -211,12 +192,12 @@ async function detectChanges() {
 		console.log('No affected packages or infrastructure changes detected. Skipping all deployments.');
 		changeChecks = { backend: false, frontendCommunity: false, frontendStaff: false, docs: false };
 	} else {
-		// Check each app for changes
+		// Check each app for changes — synchronous lookups against the global affected list
 		changeChecks = {
-			backend: await checkAppChanges(APP_CONFIGS.backend, affectedPackages),
-			frontendCommunity: await checkAppChanges(APP_CONFIGS.frontendCommunity, affectedPackages),
-			frontendStaff: await checkAppChanges(APP_CONFIGS.frontendStaff, affectedPackages),
-			docs: await checkAppChanges(APP_CONFIGS.docs, affectedPackages),
+			backend: checkAppChanges(APP_CONFIGS.backend, affectedPackages),
+			frontendCommunity: checkAppChanges(APP_CONFIGS.frontendCommunity, affectedPackages),
+			frontendStaff: checkAppChanges(APP_CONFIGS.frontendStaff, affectedPackages),
+			docs: checkAppChanges(APP_CONFIGS.docs, affectedPackages),
 		};
 
 		hasBackendChanges = changeChecks.backend;

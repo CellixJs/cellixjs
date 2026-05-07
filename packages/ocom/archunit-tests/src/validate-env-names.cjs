@@ -39,11 +39,20 @@ function findEnvVarsInText(text) {
 
 function validateEnvNames(options = {}) {
 	const rootDir = options.rootDir || process.cwd();
-	const scanDirs = [rootDir];
+
+	// Default scan paths: restrict to areas that actually contain VITE_* variables.
+	// Falls back to rootDir when options.scanPaths is provided (e.g. temp dirs in tests).
+	const defaultScanPaths = options.scanPaths ?? [path.join(rootDir, 'apps'), path.join(rootDir, 'iac'), path.join(rootDir, 'build-pipeline'), path.join(rootDir, 'azure-pipelines.yml')];
+	const scanDirs = defaultScanPaths;
 
 	const filesToScan = new Set();
 	for (const d of scanDirs) {
 		if (!fs.existsSync(d)) continue;
+		const stat = fs.statSync(d);
+		if (stat.isFile()) {
+			if (/\.(yml|yaml|env|json|tsx?|jsx?|cjs|mjs|txt)$/i.test(d)) filesToScan.add(d);
+			continue;
+		}
 		for (const f of walkDir(d)) {
 			if (/\.(yml|yaml|env|json|tsx?|jsx?|cjs|mjs|txt)$/i.test(f)) {
 				filesToScan.add(f);
