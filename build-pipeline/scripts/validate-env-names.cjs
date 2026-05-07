@@ -39,8 +39,7 @@ function validateEnvNames(options = {}) {
 	for (const d of scanDirs) {
 		if (!fs.existsSync(d)) continue;
 		for (const f of walkDir(d)) {
-			// only scan certain file types to reduce noise
-			if (/\.(yml|yaml|env|json|ts|js|cjs|mjs|txt)$/i.test(f) || /azure-pipelines\.yml$/i.test(f)) {
+			if (/\.(yml|yaml|env|json|tsx?|jsx?|cjs|mjs|txt)$/i.test(f)) {
 				filesToScan.add(f);
 			}
 		}
