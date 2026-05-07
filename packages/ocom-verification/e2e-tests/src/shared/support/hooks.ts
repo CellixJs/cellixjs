@@ -38,10 +38,15 @@ export function attachConsoleCapture(page: PlaywrightPage): void {
 	const buffer: string[] = [];
 	consoleMessagesByPage.set(page, buffer);
 	page.on('console', (msg: ConsoleMessageLike) => {
-		buffer.push(`[${msg.type()}] ${msg.text()}`);
+		// Filter to high-signal levels — debug/info/log are mostly Vite/HMR/Apollo
+		// devtools noise that pushes interesting lines out of the tail.
+		const type = msg.type();
+		if (type === 'error' || type === 'warning') {
+			buffer.push(`[${type}] ${msg.text().slice(0, 300)}`);
+		}
 	});
 	page.on('pageerror', (err: Error) => {
-		buffer.push(`[pageerror] ${err.message}`);
+		buffer.push(`[pageerror] ${err.message.slice(0, 300)}`);
 	});
 	page.on('requestfailed', (req: RequestLike) => {
 		buffer.push(`[requestfailed] ${req.method()} ${req.url()} — ${req.failure()?.errorText ?? 'unknown'}`);
@@ -51,8 +56,6 @@ export function attachConsoleCapture(page: PlaywrightPage): void {
 		if (status < 400) return;
 		const req = res.request();
 		const url = res.url();
-		// Skip noisy static-asset 404s (favicons, source maps, vite client probes)
-		// to keep the diagnostic focused on API/data calls.
 		const isStaticNoise = /\.(ico|png|svg|map|webp|woff2?)(\?|$)/i.test(url);
 		if (isStaticNoise) {
 			buffer.push(`[response ${status}] ${req.method()} ${url}`);
@@ -60,18 +63,16 @@ export function attachConsoleCapture(page: PlaywrightPage): void {
 		}
 		let body = '';
 		try {
-			body = (await res.text()).slice(0, 500);
+			body = (await res.text()).slice(0, 200);
 		} catch (err) {
 			body = `<body unavailable: ${err instanceof Error ? err.message : 'unknown'}>`;
 		}
-		const reqBody = req.postData()?.slice(0, 300) ?? '';
 		const reqHeaders = req.headers();
-		const interestingHeaders = ['authorization', 'content-type', 'x-community-id', 'x-member-id', 'apollographql-client-name'];
-		const headerSummary = interestingHeaders
-			.map((h) => (reqHeaders[h] ? `${h}=${h === 'authorization' ? `${reqHeaders[h].slice(0, 20)}…(len=${reqHeaders[h].length})` : reqHeaders[h]}` : null))
-			.filter(Boolean)
-			.join(', ');
-		buffer.push(`[response ${status}] ${req.method()} ${url}\n    req-headers: ${headerSummary}\n    req-body: ${reqBody}\n    res-body: ${body}`);
+		const authHeader = reqHeaders['authorization'];
+		const auth = authHeader ? `auth(len=${authHeader.length})` : 'no-auth';
+		const ct = reqHeaders['content-type'] ?? 'no-ct';
+		const reqBodyHead = (req.postData() ?? '').slice(0, 60);
+		buffer.push(`[response ${status}] ${req.method()} ${url} | ${auth} ct=${ct} | reqStart=${reqBodyHead} | resBody=${body || '<empty>'}`);
 	});
 }
 
@@ -112,14 +113,6 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 				const { page } = browseTheWeb;
 				const url = page.url();
 				const title = await page.title().catch(() => '<title unavailable>');
-				const rootHtml = await page
-					.locator('#root')
-					.innerHTML({ timeout: 1_000 })
-					.catch(() => '<#root unavailable>');
-				const scriptSrcs = await page
-					.locator('script[src]')
-					.evaluateAll((els: Element[]) => els.map((el) => (el as HTMLScriptElement).src))
-					.catch(() => [] as string[]);
 				const bodyText = await page
 					.locator('body')
 					.innerText({ timeout: 1_000 })
@@ -138,28 +131,44 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 				const serverSummary = serverDiagnostics
 					.map((s) => {
 						const exitDesc = s.exitInfo ? `EXITED code=${s.exitInfo.code} signal=${s.exitInfo.signal}` : s.alive ? `alive pid=${s.pid}` : 'no process';
-						const stderrTail = s.stderrTail.trim() ? `\n    stderr-tail:\n${indent(s.stderrTail.slice(-2000), '      ')}` : '';
-						const stdoutTail = s.stdoutTail.trim() ? `\n    stdout-tail:\n${indent(s.stdoutTail.slice(-1500), '      ')}` : '';
-						return `  - ${s.name}: ${exitDesc}${stderrTail}${stdoutTail}`;
+						const stderrTail = s.stderrTail.trim() ? `\n    stderr-tail:\n${indent(s.stderrTail.slice(-1200), '      ')}` : '';
+						return `  - ${s.name}: ${exitDesc}${stderrTail}`;
 					})
 					.join('\n');
+				// Critical info (API health, subprocess state) is placed AT THE END
+				// of the diagnostic block so it survives Azure DevOps log display
+				// head-truncation. Less critical context is at the top.
 				const diagnostic = [
 					`=== E2E FAILURE DIAGNOSTICS: ${pickle.name} ===`,
 					`URL: ${url}`,
 					`Title: ${title}`,
-					`Script tags: ${JSON.stringify(scriptSrcs)}`,
-					`#root innerHTML (first 1000 chars): ${rootHtml.slice(0, 1000)}`,
 					`Headings: ${JSON.stringify(headings)}`,
 					`Input placeholders: ${JSON.stringify(placeholders)}`,
-					`Body text (first 500 chars): ${bodyText.slice(0, 500)}`,
-					`API health probe at failure: ${JSON.stringify(apiHealth)}`,
-					`Subprocess diagnostics:\n${serverSummary}`,
-					`Browser console (last 50 messages):`,
-					...consoleLog.slice(-50),
+					`Body text (first 200 chars): ${bodyText.slice(0, 200)}`,
+					`Browser console (last 25 errors/warnings/responses):`,
+					...consoleLog.slice(-25),
+					'',
+					`>>> CRITICAL: API HEALTH PROBE AT FAILURE: ${JSON.stringify(apiHealth)}`,
+					`>>> CRITICAL: SUBPROCESS DIAGNOSTICS:\n${serverSummary}`,
 					'=== END DIAGNOSTICS ===',
 				].join('\n');
 				this.attach(diagnostic, 'text/plain');
 				process.stderr.write(`\n${diagnostic}\n`);
+
+				// Belt-and-suspenders: emit critical lines individually so they
+				// survive log-display truncation that may swallow the larger
+				// cucumber attachment.
+				process.stderr.write(`\n[E2E-CRITICAL ${pickle.name}] api-health=${JSON.stringify(apiHealth)}\n`);
+				for (const s of serverDiagnostics) {
+					const exitDesc = s.exitInfo ? `EXITED code=${s.exitInfo.code} signal=${s.exitInfo.signal}` : s.alive ? `alive pid=${s.pid}` : 'no process';
+					process.stderr.write(`[E2E-CRITICAL ${pickle.name}] subprocess ${s.name}: ${exitDesc}\n`);
+					if (s.stderrTail.trim()) {
+						const lines = s.stderrTail.slice(-1200).split('\n');
+						for (const line of lines) {
+							process.stderr.write(`[E2E-CRITICAL ${s.name} stderr] ${line.slice(0, 400)}\n`);
+						}
+					}
+				}
 			}
 		} catch {
 			/* Diagnostic capture is best-effort */
