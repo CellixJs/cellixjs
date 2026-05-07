@@ -143,11 +143,18 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 						return `  - ${s.name}: ${exitDesc}${stderrTail}${stdoutTail}`;
 					})
 					.join('\n');
-				// One-line ULTIMATE SUMMARY at the very bottom — Azure DevOps log
-				// display has been hiding everything else. A single dense line is
-				// the only thing guaranteed to survive truncation.
+				// One-line ULTIMATE SUMMARY lines at the very bottom — Azure DevOps
+				// log display has been hiding everything else. Single dense lines
+				// are the only thing guaranteed to survive truncation.
 				const subprocessSummary = serverDiagnostics.map((s) => `${s.name}=${s.exitInfo ? `EXIT_${s.exitInfo.code}` : s.alive ? `alive_${s.pid}` : 'no_proc'}`).join(',');
-				const ultimateSummary = `ULTIMATE_SUMMARY api-health=${JSON.stringify(apiHealth)} variants=${JSON.stringify(apiVariants)} subprocesses=[${subprocessSummary}]`;
+				const apiDiag = serverDiagnostics.find((s) => s.name === 'TestApiServer');
+				const apiStdout = (apiDiag?.stdoutTail ?? '').slice(-1500).replaceAll('\n', '⏎');
+				const apiStderr = (apiDiag?.stderrTail ?? '').slice(-800).replaceAll('\n', '⏎');
+				const ultimateSummary = [
+					`ULTIMATE_SUMMARY api-health=${JSON.stringify(apiHealth)} variants=${JSON.stringify(apiVariants)} subprocesses=[${subprocessSummary}]`,
+					`ULTIMATE_API_STDOUT_TAIL: ${apiStdout || '<empty>'}`,
+					`ULTIMATE_API_STDERR_TAIL: ${apiStderr || '<empty>'}`,
+				].join('\n');
 				const diagnostic = [
 					`=== E2E FAILURE DIAGNOSTICS: ${pickle.name} ===`,
 					`URL: ${url}`,
