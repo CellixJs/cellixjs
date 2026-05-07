@@ -22,7 +22,12 @@ export interface StaffRolePermissionsProps extends ValueObjectProps {
 }
 
 export interface StaffRolePermissionsEntityReference
-	extends Readonly<Omit<StaffRolePermissionsProps, 'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions' | 'financePermissions' | 'techAdminPermissions' | 'userPermissions'>> {
+	extends Readonly<
+		Omit<
+			StaffRolePermissionsProps,
+			'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions' | 'financePermissions' | 'techAdminPermissions' | 'userPermissions'
+		>
+	> {
 	readonly communityPermissions: StaffRoleCommunityPermissionsEntityReference;
 	readonly propertyPermissions: StaffRolePropertyPermissionsEntityReference;
 	readonly serviceTicketPermissions: StaffRoleServiceTicketPermissionsEntityReference;
