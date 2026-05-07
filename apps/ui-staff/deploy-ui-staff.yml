@@ -30,7 +30,7 @@ jobs:
     artifactZipName: 'ui-staff-$(Build.BuildId).zip'
     deploymentNameSuffix: '-ui-staff'
     dependsOnInfrastructure:
-      - 'Infrastructure_UI_Community'
+      - 'Infrastructure_UI_COMMUNITY'
     environmentNameDevOps: ${{ parameters.environmentNameDevOps }}
     environmentNameBicep: ${{ parameters.environmentNameBicep }}
     vmImageName: ${{ parameters.vmImageName }}
