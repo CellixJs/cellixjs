@@ -66,3 +66,9 @@ ignore:
         reason: 'Apollo usage-reporting-protobuf depends on @apollo/protobufjs and Snyk reports no fixed version. We are accepting this temporarily until Apollo provides a non-vulnerable upgrade path.'
         expires: '2026-07-31T00:00:00.000Z'
         created: '2026-04-30T00:00:00.000Z'
+
+  'SNYK-JS-MONGOOSE-16425765':
+    - '* > mongoose@8.17.0':
+        reason: 'Mongoose 8.22.1 has TypeScript constraint errors in type definitions (types/inferrawdoctype.d.ts, types/inferschematype.d.ts) that break compilation. Patch attempts failed due to external library type incompatibilities. Risk is Low: requires control of query field names and values.'
+        expires: '2026-11-07T00:00:00.000Z'
+        created: '2026-05-07T09:00:00.000Z'

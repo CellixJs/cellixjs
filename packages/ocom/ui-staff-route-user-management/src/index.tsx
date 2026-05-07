@@ -16,7 +16,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="User Management"
 							description="User management route package mounted under /staff/user-management."
-							expectedRoles={['Staff.Admin', 'Staff.UserManager']}
+							expectedRoles={['Staff.CaseManager', 'Staff.ServiceLineOwner']}
 						/>
 					}
 				/>
@@ -26,7 +26,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="User Management"
 							description="User management route package mounted under /staff/user-management."
-							expectedRoles={['Staff.Admin', 'Staff.UserManager']}
+							expectedRoles={['Staff.CaseManager', 'Staff.ServiceLineOwner']}
 						/>
 					}
 				/>

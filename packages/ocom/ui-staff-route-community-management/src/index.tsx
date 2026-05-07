@@ -16,7 +16,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="Community Management"
 							description="Community management route package mounted under /staff/community-management."
-							expectedRoles={['Staff.CommunityAdmin']}
+							expectedRoles={['Staff.CaseManager', 'Staff.ServiceLineOwner']}
 						/>
 					}
 				/>
@@ -26,7 +26,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="Community Management"
 							description="Community management route package mounted under /staff/community-management."
-							expectedRoles={['Staff.CommunityAdmin']}
+							expectedRoles={['Staff.CaseManager', 'Staff.ServiceLineOwner']}
 						/>
 					}
 				/>
