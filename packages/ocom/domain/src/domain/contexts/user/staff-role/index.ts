@@ -10,6 +10,10 @@ export type {
 	StaffRoleCommunityPermissionsProps,
 } from './staff-role-community-permissions.ts';
 export type {
+	StaffRoleFinancePermissionsEntityReference,
+	StaffRoleFinancePermissionsProps,
+} from './staff-role-finance-permissions.ts';
+export type {
 	StaffRolePermissionsEntityReference,
 	StaffRolePermissionsProps,
 } from './staff-role-permissions.ts';
@@ -18,10 +22,6 @@ export type {
 	StaffRolePropertyPermissionsProps,
 } from './staff-role-property-permissions.ts';
 export type {
-	StaffRoleSectionPermissionsEntityReference,
-	StaffRoleSectionPermissionsProps,
-} from './staff-role-section-permissions.ts';
-export type {
 	StaffRoleServicePermissionsEntityReference,
 	StaffRoleServicePermissionsProps,
 } from './staff-role-service-permissions.ts';
@@ -29,6 +29,14 @@ export type {
 	StaffRoleServiceTicketPermissionsEntityReference,
 	StaffRoleServiceTicketPermissionsProps,
 } from './staff-role-service-ticket-permissions.ts';
+export type {
+	StaffRoleTechAdminPermissionsEntityReference,
+	StaffRoleTechAdminPermissionsProps,
+} from './staff-role-tech-admin-permissions.ts';
+export type {
+	StaffRoleUserPermissionsEntityReference,
+	StaffRoleUserPermissionsProps,
+} from './staff-role-user-permissions.ts';
 export type {
 	StaffRoleViolationTicketPermissionsEntityReference,
 	StaffRoleViolationTicketPermissionsProps,

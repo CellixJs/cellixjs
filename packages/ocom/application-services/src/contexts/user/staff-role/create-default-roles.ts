@@ -13,34 +13,44 @@ export type StaffAppRoleName = (typeof StaffAppRoleNames)[keyof typeof StaffAppR
 interface DefaultRoleSpec {
 	roleName: StaffAppRoleName;
 	isDefault: boolean;
-	sectionPermissions: {
-		canManageCommunities: boolean;
-		canManageUser: boolean;
-		canManageFinance: boolean;
-		canManageTechAdmin: boolean;
-	};
+	communityPermissions: { canManageCommunities: boolean };
+	financePermissions: { canManageFinance: boolean };
+	techAdminPermissions: { canManageTechAdmin: boolean };
+	userPermissions: { canManageUsers: boolean };
 }
 
 const DEFAULT_ROLE_SPECS: DefaultRoleSpec[] = [
 	{
 		roleName: StaffAppRoleNames.CaseManager,
 		isDefault: false,
-		sectionPermissions: { canManageCommunities: true, canManageUser: true, canManageFinance: false, canManageTechAdmin: false },
+		communityPermissions: { canManageCommunities: true },
+		financePermissions: { canManageFinance: false },
+		techAdminPermissions: { canManageTechAdmin: false },
+		userPermissions: { canManageUsers: true },
 	},
 	{
 		roleName: StaffAppRoleNames.ServiceLineOwner,
 		isDefault: false,
-		sectionPermissions: { canManageCommunities: true, canManageUser: true, canManageFinance: false, canManageTechAdmin: false },
+		communityPermissions: { canManageCommunities: true },
+		financePermissions: { canManageFinance: false },
+		techAdminPermissions: { canManageTechAdmin: false },
+		userPermissions: { canManageUsers: true },
 	},
 	{
 		roleName: StaffAppRoleNames.Finance,
 		isDefault: false,
-		sectionPermissions: { canManageCommunities: false, canManageUser: false, canManageFinance: true, canManageTechAdmin: false },
+		communityPermissions: { canManageCommunities: false },
+		financePermissions: { canManageFinance: true },
+		techAdminPermissions: { canManageTechAdmin: false },
+		userPermissions: { canManageUsers: false },
 	},
 	{
 		roleName: StaffAppRoleNames.TechAdmin,
 		isDefault: false,
-		sectionPermissions: { canManageCommunities: false, canManageUser: false, canManageFinance: false, canManageTechAdmin: true },
+		communityPermissions: { canManageCommunities: false },
+		financePermissions: { canManageFinance: false },
+		techAdminPermissions: { canManageTechAdmin: true },
+		userPermissions: { canManageUsers: false },
 	},
 ];
 
@@ -56,12 +66,11 @@ const roleExists = async (repository: Domain.Contexts.User.StaffRole.StaffRoleRe
 	}
 };
 
-const applySectionPermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, sectionPerms: DefaultRoleSpec['sectionPermissions']): void => {
-	const { sectionPermissions } = staffRole.permissions;
-	sectionPermissions.canManageCommunities = sectionPerms.canManageCommunities;
-	sectionPermissions.canManageUser = sectionPerms.canManageUser;
-	sectionPermissions.canManageFinance = sectionPerms.canManageFinance;
-	sectionPermissions.canManageTechAdmin = sectionPerms.canManageTechAdmin;
+const applyDefaultPermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, spec: DefaultRoleSpec): void => {
+	staffRole.permissions.communityPermissions.canManageCommunities = spec.communityPermissions.canManageCommunities;
+	staffRole.permissions.financePermissions.canManageFinance = spec.financePermissions.canManageFinance;
+	staffRole.permissions.techAdminPermissions.canManageTechAdmin = spec.techAdminPermissions.canManageTechAdmin;
+	staffRole.permissions.userPermissions.canManageUsers = spec.userPermissions.canManageUsers;
 };
 
 export const createDefaultRoles = (dataSources: DataSources) => {
@@ -77,7 +86,7 @@ export const createDefaultRoles = (dataSources: DataSources) => {
 
 				const staffRole = await repository.getNewInstance(spec.roleName);
 				staffRole.isDefault = spec.isDefault;
-				applySectionPermissions(staffRole, spec.sectionPermissions);
+				applyDefaultPermissions(staffRole, spec);
 
 				const saved = await repository.save(staffRole);
 				created.push(saved);

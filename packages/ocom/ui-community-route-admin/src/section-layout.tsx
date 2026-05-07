@@ -23,7 +23,7 @@ const handleToggler = (isExpanded: boolean, setIsExpanded: (value: boolean) => v
 
 export interface AdminStaffSectionPermissions {
 	canManageCommunities: boolean;
-	canManageUser: boolean;
+	canManageUsers: boolean;
 	canManageFinance: boolean;
 	canManageTechAdmin: boolean;
 }

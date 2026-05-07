@@ -21,7 +21,7 @@ export const CommunityListContainer: React.FC = () => {
 	});
 
 	const { data: staffUserData } = useQuery(AccountsCommunityListContainerCurrentStaffUserDocument);
-	const canCreateCommunity = staffUserData?.currentStaffUserAndCreateIfNotExists?.role?.permissions?.sectionPermissions?.canManageCommunities ?? false;
+	const canCreateCommunity = staffUserData?.currentStaffUserAndCreateIfNotExists?.role?.permissions?.communityPermissions?.canManageCommunities ?? false;
 
 	const members: AccountsCommunityListContainerMemberFieldsFragment[][] = [];
 	if (membersData?.membersForCurrentEndUser && membersData?.membersForCurrentEndUser.length > 0 && communityData?.communitiesForCurrentEndUser) {

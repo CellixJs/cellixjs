@@ -14,7 +14,7 @@ query AccountsCommunityListContainerCurrentStaffUser {
 	currentStaffUserAndCreateIfNotExists {
 		role {
 			permissions {
-				sectionPermissions {
+				communityPermissions {
 					canManageCommunities
 				}
 			}

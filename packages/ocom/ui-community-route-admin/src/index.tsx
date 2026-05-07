@@ -28,7 +28,7 @@ export const Admin: React.FC = () => {
 			parent: 'ROOT',
 			hasPermissions: (data: unknown) => {
 				const adminData = data as AdminMenuData;
-				return adminData?.staffPermissions?.canManageUser ?? false;
+				return adminData?.staffPermissions?.canManageUsers ?? false;
 			},
 		},
 		{

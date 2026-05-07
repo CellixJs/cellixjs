@@ -19,7 +19,14 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 	const { data: membersData, loading: membersLoading, error: membersError } = useQuery(AdminSectionLayoutContainerMembersForCurrentEndUserDocument);
 	const { data: staffUserData } = useQuery(AdminSectionLayoutContainerCurrentStaffUserDocument);
 
-	const staffSectionPermissions = staffUserData?.currentStaffUserAndCreateIfNotExists?.role?.permissions?.sectionPermissions ?? null;
+	const staffSectionPermissions = staffUserData?.currentStaffUserAndCreateIfNotExists?.role?.permissions
+		? {
+				canManageCommunities: staffUserData.currentStaffUserAndCreateIfNotExists.role.permissions.communityPermissions.canManageCommunities,
+				canManageUsers: staffUserData.currentStaffUserAndCreateIfNotExists.role.permissions.userPermissions.canManageUsers,
+				canManageFinance: staffUserData.currentStaffUserAndCreateIfNotExists.role.permissions.financePermissions.canManageFinance,
+				canManageTechAdmin: staffUserData.currentStaffUserAndCreateIfNotExists.role.permissions.techAdminPermissions.canManageTechAdmin,
+		  }
+		: null;
 
 	return (
 		<ComponentQueryLoader

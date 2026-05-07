@@ -1,12 +1,36 @@
-type StaffRoleSectionPermissions {
+type StaffRoleCommunityPermissions {
 	canManageCommunities: Boolean!
-	canManageUser: Boolean!
+	canManageStaffRolesAndPermissions: Boolean!
+	canManageAllCommunities: Boolean!
+	canDeleteCommunities: Boolean!
+	canChangeCommunityOwner: Boolean!
+	canReIndexSearchCollections: Boolean!
+}
+
+type StaffRoleFinancePermissions {
 	canManageFinance: Boolean!
+	canViewGLBatchSummaries: Boolean!
+	canViewFinanceConfigs: Boolean!
+	canCreateFinanceConfigs: Boolean!
+}
+
+type StaffRoleTechAdminPermissions {
 	canManageTechAdmin: Boolean!
+	canViewDatabaseExplorer: Boolean!
+	canViewBlobExplorer: Boolean!
+	canViewQueueDashboard: Boolean!
+	canSendQueueMessages: Boolean!
+}
+
+type StaffRoleUserPermissions {
+	canManageUsers: Boolean!
 }
 
 type StaffRolePermissions {
-	sectionPermissions: StaffRoleSectionPermissions!
+	communityPermissions: StaffRoleCommunityPermissions!
+	financePermissions: StaffRoleFinancePermissions!
+	techAdminPermissions: StaffRoleTechAdminPermissions!
+	userPermissions: StaffRoleUserPermissions!
 }
 
 type StaffRole implements MongoBase {

@@ -2,11 +2,13 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type {
 	StaffRole,
 	StaffRoleCommunityPermissions,
+	StaffRoleFinancePermissions,
 	StaffRolePermissions,
 	StaffRolePropertyPermissions,
-	StaffRoleSectionPermissions,
 	StaffRoleServicePermissions,
 	StaffRoleServiceTicketPermissions,
+	StaffRoleTechAdminPermissions,
+	StaffRoleUserPermissions,
 	StaffRoleViolationTicketPermissions,
 } from '@ocom/data-sources-mongoose-models/role/staff-role';
 import { Domain } from '@ocom/domain';
@@ -51,18 +53,6 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 
 	constructor(permissions: StaffRolePermissions) {
 		this.doc = permissions;
-	}
-
-	get sectionPermissions(): Domain.Contexts.User.StaffRole.StaffRoleSectionPermissionsProps {
-		if (!this.doc.sectionPermissions) {
-			this.doc.sectionPermissions = {
-				canManageCommunities: false,
-				canManageUser: false,
-				canManageFinance: false,
-				canManageTechAdmin: false,
-			};
-		}
-		return new StaffRoleSectionPermissionsAdapter(this.doc.sectionPermissions);
 	}
 
 	get communityPermissions(): Domain.Contexts.User.StaffRole.StaffRoleCommunityPermissionsProps {
@@ -123,6 +113,40 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 		}
 		return new StaffRoleViolationTicketPermissionsAdapter(this.doc.violationTicketPermissions);
 	}
+
+	get financePermissions(): Domain.Contexts.User.StaffRole.StaffRoleFinancePermissionsProps {
+		if (!this.doc.financePermissions) {
+			this.doc.financePermissions = {
+				canManageFinance: false,
+				canViewGLBatchSummaries: false,
+				canViewFinanceConfigs: false,
+				canCreateFinanceConfigs: false,
+			};
+		}
+		return new StaffRoleFinancePermissionsAdapter(this.doc.financePermissions);
+	}
+
+	get techAdminPermissions(): Domain.Contexts.User.StaffRole.StaffRoleTechAdminPermissionsProps {
+		if (!this.doc.techAdminPermissions) {
+			this.doc.techAdminPermissions = {
+				canManageTechAdmin: false,
+				canViewDatabaseExplorer: false,
+				canViewBlobExplorer: false,
+				canViewQueueDashboard: false,
+				canSendQueueMessages: false,
+			};
+		}
+		return new StaffRoleTechAdminPermissionsAdapter(this.doc.techAdminPermissions);
+	}
+
+	get userPermissions(): Domain.Contexts.User.StaffRole.StaffRoleUserPermissionsProps {
+		if (!this.doc.userPermissions) {
+			this.doc.userPermissions = {
+				canManageUsers: false,
+			};
+		}
+		return new StaffRoleUserPermissionsAdapter(this.doc.userPermissions);
+	}
 }
 
 export class StaffRoleCommunityPermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleCommunityPermissionsProps {
@@ -138,6 +162,13 @@ export class StaffRoleCommunityPermissionsAdapter implements Domain.Contexts.Use
 
 	get id(): string | undefined {
 		return this.doc.id?.toString();
+	}
+
+	get canManageCommunities(): boolean {
+		return this.ensureValue(this.doc.canManageCommunities);
+	}
+	set canManageCommunities(value: boolean) {
+		this.doc.canManageCommunities = value;
 	}
 
 	get canManageStaffRolesAndPermissions(): boolean {
@@ -285,10 +316,10 @@ export class StaffRoleViolationTicketPermissionsAdapter implements Domain.Contex
 	}
 }
 
-class StaffRoleSectionPermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleSectionPermissionsProps {
-	private readonly doc: StaffRoleSectionPermissions;
+class StaffRoleFinancePermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleFinancePermissionsProps {
+	private readonly doc: StaffRoleFinancePermissions;
 
-	constructor(permissions: StaffRoleSectionPermissions) {
+	constructor(permissions: StaffRoleFinancePermissions) {
 		this.doc = permissions;
 	}
 
@@ -300,20 +331,6 @@ class StaffRoleSectionPermissionsAdapter implements Domain.Contexts.User.StaffRo
 		return this.doc.id?.toString();
 	}
 
-	get canManageCommunities(): boolean {
-		return this.ensureValue(this.doc.canManageCommunities);
-	}
-	set canManageCommunities(value: boolean) {
-		this.doc.canManageCommunities = value;
-	}
-
-	get canManageUser(): boolean {
-		return this.ensureValue(this.doc.canManageUser);
-	}
-	set canManageUser(value: boolean) {
-		this.doc.canManageUser = value;
-	}
-
 	get canManageFinance(): boolean {
 		return this.ensureValue(this.doc.canManageFinance);
 	}
@@ -321,10 +338,98 @@ class StaffRoleSectionPermissionsAdapter implements Domain.Contexts.User.StaffRo
 		this.doc.canManageFinance = value;
 	}
 
+	get canViewGLBatchSummaries(): boolean {
+		return this.ensureValue(this.doc.canViewGLBatchSummaries);
+	}
+	set canViewGLBatchSummaries(value: boolean) {
+		this.doc.canViewGLBatchSummaries = value;
+	}
+
+	get canViewFinanceConfigs(): boolean {
+		return this.ensureValue(this.doc.canViewFinanceConfigs);
+	}
+	set canViewFinanceConfigs(value: boolean) {
+		this.doc.canViewFinanceConfigs = value;
+	}
+
+	get canCreateFinanceConfigs(): boolean {
+		return this.ensureValue(this.doc.canCreateFinanceConfigs);
+	}
+	set canCreateFinanceConfigs(value: boolean) {
+		this.doc.canCreateFinanceConfigs = value;
+	}
+}
+
+class StaffRoleTechAdminPermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleTechAdminPermissionsProps {
+	private readonly doc: StaffRoleTechAdminPermissions;
+
+	constructor(permissions: StaffRoleTechAdminPermissions) {
+		this.doc = permissions;
+	}
+
+	private ensureValue(value: boolean | undefined): boolean {
+		return value ?? false;
+	}
+
+	get id(): string | undefined {
+		return this.doc.id?.toString();
+	}
+
 	get canManageTechAdmin(): boolean {
 		return this.ensureValue(this.doc.canManageTechAdmin);
 	}
 	set canManageTechAdmin(value: boolean) {
 		this.doc.canManageTechAdmin = value;
+	}
+
+	get canViewDatabaseExplorer(): boolean {
+		return this.ensureValue(this.doc.canViewDatabaseExplorer);
+	}
+	set canViewDatabaseExplorer(value: boolean) {
+		this.doc.canViewDatabaseExplorer = value;
+	}
+
+	get canViewBlobExplorer(): boolean {
+		return this.ensureValue(this.doc.canViewBlobExplorer);
+	}
+	set canViewBlobExplorer(value: boolean) {
+		this.doc.canViewBlobExplorer = value;
+	}
+
+	get canViewQueueDashboard(): boolean {
+		return this.ensureValue(this.doc.canViewQueueDashboard);
+	}
+	set canViewQueueDashboard(value: boolean) {
+		this.doc.canViewQueueDashboard = value;
+	}
+
+	get canSendQueueMessages(): boolean {
+		return this.ensureValue(this.doc.canSendQueueMessages);
+	}
+	set canSendQueueMessages(value: boolean) {
+		this.doc.canSendQueueMessages = value;
+	}
+}
+
+class StaffRoleUserPermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleUserPermissionsProps {
+	private readonly doc: StaffRoleUserPermissions;
+
+	constructor(permissions: StaffRoleUserPermissions) {
+		this.doc = permissions;
+	}
+
+	private ensureValue(value: boolean | undefined): boolean {
+		return value ?? false;
+	}
+
+	get id(): string | undefined {
+		return this.doc.id?.toString();
+	}
+
+	get canManageUsers(): boolean {
+		return this.ensureValue(this.doc.canManageUsers);
+	}
+	set canManageUsers(value: boolean) {
+		this.doc.canManageUsers = value;
 	}
 }

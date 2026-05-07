@@ -24,11 +24,17 @@ fragment AdminSectionLayoutContainerStaffUserFields on StaffUser {
 	id
 	role {
 		permissions {
-			sectionPermissions {
+			communityPermissions {
 				canManageCommunities
-				canManageUser
+			}
+			financePermissions {
 				canManageFinance
+			}
+			techAdminPermissions {
 				canManageTechAdmin
+			}
+			userPermissions {
+				canManageUsers
 			}
 		}
 	}

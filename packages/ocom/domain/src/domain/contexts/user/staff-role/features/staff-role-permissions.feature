@@ -29,7 +29,17 @@ Feature: <Entity> StaffRolePermissions
     When I access the violationTicketPermissions property
     Then I should receive a StaffRoleViolationTicketPermissions entity instance
 
-  Scenario: Accessing sectionPermissions
+  Scenario: Accessing financePermissions
     Given a StaffRolePermissions entity
-    When I access the sectionPermissions property
-    Then I should receive a StaffRoleSectionPermissions entity instance
+    When I access the financePermissions property
+    Then I should receive a StaffRoleFinancePermissions entity instance
+
+  Scenario: Accessing techAdminPermissions
+    Given a StaffRolePermissions entity
+    When I access the techAdminPermissions property
+    Then I should receive a StaffRoleTechAdminPermissions entity instance
+
+  Scenario: Accessing userPermissions
+    Given a StaffRolePermissions entity
+    When I access the userPermissions property
+    Then I should receive a StaffRoleUserPermissions entity instance
