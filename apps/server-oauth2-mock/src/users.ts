@@ -20,20 +20,77 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	function validateEntries(raw: unknown, filePath: string): MockOAuth2User[] {
 		if (!raw) return [];
 		if (!Array.isArray(raw)) return [];
+
 		const out: MockOAuth2User[] = [];
+
 		for (let i = 0; i < raw.length; i++) {
 			const entry = raw[i] as unknown;
-			if (typeof entry === 'object' && entry !== null) {
-				const e = entry as { username?: unknown; sub?: unknown; claims?: { sub?: unknown } | undefined };
-				const username = e.username;
-				const sub = typeof e.sub === 'string' ? e.sub : (typeof e.claims?.sub === 'string' ? e.claims.sub : undefined);
-				if (typeof username === 'string' && sub) {
-					out.push(entry as MockOAuth2User);
+
+			if (typeof entry !== 'object' || entry === null) {
+				console.warn(
+					`[server-oauth2-mock] Invalid user entry in ${filePath} at index ${i}: expected object, got ${typeof entry}, skipping`
+				);
+				continue;
+			}
+
+			const e = entry as {
+				username?: unknown;
+				sub?: unknown;
+				claims?: unknown;
+				password?: unknown;
+			};
+
+			const username = e.username;
+			if (typeof username !== 'string') {
+				console.warn(
+					`[server-oauth2-mock] Invalid user entry in ${filePath} at index ${i}: "username" must be a string, skipping`
+				);
+				continue;
+			}
+
+			let claims: { sub?: unknown; [k: string]: unknown } | undefined;
+			if (e.claims !== undefined) {
+				if (typeof e.claims !== 'object' || e.claims === null || Array.isArray(e.claims)) {
+					console.warn(
+						`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": "claims" must be an object if present, skipping`
+					);
 					continue;
 				}
+				claims = e.claims as { sub?: unknown; [k: string]: unknown };
 			}
-			console.warn(`[server-oauth2-mock] Invalid user entry in ${filePath} at index ${i}, skipping`);
+
+			const subFromField = typeof e.sub === 'string' ? e.sub : undefined;
+			const subFromClaims = claims && typeof claims.sub === 'string' ? (claims.sub as string) : undefined;
+			const sub = subFromField ?? subFromClaims;
+
+			if (!sub) {
+				console.warn(
+					`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": missing "sub" (either top-level or claims.sub), skipping`
+				);
+				continue;
+			}
+
+			let password: string | undefined;
+			if (e.password !== undefined) {
+				if (typeof e.password !== 'string') {
+					console.warn(
+						`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": "password" must be a string if present, skipping`
+					);
+					continue;
+				}
+				password = e.password;
+			}
+
+			const user: MockOAuth2User = {
+				username,
+				sub,
+				...(claims ? { claims } : {}),
+				...(password ? { password } : {})
+			};
+
+			out.push(user);
 		}
+
 		return out;
 	}
 

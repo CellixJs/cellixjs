@@ -5,7 +5,7 @@ import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jos
 import { buildTokenResponse } from './jwt.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 import { normalizeOrigin, normalizeUrl } from './utils.ts';
-import { buildRedirectWithCode, buildEffectiveProfile, normalizeUserInfo } from './helpers.ts';
+import { buildRedirectWithCode, buildEffectiveProfile, normalizeUserInfo, extractClaimsFromPayload } from './helpers.ts';
 
 function escapeHtml(input: string): string {
 	return input.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -270,11 +270,14 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			res.status(404).send('Login not available');
 			return;
 		}
-		const body = req.body as { username?: unknown; password?: unknown; redirect_uri?: unknown; state?: unknown };
-		const username = typeof body.username === 'string' ? body.username : '';
-		const password = typeof body.password === 'string' ? body.password : '';
-		const redirect = typeof body.redirect_uri === 'string' ? body.redirect_uri : primaryRedirectUri;
-		const state = typeof body.state === 'string' ? body.state : undefined;
+			const username = req.body.username;
+		const password = req.body.password;
+		if (typeof username !== 'string' || typeof password !== 'string') {
+			res.status(400).json({ error: 'username and password are required' });
+			return;
+		}
+		const redirect = typeof req.body.redirect_uri === 'string' ? req.body.redirect_uri : primaryRedirectUri;
+		const state = typeof req.body.state === 'string' ? req.body.state : undefined;
 		try {
 			const store = config.userStore as MockOAuth2UserStore;
 			const user = await store.findByUsername(username);
@@ -331,14 +334,17 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			res.status(404).send('Signup not available');
 			return;
 		}
-		const body = req.body as { username?: unknown; password?: unknown; email?: unknown; given_name?: unknown; family_name?: unknown; redirect_uri?: unknown; state?: unknown };
-		const username = typeof body.username === 'string' ? body.username : '';
-		const password = typeof body.password === 'string' ? body.password : '';
-		const email = typeof body.email === 'string' ? body.email : undefined;
-		const given_name = typeof body.given_name === 'string' ? body.given_name : undefined;
-		const family_name = typeof body.family_name === 'string' ? body.family_name : undefined;
-		const redirect = typeof body.redirect_uri === 'string' ? body.redirect_uri : primaryRedirectUri;
-		const state = typeof body.state === 'string' ? body.state : undefined;
+			const username = req.body.username;
+		const password = req.body.password;
+		if (typeof username !== 'string' || typeof password !== 'string') {
+			res.status(400).json({ error: 'username and password are required' });
+			return;
+		}
+		const email = typeof req.body.email === 'string' ? req.body.email : undefined;
+		const given_name = typeof req.body.given_name === 'string' ? req.body.given_name : undefined;
+		const family_name = typeof req.body.family_name === 'string' ? req.body.family_name : undefined;
+		const redirect = typeof req.body.redirect_uri === 'string' ? req.body.redirect_uri : primaryRedirectUri;
+		const state = typeof req.body.state === 'string' ? req.body.state : undefined;
 		try {
 			const claimsObj: { email?: unknown; given_name?: unknown; family_name?: unknown; [k: string]: unknown } = {};
 			if (email) claimsObj.email = email;
@@ -411,25 +417,13 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					if (user) {
 						effectiveProfile = buildEffectiveProfile(portalProfile, user.claims, user.sub);
 					} else {
-						const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
-						const email = typeof emailProp === 'string' ? emailProp : undefined;
-						const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
-						const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
-						effectiveProfile = buildEffectiveProfile(portalProfile, { ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) }, sub);
+						effectiveProfile = buildEffectiveProfile(portalProfile, extractClaimsFromPayload(payload as Record<string, unknown>), sub);
 					}
 				} catch (_err) {
-					const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
-					const email = typeof emailProp === 'string' ? emailProp : undefined;
-					const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
-					const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
-					effectiveProfile = buildEffectiveProfile(portalProfile, { ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) }, sub);
+					effectiveProfile = buildEffectiveProfile(portalProfile, extractClaimsFromPayload(payload as Record<string, unknown>), sub);
 				}
 			} else {
-				const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
-				const email = typeof emailProp === 'string' ? emailProp : undefined;
-				const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
-				const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
-				effectiveProfile = buildEffectiveProfile(portalProfile, { ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) }, sub);
+				effectiveProfile = buildEffectiveProfile(portalProfile, extractClaimsFromPayload(payload as Record<string, unknown>), sub);
 			}
 
 			const normalized = normalizeUserInfo(effectiveProfile);

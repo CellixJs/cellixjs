@@ -50,3 +50,11 @@ export function normalizeUserInfo(profile: ProfileLike): Record<string, unknown>
 	}
 	return p;
 }
+
+export function extractClaimsFromPayload(payload: Record<string, unknown>): Record<string, unknown> {
+	const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload ?? {};
+	const email = typeof emailProp === 'string' ? emailProp : undefined;
+	const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
+	const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
+	return { ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) };
+}
