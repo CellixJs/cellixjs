@@ -35,7 +35,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	// Auth code store: maps one-time auth codes to selected sub and redirectUri
 	const authCodeStore = new Map<string, { sub?: string; redirectUri: string }>();
 	// For prefilled portal profile when no userStore, we may use portal sub as default when issuing codes without an explicit user selection.
-	const portalPrefilledSub = !config.userStore ? (cachedUserProfile.sub ?? crypto.randomUUID()) : undefined;
+	const portalPrefilledSub = config.userStore ? undefined : (cachedUserProfile.sub ?? crypto.randomUUID());
 
 	const normalizedAllowedRedirectUris = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeUrl(u)));
 

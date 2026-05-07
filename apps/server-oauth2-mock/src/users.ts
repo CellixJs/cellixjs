@@ -18,8 +18,14 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	}
 
 	function validateEntries(raw: unknown, filePath: string): MockOAuth2User[] {
-		if (!raw) return [];
-		if (!Array.isArray(raw)) return [];
+		if (!raw) {
+			console.warn(`[server-oauth2-mock] Users file at ${filePath} is empty or missing; treating as no users.`);
+			return [];
+		}
+		if (!Array.isArray(raw)) {
+			console.warn(`[server-oauth2-mock] Users file at ${filePath} does not contain a JSON array; treating as no users.`);
+			return [];
+		}
 
 		const out: MockOAuth2User[] = [];
 

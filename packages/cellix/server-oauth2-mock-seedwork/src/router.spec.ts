@@ -116,12 +116,14 @@ describe('oauth2 mock router flows', () => {
 		// exchange code for token
 		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code }) });
 		expect(tokenRes.status).toBe(200);
-		const tokenJson = (await tokenRes.json()) as Record<string, unknown>;
+		interface TokenResponse { id_token?: string; access_token?: string; [k: string]: unknown }
+		interface ClaimsPayload { email?: string; given_name?: string; family_name?: string; sub?: string; password?: string; [k: string]: unknown }
+		const tokenJson = (await tokenRes.json()) as TokenResponse;
 		expect(tokenJson).toHaveProperty('id_token');
 		expect(tokenJson).toHaveProperty('access_token');
 
-		const idPayload = decodeJwtPayload(tokenJson.id_token as string) as Record<string, unknown>;
-		const accessPayload = decodeJwtPayload(tokenJson.access_token as string) as Record<string, unknown>;
+		const idPayload = decodeJwtPayload(tokenJson.id_token as string) as ClaimsPayload;
+		const accessPayload = decodeJwtPayload(tokenJson.access_token as string) as ClaimsPayload;
 		// Should contain claims from the stored user
 		expect(idPayload.email).toBe('carol@example.com');
 		expect(idPayload.given_name).toBe('Carol');
@@ -133,7 +135,7 @@ describe('oauth2 mock router flows', () => {
 		// userinfo
 		const infoRes = await fetch(`http://127.0.0.1:${port}/userinfo`, { headers: { Authorization: `Bearer ${tokenJson.access_token}` } });
 		expect(infoRes.status).toBe(200);
-		const info = (await infoRes.json()) as Record<string, unknown>;
+		const info = (await infoRes.json()) as ClaimsPayload;
 		expect(info.email).toBe('carol@example.com');
 		expect(info.given_name).toBe('Carol');
 		expect(info.family_name).toBe('Jones');
