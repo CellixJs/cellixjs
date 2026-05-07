@@ -13,6 +13,7 @@ const consoleMessagesByPage = new WeakMap<PlaywrightPage, string[]>();
 
 type ConsoleMessageLike = { type(): string; text(): string };
 type RequestLike = { method(): string; url(): string; failure(): { errorText: string } | null };
+type ResponseLike = { status(): number; url(): string; request(): { method(): string } };
 
 export function attachConsoleCapture(page: PlaywrightPage): void {
 	const buffer: string[] = [];
@@ -25,6 +26,12 @@ export function attachConsoleCapture(page: PlaywrightPage): void {
 	});
 	page.on('requestfailed', (req: RequestLike) => {
 		buffer.push(`[requestfailed] ${req.method()} ${req.url()} — ${req.failure()?.errorText ?? 'unknown'}`);
+	});
+	page.on('response', (res: ResponseLike) => {
+		const status = res.status();
+		if (status >= 400) {
+			buffer.push(`[response ${status}] ${res.request().method()} ${res.url()}`);
+		}
 	});
 }
 
