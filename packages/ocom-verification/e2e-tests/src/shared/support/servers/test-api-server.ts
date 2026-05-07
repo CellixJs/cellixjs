@@ -41,6 +41,13 @@ export class TestApiServer extends PortlessServer {
 
 	protected override get extraEnv() {
 		return {
+			// Force dev mode so OtelBuilder uses console exporters and doesn't
+			// require APPLICATIONINSIGHTS_CONNECTION_STRING. CI agents may
+			// inherit NODE_ENV=production from pipeline variable groups, which
+			// causes the bundled entry point to throw at module load and func
+			// to register zero functions ("No job functions found"), surfacing
+			// as a 404 on /api/graphql even though the host is alive.
+			NODE_ENV: 'development',
 			languageWorkers__node__arguments: '',
 			COSMOSDB_CONNECTION_STRING: getMongoConnectionString(),
 			ACCOUNT_PORTAL_OIDC_ISSUER: apiSettings.accountPortalOidcIssuer,
