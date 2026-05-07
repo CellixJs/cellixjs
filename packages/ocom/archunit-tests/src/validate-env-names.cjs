@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-const { execSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -34,7 +33,7 @@ function findEnvVarsInText(text) {
 
 function validateEnvNames(options = {}) {
 	const rootDir = options.rootDir || process.cwd();
-	const scanDirs = [rootDir, path.join(rootDir, 'build-pipeline')];
+	const scanDirs = [rootDir];
 
 	const filesToScan = new Set();
 	for (const d of scanDirs) {
@@ -123,7 +122,23 @@ function validateEnvNames(options = {}) {
 	let commitSha = process.env.BUILD_SOURCEVERSION ? process.env.BUILD_SOURCEVERSION.slice(0, 8) : null;
 	if (!commitSha) {
 		try {
-			commitSha = execSync('git rev-parse --short HEAD').toString().trim();
+			// Read git HEAD directly from filesystem — avoids subprocess PATH resolution (S4036).
+			// Supports both regular repos (.git dir) and git worktrees (.git pointer file).
+			const gitPointer = path.join(rootDir, '.git');
+			const gitStat = fs.statSync(gitPointer);
+			let gitDir;
+			let mainGitDir;
+			if (gitStat.isFile()) {
+				const raw = fs.readFileSync(gitPointer, 'utf8').trim();
+				gitDir = raw.replace(/^gitdir:\s*/, '');
+				mainGitDir = path.resolve(gitDir, '../..');
+			} else {
+				gitDir = gitPointer;
+				mainGitDir = gitPointer;
+			}
+			const head = fs.readFileSync(path.join(gitDir, 'HEAD'), 'utf8').trim();
+			const sha = head.startsWith('ref: ') ? fs.readFileSync(path.join(mainGitDir, head.slice(5)), 'utf8').trim() : head;
+			commitSha = sha.slice(0, 8);
 		} catch {
 			commitSha = 'local';
 		}

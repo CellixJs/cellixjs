@@ -69,7 +69,7 @@ Naming rules (authoritative):
 
 ## Validation (Enforcement)
 
-This naming convention is enforced by the repository's ArchUnit tests. The authoritative enforcement rule is implemented in the archunit test package: packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts. Key points about enforcement:
+This naming convention is enforced by the repository's ArchUnit tests. The authoritative enforcement rule is implemented in the ArchUnit test package: packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts. Key points about enforcement:
 
 - The ArchUnit test reads pipeline variable mappings (azure-pipelines.yml) as a single source of truth and validates that all VITE_* names exposed by pipelines conform to the regex and portal registry rules above.
 - Maintainers can run the rule locally with:
@@ -94,7 +94,7 @@ Variable groups (recommended):
 ## Onboarding new portals (operational steps)
 
 1. Choose a canonical portal key (uppercase, underscores), e.g., UI_SUPPORT
-2. Add the portal key to docs/devops/PORTAL_REGISTRY.md
+2. Add the portal key to [apps/docs/docs/portals/PORTAL_REGISTRY.md](../portals/PORTAL_REGISTRY.md)
 3. Create a pipeline variable group: `ocm-app-ui-<portal-slug>` (for example: `ocm-app-ui-support`)
 4. Add `VITE_APP_<PORTAL_KEY>_*` variables to that group
 5. Use the variables in portal source code via `import.meta.env['VITE_APP_<PORTAL_KEY>_...']`
@@ -121,9 +121,9 @@ Variable groups (recommended):
 
 ## Related
 
-- docs/devops/ENV-VARS-INVENTORY.md — an inventory of discovered VITE_* variables in the repo
-- docs/devops/PORTAL_REGISTRY.md — canonical portal keys and mappings
-- ArchUnit enforcement: packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts
+- [apps/docs/docs/portals/PORTAL_REGISTRY.md](../portals/PORTAL_REGISTRY.md) — canonical portal keys, owner groups, and onboarding evidence
+- [packages/ocom/archunit-tests/build-artifacts/env-var-compliance-evidence.json](../../../../packages/ocom/archunit-tests/build-artifacts/env-var-compliance-evidence.json) — machine-generated inventory of discovered VITE_* variables (produced on every test run)
+- [ArchUnit enforcement](../../../../packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts): packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts
 
 ## Notable Exceptions
 
