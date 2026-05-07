@@ -19,7 +19,7 @@ export const Header: React.FC = () => {
 
 		// fall back to direct navigation if the OIDC helper is unavailable or fails
 		// biome-ignore lint:useLiteralKeys
-		globalThis.location.href = `${import.meta.env['VITE_AAD_B2C_STAFF_REDIRECT_URI']}`;
+		globalThis.location.href = `${import.meta.env['VITE_APP_UI_STAFF_AAD_REDIRECT_URI']}`;
 	};
 
 	const {

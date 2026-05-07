@@ -1,8 +1,8 @@
 {
 	"name": "staff",
 	"envVars": {
-		"clientId": "VITE_AAD_B2C_STAFF_CLIENTID",
-		"redirectUri": "VITE_AAD_B2C_STAFF_REDIRECT_URI"
+		"clientId": "VITE_APP_UI_STAFF_AAD_CLIENTID",
+		"redirectUri": "VITE_APP_UI_STAFF_AAD_REDIRECT_URI"
 	},
 	"claims": {
 		"sub": "10000000-0000-4000-8000-000000000001",

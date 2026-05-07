@@ -14,9 +14,9 @@ interface MockAuth {
 
 // Mock environment variables
 const mockEnv = {
-	VITE_FUNCTION_ENDPOINT: 'https://mock-functions.example.com',
-	VITE_AAD_B2C_ACCOUNT_AUTHORITY: 'https://mock-authority.example.com',
-	VITE_AAD_B2C_ACCOUNT_CLIENTID: 'mock-id',
+	VITE_COMMON_API_ENDPOINT: 'https://mock-functions.example.com',
+	VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: 'https://mock-authority.example.com',
+	VITE_APP_UI_COMMUNITY_B2C_CLIENTID: 'mock-id',
 	NODE_ENV: 'development',
 	PROD: false,
 };
@@ -167,8 +167,8 @@ export const BaseLink: StoryObj = {
 export const AuthHeaderFallbackStorage: StoryObj = {
 	render: () => {
 		const auth: MockAuth = { user: null, isAuthenticated: false };
-		const authority = mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY;
-		const client_id = mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID;
+		const authority = mockEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY;
+		const client_id = mockEnv.VITE_APP_UI_COMMUNITY_B2C_CLIENTID;
 		const storageKey = `oidc.user:${authority}:${client_id}`;
 
 		const mockToken = ['mock', 'token'].join('-');
@@ -189,8 +189,8 @@ export const AuthHeaderFallbackStorage: StoryObj = {
 export const AuthHeaderStorageParseError: StoryObj = {
 	render: () => {
 		const auth: MockAuth = { user: null, isAuthenticated: false };
-		const authority = mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY;
-		const client_id = mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID;
+		const authority = mockEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY;
+		const client_id = mockEnv.VITE_APP_UI_COMMUNITY_B2C_CLIENTID;
 		const storageKey = `oidc.user:${authority}:${client_id}`;
 
 		mockStorage.setItem(storageKey, 'invalid-json{');
@@ -318,8 +318,8 @@ export const ApolloConnectionIntegration: StoryObj = {
 	render: () => (
 		<MemoryRouter>
 			<AuthProvider
-				authority={mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY}
-				client_id={mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID}
+				authority={mockEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY}
+				client_id={mockEnv.VITE_APP_UI_COMMUNITY_B2C_CLIENTID}
 			>
 				<ApolloConnection>
 					<ApolloLinkTester />
