@@ -1,6 +1,8 @@
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+#!/usr/bin/env node
+
+const { execSync } = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
 
 function walkDir(dir, fileList = []) {
 	const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -28,7 +30,7 @@ function findEnvVarsInText(text) {
 	return matches;
 }
 
-export function validateEnvNames(options = {}) {
+function validateEnvNames(options = {}) {
 	const rootDir = options.rootDir || process.cwd();
 	const scanDirs = [rootDir, path.join(rootDir, 'build-pipeline')];
 
@@ -114,7 +116,7 @@ export function validateEnvNames(options = {}) {
 		}
 	}
 
-	const evidence = {
+	return {
 		evidenceType: 'env-var-naming-compliance',
 		timestamp: new Date().toISOString(),
 		buildId,
@@ -123,16 +125,14 @@ export function validateEnvNames(options = {}) {
 		results,
 		summary: {
 			totalVariables: results.length,
-			nonCompliantCount: nonCompliantCount,
+			nonCompliantCount,
 		},
-		validatedBy: 'ArchUnit + validate-env-names.js',
+		validatedBy: 'ArchUnit + validate-env-names.cjs',
 		adrReference: 'ADR-0031',
 	};
-
-	return evidence;
 }
 
-export function writeEvidence(evidence, options = {}) {
+function writeEvidence(evidence, options = {}) {
 	const rootDir = options.rootDir || process.cwd();
 	const outDir = path.join(rootDir, 'build-artifacts');
 	if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
@@ -141,19 +141,9 @@ export function writeEvidence(evidence, options = {}) {
 	return outPath;
 }
 
-const __isMain = (() => {
-	if (typeof process === 'undefined') return false;
-	try {
-		const mainArg = process.argv[1];
-		if (!mainArg) return false;
-		const mainUrl = new URL(`file://${path.resolve(mainArg)}`).href;
-		return import.meta.url === mainUrl;
-	} catch (e) {
-		return false;
-	}
-})();
+module.exports = { validateEnvNames, writeEvidence };
 
-if (__isMain) {
+if (require.main === module) {
 	const evidence = validateEnvNames();
 	writeEvidence(evidence);
 	console.log('Wrote evidence to build-artifacts/env-var-compliance-evidence.json');

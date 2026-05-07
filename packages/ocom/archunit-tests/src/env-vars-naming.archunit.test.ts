@@ -1,6 +1,6 @@
-import path from 'path';
+import path from 'node:path';
 import { expect, test } from 'vitest';
-import { validateEnvNames, writeEvidence } from '../../../../scripts/validate-env-names.js';
+import { validateEnvNames, writeEvidence } from '../../../../build-pipeline/scripts/validate-env-names.cjs';
 
 test('env vars naming compliance scan generates evidence file', () => {
 	const rootDir = path.resolve(__dirname, '../../../../');
