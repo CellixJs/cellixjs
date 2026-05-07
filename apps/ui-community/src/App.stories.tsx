@@ -8,9 +8,9 @@ import { client } from './components/ui/organisms/apollo-connection/apollo-clien
 
 // Mock environment variables
 const mockEnv = {
-	VITE_FUNCTION_ENDPOINT: 'https://mock-functions.example.com',
-	VITE_AAD_B2C_ACCOUNT_AUTHORITY: 'https://mock-authority.example.com',
-	VITE_AAD_B2C_ACCOUNT_CLIENTID: 'mock-client-id',
+	VITE_COMMON_API_ENDPOINT: 'https://mock-functions.example.com',
+	VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: 'https://mock-authority.example.com',
+	VITE_APP_UI_COMMUNITY_B2C_CLIENTID: 'mock-client-id',
 	NODE_ENV: 'development',
 };
 
@@ -37,11 +37,11 @@ const mockStorage = {
 };
 
 // Setup global mocks
-Object.defineProperty(window, 'sessionStorage', {
+Object.defineProperty(globalThis, 'sessionStorage', {
 	value: mockStorage,
 	writable: true,
 });
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(globalThis, 'localStorage', {
 	value: mockStorage,
 	writable: true,
 });
@@ -66,10 +66,10 @@ const meta = {
 	decorators: [
 		(Story) => (
 			<AuthProvider
-				authority={mockEnv.VITE_AAD_B2C_ACCOUNT_AUTHORITY}
-				client_id={mockEnv.VITE_AAD_B2C_ACCOUNT_CLIENTID}
-				redirect_uri={window.location.origin}
-				post_logout_redirect_uri={window.location.origin}
+				authority={mockEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY}
+				client_id={mockEnv.VITE_APP_UI_COMMUNITY_B2C_CLIENTID}
+				redirect_uri={globalThis.location.origin}
+				post_logout_redirect_uri={globalThis.location.origin}
 				userStore={mockStorage}
 			>
 				<ApolloProvider client={client}>

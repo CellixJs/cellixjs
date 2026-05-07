@@ -16,8 +16,8 @@ Example `mock-oidc.json`:
 {
   "name": "community",
   "envVars": {
-    "clientId": "VITE_AAD_B2C_ACCOUNT_CLIENTID",
-    "redirectUri": "VITE_AAD_B2C_REDIRECT_URI"
+    "clientId": "VITE_APP_UI_COMMUNITY_B2C_CLIENTID",
+    "redirectUri": "VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI"
   },
   "claims": {
     "sub": "00000000-0000-0000-0000-000000000001",

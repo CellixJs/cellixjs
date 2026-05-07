@@ -32,12 +32,18 @@ parameters:
 - name: frontDoorDomainNameUICommunity
   displayName: 'Front Door Domain Name'
   type: string
+- name: frontDoorDomainNameUIStaff
+  displayName: 'Front Door Domain Name (UI Staff)'
+  type: string
 stages:
 - stage: ${{parameters.stageName}}
   displayName: ${{parameters.stageName}} stage
   dependsOn: Build
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   jobs:
+  # The pipeline runs API and UI Community templates in parallel by default to speed up deployments.
+  # UI Staff currently depends on UI Community (see deploy-ui-staff.yml). detect-changes.cjs still emits per-app flags (HAS_FRONTEND_COMMUNITY_CHANGES / HAS_FRONTEND_STAFF_CHANGES)
+  # for possible future use; the current CI does not gate PR deployments on those flags to keep PR run behaviour deterministic.
   - template: ../../apps/api/deploy-api.yml
     parameters:
       ServiceConnectionName: ${{parameters.ServiceConnectionName}}
@@ -61,3 +67,14 @@ stages:
       frontDoorProfileName: ${{parameters.frontDoorProfileName}}
       frontDoorEndpointName: ${{parameters.frontDoorEndpointName}}
       frontDoorDomainName: ${{parameters.frontDoorDomainNameUICommunity}}
+  - template: ../../apps/ui-staff/deploy-ui-staff.yml
+    parameters:
+      environmentNameDevOps: ${{parameters.environmentNameDevOps}}
+      environmentNameBicep: ${{parameters.environmentNameBicep}}
+      vmImageName: ${{parameters.vmImageName}}
+      ServiceConnectionName: ${{parameters.ServiceConnectionName}}
+      deploymentDefaultLocation: ${{parameters.deploymentDefaultLocation}}
+      resourceGroupName: ${{parameters.resourceGroupName}}
+      frontDoorProfileName: ${{parameters.frontDoorProfileName}}
+      frontDoorEndpointName: ${{parameters.frontDoorEndpointName}}
+      frontDoorDomainName: ${{parameters.frontDoorDomainNameUIStaff}}

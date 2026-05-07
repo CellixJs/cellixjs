@@ -43,3 +43,6 @@ apps/api/deploy/
 # Local OIDC mock users overlay (per developer)
 **/mock-oidc.users.local.json
 
+# Build-time evidence artifacts (generated)
+build-artifacts/
+
