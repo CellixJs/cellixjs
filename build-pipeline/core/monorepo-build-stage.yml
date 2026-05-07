@@ -96,7 +96,7 @@ stages:
           echo "Installing PNPM..."
           npm install --global corepack@latest
           corepack enable
-          corepack prepare pnpm@latest-10 --activate
+          corepack prepare pnpm@11.0.8 --activate
           pnpm config set store-dir ${{parameters.pnpm_config_cache}}
           pnpm --version
 
