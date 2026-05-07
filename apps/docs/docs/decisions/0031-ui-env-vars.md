@@ -122,8 +122,8 @@ Variable groups (recommended):
 ## Related
 
 - [apps/docs/docs/portals/PORTAL_REGISTRY.md](../portals/PORTAL_REGISTRY.md) — canonical portal keys, owner groups, and onboarding evidence
-- [packages/ocom/archunit-tests/build-artifacts/env-var-compliance-evidence.json](../../../../packages/ocom/archunit-tests/build-artifacts/env-var-compliance-evidence.json) — machine-generated inventory of discovered VITE_* variables (produced on every test run)
-- [ArchUnit enforcement](../../../../packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts): packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts
+- `packages/ocom/archunit-tests/build-artifacts/env-var-compliance-evidence.json` — machine-generated inventory of discovered VITE_* variables (produced on every test run, gitignored)
+- `packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts` — ArchUnit enforcement test
 
 ## Notable Exceptions
 
