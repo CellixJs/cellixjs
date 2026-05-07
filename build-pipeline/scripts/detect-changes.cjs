@@ -38,6 +38,8 @@ const DEFAULT_FORCE_DEPLOY = {
 	[FORCE_DEPLOY_VARS.DOCS]: 'false',
 };
 
+/* Note: INFRA_PATTERNS intentionally focuses on top-level infrastructure and pipeline files, excluding app-level IaC which is detected via Turbo's package-based change detection. 
+This ensures we only trigger full deployments for changes that affect the overall infrastructure or build process, while allowing app-specific IaC changes to be handled by their respective package scopes in Turbo. */
 const INFRA_PATTERNS = ['build-pipeline/**', 'iac/**', 'azure-pipelines.yml', 'host.json'];
 
 const APP_CONFIGS = {
