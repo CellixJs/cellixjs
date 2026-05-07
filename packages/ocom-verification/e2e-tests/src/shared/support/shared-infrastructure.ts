@@ -52,6 +52,54 @@ export async function probeApiHealth(): Promise<{ alive: boolean; status?: numbe
 	}
 }
 
+/**
+ * Probes a set of variant URLs (and the func admin endpoint) so we can see
+ * which return 200 / which 404 — distinguishes "route gone" from "API process
+ * gone" from "specific path unmatched".
+ */
+export async function probeApiVariants(): Promise<Record<string, { status?: number; error?: string }>> {
+	if (!apiUrl) return {};
+	const base = apiUrl.replace(/\/api\/graphql.*$/, '');
+	const variants: Array<{ label: string; url: string; method: 'GET' | 'POST'; body?: string }> = [
+		{ label: 'POST /api/graphql', url: `${base}/api/graphql`, method: 'POST', body: JSON.stringify({ query: '{ __typename }' }) },
+		{ label: 'POST /api/graphql/', url: `${base}/api/graphql/`, method: 'POST', body: JSON.stringify({ query: '{ __typename }' }) },
+		{ label: 'GET /api/graphql', url: `${base}/api/graphql`, method: 'GET' },
+		{ label: 'GET /admin/host/status', url: `${base}/admin/host/status`, method: 'GET' },
+		{ label: 'GET /', url: `${base}/`, method: 'GET' },
+	];
+	const results: Record<string, { status?: number; error?: string }> = {};
+	for (const v of variants) {
+		try {
+			const init: RequestInit = {
+				method: v.method,
+				signal: AbortSignal.timeout(3_000),
+			};
+			if (v.body) {
+				init.headers = { 'Content-Type': 'application/json' };
+				init.body = v.body;
+			}
+			const res = await fetch(v.url, init);
+			results[v.label] = { status: res.status };
+		} catch (err) {
+			results[v.label] = { error: err instanceof Error ? err.message : String(err) };
+		}
+	}
+	return results;
+}
+
+export async function probePortlessRoutes(): Promise<string> {
+	const { execFile } = await import('node:child_process');
+	const { promisify } = await import('node:util');
+	const exec = promisify(execFile);
+	const { getPortlessPath } = await import('./servers/resolve-portless.ts');
+	try {
+		const { stdout } = await exec(getPortlessPath(), ['list'], { timeout: 5_000 });
+		return stdout.slice(0, 1500);
+	} catch (err) {
+		return `<portless list failed: ${err instanceof Error ? err.message : String(err)}>`;
+	}
+}
+
 export async function stopAll(): Promise<void> {
 	if (browseTheWeb) {
 		await browseTheWeb.close().catch(() => undefined);

@@ -6,7 +6,7 @@ import { After, AfterAll, Before, Status, setDefaultTimeout } from '@cucumber/cu
 import { getTimeout } from '@ocom-verification/verification-shared/settings';
 import { type CellixE2EWorld, stopSharedServers } from '../../world.ts';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
-import { getServerDiagnostics, probeApiHealth } from './shared-infrastructure.ts';
+import { getServerDiagnostics, probeApiHealth, probeApiVariants, probePortlessRoutes } from './shared-infrastructure.ts';
 
 type PlaywrightPage = BrowseTheWeb['page'];
 
@@ -81,9 +81,14 @@ const currentDir = fileURLToPath(new URL('.', import.meta.url));
 /** Default scenario timeout from centralized configuration */
 setDefaultTimeout(getTimeout('scenario'));
 
-Before(async function (this: IWorld) {
+Before(async function (this: IWorld, { pickle }: ITestCaseHookParameter) {
 	const world = this as IWorld & CellixE2EWorld;
 	await world.init();
+	// Immediately after Before completes, probe the API. Tells us whether the
+	// 404s observed at After-time are because the API was *never* stable post
+	// startup, or because it transitioned to broken during scenario execution.
+	const postInitHealth = await probeApiHealth();
+	process.stderr.write(`\n[E2E-CRITICAL ${pickle.name}] post-init-health=${JSON.stringify(postInitHealth)}\n`);
 });
 
 After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) {
@@ -127,12 +132,15 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 					.catch(() => []);
 				const consoleLog = consoleMessagesByPage.get(page) ?? [];
 				const apiHealth = await probeApiHealth();
+				const apiVariants = await probeApiVariants();
+				const portlessRoutes = await probePortlessRoutes();
 				const serverDiagnostics = getServerDiagnostics();
 				const serverSummary = serverDiagnostics
 					.map((s) => {
 						const exitDesc = s.exitInfo ? `EXITED code=${s.exitInfo.code} signal=${s.exitInfo.signal}` : s.alive ? `alive pid=${s.pid}` : 'no process';
-						const stderrTail = s.stderrTail.trim() ? `\n    stderr-tail:\n${indent(s.stderrTail.slice(-1200), '      ')}` : '';
-						return `  - ${s.name}: ${exitDesc}${stderrTail}`;
+						const stderrTail = s.stderrTail.trim() ? `\n    stderr-tail:\n${indent(s.stderrTail.slice(-800), '      ')}` : '';
+						const stdoutTail = s.stdoutTail.trim() ? `\n    stdout-tail:\n${indent(s.stdoutTail.slice(-800), '      ')}` : '';
+						return `  - ${s.name}: ${exitDesc}${stderrTail}${stdoutTail}`;
 					})
 					.join('\n');
 				// Critical info (API health, subprocess state) is placed AT THE END
@@ -149,6 +157,8 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 					...consoleLog.slice(-25),
 					'',
 					`>>> CRITICAL: API HEALTH PROBE AT FAILURE: ${JSON.stringify(apiHealth)}`,
+					`>>> CRITICAL: API VARIANT PROBES: ${JSON.stringify(apiVariants)}`,
+					`>>> CRITICAL: PORTLESS ROUTES:\n${indent(portlessRoutes, '    ')}`,
 					`>>> CRITICAL: SUBPROCESS DIAGNOSTICS:\n${serverSummary}`,
 					'=== END DIAGNOSTICS ===',
 				].join('\n');
@@ -159,13 +169,21 @@ After(async function (this: IWorld, { result, pickle }: ITestCaseHookParameter) 
 				// survive log-display truncation that may swallow the larger
 				// cucumber attachment.
 				process.stderr.write(`\n[E2E-CRITICAL ${pickle.name}] api-health=${JSON.stringify(apiHealth)}\n`);
+				process.stderr.write(`[E2E-CRITICAL ${pickle.name}] api-variants=${JSON.stringify(apiVariants)}\n`);
+				for (const line of portlessRoutes.split('\n')) {
+					process.stderr.write(`[E2E-CRITICAL ${pickle.name}] portless-route ${line}\n`);
+				}
 				for (const s of serverDiagnostics) {
 					const exitDesc = s.exitInfo ? `EXITED code=${s.exitInfo.code} signal=${s.exitInfo.signal}` : s.alive ? `alive pid=${s.pid}` : 'no process';
 					process.stderr.write(`[E2E-CRITICAL ${pickle.name}] subprocess ${s.name}: ${exitDesc}\n`);
 					if (s.stderrTail.trim()) {
-						const lines = s.stderrTail.slice(-1200).split('\n');
-						for (const line of lines) {
-							process.stderr.write(`[E2E-CRITICAL ${s.name} stderr] ${line.slice(0, 400)}\n`);
+						for (const line of s.stderrTail.slice(-800).split('\n')) {
+							process.stderr.write(`[E2E-CRITICAL ${s.name} stderr] ${line.slice(0, 300)}\n`);
+						}
+					}
+					if (s.stdoutTail.trim()) {
+						for (const line of s.stdoutTail.slice(-800).split('\n')) {
+							process.stderr.write(`[E2E-CRITICAL ${s.name} stdout] ${line.slice(0, 300)}\n`);
 						}
 					}
 				}
