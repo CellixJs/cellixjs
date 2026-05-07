@@ -38,6 +38,7 @@ export class TestCommunityViteServer extends PortlessServer {
 
 		return {
 			BROWSER: 'none',
+			NODE_ENV: 'development',
 			VITE_BASE_URL: uiBase,
 			VITE_AAD_B2C_ACCOUNT_AUTHORITY: apiSettings.accountPortalOidcIssuer,
 			VITE_AAD_B2C_REDIRECT_URI: `${uiBase}/auth-redirect`,
