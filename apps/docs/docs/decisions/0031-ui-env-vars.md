@@ -71,7 +71,7 @@ Naming rules (authoritative):
 
 This naming convention is enforced by the repository's ArchUnit tests. The authoritative enforcement rule is implemented in the archunit test package: packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts. Key points about enforcement:
 
-- The archunit test reads pipeline variable mappings (azure-pipelines.yml) as a single source of truth and validates that all VITE_* names exposed by pipelines conform to the regex and portal registry rules above.
+- The ArchUnit test reads pipeline variable mappings (azure-pipelines.yml) as a single source of truth and validates that all VITE_* names exposed by pipelines conform to the regex and portal registry rules above.
 - Maintainers can run the rule locally with:
 
   pnpm -w --filter @ocom/archunit-tests test
@@ -85,7 +85,7 @@ Pipelines should map secure Azure DevOps variables into Vite env names during th
 VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: $(OCM_APP_UI_COMMUNITY_B2C_AUTHORITY_DEV)
 VITE_APP_UI_COMMUNITY_B2C_CLIENTID:  $(OCM_APP_UI_COMMUNITY_B2C_CLIENTID_DEV)
 
-Library groups (recommended):
+Variable groups (recommended):
 
 - Portal community: ocm-app-ui-community
 - Portal staff: ocm-app-ui-staff

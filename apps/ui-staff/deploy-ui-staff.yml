@@ -22,7 +22,7 @@ jobs:
 # Thin wrapper that delegates to the shared deploy-ui template and preserves ordering
 - template: ../../build-pipeline/templates/deploy-ui.yml
   parameters:
-    appId: 'UI_Staff'
+    appId: 'UI_STAFF'
     displayName: 'UI Staff'
     iacPath: 'apps/ui-staff/iac/main.bicep'
     iacParamsPath: 'apps/ui-staff/iac/${{ parameters.environmentNameBicep }}.bicepparam'

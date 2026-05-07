@@ -4,14 +4,15 @@ const { execSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const SKIP_DIRS = new Set(['node_modules', '.turbo', 'build-artifacts', 'dist', 'build', 'coverage', '.git']);
+
 function walkDir(dir, fileList = []) {
 	const files = fs.readdirSync(dir, { withFileTypes: true });
 	for (const file of files) {
 		if (file.name.startsWith('.')) continue;
 		const full = path.join(dir, file.name);
 		if (file.isDirectory()) {
-			// skip noise directories
-			if (file.name === 'node_modules' || file.name === '.turbo' || file.name === 'build-artifacts') continue;
+			if (SKIP_DIRS.has(file.name)) continue;
 			walkDir(full, fileList);
 		} else {
 			fileList.push(full);
@@ -104,7 +105,19 @@ function validateEnvNames(options = {}) {
 	const uniquePortals = Array.from(new Set(results.map((r) => r.portal))).filter((p) => p && p !== 'UNKNOWN');
 	const canonicalPortals = ['UI_COMMUNITY', 'UI_STAFF'];
 	const portals = Array.from(new Set([...canonicalPortals, ...uniquePortals])).filter((p) => p && p !== 'UNKNOWN');
-	const nonCompliantCount = results.filter((r) => r.status === 'non_compliant').length;
+
+	// Deduplicate: one entry per unique variable name, preferring source files over bundled output
+	const isBundledPath = (loc) => /\/(dist|build|\.turbo|storybook-static)\//.test(loc);
+	const deduped = new Map();
+	for (const r of results) {
+		const existing = deduped.get(r.variable);
+		if (!existing || (isBundledPath(existing.location) && !isBundledPath(r.location))) {
+			deduped.set(r.variable, r);
+		}
+	}
+	const dedupedResults = Array.from(deduped.values());
+
+	const nonCompliantCount = dedupedResults.filter((r) => r.status === 'non_compliant').length;
 
 	const buildId = process.env.BUILD_BUILDID ?? process.env.BUILD_BUILDNUMBER ?? 'local';
 	let commitSha = process.env.BUILD_SOURCEVERSION ? process.env.BUILD_SOURCEVERSION.slice(0, 8) : null;
@@ -122,9 +135,9 @@ function validateEnvNames(options = {}) {
 		buildId,
 		commitSha,
 		portals,
-		results,
+		results: dedupedResults,
 		summary: {
-			totalVariables: results.length,
+			totalVariables: dedupedResults.length,
 			nonCompliantCount,
 		},
 		validatedBy: 'ArchUnit + validate-env-names.cjs',

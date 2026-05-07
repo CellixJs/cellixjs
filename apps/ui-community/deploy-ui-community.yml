@@ -22,7 +22,7 @@ jobs:
 # Thin wrapper that delegates to the shared deploy-ui template
 - template: ../../build-pipeline/templates/deploy-ui.yml
   parameters:
-    appId: 'UI_Community'
+    appId: 'UI_COMMUNITY'
     displayName: 'UI Community'
     iacPath: 'apps/ui-community/iac/main.bicep'
     iacParamsPath: 'apps/ui-community/iac/${{ parameters.environmentNameBicep }}.bicepparam'

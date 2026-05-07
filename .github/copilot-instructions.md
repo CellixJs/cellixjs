@@ -175,7 +175,7 @@ Rationale: this naming enables discovery of variable names by CI (azure-pipeline
 When working on pipeline templates, new portals, Bicep configurations, or env-var rules (Dark Software Factory / AI FIRST layers), you MUST ensure evidence artifacts are generated:
 
 - **Env-var compliance**: Every run of the ArchUnit env-var naming test generates `build-artifacts/env-var-compliance-evidence.json`. This file is published as the `env-var-evidence` pipeline artifact in CI.
-- **Portal additions**: When adding a new portal, create `docs/portals/{portal-name}/addition-evidence.md` following the template at `docs/portals/ui-staff/addition-evidence.md`.
+- **Portal additions**: When adding a new portal, create `apps/docs/docs/portals/{portal-name}/addition-evidence.md` following the template at `apps/docs/docs/portals/ui-staff/addition-evidence.md`.
 - These artifacts are machine-readable and lightweight — they add no PR review burden or local dev friction.
 
 Do NOT generate evidence for core domain logic, DDD bounded contexts, or business logic changes.
