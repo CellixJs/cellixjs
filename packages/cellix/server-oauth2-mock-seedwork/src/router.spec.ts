@@ -58,6 +58,22 @@ function decodeJwtPayload(token: string) {
 	return JSON.parse(buf.toString('utf8')) as Record<string, unknown>;
 }
 
+async function getFormNonce(port: number, path: '/login' | '/signup', query?: Record<string, string>) {
+	const url = new URL(`http://127.0.0.1:${port}${path}`);
+	if (query) {
+		for (const [key, value] of Object.entries(query)) {
+			url.searchParams.set(key, value);
+		}
+	}
+	const res = await fetch(url);
+	expect(res.status).toBe(200);
+	const html = await res.text();
+	const match = /name="nonce" value="([^"]+)"/.exec(html);
+	const nonce = match?.[1];
+	expect(nonce).toBeTruthy();
+	return { html, nonce: nonce as string };
+}
+
 describe('oauth2 mock router flows', () => {
 	let server: Server;
 	let port: number;
@@ -76,18 +92,33 @@ describe('oauth2 mock router flows', () => {
 		await new Promise<void>((resolve) => server.close(() => resolve()));
 	});
 
+	it('GET /login stores redirect data server-side and only renders a nonce', async () => {
+		const maliciousRedirect = `${redirect}?next=<script>alert(1)</script>`;
+		const maliciousState = '"><svg/onload=alert(1)>';
+		const { html } = await getFormNonce(port, '/login', { redirect_uri: maliciousRedirect, state: maliciousState });
+		expect(html).toContain('name="nonce"');
+		expect(html).not.toContain('<script>alert(1)</script>');
+		expect(html).not.toContain('svg/onload=alert(1)');
+		expect(html).not.toContain('redirect_uri');
+		expect(html).not.toContain('state');
+	});
+
 	it('POST /signup persists user and rejects duplicate username', async () => {
 		const signupUrl = `http://127.0.0.1:${port}/signup`;
-		const body = new URLSearchParams({ username: 'alice', password: 'secret', email: 'alice@example.com', given_name: 'Alice', family_name: 'Smith', redirect_uri: redirect });
+		const { nonce } = await getFormNonce(port, '/signup', { redirect_uri: redirect, state: 'signup-state' });
+		const body = new URLSearchParams({ username: 'alice', password: 'secret', email: 'alice@example.com', given_name: 'Alice', family_name: 'Smith', nonce });
 		const res = await fetch(signupUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
 		expect(res.status).toBe(302);
+		expect(res.headers.get('location')).toContain('state=signup-state');
 		// user persisted
 		expect(store.users.length).toBe(1);
 		const u = store.users[0] as MockOAuth2User;
 		expect(u.username).toBe('alice');
 
 		// duplicate signup should fail (500)
-		const res2 = await fetch(signupUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
+		const { nonce: duplicateNonce } = await getFormNonce(port, '/signup', { redirect_uri: redirect, state: 'signup-state' });
+		const duplicateBody = new URLSearchParams({ username: 'alice', password: 'secret', email: 'alice@example.com', given_name: 'Alice', family_name: 'Smith', nonce: duplicateNonce });
+		const res2 = await fetch(signupUrl, { method: 'POST', body: duplicateBody.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
 		expect([500, 400]).toContain(res2.status);
 	});
 
@@ -95,11 +126,14 @@ describe('oauth2 mock router flows', () => {
 		// ensure user exists
 		store.users.push({ username: 'bob', sub: 'sub-bob', password: 'p@ss', claims: { email: 'bob@example.com', given_name: 'Bob' } });
 		const loginUrl = `http://127.0.0.1:${port}/login`;
-		const good = new URLSearchParams({ username: 'bob', password: 'p@ss', redirect_uri: redirect });
+		const { nonce } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'login-state' });
+		const good = new URLSearchParams({ username: 'bob', password: 'p@ss', nonce });
 		const r1 = await fetch(loginUrl, { method: 'POST', body: good.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
 		expect(r1.status).toBe(302);
+		expect(r1.headers.get('location')).toContain('state=login-state');
 
-		const bad = new URLSearchParams({ username: 'bob', password: 'wrong', redirect_uri: redirect });
+		const { nonce: badNonce } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'bad-login-state' });
+		const bad = new URLSearchParams({ username: 'bob', password: 'wrong', nonce: badNonce });
 		const r2 = await fetch(loginUrl, { method: 'POST', body: bad.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 		expect(r2.status).toBe(401);
 	});
@@ -107,12 +141,14 @@ describe('oauth2 mock router flows', () => {
 	it('/token and /userinfo include full user claims and never include password', async () => {
 		// Signup a new user to obtain an auth code mapped in authCodeStore
 		const signupUrl = `http://127.0.0.1:${port}/signup`;
-		const body = new URLSearchParams({ username: 'carol', password: 'secret', email: 'carol@example.com', given_name: 'Carol', family_name: 'Jones', redirect_uri: redirect });
+		const { nonce } = await getFormNonce(port, '/signup', { redirect_uri: redirect, state: 'token-state' });
+		const body = new URLSearchParams({ username: 'carol', password: 'secret', email: 'carol@example.com', given_name: 'Carol', family_name: 'Jones', nonce });
 		const res = await fetch(signupUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
 		expect(res.status).toBe(302);
 		const loc = res.headers.get('location') as string;
 		const u = new URL(loc);
 		const code = u.searchParams.get('code') as string;
+		expect(u.searchParams.get('state')).toBe('token-state');
 
 		// exchange code for token
 		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code }) });
