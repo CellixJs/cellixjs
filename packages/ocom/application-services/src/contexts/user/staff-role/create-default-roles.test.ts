@@ -38,10 +38,7 @@ function makeMockStaffRole(
 	} as unknown as Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 }
 
-function makeMockRepo(
-	existingRoleNames: string[] = [],
-	overrides: Partial<StaffRoleRepo> = {},
-): StaffRoleRepo {
+function makeMockRepo(existingRoleNames: string[] = [], overrides: Partial<StaffRoleRepo> = {}): StaffRoleRepo {
 	const savedRoles: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>[] = [];
 
 	return {
@@ -178,9 +175,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 					capturedRoles.set(roleName, role);
 					return Promise.resolve(role);
 				}),
-				save: vi.fn().mockImplementation((role: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>) =>
-					Promise.resolve(role as Domain.Contexts.User.StaffRole.StaffRoleEntityReference),
-				),
+				save: vi.fn().mockImplementation((role: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>) => Promise.resolve(role as Domain.Contexts.User.StaffRole.StaffRoleEntityReference)),
 			} as unknown as typeof mockRepo;
 			dataSources = makeDataSources(mockRepo);
 		});
@@ -224,9 +219,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 					capturedRoles.set(roleName, role);
 					return Promise.resolve(role);
 				}),
-				save: vi.fn().mockImplementation((role: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>) =>
-					Promise.resolve(role as Domain.Contexts.User.StaffRole.StaffRoleEntityReference),
-				),
+				save: vi.fn().mockImplementation((role: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>) => Promise.resolve(role as Domain.Contexts.User.StaffRole.StaffRoleEntityReference)),
 			} as unknown as typeof mockRepo;
 			dataSources = makeDataSources(mockRepo);
 		});
@@ -270,9 +263,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 					capturedRoles.set(roleName, role);
 					return Promise.resolve(role);
 				}),
-				save: vi.fn().mockImplementation((role: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>) =>
-					Promise.resolve(role as Domain.Contexts.User.StaffRole.StaffRoleEntityReference),
-				),
+				save: vi.fn().mockImplementation((role: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>) => Promise.resolve(role as Domain.Contexts.User.StaffRole.StaffRoleEntityReference)),
 			} as unknown as typeof mockRepo;
 			dataSources = makeDataSources(mockRepo);
 		});
@@ -316,9 +307,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 					capturedRoles.set(roleName, role);
 					return Promise.resolve(role);
 				}),
-				save: vi.fn().mockImplementation((role: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>) =>
-					Promise.resolve(role as Domain.Contexts.User.StaffRole.StaffRoleEntityReference),
-				),
+				save: vi.fn().mockImplementation((role: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>) => Promise.resolve(role as Domain.Contexts.User.StaffRole.StaffRoleEntityReference)),
 			} as unknown as typeof mockRepo;
 			dataSources = makeDataSources(mockRepo);
 		});

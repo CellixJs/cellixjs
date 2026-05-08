@@ -75,20 +75,9 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
 	} as unknown as GraphContext;
 }
 
-type QueryResolver = (
-	parent: object,
-	args: Record<string, never>,
-	context: GraphContext,
-	info: GraphQLResolveInfo,
-) => Promise<StaffUserEntity>;
+type QueryResolver = (parent: object, args: Record<string, never>, context: GraphContext, info: GraphQLResolveInfo) => Promise<StaffUserEntity>;
 
-const callCurrentStaffUserQuery = (context: GraphContext) =>
-	(staffUserResolvers.Query?.currentStaffUserAndCreateIfNotExists as unknown as QueryResolver)(
-		{},
-		{},
-		context,
-		makeMockInfo('currentStaffUserAndCreateIfNotExists'),
-	);
+const callCurrentStaffUserQuery = (context: GraphContext) => (staffUserResolvers.Query?.currentStaffUserAndCreateIfNotExists as unknown as QueryResolver)({}, {}, context, makeMockInfo('currentStaffUserAndCreateIfNotExists'));
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let context: GraphContext;
