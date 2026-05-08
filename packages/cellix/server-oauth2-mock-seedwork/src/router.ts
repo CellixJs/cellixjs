@@ -215,9 +215,8 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			return;
 		}
 
-		// If userStore exists and no persisted selection is present, redirect to login to choose/authorize a user
-		const portalProfile = config.getUserProfile();
-		if (config.userStore && !portalProfile.sub) {
+		// If userStore exists, redirect to login to choose/authorize a user.
+		if (config.userStore) {
 			const q = new URLSearchParams({ ...(typeof state === 'string' ? { state } : {}), ...(typeof redirect_uri === 'string' ? { redirect_uri } : {}) }).toString();
 			res.setHeader('Location', `/login${q ? `?${q}` : ''}`);
 			res.status(302).end();

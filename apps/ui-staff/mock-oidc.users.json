@@ -1,0 +1,13 @@
+[
+	{
+		"username": "staff@sharethrift.onmicrosoft.com",
+		"sub": "10000000-0000-4000-8000-000000000001",
+		"password": "password",
+		"claims": {
+			"email": "staff@sharethrift.onmicrosoft.com",
+			"given_name": "Staff",
+			"family_name": "User",
+			"tid": "test-staff-tenant-id"
+		}
+	}
+]

@@ -26,6 +26,7 @@ interface MockOidcConfig {
 // Resolved config after reading the UI app's .env
 export interface PortalOidcConfig {
 	name: string;
+	dirName: string;
 	clientId: string;
 	redirectUri: string;
 	claims: Record<string, unknown>;
@@ -144,7 +145,7 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 		return null;
 	}
 
-	return { name: config.name, clientId, redirectUri, claims: config.claims };
+	return { name: config.name, dirName: entryName, clientId, redirectUri, claims: config.claims };
 }
 
 function isValidMockOidcConfig(config: unknown): config is MockOidcConfig {

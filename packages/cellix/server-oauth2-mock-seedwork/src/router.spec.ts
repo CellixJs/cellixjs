@@ -122,6 +122,13 @@ describe('oauth2 mock router flows', () => {
 		expect([500, 400]).toContain(res2.status);
 	});
 
+	it('GET /authorize redirects to /login when a userStore is configured', async () => {
+		const authorizeUrl = `http://127.0.0.1:${port}/authorize?redirect_uri=${encodeURIComponent(redirect)}&state=authorize-state`;
+		const res = await fetch(authorizeUrl, { redirect: 'manual' });
+		expect(res.status).toBe(302);
+		expect(res.headers.get('location')).toBe(`/login?state=authorize-state&redirect_uri=${encodeURIComponent(redirect)}`);
+	});
+
 	it('POST /login authenticates user and rejects wrong password', async () => {
 		// ensure user exists
 		store.users.push({ username: 'bob', sub: 'sub-bob', password: 'p@ss', claims: { email: 'bob@example.com', given_name: 'Bob' } });
