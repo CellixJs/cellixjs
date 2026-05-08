@@ -147,10 +147,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			}
 		};
 
-		window.addEventListener('keydown', handleKeyDown);
+		globalThis.addEventListener('keydown', handleKeyDown);
 
 		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
+			globalThis.removeEventListener('keydown', handleKeyDown);
 		};
 	}, [toggleHidden]);
 	//   console.log('isImpending', isImpending);

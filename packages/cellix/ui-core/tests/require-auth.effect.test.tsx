@@ -37,7 +37,7 @@ function createAuthState(overrides: Partial<ReturnType<typeof baseAuthState>> = 
 describe('RequireAuth useEffect behavior', () => {
 	afterEach(() => {
 		vi.restoreAllMocks();
-		window.sessionStorage.clear();
+		globalThis.sessionStorage.clear();
 	});
 
 	beforeEach(() => {

@@ -34,7 +34,7 @@ export const LoggedInUserCommunityContainer: React.FC<LoggedInUserCommunityConta
 		},
 	};
 	const handleLogout = () => {
-		HandleLogout(auth, apolloClient, window.location.origin);
+		HandleLogout(auth, apolloClient, globalThis.location.origin);
 	};
 
 	return (
