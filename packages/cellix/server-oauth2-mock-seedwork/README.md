@@ -10,8 +10,8 @@ This package provides the reusable server logic used by app-level mock OAuth2 se
 
 - OIDC discovery: `/.well-known/openid-configuration`
 - JWKS: `/.well-known/jwks.json` (RS256)
-- `GET /authorize` — redirects to a configured redirect URI with a mock `code`
-- `POST /token` — returns `{ id_token, access_token, refresh_token, ... }`
+- `GET /authorize` — redirects to a configured redirect URI with a mock `code`, or forwards OIDC query params to the interactive login flow when a user store is configured
+- `POST /token` — returns `{ id_token, access_token, refresh_token, ... }`, including passthrough claims such as `nonce` captured during interactive login/signup flows
 - CORS restricted to local origins (127.0.0.1, localhost, and `*.localhost`) and configured redirect origins
 
 ## Usage
@@ -43,8 +43,8 @@ The app package supplies runtime configuration such as:
 
 - `GET /.well-known/openid-configuration` — standard discovery document
 - `GET /.well-known/jwks.json` — public signing key
-- `GET /authorize?state=...&redirect_uri=...` — validates the redirect target and returns a mock authorization code
-- `POST /token` — exchanges the code for signed `id_token` and `access_token`
+- `GET /authorize?...` — validates the redirect target, forwarding the original authorize query params to `/login` when interactive user selection is enabled
+- `POST /token` — exchanges the code for signed `id_token` and `access_token`, preserving passthrough claims such as `nonce` from the interactive login/signup flow
 
 ## CellixJS integration
 

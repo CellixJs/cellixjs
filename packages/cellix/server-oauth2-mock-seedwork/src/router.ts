@@ -18,6 +18,35 @@ interface TokenProfile {
 	[key: string]: unknown;
 }
 
+interface TimedEntry<T> {
+	value: T;
+	expiresAt: number;
+}
+
+function createTtlStore<T>(ttlMs: number) {
+	const store = new Map<string, TimedEntry<T>>();
+	return {
+		set(key: string, value: T): void {
+			store.set(key, { value, expiresAt: Date.now() + ttlMs });
+		},
+		get(key: string): T | undefined {
+			const entry = store.get(key);
+			if (!entry) return undefined;
+			if (Date.now() > entry.expiresAt) {
+				store.delete(key);
+				return undefined;
+			}
+			return entry.value;
+		},
+		has(key: string): boolean {
+			return this.get(key) !== undefined;
+		},
+		delete(key: string): void {
+			store.delete(key);
+		},
+	};
+}
+
 export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2PortalConfig): Promise<express.Router> {
 	const router = express.Router();
 
@@ -28,10 +57,10 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	publicJwk.kid = publicJwk.kid || 'mock-key';
 
 	const cachedUserProfile = config.getUserProfile();
-	// Auth code store: maps one-time auth codes to selected sub and redirectUri
-	const authCodeStore = new Map<string, { sub?: string; redirectUri: string }>();
-	// Maps short-lived nonces to { redirectUri, state } so user-controlled values never appear in HTML
-	const loginSessionStore = new Map<string, { redirectUri: string; state: string }>();
+	// Auth code store: maps one-time auth codes to selected sub, redirectUri, and OIDC nonce
+	const authCodeStore = createTtlStore<{ sub?: string; redirectUri: string; nonce?: string }>(10 * 60 * 1000);
+	// Maps short-lived nonces to redirect and authorization params so user-controlled values never appear in HTML
+	const loginSessionStore = createTtlStore<{ redirectUri: string; state: string; nonce?: string }>(10 * 60 * 1000);
 	// For prefilled portal profile when no userStore, we may use portal sub as default when issuing codes without an explicit user selection.
 	const portalPrefilledSub = config.userStore ? undefined : (cachedUserProfile.sub ?? crypto.randomUUID());
 
@@ -134,6 +163,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		let resolvedSubFromCode: string | undefined;
 		// check one-time mapping first
 		const mapping = authCodeStore.get(code);
+		const resolvedNonce = mapping?.nonce;
 		if (mapping) {
 			try {
 				const normalizedDecoded = normalizeUrl(mapping.redirectUri);
@@ -183,6 +213,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			aud,
 			iss: issuerBaseUrl,
 			tid: resolvedTid,
+			...(resolvedNonce !== undefined ? { nonce: resolvedNonce } : {}),
 		};
 		const tokenResponse = await buildTokenResponse(profile, privateKey, publicJwk, issuerBaseUrl);
 		res.json(tokenResponse);
@@ -206,7 +237,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	});
 
 	router.get('/authorize', (req, res) => {
-		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
+		const { state, redirect_uri, nonce } = req.query as { state?: string; redirect_uri?: string; nonce?: string };
 		const requestedRedirectUri = redirect_uri ?? primaryRedirectUri;
 		const normalizedRequestedRedirectUri = normalizeUrl(requestedRedirectUri);
 		const isAllowed = normalizedAllowedRedirectUris.has(normalizedRequestedRedirectUri);
@@ -217,7 +248,13 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		// If userStore exists, redirect to login to choose/authorize a user.
 		if (config.userStore) {
-			const q = new URLSearchParams({ ...(typeof state === 'string' ? { state } : {}), ...(typeof redirect_uri === 'string' ? { redirect_uri } : {}) }).toString();
+			const forward: Record<string, string> = typeof nonce === 'string' ? { nonce } : {};
+			for (const [key, value] of Object.entries(req.query)) {
+				if (typeof value === 'string') {
+					forward[key] = value;
+				}
+			}
+			const q = new URLSearchParams(forward).toString();
 			res.setHeader('Location', `${issuerBaseUrl}/login${q ? `?${q}` : ''}`);
 			res.status(302).end();
 			return;
@@ -244,21 +281,26 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			res.status(404).send('Login not available');
 			return;
 		}
-		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
+		const { state, redirect_uri, nonce } = req.query as { state?: string; redirect_uri?: string; nonce?: string };
 		const redirect = typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri;
 		const safeState = typeof state === 'string' ? state : '';
-		const nonce = crypto.randomUUID();
-		loginSessionStore.set(nonce, { redirectUri: redirect, state: safeState });
+		const safeNonce = typeof nonce === 'string' ? nonce : undefined;
+		const sessionNonce = crypto.randomUUID();
+		loginSessionStore.set(sessionNonce, {
+			redirectUri: redirect,
+			state: safeState,
+			...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
+		});
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
 		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
 		<h1>Login</h1>
 		<form method="POST" action="${issuerBaseUrl}/login">
-		<input type="hidden" name="nonce" value="${nonce}" />
+		<input type="hidden" name="nonce" value="${sessionNonce}" />
 		<label>Username: <input name="username" /></label><br/>
 		<label>Password: <input name="password" type="password" /></label><br/>
 		<button type="submit">Login</button>
 		</form>
-		<p><a href="${issuerBaseUrl}/signup?nonce=${nonce}">Sign up</a></p>
+		<p><a href="${issuerBaseUrl}/signup?nonce=${sessionNonce}">Sign up</a></p>
 		</body></html>`);
 	});
 
@@ -293,7 +335,11 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					return;
 				}
 				const code = `mock-auth-code-${crypto.randomUUID()}`;
-				authCodeStore.set(code, { sub: user.sub, redirectUri: normalized });
+				authCodeStore.set(code, {
+					sub: user.sub,
+					redirectUri: normalized,
+					...(loginSession?.nonce !== undefined ? { nonce: loginSession.nonce } : {}),
+				});
 				const location = buildRedirectWithCode(redirect, code, state);
 				res.setHeader('Location', location);
 				res.status(302).end();
@@ -317,8 +363,13 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 		const redirect = existingSession?.redirectUri ?? (typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri);
 		const safeState = existingSession?.state ?? (typeof state === 'string' ? state : '');
+		const safeNonce = existingSession?.nonce ?? (typeof queryNonce === 'string' ? queryNonce : undefined);
 		const nonce = crypto.randomUUID();
-		loginSessionStore.set(nonce, { redirectUri: redirect, state: safeState });
+		loginSessionStore.set(nonce, {
+			redirectUri: redirect,
+			state: safeState,
+			...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
+		});
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
 		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
 		<h1>Sign up</h1>
@@ -369,14 +420,23 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					return;
 				}
 				const code = `mock-auth-code-${crypto.randomUUID()}`;
-				authCodeStore.set(code, { sub: newUser.sub, redirectUri: normalized });
+				authCodeStore.set(code, {
+					sub: newUser.sub,
+					redirectUri: normalized,
+					...(signupSession?.nonce !== undefined ? { nonce: signupSession.nonce } : {}),
+				});
 				const location = buildRedirectWithCode(redirect, code, state);
 				res.setHeader('Location', location);
 				res.status(302).end();
 			} catch {
 				res.status(400).send('Invalid redirect_uri format');
 			}
-		} catch (_err) {
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : String(err);
+			if (msg.toLowerCase().includes('already exists')) {
+				res.status(409).json({ error: 'user_exists', error_description: msg });
+				return;
+			}
 			res.status(500).send('Signup failed');
 		}
 	});
