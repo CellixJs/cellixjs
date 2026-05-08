@@ -18,6 +18,7 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 		}
 		if (!app) {
 			app = express();
+			app.set('trust proxy', 1);
 			app.disable('x-powered-by');
 		}
 		const gen = startGeneration;
