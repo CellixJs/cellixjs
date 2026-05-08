@@ -31,7 +31,7 @@ const CURRENT_STAFF_USER_QUERY = gql`
 	}
 `;
 
-export interface StaffPermissions {
+interface StaffPermissions {
 	canManageCommunities: boolean;
 	canManageUsers: boolean;
 	canManageFinance: boolean;
