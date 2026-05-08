@@ -12,9 +12,9 @@ export type StaffAppRole = (typeof StaffAppRoles)[keyof typeof StaffAppRoles];
  * A user must hold at least one of the listed roles to be admitted to the route.
  */
 export const staffRouteRoles = {
-	'/staff/community': [StaffAppRoles.CaseManager, StaffAppRoles.ServiceLineOwner],
-	'/staff/users': [StaffAppRoles.CaseManager, StaffAppRoles.ServiceLineOwner],
-	'/staff/finance': [StaffAppRoles.Finance],
+	'/staff/community-management': [StaffAppRoles.CaseManager, StaffAppRoles.ServiceLineOwner, StaffAppRoles.TechAdmin],
+	'/staff/user-management': [StaffAppRoles.CaseManager, StaffAppRoles.ServiceLineOwner, StaffAppRoles.TechAdmin],
+	'/staff/finance': [StaffAppRoles.Finance, StaffAppRoles.TechAdmin],
 	'/staff/tech': [StaffAppRoles.TechAdmin],
 } satisfies Record<string, readonly StaffAppRole[]>;
 

@@ -16,7 +16,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="Finance"
 							description="Finance route package mounted under /staff/finance."
-							expectedRoles={['Staff.Finance']}
+							expectedRoles={['Staff.Finance', 'Staff.TechAdmin']}
 						/>
 					}
 				/>
@@ -26,7 +26,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="Finance"
 							description="Finance route package mounted under /staff/finance."
-							expectedRoles={['Staff.Finance']}
+							expectedRoles={['Staff.Finance', 'Staff.TechAdmin']}
 						/>
 					}
 				/>

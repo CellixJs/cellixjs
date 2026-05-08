@@ -69,8 +69,8 @@ async function injectOidcSession(page: Page, roles: string[]): Promise<void> {
 // --- Test matrix ---
 
 const ROUTES = {
-	community: '/staff/community',
-	users: '/staff/users',
+	community: '/staff/community-management',
+	users: '/staff/user-management',
 	finance: '/staff/finance',
 	tech: '/staff/tech',
 } as const;
@@ -124,19 +124,19 @@ test.describe('Staff.TechAdmin role', () => {
 		await expectAuthorized(page, 'Tech Admin');
 	});
 
-	test('is denied /staff/finance', async ({ page }) => {
+	test('can access /staff/finance', async ({ page }) => {
 		await navigateTo(page, ROUTES.finance);
-		await expectUnauthorized(page);
+		await expectAuthorized(page, 'Finance');
 	});
 
-	test('is denied /staff/community', async ({ page }) => {
+	test('can access /staff/community-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.community);
-		await expectUnauthorized(page);
+		await expectAuthorized(page, 'Community Management');
 	});
 
-	test('is denied /staff/users', async ({ page }) => {
+	test('can access /staff/user-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.users);
-		await expectUnauthorized(page);
+		await expectAuthorized(page, 'User Management');
 	});
 });
 
@@ -158,12 +158,12 @@ test.describe('Staff.Finance role', () => {
 		await expectUnauthorized(page);
 	});
 
-	test('is denied /staff/community', async ({ page }) => {
+	test('is denied /staff/community-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.community);
 		await expectUnauthorized(page);
 	});
 
-	test('is denied /staff/users', async ({ page }) => {
+	test('is denied /staff/user-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.users);
 		await expectUnauthorized(page);
 	});
@@ -177,12 +177,12 @@ test.describe('Staff.CaseManager role', () => {
 		await injectOidcSession(page, [ROLES.CaseManager]);
 	});
 
-	test('can access /staff/community', async ({ page }) => {
+	test('can access /staff/community-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.community);
 		await expectAuthorized(page, 'Community Management');
 	});
 
-	test('can access /staff/users', async ({ page }) => {
+	test('can access /staff/user-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.users);
 		await expectAuthorized(page, 'User Management');
 	});
@@ -206,12 +206,12 @@ test.describe('Staff.ServiceLineOwner role', () => {
 		await injectOidcSession(page, [ROLES.ServiceLineOwner]);
 	});
 
-	test('can access /staff/community', async ({ page }) => {
+	test('can access /staff/community-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.community);
 		await expectAuthorized(page, 'Community Management');
 	});
 
-	test('can access /staff/users', async ({ page }) => {
+	test('can access /staff/user-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.users);
 		await expectAuthorized(page, 'User Management');
 	});
@@ -235,12 +235,12 @@ test.describe('No app roles (authenticated, no roles)', () => {
 		await injectOidcSession(page, []);
 	});
 
-	test('is denied /staff/community', async ({ page }) => {
+	test('is denied /staff/community-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.community);
 		await expectUnauthorized(page);
 	});
 
-	test('is denied /staff/users', async ({ page }) => {
+	test('is denied /staff/user-management', async ({ page }) => {
 		await navigateTo(page, ROUTES.users);
 		await expectUnauthorized(page);
 	});

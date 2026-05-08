@@ -11,18 +11,20 @@ describe('StaffAppRoles', () => {
 });
 
 describe('staffRouteRoles', () => {
-	it('gates /staff/community to CaseManager and ServiceLineOwner', () => {
-		expect(staffRouteRoles['/staff/community']).toContain(StaffAppRoles.CaseManager);
-		expect(staffRouteRoles['/staff/community']).toContain(StaffAppRoles.ServiceLineOwner);
+	it('gates /staff/community-management to CaseManager, ServiceLineOwner, and TechAdmin', () => {
+		expect(staffRouteRoles['/staff/community-management']).toContain(StaffAppRoles.CaseManager);
+		expect(staffRouteRoles['/staff/community-management']).toContain(StaffAppRoles.ServiceLineOwner);
+		expect(staffRouteRoles['/staff/community-management']).toContain(StaffAppRoles.TechAdmin);
 	});
 
-	it('gates /staff/users to CaseManager and ServiceLineOwner', () => {
-		expect(staffRouteRoles['/staff/users']).toContain(StaffAppRoles.CaseManager);
-		expect(staffRouteRoles['/staff/users']).toContain(StaffAppRoles.ServiceLineOwner);
+	it('gates /staff/user-management to CaseManager, ServiceLineOwner, and TechAdmin', () => {
+		expect(staffRouteRoles['/staff/user-management']).toContain(StaffAppRoles.CaseManager);
+		expect(staffRouteRoles['/staff/user-management']).toContain(StaffAppRoles.ServiceLineOwner);
+		expect(staffRouteRoles['/staff/user-management']).toContain(StaffAppRoles.TechAdmin);
 	});
 
-	it('gates /staff/finance to Finance only', () => {
-		expect(staffRouteRoles['/staff/finance']).toEqual([StaffAppRoles.Finance]);
+	it('gates /staff/finance to Finance and TechAdmin', () => {
+		expect(staffRouteRoles['/staff/finance']).toEqual([StaffAppRoles.Finance, StaffAppRoles.TechAdmin]);
 	});
 
 	it('gates /staff/tech to TechAdmin only', () => {

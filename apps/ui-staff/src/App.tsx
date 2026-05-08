@@ -19,10 +19,10 @@ function StaffRoutes() {
 	return (
 		<Routes>
 			<Route
-				path="/"
+				path="/community-management/*"
 				element={
 					<RequireRole
-						roles={staffRouteRoles['/staff/community']}
+						roles={staffRouteRoles['/staff/community-management']}
 						permKey="canManageCommunities"
 					>
 						<CommunityManagement />
@@ -30,21 +30,10 @@ function StaffRoutes() {
 				}
 			/>
 			<Route
-				path="/community/*"
+				path="/user-management/*"
 				element={
 					<RequireRole
-						roles={staffRouteRoles['/staff/community']}
-						permKey="canManageCommunities"
-					>
-						<CommunityManagement />
-					</RequireRole>
-				}
-			/>
-			<Route
-				path="/users/*"
-				element={
-					<RequireRole
-						roles={staffRouteRoles['/staff/users']}
+						roles={staffRouteRoles['/staff/user-management']}
 						permKey="canManageUser"
 					>
 						<UserManagement />
