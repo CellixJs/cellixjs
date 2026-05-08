@@ -49,17 +49,18 @@ function mergeLcovFiles() {
 			const fullPath = path.join(dir, entry.name);
 
 			if (entry.isDirectory()) {
-				if (entry.name !== 'node_modules' && entry.name !== '.git') {
+				if (!['node_modules', '.git', '.turbo', 'dist', 'build'].includes(entry.name)) {
 					findLcovFiles(fullPath);
 				}
 			} else if (entry.name === 'lcov.info' && fullPath.replaceAll('\\', '/').includes('/coverage/')) {
-				lcovFiles.push(fullPath);
+				if (fullPath !== outputFile) {
+					lcovFiles.push(fullPath);
+				}
 			}
 		}
 	}
 
-	// Search only in the acceptance/verification packages for coverage
-	const searchDirs = ['packages/ocom-verification'].filter((dir) => fs.existsSync(path.join(rootDir, dir)));
+	const searchDirs = ['apps', 'packages'].filter((dir) => fs.existsSync(path.join(rootDir, dir)));
 
 	for (const dir of searchDirs) {
 		findLcovFiles(path.join(rootDir, dir));

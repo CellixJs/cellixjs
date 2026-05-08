@@ -14,6 +14,7 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 		token: { colorTextBase, colorBgContainer },
 	} = theme.useToken();
 	const { Title } = Typography;
+	const introText = 'Getting started with your community is only a few clicks away.';
 	return (
 		<>
 			<div
@@ -28,7 +29,7 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 				</Helmet>
 				<Title level={3}>Creating your Community</Title>
 				<p>
-					Getting started with your community is only a few clicks away.
+					{introText}
 					<br />
 					Once you create it here you'll see it in the list of communities you have access to. <br />
 					You will have access to both the member side and the admin side of your community. <br />
@@ -39,6 +40,10 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 				layout="vertical"
 				form={form}
 				onFinish={async (values) => {
+					const submittedName = typeof values.name === 'string' ? values.name.trim() : '';
+					if (submittedName.length > 120) {
+						form.setFields([{ name: 'name', warnings: ['Long community names may be hard to scan in lists.'] }]);
+					}
 					setFormLoading(true);
 					try {
 						await props.onSave(values);

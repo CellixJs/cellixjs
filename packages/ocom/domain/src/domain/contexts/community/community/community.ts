@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { CommunityCreatedEvent, type CommunityCreatedProps } from '../../../events/types/community-created.ts';
 import { CommunityDomainUpdatedEvent, type CommunityDomainUpdatedProps } from '../../../events/types/community-domain-updated.ts';
 import { CommunityWhiteLabelDomainUpdatedEvent, type CommunityWhiteLabelDomainUpdatedProps } from '../../../events/types/community-white-label-domain-updated.ts';
@@ -80,10 +80,11 @@ export class Community<props extends CommunityProps> extends AggregateRoot<props
 		}
 		const oldDomain = this.props.domain;
 		if (this.props.domain !== domain) {
-			this.props.domain = new ValueObjects.Domain(domain).valueOf();
+			const nextDomain = domain;
+			this.props.domain = new ValueObjects.Domain(nextDomain).valueOf();
 			this.addIntegrationEvent<CommunityDomainUpdatedProps, CommunityDomainUpdatedEvent>(CommunityDomainUpdatedEvent, {
 				communityId: this.props.id,
-				domain,
+				domain: nextDomain,
 				oldDomain: oldDomain,
 			});
 		}

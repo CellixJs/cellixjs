@@ -1,17 +1,6 @@
 {
 	"allowExternal": true,
-	"include": [
-		"**/ocom/application-services/dist/**",
-		"**/ocom/context-spec/dist/**",
-		"**/ocom/domain/dist/**",
-		"**/ocom/graphql/dist/**",
-		"**/ocom/graphql-handler/dist/**",
-		"**/ocom/persistence/dist/**",
-		"**/ocom/service-apollo-server/dist/**",
-		"**/ocom/service-mongoose/dist/**",
-		"**/ocom/service-token-validation/dist/**",
-		"**/ocom/data-sources-mongoose-models/dist/**"
-	],
+	"include": ["**/ocom/application-services/dist/**", "**/ocom/domain/dist/**", "**/ocom/graphql/dist/**", "**/ocom/persistence/dist/**", "**/ocom/data-sources-mongoose-models/dist/**"],
 	"exclude": ["**/node_modules/**"],
 	"reporter": ["text", "lcovonly"],
 	"report-dir": "coverage"

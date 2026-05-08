@@ -21,7 +21,6 @@
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",
-		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",
 		"clean": "rimraf dist **/*.generated.ts **/graphql.schema.json"
 	},

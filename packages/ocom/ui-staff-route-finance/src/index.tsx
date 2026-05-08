@@ -4,6 +4,8 @@ import { Route, Routes } from 'react-router-dom';
 import { SectionLayout } from './section-layout.tsx';
 
 export const Root: React.FC = () => {
+	const expectedRoles = ['Staff.Finance'];
+
 	return (
 		<Routes>
 			<Route
@@ -16,7 +18,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="Finance"
 							description="Finance route package mounted under /staff/finance."
-							expectedRoles={['Staff.Finance']}
+							expectedRoles={expectedRoles}
 						/>
 					}
 				/>
@@ -26,7 +28,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="Finance"
 							description="Finance route package mounted under /staff/finance."
-							expectedRoles={['Staff.Finance']}
+							expectedRoles={expectedRoles}
 						/>
 					}
 				/>

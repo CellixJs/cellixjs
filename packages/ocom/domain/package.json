@@ -19,7 +19,6 @@
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",
-		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:acceptance": "cucumber-js",
 		"test:integration": "vitest run integration.test.ts --silent --reporter=dot",
 		"test:serenity": "cucumber-js",

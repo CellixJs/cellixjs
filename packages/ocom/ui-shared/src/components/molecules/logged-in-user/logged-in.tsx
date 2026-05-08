@@ -14,6 +14,7 @@ export interface LoggedInProps {
 
 export const LoggedIn: FC<LoggedInProps> = (props) => {
 	const initials = (props.data.firstName.charAt(0) + props.data.lastName.charAt(0)).toUpperCase();
+	const notificationLabel = props.data.notificationCount > 99 ? '99+' : props.data.notificationCount.toString();
 	const profileImage = props.data.profileImage ? (
 		<Image
 			src={props.data.profileImage}
@@ -26,6 +27,7 @@ export const LoggedIn: FC<LoggedInProps> = (props) => {
 		<div className="ml-3">
 			<Avatar
 				src={profileImage}
+				data-notification-count={notificationLabel}
 				style={{ backgroundColor: '#87d068' }}
 			>
 				{initials}

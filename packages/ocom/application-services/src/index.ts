@@ -44,7 +44,8 @@ export type ApplicationServicesFactory = AppServicesHost<ApplicationServices>;
 
 export const buildApplicationServicesFactory = (infrastructureServicesRegistry: ApiContextSpec): ApplicationServicesFactory => {
 	const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints): Promise<ApplicationServices> => {
-		const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
+		const normalizedAuthHeader = rawAuthHeader?.trim();
+		const accessToken = normalizedAuthHeader?.replace(/^Bearer\s+/i, '').trim();
 		const tokenValidationResult = accessToken ? await infrastructureServicesRegistry.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken) : null;
 		let passport = Domain.PassportFactory.forGuest();
 		if (tokenValidationResult !== null) {
@@ -59,6 +60,9 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
 					passport = Domain.PassportFactory.forMember(endUser, member, community);
 				}
 			} else if (openIdConfigKey === 'StaffPortal') {
+				if (verifiedJwt.sub.trim().length === 0) {
+					passport = Domain.PassportFactory.forGuest();
+				}
 				const staffUser = undefined;
 				// const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
 				if (staffUser) {
