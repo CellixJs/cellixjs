@@ -135,6 +135,40 @@ describe('oauth2 mock router flows', () => {
 		expect(html).toContain('name="nonce"');
 	});
 
+	it('POST /login escapes the submitted username when re-rendering invalid credentials', async () => {
+		const loginUrl = `http://127.0.0.1:${port}/login`;
+		const maliciousUsername = '"><script>alert(1)</script>';
+		const escapedUsername = '&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;';
+		const { nonce } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'escaped-login-state' });
+		const body = new URLSearchParams({ username: maliciousUsername, password: createPassword('wrong-password'), nonce });
+		const res = await fetch(loginUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+		expect(res.status).toBe(200);
+		const html = await res.text();
+		expect(html).toContain(`value="${escapedUsername}"`);
+		expect(html).not.toContain(maliciousUsername);
+	});
+
+	it('POST /signup escapes user-controlled fields when re-rendering duplicate-user errors', async () => {
+		const signupUrl = `http://127.0.0.1:${port}/signup`;
+		const maliciousUsername = '"><script>alert(1)</script>';
+		const maliciousEmail = 'evil"/><img src=x onerror=alert(1)>@example.com';
+		const maliciousGivenName = '<b>Eve</b>';
+		const maliciousFamilyName = "O'Connor<script>alert(1)</script>";
+		store.users.push({ username: maliciousUsername, sub: 'sub-existing', password: createPassword('existing-password') });
+		const { nonce } = await getFormNonce(port, '/signup', { redirect_uri: redirect, state: 'escaped-signup-state' });
+		const body = new URLSearchParams({ username: maliciousUsername, password: createPassword('new-password'), email: maliciousEmail, given_name: maliciousGivenName, family_name: maliciousFamilyName, nonce });
+		const res = await fetch(signupUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+		expect(res.status).toBe(200);
+		const html = await res.text();
+		expect(html).toContain('A user with that username already exists');
+		expect(html).toContain('value="&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;"');
+		expect(html).toContain('value="evil&quot;/&gt;&lt;img src=x onerror=alert(1)&gt;@example.com"');
+		expect(html).toContain('value="&lt;b&gt;Eve&lt;/b&gt;"');
+		expect(html).toContain('value="O&#x27;Connor&lt;script&gt;alert(1)&lt;/script&gt;"');
+		expect(html).not.toContain(maliciousUsername);
+		expect(html).not.toContain('<img src=x onerror=alert(1)>');
+	});
+
 	it('GET /authorize forwards login query params when a userStore is configured', async () => {
 		const authorizeUrl = new URL(`http://127.0.0.1:${port}/authorize`);
 		authorizeUrl.searchParams.set('redirect_uri', redirect);

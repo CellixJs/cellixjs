@@ -4,6 +4,7 @@ import { rateLimit } from 'express-rate-limit';
 import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jose';
 import { buildEffectiveProfile, buildRedirectWithCode, extractClaimsFromPayload, normalizeUserInfo } from './helpers.ts';
 import { buildTokenResponse } from './jwt.ts';
+import { debugLog } from './logger.js';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 import { normalizeOrigin, normalizeUrl } from './utils.ts';
 
@@ -26,43 +27,34 @@ interface TimedEntry<T> {
 export const AUTH_CODE_TTL_MS = 10 * 60 * 1000;
 export const AUTH_CODE_PREFIX = 'mock-auth-code-';
 
-function createLogger() {
-	return {
-		debug(message: string, ...args: unknown[]): void {
-			// biome-ignore lint/complexity/useLiteralKeys: ProcessEnv uses an index signature in this repo's TypeScript config.
-			const debugFlag = process.env['MOCK_OAUTH2_DEBUG'];
-			const debugEnabled = debugFlag === '1' || debugFlag === 'true';
-			if (debugEnabled) {
-				console.debug(message, ...args);
-			}
-		},
-	};
-}
-
-const logger = createLogger();
-
 function createTtlStore<T>(ttlMs: number) {
 	const store = new Map<string, TimedEntry<T>>();
-	return {
-		set(key: string, value: T): void {
-			store.set(key, { value, expiresAt: Date.now() + ttlMs });
-		},
-		get(key: string): T | undefined {
-			const entry = store.get(key);
-			if (!entry) return undefined;
-			if (Date.now() > entry.expiresAt) {
-				store.delete(key);
-				return undefined;
-			}
-			return entry.value;
-		},
-		has(key: string): boolean {
-			return this.get(key) !== undefined;
-		},
-		delete(key: string): void {
+
+	const get = (key: string): T | undefined => {
+		const entry = store.get(key);
+		if (!entry) return undefined;
+		if (Date.now() > entry.expiresAt) {
 			store.delete(key);
-		},
+			return undefined;
+		}
+		return entry.value;
 	};
+
+	const set = (key: string, value: T): void => {
+		store.set(key, { value, expiresAt: Date.now() + ttlMs });
+	};
+
+	const del = (key: string): void => {
+		store.delete(key);
+	};
+
+	const has = (key: string): boolean => get(key) !== undefined;
+
+	return { get, set, delete: del, has };
+}
+
+function escapeHtml(value: string): string {
+	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 }
 
 export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2PortalConfig): Promise<express.Router> {
@@ -122,10 +114,10 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		const { issuerBaseUrl, nonce, username, error } = opts;
 		return `<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
 			<h1>Login</h1>
-			${error ? `<p style="color: red;">${String(error)}</p>` : ''}
+			${error ? `<p style="color: red;"><span class="error">${escapeHtml(error)}</span></p>` : ''}
 			<form method="POST" action="${issuerBaseUrl}/login?nonce=${nonce ?? ''}">
 			<input type="hidden" name="nonce" value="${nonce ?? ''}" />
-			<label>Username: <input name="username" value="${username ? String(username).replace(/"/g, '&quot;') : ''}" /></label><br/>
+			<label>Username: <input name="username" value="${escapeHtml(username ?? '')}" /></label><br/>
 			<label>Password: <input name="password" type="password" /></label><br/>
 			<button type="submit">Login</button>
 			</form>
@@ -137,14 +129,14 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		const { issuerBaseUrl, nonce, username, email, given_name, family_name, error } = opts;
 		return `<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
 			<h1>Sign up</h1>
-			${error ? `<p style="color: red;">${String(error)}</p>` : ''}
+			${error ? `<p style="color: red;"><span class="error">${escapeHtml(error)}</span></p>` : ''}
 			<form method="POST" action="${issuerBaseUrl}/signup">
 			<input type="hidden" name="nonce" value="${nonce ?? ''}" />
-			<label>Username: <input name="username" value="${username ? String(username).replace(/"/g, '&quot;') : ''}" /></label><br/>
+			<label>Username: <input name="username" value="${escapeHtml(username ?? '')}" /></label><br/>
 			<label>Password: <input name="password" type="password" /></label><br/>
-			<label>Email: <input name="email" value="${email ? String(email).replace(/"/g, '&quot;') : ''}" /></label><br/>
-			<label>Given name: <input name="given_name" value="${given_name ? String(given_name).replace(/"/g, '&quot;') : ''}" /></label><br/>
-			<label>Family name: <input name="family_name" value="${family_name ? String(family_name).replace(/"/g, '&quot;') : ''}" /></label><br/>
+			<label>Email: <input name="email" value="${escapeHtml(email ?? '')}" /></label><br/>
+			<label>Given name: <input name="given_name" value="${escapeHtml(given_name ?? '')}" /></label><br/>
+			<label>Family name: <input name="family_name" value="${escapeHtml(family_name ?? '')}" /></label><br/>
 			<button type="submit">Sign up</button>
 			</form>
 			</body></html>`;
@@ -321,7 +313,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 
 		// Structured debug logging
-		logger.debug('[server-oauth2-mock] GET /authorize', {
+		debugLog('[server-oauth2-mock] GET /authorize', {
 			portal: issuerBaseUrl,
 			state: typeof state === 'string' ? state : undefined,
 			redirectUri: requestedRedirectUri,
@@ -373,7 +365,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			state: safeState,
 			...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
 		});
-		logger.debug('[server-oauth2-mock] GET /login', { sessionNonce, loginSessionFound: Boolean(loginSessionStore.get(sessionNonce)) });
+		debugLog('[server-oauth2-mock] GET /login', { sessionNonce, loginSessionFound: Boolean(loginSessionStore.get(sessionNonce)) });
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
 		res.send(buildLoginHtml({ issuerBaseUrl, nonce: sessionNonce }));
 	});
@@ -424,7 +416,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			}
 		}
 
-		logger.debug('[server-oauth2-mock] POST /login', { nonceFromBody, nonceFromQuery, loginSessionFound: Boolean(loginSession), username });
+		debugLog('[server-oauth2-mock] POST /login', { nonceFromBody, nonceFromQuery, loginSessionFound: Boolean(loginSession), username });
 
 		if (loginSession) {
 			// keep session until login completes successfully so we can re-render the form on failure
@@ -467,7 +459,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 				});
 				// consume the login session now that auth code is issued
 				if (loginNonceUsed) loginSessionStore.delete(loginNonceUsed);
-				logger.debug('[server-oauth2-mock] POST /login success', { authCode: `${code.substring(0, 8)}...`, redirectUri: redirect, state });
+				debugLog('[server-oauth2-mock] POST /login success', { authCode: `${code.substring(0, 8)}...`, redirectUri: redirect, state });
 				const location = buildRedirectWithCode(redirect, code, state);
 				res.setHeader('Location', location);
 				res.status(302).end();
@@ -631,7 +623,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	router.get('/logout', (req, res) => {
 		const { post_logout_redirect_uri, state } = req.query as { post_logout_redirect_uri?: string; state?: string };
 		// Debug
-		logger.debug('[server-oauth2-mock] GET /logout', { portal: issuerBaseUrl });
+		debugLog('[server-oauth2-mock] GET /logout', { portal: issuerBaseUrl });
 		if (!post_logout_redirect_uri) {
 			res.status(204).end();
 			return;

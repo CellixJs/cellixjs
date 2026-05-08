@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { MockOAuth2User, MockOAuth2UserStore } from '@cellix/server-oauth2-mock-seedwork';
+import { debugLog, type MockOAuth2User, type MockOAuth2UserStore } from '@cellix/server-oauth2-mock-seedwork';
 
 export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	const committedPath = path.join(appDir, 'mock-oidc.users.json');
@@ -104,13 +104,6 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	function loadOverlay(): MockOAuth2User[] {
 		const raw = readJsonIfExists(localPath);
 		return validateEntries(raw, localPath);
-	}
-
-	function debugLog(message: string, ...args: unknown[]) {
-		// biome-ignore lint/complexity/useLiteralKeys: ProcessEnv uses an index signature in this repo's TypeScript config.
-		const debugFlag = process.env['MOCK_OAUTH2_DEBUG'];
-		const debugEnabled = debugFlag === '1' || debugFlag === 'true';
-		if (debugEnabled) console.debug(message, ...args);
 	}
 
 	function mergeUsers(): MockOAuth2User[] {

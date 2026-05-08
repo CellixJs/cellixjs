@@ -8,6 +8,8 @@ Purpose:
 Public exports:
 - startMockOAuth2Server(config): Promise<MockOAuth2ServerHandle>
 - createMockOAuth2Manager(): manager capable of registering multiple named configs
+- buildOidcRouter(issuerBaseUrl, config): Express router for embedding the mock OIDC endpoints
+- debugLog(message, data?): shared debug logger gated by `MOCK_OAUTH2_DEBUG`
 
 Downstream consumers (within monorepo):
 - @apps/server-oauth2-mock (app-level runnable)
