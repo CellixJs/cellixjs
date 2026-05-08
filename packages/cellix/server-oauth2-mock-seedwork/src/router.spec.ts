@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AUTH_CODE_PREFIX, AUTH_CODE_TTL_MS, buildOidcRouter } from './router.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 
@@ -88,7 +88,7 @@ describe('oauth2 mock router flows', () => {
 	let redirect: string;
 	let store: InMemoryUserStore;
 
-	beforeAll(async () => {
+	beforeEach(async () => {
 		store = new InMemoryUserStore();
 		const s = await startServer(0, store);
 		server = s.server;
@@ -96,12 +96,9 @@ describe('oauth2 mock router flows', () => {
 		redirect = s.redirect;
 	});
 
-	afterAll(async () => {
-		await new Promise<void>((resolve) => server.close(() => resolve()));
-	});
-
-	afterEach(() => {
+	afterEach(async () => {
 		vi.restoreAllMocks();
+		await new Promise<void>((resolve) => server.close(() => resolve()));
 	});
 
 	it('GET /login stores redirect data server-side and only renders a nonce', async () => {
@@ -432,5 +429,96 @@ describe('oauth2 mock router flows', () => {
 		const idPayload = decodeJwtPayload(tokenJson.id_token as string) as { sub?: string };
 		expect(idPayload.sub).toBe('sub-claim');
 	});
+});
 
+describe('oauth2 mock router rate limiting', () => {
+	async function stopServer(server: Server) {
+		await new Promise<void>((resolve) => server.close(() => resolve()));
+	}
+
+	it('GET /login enforces the form rate limiter', async () => {
+		const { server, port } = await startServer(0, new InMemoryUserStore());
+		try {
+			for (let index = 0; index < 30; index += 1) {
+				const response = await fetch(`http://127.0.0.1:${port}/login`);
+				expect(response.status).toBe(200);
+			}
+
+			const limitedResponse = await fetch(`http://127.0.0.1:${port}/login`);
+			expect(limitedResponse.status).toBe(429);
+			expect(limitedResponse.headers.get('ratelimit-remaining')).toBe('0');
+		} finally {
+			await stopServer(server);
+		}
+	});
+
+	it('GET /signup enforces the form rate limiter', async () => {
+		const { server, port } = await startServer(0, new InMemoryUserStore());
+		try {
+			for (let index = 0; index < 30; index += 1) {
+				const response = await fetch(`http://127.0.0.1:${port}/signup`);
+				expect(response.status).toBe(200);
+			}
+
+			const limitedResponse = await fetch(`http://127.0.0.1:${port}/signup`);
+			expect(limitedResponse.status).toBe(429);
+			expect(limitedResponse.headers.get('ratelimit-remaining')).toBe('0');
+		} finally {
+			await stopServer(server);
+		}
+	});
+
+	it('POST /login enforces the credential rate limiter', async () => {
+		const store = new InMemoryUserStore();
+		store.users.push({ username: 'rate-limited-login', sub: 'sub-rate-limited-login', password: createPassword('correct-login-password'), claims: {} });
+		const { server, port, redirect } = await startServer(0, store);
+		try {
+			const { nonce } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'login-rate-limit-state' });
+			for (let index = 0; index < 10; index += 1) {
+				const response = await fetch(`http://127.0.0.1:${port}/login`, {
+					method: 'POST',
+					body: new URLSearchParams({ username: 'rate-limited-login', password: 'wrong-password', nonce }).toString(),
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				});
+				expect(response.status).toBe(200);
+			}
+
+			const limitedResponse = await fetch(`http://127.0.0.1:${port}/login`, {
+				method: 'POST',
+				body: new URLSearchParams({ username: 'rate-limited-login', password: 'wrong-password', nonce }).toString(),
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			});
+			expect(limitedResponse.status).toBe(429);
+			expect(await limitedResponse.json()).toEqual({ error: 'Too many attempts, please try again later.' });
+		} finally {
+			await stopServer(server);
+		}
+	});
+
+	it('POST /signup enforces the credential rate limiter', async () => {
+		const store = new InMemoryUserStore();
+		store.users.push({ username: 'existing-user', sub: 'sub-existing-user', password: createPassword('existing-user-password'), claims: {} });
+		const { server, port, redirect } = await startServer(0, store);
+		try {
+			const { nonce } = await getFormNonce(port, '/signup', { redirect_uri: redirect, state: 'signup-rate-limit-state' });
+			for (let index = 0; index < 10; index += 1) {
+				const response = await fetch(`http://127.0.0.1:${port}/signup`, {
+					method: 'POST',
+					body: new URLSearchParams({ username: 'existing-user', password: 'duplicate-password', nonce }).toString(),
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				});
+				expect(response.status).toBe(200);
+			}
+
+			const limitedResponse = await fetch(`http://127.0.0.1:${port}/signup`, {
+				method: 'POST',
+				body: new URLSearchParams({ username: 'existing-user', password: 'duplicate-password', nonce }).toString(),
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			});
+			expect(limitedResponse.status).toBe(429);
+			expect(await limitedResponse.json()).toEqual({ error: 'Too many attempts, please try again later.' });
+		} finally {
+			await stopServer(server);
+		}
+	});
 });

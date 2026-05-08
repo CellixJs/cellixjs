@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import express from 'express';
-import rateLimit from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit';
 import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jose';
 import { buildEffectiveProfile, buildRedirectWithCode, extractClaimsFromPayload, normalizeUserInfo } from './helpers.ts';
 import { buildTokenResponse } from './jwt.ts';
@@ -193,6 +193,24 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		next();
 	});
 
+	const formRateLimiter = rateLimit({
+		windowMs: 60 * 1000,
+		max: 30,
+		standardHeaders: true,
+		legacyHeaders: false,
+	});
+
+	const credentialRateLimiter = rateLimit({
+		windowMs: 15 * 60 * 1000,
+		max: 10,
+		standardHeaders: true,
+		legacyHeaders: false,
+		message: { error: 'Too many attempts, please try again later.' },
+	});
+
+	const formRateLimiterHandler = formRateLimiter as unknown as express.RequestHandler;
+	const credentialRateLimiterHandler = credentialRateLimiter as unknown as express.RequestHandler;
+
 	router.post('/token', async (req, res) => {
 		const { grant_type, tid, code } = req.body as {
 			grant_type?: string;
@@ -340,7 +358,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	});
 
 	// If a userStore is provided, expose simple login/signup pages that tie into it.
-	router.get('/login', (req, res) => {
+	router.get('/login', formRateLimiterHandler, (req, res) => {
 		if (!config.userStore) {
 			res.status(404).send('Login not available');
 			return;
@@ -360,7 +378,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		res.send(buildLoginHtml({ issuerBaseUrl, nonce: sessionNonce }));
 	});
 
-	router.post('/login', async (req, res) => {
+	router.post('/login', credentialRateLimiterHandler, async (req, res) => {
 		if (!config.userStore) {
 			res.status(404).send('Login not available');
 			return;
@@ -461,7 +479,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 	});
 
-	router.get('/signup', (req, res) => {
+	router.get('/signup', formRateLimiterHandler, (req, res) => {
 		if (!config.userStore) {
 			res.status(404).send('Signup not available');
 			return;
@@ -484,7 +502,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		res.send(buildSignupHtml({ issuerBaseUrl, nonce }));
 	});
 
-	router.post('/signup', async (req, res) => {
+	router.post('/signup', credentialRateLimiterHandler, async (req, res) => {
 		if (!config.userStore) {
 			res.status(404).send('Signup not available');
 			return;
