@@ -90,10 +90,10 @@ describe('discoverPortalConfigs', () => {
 		// Write valid base config
 		writeJson(tmp, 'ui-bad-local/mock-oidc.json', {
 			name: 'bad-local-test',
-			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			envVars: { clientId: 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID', redirectUri: 'VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI' },
 			claims: { sub: '00000000-0000-4000-8000-000000000001' },
 		});
-		fs.writeFileSync(path.join(tmp, 'ui-bad-local', '.env'), 'VITE_CLIENT_ID=cid\nVITE_REDIRECT_URI=https://r/cb\n');
+		fs.writeFileSync(path.join(tmp, 'ui-bad-local', '.env'), 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=cid\nVITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI=https://r/cb\n');
 		// Write malformed local override
 		fs.writeFileSync(path.join(tmp, 'ui-bad-local', 'mock-oidc.local.json'), '{ invalid json }');
 
@@ -219,10 +219,10 @@ describe('discoverPortalConfigs', () => {
 
 		writeJson(tmp, 'ui-roles/mock-oidc.json', {
 			name: 'roles-test',
-			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			envVars: { clientId: 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID', redirectUri: 'VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI' },
 			claims: { sub: '00000000-0000-4000-8000-000000000001', roles: ['admin', 'editor'], level: 2 },
 		});
-		fs.writeFileSync(path.join(tmp, 'ui-roles', '.env'), 'VITE_CLIENT_ID=cid\nVITE_REDIRECT_URI=https://r/cb\n');
+		fs.writeFileSync(path.join(tmp, 'ui-roles', '.env'), 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=cid\nVITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI=https://r/cb\n');
 
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals).toHaveLength(1);
@@ -237,11 +237,11 @@ describe('discoverPortalConfigs', () => {
 
 		writeJson(tmp, 'ui-envlocal/mock-oidc.json', {
 			name: 'envlocal-test',
-			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			envVars: { clientId: 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID', redirectUri: 'VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI' },
 			claims: { sub: '00000000-0000-4000-8000-000000000001' },
 		});
-		fs.writeFileSync(path.join(tmp, 'ui-envlocal', '.env'), 'VITE_CLIENT_ID=base-client-id\nVITE_REDIRECT_URI=https://base/cb\n');
-		fs.writeFileSync(path.join(tmp, 'ui-envlocal', '.env.local'), 'VITE_CLIENT_ID=local-client-id\n');
+		fs.writeFileSync(path.join(tmp, 'ui-envlocal', '.env'), 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=base-client-id\nVITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI=https://base/cb\n');
+		fs.writeFileSync(path.join(tmp, 'ui-envlocal', '.env.local'), 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=local-client-id\n');
 
 		const portals = discoverPortalConfigs(tmp);
 		const portal = portals.find((p) => p.name === 'envlocal-test');
@@ -254,11 +254,11 @@ describe('discoverPortalConfigs', () => {
 
 		writeJson(tmp, 'ui-localonly/mock-oidc.json', {
 			name: 'localonly-test',
-			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			envVars: { clientId: 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID', redirectUri: 'VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI' },
 			claims: { sub: '00000000-0000-4000-8000-000000000001' },
 		});
 		// No .env file - only .env.local
-		fs.writeFileSync(path.join(tmp, 'ui-localonly', '.env.local'), 'VITE_CLIENT_ID=localonly-client-id\nVITE_REDIRECT_URI=https://local/cb\n');
+		fs.writeFileSync(path.join(tmp, 'ui-localonly', '.env.local'), 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=localonly-client-id\nVITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI=https://local/cb\n');
 
 		const portals = discoverPortalConfigs(tmp);
 		const portal = portals.find((p) => p.name === 'localonly-test');
@@ -271,7 +271,7 @@ describe('discoverPortalConfigs', () => {
 
 		writeJson(tmp, 'ui-envthrow/mock-oidc.json', {
 			name: 'envthrow-test',
-			envVars: { clientId: 'VITE_CLIENT_ID', redirectUri: 'VITE_REDIRECT_URI' },
+			envVars: { clientId: 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID', redirectUri: 'VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI' },
 			claims: { sub: '00000000-0000-4000-8000-000000000001' },
 		});
 		fs.mkdirSync(path.join(tmp, 'ui-envthrow', '.env'));

@@ -1,11 +1,17 @@
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { expect, test } from 'vitest';
 import { CANONICAL_PORTALS, validateEnvNames, writeEvidence } from './validate-env-names.cjs';
 
 const rootDir = path.resolve(__dirname, '../../../../');
 const packageDir = path.resolve(__dirname, '../');
+const testScratchRoot = path.join(packageDir, '.test-work');
+
+const createScratchRoot = (prefix: string) => {
+	const scratchRoot = path.join(testScratchRoot, `${prefix}-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+	fs.mkdirSync(scratchRoot, { recursive: true });
+	return scratchRoot;
+};
 
 test('env vars naming compliance scan generates evidence file', () => {
 	const evidence = validateEnvNames({ rootDir });
@@ -47,7 +53,7 @@ test('env vars naming compliance scan generates evidence file', () => {
 });
 
 test('env vars naming compliance scan detects non-compliant variables', () => {
-	const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'env-vars-naming-'));
+	const tmpRoot = createScratchRoot('env-vars-naming');
 	try {
 		// Construct the invalid var name at runtime so the scanner doesn't pick it up from this source file
 		const invalidVar = `VITE_APP_${'UNKNOWNPORTAL'}_FOO`;
@@ -71,7 +77,7 @@ test('env vars naming compliance scan detects non-compliant variables', () => {
 });
 
 test('validateEnvNames maps VITE_COMMON_* and portal vars to correct portals and ownerGroups', () => {
-	const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'env-vars-mapping-'));
+	const tmpRoot = createScratchRoot('env-vars-mapping');
 	try {
 		// Use a .env.test file — dotfiles named .env.* are explicitly allowed by the scanner
 		fs.writeFileSync(path.join(tmpRoot, '.env.test'), ['VITE_COMMON_API_ENDPOINT=https://example.com', 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=client-id'].join('\n'), 'utf8');
@@ -92,8 +98,25 @@ test('validateEnvNames maps VITE_COMMON_* and portal vars to correct portals and
 	}
 });
 
+test('validateEnvNames flags VITE_* vars that lack VITE_APP_ or VITE_COMMON_ prefix', () => {
+	const tmpRoot = createScratchRoot('env-vars-prefix');
+	try {
+		const badVar = `VITE_${'FUNCTION'}_ENDPOINT`;
+		fs.writeFileSync(path.join(tmpRoot, 'config.ts'), `const { ${badVar} } = import.meta.env;\n`, 'utf8');
+
+		const evidence = validateEnvNames({ rootDir: tmpRoot, scanPaths: [tmpRoot] });
+
+		const offending = evidence.results.find((r) => r.variable === badVar);
+		expect(offending).toBeDefined();
+		expect(offending?.status).toBe('non_compliant');
+		expect(offending?.reason).toBe('Variable does not use VITE_APP_<PORTAL>_ or VITE_COMMON_ prefix');
+	} finally {
+		fs.rmSync(tmpRoot, { recursive: true, force: true });
+	}
+});
+
 test('validateEnvNames deduplicates results, excluding dist/ from scan', () => {
-	const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'env-vars-dedupe-'));
+	const tmpRoot = createScratchRoot('env-vars-dedupe');
 	try {
 		const srcFile = path.join(tmpRoot, 'src', 'config.ts');
 		const distFile = path.join(tmpRoot, 'dist', 'config.js');

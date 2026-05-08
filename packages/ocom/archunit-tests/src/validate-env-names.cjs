@@ -27,7 +27,7 @@ function walkDir(dir, fileList = []) {
 }
 
 function findEnvVarsInText(text) {
-	const regex = /(VITE_APP_[A-Z0-9_]+|VITE_COMMON_[A-Z0-9_]+)/g;
+	const regex = /(VITE_[A-Z0-9_]+)/g;
 	const matches = [];
 	let match = regex.exec(text);
 	while (match !== null) {
@@ -74,9 +74,22 @@ function validateEnvNames(options = {}) {
 			const matches = findEnvVarsInText(line);
 			for (const m of matches) {
 				const variable = m.match;
+				const relPath = `${path.relative(rootDir, filePath)}:${i + 1}`;
+				if (!variable.startsWith('VITE_APP_') && !variable.startsWith('VITE_COMMON_')) {
+					results.push({
+						variable,
+						status: 'non_compliant',
+						portal: 'UNKNOWN',
+						ownerGroup: 'unknown',
+						location: relPath,
+						reason: 'Variable does not use VITE_APP_<PORTAL>_ or VITE_COMMON_ prefix',
+					});
+					continue;
+				}
 				let portal = 'UNKNOWN';
 				let ownerGroup = 'unknown';
 				let status = 'compliant';
+				let reason;
 				if (variable.startsWith('VITE_APP_')) {
 					// extract portal name between VITE_APP_ and next _
 					const rest = variable.replace('VITE_APP_', '');
@@ -95,8 +108,8 @@ function validateEnvNames(options = {}) {
 					} else {
 						portal = portalSegment;
 						ownerGroup = `ocm-app-${portalSegment.toLowerCase()}`;
-						// unknown portal treated as non_compliant
 						status = 'non_compliant';
+						reason = 'Unknown VITE_APP_<PORTAL>_ value: portal is not registered';
 					}
 				} else if (variable.startsWith('VITE_COMMON_')) {
 					portal = 'COMMON';
@@ -110,7 +123,8 @@ function validateEnvNames(options = {}) {
 					status,
 					portal,
 					ownerGroup,
-					location: `${path.relative(rootDir, filePath)}:${i + 1}`,
+					location: relPath,
+					...(reason ? { reason } : {}),
 				});
 			}
 		}
