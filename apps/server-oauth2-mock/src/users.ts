@@ -6,16 +6,61 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	const committedPath = path.join(appDir, 'mock-oidc.users.json');
 	const localPath = path.join(appDir, 'mock-oidc.users.local.json');
 
-	function readJsonIfExists(p: string): unknown {
-		if (!fs.existsSync(p)) return undefined;
-		const raw = fs.readFileSync(p, 'utf-8');
-		if (raw.trim().length === 0) return undefined;
+	const fileCache = new Map<string, { mtime: number; data: MockOAuth2User[] }>();
+
+	function isEnoentError(error: unknown): error is NodeJS.ErrnoException {
+		return error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT';
+	}
+
+	function getValidatedForPath(p: string): MockOAuth2User[] {
+		let mtime: number;
 		try {
-			return JSON.parse(raw) as unknown;
-		} catch (err) {
-			console.warn(`[server-oauth2-mock] Could not parse users file at ${p}:`, err);
-			return undefined;
+			mtime = fs.statSync(p).mtimeMs;
+		} catch (error) {
+			if (isEnoentError(error)) {
+				fileCache.delete(p);
+				return [];
+			}
+			console.warn(`[server-oauth2-mock] Could not read users file at ${p}:`, error);
+			return [];
 		}
+
+		const cached = fileCache.get(p);
+		if (cached?.mtime === mtime) {
+			return cached.data;
+		}
+
+		let raw: string;
+		try {
+			raw = fs.readFileSync(p, 'utf-8');
+		} catch (error) {
+			if (isEnoentError(error)) {
+				fileCache.delete(p);
+				return [];
+			}
+			console.warn(`[server-oauth2-mock] Could not read users file at ${p}:`, error);
+			return [];
+		}
+
+		if (raw.trim().length === 0) {
+			const data: MockOAuth2User[] = [];
+			fileCache.set(p, { mtime, data });
+			return data;
+		}
+
+		let parsed: unknown;
+		try {
+			parsed = JSON.parse(raw) as unknown;
+		} catch (error) {
+			console.warn(`[server-oauth2-mock] Could not parse users file at ${p}:`, error);
+			const data: MockOAuth2User[] = [];
+			fileCache.set(p, { mtime, data });
+			return data;
+		}
+
+		const validated = validateEntries(parsed, p);
+		fileCache.set(p, { mtime, data: validated });
+		return validated;
 	}
 
 	function validateEntries(raw: unknown, filePath: string): MockOAuth2User[] {
@@ -97,13 +142,11 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	}
 
 	function loadCommitted(): MockOAuth2User[] {
-		const raw = readJsonIfExists(committedPath);
-		return validateEntries(raw, committedPath);
+		return getValidatedForPath(committedPath);
 	}
 
 	function loadOverlay(): MockOAuth2User[] {
-		const raw = readJsonIfExists(localPath);
-		return validateEntries(raw, localPath);
+		return getValidatedForPath(localPath);
 	}
 
 	function mergeUsers(): MockOAuth2User[] {
@@ -135,7 +178,12 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		const tmpPath = `${localPath}.tmp`;
 		fs.writeFileSync(tmpPath, JSON.stringify(users, null, 2), { encoding: 'utf-8' });
 		fs.renameSync(tmpPath, localPath);
-		// no in-memory cache to invalidate; files are re-read on each call
+		try {
+			const stat = fs.statSync(localPath);
+			fileCache.set(localPath, { mtime: stat.mtimeMs, data: users });
+		} catch (_error) {
+			fileCache.delete(localPath);
+		}
 		return Promise.resolve();
 	}
 

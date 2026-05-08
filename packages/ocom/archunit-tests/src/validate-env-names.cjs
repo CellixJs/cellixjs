@@ -26,14 +26,125 @@ function walkDir(dir, fileList = []) {
 	return fileList;
 }
 
-function findEnvVarsInText(text) {
-	const regex = /(VITE_[A-Z0-9_]+)/g;
-	const matches = [];
-	let match = regex.exec(text);
-	while (match !== null) {
-		matches.push({ match: match[0], index: match.index });
-		match = regex.exec(text);
+function getIgnoredRanges(text) {
+	const ranges = [];
+	let i = 0;
+	while (i < text.length) {
+		const ch = text[i];
+		const next = text[i + 1];
+
+		if (ch === '/' && next === '/') {
+			const start = i;
+			i += 2;
+			while (i < text.length && text[i] !== '\n') i++;
+			ranges.push([start, i]);
+			continue;
+		}
+
+		if (ch === '/' && next === '*') {
+			const start = i;
+			i += 2;
+			while (i < text.length && !(text[i] === '*' && text[i + 1] === '/')) i++;
+			i = Math.min(i + 2, text.length);
+			ranges.push([start, i]);
+			continue;
+		}
+
+		if (ch === "'" || ch === '"' || ch === '`') {
+			const quote = ch;
+			const start = i;
+			i += 1;
+			while (i < text.length) {
+				if (text[i] === '\\') {
+					i += 2;
+					continue;
+				}
+				if (text[i] === quote) {
+					i += 1;
+					break;
+				}
+				i += 1;
+			}
+			ranges.push([start, i]);
+			continue;
+		}
+
+		i += 1;
 	}
+	return ranges;
+}
+
+function isIgnoredIndex(index, ranges) {
+	return ranges.some(([start, end]) => index >= start && index < end);
+}
+
+function getLineNumber(text, index) {
+	return text.slice(0, index).split(/\r?\n/).length;
+}
+
+function findEnvVarsInText(text, filePath) {
+	const matches = [];
+	const isEnvFile = /(^|\/)\.env(\.|$)/.test(filePath);
+	if (isEnvFile) {
+		const re = /^(VITE_[A-Z0-9_]+)\s*=/gm;
+		let match = re.exec(text);
+		while (match) {
+			matches.push({ match: match[1], index: match.index });
+			match = re.exec(text);
+		}
+		return matches;
+	}
+
+	const ignoredRanges = getIgnoredRanges(text);
+	const pushMatch = (value, index) => {
+		if (!value.startsWith('VITE_')) return;
+		if (isIgnoredIndex(index, ignoredRanges)) return;
+		matches.push({ match: value, index });
+	};
+
+	let re = /import\.meta\.env\.([A-Z_][A-Z0-9_]*)/g;
+	let match = re.exec(text);
+	while (match) {
+		pushMatch(match[1], match.index);
+		match = re.exec(text);
+	}
+
+	re = /import\.meta\.env\[['"]([^'"]+)['"]\]/g;
+	match = re.exec(text);
+	while (match) {
+		pushMatch(match[1], match.index);
+		match = re.exec(text);
+	}
+
+	re = /const\s*\{([^}]*)\}\s*=\s*import\.meta\.env/g;
+	match = re.exec(text);
+	while (match) {
+		if (!isIgnoredIndex(match.index, ignoredRanges)) {
+			const innerRe = /\b(VITE_[A-Z0-9_]+)\b/g;
+			let innerMatch = innerRe.exec(match[1]);
+			while (innerMatch) {
+				const innerIndex = match.index + match[0].indexOf(match[1]) + innerMatch.index;
+				pushMatch(innerMatch[1], innerIndex);
+				innerMatch = innerRe.exec(match[1]);
+			}
+		}
+		match = re.exec(text);
+	}
+
+	re = /process\.env\.([A-Z_][A-Z0-9_]*)/g;
+	match = re.exec(text);
+	while (match) {
+		pushMatch(match[1], match.index);
+		match = re.exec(text);
+	}
+
+	re = /process\.env\[['"]([^'"]+)['"]\]/g;
+	match = re.exec(text);
+	while (match) {
+		pushMatch(match[1], match.index);
+		match = re.exec(text);
+	}
+
 	return matches;
 }
 
@@ -68,65 +179,61 @@ function validateEnvNames(options = {}) {
 		} catch {
 			continue;
 		}
-		const lines = text.split(/\r?\n/);
-		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i];
-			const matches = findEnvVarsInText(line);
-			for (const m of matches) {
-				const variable = m.match;
-				const relPath = `${path.relative(rootDir, filePath)}:${i + 1}`;
-				if (!variable.startsWith('VITE_APP_') && !variable.startsWith('VITE_COMMON_')) {
-					results.push({
-						variable,
-						status: 'non_compliant',
-						portal: 'UNKNOWN',
-						ownerGroup: 'unknown',
-						location: relPath,
-						reason: 'Variable does not use VITE_APP_<PORTAL>_ or VITE_COMMON_ prefix',
-					});
-					continue;
-				}
-				let portal = 'UNKNOWN';
-				let ownerGroup = 'unknown';
-				let status = 'compliant';
-				let reason;
-				if (variable.startsWith('VITE_APP_')) {
-					// extract portal name between VITE_APP_ and next _
-					const rest = variable.replace('VITE_APP_', '');
-					const parts = rest.split('_');
-					let portalSegment = parts[0];
-					// handle UI_COMMUNITY and UI_STAFF which start with UI_
-					if (parts[0] === 'UI' && parts.length > 1) {
-						portalSegment = `${parts[0]}_${parts[1]}`;
-					}
-					if (portalSegment === 'UI_COMMUNITY') {
-						portal = 'UI_COMMUNITY';
-						ownerGroup = 'ocm-app-ui-community';
-					} else if (portalSegment === 'UI_STAFF') {
-						portal = 'UI_STAFF';
-						ownerGroup = 'ocm-app-ui-staff';
-					} else {
-						portal = portalSegment;
-						ownerGroup = `ocm-app-${portalSegment.toLowerCase()}`;
-						status = 'non_compliant';
-						reason = 'Unknown VITE_APP_<PORTAL>_ value: portal is not registered';
-					}
-				} else if (variable.startsWith('VITE_COMMON_')) {
-					portal = 'COMMON';
-					ownerGroup = 'ocm-common';
-				} else {
-					status = 'non_compliant';
-				}
-
+		const matches = findEnvVarsInText(text, filePath);
+		for (const m of matches) {
+			const variable = m.match;
+			const relPath = `${path.relative(rootDir, filePath)}:${getLineNumber(text, m.index)}`;
+			if (!variable.startsWith('VITE_APP_') && !variable.startsWith('VITE_COMMON_')) {
 				results.push({
 					variable,
-					status,
-					portal,
-					ownerGroup,
+					status: 'non_compliant',
+					portal: 'UNKNOWN',
+					ownerGroup: 'unknown',
 					location: relPath,
-					...(reason ? { reason } : {}),
+					reason: 'Variable does not use VITE_APP_<PORTAL>_ or VITE_COMMON_ prefix',
 				});
+				continue;
 			}
+			let portal = 'UNKNOWN';
+			let ownerGroup = 'unknown';
+			let status = 'compliant';
+			let reason;
+			if (variable.startsWith('VITE_APP_')) {
+				// extract portal name between VITE_APP_ and next _
+				const rest = variable.replace('VITE_APP_', '');
+				const parts = rest.split('_');
+				let portalSegment = parts[0];
+				// handle UI_COMMUNITY and UI_STAFF which start with UI_
+				if (parts[0] === 'UI' && parts.length > 1) {
+					portalSegment = `${parts[0]}_${parts[1]}`;
+				}
+				if (portalSegment === 'UI_COMMUNITY') {
+					portal = 'UI_COMMUNITY';
+					ownerGroup = 'ocm-app-ui-community';
+				} else if (portalSegment === 'UI_STAFF') {
+					portal = 'UI_STAFF';
+					ownerGroup = 'ocm-app-ui-staff';
+				} else {
+					portal = portalSegment;
+					ownerGroup = `ocm-app-${portalSegment.toLowerCase()}`;
+					status = 'non_compliant';
+					reason = 'Unknown VITE_APP_<PORTAL>_ value: portal is not registered';
+				}
+			} else if (variable.startsWith('VITE_COMMON_')) {
+				portal = 'COMMON';
+				ownerGroup = 'ocm-common';
+			} else {
+				status = 'non_compliant';
+			}
+
+			results.push({
+				variable,
+				status,
+				portal,
+				ownerGroup,
+				location: relPath,
+				...(reason ? { reason } : {}),
+			});
 		}
 	}
 

@@ -145,11 +145,9 @@ describe('discoverPortalConfigs', () => {
 		});
 		writeEnv(tmp, 'ui-good/.env', 'G_C=cid-good\nG_R=https://good/redirect\n');
 
-		// invalid: missing claims
+		// invalid: missing envVars
 		writeJson(tmp, 'ui-bad/mock-oidc.json', {
 			name: 'bad',
-			envVars: { clientId: 'B_C', redirectUri: 'B_R' },
-			// claims omitted
 		} as unknown as Record<string, unknown>);
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
@@ -298,5 +296,35 @@ describe('discoverPortalConfigs', () => {
 		} finally {
 			warnSpy.mockRestore();
 		}
+	});
+
+	it('returns a portal with dirName set to the directory name', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-example/mock-oidc.json', {
+			name: 'example',
+			envVars: { clientId: 'CIDX_EX', redirectUri: 'REDIR_EX' },
+			claims: { sub: 'example-sub' },
+		});
+		writeEnv(tmp, 'ui-example/.env', 'CIDX_EX=client-example\nREDIR_EX=https://example.localhost/redirect\n');
+
+		const portals = discoverPortalConfigs(tmp);
+		expect(portals).toHaveLength(1);
+		expect(portals[0]?.dirName).toBe('ui-example');
+	});
+
+	it('keeps claims undefined when mock-oidc.json omits the claims field', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-noclaims/mock-oidc.json', {
+			name: 'noclaims',
+			envVars: { clientId: 'CIDX_NC', redirectUri: 'REDIR_NC' },
+		});
+		writeEnv(tmp, 'ui-noclaims/.env', 'CIDX_NC=client-noclaims\nREDIR_NC=https://noclaims.localhost/redirect\n');
+
+		const portals = discoverPortalConfigs(tmp);
+		const portal = portals.find((config) => config.dirName === 'ui-noclaims');
+		expect(portal).toBeDefined();
+		expect(portal?.claims).toBeUndefined();
 	});
 });
