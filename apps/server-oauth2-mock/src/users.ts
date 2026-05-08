@@ -33,9 +33,7 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 			const entry = raw[i] as unknown;
 
 			if (typeof entry !== 'object' || entry === null) {
-				console.warn(
-					`[server-oauth2-mock] Invalid user entry in ${filePath} at index ${i}: expected object, got ${typeof entry}, skipping`
-				);
+				console.warn(`[server-oauth2-mock] Invalid user entry in ${filePath} at index ${i}: expected object, got ${typeof entry}, skipping`);
 				continue;
 			}
 
@@ -48,18 +46,14 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 
 			const username = e.username;
 			if (typeof username !== 'string') {
-				console.warn(
-					`[server-oauth2-mock] Invalid user entry in ${filePath} at index ${i}: "username" must be a string, skipping`
-				);
+				console.warn(`[server-oauth2-mock] Invalid user entry in ${filePath} at index ${i}: "username" must be a string, skipping`);
 				continue;
 			}
 
 			let claims: { sub?: unknown; [k: string]: unknown } | undefined;
 			if (e.claims !== undefined) {
 				if (typeof e.claims !== 'object' || e.claims === null || Array.isArray(e.claims)) {
-					console.warn(
-						`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": "claims" must be an object if present, skipping`
-					);
+					console.warn(`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": "claims" must be an object if present, skipping`);
 					continue;
 				}
 				claims = e.claims as { sub?: unknown; [k: string]: unknown };
@@ -70,18 +64,14 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 			const sub = subFromField ?? subFromClaims;
 
 			if (!sub) {
-				console.warn(
-					`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": missing "sub" (either top-level or claims.sub), skipping`
-				);
+				console.warn(`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": missing "sub" (either top-level or claims.sub), skipping`);
 				continue;
 			}
 
 			let password: string | undefined;
 			if (e.password !== undefined) {
 				if (typeof e.password !== 'string') {
-					console.warn(
-						`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": "password" must be a string if present, skipping`
-					);
+					console.warn(`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": "password" must be a string if present, skipping`);
 					continue;
 				}
 				password = e.password;
@@ -91,7 +81,7 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 				username,
 				sub,
 				...(claims ? { claims } : {}),
-				...(password ? { password } : {})
+				...(password ? { password } : {}),
 			};
 
 			out.push(user);

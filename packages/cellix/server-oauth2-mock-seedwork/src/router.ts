@@ -2,11 +2,10 @@ import crypto from 'node:crypto';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jose';
+import { buildEffectiveProfile, buildRedirectWithCode, extractClaimsFromPayload, normalizeUserInfo } from './helpers.ts';
 import { buildTokenResponse } from './jwt.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 import { normalizeOrigin, normalizeUrl } from './utils.ts';
-import { buildRedirectWithCode, buildEffectiveProfile, normalizeUserInfo, extractClaimsFromPayload } from './helpers.ts';
-
 
 interface TokenProfile {
 	aud: string;
@@ -148,7 +147,6 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			authCodeStore.delete(code);
 			resolvedSubFromCode = mapping.sub;
 		}
-
 
 		const portalProfile = config.getUserProfile();
 		const { sub: upSub, tid: upTid } = portalProfile;

@@ -50,7 +50,6 @@ describe('reserved claims precedence', () => {
 			const payloadB64 = tokens.id_token.split('.')[1] as string;
 			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as TestReservedClaimsPayload;
 
-
 			// Assert server values are present (issuer is router base URL, aud matches redirect->aud mapping)
 			expect(payload.iss).toBe('http://127.0.0.1:19010/reserved-claims');
 			expect(payload.aud).toBe('server-aud');

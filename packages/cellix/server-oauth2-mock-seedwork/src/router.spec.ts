@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
-import express from 'express';
 import type { AddressInfo } from 'node:net';
+import express from 'express';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildOidcRouter } from './router.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
@@ -153,8 +153,19 @@ describe('oauth2 mock router flows', () => {
 		// exchange code for token
 		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code }) });
 		expect(tokenRes.status).toBe(200);
-		interface TokenResponse { id_token?: string; access_token?: string; [k: string]: unknown }
-		interface ClaimsPayload { email?: string; given_name?: string; family_name?: string; sub?: string; password?: string; [k: string]: unknown }
+		interface TokenResponse {
+			id_token?: string;
+			access_token?: string;
+			[k: string]: unknown;
+		}
+		interface ClaimsPayload {
+			email?: string;
+			given_name?: string;
+			family_name?: string;
+			sub?: string;
+			password?: string;
+			[k: string]: unknown;
+		}
 		const tokenJson = (await tokenRes.json()) as TokenResponse;
 		expect(tokenJson).toHaveProperty('id_token');
 		expect(tokenJson).toHaveProperty('access_token');

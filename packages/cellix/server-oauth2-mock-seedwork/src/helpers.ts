@@ -9,7 +9,7 @@ type ProfileLike = {
 	password?: unknown;
 	name?: unknown;
 	username?: unknown;
-	[ k: string ]: unknown;
+	[k: string]: unknown;
 };
 
 export function buildRedirectWithCode(redirectUri: string, code: string, state?: string): string {
@@ -31,7 +31,7 @@ export function buildEffectiveProfile(portalProfile: ProfileLike, userClaims?: R
 		const { password: _p, ...rest } = merged as Record<string, unknown>;
 		merged = rest;
 	}
-	const finalSub = typeof sub === 'string' ? sub : (typeof portalProfile?.sub === 'string' ? portalProfile.sub : crypto.randomUUID());
+	const finalSub = typeof sub === 'string' ? sub : typeof portalProfile?.sub === 'string' ? portalProfile.sub : crypto.randomUUID();
 	return { ...merged, sub: finalSub };
 }
 
@@ -57,8 +57,4 @@ export function extractClaimsFromPayload(payload: Record<string, unknown>): Reco
 	const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
 	const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
 	return { ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) };
-}
-
-export function escapeHtml(s: string): string {
-	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 }
