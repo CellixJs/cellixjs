@@ -172,8 +172,8 @@ export class JsdomPageAdapter implements PageAdapter {
 	}
 
 	goto(url: string, _options?: { timeout?: number; waitUntil?: PageNavigationWaitUntil }): Promise<void> {
-		if (typeof window !== 'undefined') {
-			window.history.pushState({}, '', url);
+		if (typeof globalThis !== 'undefined') {
+			globalThis.history.pushState({}, '', url);
 		}
 		return Promise.resolve();
 	}
@@ -183,8 +183,8 @@ export class JsdomPageAdapter implements PageAdapter {
 	}
 
 	url(): string {
-		if (typeof window !== 'undefined') {
-			return window.location.href;
+		if (typeof globalThis !== 'undefined') {
+			return globalThis.location.href;
 		}
 		return 'about:blank';
 	}

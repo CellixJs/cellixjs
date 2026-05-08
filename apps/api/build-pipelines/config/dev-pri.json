@@ -58,5 +58,20 @@
 		"name": "NODE_ENV",
 		"value": "production",
 		"slotSetting": false
+	},
+	{
+		"name": "STAFF_PORTAL_OIDC_AUDIENCE",
+		"value": "api://19a178f5-d87c-4351-9e5c-db89cc692026",
+		"slotSetting": false
+	},
+	{
+		"name": "STAFF_PORTAL_OIDC_ENDPOINT",
+		"value": "https://login.microsoftonline.com/1414c1cf-8ecf-4524-ad52-d0dfc6c318e1/discovery/v2.0/keys",
+		"slotSetting": false
+	},
+	{
+		"name": "STAFF_PORTAL_OIDC_ISSUER",
+		"value": "https://sts.windows.net/1414c1cf-8ecf-4524-ad52-d0dfc6c318e1/",
+		"slotSetting": false
 	}
 ]

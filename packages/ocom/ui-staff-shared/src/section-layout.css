@@ -1,0 +1,19 @@
+:root {
+	/* Shared app header height used across staff route packages. Ant Design's default header
+	   height is 64px; we use 64px here to match Ant's default and avoid layout mismatch. */
+	--app-header-height: 64px;
+}
+
+.site-layout .site-layout-background {
+	background: #fff;
+}
+
+.ant-dropdown .ant-menu-root.ant-menu-vertical {
+	box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.allowBoxShadow {
+	box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+	border-radius: 4px;
+	padding: 8px 12px;
+}

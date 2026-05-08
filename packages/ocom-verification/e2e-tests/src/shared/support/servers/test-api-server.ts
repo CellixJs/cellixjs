@@ -63,7 +63,7 @@ export class TestApiServer extends PortlessServer {
 			STAFF_PORTAL_OIDC_ENDPOINT: mockOidcEndpoint,
 			STAFF_PORTAL_OIDC_AUDIENCE: mockOidcAudience,
 			STAFF_PORTAL_OIDC_IGNORE_ISSUER: 'true',
-			VITE_FUNCTION_ENDPOINT: buildUrl('data-access.ownercommunity.localhost', '/api/graphql'),
+			VITE_COMMON_API_ENDPOINT: buildUrl('data-access.ownercommunity.localhost', '/api/graphql'),
 		};
 	}
 

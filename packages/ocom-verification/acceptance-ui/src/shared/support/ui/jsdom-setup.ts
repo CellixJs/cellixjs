@@ -11,6 +11,8 @@ const dom = new JSDOM('<!DOCTYPE html><div id="root"></div>', {
 	url: 'http://localhost:3000',
 	pretendToBeVisual: true,
 });
+// biome-ignore lint/complexity/useLiteralKeys: `dom.window` is exposed via JSDOM's index signature, requiring bracket access under strict TypeScript
+const domGlobal = dom['window'] as unknown as Window & typeof globalThis;
 
 // biome-ignore lint/suspicious/noExplicitAny: attaching browser globals requires dynamic property assignment
 const g = globalThis as any;
@@ -31,39 +33,39 @@ const safeAssign = (name: string, value: unknown) => {
 	}
 };
 
-safeAssign('window', dom.window);
-safeAssign('document', dom.window.document);
-safeAssign('navigator', dom.window.navigator);
-safeAssign('HTMLElement', dom.window.HTMLElement);
-safeAssign('HTMLInputElement', dom.window.HTMLInputElement);
-safeAssign('HTMLTextAreaElement', dom.window.HTMLTextAreaElement);
-safeAssign('HTMLFormElement', dom.window.HTMLFormElement);
-safeAssign('HTMLButtonElement', dom.window.HTMLButtonElement);
-safeAssign('HTMLSelectElement', dom.window.HTMLSelectElement);
-safeAssign('HTMLAnchorElement', dom.window.HTMLAnchorElement);
-safeAssign('Element', dom.window.Element);
-safeAssign('SVGElement', dom.window.SVGElement);
-safeAssign('ShadowRoot', dom.window.ShadowRoot ?? class ShadowRoot {});
-safeAssign('Node', dom.window.Node);
-safeAssign('NodeList', dom.window.NodeList);
-safeAssign('Event', dom.window.Event);
-safeAssign('CustomEvent', dom.window.CustomEvent);
-safeAssign('KeyboardEvent', dom.window.KeyboardEvent);
-safeAssign('MouseEvent', dom.window.MouseEvent);
-safeAssign('getComputedStyle', dom.window.getComputedStyle);
+safeAssign('window', domGlobal);
+safeAssign('document', domGlobal.document);
+safeAssign('navigator', domGlobal.navigator);
+safeAssign('HTMLElement', domGlobal.HTMLElement);
+safeAssign('HTMLInputElement', domGlobal.HTMLInputElement);
+safeAssign('HTMLTextAreaElement', domGlobal.HTMLTextAreaElement);
+safeAssign('HTMLFormElement', domGlobal.HTMLFormElement);
+safeAssign('HTMLButtonElement', domGlobal.HTMLButtonElement);
+safeAssign('HTMLSelectElement', domGlobal.HTMLSelectElement);
+safeAssign('HTMLAnchorElement', domGlobal.HTMLAnchorElement);
+safeAssign('Element', domGlobal.Element);
+safeAssign('SVGElement', domGlobal.SVGElement);
+safeAssign('ShadowRoot', domGlobal.ShadowRoot ?? class ShadowRoot {});
+safeAssign('Node', domGlobal.Node);
+safeAssign('NodeList', domGlobal.NodeList);
+safeAssign('Event', domGlobal.Event);
+safeAssign('CustomEvent', domGlobal.CustomEvent);
+safeAssign('KeyboardEvent', domGlobal.KeyboardEvent);
+safeAssign('MouseEvent', domGlobal.MouseEvent);
+safeAssign('getComputedStyle', domGlobal.getComputedStyle);
 safeAssign('requestAnimationFrame', (cb: () => void) => setTimeout(cb, 0));
 safeAssign('cancelAnimationFrame', (id: number) => clearTimeout(id));
-safeAssign('location', dom.window.location);
-safeAssign('history', dom.window.history);
-safeAssign('MutationObserver', dom.window.MutationObserver);
-safeAssign('URL', dom.window.URL);
-safeAssign('URLSearchParams', dom.window.URLSearchParams);
-safeAssign('SubmitEvent', dom.window.SubmitEvent);
+safeAssign('location', domGlobal.location);
+safeAssign('history', domGlobal.history);
+safeAssign('MutationObserver', domGlobal.MutationObserver);
+safeAssign('URL', domGlobal.URL);
+safeAssign('URLSearchParams', domGlobal.URLSearchParams);
+safeAssign('SubmitEvent', domGlobal.SubmitEvent);
 
 /* --- Stubs for APIs not supported by jsdom --- */
 
-g.window.matchMedia =
-	g.window.matchMedia ||
+domGlobal.matchMedia =
+	domGlobal.matchMedia ||
 	(() => ({
 		matches: false,
 		addListener: () => {
@@ -111,24 +113,24 @@ g.IntersectionObserver =
 		}
 	};
 
-g.window.scrollTo =
-	g.window.scrollTo ||
+domGlobal.scrollTo =
+	domGlobal.scrollTo ||
 	(() => {
 		/* noop stub */
 	});
-g.window.scroll =
-	g.window.scroll ||
+domGlobal.scroll =
+	domGlobal.scroll ||
 	(() => {
 		/* noop stub */
 	});
-g.window.resizeTo =
-	g.window.resizeTo ||
+domGlobal.resizeTo =
+	domGlobal.resizeTo ||
 	(() => {
 		/* noop stub */
 	});
 
-g.window.getComputedStyle =
-	g.window.getComputedStyle ||
+domGlobal.getComputedStyle =
+	domGlobal.getComputedStyle ||
 	(() => ({
 		getPropertyValue: () => '',
 	}));
