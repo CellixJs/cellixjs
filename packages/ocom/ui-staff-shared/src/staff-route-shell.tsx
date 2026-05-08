@@ -2,7 +2,6 @@ import { DashboardOutlined } from '@ant-design/icons';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import { createContext, type FC, type ReactNode, useContext, useMemo } from 'react';
 import { SectionLayout, type SectionLayoutProps } from './section-layout.tsx';
-import { extractRoles, staffRouteRoles } from './staff-app-roles.ts';
 
 export interface StaffRouteShellProps {
 	title: string;
