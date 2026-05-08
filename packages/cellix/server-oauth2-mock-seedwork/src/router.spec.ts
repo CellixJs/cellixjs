@@ -126,7 +126,7 @@ describe('oauth2 mock router flows', () => {
 		const authorizeUrl = `http://127.0.0.1:${port}/authorize?redirect_uri=${encodeURIComponent(redirect)}&state=authorize-state`;
 		const res = await fetch(authorizeUrl, { redirect: 'manual' });
 		expect(res.status).toBe(302);
-		expect(res.headers.get('location')).toBe(`/login?state=authorize-state&redirect_uri=${encodeURIComponent(redirect)}`);
+		expect(res.headers.get('location')).toBe(`${baseUrlFor(port)}/login?state=authorize-state&redirect_uri=${encodeURIComponent(redirect)}`);
 	});
 
 	it('POST /login authenticates user and rejects wrong password', async () => {

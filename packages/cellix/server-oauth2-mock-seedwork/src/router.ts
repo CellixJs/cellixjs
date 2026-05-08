@@ -218,7 +218,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		// If userStore exists, redirect to login to choose/authorize a user.
 		if (config.userStore) {
 			const q = new URLSearchParams({ ...(typeof state === 'string' ? { state } : {}), ...(typeof redirect_uri === 'string' ? { redirect_uri } : {}) }).toString();
-			res.setHeader('Location', `/login${q ? `?${q}` : ''}`);
+			res.setHeader('Location', `${issuerBaseUrl}/login${q ? `?${q}` : ''}`);
 			res.status(302).end();
 			return;
 		}
@@ -252,13 +252,13 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
 		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
 		<h1>Login</h1>
-		<form method="POST" action="/login">
+		<form method="POST" action="${issuerBaseUrl}/login">
 		<input type="hidden" name="nonce" value="${nonce}" />
 		<label>Username: <input name="username" /></label><br/>
 		<label>Password: <input name="password" type="password" /></label><br/>
 		<button type="submit">Login</button>
 		</form>
-		<p><a href="/signup?nonce=${nonce}">Sign up</a></p>
+		<p><a href="${issuerBaseUrl}/signup?nonce=${nonce}">Sign up</a></p>
 		</body></html>`);
 	});
 
@@ -322,7 +322,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
 		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
 		<h1>Sign up</h1>
-		<form method="POST" action="/signup">
+		<form method="POST" action="${issuerBaseUrl}/signup">
 		<input type="hidden" name="nonce" value="${nonce}" />
 		<label>Username: <input name="username" /></label><br/>
 		<label>Password: <input name="password" type="password" /></label><br/>
