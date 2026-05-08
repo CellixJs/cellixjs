@@ -5,9 +5,11 @@ import { Root as Finance } from '@ocom/ui-staff-route-finance';
 import { Root } from '@ocom/ui-staff-route-root';
 import { Root as TechAdmin } from '@ocom/ui-staff-route-tech-admin';
 import { Root as UserManagement } from '@ocom/ui-staff-route-user-management';
-import { RequireRole, StaffAuthProvider, staffRouteRoles } from '@ocom/ui-staff-shared';
+import { StaffAuthContext, StaffAuthProvider } from '@ocom/ui-staff-shared';
+import { Spin } from 'antd';
+import { useContext } from 'react';
 import { useAuth } from 'react-oidc-context';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
 import { client } from './components/ui/organisms/apollo-connection/apollo-client-links.tsx';
@@ -16,50 +18,42 @@ import { useStaffPermissions } from './hooks/use-staff-permissions.ts';
 import { Unauthorized } from './unauthorized.tsx';
 
 function StaffRoutes() {
+	const auth = useContext(StaffAuthContext);
+	const perms = auth?.permissions;
+
 	return (
 		<Routes>
+			{perms?.canManageCommunities === true && (
+				<Route
+					path="/community-management/*"
+					element={<CommunityManagement />}
+				/>
+			)}
+			{perms?.canManageUsers === true && (
+				<Route
+					path="/user-management/*"
+					element={<UserManagement />}
+				/>
+			)}
+			{perms?.canManageFinance === true && (
+				<Route
+					path="/finance/*"
+					element={<Finance />}
+				/>
+			)}
+			{perms?.canManageTechAdmin === true && (
+				<Route
+					path="/tech/*"
+					element={<TechAdmin />}
+				/>
+			)}
 			<Route
-				path="/community-management/*"
+				path="*"
 				element={
-					<RequireRole
-						roles={staffRouteRoles['/staff/community-management']}
-						permKey="canManageCommunities"
-					>
-						<CommunityManagement />
-					</RequireRole>
-				}
-			/>
-			<Route
-				path="/user-management/*"
-				element={
-					<RequireRole
-						roles={staffRouteRoles['/staff/user-management']}
-						permKey="canManageUser"
-					>
-						<UserManagement />
-					</RequireRole>
-				}
-			/>
-			<Route
-				path="/finance/*"
-				element={
-					<RequireRole
-						roles={staffRouteRoles['/staff/finance']}
-						permKey="canManageFinance"
-					>
-						<Finance />
-					</RequireRole>
-				}
-			/>
-			<Route
-				path="/tech/*"
-				element={
-					<RequireRole
-						roles={staffRouteRoles['/staff/tech']}
-						permKey="canManageTechAdmin"
-					>
-						<TechAdmin />
-					</RequireRole>
+					<Navigate
+						to="/unauthorized"
+						replace
+					/>
 				}
 			/>
 		</Routes>
@@ -81,8 +75,6 @@ export default function App() {
 		</RequireAuth>
 	);
 
-	// Staff section acts as the parent route element and must render an Outlet so
-	// nested child routes declared in the top-level Routes are rendered in place.
 	const staffSectionElement = (
 		<RequireAuth forceLogin={false}>
 			<StaffSection identity={identity} />
@@ -105,40 +97,28 @@ export default function App() {
 					element={<Unauthorized />}
 				/>
 
-				{/* Parent staff route: child routes must be declared as nested Route elements
-					so relative paths like "users/*" resolve against /staff. */}
+				{/* StaffSection renders StaffAuthProvider + StaffRoutes which handles all
+				authenticated sub-routes with permission guards. No nested Route children
+				are needed here because StaffRoutes defines its own Routes block. */}
 				<Route
 					path="/staff/*"
 					element={staffSectionElement}
-				>
-					<Route
-						index
-						element={<Root />}
-					/>
-					<Route
-						path="community-management/*"
-						element={<CommunityManagement />}
-					/>
-					<Route
-						path="user-management/*"
-						element={<UserManagement />}
-					/>
-					<Route
-						path="finance/*"
-						element={<Finance />}
-					/>
-					<Route
-						path="tech/*"
-						element={<TechAdmin />}
-					/>
-				</Route>
+				/>
 			</Routes>
 		</ApolloConnection>
 	);
 }
 
 function StaffSection({ identity }: { identity: Parameters<typeof StaffAuthProvider>[0]['value'] }) {
-	const { permissions } = useStaffPermissions();
+	const { permissions, loading } = useStaffPermissions();
+
+	if (loading) {
+		return (
+			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+				<Spin size="large" />
+			</div>
+		);
+	}
 
 	return (
 		<StaffAuthProvider value={{ ...identity, permissions }}>

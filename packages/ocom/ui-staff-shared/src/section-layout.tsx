@@ -54,34 +54,54 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	// Merge canonical staff navigation with consumer-provided pageLayouts.
 	// Defaults are added only when the consumer hasn't provided an entry with the same id.
 	// Consumer-provided entries override defaults when ids conflict.
+	// Build default page layouts from backend permissions.
+	// A menu item is only included when the corresponding permission is explicitly true.
+	// false, null, or undefined all result in the item being hidden and the route being unavailable.
+	const perms = auth?.permissions;
 	const defaultPageLayouts: PageLayoutProps[] = [
-		{
-			path: '/staff/community-management',
-			title: 'Communities',
-			icon: <TeamOutlined />,
-			id: 'ROOT',
-		},
-		{
-			path: '/staff/user-management/*',
-			title: 'Users',
-			icon: <TeamOutlined />,
-			id: 'users',
-			parent: 'ROOT',
-		},
-		{
-			path: '/staff/finance/*',
-			title: 'Finance',
-			icon: <DollarOutlined />,
-			id: 'finance',
-			parent: 'ROOT',
-		},
-		{
-			path: '/staff/tech/*',
-			title: 'Tech Admin',
-			icon: <ToolOutlined />,
-			id: 'tech',
-			parent: 'ROOT',
-		},
+		...(perms?.canManageCommunities === true
+			? [
+					{
+						path: '/staff/community-management',
+						title: 'Communities',
+						icon: <TeamOutlined />,
+						id: 'ROOT',
+					},
+				]
+			: []),
+		...(perms?.canManageUsers === true
+			? [
+					{
+						path: '/staff/user-management/*',
+						title: 'Users',
+						icon: <TeamOutlined />,
+						id: 'users',
+						parent: 'ROOT',
+					},
+				]
+			: []),
+		...(perms?.canManageFinance === true
+			? [
+					{
+						path: '/staff/finance/*',
+						title: 'Finance',
+						icon: <DollarOutlined />,
+						id: 'finance',
+						parent: 'ROOT',
+					},
+				]
+			: []),
+		...(perms?.canManageTechAdmin === true
+			? [
+					{
+						path: '/staff/tech/*',
+						title: 'Tech Admin',
+						icon: <ToolOutlined />,
+						id: 'tech',
+						parent: 'ROOT',
+					},
+				]
+			: []),
 	];
 
 	// Build a map from default entries, then overlay consumer entries so consumers can override defaults.

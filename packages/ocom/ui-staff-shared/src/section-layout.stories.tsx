@@ -18,36 +18,55 @@ const renderIntoDocument = (node: React.ReactNode) => {
 };
 
 describe('SectionLayout merging behaviour', () => {
-	it('renders canonical staff navigation merged with consumer pageLayouts', async () => {
-		const consumerLayouts = [
-			{
-				path: '/staff/community-management',
-				title: 'Community Management',
-				icon: <TeamOutlined />,
-				id: 'ROOT',
-			},
-		];
+	it('renders only the menu items the user has permission for', async () => {
+		const container = renderIntoDocument(
+			<MemoryRouter initialEntries={['/staff']}>
+				<StaffAuthProvider
+					value={{
+						permissions: {
+							canManageCommunities: true,
+							canManageUsers: false,
+							canManageFinance: true,
+							canManageTechAdmin: false,
+						},
+					}}
+				>
+					<Routes>
+						<Route
+							path="/staff/*"
+							element={<SectionLayout pageLayouts={[]} />}
+						/>
+					</Routes>
+				</StaffAuthProvider>
+			</MemoryRouter>,
+		);
 
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(container.textContent).toContain('Communities');
+		expect(container.textContent).not.toContain('Users');
+		expect(container.textContent).toContain('Finance');
+		expect(container.textContent).not.toContain('Tech Admin');
+	});
+
+	it('shows no menu items when permissions are undefined (loading or no role assigned)', async () => {
 		const container = renderIntoDocument(
 			<MemoryRouter initialEntries={['/staff']}>
 				<Routes>
 					<Route
 						path="/staff/*"
-						element={<SectionLayout pageLayouts={consumerLayouts as PageLayoutProps[]} />}
+						element={<SectionLayout pageLayouts={[]} />}
 					/>
 				</Routes>
 			</MemoryRouter>,
 		);
 
-		// Wait a tick for ant design components to mount
 		await new Promise((r) => setTimeout(r, 10));
 
-		// Top-level menu items expected
-		expect(container.textContent).not.toContain('Home');
-		expect(container.textContent).toContain('Communities');
-		expect(container.textContent).toContain('Users');
-		expect(container.textContent).toContain('Finance');
-		expect(container.textContent).toContain('Tech Admin');
+		expect(container.textContent).not.toContain('Communities');
+		expect(container.textContent).not.toContain('Users');
+		expect(container.textContent).not.toContain('Finance');
+		expect(container.textContent).not.toContain('Tech Admin');
 	});
 
 	it('preserves default parent when consumer entry omits parent field', async () => {
@@ -63,12 +82,23 @@ describe('SectionLayout merging behaviour', () => {
 
 		const container = renderIntoDocument(
 			<MemoryRouter initialEntries={['/staff']}>
-				<Routes>
-					<Route
-						path="/staff/*"
-						element={<SectionLayout pageLayouts={consumerLayouts as PageLayoutProps[]} />}
-					/>
-				</Routes>
+				<StaffAuthProvider
+					value={{
+						permissions: {
+							canManageCommunities: true,
+							canManageUsers: true,
+							canManageFinance: true,
+							canManageTechAdmin: true,
+						},
+					}}
+				>
+					<Routes>
+						<Route
+							path="/staff/*"
+							element={<SectionLayout pageLayouts={consumerLayouts as PageLayoutProps[]} />}
+						/>
+					</Routes>
+				</StaffAuthProvider>
 			</MemoryRouter>,
 		);
 

@@ -13,10 +13,16 @@ const CURRENT_STAFF_USER_QUERY = gql`
 				id
 				roleName
 				permissions {
-					sectionPermissions {
+					communityPermissions {
 						canManageCommunities
-						canManageUser
+					}
+					userPermissions {
+						canManageUsers
+					}
+					financePermissions {
 						canManageFinance
+					}
+					techAdminPermissions {
 						canManageTechAdmin
 					}
 				}
@@ -25,9 +31,9 @@ const CURRENT_STAFF_USER_QUERY = gql`
 	}
 `;
 
-interface StaffPermissions {
+export interface StaffPermissions {
 	canManageCommunities: boolean;
-	canManageUser: boolean;
+	canManageUsers: boolean;
 	canManageFinance: boolean;
 	canManageTechAdmin: boolean;
 }
@@ -44,7 +50,10 @@ interface StaffUserQueryResult {
 			id: string;
 			roleName: string;
 			permissions: {
-				sectionPermissions: StaffPermissions;
+				communityPermissions: { canManageCommunities: boolean };
+				userPermissions: { canManageUsers: boolean };
+				financePermissions: { canManageFinance: boolean };
+				techAdminPermissions: { canManageTechAdmin: boolean };
 			};
 		};
 	};
@@ -55,10 +64,19 @@ export const useStaffPermissions = (): { permissions: StaffPermissions | undefin
 		fetchPolicy: 'cache-first',
 	});
 
-	const sectionPermissions = data?.currentStaffUserAndCreateIfNotExists?.role?.permissions?.sectionPermissions;
+	const rolePermissions = data?.currentStaffUserAndCreateIfNotExists?.role?.permissions;
+
+	const permissions: StaffPermissions | undefined = rolePermissions
+		? {
+				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities,
+				canManageUsers: rolePermissions.userPermissions.canManageUsers,
+				canManageFinance: rolePermissions.financePermissions.canManageFinance,
+				canManageTechAdmin: rolePermissions.techAdminPermissions.canManageTechAdmin,
+			}
+		: undefined;
 
 	return {
-		permissions: sectionPermissions ?? undefined,
+		permissions,
 		loading,
 		error,
 	};
