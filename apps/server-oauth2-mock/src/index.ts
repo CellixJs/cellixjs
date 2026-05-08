@@ -38,6 +38,15 @@ try {
 			allowedRedirectUri: portal.redirectUri,
 			redirectUriToAudience: new Map([[portal.redirectUri, portal.clientId]]),
 			userStore,
+			/**
+			 * Subject (sub) resolution priority:
+			 * 1. User's own `sub` field in mock-oidc.users.json
+			 * 2. `sub` inside the user's `claims` object
+			 * 3. Error — sub is required for OIDC
+			 *
+			 * The portal's legacy `claims.sub` (from mock-oidc.json) is intentionally
+			 * NOT used when a userStore is configured — each user has their own sub.
+			 */
 			getUserProfile: () => {
 				const claims = portal.claims ?? {};
 				// Destructure sub separately so we can omit it when not explicitly configured,

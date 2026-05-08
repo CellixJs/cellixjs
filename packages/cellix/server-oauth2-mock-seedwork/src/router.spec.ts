@@ -128,15 +128,14 @@ describe('oauth2 mock router flows', () => {
 		const u = store.users[0] as MockOAuth2User;
 		expect(u.username).toBe('alice');
 
-		// duplicate signup should fail with a conflict
+		// duplicate signup should fail with a conflict for API clients, but render the signup form with an inline error for browser form posts
 		const { nonce: duplicateNonce } = await getFormNonce(port, '/signup', { redirect_uri: redirect, state: 'signup-state' });
 		const duplicateBody = new URLSearchParams({ username: 'alice', password: alicePassword, email: 'alice@example.com', given_name: 'Alice', family_name: 'Smith', nonce: duplicateNonce });
 		const res2 = await fetch(signupUrl, { method: 'POST', body: duplicateBody.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
-		expect(res2.status).toBe(409);
-		expect(await res2.json()).toEqual({
-			error: 'user_exists',
-			error_description: 'Username already exists: alice',
-		});
+		expect(res2.status).toBe(200);
+		const html = await res2.text();
+		expect(html).toContain('A user with that username already exists');
+		expect(html).toContain('name="nonce"');
 	});
 
 	it('GET /authorize forwards login query params when a userStore is configured', async () => {
@@ -174,7 +173,10 @@ describe('oauth2 mock router flows', () => {
 		const { nonce: badNonce } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'bad-login-state' });
 		const bad = new URLSearchParams({ username: 'bob', password: wrongPassword, nonce: badNonce });
 		const r2 = await fetch(loginUrl, { method: 'POST', body: bad.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
-		expect(r2.status).toBe(401);
+		// For form-posts we render a friendly HTML page so the user can retry; expect 200 and an error message
+		expect(r2.status).toBe(200);
+		const errHtml = await r2.text();
+		expect(errHtml).toContain('Invalid username or password');
 	});
 
 	it('POST /login preserves the OIDC nonce into token claims', async () => {
@@ -396,4 +398,39 @@ describe('oauth2 mock router flows', () => {
 		const tokenJsonB = (await tokenResB.json()) as { id_token?: string; profile?: { sub?: string } };
 		expect(tokenJsonB.profile?.sub).toBe('sub-B');
 	});
+	it('POST /login uses user.sub when present at top-level', async () => {
+		const pass = createPassword('u-password');
+		store.users.push({ username: 'topsub', sub: 'sub-top', password: pass, claims: { email: 'top@example.com' } });
+		const loginUrl = `http://127.0.0.1:${port}/login`;
+		const { nonce } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'sub-top-state' });
+		const body = new URLSearchParams({ username: 'topsub', password: pass, nonce });
+		const res = await fetch(loginUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
+		expect(res.status).toBe(302);
+		const location = res.headers.get('location') as string;
+		const code = new URL(location).searchParams.get('code') as string;
+		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code }) });
+		expect(tokenRes.status).toBe(200);
+		const tokenJson = await tokenRes.json() as { id_token?: string };
+		const idPayload = decodeJwtPayload(tokenJson.id_token as string) as { sub?: string };
+		expect(idPayload.sub).toBe('sub-top');
+	});
+
+	it('POST /login uses user.claims.sub when provided (merged into user.sub by file store)', async () => {
+		const pass = createPassword('v-password');
+		// In real file-backed user store claims.sub is promoted to top-level sub; tests simulate that behavior by setting user.sub accordingly
+		store.users.push({ username: 'claimsub', sub: 'sub-claim', password: pass, claims: { email: 'claim@example.com', sub: 'sub-claim' } });
+		const loginUrl = `http://127.0.0.1:${port}/login`;
+		const { nonce } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'sub-claim-state' });
+		const body = new URLSearchParams({ username: 'claimsub', password: pass, nonce });
+		const res = await fetch(loginUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
+		expect(res.status).toBe(302);
+		const location = res.headers.get('location') as string;
+		const code = new URL(location).searchParams.get('code') as string;
+		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code }) });
+		expect(tokenRes.status).toBe(200);
+		const tokenJson = await tokenRes.json() as { id_token?: string };
+		const idPayload = decodeJwtPayload(tokenJson.id_token as string) as { sub?: string };
+		expect(idPayload.sub).toBe('sub-claim');
+	});
+
 });

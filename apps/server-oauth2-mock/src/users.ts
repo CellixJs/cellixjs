@@ -106,10 +106,14 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		return validateEntries(raw, localPath);
 	}
 
-	let cachedUsers: MockOAuth2User[] | null = null;
+	function debugLog(message: string, ...args: unknown[]) {
+		// biome-ignore lint/complexity/useLiteralKeys: ProcessEnv uses an index signature in this repo's TypeScript config.
+		const debugFlag = process.env['MOCK_OAUTH2_DEBUG'];
+		const debugEnabled = debugFlag === '1' || debugFlag === 'true';
+		if (debugEnabled) console.debug(message, ...args);
+	}
 
 	function mergeUsers(): MockOAuth2User[] {
-		if (cachedUsers) return cachedUsers;
 		const committed = loadCommitted();
 		const overlay = loadOverlay();
 		const seenUsernames = new Set<string>();
@@ -129,7 +133,6 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 			seenSubs.add(u.sub);
 			out.push(u);
 		}
-		cachedUsers = out;
 		return out;
 	}
 
@@ -139,11 +142,14 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		const tmpPath = `${localPath}.tmp`;
 		fs.writeFileSync(tmpPath, JSON.stringify(users, null, 2), { encoding: 'utf-8' });
 		fs.renameSync(tmpPath, localPath);
-		// invalidate cache after successful write
-		cachedUsers = null;
+		// no in-memory cache to invalidate; files are re-read on each call
 		return Promise.resolve();
 	}
 
+	const portalName = path.basename(appDir);
+	const initialCommitted = loadCommitted();
+	const initialOverlay = loadOverlay();
+	console.info(`[server-oauth2-mock] Loaded ${initialCommitted.length} committed + ${initialOverlay.length} local users for portal "${portalName}" (${initialCommitted.length + initialOverlay.length} total)`);
 	return {
 		listUsers() {
 			return Promise.resolve(mergeUsers());
@@ -164,7 +170,10 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 			if (all.find((u) => u.username === user.username)) return Promise.reject(new Error(`[server-oauth2-mock] Username already exists: ${user.username}`));
 			if (all.find((u) => u.sub === user.sub)) return Promise.reject(new Error(`[server-oauth2-mock] Sub already exists: ${user.sub}`));
 			overlay.push(user);
-			return persistOverlay(overlay);
+			return persistOverlay(overlay).then(() => {
+				console.info(`[server-oauth2-mock] New user registered via signup for portal "${portalName}": ${user.username}`);
+				debugLog('[server-oauth2-mock] addUser persisted', { portal: portalName, user: user.username });
+			});
 		},
 		persist() {
 			// noop - overlay persisted on each add

@@ -14,6 +14,13 @@ This package provides the reusable server logic used by app-level mock OAuth2 se
 - `POST /token` — returns `{ id_token, access_token, refresh_token, ... }`, including passthrough claims such as `nonce` captured during interactive login/signup flows
 - CORS restricted to local origins (127.0.0.1, localhost, and `*.localhost`) and configured redirect origins
 
+User store and form-based login/signup
+
+- When a portal config provides a `userStore` (per-portal `mock-oidc.users.json` and optional `mock-oidc.users.local.json`), the seedwork exposes simple HTML login and signup pages to let developers pick or register users interactively.
+- Both files are read on every request by the app-level user store implementation so edits to `mock-oidc.users.local.json` are picked up immediately without restarting the server.
+- Passwords in these files are stored in plain text — this is strictly for local development. Do not use real credentials or deploy this server in production.
+- Set `MOCK_OAUTH2_DEBUG=1` to enable extra debug logging to the console.
+
 ## Usage
 
 In CellixJS applications, the runnable HTTP process lives in `@apps/server-oauth2-mock`. This seedwork package exports the reusable startup logic and types consumed by that app package.

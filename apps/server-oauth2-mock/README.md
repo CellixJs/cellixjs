@@ -53,3 +53,9 @@ See ADR-0028 — Portless Local Development (apps/docs/docs/decisions/0028-portl
 - `mock-oidc.local.json` is still supported for claim overrides.
 - The per-portal JSON no longer contains direct `clientId` or `redirectUri` values; those are read from the UI app's `.env` using `envVars`.
 - Backward-compatible single-config mode via `startMockOAuth2Server()` is preserved.
+
+Per-portal user files
+
+- To enable interactive multi-user login/signup flows for a portal, add `mock-oidc.users.json` (committed sample users) and optional `mock-oidc.users.local.json` (developer overlay) under the portal app directory (e.g. `apps/ui-community/mock-oidc.users.json`).
+- The app-level user store reads these files on every request so edits to the `.local.json` overlay are picked up immediately while the server is running.
+- For details on the user file format and security caveats (plain-text passwords, dev-only), see the seedwork README: `packages/cellix/server-oauth2-mock-seedwork/README.md`.

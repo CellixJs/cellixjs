@@ -112,6 +112,44 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		res.json({ keys: [publicJwk] });
 	});
 
+	// Small helpers for form vs API clients and HTML rendering
+	function isFormRequest(req: express.Request): boolean {
+		const ct = req.get('content-type');
+		return typeof ct === 'string' && ct.includes('application/x-www-form-urlencoded');
+	}
+
+	function buildLoginHtml(opts: { issuerBaseUrl: string; nonce?: string; username?: string; error?: string }) {
+		const { issuerBaseUrl, nonce, username, error } = opts;
+		return `<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
+			<h1>Login</h1>
+			${error ? `<p style="color: red;">${String(error)}</p>` : ''}
+			<form method="POST" action="${issuerBaseUrl}/login?nonce=${nonce ?? ''}">
+			<input type="hidden" name="nonce" value="${nonce ?? ''}" />
+			<label>Username: <input name="username" value="${username ? String(username).replace(/"/g, '&quot;') : ''}" /></label><br/>
+			<label>Password: <input name="password" type="password" /></label><br/>
+			<button type="submit">Login</button>
+			</form>
+			<p><a href="${issuerBaseUrl}/signup?nonce=${nonce ?? ''}">Sign up</a></p>
+			</body></html>`;
+	}
+
+	function buildSignupHtml(opts: { issuerBaseUrl: string; nonce?: string; username?: string; email?: string; given_name?: string; family_name?: string; error?: string }) {
+		const { issuerBaseUrl, nonce, username, email, given_name, family_name, error } = opts;
+		return `<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
+			<h1>Sign up</h1>
+			${error ? `<p style="color: red;">${String(error)}</p>` : ''}
+			<form method="POST" action="${issuerBaseUrl}/signup">
+			<input type="hidden" name="nonce" value="${nonce ?? ''}" />
+			<label>Username: <input name="username" value="${username ? String(username).replace(/"/g, '&quot;') : ''}" /></label><br/>
+			<label>Password: <input name="password" type="password" /></label><br/>
+			<label>Email: <input name="email" value="${email ? String(email).replace(/"/g, '&quot;') : ''}" /></label><br/>
+			<label>Given name: <input name="given_name" value="${given_name ? String(given_name).replace(/"/g, '&quot;') : ''}" /></label><br/>
+			<label>Family name: <input name="family_name" value="${family_name ? String(family_name).replace(/"/g, '&quot;') : ''}" /></label><br/>
+			<button type="submit">Sign up</button>
+			</form>
+			</body></html>`;
+	}
+
 	router.use(express.urlencoded({ extended: true }));
 	router.use(express.json());
 
@@ -319,16 +357,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		});
 		logger.debug('[server-oauth2-mock] GET /login', { sessionNonce, loginSessionFound: Boolean(loginSessionStore.get(sessionNonce)) });
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
-		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
-		<h1>Login</h1>
-		<form method="POST" action="${issuerBaseUrl}/login?nonce=${sessionNonce}">
-		<input type="hidden" name="nonce" value="${sessionNonce}" />
-		<label>Username: <input name="username" /></label><br/>
-		<label>Password: <input name="password" type="password" /></label><br/>
-		<button type="submit">Login</button>
-		</form>
-		<p><a href="${issuerBaseUrl}/signup?nonce=${sessionNonce}">Sign up</a></p>
-		</body></html>`);
+		res.send(buildLoginHtml({ issuerBaseUrl, nonce: sessionNonce }));
 	});
 
 	router.post('/login', async (req, res) => {
@@ -380,7 +409,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		logger.debug('[server-oauth2-mock] POST /login', { nonceFromBody, nonceFromQuery, loginSessionFound: Boolean(loginSession), username });
 
 		if (loginSession) {
-			loginSessionStore.delete(loginNonceUsed as string);
+			// keep session until login completes successfully so we can re-render the form on failure
 		} else {
 			// No server-side session found. Escalate and return a helpful error page
 			console.warn('[server-oauth2-mock] Missing login session for nonce (body:%s, query:%s, refererLookup:%s) — rejecting request', nonceFromBody, nonceFromQuery, refererLookup ?? req.get('referer'));
@@ -398,6 +427,10 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			const store = config.userStore as MockOAuth2UserStore;
 			const user = await store.findByUsername(username);
 			if (!user || typeof user.password !== 'string' || user.password !== password) {
+				if (isFormRequest(req)) {
+					res.status(200).setHeader('Content-Type', 'text/html; charset=utf-8').send(buildLoginHtml({ issuerBaseUrl, nonce: loginNonceUsed ?? '', username, error: 'Invalid username or password. Please try again.' }));
+					return;
+				}
 				res.status(401).send('Invalid credentials');
 				return;
 			}
@@ -414,6 +447,8 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					redirectUri: normalized,
 					...(loginSession?.nonce !== undefined ? { nonce: loginSession.nonce } : {}),
 				});
+				// consume the login session now that auth code is issued
+				if (loginNonceUsed) loginSessionStore.delete(loginNonceUsed);
 				logger.debug('[server-oauth2-mock] POST /login success', { authCode: `${code.substring(0, 8)}...`, redirectUri: redirect, state });
 				const location = buildRedirectWithCode(redirect, code, state);
 				res.setHeader('Location', location);
@@ -446,18 +481,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
 		});
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
-		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
-		<h1>Sign up</h1>
-		<form method="POST" action="${issuerBaseUrl}/signup">
-		<input type="hidden" name="nonce" value="${nonce}" />
-		<label>Username: <input name="username" /></label><br/>
-		<label>Password: <input name="password" type="password" /></label><br/>
-		<label>Email: <input name="email" /></label><br/>
-		<label>Given name: <input name="given_name" /></label><br/>
-		<label>Family name: <input name="family_name" /></label><br/>
-		<button type="submit">Sign up</button>
-		</form>
-		</body></html>`);
+		res.send(buildSignupHtml({ issuerBaseUrl, nonce }));
 	});
 
 	router.post('/signup', async (req, res) => {
@@ -476,7 +500,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		const family_name = typeof req.body.family_name === 'string' ? req.body.family_name : undefined;
 		const signupNonce = typeof req.body.nonce === 'string' ? req.body.nonce : '';
 		const signupSession = loginSessionStore.get(signupNonce);
-		loginSessionStore.delete(signupNonce);
+		// Keep signup session until signup completes so we can re-render the signup form on error
 		const redirect = signupSession?.redirectUri ?? primaryRedirectUri;
 		const state = signupSession?.state ?? undefined;
 		try {
@@ -500,6 +524,8 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					redirectUri: normalized,
 					...(signupSession?.nonce !== undefined ? { nonce: signupSession.nonce } : {}),
 				});
+				// consume signup session now that auth code has been issued
+				if (signupNonce) loginSessionStore.delete(signupNonce);
 				const location = buildRedirectWithCode(redirect, code, state);
 				res.setHeader('Location', location);
 				res.status(302).end();
@@ -509,6 +535,10 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : String(err);
 			if (msg.toLowerCase().includes('already exists')) {
+				if (isFormRequest(req)) {
+					res.status(200).setHeader('Content-Type', 'text/html; charset=utf-8').send(buildSignupHtml({ issuerBaseUrl, nonce: signupNonce, username, email, given_name, family_name, error: 'A user with that username already exists. Please choose a different username.' }));
+					return;
+				}
 				res.status(409).json({ error: 'user_exists', error_description: msg });
 				return;
 			}
