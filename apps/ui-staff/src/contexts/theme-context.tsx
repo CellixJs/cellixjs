@@ -76,7 +76,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 					type: 'custom',
 				};
 			}
-			localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+			// Guard localStorage access in case this is executed during SSR / non-browser envs
+			if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis && typeof globalThis.localStorage !== 'undefined') {
+				try {
+					globalThis.localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+				} catch (_err) {
+					// Ignore localStorage errors
+				}
+			}
 			return valueToSet;
 		});
 	}, []);
@@ -89,10 +96,19 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 				backgroundColor?: string;
 			};
 		} = {};
-		try {
-			extractFromLocal = JSON.parse(localStorage.getItem('themeProp') || '{}');
-		} catch {
-			localStorage.removeItem('themeProp');
+		// Guard localStorage access in case this is executed during SSR / non-browser envs
+		if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis && typeof globalThis.localStorage !== 'undefined') {
+			try {
+				extractFromLocal = JSON.parse(globalThis.localStorage.getItem('themeProp') || '{}');
+			} catch {
+				try {
+					globalThis.localStorage.removeItem('themeProp');
+				} catch (_err) {
+					// Ignore localStorage errors
+				}
+			}
+		} else {
+			extractFromLocal = {};
 		}
 		if (extractFromLocal && extractFromLocal.type === 'dark') {
 			setTheme(
@@ -130,7 +146,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 					backgroundColor: '#ffffff',
 				},
 			};
-			localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+			// Guard localStorage access when not in browser
+			if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis && typeof globalThis.localStorage !== 'undefined') {
+				try {
+					globalThis.localStorage.setItem('themeProp', JSON.stringify(valueToSet));
+				} catch (_err) {
+					// Ignore localStorage errors
+				}
+			}
 			setTheme(theme.defaultSeed, 'light');
 			return;
 		}
@@ -143,10 +166,21 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			}
 		};
 
-		window.addEventListener('keydown', handleKeyDown);
+		// Guard globalThis event listener registration in non-browser envs
+		if (typeof globalThis !== 'undefined' && typeof globalThis.addEventListener !== 'undefined') {
+			globalThis.addEventListener('keydown', handleKeyDown);
+
+			return () => {
+				try {
+					globalThis.removeEventListener('keydown', handleKeyDown);
+				} catch (_err) {
+					// Ignore
+				}
+			};
+		}
 
 		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
+			/* no-op */
 		};
 	}, [toggleHidden]);
 

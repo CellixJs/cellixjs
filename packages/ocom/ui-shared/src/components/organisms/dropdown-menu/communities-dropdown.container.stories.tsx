@@ -1,20 +1,6 @@
-import { gql } from '@apollo/client';
 import type { Meta, StoryObj } from '@storybook/react';
+import { CommunitiesDropdownContainerMembersForCurrentEndUserDocument } from '../../../generated.tsx';
 import { CommunitiesDropdownContainer } from './communities-dropdown.container.tsx';
-
-const UI_COMPONENTS_COMMUNITIES_DROPDOWN_MEMBERS = gql(`
-	query UiComponentsCommunitiesDropdownMembersForCurrentEndUser {
-		membersForCurrentEndUser {
-			id
-			memberName
-			isAdmin
-			community {
-				id
-				name
-			}
-		}
-	}
-`);
 
 const meta: Meta = {
 	title: 'UI/Organisms/DropdownMenu/CommunitiesDropdown/Container',
@@ -40,7 +26,7 @@ export const Default: Story = {
 			mocks: [
 				{
 					request: {
-						query: UI_COMPONENTS_COMMUNITIES_DROPDOWN_MEMBERS,
+						query: CommunitiesDropdownContainerMembersForCurrentEndUserDocument,
 					},
 					result: {
 						data: {

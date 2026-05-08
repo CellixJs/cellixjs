@@ -21,7 +21,7 @@ const mockEnv = {
 	PROD: false,
 };
 
-// Mock window.sessionStorage and window.localStorage
+// Mock globalThis.sessionStorage and globalThis.localStorage
 const mockStorage = {
 	store: {} as Record<string, string>,
 	getItem(key: string) {

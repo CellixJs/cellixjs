@@ -16,7 +16,7 @@ export const LoggedInUserRootContainer: React.FC<LoggedInUserRootContainerProps>
 	const { loading, error, data } = useQuery(LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument);
 
 	const handleLogout = () => {
-		HandleLogout(auth, apolloClient, window.location.origin);
+		HandleLogout(auth, apolloClient, globalThis.location.origin);
 	};
 	return (
 		<ComponentQueryLoader

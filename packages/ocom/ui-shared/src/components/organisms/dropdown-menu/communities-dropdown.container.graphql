@@ -1,0 +1,11 @@
+query CommunitiesDropdownContainerMembersForCurrentEndUser {
+	membersForCurrentEndUser {
+		id
+		memberName
+		isAdmin
+		community {
+			id
+			name
+		}
+	}
+}

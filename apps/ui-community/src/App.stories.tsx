@@ -14,7 +14,7 @@ const mockEnv = {
 	NODE_ENV: 'development',
 };
 
-// Mock window.sessionStorage and window.localStorage
+// Mock globalThis.sessionStorage and globalThis.localStorage
 const mockStorage = {
 	getItem: (key: string) => {
 		if (key.includes('oidc.user')) {
