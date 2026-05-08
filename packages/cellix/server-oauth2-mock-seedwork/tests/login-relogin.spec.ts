@@ -1,6 +1,6 @@
 import express from 'express';
 import { describe, expect, it } from 'vitest';
-import { buildOidcRouter } from '../src/router.ts';
+import { AUTH_CODE_PREFIX, buildOidcRouter } from '../src/router.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2UserStore } from '../src/types.ts';
 
 function makeConfig() {
@@ -63,7 +63,7 @@ describe('login re-login fallback', () => {
 		const location = postRes.headers.get('location');
 		expect(location).toBeTruthy();
 		expect(location).toContain(cfg.allowedRedirectUri);
-		expect(location).toMatch(/code=mock-auth-code-/);
+		expect(new URL(location as string).searchParams.get('code')?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
 
 		await new Promise<void>((resolve) => srv.close(() => resolve()));
 	});

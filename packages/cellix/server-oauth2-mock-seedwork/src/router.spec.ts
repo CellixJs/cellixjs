@@ -3,7 +3,7 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { AUTH_CODE_TTL_MS, buildOidcRouter } from './router.ts';
+import { AUTH_CODE_PREFIX, AUTH_CODE_TTL_MS, buildOidcRouter } from './router.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 
 class InMemoryUserStore implements MockOAuth2UserStore {
@@ -188,7 +188,7 @@ describe('oauth2 mock router flows', () => {
 		const location = res.headers.get('location');
 		expect(location).toBeTruthy();
 		const code = new URL(location as string).searchParams.get('code');
-		expect(code).toBeTruthy();
+		expect(code?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
 
 		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, {
 			method: 'POST',
@@ -230,7 +230,7 @@ describe('oauth2 mock router flows', () => {
 		expect(loginRes.status).toBe(302);
 		const location = loginRes.headers.get('location') ?? '';
 		const code = new URL(location).searchParams.get('code');
-		expect(code).toBeTruthy();
+		expect(code?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
 
 		nowSpy.mockReturnValue(AUTH_CODE_TTL_MS + 1);
 		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, {
@@ -267,7 +267,7 @@ describe('oauth2 mock router flows', () => {
 		const redirectUrl = new URL(location as string);
 		expect(redirectUrl.searchParams.get('state')).toBe('signup-nonce-state');
 		const code = redirectUrl.searchParams.get('code');
-		expect(code).toBeTruthy();
+		expect(code?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
 
 		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, {
 			method: 'POST',
@@ -358,7 +358,7 @@ describe('oauth2 mock router flows', () => {
 		expect(loginResA.status).toBe(302);
 		const locA = loginResA.headers.get('location') as string;
 		const codeA = new URL(locA).searchParams.get('code');
-		expect(codeA).toBeTruthy();
+		expect(codeA?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
 		expect(new URL(locA).searchParams.get('state')).toBe('state-A');
 
 		// Exchange code for token for user A
@@ -387,7 +387,7 @@ describe('oauth2 mock router flows', () => {
 		expect(loginResB.status).toBe(302);
 		const locB = loginResB.headers.get('location') as string;
 		const codeB = new URL(locB).searchParams.get('code');
-		expect(codeB).toBeTruthy();
+		expect(codeB?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
 		expect(new URL(locB).searchParams.get('state')).toBe('state-B');
 
 		// Exchange code for token for user B

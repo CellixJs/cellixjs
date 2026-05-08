@@ -24,7 +24,22 @@ interface TimedEntry<T> {
 }
 
 export const AUTH_CODE_TTL_MS = 10 * 60 * 1000;
-const AUTH_CODE_PREFIX = 'mock-auth-code-';
+export const AUTH_CODE_PREFIX = 'mock-auth-code-';
+
+function createLogger() {
+	return {
+		debug(message: string, ...args: unknown[]): void {
+			// biome-ignore lint/complexity/useLiteralKeys: ProcessEnv uses an index signature in this repo's TypeScript config.
+			const debugFlag = process.env['MOCK_OAUTH2_DEBUG'];
+			const debugEnabled = debugFlag === '1' || debugFlag === 'true';
+			if (debugEnabled) {
+				console.debug(message, ...args);
+			}
+		},
+	};
+}
+
+const logger = createLogger();
 
 function createTtlStore<T>(ttlMs: number) {
 	const store = new Map<string, TimedEntry<T>>();
@@ -250,7 +265,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 
 		// Structured debug logging
-		console.debug('[server-oauth2-mock] GET /authorize', {
+		logger.debug('[server-oauth2-mock] GET /authorize', {
 			portal: issuerBaseUrl,
 			state: typeof state === 'string' ? state : undefined,
 			redirectUri: requestedRedirectUri,
@@ -302,7 +317,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			state: safeState,
 			...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
 		});
-		console.debug('[server-oauth2-mock] GET /login', { sessionNonce, loginSessionFound: Boolean(loginSessionStore.get(sessionNonce)) });
+		logger.debug('[server-oauth2-mock] GET /login', { sessionNonce, loginSessionFound: Boolean(loginSessionStore.get(sessionNonce)) });
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
 		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
 		<h1>Login</h1>
@@ -362,7 +377,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			}
 		}
 
-		console.debug('[server-oauth2-mock] POST /login', { nonceFromBody, nonceFromQuery, loginSessionFound: Boolean(loginSession), username });
+		logger.debug('[server-oauth2-mock] POST /login', { nonceFromBody, nonceFromQuery, loginSessionFound: Boolean(loginSession), username });
 
 		if (loginSession) {
 			loginSessionStore.delete(loginNonceUsed as string);
@@ -399,7 +414,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					redirectUri: normalized,
 					...(loginSession?.nonce !== undefined ? { nonce: loginSession.nonce } : {}),
 				});
-				console.debug('[server-oauth2-mock] POST /login success', { authCode: `${code.substring(0, 8)}...`, redirectUri: redirect, state });
+				logger.debug('[server-oauth2-mock] POST /login success', { authCode: `${code.substring(0, 8)}...`, redirectUri: redirect, state });
 				const location = buildRedirectWithCode(redirect, code, state);
 				res.setHeader('Location', location);
 				res.status(302).end();
@@ -568,7 +583,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	router.get('/logout', (req, res) => {
 		const { post_logout_redirect_uri, state } = req.query as { post_logout_redirect_uri?: string; state?: string };
 		// Debug
-		console.debug('[server-oauth2-mock] GET /logout', { portal: issuerBaseUrl });
+		logger.debug('[server-oauth2-mock] GET /logout', { portal: issuerBaseUrl });
 		if (!post_logout_redirect_uri) {
 			res.status(204).end();
 			return;

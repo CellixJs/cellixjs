@@ -115,6 +115,23 @@ test('validateEnvNames flags VITE_* vars that lack VITE_APP_ or VITE_COMMON_ pre
 	}
 });
 
+test('validateEnvNames flags VITE_APP_ vars with unknown portal name', () => {
+	const tmpRoot = createScratchRoot('env-vars-unknown-portal');
+	try {
+		const badVar = `VITE_APP_${'UNKNOWNPORTAL'}_FOO`;
+		fs.writeFileSync(path.join(tmpRoot, 'config.ts'), `const { ${badVar} } = import.meta.env;\n`, 'utf8');
+
+		const evidence = validateEnvNames({ rootDir: tmpRoot, scanPaths: [tmpRoot] });
+
+		const offending = evidence.results.find((r) => r.variable === badVar);
+		expect(offending).toBeDefined();
+		expect(offending?.status).toBe('non_compliant');
+		expect(offending?.reason).toContain('Unknown VITE_APP_');
+	} finally {
+		fs.rmSync(tmpRoot, { recursive: true, force: true });
+	}
+});
+
 test('validateEnvNames deduplicates results, excluding dist/ from scan', () => {
 	const tmpRoot = createScratchRoot('env-vars-dedupe');
 	try {

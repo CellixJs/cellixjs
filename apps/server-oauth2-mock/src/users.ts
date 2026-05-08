@@ -7,19 +7,19 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	const localPath = path.join(appDir, 'mock-oidc.users.local.json');
 
 	function readJsonIfExists(p: string): unknown {
+		if (!fs.existsSync(p)) return undefined;
+		const raw = fs.readFileSync(p, 'utf-8');
+		if (raw.trim().length === 0) return undefined;
 		try {
-			if (!fs.existsSync(p)) return undefined;
-			const raw = fs.readFileSync(p, 'utf-8');
 			return JSON.parse(raw) as unknown;
 		} catch (err) {
-			console.warn(`[server-oauth2-mock] Could not read users file at ${p}:`, err);
+			console.warn(`[server-oauth2-mock] Could not parse users file at ${p}:`, err);
 			return undefined;
 		}
 	}
 
 	function validateEntries(raw: unknown, filePath: string): MockOAuth2User[] {
-		if (!raw) {
-			console.warn(`[server-oauth2-mock] Users file at ${filePath} is empty or missing; treating as no users.`);
+		if (raw === undefined) {
 			return [];
 		}
 		if (!Array.isArray(raw)) {
