@@ -61,6 +61,12 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 
 			const subFromField = typeof e.sub === 'string' ? e.sub : undefined;
 			const subFromClaims = claims && typeof claims.sub === 'string' ? (claims.sub as string) : undefined;
+
+			if (subFromField !== undefined && subFromClaims !== undefined && subFromField !== subFromClaims) {
+				console.warn(`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": conflicting "sub" values between top-level "sub" and "claims.sub", skipping`);
+				continue;
+			}
+
 			const sub = subFromField ?? subFromClaims;
 
 			if (!sub) {

@@ -23,6 +23,9 @@ interface TimedEntry<T> {
 	expiresAt: number;
 }
 
+export const AUTH_CODE_TTL_MS = 10 * 60 * 1000;
+const AUTH_CODE_PREFIX = 'mock-auth-code-';
+
 function createTtlStore<T>(ttlMs: number) {
 	const store = new Map<string, TimedEntry<T>>();
 	return {
@@ -58,9 +61,9 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 	const cachedUserProfile = config.getUserProfile();
 	// Auth code store: maps one-time auth codes to selected sub, redirectUri, and OIDC nonce
-	const authCodeStore = createTtlStore<{ sub?: string; redirectUri: string; nonce?: string }>(10 * 60 * 1000);
+	const authCodeStore = createTtlStore<{ sub?: string; redirectUri: string; nonce?: string }>(AUTH_CODE_TTL_MS);
 	// Maps short-lived nonces to redirect and authorization params so user-controlled values never appear in HTML
-	const loginSessionStore = createTtlStore<{ redirectUri: string; state: string; nonce?: string }>(10 * 60 * 1000);
+	const loginSessionStore = createTtlStore<{ redirectUri: string; state: string; nonce?: string }>(AUTH_CODE_TTL_MS);
 	// For prefilled portal profile when no userStore, we may use portal sub as default when issuing codes without an explicit user selection.
 	const portalPrefilledSub = config.userStore ? undefined : (cachedUserProfile.sub ?? crypto.randomUUID());
 
@@ -261,7 +264,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 
 		try {
-			const code = `mock-auth-code-${crypto.randomUUID()}`;
+			const code = `${AUTH_CODE_PREFIX}${crypto.randomUUID()}`;
 			{
 				const entry: { redirectUri: string; sub?: string } = { redirectUri: normalizedRequestedRedirectUri };
 				if (typeof portalPrefilledSub === 'string') entry.sub = portalPrefilledSub;
@@ -334,7 +337,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					res.status(400).send('Invalid redirect_uri');
 					return;
 				}
-				const code = `mock-auth-code-${crypto.randomUUID()}`;
+				const code = `${AUTH_CODE_PREFIX}${crypto.randomUUID()}`;
 				authCodeStore.set(code, {
 					sub: user.sub,
 					redirectUri: normalized,
@@ -419,7 +422,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					res.status(400).send('Invalid redirect_uri');
 					return;
 				}
-				const code = `mock-auth-code-${crypto.randomUUID()}`;
+				const code = `${AUTH_CODE_PREFIX}${crypto.randomUUID()}`;
 				authCodeStore.set(code, {
 					sub: newUser.sub,
 					redirectUri: normalized,

@@ -3,10 +3,8 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { buildOidcRouter } from './router.ts';
+import { AUTH_CODE_TTL_MS, buildOidcRouter } from './router.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
-
-const TEN_MINUTES_MS = 10 * 60 * 1000;
 
 class InMemoryUserStore implements MockOAuth2UserStore {
 	users: MockOAuth2User[] = [];
@@ -211,7 +209,7 @@ describe('oauth2 mock router flows', () => {
 		nowSpy.mockReturnValue(0);
 		const loginUrl = `http://127.0.0.1:${port}/login`;
 		const { nonce } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'expired-login-state' });
-		nowSpy.mockReturnValue(TEN_MINUTES_MS + 1);
+		nowSpy.mockReturnValue(AUTH_CODE_TTL_MS + 1);
 
 		const body = new URLSearchParams({ username: 'dan', password: danPassword, nonce });
 		const res = await fetch(loginUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
@@ -235,7 +233,7 @@ describe('oauth2 mock router flows', () => {
 		const code = new URL(location).searchParams.get('code');
 		expect(code).toBeTruthy();
 
-		nowSpy.mockReturnValue(TEN_MINUTES_MS + 1);
+		nowSpy.mockReturnValue(AUTH_CODE_TTL_MS + 1);
 		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
