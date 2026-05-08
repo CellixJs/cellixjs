@@ -31,6 +31,7 @@ function baseUrlFor(port: number) {
 
 async function startServer(port: number, store: MockOAuth2UserStore) {
 	const app = express();
+	app.disable('x-powered-by');
 	const srv = app.listen(port);
 	await new Promise<void>((resolve) => srv.on('listening', () => resolve()));
 	const boundPort = (srv.address() as AddressInfo).port as number;

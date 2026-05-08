@@ -5,11 +5,8 @@ import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jos
 import { buildTokenResponse } from './jwt.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 import { normalizeOrigin, normalizeUrl } from './utils.ts';
-import { buildRedirectWithCode, buildEffectiveProfile, normalizeUserInfo, extractClaimsFromPayload } from './helpers.ts';
+import { buildRedirectWithCode, buildEffectiveProfile, normalizeUserInfo, extractClaimsFromPayload, escapeHtml } from './helpers.ts';
 
-function escapeHtml(input: string): string {
-	return input.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
 
 interface TokenProfile {
 	aud: string;
@@ -251,17 +248,19 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
 		const redirect = typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri;
 		const safeState = typeof state === 'string' ? state : '';
+		const escapedRedirect = String(redirect).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+		const escapedState = String(safeState).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
 		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
 		<h1>Login</h1>
 		<form method="POST" action="/login">
-		<input type="hidden" name="redirect_uri" value="${escapeHtml(redirect)}" />
-		<input type="hidden" name="state" value="${escapeHtml(safeState)}" />
+		<input type="hidden" name="redirect_uri" value="${escapedRedirect}" />
+		<input type="hidden" name="state" value="${escapedState}" />
 		<label>Username: <input name="username" /></label><br/>
 		<label>Password: <input name="password" type="password" /></label><br/>
 		<button type="submit">Login</button>
 		</form>
-		<p><a href="/signup?redirect_uri=${encodeURIComponent(redirect)}&state=${encodeURIComponent(safeState)}">Sign up</a></p>
+		<p><a href="${escapeHtml(`/signup?redirect_uri=${encodeURIComponent(redirect)}&state=${encodeURIComponent(safeState)}`)}">Sign up</a></p>
 		</body></html>`);
 	});
 
@@ -313,12 +312,14 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
 		const redirect = typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri;
 		const safeState = typeof state === 'string' ? state : '';
+		const escapedRedirect = String(redirect).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+		const escapedState = String(safeState).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
 		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
 		<h1>Sign up</h1>
 		<form method="POST" action="/signup">
-		<input type="hidden" name="redirect_uri" value="${escapeHtml(redirect)}" />
-		<input type="hidden" name="state" value="${escapeHtml(safeState)}" />
+		<input type="hidden" name="redirect_uri" value="${escapedRedirect}" />
+		<input type="hidden" name="state" value="${escapedState}" />
 		<label>Username: <input name="username" /></label><br/>
 		<label>Password: <input name="password" type="password" /></label><br/>
 		<label>Email: <input name="email" /></label><br/>

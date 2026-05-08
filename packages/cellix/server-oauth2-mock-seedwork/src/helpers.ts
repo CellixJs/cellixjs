@@ -58,3 +58,7 @@ export function extractClaimsFromPayload(payload: Record<string, unknown>): Reco
 	const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
 	return { ...(email ? { email } : {}), ...(givenName ? { given_name: givenName } : {}), ...(familyName ? { family_name: familyName } : {}) };
 }
+
+export function escapeHtml(s: string): string {
+	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+}
