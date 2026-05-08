@@ -316,7 +316,7 @@ export class StaffRoleViolationTicketPermissionsAdapter implements Domain.Contex
 	}
 }
 
-class StaffRoleFinancePermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleFinancePermissionsProps {
+export class StaffRoleFinancePermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleFinancePermissionsProps {
 	private readonly doc: StaffRoleFinancePermissions;
 
 	constructor(permissions: StaffRoleFinancePermissions) {
@@ -360,7 +360,7 @@ class StaffRoleFinancePermissionsAdapter implements Domain.Contexts.User.StaffRo
 	}
 }
 
-class StaffRoleTechAdminPermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleTechAdminPermissionsProps {
+export class StaffRoleTechAdminPermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleTechAdminPermissionsProps {
 	private readonly doc: StaffRoleTechAdminPermissions;
 
 	constructor(permissions: StaffRoleTechAdminPermissions) {
@@ -411,7 +411,7 @@ class StaffRoleTechAdminPermissionsAdapter implements Domain.Contexts.User.Staff
 	}
 }
 
-class StaffRoleUserPermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleUserPermissionsProps {
+export class StaffRoleUserPermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleUserPermissionsProps {
 	private readonly doc: StaffRoleUserPermissions;
 
 	constructor(permissions: StaffRoleUserPermissions) {

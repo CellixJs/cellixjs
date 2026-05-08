@@ -1,0 +1,328 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import type { Domain } from '@ocom/domain';
+import type { DataSources } from '@ocom/persistence';
+import { expect, vi } from 'vitest';
+import { StaffAppRoleNames } from '../staff-role/create-default-roles.ts';
+import { createIfNotExists, type StaffUserCreateIfNotExistsCommand } from './create-if-not-exists.ts';
+
+const test = { for: describeFeature };
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const feature = await loadFeature(path.resolve(__dirname, 'features/create-if-not-exists.feature'));
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function makeMockStaffUserRef(externalId: string): Domain.Contexts.User.StaffUser.StaffUserEntityReference {
+	return {
+		id: `id-${externalId}`,
+		externalId,
+		firstName: 'Test',
+		lastName: 'User',
+		email: 'test@example.com',
+		displayName: 'Test User',
+		accessBlocked: false,
+		tags: [],
+		userType: 'staff',
+		role: undefined,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+		schemaVersion: '1.0',
+	} as unknown as Domain.Contexts.User.StaffUser.StaffUserEntityReference;
+}
+
+function makeMockStaffRoleRef(roleName: string): Domain.Contexts.User.StaffRole.StaffRoleEntityReference {
+	return {
+		id: `role-id-${roleName}`,
+		roleName,
+		isDefault: false,
+		roleType: null,
+		permissions: {
+			communityPermissions: { canManageCommunities: false },
+			financePermissions: { canManageFinance: false },
+			techAdminPermissions: { canManageTechAdmin: false },
+			userPermissions: { canManageUsers: false },
+		},
+		createdAt: new Date(),
+		updatedAt: new Date(),
+		schemaVersion: '1.0',
+	} as unknown as Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+}
+
+interface MockStaffUserInstance extends Domain.Contexts.User.StaffUser.StaffUserEntityReference {
+	role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
+}
+
+function makeMockNewUser(externalId: string): MockStaffUserInstance {
+	let _role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined = undefined;
+	return {
+		id: `new-id-${externalId}`,
+		externalId,
+		firstName: 'First',
+		lastName: 'Last',
+		email: 'first@example.com',
+		displayName: 'First Last',
+		accessBlocked: false,
+		tags: [],
+		userType: 'staff',
+		get role() {
+			return _role;
+		},
+		set role(r: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined) {
+			_role = r;
+		},
+		createdAt: new Date(),
+		updatedAt: new Date(),
+		schemaVersion: '1.0',
+	} as unknown as MockStaffUserInstance;
+}
+
+function makeDataSources(overrides: {
+	existingUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference | null;
+	newUser?: MockStaffUserInstance;
+	savedUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference;
+	roleByName?: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null;
+	saveShouldFail?: boolean;
+}): DataSources {
+	const newUser = overrides.newUser ?? makeMockNewUser('default');
+	const savedUser = overrides.savedUser ?? (newUser as unknown as Domain.Contexts.User.StaffUser.StaffUserEntityReference);
+
+	const staffUserRepo = {
+		getByExternalId: vi.fn().mockResolvedValue(overrides.existingUser ?? null),
+		getNewInstance: vi.fn().mockResolvedValue(newUser),
+		save: overrides.saveShouldFail
+			? vi.fn().mockResolvedValue(undefined)
+			: vi.fn().mockResolvedValue(savedUser),
+		delete: vi.fn(),
+	} as unknown as Domain.Contexts.User.StaffUser.StaffUserRepository<Domain.Contexts.User.StaffUser.StaffUserProps>;
+
+	const staffRoleRepo = {
+		getByRoleName: vi.fn().mockImplementation((name: string) => {
+			if (overrides.roleByName && overrides.roleByName.roleName === name) {
+				return Promise.resolve(overrides.roleByName);
+			}
+			return Promise.reject(new Error(`NotFoundError: ${name} not found`));
+		}),
+		getNewInstance: vi.fn().mockImplementation((name: string) =>
+			Promise.resolve(makeMockStaffRoleRef(name)),
+		),
+		save: vi.fn().mockImplementation((r: unknown) => Promise.resolve(r)),
+	} as unknown as Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
+
+	return {
+		readonlyDataSource: {
+			User: {
+				StaffUser: {
+					StaffUserReadRepo: {
+						getByExternalId: vi.fn().mockResolvedValue(overrides.existingUser ?? null),
+					},
+				},
+			},
+		},
+		domainDataSource: {
+			User: {
+				StaffUser: {
+					StaffUserUnitOfWork: {
+						withScopedTransaction: vi.fn().mockImplementation(
+							async (cb: (repo: typeof staffUserRepo) => Promise<void>) => {
+								await cb(staffUserRepo);
+							},
+						),
+					},
+				},
+				StaffRole: {
+					StaffRoleUnitOfWork: {
+						withScopedTransaction: vi.fn().mockImplementation(
+							async (cb: (repo: typeof staffRoleRepo) => Promise<void>) => {
+								await cb(staffRoleRepo);
+							},
+						),
+					},
+				},
+			},
+		},
+		_staffUserRepo: staffUserRepo,
+		_staffRoleRepo: staffRoleRepo,
+	} as unknown as DataSources;
+}
+
+// ─── Tests ────────────────────────────────────────────────────────────────────
+
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
+	let dataSources: DataSources & { _staffUserRepo?: typeof Object; _staffRoleRepo?: typeof Object };
+	let command: StaffUserCreateIfNotExistsCommand;
+	let result: Domain.Contexts.User.StaffUser.StaffUserEntityReference | undefined;
+	let thrownError: unknown;
+	let existingUser: Domain.Contexts.User.StaffUser.StaffUserEntityReference | null;
+	let newUser: MockStaffUserInstance;
+
+	BeforeEachScenario(() => {
+		result = undefined;
+		thrownError = undefined;
+		existingUser = null;
+		newUser = makeMockNewUser('default');
+		command = {
+			externalId: 'ext-default',
+			firstName: 'First',
+			lastName: 'Last',
+			email: 'first@example.com',
+			aadRoles: [],
+		};
+	});
+
+	// ─── Returns existing user ────────────────────────────────────────────────
+
+	Scenario('Returns existing user when user already exists', ({ Given, When, Then, And }) => {
+		Given('a staff user with externalId "ext-123" already exists', () => {
+			existingUser = makeMockStaffUserRef('ext-123');
+			dataSources = makeDataSources({ existingUser });
+			command = { ...command, externalId: 'ext-123' };
+		});
+
+		When('I call createIfNotExists with externalId "ext-123"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should return the existing user', () => {
+			expect(result).toBe(existingUser);
+		});
+
+		And('it should not create a new user', () => {
+			const repo = (dataSources as unknown as { _staffUserRepo: { getNewInstance: ReturnType<typeof vi.fn> } })._staffUserRepo;
+			expect(repo.getNewInstance).not.toHaveBeenCalled();
+		});
+	});
+
+	// ─── Creates new user (no role) ───────────────────────────────────────────
+
+	Scenario('Creates a new user when user does not exist', ({ Given, When, Then, And }) => {
+		Given('no staff user with externalId "ext-456" exists', () => {
+			newUser = makeMockNewUser('ext-456');
+			dataSources = makeDataSources({ existingUser: null, newUser });
+			command = { ...command, externalId: 'ext-456', aadRoles: [] };
+		});
+
+		And('no matching AAD role is provided', () => {
+			// aadRoles is already []
+		});
+
+		When('I call createIfNotExists with externalId "ext-456"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should call createDefaultRoles', () => {
+			const roleUow = (dataSources as unknown as {
+				domainDataSource: { User: { StaffRole: { StaffRoleUnitOfWork: { withScopedTransaction: ReturnType<typeof vi.fn> } } } };
+			}).domainDataSource.User.StaffRole.StaffRoleUnitOfWork;
+			expect(roleUow.withScopedTransaction).toHaveBeenCalled();
+		});
+
+		And('it should create a new user with the provided details', () => {
+			const repo = (dataSources as unknown as { _staffUserRepo: { getNewInstance: ReturnType<typeof vi.fn> } })._staffUserRepo;
+			expect(repo.getNewInstance).toHaveBeenCalledWith('ext-456', 'First', 'Last', 'first@example.com');
+		});
+
+		And('it should return the newly created user', () => {
+			expect(result).toBeDefined();
+			expect(result?.externalId).toBe('ext-456');
+		});
+	});
+
+	// ─── Assigns matching role ────────────────────────────────────────────────
+
+	Scenario('Creates a new user with a matching role when AAD role matches', ({ Given, When, Then, And }) => {
+		let roleRef: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+
+		Given('no staff user with externalId "ext-789" exists', () => {
+			roleRef = makeMockStaffRoleRef(StaffAppRoleNames.CaseManager);
+			newUser = makeMockNewUser('ext-789');
+			dataSources = makeDataSources({ existingUser: null, newUser, roleByName: roleRef });
+			command = { ...command, externalId: 'ext-789' };
+		});
+
+		And('the AAD roles include "Staff.CaseManager"', () => {
+			command = { ...command, aadRoles: [StaffAppRoleNames.CaseManager] };
+		});
+
+		And('the "Staff.CaseManager" role exists in the repository', () => {
+			// role was set up in Given
+		});
+
+		When('I call createIfNotExists with externalId "ext-789"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should assign the "Staff.CaseManager" role to the new user', () => {
+			expect(newUser.role).toBeDefined();
+			expect(newUser.role?.roleName).toBe(StaffAppRoleNames.CaseManager);
+		});
+	});
+
+	// ─── No role when AAD role unknown ────────────────────────────────────────
+
+	Scenario('Creates a new user without a role when no AAD role matches', ({ Given, When, Then, And }) => {
+		Given('no staff user with externalId "ext-000" exists', () => {
+			newUser = makeMockNewUser('ext-000');
+			dataSources = makeDataSources({ existingUser: null, newUser });
+			command = { ...command, externalId: 'ext-000' };
+		});
+
+		And('the AAD roles include "Unknown.Role"', () => {
+			command = { ...command, aadRoles: ['Unknown.Role'] };
+		});
+
+		When('I call createIfNotExists with externalId "ext-000"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should create the user without assigning a role', () => {
+			expect(newUser.role).toBeUndefined();
+		});
+	});
+
+	// ─── No role when empty AAD roles ────────────────────────────────────────
+
+	Scenario('Creates a new user without a role when AAD roles list is empty', ({ Given, When, Then, And }) => {
+		Given('no staff user with externalId "ext-111" exists', () => {
+			newUser = makeMockNewUser('ext-111');
+			dataSources = makeDataSources({ existingUser: null, newUser });
+			command = { ...command, externalId: 'ext-111' };
+		});
+
+		And('the AAD roles list is empty', () => {
+			command = { ...command, aadRoles: [] };
+		});
+
+		When('I call createIfNotExists with externalId "ext-111"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should create the user without assigning a role', () => {
+			expect(newUser.role).toBeUndefined();
+		});
+	});
+
+	// ─── Throws when save returns undefined ───────────────────────────────────
+
+	Scenario('Throws when repository fails to save the new user', ({ Given, When, Then }) => {
+		Given('no staff user with externalId "ext-err" exists', () => {
+			// save returns undefined to simulate a failed save (createdUser stays undefined)
+			newUser = makeMockNewUser('ext-err');
+			dataSources = makeDataSources({ existingUser: null, newUser, saveShouldFail: true });
+			command = { ...command, externalId: 'ext-err', aadRoles: [] };
+		});
+
+		When('I call createIfNotExists with externalId "ext-err"', async () => {
+			try {
+				await createIfNotExists(dataSources)(command);
+			} catch (error) {
+				thrownError = error;
+			}
+		});
+
+		Then('it should throw an error with message "Unable to create staff user"', () => {
+			expect(thrownError).toBeInstanceOf(Error);
+			expect((thrownError as Error).message).toBe('Unable to create staff user');
+		});
+	});
+});

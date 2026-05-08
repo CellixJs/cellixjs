@@ -15,6 +15,9 @@ import {
 	StaffRoleServicePermissionsAdapter,
 	StaffRoleServiceTicketPermissionsAdapter,
 	StaffRoleViolationTicketPermissionsAdapter,
+	StaffRoleFinancePermissionsAdapter,
+	StaffRoleTechAdminPermissionsAdapter,
+	StaffRoleUserPermissionsAdapter,
 } from './staff-role.domain-adapter.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -496,6 +499,443 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then("the violationTicketPermissions' canCreateTickets should be true", () => {
 			expect(doc.permissions?.violationTicketPermissions?.canCreateTickets).toBe(true);
+		});
+	});
+
+	// ─── canManageCommunities ─────────────────────────────────────────────────
+
+	Scenario('Getting and setting canManageCommunities from communityPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let communityPermissions: StaffRoleCommunityPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the communityPermissions property', () => {
+			communityPermissions = permissions.communityPermissions as StaffRoleCommunityPermissionsAdapter;
+		});
+		And('I get the canManageCommunities property', () => {
+			result = communityPermissions.canManageCommunities;
+		});
+		Then('it should return false', () => {
+			expect(result).toBe(false);
+		});
+		When('I set the canManageCommunities property to true', () => {
+			communityPermissions.canManageCommunities = true;
+		});
+		Then("the communityPermissions' canManageCommunities should be true", () => {
+			expect(doc.permissions?.communityPermissions?.canManageCommunities).toBe(true);
+		});
+	});
+
+	// ─── financePermissions ───────────────────────────────────────────────────
+
+	Scenario('Getting financePermissions from permissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the financePermissions property', () => {
+			result = permissions.financePermissions;
+		});
+		Then('it should return a StaffRoleFinancePermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleFinancePermissionsAdapter);
+		});
+	});
+
+	Scenario('Getting and setting canManageFinance from financePermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let financePermissions: StaffRoleFinancePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the financePermissions property', () => {
+			financePermissions = permissions.financePermissions as StaffRoleFinancePermissionsAdapter;
+		});
+		Then('the canManageFinance property should return false', () => {
+			expect(financePermissions.canManageFinance).toBe(false);
+		});
+		When('I set the canManageFinance property to true', () => {
+			financePermissions.canManageFinance = true;
+		});
+		Then("the financePermissions' canManageFinance should be true", () => {
+			expect(doc.permissions?.financePermissions?.canManageFinance).toBe(true);
+		});
+	});
+
+	Scenario('Getting and setting canViewGLBatchSummaries from financePermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let financePermissions: StaffRoleFinancePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the financePermissions property', () => {
+			financePermissions = permissions.financePermissions as StaffRoleFinancePermissionsAdapter;
+		});
+		Then('the canViewGLBatchSummaries property should return false', () => {
+			expect(financePermissions.canViewGLBatchSummaries).toBe(false);
+		});
+		When('I set the canViewGLBatchSummaries property to true', () => {
+			financePermissions.canViewGLBatchSummaries = true;
+		});
+		Then("the financePermissions' canViewGLBatchSummaries should be true", () => {
+			expect(doc.permissions?.financePermissions?.canViewGLBatchSummaries).toBe(true);
+		});
+	});
+
+	Scenario('Getting and setting canViewFinanceConfigs from financePermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let financePermissions: StaffRoleFinancePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the financePermissions property', () => {
+			financePermissions = permissions.financePermissions as StaffRoleFinancePermissionsAdapter;
+		});
+		Then('the canViewFinanceConfigs property should return false', () => {
+			expect(financePermissions.canViewFinanceConfigs).toBe(false);
+		});
+		When('I set the canViewFinanceConfigs property to true', () => {
+			financePermissions.canViewFinanceConfigs = true;
+		});
+		Then("the financePermissions' canViewFinanceConfigs should be true", () => {
+			expect(doc.permissions?.financePermissions?.canViewFinanceConfigs).toBe(true);
+		});
+	});
+
+	Scenario('Getting and setting canCreateFinanceConfigs from financePermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let financePermissions: StaffRoleFinancePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the financePermissions property', () => {
+			financePermissions = permissions.financePermissions as StaffRoleFinancePermissionsAdapter;
+		});
+		Then('the canCreateFinanceConfigs property should return false', () => {
+			expect(financePermissions.canCreateFinanceConfigs).toBe(false);
+		});
+		When('I set the canCreateFinanceConfigs property to true', () => {
+			financePermissions.canCreateFinanceConfigs = true;
+		});
+		Then("the financePermissions' canCreateFinanceConfigs should be true", () => {
+			expect(doc.permissions?.financePermissions?.canCreateFinanceConfigs).toBe(true);
+		});
+	});
+
+	// ─── techAdminPermissions ─────────────────────────────────────────────────
+
+	Scenario('Getting techAdminPermissions from permissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the techAdminPermissions property', () => {
+			result = permissions.techAdminPermissions;
+		});
+		Then('it should return a StaffRoleTechAdminPermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleTechAdminPermissionsAdapter);
+		});
+	});
+
+	Scenario('Getting and setting canManageTechAdmin from techAdminPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let techAdminPermissions: StaffRoleTechAdminPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the techAdminPermissions property', () => {
+			techAdminPermissions = permissions.techAdminPermissions as StaffRoleTechAdminPermissionsAdapter;
+		});
+		Then('the canManageTechAdmin property should return false', () => {
+			expect(techAdminPermissions.canManageTechAdmin).toBe(false);
+		});
+		When('I set the canManageTechAdmin property to true', () => {
+			techAdminPermissions.canManageTechAdmin = true;
+		});
+		Then("the techAdminPermissions' canManageTechAdmin should be true", () => {
+			expect(doc.permissions?.techAdminPermissions?.canManageTechAdmin).toBe(true);
+		});
+	});
+
+	Scenario('Getting and setting canViewDatabaseExplorer from techAdminPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let techAdminPermissions: StaffRoleTechAdminPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the techAdminPermissions property', () => {
+			techAdminPermissions = permissions.techAdminPermissions as StaffRoleTechAdminPermissionsAdapter;
+		});
+		Then('the canViewDatabaseExplorer property should return false', () => {
+			expect(techAdminPermissions.canViewDatabaseExplorer).toBe(false);
+		});
+		When('I set the canViewDatabaseExplorer property to true', () => {
+			techAdminPermissions.canViewDatabaseExplorer = true;
+		});
+		Then("the techAdminPermissions' canViewDatabaseExplorer should be true", () => {
+			expect(doc.permissions?.techAdminPermissions?.canViewDatabaseExplorer).toBe(true);
+		});
+	});
+
+	Scenario('Getting and setting canViewBlobExplorer from techAdminPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let techAdminPermissions: StaffRoleTechAdminPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the techAdminPermissions property', () => {
+			techAdminPermissions = permissions.techAdminPermissions as StaffRoleTechAdminPermissionsAdapter;
+		});
+		Then('the canViewBlobExplorer property should return false', () => {
+			expect(techAdminPermissions.canViewBlobExplorer).toBe(false);
+		});
+		When('I set the canViewBlobExplorer property to true', () => {
+			techAdminPermissions.canViewBlobExplorer = true;
+		});
+		Then("the techAdminPermissions' canViewBlobExplorer should be true", () => {
+			expect(doc.permissions?.techAdminPermissions?.canViewBlobExplorer).toBe(true);
+		});
+	});
+
+	Scenario('Getting and setting canViewQueueDashboard from techAdminPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let techAdminPermissions: StaffRoleTechAdminPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the techAdminPermissions property', () => {
+			techAdminPermissions = permissions.techAdminPermissions as StaffRoleTechAdminPermissionsAdapter;
+		});
+		Then('the canViewQueueDashboard property should return false', () => {
+			expect(techAdminPermissions.canViewQueueDashboard).toBe(false);
+		});
+		When('I set the canViewQueueDashboard property to true', () => {
+			techAdminPermissions.canViewQueueDashboard = true;
+		});
+		Then("the techAdminPermissions' canViewQueueDashboard should be true", () => {
+			expect(doc.permissions?.techAdminPermissions?.canViewQueueDashboard).toBe(true);
+		});
+	});
+
+	Scenario('Getting and setting canSendQueueMessages from techAdminPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let techAdminPermissions: StaffRoleTechAdminPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the techAdminPermissions property', () => {
+			techAdminPermissions = permissions.techAdminPermissions as StaffRoleTechAdminPermissionsAdapter;
+		});
+		Then('the canSendQueueMessages property should return false', () => {
+			expect(techAdminPermissions.canSendQueueMessages).toBe(false);
+		});
+		When('I set the canSendQueueMessages property to true', () => {
+			techAdminPermissions.canSendQueueMessages = true;
+		});
+		Then("the techAdminPermissions' canSendQueueMessages should be true", () => {
+			expect(doc.permissions?.techAdminPermissions?.canSendQueueMessages).toBe(true);
+		});
+	});
+
+	// ─── userPermissions ──────────────────────────────────────────────────────
+
+	Scenario('Getting userPermissions from permissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the userPermissions property', () => {
+			result = permissions.userPermissions;
+		});
+		Then('it should return a StaffRoleUserPermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleUserPermissionsAdapter);
+		});
+	});
+
+	Scenario('Getting and setting canManageUsers from userPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let userPermissions: StaffRoleUserPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the userPermissions property', () => {
+			userPermissions = permissions.userPermissions as StaffRoleUserPermissionsAdapter;
+		});
+		Then('the canManageUsers property should return false', () => {
+			expect(userPermissions.canManageUsers).toBe(false);
+		});
+		When('I set the canManageUsers property to true', () => {
+			userPermissions.canManageUsers = true;
+		});
+		Then("the userPermissions' canManageUsers should be true", () => {
+			expect(doc.permissions?.userPermissions?.canManageUsers).toBe(true);
+		});
+	});
+
+	// ─── Lazy-init paths ──────────────────────────────────────────────────────
+
+	Scenario('Lazy-initialising permissions when document has no permissions object', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter wrapping a document with no permissions object', () => {
+			const docWithoutPermissions = makeStaffRoleDoc();
+			docWithoutPermissions.set = vi.fn().mockImplementation((key: string, value: unknown) => {
+				(docWithoutPermissions as unknown as Record<string, unknown>)[key] = value;
+			});
+			(docWithoutPermissions as unknown as Record<string, unknown>)['permissions'] = undefined;
+			adapter = new StaffRoleDomainAdapter(docWithoutPermissions);
+		});
+		When('I get the permissions property', () => {
+			result = adapter.permissions;
+		});
+		Then('it should return a StaffRolePermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRolePermissionsAdapter);
+		});
+	});
+
+	Scenario('Lazy-initialising communityPermissions when sub-document is absent', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter wrapping a document with no communityPermissions sub-document', () => {
+			const docWithout = makeStaffRoleDoc();
+			if (docWithout.permissions) {
+				(docWithout.permissions as unknown as Record<string, unknown>)['communityPermissions'] = undefined;
+			}
+			adapter = new StaffRoleDomainAdapter(docWithout);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the communityPermissions property', () => {
+			result = permissions.communityPermissions;
+		});
+		Then('it should return a StaffRoleCommunityPermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleCommunityPermissionsAdapter);
+		});
+		And('canManageCommunities should default to false', () => {
+			expect((result as StaffRoleCommunityPermissionsAdapter).canManageCommunities).toBe(false);
+		});
+	});
+
+	Scenario('Lazy-initialising financePermissions when sub-document is absent', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter wrapping a document with no financePermissions sub-document', () => {
+			const docWithout = makeStaffRoleDoc();
+			if (docWithout.permissions) {
+				(docWithout.permissions as unknown as Record<string, unknown>)['financePermissions'] = undefined;
+			}
+			adapter = new StaffRoleDomainAdapter(docWithout);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the financePermissions property', () => {
+			result = permissions.financePermissions;
+		});
+		Then('it should return a StaffRoleFinancePermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleFinancePermissionsAdapter);
+		});
+		And('canManageFinance should default to false', () => {
+			expect((result as StaffRoleFinancePermissionsAdapter).canManageFinance).toBe(false);
+		});
+	});
+
+	Scenario('Lazy-initialising techAdminPermissions when sub-document is absent', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter wrapping a document with no techAdminPermissions sub-document', () => {
+			const docWithout = makeStaffRoleDoc();
+			if (docWithout.permissions) {
+				(docWithout.permissions as unknown as Record<string, unknown>)['techAdminPermissions'] = undefined;
+			}
+			adapter = new StaffRoleDomainAdapter(docWithout);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the techAdminPermissions property', () => {
+			result = permissions.techAdminPermissions;
+		});
+		Then('it should return a StaffRoleTechAdminPermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleTechAdminPermissionsAdapter);
+		});
+		And('canManageTechAdmin should default to false', () => {
+			expect((result as StaffRoleTechAdminPermissionsAdapter).canManageTechAdmin).toBe(false);
+		});
+	});
+
+	Scenario('Lazy-initialising userPermissions when sub-document is absent', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter wrapping a document with no userPermissions sub-document', () => {
+			const docWithout = makeStaffRoleDoc();
+			if (docWithout.permissions) {
+				(docWithout.permissions as unknown as Record<string, unknown>)['userPermissions'] = undefined;
+			}
+			adapter = new StaffRoleDomainAdapter(docWithout);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the userPermissions property', () => {
+			result = permissions.userPermissions;
+		});
+		Then('it should return a StaffRoleUserPermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleUserPermissionsAdapter);
+		});
+		And('canManageUsers should default to false', () => {
+			expect((result as StaffRoleUserPermissionsAdapter).canManageUsers).toBe(false);
+		});
+	});
+
+	Scenario('Getting roleType returns null when document roleType is undefined', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter wrapping a document with no roleType', () => {
+			const docWithout = makeStaffRoleDoc();
+			(docWithout as unknown as Record<string, unknown>)['roleType'] = undefined;
+			adapter = new StaffRoleDomainAdapter(docWithout);
+		});
+		When('I get the roleType property', () => {
+			result = adapter.roleType;
+		});
+		Then('it should return null', () => {
+			expect(result).toBeNull();
 		});
 	});
 });
