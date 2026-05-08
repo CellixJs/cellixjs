@@ -16,7 +16,6 @@ export type { SettingsGeneralProps };
 export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 	const [form] = Form.useForm();
 	const data = props.data;
-	const publicSiteHost = data.domain?.trim() || `${data.whiteLabelDomain ?? ''}.owner.community`;
 
 	return (
 		<>
@@ -62,7 +61,7 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = (props) => {
 					The white domain is used to allow users to access your public community website.
 					<br />
 					They will be able access it at: https://
-					<Text strong>{publicSiteHost}</Text>
+					<Text strong>{data.whiteLabelDomain}</Text>.owner.community
 					<br />
 					<Text type={'danger'}>This is necessary</Text> to allow users to access your community website unless you have a custom domain you own. (see below)
 				</div>

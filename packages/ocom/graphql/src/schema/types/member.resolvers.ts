@@ -35,8 +35,7 @@ import type { GraphContext } from '../context.ts';
  * Used to enforce self-protection guards on destructive mutations.
  */
 const getActorMemberIdForCommunity = async (context: GraphContext, communityId?: string): Promise<string | null> => {
-	const requestedCommunityId = communityId;
-	if (!requestedCommunityId) {
+	if (!communityId) {
 		return null;
 	}
 
@@ -52,7 +51,7 @@ const getActorMemberIdForCommunity = async (context: GraphContext, communityId?:
 
 	try {
 		const members = await queryByEndUserExternalId({ externalId });
-		const found = members.find((m) => String(m.communityId) === String(requestedCommunityId));
+		const found = members.find((m) => String(m.communityId) === String(communityId));
 		return found ? String(found.id) : null;
 	} catch {
 		return null;

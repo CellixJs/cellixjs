@@ -47,10 +47,9 @@ export const CommunityCreateContainer: React.FC = () => {
 
 	const content = () => {
 		if (loading) {
-			return <div aria-live="polite">Loading...</div>;
+			return <div>Loading...</div>;
 		} else if (error) {
-			const errorMessage = JSON.stringify(error);
-			return <div role="alert">Error {errorMessage}</div>;
+			return <div>Error {JSON.stringify(error)}</div>;
 		} else {
 			return <CommunityCreate onSave={handleSave} />;
 		}

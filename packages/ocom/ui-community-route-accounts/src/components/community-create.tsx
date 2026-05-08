@@ -4,7 +4,7 @@ import React from 'react';
 import type { CommunityCreateInput } from '../generated.tsx';
 
 export interface CommunityCreateProps {
-	onSave: (values: CommunityCreateInput) => Promise<void> | void;
+	onSave: (values: CommunityCreateInput) => void;
 }
 
 export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
@@ -14,7 +14,6 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 		token: { colorTextBase, colorBgContainer },
 	} = theme.useToken();
 	const { Title } = Typography;
-	const introText = 'Getting started with your community is only a few clicks away.';
 	return (
 		<>
 			<div
@@ -29,7 +28,7 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 				</Helmet>
 				<Title level={3}>Creating your Community</Title>
 				<p>
-					{introText}
+					Getting started with your community is only a few clicks away.
 					<br />
 					Once you create it here you'll see it in the list of communities you have access to. <br />
 					You will have access to both the member side and the admin side of your community. <br />
@@ -39,17 +38,10 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 			<Form
 				layout="vertical"
 				form={form}
-				onFinish={async (values) => {
-					const submittedName = typeof values.name === 'string' ? values.name.trim() : '';
-					if (submittedName.length > 120) {
-						form.setFields([{ name: 'name', warnings: ['Long community names may be hard to scan in lists.'] }]);
-					}
+				onFinish={(values) => {
 					setFormLoading(true);
-					try {
-						await props.onSave(values);
-					} finally {
-						setFormLoading(false);
-					}
+					props.onSave(values);
+					setFormLoading(false);
 				}}
 			>
 				<Form.Item

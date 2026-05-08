@@ -1,11 +1,9 @@
-import { PlaceholderPage } from '@ocom/ui-staff-shared';
-import type React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { SectionLayout } from './section-layout.tsx';
+import { PlaceholderPage } from '@ocom/ui-staff-shared';
 
 export const Root: React.FC = () => {
-	const expectedRoles = ['Staff.Finance'];
-
 	return (
 		<Routes>
 			<Route
@@ -18,7 +16,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="Finance"
 							description="Finance route package mounted under /staff/finance."
-							expectedRoles={expectedRoles}
+							expectedRoles={['Staff.Finance']}
 						/>
 					}
 				/>
@@ -28,7 +26,7 @@ export const Root: React.FC = () => {
 						<PlaceholderPage
 							sectionName="Finance"
 							description="Finance route package mounted under /staff/finance."
-							expectedRoles={expectedRoles}
+							expectedRoles={['Staff.Finance']}
 						/>
 					}
 				/>
