@@ -1,6 +1,6 @@
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { PortlessServer } from './portless-server.ts';
-import { buildUrl, getMongoConnectionString } from './test-environment.ts';
+import { buildUrl, getMongoConnectionString, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
 
 export class TestApiServer extends PortlessServer {
 	protected get probeUrl() {
@@ -55,13 +55,13 @@ export class TestApiServer extends PortlessServer {
 			// at appStart. Locally set via gitignored local.settings.json; absent
 			// in CI without this override.
 			AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true',
-			ACCOUNT_PORTAL_OIDC_ISSUER: apiSettings.accountPortalOidcIssuer,
-			ACCOUNT_PORTAL_OIDC_ENDPOINT: apiSettings.accountPortalOidcEndpoint,
-			ACCOUNT_PORTAL_OIDC_AUDIENCE: apiSettings.accountPortalOidcAudience,
+			ACCOUNT_PORTAL_OIDC_ISSUER: mockOidcIssuer,
+			ACCOUNT_PORTAL_OIDC_ENDPOINT: mockOidcEndpoint,
+			ACCOUNT_PORTAL_OIDC_AUDIENCE: mockOidcAudience,
 			ACCOUNT_PORTAL_OIDC_IGNORE_ISSUER: 'true',
-			STAFF_PORTAL_OIDC_ISSUER: apiSettings.accountPortalOidcIssuer,
-			STAFF_PORTAL_OIDC_ENDPOINT: apiSettings.accountPortalOidcEndpoint,
-			STAFF_PORTAL_OIDC_AUDIENCE: apiSettings.accountPortalOidcAudience,
+			STAFF_PORTAL_OIDC_ISSUER: mockOidcIssuer,
+			STAFF_PORTAL_OIDC_ENDPOINT: mockOidcEndpoint,
+			STAFF_PORTAL_OIDC_AUDIENCE: mockOidcAudience,
 			STAFF_PORTAL_OIDC_IGNORE_ISSUER: 'true',
 			VITE_FUNCTION_ENDPOINT: buildUrl('data-access.ownercommunity.localhost', '/api/graphql'),
 		};

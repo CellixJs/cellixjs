@@ -1,6 +1,6 @@
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { PortlessServer } from './portless-server.ts';
-import { buildUrl } from './test-environment.ts';
+import { buildUrl, mockOidcIssuer } from './test-environment.ts';
 
 /**
  * Starts the community (user) portal Vite dev server as a subprocess via `pnpm run dev`.
@@ -40,7 +40,7 @@ export class TestCommunityViteServer extends PortlessServer {
 			BROWSER: 'none',
 			NODE_ENV: 'development',
 			VITE_BASE_URL: uiBase,
-			VITE_AAD_B2C_ACCOUNT_AUTHORITY: apiSettings.accountPortalOidcIssuer,
+			VITE_AAD_B2C_ACCOUNT_AUTHORITY: mockOidcIssuer,
 			VITE_AAD_B2C_REDIRECT_URI: `${uiBase}/auth-redirect`,
 			VITE_FUNCTION_ENDPOINT: apiEndpoint,
 		};

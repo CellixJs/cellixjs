@@ -1,24 +1,16 @@
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { PortlessServer } from './portless-server.ts';
-import { buildUrl } from './test-environment.ts';
+import { buildUrl, mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
 
 export class TestOAuth2Server extends PortlessServer {
 	protected get probeUrl() {
-		return apiSettings.accountPortalOidcEndpoint;
+		return mockOidcEndpoint;
 	}
 	protected get readyMarker() {
 		return 'Registered OIDC config';
 	}
 	protected get serverName() {
 		return 'TestOAuth2Server';
-	}
-
-	/**
-	 * OAuth2 mock server is lightweight and starts very quickly.
-	 * Using a short timeout (30s vs default 120s) for faster feedback.
-	 */
-	protected override get startupTimeoutMs() {
-		return 30_000;
 	}
 
 	protected get spawnArgs() {
@@ -29,7 +21,7 @@ export class TestOAuth2Server extends PortlessServer {
 	}
 
 	getUrl(): string {
-		return apiSettings.accountPortalOidcIssuer;
+		return mockOidcIssuer;
 	}
 
 	async generateAccessToken(_audience = 'mock-client'): Promise<string> {

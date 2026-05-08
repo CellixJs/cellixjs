@@ -1,9 +1,7 @@
-import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
-import { attachConsoleCapture } from './hooks.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
-import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestCommunityViteServer, TestOAuth2Server } from './servers/index.ts';
+import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, mockOidcAudience, setMongoConnectionString, TestApiServer, TestCommunityViteServer, TestOAuth2Server } from './servers/index.ts';
 
 let mongoDBServer: MongoDBTestServer | undefined;
 let oauth2Server: TestOAuth2Server | undefined;
@@ -25,79 +23,6 @@ export interface InfrastructureState {
 
 export function getState(): InfrastructureState {
 	return { apiUrl, accessToken, browseTheWeb };
-}
-
-export function getServerDiagnostics() {
-	const servers = [mongoDBServer, oauth2Server, apiServer, communityViteServer].filter((s): s is NonNullable<typeof s> => s !== undefined);
-	return servers.map((server) => {
-		if ('getDiagnostics' in server && typeof server.getDiagnostics === 'function') {
-			return server.getDiagnostics();
-		}
-		return { name: 'unknown-server', alive: false, pid: undefined, exitInfo: null, stdoutTail: '', stderrTail: '' };
-	});
-}
-
-export async function probeApiHealth(): Promise<{ alive: boolean; status?: number; error?: string }> {
-	if (!apiUrl) return { alive: false, error: 'apiUrl not set' };
-	try {
-		const res = await fetch(apiUrl, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ query: '{ __typename }' }),
-			signal: AbortSignal.timeout(3_000),
-		});
-		return { alive: res.ok, status: res.status };
-	} catch (err) {
-		return { alive: false, error: err instanceof Error ? err.message : String(err) };
-	}
-}
-
-/**
- * Probes a set of variant URLs (and the func admin endpoint) so we can see
- * which return 200 / which 404 — distinguishes "route gone" from "API process
- * gone" from "specific path unmatched".
- */
-export async function probeApiVariants(): Promise<Record<string, { status?: number; error?: string }>> {
-	if (!apiUrl) return {};
-	const base = apiUrl.replace(/\/api\/graphql.*$/, '');
-	const variants: Array<{ label: string; url: string; method: 'GET' | 'POST'; body?: string }> = [
-		{ label: 'POST /api/graphql', url: `${base}/api/graphql`, method: 'POST', body: JSON.stringify({ query: '{ __typename }' }) },
-		{ label: 'POST /api/graphql/', url: `${base}/api/graphql/`, method: 'POST', body: JSON.stringify({ query: '{ __typename }' }) },
-		{ label: 'GET /api/graphql', url: `${base}/api/graphql`, method: 'GET' },
-		{ label: 'GET /admin/host/status', url: `${base}/admin/host/status`, method: 'GET' },
-		{ label: 'GET /', url: `${base}/`, method: 'GET' },
-	];
-	const results: Record<string, { status?: number; error?: string }> = {};
-	for (const v of variants) {
-		try {
-			const init: RequestInit = {
-				method: v.method,
-				signal: AbortSignal.timeout(3_000),
-			};
-			if (v.body) {
-				init.headers = { 'Content-Type': 'application/json' };
-				init.body = v.body;
-			}
-			const res = await fetch(v.url, init);
-			results[v.label] = { status: res.status };
-		} catch (err) {
-			results[v.label] = { error: err instanceof Error ? err.message : String(err) };
-		}
-	}
-	return results;
-}
-
-export async function probePortlessRoutes(): Promise<string> {
-	const { execFile } = await import('node:child_process');
-	const { promisify } = await import('node:util');
-	const exec = promisify(execFile);
-	const { getPortlessPath } = await import('./servers/resolve-portless.ts');
-	try {
-		const { stdout } = await exec(getPortlessPath(), ['list'], { timeout: 5_000 });
-		return stdout.slice(0, 1500);
-	} catch (err) {
-		return `<portless list failed: ${err instanceof Error ? err.message : String(err)}>`;
-	}
 }
 
 export async function stopAll(): Promise<void> {
@@ -171,7 +96,7 @@ export async function ensureE2EServers(): Promise<void> {
 	}
 	if (!accessToken) {
 		phase2.push(
-			oauth2.generateAccessToken(apiSettings.accountPortalOidcAudience).then((token) => {
+			oauth2.generateAccessToken(mockOidcAudience).then((token) => {
 				accessToken = token;
 			}),
 		);
@@ -208,7 +133,6 @@ async function ensureAuthenticatedBrowserContext(options: { baseURL?: string; ig
 	}
 
 	const seedPage = await authenticatedBrowserContext.newPage();
-	attachConsoleCapture(seedPage);
 
 	try {
 		if (options.performLogin) {

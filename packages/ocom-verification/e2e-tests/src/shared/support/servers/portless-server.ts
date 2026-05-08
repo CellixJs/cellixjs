@@ -17,20 +17,10 @@ import { getTimeout } from '@ocom-verification/verification-shared/settings';
  *
  * For faster API tests, use GraphQLTestServer instead.
  */
-const LOG_TAIL_BYTES = 16_384;
-
-function appendCapped(existing: string, chunk: string): string {
-	const combined = existing + chunk;
-	return combined.length > LOG_TAIL_BYTES ? combined.slice(-LOG_TAIL_BYTES) : combined;
-}
-
 export abstract class PortlessServer implements TestServer {
 	private process: ChildProcess | null = null;
 	private startedByUs = false;
 	private readonly useDetachedProcessGroup = process.platform !== 'win32';
-	private capturedStdout = '';
-	private capturedStderr = '';
-	private exitInfo: { code: number | null; signal: NodeJS.Signals | null } | null = null;
 
 	protected abstract get probeUrl(): string;
 	protected abstract get readyMarker(): string;
@@ -108,7 +98,12 @@ export abstract class PortlessServer implements TestServer {
 		this.process = null;
 		this.startedByUs = false;
 
-		this.killProcess(proc, 'SIGTERM');
+		// SIGINT (the same signal Ctrl+C sends in `pnpm dev`) lets portless's
+		// CLI run its cleanup branch — deregister the hostname from
+		// ~/.portless/routes.json before exiting. SIGTERM skips that handler in
+		// some tools and leaves stale state. Fall back to SIGKILL after the
+		// shutdown timeout for anything that ignores SIGINT.
+		this.killProcess(proc, 'SIGINT');
 
 		const shutdownTimeout = getTimeout('serverShutdown');
 		await new Promise<void>((resolve) => {
@@ -146,21 +141,6 @@ export abstract class PortlessServer implements TestServer {
 		return getTimeout('serverStartup');
 	}
 
-	/**
-	 * Diagnostic snapshot for failure reporting. Includes whether the underlying
-	 * process is still alive and the most recent stdout/stderr captured.
-	 */
-	getDiagnostics(): { name: string; alive: boolean; pid: number | undefined; exitInfo: { code: number | null; signal: NodeJS.Signals | null } | null; stdoutTail: string; stderrTail: string } {
-		return {
-			name: this.serverName,
-			alive: this.process !== null && this.exitInfo === null,
-			pid: this.process?.pid,
-			exitInfo: this.exitInfo,
-			stdoutTail: this.capturedStdout,
-			stderrTail: this.capturedStderr,
-		};
-	}
-
 	private waitForReady(): Promise<void> {
 		return new Promise((resolve, reject) => {
 			const proc = this.process;
@@ -174,6 +154,7 @@ export abstract class PortlessServer implements TestServer {
 				reject(new Error(`${this.serverName} did not start within ${startupTimeout}ms`));
 			}, startupTimeout);
 
+			let stderrOutput = '';
 			let ready = false;
 
 			const resolveWhenReachable = () => {
@@ -193,18 +174,17 @@ export abstract class PortlessServer implements TestServer {
 					});
 			};
 
-			// stdout/stderr listeners persist beyond startup so we keep collecting
-			// logs for post-failure diagnostics. Buffers are size-capped.
+			// stdout/stderr listeners detect the readyMarker and collect stderr
+			// for error reporting if the process exits unexpectedly.
 			proc.stdout?.on('data', (data: Buffer) => {
 				const text = data.toString();
-				this.capturedStdout = appendCapped(this.capturedStdout, text);
 				if (text.includes(this.readyMarker)) {
 					resolveWhenReachable();
 				}
 			});
 
 			proc.stderr?.on('data', (data: Buffer) => {
-				this.capturedStderr = appendCapped(this.capturedStderr, data.toString());
+				stderrOutput += data.toString();
 			});
 
 			proc.on('error', (err) => {
@@ -216,13 +196,9 @@ export abstract class PortlessServer implements TestServer {
 
 			proc.on('exit', (code, signal) => {
 				clearTimeout(timeout);
-				this.exitInfo = { code, signal };
 				this.process = null;
 				this.startedByUs = false;
-				// Reject is a no-op once the promise has settled, but the exitInfo
-				// + log buffers above let the After hook surface a post-startup
-				// crash on the next failed scenario.
-				reject(new Error(`${this.serverName} exited unexpectedly (code: ${code}). stderr: ${this.capturedStderr.slice(-2000)}`));
+				reject(new Error(`${this.serverName} exited unexpectedly (code: ${code}, signal: ${signal}). stderr: ${stderrOutput.slice(-2000)}`));
 			});
 		});
 	}
