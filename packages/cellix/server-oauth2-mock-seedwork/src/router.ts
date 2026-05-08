@@ -249,6 +249,14 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			return;
 		}
 
+		// Structured debug logging
+		console.debug('[server-oauth2-mock] GET /authorize', {
+			portal: issuerBaseUrl,
+			state: typeof state === 'string' ? state : undefined,
+			redirectUri: requestedRedirectUri,
+			sessionNonce: typeof nonce === 'string' ? nonce : undefined,
+		});
+
 		// If userStore exists, redirect to login to choose/authorize a user.
 		if (config.userStore) {
 			const forward: Record<string, string> = typeof nonce === 'string' ? { nonce } : {};
@@ -294,10 +302,11 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			state: safeState,
 			...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
 		});
+		console.debug('[server-oauth2-mock] GET /login', { sessionNonce, loginSessionFound: Boolean(loginSessionStore.get(sessionNonce)) });
 		res.setHeader('Content-Type', 'text/html; charset=utf-8');
 		res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
 		<h1>Login</h1>
-		<form method="POST" action="${issuerBaseUrl}/login">
+		<form method="POST" action="${issuerBaseUrl}/login?nonce=${sessionNonce}">
 		<input type="hidden" name="nonce" value="${sessionNonce}" />
 		<label>Username: <input name="username" /></label><br/>
 		<label>Password: <input name="password" type="password" /></label><br/>
@@ -318,9 +327,56 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			res.status(400).json({ error: 'username and password are required' });
 			return;
 		}
-		const loginNonce = typeof req.body.nonce === 'string' ? req.body.nonce : '';
-		const loginSession = loginSessionStore.get(loginNonce);
-		loginSessionStore.delete(loginNonce);
+		const nonceFromBody = typeof req.body.nonce === 'string' ? req.body.nonce : undefined;
+		const { nonce: rawQueryNonce } = req.query as Record<string, unknown>;
+		const nonceFromQuery = typeof rawQueryNonce === 'string' ? rawQueryNonce : undefined;
+		let loginNonceUsed: string | undefined;
+		let loginSession: { redirectUri: string; state: string; nonce?: string } | undefined;
+		if (nonceFromBody) {
+			loginNonceUsed = nonceFromBody;
+			loginSession = loginSessionStore.get(loginNonceUsed as string);
+		}
+		if (!loginSession && nonceFromQuery) {
+			loginNonceUsed = nonceFromQuery;
+			loginSession = loginSessionStore.get(loginNonceUsed as string);
+		}
+		// As a last resort, attempt Referer parsing (heuristic only)
+		let refererLookup: string | undefined;
+		if (!loginSession) {
+			const referer = req.get('referer') ?? req.get('referrer');
+			if (typeof referer === 'string') {
+				try {
+					const refUrl = new URL(referer);
+					const alt = refUrl.searchParams.get('nonce');
+					if (alt) {
+						refererLookup = alt;
+						const altSession = loginSessionStore.get(alt);
+						if (altSession) {
+							loginNonceUsed = alt;
+							loginSession = altSession;
+						}
+					}
+				} catch {
+					// ignore
+				}
+			}
+		}
+
+		console.debug('[server-oauth2-mock] POST /login', { nonceFromBody, nonceFromQuery, loginSessionFound: Boolean(loginSession), username });
+
+		if (loginSession) {
+			loginSessionStore.delete(loginNonceUsed as string);
+		} else {
+			// No server-side session found. Escalate and return a helpful error page
+			console.warn('[server-oauth2-mock] Missing login session for nonce (body:%s, query:%s, refererLookup:%s) — rejecting request', nonceFromBody, nonceFromQuery, refererLookup ?? req.get('referer'));
+			const link = `${issuerBaseUrl}/authorize?redirect_uri=${encodeURIComponent(primaryRedirectUri)}`;
+			res
+				.status(400)
+				.setHeader('Content-Type', 'text/html; charset=utf-8')
+				.send(`<!doctype html><html><body><h1>Session expired</h1><p>Your login session has expired or is invalid. <a href="${link}">Start a new login</a></p></body></html>`);
+			return;
+		}
+
 		const redirect = loginSession?.redirectUri ?? primaryRedirectUri;
 		const state = loginSession?.state ?? undefined;
 		try {
@@ -343,6 +399,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					redirectUri: normalized,
 					...(loginSession?.nonce !== undefined ? { nonce: loginSession.nonce } : {}),
 				});
+				console.debug('[server-oauth2-mock] POST /login success', { authCode: `${code.substring(0, 8)}...`, redirectUri: redirect, state });
 				const location = buildRedirectWithCode(redirect, code, state);
 				res.setHeader('Location', location);
 				res.status(302).end();
@@ -510,6 +567,8 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 	router.get('/logout', (req, res) => {
 		const { post_logout_redirect_uri, state } = req.query as { post_logout_redirect_uri?: string; state?: string };
+		// Debug
+		console.debug('[server-oauth2-mock] GET /logout', { portal: issuerBaseUrl });
 		if (!post_logout_redirect_uri) {
 			res.status(204).end();
 			return;

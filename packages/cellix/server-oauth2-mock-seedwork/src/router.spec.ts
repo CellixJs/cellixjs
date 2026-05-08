@@ -213,10 +213,9 @@ describe('oauth2 mock router flows', () => {
 
 		const body = new URLSearchParams({ username: 'dan', password: danPassword, nonce });
 		const res = await fetch(loginUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
-		expect(res.status).toBe(302);
-		const location = res.headers.get('location') ?? '';
-		expect(location).toContain('code=');
-		expect(location).not.toContain('state=expired-login-state');
+		expect(res.status).toBe(400);
+		const text = await res.text();
+		expect(text).toContain('Session expired');
 	});
 
 	it('POST /token ignores expired auth code mappings after ten minutes', async () => {
@@ -333,5 +332,68 @@ describe('oauth2 mock router flows', () => {
 		expect(info.given_name).toBe('Carol');
 		expect(info.family_name).toBe('Jones');
 		expect(Object.hasOwn(info, 'password')).toBe(false);
+	});
+
+	it('should allow a second user to log in after the first user logs out', async () => {
+		// create two users
+		const passA = createPassword('userA-password');
+		const passB = createPassword('userB-password');
+		store.users.push({ username: 'userA', sub: 'sub-A', password: passA, claims: { email: 'a@example.com' } });
+		store.users.push({ username: 'userB', sub: 'sub-B', password: passB, claims: { email: 'b@example.com' } });
+
+		// First user A login flow
+		const authA = new URL(`http://127.0.0.1:${port}/authorize`);
+		authA.searchParams.set('redirect_uri', redirect);
+		authA.searchParams.set('state', 'state-A');
+		const rA = await fetch(authA, { redirect: 'manual' });
+		expect(rA.status).toBe(302);
+		// fetch login page to obtain nonce
+		const { nonce: nonceA } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'state-A' });
+		const loginResA = await fetch(`http://127.0.0.1:${port}/login`, {
+			method: 'POST',
+			body: new URLSearchParams({ username: 'userA', password: passA, nonce: nonceA }).toString(),
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			redirect: 'manual',
+		});
+		expect(loginResA.status).toBe(302);
+		const locA = loginResA.headers.get('location') as string;
+		const codeA = new URL(locA).searchParams.get('code');
+		expect(codeA).toBeTruthy();
+		expect(new URL(locA).searchParams.get('state')).toBe('state-A');
+
+		// Exchange code for token for user A
+		const tokenResA = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code: codeA }) });
+		expect(tokenResA.status).toBe(200);
+		const tokenJsonA = (await tokenResA.json()) as { id_token?: string; profile?: { sub?: string } };
+		expect(tokenJsonA.profile?.sub).toBe('sub-A');
+
+		// Simulate logout (no server-side state required for this mock)
+		const logoutRes = await fetch(`http://127.0.0.1:${port}/logout?post_logout_redirect_uri=${encodeURIComponent(redirect)}`, { redirect: 'manual' });
+		expect(logoutRes.status).toBe(302);
+
+		// Second user B login flow
+		const authB = new URL(`http://127.0.0.1:${port}/authorize`);
+		authB.searchParams.set('redirect_uri', redirect);
+		authB.searchParams.set('state', 'state-B');
+		const rB = await fetch(authB, { redirect: 'manual' });
+		expect(rB.status).toBe(302);
+		const { nonce: nonceB } = await getFormNonce(port, '/login', { redirect_uri: redirect, state: 'state-B' });
+		const loginResB = await fetch(`http://127.0.0.1:${port}/login`, {
+			method: 'POST',
+			body: new URLSearchParams({ username: 'userB', password: passB, nonce: nonceB }).toString(),
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			redirect: 'manual',
+		});
+		expect(loginResB.status).toBe(302);
+		const locB = loginResB.headers.get('location') as string;
+		const codeB = new URL(locB).searchParams.get('code');
+		expect(codeB).toBeTruthy();
+		expect(new URL(locB).searchParams.get('state')).toBe('state-B');
+
+		// Exchange code for token for user B
+		const tokenResB = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code: codeB }) });
+		expect(tokenResB.status).toBe(200);
+		const tokenJsonB = (await tokenResB.json()) as { id_token?: string; profile?: { sub?: string } };
+		expect(tokenJsonB.profile?.sub).toBe('sub-B');
 	});
 });

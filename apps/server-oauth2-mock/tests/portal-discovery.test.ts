@@ -59,7 +59,7 @@ describe('discoverPortalConfigs', () => {
 		expect(names).toEqual(['a', 'b']);
 	});
 
-	it('shallow-merges mock-oidc.local.json claims overriding keys', () => {
+	it('ignores mock-oidc.local.json and keeps base claims unchanged', () => {
 		if (!tmp) throw new Error('tmp not created');
 
 		writeJson(tmp, 'ui-x/mock-oidc.json', {
@@ -68,7 +68,6 @@ describe('discoverPortalConfigs', () => {
 			claims: { sub: 'orig', email: 'orig@example.com', extra: 'keep' },
 		});
 		writeEnv(tmp, 'ui-x/.env', 'CIDX=cid-x\nREDIRX=https://x/redirect\n');
-
 		writeJson(tmp, 'ui-x/mock-oidc.local.json', {
 			claims: { email: 'local@example.com', sub: 'local' },
 		});
@@ -77,24 +76,22 @@ describe('discoverPortalConfigs', () => {
 		expect(portals.length).toBe(1);
 		const p = portals[0];
 		// biome-ignore lint:useLiteralKeys
-		expect(p?.claims?.['sub']).toBe('local');
+		expect(p?.claims?.['sub']).toBe('orig');
 		// biome-ignore lint:useLiteralKeys
-		expect(p?.claims?.['email']).toBe('local@example.com');
+		expect(p?.claims?.['email']).toBe('orig@example.com');
 		// biome-ignore lint:useLiteralKeys
 		expect(p?.claims?.['extra']).toBe('keep');
 	});
 
-	it('warns and falls back to base config when mock-oidc.local.json is malformed', () => {
+	it('does not warn for malformed mock-oidc.local.json because it is ignored', () => {
 		if (!tmp) throw new Error('tmp not created');
 
-		// Write valid base config
 		writeJson(tmp, 'ui-bad-local/mock-oidc.json', {
 			name: 'bad-local-test',
 			envVars: { clientId: 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID', redirectUri: 'VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI' },
 			claims: { sub: '00000000-0000-4000-8000-000000000001' },
 		});
 		fs.writeFileSync(path.join(tmp, 'ui-bad-local', '.env'), 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=cid\nVITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI=https://r/cb\n');
-		// Write malformed local override
 		fs.writeFileSync(path.join(tmp, 'ui-bad-local', 'mock-oidc.local.json'), '{ invalid json }');
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
@@ -103,7 +100,7 @@ describe('discoverPortalConfigs', () => {
 			expect(portals).toHaveLength(1);
 			// biome-ignore lint:useLiteralKeys
 			expect(portals[0]?.claims?.['sub']).toBe('00000000-0000-4000-8000-000000000001');
-			expect(warnSpy).toHaveBeenCalled();
+			expect(warnSpy).not.toHaveBeenCalled();
 		} finally {
 			warnSpy.mockRestore();
 		}

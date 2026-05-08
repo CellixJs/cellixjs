@@ -20,7 +20,7 @@ interface MockOidcConfig {
 		clientId: string;
 		redirectUri: string;
 	};
-	claims: Record<string, unknown>;
+	claims?: Record<string, unknown>;
 }
 
 // Resolved config after reading the UI app's .env
@@ -29,7 +29,7 @@ export interface PortalOidcConfig {
 	dirName: string;
 	clientId: string;
 	redirectUri: string;
-	claims: Record<string, unknown>;
+	claims?: Record<string, unknown>;
 }
 
 export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
@@ -82,28 +82,15 @@ function loadMockOidcConfig(appsDir: string, entryName: string): MockOidcConfig 
 	}
 
 	if (!isValidMockOidcConfig(parsed)) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: mock-oidc.json missing required fields (name, envVars, claims)`);
+		console.warn(`[server-oauth2-mock] Skipping ${entryName}: mock-oidc.json missing required fields (name, envVars)`);
 		return undefined;
 	}
 
-	let config = parsed;
+	const config = parsed;
 
 	if (!SAFE_NAME_RE.test(config.name)) {
 		console.warn(`[server-oauth2-mock] Skipping "${entryName}": invalid portal name "${config.name}" in ${mockOidcPath} — must contain letters, digits, '_' and '-' only`);
 		return undefined;
-	}
-
-	// Merge local overrides if present (gitignored mock-oidc.local.json)
-	const localPath = path.join(appsDir, entryName, 'mock-oidc.local.json');
-	if (fs.existsSync(localPath)) {
-		try {
-			const local = JSON.parse(fs.readFileSync(localPath, 'utf-8')) as Partial<MockOidcConfig>;
-			if (local.claims) {
-				config = { ...config, claims: { ...config.claims, ...local.claims } };
-			}
-		} catch (err) {
-			console.warn(`[server-oauth2-mock] Could not parse mock-oidc.local.json for ${entryName}`, err);
-		}
 	}
 
 	return config;
@@ -145,16 +132,17 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 		return null;
 	}
 
-	return { name: config.name, dirName: entryName, clientId, redirectUri, claims: config.claims };
+	const base = { name: config.name, dirName: entryName, clientId, redirectUri };
+	if (config.claims !== undefined) return { ...base, claims: config.claims };
+	return base as PortalOidcConfig;
 }
 
 function isValidMockOidcConfig(config: unknown): config is MockOidcConfig {
 	if (typeof config !== 'object' || config === null) return false;
-	const c = config as { name?: unknown; envVars?: unknown; claims?: unknown };
+	const c = config as { name?: unknown; envVars?: unknown };
 	if (typeof c.name !== 'string') return false;
 	if (typeof c.envVars !== 'object' || c.envVars === null) return false;
 	const env = c.envVars as { clientId?: unknown; redirectUri?: unknown };
 	if (typeof env.clientId !== 'string' || typeof env.redirectUri !== 'string') return false;
-	if (typeof c.claims !== 'object' || c.claims === null || Array.isArray(c.claims)) return false;
 	return true;
 }
