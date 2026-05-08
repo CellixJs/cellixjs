@@ -1,20 +1,7 @@
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
+import { CommunitiesDropdownContainerMembersForCurrentEndUserDocument } from '../../../generated.tsx';
 import { CommunitiesDropdown, type CommunitiesDropdownProps } from './communities-dropdown.tsx';
-
-const UI_COMPONENTS_COMMUNITIES_DROPDOWN_MEMBERS = gql(`
-	query UiComponentsCommunitiesDropdownMembersForCurrentEndUser {
-		membersForCurrentEndUser {
-			id
-			memberName
-			isAdmin
-			community {
-				id
-				name
-			}
-		}
-	}
-`);
 
 interface CommunitiesDropdownContainerProps {
 	data: {
@@ -22,26 +9,23 @@ interface CommunitiesDropdownContainerProps {
 	};
 }
 
-interface MemberSummary {
-	id: string;
-	memberName?: string | null;
-	isAdmin?: boolean | null;
-	community?: {
-		id?: string | null;
-		name?: string | null;
-	} | null;
-}
-
-interface MembersForCurrentEndUserQueryData {
-	membersForCurrentEndUser: MemberSummary[];
-}
-
 export const CommunitiesDropdownContainer: React.FC<CommunitiesDropdownContainerProps> = (_props) => {
-	const { data, loading, error } = useQuery<MembersForCurrentEndUserQueryData>(UI_COMPONENTS_COMMUNITIES_DROPDOWN_MEMBERS);
+	const { data, loading, error } = useQuery(CommunitiesDropdownContainerMembersForCurrentEndUserDocument);
 
 	const communitiesDropdownProps: CommunitiesDropdownProps = {
 		data: {
-			members: data?.membersForCurrentEndUser ?? [],
+			members:
+				data?.membersForCurrentEndUser.map((member) => ({
+					id: member.id,
+					memberName: member.memberName,
+					isAdmin: member.isAdmin,
+					community: member.community
+						? {
+								id: member.community.id,
+								name: member.community.name,
+							}
+						: null,
+				})) ?? [],
 		},
 	};
 

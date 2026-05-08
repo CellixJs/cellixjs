@@ -1,0 +1,42 @@
+parameters:
+- name: environmentNameDevOps
+  type: string
+- name: environmentNameBicep
+  type: string
+- name: vmImageName
+  type: string
+- name: ServiceConnectionName
+  type: string
+- name: deploymentDefaultLocation
+  type: string
+- name: resourceGroupName
+  type: string
+- name: frontDoorProfileName
+  type: string
+- name: frontDoorEndpointName
+  type: string
+- name: frontDoorDomainName
+  type: string
+
+jobs:
+# Thin wrapper that delegates to the shared deploy-ui template and preserves ordering
+- template: ../../build-pipeline/templates/deploy-ui.yml
+  parameters:
+    appId: 'UI_STAFF'
+    displayName: 'UI Staff'
+    iacPath: 'apps/ui-staff/iac/main.bicep'
+    iacParamsPath: 'apps/ui-staff/iac/${{ parameters.environmentNameBicep }}.bicepparam'
+    artifactPattern: '**/ui-staff-$(Build.BuildId).zip'
+    artifactZipName: 'ui-staff-$(Build.BuildId).zip'
+    deploymentNameSuffix: '-ui-staff'
+    dependsOnInfrastructure:
+      - 'Infrastructure_UI_COMMUNITY'
+    environmentNameDevOps: ${{ parameters.environmentNameDevOps }}
+    environmentNameBicep: ${{ parameters.environmentNameBicep }}
+    vmImageName: ${{ parameters.vmImageName }}
+    ServiceConnectionName: ${{ parameters.ServiceConnectionName }}
+    deploymentDefaultLocation: ${{ parameters.deploymentDefaultLocation }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    frontDoorProfileName: ${{ parameters.frontDoorProfileName }}
+    frontDoorEndpointName: ${{ parameters.frontDoorEndpointName }}
+    frontDoorDomainName: ${{ parameters.frontDoorDomainName }}

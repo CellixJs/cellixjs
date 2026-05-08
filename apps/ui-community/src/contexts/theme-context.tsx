@@ -1,6 +1,6 @@
+import { loadStoredTheme, saveStoredTheme } from '@cellix/ui-core';
 import { Button, theme } from 'antd';
 import type { SeedToken } from 'antd/lib/theme/interface/index.js';
-import { loadStoredTheme, saveStoredTheme } from '@cellix/ui-core';
 import { createContext, type ReactNode, useCallback, useEffect, useState } from 'react';
 
 // import ModalPopUp from './components/modal-popup.tsx';
@@ -150,10 +150,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			}
 		};
 
-		window.addEventListener('keydown', handleKeyDown);
+		globalThis.addEventListener('keydown', handleKeyDown);
 
 		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
+			globalThis.removeEventListener('keydown', handleKeyDown);
 		};
 	}, [toggleHidden]);
 	//   console.log('isImpending', isImpending);

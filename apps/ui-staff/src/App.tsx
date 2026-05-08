@@ -1,4 +1,5 @@
 import { RequireAuth } from '@cellix/ui-core';
+import { HandleLogout } from '@ocom/ui-shared';
 import { Root as CommunityManagement } from '@ocom/ui-staff-route-community-management';
 import { Root as Finance } from '@ocom/ui-staff-route-finance';
 import { Root } from '@ocom/ui-staff-route-root';
@@ -9,6 +10,7 @@ import { useAuth } from 'react-oidc-context';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
+import { client } from './components/ui/organisms/apollo-connection/apollo-client-links.tsx';
 import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
 import { useStaffPermissions } from './hooks/use-staff-permissions.ts';
 import { Unauthorized } from './unauthorized.tsx';
@@ -81,10 +83,7 @@ export default function App() {
 
 	const identity = {
 		raw: (auth?.user?.profile as Record<string, unknown>) ?? undefined,
-		onLogout: () =>
-			auth.signoutRedirect({
-				post_logout_redirect_uri: globalThis.location.origin,
-			}),
+		onLogout: () => HandleLogout(auth, client, globalThis.location.origin),
 	};
 
 	const authSection = (
@@ -93,7 +92,9 @@ export default function App() {
 		</RequireAuth>
 	);
 
-	const staffSection = (
+	// Staff section acts as the parent route element and must render an Outlet so
+	// nested child routes declared in the top-level Routes are rendered in place.
+	const staffSectionElement = (
 		<RequireAuth forceLogin={false}>
 			<StaffSection identity={identity} />
 		</RequireAuth>
@@ -114,10 +115,34 @@ export default function App() {
 					path="/unauthorized"
 					element={<Unauthorized />}
 				/>
+
+				{/* Parent staff route: child routes must be declared as nested Route elements
+					so relative paths like "users/*" resolve against /staff. */}
 				<Route
 					path="/staff/*"
-					element={staffSection}
-				/>
+					element={staffSectionElement}
+				>
+					<Route
+						index
+						element={<Root />}
+					/>
+					<Route
+						path="community-management/*"
+						element={<CommunityManagement />}
+					/>
+					<Route
+						path="user-management/*"
+						element={<UserManagement />}
+					/>
+					<Route
+						path="finance/*"
+						element={<Finance />}
+					/>
+					<Route
+						path="tech/*"
+						element={<TechAdmin />}
+					/>
+				</Route>
 			</Routes>
 		</ApolloConnection>
 	);

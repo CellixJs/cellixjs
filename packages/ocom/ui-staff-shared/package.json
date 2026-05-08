@@ -15,8 +15,12 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
-		"react": "^19.1.1",
-		"react-router-dom": "catalog:"
+		"@ant-design/icons": "catalog:",
+		"@ocom/ui-shared": "workspace:*",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"react-router-dom": "catalog:",
+		"antd": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
