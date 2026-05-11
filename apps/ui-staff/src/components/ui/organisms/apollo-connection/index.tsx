@@ -47,7 +47,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
 		ApolloLinkToAddCustomHeader('x-member-id', memberId),
 		TerminatingApolloLinkForGraphqlServer({
 			// biome-ignore lint:useLiteralKeys
-			uri: `${import.meta.env['VITE_FUNCTION_ENDPOINT']}`,
+			uri: `${import.meta.env['VITE_COMMON_API_ENDPOINT']}`,
 			batchMax: 15,
 			batchInterval: 50,
 		}),

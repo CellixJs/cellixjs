@@ -46,7 +46,7 @@ export class TestApiServer extends PortlessServer {
 			COSMOSDB_CONNECTION_STRING: getMongoConnectionString(),
 			ACCOUNT_PORTAL_OIDC_ISSUER: apiSettings.accountPortalOidcIssuer,
 			ACCOUNT_PORTAL_OIDC_ENDPOINT: apiSettings.accountPortalOidcEndpoint,
-			VITE_FUNCTION_ENDPOINT: buildUrl('data-access.ownercommunity.localhost', '/api/graphql'),
+			VITE_COMMON_API_ENDPOINT: buildUrl('data-access.ownercommunity.localhost', '/api/graphql'),
 		};
 	}
 
