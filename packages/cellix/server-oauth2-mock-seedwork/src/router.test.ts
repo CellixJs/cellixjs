@@ -8,6 +8,7 @@ import { AUTH_CODE_TTL_MS } from './router.ts';
 
 class InMemoryUserStore implements MockOAuth2UserStore {
 	users: MockOAuth2User[] = [];
+	persistCalls = 0;
 	listUsers(): Promise<MockOAuth2User[]> {
 		return Promise.resolve(this.users);
 	}
@@ -25,6 +26,10 @@ class InMemoryUserStore implements MockOAuth2UserStore {
 			throw new Error(`Sub already exists: ${user.sub}`);
 		}
 		this.users.push(user);
+		return Promise.resolve();
+	}
+	persist(): Promise<void> {
+		this.persistCalls += 1;
 		return Promise.resolve();
 	}
 }
@@ -123,6 +128,7 @@ describe('buildOidcRouter', () => {
 			expect(res.headers.get('location')).toContain('state=signup-state');
 			// user persisted
 			expect(store.users.length).toBe(1);
+			expect(store.persistCalls).toBe(1);
 			const u = store.users[0] as MockOAuth2User;
 			expect(u.username).toBe('alice');
 
@@ -131,6 +137,7 @@ describe('buildOidcRouter', () => {
 			const duplicateBody = new URLSearchParams({ username: 'alice', password: alicePassword, email: 'alice@example.com', given_name: 'Alice', family_name: 'Smith', nonce: duplicateNonce });
 			const res2 = await fetch(signupUrl, { method: 'POST', body: duplicateBody.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
 			expect(res2.status).toBe(200);
+			expect(store.persistCalls).toBe(1);
 			const html = await res2.text();
 			expect(html).toContain('A user with that username already exists');
 			expect(html).toContain('name="nonce"');

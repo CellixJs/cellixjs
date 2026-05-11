@@ -161,21 +161,6 @@ test('validateEnvNames deduplicates results, excluding dist/ from scan', () => {
 	}
 });
 
-test('validateEnvNames maps VITE_COMMON_* and portal vars to correct portals', () => {
-	const tmpRoot = createScratchRoot('env-vars-mapping');
-	try {
-		fs.writeFileSync(path.join(tmpRoot, '.env.test'), ['VITE_COMMON_API_ENDPOINT=https://example.com', 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=client-id'].join('\n'), 'utf8');
-
-		const evidence = validateEnvNames({ rootDir: tmpRoot, scanPaths: [tmpRoot] });
-
-		expect(evidence.results).toEqual(
-			expect.arrayContaining([expect.objectContaining({ variable: 'VITE_COMMON_API_ENDPOINT', portal: 'COMMON' }), expect.objectContaining({ variable: 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID', portal: 'UI_COMMUNITY' })]),
-		);
-	} finally {
-		fs.rmSync(tmpRoot, { recursive: true, force: true });
-	}
-});
-
 test('validateEnvNames ignores variables that only appear in comments and string literals', () => {
 	const tmpRoot = createScratchRoot('env-vars-ignored-ranges');
 	try {

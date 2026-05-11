@@ -228,6 +228,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					const newUser: MockOAuth2User = { username, sub: crypto.randomUUID(), password, claims: claimsObj };
 					const store = config.userStore;
 					await store.addUser(newUser);
+					await store.persist?.();
 					try {
 						const normalized = normalizeUrl(redirect);
 						if (!normalizedAllowedRedirectUris.has(normalized)) {

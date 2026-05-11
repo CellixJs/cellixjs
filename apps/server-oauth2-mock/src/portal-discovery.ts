@@ -82,7 +82,7 @@ function loadMockOidcConfig(appsDir: string, entryName: string): MockOidcConfig 
 	}
 
 	if (!isValidMockOidcConfig(parsed)) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: mock-oidc.json missing required fields (name, envVars)`);
+		console.warn(`[server-oauth2-mock] Skipping ${entryName}: mock-oidc.json missing required fields (name, envVars) or contains invalid claims`);
 		return undefined;
 	}
 
@@ -137,12 +137,17 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 	return base as PortalOidcConfig;
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 function isValidMockOidcConfig(config: unknown): config is MockOidcConfig {
-	if (typeof config !== 'object' || config === null) return false;
-	const c = config as { name?: unknown; envVars?: unknown };
+	if (!isPlainObject(config)) return false;
+	const c = config as { name?: unknown; envVars?: unknown; claims?: unknown };
 	if (typeof c.name !== 'string') return false;
-	if (typeof c.envVars !== 'object' || c.envVars === null) return false;
+	if (!isPlainObject(c.envVars)) return false;
 	const env = c.envVars as { clientId?: unknown; redirectUri?: unknown };
 	if (typeof env.clientId !== 'string' || typeof env.redirectUri !== 'string') return false;
+	if ('claims' in c && c.claims !== undefined && !isPlainObject(c.claims)) return false;
 	return true;
 }

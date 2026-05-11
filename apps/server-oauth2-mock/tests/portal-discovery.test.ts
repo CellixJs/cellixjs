@@ -201,6 +201,37 @@ describe('discoverPortalConfigs', () => {
 		expect(warnSpy).toHaveBeenCalled();
 	});
 
+	it('skips portals when claims is null or an array', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-valid/mock-oidc.json', {
+			name: 'valid',
+			envVars: { clientId: 'VALID_CLIENT_ID', redirectUri: 'VALID_REDIRECT_URI' },
+			claims: { sub: 'valid-sub' },
+		});
+		writeEnv(tmp, 'ui-valid/.env', 'VALID_CLIENT_ID=cid-valid\nVALID_REDIRECT_URI=https://valid/redirect\n');
+
+		writeJson(tmp, 'ui-null/mock-oidc.json', {
+			name: 'null-claims',
+			envVars: { clientId: 'NULL_CLIENT_ID', redirectUri: 'NULL_REDIRECT_URI' },
+			claims: null,
+		});
+		writeEnv(tmp, 'ui-null/.env', 'NULL_CLIENT_ID=cid-null\nNULL_REDIRECT_URI=https://null/redirect\n');
+
+		writeJson(tmp, 'ui-array/mock-oidc.json', {
+			name: 'array-claims',
+			envVars: { clientId: 'ARRAY_CLIENT_ID', redirectUri: 'ARRAY_REDIRECT_URI' },
+			claims: ['admin'],
+		});
+		writeEnv(tmp, 'ui-array/.env', 'ARRAY_CLIENT_ID=cid-array\nARRAY_REDIRECT_URI=https://array/redirect\n');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const portals = discoverPortalConfigs(tmp);
+		expect(portals).toHaveLength(1);
+		expect(portals[0]?.name).toBe('valid');
+		expect(warnSpy).toHaveBeenCalledTimes(2);
+	});
+
 	it('silently skips ui-* dirs without mock-oidc.json', () => {
 		if (!tmp) throw new Error('tmp not created');
 
