@@ -5,14 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoggedInUserRootContainer } from './logged-in-user-root.container.tsx';
 import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument, type LoggedInUserContainerEndUserFieldsFragment } from '../../../generated.tsx';
 
-const {
-	useApolloClientMock,
-	useAuthMock,
-	useQueryMock,
-	handleLogoutMock,
-	componentQueryLoaderMock,
-	loggedInUserRootMock,
-} = vi.hoisted(() => ({
+const { useApolloClientMock, useAuthMock, useQueryMock, handleLogoutMock, componentQueryLoaderMock, loggedInUserRootMock } = vi.hoisted(() => ({
 	useApolloClientMock: vi.fn(),
 	useAuthMock: vi.fn(),
 	useQueryMock: vi.fn(),
@@ -31,13 +24,7 @@ vi.mock('react-oidc-context', () => ({
 }));
 
 vi.mock('@cellix/ui-core', () => ({
-	ComponentQueryLoader: (props: {
-		loading: boolean;
-		error?: Error;
-		hasData: object | null | undefined;
-		hasDataComponent: React.ReactNode;
-		noDataComponent?: React.ReactNode;
-	}) => {
+	ComponentQueryLoader: (props: { loading: boolean; error?: Error; hasData: object | null | undefined; hasDataComponent: React.ReactNode; noDataComponent?: React.ReactNode }) => {
 		componentQueryLoaderMock(props);
 
 		if (props.error) {
@@ -61,13 +48,7 @@ vi.mock('./handle-logout.tsx', () => ({
 }));
 
 vi.mock('./logged-in-user-root.tsx', () => ({
-	LoggedInUserRoot: ({
-		userData,
-		handleLogout,
-	}: {
-		userData: LoggedInUserContainerEndUserFieldsFragment;
-		handleLogout: () => void;
-	}) => {
+	LoggedInUserRoot: ({ userData, handleLogout }: { userData: LoggedInUserContainerEndUserFieldsFragment; handleLogout: () => void }) => {
 		loggedInUserRootMock({ userData, handleLogout });
 
 		return (

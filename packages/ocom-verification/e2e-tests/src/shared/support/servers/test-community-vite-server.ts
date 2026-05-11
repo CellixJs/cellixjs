@@ -43,6 +43,7 @@ export class TestCommunityViteServer extends PortlessServer {
 			VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: mockOidcIssuer,
 			VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI: `${uiBase}/auth-redirect`,
 			VITE_COMMON_API_ENDPOINT: apiEndpoint,
+			VITE_FUNCTION_ENDPOINT: apiEndpoint,
 		};
 	}
 

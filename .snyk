@@ -71,3 +71,24 @@ ignore:
         reason: 'Mongoose 8.22.1 has TypeScript constraint errors in type definitions (types/inferrawdoctype.d.ts, types/inferschematype.d.ts) that break compilation. Patch attempts failed due to external library type incompatibilities. Risk is Low: requires control of query field names and values.'
         expires: '2026-11-07T00:00:00.000Z'
         created: '2026-05-07T09:00:00.000Z'
+  'SNYK-JS-BABELPLUGINTRANSFORMMODULESSYSTEMJS-16624576':
+    - '@docusaurus/core@3.9.2 > @docusaurus/babel@3.9.2 > @babel/preset-env@7.28.5 > @babel/plugin-transform-modules-systemjs@7.28.5':
+        reason: 'Transitive dependency in Docusaurus docs build. Snyk reports no stable Babel 7 fix path; the only non-vulnerable release is Babel 8 prerelease and requires @babel/core 8.'
+        expires: '2026-08-11T00:00:00.000Z'
+        created: '2026-05-11T00:00:00.000Z'
+    - '@docusaurus/plugin-content-docs@3.9.2 > @docusaurus/core@3.9.2 > @docusaurus/babel@3.9.2 > @babel/preset-env@7.28.5 > @babel/plugin-transform-modules-systemjs@7.28.5':
+        reason: 'Transitive dependency in Docusaurus docs build. Snyk reports no stable Babel 7 fix path; the only non-vulnerable release is Babel 8 prerelease and requires @babel/core 8.'
+        expires: '2026-08-11T00:00:00.000Z'
+        created: '2026-05-11T00:00:00.000Z'
+    - '@docusaurus/preset-classic@3.9.2 > @docusaurus/core@3.9.2 > @docusaurus/babel@3.9.2 > @babel/preset-env@7.28.5 > @babel/plugin-transform-modules-systemjs@7.28.5':
+        reason: 'Transitive dependency in Docusaurus docs build. Snyk reports no stable Babel 7 fix path; the only non-vulnerable release is Babel 8 prerelease and requires @babel/core 8.'
+        expires: '2026-08-11T00:00:00.000Z'
+        created: '2026-05-11T00:00:00.000Z'
+    - '@docusaurus/preset-classic@3.9.2 > @docusaurus/plugin-content-blog@3.9.2 > @docusaurus/plugin-content-docs@3.9.2 > @docusaurus/core@3.9.2 > @docusaurus/babel@3.9.2 > @babel/preset-env@7.28.5 > @babel/plugin-transform-modules-systemjs@7.28.5':
+        reason: 'Transitive dependency in Docusaurus docs build. Snyk reports no stable Babel 7 fix path; the only non-vulnerable release is Babel 8 prerelease and requires @babel/core 8.'
+        expires: '2026-08-11T00:00:00.000Z'
+        created: '2026-05-11T00:00:00.000Z'
+    - '@docusaurus/preset-classic@3.9.2 > @docusaurus/plugin-svgr@3.9.2 > @svgr/webpack@8.1.0 > @babel/preset-env@7.28.5 > @babel/plugin-transform-modules-systemjs@7.28.5':
+        reason: 'Transitive dependency in Docusaurus docs build. Snyk reports no stable Babel 7 fix path; the only non-vulnerable release is Babel 8 prerelease and requires @babel/core 8.'
+        expires: '2026-08-11T00:00:00.000Z'
+        created: '2026-05-11T00:00:00.000Z'
