@@ -1,11 +1,18 @@
-import { Skeleton } from 'antd';
 import type React from 'react';
-import { act } from 'react';
+import { Skeleton } from 'antd';
 import { createRoot } from 'react-dom/client';
+import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoggedInUserCommunityContainer } from './logged-in-user-community.container.tsx';
 
-const { useApolloClientMock, useAuthMock, useParamsMock, handleLogoutMock, componentQueryLoaderMock, loggedInUserCommunityMock } = vi.hoisted(() => ({
+const {
+	useApolloClientMock,
+	useAuthMock,
+	useParamsMock,
+	handleLogoutMock,
+	componentQueryLoaderMock,
+	loggedInUserCommunityMock,
+} = vi.hoisted(() => ({
 	useApolloClientMock: vi.fn(),
 	useAuthMock: vi.fn(),
 	useParamsMock: vi.fn(),
@@ -27,7 +34,13 @@ vi.mock('react-router-dom', () => ({
 }));
 
 vi.mock('@cellix/ui-core', () => ({
-	ComponentQueryLoader: (props: { loading: boolean; error?: Error; hasData: object | null | undefined; hasDataComponent: React.ReactNode; noDataComponent?: React.ReactNode }) => {
+	ComponentQueryLoader: (props: {
+		loading: boolean;
+		error?: Error;
+		hasData: object | null | undefined;
+		hasDataComponent: React.ReactNode;
+		noDataComponent?: React.ReactNode;
+	}) => {
 		componentQueryLoaderMock(props);
 
 		if (props.error) {
