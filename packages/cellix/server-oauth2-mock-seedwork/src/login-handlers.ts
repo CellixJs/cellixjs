@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import type { Request, RequestHandler, Router } from 'express';
+import { rateLimit } from 'express-rate-limit';
 import { buildLoginHtml, buildSignupHtml } from './html-builders.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 
@@ -31,8 +32,6 @@ export interface LoginHandlerDeps {
 	authCodeStore: TtlStore<AuthCodeStoreEntry>;
 	normalizeUrl: (url: string) => string;
 	buildRedirectWithCode: (redirect: string, code: string, state?: string) => string;
-	formRateLimiter: RequestHandler;
-	credentialRateLimiter: RequestHandler;
 	logger: { debug: (msg: string, meta?: Record<string, unknown>) => void };
 }
 
@@ -44,7 +43,20 @@ function isFormRequest(req: Request): boolean {
 export function createLoginHandlers(deps: LoginHandlerDeps): {
 	registerRoutes(router: Router): void;
 } {
-	const { config, issuerBaseUrl, primaryRedirectUri, normalizedAllowedRedirectUris, loginSessionStore, authCodeStore, normalizeUrl, buildRedirectWithCode, formRateLimiter, credentialRateLimiter, logger } = deps;
+	const { config, issuerBaseUrl, primaryRedirectUri, normalizedAllowedRedirectUris, loginSessionStore, authCodeStore, normalizeUrl, buildRedirectWithCode, logger } = deps;
+	const formRateLimiter = rateLimit({
+		windowMs: 60 * 1000,
+		max: 30,
+		standardHeaders: true,
+		legacyHeaders: false,
+	}) as unknown as RequestHandler;
+	const credentialRateLimiter = rateLimit({
+		windowMs: 15 * 60 * 1000,
+		max: 10,
+		standardHeaders: true,
+		legacyHeaders: false,
+		message: { error: 'Too many attempts, please try again later.' },
+	}) as unknown as RequestHandler;
 
 	return {
 		registerRoutes(router: Router) {
@@ -61,7 +73,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 				loginSessionStore.set(sessionNonce, {
 					redirectUri: redirect,
 					state: safeState,
-					...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
+					...(safeNonce === undefined ? {} : { nonce: safeNonce }),
 				});
 				logger.debug('[server-oauth2-mock] GET /login', { sessionNonce, loginSessionFound: loginSessionStore.has(sessionNonce) });
 				res.setHeader('Content-Type', 'text/html; charset=utf-8');

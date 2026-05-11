@@ -5,7 +5,7 @@ import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jos
 import { buildEffectiveProfile, buildRedirectWithCode, extractClaimsFromPayload, normalizeUserInfo } from './helpers.ts';
 import { buildTokenResponse } from './jwt.ts';
 import { debugLog } from './logger.js';
-import { createLoginHandlers, type LoginHandlerDeps } from './login-handlers.ts';
+import { createLoginHandlers } from './login-handlers.ts';
 import { createTtlStore } from './ttl-store.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2UserStore } from './types.ts';
 import { normalizeOrigin, normalizeUrl } from './utils.ts';
@@ -131,24 +131,6 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 		next();
 	});
-
-	const formRateLimiter = rateLimit({
-		windowMs: 60 * 1000,
-		max: 30,
-		standardHeaders: true,
-		legacyHeaders: false,
-	});
-
-	const credentialRateLimiter = rateLimit({
-		windowMs: 15 * 60 * 1000,
-		max: 10,
-		standardHeaders: true,
-		legacyHeaders: false,
-		message: { error: 'Too many attempts, please try again later.' },
-	});
-
-	const formRateLimiterHandler = formRateLimiter as unknown as express.RequestHandler;
-	const credentialRateLimiterHandler = credentialRateLimiter as unknown as express.RequestHandler;
 
 	router.post('/token', async (req, res) => {
 		const { grant_type, tid, code } = req.body as {
@@ -296,7 +278,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 	});
 
-	const loginHandlerDeps: LoginHandlerDeps = {
+	createLoginHandlers({
 		config,
 		issuerBaseUrl,
 		primaryRedirectUri,
@@ -305,11 +287,8 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		authCodeStore,
 		normalizeUrl,
 		buildRedirectWithCode,
-		formRateLimiter: formRateLimiterHandler,
-		credentialRateLimiter: credentialRateLimiterHandler,
 		logger: { debug: debugLog },
-	};
-	createLoginHandlers(loginHandlerDeps).registerRoutes(router);
+	}).registerRoutes(router);
 
 	const userinfoRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many /userinfo requests, please try again later.' });
 
