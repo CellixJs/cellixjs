@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import type { Request, RequestHandler, Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { buildLoginHtml, buildSignupHtml } from './html-builders.ts';
-import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
+import type { MockOAuth2PortalConfig, MockOAuth2User } from './types.ts';
 
 interface AuthCodeStoreEntry {
 	sub?: string;
@@ -23,7 +23,7 @@ interface TtlStore<T> {
 	has(key: string): boolean;
 }
 
-export interface LoginHandlerDeps {
+interface LoginHandlerDeps {
 	config: MockOAuth2PortalConfig;
 	issuerBaseUrl: string;
 	primaryRedirectUri: string;

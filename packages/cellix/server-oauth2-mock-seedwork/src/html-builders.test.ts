@@ -43,6 +43,14 @@ describe('buildLoginHtml', () => {
 		expect(html).toContain('&lt;b&gt;bad&lt;/b&gt;');
 		expect(html).not.toContain('<b>bad</b>');
 	});
+
+	it('escapes nonce values in form markup', () => {
+		const html = buildLoginHtml({ issuerBaseUrl, nonce: 'bad"?><script>alert(1)</script>' });
+
+		expect(html).toContain('nonce=bad%22%3F%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E');
+		expect(html).toContain('name="nonce" value="bad&quot;?&gt;&lt;script&gt;alert(1)&lt;/script&gt;"');
+		expect(html).not.toContain('nonce=bad"?><script>alert(1)</script>');
+	});
 });
 
 describe('buildSignupHtml', () => {
@@ -86,5 +94,13 @@ describe('buildSignupHtml', () => {
 
 		expect(html).toContain('&lt;b&gt;bad&lt;/b&gt;');
 		expect(html).not.toContain('<b>bad</b>');
+	});
+
+	it('escapes nonce values in form markup', () => {
+		const html = buildSignupHtml({ issuerBaseUrl, nonce: 'bad"?><script>alert(1)</script>' });
+
+		expect(html).toContain('nonce=bad%22%3F%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E');
+		expect(html).toContain('name="nonce" value="bad&quot;?&gt;&lt;script&gt;alert(1)&lt;/script&gt;"');
+		expect(html).not.toContain('nonce=bad"?><script>alert(1)</script>');
 	});
 });
