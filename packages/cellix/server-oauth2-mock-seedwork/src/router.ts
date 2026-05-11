@@ -3,11 +3,11 @@ import express from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jose';
 import { buildEffectiveProfile, buildRedirectWithCode, extractClaimsFromPayload, normalizeUserInfo } from './helpers.ts';
-import { buildLoginHtml, buildSignupHtml } from './html-builders.ts';
 import { buildTokenResponse } from './jwt.ts';
 import { debugLog } from './logger.js';
+import { createLoginHandlers, type LoginHandlerDeps } from './login-handlers.ts';
 import { createTtlStore } from './ttl-store.ts';
-import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
+import type { MockOAuth2PortalConfig, MockOAuth2UserStore } from './types.ts';
 import { normalizeOrigin, normalizeUrl } from './utils.ts';
 
 interface TokenProfile {
@@ -70,12 +70,6 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	router.get('/.well-known/jwks.json', (_req, res) => {
 		res.json({ keys: [publicJwk] });
 	});
-
-	// Small helpers for form vs API clients and HTML rendering
-	function isFormRequest(req: express.Request): boolean {
-		const ct = req.get('content-type');
-		return typeof ct === 'string' && ct.includes('application/x-www-form-urlencoded');
-	}
 
 	router.use(express.urlencoded({ extended: true }));
 	router.use(express.json());
@@ -284,218 +278,20 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 	});
 
-	// If a userStore is provided, expose simple login/signup pages that tie into it.
-	router.get('/login', formRateLimiterHandler, (req, res) => {
-		if (!config.userStore) {
-			res.status(404).send('Login not available');
-			return;
-		}
-		const { state, redirect_uri, nonce } = req.query as { state?: string; redirect_uri?: string; nonce?: string };
-		const redirect = typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri;
-		const safeState = typeof state === 'string' ? state : '';
-		const safeNonce = typeof nonce === 'string' ? nonce : undefined;
-		const sessionNonce = crypto.randomUUID();
-		loginSessionStore.set(sessionNonce, {
-			redirectUri: redirect,
-			state: safeState,
-			...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
-		});
-		debugLog('[server-oauth2-mock] GET /login', { sessionNonce, loginSessionFound: Boolean(loginSessionStore.get(sessionNonce)) });
-		res.setHeader('Content-Type', 'text/html; charset=utf-8');
-		res.send(buildLoginHtml({ issuerBaseUrl, nonce: sessionNonce }));
-	});
-
-	router.post('/login', credentialRateLimiterHandler, async (req, res) => {
-		if (!config.userStore) {
-			res.status(404).send('Login not available');
-			return;
-		}
-		const username = req.body.username;
-		const password = req.body.password;
-		if (typeof username !== 'string' || typeof password !== 'string') {
-			res.status(400).json({ error: 'username and password are required' });
-			return;
-		}
-		const nonceFromBody = typeof req.body.nonce === 'string' ? req.body.nonce : undefined;
-		const { nonce: rawQueryNonce } = req.query as Record<string, unknown>;
-		const nonceFromQuery = typeof rawQueryNonce === 'string' ? rawQueryNonce : undefined;
-		let loginNonceUsed: string | undefined;
-		let loginSession: { redirectUri: string; state: string; nonce?: string } | undefined;
-		if (nonceFromBody) {
-			loginNonceUsed = nonceFromBody;
-			loginSession = loginSessionStore.get(loginNonceUsed as string);
-		}
-		if (!loginSession && nonceFromQuery) {
-			loginNonceUsed = nonceFromQuery;
-			loginSession = loginSessionStore.get(loginNonceUsed as string);
-		}
-		// As a last resort, attempt Referer parsing (heuristic only)
-		let refererLookup: string | undefined;
-		if (!loginSession) {
-			const referer = req.get('referer') ?? req.get('referrer');
-			if (typeof referer === 'string') {
-				try {
-					const refUrl = new URL(referer);
-					const alt = refUrl.searchParams.get('nonce');
-					if (alt) {
-						refererLookup = alt;
-						const altSession = loginSessionStore.get(alt);
-						if (altSession) {
-							loginNonceUsed = alt;
-							loginSession = altSession;
-						}
-					}
-				} catch {
-					// ignore
-				}
-			}
-		}
-
-		debugLog('[server-oauth2-mock] POST /login', { nonceFromBody, nonceFromQuery, loginSessionFound: Boolean(loginSession), username });
-
-		if (loginSession) {
-			// keep session until login completes successfully so we can re-render the form on failure
-		} else {
-			// No server-side session found. Escalate and return a helpful error page
-			console.warn('[server-oauth2-mock] Missing login session for nonce (body:%s, query:%s, refererLookup:%s) — rejecting request', nonceFromBody, nonceFromQuery, refererLookup ?? req.get('referer'));
-			const link = `${issuerBaseUrl}/authorize?redirect_uri=${encodeURIComponent(primaryRedirectUri)}`;
-			res
-				.status(400)
-				.setHeader('Content-Type', 'text/html; charset=utf-8')
-				.send(`<!doctype html><html><body><h1>Session expired</h1><p>Your login session has expired or is invalid. <a href="${link}">Start a new login</a></p></body></html>`);
-			return;
-		}
-
-		const redirect = loginSession?.redirectUri ?? primaryRedirectUri;
-		const state = loginSession?.state ?? undefined;
-		try {
-			const store = config.userStore as MockOAuth2UserStore;
-			const user = await store.findByUsername(username);
-			if (!user || typeof user.password !== 'string' || user.password !== password) {
-				if (isFormRequest(req)) {
-					res
-						.status(200)
-						.setHeader('Content-Type', 'text/html; charset=utf-8')
-						.send(buildLoginHtml({ issuerBaseUrl, nonce: loginNonceUsed ?? '', username, error: 'Invalid username or password. Please try again.' }));
-					return;
-				}
-				res.status(401).send('Invalid credentials');
-				return;
-			}
-			// Issue a one-time auth code tied to this user and redirect
-			try {
-				const normalized = normalizeUrl(redirect);
-				if (!normalizedAllowedRedirectUris.has(normalized)) {
-					res.status(400).send('Invalid redirect_uri');
-					return;
-				}
-				const code = `${AUTH_CODE_PREFIX}${crypto.randomUUID()}`;
-				authCodeStore.set(code, {
-					sub: user.sub,
-					redirectUri: normalized,
-					...(loginSession?.nonce !== undefined ? { nonce: loginSession.nonce } : {}),
-				});
-				// consume the login session now that auth code is issued
-				if (loginNonceUsed) loginSessionStore.delete(loginNonceUsed);
-				debugLog('[server-oauth2-mock] POST /login success', { authCode: `${code.substring(0, 8)}...`, redirectUri: redirect, state });
-				const location = buildRedirectWithCode(redirect, code, state);
-				res.setHeader('Location', location);
-				res.status(302).end();
-			} catch {
-				res.status(400).send('Invalid redirect_uri format');
-			}
-		} catch (_err) {
-			res.status(500).send('Login failed');
-		}
-	});
-
-	router.get('/signup', formRateLimiterHandler, (req, res) => {
-		if (!config.userStore) {
-			res.status(404).send('Signup not available');
-			return;
-		}
-		const { state, redirect_uri, nonce: queryNonce } = req.query as { state?: string; redirect_uri?: string; nonce?: string };
-		const existingSession = typeof queryNonce === 'string' ? loginSessionStore.get(queryNonce) : undefined;
-		if (existingSession && typeof queryNonce === 'string') {
-			loginSessionStore.delete(queryNonce);
-		}
-		const redirect = existingSession?.redirectUri ?? (typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri);
-		const safeState = existingSession?.state ?? (typeof state === 'string' ? state : '');
-		const safeNonce = existingSession?.nonce ?? (typeof queryNonce === 'string' ? queryNonce : undefined);
-		const nonce = crypto.randomUUID();
-		loginSessionStore.set(nonce, {
-			redirectUri: redirect,
-			state: safeState,
-			...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
-		});
-		res.setHeader('Content-Type', 'text/html; charset=utf-8');
-		res.send(buildSignupHtml({ issuerBaseUrl, nonce }));
-	});
-
-	router.post('/signup', credentialRateLimiterHandler, async (req, res) => {
-		if (!config.userStore) {
-			res.status(404).send('Signup not available');
-			return;
-		}
-		const username = req.body.username;
-		const password = req.body.password;
-		if (typeof username !== 'string' || typeof password !== 'string') {
-			res.status(400).json({ error: 'username and password are required' });
-			return;
-		}
-		const email = typeof req.body.email === 'string' ? req.body.email : undefined;
-		const given_name = typeof req.body.given_name === 'string' ? req.body.given_name : undefined;
-		const family_name = typeof req.body.family_name === 'string' ? req.body.family_name : undefined;
-		const signupNonce = typeof req.body.nonce === 'string' ? req.body.nonce : '';
-		const signupSession = loginSessionStore.get(signupNonce);
-		// Keep signup session until signup completes so we can re-render the signup form on error
-		const redirect = signupSession?.redirectUri ?? primaryRedirectUri;
-		const state = signupSession?.state ?? undefined;
-		try {
-			const claimsObj: { email?: unknown; given_name?: unknown; family_name?: unknown; [k: string]: unknown } = {};
-			if (email) claimsObj.email = email;
-			if (given_name) claimsObj.given_name = given_name;
-			if (family_name) claimsObj.family_name = family_name;
-			const newUser: MockOAuth2User = { username, sub: crypto.randomUUID(), password, claims: claimsObj };
-			const store = config.userStore as MockOAuth2UserStore;
-			await store.addUser(newUser);
-			// Issue a one-time auth code tied to this newly created user and redirect
-			try {
-				const normalized = normalizeUrl(redirect);
-				if (!normalizedAllowedRedirectUris.has(normalized)) {
-					res.status(400).send('Invalid redirect_uri');
-					return;
-				}
-				const code = `${AUTH_CODE_PREFIX}${crypto.randomUUID()}`;
-				authCodeStore.set(code, {
-					sub: newUser.sub,
-					redirectUri: normalized,
-					...(signupSession?.nonce !== undefined ? { nonce: signupSession.nonce } : {}),
-				});
-				// consume signup session now that auth code has been issued
-				if (signupNonce) loginSessionStore.delete(signupNonce);
-				const location = buildRedirectWithCode(redirect, code, state);
-				res.setHeader('Location', location);
-				res.status(302).end();
-			} catch {
-				res.status(400).send('Invalid redirect_uri format');
-			}
-		} catch (err) {
-			const msg = err instanceof Error ? err.message : String(err);
-			if (msg.toLowerCase().includes('already exists')) {
-				if (isFormRequest(req)) {
-					res
-						.status(200)
-						.setHeader('Content-Type', 'text/html; charset=utf-8')
-						.send(buildSignupHtml({ issuerBaseUrl, nonce: signupNonce, username, email, given_name, family_name, error: 'A user with that username already exists. Please choose a different username.' }));
-					return;
-				}
-				res.status(409).json({ error: 'user_exists', error_description: msg });
-				return;
-			}
-			res.status(500).send('Signup failed');
-		}
-	});
+	const loginHandlerDeps: LoginHandlerDeps = {
+		config,
+		issuerBaseUrl,
+		primaryRedirectUri,
+		normalizedAllowedRedirectUris,
+		loginSessionStore,
+		authCodeStore,
+		normalizeUrl,
+		buildRedirectWithCode,
+		formRateLimiter: formRateLimiterHandler,
+		credentialRateLimiter: credentialRateLimiterHandler,
+		logger: { debug: debugLog },
+	};
+	createLoginHandlers(loginHandlerDeps).registerRoutes(router);
 
 	const userinfoRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many /userinfo requests, please try again later.' });
 

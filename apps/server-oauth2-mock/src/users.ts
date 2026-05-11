@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { debugLog, type MockOAuth2User, type MockOAuth2UserStore } from '@cellix/server-oauth2-mock-seedwork';
 
@@ -12,10 +12,10 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		return error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT';
 	}
 
-	function getValidatedForPath(p: string): MockOAuth2User[] {
+	async function getValidatedForPath(p: string): Promise<MockOAuth2User[]> {
 		let mtime: number;
 		try {
-			mtime = fs.statSync(p).mtimeMs;
+			mtime = (await stat(p)).mtimeMs;
 		} catch (error) {
 			if (isEnoentError(error)) {
 				fileCache.delete(p);
@@ -32,7 +32,7 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 
 		let raw: string;
 		try {
-			raw = fs.readFileSync(p, 'utf-8');
+			raw = await readFile(p, 'utf-8');
 		} catch (error) {
 			if (isEnoentError(error)) {
 				fileCache.delete(p);
@@ -141,17 +141,16 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		return out;
 	}
 
-	function loadCommitted(): MockOAuth2User[] {
+	function loadCommitted(): Promise<MockOAuth2User[]> {
 		return getValidatedForPath(committedPath);
 	}
 
-	function loadOverlay(): MockOAuth2User[] {
+	function loadOverlay(): Promise<MockOAuth2User[]> {
 		return getValidatedForPath(localPath);
 	}
 
-	function mergeUsers(): MockOAuth2User[] {
-		const committed = loadCommitted();
-		const overlay = loadOverlay();
+	async function mergeUsers(): Promise<MockOAuth2User[]> {
+		const [committed, overlay] = await Promise.all([loadCommitted(), loadOverlay()]);
 		const seenUsernames = new Set<string>();
 		const seenSubs = new Set<string>();
 		const out: MockOAuth2User[] = [];
@@ -172,53 +171,53 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		return out;
 	}
 
-	function persistOverlay(users: MockOAuth2User[]): Promise<void> {
+	async function persistOverlay(users: MockOAuth2User[]): Promise<void> {
 		const dir = path.dirname(localPath);
-		if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+		await mkdir(dir, { recursive: true });
 		const tmpPath = `${localPath}.tmp`;
-		fs.writeFileSync(tmpPath, JSON.stringify(users, null, 2), { encoding: 'utf-8' });
-		fs.renameSync(tmpPath, localPath);
+		await writeFile(tmpPath, JSON.stringify(users, null, 2), { encoding: 'utf-8' });
+		await rename(tmpPath, localPath);
 		try {
-			const stat = fs.statSync(localPath);
-			fileCache.set(localPath, { mtime: stat.mtimeMs, data: users });
+			const fileStat = await stat(localPath);
+			fileCache.set(localPath, { mtime: fileStat.mtimeMs, data: users });
 		} catch (_error) {
 			fileCache.delete(localPath);
 		}
-		return Promise.resolve();
 	}
 
 	const portalName = path.basename(appDir);
-	const initialCommitted = loadCommitted();
-	const initialOverlay = loadOverlay();
-	console.info(`[server-oauth2-mock] Loaded ${initialCommitted.length} committed + ${initialOverlay.length} local users for portal "${portalName}" (${initialCommitted.length + initialOverlay.length} total)`);
+	void Promise.all([loadCommitted(), loadOverlay()])
+		.then(([initialCommitted, initialOverlay]) => {
+			console.info(`[server-oauth2-mock] Loaded ${initialCommitted.length} committed + ${initialOverlay.length} local users for portal "${portalName}" (${initialCommitted.length + initialOverlay.length} total)`);
+		})
+		.catch((error) => {
+			console.warn(`[server-oauth2-mock] Failed to preload users for portal "${portalName}":`, error);
+		});
+
 	return {
-		listUsers() {
-			return Promise.resolve(mergeUsers());
+		async listUsers() {
+			return await mergeUsers();
 		},
-		findByUsername(username: string) {
-			const list = mergeUsers();
-			return Promise.resolve(list.find((u) => u.username === username));
+		async findByUsername(username: string) {
+			const list = await mergeUsers();
+			return list.find((u) => u.username === username);
 		},
-		findBySub(sub: string) {
-			const list = mergeUsers();
-			return Promise.resolve(list.find((u) => u.sub === sub));
+		async findBySub(sub: string) {
+			const list = await mergeUsers();
+			return list.find((u) => u.sub === sub);
 		},
-		addUser(user: MockOAuth2User) {
-			const committed = loadCommitted();
-			const overlay = loadOverlay();
-			// ensure uniqueness
+		async addUser(user: MockOAuth2User) {
+			const [committed, overlay] = await Promise.all([loadCommitted(), loadOverlay()]);
 			const all = [...committed, ...overlay];
-			if (all.find((u) => u.username === user.username)) return Promise.reject(new Error(`[server-oauth2-mock] Username already exists: ${user.username}`));
-			if (all.find((u) => u.sub === user.sub)) return Promise.reject(new Error(`[server-oauth2-mock] Sub already exists: ${user.sub}`));
+			if (all.find((u) => u.username === user.username)) throw new Error(`[server-oauth2-mock] Username already exists: ${user.username}`);
+			if (all.find((u) => u.sub === user.sub)) throw new Error(`[server-oauth2-mock] Sub already exists: ${user.sub}`);
 			overlay.push(user);
-			return persistOverlay(overlay).then(() => {
-				console.info(`[server-oauth2-mock] New user registered via signup for portal "${portalName}": ${user.username}`);
-				debugLog('[server-oauth2-mock] addUser persisted', { portal: portalName, user: user.username });
-			});
+			await persistOverlay(overlay);
+			console.info(`[server-oauth2-mock] New user registered via signup for portal "${portalName}": ${user.username}`);
+			debugLog('[server-oauth2-mock] addUser persisted', { portal: portalName, user: user.username });
 		},
-		persist() {
-			// noop - overlay persisted on each add
-			return Promise.resolve();
+		async persist() {
+			await Promise.resolve();
 		},
 	};
 }
