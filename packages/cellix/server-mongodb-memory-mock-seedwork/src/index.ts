@@ -12,6 +12,12 @@ export interface MongoMemoryReplicaSetDisposer {
 }
 
 export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetConfig): Promise<{ replicaSet: MongoMemoryReplSet; disposer: MongoMemoryReplicaSetDisposer }> {
+	console.log('Starting MongoDB Memory Replica Set', {
+		port: config.port,
+		dbName: config.dbName,
+		replSetName: config.replSetName,
+	});
+
 	const replicaSet = await MongoMemoryReplSet.create({
 		binary: { version: config.binaryVersion ?? '7.0.14' },
 		replSet: {
@@ -22,8 +28,12 @@ export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetCo
 		instanceOpts: [{ port: config.port }],
 	});
 
+	const uri = replicaSet.getUri(config.dbName);
+	console.log('MongoDB Memory Replica Set ready at:', uri);
+
 	const disposer: MongoMemoryReplicaSetDisposer = {
 		stop: async () => {
+			console.log('Stopping MongoDB Memory Replica Set');
 			await replicaSet.stop();
 		},
 	};
