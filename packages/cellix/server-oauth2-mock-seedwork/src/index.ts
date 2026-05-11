@@ -1,8 +1,9 @@
 /*
 	Index entrypoint — re-exports from smaller modules to keep the public surface stable
 */
+
+export { debugLog } from './logger.ts';
 export { createMockOAuth2Manager } from './manager.ts';
-export { debugLog } from './logger.js';
 export { buildOidcRouter } from './router.ts';
 export { startMockOAuth2Server } from './server.ts';
 

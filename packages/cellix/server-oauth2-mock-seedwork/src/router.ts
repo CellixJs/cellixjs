@@ -438,7 +438,10 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			const user = await store.findByUsername(username);
 			if (!user || typeof user.password !== 'string' || user.password !== password) {
 				if (isFormRequest(req)) {
-					res.status(200).setHeader('Content-Type', 'text/html; charset=utf-8').send(buildLoginHtml({ issuerBaseUrl, nonce: loginNonceUsed ?? '', username, error: 'Invalid username or password. Please try again.' }));
+					res
+						.status(200)
+						.setHeader('Content-Type', 'text/html; charset=utf-8')
+						.send(buildLoginHtml({ issuerBaseUrl, nonce: loginNonceUsed ?? '', username, error: 'Invalid username or password. Please try again.' }));
 					return;
 				}
 				res.status(401).send('Invalid credentials');
@@ -546,7 +549,10 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			const msg = err instanceof Error ? err.message : String(err);
 			if (msg.toLowerCase().includes('already exists')) {
 				if (isFormRequest(req)) {
-					res.status(200).setHeader('Content-Type', 'text/html; charset=utf-8').send(buildSignupHtml({ issuerBaseUrl, nonce: signupNonce, username, email, given_name, family_name, error: 'A user with that username already exists. Please choose a different username.' }));
+					res
+						.status(200)
+						.setHeader('Content-Type', 'text/html; charset=utf-8')
+						.send(buildSignupHtml({ issuerBaseUrl, nonce: signupNonce, username, email, given_name, family_name, error: 'A user with that username already exists. Please choose a different username.' }));
 					return;
 				}
 				res.status(409).json({ error: 'user_exists', error_description: msg });

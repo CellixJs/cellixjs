@@ -441,7 +441,7 @@ describe('oauth2 mock router flows', () => {
 		const code = new URL(location).searchParams.get('code') as string;
 		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code }) });
 		expect(tokenRes.status).toBe(200);
-		const tokenJson = await tokenRes.json() as { id_token?: string };
+		const tokenJson = (await tokenRes.json()) as { id_token?: string };
 		const idPayload = decodeJwtPayload(tokenJson.id_token as string) as { sub?: string };
 		expect(idPayload.sub).toBe('sub-top');
 	});
@@ -459,7 +459,7 @@ describe('oauth2 mock router flows', () => {
 		const code = new URL(location).searchParams.get('code') as string;
 		const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code }) });
 		expect(tokenRes.status).toBe(200);
-		const tokenJson = await tokenRes.json() as { id_token?: string };
+		const tokenJson = (await tokenRes.json()) as { id_token?: string };
 		const idPayload = decodeJwtPayload(tokenJson.id_token as string) as { sub?: string };
 		expect(idPayload.sub).toBe('sub-claim');
 	});
