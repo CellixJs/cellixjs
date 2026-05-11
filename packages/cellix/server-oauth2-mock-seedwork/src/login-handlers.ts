@@ -3,6 +3,7 @@ import type { Request, RequestHandler, Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { buildLoginHtml, buildSignupHtml } from './html-builders.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User } from './types.ts';
+import { AUTH_CODE_PREFIX } from './utils.ts';
 
 interface AuthCodeStoreEntry {
 	sub?: string;
@@ -158,7 +159,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 							res.status(400).send('Invalid redirect_uri');
 							return;
 						}
-						const code = `mock-auth-code-${crypto.randomUUID()}`;
+						const code = `${AUTH_CODE_PREFIX}${crypto.randomUUID()}`;
 						authCodeStore.set(code, {
 							sub: user.sub,
 							redirectUri: normalized,
@@ -233,7 +234,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 							res.status(400).send('Invalid redirect_uri');
 							return;
 						}
-						const code = `mock-auth-code-${crypto.randomUUID()}`;
+						const code = `${AUTH_CODE_PREFIX}${crypto.randomUUID()}`;
 						authCodeStore.set(code, {
 							sub: newUser.sub,
 							redirectUri: normalized,

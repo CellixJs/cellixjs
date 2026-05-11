@@ -3,8 +3,8 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildOidcRouter, type MockOAuth2PortalConfig, type MockOAuth2User, type MockOAuth2UserStore } from './index.ts';
-import { AUTH_CODE_PREFIX, AUTH_CODE_TTL_MS } from './router.ts';
+import { AUTH_CODE_PREFIX, buildOidcRouter, type MockOAuth2PortalConfig, type MockOAuth2User, type MockOAuth2UserStore } from './index.ts';
+import { AUTH_CODE_TTL_MS } from './router.ts';
 
 class InMemoryUserStore implements MockOAuth2UserStore {
 	users: MockOAuth2User[] = [];
@@ -37,7 +37,7 @@ function createPassword(label: string) {
 	return `${label}-${crypto.randomUUID()}`;
 }
 
-async function startServer(port: number, store: MockOAuth2UserStore) {
+async function startServer(port: number, store: MockOAuth2UserStore, getUserProfile: MockOAuth2PortalConfig['getUserProfile'] = () => ({ email: 'portal@example.com' })) {
 	const app = express();
 	app.disable('x-powered-by');
 	const srv = app.listen(port);
@@ -48,7 +48,7 @@ async function startServer(port: number, store: MockOAuth2UserStore) {
 		allowedRedirectUris: new Set([redirect]),
 		allowedRedirectUri: redirect,
 		redirectUriToAudience: new Map([[redirect, 'test-aud']]),
-		getUserProfile: () => ({ email: 'portal@example.com' }),
+		getUserProfile,
 		userStore: store,
 	};
 	const issuerBase = `${baseUrlFor(boundPort)}`;
@@ -463,6 +463,51 @@ describe('buildOidcRouter', () => {
 			const tokenJson = (await tokenRes.json()) as { id_token?: string };
 			const idPayload = decodeJwtPayload(tokenJson.id_token as string) as { sub?: string };
 			expect(idPayload.sub).toBe('sub-claim');
+		});
+
+		it('POST /token prefers request tid first, then user claims tid, then portal tid', async () => {
+			const pass = createPassword('tid-password');
+			const portalTid = 'portal-tenant-id';
+			await new Promise<void>((resolve) => server.close(() => resolve()));
+			store.users.push({
+				username: 'tenant-user',
+				sub: 'sub-tenant-user',
+				password: pass,
+				claims: { email: 'tenant@example.com', tid: 'user-tenant-id' },
+			});
+			const restarted = await startServer(0, store, () => ({ email: 'portal@example.com', tid: portalTid }));
+			server = restarted.server;
+			port = restarted.port;
+			redirect = restarted.redirect;
+
+			const issueCode = async (state: string) => {
+				const loginUrl = `http://127.0.0.1:${port}/login`;
+				const { nonce } = await getFormNonce(port, '/login', { redirect_uri: redirect, state });
+				const body = new URLSearchParams({ username: 'tenant-user', password: pass, nonce });
+				const res = await fetch(loginUrl, { method: 'POST', body: body.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
+				expect(res.status).toBe(302);
+				return new URL(res.headers.get('location') as string).searchParams.get('code') as string;
+			};
+
+			const code = await issueCode('tid-state');
+			const tokenRes = await fetch(`http://127.0.0.1:${port}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grant_type: 'authorization_code', code }) });
+			expect(tokenRes.status).toBe(200);
+			const tokenJson = (await tokenRes.json()) as { id_token?: string; profile?: { tid?: string } };
+			const idPayload = decodeJwtPayload(tokenJson.id_token as string) as { tid?: string };
+			expect(tokenJson.profile?.tid).toBe('user-tenant-id');
+			expect(idPayload.tid).toBe('user-tenant-id');
+
+			const overrideCode = await issueCode('tid-state-override');
+			const overrideTokenRes = await fetch(`http://127.0.0.1:${port}/token`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ grant_type: 'authorization_code', code: overrideCode, tid: 'request-tenant-id' }),
+			});
+			expect(overrideTokenRes.status).toBe(200);
+			const overrideTokenJson = (await overrideTokenRes.json()) as { id_token?: string; profile?: { tid?: string } };
+			const overrideIdPayload = decodeJwtPayload(overrideTokenJson.id_token as string) as { tid?: string };
+			expect(overrideTokenJson.profile?.tid).toBe('request-tenant-id');
+			expect(overrideIdPayload.tid).toBe('request-tenant-id');
 		});
 	});
 

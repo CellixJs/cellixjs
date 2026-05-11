@@ -33,7 +33,7 @@ Notes about the schema and overrides:
   - `envVars` — maps `clientId` and `redirectUri` to the UI app's environment variable names (e.g. `VITE_*` vars)
   - `claims` — default claims to include in issued tokens
 - The server resolves the actual `clientId` and `redirectUri` by reading the UI app's `.env` (and `.env.local`) files and looking up the variable names listed in `envVars`.
-- `mock-oidc.local.json` is git-ignored and may contain a shallow `claims` object to override or extend claims per developer. Only `claims` are merged from the local file.
+- `mock-oidc.local.json` is ignored for claims. Use `mock-oidc.users.local.json` for per-developer user overrides instead.
 - There is no top-level `clientId`, `redirectUri`, or `PORT_BASE` in `mock-oidc.json` — these values are resolved from the UI app environment.
 - The app-level server exposes multiple portals under the single server base URL; each portal is reachable at `/{name}/.well-known/openid-configuration`.
 ## Environment variables
@@ -50,7 +50,7 @@ See ADR-0028 — Portless Local Development (apps/docs/docs/decisions/0028-portl
 
 ## Notes
 
-- `mock-oidc.local.json` is still supported for claim overrides.
+- `mock-oidc.local.json` is ignored for claim overrides.
 - The per-portal JSON no longer contains direct `clientId` or `redirectUri` values; those are read from the UI app's `.env` using `envVars`.
 - Backward-compatible single-config mode via `startMockOAuth2Server()` is preserved.
 

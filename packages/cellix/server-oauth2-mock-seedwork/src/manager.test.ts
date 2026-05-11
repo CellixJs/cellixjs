@@ -1,5 +1,5 @@
 import express from 'express';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createMockOAuth2Manager, type MockOAuth2PortalConfig } from './index.ts';
 
 function makeConfig(): MockOAuth2PortalConfig {
@@ -12,6 +12,10 @@ function makeConfig(): MockOAuth2PortalConfig {
 }
 
 describe('createMockOAuth2Manager', () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	describe('manager unit', () => {
 		it('exposes register and stopAll functions and rejects invalid names', async () => {
 			const manager = createMockOAuth2Manager({ port: 0, baseUrl: 'http://127.0.0.1:0' });

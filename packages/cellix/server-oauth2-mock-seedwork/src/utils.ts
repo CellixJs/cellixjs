@@ -13,6 +13,8 @@
  */
 export const SAFE_NAME_RE = /^[a-zA-Z0-9_-]+$/;
 
+export const AUTH_CODE_PREFIX = 'mock-auth-code-';
+
 /**
  * Normalizes a URL for redirect-URI comparisons by removing a trailing slash from the
  * path and sorting query parameters.

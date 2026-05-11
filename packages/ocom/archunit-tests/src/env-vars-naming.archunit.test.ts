@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { expect, test } from 'vitest';
+import { afterAll, expect, test } from 'vitest';
 import { CANONICAL_PORTALS, validateEnvNames, writeEvidence } from './validate-env-names.cjs';
 
 const rootDir = path.resolve(__dirname, '../../../../');
@@ -12,6 +12,10 @@ const createScratchRoot = (prefix: string) => {
 	fs.mkdirSync(scratchRoot, { recursive: true });
 	return scratchRoot;
 };
+
+afterAll(() => {
+	fs.rmSync(testScratchRoot, { recursive: true, force: true });
+});
 
 test('env vars naming compliance scan generates evidence file', () => {
 	const evidence = validateEnvNames({ rootDir });
@@ -182,6 +186,29 @@ test('validateEnvNames ignores variables that only appear in comments and string
 		const evidence = validateEnvNames({ rootDir: tmpRoot, scanPaths: [tmpRoot] });
 
 		expect(evidence.results).toEqual([]);
+	} finally {
+		fs.rmSync(tmpRoot, { recursive: true, force: true });
+	}
+});
+
+test('validateEnvNames detects env access inside template literal expressions', () => {
+	const tmpRoot = createScratchRoot('env-vars-template-expression');
+	try {
+		const content = 'const endpoint = `' + '$' + "{import.meta.env['VITE_APP_UI_COMMUNITY_API_ENDPOINT']}" + '`;\n';
+
+		fs.writeFileSync(path.join(tmpRoot, 'config.ts'), content, 'utf8');
+
+		const evidence = validateEnvNames({ rootDir: tmpRoot, scanPaths: [tmpRoot] });
+
+		expect(evidence.results).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					variable: 'VITE_APP_UI_COMMUNITY_API_ENDPOINT',
+					status: 'compliant',
+					portal: 'UI_COMMUNITY',
+				}),
+			]),
+		);
 	} finally {
 		fs.rmSync(tmpRoot, { recursive: true, force: true });
 	}

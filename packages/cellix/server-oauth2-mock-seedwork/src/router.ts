@@ -8,7 +8,7 @@ import { debugLog } from './logger.js';
 import { createLoginHandlers } from './login-handlers.ts';
 import { createTtlStore } from './ttl-store.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2UserStore } from './types.ts';
-import { normalizeOrigin, normalizeUrl } from './utils.ts';
+import { AUTH_CODE_PREFIX, normalizeOrigin, normalizeUrl } from './utils.ts';
 
 interface TokenProfile {
 	aud: string;
@@ -22,7 +22,6 @@ interface TokenProfile {
 }
 
 export const AUTH_CODE_TTL_MS = 10 * 60 * 1000;
-export const AUTH_CODE_PREFIX = 'mock-auth-code-';
 
 /**
  * Builds an Express router that exposes the mock OIDC discovery, authorize, login,
@@ -175,19 +174,11 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		const portalProfile = config.getUserProfile();
 		const { sub: upSub, tid: upTid } = portalProfile;
-		let resolvedTid: string;
-		if (typeof tid === 'string') {
-			resolvedTid = tid;
-		} else if (typeof upTid === 'string') {
-			resolvedTid = upTid;
-		} else {
-			resolvedTid = 'test-tenant-id';
-		}
 
 		// Determine final subject (prefer the code-mapped sub, then portal-profile requested sub)
 		const finalSub = resolvedSubFromCode ?? (typeof upSub === 'string' ? upSub : (portalPrefilledSub ?? crypto.randomUUID()));
 
-		let userClaims: Record<string, unknown> | undefined;
+		let userClaims: (Record<string, unknown> & { tid?: string }) | undefined;
 		if (config.userStore) {
 			const store = config.userStore as MockOAuth2UserStore;
 			try {
@@ -201,6 +192,8 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 
 		const effectiveProfile = buildEffectiveProfile(portalProfile, userClaims, finalSub);
+		const userTid = userClaims?.tid;
+		const resolvedTid = typeof tid === 'string' ? tid : typeof userTid === 'string' ? userTid : typeof upTid === 'string' ? upTid : 'test-tenant-id';
 
 		const profile: TokenProfile = {
 			...effectiveProfile,

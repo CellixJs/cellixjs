@@ -1,8 +1,6 @@
 import express from 'express';
 import { describe, expect, it } from 'vitest';
-import { buildOidcRouter, type MockOAuth2PortalConfig, type MockOAuth2UserStore } from '../src/index.ts';
-
-const AUTH_CODE_PREFIX = 'mock-auth-code-';
+import { AUTH_CODE_PREFIX, buildOidcRouter, type MockOAuth2PortalConfig, type MockOAuth2UserStore } from '../src/index.ts';
 
 function makeConfig() {
 	const clientBase = `http://127.0.0.1:6000`;
@@ -35,39 +33,42 @@ describe('buildOidcRouter', () => {
 			const cfg = makeConfig();
 			const app = express();
 			app.disable('x-powered-by');
-			const srv = app.listen(0);
-			await new Promise<void>((resolve) => srv.on('listening', () => resolve()));
-			const boundPort = (srv.address() as unknown as { port: number }).port;
-			const issuerBase = `http://127.0.0.1:${boundPort}`;
-			const router = await buildOidcRouter(issuerBase, cfg as unknown as MockOAuth2PortalConfig);
-			app.use(router);
+			const server = app.listen(0);
 
-			// Request login page to obtain server-side session nonce
-			const loginUrl = `${issuerBase}/login?redirect_uri=${encodeURIComponent(cfg.allowedRedirectUri)}&state=s`;
-			const loginRes = await fetch(loginUrl);
-			expect(loginRes.status).toBe(200);
-			const html = await loginRes.text();
-			const match = html.match(/name="nonce" value="([^"]+)"/);
-			expect(match).toBeTruthy();
-			const serverNonce = match?.[1];
-			expect(serverNonce).toBeTruthy();
-			const nonce = serverNonce as string;
+			try {
+				await new Promise<void>((resolve) => server.on('listening', () => resolve()));
+				const boundPort = (server.address() as unknown as { port: number }).port;
+				const issuerBase = `http://127.0.0.1:${boundPort}`;
+				const router = await buildOidcRouter(issuerBase, cfg as unknown as MockOAuth2PortalConfig);
+				app.use(router);
 
-			// Post login without a body nonce but with Referer header pointing to the login page with the nonce
-			const postRes = await fetch(`${issuerBase}/login`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded', Referer: `${issuerBase}/login?nonce=${nonce}` },
-				body: new URLSearchParams({ username: 'testuser', password: 'password', nonce: '' }).toString(),
-				redirect: 'manual',
-			});
+				// Request login page to obtain server-side session nonce
+				const loginUrl = `${issuerBase}/login?redirect_uri=${encodeURIComponent(cfg.allowedRedirectUri)}&state=s`;
+				const loginRes = await fetch(loginUrl);
+				expect(loginRes.status).toBe(200);
+				const html = await loginRes.text();
+				const match = html.match(/name="nonce" value="([^"]+)"/);
+				expect(match).toBeTruthy();
+				const serverNonce = match?.[1];
+				expect(serverNonce).toBeTruthy();
+				const nonce = serverNonce as string;
 
-			expect(postRes.status).toBe(302);
-			const location = postRes.headers.get('location');
-			expect(location).toBeTruthy();
-			expect(location).toContain(cfg.allowedRedirectUri);
-			expect(new URL(location as string).searchParams.get('code')?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
+				// Post login without a body nonce but with Referer header pointing to the login page with the nonce
+				const postRes = await fetch(`${issuerBase}/login`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded', Referer: `${issuerBase}/login?nonce=${nonce}` },
+					body: new URLSearchParams({ username: 'testuser', password: 'password', nonce: '' }).toString(),
+					redirect: 'manual',
+				});
 
-			await new Promise<void>((resolve) => srv.close(() => resolve()));
+				expect(postRes.status).toBe(302);
+				const location = postRes.headers.get('location');
+				expect(location).toBeTruthy();
+				expect(location).toContain(cfg.allowedRedirectUri);
+				expect(new URL(location as string).searchParams.get('code')?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
+			} finally {
+				await new Promise<void>((resolve) => server.close(() => resolve()));
+			}
 		});
 	});
 });

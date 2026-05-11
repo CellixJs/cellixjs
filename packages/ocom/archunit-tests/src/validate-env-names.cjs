@@ -26,6 +26,101 @@ function walkDir(dir, fileList = []) {
 	return fileList;
 }
 
+function skipQuotedString(text, startIndex, quote) {
+	let i = startIndex + 1;
+	while (i < text.length) {
+		if (text[i] === '\\') {
+			i += 2;
+			continue;
+		}
+		if (text[i] === quote) {
+			return i + 1;
+		}
+		i += 1;
+	}
+	return i;
+}
+
+function skipTemplateExpression(text, startIndex, ranges) {
+	let i = startIndex;
+	let depth = 1;
+	while (i < text.length && depth > 0) {
+		const ch = text[i];
+		const next = text[i + 1];
+
+		if (ch === "'" || ch === '"') {
+			i = skipQuotedString(text, i, ch);
+			continue;
+		}
+
+		if (ch === '`') {
+			i = skipTemplateLiteral(text, i, ranges);
+			continue;
+		}
+
+		if (ch === '/' && next === '/') {
+			i += 2;
+			while (i < text.length && text[i] !== '\n') i++;
+			continue;
+		}
+
+		if (ch === '/' && next === '*') {
+			i += 2;
+			while (i < text.length && !(text[i] === '*' && text[i + 1] === '/')) i++;
+			i = Math.min(i + 2, text.length);
+			continue;
+		}
+
+		if (ch === '{') {
+			depth += 1;
+			i += 1;
+			continue;
+		}
+
+		if (ch === '}') {
+			depth -= 1;
+			i += 1;
+			continue;
+		}
+
+		if (ch === '\\') {
+			i += 2;
+			continue;
+		}
+
+		i += 1;
+	}
+	return i;
+}
+
+function skipTemplateLiteral(text, startIndex, ranges) {
+	let i = startIndex + 1;
+	let segmentStart = startIndex;
+	while (i < text.length) {
+		if (text[i] === '\\') {
+			i += 2;
+			continue;
+		}
+
+		if (text[i] === '$' && text[i + 1] === '{') {
+			ranges.push([segmentStart, i]);
+			i = skipTemplateExpression(text, i + 2, ranges);
+			segmentStart = i;
+			continue;
+		}
+
+		if (text[i] === '`') {
+			i += 1;
+			ranges.push([segmentStart, i]);
+			return i;
+		}
+
+		i += 1;
+	}
+	ranges.push([segmentStart, i]);
+	return i;
+}
+
 function getIgnoredRanges(text) {
 	const ranges = [];
 	let i = 0;
@@ -50,22 +145,15 @@ function getIgnoredRanges(text) {
 			continue;
 		}
 
-		if (ch === "'" || ch === '"' || ch === '`') {
-			const quote = ch;
+		if (ch === "'" || ch === '"') {
 			const start = i;
-			i += 1;
-			while (i < text.length) {
-				if (text[i] === '\\') {
-					i += 2;
-					continue;
-				}
-				if (text[i] === quote) {
-					i += 1;
-					break;
-				}
-				i += 1;
-			}
+			i = skipQuotedString(text, i, ch);
 			ranges.push([start, i]);
+			continue;
+		}
+
+		if (ch === '`') {
+			i = skipTemplateLiteral(text, i, ranges);
 			continue;
 		}
 
