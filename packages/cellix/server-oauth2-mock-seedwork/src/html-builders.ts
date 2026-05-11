@@ -25,7 +25,7 @@ export function buildSignupHtml(opts: { issuerBaseUrl: string; nonce?: string; u
 	return `<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
 			<h1>Sign up</h1>
 			${error ? `<p style="color: red;"><span class="error">${escapeHtml(error)}</span></p>` : ''}
-			<form method="POST" action="${issuerBaseUrl}/signup">
+			<form method="POST" action="${issuerBaseUrl}/signup?nonce=${nonce ?? ''}">
 			<input type="hidden" name="nonce" value="${nonce ?? ''}" />
 			<label>Username: <input name="username" value="${escapeHtml(username ?? '')}" /></label><br/>
 			<label>Password: <input name="password" type="password" /></label><br/>
