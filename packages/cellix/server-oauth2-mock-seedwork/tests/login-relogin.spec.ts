@@ -1,7 +1,8 @@
 import express from 'express';
 import { describe, expect, it } from 'vitest';
-import { AUTH_CODE_PREFIX, buildOidcRouter } from '../src/router.ts';
-import type { MockOAuth2PortalConfig, MockOAuth2UserStore } from '../src/types.ts';
+import { buildOidcRouter, type MockOAuth2PortalConfig, type MockOAuth2UserStore } from '../src/index.ts';
+
+const AUTH_CODE_PREFIX = 'mock-auth-code-';
 
 function makeConfig() {
 	const clientBase = `http://127.0.0.1:6000`;
@@ -28,43 +29,45 @@ function makeConfig() {
 	};
 }
 
-describe('login re-login fallback', () => {
-	it('falls back to Referer nonce when body nonce is missing', async () => {
-		const cfg = makeConfig();
-		const app = express();
-		app.disable('x-powered-by');
-		const srv = app.listen(0);
-		await new Promise<void>((resolve) => srv.on('listening', () => resolve()));
-		const boundPort = (srv.address() as unknown as { port: number }).port;
-		const issuerBase = `http://127.0.0.1:${boundPort}`;
-		const router = await buildOidcRouter(issuerBase, cfg as unknown as MockOAuth2PortalConfig);
-		app.use(router);
+describe('buildOidcRouter', () => {
+	describe('login re-login fallback', () => {
+		it('falls back to Referer nonce when body nonce is missing', async () => {
+			const cfg = makeConfig();
+			const app = express();
+			app.disable('x-powered-by');
+			const srv = app.listen(0);
+			await new Promise<void>((resolve) => srv.on('listening', () => resolve()));
+			const boundPort = (srv.address() as unknown as { port: number }).port;
+			const issuerBase = `http://127.0.0.1:${boundPort}`;
+			const router = await buildOidcRouter(issuerBase, cfg as unknown as MockOAuth2PortalConfig);
+			app.use(router);
 
-		// Request login page to obtain server-side session nonce
-		const loginUrl = `${issuerBase}/login?redirect_uri=${encodeURIComponent(cfg.allowedRedirectUri)}&state=s`;
-		const loginRes = await fetch(loginUrl);
-		expect(loginRes.status).toBe(200);
-		const html = await loginRes.text();
-		const match = html.match(/name="nonce" value="([^"]+)"/);
-		expect(match).toBeTruthy();
-		const serverNonce = match?.[1];
-		expect(serverNonce).toBeTruthy();
-		const nonce = serverNonce as string;
+			// Request login page to obtain server-side session nonce
+			const loginUrl = `${issuerBase}/login?redirect_uri=${encodeURIComponent(cfg.allowedRedirectUri)}&state=s`;
+			const loginRes = await fetch(loginUrl);
+			expect(loginRes.status).toBe(200);
+			const html = await loginRes.text();
+			const match = html.match(/name="nonce" value="([^"]+)"/);
+			expect(match).toBeTruthy();
+			const serverNonce = match?.[1];
+			expect(serverNonce).toBeTruthy();
+			const nonce = serverNonce as string;
 
-		// Post login without a body nonce but with Referer header pointing to the login page with the nonce
-		const postRes = await fetch(`${issuerBase}/login`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/x-www-form-urlencoded', Referer: `${issuerBase}/login?nonce=${nonce}` },
-			body: new URLSearchParams({ username: 'testuser', password: 'password', nonce: '' }).toString(),
-			redirect: 'manual',
+			// Post login without a body nonce but with Referer header pointing to the login page with the nonce
+			const postRes = await fetch(`${issuerBase}/login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded', Referer: `${issuerBase}/login?nonce=${nonce}` },
+				body: new URLSearchParams({ username: 'testuser', password: 'password', nonce: '' }).toString(),
+				redirect: 'manual',
+			});
+
+			expect(postRes.status).toBe(302);
+			const location = postRes.headers.get('location');
+			expect(location).toBeTruthy();
+			expect(location).toContain(cfg.allowedRedirectUri);
+			expect(new URL(location as string).searchParams.get('code')?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
+
+			await new Promise<void>((resolve) => srv.close(() => resolve()));
 		});
-
-		expect(postRes.status).toBe(302);
-		const location = postRes.headers.get('location');
-		expect(location).toBeTruthy();
-		expect(location).toContain(cfg.allowedRedirectUri);
-		expect(new URL(location as string).searchParams.get('code')?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
-
-		await new Promise<void>((resolve) => srv.close(() => resolve()));
 	});
 });

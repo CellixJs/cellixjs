@@ -3,6 +3,25 @@ import { buildOidcRouter } from './router.ts';
 import type { MockOAuth2Manager, MockOAuth2PortalConfig, MockOAuth2Registration, MockOAuth2ServerHandle } from './types.ts';
 import { normalizeBaseUrl, SAFE_NAME_RE } from './utils.ts';
 
+/**
+ * Creates a reusable mock OAuth2 manager that can register multiple named portal
+ * configurations on one Express server.
+ *
+ * @param serverConfig - Shared server host, port, and externally visible base URL.
+ * @returns A manager that lazily starts the server on first registration and can stop all registrations.
+ *
+ * @example
+ * ```ts
+ * const manager = createMockOAuth2Manager({
+ *   port: 38200,
+ *   host: '127.0.0.1',
+ *   baseUrl: 'http://127.0.0.1:38200',
+ * });
+ *
+ * await manager.register('portal', config);
+ * await manager.stopAll();
+ * ```
+ */
 export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string }): MockOAuth2Manager {
 	let app: express.Express | null = null;
 	let serverHandle: MockOAuth2ServerHandle | null = null;

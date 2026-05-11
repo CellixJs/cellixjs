@@ -24,6 +24,24 @@ interface TokenProfile {
 export const AUTH_CODE_TTL_MS = 10 * 60 * 1000;
 export const AUTH_CODE_PREFIX = 'mock-auth-code-';
 
+/**
+ * Builds an Express router that exposes the mock OIDC discovery, authorize, login,
+ * signup, token, userinfo, and logout endpoints for one issuer.
+ *
+ * @param issuerBaseUrl - Fully qualified issuer base URL for the mounted router.
+ * @param config - Portal configuration, including redirects, claims, and optional async user store.
+ * @returns A promise that resolves to a configured Express router.
+ *
+ * @example
+ * ```ts
+ * const router = await buildOidcRouter('http://127.0.0.1:38200/portal', {
+ *   allowedRedirectUris: new Set(['http://localhost:3000/callback']),
+ *   allowedRedirectUri: 'http://localhost:3000/callback',
+ *   redirectUriToAudience: new Map([['http://localhost:3000/callback', 'mock-client']]),
+ *   getUserProfile: () => ({ email: 'test@example.com' }),
+ * });
+ * ```
+ */
 export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2PortalConfig): Promise<express.Router> {
 	const router = express.Router();
 

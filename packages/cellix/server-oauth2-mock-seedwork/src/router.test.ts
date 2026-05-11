@@ -3,8 +3,8 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AUTH_CODE_PREFIX, AUTH_CODE_TTL_MS, buildOidcRouter } from './router.ts';
-import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
+import { buildOidcRouter, type MockOAuth2PortalConfig, type MockOAuth2User, type MockOAuth2UserStore } from './index.ts';
+import { AUTH_CODE_PREFIX, AUTH_CODE_TTL_MS } from './router.ts';
 
 class InMemoryUserStore implements MockOAuth2UserStore {
 	users: MockOAuth2User[] = [];
@@ -82,7 +82,8 @@ async function getFormNonce(port: number, path: '/login' | '/signup', query?: Re
 	return { html, nonce: nonce as string };
 }
 
-describe('oauth2 mock router flows', () => {
+describe('buildOidcRouter', () => {
+	describe('oauth2 mock router flows', () => {
 	let server: Server;
 	let port: number;
 	let redirect: string;
@@ -463,9 +464,9 @@ describe('oauth2 mock router flows', () => {
 		const idPayload = decodeJwtPayload(tokenJson.id_token as string) as { sub?: string };
 		expect(idPayload.sub).toBe('sub-claim');
 	});
-});
+	});
 
-describe('oauth2 mock router rate limiting', () => {
+	describe('oauth2 mock router rate limiting', () => {
 	async function stopServer(server: Server) {
 		await new Promise<void>((resolve) => server.close(() => resolve()));
 	}
@@ -555,4 +556,5 @@ describe('oauth2 mock router rate limiting', () => {
 			await stopServer(server);
 		}
 	});
+});
 });

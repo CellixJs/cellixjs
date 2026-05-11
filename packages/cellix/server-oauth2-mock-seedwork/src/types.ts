@@ -20,12 +20,64 @@ export interface MockOAuth2User {
 	claims?: Record<string, unknown>;
 }
 
+/**
+ * Async user lookup and persistence contract used by the interactive login, signup,
+ * token, and userinfo flows.
+ *
+ * Implementations may read from files, databases, or in-memory fixtures, but callers
+ * should always `await` these methods on the request path.
+ *
+ * @example
+ * ```ts
+ * const store: MockOAuth2UserStore = {
+ *   async listUsers() {
+ *     return [];
+ *   },
+ *   async findByUsername(username) {
+ *     return username === 'alice' ? { username, sub: 'sub-alice', password: 'pw' } : undefined;
+ *   },
+ *   async findBySub(sub) {
+ *     return sub === 'sub-alice' ? { username: 'alice', sub, password: 'pw' } : undefined;
+ *   },
+ *   async addUser(user) {
+ *     void user;
+ *   },
+ * };
+ * ```
+ */
 export interface MockOAuth2UserStore {
+	/**
+	 * Lists every available mock user visible to the current portal.
+	 *
+	 * @returns A promise that resolves to the current user set.
+	 */
 	listUsers(): Promise<MockOAuth2User[]>;
+	/**
+	 * Finds a mock user by login handle for the `/login` form flow.
+	 *
+	 * @param username - Local username submitted by the browser form.
+	 * @returns A promise that resolves to the matching user, or `undefined` when no user exists.
+	 */
 	findByUsername(username: string): Promise<MockOAuth2User | undefined>;
+	/**
+	 * Finds a mock user by subject identifier for `/token` and `/userinfo` resolution.
+	 *
+	 * @param sub - Stable OIDC subject identifier.
+	 * @returns A promise that resolves to the matching user, or `undefined` when no user exists.
+	 */
 	findBySub(sub: string): Promise<MockOAuth2User | undefined>;
+	/**
+	 * Persists a newly registered mock user from the `/signup` flow.
+	 *
+	 * @param user - The newly created mock user to store.
+	 * @returns A promise that resolves after the user has been persisted.
+	 */
 	addUser(user: MockOAuth2User): Promise<void>;
-	/** Optional persistence hook for stores that need it */
+	/**
+	 * Optional flush hook for stores that need an explicit persistence step.
+	 *
+	 * @returns A promise that resolves when pending writes have been committed.
+	 */
 	persist?: () => Promise<void>;
 }
 

@@ -39,22 +39,23 @@ async function fetchJson<T>(url: string): Promise<T> {
 	return res.json() as Promise<T>;
 }
 
-describe('multi-registration contract', () => {
-	it('rejects duplicate portal names', async () => {
-		const manager = createMockOAuth2Manager({
-			port: 38199,
-			host: 'localhost',
-			baseUrl: 'http://localhost:38199',
+describe('createMockOAuth2Manager', () => {
+	describe('multi-registration contract', () => {
+		it('rejects duplicate portal names', async () => {
+			const manager = createMockOAuth2Manager({
+				port: 38199,
+				host: 'localhost',
+				baseUrl: 'http://localhost:38199',
+			});
+			const cfg = makeConfig(38299);
+			try {
+				await manager.register('duplicate', cfg);
+				await expect(manager.register('duplicate', cfg)).rejects.toThrow();
+			} finally {
+				await manager.stopAll();
+			}
 		});
-		const cfg = makeConfig(38299);
-		try {
-			await manager.register('duplicate', cfg);
-			await expect(manager.register('duplicate', cfg)).rejects.toThrow();
-		} finally {
-			await manager.stopAll();
-		}
-	});
-	it('registers two named OIDC configs and exposes distinct metadata/jwks', async () => {
+		it('registers two named OIDC configs and exposes distinct metadata/jwks', async () => {
 		const port = 38200;
 		const manager = createMockOAuth2Manager({ port, host: 'localhost', baseUrl: `http://localhost:${port}` });
 		const cfg1 = makeConfig(38210);
@@ -128,23 +129,25 @@ describe('multi-registration contract', () => {
 		}
 	});
 
-	it('single-config backward compatibility with startMockOAuth2Server', async () => {
-		const cfg: MockOAuth2ServerConfig = {
-			port: 38204,
-			baseUrl: 'http://localhost:38204',
-			allowedRedirectUris: new Set(['http://localhost:38204/callback']),
-			allowedRedirectUri: 'http://localhost:38204/callback',
-			redirectUriToAudience: new Map([['http://localhost:38204/callback', 'mock-client-38204']]),
-			host: 'localhost',
-			getUserProfile: () => ({ email: 'x@example.com', given_name: 'T', family_name: 'U' }),
-		};
-		const handle = await startMockOAuth2Server(cfg);
-		try {
-			const meta = await fetchJson<{ issuer: string }>(`${cfg.baseUrl}/.well-known/openid-configuration`);
-			expect(meta.issuer).toBe(cfg.baseUrl);
-		} finally {
-			await handle.disposer.stop();
-		}
+	describe('startMockOAuth2Server', () => {
+		it('single-config backward compatibility with startMockOAuth2Server', async () => {
+			const cfg: MockOAuth2ServerConfig = {
+				port: 38204,
+				baseUrl: 'http://localhost:38204',
+				allowedRedirectUris: new Set(['http://localhost:38204/callback']),
+				allowedRedirectUri: 'http://localhost:38204/callback',
+				redirectUriToAudience: new Map([['http://localhost:38204/callback', 'mock-client-38204']]),
+				host: 'localhost',
+				getUserProfile: () => ({ email: 'x@example.com', given_name: 'T', family_name: 'U' }),
+			};
+			const handle = await startMockOAuth2Server(cfg);
+			try {
+				const meta = await fetchJson<{ issuer: string }>(`${cfg.baseUrl}/.well-known/openid-configuration`);
+				expect(meta.issuer).toBe(cfg.baseUrl);
+			} finally {
+				await handle.disposer.stop();
+			}
+		});
 	});
 
 	it('throws when registering the same portal name twice', async () => {
@@ -222,4 +225,5 @@ describe('multi-registration contract', () => {
 			await manager.stopAll();
 		}
 	});
+});
 });

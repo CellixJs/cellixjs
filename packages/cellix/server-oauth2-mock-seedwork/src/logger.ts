@@ -7,6 +7,7 @@ const debugEnabled = debugFlag === '1' || debugFlag === 'true';
  *
  * @param message - Human-readable debug message.
  * @param data - Optional structured fields to log alongside the message.
+ * @returns `undefined`. Logging is skipped entirely when debug output is disabled.
  *
  * @example
  * ```ts
