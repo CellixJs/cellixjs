@@ -3,8 +3,10 @@ import express from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jose';
 import { buildEffectiveProfile, buildRedirectWithCode, extractClaimsFromPayload, normalizeUserInfo } from './helpers.ts';
+import { buildLoginHtml, buildSignupHtml } from './html-builders.ts';
 import { buildTokenResponse } from './jwt.ts';
 import { debugLog } from './logger.js';
+import { createTtlStore } from './ttl-store.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 import { normalizeOrigin, normalizeUrl } from './utils.ts';
 
@@ -19,43 +21,8 @@ interface TokenProfile {
 	[key: string]: unknown;
 }
 
-interface TimedEntry<T> {
-	value: T;
-	expiresAt: number;
-}
-
 export const AUTH_CODE_TTL_MS = 10 * 60 * 1000;
 export const AUTH_CODE_PREFIX = 'mock-auth-code-';
-
-function createTtlStore<T>(ttlMs: number) {
-	const store = new Map<string, TimedEntry<T>>();
-
-	const get = (key: string): T | undefined => {
-		const entry = store.get(key);
-		if (!entry) return undefined;
-		if (Date.now() > entry.expiresAt) {
-			store.delete(key);
-			return undefined;
-		}
-		return entry.value;
-	};
-
-	const set = (key: string, value: T): void => {
-		store.set(key, { value, expiresAt: Date.now() + ttlMs });
-	};
-
-	const del = (key: string): void => {
-		store.delete(key);
-	};
-
-	const has = (key: string): boolean => get(key) !== undefined;
-
-	return { get, set, delete: del, has };
-}
-
-function escapeHtml(value: string): string {
-	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
-}
 
 export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2PortalConfig): Promise<express.Router> {
 	const router = express.Router();
@@ -108,38 +75,6 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	function isFormRequest(req: express.Request): boolean {
 		const ct = req.get('content-type');
 		return typeof ct === 'string' && ct.includes('application/x-www-form-urlencoded');
-	}
-
-	function buildLoginHtml(opts: { issuerBaseUrl: string; nonce?: string; username?: string; error?: string }) {
-		const { issuerBaseUrl, nonce, username, error } = opts;
-		return `<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
-			<h1>Login</h1>
-			${error ? `<p style="color: red;"><span class="error">${escapeHtml(error)}</span></p>` : ''}
-			<form method="POST" action="${issuerBaseUrl}/login?nonce=${nonce ?? ''}">
-			<input type="hidden" name="nonce" value="${nonce ?? ''}" />
-			<label>Username: <input name="username" value="${escapeHtml(username ?? '')}" /></label><br/>
-			<label>Password: <input name="password" type="password" /></label><br/>
-			<button type="submit">Login</button>
-			</form>
-			<p><a href="${issuerBaseUrl}/signup?nonce=${nonce ?? ''}">Sign up</a></p>
-			</body></html>`;
-	}
-
-	function buildSignupHtml(opts: { issuerBaseUrl: string; nonce?: string; username?: string; email?: string; given_name?: string; family_name?: string; error?: string }) {
-		const { issuerBaseUrl, nonce, username, email, given_name, family_name, error } = opts;
-		return `<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
-			<h1>Sign up</h1>
-			${error ? `<p style="color: red;"><span class="error">${escapeHtml(error)}</span></p>` : ''}
-			<form method="POST" action="${issuerBaseUrl}/signup">
-			<input type="hidden" name="nonce" value="${nonce ?? ''}" />
-			<label>Username: <input name="username" value="${escapeHtml(username ?? '')}" /></label><br/>
-			<label>Password: <input name="password" type="password" /></label><br/>
-			<label>Email: <input name="email" value="${escapeHtml(email ?? '')}" /></label><br/>
-			<label>Given name: <input name="given_name" value="${escapeHtml(given_name ?? '')}" /></label><br/>
-			<label>Family name: <input name="family_name" value="${escapeHtml(family_name ?? '')}" /></label><br/>
-			<button type="submit">Sign up</button>
-			</form>
-			</body></html>`;
 	}
 
 	router.use(express.urlencoded({ extended: true }));
