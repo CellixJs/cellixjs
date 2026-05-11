@@ -36,6 +36,7 @@ Notes about the schema and overrides:
 - `mock-oidc.local.json` is ignored for claims. Use `mock-oidc.users.local.json` for per-developer user overrides instead.
 - There is no top-level `clientId`, `redirectUri`, or `PORT_BASE` in `mock-oidc.json` — these values are resolved from the UI app environment.
 - The app-level server exposes multiple portals under the single server base URL; each portal is reachable at `/{name}/.well-known/openid-configuration`.
+
 ## Environment variables
 
 - PORT - port the single mock server listens on (default: 1355). For local development with portless and HTTPS custom domains we recommend setting `PORT=443` in your `.env` so the server binds to the standard HTTPS port.
