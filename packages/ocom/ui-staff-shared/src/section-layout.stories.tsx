@@ -69,6 +69,32 @@ describe('SectionLayout merging behaviour', () => {
 		expect(container.textContent).not.toContain('Tech Admin');
 	});
 
+	it('renders finance menu from JWT role when backend permissions are unavailable', async () => {
+		const container = renderIntoDocument(
+			<MemoryRouter initialEntries={['/staff']}>
+				<StaffAuthProvider
+					value={{
+						roles: ['Staff.Finance'],
+					}}
+				>
+					<Routes>
+						<Route
+							path="/staff/*"
+							element={<SectionLayout pageLayouts={[]} />}
+						/>
+					</Routes>
+				</StaffAuthProvider>
+			</MemoryRouter>,
+		);
+
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(container.textContent).not.toContain('Communities');
+		expect(container.textContent).not.toContain('Users');
+		expect(container.textContent).toContain('Finance');
+		expect(container.textContent).not.toContain('Tech Admin');
+	});
+
 	it('preserves default parent when consumer entry omits parent field', async () => {
 		const consumerLayouts = [
 			{

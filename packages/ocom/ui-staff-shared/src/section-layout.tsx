@@ -3,6 +3,7 @@ import { MenuComponent, type MenuComponentProps, type PageLayoutProps } from '@o
 import { Button, Layout, theme } from 'antd';
 import { useContext, useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { extractRoles, staffRouteRoles } from './staff-app-roles.ts';
 import { StaffAuthContext } from './staff-route-shell.tsx';
 import './section-layout.css';
 
@@ -55,54 +56,45 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	// Defaults are added only when the consumer hasn't provided an entry with the same id.
 	// Consumer-provided entries override defaults when ids conflict.
 	// Build default page layouts from backend permissions.
-	// A menu item is only included when the corresponding permission is explicitly true.
-	// false, null, or undefined all result in the item being hidden and the route being unavailable.
+	// Fallback to JWT app roles when backend permissions are unavailable.
 	const perms = auth?.permissions;
-	const defaultPageLayouts: PageLayoutProps[] = [
-		...(perms?.canManageCommunities === true
-			? [
-					{
-						path: '/staff/community-management',
-						title: 'Communities',
-						icon: <TeamOutlined />,
-						id: 'ROOT',
-					},
-				]
-			: []),
-		...(perms?.canManageUsers === true
-			? [
-					{
-						path: '/staff/user-management/*',
-						title: 'Users',
-						icon: <TeamOutlined />,
-						id: 'users',
-						parent: 'ROOT',
-					},
-				]
-			: []),
-		...(perms?.canManageFinance === true
-			? [
-					{
-						path: '/staff/finance/*',
-						title: 'Finance',
-						icon: <DollarOutlined />,
-						id: 'finance',
-						parent: 'ROOT',
-					},
-				]
-			: []),
-		...(perms?.canManageTechAdmin === true
-			? [
-					{
-						path: '/staff/tech/*',
-						title: 'Tech Admin',
-						icon: <ToolOutlined />,
-						id: 'tech',
-						parent: 'ROOT',
-					},
-				]
-			: []),
-	];
+	const roles = auth?.roles ?? extractRoles(auth?.raw);
+	const hasAnyRoleFor = (route: keyof typeof staffRouteRoles): boolean => {
+		const requiredRoles = staffRouteRoles[route];
+		return roles?.some((userRole) => requiredRoles.some((requiredRole) => requiredRole === userRole)) === true;
+	};
+
+	const canManageCommunities = perms?.canManageCommunities ?? hasAnyRoleFor('/staff/community-management');
+	const canManageUsers = perms?.canManageUsers ?? hasAnyRoleFor('/staff/user-management');
+	const canManageFinance = perms?.canManageFinance ?? hasAnyRoleFor('/staff/finance');
+	const canManageTechAdmin = perms?.canManageTechAdmin ?? hasAnyRoleFor('/staff/tech');
+	const nestedParentProps = canManageCommunities ? { parent: 'ROOT' as const } : {};
+
+	// Construct default page layouts ensuring a ROOT entry always exists so MenuComponent renders.
+	// If Communities is allowed, keep the historic behaviour: Communities is ROOT and others are its children.
+	// Otherwise, promote the first available section to ROOT so a finance-only user sees a single Finance item.
+	const defaultPageLayouts: PageLayoutProps[] = [];
+
+	if (canManageCommunities) {
+		// Communities as canonical root, others as children
+		defaultPageLayouts.push({ path: '/staff/community-management', title: 'Communities', icon: <TeamOutlined />, id: 'ROOT' });
+		if (canManageUsers) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', ...nestedParentProps });
+		if (canManageFinance) defaultPageLayouts.push({ path: '/staff/finance/*', title: 'Finance', icon: <DollarOutlined />, id: 'finance', ...nestedParentProps });
+		if (canManageTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', ...nestedParentProps });
+	} else {
+		// No Communities root. Promote the first available section to ROOT to render a single top-level item.
+		if (canManageFinance) {
+			defaultPageLayouts.push({ path: '/staff/finance/*', title: 'Finance', icon: <DollarOutlined />, id: 'ROOT' });
+			// add others as children if present
+			if (canManageUsers) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', parent: 'ROOT' });
+			if (canManageTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
+		} else if (canManageUsers) {
+			defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'ROOT' });
+			if (canManageTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
+		} else if (canManageTechAdmin) {
+			defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'ROOT' });
+		}
+	}
 
 	// Build a map from default entries, then overlay consumer entries so consumers can override defaults.
 	// When consumers provide an entry with the same id, merge it with the default so that
