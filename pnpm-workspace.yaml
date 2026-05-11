@@ -42,6 +42,7 @@ auditConfig:
     - GHSA-2w69-qvjg-hvjx
     - GHSA-8v8x-cx79-35w7
     - GHSA-wpg9-53fq-2r8h
+    - GHSA-q7rr-3cgh-j5r3
 
 allowBuilds:
   '@apollo/protobufjs': true
