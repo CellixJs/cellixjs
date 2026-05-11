@@ -1,38 +1,11 @@
-interface BuildLoginHtmlOptions {
-	issuerBaseUrl: string;
-	nonce?: string;
-	username?: string;
-	error?: string;
-}
-
-interface BuildSignupHtmlOptions {
-	issuerBaseUrl: string;
-	nonce?: string;
-	username?: string;
-	email?: string;
-	given_name?: string;
-	family_name?: string;
-	error?: string;
-}
-
-/**
- * Escapes HTML-sensitive characters in a string for safe inline rendering.
- *
- * @param value - The string to escape.
- * @returns The escaped HTML string.
- */
+/** Escapes HTML-sensitive characters for safe inline rendering. */
 export function escapeHtml(value: string): string {
 	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 }
 
-/**
- * Builds the mock login page HTML.
- *
- * @param options - Values used to render the login form.
- * @returns A complete HTML document for the login form.
- */
-export function buildLoginHtml(options: BuildLoginHtmlOptions): string {
-	const { issuerBaseUrl, nonce, username, error } = options;
+/** Builds the mock login page HTML. */
+export function buildLoginHtml(opts: { issuerBaseUrl: string; nonce?: string; username?: string; error?: string }) {
+	const { issuerBaseUrl, nonce, username, error } = opts;
 	return `<!doctype html><html><head><meta charset="utf-8"><title>Mock Login</title></head><body>
 			<h1>Login</h1>
 			${error ? `<p style="color: red;"><span class="error">${escapeHtml(error)}</span></p>` : ''}
@@ -46,14 +19,9 @@ export function buildLoginHtml(options: BuildLoginHtmlOptions): string {
 			</body></html>`;
 }
 
-/**
- * Builds the mock signup page HTML.
- *
- * @param options - Values used to render the signup form.
- * @returns A complete HTML document for the signup form.
- */
-export function buildSignupHtml(options: BuildSignupHtmlOptions): string {
-	const { issuerBaseUrl, nonce, username, email, given_name, family_name, error } = options;
+/** Builds the mock signup page HTML. */
+export function buildSignupHtml(opts: { issuerBaseUrl: string; nonce?: string; username?: string; email?: string; given_name?: string; family_name?: string; error?: string }) {
+	const { issuerBaseUrl, nonce, username, email, given_name, family_name, error } = opts;
 	return `<!doctype html><html><head><meta charset="utf-8"><title>Mock Signup</title></head><body>
 			<h1>Sign up</h1>
 			${error ? `<p style="color: red;"><span class="error">${escapeHtml(error)}</span></p>` : ''}
