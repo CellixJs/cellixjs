@@ -85,8 +85,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					res.status(404).send('Login not available');
 					return;
 				}
-				const username = req.body.username;
-				const password = req.body.password;
+				const { username, password } = req.body;
 				if (typeof username !== 'string' || typeof password !== 'string') {
 					res.status(400).json({ error: 'username and password are required' });
 					return;
@@ -140,7 +139,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 				const redirect = loginSession.redirectUri ?? primaryRedirectUri;
 				const state = loginSession.state ?? undefined;
 				try {
-					const store = config.userStore as MockOAuth2UserStore;
+					const store = config.userStore;
 					const user = await store.findByUsername(username);
 					if (!user || typeof user.password !== 'string' || user.password !== password) {
 						if (isFormRequest(req)) {
@@ -163,7 +162,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 						authCodeStore.set(code, {
 							sub: user.sub,
 							redirectUri: normalized,
-							...(loginSession.nonce !== undefined ? { nonce: loginSession.nonce } : {}),
+							...(loginSession.nonce === undefined ? {} : { nonce: loginSession.nonce }),
 						});
 						if (loginNonceUsed) {
 							loginSessionStore.delete(loginNonceUsed);
@@ -197,7 +196,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 				loginSessionStore.set(nonce, {
 					redirectUri: redirect,
 					state: safeState,
-					...(safeNonce !== undefined ? { nonce: safeNonce } : {}),
+					...(safeNonce === undefined ? {} : { nonce: safeNonce }),
 				});
 				res.setHeader('Content-Type', 'text/html; charset=utf-8');
 				res.send(buildSignupHtml({ issuerBaseUrl, nonce }));
@@ -208,8 +207,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					res.status(404).send('Signup not available');
 					return;
 				}
-				const username = req.body.username;
-				const password = req.body.password;
+				const { username, password } = req.body;
 				if (typeof username !== 'string' || typeof password !== 'string') {
 					res.status(400).json({ error: 'username and password are required' });
 					return;
@@ -227,7 +225,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					if (given_name) claimsObj.given_name = given_name;
 					if (family_name) claimsObj.family_name = family_name;
 					const newUser: MockOAuth2User = { username, sub: crypto.randomUUID(), password, claims: claimsObj };
-					const store = config.userStore as MockOAuth2UserStore;
+					const store = config.userStore;
 					await store.addUser(newUser);
 					try {
 						const normalized = normalizeUrl(redirect);
@@ -239,7 +237,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 						authCodeStore.set(code, {
 							sub: newUser.sub,
 							redirectUri: normalized,
-							...(signupSession?.nonce !== undefined ? { nonce: signupSession.nonce } : {}),
+							...(signupSession?.nonce === undefined ? {} : { nonce: signupSession.nonce }),
 						});
 						if (signupNonce) {
 							loginSessionStore.delete(signupNonce);
