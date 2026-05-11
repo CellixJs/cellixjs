@@ -41,6 +41,7 @@ auditConfig:
     - GHSA-6rw7-vpxm-498p
     - GHSA-2w69-qvjg-hvjx
     - GHSA-8v8x-cx79-35w7
+    - GHSA-wpg9-53fq-2r8h
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -81,6 +82,8 @@ overrides:
   playwright: 1.59.0
   postcss: 8.5.10
   protobufjs: 7.5.5
+  fast-uri: 3.1.2
+  '@babel/plugin-transform-modules-systemjs': 7.29.4
 
 patchedDependencies:
   '@azure/functions@4.11.0': patches/@azure__functions@4.11.0.patch
