@@ -19,14 +19,14 @@
 	},
 	"dependencies": {
 		"express": "^4.22.0",
-		"express-rate-limit": "^8.3.2",
+		"express-rate-limit": "^8.5.1",
 		"jose": "^5.9.6"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
-		"@vitest/coverage-istanbul": "catalog:",
 		"@types/express": "^5.0.3",
+		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
