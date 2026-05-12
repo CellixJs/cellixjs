@@ -1,28 +1,42 @@
-import { useAuth } from 'react-oidc-context';
+import { Spin } from 'antd';
 import { Navigate } from 'react-router-dom';
-import { extractRoles, staffRouteRoles } from '@ocom/ui-staff-shared';
+import { useStaffPermissions } from '../../../../hooks/use-staff-permissions.ts';
 
 export const AuthLanding: React.FC = () => {
-	const auth = useAuth();
+	const { permissions, loading, error } = useStaffPermissions();
 
-	// Extract roles from the OIDC profile
-	const roles = extractRoles((auth?.user?.profile as Record<string, unknown>) ?? undefined);
-
-	// Find the first accessible route based on user roles
-	// Order: tech > finance > community-management, user-management
-	const routePaths = ['/staff/tech', '/staff/finance', '/staff/community-management', '/staff/user-management'];
-
-	let targetRoute = '/unauthorized';
-
-	if (roles && roles.length > 0) {
-		for (const route of routePaths) {
-			const requiredRoles = staffRouteRoles[route as keyof typeof staffRouteRoles];
-			if (requiredRoles && requiredRoles.some((role) => roles.includes(role))) {
-				targetRoute = route;
-				break;
-			}
-		}
+	if (loading) {
+		return (
+			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+				<Spin size="large" />
+			</div>
+		);
 	}
 
-	return <Navigate to={targetRoute} />;
+	if (error) {
+		return (
+			<Navigate
+				to="/unauthorized"
+				replace
+			/>
+		);
+	}
+
+	let targetRoute = '/unauthorized';
+	if (permissions?.canManageTechAdmin) {
+		targetRoute = '/staff/tech';
+	} else if (permissions?.canManageFinance) {
+		targetRoute = '/staff/finance';
+	} else if (permissions?.canManageCommunities) {
+		targetRoute = '/staff/community-management';
+	} else if (permissions?.canManageUsers) {
+		targetRoute = '/staff/user-management';
+	}
+
+	return (
+		<Navigate
+			to={targetRoute}
+			replace
+		/>
+	);
 };

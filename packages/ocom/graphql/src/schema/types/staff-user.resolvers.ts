@@ -1,5 +1,5 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type { Resolvers, StaffUser } from '../builder/generated.ts';
+import type { Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
 
 const staffUser: Resolvers = {
@@ -16,7 +16,7 @@ const staffUser: Resolvers = {
 				email: jwt.email ?? '',
 				aadRoles: jwt.roles ?? [],
 			});
-			return result as unknown as StaffUser;
+			return result;
 		},
 	},
 };

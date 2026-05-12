@@ -114,6 +114,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('it should return all four created role references', () => {
 			expect(result).toHaveLength(4);
+			for (const r of result) expect(r.isDefault).toBe(true);
 		});
 	});
 
@@ -339,7 +340,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	// ─── isDefault false ──────────────────────────────────────────────────────
 
-	Scenario('All created roles have isDefault set to false', ({ Given, When, Then }) => {
+	Scenario('All created roles have isDefault set to true', ({ Given, When, Then }) => {
 		Given('no staff roles exist', () => {
 			mockRepo = makeMockRepo([]);
 			dataSources = makeDataSources(mockRepo);
@@ -349,9 +350,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			result = await createDefaultRoles(dataSources)();
 		});
 
-		Then('all created roles should have isDefault false', () => {
+		Then('all created roles should have isDefault true', () => {
 			for (const role of result) {
-				expect(role.isDefault).toBe(false);
+				expect(role.isDefault).toBe(true);
 			}
 		});
 	});

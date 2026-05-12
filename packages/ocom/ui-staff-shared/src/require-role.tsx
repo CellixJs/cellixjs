@@ -1,47 +1,74 @@
-import { type FC, type ReactNode, useContext } from 'react';
+import { gql, useQuery } from '@apollo/client';
+import type { FC, ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { extractRoles } from './staff-app-roles.ts';
 import type { StaffAuth } from './staff-route-shell.tsx';
-import { StaffAuthContext } from './staff-route-shell.tsx';
 
 export interface RequireRoleProps {
-	/** At least one of these roles must be present in the authenticated user's token. */
+	/** Deprecated. Frontend authorization must use backend permission flags. */
 	roles: readonly string[];
-	/** When provided, gate by this backend permission flag instead of JWT roles. */
+	/** Gate by backend permission flag. */
 	permKey?: keyof NonNullable<StaffAuth['permissions']>;
 	children: ReactNode;
 }
 
-/**
- * Guards a UI branch behind one or more Entra app roles, or a backend permission flag.
- *
- * When `permKey` is supplied and the `StaffAuthContext` already has a `permissions` object
- * (populated from the backend), the permission flag takes precedence over JWT role strings.
- * Falls back to the JWT role check when permissions are not yet available.
- */
-export const RequireRole: FC<RequireRoleProps> = ({ roles, permKey, children }) => {
-	const auth = useContext(StaffAuthContext);
-	const perms = auth?.permissions;
-
-	// Prefer backend permission flag when it has been fetched
-	if (permKey !== undefined && perms !== undefined) {
-		const isAuthorized = perms[permKey] === true;
-		if (!isAuthorized) {
-			return (
-				<Navigate
-					to="/unauthorized"
-					replace
-				/>
-			);
+const STAFF_USER_CURRENT_QUERY = gql`
+	query RequireRoleStaffUserCurrent {
+		staffUserCurrent: currentStaffUserAndCreateIfNotExists {
+			role {
+				permissions {
+					communityPermissions {
+						canManageCommunities
+					}
+					userPermissions {
+						canManageUsers
+					}
+					financePermissions {
+						canManageFinance
+					}
+					techAdminPermissions {
+						canManageTechAdmin
+					}
+				}
+			}
 		}
-		return <>{children}</>;
+	}
+`;
+
+interface StaffUserCurrentQueryResult {
+	staffUserCurrent: {
+		role?: {
+			permissions: {
+				communityPermissions: { canManageCommunities: boolean };
+				userPermissions: { canManageUsers: boolean };
+				financePermissions: { canManageFinance: boolean };
+				techAdminPermissions: { canManageTechAdmin: boolean };
+			};
+		};
+	};
+}
+
+export const RequireRole: FC<RequireRoleProps> = ({ roles, permKey, children }) => {
+	void roles;
+	const { data, loading, error } = useQuery<StaffUserCurrentQueryResult>(STAFF_USER_CURRENT_QUERY, {
+		fetchPolicy: 'cache-first',
+	});
+
+	if (loading) {
+		return null;
 	}
 
-	// Fallback: check JWT roles
-	const userRoles = auth?.roles ?? extractRoles(auth?.raw);
-	const isAuthorized = roles.length === 0 || (userRoles !== undefined && roles.some((r) => userRoles.includes(r)));
+	const rolePermissions = data?.staffUserCurrent?.role?.permissions;
+	const permissions: NonNullable<StaffAuth['permissions']> | undefined = rolePermissions
+		? {
+				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities,
+				canManageUsers: rolePermissions.userPermissions.canManageUsers,
+				canManageFinance: rolePermissions.financePermissions.canManageFinance,
+				canManageTechAdmin: rolePermissions.techAdminPermissions.canManageTechAdmin,
+			}
+		: undefined;
+	const isAuthorized = permKey !== undefined && permissions?.[permKey] === true;
 
-	if (!isAuthorized) {
+	if (error || !isAuthorized) {
 		return (
 			<Navigate
 				to="/unauthorized"

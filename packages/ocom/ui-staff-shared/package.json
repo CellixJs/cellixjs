@@ -15,6 +15,7 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
+		"@apollo/client": "^3.13.9",
 		"@ant-design/icons": "catalog:",
 		"@ocom/ui-shared": "workspace:*",
 		"react": "catalog:",

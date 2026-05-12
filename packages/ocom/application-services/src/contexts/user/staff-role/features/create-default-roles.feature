@@ -50,10 +50,10 @@ Feature: Creating default staff roles
     And the "Staff.ServiceLineOwner" role should have canManageTechAdmin false
     And the "Staff.ServiceLineOwner" role should have canManageUsers true
 
-  Scenario: All created roles have isDefault set to false
+  Scenario: All created roles have isDefault set to true
     Given no staff roles exist
     When I call createDefaultRoles
-    Then all created roles should have isDefault false
+    Then all created roles should have isDefault true
 
   Scenario: Propagates unexpected repository errors
     Given no staff roles exist

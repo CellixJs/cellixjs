@@ -5,7 +5,7 @@ import { Root as Finance } from '@ocom/ui-staff-route-finance';
 import { Root } from '@ocom/ui-staff-route-root';
 import { Root as TechAdmin } from '@ocom/ui-staff-route-tech-admin';
 import { Root as UserManagement } from '@ocom/ui-staff-route-user-management';
-import { extractRoles, StaffAuthContext, StaffAuthProvider, staffRouteRoles } from '@ocom/ui-staff-shared';
+import { StaffAuthContext, StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { Spin } from 'antd';
 import { useContext } from 'react';
 import { useAuth } from 'react-oidc-context';
@@ -20,17 +20,10 @@ import { Unauthorized } from './unauthorized.tsx';
 function StaffRoutes() {
 	const auth = useContext(StaffAuthContext);
 	const perms = auth?.permissions;
-	const roles = auth?.roles ?? extractRoles(auth?.raw);
-
-	const hasAnyRoleFor = (route: keyof typeof staffRouteRoles): boolean => {
-		const requiredRoles = staffRouteRoles[route];
-		return roles?.some((userRole) => requiredRoles.some((requiredRole) => requiredRole === userRole)) === true;
-	};
-
-	const canManageCommunities = perms?.canManageCommunities ?? hasAnyRoleFor('/staff/community-management');
-	const canManageUsers = perms?.canManageUsers ?? hasAnyRoleFor('/staff/user-management');
-	const canManageFinance = perms?.canManageFinance ?? hasAnyRoleFor('/staff/finance');
-	const canManageTechAdmin = perms?.canManageTechAdmin ?? hasAnyRoleFor('/staff/tech');
+	const canManageCommunities = perms?.canManageCommunities === true;
+	const canManageUsers = perms?.canManageUsers === true;
+	const canManageFinance = perms?.canManageFinance === true;
+	const canManageTechAdmin = perms?.canManageTechAdmin === true;
 
 	let defaultStaffRoute = '/unauthorized';
 	if (canManageTechAdmin) {
