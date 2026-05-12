@@ -125,7 +125,9 @@
 			"playwright": "1.59.0",
 			"postcss": "8.5.10",
 			"protobufjs": "7.5.5",
-            "ip-address": "^10.1.1"
+            "ip-address": "^10.1.1", 
+            "fast-uri": "^3.1.2", 
+            "webpack-dev-server": "^5.2.4"
 		},
 		"patchedDependencies": {
 			"@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"
