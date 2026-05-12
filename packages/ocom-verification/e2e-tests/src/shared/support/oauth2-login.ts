@@ -41,14 +41,22 @@ export async function performOAuth2Login(page: Page): Promise<void> {
  * during server setup.  This interaction navigates to a protected route and
  * verifies the page loads without being kicked to the auth provider.
  */
-export const OAuth2Login = (_email?: string, _password?: string) =>
+export const OAuth2Login = (_email?: string, _password?: string, options?: { path?: string; expectedHost?: string }) =>
 	Interaction.where(the`#actor logs in via OAuth2`, async (serenityActor) => {
 		const actor = serenityActor as unknown as Actor;
 		const { page } = BrowseTheWeb.withActor(actor);
+		const targetPath = options?.path ?? '/community/accounts';
+		const expectedHost = options?.expectedHost;
+		const isExpectedPostAuthUrl = (url: URL) => {
+			if (url.hostname.includes('mock-auth')) return false;
+			if (url.pathname.includes('auth-redirect')) return false;
+			if (!expectedHost) return true;
+			return url.hostname.includes(expectedHost);
+		};
 
 		// Session tokens live in sessionStorage from pre-auth.
 		try {
-			await page.goto('/community/accounts', {
+			await page.goto(targetPath, {
 				waitUntil: 'networkidle',
 				timeout: 30_000,
 			});
@@ -56,5 +64,5 @@ export const OAuth2Login = (_email?: string, _password?: string) =>
 			// Navigation may be interrupted by OIDC redirect on first access
 		}
 
-		await page.waitForURL(isPostAuthUrl, { timeout: 30_000 });
+		await page.waitForURL(isExpectedPostAuthUrl, { timeout: 30_000 });
 	});

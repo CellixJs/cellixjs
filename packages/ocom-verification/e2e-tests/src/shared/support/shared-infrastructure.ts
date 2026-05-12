@@ -3,16 +3,18 @@ import { actors } from '@ocom-verification/verification-shared/test-data';
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
-import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestOAuth2Server, TestViteServer } from './servers/index.ts';
+import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestOAuth2Server, TestStaffViteServer, TestViteServer } from './servers/index.ts';
 
 let mongoDBServer: MongoDBTestServer | undefined;
 let oauth2Server: TestOAuth2Server | undefined;
 let apiServer: TestApiServer | undefined;
 let viteServer: TestViteServer | undefined;
+let staffViteServer: TestStaffViteServer | undefined;
 let apiUrl: string | undefined;
 let accessToken: string | undefined;
 let browser: Browser | undefined;
 let browserBaseUrl: string | undefined;
+let staffBrowserBaseUrl: string | undefined;
 let authenticatedBrowserContext: BrowserContext | undefined;
 let browseTheWeb: BrowseTheWeb | undefined;
 
@@ -20,10 +22,11 @@ export interface InfrastructureState {
 	apiUrl: string | undefined;
 	accessToken: string | undefined;
 	browseTheWeb: BrowseTheWeb | undefined;
+	staffBrowserBaseUrl: string | undefined;
 }
 
 export function getState(): InfrastructureState {
-	return { apiUrl, accessToken, browseTheWeb };
+	return { apiUrl, accessToken, browseTheWeb, staffBrowserBaseUrl };
 }
 
 export async function stopAll(): Promise<void> {
@@ -42,6 +45,10 @@ export async function stopAll(): Promise<void> {
 		await viteServer.stop().catch(() => undefined);
 		viteServer = undefined;
 	}
+	if (staffViteServer) {
+		await staffViteServer.stop().catch(() => undefined);
+		staffViteServer = undefined;
+	}
 	if (apiServer) {
 		await apiServer.stop().catch(() => undefined);
 		apiServer = undefined;
@@ -56,6 +63,7 @@ export async function stopAll(): Promise<void> {
 	}
 	apiUrl = undefined;
 	browserBaseUrl = undefined;
+	staffBrowserBaseUrl = undefined;
 	accessToken = undefined;
 	cleanupTestEnvironment();
 }
@@ -86,8 +94,10 @@ export async function ensureE2EServers(): Promise<void> {
 	// Phase 2: Start API (needs MongoDB conn string), Vite (independent), and generate token (needs OAuth2) in parallel
 	apiServer ??= new TestApiServer();
 	viteServer ??= new TestViteServer();
+	staffViteServer ??= new TestStaffViteServer();
 	const api = apiServer;
 	const vite = viteServer;
+	const staffVite = staffViteServer;
 	const phase2: Promise<void>[] = [];
 	if (!api.isRunning()) {
 		phase2.push(
@@ -99,6 +109,9 @@ export async function ensureE2EServers(): Promise<void> {
 	if (!vite.isRunning()) {
 		phase2.push(vite.start());
 	}
+	if (!staffVite.isRunning()) {
+		phase2.push(staffVite.start());
+	}
 	if (!accessToken) {
 		phase2.push(
 			oauth2.generateAccessToken(apiSettings.accountPortalOidcAudience).then((token) => {
@@ -109,6 +122,7 @@ export async function ensureE2EServers(): Promise<void> {
 	if (phase2.length > 0) await Promise.all(phase2);
 
 	browserBaseUrl = viteServer.getUrl();
+	staffBrowserBaseUrl = staffViteServer.getUrl();
 
 	if (!apiUrl) {
 		apiUrl = apiServer?.getUrl();

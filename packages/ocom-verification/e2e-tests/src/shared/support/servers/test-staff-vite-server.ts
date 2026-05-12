@@ -2,40 +2,41 @@ import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { PortlessServer } from './portless-server.ts';
 import { buildUrl } from './test-environment.ts';
 
-export class TestViteServer extends PortlessServer {
+export class TestStaffViteServer extends PortlessServer {
 	protected get probeUrl() {
-		return buildUrl('ownercommunity.localhost');
+		return buildUrl('staff.ownercommunity.localhost');
 	}
 	protected get readyMarker() {
 		return 'ready in';
 	}
 	protected get serverName() {
-		return 'TestViteServer';
+		return 'TestStaffViteServer';
 	}
 	protected get startupTimeoutMs() {
 		return 60_000;
 	}
 	protected get spawnArgs() {
-		return ['ownercommunity.localhost', 'pnpm', 'exec', 'vite'];
+		return ['staff.ownercommunity.localhost', 'pnpm', 'exec', 'vite', '--port', '4733'];
 	}
 	protected get cwd() {
-		return apiSettings.uiCommunityDir;
+		return apiSettings.uiStaffDir;
 	}
 
 	protected override get extraEnv() {
-		const uiBase = buildUrl('ownercommunity.localhost');
+		const uiBase = buildUrl('staff.ownercommunity.localhost');
 		const apiEndpoint = buildUrl('data-access.ownercommunity.localhost', '/api/graphql');
 
 		return {
 			BROWSER: 'none',
 			VITE_BASE_URL: uiBase,
-			VITE_AAD_B2C_ACCOUNT_AUTHORITY: apiSettings.accountPortalOidcIssuer,
-			VITE_AAD_B2C_REDIRECT_URI: `${uiBase}/auth-redirect`,
+			VITE_APP_UI_STAFF_AAD_AUTHORITY: `${apiSettings.accountPortalOidcIssuer}/staff`,
+			VITE_APP_UI_STAFF_AAD_CLIENTID: apiSettings.accountPortalOidcAudience,
+			VITE_APP_UI_STAFF_AAD_REDIRECT_URI: `${uiBase}/auth-redirect`,
 			VITE_COMMON_API_ENDPOINT: apiEndpoint,
 		};
 	}
 
 	getUrl(): string {
-		return buildUrl('ownercommunity.localhost');
+		return buildUrl('staff.ownercommunity.localhost');
 	}
 }
