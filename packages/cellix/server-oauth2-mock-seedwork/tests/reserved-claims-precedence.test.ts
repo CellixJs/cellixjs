@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { createMockOAuth2Manager } from '../src/index.ts';
 
+interface TestReservedClaimsPayload {
+	iss: string;
+	aud: string;
+}
+
 // Test that caller-provided reserved claims (iss, aud) do not override server values
 describe('reserved claims precedence', () => {
 	it('server-authoritative iss and aud win over user-provided extras', async () => {
@@ -43,11 +48,11 @@ describe('reserved claims precedence', () => {
 
 			// Decode id_token payload
 			const payloadB64 = tokens.id_token.split('.')[1] as string;
-			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as Record<string, unknown>;
+			const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as TestReservedClaimsPayload;
 
 			// Assert server values are present (issuer is router base URL, aud matches redirect->aud mapping)
-			expect(payload['iss']).toBe('http://127.0.0.1:19010/reserved-claims');
-			expect(payload['aud']).toBe('server-aud');
+			expect(payload.iss).toBe('http://127.0.0.1:19010/reserved-claims');
+			expect(payload.aud).toBe('server-aud');
 
 			// profile wrapper should also reflect server aud and issuer
 			expect(tokens.profile.iss).toBe('http://127.0.0.1:19010/reserved-claims');

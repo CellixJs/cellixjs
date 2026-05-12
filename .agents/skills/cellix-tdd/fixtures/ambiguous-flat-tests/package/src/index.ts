@@ -9,7 +9,7 @@
 export function parseHost(input: string | null | undefined): string {
 	const normalized = input?.trim();
 
-	return normalized && normalized.length > 0 ? normalized : "localhost";
+	return normalized && normalized.length > 0 ? normalized : 'localhost';
 }
 
 /**
@@ -22,7 +22,7 @@ export function parseHost(input: string | null | undefined): string {
  * parsePort(process.env.PORT);
  */
 export function parsePort(input: string | null | undefined): number {
-	const normalized = input?.trim() ?? "";
+	const normalized = input?.trim() ?? '';
 	const port = Number(normalized);
 
 	if (!Number.isInteger(port) || port < 1 || port > 65_535) {

@@ -11,7 +11,7 @@ export function parseMarkdownSections(markdown: string): Map<string, string> {
 	for (let index = 0; index < matches.length; index += 1) {
 		const current = matches[index];
 		const next = matches[index + 1];
-		const heading = normalizeHeading(current[1] ?? "");
+		const heading = normalizeHeading(current[1] ?? '');
 		const start = (current.index ?? 0) + current[0].length;
 		const end = next?.index ?? markdown.length;
 		const body = markdown.slice(start, end).trim();
@@ -29,10 +29,10 @@ export function isTemplateBoilerplate(value: string): boolean {
 }
 
 export function escapeRegExp(value: string): string {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export function hasHeading(markdown: string, heading: string): boolean {
-	const pattern = new RegExp(`^##\\s+${escapeRegExp(heading)}\\s*$`, "im");
+	const pattern = new RegExp(`^##\\s+${escapeRegExp(heading)}\\s*$`, 'im');
 	return pattern.test(markdown);
 }

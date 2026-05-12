@@ -1,4 +1,4 @@
-import process from "node:process";
+import process from 'node:process';
 
 export interface EvaluateParsedArgs {
 	fixtureDir?: string;
@@ -20,32 +20,32 @@ export function parseEvaluateArgs(argv: string[]): EvaluateParsedArgs {
 		const next = argv[index + 1];
 
 		switch (arg) {
-			case "--":
+			case '--':
 				index = argv.length;
 				break;
-			case "--fixture":
+			case '--fixture':
 				parsed.fixtureDir = next;
 				index += 1;
 				break;
-			case "--fixtures-root":
+			case '--fixtures-root':
 				parsed.fixturesRoot = next;
 				index += 1;
 				break;
-			case "--package":
+			case '--package':
 				parsed.packageRoot = next;
 				index += 1;
 				break;
-			case "--output":
+			case '--output':
 				parsed.outputPath = next;
 				index += 1;
 				break;
-			case "--verify-expected":
+			case '--verify-expected':
 				parsed.verifyExpected = true;
 				break;
-			case "--json":
+			case '--json':
 				parsed.json = true;
 				break;
-			case "--help":
+			case '--help':
 				printEvaluateUsage();
 				process.exit(0);
 				break;
@@ -84,27 +84,27 @@ export function parseCheckArgs(argv: string[]): CheckParsedArgs {
 		const next = argv[index + 1];
 
 		switch (arg) {
-			case "--":
+			case '--':
 				index = argv.length;
 				break;
-			case "--package":
+			case '--package':
 				parsed.packageRoot = next;
 				index += 1;
 				break;
-			case "--output":
+			case '--output':
 				parsed.outputPath = next;
 				index += 1;
 				break;
-			case "--force-init":
+			case '--force-init':
 				parsed.forceInit = true;
 				break;
-			case "--init-only":
+			case '--init-only':
 				parsed.initOnly = true;
 				break;
-			case "--json":
+			case '--json':
 				parsed.json = true;
 				break;
-			case "--help":
+			case '--help':
 				printCheckUsage();
 				process.exit(0);
 				break;

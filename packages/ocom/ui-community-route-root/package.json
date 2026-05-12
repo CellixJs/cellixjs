@@ -4,11 +4,11 @@
 	"private": true,
 	"type": "module",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.tsx"
 	},
 	"scripts": {
 		"prebuild": "pnpm run lint",
-		"build": "tsc --noEmit",
+		"build": "tsgo --noEmit",
 		"lint": "biome lint",
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
@@ -17,8 +17,9 @@
 	},
 	"dependencies": {
 		"antd": "catalog:",
-		"react": "^19.1.1",
-		"react-dom": "^19.1.1"
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"react-oidc-context": "^3.3.0"
 	},
 	"devDependencies": {
 		"@cellix/archunit-tests": "workspace:*",

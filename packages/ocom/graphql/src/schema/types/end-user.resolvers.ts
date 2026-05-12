@@ -1,7 +1,7 @@
-import type { GraphQLResolveInfo } from 'graphql';
-import type { GraphContext } from '../context.ts';
-import type { Resolvers } from '../builder/generated.ts';
 import { getRequestedFieldPaths } from '@cellix/graphql-core/utils';
+import type { GraphQLResolveInfo } from 'graphql';
+import type { Resolvers } from '../builder/generated.ts';
+import type { GraphContext } from '../context.ts';
 
 const endUser: Resolvers = {
 	Query: {
@@ -19,6 +19,15 @@ const endUser: Resolvers = {
 		endUserById: async (_parent, args: { id: string }, context: GraphContext, info: GraphQLResolveInfo) => {
 			return await context.applicationServices.User.EndUser.queryById({
 				id: args.id,
+				fields: getRequestedFieldPaths(info),
+			});
+		},
+		endUsersByCommunityId: async (_parent, args: { communityId: string }, context: GraphContext, info: GraphQLResolveInfo) => {
+			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+				throw new Error('Unauthorized');
+			}
+			return await context.applicationServices.User.EndUser.queryByCommunityId({
+				communityId: args.communityId,
 				fields: getRequestedFieldPaths(info),
 			});
 		},

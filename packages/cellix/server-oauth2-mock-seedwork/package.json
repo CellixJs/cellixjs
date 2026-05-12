@@ -8,8 +8,8 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"prebuild": "pnpm run lint",
-		"build": "tsc --build",
-		"clean": "rimraf dist tsconfig.tsbuildinfo && tsc --build --clean",
+		"build": "tsgo --build",
+		"clean": "rimraf dist tsconfig.tsbuildinfo && tsgo --build --clean",
 		"lint": "biome lint",
 		"format": "biome format --write",
 		"format:check": "biome format .",
@@ -19,7 +19,7 @@
 	},
 	"dependencies": {
 		"express": "^4.22.0",
-		"express-rate-limit": "^8.3.2",
+		"express-rate-limit": "^8.5.1",
 		"jose": "^5.9.6"
 	},
 	"devDependencies": {

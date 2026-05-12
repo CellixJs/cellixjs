@@ -1,4 +1,4 @@
-import { LoggedInUserContainer } from '@ocom/ui-components';
+import { LoggedInUserContainer } from '@ocom/ui-shared';
 import { Layout, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
 

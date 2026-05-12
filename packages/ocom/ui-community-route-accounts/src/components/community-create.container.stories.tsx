@@ -1,5 +1,5 @@
-import { App as AntdApp } from 'antd';
 import type { Meta, StoryObj } from '@storybook/react';
+import { App as AntdApp } from 'antd';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
 import { AccountsCommunityCreateContainerCommunityCreateDocument, AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument } from '../generated.tsx';

@@ -20,7 +20,7 @@ Current rules in this package include:
 
 This package does not enforce OCom application-layer rules.
 
-Those belong in [`@ocom/archunit-tests`](../../ocom/archunit-tests/readme.md).
+Those belong in [`@ocom-verification/archunit-tests`](../../ocom-verification/archunit-tests/README.md).
 
 ## Running the Tests
 

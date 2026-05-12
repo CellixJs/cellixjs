@@ -16,8 +16,8 @@ Example `mock-oidc.json`:
 {
   "name": "community",
   "envVars": {
-    "clientId": "VITE_AAD_B2C_ACCOUNT_CLIENTID",
-    "redirectUri": "VITE_AAD_B2C_REDIRECT_URI"
+    "clientId": "VITE_APP_UI_COMMUNITY_B2C_CLIENTID",
+    "redirectUri": "VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI"
   },
   "claims": {
     "sub": "00000000-0000-0000-0000-000000000001",
@@ -38,8 +38,11 @@ Notes about the schema and overrides:
 - The app-level server exposes multiple portals under the single server base URL; each portal is reachable at `/{name}/.well-known/openid-configuration`.
 ## Environment variables
 
-- PORT - port the single mock server listens on (default: 1355)
-- BASE_URL - public base URL for the mock server (e.g. `https://mock-auth.ownercommunity.localhost:1355`)
+- PORT - port the single mock server listens on (default: 1355). For local development with portless and HTTPS custom domains we recommend setting `PORT=443` in your `.env` so the server binds to the standard HTTPS port.
+- BASE_URL - public base URL for the mock server (e.g. `https://mock-auth.ownercommunity.localhost`) — do not include `:443` when using the standard HTTPS port; portless maps custom domains to 443.
+
+See ADR-0028 — Portless Local Development (apps/docs/docs/decisions/0028-portless-local-development.md) for the canonical proxy start/stop commands.
+
 
 ## Running
 

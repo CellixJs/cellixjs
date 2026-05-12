@@ -14,8 +14,9 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
 
 ### What you'll need
 
-- [Node.js](https://nodejs.org/en/download/) version 22.0 or above:
+- [Node.js](https://nodejs.org/en/download/) version 22.0 or above (recommended):
   - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+  - Note: the portless local HTTPS proxy requires Node 20+; CellixJs recommends Node 22+ for development.
 - [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local) for local development
 
     * `func --version`
@@ -25,9 +26,10 @@ CellixJs is a Domain-Driven Design (DDD) monorepo built on Azure Functions, impl
         * `brew upgrade azure-functions-core-tools@4`
 
 - [MongoDB](https://www.mongodb.com/try/download/community) or access to a MongoDB instance
-- `portless` local HTTPS proxy support:
-  - installed automatically from repo dependencies
-  - on first use, trust the local CA when `pnpm run dev` starts the proxy
+- `portless` local HTTPS proxy support: see [ADR 0028 — Portless Local Development](./decisions/0028-portless-local-development.md) for TLS trust setup, OS-specific prompts, and troubleshooting. You can run `pnpm exec portless trust` beforehand to avoid interactive prompts on the first dev run, or run mock services on the non-privileged port 1355 and include `:1355` in BASE_URL to avoid requiring portless trust.
+
+If you prefer non-privileged mode, see [ADR-0028 — Portless Local Development](./decisions/0028-portless-local-development.md) for the canonical proxy start/stop commands.
+
 
 ## Clone and Setup
 
@@ -58,6 +60,13 @@ npm install
 npm run build
 ```
 
+### Configure TLS for Development (one-time)
+
+Before starting the development environment for the first time, configure TLS trust for local custom domains used by the portless HTTPS proxy. This is a one-time setup per machine and is a prerequisite for a smooth development experience.
+
+For detailed, OS-specific instructions and troubleshooting see ADR 0028 — [Portless Local Development](./decisions/0028-portless-local-development.md).
+
+> Note: portless is installed automatically from the repo dependencies. Running the `pnpm exec portless trust` command manually before the first `pnpm run dev` is optional but recommended for a smoother experience. If you prefer not to run the trust command, you can instead run mock services on the non-privileged port 1355 and include `:1355` in the corresponding BASE_URLs.
 ## Install VSCode plugins
 You will be prompted to install the [recommended VSCode Plugins](https://github.com/CellixJs/cellixjs/blob/main/.vscode/extensions.json) upon opening the project in VSCode. Go ahead and do so.
 
@@ -134,6 +143,11 @@ If your browser or OS has not yet trusted the local portless certificate authori
 ```bash
 pnpm exec portless trust
 ```
+
+Or, if you prefer not to configure portless trust, run mock services on the non-privileged port 1355 and include `:1355` in the appropriate BASE_URL values. See ADR 0028 — [Portless Local Development](./decisions/0028-portless-local-development.md) for details about OS-specific prompts.
+
+If you prefer non-privileged mode, see [ADR-0028 — Portless Local Development](./decisions/0028-portless-local-development.md) for the canonical proxy start/stop commands.
+
 
 ## Verify Code Quality Locally
 

@@ -8,7 +8,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"prebuild": "pnpm run lint",
-		"build": "tsc --build",
+		"build": "tsgo --build",
 		"clean": "rimraf dist tsconfig.tsbuildinfo",
 		"lint": "biome lint",
 		"format": "biome format --write",

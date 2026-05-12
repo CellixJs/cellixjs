@@ -35,9 +35,9 @@ export const ApolloLinkToAddAuthHeader = (auth: AuthContextProps): ApolloLink =>
 		if (!access_token && typeof globalThis !== 'undefined' && !import.meta.env.PROD) {
 			try {
 				// biome-ignore lint:useLiteralKeys
-				const authority = import.meta.env['VITE_AAD_B2C_ACCOUNT_AUTHORITY'] ?? '';
+				const authority = import.meta.env['VITE_APP_UI_COMMUNITY_B2C_AUTHORITY'] ?? '';
 				// biome-ignore lint:useLiteralKeys
-				const client_id = import.meta.env['VITE_AAD_B2C_ACCOUNT_CLIENTID'] ?? '';
+				const client_id = import.meta.env['VITE_APP_UI_COMMUNITY_B2C_CLIENTID'] ?? '';
 				const storageKey = `oidc.user:${authority}:${client_id}`;
 				const raw = globalThis.sessionStorage.getItem(storageKey) ?? globalThis.localStorage.getItem(storageKey);
 				if (raw) {
@@ -89,9 +89,16 @@ export const ApolloLinkToAddCustomHeader = (headerName: string, headerValue: str
 			return forward(operation);
 		}
 		operation.setContext((prevContext: DefaultContext) => {
+			// Avoid mutating prevContext or prevContext.headers. Return a new context object instead.
 			// biome-ignore lint:useLiteralKeys
-			prevContext['headers'][headerName] = headerValue;
-			return prevContext;
+			const prevHeaders = (prevContext && (prevContext as Record<string, unknown>)['headers']) ?? {};
+			return {
+				...prevContext,
+				headers: {
+					...prevHeaders,
+					[headerName]: headerValue,
+				},
+			};
 		});
 		return forward(operation);
 	});

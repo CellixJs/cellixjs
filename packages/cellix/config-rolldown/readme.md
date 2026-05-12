@@ -124,7 +124,7 @@ Optional overrides:
 ```json
 {
   "scripts": {
-    "build": "tsc --build && rolldown -c rolldown.config.ts",
+    "build": "tsgo --build && rolldown -c rolldown.config.ts",
     "prepare:deploy": "cellix-prepare-azure-functions-deploy",
     "prestart": "pnpm run clean && pnpm run build && pnpm run prepare:deploy"
   }

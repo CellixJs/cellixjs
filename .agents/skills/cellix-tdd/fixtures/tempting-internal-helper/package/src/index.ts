@@ -1,4 +1,4 @@
-import { buildRouteKey } from "./internal/build-route-key.ts";
+import { buildRouteKey } from './internal/build-route-key.ts';
 
 /**
  * Public router interface returned by the package root export.

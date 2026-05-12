@@ -14,7 +14,7 @@ The CellixJS monorepo uses Turborepo to:
 
 ### Frontend Packages
 - `ui-community` - Community UI application
-- `ui-components` - Shared UI components
+- `ui-shared` - Shared UI components
 - `cellix-ui-core` - Core UI library
 
 ### Backend Packages

@@ -15,6 +15,6 @@ export function readRequiredEnv(name: string): string {
 	return value;
 }
 
-export function readOptionalEnv(name: string, defaultValue = ""): string {
+export function readOptionalEnv(name: string, defaultValue = ''): string {
 	return process.env[name] ?? defaultValue;
 }

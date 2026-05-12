@@ -10,6 +10,7 @@ export interface MemberReadRepository {
 	getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
 	getByIdWithRole: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
 	getByIdWithCommunityAndRoleAndUser: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
+	memberNameExistsInCommunity: (memberName: string, communityId: string) => Promise<boolean>;
 	/**
 	 * Retrieves all Member entities for a given end-user external ID.
 	 * Finds members whose accounts reference a user with the specified external ID.
@@ -44,7 +45,12 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
 	 * @returns A promise that resolves to an array of MemberEntityReference objects that belong to the specified community.
 	 */
 	async getByCommunityId(communityId: string, options?: FindOptions): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {
-		const result = await this.mongoDataSource.find({ community: new MongooseSeedwork.ObjectId(communityId) }, options);
+		const defaultPopulateFields = ['role', 'role.community'];
+		const finalOptions: FindOptions = {
+			...options,
+			populateFields: options?.populateFields ? [...new Set([...defaultPopulateFields, ...options.populateFields])] : defaultPopulateFields,
+		};
+		const result = await this.mongoDataSource.find({ community: new MongooseSeedwork.ObjectId(communityId) }, finalOptions);
 		return result.map((doc) => this.converter.toDomain(doc, this.passport));
 	}
 
@@ -90,6 +96,18 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
 			return null;
 		}
 		return this.converter.toDomain(result, this.passport);
+	}
+
+	/**
+	 * Checks whether a member with the given name already exists in the specified community.
+	 * Used for duplicate-name validation before creating a new member.
+	 */
+	async memberNameExistsInCommunity(memberName: string, communityId: string): Promise<boolean> {
+		const result = await this.mongoDataSource.findOne({
+			community: new MongooseSeedwork.ObjectId(communityId) as unknown,
+			memberName,
+		} as Parameters<typeof this.mongoDataSource.findOne>[0]);
+		return result !== null;
 	}
 
 	async getMembersForEndUserExternalId(externalId: string): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {

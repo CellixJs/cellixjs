@@ -2,6 +2,9 @@ import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
+import { MemberActivatedEvent, type MemberActivatedProps } from '../../../events/types/member-activated.ts';
+import { MemberDeactivatedEvent, type MemberDeactivatedProps } from '../../../events/types/member-deactivated.ts';
+import { MemberRemovedEvent, type MemberRemovedProps } from '../../../events/types/member-removed.ts';
 import type { Passport } from '../../passport.ts';
 import { Community, type CommunityEntityReference } from '../community/community.ts';
 import type { CommunityVisa } from '../community.visa.ts';
@@ -92,6 +95,77 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 		this.props.customViews.removeItem(customView.props);
 	}
 
+	//#region Member Management Operations
+
+	/**
+	 * Activates a member by accepting their pending account
+	 */
+	public requestActivateMember(): void {
+		if (!this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot activate member');
+		}
+
+		// Allow both invited and previously deactivated members to be activated.
+		const pendingAccount = this.accounts.find((account) => account.statusCode === 'CREATED' || account.statusCode === 'REJECTED');
+		if (pendingAccount) {
+			pendingAccount.statusCode = 'ACCEPTED';
+
+			// Raise domain event
+			this.addDomainEvent<MemberActivatedProps, MemberActivatedEvent>(MemberActivatedEvent, {
+				memberId: this.props.id,
+				communityId: this.props.communityId,
+			});
+		} else {
+			throw new Error('No pending account found to activate');
+		}
+	}
+
+	/**
+	 * Deactivates a member by rejecting their account
+	 */
+	public requestDeactivateMember(actorId?: string, reason?: string): void {
+		if (!this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot deactivate member');
+		}
+
+		// Find the first accepted account and deactivate it
+		const activeAccount = this.accounts.find((account) => account.statusCode === 'ACCEPTED');
+		if (activeAccount) {
+			activeAccount.statusCode = 'REJECTED';
+
+			// Raise domain event
+			this.addDomainEvent<MemberDeactivatedProps, MemberDeactivatedEvent>(MemberDeactivatedEvent, {
+				memberId: this.props.id,
+				communityId: this.props.communityId,
+				deactivatedBy: actorId ?? 'system', // prefer caller-provided actorId; fallback to 'system'
+				reason: reason ?? '',
+			});
+		} else {
+			throw new Error('No active account found to deactivate');
+		}
+	}
+
+	/**
+	 * Removes a member from the community (marks for deletion)
+	 */
+	public requestRemoveMember(actorId?: string, reason?: string): void {
+		if (!this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+			throw new PermissionError('Cannot remove member');
+		}
+
+		this.isDeleted = true;
+
+		// Raise domain event
+		this.addDomainEvent<MemberRemovedProps, MemberRemovedEvent>(MemberRemovedEvent, {
+			memberId: this.props.id,
+			communityId: this.props.communityId,
+			removedBy: actorId ?? 'system', // prefer caller-provided actorId; fallback to 'system'
+			reason: reason ?? '',
+		});
+	}
+
+	//#endregion Member Management Operations
+
 	async loadCommunity(): Promise<CommunityEntityReference> {
 		return await this.props.loadCommunity();
 	}
@@ -102,6 +176,20 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 	//#endregion Methods
 
 	//#region Properties
+	/**
+	 * Checks if member has active accounts
+	 */
+	public get isActiveMember(): boolean {
+		return this.accounts.some((account) => account.statusCode === 'ACCEPTED');
+	}
+
+	/**
+	 * Checks if member has pending accounts awaiting activation
+	 */
+	public get hasPendingActivation(): boolean {
+		return this.accounts.some((account) => account.statusCode === 'CREATED');
+	}
+
 	private get visa(): CommunityVisa {
 		if (!this._visa) {
 			if (!this.props.community) {

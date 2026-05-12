@@ -1,0 +1,38 @@
+import { useQuery } from '@apollo/client';
+import { ComponentQueryLoader } from '@cellix/ui-core';
+import type React from 'react';
+import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } from '../generated.tsx';
+import { AdminMembersAccountsListContainerMemberDocument } from '../generated.tsx';
+import { MembersAccountsList, type MembersAccountsListProps } from './members-accounts-list.tsx';
+
+interface MembersAccountsListContainerProps {
+	data: {
+		id: string;
+	};
+}
+
+export const MembersAccountsListContainer: React.FC<MembersAccountsListContainerProps> = (props) => {
+	const {
+		data: memberData,
+		loading: memberLoading,
+		error: memberError,
+	} = useQuery(AdminMembersAccountsListContainerMemberDocument, {
+		variables: {
+			id: props.data.id,
+		},
+		skip: !props.data.id,
+	});
+
+	const membersAccountsListProps: MembersAccountsListProps = {
+		data: (memberData?.member?.accounts as AdminMembersAccountsListContainerMemberAccountFieldsFragment[]) || [],
+	};
+
+	return (
+		<ComponentQueryLoader
+			loading={memberLoading}
+			hasData={memberData?.member}
+			hasDataComponent={<MembersAccountsList {...membersAccountsListProps} />}
+			error={memberError}
+		/>
+	);
+};

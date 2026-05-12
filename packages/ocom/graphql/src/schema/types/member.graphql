@@ -1,7 +1,7 @@
 type Member implements MongoBase {
 	memberName: String
 	community: Community
-	# role: EndUserRole
+	role: EndUserRole
 	accounts: [MemberAccount!]!
 	profile: MemberProfile
 	# cybersourceCustomerId: String
@@ -40,8 +40,170 @@ type MemberProfile {
 }
 
 extend type Query {
-	# member(id: ObjectID!): Member!
-	# membersByCommunityId(communityId: ObjectID!): [Member!]!
-	# memberForCurrentCommunity: Member!
+	member(id: ObjectID!): Member!
+	membersByCommunityId(communityId: ObjectID!): [Member!]!
+	memberForCurrentCommunity(communityId: ObjectID!): Member
 	membersForCurrentEndUser: [Member!]!
+}
+
+extend type Mutation {
+	memberCreate(input: MemberCreateInput!): MemberMutationResult!
+	memberCreateAccount(input: MemberCreateAccountInput!): MemberMutationResult!
+	memberUpdateAccount(input: MemberUpdateAccountInput!): MemberMutationResult!
+	memberRemoveAccount(input: MemberRemoveAccountInput!): MemberMutationResult!
+	memberUpdateProfile(input: MemberUpdateProfileInput!): MemberMutationResult!
+
+	# Member Management Operations
+	activateMember(input: ActivateMemberInput!): MemberMutationResult!
+	deactivateMember(input: DeactivateMemberInput!): MemberMutationResult!
+	removeMember(input: RemoveMemberInput!): MemberMutationResult!
+
+	# Member Invitation Operations
+	inviteMember(input: InviteMemberInput!): MemberInvitationMutationResult!
+	bulkInviteMembers(input: BulkInviteMembersInput!): BulkMemberInvitationMutationResult!
+
+	# Bulk Operations
+	bulkActivateMembers(input: BulkActivateMembersInput!): BulkMemberMutationResult!
+	bulkDeactivateMembers(input: BulkDeactivateMembersInput!): BulkMemberMutationResult!
+	bulkRemoveMembers(input: BulkRemoveMembersInput!): BulkMemberMutationResult!
+
+	# Role Management
+	memberRoleUpdate(input: UpdateMemberRoleInput!): MemberMutationResult!
+}
+
+type MemberMutationResult implements MutationResult {
+	status: MutationStatus!
+	member: Member
+}
+
+type MemberInvitationMutationResult implements MutationResult {
+	status: MutationStatus!
+	invitation: MemberInvitation
+}
+
+type BulkMemberMutationResult implements MutationResult {
+	status: MutationStatus!
+	members: [Member!]
+	failedCount: Int
+	successCount: Int
+}
+
+type BulkMemberInvitationMutationResult implements MutationResult {
+	status: MutationStatus!
+	invitations: [MemberInvitation!]
+	failedCount: Int
+	successCount: Int
+}
+
+type MemberInvitation {
+	id: ObjectID!
+	email: String!
+	message: String
+	status: String!
+	expiresAt: DateTime!
+	invitedBy: EndUser!
+	acceptedBy: EndUser
+	communityId: ObjectID!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+input MemberCreateInput {
+	memberName: String!
+	communityId: ObjectID!
+}
+
+input MemberCreateAccountInput {
+	memberId: ObjectID!
+	endUserId: ObjectID!
+}
+
+input MemberUpdateAccountInput {
+	memberId: ObjectID!
+	accountId: ObjectID!
+	endUserId: ObjectID!
+}
+
+input MemberRemoveAccountInput {
+	memberId: ObjectID!
+	accountId: ObjectID!
+}
+
+input MemberUpdateProfileInput {
+	memberId: ObjectID!
+	profile: MemberProfileInput!
+}
+
+# Member Management Input Types
+
+input ActivateMemberInput {
+	memberId: ObjectID!
+}
+
+input DeactivateMemberInput {
+	memberId: ObjectID!
+	reason: String
+}
+
+input RemoveMemberInput {
+	memberId: ObjectID!
+	reason: String
+}
+
+input BulkActivateMembersInput {
+	memberIds: [ObjectID!]!
+	communityId: ObjectID!
+}
+
+input BulkDeactivateMembersInput {
+	memberIds: [ObjectID!]!
+	communityId: ObjectID!
+	reason: String
+}
+
+input BulkRemoveMembersInput {
+	memberIds: [ObjectID!]!
+	communityId: ObjectID!
+	reason: String
+}
+
+# Member Invitation Input Types
+
+input InviteMemberInput {
+	communityId: ObjectID!
+	email: String!
+	message: String
+	expiresInDays: Int # Default to 7 days if not specified
+}
+
+input BulkInviteMembersInput {
+	communityId: ObjectID!
+	invitations: [MemberInvitationInput!]!
+	expiresInDays: Int # Default to 7 days if not specified
+}
+
+input MemberInvitationInput {
+	email: String!
+	message: String
+}
+
+# Role Management Input Types
+
+input UpdateMemberRoleInput {
+	memberId: ObjectID!
+	roleId: ObjectID!
+	reason: String!
+}
+
+input MemberProfileInput {
+	name: String
+	email: String
+	bio: String
+	avatarDocumentId: String
+	interests: [String!]
+	showInterests: Boolean
+	showEmail: Boolean
+	showProfile: Boolean
+	showLocation: Boolean
+	showProperties: Boolean
 }

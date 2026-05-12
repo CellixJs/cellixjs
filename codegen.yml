@@ -71,6 +71,7 @@ generates:
         Member: "import('@ocom/domain').Domain.Contexts.Community.Member.MemberEntityReference"
         Community: "import('@ocom/domain').Domain.Contexts.Community.Community.CommunityEntityReference"
         EndUser: "import('@ocom/domain').Domain.Contexts.User.EndUser.EndUserEntityReference"
+        EndUserRole: "import('@ocom/domain').Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference"
     plugins:
       - typescript
       - typescript-resolvers
@@ -110,9 +111,24 @@ generates:
       - typescript-operations
       - typed-document-node
 
-  # UI components client types
-  './packages/ocom/ui-components/src/generated.tsx':
-    documents: './packages/ocom/ui-components/src/components/**/**.graphql'
+# UI community client types
+  './packages/ocom/ui-community-shared/src/generated.tsx':
+    documents:
+      - './packages/ocom/ui-community-shared/src/**/**.graphql'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
+  # UI shared components client types
+  './packages/ocom/ui-shared/src/generated.tsx':
+    documents: './packages/ocom/ui-shared/src/components/**/**.graphql'
     config:
       withHooks: true
       withHOC: false

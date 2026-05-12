@@ -1,21 +1,23 @@
 {
-  "name": "@cellix/config-vitest",
-  "version": "1.0.0",
-  "type": "module",
-  "files": ["dist"],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc --build",
-    "test": "vitest run --silent --reporter=dot",
-    "test:coverage": "vitest run --coverage --silent --reporter=dot",
-    "test:watch": "vitest"
-  },
-  "dependencies": {
-    "@cellix/config-typescript": "workspace:*",
-    "@storybook/addon-vitest": "^9.1.20",
-    "@vitest/browser-playwright": "^4.1.2",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
-  }
+	"name": "@cellix/config-vitest",
+	"version": "1.0.0",
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsgo --build",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
+	},
+	"dependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@storybook/addon-vitest": "^9.1.20",
+		"@vitest/browser-playwright": "^4.1.2",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
 }

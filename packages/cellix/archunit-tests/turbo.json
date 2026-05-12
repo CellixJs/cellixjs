@@ -2,7 +2,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"test:coverage": {
-			"dependsOn": [],
+			"dependsOn": ["@cellix/config-vitest#build"],
 			"outputs": []
 		}
 	}

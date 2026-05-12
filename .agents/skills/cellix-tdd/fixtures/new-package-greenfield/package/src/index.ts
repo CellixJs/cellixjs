@@ -2,7 +2,7 @@
  * Formatting options for slug generation.
  */
 export interface SlugifyOptions {
-	separator?: "-" | "_";
+	separator?: '-' | '_';
 }
 
 /**
@@ -15,12 +15,12 @@ export interface SlugifyOptions {
  * slugify("Hello, CellixJS!");
  */
 export function slugify(input: string, options: SlugifyOptions = {}): string {
-	const separator = options.separator ?? "-";
+	const separator = options.separator ?? '-';
 
 	return input
 		.trim()
 		.toLowerCase()
 		.replaceAll(/[^a-z0-9]+/g, separator)
-		.replaceAll(new RegExp(`${separator}+`, "g"), separator)
-		.replaceAll(new RegExp(`^${separator}|${separator}$`, "g"), "");
+		.replaceAll(new RegExp(`${separator}+`, 'g'), separator)
+		.replaceAll(new RegExp(`^${separator}|${separator}$`, 'g'), '');
 }

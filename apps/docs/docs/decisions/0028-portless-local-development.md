@@ -62,6 +62,10 @@ Instead, CellixJS uses the current portless model:
 
 This keeps local URLs cleaner and aligned with current portless behavior.
 
+> Addendum (2026-05-01): Optional non-privileged port 1355
+>
+> For developers who prefer to avoid configuring system certificate trust, the repository supports an alternative non-privileged mode using port 1355. In this mode, mock and browser-facing services may be started on port 1355 and their public BASE_URLs should include `:1355` (for example `https://mock-auth.ownercommunity.localhost:1355`). When using port 1355 the `portless trust` step is optional and the portless proxy is not required for HTTPS access to those explicit origins. See the project README and `apps/*/.env` examples for guidance.
+
 ### 2. Standardize on `ownercommunity.localhost` naming
 
 We adopted a domain convention based on the application name rather than a generic or historical prefix:
@@ -165,9 +169,95 @@ Evidence used to validate the adoption:
 
 - `pnpm run dev` is the canonical full local-development entry point.
 - Public local URLs should use the portless domains, not explicit browser-facing localhost ports.
-- If HTTPS trust has not yet been established on a machine, run `pnpm exec portless trust`.
+### TLS Trust & Development Setup
+
+To establish HTTPS trust for portless-developed custom domains, run the repository-local trust command once per machine:
+
+```bash
+pnpm exec portless trust
+```
+
+Repository script guidance (canonical):
+```bash
+# stop a running portless proxy (port-agnostic)
+pnpm exec portless proxy stop || true
+
+# start the repository-recommended non-privileged proxy mode
+pnpm exec portless proxy start --https -p 1355
+```
+
+Notes:
+
+- Running the command beforehand configures your machine to trust the development CA and avoids an interactive prompt when starting the dev environment. Re-running the command is idempotent.
+- OS-specific prompts you may see:
+  - macOS: the Keychain may prompt for permission to modify trusted certificates (approve and enter your password if prompted).
+  - Windows: UAC may prompt for administrator approval to add the CA to the system certificate store.
+  - Linux: behavior varies by distribution; some distros require `sudo` or manual placement of the CA into `/usr/local/share/ca-certificates/` followed by `sudo update-ca-certificates`.
+- When restarting the root dev flow after changing proxy/network configuration, use the `--force` flag to ensure portless restarts cleanly:
+
+```bash
+pnpm run dev -- --force
+```
+
+Security:
+
+- The CA created by portless is for development only. Do not reuse or export the private key for production.
+- Treat portless and its CA as development-only artifacts; do not publish private keys or CA artifacts.
+
+This section consolidates the TLS trust guidance previously documented separately; for troubleshooting and platform-specific details see the surrounding ADR text above.
+
 - When wiring a new browser-facing app or HTTP mock service, prefer a dedicated portless subdomain under `*.ownercommunity.localhost`.
 - When wiring a non-HTTP dependency, evaluate it separately; portless should not be used just for consistency if the protocol does not benefit from HTTP routing.
+
+### Turborepo Integration (Portless 0.11.1+)
+
+Portless 0.11.1 introduced optional delegation of app-level `dev`/`watch` commands to Turborepo's task runner when the workspace-level configuration enables `turbo: true`. This means the repository can preserve the Turbo task graph, caching, and dependency ordering while still providing per-app environment injection for portless-managed routes.
+
+Why use it
+
+- Preserves Turborepo's task graph, incremental caching, and ordered dependency execution for `dev` flows.
+- Keeps app-level `dev` scripts documented and visible to Turbo while allowing portless to manage the public HTTPS routing layer.
+
+Config example
+
+Add (or update) the repository-level portless configuration to opt into Turbo delegation:
+
+```js
+// portless.config.cjs
+module.exports = {
+	turbo: true, // delegate dev/watch to turbo when available
+};
+```
+
+How it works
+
+- When `turbo: true` is set, portless delegates the execution of `dev` and `watch` lifecycle scripts to `turbo` (e.g., `pnpm exec turbo run dev`).
+- Portless still injects per-app environment variables (for example, PORT, HOST, and PORTLESS_URL) into each spawned app process via a small `--require` loader that runs before the app's entrypoint. This loader sets the run-time environment for the child process so apps receive the correct internal listener port and public URL.
+
+Environment variable precedence
+
+- The injected variables are applied at process spawn time by the loader and therefore appear in `process.env` for the spawned application.
+- These injected values may be overridden by application-level `.env` files, explicit `process.env` assignments in app startup code, or subsequent scripts that mutate environment variables before the application binds. In other words, the portless-injected values are the defaults for the spawned process but not immutable.
+
+Opt-out and tradeoffs
+
+- If you prefer not to delegate to Turbo (for example to preserve an existing custom start flow or loader ordering), set `turbo: false` in `portless.config.cjs`.
+- Opting out preserves current portless behavior but loses Turborepo's task-graph optimizations (incremental rebuilds, remote caching, and ordered dependency execution) for delegated `dev` flows.
+
+Verification
+
+To confirm delegation is active and environment injection is functioning:
+
+1. Run the canonical dev flow at the repo root:
+
+   ```bash
+   pnpm run dev
+   ```
+
+2. Confirm Turbo is driving the `dev` tasks (you should see `turbo` in the process tree or in the CLI output when the root `dev` flow starts).
+3. In a running app, inspect `process.env` (for example by logging `process.env.PORT` and `process.env.PORTLESS_URL` at early startup) to verify the injected values are present and match the portless route configuration.
+
+If delegation is not desired or if you observe incompatible loader ordering, disable `turbo: true` and run the app's `dev` script directly. Note this tradeoff removes Turbo's caching and task-graph benefits for those delegated flows.
 
 ## Future Evolution: Multi-Provider OIDC Support
 

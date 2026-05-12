@@ -1,0 +1,37 @@
+{
+	"name": "@ocom-verification/acceptance-api",
+	"version": "1.0.0",
+	"description": "Cucumber Screenplay acceptance tests for the CellixJS API path",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js --format json:./reports/cucumber-report-api.json",
+		"test:acceptance:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 --allowExternal -- cucumber-js --format json:./reports/cucumber-report-api.json",
+		"verification:test:coverage:report": "c8 report --allowExternal",
+		"clean": "rimraf dist reports target coverage coverage-c8 coverage-vitest .c8-output"
+	},
+	"dependencies": {
+		"@cucumber/cucumber": "catalog:",
+		"@serenity-js/assertions": "catalog:",
+		"@serenity-js/console-reporter": "catalog:",
+		"@serenity-js/core": "catalog:",
+		"@serenity-js/cucumber": "catalog:",
+		"@serenity-js/serenity-bdd": "catalog:",
+		"std-env": "^4.0.0"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@ocom/application-services": "workspace:*",
+		"@ocom/context-spec": "workspace:*",
+		"@ocom/persistence": "workspace:*",
+		"@ocom/service-apollo-server": "workspace:*",
+		"@ocom/service-mongoose": "workspace:*",
+		"@ocom/service-token-validation": "workspace:*",
+		"@ocom-verification/verification-shared": "workspace:*",
+		"@types/node": "catalog:",
+		"c8": "^11.0.0",
+		"rimraf": "^6.0.1",
+		"tsx": "^4.20.3",
+		"typescript": "catalog:"
+	}
+}

@@ -1,4 +1,4 @@
-import { normalizeHeaderName } from "./internal/normalize-header-name.ts";
+import { normalizeHeaderName } from './internal/normalize-header-name.ts';
 
 /**
  * Merge header records using case-insensitive header names.
@@ -7,10 +7,7 @@ import { normalizeHeaderName } from "./internal/normalize-header-name.ts";
  * @param incoming Incoming header values.
  * @returns A normalized header record.
  */
-export function mergeHeaders(
-	base: Record<string, string>,
-	incoming: Record<string, string>,
-): Record<string, string> {
+export function mergeHeaders(base: Record<string, string>, incoming: Record<string, string>): Record<string, string> {
 	const merged: Record<string, string> = {};
 
 	for (const [key, value] of Object.entries(base)) {

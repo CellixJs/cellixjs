@@ -8,17 +8,17 @@
  * parseBooleanFlag("yes");
  */
 export function parseBooleanFlag(input: string | null | undefined): boolean {
-	if (input == null || input === "") {
+	if (input == null || input === '') {
 		return false;
 	}
 
 	const normalized = input.trim().toLowerCase();
 
-	if (["true", "1", "yes"].includes(normalized)) {
+	if (['true', '1', 'yes'].includes(normalized)) {
 		return true;
 	}
 
-	if (["false", "0", "no"].includes(normalized)) {
+	if (['false', '0', 'no'].includes(normalized)) {
 		return false;
 	}
 
@@ -34,12 +34,12 @@ export function parseBooleanFlag(input: string | null | undefined): boolean {
  * parseStringList("alpha, beta");
  */
 export function parseStringList(input: string | null | undefined): string[] {
-	if (input == null || input === "") {
+	if (input == null || input === '') {
 		return [];
 	}
 
 	return input
-		.split(",")
+		.split(',')
 		.map((item) => item.trim())
 		.filter(Boolean);
 }

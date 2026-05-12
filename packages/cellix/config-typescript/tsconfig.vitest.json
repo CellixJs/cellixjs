@@ -1,26 +1,22 @@
 {
-  "compilerOptions": {
-    "noEmit": true,
-    "rootDir": "${configDir}",
-    "tsBuildInfoFile": "${configDir}/node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
-    "skipLibCheck": true
-  },
-  "include": [
-    "${configDir}/src",
-    "${configDir}/tests",
-    "${configDir}/*.d.ts",
-    "${configDir}/vitest.config.ts",
-    "${configDir}/vitest.config.mts",
-    "${configDir}/vitest.shims.d.ts",
-    "${configDir}/**/*.test.ts",
-    "${configDir}/**/*.test.tsx",
-    "${configDir}/**/*.spec.ts",
-    "${configDir}/**/*.spec.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    ".turbo"
-  ]
+	"compilerOptions": {
+		"noEmit": true,
+		"rootDir": "${configDir}",
+		"tsBuildInfoFile": "${configDir}/node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
+		"skipLibCheck": true,
+		"types": ["vitest/globals", "node"]
+	},
+	"include": [
+		"${configDir}/src",
+		"${configDir}/tests",
+		"${configDir}/*.d.ts",
+		"${configDir}/vitest.config.ts",
+		"${configDir}/vitest.config.mts",
+		"${configDir}/vitest.shims.d.ts",
+		"${configDir}/**/*.test.ts",
+		"${configDir}/**/*.test.tsx",
+		"${configDir}/**/*.spec.ts",
+		"${configDir}/**/*.spec.tsx"
+	],
+	"exclude": ["node_modules", "dist", "coverage", ".turbo"]
 }

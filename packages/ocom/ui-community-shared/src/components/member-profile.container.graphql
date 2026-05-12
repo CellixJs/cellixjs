@@ -1,0 +1,34 @@
+query SharedMemberProfileContainerMember($id: ObjectID!) {
+	member(id: $id) {
+		...SharedMemberProfileContainerMemberFields
+	}
+}
+
+mutation SharedMemberProfileContainerMemberUpdateProfile($input: MemberUpdateProfileInput!) {
+	memberUpdateProfile(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		member {
+			...SharedMemberProfileContainerMemberFields
+		}
+	}
+}
+
+fragment SharedMemberProfileContainerMemberFields on Member {
+	id
+	memberName
+	profile {
+		name
+		email
+		bio
+		showInterests
+		showEmail
+		showProfile
+		showLocation
+		showProperties
+	}
+	createdAt
+	updatedAt
+}

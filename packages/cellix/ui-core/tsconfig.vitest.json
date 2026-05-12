@@ -1,13 +1,6 @@
 {
 	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
 	"compilerOptions": {
-		// Required because TypeScript only honors "paths" when "baseUrl" is set.
-		// We need the alias so Vitest typechecking resolves @cellix/ui-core to src/index.ts
-		// for this package's root-import contract tests without relying on built output.
-		"baseUrl": ".",
-		// Temporary TS 6.0 suppression for the required baseUrl above.
-		// Remove once this test config no longer needs a TS "paths" alias.
-		"ignoreDeprecations": "6.0",
 		"paths": {
 			"@cellix/ui-core": ["./src/index.ts"]
 		}

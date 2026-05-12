@@ -128,7 +128,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		} else {
 			const valueToSet = {
 				type: 'light',
-				tokens: theme.defaultSeed,
+				token: theme.defaultSeed,
 				hardCodedTokens: {
 					textColor: '#000000',
 					backgroundColor: '#ffffff',
@@ -147,10 +147,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			}
 		};
 
-		window.addEventListener('keydown', handleKeyDown);
+		globalThis.addEventListener('keydown', handleKeyDown);
 
 		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
+			globalThis.removeEventListener('keydown', handleKeyDown);
 		};
 	}, [toggleHidden]);
 	//   console.log('isImpending', isImpending);

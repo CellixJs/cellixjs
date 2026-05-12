@@ -6,14 +6,19 @@ interface MemberOrderGroup {
 	match(member: ts.ClassElement): boolean;
 }
 
+function isAccessorDeclaration(m: ts.ClassElement): boolean {
+	return ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m);
+}
+
 /**
  * Default order:
  *  0. static fields
  *  1. instance fields
  *  2. constructor
  *  3. static methods
- *  4. static accessors
- *  5. instance members (methods and accessors, unordered relative to each other)
+ *  4. instance methods
+ *  5. static accessors
+ *  6. instance accessors
  */
 const defaultMemberOrder: MemberOrderGroup[] = [
 	{
@@ -33,12 +38,16 @@ const defaultMemberOrder: MemberOrderGroup[] = [
 		match: (m) => ts.isMethodDeclaration(m) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 	{
-		name: 'static accessors',
-		match: (m) => (ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m)) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		name: 'instance methods',
+		match: (m) => ts.isMethodDeclaration(m) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 	{
-		name: 'instance members',
-		match: (m) => (ts.isMethodDeclaration(m) || ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m)) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		name: 'static accessors',
+		match: (m) => isAccessorDeclaration(m) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
+	},
+	{
+		name: 'instance accessors',
+		match: (m) => isAccessorDeclaration(m) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 ];
 
@@ -48,7 +57,7 @@ function hasModifier(node: ts.Node, kind: ts.SyntaxKind): boolean {
 }
 
 function getMemberName(member: ts.ClassElement): string {
-	if (ts.isMethodDeclaration(member) || ts.isPropertyDeclaration(member) || ts.isGetAccessorDeclaration(member) || ts.isSetAccessorDeclaration(member)) {
+	if (ts.isMethodDeclaration(member) || ts.isPropertyDeclaration(member) || isAccessorDeclaration(member)) {
 		if (member.name && ts.isIdentifier(member.name)) {
 			return member.name.text;
 		}
@@ -79,9 +88,7 @@ export function checkMemberOrdering(file: FileInfo, groups: MemberOrderGroup[] =
 
 	const checkClass = (cls: ts.ClassDeclaration) => {
 		const className = cls.name?.text ?? '<anonymous>';
-
-		const relevantMembers = cls.members.filter((m) => ts.isPropertyDeclaration(m) || ts.isConstructorDeclaration(m) || ts.isMethodDeclaration(m) || ts.isGetAccessorDeclaration(m) || ts.isSetAccessorDeclaration(m));
-
+		const relevantMembers = cls.members.filter((m) => ts.isPropertyDeclaration(m) || ts.isConstructorDeclaration(m) || ts.isMethodDeclaration(m) || isAccessorDeclaration(m));
 		const groupIndexes = relevantMembers.map((m) => {
 			const idx = groups.findIndex((g) => g.match(m));
 			return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;

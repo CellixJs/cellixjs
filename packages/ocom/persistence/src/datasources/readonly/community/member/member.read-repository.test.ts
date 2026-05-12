@@ -1,14 +1,14 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
 import type { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
 import type { ModelsContext } from '../../../../index.ts';
-import { MemberReadRepositoryImpl } from './member.read-repository.ts';
-import { MemberDataSourceImpl } from './member.data.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
-import type { Member } from '@ocom/data-sources-mongoose-models/member';
+import { MemberDataSourceImpl } from './member.data.ts';
+import { MemberReadRepositoryImpl } from './member.read-repository.ts';
 
 // Mock the data source module
 
@@ -141,7 +141,21 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		Then('I should receive an array of MemberEntityReference objects', () => {
-			expect(mockDataSource.find).toHaveBeenCalledWith({ community: expect.any(Object) }, undefined);
+			expect(mockDataSource.find).toHaveBeenCalledWith({ community: expect.objectContaining({ toString: expect.any(Function), equals: expect.any(Function) }) }, { populateFields: ['role', 'role.community'] });
+			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockMemberDoc, passport);
+		});
+	});
+
+	Scenario('Getting members by community ID with custom populate fields', ({ When, Then }) => {
+		When('I call getByCommunityId with "507f1f77bcf86cd799439011" and custom populateFields', async () => {
+			await repository.getByCommunityId('507f1f77bcf86cd799439011', { populateFields: ['customField'] });
+		});
+
+		Then('I should receive members with merged populate fields', () => {
+			expect(mockDataSource.find).toHaveBeenCalledWith(
+				{ community: expect.objectContaining({ toString: expect.any(Function), equals: expect.any(Function) }) },
+				{ populateFields: expect.arrayContaining(['role', 'role.community', 'customField']) },
+			);
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockMemberDoc, passport);
 		});
 	});
@@ -190,6 +204,93 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				populateFields: ['role', 'role.community'],
 			});
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockMemberDoc, passport);
+		});
+	});
+
+	Scenario('Getting member by ID with role when not exists', ({ Given, When, Then }) => {
+		Given('no member exists with ID "non-existent-id"', () => {
+			mockDataSource.findById.mockResolvedValueOnce(null);
+		});
+
+		When('I call getByIdWithRole with "non-existent-id"', async () => {
+			const result = await repository.getByIdWithRole('non-existent-id');
+			expect(result).toBeNull();
+		});
+
+		Then('I should receive null', () => {
+			expect(mockDataSource.findById).toHaveBeenCalledWith('non-existent-id', {
+				populateFields: ['role', 'role.community'],
+			});
+		});
+	});
+
+	Scenario('Getting member by ID with community, role and user', ({ Given, When, Then }) => {
+		Given('a member exists with ID "member-123"', () => {
+			// Mock is already set up in BeforeEachScenario
+		});
+
+		When('I call getByIdWithCommunityAndRoleAndUser with "member-123"', async () => {
+			await repository.getByIdWithCommunityAndRoleAndUser('member-123');
+		});
+
+		Then('I should receive the MemberEntityReference object with all fields populated', () => {
+			expect(mockDataSource.findById).toHaveBeenCalledWith('member-123', {
+				populateFields: ['community', 'role', 'role.community', 'accounts.user'],
+			});
+			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockMemberDoc, passport);
+		});
+	});
+
+	Scenario('Getting member by ID with community, role and user when not exists', ({ Given, When, Then }) => {
+		Given('no member exists with ID "non-existent-id"', () => {
+			mockDataSource.findById.mockResolvedValueOnce(null);
+		});
+
+		When('I call getByIdWithCommunityAndRoleAndUser with "non-existent-id"', async () => {
+			const result = await repository.getByIdWithCommunityAndRoleAndUser('non-existent-id');
+			expect(result).toBeNull();
+		});
+
+		Then('I should receive null', () => {
+			expect(mockDataSource.findById).toHaveBeenCalledWith('non-existent-id', {
+				populateFields: ['community', 'role', 'role.community', 'accounts.user'],
+			});
+		});
+	});
+
+	Scenario('Checking if member name exists in community', ({ Given, When, Then }) => {
+		Given('a member with name "John Doe" exists in community "507f1f77bcf86cd799439011"', () => {
+			mockDataSource.findOne.mockResolvedValueOnce(mockMemberDoc);
+		});
+
+		When('I call memberNameExistsInCommunity with "John Doe" and "507f1f77bcf86cd799439011"', async () => {
+			const result = await repository.memberNameExistsInCommunity('John Doe', '507f1f77bcf86cd799439011');
+			expect(result).toBe(true);
+		});
+
+		Then('I should receive true', () => {
+			expect(mockDataSource.findOne).toHaveBeenCalledWith({
+				community: expect.objectContaining({ toString: expect.any(Function), equals: expect.any(Function) }),
+				memberName: 'John Doe',
+			});
+		});
+	});
+
+	Scenario('Checking if member name does not exist in community', ({ Given, When, Then }) => {
+		Given('no member with name "Jane Smith" exists in community "507f1f77bcf86cd799439011"', () => {
+			mockDataSource.findOne.mockResolvedValueOnce(null);
+		});
+
+		When('I call memberNameExistsInCommunity with "Jane Smith" and "507f1f77bcf86cd799439011"', async () => {
+			const result = await repository.memberNameExistsInCommunity('Jane Smith', '507f1f77bcf86cd799439011');
+			expect(result).toBe(false);
+		});
+
+		Then('I should receive false', () => {
+			expect(mockDataSource.findOne).toHaveBeenCalledWith({
+				community: expect.objectContaining({ toString: expect.any(Function), equals: expect.any(Function) }),
+				memberName: 'Jane Smith',
+			});
 		});
 	});
 
@@ -247,6 +348,61 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		Then('I should receive a boolean indicating admin status', () => {
 			expect(mockDataSource.findById).toHaveBeenCalledWith('admin-member', {
+				populateFields: ['role', 'role.community'],
+			});
+		});
+	});
+
+	Scenario('Checking if member is admin when not an admin', ({ Given, When, Then }) => {
+		Given('a member exists with ID "non-admin-member" with no special permissions', () => {
+			mockDataSource.findById.mockResolvedValueOnce({
+				...mockMemberDoc,
+				role: {
+					permissions: {
+						communityPermissions: {
+							canManageMembers: false,
+						},
+					},
+				},
+			} as unknown as Member);
+			mockConverter.toDomain.mockReturnValueOnce({
+				id: 'non-admin-member',
+				role: {
+					permissions: {
+						communityPermissions: {
+							canManageMembers: false,
+						},
+					},
+				},
+				passport,
+			});
+		});
+
+		When('I call isAdmin with "non-admin-member"', async () => {
+			const result = await repository.isAdmin('non-admin-member');
+			expect(result).toBe(false);
+		});
+
+		Then('I should receive false', () => {
+			expect(mockDataSource.findById).toHaveBeenCalledWith('non-admin-member', {
+				populateFields: ['role', 'role.community'],
+			});
+		});
+	});
+
+	Scenario('Checking if member is admin when member not found', ({ Given, When, Then }) => {
+		Given('no member exists with ID "non-existent-member"', () => {
+			mockDataSource.findById.mockResolvedValueOnce(null);
+			mockConverter.toDomain.mockReturnValueOnce(null);
+		});
+
+		When('I call isAdmin with "non-existent-member"', async () => {
+			const result = await repository.isAdmin('non-existent-member');
+			expect(result).toBe(false);
+		});
+
+		Then('I should receive false', () => {
+			expect(mockDataSource.findById).toHaveBeenCalledWith('non-existent-member', {
 				populateFields: ['role', 'role.community'],
 			});
 		});
