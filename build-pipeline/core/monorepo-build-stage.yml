@@ -263,6 +263,25 @@ stages:
         ${{ each pair in parameters.buildEnvSettings }}:
           ${{ pair.key }}: ${{ pair.value }}
 
+    # Run architectural unit tests after build/test dependencies are available.
+    - task: Bash@3
+      displayName: 'Turbo: Run architecture unit tests'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          export NODE_OPTIONS=--max_old_space_size=16384
+          export TURBO_CONCURRENCY=4
+
+          echo "Running all architecture unit tests..."
+          pnpm run test:arch
+        workingDirectory: ''
+      env:
+        TURBO_CACHE_HIT: $(TURBO_CACHE_HIT)
+        TURBO_TELEMETRY_DISABLED: 1
+        ${{ each pair in parameters.buildEnvSettings }}:
+          ${{ pair.key }}: ${{ pair.value }}
+
     # Audit unused dependencies with knip (after packages are built)
     - task: Bash@3
       displayName: 'Audit unused dependencies with knip'
@@ -541,7 +560,7 @@ stages:
       artifact: docs
 
     # Upload env-var evidence artifacts if present
-    - publish: $(Build.SourcesDirectory)/packages/ocom/archunit-tests/build-artifacts
+    - publish: $(Build.SourcesDirectory)/packages/ocom-verification/archunit-tests/build-artifacts
       displayName: 'Artifact: Publish Env-var Evidence'
       condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: env-var-evidence

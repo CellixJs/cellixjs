@@ -15,10 +15,8 @@ function isAccessorDeclaration(m: ts.ClassElement): boolean {
  *  0. static fields
  *  1. instance fields
  *  2. constructor
- *  3. static methods
- *  4. instance methods
- *  5. static accessors
- *  6. instance accessors
+ *  3. static methods/accessors
+ *  4. instance methods/accessors
  */
 const defaultMemberOrder: MemberOrderGroup[] = [
 	{
@@ -34,20 +32,12 @@ const defaultMemberOrder: MemberOrderGroup[] = [
 		match: (m) => ts.isConstructorDeclaration(m),
 	},
 	{
-		name: 'static methods',
-		match: (m) => ts.isMethodDeclaration(m) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		name: 'static methods/accessors',
+		match: (m) => (ts.isMethodDeclaration(m) || isAccessorDeclaration(m)) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 	{
-		name: 'instance methods',
-		match: (m) => ts.isMethodDeclaration(m) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
-	},
-	{
-		name: 'static accessors',
-		match: (m) => isAccessorDeclaration(m) && hasModifier(m, ts.SyntaxKind.StaticKeyword),
-	},
-	{
-		name: 'instance accessors',
-		match: (m) => isAccessorDeclaration(m) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
+		name: 'instance methods/accessors',
+		match: (m) => (ts.isMethodDeclaration(m) || isAccessorDeclaration(m)) && !hasModifier(m, ts.SyntaxKind.StaticKeyword),
 	},
 ];
 
