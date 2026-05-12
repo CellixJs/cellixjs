@@ -79,6 +79,7 @@ overrides:
   node-forge@<1.3.2: '>=1.3.2'
   picomatch: ^4.0.4
   webpack: ^5.105.4
+  webpack-dev-server: 5.2.4
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: 8.5.10
