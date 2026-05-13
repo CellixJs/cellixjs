@@ -67,7 +67,8 @@ describe('buildOidcRouter', () => {
 				expect(location).toContain(cfg.allowedRedirectUri);
 				expect(new URL(location as string).searchParams.get('code')?.startsWith(AUTH_CODE_PREFIX)).toBe(true);
 			} finally {
-				await new Promise<void>((resolve) => server.close(() => resolve()));
+				server.close();
+				await new Promise<void>((resolve) => server.once('close', () => resolve()));
 			}
 		});
 	});

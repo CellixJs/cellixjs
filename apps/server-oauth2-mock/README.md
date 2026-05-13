@@ -31,9 +31,9 @@ Notes about the schema and overrides:
 - `mock-oidc.json` keys:
   - `name` — the portal name used in the server URL path and discovery
   - `envVars` — maps `clientId` and `redirectUri` to the UI app's environment variable names (e.g. `VITE_*` vars)
-  - `claims` — default claims to include in issued tokens
+  - `claims` — default claims to include in issued tokens (note: this file is version-controlled; use per-user overlay files for development)
 - The server resolves the actual `clientId` and `redirectUri` by reading the UI app's `.env` (and `.env.local`) files and looking up the variable names listed in `envVars`.
-- `mock-oidc.local.json` is ignored for claims. Use `mock-oidc.users.local.json` for per-developer user overrides instead.
+- **`mock-oidc.local.json` is no longer supported** — it is completely ignored by the server. To customize claims for local development, use per-portal user overlay files (`mock-oidc.users.local.json`) instead.
 - There is no top-level `clientId`, `redirectUri`, or `PORT_BASE` in `mock-oidc.json` — these values are resolved from the UI app environment.
 - The app-level server exposes multiple portals under the single server base URL; each portal is reachable at `/{name}/.well-known/openid-configuration`.
 
@@ -51,7 +51,7 @@ See ADR-0028 — Portless Local Development (apps/docs/docs/decisions/0028-portl
 
 ## Notes
 
-- `mock-oidc.local.json` is ignored for claim overrides.
+- ~~`mock-oidc.local.json` claim overrides~~ — **no longer supported**; use `mock-oidc.users.local.json` for per-developer user overrides instead.
 - The per-portal JSON no longer contains direct `clientId` or `redirectUri` values; those are read from the UI app's `.env` using `envVars`.
 - Backward-compatible single-config mode via `startMockOAuth2Server()` is preserved.
 

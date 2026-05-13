@@ -95,7 +95,6 @@ function skipTemplateExpression(text, startIndex, ranges) {
 
 function skipTemplateLiteral(text, startIndex, ranges) {
 	let i = startIndex + 1;
-	let segmentStart = startIndex;
 	while (i < text.length) {
 		if (text[i] === '\\') {
 			i += 2;
@@ -103,21 +102,30 @@ function skipTemplateLiteral(text, startIndex, ranges) {
 		}
 
 		if (text[i] === '$' && text[i + 1] === '{') {
-			ranges.push([segmentStart, i]);
+			// Skip the ${...} expression but do NOT add it to ignored ranges
+			// so env-var access inside the expression is detected
 			i = skipTemplateExpression(text, i + 2, ranges);
-			segmentStart = i;
 			continue;
 		}
 
 		if (text[i] === '`') {
-			i += 1;
-			ranges.push([segmentStart, i]);
-			return i;
+			return i + 1;
 		}
 
-		i += 1;
+		// For template string literals (non-expression parts), we still want to ignore them
+		// so we mark them as ignored ranges
+		const segmentStart = i;
+		while (i < text.length && text[i] !== '$' && text[i] !== '`') {
+			if (text[i] === '\\') {
+				i += 2;
+			} else {
+				i += 1;
+			}
+		}
+		if (i > segmentStart) {
+			ranges.push([segmentStart, i]);
+		}
 	}
-	ranges.push([segmentStart, i]);
 	return i;
 }
 
