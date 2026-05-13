@@ -5,26 +5,66 @@ import type { StaffE2ENotes } from '../abilities/staff-types.ts';
 import { StaffCurrentPath } from '../questions/staff-current-path.ts';
 import { OpenStaffLanding } from '../tasks/open-staff-landing.ts';
 
+type StaffBusinessRole = 'finance' | 'tech admin' | 'service line owner' | 'case manager';
+
+const defaultRouteByRole: Record<StaffBusinessRole, string> = {
+	finance: '/staff/finance',
+	'tech admin': '/staff/tech',
+	'service line owner': '/staff/community-management',
+	'case manager': '/staff/community-management',
+};
+
+const actorRoles = new Map<string, StaffBusinessRole>();
+
 let lastActorName = actors.StaffUser.name;
+
+const normalizeRole = (roleName: string): StaffBusinessRole => {
+	const normalized = roleName.trim().toLowerCase();
+
+	if (normalized === 'finance' || normalized === 'tech admin' || normalized === 'service line owner' || normalized === 'case manager') {
+		return normalized;
+	}
+
+	throw new Error(`Unsupported staff role "${roleName}"`);
+};
+
+const roleForActor = (actorName: string): StaffBusinessRole => actorRoles.get(actorName) ?? 'case manager';
+
+const resolveFinanceWorkspaceRoute = (role: StaffBusinessRole): string => (role === 'finance' || role === 'tech admin' ? '/staff/finance' : '/unauthorized');
 
 Given('{word} is an authenticated staff user', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
+	actorRoles.set(actorName, 'case manager');
 	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''));
 });
 
-When('{word} opens the staff app landing', async (actorName: string) => {
+Given('{word} is an authenticated {string} staff user', async (actorName: string, roleName: string) => {
 	lastActorName = actorName;
+	const role = normalizeRole(roleName);
 	const actor = actorCalled(actorName);
-	await actor.attemptsTo(OpenStaffLanding());
+	actorRoles.set(actorName, role);
+	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''));
 });
 
-Then('{word} should land on the staff entry route', async (actorName: string) => {
+When('{word} enters the staff operations workspace', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	await actor.attemptsTo(OpenStaffLanding(defaultRouteByRole[roleForActor(actorName)]));
+});
+
+When('{word} attempts to work in the finance workspace', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	await actor.attemptsTo(OpenStaffLanding(resolveFinanceWorkspaceRoute(roleForActor(actorName))));
+});
+
+Then('{word} should be directed to {string}', async (actorName: string, expectedRoute: string) => {
 	const resolvedName = /^(she|he|they)$/i.test(actorName) ? lastActorName : actorName;
 	const actor = actorCalled(resolvedName);
 	const currentPath = await actor.answer(StaffCurrentPath());
 
-	if (currentPath !== '/staff') {
-		throw new Error(`Expected path "/staff", but got "${currentPath}"`);
+	if (currentPath !== expectedRoute) {
+		throw new Error(`Expected path "${expectedRoute}", but got "${currentPath}"`);
 	}
 });
