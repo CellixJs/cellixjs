@@ -107,7 +107,7 @@
 			"brace-expansion@1.1.12": "1.1.13",
 			"brace-expansion@5.0.4": "5.0.5",
 			"diff@4.0.2": "4.0.4",
-			"protobufjs@7.5.4": "7.5.5",
+			"protobufjs@7.5.4": "7.5.8",
 			"serve-handler>minimatch": "3.1.5",
 			"serialize-javascript@6.0.2": "7.0.5",
 			"serialize-javascript@7.0.4": "7.0.5",
@@ -124,7 +124,12 @@
 			"playwright-core": "1.59.0",
 			"playwright": "1.59.0",
 			"postcss": "8.5.10",
-			"protobufjs": "7.5.5"
+			"protobufjs": "7.5.8",
+			"@protobufjs/codegen": "2.0.5",
+			"@protobufjs/utf8": "1.1.1",
+			"fast-uri": "3.1.2",
+			"@babel/plugin-transform-modules-systemjs": "7.29.4",
+			"webpack-dev-server": "5.2.4"
 		},
 		"patchedDependencies": {
 			"@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"
