@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { debugLog, type MockOAuth2User, type MockOAuth2UserStore } from '@cellix/server-oauth2-mock-seedwork';
@@ -7,6 +8,21 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	const localPath = path.join(appDir, 'mock-oidc.users.local.json');
 
 	const fileCache = new Map<string, { mtime: number; data: MockOAuth2User[] }>();
+
+	// Simple async mutex to serialize overlay writes and avoid lost updates from concurrent signups.
+	let writeMutex: Promise<void> = Promise.resolve();
+	function withWriteLock<T>(fn: () => Promise<T>): Promise<T> {
+		const run = async () => {
+			return await fn();
+		};
+		// Ensure the chain continues even if a previous operation rejected.
+		const next = writeMutex.then(run, run);
+		writeMutex = next.then(
+			() => undefined,
+			() => undefined,
+		);
+		return next;
+	}
 
 	function isEnoentError(error: unknown): error is NodeJS.ErrnoException {
 		return error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT';
@@ -171,11 +187,18 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		return out;
 	}
 
-	async function persistOverlay(users: MockOAuth2User[]): Promise<void> {
+	// persistOverlayUnsafe performs the actual write to disk and updates the cache.
+	// It MUST NOT acquire the write mutex. Callers are responsible for holding the
+	// write lock when calling this function. Use persist() below for a locked write.
+	async function persistOverlayUnsafe(users: MockOAuth2User[]): Promise<void> {
 		const dir = path.dirname(localPath);
 		await mkdir(dir, { recursive: true });
-		const tmpPath = `${localPath}.tmp`;
-		await writeFile(tmpPath, JSON.stringify(users, null, 2), { encoding: 'utf-8' });
+		// Use a unique tmp filename per write to avoid collisions/races with other writers.
+		const tmpPath = `${localPath}.${randomUUID()}.tmp`;
+		const data = JSON.stringify(users, null, 2);
+		// Write with restrictive permissions where supported (mode 0o600) to avoid
+		// world-readable plaintext password files.
+		await writeFile(tmpPath, data, { encoding: 'utf-8', mode: 0o600 });
 		await rename(tmpPath, localPath);
 		try {
 			const fileStat = await stat(localPath);
@@ -183,6 +206,13 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		} catch (_error) {
 			fileCache.delete(localPath);
 		}
+	}
+
+	// Locked variant for callers who don't already hold the write lock.
+	function _persistOverlayLocked(users: MockOAuth2User[]): Promise<void> {
+		return withWriteLock(async () => {
+			return await persistOverlayUnsafe(users);
+		});
 	}
 
 	const portalName = path.basename(appDir);
@@ -206,18 +236,30 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 			const list = await mergeUsers();
 			return list.find((u) => u.sub === sub);
 		},
-		async addUser(user: MockOAuth2User) {
-			const [committed, overlay] = await Promise.all([loadCommitted(), loadOverlay()]);
-			const all = [...committed, ...overlay];
-			if (all.find((u) => u.username === user.username)) throw new Error(`[server-oauth2-mock] Username already exists: ${user.username}`);
-			if (all.find((u) => u.sub === user.sub)) throw new Error(`[server-oauth2-mock] Sub already exists: ${user.sub}`);
-			overlay.push(user);
-			await persistOverlay(overlay);
-			console.info(`[server-oauth2-mock] New user registered via signup for portal "${portalName}": ${user.username}`);
-			debugLog('[server-oauth2-mock] addUser persisted', { portal: portalName, user: user.username });
+		addUser(user: MockOAuth2User) {
+			// Perform read-modify-write under the write lock to avoid lost updates when
+			// multiple concurrent signups occur. This ensures the overlay is validated
+			// against the latest state and updated atomically.
+			return withWriteLock(async () => {
+				const [committed, overlay] = await Promise.all([loadCommitted(), loadOverlay()]);
+				const all = [...committed, ...overlay];
+				if (all.find((u) => u.username === user.username)) throw new Error(`[server-oauth2-mock] Username already exists: ${user.username}`);
+				if (all.find((u) => u.sub === user.sub)) throw new Error(`[server-oauth2-mock] Sub already exists: ${user.sub}`);
+				overlay.push(user);
+				// We already hold the write lock here, so call the unsafe variant which does
+				// the actual disk write without attempting to re-acquire the mutex.
+				await persistOverlayUnsafe(overlay);
+				console.info(`[server-oauth2-mock] New user registered via signup for portal "${portalName}": ${user.username}`);
+				debugLog('[server-oauth2-mock] addUser persisted', { portal: portalName, user: user.username });
+			});
 		},
-		async persist() {
-			await Promise.resolve();
+		persist() {
+			// Perform load + write under the same write lock to avoid races where
+			// a concurrent addUser updates the overlay between load and persist.
+			return withWriteLock(async () => {
+				const overlay = await loadOverlay();
+				await persistOverlayUnsafe(overlay);
+			});
 		},
 	};
 }

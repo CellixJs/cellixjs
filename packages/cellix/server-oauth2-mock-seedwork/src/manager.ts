@@ -22,7 +22,7 @@ import { normalizeBaseUrl, SAFE_NAME_RE } from './utils.ts';
  * await manager.stopAll();
  * ```
  */
-export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string }): MockOAuth2Manager {
+export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string; trustProxy?: boolean }): MockOAuth2Manager {
 	let app: express.Express | null = null;
 	let serverHandle: MockOAuth2ServerHandle | null = null;
 	let startupPromise: Promise<MockOAuth2ServerHandle> | null = null;
@@ -37,7 +37,25 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 		}
 		if (!app) {
 			app = express();
-			app.set('trust proxy', 1);
+			// Only enable "trust proxy" when explicitly requested. Enabling it unconditionally
+			// trusts X-Forwarded-* headers from any client which can be a security and logging
+			// concern when running outside a trusted proxy.
+			// Enable trust proxy either when explicitly configured or when the
+			// server is clearly running on a local loopback host (common in test
+			// and local-proxy scenarios). Default is disabled to avoid trusting
+			// untrusted client-provided X-Forwarded-* headers in production.
+			let shouldTrust = false;
+			if (serverConfig.trustProxy === true) {
+				shouldTrust = true;
+			} else {
+				try {
+					const host = serverConfig.host ?? new URL(serverConfig.baseUrl).hostname;
+					if (host === '127.0.0.1' || host === 'localhost' || host === '::1') shouldTrust = true;
+				} catch {
+					// Ignore URL parse errors and keep default (no trust)
+				}
+			}
+			if (shouldTrust) app.set('trust proxy', 1);
 			app.disable('x-powered-by');
 		}
 		const gen = startGeneration;

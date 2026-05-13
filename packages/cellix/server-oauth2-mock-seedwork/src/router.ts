@@ -192,8 +192,10 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 
 		const effectiveProfile = buildEffectiveProfile(portalProfile, userClaims, finalSub);
-		const userTid = userClaims?.tid;
-		const resolvedTid = typeof tid === 'string' ? tid : typeof userTid === 'string' ? userTid : typeof upTid === 'string' ? upTid : 'test-tenant-id';
+		// Prefer tid from the merged effective profile (portal + user claims), then request override, then portal default
+		const _ep = effectiveProfile as Record<string, unknown>;
+		const mergedTid = typeof _ep.tid === 'string' ? (_ep.tid as string) : undefined;
+		const resolvedTid = typeof tid === 'string' ? tid : (mergedTid ?? (typeof upTid === 'string' ? upTid : 'test-tenant-id'));
 
 		const profile: TokenProfile = {
 			...effectiveProfile,

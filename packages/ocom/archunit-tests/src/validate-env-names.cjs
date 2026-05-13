@@ -291,19 +291,18 @@ function validateEnvNames(options = {}) {
 				const rest = variable.replace('VITE_APP_', '');
 				const parts = rest.split('_');
 				let portalSegment = parts[0];
-				// handle UI_COMMUNITY and UI_STAFF which start with UI_
+				// handle UI_<NAME> style portals which have an underscore in the portal segment
 				if (parts[0] === 'UI' && parts.length > 1) {
 					portalSegment = `${parts[0]}_${parts[1]}`;
 				}
-				if (portalSegment === 'UI_COMMUNITY') {
-					portal = 'UI_COMMUNITY';
-					ownerGroup = 'ocm-app-ui-community';
-				} else if (portalSegment === 'UI_STAFF') {
-					portal = 'UI_STAFF';
-					ownerGroup = 'ocm-app-ui-staff';
+				// Check against the single source of truth instead of hard-coding portal names
+				if (CANONICAL_PORTALS.includes(portalSegment)) {
+					portal = portalSegment;
+					// owner groups follow the pattern ocm-app-<portal-name-in-kebab-case>
+					ownerGroup = `ocm-app-${portalSegment.toLowerCase().replace(/_/g, '-')}`;
 				} else {
 					portal = portalSegment;
-					ownerGroup = `ocm-app-${portalSegment.toLowerCase()}`;
+					ownerGroup = `ocm-app-${portalSegment.toLowerCase().replace(/_/g, '-')}`;
 					status = 'non_compliant';
 					reason = 'Unknown VITE_APP_<PORTAL>_ value: portal is not registered';
 				}
