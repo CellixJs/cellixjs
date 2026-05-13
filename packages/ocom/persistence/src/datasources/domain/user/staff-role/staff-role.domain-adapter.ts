@@ -26,6 +26,7 @@ export class StaffRoleDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 
 	set roleName(roleName: string) {
 		this.doc.roleName = roleName;
+		this.doc.enterpriseAppRole = roleName;
 	}
 
 	get isDefault(): boolean {

@@ -70,7 +70,7 @@ function makeDataSources(repo: StaffRoleRepo): DataSources {
 			User: {
 				StaffRole: {
 					StaffRoleUnitOfWork: {
-						withScopedTransaction: vi.fn().mockImplementation(async (callback: (r: StaffRoleRepo) => Promise<void>) => {
+						withTransaction: vi.fn().mockImplementation(async (_passport: unknown, callback: (r: StaffRoleRepo) => Promise<void>) => {
 							await callback(repo);
 						}),
 					},

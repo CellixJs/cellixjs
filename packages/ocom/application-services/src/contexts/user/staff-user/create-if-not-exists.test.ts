@@ -119,13 +119,16 @@ function makeDataSources(overrides: {
 			User: {
 				StaffUser: {
 					StaffUserUnitOfWork: {
-						withScopedTransaction: vi.fn().mockImplementation(async (cb: (repo: typeof staffUserRepo) => Promise<void>) => {
+						withTransaction: vi.fn().mockImplementation(async (_passport: unknown, cb: (repo: typeof staffUserRepo) => Promise<void>) => {
 							await cb(staffUserRepo);
 						}),
 					},
 				},
 				StaffRole: {
 					StaffRoleUnitOfWork: {
+						withTransaction: vi.fn().mockImplementation(async (_passport: unknown, cb: (repo: typeof staffRoleRepo) => Promise<void>) => {
+							await cb(staffRoleRepo);
+						}),
 						withScopedTransaction: vi.fn().mockImplementation(async (cb: (repo: typeof staffRoleRepo) => Promise<void>) => {
 							await cb(staffRoleRepo);
 						}),
@@ -205,10 +208,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('it should call createDefaultRoles', () => {
 			const roleUow = (
 				dataSources as unknown as {
-					domainDataSource: { User: { StaffRole: { StaffRoleUnitOfWork: { withScopedTransaction: ReturnType<typeof vi.fn> } } } };
+					domainDataSource: { User: { StaffRole: { StaffRoleUnitOfWork: { withTransaction: ReturnType<typeof vi.fn> } } } };
 				}
 			).domainDataSource.User.StaffRole.StaffRoleUnitOfWork;
-			expect(roleUow.withScopedTransaction).toHaveBeenCalled();
+			expect(roleUow.withTransaction).toHaveBeenCalled();
 		});
 
 		And('it should create a new user with the provided details', () => {

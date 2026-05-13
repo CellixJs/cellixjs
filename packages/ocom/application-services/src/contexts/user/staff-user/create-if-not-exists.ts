@@ -1,4 +1,5 @@
 import type { Domain } from '@ocom/domain';
+import { Domain as DomainRuntime } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { createDefaultRoles, type StaffAppRoleName, StaffAppRoleNames } from '../staff-role/create-default-roles.ts';
 
@@ -43,7 +44,7 @@ export const createIfNotExists = (dataSources: DataSources) => {
 
 		let createdUser: Domain.Contexts.User.StaffUser.StaffUserEntityReference | undefined;
 
-		await dataSources.domainDataSource.User.StaffUser.StaffUserUnitOfWork.withScopedTransaction(async (repository) => {
+		await dataSources.domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(DomainRuntime.PassportFactory.forSystem({ canManageStaffRolesAndPermissions: true }), async (repository) => {
 			const newUser = await repository.getNewInstance(command.externalId, command.firstName, command.lastName, command.email);
 
 			if (matchingRole) {

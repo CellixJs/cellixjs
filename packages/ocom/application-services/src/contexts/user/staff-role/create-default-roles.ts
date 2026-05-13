@@ -27,7 +27,7 @@ export const createDefaultRoles = (dataSources: DataSources) => {
 	return async (): Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference[]> => {
 		const created: Domain.Contexts.User.StaffRole.StaffRoleEntityReference[] = [];
 
-		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (repository) => {
+		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withTransaction(DomainRuntime.PassportFactory.forSystem({ canManageStaffRolesAndPermissions: true }), async (repository) => {
 			const defaultRoleSpecs = DomainRuntime.Contexts.User.StaffRole.StaffRole.getDefaultRoleSpecs();
 			for (const defaultRoleSpec of defaultRoleSpecs) {
 				const { roleName } = defaultRoleSpec;
