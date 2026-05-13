@@ -37,17 +37,17 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 		}
 		if (!app) {
 			app = express();
-			// Only enable "trust proxy" when explicitly requested. Enabling it unconditionally
-			// trusts X-Forwarded-* headers from any client which can be a security and logging
-			// concern when running outside a trusted proxy.
-			// Enable trust proxy either when explicitly configured or when the
-			// server is clearly running on a local loopback host (common in test
-			// and local-proxy scenarios). Default is disabled to avoid trusting
-			// untrusted client-provided X-Forwarded-* headers in production.
+			// Trust proxy is enabled explicitly (trustProxy: true), or by default for local loopback
+			// hosts (127.0.0.1, localhost, ::1). An explicit trustProxy: false disables it entirely.
+			// Trusting X-Forwarded-* headers can be a security and logging concern when running
+			// outside a trusted proxy, so defaults are conservative.
 			let shouldTrust = false;
 			if (serverConfig.trustProxy === true) {
 				shouldTrust = true;
+			} else if (serverConfig.trustProxy === false) {
+				shouldTrust = false;
 			} else {
+				// trustProxy is undefined; infer from host being loopback
 				try {
 					const host = serverConfig.host ?? new URL(serverConfig.baseUrl).hostname;
 					if (host === '127.0.0.1' || host === 'localhost' || host === '::1') shouldTrust = true;

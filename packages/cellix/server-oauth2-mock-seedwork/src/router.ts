@@ -4,7 +4,7 @@ import { rateLimit } from 'express-rate-limit';
 import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jose';
 import { buildEffectiveProfile, buildRedirectWithCode, extractClaimsFromPayload, normalizeUserInfo } from './helpers.ts';
 import { buildTokenResponse } from './jwt.ts';
-import { debugLog } from './logger.js';
+import { debugLog } from './logger.ts';
 import { createLoginHandlers } from './login-handlers.ts';
 import { createTtlStore } from './ttl-store.ts';
 import type { MockOAuth2PortalConfig, MockOAuth2UserStore } from './types.ts';
