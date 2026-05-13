@@ -17,12 +17,24 @@ function toObjectId(id: string) {
 	return new ObjectId(id);
 }
 
+async function upsertSeedDocuments(connection: Connection, collectionName: string, documents: Array<Record<string, unknown> & { _id: ObjectId }>) {
+	await connection.collection(collectionName).bulkWrite(
+		documents.map((document) => ({
+			replaceOne: {
+				filter: { _id: document._id },
+				replacement: document,
+				upsert: true,
+			},
+		})),
+	);
+}
+
 export async function seedDatabase(connection: Connection): Promise<void> {
 	const users = endUsers.map((u: EndUser) => ({
 		...u,
 		_id: toObjectId(u._id as string),
 	}));
-	await connection.collection('users').insertMany(users);
+	await upsertSeedDocuments(connection, 'users', users);
 	console.log(`  Seeded ${users.length} users`);
 
 	const comms = communities.map((c: Community) => ({
@@ -30,7 +42,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 		_id: toObjectId(c._id as string),
 		createdBy: toObjectId(String(c.createdBy)),
 	}));
-	await connection.collection('communities').insertMany(comms);
+	await upsertSeedDocuments(connection, 'communities', comms);
 	console.log(`  Seeded ${comms.length} communities`);
 
 	const roles = endUserRoles.map((r: EndUserRole) => ({
@@ -38,7 +50,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 		_id: toObjectId(r._id as string),
 		community: toObjectId(String(r.community)),
 	}));
-	await connection.collection('roles').insertMany(roles);
+	await upsertSeedDocuments(connection, 'roles', roles);
 	console.log(`  Seeded ${roles.length} roles`);
 
 	const mems = members.map((m: Member) => ({
@@ -52,7 +64,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 			createdBy: toObjectId(String(a.createdBy)),
 		})),
 	}));
-	await connection.collection('members').insertMany(mems);
+	await upsertSeedDocuments(connection, 'members', mems);
 	console.log(`  Seeded ${mems.length} members`);
 
 	const props = properties.map((p: Property) => ({
@@ -61,7 +73,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 		community: toObjectId(String(p.community)),
 		owner: p.owner ? toObjectId(String(p.owner)) : undefined,
 	}));
-	await connection.collection('properties').insertMany(props);
+	await upsertSeedDocuments(connection, 'properties', props);
 	console.log(`  Seeded ${props.length} properties`);
 
 	const svcs = services.map((s: Service) => ({
@@ -69,7 +81,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 		_id: toObjectId(s._id as string),
 		community: toObjectId(String(s.community)),
 	}));
-	await connection.collection('services').insertMany(svcs);
+	await upsertSeedDocuments(connection, 'services', svcs);
 	console.log(`  Seeded ${svcs.length} services`);
 
 	console.log('Seeded mock MongoDB memory server with initial data.');
