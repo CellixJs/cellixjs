@@ -18,6 +18,7 @@ export type StaffAuth = {
 		canManageUsers?: boolean;
 		canManageFinance?: boolean;
 		canManageTechAdmin?: boolean;
+		canAssignStaffUserRoles?: boolean;
 	};
 };
 
