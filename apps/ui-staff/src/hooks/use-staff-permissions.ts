@@ -65,13 +65,16 @@ export const useStaffPermissions = (): { permissions: StaffPermissions | undefin
 	});
 
 	const rolePermissions = data?.currentStaffUserAndCreateIfNotExists?.role?.permissions;
-
+ 
+	// Treat a TechAdmin as an implicit manager of all sections
+	const isTechAdmin = rolePermissions?.techAdminPermissions?.canManageTechAdmin ?? false;
+ 
 	const permissions: StaffPermissions | undefined = rolePermissions
 		? {
-				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities,
-				canManageUsers: rolePermissions.userPermissions.canManageUsers,
-				canManageFinance: rolePermissions.financePermissions.canManageFinance,
-				canManageTechAdmin: rolePermissions.techAdminPermissions.canManageTechAdmin,
+				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
+				canManageUsers: rolePermissions.userPermissions.canManageUsers || isTechAdmin,
+				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
+				canManageTechAdmin: isTechAdmin,
 			}
 		: undefined;
 
