@@ -208,13 +208,6 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		}
 	}
 
-	// Locked variant for callers who don't already hold the write lock.
-	function _persistOverlayLocked(users: MockOAuth2User[]): Promise<void> {
-		return withWriteLock(async () => {
-			return await persistOverlayUnsafe(users);
-		});
-	}
-
 	const portalName = path.basename(appDir);
 	void Promise.all([loadCommitted(), loadOverlay()])
 		.then(([initialCommitted, initialOverlay]) => {

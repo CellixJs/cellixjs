@@ -58,13 +58,13 @@ describe('helpers.normalizeUserInfo', () => {
 			family_name: 'Hopper',
 		});
 
-		expect(normalized.username).toBe('preferred-user');
-		expect(normalized.name).toBe('Grace Hopper');
+		expect(normalized['username']).toBe('preferred-user');
+		expect(normalized['name']).toBe('Grace Hopper');
 	});
 
 	it('falls back to the email prefix or sub when username is missing', () => {
-		expect(normalizeUserInfo({ email: 'email-user@example.com' }).username).toBe('email-user');
-		expect(normalizeUserInfo({ sub: 'subject-only' }).username).toBe('subject-only');
+		expect(normalizeUserInfo({ email: 'email-user@example.com' })['username']).toBe('email-user');
+		expect(normalizeUserInfo({ sub: 'subject-only' })['username']).toBe('subject-only');
 	});
 });
 
