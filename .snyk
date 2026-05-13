@@ -76,3 +76,142 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
         expires: '2026-06-28T00:00:00.000Z'
         created: '2026-05-11T10:00:00.000Z'
+  'SNYK-JS-PROTOBUFJS-16643234':
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+  
+  'SNYK-JS-PROTOBUFJS-16643262':
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+  
+  'SNYK-JS-PROTOBUFJS-16643291':
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+  
+  'SNYK-JS-PROTOBUFJS-16643304':
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+  
+  'SNYK-JS-PROTOBUFJS-16643319':
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @opentelemetry/otlp-exporter-base@0.57.2 > @opentelemetry/otlp-transformer@0.57.2 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5':
+        reason: 'Transitive dependency via OpenTelemetry observability stack. Low risk in server context. Upstream @grpc/proto-loader@0.8.0 pins protobufjs@7.5.5'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+  'SNYK-JS-PROTOBUFJSCODEGEN-16643292':
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5 > @protobufjs/codegen@2.0.4':
+        reason: 'Pinned by protobufjs@7.5.5. Used for internal proto parsing in OpenTelemetry. Low risk in server context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5 > @protobufjs/codegen@2.0.4':
+        reason: 'Pinned by protobufjs@7.5.5. Used for internal proto parsing in OpenTelemetry. Low risk in server context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '* > @apollo/server > @apollo/server-gateway-interface > @apollo/usage-reporting-protobuf > @apollo/protobufjs > @protobufjs/codegen@2.0.4':
+        reason: 'Pinned by @apollo/protobufjs@1.2.7. Used for internal Apollo Server code generation. Low risk in server context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '* > @ocom/context-spec > @ocom/service-apollo-server > @apollo/server > @apollo/server-gateway-interface > @apollo/usage-reporting-protobuf > @apollo/protobufjs > @protobufjs/codegen@2.0.4':
+        reason: 'Pinned by @apollo/protobufjs@1.2.7. Used for internal Apollo Server code generation. Low risk in server context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+  'SNYK-JS-PROTOBUFJSUTF8-16643215':
+    - '@ocom/service-otel@1.0.0 > @opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5 > @protobufjs/utf8@1.1.0':
+        reason: 'Pinned by protobufjs@7.5.5. Used for internal proto parsing in OpenTelemetry. Low risk in server context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '@opentelemetry/sdk-node@0.57.2 > @opentelemetry/exporter-logs-otlp-grpc@0.57.2 > @grpc/grpc-js@1.14.1 > @grpc/proto-loader@0.8.0 > protobufjs@7.5.5 > @protobufjs/utf8@1.1.0':
+        reason: 'Pinned by protobufjs@7.5.5. Used for internal proto parsing in OpenTelemetry. Low risk in server context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '* > @apollo/server > @apollo/server-gateway-interface > @apollo/usage-reporting-protobuf > @apollo/protobufjs > @protobufjs/utf8@1.1.0':
+        reason: 'Pinned by @apollo/protobufjs@1.2.7. Used for internal Apollo Server code generation. Low risk in server context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+    - '* > @ocom/context-spec > @ocom/service-apollo-server > @apollo/server > @apollo/server-gateway-interface > @apollo/usage-reporting-protobuf > @apollo/protobufjs > @protobufjs/utf8@1.1.0':
+        reason: 'Pinned by @apollo/protobufjs@1.2.7. Used for internal Apollo Server code generation. Low risk in server context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+  'SNYK-JS-FASTURI-16642394':
+    - '* > @docusaurus/core > @docusaurus/babel > @docusaurus/utils > @docusaurus/types > webpack > schema-utils > ajv > fast-uri@3.1.0':
+        reason: 'Transitive dependency in Docusaurus dev/build stack. Low risk in dev-only context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+  'SNYK-JS-FASTURI-16642399':
+    - '* > @docusaurus/core > @docusaurus/babel > @docusaurus/utils > @docusaurus/types > webpack > schema-utils > ajv > fast-uri@3.1.0':
+        reason: 'Transitive dependency in Docusaurus dev/build stack. Low risk in dev-only context.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+  'SNYK-JS-WEBPACKDEVSERVER-16642067':
+    - '* > @docusaurus/core > webpack-dev-server@5.2.2':
+        reason: 'Transitive dependency in Docusaurus dev server. Dev-only, not deployed to production.'
+        expires: '2026-11-13T00:00:00.000Z'
+        created: '2026-05-13T00:00:00.000Z'
+
