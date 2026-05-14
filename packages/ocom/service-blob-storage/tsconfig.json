@@ -6,5 +6,5 @@
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
 	"include": ["src/**/*.ts"],
-	"references": [{ "path": "../../cellix/api-services-spec" }]
+	"references": [{ "path": "../../cellix/api-services-spec" }, { "path": "../../cellix/service-blob-storage" }]
 }

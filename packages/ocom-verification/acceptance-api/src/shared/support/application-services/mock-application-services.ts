@@ -1,7 +1,9 @@
+import type { BaseContext } from '@apollo/server';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
+import type { BlobStorage } from '@ocom/service-blob-storage';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
 import { actors } from '@ocom-verification/verification-shared/test-data';
@@ -36,6 +38,13 @@ function createNoOpApolloServerService(): ServiceApolloServer<Record<string, nev
 	} as unknown as ServiceApolloServer<BaseContext>;
 }
 
+function createNoOpBlobStorageService(): BlobStorage {
+	return {
+		createUploadUrl: () => Promise.resolve('https://blob.example.test/upload'),
+		createReadUrl: () => Promise.resolve('https://blob.example.test/read'),
+	};
+}
+
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {
 	const dataSourcesFactory = Persistence(serviceMongoose);
 
@@ -43,6 +52,7 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 		dataSourcesFactory,
 		tokenValidationService: createMockTokenValidation(),
 		apolloServerService: createNoOpApolloServerService(),
+		blobStorageService: createNoOpBlobStorageService(),
 	};
 
 	const mockApplicationServicesFactory = buildApplicationServicesFactory(apiContextSpec);

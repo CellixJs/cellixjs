@@ -1,5 +1,5 @@
 {
-	"name": "@ocom/service-blob-storage",
+	"name": "@cellix/service-blob-storage",
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
@@ -13,20 +13,21 @@
 		}
 	},
 	"scripts": {
-		"lint": "biome lint",
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
-		"test": "vitest run --silent --reporter=dot",
-		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test": "vitest run --exclude src/**/*.integration.test.ts --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --exclude src/**/*.integration.test.ts --silent --reporter=dot",
+		"test:integration": "vitest run src/service-blob-storage.integration.test.ts --silent --reporter=dot",
 		"test:watch": "vitest",
+		"lint": "biome lint",
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
-		"@cellix/api-services-spec": "workspace:*",
-		"@cellix/service-blob-storage": "workspace:*"
+		"@azure/storage-blob": "^12.31.0",
+		"@cellix/api-services-spec": "workspace:*"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",

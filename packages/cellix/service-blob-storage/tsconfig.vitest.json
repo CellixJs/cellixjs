@@ -2,7 +2,7 @@
 	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
 	"compilerOptions": {
 		"paths": {
-			"@ocom/service-blob-storage": ["./src/index.ts"]
+			"@cellix/service-blob-storage": ["./src/index.ts"]
 		}
 	}
 }

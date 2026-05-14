@@ -6,8 +6,7 @@ export default mergeConfig(
 	defineConfig({
 		resolve: {
 			alias: {
-				'@cellix/service-blob-storage': '../../cellix/service-blob-storage/src/index.ts',
-				'@ocom/service-blob-storage': './src/index.ts',
+				'@cellix/service-blob-storage': './src/index.ts',
 			},
 		},
 	}),

@@ -1,28 +1,26 @@
 import './service-config/otel-starter.ts';
 
-import { Cellix } from './cellix.ts';
-import type { ApiContextSpec } from '@ocom/context-spec';
 import { type ApplicationServices, buildApplicationServicesFactory } from '@ocom/application-services';
+import type { ApiContextSpec } from '@ocom/context-spec';
 import { RegisterEventHandlers } from '@ocom/event-handler';
-
-import { ServiceMongoose } from '@ocom/service-mongoose';
-import * as MongooseConfig from './service-config/mongoose/index.ts';
+import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
+import { restHandlerCreator } from '@ocom/rest';
+import { ServiceApolloServer } from '@ocom/service-apollo-server';
 
 import { ServiceBlobStorage } from '@ocom/service-blob-storage';
+import { ServiceMongoose } from '@ocom/service-mongoose';
 
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
-import * as TokenValidationConfig from './service-config/token-validation/index.ts';
-
-import { ServiceApolloServer } from '@ocom/service-apollo-server';
+import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
-
-import { graphHandlerCreator, type GraphContext } from '@ocom/graphql-handler';
-import { restHandlerCreator } from '@ocom/rest';
+import * as BlobStorageConfig from './service-config/blob-storage/index.ts';
+import * as MongooseConfig from './service-config/mongoose/index.ts';
+import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
-		.registerInfrastructureService(new ServiceBlobStorage())
+		.registerInfrastructureService(new ServiceBlobStorage({ connectionString: BlobStorageConfig.blobStorageConnectionString }))
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens));
 
 	// Register Apollo Server service
@@ -38,6 +36,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 			dataSourcesFactory,
 			tokenValidationService: serviceRegistry.getInfrastructureService<ServiceTokenValidation>(ServiceTokenValidation),
 			apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),
+			blobStorageService: serviceRegistry.getInfrastructureService<ServiceBlobStorage>(ServiceBlobStorage),
 		};
 	})
 	.initializeApplicationServices((context) => buildApplicationServicesFactory(context))

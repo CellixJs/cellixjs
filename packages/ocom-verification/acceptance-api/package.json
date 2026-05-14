@@ -20,11 +20,13 @@
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {
+		"@apollo/server": "catalog:",
 		"@cellix/config-typescript": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
 		"@ocom/persistence": "workspace:*",
 		"@ocom/service-apollo-server": "workspace:*",
+		"@ocom/service-blob-storage": "workspace:*",
 		"@ocom/service-mongoose": "workspace:*",
 		"@ocom/service-token-validation": "workspace:*",
 		"@ocom-verification/verification-shared": "workspace:*",
