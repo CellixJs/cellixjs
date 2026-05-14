@@ -259,10 +259,14 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		// If userStore exists, redirect to login to choose/authorize a user.
 		if (config.userStore) {
 			const forward: Record<string, string> = typeof nonce === 'string' ? { nonce } : {};
+			// Whitelist known OIDC and PKCE params and apply size limits to prevent oversized redirects
+			const allowedParams = new Set(['state', 'redirect_uri', 'response_type', 'client_id', 'scope', 'response_mode', 'code_challenge', 'code_challenge_method']);
 			for (const [key, value] of Object.entries(req.query)) {
-				if (typeof value === 'string') {
-					forward[key] = value;
-				}
+				if (!allowedParams.has(key) || typeof value !== 'string') continue;
+				// Apply 2048 limit for state param, reasonable defaults for others
+				if (key === 'state' && value.length > 2048) continue;
+				if (value.length > 4096) continue; // Prevent oversized query strings
+				forward[key] = value;
 			}
 			const q = new URLSearchParams(forward).toString();
 			res.setHeader('Location', `${issuerBaseUrl}/login${q ? `?${q}` : ''}`);

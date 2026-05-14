@@ -230,7 +230,11 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					return;
 				}
 				const safeState = rawState;
-				const safeNonce = existingSession?.nonce ?? (typeof queryNonce === 'string' ? queryNonce : undefined);
+				const safeNonce = existingSession
+					? existingSession.nonce
+					: typeof queryNonce === 'string'
+						? queryNonce
+						: undefined;
 				const nonce = crypto.randomUUID();
 				loginSessionStore.set(nonce, {
 					redirectUri: normalizedRedirect,
