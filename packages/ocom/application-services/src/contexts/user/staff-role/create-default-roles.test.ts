@@ -4,14 +4,14 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { StaffAppRoleNames, createDefaultRoles } from './create-default-roles.ts';
+import { createDefaultRoles, StaffAppRoleNames } from './create-default-roles.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/create-default-roles.feature'));
 
 type StaffRolePermissions = {
-	communityPermissions: { canManageCommunities: boolean };
+	communityPermissions: { canManageCommunities: boolean; canManageStaffRolesAndPermissions?: boolean };
 	financePermissions: { canManageFinance: boolean };
 	techAdminPermissions: { canManageTechAdmin: boolean };
 	userPermissions: { canManageUsers: boolean };
@@ -55,6 +55,50 @@ function makeMockRepo(existingRoleNames: string[] = [], overrides: Partial<Staff
 			savedRoles.push(role);
 			return Promise.resolve(role);
 		}),
+		getNewDefaultCaseManagerInstance: vi.fn().mockImplementation(() => {
+			const role = makeMockStaffRole(StaffAppRoleNames.CaseManager, {
+				communityPermissions: { canManageCommunities: true, canManageStaffRolesAndPermissions: false },
+				financePermissions: { canManageFinance: false },
+				techAdminPermissions: { canManageTechAdmin: false },
+				userPermissions: { canManageUsers: true },
+			});
+			(role as { isDefault: boolean }).isDefault = true;
+			savedRoles.push(role);
+			return Promise.resolve(role);
+		}),
+		getNewDefaultServiceLineOwnerInstance: vi.fn().mockImplementation(() => {
+			const role = makeMockStaffRole(StaffAppRoleNames.ServiceLineOwner, {
+				communityPermissions: { canManageCommunities: true, canManageStaffRolesAndPermissions: false },
+				financePermissions: { canManageFinance: false },
+				techAdminPermissions: { canManageTechAdmin: false },
+				userPermissions: { canManageUsers: true },
+			});
+			(role as { isDefault: boolean }).isDefault = true;
+			savedRoles.push(role);
+			return Promise.resolve(role);
+		}),
+		getNewDefaultFinanceInstance: vi.fn().mockImplementation(() => {
+			const role = makeMockStaffRole(StaffAppRoleNames.Finance, {
+				communityPermissions: { canManageCommunities: false },
+				financePermissions: { canManageFinance: true },
+				techAdminPermissions: { canManageTechAdmin: false },
+				userPermissions: { canManageUsers: false },
+			});
+			(role as { isDefault: boolean }).isDefault = true;
+			savedRoles.push(role);
+			return Promise.resolve(role);
+		}),
+		getNewDefaultTechAdminInstance: vi.fn().mockImplementation(() => {
+			const role = makeMockStaffRole(StaffAppRoleNames.TechAdmin, {
+				communityPermissions: { canManageCommunities: true, canManageStaffRolesAndPermissions: true },
+				financePermissions: { canManageFinance: true },
+				techAdminPermissions: { canManageTechAdmin: true },
+				userPermissions: { canManageUsers: true },
+			});
+			(role as { isDefault: boolean }).isDefault = true;
+			savedRoles.push(role);
+			return Promise.resolve(role);
+		}),
 		save: vi.fn().mockImplementation((role: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>) => {
 			return Promise.resolve(role as Domain.Contexts.User.StaffRole.StaffRoleEntityReference);
 		}),
@@ -65,13 +109,61 @@ function makeMockRepo(existingRoleNames: string[] = [], overrides: Partial<Staff
 type StaffRoleRepo = Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 
 function makeDataSources(repo: StaffRoleRepo): DataSources {
+	// Ensure compatibility for tests that only stub getNewInstance by mapping new factory methods to it when missing
+	const repoWithDefaults = { ...repo } as StaffRoleRepo;
+	if (!repoWithDefaults.getNewDefaultCaseManagerInstance) {
+		repoWithDefaults.getNewDefaultCaseManagerInstance = async () => {
+			const role = await repo.getNewInstance(StaffAppRoleNames.CaseManager);
+			(role as { isDefault: boolean }).isDefault = true;
+			(role.permissions.communityPermissions as { canManageCommunities: boolean }).canManageCommunities = true;
+			(role.permissions.financePermissions as { canManageFinance: boolean }).canManageFinance = false;
+			(role.permissions.techAdminPermissions as { canManageTechAdmin: boolean }).canManageTechAdmin = false;
+			(role.permissions.userPermissions as { canManageUsers: boolean }).canManageUsers = true;
+			return role;
+		};
+	}
+	if (!repoWithDefaults.getNewDefaultServiceLineOwnerInstance) {
+		repoWithDefaults.getNewDefaultServiceLineOwnerInstance = async () => {
+			const role = await repo.getNewInstance(StaffAppRoleNames.ServiceLineOwner);
+			(role as { isDefault: boolean }).isDefault = true;
+			(role.permissions.communityPermissions as { canManageCommunities: boolean }).canManageCommunities = true;
+			(role.permissions.financePermissions as { canManageFinance: boolean }).canManageFinance = false;
+			(role.permissions.techAdminPermissions as { canManageTechAdmin: boolean }).canManageTechAdmin = false;
+			(role.permissions.userPermissions as { canManageUsers: boolean }).canManageUsers = true;
+			return role;
+		};
+	}
+	if (!repoWithDefaults.getNewDefaultFinanceInstance) {
+		repoWithDefaults.getNewDefaultFinanceInstance = async () => {
+			const role = await repo.getNewInstance(StaffAppRoleNames.Finance);
+			(role as { isDefault: boolean }).isDefault = true;
+			(role.permissions.communityPermissions as { canManageCommunities: boolean }).canManageCommunities = false;
+			(role.permissions.financePermissions as { canManageFinance: boolean }).canManageFinance = true;
+			(role.permissions.techAdminPermissions as { canManageTechAdmin: boolean }).canManageTechAdmin = false;
+			(role.permissions.userPermissions as { canManageUsers: boolean }).canManageUsers = false;
+			return role;
+		};
+	}
+	if (!repoWithDefaults.getNewDefaultTechAdminInstance) {
+		repoWithDefaults.getNewDefaultTechAdminInstance = async () => {
+			const role = await repo.getNewInstance(StaffAppRoleNames.TechAdmin);
+			(role as { isDefault: boolean }).isDefault = true;
+			(role.permissions.communityPermissions as { canManageCommunities: boolean; canManageStaffRolesAndPermissions?: boolean }).canManageCommunities = true;
+			(role.permissions.communityPermissions as { canManageStaffRolesAndPermissions?: boolean }).canManageStaffRolesAndPermissions = true;
+			(role.permissions.financePermissions as { canManageFinance: boolean }).canManageFinance = true;
+			(role.permissions.techAdminPermissions as { canManageTechAdmin: boolean }).canManageTechAdmin = true;
+			(role.permissions.userPermissions as { canManageUsers: boolean }).canManageUsers = true;
+			return role;
+		};
+	}
+
 	return {
 		domainDataSource: {
 			User: {
 				StaffRole: {
 					StaffRoleUnitOfWork: {
 						withTransaction: vi.fn().mockImplementation(async (_passport: unknown, callback: (r: StaffRoleRepo) => Promise<void>) => {
-							await callback(repo);
+							await callback(repoWithDefaults as unknown as StaffRoleRepo);
 						}),
 					},
 				},
@@ -104,12 +196,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		Then('it should create all four roles: "Default.CaseManager", "Default.ServiceLineOwner", "Default.Finance", "Default.TechAdmin"', () => {
-			expect(vi.mocked(mockRepo.getNewInstance)).toHaveBeenCalledTimes(4);
-			const names = vi.mocked(mockRepo.getNewInstance).mock.calls.map(([n]) => n);
-			expect(names).toContain(StaffAppRoleNames.CaseManager);
-			expect(names).toContain(StaffAppRoleNames.ServiceLineOwner);
-			expect(names).toContain(StaffAppRoleNames.Finance);
-			expect(names).toContain(StaffAppRoleNames.TechAdmin);
+			expect(vi.mocked(mockRepo.getNewDefaultCaseManagerInstance)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(mockRepo.getNewDefaultServiceLineOwnerInstance)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(mockRepo.getNewDefaultFinanceInstance)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(mockRepo.getNewDefaultTechAdminInstance)).toHaveBeenCalledTimes(1);
 		});
 
 		And('it should return all four created role references', () => {
@@ -131,12 +221,14 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		Then('it should only create the three missing roles', () => {
-			expect(vi.mocked(mockRepo.getNewInstance)).toHaveBeenCalledTimes(3);
+			expect(vi.mocked(mockRepo.getNewDefaultCaseManagerInstance)).not.toHaveBeenCalled();
+			expect(vi.mocked(mockRepo.getNewDefaultServiceLineOwnerInstance)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(mockRepo.getNewDefaultFinanceInstance)).toHaveBeenCalledTimes(1);
+			expect(vi.mocked(mockRepo.getNewDefaultTechAdminInstance)).toHaveBeenCalledTimes(1);
 		});
 
 		And('it should not attempt to create "Default.CaseManager" again', () => {
-			const names = vi.mocked(mockRepo.getNewInstance).mock.calls.map(([n]) => n);
-			expect(names).not.toContain(StaffAppRoleNames.CaseManager);
+			expect(vi.mocked(mockRepo.getNewDefaultCaseManagerInstance)).not.toHaveBeenCalled();
 		});
 	});
 
@@ -157,7 +249,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		And('it should not call getNewInstance or save', () => {
-			expect(vi.mocked(mockRepo.getNewInstance)).not.toHaveBeenCalled();
+			expect(vi.mocked(mockRepo.getNewDefaultCaseManagerInstance)).not.toHaveBeenCalled();
+			expect(vi.mocked(mockRepo.getNewDefaultServiceLineOwnerInstance)).not.toHaveBeenCalled();
+			expect(vi.mocked(mockRepo.getNewDefaultFinanceInstance)).not.toHaveBeenCalled();
+			expect(vi.mocked(mockRepo.getNewDefaultTechAdminInstance)).not.toHaveBeenCalled();
 			expect(vi.mocked(mockRepo.save)).not.toHaveBeenCalled();
 		});
 	});

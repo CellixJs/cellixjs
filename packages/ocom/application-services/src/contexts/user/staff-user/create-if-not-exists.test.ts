@@ -102,6 +102,10 @@ function makeDataSources(overrides: {
 			return Promise.reject(new Error(`NotFoundError: ${name} not found`));
 		}),
 		getNewInstance: vi.fn().mockImplementation((name: string) => Promise.resolve(makeMockStaffRoleRef(name))),
+		getNewDefaultCaseManagerInstance: vi.fn().mockResolvedValue(makeMockStaffRoleRef(StaffAppRoleNames.CaseManager)),
+		getNewDefaultServiceLineOwnerInstance: vi.fn().mockResolvedValue(makeMockStaffRoleRef(StaffAppRoleNames.ServiceLineOwner)),
+		getNewDefaultFinanceInstance: vi.fn().mockResolvedValue(makeMockStaffRoleRef(StaffAppRoleNames.Finance)),
+		getNewDefaultTechAdminInstance: vi.fn().mockResolvedValue(makeMockStaffRoleRef(StaffAppRoleNames.TechAdmin)),
 		save: vi.fn().mockImplementation((r: unknown) => Promise.resolve(r)),
 	} as unknown as Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 

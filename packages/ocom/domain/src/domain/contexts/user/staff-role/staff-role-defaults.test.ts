@@ -70,9 +70,7 @@ function makeBaseProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps 
 
 test('applyDefaultSpec sets CaseManager permissions correctly and marks default', () => {
 	const passport = makePassport();
-	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Default.CaseManager', false);
-
-	StaffRole.applyDefaultSpec(role, 'Default.CaseManager');
+	const role = StaffRole.getNewDefaultCaseManagerInstance(makeBaseProps(), passport);
 
 	expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
 	expect(role.permissions.financePermissions.canManageFinance).toBe(false);
@@ -83,9 +81,7 @@ test('applyDefaultSpec sets CaseManager permissions correctly and marks default'
 
 test('applyDefaultSpec sets Finance permissions correctly and marks default', () => {
 	const passport = makePassport();
-	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Default.Finance', false);
-
-	StaffRole.applyDefaultSpec(role, 'Default.Finance');
+	const role = StaffRole.getNewDefaultFinanceInstance(makeBaseProps(), passport);
 
 	expect(role.permissions.communityPermissions.canManageCommunities).toBe(false);
 	expect(role.permissions.financePermissions.canManageFinance).toBe(true);
@@ -96,9 +92,7 @@ test('applyDefaultSpec sets Finance permissions correctly and marks default', ()
 
 test('applyDefaultSpec sets ServiceLineOwner permissions correctly and marks default', () => {
 	const passport = makePassport();
-	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Default.ServiceLineOwner', false);
-
-	StaffRole.applyDefaultSpec(role, 'Default.ServiceLineOwner');
+	const role = StaffRole.getNewDefaultServiceLineOwnerInstance(makeBaseProps(), passport);
 
 	expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
 	expect(role.permissions.financePermissions.canManageFinance).toBe(false);
@@ -109,9 +103,7 @@ test('applyDefaultSpec sets ServiceLineOwner permissions correctly and marks def
 
 test('applyDefaultSpec sets TechAdmin permissions correctly and marks default', () => {
 	const passport = makePassport();
-	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Default.TechAdmin', false);
-
-	StaffRole.applyDefaultSpec(role, 'Default.TechAdmin');
+	const role = StaffRole.getNewDefaultTechAdminInstance(makeBaseProps(), passport);
 
 	expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
 	// Tech Admins should also be able to manage staff roles & permissions by default
