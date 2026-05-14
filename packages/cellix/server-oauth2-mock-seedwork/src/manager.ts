@@ -9,7 +9,7 @@ import { normalizeBaseUrl, SAFE_NAME_RE } from './utils.ts';
  *
  * @param serverConfig - Shared server configuration including `port`, optional `host`,
  * externally visible `baseUrl`, and optional `trustProxy`. Set `trustProxy: true` to
- * always trust proxy headers (`X-Forwarded-*`), or `trustProxy: false` to disable
+ * trust a single proxy hop for `X-Forwarded-*` headers, or `trustProxy: false` to disable
  * proxy trust entirely. When `trustProxy` is omitted, it defaults to enabled only for
  * loopback hosts (`127.0.0.1`, `localhost`, `::1`) inferred from `host` or `baseUrl`;
  * otherwise proxy headers are not trusted.

@@ -202,19 +202,28 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		// Atomic replace: on POSIX, rename() replaces atomically without a window.
 		// On Windows, rename() fails if destination exists, so fall back to unlink-first approach.
 		try {
-			await rename(tmpPath, localPath);
-		} catch (error) {
-			// If rename fails and looks like a Windows EEXIST, fall back to unlink-first
-			const isWindowsExist = error instanceof Error && 'code' in error && (error.code === 'EEXIST' || error.code === 'EPERM');
-			if (isWindowsExist) {
-				try {
-					await unlink(localPath);
-				} catch (unlinkErr) {
-					if (!isEnoentError(unlinkErr)) throw unlinkErr;
-				}
+			try {
 				await rename(tmpPath, localPath);
-			} else {
-				throw error;
+			} catch (error) {
+				// If rename fails and looks like a Windows EEXIST, fall back to unlink-first
+				const isWindowsExist = error instanceof Error && 'code' in error && (error.code === 'EEXIST' || error.code === 'EPERM');
+				if (isWindowsExist) {
+					try {
+						await unlink(localPath);
+					} catch (unlinkErr) {
+						if (!isEnoentError(unlinkErr)) throw unlinkErr;
+					}
+					await rename(tmpPath, localPath);
+				} else {
+					throw error;
+				}
+			}
+		} finally {
+			// Best-effort cleanup: remove tmpPath if it still exists (e.g., if rename failed)
+			try {
+				await unlink(tmpPath);
+			} catch {
+				// Ignore cleanup errors
 			}
 		}
 		try {
