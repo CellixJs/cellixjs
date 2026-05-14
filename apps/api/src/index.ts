@@ -20,7 +20,12 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
-		.registerInfrastructureService(new ServiceBlobStorage({ connectionString: BlobStorageConfig.blobStorageConnectionString }))
+		.registerInfrastructureService(
+			new ServiceBlobStorage({
+				accountName: BlobStorageConfig.blobStorageConfig.accountName,
+				connectionString: BlobStorageConfig.blobStorageConfig.connectionString,
+			}),
+		)
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens));
 
 	// Register Apollo Server service

@@ -3,8 +3,14 @@ import { ServiceBlobStorage as CellixServiceBlobStorage, type ServiceBlobStorage
 import type { BlobStorage, CreateBlobAccessUrlRequest } from './blob-storage.contract.ts';
 import { createBlobStorage } from './blob-storage-adapter.ts';
 
-export interface ServiceBlobStorageOptions extends Omit<CellixServiceBlobStorageOptions, 'connectionString'> {
-	connectionString?: string;
+/**
+ * Options for the OCOM blob storage service wrapper.
+ * Delegates to the framework ServiceBlobStorage, supporting both managed identity and local dev modes.
+ */
+export interface ServiceBlobStorageOptions extends CellixServiceBlobStorageOptions {
+	/**
+	 * Optional framework service instance. If not provided, one will be created from the options.
+	 */
 	frameworkService?: CellixServiceBlobStorage;
 }
 
@@ -13,16 +19,10 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	private serviceInternal: BlobStorage | undefined;
 
 	constructor(options: ServiceBlobStorageOptions) {
-		// Validate that either connectionString or frameworkService is provided
-		if (!options.connectionString && !options.frameworkService) {
-			throw new Error('ServiceBlobStorage requires either connectionString or frameworkService');
-		}
-
 		if (options.frameworkService) {
 			this.frameworkService = options.frameworkService;
 		} else {
-			// biome-ignore lint/style/noNonNullAssertion: validation above guarantees connectionString is not undefined
-			this.frameworkService = new CellixServiceBlobStorage({ connectionString: options.connectionString! });
+			this.frameworkService = new CellixServiceBlobStorage(options);
 		}
 	}
 

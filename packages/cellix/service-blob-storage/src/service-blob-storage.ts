@@ -36,9 +36,9 @@ export interface ServiceBlobStorageOptions {
  *
  */
 export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage {
-	private connectionString: string | undefined;
-	private accountName: string | undefined;
-	private credential: TokenCredential | undefined;
+	private readonly connectionString: string | undefined;
+	private readonly accountName: string | undefined;
+	private readonly credential: TokenCredential | undefined;
 	private blobServiceClientInternal: BlobServiceClient | undefined;
 	private clientUploadSignerInternal: ClientUploadSigner | undefined;
 

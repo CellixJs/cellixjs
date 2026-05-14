@@ -100,7 +100,10 @@ vi.mock('./service-config/mongoose/index.ts', () => ({
 	mongooseContextBuilder: vi.fn(() => dataSourcesFactory),
 }));
 vi.mock('./service-config/blob-storage/index.ts', () => ({
-	blobStorageConnectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+	blobStorageConfig: {
+		accountName: 'devstoreaccount1',
+		connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+	},
 }));
 vi.mock('./service-config/token-validation/index.ts', () => ({
 	portalTokens: new Map([['AccountPortal', 'ACCOUNT_PORTAL']]),
