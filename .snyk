@@ -76,3 +76,9 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
         expires: '2026-06-28T00:00:00.000Z'
         created: '2026-05-11T10:00:00.000Z'
+sast-ignore:
+  'packages/cellix/service-blob-storage/src/test-support/azurite.ts':
+    - 'Hardcoded-Non-Cryptographic-Secret @ line 10':
+        reason: 'This is the standard well-known Azurite/Azure Storage Emulator test account key from official Microsoft documentation (https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite). Used only for local testing and not a real credential.'
+        expires: '2027-05-14T00:00:00.000Z'
+        created: '2026-05-14T16:00:00.000Z'

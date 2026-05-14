@@ -18,7 +18,12 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 			throw new Error('ServiceBlobStorage requires either connectionString or frameworkService');
 		}
 
-		this.frameworkService = options.frameworkService ?? new CellixServiceBlobStorage({ connectionString: options.connectionString! });
+		if (options.frameworkService) {
+			this.frameworkService = options.frameworkService;
+		} else {
+			// biome-ignore lint/style/noNonNullAssertion: validation above guarantees connectionString is not undefined
+			this.frameworkService = new CellixServiceBlobStorage({ connectionString: options.connectionString! });
+		}
 	}
 
 	public async startUp(): Promise<BlobStorage> {

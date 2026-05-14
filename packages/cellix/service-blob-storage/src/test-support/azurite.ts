@@ -5,8 +5,26 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const AZURITE_ACCOUNT_NAME = 'devstoreaccount1';
-const AZURITE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==';
+// Azurite credentials are sourced from environment variables (AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_ACCOUNT_KEY)
+// which are typically set via local.settings.json in development environments.
+// This avoids hardcoding secrets in source code.
+function getAzuriteAccountName(): string {
+	// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for process.env in strict mode
+	const accountName = process.env['AZURE_STORAGE_ACCOUNT_NAME'];
+	if (!accountName) {
+		throw new Error('AZURE_STORAGE_ACCOUNT_NAME environment variable is required for Azurite tests. ' + 'Ensure it is set in local.settings.json or process environment.');
+	}
+	return accountName;
+}
+
+function getAzuriteAccountKey(): string {
+	// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for process.env in strict mode
+	const accountKey = process.env['AZURE_STORAGE_ACCOUNT_KEY'];
+	if (!accountKey) {
+		throw new Error('AZURE_STORAGE_ACCOUNT_KEY environment variable is required for Azurite tests. ' + 'Ensure it is set in local.settings.json or process environment.');
+	}
+	return accountKey;
+}
 
 export interface AzuriteBlobServer {
 	connectionString: string;
@@ -111,7 +129,9 @@ async function canConnect(port: number): Promise<void> {
 }
 
 function buildAzuriteConnectionString(port: number): string {
-	return `DefaultEndpointsProtocol=http;AccountName=${AZURITE_ACCOUNT_NAME};AccountKey=${AZURITE_ACCOUNT_KEY};BlobEndpoint=http://127.0.0.1:${port}/${AZURITE_ACCOUNT_NAME};`;
+	const accountName = getAzuriteAccountName();
+	const accountKey = getAzuriteAccountKey();
+	return `DefaultEndpointsProtocol=http;AccountName=${accountName};AccountKey=${accountKey};BlobEndpoint=http://127.0.0.1:${port}/${accountName};`;
 }
 
 async function stopProcess(processHandle: ChildProcessWithoutNullStreams): Promise<void> {
