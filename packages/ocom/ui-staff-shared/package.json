@@ -17,6 +17,8 @@
 	"dependencies": {
 		"@apollo/client": "^3.13.9",
 		"@ant-design/icons": "catalog:",
+		"@cellix/ui-core": "workspace:*",
+		"@graphql-typed-document-node/core": "^3.2.0",
 		"@ocom/ui-shared": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",

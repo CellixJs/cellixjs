@@ -141,6 +141,20 @@ generates:
       - typescript-operations
       - typed-document-node
 
+  # UI staff shared components client types
+  './packages/ocom/ui-staff-shared/src/generated.tsx':
+    documents: './packages/ocom/ui-staff-shared/src/**/**.graphql'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
   # Cellix core base type defs (static array for rolldown bundling)
   './packages/cellix/graphql-core/src/schema/base-type-defs.generated.ts':
     plugins:
