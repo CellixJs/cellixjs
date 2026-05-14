@@ -70,9 +70,9 @@ function makeBaseProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps 
 
 test('applyDefaultSpec sets CaseManager permissions correctly and marks default', () => {
 	const passport = makePassport();
-	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Staff.CaseManager', false);
+	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Default.CaseManager', false);
 
-	StaffRole.applyDefaultSpec(role, 'Staff.CaseManager');
+	StaffRole.applyDefaultSpec(role, 'Default.CaseManager');
 
 	expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
 	expect(role.permissions.financePermissions.canManageFinance).toBe(false);
@@ -83,9 +83,9 @@ test('applyDefaultSpec sets CaseManager permissions correctly and marks default'
 
 test('applyDefaultSpec sets Finance permissions correctly and marks default', () => {
 	const passport = makePassport();
-	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Staff.Finance', false);
+	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Default.Finance', false);
 
-	StaffRole.applyDefaultSpec(role, 'Staff.Finance');
+	StaffRole.applyDefaultSpec(role, 'Default.Finance');
 
 	expect(role.permissions.communityPermissions.canManageCommunities).toBe(false);
 	expect(role.permissions.financePermissions.canManageFinance).toBe(true);
@@ -96,9 +96,9 @@ test('applyDefaultSpec sets Finance permissions correctly and marks default', ()
 
 test('applyDefaultSpec sets ServiceLineOwner permissions correctly and marks default', () => {
 	const passport = makePassport();
-	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Staff.ServiceLineOwner', false);
+	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Default.ServiceLineOwner', false);
 
-	StaffRole.applyDefaultSpec(role, 'Staff.ServiceLineOwner');
+	StaffRole.applyDefaultSpec(role, 'Default.ServiceLineOwner');
 
 	expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
 	expect(role.permissions.financePermissions.canManageFinance).toBe(false);
@@ -109,13 +109,15 @@ test('applyDefaultSpec sets ServiceLineOwner permissions correctly and marks def
 
 test('applyDefaultSpec sets TechAdmin permissions correctly and marks default', () => {
 	const passport = makePassport();
-	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Staff.TechAdmin', false);
+	const role = StaffRole.getNewInstance(makeBaseProps(), passport, 'Default.TechAdmin', false);
 
-	StaffRole.applyDefaultSpec(role, 'Staff.TechAdmin');
+	StaffRole.applyDefaultSpec(role, 'Default.TechAdmin');
 
-	expect(role.permissions.communityPermissions.canManageCommunities).toBe(false);
-	expect(role.permissions.financePermissions.canManageFinance).toBe(false);
+	expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
+	// Tech Admins should also be able to manage staff roles & permissions by default
+	expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
+	expect(role.permissions.financePermissions.canManageFinance).toBe(true);
 	expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
-	expect(role.permissions.userPermissions.canManageUsers).toBe(false);
+	expect(role.permissions.userPermissions.canManageUsers).toBe(true);
 	expect(role.isDefault).toBe(true);
 });

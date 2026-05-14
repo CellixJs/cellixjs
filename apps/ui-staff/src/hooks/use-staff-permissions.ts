@@ -59,16 +59,17 @@ interface StaffUserQueryResult {
 	};
 }
 
-export const useStaffPermissions = (): { permissions: StaffPermissions | undefined; loading: boolean; error: Error | undefined } => {
+export const useStaffPermissions = (): { permissions: StaffPermissions | undefined; user: { id?: string; displayName?: string; firstName?: string; lastName?: string; email?: string } | undefined; loading: boolean; error: Error | undefined } => {
 	const { data, loading, error } = useQuery<StaffUserQueryResult>(CURRENT_STAFF_USER_QUERY, {
 		fetchPolicy: 'cache-first',
 	});
 
 	const rolePermissions = data?.currentStaffUserAndCreateIfNotExists?.role?.permissions;
- 
+	const currentUser = data?.currentStaffUserAndCreateIfNotExists
+  
 	// Treat a TechAdmin as an implicit manager of all sections
 	const isTechAdmin = rolePermissions?.techAdminPermissions?.canManageTechAdmin ?? false;
- 
+  
 	const permissions: StaffPermissions | undefined = rolePermissions
 		? {
 				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
@@ -80,6 +81,15 @@ export const useStaffPermissions = (): { permissions: StaffPermissions | undefin
 
 	return {
 		permissions,
+		user: currentUser
+			? {
+				id: currentUser.id,
+				displayName: currentUser.displayName,
+				firstName: currentUser.firstName,
+				lastName: currentUser.lastName,
+				email: currentUser.email,
+			}
+			: undefined,
 		loading,
 		error,
 	};

@@ -21,6 +21,27 @@ Feature: Create staff user if not exists
     When I call createIfNotExists with externalId "ext-789"
     Then it should assign the "Staff.CaseManager" role to the new user
 
+  Scenario: Assigns Default.TechAdmin when AAD role is techAdmin (alias)
+    Given no staff user with externalId "ext-201" exists
+    And the AAD roles include "techAdmin"
+    And the "Default.TechAdmin" role exists in the repository
+    When I call createIfNotExists with externalId "ext-201"
+    Then it should assign the "Default.TechAdmin" role to the new user
+
+  Scenario: Assigns Default.TechAdmin when AAD role is canonical
+    Given no staff user with externalId "ext-202" exists
+    And the AAD roles include "Default.TechAdmin"
+    And the "Default.TechAdmin" role exists in the repository
+    When I call createIfNotExists with externalId "ext-202"
+    Then it should assign the "Default.TechAdmin" role to the new user
+
+  Scenario: Assigns Default.TechAdmin when AAD role has alternate formatting
+    Given no staff user with externalId "ext-203" exists
+    And the AAD roles include "default tech admin"
+    And the "Default.TechAdmin" role exists in the repository
+    When I call createIfNotExists with externalId "ext-203"
+    Then it should assign the "Default.TechAdmin" role to the new user
+
   Scenario: Creates a new user without a role when no AAD role matches
     Given no staff user with externalId "ext-000" exists
     And the AAD roles include "Unknown.Role"

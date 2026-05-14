@@ -13,7 +13,42 @@ export interface StaffUserCreateIfNotExistsCommand {
 
 const findMatchingRoleName = (aadRoles: string[]): StaffAppRoleName | undefined => {
 	const knownRoles = Object.values(StaffAppRoleNames) as StaffAppRoleName[];
-	return aadRoles.find((r): r is StaffAppRoleName => knownRoles.includes(r as StaffAppRoleName));
+
+	// Prefer exact canonical match first
+	for (const r of aadRoles) {
+		if (knownRoles.includes(r as StaffAppRoleName)) {
+			return r as StaffAppRoleName;
+		}
+	}
+
+	// Normalization helpers: remove non-alphanumeric and lowercase
+	const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+	// Build lookup maps from various normalized forms to canonical role name
+	const normalizedMap = new Map<string, StaffAppRoleName>();
+	for (const kr of knownRoles) {
+		const fullNorm = normalize(kr);
+		normalizedMap.set(fullNorm, kr);
+		// also store a base name without common prefixes like "default" or "staff"
+		const baseNorm = fullNorm.replace(/^(default|staff)/, '');
+		normalizedMap.set(baseNorm, kr);
+	}
+
+	for (const r of aadRoles) {
+		const norm = normalize(r);
+		// direct normalized match
+		if (normalizedMap.has(norm)) {
+			return normalizedMap.get(norm) as StaffAppRoleName;
+		}
+		// try stripping common prefixes from incoming claim and match again
+		const stripped = norm.replace(/^(default|staff)/, '');
+		if (normalizedMap.has(stripped)) {
+			return normalizedMap.get(stripped) as StaffAppRoleName;
+		}
+	}
+
+	// No match found
+	return undefined;
 };
 
 const getRoleByName = async (dataSources: DataSources, roleName: string): Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null> => {

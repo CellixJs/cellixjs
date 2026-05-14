@@ -52,10 +52,10 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 
 	public static getDefaultRoleSpecs(): DefaultRoleSpec[] {
 		return [
-			{ roleName: 'Staff.CaseManager', apply: StaffRole.applyCaseManagerDefaultSpec },
-			{ roleName: 'Staff.ServiceLineOwner', apply: StaffRole.applyServiceLineOwnerDefaultSpec },
-			{ roleName: 'Staff.Finance', apply: StaffRole.applyFinanceDefaultSpec },
-			{ roleName: 'Staff.TechAdmin', apply: StaffRole.applyTechAdminDefaultSpec },
+			{ roleName: 'Default.CaseManager', apply: StaffRole.applyCaseManagerDefaultSpec },
+			{ roleName: 'Default.ServiceLineOwner', apply: StaffRole.applyServiceLineOwnerDefaultSpec },
+			{ roleName: 'Default.Finance', apply: StaffRole.applyFinanceDefaultSpec },
+			{ roleName: 'Default.TechAdmin', apply: StaffRole.applyTechAdminDefaultSpec },
 		];
 	}
 
@@ -84,10 +84,13 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 	}
 
 	public static applyTechAdminDefaultSpec(staffRole: StaffRole<StaffRoleProps>): void {
-		staffRole.permissions.communityPermissions.canManageCommunities = false;
-		staffRole.permissions.financePermissions.canManageFinance = false;
+		// Tech Admins are implicit managers of all areas
+		staffRole.permissions.communityPermissions.canManageCommunities = true;
+		// Tech Admins should also be able to manage staff roles & permissions by default
+		staffRole.permissions.communityPermissions.canManageStaffRolesAndPermissions = true;
+		staffRole.permissions.financePermissions.canManageFinance = true;
 		staffRole.permissions.techAdminPermissions.canManageTechAdmin = true;
-		staffRole.permissions.userPermissions.canManageUsers = false;
+		staffRole.permissions.userPermissions.canManageUsers = true;
 		staffRole.isDefault = true;
 	}
 
@@ -102,16 +105,16 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		// When bootstrapping defaults, mutate the aggregate directly. We intentionally avoid clearing isDefault here.
 
 		switch (roleName) {
-			case 'Staff.CaseManager':
+			case 'Default.CaseManager':
 				StaffRole.applyCaseManagerDefaultSpec(staffRole);
 				break;
-			case 'Staff.ServiceLineOwner':
+			case 'Default.ServiceLineOwner':
 				StaffRole.applyServiceLineOwnerDefaultSpec(staffRole);
 				break;
-			case 'Staff.Finance':
+			case 'Default.Finance':
 				StaffRole.applyFinanceDefaultSpec(staffRole);
 				break;
-			case 'Staff.TechAdmin':
+			case 'Default.TechAdmin':
 				StaffRole.applyTechAdminDefaultSpec(staffRole);
 				break;
 			default:

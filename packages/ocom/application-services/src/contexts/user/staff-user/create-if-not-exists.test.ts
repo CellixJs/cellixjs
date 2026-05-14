@@ -255,6 +255,90 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Assigns Default.TechAdmin when AAD role is techAdmin (alias)', ({ Given, When, Then, And }) => {
+		let roleRef: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+
+		Given('no staff user with externalId "ext-201" exists', () => {
+			roleRef = makeMockStaffRoleRef(StaffAppRoleNames.TechAdmin);
+			newUser = makeMockNewUser('ext-201');
+			dataSources = makeDataSources({ existingUser: null, newUser, roleByName: roleRef });
+			command = { ...command, externalId: 'ext-201' };
+		});
+
+		And('the AAD roles include "techAdmin"', () => {
+			command = { ...command, aadRoles: ['techAdmin'] };
+		});
+
+		And('the "Default.TechAdmin" role exists in the repository', () => {
+			// role was set up in Given
+		});
+
+		When('I call createIfNotExists with externalId "ext-201"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should assign the "Default.TechAdmin" role to the new user', () => {
+			expect(newUser.role).toBeDefined();
+			expect(newUser.role?.roleName).toBe(StaffAppRoleNames.TechAdmin);
+		});
+	});
+
+	Scenario('Assigns Default.TechAdmin when AAD role is canonical', ({ Given, When, Then, And }) => {
+		let roleRef: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+
+		Given('no staff user with externalId "ext-202" exists', () => {
+			roleRef = makeMockStaffRoleRef(StaffAppRoleNames.TechAdmin);
+			newUser = makeMockNewUser('ext-202');
+			dataSources = makeDataSources({ existingUser: null, newUser, roleByName: roleRef });
+			command = { ...command, externalId: 'ext-202' };
+		});
+
+		And('the AAD roles include "Default.TechAdmin"', () => {
+			command = { ...command, aadRoles: [StaffAppRoleNames.TechAdmin] };
+		});
+
+		And('the "Default.TechAdmin" role exists in the repository', () => {
+			// role was set up in Given
+		});
+
+		When('I call createIfNotExists with externalId "ext-202"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should assign the "Default.TechAdmin" role to the new user', () => {
+			expect(newUser.role).toBeDefined();
+			expect(newUser.role?.roleName).toBe(StaffAppRoleNames.TechAdmin);
+		});
+	});
+
+	Scenario('Assigns Default.TechAdmin when AAD role has alternate formatting', ({ Given, When, Then, And }) => {
+		let roleRef: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+
+		Given('no staff user with externalId "ext-203" exists', () => {
+			roleRef = makeMockStaffRoleRef(StaffAppRoleNames.TechAdmin);
+			newUser = makeMockNewUser('ext-203');
+			dataSources = makeDataSources({ existingUser: null, newUser, roleByName: roleRef });
+			command = { ...command, externalId: 'ext-203' };
+		});
+
+		And('the AAD roles include "default tech admin"', () => {
+			command = { ...command, aadRoles: ['default tech admin'] };
+		});
+
+		And('the "Default.TechAdmin" role exists in the repository', () => {
+			// role was set up in Given
+		});
+
+		When('I call createIfNotExists with externalId "ext-203"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should assign the "Default.TechAdmin" role to the new user', () => {
+			expect(newUser.role).toBeDefined();
+			expect(newUser.role?.roleName).toBe(StaffAppRoleNames.TechAdmin);
+		});
+	});
+
 	// ─── No role when AAD role unknown ────────────────────────────────────────
 
 	Scenario('Creates a new user without a role when no AAD role matches', ({ Given, When, Then, And }) => {

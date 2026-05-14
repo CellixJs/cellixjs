@@ -164,7 +164,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 							marginLeft: 'auto',
 						}}
 					>
-						<span style={{ fontSize: '14px', color: '#666' }}>Staff User</span>
+						<span style={{ fontSize: '14px', color: '#666' }}>{auth?.name || auth?.username || auth?.email || 'Staff User'}</span>
 						<Button
 							type="link"
 							onClick={() => auth?.onLogout?.()}

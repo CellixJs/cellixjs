@@ -3,10 +3,10 @@ import { Domain as DomainRuntime } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
 export const StaffAppRoleNames = {
-	CaseManager: 'Staff.CaseManager',
-	ServiceLineOwner: 'Staff.ServiceLineOwner',
-	Finance: 'Staff.Finance',
-	TechAdmin: 'Staff.TechAdmin',
+	CaseManager: 'Default.CaseManager',
+	ServiceLineOwner: 'Default.ServiceLineOwner',
+	Finance: 'Default.Finance',
+	TechAdmin: 'Default.TechAdmin',
 } as const;
 
 export type StaffAppRoleName = (typeof StaffAppRoleNames)[keyof typeof StaffAppRoleNames];
