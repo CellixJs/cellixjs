@@ -253,7 +253,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			portal: issuerBaseUrl,
 			state: typeof state === 'string' ? state : undefined,
 			redirectUri: requestedRedirectUri,
-			sessionNonce: typeof nonce === 'string' ? nonce : undefined,
+			requestNonce: typeof nonce === 'string' ? nonce : undefined,
 		});
 
 		// If userStore exists, redirect to login to choose/authorize a user.
