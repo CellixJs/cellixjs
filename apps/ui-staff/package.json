@@ -20,6 +20,7 @@
 		"@apollo/client": "^3.13.9",
 		"@dr.pogodin/react-helmet": "^3.0.2",
 		"@cellix/ui-core": "workspace:*",
+		"@ocom/ui-shared": "workspace:*",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"@ocom/ui-staff-route-root": "workspace:*",
 		"@ocom/ui-staff-route-community-management": "workspace:*",
@@ -30,8 +31,8 @@
 		"antd": "catalog:",
 		"apollo-link-rest": "^0.9.0",
 		"less": "^4.4.0",
-		"react": "^19.1.0",
-		"react-dom": "^19.1.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"react-oidc-context": "^3.3.0",
 		"react-router-dom": "catalog:"
 	},

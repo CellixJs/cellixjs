@@ -27,14 +27,14 @@
 		"build-storybook": "storybook build"
 	},
 	"dependencies": {
-		"@ant-design/icons": "^6.0.2",
+		"@ant-design/icons": "catalog:",
 		"@apollo/client": "^3.13.9",
 		"@cellix/ui-core": "workspace:*",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"antd": "catalog:",
 		"graphql": "catalog:",
-		"react": "^19.1.1",
-		"react-dom": "^19.1.1",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"react-oidc-context": "^3.3.0",
 		"react-router-dom": "catalog:"
 	},

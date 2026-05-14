@@ -9,9 +9,31 @@ interface ApolloConnectionProps {
 	children: React.ReactNode;
 }
 
+const createSplitLink = (linkMap: Record<string, ApolloLink>, defaultLink: ApolloLink) => {
+	return ApolloLink.from([
+		ApolloLink.split(
+			(operation) => typeof operation.operationName === 'string' && operation.operationName in linkMap,
+			new ApolloLink((operation, forward) => {
+				const opName = operation.operationName;
+				const link = (typeof opName === 'string' && (linkMap as Record<string, ApolloLink>)[opName]) || defaultLink;
+				// Defensive guards: prefer link.request if available, else use forward, else return null
+				if (link && typeof (link as ApolloLink & { request?: (op: unknown, forward?: unknown) => unknown }).request === 'function') {
+					return (link as ApolloLink & { request?: (op: unknown, forward?: unknown) => unknown }).request?.(operation, forward);
+				}
+				if (typeof forward === 'function') {
+					return forward(operation);
+				}
+				return null as unknown as never;
+			}),
+			defaultLink,
+		),
+	]);
+};
+
 export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnectionProps) => {
 	const auth = useAuth();
 	const location = useLocation();
+	const { VITE_COMMON_API_ENDPOINT } = import.meta.env;
 
 	const communityId = location.pathname.match(/\/community\/([a-f\d]{24})/i)?.[1] ?? null;
 	const memberId = location.pathname.match(/\/(member|admin)\/([a-f\d]{24})/i)?.[2] ?? null;
@@ -25,8 +47,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
 		ApolloLinkToAddCustomHeader('x-community-id', communityId, communityId !== 'accounts'),
 		ApolloLinkToAddCustomHeader('x-member-id', memberId),
 		TerminatingApolloLinkForGraphqlServer({
-			// biome-ignore lint:useLiteralKeys
-			uri: `${import.meta.env['VITE_FUNCTION_ENDPOINT']}`,
+			uri: `${VITE_COMMON_API_ENDPOINT}`,
 			batchMax: 15,
 			batchInterval: 50,
 		}),
@@ -44,16 +65,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
 			default: apolloLinkChainForGraphqlDataSource,
 		};
 
-		return ApolloLink.from([
-			ApolloLink.split(
-				(operation) => operation.operationName in linkMap,
-				new ApolloLink((operation, forward) => {
-					const link = linkMap[operation.operationName as keyof typeof linkMap] || linkMap.default;
-					return link.request(operation, forward);
-				}),
-				apolloLinkChainForGraphqlDataSource,
-			),
-		]);
+		return createSplitLink(linkMap, apolloLinkChainForGraphqlDataSource);
 	}, [apolloLinkChainForGraphqlDataSource, apolloLinkChainForCountryDataSource]);
 
 	useEffect(() => {
