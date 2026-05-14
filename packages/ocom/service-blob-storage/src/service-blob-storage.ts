@@ -3,7 +3,8 @@ import { ServiceBlobStorage as CellixServiceBlobStorage, type ServiceBlobStorage
 import type { BlobStorage, CreateBlobAccessUrlRequest } from './blob-storage.contract.ts';
 import { createBlobStorage } from './blob-storage-adapter.ts';
 
-export interface ServiceBlobStorageOptions extends CellixServiceBlobStorageOptions {
+export interface ServiceBlobStorageOptions extends Omit<CellixServiceBlobStorageOptions, 'connectionString'> {
+	connectionString?: string;
 	frameworkService?: CellixServiceBlobStorage;
 }
 
@@ -12,7 +13,12 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	private serviceInternal: BlobStorage | undefined;
 
 	constructor(options: ServiceBlobStorageOptions) {
-		this.frameworkService = options.frameworkService ?? new CellixServiceBlobStorage({ connectionString: options.connectionString });
+		// Validate that either connectionString or frameworkService is provided
+		if (!options.connectionString && !options.frameworkService) {
+			throw new Error('ServiceBlobStorage requires either connectionString or frameworkService');
+		}
+
+		this.frameworkService = options.frameworkService ?? new CellixServiceBlobStorage({ connectionString: options.connectionString! });
 	}
 
 	public async startUp(): Promise<BlobStorage> {

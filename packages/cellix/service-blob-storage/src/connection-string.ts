@@ -1,11 +1,24 @@
 import { StorageSharedKeyCredential } from '@azure/storage-blob';
 
 export function createCredentialFromConnectionString(connectionString: string): StorageSharedKeyCredential {
+	// Validate input early to provide clear error messages
+	if (typeof connectionString !== 'string' || !connectionString.trim()) {
+		throw new Error('Connection string must be a non-empty string');
+	}
+
 	const accountName = getConnectionStringValue(connectionString, 'AccountName');
 	const accountKey = getConnectionStringValue(connectionString, 'AccountKey');
 
-	if (!accountName || !accountKey) {
-		throw new Error('Blob Storage connection string must include AccountName and AccountKey');
+	if (!accountName && !accountKey) {
+		throw new Error('Blob Storage connection string must include both AccountName and AccountKey');
+	}
+
+	if (!accountName) {
+		throw new Error('Missing AccountName in Blob Storage connection string');
+	}
+
+	if (!accountKey) {
+		throw new Error('Missing AccountKey in Blob Storage connection string');
 	}
 
 	return new StorageSharedKeyCredential(accountName, accountKey);
