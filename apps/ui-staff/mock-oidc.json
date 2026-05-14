@@ -3,12 +3,5 @@
 	"envVars": {
 		"clientId": "VITE_APP_UI_STAFF_AAD_CLIENTID",
 		"redirectUri": "VITE_APP_UI_STAFF_AAD_REDIRECT_URI"
-	},
-	"claims": {
-		"sub": "10000000-0000-4000-8000-000000000001",
-		"email": "staff@sharethrift.onmicrosoft.com",
-		"given_name": "Staff",
-		"family_name": "User",
-		"tid": "test-staff-tenant-id"
 	}
 }

@@ -30,16 +30,28 @@ if (portals.length === 0) {
 
 try {
 	const manager = createMockOAuth2Manager({ port, host: '127.0.0.1', baseUrl: normalizeBaseUrl(baseUrl) });
+	const { createFileUserStore } = await import('./users.ts');
 
 	for (const portal of portals) {
+		const userStore = createFileUserStore(path.join(appsDir, portal.dirName));
 		const config: MockOAuth2PortalConfig = {
 			allowedRedirectUris: new Set([portal.redirectUri]),
 			allowedRedirectUri: portal.redirectUri,
 			redirectUriToAudience: new Map([[portal.redirectUri, portal.clientId]]),
+			userStore,
+			/**
+			 * Subject (sub) resolution priority:
+			 * 1. User's own `sub` field in mock-oidc.users.json
+			 * 2. `sub` inside the user's `claims` object
+			 * 3. Error — sub is required for OIDC
+			 *
+			 * The portal's legacy `claims.sub` (from mock-oidc.json) is intentionally
+			 * NOT used when a userStore is configured — each user has their own sub.
+			 */
 			getUserProfile: () => {
 				const claims = portal.claims ?? {};
 				// Destructure sub separately so we can omit it when not explicitly configured,
-				// allowing the router to fall back to persistedSub (stable per auth-code).
+				// allowing the router to fall back to an authCodeStore mapping (stable per auth-code).
 				const { sub: claimsSub, ...restClaims } = claims;
 
 				const ensureStringClaim = (key: string, fallback: string): string => {
@@ -54,7 +66,7 @@ try {
 					// spread restClaims (all except sub) first; known fields below override
 					...restClaims,
 					// Only include sub if explicitly configured as a string; absent sub means
-					// the router uses persistedSub for stable identity across /token calls.
+					// the router will rely on a prefilled portal sub or a code-associated subject from the authCodeStore for identity across /token calls.
 					...(typeof claimsSub === 'string' ? { sub: claimsSub } : {}),
 					email: ensureStringClaim('email', 'test@example.com'),
 					given_name: ensureStringClaim('given_name', 'Test'),
