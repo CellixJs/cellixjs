@@ -3,7 +3,7 @@ interface TimedEntry<T> {
 	expiresAt: number;
 }
 
-/** Creates a Map-backed TTL store returning closures. */
+/** Creates a Map-backed TTL store returning closures with periodic cleanup. */
 export function createTtlStore<T>(ttlMs: number) {
 	const store = new Map<string, TimedEntry<T>>();
 
@@ -27,5 +27,20 @@ export function createTtlStore<T>(ttlMs: number) {
 
 	const has = (key: string): boolean => get(key) !== undefined;
 
-	return { get, set, delete: del, has };
+	// Sweep expired entries periodically to prevent unbounded memory growth on abandoned keys
+	const sweepInterval = setInterval(
+		() => {
+			const now = Date.now();
+			for (const [key, entry] of store.entries()) {
+				if (now > entry.expiresAt) {
+					store.delete(key);
+				}
+			}
+		},
+		Math.max(ttlMs, 5000),
+	); // Sweep at least every 5 seconds
+
+	const stop = (): void => clearInterval(sweepInterval);
+
+	return { get, set, delete: del, has, stop };
 }

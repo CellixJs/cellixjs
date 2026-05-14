@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { debugLog, type MockOAuth2User, type MockOAuth2UserStore } from '@cellix/server-oauth2-mock-seedwork';
 
@@ -199,6 +199,14 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		// Write with restrictive permissions where supported (mode 0o600) to avoid
 		// world-readable plaintext password files.
 		await writeFile(tmpPath, data, { encoding: 'utf-8', mode: 0o600 });
+		// Platform-safe atomic replace: on Windows, rename fails if destination exists,
+		// so unlink the target first (if it exists) before renaming. The unlink+rename
+		// sequence is serialized by withWriteLock so there's no race between unlink and rename.
+		try {
+			await unlink(localPath);
+		} catch (error) {
+			if (!isEnoentError(error)) throw error;
+		}
 		await rename(tmpPath, localPath);
 		try {
 			const fileStat = await stat(localPath);

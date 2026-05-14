@@ -30,9 +30,10 @@ if (portals.length === 0) {
 
 try {
 	const manager = createMockOAuth2Manager({ port, host: '127.0.0.1', baseUrl: normalizeBaseUrl(baseUrl) });
+	const { createFileUserStore } = await import('./users.ts');
 
 	for (const portal of portals) {
-		const userStore = (await import('./users.ts')).createFileUserStore(path.join(appsDir, portal.dirName));
+		const userStore = createFileUserStore(path.join(appsDir, portal.dirName));
 		const config: MockOAuth2PortalConfig = {
 			allowedRedirectUris: new Set([portal.redirectUri]),
 			allowedRedirectUri: portal.redirectUri,

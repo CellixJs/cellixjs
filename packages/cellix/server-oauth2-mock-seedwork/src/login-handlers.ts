@@ -67,8 +67,26 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					return;
 				}
 				const { state, redirect_uri, nonce } = req.query as { state?: string; redirect_uri?: string; nonce?: string };
+				// Validate and bound query parameters to prevent memory bloat
+				const rawState = typeof state === 'string' ? state : '';
+				if (rawState.length > 2048) {
+					res.status(400).json({ error: 'state parameter too large' });
+					return;
+				}
 				const redirect = typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri;
-				const safeState = typeof state === 'string' ? state : '';
+				// Validate redirect_uri origin+path (without query params) is in allowed list to prevent stuffing
+				try {
+					const redirectUrl = new URL(redirect);
+					const baseRedirect = `${redirectUrl.origin}${redirectUrl.pathname}`;
+					if (!normalizedAllowedRedirectUris.has(normalizeUrl(baseRedirect))) {
+						res.status(400).json({ error: 'Invalid redirect_uri' });
+						return;
+					}
+				} catch {
+					res.status(400).json({ error: 'Invalid redirect_uri' });
+					return;
+				}
+				const safeState = rawState;
 				const safeNonce = typeof nonce === 'string' ? nonce : undefined;
 				const sessionNonce = crypto.randomUUID();
 				loginSessionStore.set(sessionNonce, {
@@ -190,12 +208,30 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 				if (existingSession && typeof queryNonce === 'string') {
 					loginSessionStore.delete(queryNonce);
 				}
-				const redirect = existingSession?.redirectUri ?? (typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri);
-				const safeState = existingSession?.state ?? (typeof state === 'string' ? state : '');
+				// Validate and bound query parameters to prevent memory bloat
+				const rawState = existingSession?.state ?? (typeof state === 'string' ? state : '');
+				if (rawState.length > 2048) {
+					res.status(400).json({ error: 'state parameter too large' });
+					return;
+				}
+				const rawRedirect = existingSession?.redirectUri ?? (typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri);
+				// Validate redirect_uri origin+path (without query params) is in allowed list to prevent stuffing
+				try {
+					const redirectUrl = new URL(rawRedirect);
+					const baseRedirect = `${redirectUrl.origin}${redirectUrl.pathname}`;
+					if (!normalizedAllowedRedirectUris.has(normalizeUrl(baseRedirect))) {
+						res.status(400).json({ error: 'Invalid redirect_uri' });
+						return;
+					}
+				} catch {
+					res.status(400).json({ error: 'Invalid redirect_uri' });
+					return;
+				}
+				const safeState = rawState;
 				const safeNonce = existingSession?.nonce ?? (typeof queryNonce === 'string' ? queryNonce : undefined);
 				const nonce = crypto.randomUUID();
 				loginSessionStore.set(nonce, {
-					redirectUri: redirect,
+					redirectUri: rawRedirect,
 					state: safeState,
 					...(safeNonce === undefined ? {} : { nonce: safeNonce }),
 				});
