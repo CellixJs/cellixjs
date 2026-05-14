@@ -144,7 +144,8 @@ describe('apps/api bootstrap', () => {
 		registerServices?.(serviceRegistry);
 
 		expect(registerInfrastructureService).toHaveBeenCalledTimes(4);
-		const registeredBlobService = registerInfrastructureService.mock.calls[1]?.[0];
+		// Find the registered blob service by instance type to avoid reliance on call order.
+		const registeredBlobService = registerInfrastructureService.mock.calls.map((c) => c?.[0]).find((candidate) => candidate instanceof MockServiceBlobStorage);
 
 		const contextBuilder = setContext.mock.calls[0]?.[0];
 		expect(contextBuilder).toBeTypeOf('function');

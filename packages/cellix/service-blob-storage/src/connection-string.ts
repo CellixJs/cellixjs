@@ -13,10 +13,19 @@ export function createCredentialFromConnectionString(connectionString: string): 
 
 function getConnectionStringValue(connectionString: string, key: string): string | undefined {
 	const segments = connectionString.split(';');
-	for (const segment of segments) {
-		const [segmentKey, ...valueParts] = segment.split('=');
-		if (segmentKey === key) {
-			return valueParts.join('=');
+	const targetKey = key.trim().toLowerCase();
+	for (const rawSegment of segments) {
+		if (!rawSegment) {
+			continue; // skip empty segments
+		}
+		const idx = rawSegment.indexOf('=');
+		if (idx === -1) {
+			continue; // skip malformed segment
+		}
+		const segmentKey = rawSegment.substring(0, idx).trim();
+		const value = rawSegment.substring(idx + 1).trim();
+		if (segmentKey.toLowerCase() === targetKey) {
+			return value;
 		}
 	}
 	return undefined;

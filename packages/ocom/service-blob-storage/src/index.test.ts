@@ -82,6 +82,7 @@ describe('ServiceBlobStorage', () => {
 				expiresOn: new Date('2026-05-14T12:00:00.000Z'),
 			}),
 		).rejects.toThrow('ServiceBlobStorage is not started - cannot access service');
-		await expect(service.shutDown()).rejects.toThrow('ServiceBlobStorage is not started - shutdown cannot proceed');
+		// shutdown is idempotent and should resolve even when not started
+		await expect(service.shutDown()).resolves.toBeUndefined();
 	});
 });

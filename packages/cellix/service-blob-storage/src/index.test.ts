@@ -201,6 +201,7 @@ describe('ServiceBlobStorage', () => {
 		const service = new ServiceBlobStorage({ connectionString });
 
 		expect(() => service.blobServiceClient).toThrow('ServiceBlobStorage is not started - cannot access blobServiceClient');
-		await expect(service.shutDown()).rejects.toThrow('ServiceBlobStorage is not started - shutdown cannot proceed');
+		// shutdown is idempotent and should resolve even when not started
+		await expect(service.shutDown()).resolves.toBeUndefined();
 	});
 });

@@ -55,8 +55,9 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	}
 
 	public shutDown(): Promise<void> {
+		// Make shutdown idempotent: resolving when not started is OK.
 		if (!this.blobServiceClientInternal) {
-			return Promise.reject(new Error('ServiceBlobStorage is not started - shutdown cannot proceed'));
+			return Promise.resolve();
 		}
 
 		this.blobServiceClientInternal = undefined;

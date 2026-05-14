@@ -22,10 +22,8 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	}
 
 	public async shutDown(): Promise<void> {
-		if (!this.serviceInternal) {
-			throw new Error('ServiceBlobStorage is not started - shutdown cannot proceed');
-		}
-
+		// Allow shutDown to be called even if the adapter wasn't started.
+		// Rely on the framework service to be idempotent when shutting down.
 		this.serviceInternal = undefined;
 		await this.frameworkService.shutDown();
 	}

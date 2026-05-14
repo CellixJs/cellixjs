@@ -15,13 +15,26 @@ export interface AzuriteBlobServer {
 export async function startAzuriteBlobServer(): Promise<AzuriteBlobServer> {
 	const port = await getAvailablePort();
 	const location = mkdtempSync(join(tmpdir(), 'cellix-azurite-blob-'));
-	const processHandle = spawn('pnpm', ['exec', 'azurite-blob', '--silent', '--skipApiVersionCheck', '--blobPort', String(port), '--location', location], {
-		cwd: findRepoRoot(),
-		stdio: 'pipe',
-		env: process.env,
+	let processHandle: ChildProcessWithoutNullStreams;
+	let spawnError: unknown;
+
+	try {
+		processHandle = spawn('pnpm', ['exec', 'azurite-blob', '--silent', '--skipApiVersionCheck', '--blobPort', String(port), '--location', location], {
+			cwd: findRepoRoot(),
+			stdio: 'pipe',
+			env: process.env,
+		});
+	} catch (err) {
+		throw new Error(`Failed to spawn Azurite process: ${String(err)}. Ensure Azurite is installed and available (try: pnpm exec azurite-blob)`);
+	}
+
+	// Capture asynchronous spawn errors (e.g., ENOENT) and expose them to the ready-check loop.
+	processHandle.once('error', (err) => {
+		spawnError = err;
 	});
 
-	await waitForAzuriteReady(processHandle, port);
+	const getSpawnError = () => spawnError;
+	await waitForAzuriteReady(processHandle, port, getSpawnError);
 
 	return {
 		connectionString: buildAzuriteConnectionString(port),
@@ -56,11 +69,16 @@ async function getAvailablePort(): Promise<number> {
 	});
 }
 
-async function waitForAzuriteReady(processHandle: ChildProcessWithoutNullStreams, port: number): Promise<void> {
+async function waitForAzuriteReady(processHandle: ChildProcessWithoutNullStreams, port: number, getSpawnError: () => unknown): Promise<void> {
 	const startedAt = Date.now();
 	let lastError: unknown;
 
 	while (Date.now() - startedAt < 10_000) {
+		const spawnErr = getSpawnError();
+		if (spawnErr) {
+			throw new Error(`Failed to spawn Azurite process: ${String(spawnErr)}. Ensure Azurite is installed and available (try: pnpm exec azurite-blob)`);
+		}
+
 		if (processHandle.exitCode !== null) {
 			const stderr = processHandle.stderr.read()?.toString() ?? '';
 			throw new Error(`Azurite exited before becoming ready: ${stderr}`);
