@@ -267,7 +267,7 @@ describe('buildOidcRouter', () => {
 			expect(text).toContain('Session expired');
 		});
 
-		it('POST /token ignores expired auth code mappings after ten minutes', async () => {
+		it('POST /token rejects expired auth codes with invalid_grant', async () => {
 			const erinPassword = createPassword('erin-password');
 			store.users.push({ username: 'erin', sub: 'sub-erin', password: erinPassword, claims: { email: 'erin@example.com', given_name: 'Erin' } });
 			const nowSpy = vi.spyOn(Date, 'now');
@@ -287,10 +287,10 @@ describe('buildOidcRouter', () => {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ grant_type: 'authorization_code', code }),
 			});
-			expect(tokenRes.status).toBe(200);
-			const tokenJson = (await tokenRes.json()) as { profile: { email?: string; sub: string } };
-			expect(tokenJson.profile.email).toBe('portal@example.com');
-			expect(tokenJson.profile.sub).not.toBe('sub-erin');
+			expect(tokenRes.status).toBe(400);
+			const errorJson = (await tokenRes.json()) as { error: string; error_description: string };
+			expect(errorJson.error).toBe('invalid_grant');
+			expect(errorJson.error_description).toBe('invalid or expired authorization code');
 		});
 
 		it('GET /signup preserves the OIDC nonce for direct signup flows', async () => {

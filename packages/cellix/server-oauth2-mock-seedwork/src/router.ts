@@ -170,6 +170,14 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			// consume one-time code
 			authCodeStore.delete(code);
 			resolvedSubFromCode = mapping.sub;
+		} else if (code.startsWith(AUTH_CODE_PREFIX)) {
+			// Code has expected prefix but no mapping (expired or invalid)
+			res.status(400).json({ error: 'invalid_grant', error_description: 'invalid or expired authorization code' });
+			return;
+		} else {
+			// Code does not have expected prefix, reject
+			res.status(400).json({ error: 'invalid_grant', error_description: 'invalid or expired authorization code' });
+			return;
 		}
 
 		const portalProfile = config.getUserProfile();
