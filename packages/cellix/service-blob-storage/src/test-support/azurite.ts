@@ -17,7 +17,6 @@ export async function startAzuriteBlobServer(): Promise<AzuriteBlobServer> {
 	const location = mkdtempSync(join(tmpdir(), 'cellix-azurite-blob-'));
 	let processHandle: ChildProcessWithoutNullStreams;
 	let spawnError: unknown;
-
 	try {
 		processHandle = spawn('pnpm', ['exec', 'azurite-blob', '--silent', '--skipApiVersionCheck', '--blobPort', String(port), '--location', location], {
 			cwd: findRepoRoot(),
@@ -25,16 +24,15 @@ export async function startAzuriteBlobServer(): Promise<AzuriteBlobServer> {
 			env: process.env,
 		});
 	} catch (err) {
-		throw new Error(`Failed to spawn Azurite process: ${String(err)}. Ensure Azurite is installed and available (try: pnpm exec azurite-blob)`);
+		throw new Error(`Failed to spawn Azurite process: ${String(err)}`);
 	}
 
-	// Capture asynchronous spawn errors (e.g., ENOENT) and expose them to the ready-check loop.
+	// capture asynchronous spawn errors (ENOENT, EACCES, etc.)
 	processHandle.once('error', (err) => {
 		spawnError = err;
 	});
 
-	const getSpawnError = () => spawnError;
-	await waitForAzuriteReady(processHandle, port, getSpawnError);
+	await waitForAzuriteReady(processHandle, port, () => spawnError);
 
 	return {
 		connectionString: buildAzuriteConnectionString(port),
@@ -69,14 +67,13 @@ async function getAvailablePort(): Promise<number> {
 	});
 }
 
-async function waitForAzuriteReady(processHandle: ChildProcessWithoutNullStreams, port: number, getSpawnError: () => unknown): Promise<void> {
+async function waitForAzuriteReady(processHandle: ChildProcessWithoutNullStreams, port: number, getSpawnError?: () => unknown): Promise<void> {
 	const startedAt = Date.now();
 	let lastError: unknown;
 
 	while (Date.now() - startedAt < 10_000) {
-		const spawnErr = getSpawnError();
-		if (spawnErr) {
-			throw new Error(`Failed to spawn Azurite process: ${String(spawnErr)}. Ensure Azurite is installed and available (try: pnpm exec azurite-blob)`);
+		if (getSpawnError?.()) {
+			throw new Error(`Failed to spawn Azurite process: ${String(getSpawnError())}`);
 		}
 
 		if (processHandle.exitCode !== null) {

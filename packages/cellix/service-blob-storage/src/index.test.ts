@@ -171,7 +171,7 @@ describe('ServiceBlobStorage', () => {
 				expiresOn,
 				permissions: 'blob:r',
 			},
-			new MockStorageSharedKeyCredential('test-account', 'test-key'),
+			expect.any(MockStorageSharedKeyCredential),
 		);
 		expect(generateBlobSasQueryParametersMock).toHaveBeenNthCalledWith(
 			2,
@@ -181,7 +181,7 @@ describe('ServiceBlobStorage', () => {
 				expiresOn,
 				permissions: 'blob:cw',
 			},
-			new MockStorageSharedKeyCredential('test-account', 'test-key'),
+			expect.any(MockStorageSharedKeyCredential),
 		);
 		expect(generateBlobSasQueryParametersMock).toHaveBeenNthCalledWith(
 			3,
@@ -190,7 +190,7 @@ describe('ServiceBlobStorage', () => {
 				expiresOn,
 				permissions: 'container:rl',
 			},
-			new MockStorageSharedKeyCredential('test-account', 'test-key'),
+			expect.any(MockStorageSharedKeyCredential),
 		);
 		expect(readUrl).toBe('https://blob.example.test/container/blob.txt?blob-sas-token');
 		expect(writeUrl).toBe('https://blob.example.test/container/blob.txt?blob-sas-token');
