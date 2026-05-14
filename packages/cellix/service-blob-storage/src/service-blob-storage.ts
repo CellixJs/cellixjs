@@ -1,16 +1,27 @@
-import { BlobSASPermissions, BlobServiceClient, type BlobUploadCommonResponse, ContainerSASPermissions, generateBlobSASQueryParameters, type StorageSharedKeyCredential } from '@azure/storage-blob';
+import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
+import { BlobServiceClient, type BlobUploadCommonResponse } from '@azure/storage-blob';
 import type { ServiceBase } from '@cellix/api-services-spec';
 import type { BlobAddress, BlobListItem, BlobStorage, CreateBlobSasUrlRequest, CreateContainerSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from './blob-storage.contract.ts';
-import { createCredentialFromConnectionString } from './connection-string.ts';
+import { ClientUploadSigner } from './client-upload-signer.ts';
 
 /**
  * Options for constructing the framework blob-storage service.
  */
 export interface ServiceBlobStorageOptions {
 	/**
-	 * Azure Storage connection string used to build the BlobServiceClient.
+	 * Optional Azure Storage connection string used to build the BlobServiceClient in local/dev scenarios (Azurite)
 	 */
-	connectionString: string;
+	connectionString?: string;
+
+	/**
+	 * Optional storage account name; used to build service URL when using TokenCredential (managed identity) for backend ops.
+	 */
+	accountName?: string;
+
+	/**
+	 * Optional TokenCredential to use for managed identity authentication. If not provided, DefaultAzureCredential will be used.
+	 */
+	credential?: TokenCredential;
 }
 
 /**
@@ -19,38 +30,44 @@ export interface ServiceBlobStorageOptions {
  * The service keeps Azure SDK usage and shared-key parsing inside the framework package
  * while exposing a small contract of blob operations and SAS URL creation.
  *
- * @returns A started {@link BlobStorage} contract when {@link startUp} is called.
+ * It supports two modes:
+ * - connectionString present: uses BlobServiceClient.fromConnectionString (Azurite/local dev) and enables SAS signing via shared-key
+ * - connectionString absent: uses DefaultAzureCredential (or provided credential) and accountName to build a TokenCredential-backed client
  *
- * @example
- * ```ts
- * const blobStorage = new ServiceBlobStorage({
- *   connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
- * });
- *
- * await blobStorage.startUp();
- *
- * const uploadUrl = await blobStorage.createBlobWriteSasUrl({
- *   containerName: 'member-assets',
- *   blobName: 'avatars/member-123.png',
- *   expiresOn: new Date(Date.now() + 5 * 60_000),
- * });
- * ```
  */
 export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage {
-	private readonly connectionString: string;
+	private connectionString: string | undefined;
+	private accountName: string | undefined;
+	private credential: TokenCredential | undefined;
 	private blobServiceClientInternal: BlobServiceClient | undefined;
-	private sharedKeyCredentialInternal: StorageSharedKeyCredential | undefined;
+	private clientUploadSignerInternal: ClientUploadSigner | undefined;
 
 	constructor(options: ServiceBlobStorageOptions) {
-		if (!options.connectionString.trim()) {
-			throw new Error('Blob Storage connection string is required');
-		}
 		this.connectionString = options.connectionString;
+		this.accountName = options.accountName;
+		this.credential = options.credential;
+
+		if (!this.connectionString && !this.accountName) {
+			throw new Error('Either connectionString (for local dev) or accountName (for managed identity) must be provided');
+		}
 	}
 
 	public startUp(): Promise<BlobStorage> {
-		this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(this.connectionString);
-		this.sharedKeyCredentialInternal = createCredentialFromConnectionString(this.connectionString);
+		// If a connection string is present (Azurite/local dev), use it for the BlobServiceClient
+		if (this.connectionString) {
+			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(this.connectionString);
+			this.clientUploadSignerInternal = new ClientUploadSigner(this.connectionString);
+			return Promise.resolve(this);
+		}
+
+		// Managed identity flow: construct URL from accountName and use DefaultAzureCredential unless a credential is provided
+		if (!this.accountName) {
+			throw new Error('accountName is required when connectionString is not provided');
+		}
+		const credentialToUse = this.credential ?? new DefaultAzureCredential();
+		const url = `https://${this.accountName}.blob.core.windows.net`;
+		this.blobServiceClientInternal = new BlobServiceClient(url, credentialToUse);
+		// No shared key in this flow; signer must be constructed only if connectionString present
 		return Promise.resolve(this);
 	}
 
@@ -61,7 +78,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		}
 
 		this.blobServiceClientInternal = undefined;
-		this.sharedKeyCredentialInternal = undefined;
+		this.clientUploadSignerInternal = undefined;
 		return Promise.resolve();
 	}
 
@@ -97,24 +114,25 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	}
 
 	public createBlobReadSasUrl(request: CreateBlobSasUrlRequest): Promise<string> {
-		return Promise.resolve(this.createBlobSasUrl(request, BlobSASPermissions.parse('r')));
+		// Delegate to signer if available
+		if (!this.clientUploadSignerInternal) {
+			return Promise.reject(new Error('SAS generation requires a connection string - not configured'));
+		}
+		return this.clientUploadSignerInternal.createBlobReadSasUrl(request);
 	}
 
 	public createBlobWriteSasUrl(request: CreateBlobSasUrlRequest): Promise<string> {
-		return Promise.resolve(this.createBlobSasUrl(request, BlobSASPermissions.parse('cw')));
+		if (!this.clientUploadSignerInternal) {
+			return Promise.reject(new Error('SAS generation requires a connection string - not configured'));
+		}
+		return this.clientUploadSignerInternal.createBlobWriteSasUrl(request);
 	}
 
 	public createContainerListSasUrl(request: CreateContainerSasUrlRequest): Promise<string> {
-		const containerClient = this.getContainerClient(request.containerName);
-		const sas = generateBlobSASQueryParameters(
-			{
-				containerName: request.containerName,
-				expiresOn: request.expiresOn,
-				permissions: ContainerSASPermissions.parse('rl'),
-			},
-			this.getSharedKeyCredential(),
-		).toString();
-		return Promise.resolve(`${containerClient.url}?${sas}`);
+		if (!this.clientUploadSignerInternal) {
+			return Promise.reject(new Error('SAS generation requires a connection string - not configured'));
+		}
+		return this.clientUploadSignerInternal.createContainerListSasUrl(request);
 	}
 
 	/**
@@ -129,27 +147,5 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 
 	private getContainerClient(containerName: string) {
 		return this.blobServiceClient.getContainerClient(containerName);
-	}
-
-	private getSharedKeyCredential(): StorageSharedKeyCredential {
-		if (!this.sharedKeyCredentialInternal) {
-			throw new Error('ServiceBlobStorage is not started - cannot access SAS credential');
-		}
-		return this.sharedKeyCredentialInternal;
-	}
-
-	private createBlobSasUrl(request: CreateBlobSasUrlRequest, permissions: BlobSASPermissions): string {
-		const blobClient = this.getContainerClient(request.containerName).getBlockBlobClient(request.blobName);
-		const sas = generateBlobSASQueryParameters(
-			{
-				containerName: request.containerName,
-				blobName: request.blobName,
-				expiresOn: request.expiresOn,
-				permissions,
-			},
-			this.getSharedKeyCredential(),
-		).toString();
-
-		return `${blobClient.url}?${sas}`;
 	}
 }

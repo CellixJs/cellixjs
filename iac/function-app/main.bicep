@@ -130,8 +130,18 @@ module keyVaultRoleAssignment 'key-vault-role-assignment.bicep' = {
   }
 }
 
+module storageRoleAssignment 'storage-role-assignment.bicep' = {
+  name: 'storageRoleAssignment${moduleNameSuffix}'
+  params: {
+    storageAccountName: storageAccountName
+    principalId: functionApp.outputs.systemAssignedMIPrincipalId!
+    principalType: 'ServicePrincipal'
+  }
+}
+
 // Outputs
 output functionAppNamePri string = functionApp.outputs.name
 @secure()
 output systemAssignedMIPrincipalId string = functionApp.outputs.systemAssignedMIPrincipalId!
 output keyVaultRoleAssignmentId string = keyVaultRoleAssignment.outputs.roleAssignmentId
+output storageRoleAssignmentId string = storageRoleAssignment.outputs.roleAssignmentId

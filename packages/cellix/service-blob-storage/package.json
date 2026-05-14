@@ -27,6 +27,7 @@
 	},
 	"dependencies": {
 		"@azure/storage-blob": "^12.31.0",
+		"@azure/identity": "^4.13.1",
 		"@cellix/api-services-spec": "workspace:*"
 	},
 	"devDependencies": {
