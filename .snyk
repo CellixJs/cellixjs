@@ -76,4 +76,3 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
         expires: '2026-06-28T00:00:00.000Z'
         created: '2026-05-11T10:00:00.000Z'
-
