@@ -89,52 +89,6 @@
 		"typescript": "catalog:",
 		"vitest": "catalog:"
 	},
-	"pnpm": {
-		"auditConfig": {
-			"ignoreGhsas": [
-				"GHSA-6rw7-vpxm-498p",
-				"GHSA-2w69-qvjg-hvjx",
-				"GHSA-8v8x-cx79-35w7"
-			]
-		},
-		"overrides": {
-			"axios": "1.15.2",
-			"follow-redirects": "^1.16.0",
-			"vite": "catalog:",
-			"jiti": "2.6.1",
-			"rollup": "^4.59.0",
-			"@ant-design/pro-layout>path-to-regexp": "^8.4.0",
-			"brace-expansion@1.1.12": "1.1.13",
-			"brace-expansion@5.0.4": "5.0.5",
-			"diff@4.0.2": "4.0.4",
-			"protobufjs@7.5.4": "7.5.6",
-			"serve-handler>minimatch": "3.1.5",
-			"serialize-javascript@6.0.2": "7.0.5",
-			"serialize-javascript@7.0.4": "7.0.5",
-			"svgo": "^3.3.3",
-			"yaml@2.8.2": "2.8.3",
-			"yauzl@3.2.0": "3.2.1",
-			"qs": "^6.14.2",
-			"ajv@^6": "6.14.0",
-			"lodash": "4.18.1",
-			"lodash-es": "4.18.1",
-			"node-forge": "^1.4.0",
-			"picomatch": "^4.0.4",
-			"webpack": "^5.105.4",
-			"playwright-core": "1.59.0",
-			"playwright": "1.59.0",
-			"postcss": "8.5.10",
-			"protobufjs": "7.5.8",
-			"@protobufjs/codegen": "2.0.5",
-			"@protobufjs/utf8": "1.1.1",
-			"ip-address": "^10.1.1",
-			"fast-uri": "^3.1.2",
-			"webpack-dev-server": "^5.2.4"
-		},
-		"patchedDependencies": {
-			"@azure/functions@4.11.0": "patches/@azure__functions@4.11.0.patch"
-		}
-	},
 	"engines": {
 		"node": "22.22.2"
 	}
