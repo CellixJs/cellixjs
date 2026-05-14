@@ -71,3 +71,8 @@ ignore:
         reason: 'Mongoose 8.22.1 has TypeScript constraint errors in type definitions (types/inferrawdoctype.d.ts, types/inferschematype.d.ts) that break compilation. Patch attempts failed due to external library type incompatibilities. Risk is Low: requires control of query field names and values.'
         expires: '2026-11-07T00:00:00.000Z'
         created: '2026-05-07T09:00:00.000Z'
+  'SNYK-JS-BABELPLUGINTRANSFORMMODULESSYSTEMJS-16624576':
+    - '* > @babel/plugin-transform-modules-systemjs@7.28.5':
+        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
+        expires: '2026-06-28T00:00:00.000Z'
+        created: '2026-05-11T10:00:00.000Z'
