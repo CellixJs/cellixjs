@@ -245,13 +245,16 @@ function findEnvVarsInText(text, filePath) {
 	}
 
 	// Fallback text scan for config files (json, yml, yaml, txt)
-	// These files may contain VITE_* as plain string values, not code patterns
+	// These files may contain VITE_* as plain string values, not code patterns.
+	// Do not filter by ignoredRanges since VITE_* tokens inside config values are valid.
 	const isConfigFile = /\.(json|ya?ml|txt)$/i.test(filePath);
 	if (isConfigFile) {
 		re = /\b(VITE_[A-Z0-9_]+)\b/g;
 		match = re.exec(text);
 		while (match) {
-			pushMatch(match[1], match.index);
+			if (match[1].startsWith('VITE_')) {
+				matches.push({ match: match[1], index: match.index });
+			}
 			match = re.exec(text);
 		}
 	}

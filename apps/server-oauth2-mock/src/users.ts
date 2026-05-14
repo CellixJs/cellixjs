@@ -255,10 +255,10 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 				const all = [...committed, ...overlay];
 				if (all.find((u) => u.username === user.username)) throw new Error(`[server-oauth2-mock] Username already exists: ${user.username}`);
 				if (all.find((u) => u.sub === user.sub)) throw new Error(`[server-oauth2-mock] Sub already exists: ${user.sub}`);
-				overlay.push(user);
+				const nextOverlay = [...overlay, user];
 				// We already hold the write lock here, so call the unsafe variant which does
 				// the actual disk write without attempting to re-acquire the mutex.
-				await persistOverlayUnsafe(overlay);
+				await persistOverlayUnsafe(nextOverlay);
 				console.info(`[server-oauth2-mock] New user registered via signup for portal "${portalName}": ${user.username}`);
 				debugLog('[server-oauth2-mock] addUser persisted', { portal: portalName, user: user.username });
 			});
