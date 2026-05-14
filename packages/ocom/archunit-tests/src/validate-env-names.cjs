@@ -112,19 +112,7 @@ function skipTemplateLiteral(text, startIndex, ranges) {
 			return i + 1;
 		}
 
-		// For template string literals (non-expression parts), we still want to ignore them
-		// so we mark them as ignored ranges
-		const segmentStart = i;
-		while (i < text.length && text[i] !== '$' && text[i] !== '`') {
-			if (text[i] === '\\') {
-				i += 2;
-			} else {
-				i += 1;
-			}
-		}
-		if (i > segmentStart) {
-			ranges.push([segmentStart, i]);
-		}
+		i += 1;
 	}
 	return i;
 }
@@ -180,7 +168,8 @@ function getLineNumber(text, index) {
 
 function findEnvVarsInText(text, filePath) {
 	const matches = [];
-	const isEnvFile = /(^|\/)\.env(\.|$)/.test(filePath);
+	// Handle both POSIX (/) and Windows (\) path separators for cross-platform compatibility
+	const isEnvFile = filePath.includes('.env') && (/(^|\/)\.env(\.|$)/.test(filePath) || /(^|\\)\.env(\.|$)/.test(filePath));
 	if (isEnvFile) {
 		const re = /^(VITE_[A-Z0-9_]+)\s*=/gm;
 		let match = re.exec(text);
