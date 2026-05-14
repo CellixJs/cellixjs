@@ -40,6 +40,12 @@ export function createTtlStore<T>(ttlMs: number) {
 		Math.max(ttlMs, 5000),
 	); // Sweep at least every 5 seconds
 
+	// Call unref() so the sweep timer doesn't block the Node.js event loop from exiting
+	// Tests and server shutdown can now complete without waiting for this timer
+	if (sweepInterval.unref) {
+		sweepInterval.unref();
+	}
+
 	const stop = (): void => clearInterval(sweepInterval);
 
 	return { get, set, delete: del, has, stop };

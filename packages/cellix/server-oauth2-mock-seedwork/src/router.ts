@@ -186,8 +186,11 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 					const user = await store.findBySub(finalSub);
 					if (user) userClaims = user.claims;
 				}
-			} catch (_err) {
-				// ignore errors when resolving user
+			} catch (err) {
+				// User store lookup failed (e.g., corrupt data, duplicate entries). Return 500 with details.
+				debugLog('[server-oauth2-mock] /token user store lookup failed', { error: err instanceof Error ? err.message : String(err), finalSub });
+				res.status(500).json({ error: 'User store lookup failed', error_description: `Failed to resolve user claims for sub=${finalSub}` });
+				return;
 			}
 		}
 

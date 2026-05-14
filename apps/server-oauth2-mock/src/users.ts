@@ -199,15 +199,24 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 		// Write with restrictive permissions where supported (mode 0o600) to avoid
 		// world-readable plaintext password files.
 		await writeFile(tmpPath, data, { encoding: 'utf-8', mode: 0o600 });
-		// Platform-safe atomic replace: on Windows, rename fails if destination exists,
-		// so unlink the target first (if it exists) before renaming. The unlink+rename
-		// sequence is serialized by withWriteLock so there's no race between unlink and rename.
+		// Atomic replace: on POSIX, rename() replaces atomically without a window.
+		// On Windows, rename() fails if destination exists, so fall back to unlink-first approach.
 		try {
-			await unlink(localPath);
+			await rename(tmpPath, localPath);
 		} catch (error) {
-			if (!isEnoentError(error)) throw error;
+			// If rename fails and looks like a Windows EEXIST, fall back to unlink-first
+			const isWindowsExist = error instanceof Error && 'code' in error && (error.code === 'EEXIST' || error.code === 'EPERM');
+			if (isWindowsExist) {
+				try {
+					await unlink(localPath);
+				} catch (unlinkErr) {
+					if (!isEnoentError(unlinkErr)) throw unlinkErr;
+				}
+				await rename(tmpPath, localPath);
+			} else {
+				throw error;
+			}
 		}
-		await rename(tmpPath, localPath);
 		try {
 			const fileStat = await stat(localPath);
 			fileCache.set(localPath, { mtime: fileStat.mtimeMs, data: users });
