@@ -2,8 +2,7 @@
 
 /**
  * Regular expression used to validate named portal registrations.
- *
- * @returns A regular expression that matches only letters, digits, underscores, and hyphens.
+ * Matches only letters, digits, underscores, and hyphens.
  *
  * @example
  * ```ts
