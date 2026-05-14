@@ -176,8 +176,29 @@ function isIgnoredIndex(index, ranges) {
 	return ranges.some(([start, end]) => index >= start && index < end);
 }
 
-function getLineNumber(text, index) {
-	return text.slice(0, index).split(/\r?\n/).length;
+function computeNewlineOffsets(text) {
+	const offsets = [];
+	for (let i = 0; i < text.length; i++) {
+		if (text[i] === '\n') {
+			offsets.push(i);
+		}
+	}
+	return offsets;
+}
+
+function getLineNumber(newlineOffsets, index) {
+	// Binary search to find which line the index falls on
+	let left = 0;
+	let right = newlineOffsets.length;
+	while (left < right) {
+		const mid = Math.floor((left + right) / 2);
+		if (newlineOffsets[mid] <= index) {
+			left = mid + 1;
+		} else {
+			right = mid;
+		}
+	}
+	return left + 1; // Line numbers are 1-indexed
 }
 
 function findEnvVarsInText(text, filePath) {
@@ -294,9 +315,10 @@ function validateEnvNames(options = {}) {
 			continue;
 		}
 		const matches = findEnvVarsInText(text, filePath);
+		const newlineOffsets = computeNewlineOffsets(text);
 		for (const m of matches) {
 			const variable = m.match;
-			const relPath = `${path.relative(rootDir, filePath)}:${getLineNumber(text, m.index)}`;
+			const relPath = `${path.relative(rootDir, filePath)}:${getLineNumber(newlineOffsets, m.index)}`;
 			if (!variable.startsWith('VITE_APP_') && !variable.startsWith('VITE_COMMON_')) {
 				results.push({
 					variable,
