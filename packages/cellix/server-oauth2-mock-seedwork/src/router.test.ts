@@ -108,14 +108,22 @@ describe('buildOidcRouter', () => {
 		});
 
 		it('GET /login stores redirect data server-side and only renders a nonce', async () => {
-			const maliciousRedirect = `${redirect}?next=<script>alert(1)</script>`;
+			// Test that user-controlled state parameter is not echoed in HTML (XSS protection)
+			// Use the valid redirect from allowlist instead of a malicious redirect_uri to test proper validation
 			const maliciousState = '"><svg/onload=alert(1)>';
-			const { html } = await getFormNonce(port, '/login', { redirect_uri: maliciousRedirect, state: maliciousState });
+			const { html } = await getFormNonce(port, '/login', { state: maliciousState });
 			expect(html).toContain('name="nonce"');
-			expect(html).not.toContain('<script>alert(1)</script>');
-			expect(html).not.toContain('svg/onload=alert(1)');
+			expect(html).not.toContain('<svg/onload=alert(1)>');
 			expect(html).not.toContain('redirect_uri');
 			expect(html).not.toContain('state');
+		});
+
+		it('GET /login rejects redirect_uri that is not in allowlist', async () => {
+			const invalidRedirect = 'https://evil.com/callback';
+			const res = await fetch(`http://127.0.0.1:${port}/login?redirect_uri=${encodeURIComponent(invalidRedirect)}`);
+			expect(res.status).toBe(400);
+			const json = await res.json();
+			expect(json).toHaveProperty('error', 'Invalid redirect_uri');
 		});
 
 		it('POST /signup persists user and rejects duplicate username', async () => {

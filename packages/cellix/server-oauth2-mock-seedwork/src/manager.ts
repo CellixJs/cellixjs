@@ -7,7 +7,12 @@ import { normalizeBaseUrl, SAFE_NAME_RE } from './utils.ts';
  * Creates a reusable mock OAuth2 manager that can register multiple named portal
  * configurations on one Express server.
  *
- * @param serverConfig - Shared server host, port, and externally visible base URL.
+ * @param serverConfig - Shared server configuration including `port`, optional `host`,
+ * externally visible `baseUrl`, and optional `trustProxy`. Set `trustProxy: true` to
+ * always trust proxy headers (`X-Forwarded-*`), or `trustProxy: false` to disable
+ * proxy trust entirely. When `trustProxy` is omitted, it defaults to enabled only for
+ * loopback hosts (`127.0.0.1`, `localhost`, `::1`) inferred from `host` or `baseUrl`;
+ * otherwise proxy headers are not trusted.
  * @returns A manager that lazily starts the server on first registration and can stop all registrations.
  *
  * @example

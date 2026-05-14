@@ -17,7 +17,7 @@ This package owns the public router, server bootstrap helpers, multi-registratio
 ## Public API shape
 
 - `startMockOAuth2Server(config): Promise<MockOAuth2ServerHandle>`
-- `createMockOAuth2Manager({ port, host?, baseUrl }): MockOAuth2Manager`
+- `createMockOAuth2Manager({ port, host?, baseUrl, trustProxy? }): MockOAuth2Manager`
 - `buildOidcRouter(issuerBaseUrl, config): Promise<express.Router>`
 - `debugLog(message, data?): void`
 - `normalizeBaseUrl(url)`, `normalizeOrigin(url)`, `normalizeUrl(url)`, `SAFE_NAME_RE`

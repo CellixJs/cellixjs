@@ -74,11 +74,12 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					return;
 				}
 				const redirect = typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri;
-				// Validate redirect_uri origin+path (without query params) is in allowed list to prevent stuffing
+				// Validate the full redirect_uri (including query params) against the normalized allowlist
+				// so GET and POST use the same validation semantics. Store the normalized value for consistency.
+				let normalizedRedirect: string;
 				try {
-					const redirectUrl = new URL(redirect);
-					const baseRedirect = `${redirectUrl.origin}${redirectUrl.pathname}`;
-					if (!normalizedAllowedRedirectUris.has(normalizeUrl(baseRedirect))) {
+					normalizedRedirect = normalizeUrl(redirect);
+					if (!normalizedAllowedRedirectUris.has(normalizedRedirect)) {
 						res.status(400).json({ error: 'Invalid redirect_uri' });
 						return;
 					}
@@ -90,7 +91,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 				const safeNonce = typeof nonce === 'string' ? nonce : undefined;
 				const sessionNonce = crypto.randomUUID();
 				loginSessionStore.set(sessionNonce, {
-					redirectUri: redirect,
+					redirectUri: normalizedRedirect,
 					state: safeState,
 					...(safeNonce === undefined ? {} : { nonce: safeNonce }),
 				});
@@ -215,11 +216,12 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					return;
 				}
 				const rawRedirect = existingSession?.redirectUri ?? (typeof redirect_uri === 'string' ? redirect_uri : primaryRedirectUri);
-				// Validate redirect_uri origin+path (without query params) is in allowed list to prevent stuffing
+				// Validate the full redirect_uri (including query params) against the normalized allowlist
+				// so GET and POST use the same validation semantics. Store the normalized value for consistency.
+				let normalizedRedirect: string;
 				try {
-					const redirectUrl = new URL(rawRedirect);
-					const baseRedirect = `${redirectUrl.origin}${redirectUrl.pathname}`;
-					if (!normalizedAllowedRedirectUris.has(normalizeUrl(baseRedirect))) {
+					normalizedRedirect = normalizeUrl(rawRedirect);
+					if (!normalizedAllowedRedirectUris.has(normalizedRedirect)) {
 						res.status(400).json({ error: 'Invalid redirect_uri' });
 						return;
 					}
@@ -231,7 +233,7 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 				const safeNonce = existingSession?.nonce ?? (typeof queryNonce === 'string' ? queryNonce : undefined);
 				const nonce = crypto.randomUUID();
 				loginSessionStore.set(nonce, {
-					redirectUri: rawRedirect,
+					redirectUri: normalizedRedirect,
 					state: safeState,
 					...(safeNonce === undefined ? {} : { nonce: safeNonce }),
 				});
