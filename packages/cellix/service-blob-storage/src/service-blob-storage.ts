@@ -6,22 +6,78 @@ import { ClientUploadSigner } from './client-upload-signer.ts';
 
 /**
  * Options for constructing the framework blob-storage service.
+ *
+ * @remarks
+ * The service supports two distinct modes, controlled by which options are provided:
+ *
+ * **Mode 1: Connection String (Azurite / Local Dev)**
+ * - Provide: `connectionString`
+ * - Result: Uses `BlobServiceClient.fromConnectionString()` and enables SAS signing via shared key
+ * - Use case: Local development with Azurite, or testing scenarios
+ *
+ * **Mode 2: Managed Identity (Production)**
+ * - Provide: `accountName` (required), optionally `credential` (defaults to `DefaultAzureCredential`)
+ * - Result: Constructs URL and uses provided or default token credential for authentication
+ * - Use case: Azure-deployed applications with managed identity RBAC
+ *
+ * **Precedence:**
+ * If both `connectionString` and `accountName` are provided, `connectionString` takes precedence
+ * and the managed identity path is silently ignored. To avoid surprising behavior, callers should
+ * supply only one set of options:
+ * - For local dev: provide only `connectionString`
+ * - For production: provide only `accountName` (and optionally `credential`)
  */
 export interface ServiceBlobStorageOptions {
 	/**
-	 * Optional Azure Storage connection string used to build the BlobServiceClient in local/dev scenarios (Azurite)
+	 * Azure Storage connection string for local/dev scenarios (Azurite).
+	 *
+	 * When provided, takes precedence over `accountName` and `credential`.
+	 * If both `connectionString` and `accountName` are supplied, the connection string is used
+	 * and managed identity configuration is ignored.
+	 *
+	 * Example: `'UseDevelopmentStorage=true'` or `'DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...'`
 	 */
 	connectionString?: string;
 
 	/**
-	 * Optional storage account name; used to build service URL when using TokenCredential (managed identity) for backend ops.
+	 * Storage account name for managed identity authentication (production).
+	 *
+	 * Ignored if `connectionString` is provided. Required when `connectionString` is absent.
+	 *
+	 * Example: `'myaccount'` → results in URL `https://myaccount.blob.core.windows.net`
 	 */
 	accountName?: string;
 
 	/**
-	 * Optional TokenCredential to use for managed identity authentication. If not provided, DefaultAzureCredential will be used.
+	 * Optional TokenCredential for managed identity authentication.
+	 *
+	 * Ignored if `connectionString` is provided. If omitted when using managed identity,
+	 * defaults to `DefaultAzureCredential`, which automatically discovers credentials
+	 * from the environment (managed identity on Azure, environment variables, local auth, etc.).
 	 */
 	credential?: TokenCredential;
+}
+
+/**
+ * Determines the authentication mode based on provided options and validates mutual exclusivity.
+ *
+ * @param options - The service options to analyze
+ * @returns The determined mode: `'connectionString'` or `'managedIdentity'`
+ * @throws If configuration is invalid (e.g., missing required options for the determined mode)
+ *
+ * @remarks
+ * This helper centralizes the logic for determining which authentication path will be used.
+ * When both `connectionString` and `accountName` are provided, connection string takes precedence
+ * (though this is somewhat undesirable from a UX perspective, the helper documents this clearly).
+ */
+function determineAuthMode(options: ServiceBlobStorageOptions): 'connectionString' | 'managedIdentity' {
+	if (options.connectionString) {
+		return 'connectionString';
+	}
+	if (options.accountName) {
+		return 'managedIdentity';
+	}
+	throw new Error('Either connectionString (for local dev) or accountName (for managed identity) must be provided');
 }
 
 /**
@@ -47,9 +103,8 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		this.accountName = options.accountName;
 		this.credential = options.credential;
 
-		if (!this.connectionString && !this.accountName) {
-			throw new Error('Either connectionString (for local dev) or accountName (for managed identity) must be provided');
-		}
+		// Validate that the configuration is valid by determining the auth mode
+		determineAuthMode(options);
 	}
 
 	public startUp(): Promise<BlobStorage> {

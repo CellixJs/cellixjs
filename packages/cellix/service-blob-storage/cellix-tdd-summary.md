@@ -43,7 +43,7 @@ Success paths that shaped the contract:
 
 Failure and edge cases that shaped the contract:
 
-- missing or malformed connection-string credentials for SAS generation
+- missing or malformed connection string credentials for SAS generation
 - access before service startup
 - shutdown before startup
 - optional metadata, tags, and headers on text uploads
