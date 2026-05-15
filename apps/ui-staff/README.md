@@ -10,3 +10,4 @@ Required Azure DevOps variables / variable group keys:
 - Any VITE_... environment variables needed by the app
 
 See apps/ui-community/README.md for examples and operational runbook notes.
+
