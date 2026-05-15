@@ -39,7 +39,7 @@ pnpm run lint
 
 ### 4. Architecture Tests
 ```bash
-pnpm --filter @ocom/archunit-tests test
+pnpm --filter @ocom-verification/archunit-tests test
 pnpm --filter @cellix/archunit-tests test
 ```
 - Use when domain, GraphQL, persistence, or architecture boundaries changed
