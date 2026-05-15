@@ -39,7 +39,7 @@ stages:
 - stage: ${{parameters.stageName}}
   displayName: ${{parameters.stageName}} stage
   dependsOn: Build
-  condition: succeeded()
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   jobs:
   # The pipeline runs API and UI Community templates in parallel by default to speed up deployments.
   # UI Staff currently depends on UI Community (see deploy-ui-staff.yml). detect-changes.cjs still emits per-app flags (HAS_FRONTEND_COMMUNITY_CHANGES / HAS_FRONTEND_STAFF_CHANGES)

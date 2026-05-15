@@ -496,7 +496,7 @@ stages:
     # Package UI Staff compiled assets into artifact
     - task: ArchiveFiles@2
       displayName: 'Artifact: Prepare UI Staff'
-      condition: succeeded()
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       inputs:
         rootFolderOrFile: 'apps/ui-staff/dist'
         includeRootFolder: false
@@ -530,7 +530,7 @@ stages:
     # Upload UI Staff artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/ui-staff-$(Build.BuildId).zip
       displayName: 'Artifact: Publish UI Staff'
-      condition: succeeded()
+      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: ui-staff
 
     # Upload Docs artifact as build result
