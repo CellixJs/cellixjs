@@ -9,7 +9,7 @@ export const StaffAppRoleNames = {
 	TechAdmin: 'Default.TechAdmin',
 } as const;
 
-export type StaffAppRoleName = (typeof StaffAppRoleNames)[keyof typeof StaffAppRoleNames];
+type StaffAppRoleName = (typeof StaffAppRoleNames)[keyof typeof StaffAppRoleNames];
 
 type StaffRoleRepo = Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 
