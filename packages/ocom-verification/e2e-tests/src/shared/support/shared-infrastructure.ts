@@ -1,14 +1,13 @@
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
-import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, mockOidcAudience, setMongoConnectionString, TestApiServer, TestCommunityViteServer, TestOAuth2Server } from './servers/index.ts';
+import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestCommunityViteServer, TestOAuth2Server } from './servers/index.ts';
 
 let mongoDBServer: MongoDBTestServer | undefined;
 let oauth2Server: TestOAuth2Server | undefined;
 let apiServer: TestApiServer | undefined;
 let communityViteServer: TestCommunityViteServer | undefined;
 let apiUrl: string | undefined;
-let accessToken: string | undefined;
 let browser: Browser | undefined;
 let browserBaseUrl: string | undefined;
 let authenticatedBrowserContext: BrowserContext | undefined;
@@ -17,12 +16,11 @@ let shutdownHandlersRegistered = false;
 
 export interface InfrastructureState {
 	apiUrl: string | undefined;
-	accessToken: string | undefined;
 	browseTheWeb: BrowseTheWeb | undefined;
 }
 
 export function getState(): InfrastructureState {
-	return { apiUrl, accessToken, browseTheWeb };
+	return { apiUrl, browseTheWeb };
 }
 
 export async function stopAll(): Promise<void> {
@@ -55,7 +53,6 @@ export async function stopAll(): Promise<void> {
 	}
 	apiUrl = undefined;
 	browserBaseUrl = undefined;
-	accessToken = undefined;
 	cleanupTestEnvironment();
 }
 
@@ -93,13 +90,6 @@ export async function ensureE2EServers(): Promise<void> {
 	}
 	if (!vite.isRunning()) {
 		phase2.push(vite.start());
-	}
-	if (!accessToken) {
-		phase2.push(
-			oauth2.generateAccessToken(mockOidcAudience).then((token) => {
-				accessToken = token;
-			}),
-		);
 	}
 	if (phase2.length > 0) await Promise.all(phase2);
 
