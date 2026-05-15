@@ -86,7 +86,6 @@ overrides:
   webpack: ^5.105.4
   webpack-dev-server: ^5.2.4
   express-rate-limit: 8.5.1
-  uuid: 14.0.0
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: 8.5.10

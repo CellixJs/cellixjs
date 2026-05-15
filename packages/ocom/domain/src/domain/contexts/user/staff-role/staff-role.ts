@@ -79,6 +79,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
 		role.roleName = 'Default Finance';
+        role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.Finance;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = false;
 		role.permissions.financePermissions.canManageFinance = true;
@@ -92,6 +93,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
 		role.roleName = 'Default Tech Admin';
+        role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.TechAdmin;
 		role.isDefault = true;
 		// Tech Admins are implicit managers of all areas
 		role.permissions.communityPermissions.canManageCommunities = true;
