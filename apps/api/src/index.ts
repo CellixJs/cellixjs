@@ -7,7 +7,7 @@ import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 
-import { createBlobStorageFactory, ServiceBlobStorage } from '@ocom/service-blob-storage';
+import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
 
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
@@ -18,15 +18,14 @@ import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
-	// Create blob storage with environment-aware credential selection
-	const { blobStorageClient } = createBlobStorageFactory({
-		accountName: BlobStorageConfig.blobStorageConfig.accountName,
-		connectionString: BlobStorageConfig.blobStorageConfig.connectionString,
-	});
-
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
-		.registerInfrastructureService(blobStorageClient as ServiceBlobStorage)
+		.registerInfrastructureService(
+			new ServiceBlobStorage({
+				accountName: BlobStorageConfig.blobStorageConfig.accountName,
+				connectionString: BlobStorageConfig.blobStorageConfig.connectionString,
+			}),
+		)
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens));
 
 	// Register Apollo Server service

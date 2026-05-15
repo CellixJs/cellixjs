@@ -5,11 +5,25 @@ import { createBlobStorage } from './blob-storage-adapter.ts';
 
 /**
  * Options for the OCOM blob storage service wrapper.
- * Delegates to the framework ServiceBlobStorage, supporting both managed identity and local dev modes.
+ *
+ * Accepts both account name and connection string from app settings.
+ * The wrapper uses only accountName for SDK authentication (via managed identity / DefaultAzureCredential).
+ * The connectionString is available for consumers that need it (e.g., SAS token generation).
  */
-export interface ServiceBlobStorageOptions extends CellixServiceBlobStorageOptions {
+export interface ServiceBlobStorageOptions {
 	/**
-	 * Optional framework service instance. If not provided, one will be created from the options.
+	 * Storage account name. Required for blob URL construction and used by managed identity for authentication.
+	 */
+	accountName: string | undefined;
+
+	/**
+	 * Optional Azure Storage connection string, available for consumers that need it (e.g., SAS signing).
+	 * Not used by the service for authentication; managed identity is always used.
+	 */
+	connectionString?: string | undefined;
+
+	/**
+	 * Optional framework service instance. If not provided, one will be created using only the accountName.
 	 */
 	frameworkService?: CellixServiceBlobStorage;
 }
@@ -22,7 +36,13 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		if (options.frameworkService) {
 			this.frameworkService = options.frameworkService;
 		} else {
-			this.frameworkService = new CellixServiceBlobStorage(options);
+			// Always use only accountName for SDK authentication (managed identity)
+			// Connection string is not used for SDK auth, only for SAS signing in consumers
+			const frameworkOptions: CellixServiceBlobStorageOptions = {};
+			if (options.accountName) {
+				frameworkOptions.accountName = options.accountName;
+			}
+			this.frameworkService = new CellixServiceBlobStorage(frameworkOptions);
 		}
 	}
 

@@ -78,11 +78,6 @@ vi.mock('./cellix.ts', () => ({
 }));
 vi.mock('@ocom/service-blob-storage', () => ({
 	ServiceBlobStorage: MockServiceBlobStorage,
-	createBlobStorageFactory: vi.fn(() => ({
-		blobStorageClient: new MockServiceBlobStorage({ accountName: 'devstoreaccount1', connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=' }),
-		accountName: 'devstoreaccount1',
-		connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
-	})),
 }));
 vi.mock('@ocom/service-mongoose', () => ({
 	ServiceMongoose: MockServiceMongoose,
