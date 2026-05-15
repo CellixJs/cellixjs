@@ -49,7 +49,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 	public static getNewDefaultCaseManagerInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
-		role.roleName = 'Default.CaseManager';
+		role.roleName = 'Default Case Manager';
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = true;
 		role.permissions.financePermissions.canManageFinance = false;
@@ -62,7 +62,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 	public static getNewDefaultServiceLineOwnerInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
-		role.roleName = 'Default.ServiceLineOwner';
+		role.roleName = 'Default Service Line Owner';
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = true;
 		role.permissions.financePermissions.canManageFinance = false;
@@ -75,7 +75,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 	public static getNewDefaultFinanceInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
-		role.roleName = 'Default.Finance';
+		role.roleName = 'Default Finance';
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = false;
 		role.permissions.financePermissions.canManageFinance = true;
@@ -88,7 +88,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 	public static getNewDefaultTechAdminInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
-		role.roleName = 'Default.TechAdmin';
+		role.roleName = 'Default Tech Admin';
 		role.isDefault = true;
 		// Tech Admins are implicit managers of all areas
 		role.permissions.communityPermissions.canManageCommunities = true;
