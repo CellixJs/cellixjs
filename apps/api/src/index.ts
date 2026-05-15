@@ -6,10 +6,8 @@ import { RegisterEventHandlers } from '@ocom/event-handler';
 import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
-
 import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
-
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
@@ -26,10 +24,8 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 				connectionString: BlobStorageConfig.blobStorageConfig.connectionString,
 			}),
 		)
-		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens));
-
-	// Register Apollo Server service
-	serviceRegistry.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
+		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
+		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
 })
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));

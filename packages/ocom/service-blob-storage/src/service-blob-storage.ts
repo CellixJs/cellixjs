@@ -6,9 +6,12 @@ import { createBlobStorage } from './blob-storage-adapter.ts';
 /**
  * Options for the OCOM blob storage service wrapper.
  *
- * Accepts both account name and connection string from app settings.
+ * Supports two deployment scenarios:
+ * 1. Server-only blob operations: provide only accountName (managed identity auth)
+ * 2. Client uploads with SAS signing: provide both accountName and connectionString
+ *
  * The wrapper uses only accountName for SDK authentication (via managed identity / DefaultAzureCredential).
- * The connectionString is available for consumers that need it (e.g., SAS token generation).
+ * The connectionString is available for consumers that need it (e.g., SAS token generation for client uploads).
  */
 export interface ServiceBlobStorageOptions {
 	/**
@@ -17,8 +20,10 @@ export interface ServiceBlobStorageOptions {
 	accountName: string | undefined;
 
 	/**
-	 * Optional Azure Storage connection string, available for consumers that need it (e.g., SAS signing).
+	 * Optional Azure Storage connection string.
+	 * Only required if the application implements client uploads with SAS token signing.
 	 * Not used by the service for authentication; managed identity is always used.
+	 * Available for consumers that need it (e.g., SAS token generation).
 	 */
 	connectionString?: string | undefined;
 

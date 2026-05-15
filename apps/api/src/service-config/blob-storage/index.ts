@@ -1,34 +1,36 @@
 /**
- * Blob Storage Configuration
+ * Blob Storage Configuration for @ocom application
  *
- * Both environment variables are required in all deployment scenarios:
+ * This application supports client-side uploads with SAS token signing, so both environment variables
+ * are required. Applications that only perform server-side blob operations via managed identity would
+ * only need AZURE_STORAGE_ACCOUNT_NAME.
  *
- * - AZURE_STORAGE_ACCOUNT_NAME: Required for blob URL construction and used by managed identity in production.
+ * Configuration values:
+ * - AZURE_STORAGE_ACCOUNT_NAME: Required for blob URL construction and managed identity authentication.
  *   Provided by Bicep auto-injection in deployed environments.
  *
  * - AZURE_STORAGE_CONNECTION_STRING: Required for SAS token generation (shared-key signing for client uploads).
+ *   This is application-specific based on whether client uploads are supported.
  *   Sourced from Key Vault in production, local env in development.
  *
- * Authentication strategy is determined by environment and how these values are consumed:
- * - Production: ServiceBlobStorage uses only accountName → DefaultAzureCredential (managed identity)
- * - Local/Azurite: ServiceBlobStorage uses only connectionString → BlobServiceClient.fromConnectionString()
- * - SAS signing: Always uses connectionString directly, regardless of environment
+ * Authentication strategy:
+ * - ServiceBlobStorage always uses managed identity (DefaultAzureCredential) for blob SDK operations
+ * - Connection string is used separately for SAS token generation (not for SDK auth)
  *
  * @remarks
- * The OCOM adapter layer splits these credentials appropriately to ensure managed identity is used in
- * production (avoiding unnecessary shared-key auth on the SDK client) while maintaining connection-string-based
- * SAS signing for secure client uploads.
+ * To decouple concerns, applications should only require connection string if they implement
+ * client uploads. Server-only blob operations require only accountName.
  */
 
 const storageAccountName = process.env['AZURE_STORAGE_ACCOUNT_NAME'];
 const storageConnectionString = process.env['AZURE_STORAGE_CONNECTION_STRING'];
 
 if (!storageAccountName) {
-	throw new Error('Missing AZURE_STORAGE_ACCOUNT_NAME environment variable. Required for blob operations and managed identity.');
+	throw new Error('Missing AZURE_STORAGE_ACCOUNT_NAME environment variable. Required for blob operations with managed identity authentication.');
 }
 
 if (!storageConnectionString) {
-	throw new Error('Missing AZURE_STORAGE_CONNECTION_STRING environment variable. Required for SAS token generation (shared-key signing).');
+	throw new Error('Missing AZURE_STORAGE_CONNECTION_STRING environment variable. Required for SAS token generation for client uploads. ' + '(Applications that only perform server-side blob operations do not require this.)');
 }
 
 export const blobStorageConfig = {

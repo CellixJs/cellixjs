@@ -27,9 +27,12 @@
 ## Core concepts
 
 - `ServiceBlobStorage` is a Cellix infrastructure service implementing `ServiceBase`
-- The service is configured with a storage connection string and parses account credentials internally for SAS generation
+- The service supports multiple authentication modes:
+  - **Managed identity mode**: Use only `accountName` and `DefaultAzureCredential` (recommended for production)
+  - **Connection string mode**: Use `connectionString` for local development (Azurite) or explicit shared-key auth
 - Consumers interact with framework-defined operations such as text upload, blob deletion, blob listing, and SAS URL creation
 - Application packages should adapt this framework contract into narrower scoped interfaces before exposing it through `ApiContext`
+- **Downstream adapters** can choose which auth mode to use. For example, `@ocom/service-blob-storage` uses managed identity for SDK operations and provides connection string separately for SAS token generation (opt-in for client uploads)
 
 ## Package boundaries
 
