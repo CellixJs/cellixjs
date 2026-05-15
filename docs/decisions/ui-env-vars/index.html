@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">ADR 0031 — UI environment variables naming convention (VITE_*) | CellixJs Docs</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://cellixjs.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://cellixjs.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://cellixjs.github.io/docs/decisions/ui-env-vars"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="ADR 0031 — UI environment variables naming convention (VITE_*) | CellixJs Docs"><meta data-rh="true" name="description" content="Context and Problem Statement"><meta data-rh="true" property="og:description" content="Context and Problem Statement"><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://cellixjs.github.io/docs/decisions/ui-env-vars"><link data-rh="true" rel="alternate" href="https://cellixjs.github.io/docs/decisions/ui-env-vars" hreflang="en"><link data-rh="true" rel="alternate" href="https://cellixjs.github.io/docs/decisions/ui-env-vars" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Decisions","item":"https://cellixjs.github.io/docs/category/decisions"},{"@type":"ListItem","position":2,"name":"ADR 0031 — UI env vars","item":"https://cellixjs.github.io/docs/decisions/ui-env-vars"}]}</script><link rel="alternate" type="application/rss+xml" href="/blog/rss.xml" title="CellixJs Docs RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/blog/atom.xml" title="CellixJs Docs Atom Feed"><link rel="stylesheet" href="/assets/css/styles.b63509ff.css">
-<script src="/assets/js/runtime~main.4103e337.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.adc6fa58.js" defer="defer"></script>
 <script src="/assets/js/main.4de11798.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -85,14 +85,14 @@
 </li>
 </ul>
 <h2 class="anchor anchorTargetStickyNavbar__Yun" id="validation-enforcement">Validation (Enforcement)<a href="#validation-enforcement" class="hash-link" aria-label="Direct link to Validation (Enforcement)" title="Direct link to Validation (Enforcement)" translate="no">​</a></h2>
-<p>This naming convention is enforced by the repository&#x27;s ArchUnit tests. The authoritative enforcement rule is implemented in the ArchUnit test package: packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts. Key points about enforcement:</p>
+<p>This naming convention is enforced by the repository&#x27;s ArchUnit tests. The authoritative enforcement rule is implemented in the ArchUnit test package: packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts. Key points about enforcement:</p>
 <ul>
 <li class="">
 <p>The ArchUnit test reads pipeline variable mappings (azure-pipelines.yml) as a single source of truth and validates that all VITE_* names exposed by pipelines conform to the regex and portal registry rules above.</p>
 </li>
 <li class="">
 <p>Maintainers can run the rule locally with:</p>
-<p>pnpm -w --filter @ocom/archunit-tests test</p>
+<p>pnpm -w --filter @ocom-verification/archunit-tests test</p>
 </li>
 <li class="">
 <p>In CI, the test will fail the build if new non-conforming names are introduced. A migration/grace period process is expected for existing violations.</p>
@@ -149,8 +149,8 @@ VITE_APP_UI_COMMUNITY_B2C_CLIENTID:  $(OCM_APP_UI_COMMUNITY_B2C_CLIENTID_DEV)</p
 <h2 class="anchor anchorTargetStickyNavbar__Yun" id="related">Related<a href="#related" class="hash-link" aria-label="Direct link to Related" title="Direct link to Related" translate="no">​</a></h2>
 <ul>
 <li class=""><a class="" href="/docs/portals/PORTAL_REGISTRY">apps/docs/docs/portals/PORTAL_REGISTRY.md</a> — canonical portal keys, owner groups, and onboarding evidence</li>
-<li class=""><code>packages/ocom/archunit-tests/build-artifacts/env-var-compliance-evidence.json</code> — machine-generated inventory of discovered VITE_* variables (produced on every test run, gitignored)</li>
-<li class=""><code>packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts</code> — ArchUnit enforcement test</li>
+<li class=""><code>packages/ocom-verification/archunit-tests/build-artifacts/env-var-compliance-evidence.json</code> — machine-generated inventory of discovered VITE_* variables (produced on every test run, gitignored)</li>
+<li class=""><code>packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts</code> — ArchUnit enforcement test</li>
 </ul>
 <h2 class="anchor anchorTargetStickyNavbar__Yun" id="notable-exceptions">Notable Exceptions<a href="#notable-exceptions" class="hash-link" aria-label="Direct link to Notable Exceptions" title="Direct link to Notable Exceptions" translate="no">​</a></h2>
 <ul>
