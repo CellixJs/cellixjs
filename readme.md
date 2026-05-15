@@ -26,7 +26,6 @@ Our Docusaurus website will help you get started in running and contributing to 
 
 ## Developer usage
 
-
 - Full local dev (builds, starts the portless HTTPS proxy, starts Azurite, and runs the app-level dev servers):
 
   ```bash
@@ -367,4 +366,3 @@ Have feedback? Leave a comment in [CellixJS discussions on GitHub](https://githu
 [![sharethrift contributors](https://contrib.rocks/image?repo=cellixjs/cellixjs)](https://github.com/cellixjs/cellixjs/graphs/contributors)
 
 [⬆ Back to Top](#table-of-contents)
-

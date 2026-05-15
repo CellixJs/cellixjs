@@ -31,7 +31,7 @@ jobs:
               echo "Installing PNPM..."
               npm install --global corepack@latest
               corepack enable
-              corepack prepare pnpm@11.0.8 --activate
+              corepack prepare pnpm@latest-10 --activate
               pnpm config set store-dir $(Pipeline.Workspace)/.pnpm-store
         - download: current
           displayName: 'Artifact: Download Docs package'

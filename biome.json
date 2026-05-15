@@ -3,20 +3,7 @@
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
 	"files": {
 		"ignoreUnknown": false,
-		"includes": [
-			"**",
-			"!**/mock-oidc.users.local.json",
-			"!**/dist",
-			"!**/build",
-			"!**/deploy",
-			"!**/node_modules",
-			"!**/coverage",
-			"!**/.turbo",
-			"!**/*.tsbuildinfo",
-			"!**/generated.*",
-			"!**/*.generated.*",
-			"!**/graphql.schema.json"
-		]
+		"includes": ["**", "!**/dist", "!**/build", "!**/deploy", "!**/node_modules", "!**/coverage", "!**/.turbo", "!**/*.tsbuildinfo", "!**/generated.*", "!**/*.generated.*", "!**/graphql.schema.json"]
 	},
 	"css": { "parser": { "cssModules": true } },
 	"formatter": {
