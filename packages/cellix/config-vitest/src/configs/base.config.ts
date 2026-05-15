@@ -8,7 +8,7 @@ export function createDefaultTypecheckConfig() {
 		checker: 'tsgo' as const,
 		tsconfig: 'tsconfig.vitest.json',
 		include: [...defaultTestIncludePatterns],
-		exclude: ['**/node_modules/**', '**/dist/**', '**/coverage/**'],
+		exclude: ['**/node_modules/**', 'src/archunit-tests/**', '**/dist/**', '**/coverage/**'],
 		ignoreSourceErrors: true,
 	};
 }

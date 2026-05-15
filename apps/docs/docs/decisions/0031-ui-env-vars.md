@@ -69,12 +69,12 @@ Naming rules (authoritative):
 
 ## Validation (Enforcement)
 
-This naming convention is enforced by the repository's ArchUnit tests. The authoritative enforcement rule is implemented in the ArchUnit test package: packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts. Key points about enforcement:
+This naming convention is enforced by the repository's ArchUnit tests. The authoritative enforcement rule is implemented in the ArchUnit test package: packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts. Key points about enforcement:
 
 - The ArchUnit test reads pipeline variable mappings (azure-pipelines.yml) as a single source of truth and validates that all VITE_* names exposed by pipelines conform to the regex and portal registry rules above.
 - Maintainers can run the rule locally with:
 
-  pnpm -w --filter @ocom/archunit-tests test
+  pnpm -w --filter @ocom-verification/archunit-tests test
 
 - In CI, the test will fail the build if new non-conforming names are introduced. A migration/grace period process is expected for existing violations.
 
@@ -122,8 +122,8 @@ Variable groups (recommended):
 ## Related
 
 - [apps/docs/docs/portals/PORTAL_REGISTRY.md](../portals/PORTAL_REGISTRY.md) — canonical portal keys, owner groups, and onboarding evidence
-- `packages/ocom/archunit-tests/build-artifacts/env-var-compliance-evidence.json` — machine-generated inventory of discovered VITE_* variables (produced on every test run, gitignored)
-- `packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts` — ArchUnit enforcement test
+- `packages/ocom-verification/archunit-tests/build-artifacts/env-var-compliance-evidence.json` — machine-generated inventory of discovered VITE_* variables (produced on every test run, gitignored)
+- `packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts` — ArchUnit enforcement test
 
 ## Notable Exceptions
 

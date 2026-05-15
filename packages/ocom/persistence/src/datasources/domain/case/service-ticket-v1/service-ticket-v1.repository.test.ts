@@ -1,16 +1,15 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-
-import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
-import { ServiceTicketV1Converter, type ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
-import type { ClientSession } from 'mongoose';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { ServiceTicket, ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
+import { Domain } from '@ocom/domain';
+import type { ClientSession } from 'mongoose';
+import { expect, vi } from 'vitest';
+import { ServiceTicketV1Converter, type ServiceTicketV1DomainAdapter } from './service-ticket-v1.domain-adapter.ts';
+import { ServiceTicketV1Repository } from './service-ticket-v1.repository.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -118,7 +117,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('a valid Mongoose ServiceTicket document with id "507f1f77bcf86cd799439011", title "Test Ticket", description "Test Description"', () => {
 			serviceTicketDoc = makeServiceTicketDoc({
-				_id: '507f1f77bcf86cd799439011',
 				title: 'Test Ticket',
 				description: 'Test Description',
 			});

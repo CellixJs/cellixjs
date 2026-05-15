@@ -71,15 +71,20 @@
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
-		"clean": "rimraf dist"
+		"clean": "rimraf dist",
+		"test:arch": "vitest run --config vitest.arch.config.ts"
 	},
 	"dependencies": {
 		"@cellix/mongoose-seedwork": "workspace:*",
 		"mongoose": "catalog:"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@ocom-verification/archunit-tests": "workspace:*",
 		"rimraf": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

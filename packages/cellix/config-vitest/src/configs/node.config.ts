@@ -7,6 +7,7 @@ export const nodeConfig = mergeConfig(
 		test: {
 			typecheck: createDefaultTypecheckConfig(),
 			include: [...defaultTestIncludePatterns],
+			exclude: ['**/node_modules/**', 'src/archunit-tests/**'],
 			environment: 'node',
 			testTimeout: 5000,
 			coverage: {
@@ -27,6 +28,7 @@ export const nodeConfig = mergeConfig(
 					'**/dist/**',
 					'**/deploy/**',
 					'node_modules/**',
+					'src/archunit-tests/**',
 				],
 			},
 		},
