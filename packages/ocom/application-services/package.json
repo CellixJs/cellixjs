@@ -20,6 +20,7 @@
 		"watch": "tsgo --watch",
 		"test": "vitest run",
 		"test:watch": "vitest",
+		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"lint": "biome lint",
 		"clean": "rimraf dist"
 	},
@@ -29,10 +30,13 @@
 		"@ocom/persistence": "workspace:*"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@ocom-verification/archunit-tests": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
 		"typescript": "catalog:",
-		"rimraf": "catalog:"
+		"vitest": "catalog:"
 	}
 }

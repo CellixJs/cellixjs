@@ -1,9 +1,9 @@
 import type React from 'react';
-import { createRoot } from 'react-dom/client';
 import { act } from 'react';
+import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { type LoggedInUserContainerEndUserFieldsFragment, LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } from '../../../generated.tsx';
 import { LoggedInUserRootContainer } from './logged-in-user-root.container.tsx';
-import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument, type LoggedInUserContainerEndUserFieldsFragment } from '../../../generated.tsx';
 
 const { useApolloClientMock, useAuthMock, useQueryMock, handleLogoutMock, componentQueryLoaderMock, loggedInUserRootMock } = vi.hoisted(() => ({
 	useApolloClientMock: vi.fn(),

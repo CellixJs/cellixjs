@@ -1,7 +1,7 @@
-import type React from 'react';
 import { Skeleton } from 'antd';
-import { createRoot } from 'react-dom/client';
+import type React from 'react';
 import { act } from 'react';
+import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoggedInUserCommunityContainer } from './logged-in-user-community.container.tsx';
 

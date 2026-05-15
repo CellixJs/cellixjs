@@ -1,12 +1,9 @@
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
 import { readTsConfig, validateNodeCompilerOptions } from './validate-compiler-options';
-
-// re-exported TsConfig is provided by the shared helper
 
 const packagesRoot = join(fileURLToPath(new URL('../../..', import.meta.url)));
 const exemptWorkspacePackages = new Set(['cellix/archunit-tests', 'cellix/config-typescript']);

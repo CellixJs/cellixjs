@@ -14,7 +14,7 @@ date: "2026-05-07"
 
 - [x] ADR-0031 compliance verified — see [ADR-0031](../../decisions/0031-ui-env-vars.md)
 - [x] Environment variables follow `VITE_APP_UI_COMMUNITY_<NAME>` naming convention
-- [x] Env-var compliance validated by `packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts`
+- [x] Env-var compliance validated by `packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts`
 - [x] Pipeline template used: `build-pipeline/templates/deploy-ui.yml`
 - [x] Variable group required: `ocm-app-ui-community`
 - [x] Front Door / CDN endpoint configured in Bicep (`iac/`)

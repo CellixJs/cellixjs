@@ -1,8 +1,26 @@
+import { execFileSync } from 'node:child_process';
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { PortlessServer } from './portless-server.ts';
 import { buildUrl, getMongoConnectionString, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
 
 export class TestApiServer extends PortlessServer {
+	override async start(): Promise<void> {
+		// Mirror the app's real dev bootstrap so deploy assets and local settings
+		// stay in sync with recent package-script changes.
+		const env = {
+			...process.env,
+		};
+		delete env.NODE_OPTIONS;
+
+		execFileSync('pnpm', ['run', 'predev'], {
+			cwd: this.cwd,
+			env,
+			stdio: 'pipe',
+		});
+
+		await super.start();
+	}
+
 	protected get probeUrl() {
 		return buildUrl('data-access.ownercommunity.localhost', '/api/graphql');
 	}

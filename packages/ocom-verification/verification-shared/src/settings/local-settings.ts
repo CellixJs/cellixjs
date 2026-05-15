@@ -45,7 +45,7 @@ export const apiSettings = {
 } as const;
 
 export const uiSettings = {
-	baseUrl: requireSetting(uiValues, 'VITE_BASE_URL', 'VITE_BASE_URL is required in .env'),
+	baseUrl: requireSetting(uiValues, 'VITE_APP_UI_COMMUNITY_BASE_URL', 'VITE_APP_UI_COMMUNITY_BASE_URL is required in .env'),
 
 	graphqlEndpoint: requireSetting(uiValues, 'VITE_COMMON_API_ENDPOINT', 'VITE_COMMON_API_ENDPOINT is required in .env'),
 } as const;
