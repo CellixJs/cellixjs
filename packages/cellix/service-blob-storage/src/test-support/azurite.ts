@@ -28,14 +28,17 @@ export async function startAzuriteBlobServer(): Promise<AzuriteBlobServer> {
 	const location = mkdtempSync(join(tmpdir(), 'cellix-azurite-blob-'));
 	let processHandle: ChildProcessWithoutNullStreams;
 	let spawnError: unknown;
+
+	// Resolve azurite-blob from node_modules/.bin to avoid depending on pnpm being on PATH
+	const azuriteBinaryPath = join(findRepoRoot(), 'node_modules', '.bin', 'azurite-blob');
+
 	try {
-		processHandle = spawn('pnpm', ['exec', 'azurite-blob', '--silent', '--skipApiVersionCheck', '--blobPort', String(port), '--location', location], {
-			cwd: findRepoRoot(),
+		processHandle = spawn(azuriteBinaryPath, ['--silent', '--skipApiVersionCheck', '--blobPort', String(port), '--location', location], {
 			stdio: 'pipe',
 			env: process.env,
 		});
 	} catch (err) {
-		throw new Error(`Failed to spawn Azurite process: ${String(err)}`);
+		throw new Error(`Failed to spawn Azurite process (binary at ${azuriteBinaryPath}): ${String(err)}`);
 	}
 
 	// capture asynchronous spawn errors (ENOENT, EACCES, etc.)

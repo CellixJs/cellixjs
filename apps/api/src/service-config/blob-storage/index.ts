@@ -6,7 +6,7 @@
  * only need AZURE_STORAGE_ACCOUNT_NAME.
  *
  * Configuration values:
- * - AZURE_STORAGE_ACCOUNT_NAME: Required for blob URL construction and managed identity authentication.
+ * - AZURE_STORAGE_ACCOUNT_NAME: Required for blob URL construction and as fallback for managed identity auth.
  *   Provided by Bicep auto-injection in deployed environments.
  *
  * - AZURE_STORAGE_CONNECTION_STRING: Required for SAS token generation (shared-key signing for client uploads).
@@ -14,8 +14,10 @@
  *   Sourced from Key Vault in production, local env in development.
  *
  * Authentication strategy:
- * - ServiceBlobStorage always uses managed identity (DefaultAzureCredential) for blob SDK operations
- * - Connection string is used separately for SAS token generation (not for SDK auth)
+ * - When both accountName and connectionString are provided (as in this OCOM config),
+ *   the framework ServiceBlobStorage uses connection-string-based auth (shared key).
+ * - When only accountName is provided, the service uses managed identity (DefaultAzureCredential).
+ * - Connection string is also used separately for SAS token generation for client uploads.
  *
  * @remarks
  * To decouple concerns, applications should only require connection string if they implement
