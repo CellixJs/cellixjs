@@ -1,20 +1,20 @@
 import { type DependencyRulesTestsConfig, describeDependencyRulesTests } from '@cellix/archunit-tests/general';
 
 const config: DependencyRulesTestsConfig = {
-	appsGlob: '../../apps/**',
-	packagesGlob: '../**',
+	appsGlob: '../../../apps/**',
+	packagesGlob: '../../**',
 
-	domainFolder: '../domain',
-	persistenceFolder: '../persistence',
-	applicationServicesFolder: '../application-services',
-	graphqlFolder: '../graphql',
-	restFolder: '../rest',
+	domainFolder: '../../ocom/domain',
+	persistenceFolder: '../../ocom/persistence',
+	applicationServicesFolder: '../../ocom/application-services',
+	graphqlFolder: '../../ocom/graphql',
+	restFolder: '../../ocom/rest',
 	infrastructurePattern: '../../cellix/service-*/**',
-	restInfrastructurePattern: '../service-*/**',
+	restInfrastructurePattern: '../../ocom/service-*/**',
 
 	uiCoreFolder: '../../cellix/ui-core',
-	uiComponentsFolder: '../ui-components',
-	appUiFolder: '../../apps/ui-community',
+	uiComponentsFolder: '../../ocom/ui-components',
+	appUiFolder: '../../../apps/ui-community',
 };
 
 describeDependencyRulesTests(config);

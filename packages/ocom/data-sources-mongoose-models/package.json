@@ -84,6 +84,7 @@
 		"@cellix/config-vitest": "workspace:*",
 		"@ocom-verification/archunit-tests": "workspace:*",
 		"rimraf": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }
