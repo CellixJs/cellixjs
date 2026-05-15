@@ -496,7 +496,7 @@ stages:
     # Package UI Staff compiled assets into artifact
     - task: ArchiveFiles@2
       displayName: 'Artifact: Prepare UI Staff'
-      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: succeeded()
       inputs:
         rootFolderOrFile: 'apps/ui-staff/dist'
         includeRootFolder: false
