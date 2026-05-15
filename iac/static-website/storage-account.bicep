@@ -184,4 +184,3 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
 output storageAccountName string = storageAccount.name
 output storageAccountLocation string = storageAccount.location
 output storageAccountPrimaryEndpointWeb string = storageAccount.properties.primaryEndpoints.web
-output storageAccountSecondaryEndpointWeb string = storageAccount.properties.secondaryEndpoints.web
