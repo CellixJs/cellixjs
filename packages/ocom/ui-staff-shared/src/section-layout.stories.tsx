@@ -198,3 +198,93 @@ describe('PlaceholderPage', () => {
 		expect(container.textContent).toContain('m@example.com');
 	});
 });
+
+describe('SectionLayout with displayName prop', () => {
+	it('renders displayName from prop when provided', async () => {
+		const container = renderIntoDocument(
+			<MemoryRouter initialEntries={['/staff']}>
+				<StaffAuthProvider
+					value={{
+						permissions: {
+							canManageCommunities: true,
+							canManageUsers: false,
+							canManageFinance: false,
+							canManageTechAdmin: false,
+						},
+					}}
+				>
+					<Routes>
+						<Route
+							path="/staff/*"
+							element={<SectionLayout pageLayouts={[]} displayName="Alice Johnson" />}
+						/>
+					</Routes>
+				</StaffAuthProvider>
+			</MemoryRouter>,
+		);
+
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(container.textContent).toContain('Alice Johnson');
+		expect(container.textContent).toContain('Log Out');
+	});
+
+	it('falls back to auth context name when displayName prop is not provided', async () => {
+		const container = renderIntoDocument(
+			<MemoryRouter initialEntries={['/staff']}>
+				<StaffAuthProvider
+					value={{
+						name: 'Bob Smith',
+						permissions: {
+							canManageCommunities: true,
+							canManageUsers: false,
+							canManageFinance: false,
+							canManageTechAdmin: false,
+						},
+					}}
+				>
+					<Routes>
+						<Route
+							path="/staff/*"
+							element={<SectionLayout pageLayouts={[]} />}
+						/>
+					</Routes>
+				</StaffAuthProvider>
+			</MemoryRouter>,
+		);
+
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(container.textContent).toContain('Bob Smith');
+	});
+
+	it('uses displayName prop over auth context when both are available', async () => {
+		const container = renderIntoDocument(
+			<MemoryRouter initialEntries={['/staff']}>
+				<StaffAuthProvider
+					value={{
+						name: 'Auth Name',
+						permissions: {
+							canManageCommunities: true,
+							canManageUsers: false,
+							canManageFinance: false,
+							canManageTechAdmin: false,
+						},
+					}}
+				>
+					<Routes>
+						<Route
+							path="/staff/*"
+							element={<SectionLayout pageLayouts={[]} displayName="Prop Name" />}
+						/>
+					</Routes>
+				</StaffAuthProvider>
+			</MemoryRouter>,
+		);
+
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(container.textContent).toContain('Prop Name');
+		expect(container.textContent).not.toContain('Auth Name');
+	});
+});

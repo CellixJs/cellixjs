@@ -10,7 +10,7 @@ export class TestApiServer extends PortlessServer {
 		const env = {
 			...process.env,
 		};
-		delete env['NODE_OPTIONS'];
+		delete env.NODE_OPTIONS;
 
 		execFileSync('pnpm', ['run', 'predev'], {
 			cwd: this.cwd,

@@ -30,10 +30,27 @@ export interface SectionLayoutProps {
 	headerContent?: React.ReactNode;
 	/** Optional injected logged in user component (extension slot). */
 	loggedInUser?: React.ReactNode;
+	/** Optional displayName from container (e.g., from GraphQL query). When provided, takes priority over auth context. */
+	displayName?: string;
 }
 
 export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	const auth = useContext(StaffAuthContext);
+
+	// Debug logging to track displayName flow
+	if (typeof window !== 'undefined' && typeof window.location !== 'undefined') {
+		const href = window.location.href;
+		if (href.includes('dev') || href.includes('localhost')) {
+			console.debug('[SectionLayout] Component props & fallback chain:', {
+				propsDisplayName: props.displayName,
+				authName: auth?.name,
+				authUsername: auth?.username,
+				authEmail: auth?.email,
+				resolvedDisplayName: props.displayName || auth?.name || auth?.username || auth?.email || 'Staff User',
+			});
+		}
+	}
+
 	// Guard access to localStorage so this component is safe during server-side rendering (no globalThis/localStorage)
 	const [isExpanded, setIsExpanded] = useState(() => {
 		if (typeof globalThis === 'undefined') return true; // default to expanded during SSR
@@ -164,7 +181,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 							marginLeft: 'auto',
 						}}
 					>
-						<span style={{ fontSize: '14px', color: '#666' }}>Staff User</span>
+						<span style={{ fontSize: '14px', color: '#666' }}>{props.displayName || auth?.name || auth?.username || auth?.email || 'Staff User'}</span>
 						<Button
 							type="link"
 							onClick={() => auth?.onLogout?.()}

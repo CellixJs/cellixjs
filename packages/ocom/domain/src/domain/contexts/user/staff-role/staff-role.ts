@@ -21,10 +21,6 @@ export interface StaffRoleEntityReference extends Readonly<Omit<StaffRoleProps, 
 	readonly permissions: StaffRolePermissionsEntityReference;
 }
 
-type DefaultRoleSpec = Readonly<{
-	roleName: string;
-	apply: (staffRole: StaffRole<StaffRoleProps>) => void;
-}>;
 
 export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props, Passport> implements StaffRoleEntityReference {
 	private isNew: boolean = false;
@@ -47,77 +43,62 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 	 * Returns the canonical list of default staff role names known to the domain
 	 */
 	public static getDefaultRoleNames(): string[] {
-		return StaffRole.getDefaultRoleSpecs().map((spec) => spec.roleName);
+		return ['Default.CaseManager', 'Default.ServiceLineOwner', 'Default.Finance', 'Default.TechAdmin'];
 	}
 
-	public static getDefaultRoleSpecs(): DefaultRoleSpec[] {
-		return [
-			{ roleName: 'Staff.CaseManager', apply: StaffRole.applyCaseManagerDefaultSpec },
-			{ roleName: 'Staff.ServiceLineOwner', apply: StaffRole.applyServiceLineOwnerDefaultSpec },
-			{ roleName: 'Staff.Finance', apply: StaffRole.applyFinanceDefaultSpec },
-			{ roleName: 'Staff.TechAdmin', apply: StaffRole.applyTechAdminDefaultSpec },
-		];
+	public static getNewDefaultCaseManagerInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
+		const role = new StaffRole(newProps, passport);
+		role.isNew = true;
+		role.roleName = 'Default Case Manager';
+		role.isDefault = true;
+		role.permissions.communityPermissions.canManageCommunities = true;
+		role.permissions.financePermissions.canManageFinance = false;
+		role.permissions.techAdminPermissions.canManageTechAdmin = false;
+		role.permissions.userPermissions.canManageUsers = true;
+		role.isNew = false;
+		return role;
 	}
 
-	public static applyCaseManagerDefaultSpec(staffRole: StaffRole<StaffRoleProps>): void {
-		staffRole.permissions.communityPermissions.canManageCommunities = true;
-		staffRole.permissions.financePermissions.canManageFinance = false;
-		staffRole.permissions.techAdminPermissions.canManageTechAdmin = false;
-		staffRole.permissions.userPermissions.canManageUsers = true;
-		staffRole.isDefault = true;
+	public static getNewDefaultServiceLineOwnerInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
+		const role = new StaffRole(newProps, passport);
+		role.isNew = true;
+		role.roleName = 'Default Service Line Owner';
+		role.isDefault = true;
+		role.permissions.communityPermissions.canManageCommunities = true;
+		role.permissions.financePermissions.canManageFinance = false;
+		role.permissions.techAdminPermissions.canManageTechAdmin = false;
+		role.permissions.userPermissions.canManageUsers = true;
+		role.isNew = false;
+		return role;
 	}
 
-	public static applyServiceLineOwnerDefaultSpec(staffRole: StaffRole<StaffRoleProps>): void {
-		staffRole.permissions.communityPermissions.canManageCommunities = true;
-		staffRole.permissions.financePermissions.canManageFinance = false;
-		staffRole.permissions.techAdminPermissions.canManageTechAdmin = false;
-		staffRole.permissions.userPermissions.canManageUsers = true;
-		staffRole.isDefault = true;
+	public static getNewDefaultFinanceInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
+		const role = new StaffRole(newProps, passport);
+		role.isNew = true;
+		role.roleName = 'Default Finance';
+		role.isDefault = true;
+		role.permissions.communityPermissions.canManageCommunities = false;
+		role.permissions.financePermissions.canManageFinance = true;
+		role.permissions.techAdminPermissions.canManageTechAdmin = false;
+		role.permissions.userPermissions.canManageUsers = false;
+		role.isNew = false;
+		return role;
 	}
 
-	public static applyFinanceDefaultSpec(staffRole: StaffRole<StaffRoleProps>): void {
-		staffRole.permissions.communityPermissions.canManageCommunities = false;
-		staffRole.permissions.financePermissions.canManageFinance = true;
-		staffRole.permissions.techAdminPermissions.canManageTechAdmin = false;
-		staffRole.permissions.userPermissions.canManageUsers = false;
-		staffRole.isDefault = true;
-	}
-
-	public static applyTechAdminDefaultSpec(staffRole: StaffRole<StaffRoleProps>): void {
-		staffRole.permissions.communityPermissions.canManageCommunities = false;
-		staffRole.permissions.financePermissions.canManageFinance = false;
-		staffRole.permissions.techAdminPermissions.canManageTechAdmin = true;
-		staffRole.permissions.userPermissions.canManageUsers = false;
-		staffRole.isDefault = true;
-	}
-
-	/**
-	 * Applies the domain-defined default permissions for a given default role name onto the provided StaffRole instance.
-	 * This keeps the default-spec knowledge inside the domain layer and avoids leaking permission shapes to the application layer.
-	 */
-	public static applyDefaultSpec(staffRole: StaffRole<StaffRoleProps>, roleName: string): void {
-		// Do not unmark defaults here. applyDefaultSpec should only mark canonical defaults as default and
-		// set permission shapes directly on the underlying props to avoid visa-guarded setters during bootstrapping.
-
-		// When bootstrapping defaults, mutate the aggregate directly. We intentionally avoid clearing isDefault here.
-
-		switch (roleName) {
-			case 'Staff.CaseManager':
-				StaffRole.applyCaseManagerDefaultSpec(staffRole);
-				break;
-			case 'Staff.ServiceLineOwner':
-				StaffRole.applyServiceLineOwnerDefaultSpec(staffRole);
-				break;
-			case 'Staff.Finance':
-				StaffRole.applyFinanceDefaultSpec(staffRole);
-				break;
-			case 'Staff.TechAdmin':
-				StaffRole.applyTechAdminDefaultSpec(staffRole);
-				break;
-			default:
-				// Unknown default spec: do nothing
-				break;
-		}
+	public static getNewDefaultTechAdminInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
+		const role = new StaffRole(newProps, passport);
+		role.isNew = true;
+		role.roleName = 'Default Tech Admin';
+		role.isDefault = true;
+		// Tech Admins are implicit managers of all areas
+		role.permissions.communityPermissions.canManageCommunities = true;
+		// Tech Admins should also be able to manage staff roles & permissions by default
+		role.permissions.communityPermissions.canManageStaffRolesAndPermissions = true;
+		role.permissions.financePermissions.canManageFinance = true;
+		role.permissions.techAdminPermissions.canManageTechAdmin = true;
+		role.permissions.userPermissions.canManageUsers = true;
+		role.isNew = false;
+		return role;
 	}
 	public deleteAndReassignTo(roleRef: StaffRoleEntityReference) {
 		if (this.isDefault) {

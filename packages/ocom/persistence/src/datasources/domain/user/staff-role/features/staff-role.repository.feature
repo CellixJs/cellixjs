@@ -26,6 +26,16 @@ Feature: <Repository> StaffRoleRepository
     When I call getByRoleName with "nonexistent-role"
     Then an error should be thrown indicating "StaffRole with roleName nonexistent-role not found"
 
+  Scenario: Getting a default staff role by enterpriseAppRole
+    Given a valid default Mongoose StaffRole document with enterpriseAppRole "Staff.CaseManager"
+    When I call getDefaultRoleByEnterpriseAppRole with "Staff.CaseManager"
+    Then I should receive a StaffRole domain object
+    And the domain object's isDefault should be true
+
+  Scenario: Getting a default staff role by enterpriseAppRole that does not exist
+    When I call getDefaultRoleByEnterpriseAppRole with "Staff.UnknownRole"
+    Then an error should be thrown indicating "Default StaffRole with enterpriseAppRole Staff.UnknownRole not found"
+
   Scenario: Creating a new staff role instance
     When I call getNewInstance with name "Supervisor"
     Then I should receive a new StaffRole domain object

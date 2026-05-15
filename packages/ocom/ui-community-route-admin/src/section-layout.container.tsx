@@ -3,7 +3,6 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import { useParams } from 'react-router-dom';
 import {
-	AdminSectionLayoutContainerCurrentStaffUserDocument,
 	AdminSectionLayoutContainerMembersForCurrentEndUserDocument,
 	type Member,
 } from './generated.tsx';
@@ -17,16 +16,7 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 	const params = useParams();
 
 	const { data: membersData, loading: membersLoading, error: membersError } = useQuery(AdminSectionLayoutContainerMembersForCurrentEndUserDocument);
-	const { data: staffUserData } = useQuery(AdminSectionLayoutContainerCurrentStaffUserDocument);
 
-	const staffSectionPermissions = staffUserData?.currentStaffUserAndCreateIfNotExists?.role?.permissions
-		? {
-				canManageCommunities: staffUserData.currentStaffUserAndCreateIfNotExists.role.permissions.communityPermissions.canManageCommunities,
-				canManageUsers: staffUserData.currentStaffUserAndCreateIfNotExists.role.permissions.userPermissions.canManageUsers,
-				canManageFinance: staffUserData.currentStaffUserAndCreateIfNotExists.role.permissions.financePermissions.canManageFinance,
-				canManageTechAdmin: staffUserData.currentStaffUserAndCreateIfNotExists.role.permissions.techAdminPermissions.canManageTechAdmin,
-		  }
-		: null;
 
 	return (
 		<ComponentQueryLoader
@@ -37,7 +27,6 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 					pageLayouts={props.pageLayouts}
 					// biome-ignore lint:useLiteralKeys
 					memberData={membersData?.membersForCurrentEndUser.find((member) => member.id === params['memberId']) as Member}
-					staffSectionPermissions={staffSectionPermissions}
 				/>
 			}
 			error={membersError}

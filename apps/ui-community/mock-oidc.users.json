@@ -1,0 +1,24 @@
+[
+	{
+		"username": "test@example.com",
+		"sub": "00000000-0000-4000-8000-000000000001",
+		"password": "password",
+		"claims": {
+			"email": "test@example.com",
+			"given_name": "Test",
+			"family_name": "User",
+			"tid": "test-tenant-id"
+		}
+	},
+	{
+		"username": "john.doe@example.com",
+		"sub": "00000000-0000-4000-8000-000000000002",
+		"password": "password",
+		"claims": {
+			"email": "john.doe@example.com",
+			"given_name": "John",
+			"family_name": "Doe",
+			"tid": "test-tenant-id"
+		}
+	}
+]

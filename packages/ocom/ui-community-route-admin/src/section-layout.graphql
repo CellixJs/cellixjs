@@ -4,12 +4,6 @@ query AdminSectionLayoutContainerMembersForCurrentEndUser {
 	}
 }
 
-query AdminSectionLayoutContainerCurrentStaffUser {
-	currentStaffUserAndCreateIfNotExists {
-		...AdminSectionLayoutContainerStaffUserFields
-	}
-}
-
 fragment AdminSectionLayoutContainerMemberFields on Member {
 	id
 	memberName
@@ -20,22 +14,3 @@ fragment AdminSectionLayoutContainerMemberFields on Member {
 	}
 }
 
-fragment AdminSectionLayoutContainerStaffUserFields on StaffUser {
-	id
-	role {
-		permissions {
-			communityPermissions {
-				canManageCommunities
-			}
-			financePermissions {
-				canManageFinance
-			}
-			techAdminPermissions {
-				canManageTechAdmin
-			}
-			userPermissions {
-				canManageUsers
-			}
-		}
-	}
-}
