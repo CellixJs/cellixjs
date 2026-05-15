@@ -530,7 +530,7 @@ stages:
     # Upload UI Staff artifact as build result
     - publish: $(Build.ArtifactStagingDirectory)/ui-staff-$(Build.BuildId).zip
       displayName: 'Artifact: Publish UI Staff'
-      condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: succeeded()
       artifact: ui-staff
 
     # Upload Docs artifact as build result
