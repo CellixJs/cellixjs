@@ -173,7 +173,7 @@ Wider verification beyond those touched packages was intentionally not run becau
 
 Public behaviors intentionally left unverified:
 
-- no live Azure or Azurite integration test was run
+- no live Azure or Azurite integration tests were run
 - no downstream application-service usage migration was added in this task
 
 Additional narrower tests were not retained beyond the public contract suite; package tests stay focused on observable public behavior through root imports.

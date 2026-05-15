@@ -19,7 +19,7 @@ export interface ServiceBlobStorageOptions {
 	/**
 	 * Storage account name. Required for blob URL construction and managed identity authentication.
 	 */
-	accountName: string | undefined;
+	accountName: string;
 
 	/**
 	 * Optional Azure Storage connection string.
@@ -27,7 +27,7 @@ export interface ServiceBlobStorageOptions {
 	 * When provided, passed to the framework service to enable shared-key SAS generation.
 	 * When omitted, the service uses managed identity (DefaultAzureCredential) for authentication.
 	 */
-	connectionString?: string | undefined;
+	connectionString?: string;
 
 	/**
 	 * Optional framework service instance. If not provided, one will be created using the provided options.
@@ -44,8 +44,8 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 			this.frameworkService = options.frameworkService;
 		} else {
 			this.frameworkService = new CellixServiceBlobStorage({
-				...(options.accountName !== undefined && { accountName: options.accountName }),
-				...(options.connectionString !== undefined && { connectionString: options.connectionString }),
+				accountName: options.accountName,
+				...(options.connectionString && { connectionString: options.connectionString }),
 			});
 		}
 	}
