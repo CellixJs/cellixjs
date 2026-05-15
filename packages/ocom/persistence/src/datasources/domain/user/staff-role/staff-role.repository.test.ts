@@ -1,14 +1,13 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-
-import { StaffRoleRepository } from './staff-role.repository.ts';
-import { StaffRoleConverter, type StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
-import type { ClientSession } from 'mongoose';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { StaffRole, StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import { Domain } from '@ocom/domain';
+import type { ClientSession } from 'mongoose';
+import { expect, vi } from 'vitest';
+import { StaffRoleConverter, type StaffRoleDomainAdapter } from './staff-role.domain-adapter.ts';
+import { StaffRoleRepository } from './staff-role.repository.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -86,18 +85,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		};
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
-				exec: vi.fn(() => (id === staffRoleDoc._id ? staffRoleDoc : null)),
-			})), 
-			findOne: vi.fn((query: { roleName?: string; enterpriseAppRole?: string; isDefault?: boolean }) => ({
-				exec: vi.fn(() => {
-					if (query.roleName) {
-						return query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null;
-					}
-					if (query.enterpriseAppRole && query.isDefault === true) {
-						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && staffRoleDoc.isDefault ? staffRoleDoc : null;
-					}
-					return null;
-				}),
+				exec: vi.fn(async () => (id === String(staffRoleDoc._id) ? staffRoleDoc : null)),
+			})),
+			findOne: vi.fn((query: { roleName: string }) => ({
+				exec: vi.fn(async () => (query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null)),
 			})),
 			prototype: {},
 		});
