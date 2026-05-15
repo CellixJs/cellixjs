@@ -7,23 +7,15 @@ import { fileURLToPath } from 'node:url';
 
 // Azurite credentials are sourced from environment variables (AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_ACCOUNT_KEY)
 // which are typically set via local.settings.json in development environments.
-// This avoids hardcoding secrets in source code.
+// Falls back to well-known Azurite development account if not set.
 function getAzuriteAccountName(): string {
 	// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for process.env in strict mode
-	const accountName = process.env['AZURE_STORAGE_ACCOUNT_NAME'];
-	if (!accountName) {
-		throw new Error('AZURE_STORAGE_ACCOUNT_NAME environment variable is required for Azurite tests. ' + 'Ensure it is set in local.settings.json or process environment.');
-	}
-	return accountName;
+	return process.env['AZURE_STORAGE_ACCOUNT_NAME'] ?? 'devstoreaccount1';
 }
 
 function getAzuriteAccountKey(): string {
 	// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for process.env in strict mode
-	const accountKey = process.env['AZURE_STORAGE_ACCOUNT_KEY'];
-	if (!accountKey) {
-		throw new Error('AZURE_STORAGE_ACCOUNT_KEY environment variable is required for Azurite tests. ' + 'Ensure it is set in local.settings.json or process environment.');
-	}
-	return accountKey;
+	return process.env['AZURE_STORAGE_ACCOUNT_KEY'] ?? 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OtQ3Q7AeFFS=';
 }
 
 export interface AzuriteBlobServer {

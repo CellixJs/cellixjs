@@ -1,5 +1,5 @@
 import type { ServiceBase } from '@cellix/api-services-spec';
-import { ServiceBlobStorage as CellixServiceBlobStorage, type ServiceBlobStorageOptions as CellixServiceBlobStorageOptions } from '@cellix/service-blob-storage';
+import { ServiceBlobStorage as CellixServiceBlobStorage } from '@cellix/service-blob-storage';
 import type { BlobStorage, CreateBlobAccessUrlRequest } from './blob-storage.contract.ts';
 import { createBlobStorage } from './blob-storage-adapter.ts';
 
@@ -10,25 +10,27 @@ import { createBlobStorage } from './blob-storage-adapter.ts';
  * 1. Server-only blob operations: provide only accountName (managed identity auth)
  * 2. Client uploads with SAS signing: provide both accountName and connectionString
  *
- * The wrapper uses only accountName for SDK authentication (via managed identity / DefaultAzureCredential).
- * The connectionString is available for consumers that need it (e.g., SAS token generation for client uploads).
+ * Both values are passed through to the framework ServiceBlobStorage, which determines
+ * the authentication mode based on what is provided:
+ * - If connectionString is provided: uses shared key auth (for Azurite or when shared-key signing is needed)
+ * - If only accountName is provided: uses managed identity (DefaultAzureCredential)
  */
 export interface ServiceBlobStorageOptions {
 	/**
-	 * Storage account name. Required for blob URL construction and used by managed identity for authentication.
+	 * Storage account name. Required for blob URL construction and managed identity authentication.
 	 */
 	accountName: string | undefined;
 
 	/**
 	 * Optional Azure Storage connection string.
 	 * Only required if the application implements client uploads with SAS token signing.
-	 * Not used by the service for authentication; managed identity is always used.
-	 * Available for consumers that need it (e.g., SAS token generation).
+	 * When provided, passed to the framework service to enable shared-key SAS generation.
+	 * When omitted, the service uses managed identity (DefaultAzureCredential) for authentication.
 	 */
 	connectionString?: string | undefined;
 
 	/**
-	 * Optional framework service instance. If not provided, one will be created using only the accountName.
+	 * Optional framework service instance. If not provided, one will be created using the provided options.
 	 */
 	frameworkService?: CellixServiceBlobStorage;
 }
@@ -41,13 +43,10 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		if (options.frameworkService) {
 			this.frameworkService = options.frameworkService;
 		} else {
-			// Always use only accountName for SDK authentication (managed identity)
-			// Connection string is not used for SDK auth, only for SAS signing in consumers
-			const frameworkOptions: CellixServiceBlobStorageOptions = {};
-			if (options.accountName) {
-				frameworkOptions.accountName = options.accountName;
-			}
-			this.frameworkService = new CellixServiceBlobStorage(frameworkOptions);
+			this.frameworkService = new CellixServiceBlobStorage({
+				...(options.accountName !== undefined && { accountName: options.accountName }),
+				...(options.connectionString !== undefined && { connectionString: options.connectionString }),
+			});
 		}
 	}
 
