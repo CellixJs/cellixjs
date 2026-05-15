@@ -159,9 +159,7 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 		enterpriseAppRole: {
 			type: String,
 			required: true,
-			default(this: StaffRole) {
-				return this.roleName;
-			},
+			enum: StaffEnterpriseAppRoles,
 		},
 		isDefault: { type: Boolean, required: true, default: false },
 	},
