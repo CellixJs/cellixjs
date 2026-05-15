@@ -35,6 +35,7 @@ function makeMockStaffRoleRef(roleName: string): Domain.Contexts.User.StaffRole.
 	return {
 		id: `role-id-${roleName}`,
 		roleName,
+		enterpriseAppRole: roleName,
 		isDefault: false,
 		roleType: null,
 		permissions: {
@@ -81,7 +82,7 @@ function makeDataSources(overrides: {
 	existingUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference | null;
 	newUser?: MockStaffUserInstance;
 	savedUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference;
-	roleByName?: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null;
+	roleByEnterpriseAppRole?: Record<string, Domain.Contexts.User.StaffRole.StaffRoleEntityReference>;
 	saveShouldFail?: boolean;
 }): DataSources {
 	const newUser = overrides.newUser ?? makeMockNewUser('default');
@@ -95,11 +96,19 @@ function makeDataSources(overrides: {
 	} as unknown as Domain.Contexts.User.StaffUser.StaffUserRepository<Domain.Contexts.User.StaffUser.StaffUserProps>;
 
 	const staffRoleRepo = {
-		getByRoleName: vi.fn().mockImplementation((name: string) => {
-			if (overrides.roleByName && overrides.roleByName.roleName === name) {
-				return Promise.resolve(overrides.roleByName);
+		getByRoleName: vi.fn().mockImplementation((roleName: string) => {
+			const role = Object.values(overrides.roleByEnterpriseAppRole ?? {}).find((candidate) => candidate.roleName === roleName);
+			if (role) {
+				return Promise.resolve(role);
 			}
-			return Promise.reject(new Error(`NotFoundError: ${name} not found`));
+			return Promise.reject(new Error(`NotFoundError: ${roleName} not found`));
+		}),
+		getDefaultRoleByEnterpriseAppRole: vi.fn().mockImplementation((enterpriseAppRole: string) => {
+			const role = overrides.roleByEnterpriseAppRole?.[enterpriseAppRole];
+			if (role) {
+				return Promise.resolve(role);
+			}
+			return Promise.reject(new Error(`NotFoundError: ${enterpriseAppRole} not found`));
 		}),
 		getNewInstance: vi.fn().mockImplementation((name: string) => Promise.resolve(makeMockStaffRoleRef(name))),
 		getNewDefaultCaseManagerInstance: vi.fn().mockResolvedValue(makeMockStaffRoleRef(StaffAppRoleNames.CaseManager)),
@@ -237,12 +246,16 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Given('no staff user with externalId "ext-789" exists', () => {
 			roleRef = makeMockStaffRoleRef(StaffAppRoleNames.CaseManager);
 			newUser = makeMockNewUser('ext-789');
-			dataSources = makeDataSources({ existingUser: null, newUser, roleByName: roleRef });
+			dataSources = makeDataSources({
+				existingUser: null,
+				newUser,
+				roleByEnterpriseAppRole: { 'Staff.CaseManager': roleRef },
+			});
 			command = { ...command, externalId: 'ext-789' };
 		});
 
 		And('the AAD roles include "Staff.CaseManager"', () => {
-			command = { ...command, aadRoles: [StaffAppRoleNames.CaseManager] };
+			command = { ...command, aadRoles: ['Staff.CaseManager'] };
 		});
 
 		And('the "Staff.CaseManager" role exists in the repository', () => {
@@ -259,18 +272,22 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Assigns Default.TechAdmin when AAD role is techAdmin (alias)', ({ Given, When, Then, And }) => {
+	Scenario('Assigns Default.TechAdmin when AAD role is enterprise app role', ({ Given, When, Then, And }) => {
 		let roleRef: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
 
 		Given('no staff user with externalId "ext-201" exists', () => {
 			roleRef = makeMockStaffRoleRef(StaffAppRoleNames.TechAdmin);
 			newUser = makeMockNewUser('ext-201');
-			dataSources = makeDataSources({ existingUser: null, newUser, roleByName: roleRef });
+			dataSources = makeDataSources({
+				existingUser: null,
+				newUser,
+				roleByEnterpriseAppRole: { 'Staff.TechAdmin': roleRef },
+			});
 			command = { ...command, externalId: 'ext-201' };
 		});
 
-		And('the AAD roles include "techAdmin"', () => {
-			command = { ...command, aadRoles: ['techAdmin'] };
+		And('the AAD roles include "Staff.TechAdmin"', () => {
+			command = { ...command, aadRoles: ['Staff.TechAdmin'] };
 		});
 
 		And('the "Default.TechAdmin" role exists in the repository', () => {
@@ -287,22 +304,31 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Assigns Default.TechAdmin when AAD role is canonical', ({ Given, When, Then, And }) => {
-		let roleRef: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+	Scenario('Assigns highest priority matching role when multiple AAD roles are provided', ({ Given, When, Then, And }) => {
+		let techAdminRole: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+		let caseManagerRole: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
 
 		Given('no staff user with externalId "ext-202" exists', () => {
-			roleRef = makeMockStaffRoleRef(StaffAppRoleNames.TechAdmin);
+			techAdminRole = makeMockStaffRoleRef(StaffAppRoleNames.TechAdmin);
+			caseManagerRole = makeMockStaffRoleRef(StaffAppRoleNames.CaseManager);
 			newUser = makeMockNewUser('ext-202');
-			dataSources = makeDataSources({ existingUser: null, newUser, roleByName: roleRef });
+			dataSources = makeDataSources({
+				existingUser: null,
+				newUser,
+				roleByEnterpriseAppRole: {
+					'Staff.TechAdmin': techAdminRole,
+					'Staff.CaseManager': caseManagerRole,
+				},
+			});
 			command = { ...command, externalId: 'ext-202' };
 		});
 
-		And('the AAD roles include "Default.TechAdmin"', () => {
-			command = { ...command, aadRoles: [StaffAppRoleNames.TechAdmin] };
+		And('the AAD roles include "Unknown.Role", "Staff.TechAdmin", and "Staff.CaseManager"', () => {
+			command = { ...command, aadRoles: ['Unknown.Role', 'Staff.TechAdmin', 'Staff.CaseManager'] };
 		});
 
-		And('the "Default.TechAdmin" role exists in the repository', () => {
-			// role was set up in Given
+		And('the "Default.TechAdmin" and "Default.CaseManager" roles exist in the repository', () => {
+			// roles were set up in Given
 		});
 
 		When('I call createIfNotExists with externalId "ext-202"', async () => {
@@ -315,13 +341,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Assigns Default.TechAdmin when AAD role has alternate formatting', ({ Given, When, Then, And }) => {
-		let roleRef: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
-
+	Scenario('Creates a new user without a role when AAD role has alternate formatting', ({ Given, When, Then, And }) => {
 		Given('no staff user with externalId "ext-203" exists', () => {
-			roleRef = makeMockStaffRoleRef(StaffAppRoleNames.TechAdmin);
 			newUser = makeMockNewUser('ext-203');
-			dataSources = makeDataSources({ existingUser: null, newUser, roleByName: roleRef });
+			dataSources = makeDataSources({ existingUser: null, newUser });
 			command = { ...command, externalId: 'ext-203' };
 		});
 
@@ -329,17 +352,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			command = { ...command, aadRoles: ['default tech admin'] };
 		});
 
-		And('the "Default.TechAdmin" role exists in the repository', () => {
-			// role was set up in Given
-		});
-
 		When('I call createIfNotExists with externalId "ext-203"', async () => {
 			result = await createIfNotExists(dataSources)(command);
 		});
 
-		Then('it should assign the "Default.TechAdmin" role to the new user', () => {
-			expect(newUser.role).toBeDefined();
-			expect(newUser.role?.roleName).toBe(StaffAppRoleNames.TechAdmin);
+		Then('it should create the user without assigning a role', () => {
+			expect(newUser.role).toBeUndefined();
 		});
 	});
 

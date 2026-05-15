@@ -27,6 +27,14 @@ export class StaffRoleRepository
 		return this.typeConverter.toDomain(staffRole, this.passport);
 	}
 
+	async getDefaultRoleByEnterpriseAppRole(enterpriseAppRole: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
+		const staffRole = await this.model.findOne({ isDefault: true, enterpriseAppRole }).exec();
+		if (!staffRole) {
+			throw new Error(`Default StaffRole with enterpriseAppRole ${enterpriseAppRole} not found`);
+		}
+		return this.typeConverter.toDomain(staffRole, this.passport);
+	}
+
 	getNewInstance(name: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(Domain.Contexts.User.StaffRole.StaffRole.getNewInstance(adapter, this.passport, name, false));
@@ -52,4 +60,3 @@ export class StaffRoleRepository
 		return Promise.resolve(Domain.Contexts.User.StaffRole.StaffRole.getNewDefaultTechAdminInstance(adapter, this.passport));
 	}
 }
-

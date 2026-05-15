@@ -121,7 +121,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	Scenario('Getting message when document message is undefined', ({ Given, When, Then }) => {
 		Given('a MemberInvitationDomainAdapter for a document with no message', () => {
 			const docWithoutMessage = makeMemberInvitationDoc();
-			// biome-ignore lint/performance/noDelete: needed to test undefined message scenario
 			delete (docWithoutMessage as unknown as Record<string, unknown>)['message'];
 			doc = docWithoutMessage;
 			adapter = new MemberInvitationDomainAdapter(doc);

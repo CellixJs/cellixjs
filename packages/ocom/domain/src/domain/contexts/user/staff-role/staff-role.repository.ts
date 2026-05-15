@@ -8,4 +8,5 @@ export interface StaffRoleRepository<Props extends StaffRoleProps> extends Repos
 	getNewDefaultTechAdminInstance(): Promise<StaffRole<Props>>;
 	getById(id: string): Promise<StaffRole<Props>>;
 	getByRoleName(roleName: string): Promise<StaffRole<Props>>;
+	getDefaultRoleByEnterpriseAppRole(enterpriseAppRole: string): Promise<StaffRole<Props>>;
 }
