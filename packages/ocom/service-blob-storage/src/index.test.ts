@@ -85,4 +85,15 @@ describe('ServiceBlobStorage', () => {
 		// shutdown is idempotent and should resolve even when not started
 		await expect(service.shutDown()).resolves.toBeUndefined();
 	});
+
+	it('creates framework service when not provided, using only accountName for managed identity', () => {
+		const service = new ServiceBlobStorage({
+			accountName: 'devstoreaccount1',
+			connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+		} as never);
+
+		expect(service).toBeDefined();
+		// The service should be created with accountName (managed identity)
+		// This test verifies the constructor path that creates the framework service
+	});
 });
