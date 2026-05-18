@@ -274,7 +274,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Given('no staff roles exist', () => {
 			capturedRoles = new Map();
 			mockRepo = {
-				getByRoleName: vi.fn().mockRejectedValue(new Error('not found')),
+				getDefaultRoleByEnterpriseAppRole: vi.fn().mockRejectedValue(new Error('not found')),
 				getNewInstance: vi.fn().mockImplementation((roleName: string) => {
 					const role = makeMockStaffRole(roleName);
 					capturedRoles.set(roleName, role);
@@ -318,7 +318,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Given('no staff roles exist', () => {
 			capturedRoles = new Map();
 			mockRepo = {
-				getByRoleName: vi.fn().mockRejectedValue(new Error('not found')),
+				getDefaultRoleByEnterpriseAppRole: vi.fn().mockRejectedValue(new Error('not found')),
 				getNewInstance: vi.fn().mockImplementation((roleName: string) => {
 					const role = makeMockStaffRole(roleName);
 					capturedRoles.set(roleName, role);
@@ -362,7 +362,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Given('no staff roles exist', () => {
 			capturedRoles = new Map();
 			mockRepo = {
-				getByRoleName: vi.fn().mockRejectedValue(new Error('not found')),
+				getDefaultRoleByEnterpriseAppRole: vi.fn().mockRejectedValue(new Error('not found')),
 				getNewInstance: vi.fn().mockImplementation((roleName: string) => {
 					const role = makeMockStaffRole(roleName);
 					capturedRoles.set(roleName, role);
@@ -408,7 +408,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Given('no staff roles exist', () => {
 			capturedRoles = new Map();
 			mockRepo = {
-				getByRoleName: vi.fn().mockRejectedValue(new Error('not found')),
+				getDefaultRoleByEnterpriseAppRole: vi.fn().mockRejectedValue(new Error('not found')),
 				getNewInstance: vi.fn().mockImplementation((roleName: string) => {
 					const role = makeMockStaffRole(roleName);
 					capturedRoles.set(roleName, role);
@@ -470,7 +470,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		Given('no staff roles exist', () => {
 			mockRepo = {
-				getByRoleName: vi.fn().mockRejectedValue(new Error('Database connection failed')),
+				getDefaultRoleByEnterpriseAppRole: vi.fn().mockRejectedValue(new Error('Database connection failed')),
 				getNewInstance: vi.fn(),
 				save: vi.fn(),
 			} as unknown as typeof mockRepo;

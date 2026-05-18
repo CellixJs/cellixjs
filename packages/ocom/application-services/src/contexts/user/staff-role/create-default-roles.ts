@@ -3,6 +3,8 @@ import type { DataSources } from '@ocom/persistence';
 
 type StaffRoleRepo = Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 
+export const StaffAppRoleNames = Domain.Contexts.User.StaffRole.StaffRoleValueObjects.EnterpriseAppRoleNames;
+
 const roleExists = async (repository: StaffRoleRepo, enterpriseAppRole: string): Promise<boolean> => {
     try {
         await repository.getDefaultRoleByEnterpriseAppRole(enterpriseAppRole);

@@ -85,7 +85,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		};
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
-				exec: vi.fn(async () => (id === String(staffRoleDoc._id) ? staffRoleDoc : null)),
+				exec: vi.fn(() => Promise.resolve(id === String(staffRoleDoc._id) ? staffRoleDoc : null)),
 			})),
 			findOne: vi.fn((query: { roleName?: string; isDefault?: boolean; enterpriseAppRole?: string }) => ({
 				exec: vi.fn(() => {

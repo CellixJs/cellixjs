@@ -137,7 +137,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
         if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
             throw new PermissionError('Cannot set enterprise app role');
         }
-        this.props.enterpriseAppRole = new ValueObjects.EnterpriseAppRole(enterpriseAppRole).valueOf();
+    this.props.enterpriseAppRole = new ValueObjects.EnterpriseAppRole(enterpriseAppRole).valueOf();
     }
 
 	get isDefault() {
