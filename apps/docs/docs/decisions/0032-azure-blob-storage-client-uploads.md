@@ -547,7 +547,7 @@ Applications that don't need client uploads:
 
 If an older deployment uses connection string everywhere:
 
-1. Deploy managed identity identity assignment (RBAC)
+1. Deploy managed identity assignment (RBAC)
 2. Update SDK to use `accountName` instead of `connectionString` for SDK client
 3. Keep `connectionString` for signing
 4. Tests verify managed identity path works

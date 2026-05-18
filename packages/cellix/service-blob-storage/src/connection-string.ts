@@ -1,5 +1,24 @@
 import { StorageSharedKeyCredential } from '@azure/storage-blob';
 
+/**
+ * Parses a Blob Storage connection string and creates a StorageSharedKeyCredential for SAS signing.
+ *
+ * Requires a shared-key connection string with explicit AccountName and AccountKey.
+ * This is used for generating SAS tokens for client uploads.
+ *
+ * Supported connection string formats:
+ * - Full explicit format: "AccountName=value;AccountKey=value;..."
+ * - Azurite: Connection string must include explicit AccountName and AccountKey
+ *
+ * NOT supported:
+ * - SAS-token-based connection strings (these cannot generate new SAS tokens)
+ * - Shorthand "UseDevelopmentStorage=true" (lacks AccountKey for SAS generation)
+ *
+ * For SAS token-based workflows, use connection string only for initial Azure SDK client creation
+ * (see ServiceBlobStorage with accountName + DefaultAzureCredential for managed identity flows).
+ *
+ * @throws {Error} If connection string is empty, missing AccountName, or missing AccountKey
+ */
 export function createCredentialFromConnectionString(connectionString: string): StorageSharedKeyCredential {
 	// Validate input early to provide clear error messages
 	if (typeof connectionString !== 'string' || !connectionString.trim()) {

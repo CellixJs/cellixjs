@@ -45,6 +45,13 @@ function createNoOpBlobStorageService(): BlobStorage {
 	};
 }
 
+function createNoOpClientUploadService() {
+	return {
+		createUploadUrl: () => Promise.resolve('https://blob.example.test/upload'),
+		createReadUrl: () => Promise.resolve('https://blob.example.test/read'),
+	};
+}
+
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {
 	const dataSourcesFactory = Persistence(serviceMongoose);
 
@@ -53,6 +60,7 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 		tokenValidationService: createMockTokenValidation(),
 		apolloServerService: createNoOpApolloServerService(),
 		blobStorageService: createNoOpBlobStorageService(),
+		clientUploadService: createNoOpClientUploadService(),
 	};
 
 	const mockApplicationServicesFactory = buildApplicationServicesFactory(apiContextSpec);
