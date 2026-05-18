@@ -1,6 +1,6 @@
 import type { ServiceBase } from '@cellix/api-services-spec';
 import { ClientUploadSigner as FrameworkClientUploadSigner } from '@cellix/service-blob-storage';
-import type { ClientUploadService, CreateBlobAccessUrlRequest } from './blob-storage.contract.ts';
+import type { ClientUploadService, CreateBlobAccessUrlRequest } from './interfaces.ts';
 
 /**
  * OCOM application adapter that implements ClientUploadService.
