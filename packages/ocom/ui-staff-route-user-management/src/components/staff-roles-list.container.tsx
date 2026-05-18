@@ -1,9 +1,7 @@
 import type React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { type StaffRole, StaffRolesList } from './staff-roles-list.tsx';
-
-// TODO: Replace with GraphQL query when staff roles API is available
-const PLACEHOLDER_DATA: StaffRole[] = [];
+import { listStaffRoles } from './staff-users.mock-store.ts';
+import { StaffRolesList } from './staff-roles-list.tsx';
 
 export const StaffRolesListContainer: React.FC = () => {
 	const navigate = useNavigate();
@@ -18,7 +16,7 @@ export const StaffRolesListContainer: React.FC = () => {
 
 	return (
 		<StaffRolesList
-			data={PLACEHOLDER_DATA}
+			data={listStaffRoles()}
 			onEdit={handleEdit}
 			onCreate={handleCreate}
 			loading={false}

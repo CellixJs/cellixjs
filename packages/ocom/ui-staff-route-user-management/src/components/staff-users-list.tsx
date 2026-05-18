@@ -1,3 +1,4 @@
+import { UsergroupAddOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import { Button, Space, Table, Typography } from 'antd';
 import type React from 'react';
@@ -15,10 +16,11 @@ export interface StaffUser {
 export interface StaffUsersListProps {
 	data: StaffUser[];
 	onEdit: (id: string) => void;
+	onCreate: () => void;
 	loading?: boolean;
 }
 
-export const StaffUsersList: React.FC<StaffUsersListProps> = ({ data, onEdit, loading }) => {
+export const StaffUsersList: React.FC<StaffUsersListProps> = ({ data, onEdit, onCreate, loading }) => {
 	const columns: TableColumnsType<StaffUser> = [
 		{ title: 'Display Name', dataIndex: 'displayName', key: 'displayName' },
 		{ title: 'Email', dataIndex: 'email', key: 'email' },
@@ -53,7 +55,16 @@ export const StaffUsersList: React.FC<StaffUsersListProps> = ({ data, onEdit, lo
 			size="large"
 			style={{ width: '100%' }}
 		>
-			<Title level={3}>Staff Users ({data.length})</Title>
+			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<Title level={3}>Staff Users ({data.length})</Title>
+				<Button
+					type="primary"
+					icon={<UsergroupAddOutlined />}
+					onClick={onCreate}
+				>
+					Create Staff User
+				</Button>
+			</div>
 			<Table
 				dataSource={data}
 				columns={columns}

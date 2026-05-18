@@ -3,16 +3,7 @@ import type React from 'react';
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { StaffUserDetail } from './staff-user-detail.tsx';
-import type { StaffUser } from './staff-users-list.tsx';
-
-// TODO: Replace with GraphQL query when staff users API is available
-const PLACEHOLDER_USER: StaffUser = {
-	id: '',
-	displayName: 'Loading...',
-	email: '',
-	role: null,
-	createdAt: new Date().toISOString(),
-};
+import { assignStaffUserRole, findStaffUserById, getAvailableStaffRoles } from './staff-users.mock-store.ts';
 
 export const StaffUserDetailContainer: React.FC = () => {
 	const params = useParams<{ id?: string }>();
@@ -20,14 +11,22 @@ export const StaffUserDetailContainer: React.FC = () => {
 	const auth = useContext(StaffAuthContext);
 	const canAssignRoles = auth?.permissions?.canAssignStaffUserRoles === true;
 
-	const handleRoleChange = (_roleId: string) => {
-		// TODO: Implement role assignment mutation when API is available
+	const currentUser = findStaffUserById(userId) ?? {
+		id: userId,
+		displayName: 'Unknown User',
+		email: 'N/A',
+		role: null,
+		createdAt: new Date().toISOString(),
+	};
+
+	const handleRoleChange = (roleId: string) => {
+		assignStaffUserRole(userId, roleId);
 	};
 
 	return (
 		<StaffUserDetail
-			data={{ ...PLACEHOLDER_USER, id: userId }}
-			availableRoles={[]}
+			data={currentUser}
+			availableRoles={getAvailableStaffRoles()}
 			canAssignRoles={canAssignRoles}
 			onRoleChange={handleRoleChange}
 			loading={false}
