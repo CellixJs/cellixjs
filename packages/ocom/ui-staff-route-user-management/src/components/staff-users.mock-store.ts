@@ -8,7 +8,10 @@ interface StaffRoleOption {
 	roleName: string;
 }
 
-let staffRoles: StaffRole[] = [
+const STAFF_ROLES_STORAGE_KEY = 'ui-staff:user-management:staff-roles';
+const STAFF_USERS_STORAGE_KEY = 'ui-staff:user-management:staff-users';
+
+const DEFAULT_STAFF_ROLES: StaffRole[] = [
 	{
 		id: 'role-tech-admin',
 		roleName: 'Tech Admin',
@@ -32,7 +35,40 @@ let staffRoles: StaffRole[] = [
 	},
 ];
 
-let staffUsers: StaffUser[] = [];
+const hasLocalStorage = (): boolean =>
+	typeof globalThis !== 'undefined' && 'localStorage' in globalThis && typeof globalThis.localStorage !== 'undefined';
+
+const readStorage = <T>(key: string): T | null => {
+	if (!hasLocalStorage()) {
+		return null;
+	}
+
+	try {
+		const raw = globalThis.localStorage.getItem(key);
+		if (!raw) {
+			return null;
+		}
+		return JSON.parse(raw) as T;
+	} catch (error) {
+		console.log(`Error reading ${key} from localStorage`, error);
+		return null;
+	}
+};
+
+const writeStorage = <T>(key: string, value: T): void => {
+	if (!hasLocalStorage()) {
+		return;
+	}
+
+	try {
+		globalThis.localStorage.setItem(key, JSON.stringify(value));
+	} catch (error) {
+		console.log(`Error writing ${key} to localStorage`, error);
+	}
+};
+
+let staffRoles: StaffRole[] = readStorage<StaffRole[]>(STAFF_ROLES_STORAGE_KEY) ?? DEFAULT_STAFF_ROLES;
+let staffUsers: StaffUser[] = readStorage<StaffUser[]>(STAFF_USERS_STORAGE_KEY) ?? [];
 
 type StaffUserRole = NonNullable<StaffUser['role']>;
 
@@ -66,6 +102,7 @@ export const createStaffUser = (values: StaffUserCreateFormValues): StaffUser =>
 	};
 
 	staffUsers = [newUser, ...staffUsers];
+	writeStorage(STAFF_USERS_STORAGE_KEY, staffUsers);
 	return newUser;
 };
 
@@ -80,6 +117,7 @@ export const assignStaffUserRole = (userId: string, roleId?: string): void => {
 			role: findRoleById(roleId),
 		};
 	});
+	writeStorage(STAFF_USERS_STORAGE_KEY, staffUsers);
 };
 
 export const createStaffRole = (values: StaffRoleFormValues): StaffRole => {
@@ -93,5 +131,6 @@ export const createStaffRole = (values: StaffRoleFormValues): StaffRole => {
 	};
 
 	staffRoles = [newRole, ...staffRoles];
+	writeStorage(STAFF_ROLES_STORAGE_KEY, staffRoles);
 	return newRole;
 };

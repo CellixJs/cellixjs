@@ -13,7 +13,7 @@ export interface StaffUser {
 	createdAt: string;
 }
 
-export interface StaffUsersListProps {
+interface StaffUsersListProps {
 	data: StaffUser[];
 	onEdit: (id: string) => void;
 	onCreate: () => void;

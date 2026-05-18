@@ -9,7 +9,7 @@ export interface StaffUserCreateFormValues {
 	roleId?: string;
 }
 
-export interface StaffUserCreateProps {
+interface StaffUserCreateProps {
 	availableRoles: { id: string; roleName: string }[];
 	onSubmit: (values: StaffUserCreateFormValues) => void;
 	onCancel: () => void;

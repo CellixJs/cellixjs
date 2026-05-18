@@ -4,7 +4,7 @@ import type { StaffUser } from './staff-users-list.tsx';
 
 const { Title } = Typography;
 
-export interface StaffUserDetailProps {
+interface StaffUserDetailProps {
 	data: StaffUser;
 	availableRoles: { id: string; roleName: string }[];
 	canAssignRoles: boolean;
