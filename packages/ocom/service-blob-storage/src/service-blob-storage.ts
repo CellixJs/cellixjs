@@ -1,103 +1,103 @@
 import type { ServiceBase } from '@cellix/api-services-spec';
-import { ServiceBlobStorage as CellixServiceBlobStorage } from '@cellix/service-blob-storage';
+import type { BlobStorage as CellixBlobStorage, ListBlobsRequest, UploadTextBlobRequest } from '@cellix/service-blob-storage';
 import type { BlobStorage, CreateBlobAccessUrlRequest } from './blob-storage.contract.ts';
-import { createBlobStorage } from './blob-storage-adapter.ts';
 
 /**
  * Options for the OCOM blob storage service wrapper.
  *
- * Supports two deployment scenarios:
- * 1. Server-only blob operations: provide only accountName (managed identity auth)
- * 2. Client uploads with SAS signing: provide connectionString for the separate signing service
+ * Accepts two pre-configured framework services registered separately in apps/api:
+ * 1. **sdkService** (required): Uses accountName + managed identity for blob operations (listBlobs/uploadText/deleteBlob)
+ * 2. **sasSigningService** (optional): Uses connectionString for generating signed SAS URLs (createUploadUrl/createReadUrl)
  *
- * @remarks
- * The adapter uses two separate framework services internally for clean separation of concerns:
- * - **SDK service**: Uses accountName + managed identity for all blob operations (read/write/delete)
- * - **SAS signing service**: Uses connectionString for generating signed SAS URLs (if connectionString provided)
+ * The adapter orchestrates these two services and exposes a unified BlobStorage contract
+ * for application use, including both backend operations (listBlobs, uploadText, deleteBlob)
+ * and client-upload SAS methods (createUploadUrl, createReadUrl).
  *
- * This ensures:
- * - Managed identity is used for SDK operations (production best practice)
- * - Shared-key credentials are only used for SAS URL generation (not for blob operations)
- * - Each service has a single, clear responsibility
+ * @example
+ * ```typescript
+ * // In apps/api, register two services separately:
+ * const blobStorageService = new ServiceBlobStorage({
+ *   accountName: 'myaccount',  // Managed identity
+ * });
+ * const clientUploadService = new ServiceBlobStorage({
+ *   connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],
+ * });
+ *
+ * cellix.registerInfrastructureService(blobStorageService, { name: 'blobStorageService' });
+ * cellix.registerInfrastructureService(clientUploadService, { name: 'clientUploadService' });
+ *
+ * // In OCOM adapter:
+ * const adapter = new ServiceBlobStorage({
+ *   sdkService: serviceRegistry.getInfrastructureService<CellixBlobStorage>('blobStorageService'),
+ *   sasSigningService: serviceRegistry.getInfrastructureService<CellixBlobStorage>('clientUploadService'),
+ * });
+ * ```
  */
 export interface ServiceBlobStorageOptions {
 	/**
-	 * Storage account name. Required for blob URL construction and managed identity authentication.
-	 * Used by the SDK service for all blob operations.
+	 * Framework service for SDK blob operations (listBlobs, uploadText, deleteBlob).
+	 * Must be configured with accountName + managed identity (no connectionString).
+	 * Registered in apps/api as 'blobStorageService'.
 	 */
-	accountName: string;
+	sdkService: CellixBlobStorage;
 
 	/**
-	 * Optional Azure Storage connection string for SAS token signing.
-	 *
-	 * @remarks
-	 * When provided, a separate framework service is configured for SAS URL generation.
-	 * The SDK operations still use managed identity (via accountName).
+	 * Optional framework service for SAS URL generation (createUploadUrl, createReadUrl).
+	 * Must be configured with connectionString.
 	 * Only required if the application needs client uploads with signed SAS URLs.
-	 * When omitted, SAS methods throw a clear error indicating the feature is not configured.
+	 * Registered in apps/api as 'clientUploadService'.
 	 */
-	connectionString?: string;
-
-	/**
-	 * Optional framework service instance for testing/injection.
-	 * If not provided, a service will be created using accountName + managed identity.
-	 * This is for the SDK operations service; see connectionString for SAS signing configuration.
-	 */
-	frameworkService?: CellixServiceBlobStorage;
+	sasSigningService?: CellixBlobStorage;
 }
 
 export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage {
-	private readonly sdkService: CellixServiceBlobStorage;
-	private readonly sasSigningService: CellixServiceBlobStorage | undefined;
-	private serviceInternal: BlobStorage | undefined;
+	private readonly sdkService: CellixBlobStorage;
+	private readonly sasSigningService: CellixBlobStorage | undefined;
 
 	constructor(options: ServiceBlobStorageOptions) {
-		// SDK service: always uses managed identity (accountName only)
-		if (options.frameworkService) {
-			this.sdkService = options.frameworkService;
-		} else {
-			this.sdkService = new CellixServiceBlobStorage({
-				accountName: options.accountName,
-			});
-		}
-
-		// SAS signing service: only if connection string provided
-		if (options.connectionString) {
-			this.sasSigningService = new CellixServiceBlobStorage({
-				connectionString: options.connectionString,
-			});
-		}
+		this.sdkService = options.sdkService;
+		this.sasSigningService = options.sasSigningService;
 	}
 
-	public async startUp(): Promise<BlobStorage> {
-		const sdkBlobStorage = await this.sdkService.startUp();
-		const sasBlobStorage = this.sasSigningService ? await this.sasSigningService.startUp() : undefined;
-		this.serviceInternal = createBlobStorage(sdkBlobStorage, sasBlobStorage);
-		return this;
+	public startUp(): Promise<BlobStorage> {
+		// Framework services are started separately at the app level
+		// This method is required by ServiceBase contract but is a no-op here
+		return Promise.resolve(this);
 	}
 
-	public async shutDown(): Promise<void> {
-		// Allow shutDown to be called even if the adapter wasn't started.
-		// Both framework services are idempotent when shutting down.
-		this.serviceInternal = undefined;
-		await this.sdkService.shutDown();
-		if (this.sasSigningService) {
-			await this.sasSigningService.shutDown();
-		}
+	public shutDown(): Promise<void> {
+		// Framework services are managed separately at the app level
+		// This method is required by ServiceBase contract but is a no-op here
+		return Promise.resolve();
+	}
+
+	public async listBlobs(containerName: string): Promise<string[]> {
+		const request: ListBlobsRequest = { containerName };
+		const items = await this.sdkService.listBlobs(request);
+		return items.map((item) => item.name);
+	}
+
+	public uploadText(containerName: string, blobName: string, text: string): Promise<void> {
+		const request: UploadTextBlobRequest = { containerName, blobName, text };
+		return this.sdkService.uploadText(request).then(() => undefined);
+	}
+
+	public deleteBlob(containerName: string, blobName: string): Promise<void> {
+		const request = { containerName, blobName };
+		return this.sdkService.deleteBlob(request);
 	}
 
 	public async createUploadUrl(request: CreateBlobAccessUrlRequest): Promise<string> {
-		return await this.getService().createUploadUrl(request);
+		if (!this.sasSigningService) {
+			throw new Error('Client uploads with SAS signing are not configured. Provide a SAS signing service to enable this feature.');
+		}
+		return await this.sasSigningService.createBlobWriteSasUrl(request);
 	}
 
 	public async createReadUrl(request: CreateBlobAccessUrlRequest): Promise<string> {
-		return await this.getService().createReadUrl(request);
-	}
-
-	private getService(): BlobStorage {
-		if (!this.serviceInternal) {
-			throw new Error('OCOM ServiceBlobStorage adapter is not started - cannot access service');
+		if (!this.sasSigningService) {
+			throw new Error('SAS read URLs are not configured. Provide a SAS signing service to enable this feature.');
 		}
-		return this.serviceInternal;
+		return await this.sasSigningService.createBlobReadSasUrl(request);
 	}
 }

@@ -217,16 +217,120 @@ function determineAuthMode(options: ServiceBlobStorageOptions): 'connectionStrin
 - Internally uses `StorageSharedKeyCredential` to sign URLs
 - Methods throw clear error if signing attempted without connection string
 
+### Framework Service: Flexible Consumer Patterns
+
+The framework `@cellix/service-blob-storage` is designed to support different application needs:
+
+#### Pattern A: Managed Identity Only (No Client Uploads)
+
+```typescript
+// Application only needs server-side blob operations
+const blobService = new ServiceBlobStorage({
+  accountName: 'myaccount',  // Required for URL construction
+  // NO connectionString provided
+});
+
+await blobService.startUp(); // Uses managed identity
+
+const blobs = await blobService.listBlobs('my-container');
+await blobService.uploadText('my-container', 'file.txt', 'content');
+
+// createUploadUrl() would throw: "SAS signing not configured"
+```
+
+**Environment Variables**:
+```bash
+AZURE_STORAGE_ACCOUNT_NAME=myaccount
+# AZURE_STORAGE_CONNECTION_STRING not required
+```
+
+**Rationale**: Applications that handle all uploads server-side and never need client-generated SAS URLs. No credentials required beyond managed identity. Simpler deployment, fewer env vars.
+
+#### Pattern B: Local Development with Azurite
+
+```typescript
+// Framework automatically detects Azurite
+const blobService = new ServiceBlobStorage({
+  connectionString: 'DefaultEndpointsProtocol=http://127.0.0.1:10000/devstoreaccount1;...',
+});
+
+await blobService.startUp(); // Uses connection string, detects Azurite
+
+// Both blob ops AND SAS signing work locally
+const uploadUrl = await blobService.createUploadUrl(...);
+```
+
+**Environment Variables**:
+```bash
+AZURE_STORAGE_ACCOUNT_NAME=devstoreaccount1
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http://...
+```
+
+**Rationale**: Connection string mode works for Azurite emulation, sharing the same code path as production signing.
+
+#### Pattern C: Managed Identity + Optional SAS Signing (Recommended for Production)
+
+```typescript
+// Application needs both server ops AND client upload SAS signing
+const sdkService = new ServiceBlobStorage({
+  accountName: 'prodaccount',  // SDK uses managed identity
+});
+
+// Separate service for signing
+const signingService = new ServiceBlobStorage({
+  connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],  // Only for signing
+});
+
+await sdkService.startUp();
+await signingService.startUp();
+
+// Server operations use managed identity
+await sdkService.listBlobs('container');
+
+// SAS signing uses connection string
+const uploadUrl = await signingService.createUploadUrl(...);
+```
+
+**Environment Variables**:
+```bash
+AZURE_STORAGE_ACCOUNT_NAME=prodaccount
+AZURE_STORAGE_CONNECTION_STRING=SharedAccessSignature=sv=...  # Or shared-key format
+```
+
+**Rationale**: Production best practice. Managed identity for SDK (auditable, no credential exposure). Connection string isolated to signing helpers only (narrow usage scope).
+
 ### OCOM Adapter (@ocom/service-blob-storage)
 
+The OCOM adapter implements **Pattern C (recommended)** internally using a dual-service approach:
+
 **ServiceBlobStorage Constructor**:
-- Accepts `accountName` (required for managed identity)
-- Accepts optional `frameworkService` (for pre-configured scenarios)
+- Accepts `accountName` (required for managed identity SDK operations)
+- Accepts optional `connectionString` (for opt-in SAS signing feature)
+- Accepts optional `frameworkService` (for testing/injection)
 - Validates that either `accountName` or `frameworkService` is provided
 
-**Upload/Read URL Generation**:
-- If SAS signing configured: uses signed SAS URLs (secure client uploads)
-- If only managed identity: would use direct blob URLs (requires server-side upload)
+**Dual-Service Architecture**:
+```typescript
+constructor(options: ServiceBlobStorageOptions) {
+  // Always create SDK service (managed identity)
+  this.sdkService = new CellixServiceBlobStorage({
+    accountName: options.accountName,
+    // NO connectionString here! Uses managed identity
+  });
+
+  // Conditionally create SAS signing service
+  if (options.connectionString) {
+    this.sasSigningService = new CellixServiceBlobStorage({
+      connectionString: options.connectionString,
+      // Isolated for signing only
+    });
+  }
+}
+```
+
+**Behavior**:
+- **Blob operations** (list, upload, delete): Always use SDK service (managed identity)
+- **SAS URL generation** (createUploadUrl, createReadUrl): Use signing service if available, throw clear error if not
 
 **Options Precedence**:
 ```typescript
@@ -236,6 +340,18 @@ export interface ServiceBlobStorageOptions {
   frameworkService?: BlobStorage;  // For testing/injection
 }
 ```
+
+**Why Dual-Service Architecture?**
+
+Each service has a single, clear responsibility:
+- **SDK Service**: All blob operations via managed identity (secure, auditable)
+- **SAS Signing Service**: Generate signed URLs (isolated, optional)
+
+Benefits:
+- No confusion about which auth is used where
+- Each service can be mocked independently in tests
+- Optional feature (no signing service if connectionString not provided)
+- Application code is self-documenting (shows exact intent)
 
 ### Configuration Validation (@apps/api)
 

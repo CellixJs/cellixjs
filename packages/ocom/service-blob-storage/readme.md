@@ -70,6 +70,33 @@ The adapter manages two independent framework services internally:
 - **Testable**: Each service can be mocked independently
 - **Clear intent**: Code shows exactly what authentication each operation uses
 
+## Architecture Decision: Why Dual-Service Pattern?
+
+OCOM requires both:
+
+1. **Secure server→blob operations** (avatars, community documents, etc.)
+   - Uses managed identity (best practice)
+   - No credentials in application code
+   - Auditable via Azure Monitor
+
+2. **Secure client→blob uploads** (member uploads)
+   - Server generates signed SAS URLs with constraints
+   - Client uploads directly to Azure (server doesn't proxy)
+   - Azure validates signature; rejects unauthorized requests
+
+The challenge: A single `ServiceBlobStorage` instance can't do both safely because the framework prefers `connectionString` over `accountName` for auth.
+
+**Solution: Dual-service architecture**
+- **SDK Service**: Configured with `accountName` only → uses managed identity
+- **SAS Signing Service**: Configured with `connectionString` only → signs URLs
+- Each service has one job; never mixed up
+
+This pattern ensures:
+- Managed identity is used for all blob operations (production best practice)
+- Connection string isolated to SAS signing only (narrow credential scope)
+- Clear in code which auth method is used where
+- Each service independently testable
+
 ## Service Contract
 
 ```ts
@@ -197,7 +224,83 @@ if (response.ok) {
 }
 ```
 
-## Authentication Strategy: Managed Identity in Production
+## Why OCOM Chose Dual-Service Pattern
+
+### Considered Alternatives
+
+#### ❌ Alternative 1: Single Service, Always Pass Both Options
+
+```typescript
+// Pass both accountName and connectionString to one service
+const service = new ServiceBlobStorage({
+  accountName: 'mycompany',
+  connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],
+});
+```
+
+**Problem**: Framework prefers `connectionString` over `accountName`. Even though we want managed identity for SDK operations, the framework will use shared-key auth when connection string is present. This defeats the entire purpose of managed identity.
+
+#### ❌ Alternative 2: Factory Function That Decides Auth Mode
+
+```typescript
+// Factory returns different config based on environment
+const options = isProduction
+  ? { accountName: 'mycompany' }
+  : { connectionString: process.env['...'] };
+
+const service = new ServiceBlobStorage(options);
+```
+
+**Problem**: Violates OCOM's service registration pattern where config objects are passed directly to constructors. Creates conditional logic and makes code harder to follow.
+
+#### ✅ Alternative 3: Dual-Service (Chosen)
+
+```typescript
+// Each service configured for its single responsibility
+this.sdkService = new ServiceBlobStorage({
+  accountName: 'mycompany',  // Managed identity
+});
+
+this.sasSigningService = new ServiceBlobStorage({
+  connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],  // Signing only
+});
+```
+
+**Advantages**:
+- Code is explicit: each service's job is clear
+- Managed identity guaranteed for SDK (can't accidentally bypass it)
+- SAS signing responsibility isolated
+- Aligns with OCOM service registration patterns
+- Each service independently testable/mockable
+- Connection string credential scope is narrow (signing only)
+
+### OCOM's Specific Configuration
+
+OCOM applications require:
+1. **Secure blob operations** for avatars, documents, etc. → SDK service with managed identity
+2. **Secure client uploads** → SAS signing service with connection string
+
+Both env vars are **required** in OCOM:
+```bash
+AZURE_STORAGE_ACCOUNT_NAME=mycompany          # For SDK operations and URL construction
+AZURE_STORAGE_CONNECTION_STRING=SharedAccessSignature=sv=...  # For SAS signing
+```
+
+Configuration validation (@apps/api) ensures both are present:
+```typescript
+if (!storageConnectionString) {
+  throw new Error(
+    'Missing AZURE_STORAGE_CONNECTION_STRING. Required for SAS signing (client uploads).'
+  );
+}
+if (!storageAccountName) {
+  throw new Error(
+    'Missing AZURE_STORAGE_ACCOUNT_NAME. Required for blob operations and URL construction.'
+  );
+}
+```
+
+This is **OCOM-specific** and may differ from other Cellix consumers who don't need client uploads (see [ADR-0032](../../decisions/0032-azure-blob-storage-client-uploads.md) for framework flexibility patterns).
 
 | Environment | SDK Service | SAS Signing | Why |
 |---|---|---|---|
