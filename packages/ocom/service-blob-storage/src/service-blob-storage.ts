@@ -73,7 +73,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 
 	private getService(): BlobStorage {
 		if (!this.serviceInternal) {
-			throw new Error('ServiceBlobStorage is not started - cannot access service');
+			throw new Error('OCOM ServiceBlobStorage adapter is not started - cannot access service');
 		}
 		return this.serviceInternal;
 	}

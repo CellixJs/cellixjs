@@ -1,5 +1,5 @@
 import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { createServer, Socket } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -152,5 +152,23 @@ function delay(ms: number): Promise<void> {
 
 function findRepoRoot(): string {
 	const __dirname = dirname(fileURLToPath(import.meta.url));
-	return join(__dirname, '..', '..', '..', '..');
+
+	// Try environment variable first (e.g., set in CI or by test runners)
+	const { REPO_ROOT } = process.env;
+	if (REPO_ROOT && existsSync(join(REPO_ROOT, 'pnpm-workspace.yaml'))) {
+		return REPO_ROOT;
+	}
+
+	// Traverse up directory tree looking for pnpm-workspace.yaml marker
+	let current = __dirname;
+	let previous = '';
+	while (current !== previous) {
+		if (existsSync(join(current, 'pnpm-workspace.yaml'))) {
+			return current;
+		}
+		previous = current;
+		current = dirname(current);
+	}
+
+	throw new Error(`Could not find monorepo root. Expected pnpm-workspace.yaml in a parent directory of ${__dirname}, or set REPO_ROOT environment variable.`);
 }

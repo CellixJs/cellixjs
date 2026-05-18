@@ -81,7 +81,7 @@ describe('ServiceBlobStorage', () => {
 				blobName: 'avatars/member-123.png',
 				expiresOn: new Date('2026-05-14T12:00:00.000Z'),
 			}),
-		).rejects.toThrow('ServiceBlobStorage is not started - cannot access service');
+		).rejects.toThrow('OCOM ServiceBlobStorage adapter is not started - cannot access service');
 		// shutdown is idempotent and should resolve even when not started
 		await expect(service.shutDown()).resolves.toBeUndefined();
 	});
