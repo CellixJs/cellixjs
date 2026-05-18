@@ -1,6 +1,6 @@
 import { BlobSASPermissions, BlobServiceClient, ContainerSASPermissions, generateBlobSASQueryParameters, type StorageSharedKeyCredential } from '@azure/storage-blob';
-import type { CreateBlobSasUrlRequest, CreateContainerSasUrlRequest } from './blob-storage.contract.ts';
 import { createCredentialFromConnectionString } from './connection-string.ts';
+import type { CreateBlobSasUrlRequest, CreateContainerSasUrlRequest } from './interfaces.ts';
 
 /**
  * ClientUploadSigner handles generation of SAS URLs using StorageSharedKeyCredential.

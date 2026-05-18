@@ -1,8 +1,8 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import { BlobServiceClient, type BlobUploadCommonResponse } from '@azure/storage-blob';
 import type { ServiceBase } from '@cellix/api-services-spec';
-import type { BlobAddress, BlobListItem, BlobStorage, CreateBlobSasUrlRequest, CreateContainerSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from './blob-storage.contract.ts';
 import { ClientUploadSigner } from './client-upload-signer.ts';
+import type { BlobAddress, BlobListItem, BlobStorage, CreateBlobSasUrlRequest, CreateContainerSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from './interfaces.ts';
 
 /**
  * Options for constructing the framework blob-storage service.
