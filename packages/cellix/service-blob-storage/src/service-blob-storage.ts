@@ -7,54 +7,20 @@ import { ClientUploadSigner } from './client-upload-signer.ts';
 /**
  * Options for constructing the framework blob-storage service.
  *
- * @remarks
- * The service supports two distinct modes, controlled by which options are provided:
+ * The service supports two authentication modes:
+ * - connectionString: use a full Azure Storage connection string (local/dev, Azurite). When provided,
+ *   the connection string takes precedence and the managed identity path is ignored.
+ * - managedIdentity: use accountName with a TokenCredential (DefaultAzureCredential) for SDK operations.
  *
- * **Mode 1: Connection String (Azurite / Local Dev)**
- * - Provide: `connectionString`
- * - Result: Uses `BlobServiceClient.fromConnectionString()` and enables SAS signing via shared key
- * - Use case: Local development with Azurite, or testing scenarios
+ * Provide exactly one of `connectionString` or `accountName` to avoid surprising precedence behavior.
  *
- * **Mode 2: Managed Identity (Production)**
- * - Provide: `accountName` (required), optionally `credential` (defaults to `DefaultAzureCredential`)
- * - Result: Constructs URL and uses provided or default token credential for authentication
- * - Use case: Azure-deployed applications with managed identity RBAC
- *
- * **Precedence:**
- * If both `connectionString` and `accountName` are provided, `connectionString` takes precedence
- * and the managed identity path is silently ignored. To avoid surprising behavior, callers should
- * supply only one set of options:
- * - For local dev: provide only `connectionString`
- * - For production: provide only `accountName` (and optionally `credential`)
+ * @property connectionString - Azure Storage connection string (takes precedence when present).
+ * @property accountName - Storage account name for managed identity authentication (required if connectionString is absent).
+ * @property credential - Optional TokenCredential for managed identity auth (defaults to DefaultAzureCredential).
  */
 export interface ServiceBlobStorageOptions {
-	/**
-	 * Azure Storage connection string for local/dev scenarios (Azurite).
-	 *
-	 * When provided, takes precedence over `accountName` and `credential`.
-	 * If both `connectionString` and `accountName` are supplied, the connection string is used
-	 * and managed identity configuration is ignored.
-	 *
-	 * Example: `'UseDevelopmentStorage=true'` or `'DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...'`
-	 */
 	connectionString?: string;
-
-	/**
-	 * Storage account name for managed identity authentication (production).
-	 *
-	 * Ignored if `connectionString` is provided. Required when `connectionString` is absent.
-	 *
-	 * Example: `'myaccount'` → results in URL `https://myaccount.blob.core.windows.net`
-	 */
 	accountName?: string;
-
-	/**
-	 * Optional TokenCredential for managed identity authentication.
-	 *
-	 * Ignored if `connectionString` is provided. If omitted when using managed identity,
-	 * defaults to `DefaultAzureCredential`, which automatically discovers credentials
-	 * from the environment (managed identity on Azure, environment variables, local auth, etc.).
-	 */
 	credential?: TokenCredential;
 }
 
