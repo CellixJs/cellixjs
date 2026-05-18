@@ -2,14 +2,15 @@ import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import type { AdminStaffSectionPermissions } from './section-layout.tsx';
 import { Home } from './pages/home.tsx';
 import { Members } from './pages/members.tsx';
 import { Settings } from './pages/settings.tsx';
 import { SectionLayoutContainer } from './section-layout.container.tsx';
 
 interface AdminMenuData {
-	staffPermissions: AdminStaffSectionPermissions | null;
+	member?: {
+		isAdmin?: boolean | null;
+	};
 }
 
 export const Admin: React.FC = () => {
@@ -28,7 +29,7 @@ export const Admin: React.FC = () => {
 			parent: 'ROOT',
 			hasPermissions: (data: unknown) => {
 				const adminData = data as AdminMenuData;
-				return adminData?.staffPermissions?.canManageUsers ?? false;
+				return adminData?.member?.isAdmin ?? false;
 			},
 		},
 		{
@@ -39,7 +40,7 @@ export const Admin: React.FC = () => {
 			parent: 'ROOT',
 			hasPermissions: (data: unknown) => {
 				const adminData = data as AdminMenuData;
-				return adminData?.staffPermissions?.canManageCommunities ?? false;
+				return adminData?.member?.isAdmin ?? false;
 			},
 		},
 	];
