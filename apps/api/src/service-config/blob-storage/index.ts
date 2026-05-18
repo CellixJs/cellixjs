@@ -24,8 +24,7 @@
  * client uploads. Server-only blob operations require only accountName.
  */
 
-const storageAccountName = process.env['AZURE_STORAGE_ACCOUNT_NAME'];
-const storageConnectionString = process.env['AZURE_STORAGE_CONNECTION_STRING'];
+const { AZURE_STORAGE_ACCOUNT_NAME: storageAccountName, AZURE_STORAGE_CONNECTION_STRING: storageConnectionString } = process.env;
 
 if (!storageAccountName) {
 	throw new Error('Missing AZURE_STORAGE_ACCOUNT_NAME environment variable. Required for blob operations with managed identity authentication.');

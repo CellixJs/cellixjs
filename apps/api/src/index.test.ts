@@ -10,6 +10,7 @@ const {
 	registerEventHandlers,
 	MockServiceApolloServer,
 	MockServiceBlobStorage,
+	MockServiceBlobStorageClientUpload,
 	MockServiceMongoose,
 	MockServiceTokenValidation,
 } = vi.hoisted(() => {
@@ -45,6 +46,14 @@ const {
 		}
 	}
 
+	class HoistedServiceBlobStorageClientUpload {
+		public readonly service: string;
+
+		constructor(_connectionString: string) {
+			this.service = 'blob-storage-client-upload';
+		}
+	}
+
 	return {
 		registerInfrastructureService: vi.fn(),
 		setContext: vi.fn(),
@@ -55,6 +64,7 @@ const {
 		registerEventHandlers: vi.fn(),
 		MockServiceApolloServer: HoistedServiceApolloServer,
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
+		MockServiceBlobStorageClientUpload: HoistedServiceBlobStorageClientUpload,
 		MockServiceMongoose: HoistedServiceMongoose,
 		MockServiceTokenValidation: HoistedServiceTokenValidation,
 	};
@@ -146,7 +156,7 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(4);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(5);
 		// Find the registered blob service by instance type to avoid reliance on call order.
 		const registeredBlobService = registerInfrastructureService.mock.calls.map((c) => c?.[0]).find((candidate) => candidate instanceof MockServiceBlobStorage);
 
@@ -156,6 +166,9 @@ describe('apps/api bootstrap', () => {
 		serviceRegistry.getInfrastructureService.mockImplementation((serviceKey: unknown) => {
 			if (serviceKey === MockServiceBlobStorage) {
 				return registeredBlobService;
+			}
+			if (serviceKey === MockServiceBlobStorageClientUpload) {
+				return registerInfrastructureService.mock.calls.map((c) => c?.[0]).find((candidate) => candidate instanceof MockServiceBlobStorageClientUpload);
 			}
 			if (serviceKey === MockServiceTokenValidation) {
 				return new MockServiceTokenValidation(undefined);

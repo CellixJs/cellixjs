@@ -79,6 +79,87 @@ This ADR establishes the pattern: **managed identity for SDK operations + option
 - **Production**: Uses managed identity for SDK, shared-key credentials only for signing (via env var)
 - **Flexibility**: Consumers can provide only `accountName` if they don't need client uploads (opt-in)
 
+## Implementation Pattern: Narrower Consumer Types
+
+The framework service (`@cellix/service-blob-storage`) exposes a full interface with all operations and flexibility. However, **applications should not depend directly on the framework service**. Instead, application packages should:
+
+1. **Split into narrower interfaces** scoped to specific use cases:
+   - `BlobStorageOperations` - for backend blob operations (list, upload, delete) via managed identity
+   - `ClientUploadService` - for client-side upload URL signing via connection string
+
+2. **Register two specialized instances** of the framework service in the bootstrap layer:
+   - One configured for managed identity (no connection string)
+   - One configured for SAS signing (with connection string)
+
+3. **Expose only the narrower types** in the `ApiContext` so application code is type-safe and unambiguous
+
+### Why This Pattern?
+
+- **Type Safety**: Application code sees only what it should use; compiler prevents misuse
+- **Clear Intent**: Looking at `BlobStorageOperations` immediately tells you "this service uses managed identity"
+- **No Ambiguity**: Two services with two clear purposes; no mixing of authentication modes
+- **Testability**: Each interface can be mocked independently
+- **Scalability**: Easy to add more specialized services; context remains clean
+- **Best Practice**: Aligns with Dependency Inversion Principle - depend on abstractions, not concretions
+
+### Example for Consumers
+
+```typescript
+// 1. Define narrower interface (application package)
+export interface BlobStorageOperations {
+  listBlobs(containerName: string): Promise<string[]>;
+  uploadText(containerName: string, blobName: string, text: string): Promise<void>;
+  deleteBlob(containerName: string, blobName: string): Promise<void>;
+}
+
+export interface ClientUploadService {
+  createUploadUrl(request: CreateBlobSasUrlRequest): Promise<string>;
+  createReadUrl(request: CreateBlobSasUrlRequest): Promise<string>;
+}
+
+// 2. Register both framework services with different configs (bootstrap)
+const blobStorageService = new ServiceBlobStorage({
+  accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME,
+  // No connectionString - uses managed identity
+});
+
+const clientUploadService = new ServiceBlobStorage({
+  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+  // For SAS signing only
+});
+
+cellix.registerInfrastructureService(blobStorageService);
+cellix.registerInfrastructureService(clientUploadService);
+
+// 3. Expose narrower types in ApiContext
+export interface ApiContextSpec {
+  blobStorageService: BlobStorageOperations;
+  clientUploadService: ClientUploadService;
+}
+
+// 4. Application code receives narrow types, uses accordingly
+class CommunityDocumentService {
+  constructor(
+    private readonly blobStorage: BlobStorageOperations,      // ← backend ops only
+    private readonly clientUpload: ClientUploadService,       // ← signing only
+  ) {}
+
+  async generateUploadUrl(communityId: string, fileName: string): Promise<string> {
+    return this.clientUpload.createUploadUrl({
+      containerName: 'community-assets',
+      blobName: `communities/${communityId}/documents/${fileName}`,
+      expiresOn: new Date(Date.now() + 15 * 60 * 1000),
+    });
+  }
+
+  async listDocuments(communityId: string): Promise<string[]> {
+    return this.blobStorage.listBlobs('community-assets');
+  }
+}
+```
+
+This pattern ensures developers **cannot accidentally misuse** services and always have clear intent about authentication.
+
 **Pros**:
 - Managed identity (secure) for SDK operations in production
 - Connection string optional (not forced on all applications)

@@ -1,15 +1,24 @@
 # `@ocom/service-blob-storage`
 
-OwnerCommunity application adapter for blob storage with client-upload support via signed SAS URLs.
+OwnerCommunity application contract for blob storage with client-upload support via signed SAS URLs.
 
 ## Overview
 
-This package provides the application-facing blob storage contract exposed through `ApiContext`. It wraps `@cellix/service-blob-storage` with a **dual-service architecture** for clean separation of concerns:
+This package exports **narrower, type-safe consumer interfaces** for blob storage:
 
-- **SDK Service**: Uses managed identity (DefaultAzureCredential) for secure blob operations
-- **SAS Signing Service**: Optionally uses connection string for generating signed SAS URLs (when client uploads needed)
+- **`BlobStorageOperations`**: Backend blob operations (list, upload, delete) using managed identity
+- **`ClientUploadService`**: Secure client-upload URL signing using connection string SAS tokens
 
-The adapter exposes a narrow, application-specific interface: `createUploadUrl()` and `createReadUrl()`.
+These interfaces are implemented by two specialized instances of `@cellix/service-blob-storage` registered separately in `@apps/api` bootstrap, following the **narrower consumer types pattern** documented in ADR-0032.
+
+### Why Two Separate Services?
+
+A single `ServiceBlobStorage` instance with both `accountName` and `connectionString` would use connection-string auth for SDK operations, bypassing managed identity. By registering two instances with different configurations:
+
+- **SDK Service** (managed identity): Handles blob operations securely, no credentials in code
+- **SAS Signing Service** (connection string): Generates signed URLs, connection string isolated to signing only
+
+Each service has one responsibility; each is independently testable and type-safe.
 
 ## Client Uploads: The Use Case
 
@@ -27,157 +36,137 @@ When a member uploads their avatar or a community uploads a document, the applic
    - Client receives URL and uploads directly to Azure (server doesn't proxy bytes)
    - Azure validates signature and constraints; rejects unauthorized uploads
 
-## Architecture: Dual Services Pattern
+## Consumer Interfaces
 
-The adapter manages two independent framework services internally:
+### `BlobStorageOperations`
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  OCOM ServiceBlobStorage Adapter                        │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  ┌──────────────────────┐  ┌──────────────────────┐    │
-│  │  SDK Service         │  │ SAS Signing Service  │    │
-│  │  (Managed Identity)  │  │ (Connection String)  │    │
-│  │                      │  │                      │    │
-│  │ • uploadText()       │  │ • createUploadUrl()  │    │
-│  │ • uploadStream()     │  │ • createReadUrl()    │    │
-│  │ • listBlobs()        │  │                      │    │
-│  │ • deleteBlob()       │  │ (Only if needed)     │    │
-│  └──────────────────────┘  └──────────────────────┘    │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+Operations for backend blob storage access (uses managed identity):
 
-**Why two services?**
-
-- **SDK Service** (managed identity): Handles all blob operations securely using managed identity
-  - No credentials in code
-  - Auditable via Azure Monitor
-  - Production best practice
-  - Always present
-  
-- **SAS Signing Service** (connection string): Generates signed URLs using shared-key credentials
-  - SAS signing requires the AccountKey (can't be done via managed identity)
-  - Connection string used **only for signature generation**, not for blob operations
-  - Isolated responsibility: blob ops ≠ URL signing
-  - Optional: only created if `connectionString` provided
-
-**Benefits**:
-- **Single responsibility**: Each service does one thing
-- **Explicit separation**: No mixing of authentication modes
-- **Opt-in SAS signing**: Applications without client uploads don't need/pay for the signing service
-- **Testable**: Each service can be mocked independently
-- **Clear intent**: Code shows exactly what authentication each operation uses
-
-## Architecture Decision: Why Dual-Service Pattern?
-
-OCOM requires both:
-
-1. **Secure server→blob operations** (avatars, community documents, etc.)
-   - Uses managed identity (best practice)
-   - No credentials in application code
-   - Auditable via Azure Monitor
-
-2. **Secure client→blob uploads** (member uploads)
-   - Server generates signed SAS URLs with constraints
-   - Client uploads directly to Azure (server doesn't proxy)
-   - Azure validates signature; rejects unauthorized requests
-
-The challenge: A single `ServiceBlobStorage` instance can't do both safely because the framework prefers `connectionString` over `accountName` for auth.
-
-**Solution: Dual-service architecture**
-- **SDK Service**: Configured with `accountName` only → uses managed identity
-- **SAS Signing Service**: Configured with `connectionString` only → signs URLs
-- Each service has one job; never mixed up
-
-This pattern ensures:
-- Managed identity is used for all blob operations (production best practice)
-- Connection string isolated to SAS signing only (narrow credential scope)
-- Clear in code which auth method is used where
-- Each service independently testable
-
-## Service Contract
-
-```ts
-interface ServiceBlobStorage {
+```typescript
+export interface BlobStorageOperations {
   /**
-   * Generate a URL for uploading a blob client-side.
-   * URL includes a signed SAS token with write-only permissions and time limit.
-   * Only available if connectionString was provided in options.
+   * List all blobs in a container.
+   */
+  listBlobs(containerName: string): Promise<string[]>;
+
+  /**
+   * Upload text content to a blob.
+   */
+  uploadText(containerName: string, blobName: string, text: string): Promise<void>;
+
+  /**
+   * Delete a blob.
+   */
+  deleteBlob(containerName: string, blobName: string): Promise<void>;
+}
+```
+
+**Configured with**: `accountName` only (no connection string)  
+**Authentication**: Azure Managed Identity (DefaultAzureCredential)  
+**Use cases**: Server-side uploads, document storage, cleanup operations
+
+### `ClientUploadService`
+
+Operations for generating signed SAS URLs (uses connection string):
+
+```typescript
+export interface ClientUploadService {
+  /**
+   * Generate a signed URL for client-side blob upload (write-only, time-limited).
    */
   createUploadUrl(request: CreateBlobAccessUrlRequest): Promise<string>;
 
   /**
-   * Generate a URL for reading a blob client-side.
-   * URL includes a signed SAS token with read-only permissions and time limit.
-   * Only available if connectionString was provided in options.
+   * Generate a signed URL for client-side blob read (read-only, time-limited).
    */
   createReadUrl(request: CreateBlobAccessUrlRequest): Promise<string>;
-
-  startUp(): Promise<void>;
-  shutDown(): Promise<void>;
 }
 ```
+
+**Configured with**: Connection string only  
+**Authentication**: Shared-key SAS tokens  
+**Use cases**: Member avatars, community documents, member-initiated uploads
 
 ## Configuration
 
 **Environment Variables** (set by deployment):
+
 ```bash
-# For all environments: account name for blob URL construction
-# Used by the SDK service (managed identity)
+# Required: account name for blob URL construction and managed identity access
 AZURE_STORAGE_ACCOUNT_NAME=mycompany
 
-# For all environments: connection string for SAS URL signing
-# Only passed to the SAS signing service (when provided)
-# SDK service does NOT receive this; it uses managed identity
+# Required: connection string for SAS URL signing (client uploads)
+# Only passed to the SAS signing service, not the SDK service
 AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https://...AccountKey=...
 ```
 
-**Service Registration**:
-```ts
-// @apps/api/src/index.ts
-const service = new ServiceBlobStorage({
-  accountName: 'mycompany',
-  connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],
+**Service Registration** (@apps/api):
+
+Both services are registered separately during bootstrap:
+
+```typescript
+// blobStorageService: managed identity for backend operations
+const blobStorageService = new ServiceBlobStorage({
+  accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME,
+  // No connectionString - uses managed identity
 });
 
-cellix.registerInfrastructureService(service);
-```
-
-**What Happens Internally**:
-```ts
-// Constructor creates two services:
-
-// 1. SDK service (always)
-this.sdkService = new CellixServiceBlobStorage({
-  accountName: 'mycompany',
-  // NO connectionString here! Uses managed identity
+// clientUploadService: connection string for SAS signing
+const clientUploadService = new ServiceBlobStorage({
+  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
 });
 
-// 2. SAS signing service (if connectionString provided)
-this.sasSigningService = new CellixServiceBlobStorage({
-  connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],
-  // Separate service, isolated for signing only
-});
+cellix.registerInfrastructureService(blobStorageService);
+cellix.registerInfrastructureService(clientUploadService);
 ```
 
 **Exposed in ApiContext**:
-```ts
-// Application code receives narrow interface
-const { blobStorage } = context;
-const uploadUrl = await blobStorage.createUploadUrl({
-  containerName: 'member-assets',
-  blobName: 'avatars/member-123.png',
-  expiresOn: new Date(Date.now() + 15 * 60 * 1000),
-});
+
+```typescript
+export interface ApiContextSpec {
+  blobStorageService: BlobStorageOperations;  // ← backend ops, managed identity
+  clientUploadService: ClientUploadService;   // ← SAS signing only
+}
+```
+
+Application code receives narrow, specialized types:
+
+```typescript
+// Application service
+export class CommunityDocumentService {
+  constructor(
+    private readonly blobStorage: BlobStorageOperations,    // Can't accidentally call SAS methods
+    private readonly clientUpload: ClientUploadService,     // Can't accidentally do backend ops
+  ) {}
+
+  async generateDocumentUploadUrl(
+    communityId: string,
+    fileName: string,
+  ): Promise<{ uploadUrl: string; expiresAt: Date }> {
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    
+    // Type-safe: clientUploadService only has SAS methods
+    const uploadUrl = await this.clientUpload.createUploadUrl({
+      containerName: 'community-assets',
+      blobName: `communities/${communityId}/documents/${fileName}`,
+      expiresOn: expiresAt,
+    });
+
+    return { uploadUrl, expiresAt };
+  }
+
+  async listDocuments(communityId: string): Promise<string[]> {
+    // Type-safe: blobStorageService only has backend ops
+    return this.blobStorage.listBlobs('community-assets');
+  }
+}
 ```
 
 ## Example: Member Avatar Upload
 
 ### 1. Client requests upload URL
 
-```ts
+```typescript
 // Client-side (GraphQL mutation)
 mutation RequestAvatarUploadUrl($blobName: String!) {
   requestMemberAvatarUploadUrl(blobName: $blobName) {
@@ -189,13 +178,13 @@ mutation RequestAvatarUploadUrl($blobName: String!) {
 
 ### 2. Server generates signed URL
 
-```ts
+```typescript
 // Server-side (application service)
 export class MemberAvatarService {
-  constructor(private readonly blobStorage: ServiceBlobStorage) {}
+  constructor(private readonly clientUpload: ClientUploadService) {}
 
   async generateUploadUrl(memberId: string, fileName: string): Promise<string> {
-    return this.blobStorage.createUploadUrl({
+    return this.clientUpload.createUploadUrl({
       containerName: 'member-assets',
       blobName: `members/${memberId}/avatars/${fileName}`,
       expiresOn: new Date(Date.now() + 15 * 60 * 1000), // 15 min
@@ -206,7 +195,7 @@ export class MemberAvatarService {
 
 ### 3. Client uploads directly to Azure
 
-```ts
+```typescript
 // Client-side (browser)
 const file = document.getElementById('avatar-input').files[0];
 const { uploadUrl } = await graphqlRequest(RequestAvatarUploadUrl, {
@@ -224,83 +213,7 @@ if (response.ok) {
 }
 ```
 
-## Why OCOM Chose Dual-Service Pattern
-
-### Considered Alternatives
-
-#### ❌ Alternative 1: Single Service, Always Pass Both Options
-
-```typescript
-// Pass both accountName and connectionString to one service
-const service = new ServiceBlobStorage({
-  accountName: 'mycompany',
-  connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],
-});
-```
-
-**Problem**: Framework prefers `connectionString` over `accountName`. Even though we want managed identity for SDK operations, the framework will use shared-key auth when connection string is present. This defeats the entire purpose of managed identity.
-
-#### ❌ Alternative 2: Factory Function That Decides Auth Mode
-
-```typescript
-// Factory returns different config based on environment
-const options = isProduction
-  ? { accountName: 'mycompany' }
-  : { connectionString: process.env['...'] };
-
-const service = new ServiceBlobStorage(options);
-```
-
-**Problem**: Violates OCOM's service registration pattern where config objects are passed directly to constructors. Creates conditional logic and makes code harder to follow.
-
-#### ✅ Alternative 3: Dual-Service (Chosen)
-
-```typescript
-// Each service configured for its single responsibility
-this.sdkService = new ServiceBlobStorage({
-  accountName: 'mycompany',  // Managed identity
-});
-
-this.sasSigningService = new ServiceBlobStorage({
-  connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],  // Signing only
-});
-```
-
-**Advantages**:
-- Code is explicit: each service's job is clear
-- Managed identity guaranteed for SDK (can't accidentally bypass it)
-- SAS signing responsibility isolated
-- Aligns with OCOM service registration patterns
-- Each service independently testable/mockable
-- Connection string credential scope is narrow (signing only)
-
-### OCOM's Specific Configuration
-
-OCOM applications require:
-1. **Secure blob operations** for avatars, documents, etc. → SDK service with managed identity
-2. **Secure client uploads** → SAS signing service with connection string
-
-Both env vars are **required** in OCOM:
-```bash
-AZURE_STORAGE_ACCOUNT_NAME=mycompany          # For SDK operations and URL construction
-AZURE_STORAGE_CONNECTION_STRING=SharedAccessSignature=sv=...  # For SAS signing
-```
-
-Configuration validation (@apps/api) ensures both are present:
-```typescript
-if (!storageConnectionString) {
-  throw new Error(
-    'Missing AZURE_STORAGE_CONNECTION_STRING. Required for SAS signing (client uploads).'
-  );
-}
-if (!storageAccountName) {
-  throw new Error(
-    'Missing AZURE_STORAGE_ACCOUNT_NAME. Required for blob operations and URL construction.'
-  );
-}
-```
-
-This is **OCOM-specific** and may differ from other Cellix consumers who don't need client uploads (see [ADR-0032](../../decisions/0032-azure-blob-storage-client-uploads.md) for framework flexibility patterns).
+## Authentication Modes by Environment
 
 | Environment | SDK Service | SAS Signing | Why |
 |---|---|---|---|
@@ -310,79 +223,58 @@ This is **OCOM-specific** and may differ from other Cellix consumers who don't n
 
 **Result**: Same code runs everywhere; authentication determined by configuration, not code changes.
 
-## Opt-In Pattern: Connection String is Optional
-
-If an application doesn't need client uploads (all uploads server-side):
-
-```ts
-// Provide only accountName
-const service = new ServiceBlobStorage({
-  accountName: 'mycompany',
-  // connectionString: omitted
-});
-
-// SDK operations work (managed identity)
-// Server-side upload would look like:
-// await blobStorage.uploadText(...) 
-// BUT: This adapter doesn't expose uploadText (it only exposes SAS methods)
-// For server uploads, use the framework service directly
-
-// SAS operations fail with clear error
-await service.createUploadUrl(...); 
-// ❌ Error: "Client uploads with SAS signing are not configured..."
-```
-
-Connection string is **required only when client uploads are needed**.
-
 ## Error Handling
 
-```ts
+```typescript
 // Service not started
-const service = new ServiceBlobStorage({ accountName: 'acct' });
-await service.createUploadUrl(...);
-// ❌ Error: "OCOM ServiceBlobStorage adapter is not started - cannot access service"
+const { clientUploadService } = context;
+await clientUploadService.createUploadUrl(...);
+// ❌ Error: "Framework ServiceBlobStorage is not started"
 
-// No connection string for SAS (SAS signing not configured)
-const service = new ServiceBlobStorage({ accountName: 'acct' });
-await service.startUp();
-await service.createUploadUrl(...);
-// ❌ Error: "Client uploads with SAS signing are not configured..."
-
-// Valid call (both accountName and connectionString provided)
-const service = new ServiceBlobStorage({ 
-  accountName: 'acct',
-  connectionString: 'DefaultEndpointsProtocol=...'
+// Valid call (both services started)
+await context.clientUploadService.createUploadUrl({
+  containerName: 'member-assets',
+  blobName: 'members/123/avatar.png',
+  expiresOn: new Date(Date.now() + 15 * 60 * 1000),
 });
-await service.startUp();
-const url = await service.createUploadUrl(...);
 // ✅ Returns signed SAS URL
 ```
 
 ## Integration with Domain Logic
 
-The blob storage adapter is typically injected into application services:
+The narrower interfaces are typically injected into domain services:
 
-```ts
-export class CommunityDocumentService {
+```typescript
+import type { BlobStorageOperations, ClientUploadService } from '@ocom/service-blob-storage';
+
+export class MemberService {
   constructor(
-    private readonly blobStorage: ServiceBlobStorage,
-    private readonly communityRepository: CommunityRepository,
+    private readonly blobStorage: BlobStorageOperations,
+    private readonly clientUpload: ClientUploadService,
+    private readonly memberRepository: MemberRepository,
   ) {}
 
-  async generateDocumentUploadUrl(
-    communityId: string,
+  async updateMemberAvatar(
+    memberId: string,
     fileName: string,
   ): Promise<{ uploadUrl: string; expiresAt: Date }> {
-    const community = await this.communityRepository.findById(communityId);
-    
+    // Type-safe: can only call SAS methods
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    const uploadUrl = await this.blobStorage.createUploadUrl({
-      containerName: 'community-assets',
-      blobName: `communities/${communityId}/documents/${fileName}`,
+    const uploadUrl = await this.clientUpload.createUploadUrl({
+      containerName: 'member-assets',
+      blobName: `members/${memberId}/avatars/${fileName}`,
       expiresOn: expiresAt,
     });
 
     return { uploadUrl, expiresAt };
+  }
+
+  async deleteMemberAvatar(memberId: string, fileName: string): Promise<void> {
+    // Type-safe: can only call backend ops
+    await this.blobStorage.deleteBlob(
+      'member-assets',
+      `members/${memberId}/avatars/${fileName}`,
+    );
   }
 }
 ```
@@ -390,55 +282,60 @@ export class CommunityDocumentService {
 ## Testing
 
 **Unit tests** (with mocks):
-```ts
-const mockBlobStorage: Partial<ServiceBlobStorage> = {
+
+```typescript
+const mockBlobStorage: Partial<BlobStorageOperations> = {
+  listBlobs: vi.fn().mockResolvedValue([]),
+  uploadText: vi.fn(),
+  deleteBlob: vi.fn(),
+};
+
+const mockClientUpload: Partial<ClientUploadService> = {
   createUploadUrl: vi.fn().mockResolvedValue('https://test-url'),
   createReadUrl: vi.fn().mockResolvedValue('https://test-url'),
-  startUp: vi.fn(),
-  shutDown: vi.fn(),
 };
 ```
 
 **Integration tests** (with Azurite):
-```ts
+
+```typescript
 import { startAzuriteBlobServer } from '@cellix/service-blob-storage/test-support';
 
 beforeAll(async () => {
   azurite = await startAzuriteBlobServer();
-  service = new ServiceBlobStorage({
-    accountName: 'devstoreaccount1',
+  
+  // Both services use Azurite connection string in test
+  const blobStorage = new ServiceBlobStorage({
     connectionString: azurite.connectionString,
   });
-  await service.startUp();
-});
-
-afterAll(async () => {
-  await service.shutDown();
-  await azurite.stop();
-});
-
-it('generates valid SAS URLs', async () => {
-  const uploadUrl = await service.createUploadUrl({
-    containerName: 'test-container',
-    blobName: 'test.txt',
-    expiresOn: new Date(Date.now() + 5 * 60 * 1000),
+  
+  const clientUpload = new ServiceBlobStorage({
+    connectionString: azurite.connectionString,
   });
-  expect(uploadUrl).toMatch(/sv=.*/); // SAS token present
+  
+  await blobStorage.startUp();
+  await clientUpload.startUp();
 });
 ```
 
+## The Narrower Consumer Types Pattern
+
+This package exemplifies the pattern recommended in ADR-0032:
+
+1. **Framework service is flexible** (`@cellix/service-blob-storage`): Supports multiple auth modes, optional features
+2. **Application packages create narrower types**: Split full contract into focused interfaces
+3. **Bootstrap registers specialized instances**: Each instance has one job, one config
+4. **Context exposes only narrower types**: Application code is type-safe and explicit
+
+This pattern ensures:
+- **Type safety**: Compiler prevents misuse
+- **Clear intent**: Code shows which auth method is used
+- **No mixing**: Each service has one responsibility
+- **Testability**: Easy to mock and test independently
+- **Scalability**: Easy to add more services as needs grow
+
 ## Related Documentation
 
-- **ADR-0032**: [Azure Blob Storage & Client Uploads](../../docs/decisions/0032-azure-blob-storage-client-uploads.md) - Full architecture rationale
-- **@cellix/service-blob-storage**: Framework service with detailed API docs
-- **@cellix/api-services-spec**: Cellix service lifecycle patterns
-- **MemberAvatarService**: Example usage in domain layer
-- **CommunityDocumentService**: Example usage for document uploads
-
-## Future Enhancements
-
-- Blob deletion endpoint for cleanup
-- Container management (create, delete)
-- Blob metadata and tagging
-- Soft-delete and undelete support
-- Versioning for audit trails
+- **ADR-0032**: [Azure Blob Storage & Client Uploads](../../decisions/0032-azure-blob-storage-client-uploads.md) - Full architecture rationale, pattern explanation, and consumer examples
+- **@cellix/service-blob-storage**: Framework service with detailed API docs and authentication modes
+- **@ocom/context-spec**: Application context definition with narrower types

@@ -176,9 +176,39 @@ const uploadUrl = await sasService.createBlobWriteSasUrl({
 
 1. **Azure SDK details are internal**: Consumers don't reference `@azure/storage-blob` directly
 2. **Framework-level contract only**: Focus on blob operations, not Azure-specific SDK models
-3. **Wrapping required**: Application code should receive this service via an adapter package that provides a narrower, context-specific contract
+3. **Narrower consumer types required**: Application code should NOT depend directly on `ServiceBlobStorage`. Instead, application packages should:
+   - Create narrower interfaces (e.g., `BlobStorageOperations`, `ClientUploadService`)
+   - Register two specialized instances (one for managed identity, one for SAS signing)
+   - Expose only the narrower types in `ApiContext`
+   - This ensures type safety and clear intent in application code
 4. **Security-forward**: Default to managed identity; connection string optional for local dev or signing
 5. **Lifecycle management**: `startUp()` and `shutDown()` follow Cellix service patterns for consistent bootstrapping
+
+### The Narrower Types Pattern
+
+Instead of exposing `ServiceBlobStorage` directly in `ApiContext`, applications should:
+
+```typescript
+// ❌ DON'T: Expose the full framework service
+interface ApiContextSpec {
+  blobService: ServiceBlobStorage; // Too flexible, mixed concerns
+}
+
+// ✅ DO: Expose narrower, specialized types
+interface ApiContextSpec {
+  blobStorageService: BlobStorageOperations;    // Managed identity operations
+  clientUploadService: ClientUploadService;     // SAS signing only
+}
+```
+
+**Why?**
+- **Type Safety**: Compiler prevents accidentally calling SAS methods on the backend service
+- **Clear Intent**: Function signature tells you which auth method is used
+- **Single Responsibility**: Each service has one job
+- **Testability**: Each type can be mocked independently
+- **Best Practice**: Aligns with Dependency Inversion Principle
+
+See ADR-0032 "Implementation Pattern: Narrower Consumer Types" for the complete pattern and example.
 
 ## Error Handling
 
