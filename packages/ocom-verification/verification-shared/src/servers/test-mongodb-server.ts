@@ -125,6 +125,21 @@ export class MongoDBTestServer {
 		}
 	}
 
+	async resetForScenario(seedDataFn?: MongoDBSeedDataFunction): Promise<void> {
+		if (!this.serviceMongoose) {
+			throw new Error('MongoDBTestServer not started');
+		}
+		const { connection } = this.serviceMongoose.service;
+		const { db } = connection;
+		if (!db) {
+			throw new Error('Mongoose connection has no active db');
+		}
+		const collections = await db.listCollections({}, { nameOnly: true }).toArray();
+		await Promise.all(collections.map((c) => db.collection(c.name).deleteMany({})));
+		const seedFn = seedDataFn ?? seedOwnerCommunityReferenceData;
+		await seedFn(this.connectionString, this.dbName);
+	}
+
 	isRunning(): boolean {
 		return this.serviceMongoose !== null;
 	}
