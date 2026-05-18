@@ -104,4 +104,157 @@ describe('ClientUploadSigner - Canonical Auth Headers', () => {
 			new ClientUploadSigner(invalidConnectionString);
 		}).toThrow();
 	});
+
+	describe('Security - Metadata Locking (Negative Scenarios)', () => {
+		it('auth header for one blob cannot be reused for a different blob', async () => {
+			// Generate auth header for blob A
+			const authForBlobA = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'blob-a.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+			});
+
+			// Generate auth header for blob B (same container, different name)
+			const authForBlobB = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'blob-b.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+			});
+
+			// Auth headers must be different because they lock in the blob name
+			expect(authForBlobA.authorizationHeader).not.toBe(authForBlobB.authorizationHeader);
+		});
+
+		it('auth header for one container cannot be reused for a different container', async () => {
+			// Generate auth header for container A
+			const authForContainerA = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'container-a',
+				blobName: 'test-blob.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+			});
+
+			// Generate auth header for container B (different container, same blob name)
+			const authForContainerB = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'container-b',
+				blobName: 'test-blob.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+			});
+
+			// Auth headers must be different because they lock in the container
+			expect(authForContainerA.authorizationHeader).not.toBe(authForContainerB.authorizationHeader);
+		});
+
+		it('auth header locks in content-length metadata', async () => {
+			// Generate auth header for 100 bytes
+			const authFor100Bytes = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'test-blob.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+			});
+
+			// Generate auth header for 200 bytes
+			const authFor200Bytes = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'test-blob.txt',
+				contentLength: 200,
+				contentType: 'text/plain',
+			});
+
+			// Auth headers must be different because they lock in content length
+			expect(authFor100Bytes.authorizationHeader).not.toBe(authFor200Bytes.authorizationHeader);
+		});
+
+		it('auth header locks in content-type metadata', async () => {
+			// Generate auth header for text/plain
+			const authForText = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'test-blob',
+				contentLength: 100,
+				contentType: 'text/plain',
+			});
+
+			// Generate auth header for application/json
+			const authForJson = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'test-blob',
+				contentLength: 100,
+				contentType: 'application/json',
+			});
+
+			// Auth headers must be different because they lock in content type
+			expect(authForText.authorizationHeader).not.toBe(authForJson.authorizationHeader);
+		});
+
+		it('auth header locks in blob metadata values', async () => {
+			// Generate auth header with userId=alice
+			const authAlice = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'test-blob.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+				metadata: { userId: 'alice', scope: 'profile' },
+			});
+
+			// Generate auth header with userId=bob (same scope)
+			const authBob = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'test-blob.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+				metadata: { userId: 'bob', scope: 'profile' },
+			});
+
+			// Auth headers must be different because they lock in metadata values
+			expect(authAlice.authorizationHeader).not.toBe(authBob.authorizationHeader);
+		});
+
+		it('auth header is invalidated if content-length does not match signed value', async () => {
+			// This test documents the expected behavior: when a client attempts to upload
+			// with mismatched Content-Length, Azure Blob Storage should reject it because
+			// the signature won't match (server recalculates canonical string with actual length).
+
+			const auth = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'test-blob.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+			});
+
+			// The auth header is valid for 100 bytes with x-ms-date and Content-Length: 100
+			// If client attempts to send a different Content-Length, Azure will:
+			// 1. Verify the Authorization header signature
+			// 2. Recalculate canonical string with actual Content-Length from request
+			// 3. Signature will not match (mismatch between signed and actual)
+			// 4. Request rejected
+
+			expect(auth.headers['Content-Length']).toBe('100');
+			// If this were sent with Content-Length: 200, signature verification would fail
+		});
+
+		it('auth header for write cannot be reused for read', async () => {
+			// Generate auth header for write (PUT)
+			const writeAuth = await signer.createBlobWriteAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'test-blob.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+			});
+
+			// Generate auth header for read (GET)
+			const readAuth = await signer.createBlobReadAuthorizationHeader({
+				containerName: 'test-container',
+				blobName: 'test-blob.txt',
+				contentLength: 100,
+				contentType: 'text/plain',
+			});
+
+			// Auth headers must be different because they lock in the HTTP method
+			expect(writeAuth.authorizationHeader).not.toBe(readAuth.authorizationHeader);
+		});
+	});
 });

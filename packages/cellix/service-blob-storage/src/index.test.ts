@@ -1,7 +1,7 @@
 import { ServiceBlobStorage } from '@cellix/service-blob-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, generateBlobSasQueryParametersMock, MockStorageSharedKeyCredential } = vi.hoisted(() => {
+const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, generateBlobSasUrlMock, generateBlobSasQueryParametersMock, MockStorageSharedKeyCredential } = vi.hoisted(() => {
 	class HoistedStorageSharedKeyCredential {
 		public readonly accountName: string;
 		public readonly accountKey: string;
@@ -17,6 +17,7 @@ const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnection
 		deleteBlobMock: vi.fn(),
 		listBlobsFlatMock: vi.fn(),
 		blobServiceFromConnectionStringMock: vi.fn(),
+		generateBlobSasUrlMock: vi.fn(),
 		generateBlobSasQueryParametersMock: vi.fn(),
 		MockStorageSharedKeyCredential: HoistedStorageSharedKeyCredential,
 	};
@@ -29,18 +30,11 @@ vi.mock('@azure/storage-blob', () => {
 		},
 	};
 
-	const MockContainerSASPermissions = {
-		parse(value: string) {
-			return `container:${value}`;
-		},
-	};
-
 	return {
 		BlobServiceClient: {
 			fromConnectionString: blobServiceFromConnectionStringMock,
 		},
 		BlobSASPermissions: MockBlobSASPermissions,
-		ContainerSASPermissions: MockContainerSASPermissions,
 		generateBlobSASQueryParameters: generateBlobSasQueryParametersMock,
 		StorageSharedKeyCredential: MockStorageSharedKeyCredential,
 	};
@@ -60,13 +54,14 @@ describe('ServiceBlobStorage', () => {
 	};
 	const blobServiceClient = {
 		getContainerClient: vi.fn(() => containerClient),
+		generateBlobSASUrl: generateBlobSasUrlMock,
 	};
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		blobServiceFromConnectionStringMock.mockReturnValue(blobServiceClient);
 		generateBlobSasQueryParametersMock.mockReturnValue({
-			toString: () => 'blob-sas-token',
+			toString: () => 'sig=token-123&se=2026-05-14T12%3A00%3A00Z&sr=b&sp=r',
 		});
 		listBlobsFlatMock.mockReturnValue(
 			(async function* (): AsyncGenerator<{ name: string }> {
@@ -143,28 +138,18 @@ describe('ServiceBlobStorage', () => {
 		expect(deleteBlobMock).toHaveBeenCalledWith('avatars/member-1.json');
 	});
 
-	it('creates read and write blob SAS URLs plus a list container SAS URL', async () => {
+	it('generates read SAS tokens for blob access', async () => {
 		const service = new ServiceBlobStorage({ connectionString });
 		await service.startUp();
 
 		const expiresOn = new Date('2026-05-14T12:00:00.000Z');
-		const readUrl = await service.createBlobReadSasUrl({
+		const token = await service.generateReadSasToken({
 			containerName: 'member-assets',
 			blobName: 'avatars/member-1.png',
-			expiresOn,
-		});
-		const writeUrl = await service.createBlobWriteSasUrl({
-			containerName: 'member-assets',
-			blobName: 'avatars/member-1.png',
-			expiresOn,
-		});
-		const listUrl = await service.createContainerListSasUrl({
-			containerName: 'member-assets',
 			expiresOn,
 		});
 
-		expect(generateBlobSasQueryParametersMock).toHaveBeenNthCalledWith(
-			1,
+		expect(generateBlobSasQueryParametersMock).toHaveBeenCalledWith(
 			{
 				containerName: 'member-assets',
 				blobName: 'avatars/member-1.png',
@@ -173,28 +158,7 @@ describe('ServiceBlobStorage', () => {
 			},
 			expect.any(MockStorageSharedKeyCredential),
 		);
-		expect(generateBlobSasQueryParametersMock).toHaveBeenNthCalledWith(
-			2,
-			{
-				containerName: 'member-assets',
-				blobName: 'avatars/member-1.png',
-				expiresOn,
-				permissions: 'blob:cw',
-			},
-			expect.any(MockStorageSharedKeyCredential),
-		);
-		expect(generateBlobSasQueryParametersMock).toHaveBeenNthCalledWith(
-			3,
-			{
-				containerName: 'member-assets',
-				expiresOn,
-				permissions: 'container:rl',
-			},
-			expect.any(MockStorageSharedKeyCredential),
-		);
-		expect(readUrl).toBe('https://blob.example.test/container/blob.txt?blob-sas-token');
-		expect(writeUrl).toBe('https://blob.example.test/container/blob.txt?blob-sas-token');
-		expect(listUrl).toBe('https://blob.example.test/container?blob-sas-token');
+		expect(token).toContain('sig=token-123');
 	});
 
 	it('guards against invalid lifecycle access', async () => {

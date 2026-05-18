@@ -90,17 +90,6 @@ export interface BlobUploadAuthorizationHeader {
 }
 
 /**
- * Request contract for generating a container-scoped SAS URL.
- *
- * @property containerName - Container to grant access to.
- * @property expiresOn - Expiration timestamp for the generated SAS URL.
- */
-export interface CreateContainerSasUrlRequest {
-	containerName: string;
-	expiresOn: Date;
-}
-
-/**
  * Framework-level blob storage contract used by application adapters.
  */
 export interface BlobStorage {
@@ -120,17 +109,9 @@ export interface BlobStorage {
 	listBlobs(request: ListBlobsRequest): Promise<BlobListItem[]>;
 
 	/**
-	 * Creates a blob-scoped read SAS URL.
+	 * Generates a blob-scoped read SAS token using managed identity credentials.
+	 * Used for read-only access (e.g., viewing files).
+	 * Returns the SAS query string (without the leading `?`).
 	 */
-	createBlobReadSasUrl(request: CreateBlobSasUrlRequest): Promise<string>;
-
-	/**
-	 * Creates a blob-scoped write SAS URL.
-	 */
-	createBlobWriteSasUrl(request: CreateBlobSasUrlRequest): Promise<string>;
-
-	/**
-	 * Creates a container-scoped SAS URL that allows listing blobs.
-	 */
-	createContainerListSasUrl(request: CreateContainerSasUrlRequest): Promise<string>;
+	generateReadSasToken(request: CreateBlobSasUrlRequest): Promise<string>;
 }

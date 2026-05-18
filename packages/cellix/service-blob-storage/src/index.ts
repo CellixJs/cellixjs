@@ -6,7 +6,6 @@ export type {
 	BlobUploadAuthorizationHeader,
 	CreateBlobAuthorizationHeaderRequest,
 	CreateBlobSasUrlRequest,
-	CreateContainerSasUrlRequest,
 	ListBlobsRequest,
 	UploadTextBlobRequest,
 } from './interfaces.ts';

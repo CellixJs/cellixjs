@@ -1,19 +1,15 @@
-import { BlobSASPermissions, BlobServiceClient, ContainerSASPermissions, generateBlobSASQueryParameters, type StorageSharedKeyCredential } from '@azure/storage-blob';
+import { BlobServiceClient } from '@azure/storage-blob';
 import { HeaderConstants } from './auth-header-constants.js';
 import { AuthHeaderGenerator } from './auth-header-generator.js';
 import { createCredentialFromConnectionString, getConnectionStringValue } from './connection-string.js';
-import type { BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest, CreateBlobSasUrlRequest, CreateContainerSasUrlRequest } from './interfaces.js';
+import type { BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest } from './interfaces.js';
 
 /**
  * ClientUploadSigner handles generation of signed authorization headers for client-side blob uploads.
+ * Uses canonical SharedKey authorization per Azure Storage REST API spec.
  * It requires a connection string to be provided at construction time.
- *
- * Supports two signing approaches:
- * - createBlobWriteSasUrl/createBlobReadSasUrl: Legacy SAS token URLs
- * - createBlobWriteAuthorizationHeader/createBlobReadAuthorizationHeader: Canonical SharedKey auth headers
  */
 export class ClientUploadSigner {
-	private readonly sharedKeyCredential: StorageSharedKeyCredential;
 	private readonly blobServiceClient: BlobServiceClient;
 	private readonly authHeaderGenerator: AuthHeaderGenerator;
 	private readonly accountName: string;
@@ -23,7 +19,7 @@ export class ClientUploadSigner {
 		if (!connectionString?.trim()) {
 			throw new Error('connectionString is required to create ClientUploadSigner');
 		}
-		this.sharedKeyCredential = createCredentialFromConnectionString(connectionString);
+		void createCredentialFromConnectionString(connectionString); // Ensure credential can be created from the connection string
 		this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
 		this.authHeaderGenerator = new AuthHeaderGenerator();
 
@@ -53,54 +49,6 @@ export class ClientUploadSigner {
 	 */
 	public createBlobReadAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
 		return Promise.resolve(this.createAuthorizationHeader(request, 'GET'));
-	}
-
-	/**
-	 * Create a blob-scoped read SAS URL (legacy approach).
-	 * @deprecated Use createBlobReadAuthorizationHeader for canonical auth headers instead.
-	 */
-	public createBlobReadSasUrl(request: CreateBlobSasUrlRequest): Promise<string> {
-		return Promise.resolve(this.createBlobSasUrl(request, BlobSASPermissions.parse('r')));
-	}
-
-	/**
-	 * Create a blob-scoped write SAS URL (legacy approach).
-	 * @deprecated Use createBlobWriteAuthorizationHeader for canonical auth headers instead.
-	 */
-	public createBlobWriteSasUrl(request: CreateBlobSasUrlRequest): Promise<string> {
-		return Promise.resolve(this.createBlobSasUrl(request, BlobSASPermissions.parse('cw')));
-	}
-
-	/**
-	 * Create a container-scoped SAS URL for listing blobs (legacy approach).
-	 * @deprecated Use canonical auth headers for new implementations.
-	 */
-	public createContainerListSasUrl(request: CreateContainerSasUrlRequest): Promise<string> {
-		const containerClient = this.blobServiceClient.getContainerClient(request.containerName);
-		const containerUrl = containerClient.url;
-		const sas = generateBlobSASQueryParameters(
-			{
-				containerName: request.containerName,
-				expiresOn: request.expiresOn,
-				permissions: ContainerSASPermissions.parse('rl'),
-			},
-			this.sharedKeyCredential,
-		).toString();
-		return Promise.resolve(`${containerUrl}?${sas}`);
-	}
-
-	private createBlobSasUrl(request: CreateBlobSasUrlRequest, permissions: BlobSASPermissions): string {
-		const blobClient = this.blobServiceClient.getContainerClient(request.containerName).getBlockBlobClient(request.blobName);
-		const sas = generateBlobSASQueryParameters(
-			{
-				containerName: request.containerName,
-				blobName: request.blobName,
-				expiresOn: request.expiresOn,
-				permissions,
-			},
-			this.sharedKeyCredential,
-		).toString();
-		return `${blobClient.url}?${sas}`;
 	}
 
 	private createAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest, method: 'PUT' | 'GET'): BlobUploadAuthorizationHeader {

@@ -10,7 +10,7 @@ consulted:
 informed:
 ---
 
-# Azure Blob Storage with Managed Identity & Signed SAS URLs for Secure Client Uploads
+# Azure Blob Storage with Managed Identity & Canonical SharedKey Auth Headers for Secure Client Uploads
 
 ## Context and Problem Statement
 
@@ -18,43 +18,55 @@ Applications need to:
 
 1. **Store and retrieve binary assets securely** (e.g., member avatars, community documents)
 2. **Enable client-side uploads** without exposing storage credentials or allowing uncontrolled blob creation
-3. **Maintain production-grade security** using Azure best practices (managed identity, no shared keys in code)
-4. **Support local development** (Azurite emulation) and production deployments with the same code
-5. **Decouple authentication strategy** (managed identity) from client-upload signing requirements (SAS shared-key)
+3. **Prevent replay attacks** where a client attempts to upload a different file using an authorization header signed for another file
+4. **Maintain production-grade security** using Azure best practices (managed identity, no shared keys in code for SDK operations)
+5. **Support local development** (Azurite emulation) and production deployments with the same code
+6. **Decouple authentication strategy** (managed identity for backend) from client-upload signing requirements (SharedKey auth headers)
 
 ### The Challenge
 
 Azure Blob Storage supports multiple authentication approaches:
 
-- **Shared Key (connection string)**: Simple for development, but credentials in env vars; not recommended for production
-- **Managed Identity (DefaultAzureCredential)**: Production best practice on Azure, no credentials to leak, but doesn't provide SAS signing for clients
-- **Service Principal/SAS tokens**: More control, but adds credential management complexity
+- **Shared Key (connection string)**: Simple for development, but credentials in env vars; not recommended for production SDK operations
+- **Managed Identity (DefaultAzureCredential)**: Production best practice on Azure, no credentials to leak, but doesn't provide auth signing for clients
+- **Service Principal/SAS tokens**: More control, but adds credential management complexity; SAS URLs are time-expiration-only (no metadata binding)
+- **Canonical SharedKey Auth Headers**: Microsoft Azure Storage standard (per REST API spec) that signs headers with blob metadata (Content-Length, Content-Type, blob path); impossible to replay on different blobs
 
-Client uploads specifically require signed SAS URLs with embedded constraints (container, blob name, expiration, permissions). SAS signing can only be done with:
-- **Shared Key credentials** (AccountName + AccountKey), or
-- **User Delegation Key** (only for Azure AD-authenticated clients)
+Earlier implementations used **SAS tokens for client uploads**, which are flexible but lack metadata binding:
+- Client could take a SAS URL signed for `file-a.txt` and attempt to use it on `file-b.txt` (server-side validation required)
+- SAS tokens only enforce time expiration and permissions, not the specific blob identity or metadata
+
+**Canonical SharedKey authorization headers provide cryptographic metadata-locking:**
+- Signature includes HTTP method, blob path, Content-Length, Content-Type, and custom metadata headers
+- Different blob → different signature (mathematically impossible to forge)
+- Different file size → different signature (content-length in canonical string)
+- Different content type → different signature (included in signing process)
+- Replay attacks across blobs are cryptographically impossible (not just policy-enforced)
 
 For Cellix applications, the pattern is:
 - Backend blob operations (read/write/delete) → use **managed identity** (secure, auditable)
-- Client uploads → require **signed SAS URLs** → need shared-key credentials to sign
-- Server handles both paths, using managed identity for backend and shared keys only for client-upload signing
+- Client uploads → require **signed canonical SharedKey auth headers** → need shared-key credentials only to sign the header
+- Server handles both paths, using managed identity for backend and shared keys only for client-upload signing (narrowly scoped)
 
 ### Prior Attempts
 
 Earlier iterations tried to:
 1. Always use connection strings for everything (insecure in production, config forced it everywhere)
 2. Use a single auth strategy everywhere (rigid, prevented managed identity even when client uploads weren't needed)
+3. Use SAS tokens for client uploads (flexible but lacking metadata-binding security)
 
-This ADR establishes the pattern: **managed identity for SDK operations + optional shared-key signing for client uploads**.
+This ADR establishes the pattern: **managed identity for SDK operations + canonical SharedKey auth headers for client uploads (metadata-locked, replay-proof)**.
 
 ## Decision Drivers
 
-- **Production security best practice**: Managed identity (no credentials in code/environment)
+- **Production security best practice**: Managed identity (no credentials in code/environment) + canonical auth headers (cryptographic metadata binding)
+- **Replay attack prevention**: Canonical auth headers lock metadata (blob name, content-length, content-type) in the signature; different blobs = mathematically different signatures
 - **Local development support**: Azurite with connection string must work
 - **Flexible opt-in**: Not all applications need client uploads; connection string should be optional
-- **Clear architecture**: Separate concerns (SDK auth from SAS signing)
+- **Clear architecture**: Separate concerns (SDK auth from header signing)
 - **No credential exposure**: Never pass credentials through application code
 - **Framework reusability**: Service should support both scenarios: managed-identity-only and managed-identity + client uploads
+- **Metadata binding**: Server authorization should include file characteristics (size, type) so clients cannot upload arbitrary metadata
 
 ## Considered Options
 
@@ -272,6 +284,119 @@ Downstream applications override templates and wire both values. This keeps the 
 
 ## Implementation Details
 
+### Canonical SharedKey Authorization Headers (Preferred for Client Uploads)
+
+The framework implements **canonical SharedKey authorization headers** per the [Azure Storage Services REST API Authorization specification](https://learn.microsoft.com/en-us/rest/api/storageservices/authorize-with-shared-key). This approach provides cryptographic metadata-locking to prevent replay attacks.
+
+#### How It Works
+
+The server signs a request on behalf of the client by creating a canonical string containing:
+
+```
+HttpMethod (PUT or GET)
+Content-Encoding (empty if not present)
+Content-Language (empty if not present)
+Content-Length (locked in signature - different sizes produce different signatures)
+Content-MD5 (empty if not present)
+Content-Type (locked in signature - different MIME types produce different signatures)
+Date
+If-Modified-Since (empty if not present)
+If-Match (empty if not present)
+If-None-Match (empty if not present)
+If-Unmodified-Since (empty if not present)
+Range (empty if not present)
+CanonicalizedHeaders (x-ms-* headers in sorted order, with values locked in)
+CanonicalizedResource (/accountName/containerName/blobName)
+```
+
+The server then:
+1. Base64-decodes the storage account's shared key
+2. Computes HMAC-SHA256 of the canonical string
+3. Base64-encodes the signature
+4. Returns `SharedKey accountName:signature` to the client
+
+The client includes this header in the PUT request: `Authorization: SharedKey accountName:signature`
+
+Azure Storage validates by:
+1. Reconstructing the canonical string from the request
+2. Recomputing HMAC-SHA256 with the stored account key
+3. Comparing signatures (must match exactly)
+
+#### Metadata-Locking Security
+
+The signature cryptographically binds the authorization to specific blob metadata. If ANY of these change, the signature becomes invalid:
+
+| Metadata Component | Included in Signature | Replay Attack Scenario | Protection |
+|---|---|---|---|
+| HTTP Method | Line 1 (PUT/GET) | Use write auth for read | ✓ Different method → different signature |
+| Blob Name | Canonicalized resource | Use auth for different blob | ✓ Different path → different signature |
+| Container Name | Canonicalized resource | Upload to different container | ✓ Different path → different signature |
+| Content-Length | Canonical string line 4 | Upload different file size | ✓ Different length → different signature |
+| Content-Type | Canonical string line 6 | Upload wrong MIME type | ✓ Different type → different signature |
+| Custom Metadata (x-ms-meta-*) | Canonicalized headers | Tamper with metadata headers | ✓ Different metadata → different signature |
+| Account/Key | HMAC-SHA256 key | Forge signature | ✓ Cryptographically impossible (HMAC) |
+
+**Server-Side Verification**: If a client attempts to upload with metadata that doesn't match the signed header, the server recalculates the canonical string using the actual request headers. The signatures won't match, and Azure Storage rejects the request with **403 Forbidden** (authentication failed).
+
+#### Implementation in Framework
+
+The framework provides `AuthHeaderGenerator` to create canonical auth headers:
+
+```typescript
+export interface CreateBlobAuthorizationHeaderRequest {
+  containerName: string;
+  blobName: string;
+  contentLength: number;
+  contentType: string;
+  metadata?: Record<string, string>;  // Optional x-ms-meta-* headers
+}
+
+export interface BlobUploadAuthorizationHeader {
+  authorizationHeader: string;  // "SharedKey accountName:signature"
+  contentType: string;
+  contentLength: number;
+}
+
+// Server generates auth header for client
+const authHeader = await clientUploadSigner.createBlobWriteAuthorizationHeader({
+  containerName: 'user-uploads',
+  blobName: 'avatars/user-123.jpg',
+  contentLength: 102400,
+  contentType: 'image/jpeg',
+  metadata: { 'userId': 'user-123', 'source': 'mobile-app' }
+});
+
+// Client uses the header in PUT request
+fetch('https://account.blob.core.windows.net/user-uploads/avatars/user-123.jpg', {
+  method: 'PUT',
+  headers: {
+    'Authorization': authHeader.authorizationHeader,  // "SharedKey account:signature"
+    'Content-Type': 'image/jpeg',
+    'Content-Length': '102400',
+    'x-ms-meta-userId': 'user-123',
+    'x-ms-meta-source': 'mobile-app',
+    'x-ms-date': 'Mon, 18 May 2026 12:34:56 GMT'
+  },
+  body: fileBlob
+});
+```
+
+#### Why Canonical Auth Headers Instead of SAS Tokens?
+
+| Aspect | SAS Tokens | Canonical Auth Headers |
+|---|---|---|
+| **Time Enforcement** | ✓ Expiration checked by server | ✓ Expiration checked by server |
+| **Permissions Scoping** | ✓ Read, Write, Delete granular | ✓ HTTP method (PUT/GET) granular |
+| **Container Scoping** | ✓ Can be limited to container | ✓ Blob-specific in signature |
+| **Blob-Name Binding** | ✗ SAS URL includes blob name, but policy doesn't bind to it | ✓ Blob name in canonicalized resource (signature fails if changed) |
+| **Metadata Binding** | ✗ No protection | ✓ Content-Length, Content-Type, x-ms-* in signature |
+| **File-Size Protection** | ✗ No (server must validate) | ✓ Content-Length in canonical string |
+| **File-Type Protection** | ✗ No (server must validate) | ✓ Content-Type in canonical string |
+| **Cryptographic Guarantee** | ✗ Policy-based (can be bypassed if server doesn't validate) | ✓ Signature mismatch = cryptographic proof of tampering |
+| **Replay Across Blobs** | Possible (requires server validation) | Impossible (different blob = different signature) |
+
+**Recommendation**: Use canonical auth headers for security-critical client uploads. Use SAS tokens (optional, via `generateReadSasToken()`) for read-only file viewing (lower sensitivity).
+
 ### Framework Service (@cellix/service-blob-storage)
 
 **AuthMode Determination**:
@@ -464,20 +589,23 @@ export const blobStorageConfig = {
 ### Positive Consequences
 
 1. **Production security (managed identity)**: Backend blob operations use managed identity (no credentials in code)
-2. **Client uploads with security (SAS signing)**: Clients can upload to scoped, time-limited URLs without storage credentials
-3. **Local development support**: Azurite works seamlessly with connection strings
-4. **Flexible opt-in**: Applications without client uploads only provide `accountName`
-5. **Clear architecture**: Separation between SDK auth (managed identity) and signing (shared-key)
-6. **Portable pattern**: Framework works across scenarios; applications can choose their deployment model
-7. **No credential exposure**: Connection strings never leak through application code (only used for signing helpers)
-8. **Self-documenting config**: Env var comments explain why each value is needed
-9. **IaC flexibility**: Generic templates don't force every app to provide both env vars
+2. **Replay attack prevention (metadata-locked auth headers)**: Canonical SharedKey headers lock blob identity, content-length, content-type, and custom metadata in the signature; different blobs produce mathematically different signatures; replay attacks are cryptographically impossible (not just policy-enforced)
+3. **Client uploads with security**: Clients can upload to signed authorization headers without storage credentials
+4. **Local development support**: Azurite works seamlessly with connection strings
+5. **Flexible opt-in**: Applications without client uploads only provide `accountName`
+6. **Clear architecture**: Separation between SDK auth (managed identity) and header signing (shared-key)
+7. **Portable pattern**: Framework works across scenarios; applications can choose their deployment model
+8. **No credential exposure**: Connection strings never leak through application code (only used for signing helpers)
+9. **Self-documenting config**: Env var comments explain why each value is needed
+10. **IaC flexibility**: Generic templates don't force every app to provide both env vars
+11. **Metadata binding in signature**: File characteristics (size, type) bound cryptographically; server doesn't need to validate separately
 
 ### Neutral Consequences
 
 1. **Two env vars required for full feature set**: Acceptable because they serve different purposes (clear in docs)
 2. **Framework precedence rule**: Connection string takes precedence when both provided (documented in JSDoc)
-3. **Test complexity slightly increased**: Must mock both auth paths (worth the safety verification)
+3. **Test complexity slightly increased**: Must mock both auth paths (worth the security verification)
+4. **Canonical string building**: More complex than simple SAS tokens, but provides cryptographic guarantees
 
 ### Negative Consequences
 
@@ -486,8 +614,11 @@ export const blobStorageConfig = {
    - Consumer can choose not to use client uploads and not require the env var
 2. **Some deployment scenarios require connection string format knowledge** (parsing connection strings)
    - Mitigated by clear error messages and documentation
-3. **Signing without connection string fails at runtime** (not compile-time)
+3. **Auth headers without connection string fails at runtime** (not compile-time)
    - Mitigated by clear error messages; good fit for optional feature
+4. **Canonical string format is strict**: Must match Azure Storage specification exactly
+   - Mitigated by comprehensive tests verifying against Azure specification and integration tests with Azurite
+
 
 ## Validation
 
@@ -571,8 +702,35 @@ If migrating from explicit shared-key auth:
 
 ## References
 
+### Azure Storage Documentation
+- [Azure Storage Services REST API Authorization](https://learn.microsoft.com/en-us/rest/api/storageservices/authorize-with-shared-key) - Canonical string specification and HMAC-SHA256 signing
 - [Azure Blob Storage authentication](https://learn.microsoft.com/en-us/azure/storage/blobs/authorize-access-azure-blob-storage)
 - [Managed Identity best practices](https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview)
-- [SAS token generation](https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview)
+- [SAS token generation](https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview) (for read-only file viewing)
 - [Azurite emulation](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite)
 - [Azure SDK DefaultAzureCredential](https://learn.microsoft.com/en-us/javascript/api/%40azure/identity/defaultazurecredential)
+
+### Implementation
+
+#### Framework Implementation (@cellix/service-blob-storage)
+- **AuthHeaderGenerator** (`src/auth-header-generator.ts`): HMAC-SHA256 signature generation with canonical string building per Azure spec
+- **ClientUploadSigner** (`src/client-upload-signer.ts`): Public API for creating canonical SharedKey auth headers (`createBlobWriteAuthorizationHeader`, `createBlobReadAuthorizationHeader`)
+- **ServiceBlobStorage** (`src/service-blob-storage.ts`): Dual-auth framework service supporting both managed identity (SDK) and SharedKey (signing)
+- **Interfaces** (`src/interfaces.ts`): Type definitions for auth header requests and responses
+
+#### Security Test Suite
+- **client-upload-signer.auth-header.test.ts**: 
+  - 12 tests for auth header generation and deterministic signatures
+  - **7 security tests** (metadata-locking scenarios):
+    - Different blob names → different signatures
+    - Different containers → different signatures
+    - Different content-length → different signatures
+    - Different content-type → different signatures
+    - Different metadata values → different signatures
+    - Different HTTP methods → different signatures
+    - Content-length mismatch detection
+  - All tests verify cryptographic security properties per Azure spec
+
+#### Application Integration (@ocom/service-blob-storage)
+- **ClientUploadService**: Adapter implementing narrower interface for type-safe client uploads
+- **blob-storage.contract.ts**: OCOM-specific contract defining what consumers should depend on

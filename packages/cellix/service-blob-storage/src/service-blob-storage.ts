@@ -1,8 +1,8 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
-import { BlobServiceClient, type BlobUploadCommonResponse } from '@azure/storage-blob';
+import { BlobSASPermissions, BlobServiceClient, type BlobUploadCommonResponse, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob';
 import type { ServiceBase } from '@cellix/api-services-spec';
-import { ClientUploadSigner } from './client-upload-signer.ts';
-import type { BlobAddress, BlobListItem, BlobStorage, CreateBlobSasUrlRequest, CreateContainerSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from './interfaces.ts';
+import { getConnectionStringValue } from './connection-string.ts';
+import type { BlobAddress, BlobListItem, BlobStorage, CreateBlobSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from './interfaces.ts';
 
 /**
  * Options for constructing the framework blob-storage service.
@@ -62,7 +62,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	private readonly accountName: string | undefined;
 	private readonly credential: TokenCredential | undefined;
 	private blobServiceClientInternal: BlobServiceClient | undefined;
-	private clientUploadSignerInternal: ClientUploadSigner | undefined;
+	private sharedKeyCredentialInternal: StorageSharedKeyCredential | undefined;
 
 	constructor(options: ServiceBlobStorageOptions) {
 		this.connectionString = options.connectionString;
@@ -77,7 +77,14 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		// If a connection string is present (Azurite/local dev), use it for the BlobServiceClient
 		if (this.connectionString) {
 			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(this.connectionString);
-			this.clientUploadSignerInternal = new ClientUploadSigner(this.connectionString);
+
+			// Extract shared key credential for SAS generation
+			const accountName = getConnectionStringValue(this.connectionString, 'AccountName');
+			const accountKey = getConnectionStringValue(this.connectionString, 'AccountKey');
+			if (accountName && accountKey) {
+				this.sharedKeyCredentialInternal = new StorageSharedKeyCredential(accountName, accountKey);
+			}
+
 			return Promise.resolve(this);
 		}
 
@@ -99,7 +106,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		}
 
 		this.blobServiceClientInternal = undefined;
-		this.clientUploadSignerInternal = undefined;
+		this.sharedKeyCredentialInternal = undefined;
 		return Promise.resolve();
 	}
 
@@ -134,26 +141,22 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		return blobs;
 	}
 
-	public createBlobReadSasUrl(request: CreateBlobSasUrlRequest): Promise<string> {
-		// Delegate to signer if available
-		if (!this.clientUploadSignerInternal) {
-			return Promise.reject(new Error('SAS generation requires a connection string - not configured'));
+	public generateReadSasToken(request: CreateBlobSasUrlRequest): Promise<string> {
+		if (!this.sharedKeyCredentialInternal) {
+			return Promise.reject(new Error('SAS token generation requires a connection string with AccountKey - not configured'));
 		}
-		return this.clientUploadSignerInternal.createBlobReadSasUrl(request);
-	}
 
-	public createBlobWriteSasUrl(request: CreateBlobSasUrlRequest): Promise<string> {
-		if (!this.clientUploadSignerInternal) {
-			return Promise.reject(new Error('SAS generation requires a connection string - not configured'));
-		}
-		return this.clientUploadSignerInternal.createBlobWriteSasUrl(request);
-	}
+		const sas = generateBlobSASQueryParameters(
+			{
+				containerName: request.containerName,
+				blobName: request.blobName,
+				expiresOn: request.expiresOn,
+				permissions: BlobSASPermissions.parse('r'),
+			},
+			this.sharedKeyCredentialInternal,
+		).toString();
 
-	public createContainerListSasUrl(request: CreateContainerSasUrlRequest): Promise<string> {
-		if (!this.clientUploadSignerInternal) {
-			return Promise.reject(new Error('SAS generation requires a connection string - not configured'));
-		}
-		return this.clientUploadSignerInternal.createContainerListSasUrl(request);
+		return Promise.resolve(sas);
 	}
 
 	/**
