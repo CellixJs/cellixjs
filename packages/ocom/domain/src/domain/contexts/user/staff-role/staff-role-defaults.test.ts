@@ -59,6 +59,7 @@ function makeBaseProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps 
 		id: 'role-1',
 		roleName: 'Support',
 		isDefault: false,
+		enterpriseAppRole: '',
 		permissions: emptyPermissions as unknown as StaffRoleProps['permissions'],
 		roleType: 'staff-role',
 		createdAt: new Date(),

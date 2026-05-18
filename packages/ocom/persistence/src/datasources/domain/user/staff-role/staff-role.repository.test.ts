@@ -87,8 +87,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			findById: vi.fn((id: string) => ({
 				exec: vi.fn(async () => (id === String(staffRoleDoc._id) ? staffRoleDoc : null)),
 			})),
-			findOne: vi.fn((query: { roleName: string }) => ({
-				exec: vi.fn(async () => (query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null)),
+			findOne: vi.fn((query: { roleName?: string; isDefault?: boolean; enterpriseAppRole?: string }) => ({
+				exec: vi.fn(() => {
+					if (query.enterpriseAppRole !== undefined) {
+						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && query.isDefault === staffRoleDoc.isDefault
+							? staffRoleDoc
+							: null;
+					}
+					return query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null;
+				}),
 			})),
 			prototype: {},
 		});
