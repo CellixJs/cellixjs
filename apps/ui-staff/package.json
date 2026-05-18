@@ -49,6 +49,7 @@
 		"tailwindcss": "^3.4.17",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+        "vite-plugin-node-polyfills": "catalog:"
 	}
 }
