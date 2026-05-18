@@ -88,6 +88,7 @@ vi.mock('./cellix.ts', () => ({
 }));
 vi.mock('@ocom/service-blob-storage', () => ({
 	ServiceBlobStorage: MockServiceBlobStorage,
+	ServiceBlobStorageClientUpload: MockServiceBlobStorageClientUpload,
 }));
 vi.mock('@ocom/service-mongoose', () => ({
 	ServiceMongoose: MockServiceMongoose,
