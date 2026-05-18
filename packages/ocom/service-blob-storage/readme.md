@@ -4,12 +4,12 @@ OwnerCommunity application adapter for blob storage with client-upload support v
 
 ## Overview
 
-This package provides the application-facing blob storage contract exposed through `ApiContext`. It wraps `@cellix/service-blob-storage` and:
+This package provides the application-facing blob storage contract exposed through `ApiContext`. It wraps `@cellix/service-blob-storage` with a **dual-service architecture** for clean separation of concerns:
 
-- Implements **managed identity** for secure SDK operations (production best practice)
-- Provides **signed SAS URLs** for client uploads (when connection string configured)
-- Exposes a narrow, application-specific interface: `createUploadUrl()` and `createReadUrl()`
-- Keeps raw framework service details internal (isolation of concerns)
+- **SDK Service**: Uses managed identity (DefaultAzureCredential) for secure blob operations
+- **SAS Signing Service**: Optionally uses connection string for generating signed SAS URLs (when client uploads needed)
+
+The adapter exposes a narrow, application-specific interface: `createUploadUrl()` and `createReadUrl()`.
 
 ## Client Uploads: The Use Case
 
@@ -27,6 +27,49 @@ When a member uploads their avatar or a community uploads a document, the applic
    - Client receives URL and uploads directly to Azure (server doesn't proxy bytes)
    - Azure validates signature and constraints; rejects unauthorized uploads
 
+## Architecture: Dual Services Pattern
+
+The adapter manages two independent framework services internally:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  OCOM ServiceBlobStorage Adapter                        │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  ┌──────────────────────┐  ┌──────────────────────┐    │
+│  │  SDK Service         │  │ SAS Signing Service  │    │
+│  │  (Managed Identity)  │  │ (Connection String)  │    │
+│  │                      │  │                      │    │
+│  │ • uploadText()       │  │ • createUploadUrl()  │    │
+│  │ • uploadStream()     │  │ • createReadUrl()    │    │
+│  │ • listBlobs()        │  │                      │    │
+│  │ • deleteBlob()       │  │ (Only if needed)     │    │
+│  └──────────────────────┘  └──────────────────────┘    │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Why two services?**
+
+- **SDK Service** (managed identity): Handles all blob operations securely using managed identity
+  - No credentials in code
+  - Auditable via Azure Monitor
+  - Production best practice
+  - Always present
+  
+- **SAS Signing Service** (connection string): Generates signed URLs using shared-key credentials
+  - SAS signing requires the AccountKey (can't be done via managed identity)
+  - Connection string used **only for signature generation**, not for blob operations
+  - Isolated responsibility: blob ops ≠ URL signing
+  - Optional: only created if `connectionString` provided
+
+**Benefits**:
+- **Single responsibility**: Each service does one thing
+- **Explicit separation**: No mixing of authentication modes
+- **Opt-in SAS signing**: Applications without client uploads don't need/pay for the signing service
+- **Testable**: Each service can be mocked independently
+- **Clear intent**: Code shows exactly what authentication each operation uses
+
 ## Service Contract
 
 ```ts
@@ -34,12 +77,14 @@ interface ServiceBlobStorage {
   /**
    * Generate a URL for uploading a blob client-side.
    * URL includes a signed SAS token with write-only permissions and time limit.
+   * Only available if connectionString was provided in options.
    */
   createUploadUrl(request: CreateBlobAccessUrlRequest): Promise<string>;
 
   /**
    * Generate a URL for reading a blob client-side.
    * URL includes a signed SAS token with read-only permissions and time limit.
+   * Only available if connectionString was provided in options.
    */
   createReadUrl(request: CreateBlobAccessUrlRequest): Promise<string>;
 
@@ -48,38 +93,17 @@ interface ServiceBlobStorage {
 }
 ```
 
-## Architecture: Dual Services
-
-Internally, the adapter manages two framework services to separate concerns:
-
-```ts
-// SDK operations: Uses managed identity (production-secure)
-private readonly frameworkService: BlobStorage;
-
-// SAS signing: Uses connection string (for signature generation only)
-// The connection string is passed separately and never used for SDK auth
-```
-
-**Why two services?**
-
-- **Framework service** (managed identity mode): Handles all blob operations securely using managed identity
-  - No credentials in code
-  - Auditable via Azure Monitor
-  - Production best practice
-  
-- **SAS signing** (connection string mode): Generates signed URLs using shared-key credentials
-  - SAS signing requires the AccountKey (can't be done via managed identity)
-  - Connection string used only for signature generation, not for blob operations
-  - Isolated responsibility: SDK operations ≠ URL signing
-
 ## Configuration
 
 **Environment Variables** (set by deployment):
 ```bash
 # For all environments: account name for blob URL construction
+# Used by the SDK service (managed identity)
 AZURE_STORAGE_ACCOUNT_NAME=mycompany
 
 # For all environments: connection string for SAS URL signing
+# Only passed to the SAS signing service (when provided)
+# SDK service does NOT receive this; it uses managed identity
 AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https://...AccountKey=...
 ```
 
@@ -92,6 +116,23 @@ const service = new ServiceBlobStorage({
 });
 
 cellix.registerInfrastructureService(service);
+```
+
+**What Happens Internally**:
+```ts
+// Constructor creates two services:
+
+// 1. SDK service (always)
+this.sdkService = new CellixServiceBlobStorage({
+  accountName: 'mycompany',
+  // NO connectionString here! Uses managed identity
+});
+
+// 2. SAS signing service (if connectionString provided)
+this.sasSigningService = new CellixServiceBlobStorage({
+  connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],
+  // Separate service, isolated for signing only
+});
 ```
 
 **Exposed in ApiContext**:
@@ -158,31 +199,34 @@ if (response.ok) {
 
 ## Authentication Strategy: Managed Identity in Production
 
-| Environment | SDK Auth | SAS Signing | Why |
+| Environment | SDK Service | SAS Signing | Why |
 |---|---|---|---|
-| **Local (Azurite)** | Connection String | Connection String | Emulator doesn't support managed identity |
-| **Production** | Managed Identity | Connection String | MI secure for ops; shared-key only for signatures |
-| **CI/CD Tests** | Connection String | Connection String | Tests use Azurite |
+| **Local (Azurite)** | Connection String | Connection String | Emulator doesn't support managed identity; both services use connection string |
+| **Production** | Managed Identity | Connection String | MI for ops (secure); shared-key only for signatures (isolated) |
+| **CI/CD Tests** | Connection String | Connection String | Tests use Azurite or mock services |
 
-**Result**: Same code runs everywhere; authentication strategy determined by environment, not by code changes.
+**Result**: Same code runs everywhere; authentication determined by configuration, not code changes.
 
 ## Opt-In Pattern: Connection String is Optional
 
 If an application doesn't need client uploads (all uploads server-side):
 
 ```ts
-// Can provide only accountName
+// Provide only accountName
 const service = new ServiceBlobStorage({
   accountName: 'mycompany',
   // connectionString: omitted
 });
 
 // SDK operations work (managed identity)
-await service.uploadText(...); // ✅ Works
+// Server-side upload would look like:
+// await blobStorage.uploadText(...) 
+// BUT: This adapter doesn't expose uploadText (it only exposes SAS methods)
+// For server uploads, use the framework service directly
 
-// SAS operations fail (expected)
+// SAS operations fail with clear error
 await service.createUploadUrl(...); 
-// ❌ Throws: "Cannot create SAS URL without connection string configured"
+// ❌ Error: "Client uploads with SAS signing are not configured..."
 ```
 
 Connection string is **required only when client uploads are needed**.
@@ -195,13 +239,13 @@ const service = new ServiceBlobStorage({ accountName: 'acct' });
 await service.createUploadUrl(...);
 // ❌ Error: "OCOM ServiceBlobStorage adapter is not started - cannot access service"
 
-// No connection string for SAS
+// No connection string for SAS (SAS signing not configured)
 const service = new ServiceBlobStorage({ accountName: 'acct' });
 await service.startUp();
 await service.createUploadUrl(...);
-// ❌ Error: "Cannot create SAS URL without connection string configured"
+// ❌ Error: "Client uploads with SAS signing are not configured..."
 
-// Valid call
+// Valid call (both accountName and connectionString provided)
 const service = new ServiceBlobStorage({ 
   accountName: 'acct',
   connectionString: 'DefaultEndpointsProtocol=...'
@@ -242,8 +286,8 @@ export class CommunityDocumentService {
 
 ## Testing
 
+**Unit tests** (with mocks):
 ```ts
-// Mock for unit tests
 const mockBlobStorage: Partial<ServiceBlobStorage> = {
   createUploadUrl: vi.fn().mockResolvedValue('https://test-url'),
   createReadUrl: vi.fn().mockResolvedValue('https://test-url'),
@@ -252,13 +296,14 @@ const mockBlobStorage: Partial<ServiceBlobStorage> = {
 };
 ```
 
+**Integration tests** (with Azurite):
 ```ts
-// Integration tests can use Azurite
 import { startAzuriteBlobServer } from '@cellix/service-blob-storage/test-support';
 
 beforeAll(async () => {
   azurite = await startAzuriteBlobServer();
   service = new ServiceBlobStorage({
+    accountName: 'devstoreaccount1',
     connectionString: azurite.connectionString,
   });
   await service.startUp();
@@ -267,6 +312,15 @@ beforeAll(async () => {
 afterAll(async () => {
   await service.shutDown();
   await azurite.stop();
+});
+
+it('generates valid SAS URLs', async () => {
+  const uploadUrl = await service.createUploadUrl({
+    containerName: 'test-container',
+    blobName: 'test.txt',
+    expiresOn: new Date(Date.now() + 5 * 60 * 1000),
+  });
+  expect(uploadUrl).toMatch(/sv=.*/); // SAS token present
 });
 ```
 
