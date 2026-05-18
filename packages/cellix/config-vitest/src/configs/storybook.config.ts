@@ -38,6 +38,7 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
 					test: {
 						name: 'unit',
 						include: [...defaultTestIncludePatterns],
+						exclude: ['**/node_modules/**', 'src/archunit-tests/**'],
 						environment: 'jsdom',
 						typecheck: createDefaultTypecheckConfig(),
 					},
@@ -79,6 +80,7 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
 					'**/coverage/**',
 					'**/*.d.ts',
 					'dist/**',
+					'src/archunit-tests/**',
 					...(opts.additionalCoverageExclude ?? []),
 				],
 			},

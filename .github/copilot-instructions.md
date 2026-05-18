@@ -162,7 +162,7 @@ Frontend environment variables follow a strict naming convention to enable pipel
 - Portal-specific: VITE_APP_<PORTAL_NAME>_<ENV_VAR_NAME> (e.g., VITE_APP_UI_COMMUNITY_B2C_CLIENTID)
 - Shared/common: VITE_COMMON_<ENV_NAME> (e.g., VITE_COMMON_API_ENDPOINT)
 
-See apps/docs/docs/decisions/0031-ui-env-vars.md for full details and examples. Agents and automated tooling MUST validate generated or modified VITE_* names using `packages/ocom/archunit-tests/src/validate-env-names.cjs` and must not introduce non-conforming names. The canonical enforcement test lives in packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts.
+See apps/docs/docs/decisions/0031-ui-env-vars.md for full details and examples. Agents and automated tooling MUST validate generated or modified VITE_* names using `packages/ocom-verification/archunit-tests/src/validate-env-names.cjs` and must not introduce non-conforming names. The canonical enforcement test lives in packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts.
 
 Example guidance for agents:
 - If a variable is specific to the Community portal, name it VITE_APP_UI_COMMUNITY_<NAME>
@@ -174,7 +174,7 @@ Rationale: this naming enables discovery of variable names by CI (azure-pipeline
 
 When working on pipeline templates, new portals, Bicep configurations, or env-var rules (Dark Software Factory / AI FIRST layers), you MUST ensure evidence artifacts are generated:
 
-- **Env-var compliance**: Every run of the ArchUnit env-var naming test generates `packages/ocom/archunit-tests/build-artifacts/env-var-compliance-evidence.json`. This file is published as the `env-var-evidence` pipeline artifact in CI.
+- **Env-var compliance**: Every run of the ArchUnit env-var naming test generates `packages/ocom-verification/archunit-tests/build-artifacts/env-var-compliance-evidence.json`. This file is published as the `env-var-evidence` pipeline artifact in CI.
 - **Portal additions**: When adding a new portal, create `apps/docs/docs/portals/{portal-name}/addition-evidence.md` following the template at `apps/docs/docs/portals/ui-staff/addition-evidence.md`.
 - These artifacts are machine-readable and lightweight — they add no PR review burden or local dev friction.
 

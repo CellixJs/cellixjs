@@ -90,7 +90,7 @@ Version bumped from `1.0.0` → `1.0.3` to reflect the TS 7.0 configuration chan
 
 ### 8. Archunit-tests use the standard `typescript` package
 
-The archunit-tests packages (`@ocom/archunit-tests`, `@cellix/archunit-tests`) use the TypeScript compiler API programmatically (e.g., `ts.createSourceFile`, `ts.readConfigFile`). They import from `typescript` which resolves to the JS-based TypeScript 6.0.3 compiler via the catalog.
+The archunit-tests packages (`@ocom-verification/archunit-tests`, `@cellix/archunit-tests`) use the TypeScript compiler API programmatically (e.g., `ts.createSourceFile`, `ts.readConfigFile`). They import from `typescript` which resolves to the JS-based TypeScript 6.0.3 compiler via the catalog.
 
 ## tsgo Status
 

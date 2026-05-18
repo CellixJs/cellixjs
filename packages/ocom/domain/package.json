@@ -25,6 +25,7 @@
 		"test:serenity": "cucumber-js",
 		"test:unit": "vitest run --exclude tests/integration/**/*.test.ts --silent --reporter=dot",
 		"test:watch": "vitest",
+		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"lint": "biome lint",
 		"clean": "rimraf dist"
 	},
@@ -34,11 +35,13 @@
 		"@lucaspaganini/value-objects": "^1.3.1"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@cucumber/cucumber": "catalog:",
 		"@cucumber/node": "catalog:",
 		"@cucumber/pretty-formatter": "catalog:",
+		"@ocom-verification/archunit-tests": "workspace:*",
 		"@serenity-js/assertions": "catalog:",
 		"@serenity-js/console-reporter": "catalog:",
 		"@serenity-js/core": "catalog:",

@@ -3,7 +3,31 @@ import { buildOidcRouter } from './router.ts';
 import type { MockOAuth2Manager, MockOAuth2PortalConfig, MockOAuth2Registration, MockOAuth2ServerHandle } from './types.ts';
 import { normalizeBaseUrl, SAFE_NAME_RE } from './utils.ts';
 
-export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string }): MockOAuth2Manager {
+/**
+ * Creates a reusable mock OAuth2 manager that can register multiple named portal
+ * configurations on one Express server.
+ *
+ * @param serverConfig - Shared server configuration including `port`, optional `host`,
+ * externally visible `baseUrl`, and optional `trustProxy`. Set `trustProxy: true` to
+ * trust a single proxy hop for `X-Forwarded-*` headers, or `trustProxy: false` to disable
+ * proxy trust entirely. When `trustProxy` is omitted, it defaults to enabled only for
+ * loopback hosts (`127.0.0.1`, `localhost`, `::1`) inferred from `host` or `baseUrl`;
+ * otherwise proxy headers are not trusted.
+ * @returns A manager that lazily starts the server on first registration and can stop all registrations.
+ *
+ * @example
+ * ```ts
+ * const manager = createMockOAuth2Manager({
+ *   port: 38200,
+ *   host: '127.0.0.1',
+ *   baseUrl: 'http://127.0.0.1:38200',
+ * });
+ *
+ * await manager.register('portal', config);
+ * await manager.stopAll();
+ * ```
+ */
+export function createMockOAuth2Manager(serverConfig: { port: number; host?: string; baseUrl: string; trustProxy?: boolean }): MockOAuth2Manager {
 	let app: express.Express | null = null;
 	let serverHandle: MockOAuth2ServerHandle | null = null;
 	let startupPromise: Promise<MockOAuth2ServerHandle> | null = null;
@@ -18,6 +42,25 @@ export function createMockOAuth2Manager(serverConfig: { port: number; host?: str
 		}
 		if (!app) {
 			app = express();
+			// Trust proxy is enabled explicitly (trustProxy: true), or by default for local loopback
+			// hosts (127.0.0.1, localhost, ::1). An explicit trustProxy: false disables it entirely.
+			// Trusting X-Forwarded-* headers can be a security and logging concern when running
+			// outside a trusted proxy, so defaults are conservative.
+			let shouldTrust = false;
+			if (serverConfig.trustProxy === true) {
+				shouldTrust = true;
+			} else if (serverConfig.trustProxy === false) {
+				shouldTrust = false;
+			} else {
+				// trustProxy is undefined; infer from host being loopback
+				try {
+					const host = serverConfig.host ?? new URL(serverConfig.baseUrl).hostname;
+					if (host === '127.0.0.1' || host === 'localhost' || host === '::1') shouldTrust = true;
+				} catch {
+					// Ignore URL parse errors and keep default (no trust)
+				}
+			}
+			if (shouldTrust) app.set('trust proxy', 1);
 			app.disable('x-powered-by');
 		}
 		const gen = startGeneration;

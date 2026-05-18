@@ -9,6 +9,8 @@
 		"jsx": "react-jsx",
 		"lib": ["ES2023", "DOM"],
 		"skipLibCheck": true,
+		"outDir": "dist",
+		"rootDir": "src",
 		"noEmit": true,
 		"types": ["vite/client"]
 	},
