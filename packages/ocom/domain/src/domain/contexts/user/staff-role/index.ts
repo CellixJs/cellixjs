@@ -5,6 +5,7 @@ export type {
 } from './staff-role.ts';
 export { StaffRole } from './staff-role.ts';
 export type { StaffRoleUnitOfWork } from './staff-role.uow.ts';
+export * as StaffRoleValueObjects from './staff-role.value-objects.ts';
 export type {
 	StaffRoleCommunityPermissionsEntityReference,
 	StaffRoleCommunityPermissionsProps,

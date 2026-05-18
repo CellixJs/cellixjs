@@ -10,6 +10,7 @@ import { StaffRolePermissions, type StaffRolePermissionsEntityReference, type St
 export interface StaffRoleProps extends DomainEntityProps {
 	roleName: string;
 	isDefault: boolean;
+	enterpriseAppRole: string;
 	readonly permissions: StaffRolePermissionsProps;
 	readonly roleType: string | null;
 	readonly createdAt: Date;
@@ -50,6 +51,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
 		role.roleName = 'Default Case Manager';
+        role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.CaseManager;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = true;
 		role.permissions.financePermissions.canManageFinance = false;
@@ -63,6 +65,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
 		role.roleName = 'Default Service Line Owner';
+        role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.ServiceLineOwner;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = true;
 		role.permissions.financePermissions.canManageFinance = false;
@@ -76,6 +79,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
 		role.roleName = 'Default Finance';
+        role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.Finance;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = false;
 		role.permissions.financePermissions.canManageFinance = true;
@@ -89,6 +93,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		const role = new StaffRole(newProps, passport);
 		role.isNew = true;
 		role.roleName = 'Default Tech Admin';
+        role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.TechAdmin;
 		role.isDefault = true;
 		// Tech Admins are implicit managers of all areas
 		role.permissions.communityPermissions.canManageCommunities = true;
@@ -123,6 +128,18 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		}
 		this.props.roleName = new ValueObjects.RoleName(roleName).valueOf();
 	}
+
+    get enterpriseAppRole() {
+        return this.props.enterpriseAppRole;
+    }
+
+    set enterpriseAppRole(enterpriseAppRole: string) {
+        if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
+            throw new PermissionError('Cannot set enterprise app role');
+        }
+    this.props.enterpriseAppRole = new ValueObjects.EnterpriseAppRole(enterpriseAppRole).valueOf();
+    }
+
 	get isDefault() {
 		return this.props.isDefault;
 	}

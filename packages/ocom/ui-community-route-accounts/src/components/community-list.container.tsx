@@ -2,7 +2,6 @@ import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import {
 	AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-	AccountsCommunityListContainerCurrentStaffUserDocument,
 	type AccountsCommunityListContainerCommunityFieldsFragment,
 	type AccountsCommunityListContainerMemberFieldsFragment,
 	AccountsCommunityListContainerMembersForCurrentEndUserDocument,
@@ -19,9 +18,6 @@ export const CommunityListContainer: React.FC = () => {
 	} = useQuery(AccountsCommunityListContainerMembersForCurrentEndUserDocument, {
 		fetchPolicy: 'network-only',
 	});
-
-	const { data: staffUserData } = useQuery(AccountsCommunityListContainerCurrentStaffUserDocument);
-	const canCreateCommunity = staffUserData?.currentStaffUserAndCreateIfNotExists?.role?.permissions?.communityPermissions?.canManageCommunities ?? false;
 
 	const members: AccountsCommunityListContainerMemberFieldsFragment[][] = [];
 	if (membersData?.membersForCurrentEndUser && membersData?.membersForCurrentEndUser.length > 0 && communityData?.communitiesForCurrentEndUser) {
@@ -40,7 +36,6 @@ export const CommunityListContainer: React.FC = () => {
 						communities: communityData?.communitiesForCurrentEndUser as AccountsCommunityListContainerCommunityFieldsFragment[],
 						members: members as AccountsCommunityListContainerMemberFieldsFragment[][],
 					}}
-					canCreateCommunity={canCreateCommunity}
 				/>
 			}
 			noDataComponent={<div>No Data...</div>}
