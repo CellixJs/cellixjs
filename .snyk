@@ -76,18 +76,28 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
         expires: '2026-06-28T00:00:00.000Z'
         created: '2026-05-11T10:00:00.000Z'
+  'SNYK-JS-QS-16721866':
+    - '* > qs@6.15.0':
+        reason: 'Transitive dependency; override changed shared dependency resolution and broke CI coverage validation.'
+        expires: '2026-06-18T00:00:00.000Z'
+        created: '2026-05-18T11:04:00.000Z'
+  'SNYK-JS-WS-16722635':
+    - '* > ws@8.20.0':
+        reason: 'Transitive dependency; override changed shared dependency resolution and broke CI coverage validation.'
+        expires: '2026-06-18T00:00:00.000Z'
+        created: '2026-05-18T11:04:00.000Z'
   'SNYK-JS-AI-16734889':
     - '* > ai@5.0.105':
-        reason: 'Transitive dependency in the Docusaurus Algolia search UI; Snyk reports no fixed upgrade or patch. Accepted temporarily until upstream releases a non-vulnerable path.'
-        expires: '2026-08-18T00:00:00.000Z'
-        created: '2026-05-18T00:00:00.000Z'
+        reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
+        expires: '2026-06-18T00:00:00.000Z'
+        created: '2026-05-18T11:04:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16734888':
     - '* > @ai-sdk/provider-utils@3.0.18':
-        reason: 'Transitive dependency in the Docusaurus Algolia search UI; Snyk reports no fixed upgrade or patch. Accepted temporarily until upstream releases a non-vulnerable path.'
-        expires: '2026-08-18T00:00:00.000Z'
-        created: '2026-05-18T00:00:00.000Z'
+        reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
+        expires: '2026-06-18T00:00:00.000Z'
+        created: '2026-05-18T11:04:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16735288':
     - '* > @ai-sdk/provider-utils@3.0.18':
-        reason: 'Transitive dependency in the Docusaurus Algolia search UI; Snyk reports no fixed upgrade or patch. Accepted temporarily until upstream releases a non-vulnerable path.'
-        expires: '2026-08-18T00:00:00.000Z'
-        created: '2026-05-18T00:00:00.000Z'
+        reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
+        expires: '2026-06-18T00:00:00.000Z'
+        created: '2026-05-18T11:04:00.000Z'
