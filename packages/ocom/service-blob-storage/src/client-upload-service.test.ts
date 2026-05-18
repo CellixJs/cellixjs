@@ -1,10 +1,30 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ServiceBlobStorageClientUpload } from './client-upload-service.ts';
+import { ServiceBlobStorageClientUpload } from './client-upload-service.js';
 
 vi.mock('@cellix/service-blob-storage', () => ({
 	ClientUploadSigner: vi.fn().mockImplementation(() => ({
-		createBlobWriteSasUrl: vi.fn().mockResolvedValue('https://example.blob.core.windows.net/container/blob?sv=2021-06-08&sig=test'),
-		createBlobReadSasUrl: vi.fn().mockResolvedValue('https://example.blob.core.windows.net/container/blob?sv=2021-06-08&sig=test'),
+		createBlobWriteAuthorizationHeader: vi.fn().mockResolvedValue({
+			url: 'http://127.0.0.1:10000/devstoreaccount1/test-container/test-blob.txt',
+			authorizationHeader: 'SharedKey devstoreaccount1:signature123==',
+			headers: {
+				'Content-Type': 'application/octet-stream',
+				'Content-Length': '1024',
+				'x-ms-blob-type': 'BlockBlob',
+				'x-ms-version': '2021-04-10',
+				'x-ms-date': new Date().toUTCString(),
+			},
+		}),
+		createBlobReadAuthorizationHeader: vi.fn().mockResolvedValue({
+			url: 'http://127.0.0.1:10000/devstoreaccount1/test-container/test-blob.txt',
+			authorizationHeader: 'SharedKey devstoreaccount1:signature123==',
+			headers: {
+				'Content-Type': 'application/octet-stream',
+				'Content-Length': '1024',
+				'x-ms-blob-type': 'BlockBlob',
+				'x-ms-version': '2021-04-10',
+				'x-ms-date': new Date().toUTCString(),
+			},
+		}),
 	})),
 }));
 
@@ -34,23 +54,25 @@ describe('ServiceBlobStorageClientUpload', () => {
 		await expect(service.shutDown()).resolves.toBeUndefined();
 	});
 
-	it('should delegate createUploadUrl to signer', async () => {
+	it('should delegate createUploadUrl to signer and return auth header', async () => {
 		const service = new ServiceBlobStorageClientUpload(validConnectionString);
-		const expiresOn = new Date(Date.now() + 3600000); // 1 hour from now
-		const request = { containerName: 'uploads', blobName: 'test.txt', expiresOn };
+		const request = { containerName: 'uploads', blobName: 'test.txt', contentLength: 1024, contentType: 'application/octet-stream' };
 
 		const result = await service.createUploadUrl(request);
-		expect(typeof result).toBe('string');
-		expect(result).toContain('sv='); // SAS URL should contain SAS parameters
+		expect(result).toHaveProperty('url');
+		expect(result).toHaveProperty('authorizationHeader');
+		expect(result).toHaveProperty('headers');
+		expect(result.authorizationHeader).toMatch(/^SharedKey /);
 	});
 
-	it('should delegate createReadUrl to signer', async () => {
+	it('should delegate createReadUrl to signer and return auth header', async () => {
 		const service = new ServiceBlobStorageClientUpload(validConnectionString);
-		const expiresOn = new Date(Date.now() + 3600000); // 1 hour from now
-		const request = { containerName: 'uploads', blobName: 'test.txt', expiresOn };
+		const request = { containerName: 'uploads', blobName: 'test.txt', contentLength: 1024, contentType: 'application/octet-stream' };
 
 		const result = await service.createReadUrl(request);
-		expect(typeof result).toBe('string');
-		expect(result).toContain('sv='); // SAS URL should contain SAS parameters
+		expect(result).toHaveProperty('url');
+		expect(result).toHaveProperty('authorizationHeader');
+		expect(result).toHaveProperty('headers');
+		expect(result.authorizationHeader).toMatch(/^SharedKey /);
 	});
 });

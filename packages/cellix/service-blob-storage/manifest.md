@@ -23,6 +23,7 @@
 - The supported public API is the package root import: `@cellix/service-blob-storage`
 - Public exports are limited to the service class plus request/response contracts needed by consumers and adapters
 - Azure SDK implementation details stay internal even though the package depends on `@azure/storage-blob`
+- Public request/response types are exported from the package root (declared internally in src/interfaces.ts). Import types from the package entrypoint rather than internal file paths.
 
 ## Core concepts
 

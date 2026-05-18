@@ -1,6 +1,6 @@
-import type { BlobAddress, BlobListItem, CreateBlobSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from '@cellix/service-blob-storage';
+import type { BlobAddress, BlobListItem, BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest, ListBlobsRequest, UploadTextBlobRequest } from '@cellix/service-blob-storage';
 
-export type CreateBlobAccessUrlRequest = CreateBlobSasUrlRequest;
+export type CreateBlobAccessUrlRequest = CreateBlobAuthorizationHeaderRequest;
 
 /**
  * Operations for server-side blob storage access via managed identity.
@@ -13,10 +13,10 @@ export interface BlobStorageOperations {
 }
 
 /**
- * Operations for generating signed SAS URLs for client-side uploads.
- * Adapter interface over the framework's createBlobWriteSasUrl and createBlobReadSasUrl methods.
+ * Operations for generating signed authorization headers for client-side uploads.
+ * Returns canonical SharedKey authorization headers that lock blob metadata (content type, length).
  */
 export interface ClientUploadService {
-	createUploadUrl(request: CreateBlobAccessUrlRequest): Promise<string>;
-	createReadUrl(request: CreateBlobAccessUrlRequest): Promise<string>;
+	createUploadUrl(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
+	createReadUrl(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
 }

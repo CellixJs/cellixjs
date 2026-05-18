@@ -58,6 +58,38 @@ export interface CreateBlobSasUrlRequest extends BlobAddress {
 }
 
 /**
+ * Request contract for generating a blob-scoped signed authorization header.
+ * Used for client-side direct uploads to Azure Blob Storage with metadata locking.
+ *
+ * @property contentLength - Size of the blob being uploaded, in bytes.
+ * @property contentType - MIME type of the blob (e.g., 'application/json').
+ * @property metadata - Optional blob metadata to store with the upload.
+ */
+export interface CreateBlobAuthorizationHeaderRequest extends BlobAddress {
+	contentLength: number;
+	contentType: string;
+	metadata?: Record<string, string>;
+}
+
+/**
+ * Authorization details for direct client uploads to Azure Blob Storage.
+ * Contains the signed Authorization header and required request information.
+ *
+ * @property url - Direct upload URL to the blob endpoint.
+ * @property authorizationHeader - Complete signed SharedKey authorization header value
+ *           in format "SharedKey accountName:signature". Client uses this directly
+ *           as the Authorization header when making PUT requests to the blob endpoint.
+ * @property headers - Additional headers required for the upload request (Content-Type,
+ *           Content-Length, x-ms-* metadata headers). Client must include all these
+ *           headers in the PUT request for the signature to remain valid.
+ */
+export interface BlobUploadAuthorizationHeader {
+	url: string;
+	authorizationHeader: string;
+	headers: Record<string, string>;
+}
+
+/**
  * Request contract for generating a container-scoped SAS URL.
  *
  * @property containerName - Container to grant access to.

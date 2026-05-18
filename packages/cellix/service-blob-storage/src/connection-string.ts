@@ -62,3 +62,5 @@ function getConnectionStringValue(connectionString: string, key: string): string
 	}
 	return undefined;
 }
+
+export { getConnectionStringValue };

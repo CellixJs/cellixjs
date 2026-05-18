@@ -155,6 +155,18 @@ const uploadUrl = await sasService.createBlobWriteSasUrl({
 
 ## API Surface
 
+### Public Types Export
+
+All public request/response types and interfaces are exported from the package root. Consumers should import types from the package entrypoint instead of referencing internal source files.
+
+```ts
+import type { BlobAddress, UploadTextBlobRequest, CreateBlobSasUrlRequest } from '@cellix/service-blob-storage';
+```
+
+(Internally these types are declared in src/interfaces.ts, but consumers should never import internal file paths.)
+
+
+
 ### Lifecycle
 
 - `async startUp(): Promise<void>` - Initialize blob service client
