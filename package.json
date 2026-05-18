@@ -32,6 +32,7 @@
 		"test:coverage:affected": "turbo run test:coverage test:coverage:acceptance --affected",
 		"test:coverage:merge": "pnpm run test:coverage && pnpm run merge-lcov-reports",
 		"test:e2e": "turbo run test:e2e --filter=@ocom-verification/e2e-tests",
+		"test:e2e:ci": "turbo run test:e2e:ci --filter=@ocom-verification/e2e-tests",
 		"test:acceptance": "turbo run test:acceptance",
 		"merge-lcov-reports": "node build-pipeline/scripts/merge-coverage.js",
 		"test:integration": "turbo run test:integration",

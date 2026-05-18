@@ -291,7 +291,7 @@ stages:
           export NODE_OPTIONS=--max_old_space_size=16384
           export PLAYWRIGHT_BROWSERS_PATH="$(PLAYWRIGHT_BROWSERS_PATH)"
           echo "Running E2E tests..."
-          pnpm run test:e2e
+          pnpm run test:e2e:ci
         workingDirectory: ''
       env:
         TURBO_TELEMETRY_DISABLED: 1
