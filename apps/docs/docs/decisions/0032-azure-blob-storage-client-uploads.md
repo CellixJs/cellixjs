@@ -397,7 +397,49 @@ fetch('https://account.blob.core.windows.net/user-uploads/avatars/user-123.jpg',
 
 **Recommendation**: Use canonical auth headers for security-critical client uploads. Use SAS tokens (optional, via `generateReadSasToken()`) for read-only file viewing (lower sensitivity).
 
-### Framework Service (@cellix/service-blob-storage)
+#### Why Connection Strings Are Required: Security Trade-offs
+
+Connection strings (containing shared keys) are **not ideal** — storing secrets in environment variables is generally a security anti-pattern. However, for client uploads on Azure Blob Storage, canonical SharedKey signatures are **the best security option available**, and they require access to the shared account key.
+
+**All Client Upload Options Available on Azure Storage REST API:**
+
+| Option | Mechanism | Security Posture | Metadata Binding | Drawback |
+|---|---|---|---|---|
+| **1. Shared Key Signatures (Chosen)** | HMAC-SHA256 of canonical string including blob path, metadata, HTTP method | ✓✓✓ Cryptographic, metadata-locked, replay-proof | ✓ Full (path, size, type, metadata) | Requires AccountKey in connection string |
+| **2. SAS Tokens (Time-Based)** | Time-expiration + permissions (Read/Write/Delete) policy | ✓ Time-limited, but weak on metadata | ✗ None (server must validate) | Replay possible across blobs; server-side validation required |
+| **3. User Delegation Key (SAS)** | Azure AD user delegation for SAS token generation | ✓ Azure AD audit trail | ✗ None (permission-based only) | Complex setup; requires advanced Azure AD config; still no metadata binding |
+| **4. Managed Identity with SDK** | DefaultAzureCredential + BlobClient | ✓✓ No secrets, audit trail via RBAC | ✓ Implicit (server-side SDK validation) | Client cannot upload directly (requires server upload endpoint) |
+| **5. Temporary Access Keys** | Generate temporary keys via Azure SDK | ✓ Temporary, narrowly scoped | ✗ Manual server-side validation needed | Requires server to store and validate; added complexity |
+| **6. No Pre-Auth (Open Uploads)** | Client uploads directly to container | ✗ Completely open (anyone can upload anything) | ✗ None | Security nightmare; completely unacceptable |
+
+**Why Shared Key Signatures Win:**
+
+Only **Shared Key Signatures** (option 1) provide:
+- ✓ **Cryptographic replay-attack prevention**: Different blob = mathematically different signature (impossible to forge without the key)
+- ✓ **Metadata-locked authorization**: File size, type, custom metadata bound in signature (client cannot upload different metadata)
+- ✓ **No server-side validation required**: Signature verification failure is cryptographic proof (Azure Storage rejects with 403)
+- ✓ **Standards-based**: Microsoft Azure Storage REST API standard (not a workaround)
+
+**Why Connection Strings Are Acceptable Here:**
+
+1. **Narrow Scoping**: Connection string is used **only for signing** (`AuthHeaderGenerator`), never passed through application code or used for SDK operations
+2. **Isolated Usage**: SDK operations use managed identity (no connection string exposure in most of the codebase)
+3. **Limited Attack Surface**: 
+   - Application code cannot accidentally use the key for wrong operations (framework enforces separation)
+   - Key exposure would only allow **signing** new uploads (not downloading, listing, deleting existing data)
+   - Attacker would need both the connection string AND the ability to craft valid metadata headers
+4. **No Better Alternative**: Every other option either:
+   - Requires server-side validation (adds complexity, reduces cryptographic guarantee)
+   - Doesn't provide metadata binding (allows replay attacks)
+   - Is more operationally complex (User Delegation Key, temporary keys)
+5. **Environment Variable as Necessary Evil**: 
+   - Connection string stored in secret management (Azure Key Vault, deployment secrets)
+   - Never committed to code (`.gitignore` enforces this)
+   - Rotatable by infrastructure team (standard Azure rotation procedures)
+   - Least-privilege RBAC ensures only Function App can access it
+
+**The Principle**: We accept the narrow exposure of storing the shared key in connection string **because** the canonical SharedKey authorization header approach is **objectively the best security solution available** for client-side blob uploads on Azure Storage. The alternative would be weaker security with more server-side validation burden, or more operational complexity.
+
 
 **AuthMode Determination**:
 ```typescript
