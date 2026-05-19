@@ -8,6 +8,7 @@ query StaffRolesForSelect {
 	staffRoles {
 		id
 		roleName
+		enterpriseAppRole
 	}
 }
 
@@ -31,5 +32,6 @@ fragment StaffUserDetailFields on StaffUser {
 	role {
 		id
 		roleName
+		enterpriseAppRole
 	}
 }

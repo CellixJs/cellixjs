@@ -54,9 +54,11 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
         role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.CaseManager;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = true;
+		role.permissions.communityPermissions.canManageStaffRolesAndPermissions = true;
 		role.permissions.financePermissions.canManageFinance = false;
 		role.permissions.techAdminPermissions.canManageTechAdmin = false;
 		role.permissions.userPermissions.canManageUsers = true;
+		role.permissions.userPermissions.canAssignStaffUserRoles = true;
 		role.isNew = false;
 		return role;
 	}
@@ -68,9 +70,11 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
         role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.ServiceLineOwner;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = true;
+		role.permissions.communityPermissions.canManageStaffRolesAndPermissions = true;
 		role.permissions.financePermissions.canManageFinance = false;
 		role.permissions.techAdminPermissions.canManageTechAdmin = false;
 		role.permissions.userPermissions.canManageUsers = true;
+		role.permissions.userPermissions.canAssignStaffUserRoles = true;
 		role.isNew = false;
 		return role;
 	}
@@ -82,9 +86,11 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
         role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.Finance;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = false;
+		role.permissions.communityPermissions.canManageStaffRolesAndPermissions = true;
 		role.permissions.financePermissions.canManageFinance = true;
 		role.permissions.techAdminPermissions.canManageTechAdmin = false;
 		role.permissions.userPermissions.canManageUsers = false;
+		role.permissions.userPermissions.canAssignStaffUserRoles = true;
 		role.isNew = false;
 		return role;
 	}
@@ -102,6 +108,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.permissions.financePermissions.canManageFinance = true;
 		role.permissions.techAdminPermissions.canManageTechAdmin = true;
 		role.permissions.userPermissions.canManageUsers = true;
+		role.permissions.userPermissions.canAssignStaffUserRoles = true;
 		role.isNew = false;
 		return role;
 	}

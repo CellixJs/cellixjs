@@ -134,7 +134,7 @@ export default function App() {
 }
 
 function StaffSection({ identity }: { identity: Parameters<typeof StaffAuthProvider>[0]['value'] }) {
-	const { permissions, user, loading } = useStaffPermissions();
+	const { permissions, enterpriseAppRole, user, loading } = useStaffPermissions();
 
 	if (loading) {
 		return (
@@ -145,7 +145,7 @@ function StaffSection({ identity }: { identity: Parameters<typeof StaffAuthProvi
 	}
 
 	return (
-		<StaffAuthProvider value={{ ...identity, permissions, name: user?.displayName, email: user?.email }}>
+		<StaffAuthProvider value={{ ...identity, permissions, enterpriseAppRole, name: user?.displayName, email: user?.email }}>
 			<StaffRoutes />
 		</StaffAuthProvider>
 	);

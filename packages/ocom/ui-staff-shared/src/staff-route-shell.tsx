@@ -13,6 +13,7 @@ export type StaffAuth = {
 	roles?: string[];
 	raw?: Record<string, unknown>;
 	onLogout?: () => Promise<void> | void;
+	enterpriseAppRole?: string;
 	permissions?: {
 		canManageCommunities?: boolean;
 		canManageUsers?: boolean;

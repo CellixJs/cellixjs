@@ -22,6 +22,7 @@ export interface StaffRoleCreateCommandPermissions {
 
 export interface StaffRoleCreateCommand {
 	roleName: string;
+	enterpriseAppRole?: string;
 	isDefault?: boolean;
 	permissions?: StaffRoleCreateCommandPermissions;
 }
@@ -92,7 +93,9 @@ export const create = (dataSources: DataSources) => {
 			await ensureRoleDoesNotExist(repository, command.roleName);
 
 			const staffRole = await repository.getNewInstance(command.roleName);
-			staffRole.isDefault = command.isDefault ?? false;
+			if (command.enterpriseAppRole) {
+				staffRole.enterpriseAppRole = command.enterpriseAppRole;
+			}
 			applyCommunityPermissions(staffRole, command.permissions?.community);
 			applyUserPermissions(staffRole, command.permissions?.user);
 			createdRole = await repository.save(staffRole);

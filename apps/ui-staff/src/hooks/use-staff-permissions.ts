@@ -12,6 +12,7 @@ const CURRENT_STAFF_USER_QUERY = gql`
 			role {
 				id
 				roleName
+				enterpriseAppRole
 				permissions {
 					communityPermissions {
 						canManageCommunities
@@ -51,6 +52,7 @@ interface StaffUserQueryResult {
 		role?: {
 			id: string;
 			roleName: string;
+			enterpriseAppRole: string;
 			permissions: {
 				communityPermissions: { canManageCommunities: boolean };
 				userPermissions: { canManageUsers: boolean; canAssignStaffUserRoles: boolean };
@@ -61,7 +63,7 @@ interface StaffUserQueryResult {
 	};
 }
 
-export const useStaffPermissions = (): { permissions: StaffPermissions | undefined; user: { id?: string; displayName?: string; firstName?: string; lastName?: string; email?: string } | undefined; loading: boolean; error: Error | undefined } => {
+export const useStaffPermissions = (): { permissions: StaffPermissions | undefined; enterpriseAppRole: string | undefined; user: { id?: string; displayName?: string; firstName?: string; lastName?: string; email?: string } | undefined; loading: boolean; error: Error | undefined } => {
 	const { data, loading, error } = useQuery<StaffUserQueryResult>(CURRENT_STAFF_USER_QUERY, {
 		fetchPolicy: 'cache-first',
 	});
@@ -84,6 +86,7 @@ export const useStaffPermissions = (): { permissions: StaffPermissions | undefin
 
 	return {
 		permissions,
+		enterpriseAppRole: data?.currentStaffUserAndCreateIfNotExists?.role?.enterpriseAppRole,
 		user: currentUser
 			? {
 				id: currentUser.id,

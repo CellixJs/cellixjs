@@ -1,4 +1,4 @@
-import { Button, Checkbox, Divider, Form, Input, Space, Typography } from 'antd';
+import { Button, Checkbox, Divider, Form, Input, Select, Space, Typography } from 'antd';
 import type React from 'react';
 
 const { Title } = Typography;
@@ -17,17 +17,19 @@ interface StaffRoleCreateProps {
 	onSubmit: (values: StaffRoleFormValues) => void;
 	onCancel: () => void;
 	loading?: boolean;
+	availableEnterpriseAppRoles?: string[];
+	showTechAdminPermissions?: boolean;
 }
 
-const PERMISSION_LABELS: { key: keyof Omit<StaffRoleFormValues, 'roleName' | 'enterpriseAppRole'>; label: string }[] = [
+const PERMISSION_LABELS: { key: keyof Omit<StaffRoleFormValues, 'roleName' | 'enterpriseAppRole'>; label: string; techAdminOnly?: boolean }[] = [
 	{ key: 'canManageCommunities', label: 'Can Manage Communities' },
 	{ key: 'canManageUsers', label: 'Can Manage Users' },
 	{ key: 'canManageFinance', label: 'Can Manage Finance' },
-	{ key: 'canManageTechAdmin', label: 'Can Manage Tech Admin' },
+	{ key: 'canManageTechAdmin', label: 'Can Manage Tech Admin', techAdminOnly: true },
 	{ key: 'canAssignStaffUserRoles', label: 'Can Assign Staff User Roles' },
 ];
 
-export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCancel, loading }) => {
+export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCancel, loading, availableEnterpriseAppRoles, showTechAdminPermissions }) => {
 	const [form] = Form.useForm<StaffRoleFormValues>();
 
 	const initialValues: StaffRoleFormValues = {
@@ -39,6 +41,8 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 		canManageTechAdmin: false,
 		canAssignStaffUserRoles: false,
 	};
+
+	const enterpriseAppRoleOptions = (availableEnterpriseAppRoles ?? []).map((r) => ({ value: r, label: r }));
 
 	return (
 		<Space
@@ -58,17 +62,20 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 					label="Role Name"
 					rules={[{ required: true, message: 'Role name is required' }]}
 				>
-					<Input placeholder="e.g. Tech Admin" />
+					<Input placeholder="e.g. Analyst, Accounting Manager" />
 				</Form.Item>
 				<Form.Item
 					name="enterpriseAppRole"
 					label="Enterprise App Role"
 					rules={[{ required: true, message: 'Enterprise app role is required' }]}
 				>
-					<Input placeholder="e.g. Staff.TechAdmin" />
+					<Select
+						placeholder="Select enterprise app role"
+						options={enterpriseAppRoleOptions}
+					/>
 				</Form.Item>
 				<Divider>Permissions</Divider>
-				{PERMISSION_LABELS.map(({ key, label }) => (
+				{PERMISSION_LABELS.filter(({ techAdminOnly }) => !techAdminOnly || showTechAdminPermissions).map(({ key, label }) => (
 					<Form.Item
 						key={key}
 						name={key}
