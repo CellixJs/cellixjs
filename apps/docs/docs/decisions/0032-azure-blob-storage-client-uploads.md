@@ -134,14 +134,38 @@ Connection strings (containing shared keys) are **not ideal** — storing secret
 
 ## Implementation
 
+Named service registration
+
+As of the recent Cellix registry enhancement, infrastructure services may be registered and retrieved by semantic string names in addition to constructor keys. For the blob-storage framework we register two canonical services using a single unified class:
+
+- "BlobStorageService" — backend SDK operations (managed identity)
+- "ClientOperationsService" — REST signing of client uploads (shared-key connection string)
+
+The authentication mode is **inferred from configuration**:
+- If `accountName` is provided → Managed Identity mode (SDK operations)
+- If `connectionString` is provided → Shared-Key mode (signing operations)
+
+Example registration and retrieval:
+
+```typescript
+Cellix.initializeInfrastructureServices((r) => {
+  r.registerInfrastructureService(new ServiceBlobStorage({ accountName }), 'BlobStorageService')
+   .registerInfrastructureService(new ServiceBlobStorage({ connectionString }), 'ClientOperationsService');
+})
+.setContext((registry) => ({
+  blobStorageService: registry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService'),
+  clientOperationsService: registry.getInfrastructureService<ServiceBlobStorage>('ClientOperationsService'),
+}));
+```
+
 For detailed implementation guidance, code examples, and troubleshooting, see:
 
-- **[Cellix Blob Storage Guides](/docs/cellix/blob-storage/)**
-  - [Overview](/docs/cellix/blob-storage/01-overview.md)
-  - [Authentication Strategies](/docs/cellix/blob-storage/02-authentication-strategies.md)
-  - [Client Uploads Implementation](/docs/cellix/blob-storage/03-client-uploads-with-auth-headers.md)
-  - [Canonical Auth Headers Security Deep-Dive](/docs/cellix/blob-storage/04-canonical-auth-headers.md)
-  - [Troubleshooting](/docs/cellix/blob-storage/05-troubleshooting.md)
+- **[Cellix Blob Storage Guides](../technical-overview/blob-storage/01-overview.md)**
+  - [Overview](../technical-overview/blob-storage/01-overview.md)
+  - [Authentication Strategies](../technical-overview/blob-storage/02-authentication-strategies.md)
+  - [Client Uploads Implementation](../technical-overview/blob-storage/03-client-uploads-with-auth-headers.md)
+  - [Canonical Auth Headers Security Deep-Dive](../technical-overview/blob-storage/04-canonical-auth-headers.md)
+  - [Troubleshooting](../technical-overview/blob-storage/05-troubleshooting.md)
 
 ## Consequences
 

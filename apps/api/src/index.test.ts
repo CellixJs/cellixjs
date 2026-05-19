@@ -10,7 +10,6 @@ const {
 	registerEventHandlers,
 	MockServiceApolloServer,
 	MockServiceBlobStorage,
-	MockServiceBlobStorageClientUpload,
 	MockServiceMongoose,
 	MockServiceTokenValidation,
 } = vi.hoisted(() => {
@@ -46,14 +45,6 @@ const {
 		}
 	}
 
-	class HoistedServiceBlobStorageClientUpload {
-		public readonly service: string;
-
-		constructor(_connectionString: string) {
-			this.service = 'blob-storage-client-upload';
-		}
-	}
-
 	return {
 		registerInfrastructureService: vi.fn(),
 		setContext: vi.fn(),
@@ -64,7 +55,6 @@ const {
 		registerEventHandlers: vi.fn(),
 		MockServiceApolloServer: HoistedServiceApolloServer,
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
-		MockServiceBlobStorageClientUpload: HoistedServiceBlobStorageClientUpload,
 		MockServiceMongoose: HoistedServiceMongoose,
 		MockServiceTokenValidation: HoistedServiceTokenValidation,
 	};
@@ -88,7 +78,6 @@ vi.mock('./cellix.ts', () => ({
 }));
 vi.mock('@ocom/service-blob-storage', () => ({
 	ServiceBlobStorage: MockServiceBlobStorage,
-	ServiceBlobStorageClientUpload: MockServiceBlobStorageClientUpload,
 }));
 vi.mock('@ocom/service-mongoose', () => ({
 	ServiceMongoose: MockServiceMongoose,
@@ -158,18 +147,24 @@ describe('apps/api bootstrap', () => {
 		registerServices?.(serviceRegistry);
 
 		expect(registerInfrastructureService).toHaveBeenCalledTimes(5);
-		// Find the registered blob service by instance type to avoid reliance on call order.
-		const registeredBlobService = registerInfrastructureService.mock.calls.map((c) => c?.[0]).find((candidate) => candidate instanceof MockServiceBlobStorage);
+		// Find the registered blob services by the semantic registration name instead of relying on call order.
+		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
+		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
+		// Sanity: ensure we found instances of the mocked blob storage
+		expect(registeredBlobService).toBeInstanceOf(MockServiceBlobStorage);
+		expect(registeredClientOpsService).toBeInstanceOf(MockServiceBlobStorage);
 
 		const contextBuilder = setContext.mock.calls[0]?.[0];
 		expect(contextBuilder).toBeTypeOf('function');
 
 		serviceRegistry.getInfrastructureService.mockImplementation((serviceKey: unknown) => {
+			if (typeof serviceKey === 'string') {
+				if (serviceKey === 'BlobStorageService') return registeredBlobService;
+				if (serviceKey === 'ClientOperationsService') return registeredClientOpsService;
+				return undefined;
+			}
 			if (serviceKey === MockServiceBlobStorage) {
 				return registeredBlobService;
-			}
-			if (serviceKey === MockServiceBlobStorageClientUpload) {
-				return registerInfrastructureService.mock.calls.map((c) => c?.[0]).find((candidate) => candidate instanceof MockServiceBlobStorageClientUpload);
 			}
 			if (serviceKey === MockServiceTokenValidation) {
 				return new MockServiceTokenValidation(undefined);

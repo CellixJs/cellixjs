@@ -1,6 +1,7 @@
+import type { ClientUploadService } from '@cellix/service-blob-storage';
 import type { DataSourcesFactory } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
-import type { BlobStorageOperations, ClientUploadService } from '@ocom/service-blob-storage';
+import type { ServiceBlobStorage } from '@ocom/service-blob-storage';
 import type { TokenValidation } from '@ocom/service-token-validation';
 
 /**
@@ -37,7 +38,8 @@ export interface ApiContextSpec {
 	 *
 	 * See dual blob storage architecture explanation below.
 	 */
-	blobStorageService: BlobStorageOperations;
+	// Server-side full service type: exposes the complete ServiceBlobStorage API (server-only operations included)
+	blobStorageService: ServiceBlobStorage;
 
 	/**
 	 * Client upload service for generating signed SAS URLs.
@@ -50,7 +52,7 @@ export interface ApiContextSpec {
 	 *
 	 * Example:
 	 * ```ts
-	 * const uploadUrl = await context.clientUploadService.createUploadUrl({
+	 * const uploadUrl = await context.clientOperationsService.createUploadUrl({
 	 *   containerName: 'member-assets',
 	 *   blobName: `members/${memberId}/avatar.png`,
 	 *   expiresOn: new Date(Date.now() + 15 * 60 * 1000),
@@ -67,7 +69,7 @@ export interface ApiContextSpec {
 	 *    - Handles: list, upload, delete operations
 	 *    - Production best practice
 	 *
-	 * 2. **Client Upload Service** (clientUploadService)
+	 * 2. **Client Upload Service** (clientOperationsService)
 	 *    - Uses connection string for SAS signing only
 	 *    - Connection string scope isolated to signing, not blob operations
 	 *    - Handles: createUploadUrl, createReadUrl for client-side browser uploads
@@ -82,5 +84,6 @@ export interface ApiContextSpec {
 	 *
 	 * See @ocom/service-blob-storage for full architecture rationale and ADR-0032.
 	 */
-	clientUploadService: ClientUploadService;
+	// Client-facing narrow contract for upload/signing operations. Named to match runtime registration (ClientOperationsService)
+	clientOperationsService: ClientUploadService;
 }

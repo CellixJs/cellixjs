@@ -90,6 +90,25 @@ export interface BlobUploadAuthorizationHeader {
 }
 
 /**
+ * Narrow client upload contract used for downscoped client operations.
+ *
+ * This interface intentionally includes only the signing operations required by
+ * browser-based uploads. Implementations may be provided by the framework
+ * ServiceBlobStorage when constructed with a shared-key connection string.
+ */
+export interface ClientUploadService {
+	/**
+	 * Create signed authorization header information for a client upload (PUT).
+	 */
+	createUploadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader>;
+
+	/**
+	 * Create signed authorization header information for a client read (GET).
+	 */
+	createReadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader>;
+}
+
+/**
  * Framework-level blob storage contract used by application adapters.
  */
 export interface BlobStorage {

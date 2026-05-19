@@ -4,6 +4,7 @@ export type {
 	BlobListItem,
 	BlobStorage,
 	BlobUploadAuthorizationHeader,
+	ClientUploadService,
 	CreateBlobAuthorizationHeaderRequest,
 	CreateBlobSasUrlRequest,
 	ListBlobsRequest,

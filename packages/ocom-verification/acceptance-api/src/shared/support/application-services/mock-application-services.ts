@@ -1,9 +1,10 @@
 import type { BaseContext } from '@apollo/server';
+import type { BlobAddress, BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest, CreateBlobSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
-import type { BlobStorage } from '@ocom/service-blob-storage';
+import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
 import { actors } from '@ocom-verification/verification-shared/test-data';
@@ -38,29 +39,72 @@ function createNoOpApolloServerService(): ServiceApolloServer<Record<string, nev
 	} as unknown as ServiceApolloServer<BaseContext>;
 }
 
-function createNoOpBlobStorageService(): BlobStorage {
-	return {
-		createUploadUrl: () => Promise.resolve('https://blob.example.test/upload'),
-		createReadUrl: () => Promise.resolve('https://blob.example.test/read'),
-	};
+const noOpBlobUploadAuthorizationHeader = {
+	url: 'https://blob.example.test/no-op',
+	authorizationHeader: '',
+	headers: {},
+} satisfies BlobUploadAuthorizationHeader;
+
+class NoOpBlobStorageService extends ServiceBlobStorage {
+	public constructor() {
+		super({ accountName: 'no-op-account' });
+	}
+
+	public override startUp(): Promise<this> {
+		return Promise.resolve(this);
+	}
+
+	public override shutDown(): Promise<void> {
+		return Promise.resolve();
+	}
+
+	public override uploadText(_request: UploadTextBlobRequest): ReturnType<ServiceBlobStorage['uploadText']> {
+		return Promise.resolve({} as Awaited<ReturnType<ServiceBlobStorage['uploadText']>>);
+	}
+
+	public override deleteBlob(_address: BlobAddress): Promise<void> {
+		return Promise.resolve();
+	}
+
+	public override listBlobs(_request: ListBlobsRequest): Promise<[]> {
+		return Promise.resolve([]);
+	}
+
+	public override generateReadSasToken(_request: CreateBlobSasUrlRequest): Promise<string> {
+		return Promise.resolve('');
+	}
+
+	public override createBlobWriteAuthorizationHeader(_request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+		return Promise.resolve(noOpBlobUploadAuthorizationHeader);
+	}
+
+	public override createBlobReadAuthorizationHeader(_request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+		return Promise.resolve(noOpBlobUploadAuthorizationHeader);
+	}
+
+	public override createUploadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+		return this.createBlobWriteAuthorizationHeader(request);
+	}
+
+	public override createReadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+		return this.createBlobReadAuthorizationHeader(request);
+	}
 }
 
-function createNoOpClientUploadService() {
-	return {
-		createUploadUrl: () => Promise.resolve('https://blob.example.test/upload'),
-		createReadUrl: () => Promise.resolve('https://blob.example.test/read'),
-	};
+function createNoOpBlobStorageService(): ServiceBlobStorage {
+	return new NoOpBlobStorageService();
 }
 
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {
 	const dataSourcesFactory = Persistence(serviceMongoose);
+	const blobStorageService = createNoOpBlobStorageService();
 
 	const apiContextSpec: ApiContextSpec = {
 		dataSourcesFactory,
 		tokenValidationService: createMockTokenValidation(),
 		apolloServerService: createNoOpApolloServerService(),
-		blobStorageService: createNoOpBlobStorageService(),
-		clientUploadService: createNoOpClientUploadService(),
+		blobStorageService,
+		clientOperationsService: blobStorageService,
 	};
 
 	const mockApplicationServicesFactory = buildApplicationServicesFactory(apiContextSpec);

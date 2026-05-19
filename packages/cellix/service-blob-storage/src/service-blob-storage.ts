@@ -1,49 +1,43 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import { BlobSASPermissions, BlobServiceClient, type BlobUploadCommonResponse, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob';
 import type { ServiceBase } from '@cellix/api-services-spec';
+import { ClientUploadSigner } from './client-upload-signer.js';
 import { getConnectionStringValue } from './connection-string.ts';
-import type { BlobAddress, BlobListItem, BlobStorage, CreateBlobSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from './interfaces.ts';
+import type { BlobAddress, BlobListItem, BlobStorage, BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest, CreateBlobSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from './interfaces.ts';
 
 /**
  * Options for constructing the framework blob-storage service.
  *
- * The service supports two authentication modes:
- * - connectionString: use a full Azure Storage connection string (local/dev, Azurite). When provided,
- *   the connection string takes precedence and the managed identity path is ignored.
- * - managedIdentity: use accountName with a TokenCredential (DefaultAzureCredential) for SDK operations.
+ * NOTE: This constructor is intentionally scoped for framework-level instantiation only.
+ * Applications should not construct a framework ServiceBlobStorage instance to perform
+ * client upload signing or blob operations directly. Instead, register the framework
+ * services during application bootstrap and retrieve the narrow adapter contracts from
+ * the service registry.
  *
- * Provide exactly one of `connectionString` or `accountName` to avoid surprising precedence behavior.
+ * The constructor now infers the authentication mode from the provided properties:
+ * - { connectionString } (only): use shared-key / connection string flow (SAS signing available)
+ * - { accountName, credential? } (only): use managed identity flow (TokenCredential)
  *
- * @property connectionString - Azure Storage connection string (takes precedence when present).
- * @property accountName - Storage account name for managed identity authentication (required if connectionString is absent).
- * @property credential - Optional TokenCredential for managed identity auth (defaults to DefaultAzureCredential).
+ * Provide exactly one of `connectionString` or `accountName`. Passing both or neither
+ * will throw a clear Error.
  */
-export interface ServiceBlobStorageOptions {
+export type ServiceBlobStorageOptions = {
 	connectionString?: string;
 	accountName?: string;
 	credential?: TokenCredential;
-}
+};
 
 /**
- * Determines the authentication mode based on provided options and validates mutual exclusivity.
- *
- * @param options - The service options to analyze
- * @returns The determined mode: `'connectionString'` or `'managedIdentity'`
- * @throws If configuration is invalid (e.g., missing required options for the determined mode)
- *
- * @remarks
- * This helper centralizes the logic for determining which authentication path will be used.
- * When both `connectionString` and `accountName` are provided, connection string takes precedence
- * (though this is somewhat undesirable from a UX perspective, the helper documents this clearly).
+ * Validates the provided options at construction time and infers the auth mode.
+ * Throws a clear Error if both or neither of `connectionString` and `accountName` are provided.
  */
-function determineAuthMode(options: ServiceBlobStorageOptions): 'connectionString' | 'managedIdentity' {
-	if (options.connectionString) {
-		return 'connectionString';
+function validateOptions(options: ServiceBlobStorageOptions): void {
+	const hasConnectionString = !!options.connectionString?.trim();
+	const hasAccountName = !!options.accountName?.trim();
+
+	if (hasConnectionString === hasAccountName) {
+		throw new Error("Provide either 'connectionString' (for shared-key) or 'accountName' (for managed identity), but not both");
 	}
-	if (options.accountName) {
-		return 'managedIdentity';
-	}
-	throw new Error('Either connectionString (for local dev) or accountName (for managed identity) must be provided');
 }
 
 /**
@@ -52,50 +46,47 @@ function determineAuthMode(options: ServiceBlobStorageOptions): 'connectionStrin
  * The service keeps Azure SDK usage and shared-key parsing inside the framework package
  * while exposing a small contract of blob operations and SAS URL creation.
  *
- * It supports two modes:
- * - connectionString present: uses BlobServiceClient.fromConnectionString (Azurite/local dev) and enables SAS signing via shared-key
- * - connectionString absent: uses DefaultAzureCredential (or provided credential) and accountName to build a TokenCredential-backed client
- *
+ * Runtime behavior is unchanged: the connection-string path creates a StorageSharedKeyCredential
+ * and a ClientUploadSigner for SAS/authorization header generation; the managed-identity path
+ * constructs a TokenCredential-backed BlobServiceClient.
  */
 export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage {
-	private readonly connectionString: string | undefined;
-	private readonly accountName: string | undefined;
-	private readonly credential: TokenCredential | undefined;
+	private readonly options: ServiceBlobStorageOptions;
+	private readonly inferredMode: 'sharedKey' | 'managedIdentity';
 	private blobServiceClientInternal: BlobServiceClient | undefined;
 	private sharedKeyCredentialInternal: StorageSharedKeyCredential | undefined;
+	private clientUploadSignerInternal: ClientUploadSigner | undefined;
 
 	constructor(options: ServiceBlobStorageOptions) {
-		this.connectionString = options.connectionString;
-		this.accountName = options.accountName;
-		this.credential = options.credential;
-
-		// Validate that the configuration is valid by determining the auth mode
-		determineAuthMode(options);
+		validateOptions(options);
+		this.options = options;
+		this.inferredMode = options.connectionString ? 'sharedKey' : 'managedIdentity';
 	}
 
 	public startUp(): Promise<BlobStorage> {
-		// If a connection string is present (Azurite/local dev), use it for the BlobServiceClient
-		if (this.connectionString) {
-			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(this.connectionString);
+		if (this.inferredMode === 'sharedKey') {
+			// connection string path
+			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(this.options.connectionString as string);
 
 			// Extract shared key credential for SAS generation
-			const accountName = getConnectionStringValue(this.connectionString, 'AccountName');
-			const accountKey = getConnectionStringValue(this.connectionString, 'AccountKey');
+			const accountName = getConnectionStringValue(this.options.connectionString as string, 'AccountName');
+			const accountKey = getConnectionStringValue(this.options.connectionString as string, 'AccountKey');
 			if (accountName && accountKey) {
 				this.sharedKeyCredentialInternal = new StorageSharedKeyCredential(accountName, accountKey);
 			}
 
+			// Create signer for shared-key signing
+			this.clientUploadSignerInternal = new ClientUploadSigner(this.options.connectionString as string);
+
 			return Promise.resolve(this);
 		}
 
-		// Managed identity flow: construct URL from accountName and use DefaultAzureCredential unless a credential is provided
-		if (!this.accountName) {
-			throw new Error('accountName is required when connectionString is not provided');
-		}
-		const credentialToUse = this.credential ?? new DefaultAzureCredential();
-		const url = `https://${this.accountName}.blob.core.windows.net`;
+		// managed identity flow
+		const accountName = this.options.accountName as string;
+		const credentialToUse = this.options.credential ?? new DefaultAzureCredential();
+		const url = `https://${accountName}.blob.core.windows.net`;
 		this.blobServiceClientInternal = new BlobServiceClient(url, credentialToUse);
-		// No shared key in this flow; signer must be constructed only if connectionString present
+		// No shared key in this flow; signer must not be available
 		return Promise.resolve(this);
 	}
 
@@ -107,6 +98,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 
 		this.blobServiceClientInternal = undefined;
 		this.sharedKeyCredentialInternal = undefined;
+		this.clientUploadSignerInternal = undefined;
 		return Promise.resolve();
 	}
 
@@ -157,6 +149,41 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		).toString();
 
 		return Promise.resolve(sas);
+	}
+
+	/**
+	 * Create signed authorization header for client-side blob write (PUT) requests.
+	 * Only available when the service was constructed in 'sharedKey' mode.
+	 */
+	public createBlobWriteAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+		if (this.inferredMode !== 'sharedKey' || !this.clientUploadSignerInternal) {
+			return Promise.reject(new Error('Instance not configured for shared-key signing; construct ServiceBlobStorage with { connectionString }'));
+		}
+		return this.clientUploadSignerInternal.createBlobWriteAuthorizationHeader(request);
+	}
+
+	/**
+	 * Create signed authorization header for client-side blob read (GET) requests.
+	 * Only available when the service was constructed in 'sharedKey' mode.
+	 */
+	public createBlobReadAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+		if (this.inferredMode !== 'sharedKey' || !this.clientUploadSignerInternal) {
+			return Promise.reject(new Error('Instance not configured for shared-key signing; construct ServiceBlobStorage with { connectionString }'));
+		}
+		return this.clientUploadSignerInternal.createBlobReadAuthorizationHeader(request);
+	}
+
+	/**
+	 * Backwards-compatible aliases matching the narrow ClientUploadService contract.
+	 * These delegate to the framework method names but allow structural assignment
+	 * to the ClientUploadService interface without requiring casts.
+	 */
+	public createUploadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+		return this.createBlobWriteAuthorizationHeader(request);
+	}
+
+	public createReadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+		return this.createBlobReadAuthorizationHeader(request);
 	}
 
 	/**

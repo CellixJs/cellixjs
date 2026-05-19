@@ -1308,6 +1308,9 @@ importers:
 
   packages/ocom/context-spec:
     dependencies:
+      '@cellix/service-blob-storage':
+        specifier: workspace:*
+        version: link:../../cellix/service-blob-storage
       '@ocom/persistence':
         specifier: workspace:*
         version: link:../persistence

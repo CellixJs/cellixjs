@@ -6,5 +6,5 @@
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
 	"include": ["src/**/*.ts"],
-	"references": [{ "path": "../persistence" }, { "path": "../service-apollo-server" }, { "path": "../service-blob-storage" }, { "path": "../service-token-validation" }]
+	"references": [{ "path": "../../cellix/service-blob-storage" }, { "path": "../persistence" }, { "path": "../service-apollo-server" }, { "path": "../service-blob-storage" }, { "path": "../service-token-validation" }]
 }

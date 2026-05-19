@@ -33,7 +33,7 @@ await blobStorage.uploadText({
 	content: 'Member info',
 });
 
-// SAS signing NOT available in this mode (no connection string provided)
+// Client upload signing NOT available in this mode (no connection string provided)
 ```
 
 **When to use**:
@@ -46,7 +46,7 @@ await blobStorage.uploadText({
 - Storage Blob Data Contributor RBAC role granted to the managed identity
 - `AZURE_STORAGE_ACCOUNT_NAME` environment variable set
 
-### Mode 2: Connection String (Local Development & SAS Signing)
+### Mode 2: Connection String (Local Development & Client Upload Signing)
 
 ```ts
 const blobStorage = new ServiceBlobStorage({
@@ -64,17 +64,18 @@ await blobStorage.uploadText({
 	content: 'Member info',
 });
 
-// SAS URL generation available (uses shared-key credentials from connection string)
-const uploadUrl = await blobStorage.createBlobWriteSasUrl({
+// Canonical SharedKey auth header generation available (uses shared-key credentials from connection string)
+const uploadHeader = await blobStorage.createBlobWriteAuthorizationHeader({
 	containerName: 'member-assets',
 	blobName: 'avatars/member-123.png',
-	expiresOn: new Date(Date.now() + 5 * 60 * 1000),
+	contentLength: 102400,
+	contentType: 'image/png',
 });
 ```
 
 **When to use**:
 - Local development with Azurite emulation
-- Client-side uploads requiring signed SAS URLs
+- Client-side uploads requiring canonical SharedKey auth headers
 - Scenarios where shared-key credentials are acceptable
 
 **Requirements**:
@@ -82,44 +83,36 @@ const uploadUrl = await blobStorage.createBlobWriteSasUrl({
 - For Azurite: `DefaultEndpointsProtocol=http://...`
 - For Azure with shared-key: connection string with AccountKey
 
-### Mode 3: Mixed (Managed Identity + Optional SAS Signing)
+### Mode 3: Dual Registration (Production with Client Uploads)
 
-This is the typical production pattern when client uploads are needed:
+This is the typical production pattern when both backend operations and client uploads are needed.
 
-**Configuration layer**:
+**Service registration** (via Cellix framework):
 ```ts
-// @apps/api/src/service-config/blob-storage
-const storageAccountName = process.env['AZURE_STORAGE_ACCOUNT_NAME'];
-const storageConnectionString = process.env['AZURE_STORAGE_CONNECTION_STRING'];
-
-export const blobStorageConfig = {
-	accountName: storageAccountName,
-	connectionString: storageConnectionString, // for SAS signing only
-};
-```
-
-**Service registration**:
-```ts
-// @ocom/service-blob-storage/src/service-blob-storage.ts
-const frameworkService = new ServiceBlobStorage({
-	accountName: config.accountName,
-	// Note: connectionString NOT passed here
-	// SDK will use managed identity for all blob operations
-});
-
-const sasSigningService = new ServiceBlobStorage({
-	connectionString: config.connectionString,
-	// Used only for SAS URL generation
-});
+// Single unified class, registered twice with semantic names
+Cellix.initializeInfrastructureServices((r) => {
+  r.registerInfrastructureService(
+    new ServiceBlobStorage({ accountName: config.accountName }), 
+    'BlobStorageService'
+  )
+  .registerInfrastructureService(
+    new ServiceBlobStorage({ connectionString: config.connectionString }), 
+    'ClientOperationsService'
+  );
+})
+.setContext((registry) => ({
+  blobStorageService: registry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService'),
+  clientOperationsService: registry.getInfrastructureService<ServiceBlobStorage>('ClientOperationsService'),
+}));
 ```
 
 **Result**:
 - SDK operations use managed identity (secure, auditable)
-- Client uploads still get signed SAS URLs (secure client access)
+- Client uploads get canonical SharedKey auth headers (secure client access, metadata-locked)
 - No shared-key credentials used for blob operations
 - Connection string only used for signing (isolation of concerns)
 
-## Complete Example: Client Uploads with Managed Identity
+## Complete Example: Client Uploads with Managed Identity & Canonical Auth Headers
 
 ```ts
 import { ServiceBlobStorage } from '@cellix/service-blob-storage';
@@ -137,20 +130,23 @@ await blobService.uploadText({
 	content: JSON.stringify({ name: 'Alice' }),
 });
 
-// For client uploads, use separate service configured for SAS signing
+// For client uploads, use separate service configured for canonical auth header signing
 // (typically done by @ocom/service-blob-storage adapter)
-const sasService = new ServiceBlobStorage({
+const signingService = new ServiceBlobStorage({
 	connectionString: 'DefaultEndpointsProtocol=https://...AccountKey=...',
 });
-await sasService.startUp();
+await signingService.startUp();
 
-const uploadUrl = await sasService.createBlobWriteSasUrl({
+const uploadHeader = await signingService.createBlobWriteAuthorizationHeader({
 	containerName: 'member-assets',
 	blobName: 'avatars/alice-avatar.png',
-	expiresOn: new Date(Date.now() + 15 * 60 * 1000), // 15 min expiry
+	contentLength: 51200,
+	contentType: 'image/png',
+	metadata: { userId: '123', uploadId: 'abc-def' },
 });
 
-// Send uploadUrl to client browser; client uploads to this signed URL
+// Send uploadHeader to client browser; client includes it in HTTP PUT request to blob storage
+// Signature is cryptographically bound to blob path, size, type, and metadata
 ```
 
 ## API Surface
@@ -179,10 +175,10 @@ import type { BlobAddress, UploadTextBlobRequest, CreateBlobSasUrlRequest } from
 - `async listBlobs(request): Promise<BlobListItem[]>` - List blobs in container
 - `async deleteBlob(request): Promise<void>` - Delete a blob
 
-### SAS URL Generation (when connection string provided)
+### Canonical SharedKey Authorization Headers (when connection string provided)
 
-- `async createBlobReadSasUrl(request): Promise<string>` - Generate read-only SAS URL
-- `async createBlobWriteSasUrl(request): Promise<string>` - Generate write-only SAS URL
+- `async createBlobWriteAuthorizationHeader(request): Promise<BlobUploadAuthorizationHeader>` - Generate authorization header for write (upload)
+- `async createBlobReadAuthorizationHeader(request): Promise<BlobUploadAuthorizationHeader>` - Generate authorization header for read
 
 ## Design Philosophy
 
@@ -239,13 +235,13 @@ await blobService.shutDown(); // ✅ OK even if not started
 await blobService.shutDown(); // ✅ OK (safe to call multiple times)
 ```
 
-### SAS Without Connection String
+### Canonical Auth Headers Without Connection String
 ```ts
 const blobService = new ServiceBlobStorage({ accountName: 'myaccount' });
 await blobService.startUp();
 
-await blobService.createBlobWriteSasUrl(...);
-// ❌ Throws: "Cannot create SAS URL without connection string configured"
+await blobService.createBlobWriteAuthorizationHeader(...);
+// ❌ Throws: "Cannot create authorization header without connection string configured"
 ```
 
 ## Integration with OCOM Applications
