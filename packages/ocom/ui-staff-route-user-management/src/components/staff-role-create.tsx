@@ -13,7 +13,7 @@ export interface StaffRoleFormValues {
 	canAssignStaffUserRoles: boolean;
 }
 
-export interface StaffRoleCreateProps {
+interface StaffRoleCreateProps {
 	onSubmit: (values: StaffRoleFormValues) => void;
 	onCancel: () => void;
 	loading?: boolean;

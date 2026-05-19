@@ -11,6 +11,9 @@ export const StaffUsersListContainer: React.FC = () => {
 	const handleEdit = (id: string) => {
 		navigate(id);
 	};
+	const handleCreate = () => {
+		navigate('create');
+	};
 
 	return (
 		<StaffUsersList
@@ -23,6 +26,7 @@ export const StaffUsersListContainer: React.FC = () => {
 			}))}
 			onEdit={handleEdit}
 			loading={loading}
+            onCreate={handleCreate}
 		/>
 	);
 };

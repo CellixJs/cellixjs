@@ -38,3 +38,19 @@ export const Default: Story = {
 		</Routes>
 	),
 };
+
+export const CreateView: Story = {
+	parameters: {
+		memoryRouter: {
+			initialEntries: ['/create'],
+		},
+	},
+	render: () => (
+		<Routes>
+			<Route
+				path="/*"
+				element={<StaffUsersPage />}
+			/>
+		</Routes>
+	),
+};
