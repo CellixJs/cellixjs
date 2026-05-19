@@ -18,6 +18,7 @@ const CURRENT_STAFF_USER_QUERY = gql`
 					}
 					userPermissions {
 						canManageUsers
+						canAssignStaffUserRoles
 					}
 					financePermissions {
 						canManageFinance
@@ -36,6 +37,7 @@ interface StaffPermissions {
 	canManageUsers: boolean;
 	canManageFinance: boolean;
 	canManageTechAdmin: boolean;
+	canAssignStaffUserRoles: boolean;
 }
 
 interface StaffUserQueryResult {
@@ -51,7 +53,7 @@ interface StaffUserQueryResult {
 			roleName: string;
 			permissions: {
 				communityPermissions: { canManageCommunities: boolean };
-				userPermissions: { canManageUsers: boolean };
+				userPermissions: { canManageUsers: boolean; canAssignStaffUserRoles: boolean };
 				financePermissions: { canManageFinance: boolean };
 				techAdminPermissions: { canManageTechAdmin: boolean };
 			};
@@ -76,6 +78,7 @@ export const useStaffPermissions = (): { permissions: StaffPermissions | undefin
 				canManageUsers: rolePermissions.userPermissions.canManageUsers || isTechAdmin,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
 				canManageTechAdmin: isTechAdmin,
+				canAssignStaffUserRoles: rolePermissions.userPermissions.canAssignStaffUserRoles || isTechAdmin,
 			}
 		: undefined;
 

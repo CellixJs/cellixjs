@@ -1,0 +1,35 @@
+query StaffUserDetail($id: ObjectID!) {
+	staffUserById(id: $id) {
+		...StaffUserDetailFields
+	}
+}
+
+query StaffRolesForSelect {
+	staffRoles {
+		id
+		roleName
+	}
+}
+
+mutation StaffUserAssignRole($input: StaffUserAssignRoleInput!) {
+	staffUserAssignRole(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		staffUser {
+			...StaffUserDetailFields
+		}
+	}
+}
+
+fragment StaffUserDetailFields on StaffUser {
+	id
+	displayName
+	email
+	createdAt
+	role {
+		id
+		roleName
+	}
+}

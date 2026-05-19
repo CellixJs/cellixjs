@@ -1,0 +1,16 @@
+query StaffUsersList {
+	staffUsers {
+		...StaffUsersListFields
+	}
+}
+
+fragment StaffUsersListFields on StaffUser {
+	id
+	displayName
+	email
+	createdAt
+	role {
+		id
+		roleName
+	}
+}

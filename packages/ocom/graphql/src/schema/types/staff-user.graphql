@@ -24,6 +24,7 @@ type StaffRoleTechAdminPermissions {
 
 type StaffRoleUserPermissions {
 	canManageUsers: Boolean!
+	canAssignStaffUserRoles: Boolean!
 }
 
 type StaffRolePermissions {
@@ -37,6 +38,7 @@ type StaffRole implements MongoBase {
 	roleName: String!
 	isDefault: Boolean!
 	roleType: String
+	enterpriseAppRole: String!
 	permissions: StaffRolePermissions!
 
 	id: ObjectID!
@@ -61,6 +63,54 @@ type StaffUser implements MongoBase {
 	updatedAt: DateTime
 }
 
+input StaffRoleCreateCommunityPermissionsInput {
+	canManageCommunities: Boolean
+	canManageStaffRolesAndPermissions: Boolean
+	canManageAllCommunities: Boolean
+	canDeleteCommunities: Boolean
+	canChangeCommunityOwner: Boolean
+	canReIndexSearchCollections: Boolean
+}
+
+input StaffRoleCreateUserPermissionsInput {
+	canManageUsers: Boolean
+	canAssignStaffUserRoles: Boolean
+}
+
+input StaffRoleCreatePermissionsInput {
+	communityPermissions: StaffRoleCreateCommunityPermissionsInput
+	userPermissions: StaffRoleCreateUserPermissionsInput
+}
+
+input StaffRoleCreateInput {
+	roleName: String!
+	enterpriseAppRole: String
+	permissions: StaffRoleCreatePermissionsInput
+}
+
+input StaffUserAssignRoleInput {
+	staffUserId: ObjectID!
+	roleId: ObjectID!
+}
+
+type StaffRoleMutationResult implements MutationResult {
+	status: MutationStatus!
+	staffRole: StaffRole
+}
+
+type StaffUserMutationResult implements MutationResult {
+	status: MutationStatus!
+	staffUser: StaffUser
+}
+
 extend type Query {
 	currentStaffUserAndCreateIfNotExists: StaffUser!
+	staffUsers: [StaffUser!]!
+	staffRoles: [StaffRole!]!
+	staffUserById(id: ObjectID!): StaffUser
+}
+
+extend type Mutation {
+	staffRoleCreate(input: StaffRoleCreateInput!): StaffRoleMutationResult!
+	staffUserAssignRole(input: StaffUserAssignRoleInput!): StaffUserMutationResult!
 }

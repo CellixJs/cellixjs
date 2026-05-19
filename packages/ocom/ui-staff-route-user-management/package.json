@@ -10,6 +10,8 @@
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --noEmit",
 		"lint": "biome lint",
+		"storybook": "storybook dev --port 6007",
+		"build-storybook": "storybook build",
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest"
@@ -17,7 +19,9 @@
 	"dependencies": {
 		"@ant-design/icons": "catalog:",
 		"@ant-design/pro-layout": "^7.22.7",
+		"@apollo/client": "^3.13.9",
 		"@dr.pogodin/react-helmet": "^3.0.2",
+		"@graphql-typed-document-node/core": "^3.2.0",
 		"@ocom/ui-shared": "workspace:*",
 		"@ocom/ui-staff-shared": "workspace:*",
 		"antd": "catalog:",

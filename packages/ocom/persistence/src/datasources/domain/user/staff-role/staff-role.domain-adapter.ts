@@ -152,6 +152,7 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 		if (!this.doc.userPermissions) {
 			this.doc.userPermissions = {
 				canManageUsers: false,
+				canAssignStaffUserRoles: false,
 			};
 		}
 		return new StaffRoleUserPermissionsAdapter(this.doc.userPermissions);
@@ -440,5 +441,12 @@ export class StaffRoleUserPermissionsAdapter implements Domain.Contexts.User.Sta
 	}
 	set canManageUsers(value: boolean) {
 		this.doc.canManageUsers = value;
+	}
+
+	get canAssignStaffUserRoles(): boolean {
+		return this.ensureValue(this.doc.canAssignStaffUserRoles);
+	}
+	set canAssignStaffUserRoles(value: boolean) {
+		this.doc.canAssignStaffUserRoles = value;
 	}
 }

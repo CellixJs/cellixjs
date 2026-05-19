@@ -1,12 +1,12 @@
+import { useQuery } from '@apollo/client';
 import type React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { type StaffRole, StaffRolesList } from './staff-roles-list.tsx';
-
-// TODO: Replace with GraphQL query when staff roles API is available
-const PLACEHOLDER_DATA: StaffRole[] = [];
+import { StaffRolesListDocument } from '../generated.tsx';
+import { StaffRolesList } from './staff-roles-list.tsx';
 
 export const StaffRolesListContainer: React.FC = () => {
 	const navigate = useNavigate();
+	const { data, loading } = useQuery(StaffRolesListDocument);
 
 	const handleEdit = (_id: string) => {
 		// TODO: Navigate to edit page when edit route is implemented
@@ -18,10 +18,16 @@ export const StaffRolesListContainer: React.FC = () => {
 
 	return (
 		<StaffRolesList
-			data={PLACEHOLDER_DATA}
+			data={(data?.staffRoles ?? []).map((r) => ({
+				id: String(r.id),
+				roleName: r.roleName,
+				enterpriseAppRole: r.enterpriseAppRole,
+				createdAt: r.createdAt ? String(r.createdAt) : '',
+				updatedAt: r.updatedAt ? String(r.updatedAt) : '',
+			}))}
 			onEdit={handleEdit}
 			onCreate={handleCreate}
-			loading={false}
+			loading={loading}
 		/>
 	);
 };

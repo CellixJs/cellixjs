@@ -1,0 +1,13 @@
+mutation StaffRoleCreate($input: StaffRoleCreateInput!) {
+	staffRoleCreate(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		staffRole {
+			id
+			roleName
+			enterpriseAppRole
+		}
+	}
+}

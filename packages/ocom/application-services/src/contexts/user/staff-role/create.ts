@@ -2,6 +2,7 @@ import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
 interface StaffRoleCreateCommandCommunityPermissions {
+	canManageCommunities?: boolean;
 	canManageStaffRolesAndPermissions?: boolean;
 	canManageAllCommunities?: boolean;
 	canDeleteCommunities?: boolean;
@@ -9,8 +10,14 @@ interface StaffRoleCreateCommandCommunityPermissions {
 	canReIndexSearchCollections?: boolean;
 }
 
+interface StaffRoleCreateCommandUserPermissions {
+	canManageUsers?: boolean;
+	canAssignStaffUserRoles?: boolean;
+}
+
 export interface StaffRoleCreateCommandPermissions {
 	community?: StaffRoleCreateCommandCommunityPermissions;
+	user?: StaffRoleCreateCommandUserPermissions;
 }
 
 export interface StaffRoleCreateCommand {
@@ -42,6 +49,9 @@ const applyCommunityPermissions = (staffRole: Domain.Contexts.User.StaffRole.Sta
 
 	const { communityPermissions } = staffRole.permissions;
 
+	if (permissions.canManageCommunities !== undefined) {
+		communityPermissions.canManageCommunities = permissions.canManageCommunities;
+	}
 	if (permissions.canManageStaffRolesAndPermissions !== undefined) {
 		communityPermissions.canManageStaffRolesAndPermissions = permissions.canManageStaffRolesAndPermissions;
 	}
@@ -59,6 +69,21 @@ const applyCommunityPermissions = (staffRole: Domain.Contexts.User.StaffRole.Sta
 	}
 };
 
+const applyUserPermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, permissions?: StaffRoleCreateCommandUserPermissions) => {
+	if (!permissions) {
+		return;
+	}
+
+	const { userPermissions } = staffRole.permissions;
+
+	if (permissions.canManageUsers !== undefined) {
+		userPermissions.canManageUsers = permissions.canManageUsers;
+	}
+	if (permissions.canAssignStaffUserRoles !== undefined) {
+		userPermissions.canAssignStaffUserRoles = permissions.canAssignStaffUserRoles;
+	}
+};
+
 export const create = (dataSources: DataSources) => {
 	return async (command: StaffRoleCreateCommand): Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference> => {
 		let createdRole: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
@@ -69,6 +94,7 @@ export const create = (dataSources: DataSources) => {
 			const staffRole = await repository.getNewInstance(command.roleName);
 			staffRole.isDefault = command.isDefault ?? false;
 			applyCommunityPermissions(staffRole, command.permissions?.community);
+			applyUserPermissions(staffRole, command.permissions?.user);
 			createdRole = await repository.save(staffRole);
 		});
 

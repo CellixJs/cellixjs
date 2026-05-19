@@ -1,12 +1,12 @@
+import { useQuery } from '@apollo/client';
 import type React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { type StaffUser, StaffUsersList } from './staff-users-list.tsx';
-
-// TODO: Replace with GraphQL query when staff users API is available
-const PLACEHOLDER_DATA: StaffUser[] = [];
+import { StaffUsersListDocument } from '../generated.tsx';
+import { StaffUsersList } from './staff-users-list.tsx';
 
 export const StaffUsersListContainer: React.FC = () => {
 	const navigate = useNavigate();
+	const { data, loading } = useQuery(StaffUsersListDocument);
 
 	const handleEdit = (id: string) => {
 		navigate(id);
@@ -14,9 +14,15 @@ export const StaffUsersListContainer: React.FC = () => {
 
 	return (
 		<StaffUsersList
-			data={PLACEHOLDER_DATA}
+			data={(data?.staffUsers ?? []).map((u) => ({
+				id: String(u.id),
+				displayName: u.displayName,
+				email: u.email,
+				role: u.role ? { id: String(u.role.id), roleName: u.role.roleName } : null,
+				createdAt: u.createdAt ? String(u.createdAt) : '',
+			}))}
 			onEdit={handleEdit}
-			loading={false}
+			loading={loading}
 		/>
 	);
 };

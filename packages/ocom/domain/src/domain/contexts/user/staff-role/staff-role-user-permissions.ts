@@ -5,6 +5,7 @@ import type { UserVisa } from '../user.visa.ts';
 
 interface StaffRoleUserPermissionsSpec {
 	canManageUsers: boolean;
+	canAssignStaffUserRoles: boolean;
 }
 
 export interface StaffRoleUserPermissionsProps extends StaffRoleUserPermissionsSpec, ValueObjectProps {}
@@ -30,5 +31,13 @@ export class StaffRoleUserPermissions extends ValueObject<StaffRoleUserPermissio
 	set canManageUsers(value: boolean) {
 		this.validateVisa();
 		this.props.canManageUsers = value;
+	}
+
+	get canAssignStaffUserRoles(): boolean {
+		return this.props.canAssignStaffUserRoles;
+	}
+	set canAssignStaffUserRoles(value: boolean) {
+		this.validateVisa();
+		this.props.canAssignStaffUserRoles = value;
 	}
 }

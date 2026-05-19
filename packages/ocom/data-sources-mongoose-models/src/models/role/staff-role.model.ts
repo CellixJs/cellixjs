@@ -66,6 +66,7 @@ export interface StaffRoleTechAdminPermissions {
 export interface StaffRoleUserPermissions {
 	id?: ObjectId;
 	canManageUsers: boolean;
+	canAssignStaffUserRoles: boolean;
 }
 
 export interface StaffRolePermissions {
@@ -148,6 +149,7 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 			} as SchemaDefinition<StaffRoleTechAdminPermissions>,
 			userPermissions: {
 				canManageUsers: { type: Boolean, required: true, default: false },
+				canAssignStaffUserRoles: { type: Boolean, required: true, default: false },
 			} as SchemaDefinition<StaffRoleUserPermissions>,
 			propertyPermissions: {
 				canManageProperties: { type: Boolean, required: true, default: false },

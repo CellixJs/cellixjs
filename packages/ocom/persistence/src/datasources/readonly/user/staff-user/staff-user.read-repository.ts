@@ -4,6 +4,7 @@ import type { ModelsContext } from '../../../../index.ts';
 import { StaffUserConverter } from '../../../domain/user/staff-user/staff-user.domain-adapter.ts';
 
 export interface StaffUserReadRepository {
+	getAll: () => Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference[]>;
 	getByExternalId: (externalId: string) => Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference | null>;
 }
 
@@ -19,6 +20,11 @@ class StaffUserReadRepositoryImpl implements StaffUserReadRepository {
 		this.model = models.StaffUser;
 		this.converter = new StaffUserConverter();
 		this.passport = passport;
+	}
+
+	async getAll(): Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference[]> {
+		const docs = await this.model.find({}).populate('role').exec();
+		return docs.map((doc) => this.converter.toDomain(doc, this.passport));
 	}
 
 	async getByExternalId(externalId: string): Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference | null> {
