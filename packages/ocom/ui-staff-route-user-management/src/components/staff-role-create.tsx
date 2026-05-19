@@ -19,6 +19,8 @@ interface StaffRoleCreateProps {
 	loading?: boolean;
 	availableEnterpriseAppRoles?: string[];
 	showTechAdminPermissions?: boolean;
+	initialValues?: Partial<StaffRoleFormValues>;
+	mode?: 'create' | 'edit';
 }
 
 const PERMISSION_LABELS: { key: keyof Omit<StaffRoleFormValues, 'roleName' | 'enterpriseAppRole'>; label: string; techAdminOnly?: boolean }[] = [
@@ -29,10 +31,10 @@ const PERMISSION_LABELS: { key: keyof Omit<StaffRoleFormValues, 'roleName' | 'en
 	{ key: 'canAssignStaffUserRoles', label: 'Can Assign Staff User Roles' },
 ];
 
-export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCancel, loading, availableEnterpriseAppRoles, showTechAdminPermissions }) => {
+export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCancel, loading, availableEnterpriseAppRoles, showTechAdminPermissions, initialValues, mode = 'create' }) => {
 	const [form] = Form.useForm<StaffRoleFormValues>();
 
-	const initialValues: StaffRoleFormValues = {
+	const defaultValues: StaffRoleFormValues = {
 		roleName: '',
 		enterpriseAppRole: '',
 		canManageCommunities: false,
@@ -40,8 +42,10 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 		canManageFinance: false,
 		canManageTechAdmin: false,
 		canAssignStaffUserRoles: false,
+		...initialValues,
 	};
 
+	const isEdit = mode === 'edit';
 	const enterpriseAppRoleOptions = (availableEnterpriseAppRoles ?? []).map((r) => ({ value: r, label: r }));
 
 	return (
@@ -50,11 +54,11 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 			size="large"
 			style={{ width: '100%', maxWidth: 600 }}
 		>
-			<Title level={4}>Create Staff Role</Title>
+			<Title level={4}>{isEdit ? 'Edit Staff Role' : 'Create Staff Role'}</Title>
 			<Form
 				form={form}
 				layout="vertical"
-				initialValues={initialValues}
+				initialValues={defaultValues}
 				onFinish={onSubmit}
 			>
 				<Form.Item
@@ -91,7 +95,7 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 							htmlType="submit"
 							loading={!!loading}
 						>
-							Create Role
+							{isEdit ? 'Update Role' : 'Create Role'}
 						</Button>
 						<Button onClick={onCancel}>Cancel</Button>
 					</Space>

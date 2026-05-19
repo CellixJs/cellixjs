@@ -58,6 +58,13 @@ const staffUser: Resolvers = {
 			return await context.applicationServices.User.StaffRole.list();
 		},
 
+		staffRoleById: async (_parent, args: { id: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
+			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+				throw new Error('Unauthorized');
+			}
+			return await context.applicationServices.User.StaffRole.queryById({ roleId: String(args.id) });
+		},
+
 		staffUserById: async (_parent, args: { id: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 				throw new Error('Unauthorized');
@@ -101,6 +108,46 @@ const staffUser: Resolvers = {
 				return { status: { success: true }, staffRole };
 			} catch (error) {
 				console.error('StaffRole > staffRoleCreate: ', error);
+				const { message } = error as Error;
+				return { status: { success: false, errorMessage: message } };
+			}
+		},
+
+		staffRoleUpdate: async (_parent, args: { input: { id: string; roleName: string; enterpriseAppRole: string; permissions?: { communityPermissions?: { canManageCommunities?: boolean | null; canManageStaffRolesAndPermissions?: boolean | null; canManageAllCommunities?: boolean | null; canDeleteCommunities?: boolean | null; canChangeCommunityOwner?: boolean | null; canReIndexSearchCollections?: boolean | null } | null; userPermissions?: { canManageUsers?: boolean | null; canAssignStaffUserRoles?: boolean | null } | null } | null } }, context: GraphContext, _info: GraphQLResolveInfo) => {
+			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
+			if (!jwt) {
+				return { status: { success: false, errorMessage: 'Unauthorized' } };
+			}
+			try {
+				const entraRoles = jwt.roles ?? [];
+				const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(entraRoles);
+				if (!allowedEnterpriseAppRoles.includes(args.input.enterpriseAppRole)) {
+					return { status: { success: false, errorMessage: `You do not have permission to update a role for enterprise app role type: ${args.input.enterpriseAppRole}` } };
+				}
+				const communityPerms = args.input.permissions?.communityPermissions;
+				const userPerms = args.input.permissions?.userPermissions;
+				const staffRole = await context.applicationServices.User.StaffRole.update({
+					roleId: String(args.input.id),
+					roleName: args.input.roleName,
+					...(args.input.enterpriseAppRole ? { enterpriseAppRole: args.input.enterpriseAppRole } : {}),
+					permissions: {
+						community: {
+							...(communityPerms?.canManageCommunities != null ? { canManageCommunities: communityPerms.canManageCommunities } : {}),
+							...(communityPerms?.canManageStaffRolesAndPermissions != null ? { canManageStaffRolesAndPermissions: communityPerms.canManageStaffRolesAndPermissions } : {}),
+							...(communityPerms?.canManageAllCommunities != null ? { canManageAllCommunities: communityPerms.canManageAllCommunities } : {}),
+							...(communityPerms?.canDeleteCommunities != null ? { canDeleteCommunities: communityPerms.canDeleteCommunities } : {}),
+							...(communityPerms?.canChangeCommunityOwner != null ? { canChangeCommunityOwner: communityPerms.canChangeCommunityOwner } : {}),
+							...(communityPerms?.canReIndexSearchCollections != null ? { canReIndexSearchCollections: communityPerms.canReIndexSearchCollections } : {}),
+						},
+						user: {
+							...(userPerms?.canManageUsers != null ? { canManageUsers: userPerms.canManageUsers } : {}),
+							...(userPerms?.canAssignStaffUserRoles != null ? { canAssignStaffUserRoles: userPerms.canAssignStaffUserRoles } : {}),
+						},
+					},
+				});
+				return { status: { success: true }, staffRole };
+			} catch (error) {
+				console.error('StaffRole > staffRoleUpdate: ', error);
 				const { message } = error as Error;
 				return { status: { success: false, errorMessage: message } };
 			}

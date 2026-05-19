@@ -8,8 +8,8 @@ export const StaffRolesListContainer: React.FC = () => {
 	const navigate = useNavigate();
 	const { data, loading } = useQuery(StaffRolesListDocument);
 
-	const handleEdit = (_id: string) => {
-		// TODO: Navigate to edit page when edit route is implemented
+	const handleEdit = (id: string) => {
+		navigate(`edit/${id}`);
 	};
 
 	const handleCreate = () => {

@@ -93,6 +93,18 @@ input StaffUserAssignRoleInput {
 	roleId: ObjectID!
 }
 
+input StaffRoleUpdatePermissionsInput {
+	communityPermissions: StaffRoleCreateCommunityPermissionsInput
+	userPermissions: StaffRoleCreateUserPermissionsInput
+}
+
+input StaffRoleUpdateInput {
+	id: ObjectID!
+	roleName: String!
+	enterpriseAppRole: String!
+	permissions: StaffRoleUpdatePermissionsInput
+}
+
 type StaffRoleMutationResult implements MutationResult {
 	status: MutationStatus!
 	staffRole: StaffRole
@@ -107,10 +119,12 @@ extend type Query {
 	currentStaffUserAndCreateIfNotExists: StaffUser!
 	staffUsers: [StaffUser!]!
 	staffRoles: [StaffRole!]!
+	staffRoleById(id: ObjectID!): StaffRole
 	staffUserById(id: ObjectID!): StaffUser
 }
 
 extend type Mutation {
 	staffRoleCreate(input: StaffRoleCreateInput!): StaffRoleMutationResult!
+	staffRoleUpdate(input: StaffRoleUpdateInput!): StaffRoleMutationResult!
 	staffUserAssignRole(input: StaffUserAssignRoleInput!): StaffUserMutationResult!
 }

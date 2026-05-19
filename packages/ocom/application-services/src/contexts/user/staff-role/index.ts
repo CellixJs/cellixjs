@@ -6,6 +6,7 @@ import { deleteAndReassign, type StaffRoleDeleteAndReassignCommand } from './del
 import { list } from './list.ts';
 import { queryById, type StaffRoleQueryByIdCommand } from './query-by-id.ts';
 import { queryByRoleName, type StaffRoleQueryByRoleNameCommand } from './query-by-role-name.ts';
+import { update, type StaffRoleUpdateCommand } from './update.ts';
 
 export interface StaffRoleApplicationService {
 	create: (command: StaffRoleCreateCommand) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference>;
@@ -14,6 +15,7 @@ export interface StaffRoleApplicationService {
 	list: () => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference[]>;
 	queryById: (command: StaffRoleQueryByIdCommand) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null>;
 	queryByRoleName: (command: StaffRoleQueryByRoleNameCommand) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null>;
+	update: (command: StaffRoleUpdateCommand) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference>;
 }
 
 export const StaffRole = (dataSources: DataSources): StaffRoleApplicationService => {
@@ -24,5 +26,6 @@ export const StaffRole = (dataSources: DataSources): StaffRoleApplicationService
 		list: list(dataSources),
 		queryById: queryById(dataSources),
 		queryByRoleName: queryByRoleName(dataSources),
+		update: update(dataSources),
 	};
 };

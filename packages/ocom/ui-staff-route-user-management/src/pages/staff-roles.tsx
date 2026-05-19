@@ -1,6 +1,7 @@
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { StaffRoleCreateContainer } from '../components/staff-role-create.container.tsx';
+import { StaffRoleEditContainer } from '../components/staff-role-edit.container.tsx';
 import { StaffRolesListContainer } from '../components/staff-roles-list.container.tsx';
 
 export const StaffRolesPage: React.FC = () => {
@@ -13,6 +14,10 @@ export const StaffRolesPage: React.FC = () => {
 			<Route
 				path="create"
 				element={<StaffRoleCreateContainer />}
+			/>
+			<Route
+				path="edit/:id"
+				element={<StaffRoleEditContainer />}
 			/>
 		</Routes>
 	);
