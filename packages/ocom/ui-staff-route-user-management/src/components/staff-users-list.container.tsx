@@ -1,6 +1,5 @@
 import type React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listStaffUsers } from './staff-users.mock-store.ts';
 import { StaffUsersList } from './staff-users-list.tsx';
 
 export const StaffUsersListContainer: React.FC = () => {
@@ -15,7 +14,7 @@ export const StaffUsersListContainer: React.FC = () => {
 
 	return (
 		<StaffUsersList
-			data={listStaffUsers()}
+			data={[]}
 			onEdit={handleEdit}
 			onCreate={handleCreate}
 			loading={false}
