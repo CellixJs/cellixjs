@@ -4,7 +4,8 @@ import type React from 'react';
 const { Title } = Typography;
 
 export interface StaffUserCreateFormValues {
-	displayName: string;
+	firstName: string;
+	lastName: string;
 	email: string;
 	roleId?: string;
 }
@@ -29,15 +30,22 @@ export const StaffUserCreate: React.FC<StaffUserCreateProps> = ({ availableRoles
 			<Form
 				form={form}
 				layout="vertical"
-				initialValues={{ displayName: '', email: '', roleId: undefined }}
+				initialValues={{ firstName: '', lastName: '', email: '', roleId: undefined }}
 				onFinish={onSubmit}
 			>
 				<Form.Item
-					name="displayName"
-					label="Display Name"
-					rules={[{ required: true, message: 'Display name is required' }]}
+					name="firstName"
+					label="First Name"
+					rules={[{ required: true, message: 'First name is required' }]}
 				>
-					<Input placeholder="e.g. Alice Admin" />
+					<Input placeholder="e.g. Alice" />
+				</Form.Item>
+				<Form.Item
+					name="lastName"
+					label="Last Name"
+					rules={[{ required: true, message: 'Last name is required' }]}
+				>
+					<Input placeholder="e.g. Admin" />
 				</Form.Item>
 				<Form.Item
 					name="email"

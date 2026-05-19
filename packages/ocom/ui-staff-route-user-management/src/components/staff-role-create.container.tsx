@@ -4,7 +4,7 @@ import { App } from 'antd';
 import type React from 'react';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StaffRoleCreateDocument, StaffRolesListDocument } from '../generated.tsx';
+import { StaffRoleCreateDocument, StaffRolesForSelectDocument, StaffRolesListDocument, type StaffRolesForSelectQuery, type StaffRolesListQuery } from '../generated.tsx';
 import { StaffRoleCreate, type StaffRoleFormValues } from './staff-role-create.tsx';
 
 const EnterpriseAppRoleNames = {
@@ -37,7 +37,22 @@ export const StaffRoleCreateContainer: React.FC = () => {
 	const showTechAdminPermissions = auth?.permissions?.canManageTechAdmin === true;
 
 	const [staffRoleCreate, { loading }] = useMutation(StaffRoleCreateDocument, {
-		refetchQueries: [{ query: StaffRolesListDocument }],
+		update: (cache, { data }) => {
+			const newRole = data?.staffRoleCreate.staffRole;
+			if (!newRole) return;
+			const updateRolesList = (existing: StaffRolesListQuery | null): StaffRolesListQuery | null => {
+				if (!existing) return { staffRoles: [newRole] };
+				if (existing.staffRoles.some((role) => String(role.id) === String(newRole.id))) return existing;
+				return { staffRoles: [...existing.staffRoles, newRole] };
+			};
+			const updateRolesSelect = (existing: StaffRolesForSelectQuery | null): StaffRolesForSelectQuery | null => {
+				if (!existing) return { staffRoles: [newRole] };
+				if (existing.staffRoles.some((role) => String(role.id) === String(newRole.id))) return existing;
+				return { staffRoles: [...existing.staffRoles, newRole] };
+			};
+			cache.updateQuery({ query: StaffRolesListDocument }, updateRolesList);
+			cache.updateQuery({ query: StaffRolesForSelectDocument }, updateRolesSelect);
+		},
 	});
 
 	const handleSubmit = async (values: StaffRoleFormValues) => {

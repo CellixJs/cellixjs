@@ -41,7 +41,9 @@ export const StaffUserDetailContainer: React.FC = () => {
 		skip: !userId,
 	});
 
-	const { data: rolesData, loading: rolesLoading } = useQuery(StaffRolesForSelectDocument);
+	const { data: rolesData, loading: rolesLoading } = useQuery(StaffRolesForSelectDocument, {
+		fetchPolicy: 'cache-and-network',
+	});
 
 	const [assignRole, { loading: assignLoading }] = useMutation(StaffUserAssignRoleDocument, {
 		refetchQueries: [

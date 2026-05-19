@@ -6,6 +6,7 @@ import { StaffUserConverter } from '../../../domain/user/staff-user/staff-user.d
 export interface StaffUserReadRepository {
 	getAll: () => Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference[]>;
 	getByExternalId: (externalId: string) => Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference | null>;
+	getByEmail: (email: string) => Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference | null>;
 }
 
 class StaffUserReadRepositoryImpl implements StaffUserReadRepository {
@@ -29,6 +30,14 @@ class StaffUserReadRepositoryImpl implements StaffUserReadRepository {
 
 	async getByExternalId(externalId: string): Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference | null> {
 		const doc = await this.model.findOne({ externalId }).populate('role').exec();
+		if (!doc) {
+			return null;
+		}
+		return this.converter.toDomain(doc, this.passport);
+	}
+
+	async getByEmail(email: string): Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference | null> {
+		const doc = await this.model.findOne({ email }).populate('role').exec();
 		if (!doc) {
 			return null;
 		}

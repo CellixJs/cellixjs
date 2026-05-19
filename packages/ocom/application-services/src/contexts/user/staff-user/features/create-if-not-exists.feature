@@ -6,6 +6,12 @@ Feature: Create staff user if not exists
     Then it should return the existing user
     And it should not create a new user
 
+  Scenario: Updates externalId when user exists by email
+    Given a staff user with email "first@example.com" already exists
+    When I call createIfNotExists with externalId "ext-new"
+    Then it should update the existing user's externalId
+    And it should return the updated user
+
   Scenario: Creates a new user when user does not exist
     Given no staff user with externalId "ext-456" exists
     And no matching AAD role is provided

@@ -10,6 +10,7 @@ Feature: StaffUserReadRepository
     When I call getStaffUserReadRepository with those models and a passport
     Then I should receive a StaffUserReadRepository instance
     And the repository should have a getByExternalId method
+    And the repository should have a getByEmail method
 
   Scenario: getByExternalId returns entity when document is found
     Given a StaffUser document exists with externalId "ext-abc"
@@ -20,4 +21,15 @@ Feature: StaffUserReadRepository
   Scenario: getByExternalId returns null when no document is found
     Given no StaffUser document exists with externalId "missing-ext"
     When I call getByExternalId with "missing-ext"
+    Then I should receive null
+
+  Scenario: getByEmail returns entity when document is found
+    Given a StaffUser document exists with email "alice@example.com"
+    When I call getByEmail with "alice@example.com"
+    Then I should receive a StaffUserEntityReference object
+    And the converter toDomain should have been called with the document and passport
+
+  Scenario: getByEmail returns null when no document is found
+    Given no StaffUser document exists with email "missing@example.com"
+    When I call getByEmail with "missing@example.com"
     Then I should receive null

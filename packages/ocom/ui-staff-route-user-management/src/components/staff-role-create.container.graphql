@@ -8,6 +8,8 @@ mutation StaffRoleCreate($input: StaffRoleCreateInput!) {
 			id
 			roleName
 			enterpriseAppRole
+			createdAt
+			updatedAt
 		}
 	}
 }

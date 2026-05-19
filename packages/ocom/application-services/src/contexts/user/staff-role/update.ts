@@ -15,7 +15,7 @@ interface StaffRoleUpdateCommandUserPermissions {
 	canAssignStaffUserRoles?: boolean;
 }
 
-export interface StaffRoleUpdateCommandPermissions {
+interface StaffRoleUpdateCommandPermissions {
 	community?: StaffRoleUpdateCommandCommunityPermissions;
 	user?: StaffRoleUpdateCommandUserPermissions;
 }

@@ -6,7 +6,9 @@ import { StaffUsersList } from './staff-users-list.tsx';
 
 export const StaffUsersListContainer: React.FC = () => {
 	const navigate = useNavigate();
-	const { data, loading } = useQuery(StaffUsersListDocument);
+	const { data, loading } = useQuery(StaffUsersListDocument, {
+		fetchPolicy: 'cache-and-network',
+	});
 
 	const handleEdit = (id: string) => {
 		navigate(id);

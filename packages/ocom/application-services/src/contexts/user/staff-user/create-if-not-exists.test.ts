@@ -13,7 +13,7 @@ const feature = await loadFeature(path.resolve(__dirname, 'features/create-if-no
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function makeMockStaffUserRef(externalId: string): Domain.Contexts.User.StaffUser.StaffUserEntityReference {
+function makeMockStaffUserRef(externalId: string, overrides: Partial<Domain.Contexts.User.StaffUser.StaffUserEntityReference> = {}): Domain.Contexts.User.StaffUser.StaffUserEntityReference {
 	return {
 		id: `id-${externalId}`,
 		externalId,
@@ -28,6 +28,7 @@ function makeMockStaffUserRef(externalId: string): Domain.Contexts.User.StaffUse
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0',
+		...overrides,
 	} as unknown as Domain.Contexts.User.StaffUser.StaffUserEntityReference;
 }
 
@@ -55,7 +56,7 @@ interface MockStaffUserInstance extends Domain.Contexts.User.StaffUser.StaffUser
 }
 
 function makeMockNewUser(externalId: string): MockStaffUserInstance {
-	let _role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined = undefined;
+	let _role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
 	return {
 		id: `new-id-${externalId}`,
 		externalId,
@@ -80,6 +81,7 @@ function makeMockNewUser(externalId: string): MockStaffUserInstance {
 
 function makeDataSources(overrides: {
 	existingUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference | null;
+	existingUserByEmail?: Domain.Contexts.User.StaffUser.StaffUserEntityReference | null;
 	newUser?: MockStaffUserInstance;
 	savedUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference;
 	roleByEnterpriseAppRole?: Record<string, Domain.Contexts.User.StaffRole.StaffRoleEntityReference>;
@@ -90,6 +92,7 @@ function makeDataSources(overrides: {
 
 	const staffUserRepo = {
 		getByExternalId: vi.fn().mockResolvedValue(overrides.existingUser ?? null),
+		get: vi.fn().mockResolvedValue(overrides.existingUserByEmail ?? newUser),
 		getNewInstance: vi.fn().mockResolvedValue(newUser),
 		save: overrides.saveShouldFail ? vi.fn().mockResolvedValue(undefined) : vi.fn().mockResolvedValue(savedUser),
 		delete: vi.fn(),
@@ -124,6 +127,7 @@ function makeDataSources(overrides: {
 				StaffUser: {
 					StaffUserReadRepo: {
 						getByExternalId: vi.fn().mockResolvedValue(overrides.existingUser ?? null),
+						getByEmail: vi.fn().mockResolvedValue(overrides.existingUserByEmail ?? null),
 					},
 				},
 			},
@@ -189,6 +193,27 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		When('I call createIfNotExists with externalId "ext-123"', async () => {
 			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Scenario('Updates externalId when user exists by email', ({ Given, When, Then, And }) => {
+			Given('a staff user with email "first@example.com" already exists', () => {
+				existingUser = makeMockStaffUserRef('ext-old', { email: 'first@example.com' });
+				dataSources = makeDataSources({ existingUserByEmail: existingUser, savedUser: { ...existingUser, externalId: 'ext-new' } });
+				command = { ...command, externalId: 'ext-new' };
+			});
+
+			When('I call createIfNotExists with externalId "ext-new"', async () => {
+				result = await createIfNotExists(dataSources)(command);
+			});
+
+			Then('it should update the existing user\'s externalId', () => {
+				const repo = (dataSources as unknown as { _staffUserRepo: { save: ReturnType<typeof vi.fn> } })._staffUserRepo;
+				expect(repo.save).toHaveBeenCalled();
+			});
+
+			And('it should return the updated user', () => {
+				expect(result?.externalId).toBe('ext-new');
+			});
 		});
 
 		Then('it should return the existing user', () => {

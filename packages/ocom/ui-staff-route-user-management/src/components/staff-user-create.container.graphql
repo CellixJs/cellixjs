@@ -1,0 +1,34 @@
+query StaffUserCreateRoles {
+	staffRoles {
+		...StaffUserCreateRoleFields
+	}
+}
+
+mutation StaffUserCreate($input: StaffUserCreateInput!) {
+	staffUserCreate(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		staffUser {
+			...StaffUserCreateUserFields
+		}
+	}
+}
+
+fragment StaffUserCreateRoleFields on StaffRole {
+	id
+	roleName
+	enterpriseAppRole
+}
+
+fragment StaffUserCreateUserFields on StaffUser {
+	id
+	displayName
+	email
+	createdAt
+	role {
+		id
+		roleName
+	}
+}

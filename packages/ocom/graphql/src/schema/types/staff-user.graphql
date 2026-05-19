@@ -93,6 +93,13 @@ input StaffUserAssignRoleInput {
 	roleId: ObjectID!
 }
 
+input StaffUserCreateInput {
+	firstName: String!
+	lastName: String!
+	email: String!
+	roleId: ObjectID
+}
+
 input StaffRoleUpdatePermissionsInput {
 	communityPermissions: StaffRoleCreateCommunityPermissionsInput
 	userPermissions: StaffRoleCreateUserPermissionsInput
@@ -127,4 +134,5 @@ extend type Mutation {
 	staffRoleCreate(input: StaffRoleCreateInput!): StaffRoleMutationResult!
 	staffRoleUpdate(input: StaffRoleUpdateInput!): StaffRoleMutationResult!
 	staffUserAssignRole(input: StaffUserAssignRoleInput!): StaffUserMutationResult!
+	staffUserCreate(input: StaffUserCreateInput!): StaffUserMutationResult!
 }

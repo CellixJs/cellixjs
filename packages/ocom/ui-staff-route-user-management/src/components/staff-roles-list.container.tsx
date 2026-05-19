@@ -6,7 +6,9 @@ import { StaffRolesList } from './staff-roles-list.tsx';
 
 export const StaffRolesListContainer: React.FC = () => {
 	const navigate = useNavigate();
-	const { data, loading } = useQuery(StaffRolesListDocument);
+	const { data, loading } = useQuery(StaffRolesListDocument, {
+		fetchPolicy: 'cache-and-network',
+	});
 
 	const handleEdit = (id: string) => {
 		navigate(`edit/${id}`);

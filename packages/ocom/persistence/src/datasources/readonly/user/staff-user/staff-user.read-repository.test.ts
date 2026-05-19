@@ -107,6 +107,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('the repository should have a getByExternalId method', () => {
 			expect(typeof repository.getByExternalId).toBe('function');
 		});
+		And('the repository should have a getByEmail method', () => {
+			expect(typeof repository.getByEmail).toBe('function');
+		});
 	});
 
 	Scenario('getByExternalId returns entity when document is found', ({ Given, When, Then, And }) => {
@@ -133,6 +136,36 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		When('I call getByExternalId with "missing-ext"', async () => {
 			result = await repository.getByExternalId('missing-ext');
+		});
+		Then('I should receive null', () => {
+			expect(result).toBeNull();
+		});
+	});
+
+	Scenario('getByEmail returns entity when document is found', ({ Given, When, Then, And }) => {
+		Given('a StaffUser document exists with email "alice@example.com"', () => {
+			models = { StaffUser: makeMockModel(mockStaffUserDoc) } as unknown as ModelsContext;
+			repository = getStaffUserReadRepository(models, passport);
+		});
+		When('I call getByEmail with "alice@example.com"', async () => {
+			result = await repository.getByEmail('alice@example.com');
+		});
+		Then('I should receive a StaffUserEntityReference object', () => {
+			expect(result).toBeDefined();
+			expect(result).not.toBeNull();
+		});
+		And('the converter toDomain should have been called with the document and passport', () => {
+			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockStaffUserDoc, passport);
+		});
+	});
+
+	Scenario('getByEmail returns null when no document is found', ({ Given, When, Then }) => {
+		Given('no StaffUser document exists with email "missing@example.com"', () => {
+			models = { StaffUser: makeMockModel(null) } as unknown as ModelsContext;
+			repository = getStaffUserReadRepository(models, passport);
+		});
+		When('I call getByEmail with "missing@example.com"', async () => {
+			result = await repository.getByEmail('missing@example.com');
 		});
 		Then('I should receive null', () => {
 			expect(result).toBeNull();
