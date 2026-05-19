@@ -15,8 +15,8 @@ const isPostAuthUrl = (url: URL) => !url.hostname.includes('mock-auth') && !url.
  * The app uses RequireAuth + react-oidc-context.  When an unauthenticated
  * user hits a protected route, RequireAuth calls `signinRedirect()` which
  * navigates to the mock OAuth2 server's `/authorize` endpoint.  The mock
- * server auto-completes the flow (no login form) and redirects back with a
- * code that the OIDC library exchanges for tokens.
+ * server redirects to `/login` (since userStore is configured).  This
+ * function fills in the test user credentials and submits the form.
  */
 export async function performOAuth2Login(page: Page): Promise<void> {
 	// Navigate to a protected route to trigger the OIDC signinRedirect flow.
@@ -27,6 +27,16 @@ export async function performOAuth2Login(page: Page): Promise<void> {
 		});
 	} catch {
 		// Navigation may be interrupted by OIDC redirect — this is expected
+	}
+
+	// Wait for redirects to settle on either the login page or the app
+	await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => undefined);
+
+	// If the mock OAuth2 login form is shown, fill credentials and submit
+	if (page.url().includes('/login')) {
+		await page.fill('input[name="username"]', 'test@example.com');
+		await page.fill('input[name="password"]', 'password');
+		await page.click('button[type="submit"]');
 	}
 
 	// Wait for the redirect chain to settle on an authenticated page

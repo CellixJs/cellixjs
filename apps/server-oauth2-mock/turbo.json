@@ -9,6 +9,12 @@
 			"interruptible": true,
 			"persistent": true,
 			"inputs": ["$TURBO_DEFAULT$", "../**/mock-oidc*.json"]
+		},
+		"dev:portless": {
+			"dependsOn": ["build"],
+			"interruptible": true,
+			"persistent": true,
+			"inputs": ["$TURBO_DEFAULT$", "../**/mock-oidc*.json", "start-dev.mjs"]
 		}
 	}
 }

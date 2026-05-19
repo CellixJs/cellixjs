@@ -65,7 +65,8 @@ overrides:
   rollup: ^4.59.0
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
   'brace-expansion@1.1.12': 1.1.13
-  'brace-expansion@5.0.4': 5.0.5
+  'brace-expansion@5.0.4': 5.0.6
+  'brace-expansion@5.0.5': 5.0.6
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
@@ -76,7 +77,7 @@ overrides:
   svgo: ^3.3.3
   'yaml@2.8.2': 2.8.3
   'yauzl@3.2.0': 3.2.1
-  qs: ^6.14.2
+  qs: 6.15.2
   'ajv@^6': 6.14.0
   lodash: 4.18.1
   lodash-es: 4.18.1
@@ -86,7 +87,9 @@ overrides:
   webpack: ^5.105.4
   webpack-dev-server: ^5.2.4
   express-rate-limit: 8.5.1
-  uuid: 14.0.0
+  '@azure/ms-rest-js>uuid': '^3.4.0'
+  'azurite>uuid': '^3.4.0'
+  'ws@8.20.0': 8.20.1
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: 8.5.10

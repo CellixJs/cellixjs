@@ -11,6 +11,11 @@
 			"dependsOn": ["build"],
 			"interruptible": true,
 			"inputs": []
+		},
+		"dev:portless": {
+			"dependsOn": ["build"],
+			"interruptible": true,
+			"inputs": []
 		}
 	}
 }

@@ -7,6 +7,12 @@
 			"persistent": true,
 			"interruptible": true,
 			"inputs": []
+		},
+		"dev:portless": {
+			"dependsOn": ["build"],
+			"persistent": true,
+			"interruptible": true,
+			"inputs": []
 		}
 	}
 }

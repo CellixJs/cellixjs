@@ -1,37 +1,69 @@
 import { type ChildProcess, spawn } from 'node:child_process';
+import type { TestServer } from '@ocom-verification/verification-shared/servers';
+import { getTimeout } from '@ocom-verification/verification-shared/settings';
 import { getPortlessPath } from './resolve-portless.ts';
 
 /**
  * Abstract base class for portless-proxied servers.
  * Subclasses define the hostname, command, ready marker, and working directory.
  * The base class handles spawning via portless, readiness detection, and shutdown.
+ *
+ * This implements the TestServer interface for consistency with
+ * GraphQLTestServer (in-process), while providing subprocess isolation
+ * for full system tests.
  */
-export abstract class PortlessServer {
+export abstract class PortlessServer implements TestServer {
 	private process: ChildProcess | null = null;
 	private startedByUs = false;
+	private readonly useDetachedProcessGroup = process.platform !== 'win32';
 
 	protected abstract get probeUrl(): string;
 	protected abstract get readyMarker(): string;
 	protected abstract get serverName(): string;
-	protected abstract get startupTimeoutMs(): number;
 	protected abstract get spawnArgs(): string[];
 	protected abstract get cwd(): string;
+
+	protected get executable(): string {
+		return getPortlessPath();
+	}
+
+	protected get probeRequestInit(): RequestInit {
+		return {};
+	}
+
 	protected get extraEnv(): Record<string, string> {
 		return {};
 	}
 
+	protected isProbeHealthy(response: Response): boolean | Promise<boolean> {
+		return response.ok;
+	}
+
+	protected get startupTimeoutMs(): number {
+		return getTimeout('serverStartup');
+	}
+
+	abstract getUrl(): string;
+
+	/**
+	 * Check if server is already running (via health probe).
+	 */
 	async isAlreadyRunning(): Promise<boolean> {
 		try {
 			const controller = new AbortController();
-			const timeout = setTimeout(() => controller.abort(), 3_000);
-			const res = await fetch(this.probeUrl, { signal: controller.signal });
+			const probeTimeout = getTimeout('healthProbe');
+			const timeout = setTimeout(() => controller.abort(), probeTimeout);
+			const res = await fetch(this.probeUrl, { ...this.probeRequestInit, signal: controller.signal });
 			clearTimeout(timeout);
-			return res.ok;
+			return await this.isProbeHealthy(res);
 		} catch {
 			return false;
 		}
 	}
 
+	/**
+	 * Start the server subprocess and wait for it to be ready.
+	 */
 	async start(): Promise<void> {
 		if (this.process || this.startedByUs) return;
 		if (await this.isAlreadyRunning()) return;
@@ -43,9 +75,10 @@ export abstract class PortlessServer {
 		// Remove NODE_OPTIONS from child process to avoid tsx import issues
 		delete env['NODE_OPTIONS'];
 
-		this.process = spawn(getPortlessPath(), this.spawnArgs, {
+		this.process = spawn(this.executable, this.spawnArgs, {
 			cwd: this.cwd,
 			env,
+			detached: this.useDetachedProcessGroup,
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
 		this.startedByUs = true;
@@ -53,6 +86,9 @@ export abstract class PortlessServer {
 		await this.waitForReady();
 	}
 
+	/**
+	 * Stop the server gracefully, with fallback to SIGKILL.
+	 */
 	async stop(): Promise<void> {
 		if (!this.process || !this.startedByUs) return;
 
@@ -60,13 +96,17 @@ export abstract class PortlessServer {
 		this.process = null;
 		this.startedByUs = false;
 
-		proc.kill('SIGTERM');
+		// SIGINT lets portless run its cleanup branch — deregister the hostname from
+		// ~/.portless/routes.json before exiting. Fall back to SIGKILL after the
+		// shutdown timeout for anything that ignores SIGINT.
+		this.killProcess(proc, 'SIGINT');
 
+		const shutdownTimeout = getTimeout('serverShutdown');
 		await new Promise<void>((resolve) => {
 			const timeout = setTimeout(() => {
-				proc.kill('SIGKILL');
+				this.killProcess(proc, 'SIGKILL');
 				resolve();
-			}, 10_000);
+			}, shutdownTimeout);
 
 			proc.on('exit', () => {
 				clearTimeout(timeout);
@@ -87,16 +127,34 @@ export abstract class PortlessServer {
 				return;
 			}
 
+			const startupTimeout = this.startupTimeoutMs;
 			const timeout = setTimeout(() => {
-				reject(new Error(`${this.serverName} did not start within ${this.startupTimeoutMs}ms`));
-			}, this.startupTimeoutMs);
+				reject(new Error(`${this.serverName} did not start within ${startupTimeout}ms`));
+			}, startupTimeout);
 
 			let stderrOutput = '';
+			let ready = false;
 
+			const resolveWhenReachable = () => {
+				if (ready) return;
+				ready = true;
+
+				this.waitForProbeReady()
+					.then(() => {
+						clearTimeout(timeout);
+						resolve();
+					})
+					.catch((error: unknown) => {
+						clearTimeout(timeout);
+						reject(error);
+					});
+			};
+
+			// stdout listener detects the readyMarker then waits for the probe to respond
 			proc.stdout?.on('data', (data: Buffer) => {
-				if (data.toString().includes(this.readyMarker)) {
-					clearTimeout(timeout);
-					resolve();
+				const text = data.toString();
+				if (text.includes(this.readyMarker)) {
+					resolveWhenReachable();
 				}
 			});
 
@@ -104,19 +162,36 @@ export abstract class PortlessServer {
 				stderrOutput += data.toString();
 			});
 
-			proc.on('error', (err) => {
+			proc.on('error', (err: Error) => {
 				clearTimeout(timeout);
-				this.process = null;
-				this.startedByUs = false;
 				reject(new Error(`${this.serverName} failed to start: ${err.message}`));
 			});
 
-			proc.on('exit', (code) => {
+			proc.on('exit', (code, signal) => {
 				clearTimeout(timeout);
 				this.process = null;
 				this.startedByUs = false;
-				reject(new Error(`${this.serverName} exited unexpectedly (code: ${code}). stderr: ${stderrOutput.slice(-2000)}`));
+				reject(new Error(`${this.serverName} exited unexpectedly (code: ${code}, signal: ${signal}). stderr: ${stderrOutput.slice(-2000)}`));
 			});
 		});
+	}
+
+	private async waitForProbeReady(): Promise<void> {
+		const probeInterval = getTimeout('healthProbeInterval');
+		while (!(await this.isAlreadyRunning())) {
+			await new Promise((resolve) => setTimeout(resolve, probeInterval));
+		}
+	}
+
+	private killProcess(proc: ChildProcess, signal: NodeJS.Signals): void {
+		if (this.useDetachedProcessGroup && proc.pid) {
+			try {
+				process.kill(-proc.pid, signal);
+				return;
+			} catch {
+				/* Fall back to killing the direct child below. */
+			}
+		}
+		proc.kill(signal);
 	}
 }

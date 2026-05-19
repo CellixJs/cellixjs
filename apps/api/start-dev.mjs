@@ -2,6 +2,8 @@ import { spawn } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { isGracefulInterruptExit } from '../../build-pipeline/scripts/dev-process-exit.mjs';
+import { buildPortlessUrl, getHostnames } from '../../build-pipeline/scripts/portless-hostnames.mjs';
+import { getAzuriteConnectionString, getMongoConnectionString } from '../../build-pipeline/scripts/worktree-ports.mjs';
 
 const envPort = process.env.PORT;
 
@@ -18,7 +20,20 @@ const childEnv = {
 	NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --use-system-ca`.trim(),
 };
 
-const child = spawn('func', ['start', '--typescript', '--script-root', 'deploy/', '--port', envPort], {
+// Only inject worktree-scoped overrides when running in worktree mode.
+// When WORKTREE_NAME is absent, local.settings.json remains the source of truth.
+if (process.env.WORKTREE_NAME) {
+	const hostnames = getHostnames();
+	childEnv.ACCOUNT_PORTAL_OIDC_ISSUER = buildPortlessUrl(hostnames.mockAuth, '/community');
+	childEnv.ACCOUNT_PORTAL_OIDC_ENDPOINT = buildPortlessUrl(hostnames.mockAuth, '/community/.well-known/jwks.json');
+	childEnv.COSMOSDB_CONNECTION_STRING = getMongoConnectionString();
+	childEnv.AZURE_STORAGE_CONNECTION_STRING = getAzuriteConnectionString();
+	childEnv.AzureWebJobsStorage = getAzuriteConnectionString();
+	// Disable the Node.js inspector — port 5858 is already used by the primary worktree.
+	childEnv.languageWorkers__node__arguments = '';
+}
+
+const child = spawn('func', ['start', '--typescript', '--script-root', 'deploy/', '--port', envPort, '--cors', '*'], {
 	stdio: 'inherit',
 	env: childEnv,
 });
