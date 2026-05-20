@@ -5,11 +5,12 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === 'development';
+const isProd = NODE_ENV === 'production';
 
 export default defineConfig({
 	plugins: [
         react() as PluginOption, 
-        nodePolyfills() as PluginOption, 
+        ...(isProd ? [nodePolyfills() as PluginOption] : []),
         ...(isDev ? [visualizer() as PluginOption] : [])
     ],
 	server: process.env.PORTLESS_URL
