@@ -4,6 +4,12 @@ query StaffUserDetail($id: ObjectID!) {
 	}
 }
 
+query CurrentStaffUser {
+	currentStaffUserAndCreateIfNotExists {
+		...StaffUserDetailFields
+	}
+}
+
 query StaffRolesForSelect {
 	staffRoles {
 		id

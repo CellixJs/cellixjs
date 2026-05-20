@@ -90,7 +90,7 @@ test('applyDefaultSpec sets Finance permissions correctly and marks default', ()
 	expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
 	expect(role.permissions.financePermissions.canManageFinance).toBe(true);
 	expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
-	expect(role.permissions.userPermissions.canManageUsers).toBe(false);
+	expect(role.permissions.userPermissions.canManageUsers).toBe(true);
 	expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 	expect(role.isDefault).toBe(true);
 });

@@ -4,7 +4,7 @@ import { App } from 'antd';
 import type React from 'react';
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { StaffRolesForSelectDocument, StaffUserAssignRoleDocument, StaffUserDetailDocument, StaffUsersListDocument } from '../generated.tsx';
+import { StaffRolesForSelectDocument, StaffUserAssignRoleDocument, StaffUserDetailDocument, StaffUsersListDocument, CurrentStaffUserDocument } from '../generated.tsx';
 import { StaffUserDetail } from './staff-user-detail.tsx';
 
 const EnterpriseAppRoleNames = {
@@ -41,6 +41,10 @@ export const StaffUserDetailContainer: React.FC = () => {
 		skip: !userId,
 	});
 
+	const { data: currentUserData, loading: currentUserLoading } = useQuery(CurrentStaffUserDocument, {
+		fetchPolicy: 'cache-and-network',
+	});
+
 	const { data: rolesData, loading: rolesLoading } = useQuery(StaffRolesForSelectDocument, {
 		fetchPolicy: 'cache-and-network',
 	});
@@ -68,7 +72,9 @@ export const StaffUserDetailContainer: React.FC = () => {
 	};
 
 	const user = userData?.staffUserById;
-	const loading = userLoading || rolesLoading || assignLoading;
+	const currentUser = currentUserData?.currentStaffUserAndCreateIfNotExists;
+	const isEditingOwnRole = user?.id === currentUser?.id;
+	const loading = userLoading || rolesLoading || assignLoading || currentUserLoading;
 
 	// Determine which enterprise app role types the current viewer can assign
 	const viewerAllowedRoleTypes = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
@@ -90,7 +96,9 @@ export const StaffUserDetailContainer: React.FC = () => {
 					: { id: userId, displayName: 'Loading...', email: '', role: null, createdAt: '' }
 			}
 			availableRoles={filteredRoles.map((r) => ({ id: String(r.id), roleName: r.roleName }))}
-			canAssignRoles={canAssignRoles}
+			canAssignRoles={canAssignRoles && !isEditingOwnRole}
+			isEditingOwnRole={isEditingOwnRole}
+			{...(user?.role?.roleName && { currentRoleName: user.role.roleName })}
 			onRoleChange={handleRoleChange}
 			loading={loading}
 		/>
