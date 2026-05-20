@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
 	const isProd = mode === 'production';
 
 	return {
-		plugins: [react() as PluginOption, ...(isProd ? [nodePolyfills() as PluginOption] : []), ...(isDev ? [visualizer() as PluginOption] : [])],
+		plugins: [react() as PluginOption, ...(isProd ? [nodePolyfills({ include: ['util'], globals: { Buffer: false, global: false, process: false } }) as PluginOption] : []), ...(isDev ? [visualizer() as PluginOption] : [])],
 		server: process.env.PORTLESS_URL
 			? undefined
 			: {

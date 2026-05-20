@@ -8,9 +8,7 @@ import { ApolloLinkToAddAuthHeader, ApolloLinkToAddCustomHeader, BaseApolloLink,
 const COMMON_API_ENDPOINT = import.meta.env.VITE_COMMON_API_ENDPOINT;
 
 if (!COMMON_API_ENDPOINT) {
-	throw new Error(
-		'Missing required environment variable VITE_COMMON_API_ENDPOINT for GraphQL server URI'
-	);
+	throw new Error('Missing required environment variable VITE_COMMON_API_ENDPOINT for GraphQL server URI');
 }
 
 interface ApolloConnectionProps {
