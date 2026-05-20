@@ -452,6 +452,9 @@ importers:
       '@ocom/ui-community-route-root':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-community-route-root
+      '@ocom/ui-community-shared':
+        specifier: workspace:*
+        version: link:../../packages/ocom/ui-community-shared
       antd:
         specifier: 'catalog:'
         version: 6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1783,6 +1786,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/ui-community-shared':
+        specifier: workspace:*
+        version: link:../ui-community-shared
       '@ocom/ui-shared':
         specifier: workspace:*
         version: link:../ui-shared
@@ -1950,6 +1956,9 @@ importers:
 
   packages/ocom/ui-community-route-root:
     dependencies:
+      '@ocom/ui-community-shared':
+        specifier: workspace:*
+        version: link:../ui-community-shared
       antd:
         specifier: 'catalog:'
         version: 6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -2279,6 +2288,9 @@ importers:
 
   packages/ocom/ui-staff-route-root:
     dependencies:
+      '@ocom/ui-staff-shared':
+        specifier: workspace:*
+        version: link:../ui-staff-shared
       antd:
         specifier: 'catalog:'
         version: 6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)

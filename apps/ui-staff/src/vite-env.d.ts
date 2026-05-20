@@ -1,1 +1,1 @@
-/// <reference types="@ocom/ui-community-shared/env" />
+/// <reference types="@ocom/ui-staff-shared/env" />
