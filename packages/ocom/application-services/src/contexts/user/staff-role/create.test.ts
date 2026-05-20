@@ -4,188 +4,292 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { create, type StaffRoleCreateCommandPermissions } from './create.ts';
+import { create, type StaffRoleCreateCommand } from './create.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/create.feature'));
 
-function makeMockStaffRole(overrides: Partial<Domain.Contexts.User.StaffRole.StaffRoleEntityReference> = {}) {
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+type MockPermissions = {
+	communityPermissions: Record<string, boolean>;
+	userPermissions: Record<string, boolean>;
+};
+
+interface MockStaffRoleInstance {
+	id: string;
+	roleName: string;
+	enterpriseAppRole: string;
+	isDefault: boolean;
+	roleType: null;
+	permissions: MockPermissions;
+	createdAt: Date;
+	updatedAt: Date;
+	schemaVersion: string;
+}
+
+function makeMockStaffRoleInstance(roleName: string): MockStaffRoleInstance {
+	const communityPermissions: Record<string, boolean> = {
+		canManageCommunities: false,
+		canManageStaffRolesAndPermissions: false,
+		canManageAllCommunities: false,
+		canDeleteCommunities: false,
+		canChangeCommunityOwner: false,
+		canReIndexSearchCollections: false,
+	};
+	const userPermissions: Record<string, boolean> = {
+		canManageUsers: false,
+		canAssignStaffUserRoles: false,
+	};
 	return {
-		id: '507f1f77bcf86cd799439011',
-		roleName: 'Test Role',
+		id: `id-${roleName}`,
+		roleName,
+		enterpriseAppRole: '',
 		isDefault: false,
-		permissions: {
-			communityPermissions: {
-				canManageStaffRolesAndPermissions: false,
-				canManageAllCommunities: false,
-				canDeleteCommunities: false,
-				canChangeCommunityOwner: false,
-				canReIndexSearchCollections: false,
-			},
-		},
 		roleType: null,
+		permissions: { communityPermissions, userPermissions },
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0',
-		...overrides,
-	} as Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+	} as unknown as MockStaffRoleInstance;
 }
 
-function makeMockRepo(overrides: Partial<Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>> = {}) {
-	return {
-		getByRoleName: vi.fn(),
-		getNewInstance: vi.fn(),
-		save: vi.fn(),
-		...overrides,
+function makeDataSources(overrides: {
+	existingRole?: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null;
+	unexpectedError?: Error;
+	newRoleInstance?: MockStaffRoleInstance;
+	explicitUndefinedSave?: boolean;
+}): DataSources & { _repo: unknown } {
+	const { existingRole, unexpectedError, newRoleInstance, explicitUndefinedSave } = overrides;
+	const instance = newRoleInstance ?? makeMockStaffRoleInstance('Test Role');
+	const savedRole = explicitUndefinedSave ? undefined : (instance as unknown as Domain.Contexts.User.StaffRole.StaffRoleEntityReference);
+
+	const repo = {
+		getByRoleName: unexpectedError
+			? vi.fn().mockRejectedValue(unexpectedError)
+			: existingRole
+				? vi.fn().mockResolvedValue(existingRole)
+				: vi.fn().mockRejectedValue(new Error('not found')),
+		getNewInstance: vi.fn().mockResolvedValue(instance),
+		save: vi.fn().mockResolvedValue(savedRole),
 	} as unknown as Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
-}
 
-test.for(feature, ({ Scenario, BeforeEachScenario }) => {
-	let dataSources: DataSources;
-	let createStaffRole: (command: { roleName: string; isDefault?: boolean; permissions?: StaffRoleCreateCommandPermissions }) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference>;
-
-	BeforeEachScenario(() => {
-		dataSources = {
-			domainDataSource: {
-				User: {
-					StaffRole: {
-						StaffRoleUnitOfWork: {
-							withScopedTransaction: vi.fn(),
-						},
+	return {
+		domainDataSource: {
+			User: {
+				StaffRole: {
+					StaffRoleUnitOfWork: {
+						withScopedTransaction: vi.fn().mockImplementation(async (cb: (r: typeof repo) => Promise<void>) => {
+							await cb(repo);
+						}),
 					},
 				},
 			},
-		} as unknown as DataSources;
+		},
+		_repo: repo,
+	} as unknown as DataSources & { _repo: unknown };
+}
 
-		createStaffRole = create(dataSources);
+// ─── Tests ────────────────────────────────────────────────────────────────────
+
+test.for(feature, ({ Scenario, BeforeEachScenario }) => {
+	let dataSources: DataSources & { _repo?: unknown };
+	let command: StaffRoleCreateCommand;
+	let result: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
+	let thrownError: unknown;
+	let roleInstance: MockStaffRoleInstance;
+
+	BeforeEachScenario(() => {
+		result = undefined;
+		thrownError = undefined;
+		roleInstance = makeMockStaffRoleInstance('Test Role');
+		command = { roleName: 'Test Role' };
 	});
 
-	Scenario('Creating a staff role successfully', ({ Given, When, Then }) => {
-		let result: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+	// ─── Create with no permissions ───────────────────────────────────────────
 
-		Given('a staff role with name "Test Role" does not exist', () => {
-			// Mock will be set up in When step
+	Scenario('Successfully creates a staff role with no permissions', ({ Given, When, Then, And }) => {
+		Given('a staff role with name "Test Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Test Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = { roleName: 'Test Role' };
 		});
 
-		When('I create a staff role with name "Test Role", isDefault false, and no permissions', async () => {
-			const mockRepo = makeMockRepo({
-				getByRoleName: vi.fn().mockRejectedValue(new Error('Not found')),
-				getNewInstance: vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Test Role', isDefault: false })),
-				save: vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Test Role', isDefault: false })),
-			});
-
-			vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
-				await callback(mockRepo);
-			});
-
-			result = await createStaffRole({ roleName: 'Test Role', isDefault: false });
+		When('I call create with roleName "Test Role" and no permissions', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
 		});
 
-		Then('it should return a staff role entity reference with name "Test Role" and isDefault false', () => {
+		Then('the new staff role should be saved', () => {
+			const repo = dataSources._repo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).toHaveBeenCalled();
+		});
+
+		And('the result should have roleName "Test Role"', () => {
+			expect(thrownError).toBeUndefined();
 			expect(result).toBeDefined();
-			expect(result.roleName).toBe('Test Role');
-			expect(result.isDefault).toBe(false);
+			expect(result?.roleName).toBe('Test Role');
 		});
 	});
 
-	Scenario('Creating a staff role with permissions', ({ Given, When, Then }) => {
-		let result: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+	// ─── Create with enterpriseAppRole ────────────────────────────────────────
 
-		Given('a staff role with name "Admin Role" does not exist', () => {
-			// Mock will be set up in When step
+	Scenario('Successfully creates a staff role with an enterpriseAppRole', ({ Given, When, Then }) => {
+		Given('a staff role with name "Test Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Test Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = { roleName: 'Test Role', enterpriseAppRole: 'Staff.TestRole' };
 		});
 
-		When('I create a staff role with name "Admin Role", isDefault true, and permissions', async () => {
-			const mockRepo = makeMockRepo({
-				getByRoleName: vi.fn().mockRejectedValue(new Error('Not found')),
-				getNewInstance: vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Admin Role', isDefault: true })),
-				save: vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Admin Role', isDefault: true })),
-			});
+		When('I call create with roleName "Test Role" and enterpriseAppRole "Staff.TestRole"', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
 
-			vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
-				await callback(mockRepo);
-			});
+		Then('the new staff role should be saved with enterpriseAppRole "Staff.TestRole"', () => {
+			expect(thrownError).toBeUndefined();
+			expect(roleInstance.enterpriseAppRole).toBe('Staff.TestRole');
+		});
+	});
 
-			result = await createStaffRole({
+	// ─── Create with community permissions ───────────────────────────────────
+
+	Scenario('Successfully creates a staff role with community permissions', ({ Given, When, Then, And }) => {
+		Given('a staff role with name "Admin Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Admin Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = {
 				roleName: 'Admin Role',
-				isDefault: true,
-				permissions: {
-					community: {
-						canManageStaffRolesAndPermissions: true,
-						canManageAllCommunities: true,
-						canDeleteCommunities: false,
-						canChangeCommunityOwner: false,
-						canReIndexSearchCollections: true,
-					},
-				},
-			});
+				permissions: { community: { canManageCommunities: true } },
+			};
 		});
 
-		Then('it should return a staff role entity reference with name "Admin Role" and isDefault true', () => {
-			expect(result).toBeDefined();
-			expect(result.roleName).toBe('Admin Role');
-			expect(result.isDefault).toBe(true);
-		});
-	});
-
-	Scenario('Creating a staff role with duplicate name', ({ Given, When, Then }) => {
-		let error: Error;
-
-		Given('a staff role with name "Test Role" already exists', () => {
-			// Mock will be set up in When step
-		});
-
-		When('I create a staff role with name "Test Role", isDefault false, and no permissions', async () => {
-			const mockRepo = makeMockRepo({
-				getByRoleName: vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Test Role' })),
-			});
-
-			vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
-				await callback(mockRepo);
-			});
-
+		When('I call create with roleName "Admin Role" and community permissions canManageCommunities true', async () => {
 			try {
-				await createStaffRole({ roleName: 'Test Role', isDefault: false });
-			} catch (err) {
-				error = err as Error;
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
 			}
 		});
 
-		Then('it should throw an error "Staff role with name Test Role already exists"', () => {
-			expect(error).toBeDefined();
-			expect(error.message).toBe('Staff role with name Test Role already exists');
+		Then('the new staff role should be saved', () => {
+			const repo = dataSources._repo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).toHaveBeenCalled();
+		});
+
+		And('the community permission canManageCommunities should be true', () => {
+			expect(thrownError).toBeUndefined();
+			expect(roleInstance.permissions.communityPermissions['canManageCommunities']).toBe(true);
 		});
 	});
 
-	Scenario('Creating a staff role when save fails', ({ Given, When, Then }) => {
-		let error: Error;
+	// ─── Create with user permissions ────────────────────────────────────────
 
-		Given('a staff role with name "Test Role" does not exist', () => {
-			// Mock will be set up in When step
+	Scenario('Successfully creates a staff role with user permissions', ({ Given, When, Then, And }) => {
+		Given('a staff role with name "Manager Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Manager Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = {
+				roleName: 'Manager Role',
+				permissions: { user: { canManageUsers: true } },
+			};
 		});
 
-		When('I create a staff role but save fails', async () => {
-			const mockRepo = makeMockRepo({
-				getByRoleName: vi.fn().mockRejectedValue(new Error('Not found')),
-				getNewInstance: vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Test Role', isDefault: false })),
-				save: vi.fn().mockResolvedValue(undefined), // Simulate save failure
-			});
-
-			vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
-				await callback(mockRepo);
-			});
-
+		When('I call create with roleName "Manager Role" and user permissions canManageUsers true', async () => {
 			try {
-				await createStaffRole({ roleName: 'Test Role', isDefault: false });
-			} catch (err) {
-				error = err as Error;
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
 			}
 		});
 
-		Then('it should throw an error "Unable to create staff role"', () => {
-			expect(error).toBeDefined();
-			expect(error.message).toBe('Unable to create staff role');
+		Then('the new staff role should be saved', () => {
+			const repo = dataSources._repo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).toHaveBeenCalled();
+		});
+
+		And('the user permission canManageUsers should be true', () => {
+			expect(thrownError).toBeUndefined();
+			expect(roleInstance.permissions.userPermissions['canManageUsers']).toBe(true);
+		});
+	});
+
+	// ─── Duplicate name ───────────────────────────────────────────────────────
+
+	Scenario('Throws when a staff role with the same name already exists', ({ Given, When, Then }) => {
+		Given('a staff role with name "Duplicate Role" already exists in the repository', () => {
+			const existing = makeMockStaffRoleInstance('Duplicate Role') as unknown as Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
+			dataSources = makeDataSources({ existingRole: existing });
+			command = { roleName: 'Duplicate Role' };
+		});
+
+		When('I call create with roleName "Duplicate Role"', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+
+		Then('it should throw an error with message containing "Duplicate Role"', () => {
+			expect(thrownError).toBeDefined();
+			expect((thrownError as Error).message).toContain('Duplicate Role');
+		});
+	});
+
+	// ─── Unexpected repository error propagation ──────────────────────────────
+
+	Scenario('Propagates unexpected repository errors from getByRoleName', ({ Given, When, Then }) => {
+		Given('the repository throws an unexpected error when checking for "Error Role"', () => {
+			const unexpectedError = new Error('Database connection lost');
+			dataSources = makeDataSources({ unexpectedError });
+			command = { roleName: 'Error Role' };
+		});
+
+		When('I call create with roleName "Error Role"', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+
+		Then('it should throw the unexpected error', () => {
+			expect(thrownError).toBeDefined();
+			expect((thrownError as Error).message).toBe('Database connection lost');
+		});
+	});
+
+	// ─── Save fails ───────────────────────────────────────────────────────────
+
+	Scenario('Throws when repository fails to save the new role', ({ Given, When, Then, And }) => {
+		Given('a staff role with name "Test Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Test Role');
+		});
+
+		And('saving the staff role returns undefined', () => {
+			dataSources = makeDataSources({ newRoleInstance: roleInstance, explicitUndefinedSave: true });
+			command = { roleName: 'Test Role' };
+		});
+
+		When('I call create with roleName "Test Role" and no permissions', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+
+		Then('it should throw an error with message "Unable to create staff role"', () => {
+			expect(thrownError).toBeDefined();
+			expect((thrownError as Error).message).toBe('Unable to create staff role');
 		});
 	});
 });
