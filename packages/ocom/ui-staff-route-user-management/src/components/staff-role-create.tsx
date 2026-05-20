@@ -66,7 +66,7 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 					label="Role Name"
 					rules={[{ required: true, message: 'Role name is required' }]}
 				>
-					<Input placeholder="e.g. Analyst, Accounting Manager" />
+					<Input />
 				</Form.Item>
 				<Form.Item
 					name="enterpriseAppRole"

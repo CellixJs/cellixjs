@@ -53,7 +53,7 @@ function StaffRoutes() {
 					element={<CommunityManagement />}
 				/>
 			)}
-			{canManageUsers && (
+			{(canManageUsers || canManageFinance) && (
 				<Route
 					path="user-management/*"
 					element={<UserManagement />}
