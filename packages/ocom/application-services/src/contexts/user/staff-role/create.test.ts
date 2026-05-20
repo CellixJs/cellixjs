@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { create, type StaffRoleCreateCommand } from './create.ts';
+import { create, type StaffRoleCreateCommand, type StaffRoleCreateCommandPermissions } from './create.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -167,7 +167,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			dataSources = makeDataSources({ newRoleInstance: roleInstance });
 			command = {
 				roleName: 'Admin Role',
-				permissions: { community: { canManageCommunities: true } },
+				permissions: { community: { canManageCommunities: true } } satisfies StaffRoleCreateCommandPermissions,
 			};
 		});
 
@@ -198,7 +198,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			dataSources = makeDataSources({ newRoleInstance: roleInstance });
 			command = {
 				roleName: 'Manager Role',
-				permissions: { user: { canManageUsers: true } },
+				permissions: { user: { canManageUsers: true } } satisfies StaffRoleCreateCommandPermissions,
 			};
 		});
 
