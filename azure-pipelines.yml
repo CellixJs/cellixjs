@@ -56,7 +56,6 @@ stages:
         VITE_APP_UI_STAFF_AAD_REDIRECT_URI: $(OCM_APP_UI_STAFF_AAD_REDIRECT_URI_DEV)
         VITE_APP_UI_STAFF_AAD_SCOPES: $(OCM_APP_UI_STAFF_AAD_SCOPES_DEV)
         VITE_COMMON_API_ENDPOINT: $(OCM_COMMON_API_ENDPOINT_DEV)
-        NODE_ENV: $(NODE_ENV)
 
 
   - template: ./build-pipeline/core/monorepo-deployment-stage.yml

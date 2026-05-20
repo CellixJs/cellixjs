@@ -9,7 +9,7 @@ import type { AuthContextProps } from 'react-oidc-context';
 export const client = new ApolloClient({
 	cache: new InMemoryCache(),
 	devtools: {
-		enabled: import.meta.env.NODE_ENV !== 'production',
+		enabled: !import.meta.env.PROD,
 	},
 });
 

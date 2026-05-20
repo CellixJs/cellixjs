@@ -3,15 +3,17 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, type PluginOption } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
-const isDev = process.env.NODE_ENV === 'development';
-const isProd = process.env.NODE_ENV === 'production';
-
 // https://vite.dev/config/
-export default defineConfig({
-	plugins: [react() as PluginOption, ...(isProd ? [nodePolyfills() as PluginOption] : []), ...(isDev ? [visualizer() as PluginOption] : [])],
-	server: process.env.PORTLESS_URL
-		? undefined
-		: {
-				port: 3000,
-			},
+export default defineConfig(({ mode }) => {
+	const isDev = mode === 'development';
+	const isProd = mode === 'production';
+
+	return {
+		plugins: [react() as PluginOption, ...(isProd ? [nodePolyfills() as PluginOption] : []), ...(isDev ? [visualizer() as PluginOption] : [])],
+		server: process.env.PORTLESS_URL
+			? undefined
+			: {
+					port: 3000,
+				},
+	};
 });
