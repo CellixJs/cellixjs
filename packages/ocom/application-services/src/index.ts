@@ -1,10 +1,10 @@
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Domain } from '@ocom/domain';
-import { Community, type CommunityContextApplicationService, type CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
+import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
-export type { CommunityUpdateSettingsCommand };
+export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
@@ -42,14 +42,14 @@ export interface AppServicesHost<S> {
 
 export type ApplicationServicesFactory = AppServicesHost<ApplicationServices>;
 
-export const buildApplicationServicesFactory = (infrastructureServicesRegistry: ApiContextSpec): ApplicationServicesFactory => {
+export const buildApplicationServicesFactory = (context: ApiContextSpec): ApplicationServicesFactory => {
 	const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints): Promise<ApplicationServices> => {
 		const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
-		const tokenValidationResult = accessToken ? await infrastructureServicesRegistry.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken) : null;
+		const tokenValidationResult = accessToken ? await context.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken) : null;
 		let passport = Domain.PassportFactory.forGuest();
 		if (tokenValidationResult !== null) {
 			const { verifiedJwt, openIdConfigKey } = tokenValidationResult;
-			const { readonlyDataSource } = infrastructureServicesRegistry.dataSourcesFactory.withSystemPassport();
+			const { readonlyDataSource } = context.dataSourcesFactory.withSystemPassport();
 			if (openIdConfigKey === 'AccountPortal') {
 				const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
 				const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithCommunityAndRoleAndUser(hints?.memberId) : null;
@@ -67,10 +67,12 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
 			}
 		}
 
-		const dataSources = infrastructureServicesRegistry.dataSourcesFactory.withPassport(passport);
+		const { dataSourcesFactory, blobStorageService } = context;
+
+		const dataSources = dataSourcesFactory.withPassport(passport);
 
 		return {
-			Community: Community(dataSources),
+			Community: Community(dataSources, blobStorageService),
 			Service: Service(dataSources),
 			User: User(dataSources),
 			get verifiedUser(): VerifiedUser | null {
