@@ -17,7 +17,6 @@ const mockEnv = {
 	VITE_COMMON_API_ENDPOINT: 'https://mock-functions.example.com',
 	VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: 'https://mock-authority.example.com',
 	VITE_APP_UI_COMMUNITY_B2C_CLIENTID: 'mock-id',
-	NODE_ENV: 'development',
 	PROD: false,
 };
 

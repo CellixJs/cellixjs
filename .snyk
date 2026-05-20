@@ -76,3 +76,24 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
         expires: '2026-06-28T00:00:00.000Z'
         created: '2026-05-11T10:00:00.000Z'
+  'SNYK-JS-AI-16734889':
+    - '* > ai@5.0.105':
+        reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
+        expires: '2026-06-18T00:00:00.000Z'
+        created: '2026-05-18T11:04:00.000Z'
+  'SNYK-JS-AISDKPROVIDERUTILS-16734888':
+    - '* > @ai-sdk/provider-utils@3.0.18':
+        reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
+        expires: '2026-06-18T00:00:00.000Z'
+        created: '2026-05-18T11:04:00.000Z'
+  'SNYK-JS-AISDKPROVIDERUTILS-16735288':
+    - '* > @ai-sdk/provider-utils@3.0.18':
+        reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
+        expires: '2026-06-18T00:00:00.000Z'
+        created: '2026-05-18T11:04:00.000Z'
+  'SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050':
+    - '* > @opentelemetry/exporter-prometheus@0.57.2':
+        reason: 'Requires upgrade of @opentelemetry/sdk-node to 0.217.0, which has type errors that break compilation. Created task to upgrade OTEL service to 2.x and resolve vulnerability that way.'
+        expires: '2026-07-28T00:00:00.000Z'
+        created: '2026-06-01T10:00:00.000Z'
+  
