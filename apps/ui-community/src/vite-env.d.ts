@@ -9,7 +9,7 @@ interface ViteTypeOptions {
 interface ImportMetaEnv {
   readonly NODE_ENV: string
   readonly VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: string
-  readonly VITE_APP_UI_COMMUNITY_B2C_CLIENT_ID: string
+  readonly VITE_APP_UI_COMMUNITY_B2C_CLIENTID: string
   readonly VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI: string
   readonly VITE_APP_UI_COMMUNITY_B2C_SCOPES: string
   readonly VITE_COMMON_API_ENDPOINT: string
