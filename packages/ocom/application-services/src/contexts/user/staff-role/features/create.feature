@@ -1,21 +1,40 @@
-Feature: Creating a staff role
+Feature: Create staff role
 
-  Scenario: Creating a staff role successfully
-    Given a staff role with name "Test Role" does not exist
-    When I create a staff role with name "Test Role", isDefault false, and no permissions
-    Then it should return a staff role entity reference with name "Test Role" and isDefault false
+  Scenario: Successfully creates a staff role with no permissions
+    Given a staff role with name "Test Role" does not exist in the repository
+    When I call create with roleName "Test Role" and no permissions
+    Then the new staff role should be saved
+    And the result should have roleName "Test Role"
 
-  Scenario: Creating a staff role with permissions
-    Given a staff role with name "Admin Role" does not exist
-    When I create a staff role with name "Admin Role", isDefault true, and permissions
-    Then it should return a staff role entity reference with name "Admin Role" and isDefault true
+  Scenario: Successfully creates a staff role with an enterpriseAppRole
+    Given a staff role with name "Test Role" does not exist in the repository
+    When I call create with roleName "Test Role" and enterpriseAppRole "Staff.TestRole"
+    Then the new staff role should be saved with enterpriseAppRole "Staff.TestRole"
 
-  Scenario: Creating a staff role with duplicate name
-    Given a staff role with name "Test Role" already exists
-    When I create a staff role with name "Test Role", isDefault false, and no permissions
-    Then it should throw an error "Staff role with name Test Role already exists"
+  Scenario: Successfully creates a staff role with community permissions
+    Given a staff role with name "Admin Role" does not exist in the repository
+    When I call create with roleName "Admin Role" and community permissions canManageCommunities true
+    Then the new staff role should be saved
+    And the community permission canManageCommunities should be true
 
-  Scenario: Creating a staff role when save fails
-    Given a staff role with name "Test Role" does not exist
-    When I create a staff role but save fails
-    Then it should throw an error "Unable to create staff role"
+  Scenario: Successfully creates a staff role with user permissions
+    Given a staff role with name "Manager Role" does not exist in the repository
+    When I call create with roleName "Manager Role" and user permissions canManageUsers true
+    Then the new staff role should be saved
+    And the user permission canManageUsers should be true
+
+  Scenario: Throws when a staff role with the same name already exists
+    Given a staff role with name "Duplicate Role" already exists in the repository
+    When I call create with roleName "Duplicate Role"
+    Then it should throw an error with message containing "Duplicate Role"
+
+  Scenario: Propagates unexpected repository errors from getByRoleName
+    Given the repository throws an unexpected error when checking for "Error Role"
+    When I call create with roleName "Error Role"
+    Then it should throw the unexpected error
+
+  Scenario: Throws when repository fails to save the new role
+    Given a staff role with name "Test Role" does not exist in the repository
+    And saving the staff role returns undefined
+    When I call create with roleName "Test Role" and no permissions
+    Then it should throw an error with message "Unable to create staff role"
