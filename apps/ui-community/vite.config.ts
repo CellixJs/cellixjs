@@ -3,9 +3,8 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, type PluginOption } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
-const { NODE_ENV } = import.meta.env;
-const isDev = NODE_ENV === 'development';
-const isProd = NODE_ENV === 'production';
+const isDev = process.env.NODE_ENV === 'development';
+const isProd = process.env.NODE_ENV === 'production';
 
 // https://vite.dev/config/
 export default defineConfig({
