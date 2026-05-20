@@ -292,4 +292,200 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect((thrownError as Error).message).toBe('Unable to create staff role');
 		});
 	});
+
+	// ─── enterpriseAppRole default ────────────────────────────────────────────
+
+	Scenario('enterpriseAppRole is not set when not provided in the command', ({ Given, When, Then }) => {
+		Given('a staff role with name "Test Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Test Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = { roleName: 'Test Role' };
+		});
+		When('I call create with roleName "Test Role" and no permissions', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the enterpriseAppRole on the saved instance should remain empty', () => {
+			expect(thrownError).toBeUndefined();
+			expect(roleInstance.enterpriseAppRole).toBe('');
+		});
+	});
+
+	// ─── NotFoundError by name ────────────────────────────────────────────────
+
+	Scenario('Not-found detected via error name NotFoundError allows creation to proceed', ({ Given, When, Then }) => {
+		Given('the repository raises a NotFoundError by name when checking for "New Role"', () => {
+			roleInstance = makeMockStaffRoleInstance('New Role');
+			const notFoundByName = Object.assign(new Error('some message'), { name: 'NotFoundError' });
+			const repo = {
+				getByRoleName: vi.fn().mockRejectedValue(notFoundByName),
+				getNewInstance: vi.fn().mockResolvedValue(roleInstance),
+				save: vi.fn().mockResolvedValue(roleInstance as unknown as Domain.Contexts.User.StaffRole.StaffRoleEntityReference),
+			};
+			dataSources = {
+				domainDataSource: {
+					User: {
+						StaffRole: {
+							StaffRoleUnitOfWork: {
+								withScopedTransaction: vi.fn().mockImplementation(async (cb: (r: typeof repo) => Promise<void>) => { await cb(repo); }),
+							},
+						},
+					},
+				},
+				_repo: repo,
+			} as unknown as DataSources & { _repo: unknown };
+			command = { roleName: 'New Role' };
+		});
+		When('I call create with roleName "New Role" and no permissions', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the new staff role should be saved', () => {
+			expect(thrownError).toBeUndefined();
+			expect(result).toBeDefined();
+		});
+	});
+
+	// ─── All community permissions ────────────────────────────────────────────
+
+	Scenario('Successfully creates a staff role with all community permissions set', ({ Given, When, Then }) => {
+		Given('a staff role with name "Full Community Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Full Community Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = {
+				roleName: 'Full Community Role',
+				permissions: {
+					community: {
+						canManageCommunities: true,
+						canManageStaffRolesAndPermissions: true,
+						canManageAllCommunities: true,
+						canDeleteCommunities: true,
+						canChangeCommunityOwner: true,
+						canReIndexSearchCollections: true,
+					},
+				},
+			};
+		});
+		When('I call create with roleName "Full Community Role" and all community permissions true', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('all community permissions should be true on the saved instance', () => {
+			expect(thrownError).toBeUndefined();
+			const cp = roleInstance.permissions.communityPermissions;
+			expect(cp['canManageCommunities']).toBe(true);
+			expect(cp['canManageStaffRolesAndPermissions']).toBe(true);
+			expect(cp['canManageAllCommunities']).toBe(true);
+			expect(cp['canDeleteCommunities']).toBe(true);
+			expect(cp['canChangeCommunityOwner']).toBe(true);
+			expect(cp['canReIndexSearchCollections']).toBe(true);
+		});
+	});
+
+	// ─── canAssignStaffUserRoles ──────────────────────────────────────────────
+
+	Scenario('Successfully creates a staff role with canAssignStaffUserRoles set', ({ Given, When, Then }) => {
+		Given('a staff role with name "Assign Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Assign Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = {
+				roleName: 'Assign Role',
+				permissions: { user: { canAssignStaffUserRoles: true } } satisfies StaffRoleCreateCommandPermissions,
+			};
+		});
+		When('I call create with roleName "Assign Role" and user permissions canAssignStaffUserRoles true', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the user permission canAssignStaffUserRoles should be true', () => {
+			expect(thrownError).toBeUndefined();
+			expect(roleInstance.permissions.userPermissions['canAssignStaffUserRoles']).toBe(true);
+		});
+	});
+
+	// ─── No-op when sub-objects absent ───────────────────────────────────────
+
+	Scenario('Omitting community permissions sub-object leaves community permissions unchanged', ({ Given, When, Then }) => {
+		Given('a staff role with name "Test Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Test Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = {
+				roleName: 'Test Role',
+				permissions: { user: { canManageUsers: true } },
+			};
+		});
+		When('I call create with roleName "Test Role" and only user permissions', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('all community permissions should remain false', () => {
+			expect(thrownError).toBeUndefined();
+			const cp = roleInstance.permissions.communityPermissions;
+			for (const key of Object.keys(cp)) {
+				expect(cp[key], key).toBe(false);
+			}
+		});
+	});
+
+	Scenario('Omitting user permissions sub-object leaves user permissions unchanged', ({ Given, When, Then }) => {
+		Given('a staff role with name "Test Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Test Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = {
+				roleName: 'Test Role',
+				permissions: { community: { canManageCommunities: true } },
+			};
+		});
+		When('I call create with roleName "Test Role" and only community permissions', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('all user permissions should remain false', () => {
+			expect(thrownError).toBeUndefined();
+			const up = roleInstance.permissions.userPermissions;
+			for (const key of Object.keys(up)) {
+				expect(up[key], key).toBe(false);
+			}
+		});
+	});
+
+	// ─── getNewInstance called with roleName ──────────────────────────────────
+
+	Scenario('getNewInstance is called with the provided role name', ({ Given, When, Then }) => {
+		Given('a staff role with name "Named Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Named Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = { roleName: 'Named Role' };
+		});
+		When('I call create with roleName "Named Role" and no permissions', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('getNewInstance should have been called with "Named Role"', () => {
+			expect(thrownError).toBeUndefined();
+			const repo = dataSources._repo as { getNewInstance: ReturnType<typeof vi.fn> };
+			expect(repo.getNewInstance).toHaveBeenCalledWith('Named Role');
+		});
+	});
 });

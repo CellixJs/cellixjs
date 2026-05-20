@@ -37,6 +37,23 @@ function makeBaseProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps 
 	};
 }
 
+/** Props with fully initialised mutable permission sub-objects, required for static factory methods */
+function makeFactoryProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps {
+	return {
+		...makeBaseProps(overrides),
+		permissions: {
+			communityPermissions: {} as Record<string, unknown>,
+			propertyPermissions: {} as Record<string, unknown>,
+			serviceTicketPermissions: {} as Record<string, unknown>,
+			servicePermissions: {} as Record<string, unknown>,
+			violationTicketPermissions: {} as Record<string, unknown>,
+			financePermissions: {} as Record<string, unknown>,
+			techAdminPermissions: {} as Record<string, unknown>,
+			userPermissions: {} as Record<string, unknown>,
+		} as unknown as StaffRolePermissions,
+	};
+}
+
 function getIntegrationEvent<T>(events: readonly unknown[], eventClass: new (aggregateId: string) => T): T | undefined {
 	return events.find((e) => e instanceof eventClass) as T | undefined;
 }
@@ -283,6 +300,231 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('the schemaVersion property should return the correct version', () => {
 			expect(staffRole.schemaVersion).toBe('1.0.0');
+		});
+	});
+
+	// ─── enterpriseAppRole ────────────────────────────────────────────────────
+
+	Scenario('Getting the enterpriseAppRole property', ({ Given, Then }) => {
+		Given('a StaffRole aggregate with permission to manage staff roles and permissions', () => {
+			passport = makePassport(true, false);
+			staffRole = new StaffRole(makeBaseProps({ enterpriseAppRole: '' }), passport);
+		});
+		Then('the enterpriseAppRole should return the initial value', () => {
+			expect(staffRole.enterpriseAppRole).toBe('');
+		});
+	});
+
+	Scenario('Changing the enterpriseAppRole with permission to manage staff roles', ({ Given, When, Then }) => {
+		Given('a StaffRole aggregate with permission to manage staff roles and permissions', () => {
+			passport = makePassport(true, false);
+			staffRole = new StaffRole(makeBaseProps(), passport);
+		});
+		When('I set the enterpriseAppRole to "Staff.CaseManager"', () => {
+			staffRole.enterpriseAppRole = 'Staff.CaseManager';
+		});
+		Then('the staff role\'s enterpriseAppRole should be "Staff.CaseManager"', () => {
+			expect(staffRole.enterpriseAppRole).toBe('Staff.CaseManager');
+		});
+	});
+
+	Scenario('Changing the enterpriseAppRole with system account permission', ({ Given, When, Then }) => {
+		Given('a StaffRole aggregate with system account permission', () => {
+			passport = makePassport(false, true);
+			staffRole = new StaffRole(makeBaseProps(), passport);
+		});
+		When('I set the enterpriseAppRole to "Staff.Finance"', () => {
+			staffRole.enterpriseAppRole = 'Staff.Finance';
+		});
+		Then('the staff role\'s enterpriseAppRole should be "Staff.Finance"', () => {
+			expect(staffRole.enterpriseAppRole).toBe('Staff.Finance');
+		});
+	});
+
+	Scenario('Changing the enterpriseAppRole without permission', ({ Given, When, Then }) => {
+		let changeWithoutPermission: () => void;
+		Given('a StaffRole aggregate without permission to manage staff roles and permissions or system account', () => {
+			passport = makePassport(false, false);
+			staffRole = new StaffRole(makeBaseProps(), passport);
+		});
+		When('I try to set the enterpriseAppRole to "Staff.CaseManager"', () => {
+			changeWithoutPermission = () => {
+				staffRole.enterpriseAppRole = 'Staff.CaseManager';
+			};
+		});
+		Then('a PermissionError should be thrown for enterpriseAppRole', () => {
+			expect(changeWithoutPermission).toThrow(PermissionError);
+			expect(changeWithoutPermission).toThrow('Cannot set enterprise app role');
+		});
+	});
+
+	Scenario('Changing the enterpriseAppRole to an invalid value', ({ Given, When, Then }) => {
+		let changeToInvalid: () => void;
+		Given('a StaffRole aggregate with permission to manage staff roles and permissions', () => {
+			passport = makePassport(true, false);
+			staffRole = new StaffRole(makeBaseProps(), passport);
+		});
+		When('I try to set the enterpriseAppRole to an invalid value', () => {
+			changeToInvalid = () => {
+				staffRole.enterpriseAppRole = 'Invalid.Role.That.Does.Not.Exist';
+			};
+		});
+		Then('an error should be thrown for the invalid enterpriseAppRole', () => {
+			expect(changeToInvalid).toThrow();
+		});
+	});
+
+	// ─── getDefaultRoleNames ──────────────────────────────────────────────────
+
+	Scenario('Getting the list of default role names', ({ When, Then }) => {
+		let defaultNames: string[];
+		When('I call getDefaultRoleNames', () => {
+			defaultNames = StaffRole.getDefaultRoleNames();
+		});
+		Then('it should return the four canonical default role name strings', () => {
+			expect(defaultNames).toHaveLength(4);
+			expect(defaultNames).toContain('Default.CaseManager');
+			expect(defaultNames).toContain('Default.ServiceLineOwner');
+			expect(defaultNames).toContain('Default.Finance');
+			expect(defaultNames).toContain('Default.TechAdmin');
+		});
+	});
+
+	// ─── default factory methods ──────────────────────────────────────────────
+
+	Scenario('Creating a new default Case Manager role', ({ When, Then, And }) => {
+		let role: StaffRole<StaffRoleProps>;
+		When('I call getNewDefaultCaseManagerInstance', () => {
+			role = StaffRole.getNewDefaultCaseManagerInstance(makeFactoryProps(), makePassport(true, true));
+		});
+		Then('the role name should be "Default Case Manager"', () => {
+			expect(role.roleName).toBe('Default Case Manager');
+		});
+		And('the enterpriseAppRole should be "Staff.CaseManager"', () => {
+			expect(role.enterpriseAppRole).toBe('Staff.CaseManager');
+		});
+		And('isDefault should be true', () => {
+			expect(role.isDefault).toBe(true);
+		});
+		And('community canManageCommunities should be true', () => {
+			expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
+		});
+		And('community canManageStaffRolesAndPermissions should be true', () => {
+			expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
+		});
+		And('finance canManageFinance should be false', () => {
+			expect(role.permissions.financePermissions.canManageFinance).toBe(false);
+		});
+		And('techAdmin canManageTechAdmin should be false', () => {
+			expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
+		});
+		And('user canManageUsers should be true', () => {
+			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
+		});
+		And('user canAssignStaffUserRoles should be true', () => {
+			expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
+		});
+	});
+
+	Scenario('Creating a new default Service Line Owner role', ({ When, Then, And }) => {
+		let role: StaffRole<StaffRoleProps>;
+		When('I call getNewDefaultServiceLineOwnerInstance', () => {
+			role = StaffRole.getNewDefaultServiceLineOwnerInstance(makeFactoryProps(), makePassport(true, true));
+		});
+		Then('the role name should be "Default Service Line Owner"', () => {
+			expect(role.roleName).toBe('Default Service Line Owner');
+		});
+		And('the enterpriseAppRole should be "Staff.ServiceLineOwner"', () => {
+			expect(role.enterpriseAppRole).toBe('Staff.ServiceLineOwner');
+		});
+		And('isDefault should be true', () => {
+			expect(role.isDefault).toBe(true);
+		});
+		And('community canManageCommunities should be true', () => {
+			expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
+		});
+		And('community canManageStaffRolesAndPermissions should be true', () => {
+			expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
+		});
+		And('finance canManageFinance should be false', () => {
+			expect(role.permissions.financePermissions.canManageFinance).toBe(false);
+		});
+		And('techAdmin canManageTechAdmin should be false', () => {
+			expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
+		});
+		And('user canManageUsers should be true', () => {
+			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
+		});
+		And('user canAssignStaffUserRoles should be true', () => {
+			expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
+		});
+	});
+
+	Scenario('Creating a new default Finance role', ({ When, Then, And }) => {
+		let role: StaffRole<StaffRoleProps>;
+		When('I call getNewDefaultFinanceInstance', () => {
+			role = StaffRole.getNewDefaultFinanceInstance(makeFactoryProps(), makePassport(true, true));
+		});
+		Then('the role name should be "Default Finance"', () => {
+			expect(role.roleName).toBe('Default Finance');
+		});
+		And('the enterpriseAppRole should be "Staff.Finance"', () => {
+			expect(role.enterpriseAppRole).toBe('Staff.Finance');
+		});
+		And('isDefault should be true', () => {
+			expect(role.isDefault).toBe(true);
+		});
+		And('community canManageCommunities should be false', () => {
+			expect(role.permissions.communityPermissions.canManageCommunities).toBe(false);
+		});
+		And('community canManageStaffRolesAndPermissions should be true', () => {
+			expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
+		});
+		And('finance canManageFinance should be true', () => {
+			expect(role.permissions.financePermissions.canManageFinance).toBe(true);
+		});
+		And('techAdmin canManageTechAdmin should be false', () => {
+			expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
+		});
+		And('user canManageUsers should be true', () => {
+			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
+		});
+		And('user canAssignStaffUserRoles should be true', () => {
+			expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
+		});
+	});
+
+	Scenario('Creating a new default Tech Admin role', ({ When, Then, And }) => {
+		let role: StaffRole<StaffRoleProps>;
+		When('I call getNewDefaultTechAdminInstance', () => {
+			role = StaffRole.getNewDefaultTechAdminInstance(makeFactoryProps(), makePassport(true, true));
+		});
+		Then('the role name should be "Default Tech Admin"', () => {
+			expect(role.roleName).toBe('Default Tech Admin');
+		});
+		And('the enterpriseAppRole should be "Staff.TechAdmin"', () => {
+			expect(role.enterpriseAppRole).toBe('Staff.TechAdmin');
+		});
+		And('isDefault should be true', () => {
+			expect(role.isDefault).toBe(true);
+		});
+		And('community canManageCommunities should be true', () => {
+			expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
+		});
+		And('community canManageStaffRolesAndPermissions should be true', () => {
+			expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
+		});
+		And('finance canManageFinance should be true', () => {
+			expect(role.permissions.financePermissions.canManageFinance).toBe(true);
+		});
+		And('techAdmin canManageTechAdmin should be true', () => {
+			expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
+		});
+		And('user canManageUsers should be true', () => {
+			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
+		});
+		And('user canAssignStaffUserRoles should be true', () => {
+			expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 });

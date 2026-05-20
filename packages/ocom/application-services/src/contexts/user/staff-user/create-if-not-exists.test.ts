@@ -453,4 +453,123 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect((thrownError as Error).message).toBe('Unable to create staff user');
 		});
 	});
+
+	// ─── Empty email skips email lookup ───────────────────────────────────────
+
+	Scenario('Creates a new user when email is empty', ({ Given, When, Then, And }) => {
+		Given('no staff user with externalId "ext-noemail" exists', () => {
+			newUser = makeMockNewUser('ext-noemail');
+			dataSources = makeDataSources({ existingUser: null, newUser });
+			command = { ...command, externalId: 'ext-noemail' };
+		});
+
+		And('the command has an empty email', () => {
+			command = { ...command, email: '' };
+		});
+
+		When('I call createIfNotExists with externalId "ext-noemail"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should not check for an existing user by email', () => {
+			const readRepo = (
+				dataSources as unknown as {
+					readonlyDataSource: { User: { StaffUser: { StaffUserReadRepo: { getByEmail: ReturnType<typeof vi.fn> } } } };
+				}
+			).readonlyDataSource.User.StaffUser.StaffUserReadRepo;
+			expect(readRepo.getByEmail).not.toHaveBeenCalled();
+		});
+
+		And('it should return the newly created user', () => {
+			expect(result).toBeDefined();
+			expect(result?.externalId).toBe('ext-noemail');
+		});
+	});
+
+	// ─── Email lookup returns null → create new user ──────────────────────────
+
+	Scenario('Creates a new user when email lookup returns no match', ({ Given, When, Then, And }) => {
+		Given('no staff user with externalId "ext-nomatch" exists', () => {
+			newUser = makeMockNewUser('ext-nomatch');
+			// existingUserByEmail: null means getByEmail resolves null
+			dataSources = makeDataSources({ existingUser: null, existingUserByEmail: null, newUser });
+			command = { ...command, externalId: 'ext-nomatch', email: 'other@example.com' };
+		});
+
+		And('a staff user with email "other@example.com" does not exist', () => {
+			// getByEmail will return null (set up in Given)
+		});
+
+		When('I call createIfNotExists with externalId "ext-nomatch"', async () => {
+			result = await createIfNotExists(dataSources)(command);
+		});
+
+		Then('it should create a new user', () => {
+			const repo = (dataSources as unknown as { _staffUserRepo: { getNewInstance: ReturnType<typeof vi.fn> } })._staffUserRepo;
+			expect(repo.getNewInstance).toHaveBeenCalledWith('ext-nomatch', 'First', 'Last', 'other@example.com');
+		});
+
+		And('it should return the newly created user', () => {
+			expect(result).toBeDefined();
+			expect(result?.externalId).toBe('ext-nomatch');
+		});
+	});
+
+	// ─── Email-update save returns undefined → throws ─────────────────────────
+
+	Scenario('Throws when update of externalId fails to save', ({ Given, When, Then, And }) => {
+		Given('a staff user with email "first@example.com" already exists', () => {
+			existingUser = makeMockStaffUserRef('ext-old', { email: 'first@example.com' });
+			// saveShouldFail makes save() resolve undefined, triggering the throw
+			dataSources = makeDataSources({ existingUser: null, existingUserByEmail: existingUser, saveShouldFail: true });
+			command = { ...command, externalId: 'ext-updfail', email: 'first@example.com' };
+		});
+
+		And('the update transaction save returns undefined', () => {
+			// already wired up in Given via saveShouldFail: true
+		});
+
+		When('I call createIfNotExists with externalId "ext-updfail"', async () => {
+			try {
+				await createIfNotExists(dataSources)(command);
+			} catch (error) {
+				thrownError = error;
+			}
+		});
+
+		Then('it should throw an error with message "Unable to update staff user externalId"', () => {
+			expect(thrownError).toBeInstanceOf(Error);
+			expect((thrownError as Error).message).toBe('Unable to update staff user externalId');
+		});
+	});
+
+	// ─── Non-NotFound error from role lookup propagates ───────────────────────
+
+	Scenario('Propagates non-NotFound errors from role lookup', ({ Given, When, Then, And }) => {
+		const dbError = new Error('Database connection failed');
+
+		Given('no staff user with externalId "ext-rolerr" exists', () => {
+			newUser = makeMockNewUser('ext-rolerr');
+			dataSources = makeDataSources({ existingUser: null, newUser });
+			// Override getDefaultRoleByEnterpriseAppRole to throw a non-NotFound error
+			(dataSources as unknown as { _staffRoleRepo: { getDefaultRoleByEnterpriseAppRole: ReturnType<typeof vi.fn> } })._staffRoleRepo.getDefaultRoleByEnterpriseAppRole.mockRejectedValue(dbError);
+			command = { ...command, externalId: 'ext-rolerr', aadRoles: ['Staff.CaseManager'] };
+		});
+
+		And('the role repository throws a non-NotFound error for any AAD role', () => {
+			// already wired up in Given
+		});
+
+		When('I call createIfNotExists with externalId "ext-rolerr"', async () => {
+			try {
+				await createIfNotExists(dataSources)(command);
+			} catch (error) {
+				thrownError = error;
+			}
+		});
+
+		Then('it should propagate the role repository error', () => {
+			expect(thrownError).toBe(dbError);
+		});
+	});
 });

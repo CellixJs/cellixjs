@@ -297,3 +297,83 @@ Feature: <DomainAdapter> StaffRoleDomainAdapter
     Given a StaffRoleDomainAdapter wrapping a document with no roleType
     When I get the roleType property
     Then it should return null
+
+  # ─── enterpriseAppRole ──────────────────────────────────────────────────────
+
+  Scenario: Getting enterpriseAppRole returns empty string when not set on the document
+    Given a StaffRoleDomainAdapter for the document
+    When I get the enterpriseAppRole property
+    Then it should return an empty string
+
+  Scenario: Getting and setting the enterpriseAppRole property
+    Given a StaffRoleDomainAdapter for the document
+    When I set the enterpriseAppRole property to "LeadManager"
+    Then the document's enterpriseAppRole should be "LeadManager"
+
+  Scenario: Setting roleName also updates enterpriseAppRole on the document
+    Given a StaffRoleDomainAdapter for the document
+    When I set the roleName property to "Director"
+    Then the document's enterpriseAppRole should also be "Director"
+
+  # ─── canAssignStaffUserRoles ─────────────────────────────────────────────────
+
+  Scenario: Getting and setting canAssignStaffUserRoles from userPermissions
+    Given a StaffRoleDomainAdapter for the document
+    When I get the permissions property
+    And I get the userPermissions property
+    Then the canAssignStaffUserRoles property should return false
+    When I set the canAssignStaffUserRoles property to true
+    Then the userPermissions' canAssignStaffUserRoles should be true
+
+  # ─── violationTicketPermissions setters ──────────────────────────────────────
+
+  Scenario: Setting canManageTickets on violationTicketPermissions
+    Given a StaffRoleDomainAdapter for the document
+    When I get the permissions property
+    And I get the violationTicketPermissions property
+    When I set the canManageTickets property to true
+    Then the violationTicketPermissions' canManageTickets should be true
+
+  Scenario: Setting canAssignTickets on violationTicketPermissions
+    Given a StaffRoleDomainAdapter for the document
+    When I get the permissions property
+    And I get the violationTicketPermissions property
+    When I set the canAssignTickets property to true
+    Then the violationTicketPermissions' canAssignTickets should be true
+
+  Scenario: Setting canWorkOnTickets on violationTicketPermissions
+    Given a StaffRoleDomainAdapter for the document
+    When I get the permissions property
+    And I get the violationTicketPermissions property
+    When I set the canWorkOnTickets property to true
+    Then the violationTicketPermissions' canWorkOnTickets should be true
+
+  # ─── Lazy-init remaining sub-documents ───────────────────────────────────────
+
+  Scenario: Lazy-initialising propertyPermissions when sub-document is absent
+    Given a StaffRoleDomainAdapter wrapping a document with no propertyPermissions sub-document
+    When I get the permissions property
+    And I get the propertyPermissions property
+    Then it should return a StaffRolePropertyPermissionsAdapter instance
+    And canManageProperties should default to false
+
+  Scenario: Lazy-initialising servicePermissions when sub-document is absent
+    Given a StaffRoleDomainAdapter wrapping a document with no servicePermissions sub-document
+    When I get the permissions property
+    And I get the servicePermissions property
+    Then it should return a StaffRoleServicePermissionsAdapter instance
+    And canManageServices should default to false
+
+  Scenario: Lazy-initialising serviceTicketPermissions when sub-document is absent
+    Given a StaffRoleDomainAdapter wrapping a document with no serviceTicketPermissions sub-document
+    When I get the permissions property
+    And I get the serviceTicketPermissions property
+    Then it should return a StaffRoleServiceTicketPermissionsAdapter instance
+    And canCreateTickets should default to false
+
+  Scenario: Lazy-initialising violationTicketPermissions when sub-document is absent
+    Given a StaffRoleDomainAdapter wrapping a document with no violationTicketPermissions sub-document
+    When I get the permissions property
+    And I get the violationTicketPermissions property
+    Then it should return a StaffRoleViolationTicketPermissionsAdapter instance
+    And canCreateTickets should default to false

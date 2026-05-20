@@ -265,4 +265,145 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect((thrownError as Error).message).toBe('Unable to update staff role');
 		});
 	});
+
+	// ─── All community permissions ────────────────────────────────────────────
+
+	Scenario('Successfully updates a staff role with all community permissions set', ({ Given, When, Then }) => {
+		Given('a staff role with id "role-all-comm" exists in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('role-all-comm');
+			dataSources = makeDataSources({ roleInstance });
+			command = {
+				roleId: 'role-all-comm',
+				roleName: 'Full Community Role',
+				permissions: {
+					community: {
+						canManageCommunities: true,
+						canManageStaffRolesAndPermissions: true,
+						canManageAllCommunities: true,
+						canDeleteCommunities: true,
+						canChangeCommunityOwner: true,
+						canReIndexSearchCollections: true,
+					},
+				},
+			};
+		});
+		When('I call update with all community permissions true', async () => {
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('all community permissions should be true on the updated instance', () => {
+			expect(thrownError).toBeUndefined();
+			const cp = roleInstance.permissions.communityPermissions;
+			expect(cp['canManageCommunities']).toBe(true);
+			expect(cp['canManageStaffRolesAndPermissions']).toBe(true);
+			expect(cp['canManageAllCommunities']).toBe(true);
+			expect(cp['canDeleteCommunities']).toBe(true);
+			expect(cp['canChangeCommunityOwner']).toBe(true);
+			expect(cp['canReIndexSearchCollections']).toBe(true);
+		});
+	});
+
+	// ─── canAssignStaffUserRoles ──────────────────────────────────────────────
+
+	Scenario('Successfully updates a staff role with canAssignStaffUserRoles set', ({ Given, When, Then }) => {
+		Given('a staff role with id "role-assign" exists in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('role-assign');
+			dataSources = makeDataSources({ roleInstance });
+			command = {
+				roleId: 'role-assign',
+				roleName: 'Assign Role',
+				permissions: { user: { canAssignStaffUserRoles: true } },
+			};
+		});
+		When('I call update with user permissions canAssignStaffUserRoles true', async () => {
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the user permission canAssignStaffUserRoles should be true', () => {
+			expect(thrownError).toBeUndefined();
+			expect(roleInstance.permissions.userPermissions['canAssignStaffUserRoles']).toBe(true);
+		});
+	});
+
+	// ─── No-op when sub-objects absent ───────────────────────────────────────
+
+	Scenario('Omitting community permissions sub-object leaves community permissions unchanged', ({ Given, When, Then }) => {
+		Given('a staff role with id "role-noc" exists in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('role-noc');
+			dataSources = makeDataSources({ roleInstance });
+			command = {
+				roleId: 'role-noc',
+				roleName: 'Some Role',
+				permissions: { user: { canManageUsers: true } },
+			};
+		});
+		When('I call update with only user permissions', async () => {
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('all community permissions should remain false', () => {
+			expect(thrownError).toBeUndefined();
+			const cp = roleInstance.permissions.communityPermissions;
+			for (const key of Object.keys(cp)) {
+				expect(cp[key], key).toBe(false);
+			}
+		});
+	});
+
+	Scenario('Omitting user permissions sub-object leaves user permissions unchanged', ({ Given, When, Then }) => {
+		Given('a staff role with id "role-nou" exists in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('role-nou');
+			dataSources = makeDataSources({ roleInstance });
+			command = {
+				roleId: 'role-nou',
+				roleName: 'Some Role',
+				permissions: { community: { canManageCommunities: true } },
+			};
+		});
+		When('I call update with only community permissions', async () => {
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('all user permissions should remain false', () => {
+			expect(thrownError).toBeUndefined();
+			const up = roleInstance.permissions.userPermissions;
+			for (const key of Object.keys(up)) {
+				expect(up[key], key).toBe(false);
+			}
+		});
+	});
+
+	// ─── getById called with roleId ───────────────────────────────────────────
+
+	Scenario('getById is called with the provided role id', ({ Given, When, Then }) => {
+		Given('a staff role with id "role-lookup" exists in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('role-lookup');
+			dataSources = makeDataSources({ roleInstance });
+			command = { roleId: 'role-lookup', roleName: 'Any Role' };
+		});
+		When('I call update with roleId "role-lookup" and roleName "Any Role"', async () => {
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('getById should have been called with "role-lookup"', () => {
+			expect(thrownError).toBeUndefined();
+			const repo = dataSources._repo as { getById: ReturnType<typeof vi.fn> };
+			expect(repo.getById).toHaveBeenCalledWith('role-lookup');
+		});
+	});
 });

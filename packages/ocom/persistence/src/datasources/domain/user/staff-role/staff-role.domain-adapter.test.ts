@@ -938,6 +938,225 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 			expect(result).toBeNull();
 		});
 	});
+
+	// ─── enterpriseAppRole ────────────────────────────────────────────────────
+
+	Scenario('Getting enterpriseAppRole returns empty string when not set on the document', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the enterpriseAppRole property', () => {
+			result = adapter.enterpriseAppRole;
+		});
+		Then('it should return an empty string', () => {
+			expect(result).toBe('');
+		});
+	});
+
+	Scenario('Getting and setting the enterpriseAppRole property', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I set the enterpriseAppRole property to "LeadManager"', () => {
+			adapter.enterpriseAppRole = 'LeadManager';
+		});
+		Then('the document\'s enterpriseAppRole should be "LeadManager"', () => {
+			expect(doc.enterpriseAppRole).toBe('LeadManager');
+		});
+	});
+
+	Scenario('Setting roleName also updates enterpriseAppRole on the document', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I set the roleName property to "Director"', () => {
+			adapter.roleName = 'Director';
+		});
+		Then('the document\'s enterpriseAppRole should also be "Director"', () => {
+			expect(doc.enterpriseAppRole).toBe('Director');
+		});
+	});
+
+	// ─── canAssignStaffUserRoles ──────────────────────────────────────────────
+
+	Scenario('Getting and setting canAssignStaffUserRoles from userPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let userPermissions: StaffRoleUserPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the userPermissions property', () => {
+			userPermissions = permissions.userPermissions as StaffRoleUserPermissionsAdapter;
+		});
+		Then('the canAssignStaffUserRoles property should return false', () => {
+			expect(userPermissions.canAssignStaffUserRoles).toBe(false);
+		});
+		When('I set the canAssignStaffUserRoles property to true', () => {
+			userPermissions.canAssignStaffUserRoles = true;
+		});
+		Then("the userPermissions' canAssignStaffUserRoles should be true", () => {
+			expect(doc.permissions?.userPermissions?.canAssignStaffUserRoles).toBe(true);
+		});
+	});
+
+	// ─── violationTicketPermissions setters ───────────────────────────────────
+
+	Scenario('Setting canManageTickets on violationTicketPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let violationTicketPermissions: StaffRoleViolationTicketPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the violationTicketPermissions property', () => {
+			violationTicketPermissions = permissions.violationTicketPermissions as StaffRoleViolationTicketPermissionsAdapter;
+		});
+		When('I set the canManageTickets property to true', () => {
+			violationTicketPermissions.canManageTickets = true;
+		});
+		Then("the violationTicketPermissions' canManageTickets should be true", () => {
+			expect(doc.permissions?.violationTicketPermissions?.canManageTickets).toBe(true);
+		});
+	});
+
+	Scenario('Setting canAssignTickets on violationTicketPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let violationTicketPermissions: StaffRoleViolationTicketPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the violationTicketPermissions property', () => {
+			violationTicketPermissions = permissions.violationTicketPermissions as StaffRoleViolationTicketPermissionsAdapter;
+		});
+		When('I set the canAssignTickets property to true', () => {
+			violationTicketPermissions.canAssignTickets = true;
+		});
+		Then("the violationTicketPermissions' canAssignTickets should be true", () => {
+			expect(doc.permissions?.violationTicketPermissions?.canAssignTickets).toBe(true);
+		});
+	});
+
+	Scenario('Setting canWorkOnTickets on violationTicketPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let violationTicketPermissions: StaffRoleViolationTicketPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the violationTicketPermissions property', () => {
+			violationTicketPermissions = permissions.violationTicketPermissions as StaffRoleViolationTicketPermissionsAdapter;
+		});
+		When('I set the canWorkOnTickets property to true', () => {
+			violationTicketPermissions.canWorkOnTickets = true;
+		});
+		Then("the violationTicketPermissions' canWorkOnTickets should be true", () => {
+			expect(doc.permissions?.violationTicketPermissions?.canWorkOnTickets).toBe(true);
+		});
+	});
+
+	// ─── Lazy-init remaining sub-documents ────────────────────────────────────
+
+	Scenario('Lazy-initialising propertyPermissions when sub-document is absent', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter wrapping a document with no propertyPermissions sub-document', () => {
+			const docWithout = makeStaffRoleDoc();
+			if (docWithout.permissions) {
+				(docWithout.permissions as unknown as Record<string, unknown>)['propertyPermissions'] = undefined;
+			}
+			adapter = new StaffRoleDomainAdapter(docWithout);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the propertyPermissions property', () => {
+			result = permissions.propertyPermissions;
+		});
+		Then('it should return a StaffRolePropertyPermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRolePropertyPermissionsAdapter);
+		});
+		And('canManageProperties should default to false', () => {
+			expect((result as StaffRolePropertyPermissionsAdapter).canManageProperties).toBe(false);
+		});
+	});
+
+	Scenario('Lazy-initialising servicePermissions when sub-document is absent', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter wrapping a document with no servicePermissions sub-document', () => {
+			const docWithout = makeStaffRoleDoc();
+			if (docWithout.permissions) {
+				(docWithout.permissions as unknown as Record<string, unknown>)['servicePermissions'] = undefined;
+			}
+			adapter = new StaffRoleDomainAdapter(docWithout);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the servicePermissions property', () => {
+			result = permissions.servicePermissions;
+		});
+		Then('it should return a StaffRoleServicePermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleServicePermissionsAdapter);
+		});
+		And('canManageServices should default to false', () => {
+			expect((result as StaffRoleServicePermissionsAdapter).canManageServices).toBe(false);
+		});
+	});
+
+	Scenario('Lazy-initialising serviceTicketPermissions when sub-document is absent', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter wrapping a document with no serviceTicketPermissions sub-document', () => {
+			const docWithout = makeStaffRoleDoc();
+			if (docWithout.permissions) {
+				(docWithout.permissions as unknown as Record<string, unknown>)['serviceTicketPermissions'] = undefined;
+			}
+			adapter = new StaffRoleDomainAdapter(docWithout);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the serviceTicketPermissions property', () => {
+			result = permissions.serviceTicketPermissions;
+		});
+		Then('it should return a StaffRoleServiceTicketPermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleServiceTicketPermissionsAdapter);
+		});
+		And('canCreateTickets should default to false', () => {
+			expect((result as StaffRoleServiceTicketPermissionsAdapter).canCreateTickets).toBe(false);
+		});
+	});
+
+	Scenario('Lazy-initialising violationTicketPermissions when sub-document is absent', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		Given('a StaffRoleDomainAdapter wrapping a document with no violationTicketPermissions sub-document', () => {
+			const docWithout = makeStaffRoleDoc();
+			if (docWithout.permissions) {
+				(docWithout.permissions as unknown as Record<string, unknown>)['violationTicketPermissions'] = undefined;
+			}
+			adapter = new StaffRoleDomainAdapter(docWithout);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the violationTicketPermissions property', () => {
+			result = permissions.violationTicketPermissions;
+		});
+		Then('it should return a StaffRoleViolationTicketPermissionsAdapter instance', () => {
+			expect(result).toBeInstanceOf(StaffRoleViolationTicketPermissionsAdapter);
+		});
+		And('canCreateTickets should default to false', () => {
+			expect((result as StaffRoleViolationTicketPermissionsAdapter).canCreateTickets).toBe(false);
+		});
+	});
 });
 
 test.for(typeConverterFeature, ({ Scenario, Background, BeforeEachScenario }) => {

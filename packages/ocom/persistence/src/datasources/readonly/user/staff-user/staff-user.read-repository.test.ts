@@ -50,6 +50,21 @@ function makeMockModel(doc: StaffUser | null) {
 	} as unknown as StaffUserModelType;
 }
 
+function makeMockModelMulti(docs: StaffUser[]) {
+	return {
+		find: vi.fn().mockReturnValue({
+			populate: vi.fn().mockReturnValue({
+				exec: vi.fn().mockResolvedValue(docs),
+			}),
+		}),
+		findOne: vi.fn().mockReturnValue({
+			populate: vi.fn().mockReturnValue({
+				exec: vi.fn().mockResolvedValue(docs[0] ?? null),
+			}),
+		}),
+	} as unknown as StaffUserModelType;
+}
+
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let models: ModelsContext;
 	let passport: Domain.Passport;
@@ -109,6 +124,82 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		And('the repository should have a getByEmail method', () => {
 			expect(typeof repository.getByEmail).toBe('function');
+		});
+		And('the repository should have a getAll method', () => {
+			expect(typeof repository.getAll).toBe('function');
+		});
+	});
+
+	// ─── getAll ───────────────────────────────────────────────────────────────
+
+	Scenario('getAll returns all converted entities when documents exist', ({ Given, When, Then, And }) => {
+		let doc1: StaffUser;
+		let doc2: StaffUser;
+		Given('two StaffUser documents exist in the collection', () => {
+			doc1 = { ...makeMockStaffUserDocument(), id: 'id-1', externalId: 'ext-1' } as unknown as StaffUser;
+			doc2 = { ...makeMockStaffUserDocument(), id: 'id-2', externalId: 'ext-2' } as unknown as StaffUser;
+			models = { StaffUser: makeMockModelMulti([doc1, doc2]) } as unknown as ModelsContext;
+			mockConverter.toDomain
+				.mockReturnValueOnce({ id: 'id-1', externalId: 'ext-1' })
+				.mockReturnValueOnce({ id: 'id-2', externalId: 'ext-2' });
+			repository = getStaffUserReadRepository(models, passport);
+		});
+		When('I call getAll', async () => {
+			result = await repository.getAll();
+		});
+		Then('I should receive an array of two StaffUserEntityReference objects', () => {
+			expect(Array.isArray(result)).toBe(true);
+			expect((result as unknown[]).length).toBe(2);
+		});
+		And('the converter toDomain should have been called once for each document', () => {
+			expect(mockConverter.toDomain).toHaveBeenCalledTimes(2);
+			expect(mockConverter.toDomain).toHaveBeenCalledWith(doc1, passport);
+			expect(mockConverter.toDomain).toHaveBeenCalledWith(doc2, passport);
+		});
+	});
+
+	Scenario('getAll returns an empty array when no documents exist', ({ Given, When, Then }) => {
+		Given('no StaffUser documents exist in the collection', () => {
+			models = { StaffUser: makeMockModelMulti([]) } as unknown as ModelsContext;
+			repository = getStaffUserReadRepository(models, passport);
+		});
+		When('I call getAll', async () => {
+			result = await repository.getAll();
+		});
+		Then('I should receive an empty array', () => {
+			expect(result).toEqual([]);
+		});
+	});
+
+	// ─── filter verification ──────────────────────────────────────────────────
+
+	Scenario('getByExternalId passes the correct filter to findOne', ({ Given, When, Then }) => {
+		let mockModel: StaffUserModelType;
+		Given('a StaffUser document exists with externalId "ext-filter-test"', () => {
+			mockModel = makeMockModel(mockStaffUserDoc);
+			models = { StaffUser: mockModel } as unknown as ModelsContext;
+			repository = getStaffUserReadRepository(models, passport);
+		});
+		When('I call getByExternalId with "ext-filter-test"', async () => {
+			result = await repository.getByExternalId('ext-filter-test');
+		});
+		Then('findOne should have been called with the externalId filter', () => {
+			expect(mockModel.findOne).toHaveBeenCalledWith({ externalId: 'ext-filter-test' });
+		});
+	});
+
+	Scenario('getByEmail passes the correct filter to findOne', ({ Given, When, Then }) => {
+		let mockModel: StaffUserModelType;
+		Given('a StaffUser document exists with email "filter@example.com"', () => {
+			mockModel = makeMockModel(mockStaffUserDoc);
+			models = { StaffUser: mockModel } as unknown as ModelsContext;
+			repository = getStaffUserReadRepository(models, passport);
+		});
+		When('I call getByEmail with "filter@example.com"', async () => {
+			result = await repository.getByEmail('filter@example.com');
+		});
+		Then('findOne should have been called with the email filter', () => {
+			expect(mockModel.findOne).toHaveBeenCalledWith({ email: 'filter@example.com' });
 		});
 	});
 

@@ -33,3 +33,28 @@ Feature: Update staff role
     And saving the staff role returns undefined
     When I call update with roleId "role-err" and roleName "Any Role"
     Then it should throw an error with message "Unable to update staff role"
+
+  Scenario: Successfully updates a staff role with all community permissions set
+    Given a staff role with id "role-all-comm" exists in the repository
+    When I call update with all community permissions true
+    Then all community permissions should be true on the updated instance
+
+  Scenario: Successfully updates a staff role with canAssignStaffUserRoles set
+    Given a staff role with id "role-assign" exists in the repository
+    When I call update with user permissions canAssignStaffUserRoles true
+    Then the user permission canAssignStaffUserRoles should be true
+
+  Scenario: Omitting community permissions sub-object leaves community permissions unchanged
+    Given a staff role with id "role-noc" exists in the repository
+    When I call update with only user permissions
+    Then all community permissions should remain false
+
+  Scenario: Omitting user permissions sub-object leaves user permissions unchanged
+    Given a staff role with id "role-nou" exists in the repository
+    When I call update with only community permissions
+    Then all user permissions should remain false
+
+  Scenario: getById is called with the provided role id
+    Given a staff role with id "role-lookup" exists in the repository
+    When I call update with roleId "role-lookup" and roleName "Any Role"
+    Then getById should have been called with "role-lookup"

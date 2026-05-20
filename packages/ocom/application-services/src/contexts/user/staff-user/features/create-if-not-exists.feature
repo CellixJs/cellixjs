@@ -63,3 +63,29 @@ Feature: Create staff user if not exists
     Given no staff user with externalId "ext-err" exists
     When I call createIfNotExists with externalId "ext-err"
     Then it should throw an error with message "Unable to create staff user"
+
+  Scenario: Creates a new user when email is empty
+    Given no staff user with externalId "ext-noemail" exists
+    And the command has an empty email
+    When I call createIfNotExists with externalId "ext-noemail"
+    Then it should not check for an existing user by email
+    And it should return the newly created user
+
+  Scenario: Creates a new user when email lookup returns no match
+    Given no staff user with externalId "ext-nomatch" exists
+    And a staff user with email "other@example.com" does not exist
+    When I call createIfNotExists with externalId "ext-nomatch"
+    Then it should create a new user
+    And it should return the newly created user
+
+  Scenario: Throws when update of externalId fails to save
+    Given a staff user with email "first@example.com" already exists
+    And the update transaction save returns undefined
+    When I call createIfNotExists with externalId "ext-updfail"
+    Then it should throw an error with message "Unable to update staff user externalId"
+
+  Scenario: Propagates non-NotFound errors from role lookup
+    Given no staff user with externalId "ext-rolerr" exists
+    And the role repository throws a non-NotFound error for any AAD role
+    When I call createIfNotExists with externalId "ext-rolerr"
+    Then it should propagate the role repository error

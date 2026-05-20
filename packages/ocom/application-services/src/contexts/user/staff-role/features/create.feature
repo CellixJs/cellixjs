@@ -38,3 +38,38 @@ Feature: Create staff role
     And saving the staff role returns undefined
     When I call create with roleName "Test Role" and no permissions
     Then it should throw an error with message "Unable to create staff role"
+
+  Scenario: enterpriseAppRole is not set when not provided in the command
+    Given a staff role with name "Test Role" does not exist in the repository
+    When I call create with roleName "Test Role" and no permissions
+    Then the enterpriseAppRole on the saved instance should remain empty
+
+  Scenario: Not-found detected via error name NotFoundError allows creation to proceed
+    Given the repository raises a NotFoundError by name when checking for "New Role"
+    When I call create with roleName "New Role" and no permissions
+    Then the new staff role should be saved
+
+  Scenario: Successfully creates a staff role with all community permissions set
+    Given a staff role with name "Full Community Role" does not exist in the repository
+    When I call create with roleName "Full Community Role" and all community permissions true
+    Then all community permissions should be true on the saved instance
+
+  Scenario: Successfully creates a staff role with canAssignStaffUserRoles set
+    Given a staff role with name "Assign Role" does not exist in the repository
+    When I call create with roleName "Assign Role" and user permissions canAssignStaffUserRoles true
+    Then the user permission canAssignStaffUserRoles should be true
+
+  Scenario: Omitting community permissions sub-object leaves community permissions unchanged
+    Given a staff role with name "Test Role" does not exist in the repository
+    When I call create with roleName "Test Role" and only user permissions
+    Then all community permissions should remain false
+
+  Scenario: Omitting user permissions sub-object leaves user permissions unchanged
+    Given a staff role with name "Test Role" does not exist in the repository
+    When I call create with roleName "Test Role" and only community permissions
+    Then all user permissions should remain false
+
+  Scenario: getNewInstance is called with the provided role name
+    Given a staff role with name "Named Role" does not exist in the repository
+    When I call create with roleName "Named Role" and no permissions
+    Then getNewInstance should have been called with "Named Role"
