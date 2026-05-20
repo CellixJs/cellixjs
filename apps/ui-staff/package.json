@@ -50,6 +50,6 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-        "vite-plugin-node-polyfills": "catalog:"
+		"vite-plugin-node-polyfills": "catalog:"
 	}
 }

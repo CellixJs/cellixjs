@@ -8,11 +8,7 @@ const isDev = NODE_ENV === 'development';
 const isProd = NODE_ENV === 'production';
 
 export default defineConfig({
-	plugins: [
-        react() as PluginOption, 
-        ...(isProd ? [nodePolyfills() as PluginOption] : []),
-        ...(isDev ? [visualizer() as PluginOption] : [])
-    ],
+	plugins: [react() as PluginOption, ...(isProd ? [nodePolyfills() as PluginOption] : []), ...(isDev ? [visualizer() as PluginOption] : [])],
 	server: process.env.PORTLESS_URL
 		? undefined
 		: {
