@@ -6,6 +6,7 @@ export class CellixUiWorld extends World {
 	private cast!: Cast;
 	private communityContainer: HTMLElement | null = null;
 	private communityActorName = '';
+	private headerContainer: HTMLElement | null = null;
 
 	init(): Promise<void> {
 		this.cast = new CellixUiCast();
@@ -30,6 +31,17 @@ export class CellixUiWorld extends World {
 
 	getCommunityActorName(): string {
 		return this.communityActorName;
+	}
+
+	setHeaderContainer(container: HTMLElement): void {
+		this.headerContainer = container;
+	}
+
+	getHeaderContainer(): HTMLElement {
+		if (!this.headerContainer) {
+			throw new Error('No header container available — did the Given step run?');
+		}
+		return this.headerContainer;
 	}
 }
 

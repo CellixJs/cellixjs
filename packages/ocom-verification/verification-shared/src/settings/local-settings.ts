@@ -42,6 +42,7 @@ export const apiSettings = {
 	apiDir: path.dirname(apiSettingsPath),
 	oauth2MockDir: path.join(workspaceRoot, 'apps', 'server-oauth2-mock'),
 	uiCommunityDir: path.dirname(uiEnvPath),
+	uiStaffDir: path.join(workspaceRoot, 'apps', 'ui-staff'),
 } as const;
 
 export const uiSettings = {

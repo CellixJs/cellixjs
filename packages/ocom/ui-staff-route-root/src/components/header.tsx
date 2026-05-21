@@ -13,12 +13,12 @@ export const Header: React.FC = () => {
 				await auth.signinRedirect();
 				return;
 			}
-		} catch (_err) {
-			// swallow and fall back below
+		} catch (err) {
+			console.error('OIDC signinRedirect failed, falling back to direct navigation', err);
 		}
 
 		// fall back to direct navigation if the OIDC helper is unavailable or fails
-		globalThis.location.href = `${import.meta.env.VITE_APP_UI_STAFF_AAD_REDIRECT_URI}`;
+		globalThis.location.href = `${(import.meta as { env?: ImportMetaEnv }).env?.VITE_APP_UI_STAFF_AAD_REDIRECT_URI ?? ''}`;
 	};
 
 	const {

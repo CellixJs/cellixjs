@@ -33,6 +33,8 @@ export const mockOidcIssuer = buildUrl('mock-auth.ownercommunity.localhost', '/c
 export const mockOidcEndpoint = `${mockOidcIssuer}/.well-known/jwks.json`;
 export const mockOidcAudience = 'mock-client';
 
+export const mockStaffOidcIssuer = buildUrl('mock-auth.ownercommunity.localhost', '/staff');
+
 export function setMongoConnectionString(connStr: string): void {
 	mongoConnectionString = connStr;
 }

@@ -1,12 +1,13 @@
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
-import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestCommunityViteServer, TestOAuth2Server } from './servers/index.ts';
+import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestCommunityViteServer, TestOAuth2Server, TestStaffViteServer } from './servers/index.ts';
 
 let mongoDBServer: MongoDBTestServer | undefined;
 let oauth2Server: TestOAuth2Server | undefined;
 let apiServer: TestApiServer | undefined;
 let communityViteServer: TestCommunityViteServer | undefined;
+let staffViteServer: TestStaffViteServer | undefined;
 let apiUrl: string | undefined;
 let browser: Browser | undefined;
 let browserBaseUrl: string | undefined;
@@ -17,10 +18,13 @@ let shutdownHandlersRegistered = false;
 export interface InfrastructureState {
 	apiUrl: string | undefined;
 	browseTheWeb: BrowseTheWeb | undefined;
+	staffBaseUrl: string | undefined;
+	communityBaseUrl: string | undefined;
+	browser: Browser | undefined;
 }
 
 export function getState(): InfrastructureState {
-	return { apiUrl, browseTheWeb };
+	return { apiUrl, browseTheWeb, staffBaseUrl: staffViteServer?.getUrl(), communityBaseUrl: browserBaseUrl, browser };
 }
 
 export async function stopAll(): Promise<void> {
@@ -38,6 +42,10 @@ export async function stopAll(): Promise<void> {
 	if (communityViteServer) {
 		await communityViteServer.stop().catch(() => undefined);
 		communityViteServer = undefined;
+	}
+	if (staffViteServer) {
+		await staffViteServer.stop().catch(() => undefined);
+		staffViteServer = undefined;
 	}
 	if (apiServer) {
 		await apiServer.stop().catch(() => undefined);
@@ -78,8 +86,10 @@ export async function ensureE2EServers(): Promise<void> {
 	// Phase 2: Start API (needs MongoDB conn string), Vite (independent), and generate token (needs OAuth2) in parallel
 	apiServer ??= new TestApiServer();
 	communityViteServer ??= new TestCommunityViteServer();
+	staffViteServer ??= new TestStaffViteServer();
 	const api = apiServer;
 	const vite = communityViteServer;
+	const staffVite = staffViteServer;
 	const phase2: Promise<void>[] = [];
 	if (!api.isRunning()) {
 		phase2.push(
@@ -90,6 +100,9 @@ export async function ensureE2EServers(): Promise<void> {
 	}
 	if (!vite.isRunning()) {
 		phase2.push(vite.start());
+	}
+	if (!staffVite.isRunning()) {
+		phase2.push(staffVite.start());
 	}
 	if (phase2.length > 0) await Promise.all(phase2);
 

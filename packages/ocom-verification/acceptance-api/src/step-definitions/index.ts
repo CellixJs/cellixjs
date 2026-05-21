@@ -4,3 +4,4 @@
  */
 
 import '../contexts/community/step-definitions/index.ts';
+import '../contexts/authentication/step-definitions/index.ts';
