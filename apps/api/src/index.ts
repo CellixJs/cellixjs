@@ -18,19 +18,16 @@ import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
-	const blobCfg = BlobStorageConfig.blobStorageConfig;
-	const isLocalAzurite = typeof blobCfg.connectionString === 'string' && /blobendpoint=.*(127\.0\.0\.1|localhost|devstoreaccount1)/i.test(blobCfg.connectionString);
+	const { NODE_ENV } = process.env;
+	const isProd = NODE_ENV === 'production';
 
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
-		// If the connection string points at a local Azurite endpoint prefer it for the
-		// backend blob service so server-side operations work in local dev without IMDS.
-		.registerInfrastructureService(isLocalAzurite ? new ServiceBlobStorage({ connectionString: blobCfg.connectionString }) : new ServiceBlobStorage({ accountName: blobCfg.accountName }), 'BlobStorageService')
-		// Client operations (signing) always use the connection string when available
-		.registerInfrastructureService(new ServiceBlobStorage({ connectionString: blobCfg.connectionString }), 'ClientOperationsService')
+		.registerInfrastructureService(isProd ? new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName }) : new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString }), 'BlobStorageService')
+		.registerInfrastructureService(new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString }), 'ClientOperationsService')
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
-})
+    })
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
 

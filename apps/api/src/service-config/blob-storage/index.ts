@@ -24,17 +24,14 @@
  * client uploads. Server-only blob operations require only accountName.
  */
 
-const { AZURE_STORAGE_ACCOUNT_NAME: storageAccountName, AZURE_STORAGE_CONNECTION_STRING: storageConnectionString } = process.env;
+const { AZURE_STORAGE_ACCOUNT_NAME: accountName, AZURE_STORAGE_CONNECTION_STRING: connectionString } = process.env;
 
-if (!storageAccountName) {
+if (!accountName) {
 	throw new Error('Missing AZURE_STORAGE_ACCOUNT_NAME environment variable. Required for blob operations with managed identity authentication.');
 }
 
-if (!storageConnectionString) {
+if (!connectionString) {
 	throw new Error('Missing AZURE_STORAGE_CONNECTION_STRING environment variable. Required for SAS token generation for client uploads. ' + '(Applications that only perform server-side blob operations do not require this.)');
 }
 
-export const blobStorageConfig = {
-	accountName: storageAccountName,
-	connectionString: storageConnectionString,
-};
+export { accountName, connectionString };
