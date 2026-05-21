@@ -35,6 +35,11 @@
 			"dependsOn": ["^build", "@cellix/config-vitest#build"],
 			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"]
 		},
+		"test:arch": {
+			"description": "Runs architecture unit tests for each package",
+			"dependsOn": ["build", "^build", "@cellix/config-vitest#build", "@cellix/archunit-tests#build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"]
+		},
 		"test:coverage": {
 			"description": "Runs the coverage test suite and writes coverage reports",
 			"dependsOn": ["build", "^build", "@cellix/config-vitest#build"],

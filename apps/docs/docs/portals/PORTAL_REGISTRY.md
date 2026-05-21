@@ -19,4 +19,4 @@ Canonical list of UI portals in this monorepo. Each portal has a unique uppercas
 ## References
 
 - [ADR-0031: UI environment variable naming convention](../decisions/0031-ui-env-vars.md)
-- [ArchUnit enforcement](../../../../packages/ocom/archunit-tests/src/env-vars-naming.archunit.test.ts)
+- [ArchUnit enforcement](../../../../packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts)
