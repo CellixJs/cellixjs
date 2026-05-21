@@ -7,5 +7,7 @@ export default {
 	formatOptions: {
 		snippetInterface: 'async-await',
 	},
+	// Disable parallel workers — the shared portless proxy and per-worktree port
+	// scheme make parallel browsers contend for the same hostnames.
 	parallel: 0,
 };

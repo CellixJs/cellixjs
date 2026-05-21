@@ -6,6 +6,7 @@ import { getAllMockUsers } from '../test-data/index.ts';
 const MONGO_BINARY_VERSION = '7.0.14';
 const DEFAULT_DB_NAME = 'owner-community-test';
 const MAX_REPLSET_START_ATTEMPTS = 5;
+type MongoMemoryReplSetConfig = NonNullable<Parameters<typeof MongoMemoryReplSet.create>[0]>;
 
 export type MongoDBSeedDataFunction = (connectionString: string, dbName: string) => Promise<void>;
 
@@ -122,7 +123,7 @@ export class MongoDBTestServer {
 		return this.serviceMongoose !== null;
 	}
 
-	private async createReplicaSetWithRetry(config: Parameters<typeof MongoMemoryReplSet.create>[0]): Promise<MongoMemoryReplSet> {
+	private async createReplicaSetWithRetry(config: MongoMemoryReplSetConfig): Promise<MongoMemoryReplSet> {
 		let lastError: unknown;
 
 		for (let attempt = 1; attempt <= MAX_REPLSET_START_ATTEMPTS; attempt += 1) {

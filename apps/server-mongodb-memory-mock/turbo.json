@@ -8,7 +8,7 @@
 			"interruptible": true,
 			"inputs": []
 		},
-		"dev:portless": {
+		"dev:worktree": {
 			"dependsOn": ["build"],
 			"persistent": true,
 			"interruptible": true,

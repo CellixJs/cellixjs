@@ -10,7 +10,7 @@
 			"persistent": true,
 			"inputs": ["$TURBO_DEFAULT$", "../**/mock-oidc*.json"]
 		},
-		"dev:portless": {
+		"dev:worktree": {
 			"dependsOn": ["build"],
 			"interruptible": true,
 			"persistent": true,

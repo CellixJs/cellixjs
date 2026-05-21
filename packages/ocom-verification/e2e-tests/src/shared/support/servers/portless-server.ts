@@ -1,6 +1,7 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import type { TestServer } from '@ocom-verification/verification-shared/servers';
 import { getTimeout } from '@ocom-verification/verification-shared/settings';
+import { spawnEnv } from './e2e-defaults.ts';
 import { getPortlessPath } from './resolve-portless.ts';
 
 /**
@@ -68,16 +69,9 @@ export abstract class PortlessServer implements TestServer {
 		if (this.process || this.startedByUs) return;
 		if (await this.isAlreadyRunning()) return;
 
-		const env = {
-			...process.env,
-			...this.extraEnv,
-		};
-		// Remove NODE_OPTIONS from child process to avoid tsx import issues
-		delete env['NODE_OPTIONS'];
-
 		this.process = spawn(this.executable, this.spawnArgs, {
 			cwd: this.cwd,
-			env,
+			env: spawnEnv(this.extraEnv),
 			detached: this.useDetachedProcessGroup,
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
@@ -159,7 +153,8 @@ export abstract class PortlessServer implements TestServer {
 			});
 
 			proc.stderr?.on('data', (data: Buffer) => {
-				stderrOutput += data.toString();
+				const text = data.toString();
+				stderrOutput += text;
 			});
 
 			proc.on('error', (err: Error) => {

@@ -1,24 +1,43 @@
 import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
+import { spawnEnv } from './e2e-defaults.ts';
 import { PortlessServer } from './portless-server.ts';
-import { buildUrl, getHostnames, getMongoConnectionString, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
+import { buildUrl, getHostnames, getMongoConnectionString } from './test-environment.ts';
 
 const hostnames = getHostnames();
 
+/**
+ * Spawns the api dev server the same way `pnpm dev:worktree` does. The
+ * worktree-aware overrides (OIDC URLs, Azurite connection, etc.) all come
+ * from apps/api/start-dev.mjs — we only inject the dynamic MongoDB
+ * connection string from MongoMemoryServer here.
+ */
 export class TestApiServer extends PortlessServer {
 	override async start(): Promise<void> {
-		// Mirror the app's real dev bootstrap so deploy assets and local settings
-		// stay in sync with recent package-script changes.
-		const env = {
-			...process.env,
-		};
-		delete env['NODE_OPTIONS'];
-
-		execFileSync('pnpm', ['run', 'predev'], {
+		// Mirror the `predev:worktree` lifecycle hook so deploy/ and local.settings.json
+		// stay in sync — start-dev.mjs is invoked directly here, bypassing pnpm's pre-hook.
+		execFileSync('pnpm', ['run', 'predev:worktree'], {
 			cwd: this.cwd,
-			env,
+			env: spawnEnv(),
 			stdio: 'pipe',
 		});
+
+		// Patch deploy/local.settings.json with e2e-specific values.
+		// Azure Functions loads local.settings.json values into the worker env,
+		// overriding any parent-process env vars. We must patch the file so the
+		// worker gets the MongoMemoryServer connection string (random port) and
+		// the inspector is disabled (port 5858 may already be in use).
+		const settingsPath = join(this.cwd, 'deploy', 'local.settings.json');
+		try {
+			const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
+			settings.Values.COSMOSDB_CONNECTION_STRING = getMongoConnectionString();
+			settings.Values['languageWorkers__node__arguments'] = '';
+			writeFileSync(settingsPath, JSON.stringify(settings, null, '\t'));
+		} catch {
+			/* best-effort — file may not exist in CI */
+		}
 
 		await super.start();
 	}
@@ -59,21 +78,9 @@ export class TestApiServer extends PortlessServer {
 	}
 
 	protected override get extraEnv() {
+		// start-dev.mjs handles the rest via WORKTREE_NAME + `??=` fallbacks.
 		return {
-			NODE_ENV: 'development',
-			languageWorkers__node__arguments: '',
 			COSMOSDB_CONNECTION_STRING: getMongoConnectionString(),
-			COSMOSDB_DBNAME: apiSettings.cosmosDbName,
-			AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true',
-			ACCOUNT_PORTAL_OIDC_ISSUER: mockOidcIssuer,
-			ACCOUNT_PORTAL_OIDC_ENDPOINT: mockOidcEndpoint,
-			ACCOUNT_PORTAL_OIDC_AUDIENCE: mockOidcAudience,
-			ACCOUNT_PORTAL_OIDC_IGNORE_ISSUER: 'true',
-			STAFF_PORTAL_OIDC_ISSUER: mockOidcIssuer,
-			STAFF_PORTAL_OIDC_ENDPOINT: mockOidcEndpoint,
-			STAFF_PORTAL_OIDC_AUDIENCE: mockOidcAudience,
-			STAFF_PORTAL_OIDC_IGNORE_ISSUER: 'true',
-			VITE_COMMON_API_ENDPOINT: buildUrl(hostnames.api, '/api/graphql'),
 		};
 	}
 

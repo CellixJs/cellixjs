@@ -1,3 +1,4 @@
+import { actors } from '@ocom-verification/verification-shared/test-data';
 import { type Actor, Interaction, the } from '@serenity-js/core';
 import type { Page } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
@@ -32,9 +33,10 @@ export async function performOAuth2Login(page: Page): Promise<void> {
 	// Wait for redirects to settle on either the login page or the app
 	await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => undefined);
 
-	// If the mock OAuth2 login form is shown, fill credentials and submit
+	// If the mock OAuth2 login form is shown, fill credentials and submit.
+	// CommunityOwner is defined in mock-oidc.users.json with password "password".
 	if (page.url().includes('/login')) {
-		await page.fill('input[name="username"]', 'test@example.com');
+		await page.fill('input[name="username"]', actors.CommunityOwner.email);
 		await page.fill('input[name="password"]', 'password');
 		await page.click('button[type="submit"]');
 	}

@@ -1,9 +1,10 @@
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
-import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestCommunityViteServer, TestOAuth2Server } from './servers/index.ts';
+import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestAzuriteServer, TestCommunityViteServer, TestOAuth2Server } from './servers/index.ts';
 
 let mongoDBServer: MongoDBTestServer | undefined;
+let azuriteServer: TestAzuriteServer | undefined;
 let oauth2Server: TestOAuth2Server | undefined;
 let apiServer: TestApiServer | undefined;
 let viteServer: TestCommunityViteServer | undefined;
@@ -66,6 +67,10 @@ export async function stopAll(): Promise<void> {
 		await mongoDBServer.stop().catch(() => undefined);
 		mongoDBServer = undefined;
 	}
+	if (azuriteServer) {
+		await azuriteServer.stop().catch(() => undefined);
+		azuriteServer = undefined;
+	}
 	apiUrl = undefined;
 	browserBaseUrl = undefined;
 	cleanupTestEnvironment();
@@ -75,14 +80,23 @@ export async function ensureE2EServers(): Promise<void> {
 	registerShutdownHandlers();
 	initTestEnvironment();
 
-	// Phase 1: Start MongoDB and OAuth2 in parallel (no interdependency)
+	// Phase 1: Start MongoDB, Azurite, and OAuth2 in parallel (no interdependency)
 	mongoDBServer ??= new MongoDBTestServer();
+	azuriteServer ??= new TestAzuriteServer();
 	oauth2Server ??= new TestOAuth2Server();
 	const mongo = mongoDBServer;
+	const azurite = azuriteServer;
 	const oauth2 = oauth2Server;
 	const phase1: Promise<void>[] = [];
 	if (!mongo.isRunning()) {
-		phase1.push(mongo.start().then(() => setMongoConnectionString(mongo.getConnectionString())));
+		phase1.push(
+			mongo.start().then(() => {
+				setMongoConnectionString(mongo.getConnectionString());
+			}),
+		);
+	}
+	if (!azurite.isRunning()) {
+		phase1.push(azurite.start());
 	}
 	if (!oauth2.isRunning()) {
 		phase1.push(oauth2.start());

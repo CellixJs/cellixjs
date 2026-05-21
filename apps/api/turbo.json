@@ -12,7 +12,7 @@
 			"interruptible": true,
 			"inputs": []
 		},
-		"dev:portless": {
+		"dev:worktree": {
 			"dependsOn": ["build"],
 			"interruptible": true,
 			"inputs": []

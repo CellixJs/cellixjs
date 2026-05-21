@@ -7,7 +7,7 @@
 			"interruptible": false,
 			"inputs": [".env", "package.json", "start-dev.mjs", "docusaurus.config.ts", "sidebars.ts", "tsconfig.json"]
 		},
-		"dev:portless": {
+		"dev:worktree": {
 			"dependsOn": [],
 			"persistent": true,
 			"interruptible": false,

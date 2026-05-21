@@ -2,17 +2,19 @@ import { spawn } from 'node:child_process';
 import { isGracefulInterruptExit } from '../../build-pipeline/scripts/dev-process-exit.mjs';
 import { buildPortlessUrl, getHostnames } from '../../build-pipeline/scripts/portless-hostnames.mjs';
 
-const hostnames = getHostnames();
+const childEnv = { ...process.env };
+
+if (process.env.WORKTREE_NAME) {
+	const hostnames = getHostnames();
+	childEnv.BASE_URL = buildPortlessUrl(hostnames.mockAuth);
+	// Override redirect URIs so portal-discovery picks up worktree-scoped URLs.
+	childEnv.VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI = buildPortlessUrl(hostnames.uiCommunity, '/auth-redirect');
+	childEnv.VITE_APP_UI_STAFF_AAD_REDIRECT_URI = buildPortlessUrl(hostnames.uiStaff, '/auth-redirect');
+}
 
 const child = spawn('tsx', ['src/index.ts'], {
 	stdio: 'inherit',
-	env: {
-		...process.env,
-		BASE_URL: buildPortlessUrl(hostnames.mockAuth),
-		// Override redirect URIs so portal-discovery picks up worktree-scoped URLs
-		VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI: buildPortlessUrl(hostnames.uiCommunity, '/auth-redirect'),
-		VITE_APP_UI_STAFF_AAD_REDIRECT_URI: buildPortlessUrl(hostnames.uiStaff, '/auth-redirect'),
-	},
+	env: childEnv,
 });
 
 child.on('exit', (code, signal) => {

@@ -7,4 +7,4 @@ export {
 	MongoDBTestServer,
 	seedOwnerCommunityReferenceData,
 } from './test-mongodb-server.ts';
-export type { TestServer, TestServerOptions } from './test-server.interface.ts';
+export type { TestServer } from './test-server.interface.ts';

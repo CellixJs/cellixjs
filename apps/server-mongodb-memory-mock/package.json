@@ -12,7 +12,7 @@
 		"format:check": "biome format .",
 		"start": "node dist/index.js",
 		"dev": "tsx src/index.ts",
-		"dev:portless": "node start-mongo.mjs"
+		"dev:worktree": "node start-mongo.mjs"
 	},
 	"dependencies": {
 		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",

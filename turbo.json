@@ -102,7 +102,7 @@
 			"cache": false,
 			"persistent": true
 		},
-		"dev:portless": {
+		"dev:worktree": {
 			"description": "Starts dev servers with worktree-scoped portless hostnames for git worktree isolation",
 			"dependsOn": ["^build"],
 			"cache": false,
