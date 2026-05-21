@@ -268,7 +268,7 @@ kill -9 <PID>
 
 3. **Run Azurite manually**:
 ```bash
-pnpm exec azurite-blob --silent --blobPort 10000
+pnpm exec azurite-blob --silent --skipApiVersionCheck --blobPort 10000
 # Should print: Azurite Blob service is listening at http://127.0.0.1:10000
 ```
 

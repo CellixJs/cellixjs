@@ -68,6 +68,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		// token acquisition to the Azure SDK. Keep function async and include a no-op await
 		// to satisfy the linter which enforces at least one await in async functions.
 		await Promise.resolve();
+
 		if (this.inferredMode === 'sharedKey') {
 			// connection string path
 			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(this.options.connectionString as string);
@@ -82,6 +83,10 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 			// Create signer for shared-key signing
 			this.clientUploadSignerInternal = new ClientUploadSigner(this.options.connectionString as string);
 
+			const endpoint = this.blobServiceClientInternal?.url ?? '(unknown)';
+			const maskedAccount = accountName ? accountName.replace(/.(?=.{4})/g, '*') : 'unknown';
+			console.info(`[ServiceBlobStorage] started (sharedKey). endpoint=${endpoint}, account=${maskedAccount}`);
+
 			return this;
 		}
 
@@ -90,12 +95,11 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		const credentialToUse: TokenCredential = this.options.credential ?? new DefaultAzureCredential();
 		const url = `https://${accountName}.blob.core.windows.net`;
 
-		// Defer token acquisition to the Azure SDK (do not probe IMDS on startup).
-		// Constructing the client is sufficient for startup; operations will fail later if
-		// the environment lacks valid managed identity tokens. This avoids startup-time
-		// hangs in environments without IMDS (e.g., local dev) while preserving the
-		// managed-identity code path for environments that provide tokens.
+		// Construct the client and defer token acquisition to the SDK. This avoids
+		// startup-time hangs when IMDS isn't available (local dev). Operations will
+		// fail at call time if the environment doesn't provide a valid managed identity.
 		this.blobServiceClientInternal = new BlobServiceClient(url, credentialToUse);
+		console.info(`[ServiceBlobStorage] started (managedIdentity). account=${accountName}, endpoint=${url}`);
 		return this;
 	}
 

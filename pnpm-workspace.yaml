@@ -9,6 +9,7 @@ engineStrict: true
 catalog:
   '@apollo/server': 5.5.0
   '@azure/functions': 4.11.0
+  '@azure/storage-blob': 12.31.0
   '@cucumber/cucumber': 12.8.1
   '@cucumber/messages': 32.3.1
   '@cucumber/node': 0.4.0
