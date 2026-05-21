@@ -2,8 +2,8 @@ import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
 import React from 'react';
 import { AuthContext, type AuthContextProps } from 'react-oidc-context';
-import { Header as CommunityHeader } from '../../../../../../ocom/ui-community-route-root/src/components/header.tsx';
-import { Header as StaffHeader } from '../../../../../../ocom/ui-staff-route-root/src/components/header.tsx';
+import { SectionLayout as CommunitySectionLayout } from '../../../../../../ocom/ui-community-route-root/src/section-layout.tsx';
+import { SectionLayout as StaffSectionLayout } from '../../../../../../ocom/ui-staff-route-root/src/section-layout.tsx';
 import { mountComponent } from '../../../shared/support/ui/react-render.ts';
 import type { CellixUiWorld } from '../../../world.ts';
 import type { HeaderUiNotes } from '../abilities/header-types.ts';
@@ -69,8 +69,8 @@ When('{word} chooses to sign in', async function (this: CellixUiWorld, _actorNam
 	};
 
 	const authValue = { signinRedirect } as unknown as AuthContextProps;
-	const HeaderComponent = state.site === 'community' ? CommunityHeader : StaffHeader;
-	const wrapped = React.createElement(AuthContext.Provider, { value: authValue }, React.createElement(HeaderComponent));
+	const PageComponent = state.site === 'community' ? CommunitySectionLayout : StaffSectionLayout;
+	const wrapped = React.createElement(AuthContext.Provider, { value: authValue }, React.createElement(PageComponent));
 
 	state.originalConsoleError = console.error;
 	console.error = (..._args: unknown[]) => {

@@ -27,6 +27,17 @@ export function getState(): InfrastructureState {
 	return { apiUrl, browseTheWeb, staffBaseUrl: staffViteServer?.getUrl(), communityBaseUrl: browserBaseUrl, browser };
 }
 
+/**
+ * Resets mutable state between scenarios without restarting servers.
+ * Drops all MongoDB collections and re-seeds reference data so each
+ * scenario starts from a clean baseline.
+ */
+export async function resetScenarioState(): Promise<void> {
+	if (mongoDBServer?.isRunning()) {
+		await mongoDBServer.resetForScenario();
+	}
+}
+
 export async function stopAll(): Promise<void> {
 	if (browseTheWeb) {
 		await browseTheWeb.close().catch(() => undefined);
