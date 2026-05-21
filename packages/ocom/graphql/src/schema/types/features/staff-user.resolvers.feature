@@ -139,33 +139,3 @@ Feature: Staff User Resolvers
     Given a user without a verifiedJwt in their context
     When the staffUserAssignRole mutation is executed with staffUserId "user-001" and roleId "role-001"
     Then it should return failure with message "Unauthorized"
-
-  # ─── staffUserCreate ─────────────────────────────────────────────────────────
-
-  Scenario: Creating a staff user when caller has canManageUsers permission
-    Given a user with canManageUsers permission
-    When the staffUserCreate mutation is executed with firstName "Alice" lastName "Wonder" and email "alice@example.com"
-    Then it should return success with the created staff user
-
-  Scenario: Creating a staff user when caller lacks permission
-    Given a user with no user-management permissions
-    When the staffUserCreate mutation is executed with firstName "Alice" lastName "Wonder" and email "alice@example.com"
-    Then it should return failure with message "Unauthorized"
-
-  Scenario: Creating a staff user with a role as TechAdmin
-    Given a user with a verifiedJwt that includes the TechAdmin role
-    And the caller has canManageUsers permission
-    When the staffUserCreate mutation is executed with a roleId "role-001"
-    Then it should return success with the created staff user
-
-  Scenario: Creating a staff user with a forbidden role as non-TechAdmin
-    Given a user with a verifiedJwt that includes the CaseManager role
-    And the caller has canManageUsers permission
-    And the role "role-001" has enterpriseAppRole "Staff.TechAdmin"
-    When the staffUserCreate mutation is executed with a roleId "role-001"
-    Then it should return failure with a permission error message
-
-  Scenario: Creating a staff user when unauthenticated
-    Given a user without a verifiedJwt in their context
-    When the staffUserCreate mutation is executed with firstName "Alice" lastName "Wonder" and email "alice@example.com"
-    Then it should return failure with message "Unauthorized"

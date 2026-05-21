@@ -229,49 +229,6 @@ const staffUser: Resolvers = {
 			}
 		},
 
-		staffUserCreate: async (_parent, args: { input: { firstName: string; lastName: string; email: string; roleId?: string | null } }, context: GraphContext, _info: GraphQLResolveInfo) => {
-			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
-			if (!jwt) {
-				return { status: { success: false, errorMessage: 'Unauthorized' } };
-			}
-			try {
-				const currentUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
-				const canManageUsers = currentUser?.role?.permissions.userPermissions.canManageUsers ?? false;
-				const canManageTechAdmin = currentUser?.role?.permissions.techAdminPermissions.canManageTechAdmin ?? false;
-				if (!canManageUsers && !canManageTechAdmin) {
-					return { status: { success: false, errorMessage: 'Unauthorized' } };
-				}
-
-				const roleId = args.input.roleId ? String(args.input.roleId) : null;
-				if (roleId) {
-					const entraRoles = jwt.roles ?? [];
-					const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(entraRoles);
-					const isTechAdmin = entraRoles.includes(EnterpriseAppRoleNames.TechAdmin);
-
-					if (!isTechAdmin) {
-						const roleToAssign = await context.applicationServices.User.StaffRole.queryById({ roleId });
-						if (!roleToAssign) {
-							return { status: { success: false, errorMessage: 'Role not found' } };
-						}
-						if (!allowedEnterpriseAppRoles.includes(roleToAssign.enterpriseAppRole)) {
-							return { status: { success: false, errorMessage: `You do not have permission to assign roles of type: ${roleToAssign.enterpriseAppRole}` } };
-						}
-					}
-				}
-
-				const staffUser = await context.applicationServices.User.StaffUser.create({
-					firstName: args.input.firstName,
-					lastName: args.input.lastName,
-					email: args.input.email,
-					roleId,
-				});
-				return { status: { success: true }, staffUser };
-			} catch (error) {
-				console.error('StaffUser > staffUserCreate: ', error);
-				const { message } = error as Error;
-				return { status: { success: false, errorMessage: message } };
-			}
-		},
 	},
 };
 

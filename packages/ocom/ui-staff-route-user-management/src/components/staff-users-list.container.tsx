@@ -10,7 +10,6 @@ export const StaffUsersListContainer: React.FC = () => {
 	const navigate = useNavigate();
 	const auth = useContext(StaffAuthContext);
 	const perms = auth?.permissions;
-	const canCreate = perms?.canManageUsers === true || perms?.canManageStaffRolesAndPermissions === true || perms?.canManageTechAdmin === true;
 	const canEdit =
 		perms?.canAssignStaffRoles === true ||
 		perms?.canManageUsers === true ||
@@ -23,9 +22,6 @@ export const StaffUsersListContainer: React.FC = () => {
 	const handleEdit = (id: string) => {
 		navigate(id);
 	};
-	const handleCreate = () => {
-		navigate('create');
-	};
 
 	return (
 		<StaffUsersList
@@ -35,11 +31,9 @@ export const StaffUsersListContainer: React.FC = () => {
 				email: u.email,
 				role: u.role ? { id: String(u.role.id), roleName: u.role.roleName } : null,
 				createdAt: u.createdAt ? String(u.createdAt) : '',
-			}))}
+			})			)}
 			onEdit={handleEdit}
 			loading={loading}
-			onCreate={handleCreate}
-			canCreate={canCreate}
 			canEdit={canEdit}
 		/>
 	);
