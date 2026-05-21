@@ -482,7 +482,7 @@ export class StaffRoleUserPermissionsAdapter implements Domain.Contexts.User.Sta
 	}
 }
 
-export class StaffRoleRolePermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleRolePermissionsProps {
+class StaffRoleRolePermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleRolePermissionsProps {
 	public readonly doc: StaffRoleRolePermissions;
 
 	constructor(permissions: StaffRoleRolePermissions) {

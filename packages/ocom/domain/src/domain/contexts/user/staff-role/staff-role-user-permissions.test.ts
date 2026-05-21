@@ -19,6 +19,8 @@ function makeProps(overrides = {}) {
 	return {
 		canManageUsers: false,
 		canAssignStaffUserRoles: false,
+		canAssignStaffRoles: false,
+		canViewStaffUsers: false,
 		...overrides,
 	};
 }
