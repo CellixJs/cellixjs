@@ -3,7 +3,7 @@ import { StaffAuthContext } from '@ocom/ui-staff-shared';
 import { App } from 'antd';
 import type React from 'react';
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { StaffRoleCreateDocument, StaffRolesForSelectDocument, StaffRolesListDocument, type StaffRolesForSelectQuery, type StaffRolesListQuery } from '../generated.tsx';
 import { StaffRoleCreate, type StaffRoleFormValues } from './staff-role-create.tsx';
 
@@ -35,6 +35,10 @@ export const StaffRoleCreateContainer: React.FC = () => {
 	const auth = useContext(StaffAuthContext);
 	const availableEnterpriseAppRoles = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
 	const showTechAdminPermissions = auth?.permissions?.canManageTechAdmin === true;
+	const canCreateRole =
+		auth?.permissions?.canAddRole === true ||
+		auth?.permissions?.canManageStaffRolesAndPermissions === true ||
+		auth?.permissions?.canManageTechAdmin === true;
 
 	const [staffRoleCreate, { loading }] = useMutation(StaffRoleCreateDocument, {
 		update: (cache, { data }) => {
@@ -55,6 +59,15 @@ export const StaffRoleCreateContainer: React.FC = () => {
 		},
 	});
 
+	if (!canCreateRole) {
+		return (
+			<Navigate
+				to="/unauthorized"
+				replace
+			/>
+		);
+	}
+
 	const handleSubmit = async (values: StaffRoleFormValues) => {
 		try {
 			const result = await staffRoleCreate({
@@ -65,11 +78,40 @@ export const StaffRoleCreateContainer: React.FC = () => {
 						permissions: {
 							communityPermissions: {
 								canManageCommunities: values.canManageCommunities,
+								canManageStaffRolesAndPermissions: values.canManageStaffRolesAndPermissions,
+								canManageAllCommunities: values.canManageAllCommunities,
+								canDeleteCommunities: values.canDeleteCommunities,
+								canChangeCommunityOwner: values.canChangeCommunityOwner,
+								canReIndexSearchCollections: values.canReIndexSearchCollections,
 							},
 							userPermissions: {
 								canManageUsers: values.canManageUsers,
-								canAssignStaffUserRoles: values.canAssignStaffUserRoles,
+								canAssignStaffRoles: values.canAssignStaffRoles,
+								canViewStaffUsers: values.canViewStaffUsers,
 							},
+							staffRolePermissions: {
+								canViewRoles: values.canViewRoles,
+								canAddRole: values.canAddRole,
+								canEditRole: values.canEditRole,
+								canRemoveRole: values.canRemoveRole,
+							},
+							financePermissions: {
+								canManageFinance: values.canManageFinance,
+								canViewGLBatchSummaries: values.canViewGLBatchSummaries,
+								canViewFinanceConfigs: values.canViewFinanceConfigs,
+								canCreateFinanceConfigs: values.canCreateFinanceConfigs,
+							},
+							...(showTechAdminPermissions
+								? {
+										techAdminPermissions: {
+											canManageTechAdmin: values.canManageTechAdmin,
+											canViewDatabaseExplorer: values.canViewDatabaseExplorer,
+											canViewBlobExplorer: values.canViewBlobExplorer,
+											canViewQueueDashboard: values.canViewQueueDashboard,
+											canSendQueueMessages: values.canSendQueueMessages,
+										},
+									}
+								: {}),
 						},
 					},
 				},

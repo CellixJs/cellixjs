@@ -17,10 +17,12 @@ interface StaffRolesListProps {
 	data: StaffRole[];
 	onEdit: (id: string) => void;
 	onCreate: () => void;
+	canCreate?: boolean;
+	canEdit?: boolean;
 	loading?: boolean;
 }
 
-export const StaffRolesList: React.FC<StaffRolesListProps> = ({ data, onEdit, onCreate, loading }) => {
+export const StaffRolesList: React.FC<StaffRolesListProps> = ({ data, onEdit, onCreate, canCreate = false, canEdit = false, loading }) => {
 	const columns: TableColumnsType<StaffRole> = [
 		{ title: 'Role Name', dataIndex: 'roleName', key: 'roleName' },
 		{ title: 'Enterprise App Role', dataIndex: 'enterpriseAppRole', key: 'enterpriseAppRole' },
@@ -40,12 +42,14 @@ export const StaffRolesList: React.FC<StaffRolesListProps> = ({ data, onEdit, on
 			title: 'Action',
 			key: 'action',
 			render: (_: unknown, record: StaffRole) => (
-				<Button
-					type="link"
-					onClick={() => onEdit(record.id)}
-				>
-					Edit
-				</Button>
+				canEdit ? (
+					<Button
+						type="link"
+						onClick={() => onEdit(record.id)}
+					>
+						Edit
+					</Button>
+				) : null
 			),
 		},
 	];
@@ -58,13 +62,15 @@ export const StaffRolesList: React.FC<StaffRolesListProps> = ({ data, onEdit, on
 		>
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 				<Title level={3}>Staff Roles ({data.length})</Title>
-				<Button
-					type="primary"
-					icon={<PlusOutlined />}
-					onClick={onCreate}
-				>
-					Create Staff Role
-				</Button>
+				{canCreate ? (
+					<Button
+						type="primary"
+						icon={<PlusOutlined />}
+						onClick={onCreate}
+					>
+						Create Staff Role
+					</Button>
+				) : null}
 			</div>
 			<Table
 				dataSource={data}

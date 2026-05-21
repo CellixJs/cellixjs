@@ -18,9 +18,18 @@ const STAFF_USER_CURRENT_QUERY = gql`
 				permissions {
 					communityPermissions {
 						canManageCommunities
+						canManageStaffRolesAndPermissions
 					}
 					userPermissions {
 						canManageUsers
+						canAssignStaffRoles
+						canViewStaffUsers
+					}
+					staffRolePermissions {
+						canViewRoles
+						canAddRole
+						canEditRole
+						canRemoveRole
 					}
 					financePermissions {
 						canManageFinance
@@ -38,8 +47,9 @@ interface StaffUserCurrentQueryResult {
 	staffUserCurrent: {
 		role?: {
 			permissions: {
-				communityPermissions: { canManageCommunities: boolean };
-				userPermissions: { canManageUsers: boolean };
+				communityPermissions: { canManageCommunities: boolean; canManageStaffRolesAndPermissions: boolean };
+				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canViewStaffUsers: boolean };
+				staffRolePermissions: { canViewRoles: boolean; canAddRole: boolean; canEditRole: boolean; canRemoveRole: boolean };
 				financePermissions: { canManageFinance: boolean };
 				techAdminPermissions: { canManageTechAdmin: boolean };
 			};
@@ -61,9 +71,16 @@ export const RequireRole: FC<RequireRoleProps> = ({ roles, permKey, children }) 
 	const permissions: NonNullable<StaffAuth['permissions']> | undefined = rolePermissions
 		? {
 				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities,
+				canManageStaffRolesAndPermissions: rolePermissions.communityPermissions.canManageStaffRolesAndPermissions,
 				canManageUsers: rolePermissions.userPermissions.canManageUsers,
+				canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles,
+				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance,
 				canManageTechAdmin: rolePermissions.techAdminPermissions.canManageTechAdmin,
+				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles,
+				canAddRole: rolePermissions.staffRolePermissions.canAddRole,
+				canEditRole: rolePermissions.staffRolePermissions.canEditRole,
+				canRemoveRole: rolePermissions.staffRolePermissions.canRemoveRole,
 			}
 		: undefined;
 	const isAuthorized = permKey !== undefined && permissions?.[permKey] === true;

@@ -17,10 +17,12 @@ interface StaffUsersListProps {
 	data: StaffUser[];
 	onEdit: (id: string) => void;
 	onCreate: () => void;
+	canCreate?: boolean;
+	canEdit?: boolean;
 	loading?: boolean;
 }
 
-export const StaffUsersList: React.FC<StaffUsersListProps> = ({ data, onEdit, onCreate, loading }) => {
+export const StaffUsersList: React.FC<StaffUsersListProps> = ({ data, onEdit, onCreate, canCreate = false, canEdit = false, loading }) => {
 	const columns: TableColumnsType<StaffUser> = [
 		{ title: 'Display Name', dataIndex: 'displayName', key: 'displayName' },
 		{ title: 'Email', dataIndex: 'email', key: 'email' },
@@ -39,12 +41,14 @@ export const StaffUsersList: React.FC<StaffUsersListProps> = ({ data, onEdit, on
 			title: 'Action',
 			key: 'action',
 			render: (_: unknown, record: StaffUser) => (
-				<Button
-					type="link"
-					onClick={() => onEdit(record.id)}
-				>
-					Edit
-				</Button>
+				canEdit ? (
+					<Button
+						type="link"
+						onClick={() => onEdit(record.id)}
+					>
+						Edit
+					</Button>
+				) : null
 			),
 		},
 	];
@@ -57,13 +61,15 @@ export const StaffUsersList: React.FC<StaffUsersListProps> = ({ data, onEdit, on
 		>
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 				<Title level={3}>Staff Users ({data.length})</Title>
-				<Button
-					type="primary"
-					icon={<UsergroupAddOutlined />}
-					onClick={onCreate}
-				>
-					Create Staff User
-				</Button>
+				{canCreate ? (
+					<Button
+						type="primary"
+						icon={<UsergroupAddOutlined />}
+						onClick={onCreate}
+					>
+						Create Staff User
+					</Button>
+				) : null}
 			</div>
 			<Table
 				dataSource={data}

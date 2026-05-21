@@ -16,10 +16,16 @@ export type StaffAuth = {
 	enterpriseAppRole?: string;
 	permissions?: {
 		canManageCommunities?: boolean;
+		canManageStaffRolesAndPermissions?: boolean;
 		canManageUsers?: boolean;
+		canAssignStaffRoles?: boolean;
+		canViewStaffUsers?: boolean;
 		canManageFinance?: boolean;
 		canManageTechAdmin?: boolean;
-		canAssignStaffUserRoles?: boolean;
+		canViewRoles?: boolean;
+		canAddRole?: boolean;
+		canEditRole?: boolean;
+		canRemoveRole?: boolean;
 	};
 };
 

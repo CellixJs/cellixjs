@@ -16,10 +16,19 @@ const CURRENT_STAFF_USER_QUERY = gql`
 				permissions {
 					communityPermissions {
 						canManageCommunities
+						canManageStaffRolesAndPermissions
 					}
 					userPermissions {
 						canManageUsers
+						canAssignStaffRoles
 						canAssignStaffUserRoles
+						canViewStaffUsers
+					}
+					staffRolePermissions {
+						canViewRoles
+						canAddRole
+						canEditRole
+						canRemoveRole
 					}
 					financePermissions {
 						canManageFinance
@@ -35,10 +44,16 @@ const CURRENT_STAFF_USER_QUERY = gql`
 
 interface StaffPermissions {
 	canManageCommunities: boolean;
+	canManageStaffRolesAndPermissions: boolean;
 	canManageUsers: boolean;
+	canAssignStaffRoles: boolean;
+	canViewStaffUsers: boolean;
 	canManageFinance: boolean;
 	canManageTechAdmin: boolean;
-	canAssignStaffUserRoles: boolean;
+	canViewRoles: boolean;
+	canAddRole: boolean;
+	canEditRole: boolean;
+	canRemoveRole: boolean;
 }
 
 interface StaffUserQueryResult {
@@ -54,8 +69,9 @@ interface StaffUserQueryResult {
 			roleName: string;
 			enterpriseAppRole: string;
 			permissions: {
-				communityPermissions: { canManageCommunities: boolean };
-				userPermissions: { canManageUsers: boolean; canAssignStaffUserRoles: boolean };
+				communityPermissions: { canManageCommunities: boolean; canManageStaffRolesAndPermissions: boolean };
+				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canAssignStaffUserRoles: boolean; canViewStaffUsers: boolean };
+				staffRolePermissions: { canViewRoles: boolean; canAddRole: boolean; canEditRole: boolean; canRemoveRole: boolean };
 				financePermissions: { canManageFinance: boolean };
 				techAdminPermissions: { canManageTechAdmin: boolean };
 			};
@@ -77,10 +93,16 @@ export const useStaffPermissions = (): { permissions: StaffPermissions | undefin
 	const permissions: StaffPermissions | undefined = rolePermissions
 		? {
 				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
+				canManageStaffRolesAndPermissions: rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canManageUsers: rolePermissions.userPermissions.canManageUsers || isTechAdmin,
+				canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles || rolePermissions.userPermissions.canAssignStaffUserRoles || isTechAdmin,
+				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers || rolePermissions.userPermissions.canManageUsers || isTechAdmin,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
 				canManageTechAdmin: isTechAdmin,
-				canAssignStaffUserRoles: rolePermissions.userPermissions.canAssignStaffUserRoles || isTechAdmin,
+				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+				canAddRole: rolePermissions.staffRolePermissions.canAddRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+				canEditRole: rolePermissions.staffRolePermissions.canEditRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+				canRemoveRole: rolePermissions.staffRolePermissions.canRemoveRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 			}
 		: undefined;
 

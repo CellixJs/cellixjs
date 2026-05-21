@@ -33,6 +33,8 @@ export const Default: Story = {
 		data: mockRoles,
 		onEdit: (id) => console.log('Edit role:', id),
 		onCreate: () => console.log('Create role clicked'),
+		canCreate: true,
+		canEdit: true,
 	},
 	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
 		const canvas = within(canvasElement);
@@ -49,6 +51,8 @@ export const EmptyState: Story = {
 		data: [],
 		onEdit: (id) => console.log('Edit role:', id),
 		onCreate: () => console.log('Create role clicked'),
+		canCreate: true,
+		canEdit: true,
 	},
 	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
 		const canvas = within(canvasElement);

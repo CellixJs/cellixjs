@@ -76,7 +76,7 @@ const staffUser: Resolvers = {
 	},
 
 	Mutation: {
-		staffRoleCreate: async (_parent, args: { input: { roleName: string; enterpriseAppRole?: string | null; permissions?: { communityPermissions?: { canManageCommunities?: boolean | null; canManageStaffRolesAndPermissions?: boolean | null; canManageAllCommunities?: boolean | null; canDeleteCommunities?: boolean | null; canChangeCommunityOwner?: boolean | null; canReIndexSearchCollections?: boolean | null } | null; userPermissions?: { canManageUsers?: boolean | null; canAssignStaffUserRoles?: boolean | null } | null } | null } }, context: GraphContext, _info: GraphQLResolveInfo) => {
+		staffRoleCreate: async (_parent, args: { input: { roleName: string; enterpriseAppRole?: string | null; permissions?: { communityPermissions?: { canManageCommunities?: boolean | null; canManageStaffRolesAndPermissions?: boolean | null; canManageAllCommunities?: boolean | null; canDeleteCommunities?: boolean | null; canChangeCommunityOwner?: boolean | null; canReIndexSearchCollections?: boolean | null } | null; userPermissions?: { canManageUsers?: boolean | null; canAssignStaffRoles?: boolean | null; canAssignStaffUserRoles?: boolean | null; canViewStaffUsers?: boolean | null } | null; staffRolePermissions?: { canViewRoles?: boolean | null; canAddRole?: boolean | null; canEditRole?: boolean | null; canRemoveRole?: boolean | null } | null; financePermissions?: { canManageFinance?: boolean | null; canViewGLBatchSummaries?: boolean | null; canViewFinanceConfigs?: boolean | null; canCreateFinanceConfigs?: boolean | null } | null; techAdminPermissions?: { canManageTechAdmin?: boolean | null; canViewDatabaseExplorer?: boolean | null; canViewBlobExplorer?: boolean | null; canViewQueueDashboard?: boolean | null; canSendQueueMessages?: boolean | null } | null } | null } }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
@@ -102,7 +102,28 @@ const staffUser: Resolvers = {
 						},
 						user: {
 							canManageUsers: args.input.permissions?.userPermissions?.canManageUsers ?? false,
-							canAssignStaffUserRoles: args.input.permissions?.userPermissions?.canAssignStaffUserRoles ?? false,
+							canAssignStaffRoles: args.input.permissions?.userPermissions?.canAssignStaffRoles ?? args.input.permissions?.userPermissions?.canAssignStaffUserRoles ?? false,
+							canAssignStaffUserRoles: args.input.permissions?.userPermissions?.canAssignStaffUserRoles ?? args.input.permissions?.userPermissions?.canAssignStaffRoles ?? false,
+							canViewStaffUsers: args.input.permissions?.userPermissions?.canViewStaffUsers ?? false,
+						},
+						staffRole: {
+							canViewRoles: args.input.permissions?.staffRolePermissions?.canViewRoles ?? false,
+							canAddRole: args.input.permissions?.staffRolePermissions?.canAddRole ?? false,
+							canEditRole: args.input.permissions?.staffRolePermissions?.canEditRole ?? false,
+							canRemoveRole: args.input.permissions?.staffRolePermissions?.canRemoveRole ?? false,
+						},
+						finance: {
+							canManageFinance: args.input.permissions?.financePermissions?.canManageFinance ?? false,
+							canViewGLBatchSummaries: args.input.permissions?.financePermissions?.canViewGLBatchSummaries ?? false,
+							canViewFinanceConfigs: args.input.permissions?.financePermissions?.canViewFinanceConfigs ?? false,
+							canCreateFinanceConfigs: args.input.permissions?.financePermissions?.canCreateFinanceConfigs ?? false,
+						},
+						techAdmin: {
+							canManageTechAdmin: args.input.permissions?.techAdminPermissions?.canManageTechAdmin ?? false,
+							canViewDatabaseExplorer: args.input.permissions?.techAdminPermissions?.canViewDatabaseExplorer ?? false,
+							canViewBlobExplorer: args.input.permissions?.techAdminPermissions?.canViewBlobExplorer ?? false,
+							canViewQueueDashboard: args.input.permissions?.techAdminPermissions?.canViewQueueDashboard ?? false,
+							canSendQueueMessages: args.input.permissions?.techAdminPermissions?.canSendQueueMessages ?? false,
 						},
 					},
 				});
@@ -114,7 +135,7 @@ const staffUser: Resolvers = {
 			}
 		},
 
-		staffRoleUpdate: async (_parent, args: { input: { id: string; roleName: string; enterpriseAppRole: string; permissions?: { communityPermissions?: { canManageCommunities?: boolean | null; canManageStaffRolesAndPermissions?: boolean | null; canManageAllCommunities?: boolean | null; canDeleteCommunities?: boolean | null; canChangeCommunityOwner?: boolean | null; canReIndexSearchCollections?: boolean | null } | null; userPermissions?: { canManageUsers?: boolean | null; canAssignStaffUserRoles?: boolean | null } | null } | null } }, context: GraphContext, _info: GraphQLResolveInfo) => {
+		staffRoleUpdate: async (_parent, args: { input: { id: string; roleName: string; enterpriseAppRole: string; permissions?: { communityPermissions?: { canManageCommunities?: boolean | null; canManageStaffRolesAndPermissions?: boolean | null; canManageAllCommunities?: boolean | null; canDeleteCommunities?: boolean | null; canChangeCommunityOwner?: boolean | null; canReIndexSearchCollections?: boolean | null } | null; userPermissions?: { canManageUsers?: boolean | null; canAssignStaffRoles?: boolean | null; canAssignStaffUserRoles?: boolean | null; canViewStaffUsers?: boolean | null } | null; staffRolePermissions?: { canViewRoles?: boolean | null; canAddRole?: boolean | null; canEditRole?: boolean | null; canRemoveRole?: boolean | null } | null; financePermissions?: { canManageFinance?: boolean | null; canViewGLBatchSummaries?: boolean | null; canViewFinanceConfigs?: boolean | null; canCreateFinanceConfigs?: boolean | null } | null; techAdminPermissions?: { canManageTechAdmin?: boolean | null; canViewDatabaseExplorer?: boolean | null; canViewBlobExplorer?: boolean | null; canViewQueueDashboard?: boolean | null; canSendQueueMessages?: boolean | null } | null } | null } }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
@@ -142,7 +163,28 @@ const staffUser: Resolvers = {
 						},
 						user: {
 							...(userPerms?.canManageUsers != null ? { canManageUsers: userPerms.canManageUsers } : {}),
-							...(userPerms?.canAssignStaffUserRoles != null ? { canAssignStaffUserRoles: userPerms.canAssignStaffUserRoles } : {}),
+							...(userPerms?.canAssignStaffRoles != null ? { canAssignStaffRoles: userPerms.canAssignStaffRoles } : {}),
+							...(userPerms?.canAssignStaffUserRoles != null ? { canAssignStaffRoles: userPerms.canAssignStaffUserRoles, canAssignStaffUserRoles: userPerms.canAssignStaffUserRoles } : {}),
+							...(userPerms?.canViewStaffUsers != null ? { canViewStaffUsers: userPerms.canViewStaffUsers } : {}),
+						},
+						staffRole: {
+							...(args.input.permissions?.staffRolePermissions?.canViewRoles != null ? { canViewRoles: args.input.permissions.staffRolePermissions.canViewRoles } : {}),
+							...(args.input.permissions?.staffRolePermissions?.canAddRole != null ? { canAddRole: args.input.permissions.staffRolePermissions.canAddRole } : {}),
+							...(args.input.permissions?.staffRolePermissions?.canEditRole != null ? { canEditRole: args.input.permissions.staffRolePermissions.canEditRole } : {}),
+							...(args.input.permissions?.staffRolePermissions?.canRemoveRole != null ? { canRemoveRole: args.input.permissions.staffRolePermissions.canRemoveRole } : {}),
+						},
+						finance: {
+							...(args.input.permissions?.financePermissions?.canManageFinance != null ? { canManageFinance: args.input.permissions.financePermissions.canManageFinance } : {}),
+							...(args.input.permissions?.financePermissions?.canViewGLBatchSummaries != null ? { canViewGLBatchSummaries: args.input.permissions.financePermissions.canViewGLBatchSummaries } : {}),
+							...(args.input.permissions?.financePermissions?.canViewFinanceConfigs != null ? { canViewFinanceConfigs: args.input.permissions.financePermissions.canViewFinanceConfigs } : {}),
+							...(args.input.permissions?.financePermissions?.canCreateFinanceConfigs != null ? { canCreateFinanceConfigs: args.input.permissions.financePermissions.canCreateFinanceConfigs } : {}),
+						},
+						techAdmin: {
+							...(args.input.permissions?.techAdminPermissions?.canManageTechAdmin != null ? { canManageTechAdmin: args.input.permissions.techAdminPermissions.canManageTechAdmin } : {}),
+							...(args.input.permissions?.techAdminPermissions?.canViewDatabaseExplorer != null ? { canViewDatabaseExplorer: args.input.permissions.techAdminPermissions.canViewDatabaseExplorer } : {}),
+							...(args.input.permissions?.techAdminPermissions?.canViewBlobExplorer != null ? { canViewBlobExplorer: args.input.permissions.techAdminPermissions.canViewBlobExplorer } : {}),
+							...(args.input.permissions?.techAdminPermissions?.canViewQueueDashboard != null ? { canViewQueueDashboard: args.input.permissions.techAdminPermissions.canViewQueueDashboard } : {}),
+							...(args.input.permissions?.techAdminPermissions?.canSendQueueMessages != null ? { canSendQueueMessages: args.input.permissions.techAdminPermissions.canSendQueueMessages } : {}),
 						},
 					},
 				});

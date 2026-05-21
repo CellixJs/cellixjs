@@ -24,12 +24,22 @@ type StaffRoleTechAdminPermissions {
 
 type StaffRoleUserPermissions {
 	canManageUsers: Boolean!
-	canAssignStaffUserRoles: Boolean!
+	canAssignStaffRoles: Boolean!
+	canAssignStaffUserRoles: Boolean! @deprecated(reason: "Use canAssignStaffRoles instead")
+	canViewStaffUsers: Boolean!
+}
+
+type StaffRoleRolePermissions {
+	canViewRoles: Boolean!
+	canAddRole: Boolean!
+	canEditRole: Boolean!
+	canRemoveRole: Boolean!
 }
 
 type StaffRolePermissions {
 	communityPermissions: StaffRoleCommunityPermissions!
 	financePermissions: StaffRoleFinancePermissions!
+	staffRolePermissions: StaffRoleRolePermissions!
 	techAdminPermissions: StaffRoleTechAdminPermissions!
 	userPermissions: StaffRoleUserPermissions!
 }
@@ -74,11 +84,38 @@ input StaffRoleCreateCommunityPermissionsInput {
 
 input StaffRoleCreateUserPermissionsInput {
 	canManageUsers: Boolean
-	canAssignStaffUserRoles: Boolean
+	canAssignStaffRoles: Boolean
+	canAssignStaffUserRoles: Boolean @deprecated(reason: "Use canAssignStaffRoles instead")
+	canViewStaffUsers: Boolean
+}
+
+input StaffRoleCreateRolePermissionsInput {
+	canViewRoles: Boolean
+	canAddRole: Boolean
+	canEditRole: Boolean
+	canRemoveRole: Boolean
+}
+
+input StaffRoleCreateFinancePermissionsInput {
+	canManageFinance: Boolean
+	canViewGLBatchSummaries: Boolean
+	canViewFinanceConfigs: Boolean
+	canCreateFinanceConfigs: Boolean
+}
+
+input StaffRoleCreateTechAdminPermissionsInput {
+	canManageTechAdmin: Boolean
+	canViewDatabaseExplorer: Boolean
+	canViewBlobExplorer: Boolean
+	canViewQueueDashboard: Boolean
+	canSendQueueMessages: Boolean
 }
 
 input StaffRoleCreatePermissionsInput {
 	communityPermissions: StaffRoleCreateCommunityPermissionsInput
+	staffRolePermissions: StaffRoleCreateRolePermissionsInput
+	financePermissions: StaffRoleCreateFinancePermissionsInput
+	techAdminPermissions: StaffRoleCreateTechAdminPermissionsInput
 	userPermissions: StaffRoleCreateUserPermissionsInput
 }
 
@@ -102,6 +139,9 @@ input StaffUserCreateInput {
 
 input StaffRoleUpdatePermissionsInput {
 	communityPermissions: StaffRoleCreateCommunityPermissionsInput
+	staffRolePermissions: StaffRoleCreateRolePermissionsInput
+	financePermissions: StaffRoleCreateFinancePermissionsInput
+	techAdminPermissions: StaffRoleCreateTechAdminPermissionsInput
 	userPermissions: StaffRoleCreateUserPermissionsInput
 }
 

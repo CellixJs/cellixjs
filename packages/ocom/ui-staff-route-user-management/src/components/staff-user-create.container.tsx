@@ -3,7 +3,7 @@ import { StaffAuthContext } from '@ocom/ui-staff-shared';
 import { App } from 'antd';
 import type React from 'react';
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { StaffUserCreateDocument, StaffUserCreateRolesDocument, StaffUsersListDocument, type StaffUsersListQuery } from '../generated.tsx';
 import { StaffUserCreate, type StaffUserCreateFormValues } from './staff-user-create.tsx';
 
@@ -34,6 +34,10 @@ export const StaffUserCreateContainer: React.FC = () => {
 	const { message } = App.useApp();
 	const auth = useContext(StaffAuthContext);
 	const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
+	const canCreateUser =
+		auth?.permissions?.canManageUsers === true ||
+		auth?.permissions?.canManageStaffRolesAndPermissions === true ||
+		auth?.permissions?.canManageTechAdmin === true;
 
 	const { data: rolesData, loading: rolesLoading } = useQuery(StaffUserCreateRolesDocument, {
 		fetchPolicy: 'cache-and-network',
@@ -42,14 +46,24 @@ export const StaffUserCreateContainer: React.FC = () => {
 	const [createStaffUser, { loading: createLoading }] = useMutation(StaffUserCreateDocument, {
 		update: (cache, { data }) => {
 			const newUser = data?.staffUserCreate.staffUser;
-			if (!newUser) return;
+			if (!newUser) return undefined;
 			cache.updateQuery({ query: StaffUsersListDocument }, (existing: StaffUsersListQuery | null): StaffUsersListQuery | null => {
 				if (!existing) return { staffUsers: [newUser] };
 				if (existing.staffUsers.some((user) => String(user.id) === String(newUser.id))) return existing;
 				return { staffUsers: [...existing.staffUsers, newUser] };
 			});
+			return undefined;
 		},
 	});
+
+	if (!canCreateUser) {
+		return (
+			<Navigate
+				to="/unauthorized"
+				replace
+			/>
+		);
+	}
 
 	const handleSubmit = async (values: StaffUserCreateFormValues) => {
 		try {

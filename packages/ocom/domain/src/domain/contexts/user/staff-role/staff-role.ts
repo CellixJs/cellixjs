@@ -58,7 +58,9 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.permissions.financePermissions.canManageFinance = false;
 		role.permissions.techAdminPermissions.canManageTechAdmin = false;
 		role.permissions.userPermissions.canManageUsers = true;
-		role.permissions.userPermissions.canAssignStaffUserRoles = true;
+		role.permissions.userPermissions.canAssignStaffRoles = true;
+		role.permissions.userPermissions.canViewStaffUsers = true;
+		role.permissions.staffRolePermissions.canViewRoles = true;
 		role.isNew = false;
 		return role;
 	}
@@ -74,7 +76,9 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.permissions.financePermissions.canManageFinance = false;
 		role.permissions.techAdminPermissions.canManageTechAdmin = false;
 		role.permissions.userPermissions.canManageUsers = true;
-		role.permissions.userPermissions.canAssignStaffUserRoles = true;
+		role.permissions.userPermissions.canAssignStaffRoles = true;
+		role.permissions.userPermissions.canViewStaffUsers = true;
+		role.permissions.staffRolePermissions.canViewRoles = true;
 		role.isNew = false;
 		return role;
 	}
@@ -90,7 +94,12 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.permissions.financePermissions.canManageFinance = true;
 		role.permissions.techAdminPermissions.canManageTechAdmin = false;
 		role.permissions.userPermissions.canManageUsers = true;
-		role.permissions.userPermissions.canAssignStaffUserRoles = true;
+		role.permissions.userPermissions.canAssignStaffRoles = true;
+		role.permissions.userPermissions.canViewStaffUsers = true;
+		role.permissions.staffRolePermissions.canViewRoles = true;
+		role.permissions.staffRolePermissions.canAddRole = true;
+		role.permissions.staffRolePermissions.canEditRole = true;
+		role.permissions.staffRolePermissions.canRemoveRole = true;
 		role.isNew = false;
 		return role;
 	}
@@ -108,7 +117,12 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.permissions.financePermissions.canManageFinance = true;
 		role.permissions.techAdminPermissions.canManageTechAdmin = true;
 		role.permissions.userPermissions.canManageUsers = true;
-		role.permissions.userPermissions.canAssignStaffUserRoles = true;
+		role.permissions.userPermissions.canAssignStaffRoles = true;
+		role.permissions.userPermissions.canViewStaffUsers = true;
+		role.permissions.staffRolePermissions.canViewRoles = true;
+		role.permissions.staffRolePermissions.canAddRole = true;
+		role.permissions.staffRolePermissions.canEditRole = true;
+		role.permissions.staffRolePermissions.canRemoveRole = true;
 		role.isNew = false;
 		return role;
 	}

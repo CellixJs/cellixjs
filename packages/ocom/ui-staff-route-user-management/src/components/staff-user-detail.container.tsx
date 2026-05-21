@@ -33,7 +33,11 @@ export const StaffUserDetailContainer: React.FC = () => {
 	const params = useParams<{ id?: string }>();
 	const userId = params.id ?? '';
 	const auth = useContext(StaffAuthContext);
-	const canAssignRoles = auth?.permissions?.canAssignStaffUserRoles === true;
+	const canAssignRoles =
+		auth?.permissions?.canAssignStaffRoles === true ||
+		auth?.permissions?.canManageUsers === true ||
+		auth?.permissions?.canManageStaffRolesAndPermissions === true ||
+		auth?.permissions?.canManageTechAdmin === true;
 	const { message } = App.useApp();
 
 	const { data: userData, loading: userLoading } = useQuery(StaffUserDetailDocument, {

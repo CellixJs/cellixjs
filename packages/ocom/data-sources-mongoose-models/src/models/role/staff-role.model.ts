@@ -66,7 +66,17 @@ export interface StaffRoleTechAdminPermissions {
 export interface StaffRoleUserPermissions {
 	id?: ObjectId;
 	canManageUsers: boolean;
-	canAssignStaffUserRoles: boolean;
+	canAssignStaffRoles: boolean;
+	canAssignStaffUserRoles?: boolean;
+	canViewStaffUsers: boolean;
+}
+
+export interface StaffRoleRolePermissions {
+	id?: ObjectId;
+	canViewRoles: boolean;
+	canAddRole: boolean;
+	canEditRole: boolean;
+	canRemoveRole: boolean;
 }
 
 export interface StaffRolePermissions {
@@ -78,6 +88,7 @@ export interface StaffRolePermissions {
 	financePermissions: StaffRoleFinancePermissions;
 	techAdminPermissions: StaffRoleTechAdminPermissions;
 	userPermissions: StaffRoleUserPermissions;
+	staffRolePermissions: StaffRoleRolePermissions;
 	propertyPermissions: StaffRolePropertyPermissions;
 }
 
@@ -149,8 +160,16 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 			} as SchemaDefinition<StaffRoleTechAdminPermissions>,
 			userPermissions: {
 				canManageUsers: { type: Boolean, required: true, default: false },
+				canAssignStaffRoles: { type: Boolean, required: true, default: false },
 				canAssignStaffUserRoles: { type: Boolean, required: true, default: false },
+				canViewStaffUsers: { type: Boolean, required: true, default: false },
 			} as SchemaDefinition<StaffRoleUserPermissions>,
+			staffRolePermissions: {
+				canViewRoles: { type: Boolean, required: true, default: false },
+				canAddRole: { type: Boolean, required: true, default: false },
+				canEditRole: { type: Boolean, required: true, default: false },
+				canRemoveRole: { type: Boolean, required: true, default: false },
+			} as SchemaDefinition<StaffRoleRolePermissions>,
 			propertyPermissions: {
 				canManageProperties: { type: Boolean, required: true, default: false },
 				canEditOwnProperty: { type: Boolean, required: true, default: false },

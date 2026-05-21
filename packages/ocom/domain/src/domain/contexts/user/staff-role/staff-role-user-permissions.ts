@@ -5,7 +5,9 @@ import type { UserVisa } from '../user.visa.ts';
 
 interface StaffRoleUserPermissionsSpec {
 	canManageUsers: boolean;
+	canAssignStaffRoles: boolean;
 	canAssignStaffUserRoles: boolean;
+	canViewStaffUsers: boolean;
 }
 
 export interface StaffRoleUserPermissionsProps extends StaffRoleUserPermissionsSpec, ValueObjectProps {}
@@ -34,10 +36,28 @@ export class StaffRoleUserPermissions extends ValueObject<StaffRoleUserPermissio
 	}
 
 	get canAssignStaffUserRoles(): boolean {
-		return this.props.canAssignStaffUserRoles;
+		return this.props.canAssignStaffRoles ?? this.props.canAssignStaffUserRoles ?? false;
 	}
 	set canAssignStaffUserRoles(value: boolean) {
 		this.validateVisa();
+		this.props.canAssignStaffRoles = value;
 		this.props.canAssignStaffUserRoles = value;
+	}
+
+	get canAssignStaffRoles(): boolean {
+		return this.props.canAssignStaffRoles ?? this.props.canAssignStaffUserRoles ?? false;
+	}
+	set canAssignStaffRoles(value: boolean) {
+		this.validateVisa();
+		this.props.canAssignStaffRoles = value;
+		this.props.canAssignStaffUserRoles = value;
+	}
+
+	get canViewStaffUsers(): boolean {
+		return this.props.canViewStaffUsers ?? false;
+	}
+	set canViewStaffUsers(value: boolean) {
+		this.validateVisa();
+		this.props.canViewStaffUsers = value;
 	}
 }

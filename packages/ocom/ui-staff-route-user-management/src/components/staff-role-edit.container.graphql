@@ -31,13 +31,28 @@ fragment StaffRoleEditFields on StaffRole {
 		}
 		userPermissions {
 			canManageUsers
+			canAssignStaffRoles
 			canAssignStaffUserRoles
+			canViewStaffUsers
+		}
+		staffRolePermissions {
+			canViewRoles
+			canAddRole
+			canEditRole
+			canRemoveRole
 		}
 		financePermissions {
 			canManageFinance
+			canViewGLBatchSummaries
+			canViewFinanceConfigs
+			canCreateFinanceConfigs
 		}
 		techAdminPermissions {
 			canManageTechAdmin
+			canViewDatabaseExplorer
+			canViewBlobExplorer
+			canViewQueueDashboard
+			canSendQueueMessages
 		}
 	}
 }

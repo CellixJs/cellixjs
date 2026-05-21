@@ -33,6 +33,8 @@ export const Default: Story = {
 		data: mockUsers,
 		onEdit: (id) => console.log('Edit user:', id),
 		onCreate: () => console.log('Create staff user clicked'),
+		canCreate: true,
+		canEdit: true,
 	},
 	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
 		const canvas = within(canvasElement);
@@ -50,6 +52,8 @@ export const EmptyState: Story = {
 		data: [],
 		onEdit: (id) => console.log('Edit user:', id),
 		onCreate: () => console.log('Create staff user clicked'),
+		canCreate: true,
+		canEdit: true,
 	},
 	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
 		const canvas = within(canvasElement);

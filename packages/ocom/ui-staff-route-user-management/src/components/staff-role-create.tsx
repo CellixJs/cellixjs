@@ -7,10 +7,27 @@ export interface StaffRoleFormValues {
 	roleName: string;
 	enterpriseAppRole: string;
 	canManageCommunities: boolean;
+	canManageStaffRolesAndPermissions: boolean;
+	canManageAllCommunities: boolean;
+	canDeleteCommunities: boolean;
+	canChangeCommunityOwner: boolean;
+	canReIndexSearchCollections: boolean;
 	canManageUsers: boolean;
+	canAssignStaffRoles: boolean;
+	canViewStaffUsers: boolean;
+	canViewRoles: boolean;
+	canAddRole: boolean;
+	canEditRole: boolean;
+	canRemoveRole: boolean;
 	canManageFinance: boolean;
+	canViewGLBatchSummaries: boolean;
+	canViewFinanceConfigs: boolean;
+	canCreateFinanceConfigs: boolean;
 	canManageTechAdmin: boolean;
-	canAssignStaffUserRoles: boolean;
+	canViewDatabaseExplorer: boolean;
+	canViewBlobExplorer: boolean;
+	canViewQueueDashboard: boolean;
+	canSendQueueMessages: boolean;
 }
 
 interface StaffRoleCreateProps {
@@ -23,25 +40,93 @@ interface StaffRoleCreateProps {
 	mode?: 'create' | 'edit';
 }
 
-const PERMISSION_LABELS: { key: keyof Omit<StaffRoleFormValues, 'roleName' | 'enterpriseAppRole'>; label: string; techAdminOnly?: boolean }[] = [
-	{ key: 'canManageCommunities', label: 'Can Manage Communities' },
-	{ key: 'canManageUsers', label: 'Can Manage Users' },
-	{ key: 'canManageFinance', label: 'Can Manage Finance' },
-	{ key: 'canManageTechAdmin', label: 'Can Manage Tech Admin', techAdminOnly: true },
-	{ key: 'canAssignStaffUserRoles', label: 'Can Assign Staff User Roles' },
+const PERMISSION_GROUPS: Array<{
+	title: string;
+	techAdminOnly?: boolean;
+	fields: Array<{ key: keyof Omit<StaffRoleFormValues, 'roleName' | 'enterpriseAppRole'>; label: string }>;
+}> = [
+	{
+		title: 'Community Permissions',
+		fields: [
+			{ key: 'canManageCommunities', label: 'Can Manage Communities' },
+			{ key: 'canManageStaffRolesAndPermissions', label: 'Can Manage Staff Roles and Permissions' },
+			{ key: 'canManageAllCommunities', label: 'Can Manage All Communities' },
+			{ key: 'canDeleteCommunities', label: 'Can Delete Communities' },
+			{ key: 'canChangeCommunityOwner', label: 'Can Change Community Owner' },
+			{ key: 'canReIndexSearchCollections', label: 'Can Reindex Search Collections' },
+		],
+	},
+	{
+		title: 'User',
+		fields: [
+			{ key: 'canManageUsers', label: 'Can Manage Users' },
+			{ key: 'canAssignStaffRoles', label: 'Can Assign Staff Roles' },
+			{ key: 'canViewStaffUsers', label: 'Can View Staff Users' },
+		],
+	},
+	{
+		title: 'Role',
+		fields: [
+			{ key: 'canViewRoles', label: 'Can View Roles' },
+			{ key: 'canAddRole', label: 'Can Add Role' },
+			{ key: 'canEditRole', label: 'Can Edit Role' },
+			{ key: 'canRemoveRole', label: 'Can Remove Role' },
+		],
+	},
+	{
+		title: 'Finance',
+		fields: [
+			{ key: 'canManageFinance', label: 'Can Manage Finance' },
+			{ key: 'canViewGLBatchSummaries', label: 'Can View GL Batch Summaries' },
+			{ key: 'canViewFinanceConfigs', label: 'Can View Finance Configs' },
+			{ key: 'canCreateFinanceConfigs', label: 'Can Create Finance Configs' },
+		],
+	},
+	{
+		title: 'Tech Admin',
+		techAdminOnly: true,
+		fields: [
+			{ key: 'canManageTechAdmin', label: 'Can Manage Tech Admin' },
+			{ key: 'canViewDatabaseExplorer', label: 'Can View Database Explorer' },
+			{ key: 'canViewBlobExplorer', label: 'Can View Blob Explorer' },
+			{ key: 'canViewQueueDashboard', label: 'Can View Queue Dashboard' },
+			{ key: 'canSendQueueMessages', label: 'Can Send Queue Messages' },
+		],
+	},
 ];
+
+const DEFAULT_VALUES: StaffRoleFormValues = {
+	roleName: '',
+	enterpriseAppRole: '',
+	canManageCommunities: false,
+	canManageStaffRolesAndPermissions: false,
+	canManageAllCommunities: false,
+	canDeleteCommunities: false,
+	canChangeCommunityOwner: false,
+	canReIndexSearchCollections: false,
+	canManageUsers: false,
+	canAssignStaffRoles: false,
+	canViewStaffUsers: false,
+	canViewRoles: false,
+	canAddRole: false,
+	canEditRole: false,
+	canRemoveRole: false,
+	canManageFinance: false,
+	canViewGLBatchSummaries: false,
+	canViewFinanceConfigs: false,
+	canCreateFinanceConfigs: false,
+	canManageTechAdmin: false,
+	canViewDatabaseExplorer: false,
+	canViewBlobExplorer: false,
+	canViewQueueDashboard: false,
+	canSendQueueMessages: false,
+};
 
 export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCancel, loading, availableEnterpriseAppRoles, showTechAdminPermissions, initialValues, mode = 'create' }) => {
 	const [form] = Form.useForm<StaffRoleFormValues>();
 
 	const defaultValues: StaffRoleFormValues = {
-		roleName: '',
-		enterpriseAppRole: '',
-		canManageCommunities: false,
-		canManageUsers: false,
-		canManageFinance: false,
-		canManageTechAdmin: false,
-		canAssignStaffUserRoles: false,
+		...DEFAULT_VALUES,
 		...initialValues,
 	};
 
@@ -52,7 +137,7 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 		<Space
 			direction="vertical"
 			size="large"
-			style={{ width: '100%', maxWidth: 600 }}
+			style={{ width: '100%', maxWidth: 720 }}
 		>
 			<Title level={4}>{isEdit ? 'Edit Staff Role' : 'Create Staff Role'}</Title>
 			<Form
@@ -79,14 +164,25 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 					/>
 				</Form.Item>
 				<Divider>Permissions</Divider>
-				{PERMISSION_LABELS.filter(({ techAdminOnly }) => !techAdminOnly || showTechAdminPermissions).map(({ key, label }) => (
-					<Form.Item
-						key={key}
-						name={key}
-						valuePropName="checked"
-					>
-						<Checkbox>{label}</Checkbox>
-					</Form.Item>
+				{PERMISSION_GROUPS.filter(({ techAdminOnly }) => !techAdminOnly || showTechAdminPermissions).map((group) => (
+					<div key={group.title}>
+						<div style={{ marginBottom: 8, fontWeight: 600 }}>{group.title}</div>
+						<Space
+							direction="vertical"
+							size="small"
+							style={{ marginBottom: 16 }}
+						>
+							{group.fields.map(({ key, label }) => (
+								<Form.Item
+									key={key}
+									name={key}
+									valuePropName="checked"
+								>
+									<Checkbox>{label}</Checkbox>
+								</Form.Item>
+							))}
+						</Space>
+					</div>
 				))}
 				<Form.Item>
 					<Space>

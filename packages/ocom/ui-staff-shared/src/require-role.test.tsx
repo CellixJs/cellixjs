@@ -26,8 +26,9 @@ describe('RequireRole', () => {
 				staffUserCurrent: {
 					role: {
 						permissions: {
-							communityPermissions: { canManageCommunities: false },
-							userPermissions: { canManageUsers: false },
+							communityPermissions: { canManageCommunities: false, canManageStaffRolesAndPermissions: false },
+							userPermissions: { canManageUsers: false, canAssignStaffRoles: false, canViewStaffUsers: false },
+							staffRolePermissions: { canViewRoles: false, canAddRole: false, canEditRole: false, canRemoveRole: false },
 							financePermissions: { canManageFinance: false },
 							techAdminPermissions: { canManageTechAdmin: true },
 						},
@@ -59,8 +60,9 @@ describe('RequireRole', () => {
 				staffUserCurrent: {
 					role: {
 						permissions: {
-							communityPermissions: { canManageCommunities: false },
-							userPermissions: { canManageUsers: false },
+							communityPermissions: { canManageCommunities: false, canManageStaffRolesAndPermissions: false },
+							userPermissions: { canManageUsers: false, canAssignStaffRoles: false, canViewStaffUsers: false },
+							staffRolePermissions: { canViewRoles: false, canAddRole: false, canEditRole: false, canRemoveRole: false },
 							financePermissions: { canManageFinance: true },
 							techAdminPermissions: { canManageTechAdmin: false },
 						},
