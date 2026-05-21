@@ -34,8 +34,6 @@
 		"react-router-dom": ">=7.12.0"
 	},
 	"devDependencies": {
-		"@mdx-js/react": "^3.0.0",
-		"markdown-to-jsx": "^7.0.0",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@chromatic-com/storybook": "^4.1.1",

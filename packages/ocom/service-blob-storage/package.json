@@ -25,7 +25,6 @@
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
-		"@cellix/api-services-spec": "workspace:*",
 		"@cellix/service-blob-storage": "workspace:*"
 	},
 	"devDependencies": {

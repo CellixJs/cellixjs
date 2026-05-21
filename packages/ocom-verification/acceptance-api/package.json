@@ -22,6 +22,7 @@
 	"devDependencies": {
 		"@apollo/server": "catalog:",
 		"@cellix/config-typescript": "workspace:*",
+        "@cellix/service-blob-storage": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
 		"@ocom/persistence": "workspace:*",

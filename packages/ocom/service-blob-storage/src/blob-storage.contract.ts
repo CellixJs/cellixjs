@@ -16,7 +16,7 @@ export interface BlobStorageOperations {
  * Operations for generating signed authorization headers for client-side uploads.
  * Returns canonical SharedKey authorization headers that lock blob metadata (content type, length).
  */
-export interface ClientUploadService {
+export interface ClientUploadOperations {
 	createUploadUrl(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
 	createReadUrl(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
 }

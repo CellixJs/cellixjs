@@ -1,8 +1,8 @@
-import type { ClientUploadService } from '@cellix/service-blob-storage';
 import type { DataSourcesFactory } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
-import type { ServiceBlobStorage } from '@ocom/service-blob-storage';
+import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
 import type { TokenValidation } from '@ocom/service-token-validation';
+
 
 /**
  * Application context specification for OCOM.
@@ -39,7 +39,7 @@ export interface ApiContextSpec {
 	 * See dual blob storage architecture explanation below.
 	 */
 	// Server-side full service type: exposes the complete ServiceBlobStorage API (server-only operations included)
-	blobStorageService: ServiceBlobStorage;
+	blobStorageService: BlobStorageOperations;
 
 	/**
 	 * Client upload service for generating signed SAS URLs.
@@ -85,5 +85,5 @@ export interface ApiContextSpec {
 	 * See @ocom/service-blob-storage for full architecture rationale and ADR-0032.
 	 */
 	// Client-facing narrow contract for upload/signing operations. Named to match runtime registration (ClientOperationsService)
-	clientOperationsService: ClientUploadService;
+	clientOperationsService: ClientUploadOperations;
 }
