@@ -4,7 +4,8 @@
 	"private": true,
 	"type": "module",
 	"exports": {
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./env": "./env/index.d.ts"
 	},
 	"scripts": {
 		"prebuild": "pnpm run lint",
@@ -16,6 +17,7 @@
 	"dependencies": {
 		"@ant-design/icons": "catalog:",
 		"@ocom/ui-shared": "workspace:*",
+		"@graphql-typed-document-node/core": "^3.2.0",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"react-router-dom": "catalog:",

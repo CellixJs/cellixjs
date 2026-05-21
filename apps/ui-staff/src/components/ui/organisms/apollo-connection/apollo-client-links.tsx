@@ -9,8 +9,7 @@ import type { AuthContextProps } from 'react-oidc-context';
 export const client = new ApolloClient({
 	cache: new InMemoryCache(),
 	devtools: {
-		// biome-ignore lint:useLiteralKeys
-		enabled: import.meta.env['NODE_ENV'] !== 'production',
+		enabled: !import.meta.env.PROD,
 	},
 });
 
@@ -34,10 +33,8 @@ export const ApolloLinkToAddAuthHeader = (auth: AuthContextProps): ApolloLink =>
 		// In production, rely solely on react-oidc-context to provide the user/token.
 		if (!access_token && typeof globalThis !== 'undefined' && !import.meta.env.PROD) {
 			try {
-				// biome-ignore lint:useLiteralKeys
-				const authority = import.meta.env['VITE_APP_UI_STAFF_AAD_AUTHORITY'] ?? '';
-				// biome-ignore lint:useLiteralKeys
-				const client_id = import.meta.env['VITE_APP_UI_STAFF_AAD_CLIENTID'] ?? '';
+				const authority = import.meta.env.VITE_APP_UI_STAFF_AAD_AUTHORITY ?? '';
+				const client_id = import.meta.env.VITE_APP_UI_STAFF_AAD_CLIENTID ?? '';
 				const storageKey = `oidc.user:${authority}:${client_id}`;
 				const raw = globalThis.sessionStorage.getItem(storageKey) ?? globalThis.localStorage.getItem(storageKey);
 				if (raw) {
