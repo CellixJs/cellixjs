@@ -7,8 +7,13 @@ import staffUserResolvers from './staff-user.resolvers.ts';
 describe('staff-user.resolvers - unit tests', () => {
 	it('currentStaffUserAndCreateIfNotExists throws Unauthorized when no verifiedJwt', async () => {
 		const ctx = { applicationServices: {} } as unknown as GraphContext;
-		const Query = staffUserResolvers.Query as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>;
-		const currentStaffUserAndCreateIfNotExists = Query.currentStaffUserAndCreateIfNotExists as (...args: unknown[]) => Promise<unknown>;
+		const Query = staffUserResolvers.Query as NonNullable<typeof staffUserResolvers.Query>;
+		const currentStaffUserAndCreateIfNotExists = Query.currentStaffUserAndCreateIfNotExists as unknown as (
+			parent: unknown,
+			args: unknown,
+			context: GraphContext,
+			info: GraphQLResolveInfo,
+		) => Promise<unknown>;
 		await expect(currentStaffUserAndCreateIfNotExists(null, null, ctx, {} as unknown as GraphQLResolveInfo)).rejects.toThrow('Unauthorized');
 	});
 
@@ -25,13 +30,18 @@ describe('staff-user.resolvers - unit tests', () => {
 					},
 				},
 			},
-		};
+		} as unknown as GraphContext;
 
 		const consoleErr = vi.spyOn(console, 'error').mockImplementation(() => {
 			/* noop */
 		});
-		const Mutation = staffUserResolvers.Mutation as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>;
-		const staffUserAssignRoleFn = Mutation.staffUserAssignRole as (...args: unknown[]) => Promise<unknown>;
+		const Mutation = staffUserResolvers.Mutation as NonNullable<typeof staffUserResolvers.Mutation>;
+		const staffUserAssignRoleFn = Mutation.staffUserAssignRole as unknown as (
+			parent: unknown,
+			args: { input: { staffUserId: string; roleId: string } },
+			context: GraphContext,
+			info: GraphQLResolveInfo,
+		) => Promise<unknown>;
 		const res = await staffUserAssignRoleFn(null, { input: { staffUserId: 's1', roleId: 'r1' } }, ctx, {} as unknown as GraphQLResolveInfo);
 		const resTyped = res as StaffUserMutationResult;
 		expect(resTyped).toBeDefined();
