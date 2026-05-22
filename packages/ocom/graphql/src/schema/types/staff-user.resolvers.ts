@@ -217,9 +217,13 @@ const staffUser: Resolvers = {
 					}
 				}
 
-				const staffUser = await context.applicationServices.User.StaffUser.assignRole({
+				const actorStaffUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
+			const actorStaffUserId = actorStaffUser?.id ?? jwt.sub;
+
+			const staffUser = await context.applicationServices.User.StaffUser.assignRole({
 					staffUserId: String(args.input.staffUserId),
 					roleId: String(args.input.roleId),
+					actorStaffUserId,
 				});
 				return { status: { success: true }, staffUser };
 			} catch (error) {

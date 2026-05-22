@@ -53,6 +53,9 @@ function makeMockStaffUserInstance(id: string): MockStaffUserInstance {
 		set role(r: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined) {
 			_role = r;
 		},
+		requestRoleAssignment: vi.fn().mockImplementation((r: Domain.Contexts.User.StaffRole.StaffRoleEntityReference) => {
+			_role = r;
+		}),
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0',
@@ -118,7 +121,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		thrownError = undefined;
 		staffUser = makeMockStaffUserInstance('user-123');
 		staffRole = makeMockStaffRoleRef('role-456');
-		command = { staffUserId: 'user-123', roleId: 'role-456' };
+		command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1' };
 	});
 
 	// ─── Successfully assigns a role ──────────────────────────────────────────
@@ -131,7 +134,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('a staff role with id "role-456" exists', () => {
 			staffRole = makeMockStaffRoleRef('role-456');
 			dataSources = makeDataSources({ staffUser, staffRole });
-			command = { staffUserId: 'user-123', roleId: 'role-456' };
+			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1' };
 		});
 
 		When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {
@@ -165,7 +168,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('no staff role with id "role-999" exists in the repository', () => {
 			staffRole = null;
 			dataSources = makeDataSources({ staffUser, staffRole });
-			command = { staffUserId: 'user-123', roleId: 'role-999' };
+			command = { staffUserId: 'user-123', roleId: 'role-999', actorStaffUserId: 'actor-1' };
 		});
 
 		When('I call assignRole with staffUserId "user-123" and roleId "role-999"', async () => {
@@ -195,18 +198,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('saving the staff user returns undefined', () => {
 			dataSources = makeDataSources({ staffUser, staffRole, explicitUndefinedSave: true });
-			command = { staffUserId: 'user-123', roleId: 'role-456' };
-		});
-
-		When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {
-			try {
-				result = await assignRole(dataSources)(command);
-			} catch (e) {
-				thrownError = e;
-			}
-		});
-
-		Then('it should throw an error with message "Unable to assign role to staff user"', () => {
+			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1' };
 			expect(thrownError).toBeDefined();
 			expect((thrownError as Error).message).toBe('Unable to assign role to staff user');
 		});

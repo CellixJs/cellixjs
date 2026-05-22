@@ -37,6 +37,7 @@ function makeBaseProps(overrides: Partial<StaffUserProps> = {}): StaffUserProps 
 		roleName: 'test role',
 		roleType: 'staff-role',
 	} as StaffRoleProps);
+	const activityLogItems: import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps[] = [];
 	return {
 		id: 'staff-1',
 		firstName: 'Alice',
@@ -55,6 +56,17 @@ function makeBaseProps(overrides: Partial<StaffUserProps> = {}): StaffUserProps 
 		},
 		setRoleRef: (role: StaffRoleEntityReference | undefined) => {
 			_role = role;
+		},
+		activityLog: {
+			get items() { return activityLogItems as ReadonlyArray<import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps>; },
+			addItem: (item: import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps) => { activityLogItems.push(item); },
+			getNewItem: () => {
+				const item = { id: `activity-${activityLogItems.length}`, activityType: '', activityDescription: '', activityByStaffUserId: '', createdAt: new Date(), updatedAt: new Date() } as import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps;
+				activityLogItems.push(item);
+				return item;
+			},
+			removeItem: (item: import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps) => { const idx = activityLogItems.indexOf(item); if (idx > -1) activityLogItems.splice(idx, 1); },
+			removeAll: () => { activityLogItems.splice(0); },
 		},
 		...overrides,
 	};
@@ -505,6 +517,137 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	// activityLog
+	Scenario('Logging a general update via requestAddUpdate', ({ Given, When, Then }) => {
+		Given('a StaffUser aggregate with permission to manage staff roles and permissions', () => {
+			passport = makePassport(true);
+			staffUser = new StaffUser(makeBaseProps(), passport);
+		});
+		When('I call requestAddUpdate with description "Profile updated" and activityByStaffUserId "staff-99"', () => {
+			staffUser.requestAddUpdate('Profile updated', 'staff-99');
+		});
+		Then('an activity log entry with activityType "UPDATED" and description "Profile updated" should be added', () => {
+			const entries = staffUser.activityLog;
+			expect(entries).toHaveLength(1);
+			expect(entries.at(0)?.activityType).toBe('UPDATED');
+			expect(entries.at(0)?.activityDescription).toBe('Profile updated');
+			expect(entries.at(0)?.activityByStaffUserId).toBe('staff-99');
+		});
+	});
+
+	Scenario('requestAddUpdate without permission throws PermissionError', ({ Given, When, Then }) => {
+		let action: () => void;
+		Given('a StaffUser aggregate without permission to manage staff roles and permissions', () => {
+			passport = makePassport(false);
+			staffUser = new StaffUser(makeBaseProps(), passport);
+		});
+		When('I try to call requestAddUpdate with description "Profile updated" and activityByStaffUserId "staff-99"', () => {
+			action = () => staffUser.requestAddUpdate('Profile updated', 'staff-99');
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(action).toThrow(PermissionError);
+		});
+	});
+
+	Scenario('Logging a role assignment via requestRoleAssignment', ({ Given, When, Then, And }) => {
+		const newRole = vi.mocked({ id: 'role-99', roleName: 'New Role', roleType: 'staff-role' } as import('../staff-role/staff-role.ts').StaffRoleEntityReference);
+		Given('a StaffUser aggregate with permission to manage staff roles and permissions', () => {
+			passport = makePassport(true);
+			staffUser = new StaffUser(makeBaseProps(), passport);
+		});
+		When('I call requestRoleAssignment with a valid role, description "Role assigned", and activityByStaffUserId "staff-99"', () => {
+			staffUser.requestRoleAssignment(newRole, 'Role assigned', 'staff-99');
+		});
+		Then("the staff user's role should be updated", () => {
+			expect(staffUser.role?.id).toBe('role-99');
+		});
+		And('an activity log entry with activityType "ROLE_ASSIGNED" and description "Role assigned" should be added', () => {
+			const entries = staffUser.activityLog;
+			expect(entries).toHaveLength(1);
+			expect(entries.at(0)?.activityType).toBe('ROLE_ASSIGNED');
+			expect(entries.at(0)?.activityDescription).toBe('Role assigned');
+			expect(entries.at(0)?.activityByStaffUserId).toBe('staff-99');
+		});
+	});
+
+	Scenario('Logging a role removal via requestRoleRemoval', ({ Given, When, Then, And }) => {
+		Given('a StaffUser aggregate with permission to manage staff roles and permissions', () => {
+			passport = makePassport(true);
+			staffUser = new StaffUser(makeBaseProps(), passport);
+		});
+		When('I call requestRoleRemoval with description "Role removed" and activityByStaffUserId "staff-99"', () => {
+			staffUser.requestRoleRemoval('Role removed', 'staff-99');
+		});
+		Then("the staff user's role should be undefined", () => {
+			expect(staffUser.role).toBeUndefined();
+		});
+		And('an activity log entry with activityType "ROLE_REMOVED" and description "Role removed" should be added', () => {
+			const entries = staffUser.activityLog;
+			expect(entries).toHaveLength(1);
+			expect(entries.at(0)?.activityType).toBe('ROLE_REMOVED');
+			expect(entries.at(0)?.activityDescription).toBe('Role removed');
+			expect(entries.at(0)?.activityByStaffUserId).toBe('staff-99');
+		});
+	});
+
+	Scenario('Logging a block via requestBlock', ({ Given, When, Then, And }) => {
+		Given('a StaffUser aggregate with permission to manage staff roles and permissions', () => {
+			passport = makePassport(true);
+			staffUser = new StaffUser(makeBaseProps(), passport);
+		});
+		When('I call requestBlock with description "User blocked" and activityByStaffUserId "staff-99"', () => {
+			staffUser.requestBlock('User blocked', 'staff-99');
+		});
+		Then("the staff user's accessBlocked should be true", () => {
+			expect(staffUser.accessBlocked).toBe(true);
+		});
+		And('an activity log entry with activityType "BLOCKED" and description "User blocked" should be added', () => {
+			const entries = staffUser.activityLog;
+			expect(entries).toHaveLength(1);
+			expect(entries.at(0)?.activityType).toBe('BLOCKED');
+			expect(entries.at(0)?.activityDescription).toBe('User blocked');
+			expect(entries.at(0)?.activityByStaffUserId).toBe('staff-99');
+		});
+	});
+
+	Scenario('Logging an unblock via requestUnblock', ({ Given, When, Then, And }) => {
+		Given('a StaffUser aggregate with permission to manage staff roles and permissions', () => {
+			passport = makePassport(true);
+			staffUser = new StaffUser(makeBaseProps(), passport);
+			staffUser.accessBlocked = true;
+		});
+		When('I call requestUnblock with description "User unblocked" and activityByStaffUserId "staff-99"', () => {
+			staffUser.requestUnblock('User unblocked', 'staff-99');
+		});
+		Then("the staff user's accessBlocked should be false", () => {
+			expect(staffUser.accessBlocked).toBe(false);
+		});
+		And('an activity log entry with activityType "UNBLOCKED" and description "User unblocked" should be added', () => {
+			const entries = staffUser.activityLog;
+			expect(entries).toHaveLength(1);
+			expect(entries.at(0)?.activityType).toBe('UNBLOCKED');
+			expect(entries.at(0)?.activityDescription).toBe('User unblocked');
+			expect(entries.at(0)?.activityByStaffUserId).toBe('staff-99');
+		});
+	});
+
 	// Repeat the above pattern for lastName, displayName, email, externalId, accessBlocked, tags, role, and read-only properties.
 	// For brevity, only firstName scenarios are shown here.
+
+	Scenario('Logging a create action via requestCreate', ({ Given, When, Then }) => {
+		Given('a StaffUser aggregate with permission to manage staff roles and permissions', () => {
+			passport = makePassport(true);
+			staffUser = new StaffUser(makeBaseProps(), passport);
+		});
+		When('I call requestCreate with activityByStaffUserId "staff-99"', () => {
+			staffUser.requestCreate('staff-99');
+		});
+		Then('an activity log entry with activityType "CREATED" and description "User created" should be added', () => {
+			const entries = staffUser.activityLog;
+			expect(entries).toHaveLength(1);
+			expect(entries.at(0)?.activityType).toBe('CREATED');
+			expect(entries.at(0)?.activityDescription).toBe('User created');
+			expect(entries.at(0)?.activityByStaffUserId).toBe('staff-99');
+		});
+	});
 });

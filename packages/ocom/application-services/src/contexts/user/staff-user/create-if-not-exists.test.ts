@@ -73,6 +73,10 @@ function makeMockNewUser(externalId: string): MockStaffUserInstance {
 		set role(r: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined) {
 			_role = r;
 		},
+		requestCreate: vi.fn(),
+		requestRoleAssignment: vi.fn().mockImplementation((r: Domain.Contexts.User.StaffRole.StaffRoleEntityReference) => {
+			_role = r;
+		}),
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0',

@@ -40,4 +40,10 @@ fragment StaffUserDetailFields on StaffUser {
 		roleName
 		enterpriseAppRole
 	}
+	activityLog {
+		activityType
+		activityDescription
+		activityByStaffUserId
+		createdAt
+	}
 }

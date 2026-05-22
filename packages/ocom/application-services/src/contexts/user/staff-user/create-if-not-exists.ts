@@ -72,8 +72,10 @@ export const createIfNotExists = (dataSources: DataSources) => {
 		await dataSources.domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(DomainRuntime.PassportFactory.forSystem({ canManageStaffRolesAndPermissions: true }), async (repository) => {
 			const newUser = await repository.getNewInstance(command.externalId, command.firstName, command.lastName, command.email);
 
+			newUser.requestCreate(newUser.id);
+
 			if (matchingRole) {
-				newUser.role = matchingRole;
+				newUser.requestRoleAssignment(matchingRole, 'Role assigned on creation', newUser.id);
 			}
 
 			createdUser = await repository.save(newUser);

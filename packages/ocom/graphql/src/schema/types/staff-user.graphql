@@ -66,11 +66,20 @@ type StaffUser implements MongoBase {
 	accessBlocked: Boolean!
 	tags: [String!]!
 	role: StaffRole
+	activityLog: [StaffUserActivityDetail!]!
 
 	id: ObjectID!
 	schemaVersion: String
 	createdAt: DateTime
 	updatedAt: DateTime
+}
+
+type StaffUserActivityDetail {
+	activityType: String!
+	activityDescription: String!
+	activityByStaffUserId: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 input StaffRoleCreateCommunityPermissionsInput {

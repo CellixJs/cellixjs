@@ -4,6 +4,7 @@ import type { DataSources } from '@ocom/persistence';
 export interface StaffUserAssignRoleCommand {
 	staffUserId: string;
 	roleId: string;
+	actorStaffUserId: string;
 }
 
 export const assignRole = (dataSources: DataSources) => {
@@ -22,7 +23,7 @@ export const assignRole = (dataSources: DataSources) => {
 				throw new Error(`StaffRole with id ${command.roleId} not found`);
 			}
 
-			staffUser.role = role;
+			staffUser.requestRoleAssignment(role, 'Role assigned', command.actorStaffUserId);
 			result = await staffUserRepo.save(staffUser);
 		});
 
