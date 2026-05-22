@@ -1,4 +1,4 @@
-import type { InboundQueueMap, OutboundQueueMap, PeekMessagesOptions, ReceiveMessagesOptions } from './interfaces.js';
+import type { InboundQueueMap, OutboundQueueMap } from './interfaces.js';
 import { createQueueConsumer, type QueueConsumerContext } from './queue-consumer.js';
 import { createQueueProducer, type QueueProducerContext } from './queue-producer.js';
 import type { ServiceQueueStorage } from './service-queue-storage.js';
@@ -18,10 +18,8 @@ export function registerQueues<O extends OutboundQueueMap, I extends InboundQueu
 		const out: Record<string, unknown> = {};
 		for (const key of Object.keys(defs)) {
 			const cap = `${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-			out[`receive${cap}`] = (_opts?: ReceiveMessagesOptions) => Promise.resolve([]);
-			out[`peek${cap}`] = (_opts?: PeekMessagesOptions) => Promise.resolve([]);
-			out[`delete${cap}`] = (_messageId: string, _popReceipt: string) => Promise.resolve();
-			out[`handle${cap}`] = (_handler: (msg: unknown) => Promise<void>, _opts?: ReceiveMessagesOptions) => Promise.resolve();
+			out[`receive${cap}`] = (_maxMessages?: number) => Promise.resolve([]);
+			out[`peek${cap}`] = (_maxMessages?: number) => Promise.resolve([]);
 		}
 		return out as QueueConsumerContext<T>;
 	};

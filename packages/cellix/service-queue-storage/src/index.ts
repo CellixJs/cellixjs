@@ -16,7 +16,6 @@ export type { LogAddress } from './logging.js';
 export { BlobQueueMessageLogger } from './logging.js';
 
 export { defineQueueMessage } from './message-contracts.js';
-export type { PoisonQueueOptions } from './poison.js';
 export { moveMessageToPoison } from './poison.js';
 export type { QueueConsumerContext } from './queue-consumer.js';
 export { createQueueConsumer } from './queue-consumer.js';

@@ -1,8 +1,8 @@
-import type { Domain } from '@ocom/domain';
 import type { CommunityUpdateSettingsCommand } from '@ocom/application-services';
+import type { Domain } from '@ocom/domain';
 import type { GraphQLResolveInfo } from 'graphql';
-import type { GraphContext } from '../context.ts';
 import type { CommunityCreateInput, CommunityUpdateSettingsInput, Resolvers } from '../builder/generated.ts';
+import type { GraphContext } from '../context.ts';
 
 const CommunityMutationResolver = async (getCommunity: Promise<Domain.Contexts.Community.Community.CommunityEntityReference>) => {
 	try {
@@ -48,12 +48,37 @@ const community: Resolvers = {
 			if (!context.applicationServices?.verifiedUser?.verifiedJwt?.sub) {
 				throw new Error('Unauthorized');
 			}
-			return await CommunityMutationResolver(
-				context.applicationServices.Community.Community.create({
+
+			try {
+				const created = await context.applicationServices.Community.Community.create({
 					name: args.input.name,
 					endUserExternalId: context.applicationServices.verifiedUser?.verifiedJwt.sub,
-				}),
-			);
+				});
+
+				// Fire-and-forget: send community creation event to outbound queue if configured
+				try {
+					// biome-ignore lint/complexity/useLiteralKeys: index signature requires bracket notation
+					if (context.queueProducer && typeof context.queueProducer['sendCommunityCreation'] === 'function') {
+						// biome-ignore lint/complexity/useLiteralKeys: index signature requires bracket notation
+						void context.queueProducer['sendCommunityCreation']({
+							communityId: created.id,
+							name: created.name,
+							// biome-ignore lint/suspicious/noExplicitAny: runtime type extension
+							createdBy: (created as any).createdBy?.id ?? (created as any).createdBy?.externalId ?? '',
+						});
+					}
+				} catch (e) {
+					console.error('[communityCreate] failed to enqueue community creation', e);
+				}
+
+				return { status: { success: true }, community: created };
+			} catch (error) {
+				console.error('Community > Mutation  : ', error);
+				const { message } = error as Error;
+				return {
+					status: { success: false, errorMessage: message },
+				};
+			}
 		},
 		communityUpdateSettings: async (_parent, args: { input: CommunityUpdateSettingsInput }, context: GraphContext) => {
 			if (!context.applicationServices?.verifiedUser?.verifiedJwt?.sub) {

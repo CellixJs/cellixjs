@@ -1,5 +1,6 @@
 import { BlobQueueMessageLogger, ServiceQueueStorage } from '@cellix/service-queue-storage';
 import type { ServiceBlobStorage } from '@ocom/service-blob-storage';
+import { allQueueNames } from '@ocom/service-queue-storage';
 
 const { AZURE_QUEUE_ACCOUNT_NAME: accountName, AZURE_QUEUE_CONNECTION_STRING: connectionString, QUEUE_LOG_CONTAINER: logContainer } = process.env;
 
@@ -21,7 +22,9 @@ export function createQueueServices(clientOperationsService: ServiceBlobStorage,
 		queueLogger = new BlobQueueMessageLogger(blobLike, logContainer as string);
 	}
 
-	const provisionQueues = ['email-notifications', 'audit-events', 'import-requests'];
+	// Build the list of queues to auto-provision from the application's queue registry when available
+	// This keeps configuration centralized in the OCOM queue registry
+	const provisionQueues = Array.isArray(allQueueNames) && allQueueNames.length > 0 ? allQueueNames : ['email-notifications', 'audit-events', 'import-requests'];
 	const qAccount = accountName as string | undefined;
 	const qConnection = connectionString as string | undefined;
 

@@ -1,5 +1,3 @@
-export type PoisonQueueOptions = { retryThreshold?: number; poisonQueueName?: string; awaitLogging?: boolean | undefined };
-
 import type { QueueMessage } from './interfaces.js';
 import type { IQueueMessageLogger, MessageLogEnvelope } from './logging.js';
 import type { ServiceQueueStorage } from './service-queue-storage.js';
@@ -56,31 +54,6 @@ export async function moveMessageToPoison<T>(
 			await service.deleteMessage(sourceQueue, message.id, message.popReceipt);
 		} catch (e) {
 			console.error('[moveMessageToPoison] failed to delete original message', e);
-		}
-	}
-}
-
-export async function handleMessageWithRetries<T>(service: ServiceQueueStorage, queue: string, handler: (msg: QueueMessage<T>) => Promise<void>, opts?: PoisonQueueOptions & { logger?: IQueueMessageLogger }): Promise<void> {
-	const threshold = opts?.retryThreshold ?? 5;
-	const poisonName = opts?.poisonQueueName ?? `${queue}-poison`;
-
-	const messages = await service.receiveMessages<T>(queue, { maxMessages: 1 });
-	for (const m of messages) {
-		try {
-			await handler(m as QueueMessage<T>);
-			if (m.popReceipt && m.id) await service.deleteMessage(queue, m.id, m.popReceipt);
-		} catch (err) {
-			const count = m.dequeueCount ?? 0;
-			if (count >= threshold) {
-				try {
-					const moveOpts: { poisonQueueName?: string; logger?: IQueueMessageLogger | undefined; awaitLogging?: boolean | undefined } = { poisonQueueName: poisonName, logger: opts?.logger, awaitLogging: opts?.awaitLogging };
-					await moveMessageToPoison(service, queue, m as QueueMessage<T>, moveOpts);
-				} catch (e) {
-					console.error('[handleMessageWithRetries] failed moving to poison', e);
-				}
-			} else {
-				throw err;
-			}
 		}
 	}
 }
