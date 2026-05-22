@@ -40,13 +40,17 @@ interface StaffRoleCreateProps {
 	mode?: 'create' | 'edit';
 }
 
+type PermissionFieldKey = keyof Omit<StaffRoleFormValues, 'roleName' | 'enterpriseAppRole'>;
+
 const PERMISSION_GROUPS: Array<{
 	title: string;
 	techAdminOnly?: boolean;
-	fields: Array<{ key: keyof Omit<StaffRoleFormValues, 'roleName' | 'enterpriseAppRole'>; label: string }>;
+	topLevelKey: PermissionFieldKey;
+	fields: Array<{ key: PermissionFieldKey; label: string }>;
 }> = [
 	{
 		title: 'Community Permissions',
+		topLevelKey: 'canManageCommunities',
 		fields: [
 			{ key: 'canManageCommunities', label: 'Can Manage Communities' },
 			{ key: 'canManageStaffRolesAndPermissions', label: 'Can Manage Staff Roles and Permissions' },
@@ -58,6 +62,7 @@ const PERMISSION_GROUPS: Array<{
 	},
 	{
 		title: 'User',
+		topLevelKey: 'canManageUsers',
 		fields: [
 			{ key: 'canManageUsers', label: 'Can Manage Users' },
 			{ key: 'canAssignStaffRoles', label: 'Can Assign Staff Roles' },
@@ -65,16 +70,18 @@ const PERMISSION_GROUPS: Array<{
 		],
 	},
 	{
-		title: 'Role',
+		title: 'Staff Roles',
+		topLevelKey: 'canViewRoles',
 		fields: [
-			{ key: 'canViewRoles', label: 'Can View Roles' },
-			{ key: 'canAddRole', label: 'Can Add Role' },
-			{ key: 'canEditRole', label: 'Can Edit Role' },
-			{ key: 'canRemoveRole', label: 'Can Remove Role' },
+			{ key: 'canViewRoles', label: 'Can View Staff Roles' },
+			{ key: 'canAddRole', label: 'Can Add Staff Role' },
+			{ key: 'canEditRole', label: 'Can Edit Staff Role' },
+			{ key: 'canRemoveRole', label: 'Can Remove Staff Role' },
 		],
 	},
 	{
 		title: 'Finance',
+		topLevelKey: 'canManageFinance',
 		fields: [
 			{ key: 'canManageFinance', label: 'Can Manage Finance' },
 			{ key: 'canViewGLBatchSummaries', label: 'Can View GL Batch Summaries' },
@@ -85,6 +92,7 @@ const PERMISSION_GROUPS: Array<{
 	{
 		title: 'Tech Admin',
 		techAdminOnly: true,
+		topLevelKey: 'canManageTechAdmin',
 		fields: [
 			{ key: 'canManageTechAdmin', label: 'Can Manage Tech Admin' },
 			{ key: 'canViewDatabaseExplorer', label: 'Can View Database Explorer' },
@@ -94,6 +102,19 @@ const PERMISSION_GROUPS: Array<{
 		],
 	},
 ];
+
+const normalizePermissionHierarchy = (values: StaffRoleFormValues): StaffRoleFormValues => {
+	const normalized = { ...values };
+
+	for (const group of PERMISSION_GROUPS) {
+		const shouldEnableTopLevel = group.fields.slice(1).some(({ key }) => normalized[key]);
+		if (shouldEnableTopLevel) {
+			normalized[group.topLevelKey] = true;
+		}
+	}
+
+	return normalized;
+};
 
 const DEFAULT_VALUES: StaffRoleFormValues = {
 	roleName: '',
@@ -126,12 +147,24 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 	const [form] = Form.useForm<StaffRoleFormValues>();
 
 	const defaultValues: StaffRoleFormValues = {
-		...DEFAULT_VALUES,
-		...initialValues,
+		...normalizePermissionHierarchy({ ...DEFAULT_VALUES, ...initialValues }),
 	};
 
 	const isEdit = mode === 'edit';
 	const enterpriseAppRoleOptions = (availableEnterpriseAppRoles ?? []).map((r) => ({ value: r, label: r }));
+
+	const handleValuesChange = (_changedValues: Partial<StaffRoleFormValues>, allValues: StaffRoleFormValues) => {
+		const normalizedValues = normalizePermissionHierarchy(allValues);
+		const hasHierarchyChange = PERMISSION_GROUPS.some((group) => {
+			const topLevelIsFalse = normalizedValues[group.topLevelKey] !== allValues[group.topLevelKey];
+			const childSelected = group.fields.slice(1).some(({ key }) => allValues[key]);
+			return topLevelIsFalse && childSelected;
+		});
+
+		if (hasHierarchyChange) {
+			form.setFieldsValue(normalizedValues);
+		}
+	};
 
 	return (
 		<Space
@@ -144,6 +177,7 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 				form={form}
 				layout="vertical"
 				initialValues={defaultValues}
+				onValuesChange={handleValuesChange}
 				onFinish={onSubmit}
 			>
 				<Form.Item
