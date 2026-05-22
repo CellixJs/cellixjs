@@ -30,6 +30,7 @@ export const Default: Story = {
 		availableRoles: mockRoles,
 		canAssignRoles: true,
 		onRoleChange: (roleId) => console.log('Role changed:', roleId),
+		onSave: () => console.log('Save clicked'),
 	},
 };
 
@@ -39,6 +40,7 @@ export const ReadOnly: Story = {
 		availableRoles: mockRoles,
 		canAssignRoles: false,
 		onRoleChange: (roleId) => console.log('Role changed:', roleId),
+		onSave: () => console.log('Save clicked'),
 	},
 };
 
@@ -48,5 +50,6 @@ export const NoRole: Story = {
 		availableRoles: mockRoles,
 		canAssignRoles: true,
 		onRoleChange: (roleId) => console.log('Role changed:', roleId),
+		onSave: () => console.log('Save clicked'),
 	},
 };
