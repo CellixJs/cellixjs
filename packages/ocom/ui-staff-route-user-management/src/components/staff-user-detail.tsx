@@ -1,4 +1,4 @@
-import { Descriptions, Select, Space, Typography } from 'antd';
+import { Button, Descriptions, Select, Space, Typography } from 'antd';
 import type React from 'react';
 import type { StaffUser } from './staff-users-list.tsx';
 
@@ -10,11 +10,15 @@ interface StaffUserDetailProps {
 	canAssignRoles: boolean;
 	isEditingOwnRole?: boolean;
 	currentRoleName?: string;
+	selectedRoleId: string | null;
 	onRoleChange: (roleId: string) => void;
+	onSave: () => void;
+	saveDisabled?: boolean;
 	loading?: boolean;
+	saveLoading?: boolean;
 }
 
-export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({ data, availableRoles, canAssignRoles, isEditingOwnRole = false, currentRoleName, onRoleChange, loading }) => {
+export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({ data, availableRoles, canAssignRoles, isEditingOwnRole = false, currentRoleName, selectedRoleId, onRoleChange, onSave, saveDisabled = false, loading, saveLoading = false }) => {
 	return (
 		<Space
 			direction="vertical"
@@ -34,16 +38,24 @@ export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({ data, availabl
 			</Descriptions>
 			<div>
 				<div style={{ marginBottom: 8, fontWeight: 600 }}>Assigned Role</div>
-				<Space direction="horizontal" size="small">
+				<Space direction="horizontal" size="small" align="start">
 					<Select
 						style={{ width: 240 }}
-						defaultValue={data.role?.id ?? null}
+						value={selectedRoleId}
 						disabled={!canAssignRoles}
 						loading={!!loading}
 						onChange={onRoleChange}
 						options={availableRoles.map((r) => ({ value: r.id, label: r.roleName }))}
 						placeholder={currentRoleName ? `${currentRoleName}` : 'No role assigned'}
 					/>
+					<Button
+						type="primary"
+						disabled={!canAssignRoles || saveDisabled}
+						loading={!!saveLoading}
+						onClick={onSave}
+					>
+						Save
+					</Button>
 					{isEditingOwnRole && (
 						<div
 							title="You cannot change your own assigned role"

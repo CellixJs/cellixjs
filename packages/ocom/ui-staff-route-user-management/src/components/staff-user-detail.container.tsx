@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { StaffAuthContext } from '@ocom/ui-staff-shared';
 import { App } from 'antd';
 import type React from 'react';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { StaffRolesForSelectDocument, StaffUserAssignRoleDocument, StaffUserDetailDocument, StaffUsersListDocument, CurrentStaffUserDocument } from '../generated.tsx';
 import { StaffUserDetail } from './staff-user-detail.tsx';
@@ -53,6 +53,12 @@ export const StaffUserDetailContainer: React.FC = () => {
 		fetchPolicy: 'cache-and-network',
 	});
 
+	const user = userData?.staffUserById;
+	const currentUser = currentUserData?.currentStaffUserAndCreateIfNotExists;
+	const isEditingOwnRole = user?.id === currentUser?.id;
+	const currentRoleId = user?.role?.id ? String(user.role.id) : null;
+	const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
+
 	const [assignRole, { loading: assignLoading }] = useMutation(StaffUserAssignRoleDocument, {
 		refetchQueries: [
 			{ query: StaffUserDetailDocument, variables: { id: userId } },
@@ -60,10 +66,21 @@ export const StaffUserDetailContainer: React.FC = () => {
 		],
 	});
 
-	const handleRoleChange = async (roleId: string) => {
+	useEffect(() => {
+		setSelectedRoleId(currentRoleId);
+	}, [currentRoleId]);
+
+	const handleRoleChange = (roleId: string) => {
+		setSelectedRoleId(roleId);
+	};
+
+	const handleSave = async () => {
+		if (!selectedRoleId || selectedRoleId === currentRoleId) {
+			return;
+		}
 		try {
 			const result = await assignRole({
-				variables: { input: { staffUserId: userId, roleId } },
+				variables: { input: { staffUserId: userId, roleId: selectedRoleId } },
 			});
 			if (result.data?.staffUserAssignRole.status.success) {
 				message.success('Role assigned successfully');
@@ -75,10 +92,8 @@ export const StaffUserDetailContainer: React.FC = () => {
 		}
 	};
 
-	const user = userData?.staffUserById;
-	const currentUser = currentUserData?.currentStaffUserAndCreateIfNotExists;
-	const isEditingOwnRole = user?.id === currentUser?.id;
 	const loading = userLoading || rolesLoading || assignLoading || currentUserLoading;
+	const saveDisabled = selectedRoleId == null || selectedRoleId === currentRoleId || assignLoading;
 
 	// Determine which enterprise app role types the current viewer can assign
 	const viewerAllowedRoleTypes = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
@@ -103,8 +118,12 @@ export const StaffUserDetailContainer: React.FC = () => {
 			canAssignRoles={canAssignRoles && !isEditingOwnRole}
 			isEditingOwnRole={isEditingOwnRole}
 			{...(user?.role?.roleName && { currentRoleName: user.role.roleName })}
+			selectedRoleId={selectedRoleId}
 			onRoleChange={handleRoleChange}
+			onSave={handleSave}
+			saveDisabled={saveDisabled}
 			loading={loading}
+			saveLoading={assignLoading}
 		/>
 	);
 };
