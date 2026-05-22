@@ -103,12 +103,12 @@ export class StaffUserDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		return this.doc.schemaVersion ?? '1.0.0';
 	}
 
-	get activityLog(): PropArray<Domain.Contexts.User.StaffUser.StaffUserActivityDetailProps> {
-		return new MongooseSeedwork.MongoosePropArray(this.doc.activityLog, StaffUserActivityDetailDomainAdapter);
+	get activityLog(): PropArray<Domain.Contexts.User.StaffUser.StaffUserActivityLogProps> {
+		return new MongooseSeedwork.MongoosePropArray(this.doc.activityLog, StaffUserActivityLogDomainAdapter);
 	}
 }
 
-class StaffUserActivityDetailDomainAdapter implements Domain.Contexts.User.StaffUser.StaffUserActivityDetailProps {
+class StaffUserActivityLogDomainAdapter implements Domain.Contexts.User.StaffUser.StaffUserActivityLogProps {
 	public readonly doc: StaffUserActivityDetail;
 
 	constructor(doc: StaffUserActivityDetail) {

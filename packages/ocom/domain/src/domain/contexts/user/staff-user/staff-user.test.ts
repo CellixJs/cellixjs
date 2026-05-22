@@ -15,14 +15,14 @@ import type { StaffRoleEntityReference, StaffRoleProps } from '../staff-role/sta
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/staff-user.feature'));
 
-function makePassport(canManageStaffRolesAndPermissions = true): Passport {
+function makePassport(canManageStaffRolesAndPermissions = true, isSystemAccount = false): Passport {
 	return vi.mocked({
 		user: {
 			forStaffUser: vi.fn(() => ({
-				determineIf: (fn: (p: { canManageStaffRolesAndPermissions: boolean }) => boolean) => fn({ canManageStaffRolesAndPermissions }),
+				determineIf: (fn: (p: { canManageStaffRolesAndPermissions: boolean; isSystemAccount: boolean }) => boolean) => fn({ canManageStaffRolesAndPermissions, isSystemAccount }),
 			})),
 			forStaffRole: vi.fn(() => ({
-				determineIf: (fn: (p: { canManageStaffRolesAndPermissions: boolean }) => boolean) => fn({ canManageStaffRolesAndPermissions }),
+				determineIf: (fn: (p: { canManageStaffRolesAndPermissions: boolean; isSystemAccount: boolean }) => boolean) => fn({ canManageStaffRolesAndPermissions, isSystemAccount }),
 			})),
 		},
 	} as unknown as Passport);
@@ -37,7 +37,7 @@ function makeBaseProps(overrides: Partial<StaffUserProps> = {}): StaffUserProps 
 		roleName: 'test role',
 		roleType: 'staff-role',
 	} as StaffRoleProps);
-	const activityLogItems: import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps[] = [];
+	const activityLogItems: import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps[] = [];
 	return {
 		id: 'staff-1',
 		firstName: 'Alice',
@@ -58,14 +58,14 @@ function makeBaseProps(overrides: Partial<StaffUserProps> = {}): StaffUserProps 
 			_role = role;
 		},
 		activityLog: {
-			get items() { return activityLogItems as ReadonlyArray<import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps>; },
-			addItem: (item: import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps) => { activityLogItems.push(item); },
+			get items() { return activityLogItems as ReadonlyArray<import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps>; },
+			addItem: (item: import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps) => { activityLogItems.push(item); },
 			getNewItem: () => {
-				const item = { id: `activity-${activityLogItems.length}`, activityType: '', activityDescription: '', activityByStaffUserId: '', createdAt: new Date(), updatedAt: new Date() } as import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps;
+				const item = { id: `activity-${activityLogItems.length}`, activityType: '', activityDescription: '', activityByStaffUserId: '', createdAt: new Date(), updatedAt: new Date() } as import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps;
 				activityLogItems.push(item);
 				return item;
 			},
-			removeItem: (item: import('./staff-user-activity-detail.entity.ts').StaffUserActivityDetailProps) => { const idx = activityLogItems.indexOf(item); if (idx > -1) activityLogItems.splice(idx, 1); },
+			removeItem: (item: import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps) => { const idx = activityLogItems.indexOf(item); if (idx > -1) activityLogItems.splice(idx, 1); },
 			removeAll: () => { activityLogItems.splice(0); },
 		},
 		...overrides,

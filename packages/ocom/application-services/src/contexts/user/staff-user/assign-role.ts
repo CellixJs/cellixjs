@@ -23,7 +23,17 @@ export const assignRole = (dataSources: DataSources) => {
 				throw new Error(`StaffRole with id ${command.roleId} not found`);
 			}
 
-			staffUser.requestRoleAssignment(role, 'Role assigned', command.actorStaffUserId);
+			// Build a descriptive activity message including role name, target user and actor (fallback to IDs when names unavailable)
+			let actorDisplayName = command.actorStaffUserId;
+			try {
+				const actor = await staffUserRepo.get(command.actorStaffUserId);
+				if (actor?.displayName) actorDisplayName = actor.displayName;
+			} catch (_e) {
+				// ignore - use id fallback
+			}
+			const roleName = (role as unknown as { roleName?: string })?.roleName ?? command.roleId;
+			const description = `${roleName} assigned to ${staffUser.displayName} by ${actorDisplayName}`;
+			staffUser.requestRoleAssignment(role, description, command.actorStaffUserId);
 			result = await staffUserRepo.save(staffUser);
 		});
 

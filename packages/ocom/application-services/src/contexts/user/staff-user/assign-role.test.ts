@@ -199,6 +199,17 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('saving the staff user returns undefined', () => {
 			dataSources = makeDataSources({ staffUser, staffRole, explicitUndefinedSave: true });
 			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1' };
+		});
+
+		When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {
+			try {
+				result = await assignRole(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+
+		Then('it should throw an error with message "Unable to assign role to staff user"', () => {
 			expect(thrownError).toBeDefined();
 			expect((thrownError as Error).message).toBe('Unable to assign role to staff user');
 		});

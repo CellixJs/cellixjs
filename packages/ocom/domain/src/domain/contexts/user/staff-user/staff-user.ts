@@ -6,9 +6,13 @@ import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../even
 import type { Passport } from '../../passport.ts';
 import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from '../staff-role/staff-role.ts';
 import type { UserVisa } from '../user.visa.ts';
+import {
+	StaffUserActivityLog,
+	type StaffUserActivityLogEntityReference,
+	type StaffUserActivityLogProps,
+} from './staff-user-activity-log.entity.ts';
 import * as ValueObjects from './staff-user.value-objects.ts';
-import { StaffUserActivityDetail, type StaffUserActivityDetailEntityReference, type StaffUserActivityDetailProps } from './staff-user-activity-detail.entity.ts';
-import * as ActivityDetailValueObjects from './staff-user-activity-detail.value-objects.ts';
+import * as ActivityLogValueObjects from './staff-user-activity-log.value-objects.ts';
 
 export interface StaffUserProps extends DomainEntityProps {
 	readonly role?: StaffRoleProps;
@@ -25,12 +29,12 @@ export interface StaffUserProps extends DomainEntityProps {
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 	readonly schemaVersion: string;
-	activityLog: PropArray<StaffUserActivityDetailProps>;
+	activityLog: PropArray<StaffUserActivityLogProps>;
 }
 
 export interface StaffUserEntityReference extends Readonly<Omit<StaffUserProps, 'role' | 'setRoleRef' | 'activityLog'>> {
 	readonly role: StaffRoleEntityReference | undefined;
-	readonly activityLog: ReadonlyArray<StaffUserActivityDetailEntityReference>;
+	readonly activityLog: ReadonlyArray<StaffUserActivityLogEntityReference>;
 }
 
 export class StaffUser<props extends StaffUserProps> extends AggregateRoot<props, Passport> implements StaffUserEntityReference {
@@ -68,44 +72,42 @@ export class StaffUser<props extends StaffUserProps> extends AggregateRoot<props
 		}
 	}
 
-	public requestNewActivityDetail(activityByStaffUserId: string): StaffUserActivityDetail {
-		const activityDetailProps = this.props.activityLog.getNewItem();
-		return StaffUserActivityDetail.getNewInstance(activityDetailProps, activityByStaffUserId);
-	}
-
-	public addActivityDetail(activityType: ActivityDetailValueObjects.ActivityTypeCode, description: string, activityByStaffUserId: string): void {
-		const detail = this.requestNewActivityDetail(activityByStaffUserId);
-		detail.activityType = activityType;
-		detail.activityDescription = new ActivityDetailValueObjects.Description(description);
+	public requestAddActivityLog(activityType: ActivityLogValueObjects.ActivityTypeCode, description: string, activityByStaffUserId: string): void {
+		const activityLogProps = this.props.activityLog.getNewItem();
+		StaffUserActivityLog.getNewInstance(activityLogProps, this.visa, {
+			activityType,
+			activityDescription: new ActivityLogValueObjects.Description(description),
+			activityByStaffUserId,
+		});
 	}
 
 	public requestCreate(activityByStaffUserId: string): void {
-		this.addActivityDetail(new ActivityDetailValueObjects.ActivityTypeCode(ActivityDetailValueObjects.ActivityTypeCodes.Created), 'User created', activityByStaffUserId);
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.Created), 'User created', activityByStaffUserId);
 	}
 
 	public requestAddUpdate(description: string, activityByStaffUserId: string): void {
 		this.validateVisa();
-		this.addActivityDetail(new ActivityDetailValueObjects.ActivityTypeCode(ActivityDetailValueObjects.ActivityTypeCodes.Updated), description, activityByStaffUserId);
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.Updated), description, activityByStaffUserId);
 	}
 
 	public requestRoleAssignment(role: StaffRoleEntityReference, description: string, activityByStaffUserId: string): void {
 		this.role = role;
-		this.addActivityDetail(new ActivityDetailValueObjects.ActivityTypeCode(ActivityDetailValueObjects.ActivityTypeCodes.RoleAssigned), description, activityByStaffUserId);
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.RoleAssigned), description, activityByStaffUserId);
 	}
 
 	public requestRoleRemoval(description: string, activityByStaffUserId: string): void {
 		this.role = undefined;
-		this.addActivityDetail(new ActivityDetailValueObjects.ActivityTypeCode(ActivityDetailValueObjects.ActivityTypeCodes.RoleRemoved), description, activityByStaffUserId);
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.RoleRemoved), description, activityByStaffUserId);
 	}
 
 	public requestBlock(description: string, activityByStaffUserId: string): void {
 		this.accessBlocked = true;
-		this.addActivityDetail(new ActivityDetailValueObjects.ActivityTypeCode(ActivityDetailValueObjects.ActivityTypeCodes.Blocked), description, activityByStaffUserId);
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.Blocked), description, activityByStaffUserId);
 	}
 
 	public requestUnblock(description: string, activityByStaffUserId: string): void {
 		this.accessBlocked = false;
-		this.addActivityDetail(new ActivityDetailValueObjects.ActivityTypeCode(ActivityDetailValueObjects.ActivityTypeCodes.Unblocked), description, activityByStaffUserId);
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.Unblocked), description, activityByStaffUserId);
 	}
 
 	get role(): StaffRoleEntityReference | undefined {
@@ -172,8 +174,8 @@ export class StaffUser<props extends StaffUserProps> extends AggregateRoot<props
 		this.props.tags = tags;
 	}
 
-	get activityLog(): ReadonlyArray<StaffUserActivityDetailEntityReference> {
-		return this.props.activityLog.items.map((p) => new StaffUserActivityDetail(p));
+	get activityLog(): ReadonlyArray<StaffUserActivityLogEntityReference> {
+		return this.props.activityLog.items.map((p) => new StaffUserActivityLog(p, this.visa));
 	}
 
 	get userType(): string {

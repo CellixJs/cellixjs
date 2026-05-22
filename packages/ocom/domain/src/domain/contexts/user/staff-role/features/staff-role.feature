@@ -12,12 +12,12 @@ Feature: <AggregateRoot> StaffRole
   # roleName
   Scenario: Changing the roleName with permission to manage staff roles
     Given a StaffRole aggregate with permission to manage staff roles and permissions
-    When I set the roleName to "Manager"
+    When I set the roleName to "manager"
     Then the staff role's roleName should be "Manager"
 
   Scenario: Changing the roleName with system account permission
     Given a StaffRole aggregate with system account permission
-    When I set the roleName to "Manager"
+    When I set the roleName to "manager"
     Then the staff role's roleName should be "Manager"
 
   Scenario: Changing the roleName without permission

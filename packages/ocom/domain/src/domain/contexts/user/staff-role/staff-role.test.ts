@@ -99,8 +99,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			passport = makePassport(true, false);
 			staffRole = new StaffRole(makeBaseProps(), passport);
 		});
-		When('I set the roleName to "Manager"', () => {
-			staffRole.roleName = 'Manager';
+		When('I set the roleName to "manager"', () => {
+			staffRole.roleName = 'manager';
 		});
 		Then('the staff role\'s roleName should be "Manager"', () => {
 			expect(staffRole.roleName).toBe('Manager');
@@ -112,8 +112,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			passport = makePassport(false, true);
 			staffRole = new StaffRole(makeBaseProps(), passport);
 		});
-		When('I set the roleName to "Manager"', () => {
-			staffRole.roleName = 'Manager';
+		When('I set the roleName to "manager"', () => {
+			staffRole.roleName = 'manager';
 		});
 		Then('the staff role\'s roleName should be "Manager"', () => {
 			expect(staffRole.roleName).toBe('Manager');

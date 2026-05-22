@@ -147,7 +147,8 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set role name');
 		}
-		this.props.roleName = new ValueObjects.RoleName(roleName).valueOf();
+		const normalizedRoleName = new ValueObjects.RoleName(roleName).valueOf();
+		this.props.roleName = normalizedRoleName.charAt(0).toUpperCase() + normalizedRoleName.slice(1);
 	}
 
     get enterpriseAppRole() {
