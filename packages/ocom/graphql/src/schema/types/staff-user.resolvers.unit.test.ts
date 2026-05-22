@@ -1,14 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
-import staffUserResolvers from './staff-user.resolvers.ts';
-import type { GraphContext } from '../context.ts';
 import type { GraphQLResolveInfo } from 'graphql';
+import { describe, expect, it, vi } from 'vitest';
 import type { StaffUserMutationResult } from '../builder/generated.ts';
+import type { GraphContext } from '../context.ts';
+import staffUserResolvers from './staff-user.resolvers.ts';
 
 describe('staff-user.resolvers - unit tests', () => {
 	it('currentStaffUserAndCreateIfNotExists throws Unauthorized when no verifiedJwt', async () => {
 		const ctx = { applicationServices: {} } as unknown as GraphContext;
 		const Query = staffUserResolvers.Query as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>;
-		const currentStaffUserAndCreateIfNotExists = Query['currentStaffUserAndCreateIfNotExists'] as (...args: unknown[]) => Promise<unknown>;
+		const currentStaffUserAndCreateIfNotExists = Query.currentStaffUserAndCreateIfNotExists as (...args: unknown[]) => Promise<unknown>;
 		await expect(currentStaffUserAndCreateIfNotExists(null, null, ctx, {} as unknown as GraphQLResolveInfo)).rejects.toThrow('Unauthorized');
 	});
 
@@ -31,7 +31,7 @@ describe('staff-user.resolvers - unit tests', () => {
 			/* noop */
 		});
 		const Mutation = staffUserResolvers.Mutation as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>;
-		const staffUserAssignRoleFn = Mutation['staffUserAssignRole'] as (...args: unknown[]) => Promise<unknown>;
+		const staffUserAssignRoleFn = Mutation.staffUserAssignRole as (...args: unknown[]) => Promise<unknown>;
 		const res = await staffUserAssignRoleFn(null, { input: { staffUserId: 's1', roleId: 'r1' } }, ctx, {} as unknown as GraphQLResolveInfo);
 		const resTyped = res as StaffUserMutationResult;
 		expect(resTyped).toBeDefined();

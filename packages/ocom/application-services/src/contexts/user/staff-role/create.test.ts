@@ -15,6 +15,13 @@ const feature = await loadFeature(path.resolve(__dirname, 'features/create.featu
 type MockPermissions = {
 	communityPermissions: Record<string, boolean>;
 	userPermissions: Record<string, boolean>;
+	staffRolePermissions?: Record<string, boolean>;
+	financePermissions?: Record<string, boolean>;
+	techAdminPermissions?: Record<string, boolean>;
+	propertyPermissions?: Record<string, boolean>;
+	servicePermissions?: Record<string, boolean>;
+	serviceTicketPermissions?: Record<string, boolean>;
+	violationTicketPermissions?: Record<string, boolean>;
 };
 
 interface MockStaffRoleInstance {
@@ -41,14 +48,65 @@ function makeMockStaffRoleInstance(roleName: string): MockStaffRoleInstance {
 	const userPermissions: Record<string, boolean> = {
 		canManageUsers: false,
 		canAssignStaffUserRoles: false,
+		canAssignStaffRoles: false,
+		canViewStaffUsers: false,
 	};
+	const staffRolePermissions: Record<string, boolean> = {
+		canViewRoles: false,
+		canAddRole: false,
+		canEditRole: false,
+		canRemoveRole: false,
+	};
+	const financePermissions: Record<string, boolean> = {
+		canManageFinance: false,
+		canViewGLBatchSummaries: false,
+		canViewFinanceConfigs: false,
+		canCreateFinanceConfigs: false,
+	};
+	const techAdminPermissions: Record<string, boolean> = {
+		canManageTechAdmin: false,
+		canViewDatabaseExplorer: false,
+		canViewBlobExplorer: false,
+		canViewQueueDashboard: false,
+		canSendQueueMessages: false,
+	};
+	const propertyPermissions: Record<string, boolean> = {
+		canManageProperties: false,
+		canEditOwnProperty: false,
+	};
+	const servicePermissions: Record<string, boolean> = {
+		canManageServices: false,
+	};
+	const serviceTicketPermissions: Record<string, boolean> = {
+		canCreateTickets: false,
+		canManageTickets: false,
+		canAssignTickets: false,
+		canWorkOnTickets: false,
+	};
+	const violationTicketPermissions: Record<string, boolean> = {
+		canCreateTickets: false,
+		canManageTickets: false,
+		canAssignTickets: false,
+		canWorkOnTickets: false,
+	};
+
 	return {
 		id: `id-${roleName}`,
 		roleName,
 		enterpriseAppRole: '',
 		isDefault: false,
 		roleType: null,
-		permissions: { communityPermissions, userPermissions },
+		permissions: {
+			communityPermissions,
+			userPermissions,
+			staffRolePermissions,
+			financePermissions,
+			techAdminPermissions,
+			propertyPermissions,
+			servicePermissions,
+			serviceTicketPermissions,
+			violationTicketPermissions,
+		},
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0',
@@ -66,11 +124,7 @@ function makeDataSources(overrides: {
 	const savedRole = explicitUndefinedSave ? undefined : (instance as unknown as Domain.Contexts.User.StaffRole.StaffRoleEntityReference);
 
 	const repo = {
-		getByRoleName: unexpectedError
-			? vi.fn().mockRejectedValue(unexpectedError)
-			: existingRole
-				? vi.fn().mockResolvedValue(existingRole)
-				: vi.fn().mockRejectedValue(new Error('not found')),
+		getByRoleName: unexpectedError ? vi.fn().mockRejectedValue(unexpectedError) : existingRole ? vi.fn().mockResolvedValue(existingRole) : vi.fn().mockRejectedValue(new Error('not found')),
 		getNewInstance: vi.fn().mockResolvedValue(instance),
 		save: vi.fn().mockResolvedValue(savedRole),
 	} as unknown as Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
@@ -186,7 +240,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the community permission canManageCommunities should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.communityPermissions['canManageCommunities']).toBe(true);
+			expect(roleInstance.permissions.communityPermissions.canManageCommunities).toBe(true);
 		});
 	});
 
@@ -217,7 +271,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the user permission canManageUsers should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions['canManageUsers']).toBe(true);
+			expect(roleInstance.permissions.userPermissions.canManageUsers).toBe(true);
 		});
 	});
 
@@ -330,7 +384,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 					User: {
 						StaffRole: {
 							StaffRoleUnitOfWork: {
-								withScopedTransaction: vi.fn().mockImplementation(async (cb: (r: typeof repo) => Promise<void>) => { await cb(repo); }),
+								withScopedTransaction: vi.fn().mockImplementation(async (cb: (r: typeof repo) => Promise<void>) => {
+									await cb(repo);
+								}),
 							},
 						},
 					},
@@ -382,12 +438,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('all community permissions should be true on the saved instance', () => {
 			expect(thrownError).toBeUndefined();
 			const cp = roleInstance.permissions.communityPermissions;
-			expect(cp['canManageCommunities']).toBe(true);
-			expect(cp['canManageStaffRolesAndPermissions']).toBe(true);
-			expect(cp['canManageAllCommunities']).toBe(true);
-			expect(cp['canDeleteCommunities']).toBe(true);
-			expect(cp['canChangeCommunityOwner']).toBe(true);
-			expect(cp['canReIndexSearchCollections']).toBe(true);
+			expect(cp.canManageCommunities).toBe(true);
+			expect(cp.canManageStaffRolesAndPermissions).toBe(true);
+			expect(cp.canManageAllCommunities).toBe(true);
+			expect(cp.canDeleteCommunities).toBe(true);
+			expect(cp.canChangeCommunityOwner).toBe(true);
+			expect(cp.canReIndexSearchCollections).toBe(true);
 		});
 	});
 
@@ -411,7 +467,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		Then('the user permission canAssignStaffUserRoles should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions['canAssignStaffUserRoles']).toBe(true);
+			expect(roleInstance.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 
@@ -486,6 +542,98 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(thrownError).toBeUndefined();
 			const repo = dataSources._repo as { getNewInstance: ReturnType<typeof vi.fn> };
 			expect(repo.getNewInstance).toHaveBeenCalledWith('Named Role');
+		});
+	});
+
+	// ─── Additional permission scenarios added ───────────────────────────────
+
+	Scenario('Successfully creates a staff role with staff-role permissions', ({ Given, When, Then }) => {
+		Given('a staff role with name "Role Manager" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Role Manager');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = {
+				roleName: 'Role Manager',
+				permissions: { staffRole: { canViewRoles: true, canAddRole: true, canEditRole: true, canRemoveRole: true } },
+			};
+		});
+		When('I call create with roleName "Role Manager" and staffRole permissions canViewRoles true, canAddRole true, canEditRole true, canRemoveRole true', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the staffRole permissions should be set on the saved instance', () => {
+			expect(thrownError).toBeUndefined();
+			const sp = roleInstance.permissions.staffRolePermissions;
+			expect(sp).toBeDefined();
+			// The create pipeline applies into staffRolePermissions adapter; check known keys
+			expect(sp?.canViewRoles).toBe(true);
+			expect(sp?.canAddRole).toBe(true);
+			expect(sp?.canEditRole).toBe(true);
+			expect(sp?.canRemoveRole).toBe(true);
+		});
+	});
+
+	Scenario('Successfully creates a staff role with finance permissions', ({ Given, When, Then }) => {
+		Given('a staff role with name "Finance Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Finance Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = { roleName: 'Finance Role', permissions: { finance: { canManageFinance: true } } };
+		});
+		When('I call create with roleName "Finance Role" and finance permissions canManageFinance true', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the finance permission canManageFinance should be true on the saved instance', () => {
+			expect(thrownError).toBeUndefined();
+			const fp = roleInstance.permissions.financePermissions;
+			expect(fp).toBeDefined();
+			expect(fp?.canManageFinance).toBe(true);
+		});
+	});
+
+	Scenario('Successfully creates a staff role with tech-admin permissions', ({ Given, When, Then }) => {
+		Given('a staff role with name "Tech Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('Tech Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = { roleName: 'Tech Role', permissions: { techAdmin: { canManageTechAdmin: true } } };
+		});
+		When('I call create with roleName "Tech Role" and techAdmin permissions canManageTechAdmin true', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the techAdmin permission canManageTechAdmin should be true on the saved instance', () => {
+			expect(thrownError).toBeUndefined();
+			const tp = roleInstance.permissions.techAdminPermissions;
+			expect(tp).toBeDefined();
+			expect(tp?.canManageTechAdmin).toBe(true);
+		});
+	});
+
+	Scenario('Creating role with canAssignStaffRoles true updates both assign flags', ({ Given, When, Then }) => {
+		Given('a staff role with name "AssignBoth Role" does not exist in the repository', () => {
+			roleInstance = makeMockStaffRoleInstance('AssignBoth Role');
+			dataSources = makeDataSources({ newRoleInstance: roleInstance });
+			command = { roleName: 'AssignBoth Role', permissions: { user: { canAssignStaffRoles: true } } };
+		});
+		When('I call create with roleName "AssignBoth Role" and user permissions canAssignStaffRoles true', async () => {
+			try {
+				result = await create(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('both user permission flags for assigning staff roles should be true', () => {
+			expect(thrownError).toBeUndefined();
+			expect(roleInstance.permissions.userPermissions.canAssignStaffRoles).toBe(true);
+			expect(roleInstance.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 });

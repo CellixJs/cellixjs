@@ -73,3 +73,23 @@ Feature: Create staff role
     Given a staff role with name "Named Role" does not exist in the repository
     When I call create with roleName "Named Role" and no permissions
     Then getNewInstance should have been called with "Named Role"
+
+  Scenario: Successfully creates a staff role with staff-role permissions
+    Given a staff role with name "Role Manager" does not exist in the repository
+    When I call create with roleName "Role Manager" and staffRole permissions canViewRoles true, canAddRole true, canEditRole true, canRemoveRole true
+    Then the staffRole permissions should be set on the saved instance
+
+  Scenario: Successfully creates a staff role with finance permissions
+    Given a staff role with name "Finance Role" does not exist in the repository
+    When I call create with roleName "Finance Role" and finance permissions canManageFinance true
+    Then the finance permission canManageFinance should be true on the saved instance
+
+  Scenario: Successfully creates a staff role with tech-admin permissions
+    Given a staff role with name "Tech Role" does not exist in the repository
+    When I call create with roleName "Tech Role" and techAdmin permissions canManageTechAdmin true
+    Then the techAdmin permission canManageTechAdmin should be true on the saved instance
+
+  Scenario: Creating role with canAssignStaffRoles true updates both assign flags
+    Given a staff role with name "AssignBoth Role" does not exist in the repository
+    When I call create with roleName "AssignBoth Role" and user permissions canAssignStaffRoles true
+    Then both user permission flags for assigning staff roles should be true
