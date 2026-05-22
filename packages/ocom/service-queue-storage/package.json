@@ -1,5 +1,5 @@
 {
-	"name": "@ocom/context-spec",
+	"name": "@ocom/service-queue-storage",
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
@@ -19,19 +19,22 @@
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
+		"test": "vitest run --passWithNoTests --silent --reporter=dot",
+		"test:coverage": "vitest run --passWithNoTests --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
-		"@ocom/persistence": "workspace:*",
-		"@ocom/service-apollo-server": "workspace:*",
-		"@ocom/service-blob-storage": "workspace:*",
-		"@ocom/service-token-validation": "workspace:*",
-		"@ocom/service-queue-storage": "workspace:*"
+		"@cellix/service-queue-storage": "workspace:*",
+		"zod": "^3.22.2"
 	},
 
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

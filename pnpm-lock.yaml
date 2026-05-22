@@ -241,6 +241,9 @@ importers:
       '@cellix/mongoose-seedwork':
         specifier: workspace:*
         version: link:../../packages/cellix/mongoose-seedwork
+      '@cellix/service-queue-storage':
+        specifier: workspace:*
+        version: link:../../packages/cellix/service-queue-storage
       '@ocom/application-services':
         specifier: workspace:*
         version: link:../../packages/ocom/application-services
@@ -274,6 +277,9 @@ importers:
       '@ocom/service-otel':
         specifier: workspace:*
         version: link:../../packages/ocom/service-otel
+      '@ocom/service-queue-storage':
+        specifier: workspace:*
+        version: link:../../packages/ocom/service-queue-storage
       '@ocom/service-token-validation':
         specifier: workspace:*
         version: link:../../packages/ocom/service-token-validation
@@ -968,6 +974,37 @@ importers:
         specifier: 'catalog:'
         version: 4.1.2(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.2)(jsdom@26.1.0)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  packages/cellix/service-queue-storage:
+    dependencies:
+      '@azure/identity':
+        specifier: ^4.13.1
+        version: 4.13.1
+      '@azure/storage-queue':
+        specifier: ^12.10.0
+        version: 12.29.0
+      zod:
+        specifier: ^3.22.2
+        version: 3.25.76
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.2(vitest@4.1.2)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.2(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.2)(jsdom@26.1.0)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
   packages/cellix/ui-core:
     dependencies:
       antd:
@@ -1354,6 +1391,9 @@ importers:
       '@ocom/service-blob-storage':
         specifier: workspace:*
         version: link:../service-blob-storage
+      '@ocom/service-queue-storage':
+        specifier: workspace:*
+        version: link:../service-queue-storage
       '@ocom/service-token-validation':
         specifier: workspace:*
         version: link:../service-token-validation
@@ -1770,6 +1810,34 @@ importers:
       '@opentelemetry/semantic-conventions':
         specifier: 1.28.0
         version: 1.28.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.2(vitest@4.1.2)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.2(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.2)(jsdom@26.1.0)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/ocom/service-queue-storage:
+    dependencies:
+      '@cellix/service-queue-storage':
+        specifier: workspace:*
+        version: link:../../cellix/service-queue-storage
+      zod:
+        specifier: ^3.22.2
+        version: 3.25.76
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2952,6 +3020,10 @@ packages:
 
   '@azure/storage-common@12.3.0':
     resolution: {integrity: sha512-/OFHhy86aG5Pe8dP5tsp+BuJ25JOAl9yaMU3WZbkeoiFMHFtJ7tu5ili7qEdBXNW9G5lDB19trwyI6V49F/8iQ==}
+    engines: {node: '>=20.0.0'}
+
+  '@azure/storage-queue@12.29.0':
+    resolution: {integrity: sha512-p02H+TbPQWSI/SQ4CG+luoDvpenM+4837NARmOE4oPNOR5vAq7qRyeX72ffyYL2YLnkcyxETh28/bp/TiVIM+g==}
     engines: {node: '>=20.0.0'}
 
   '@babel/code-frame@7.29.0':
@@ -13500,6 +13572,9 @@ packages:
   zen-observable@0.8.15:
     resolution: {integrity: sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ==}
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
   zod@4.1.13:
     resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
 
@@ -14234,6 +14309,23 @@ snapshots:
       '@azure/core-util': 1.13.1
       '@azure/logger': 1.3.0
       events: 3.3.0
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@azure/storage-queue@12.29.0':
+    dependencies:
+      '@azure/abort-controller': 2.1.2
+      '@azure/core-auth': 1.10.1
+      '@azure/core-client': 1.10.1
+      '@azure/core-http-compat': 2.3.1
+      '@azure/core-paging': 1.6.2
+      '@azure/core-rest-pipeline': 1.22.2
+      '@azure/core-tracing': 1.3.1
+      '@azure/core-util': 1.13.1
+      '@azure/core-xml': 1.5.1
+      '@azure/logger': 1.3.0
+      '@azure/storage-common': 12.3.0
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -27044,6 +27136,8 @@ snapshots:
       zen-observable: 0.8.15
 
   zen-observable@0.8.15: {}
+
+  zod@3.25.76: {}
 
   zod@4.1.13: {}
 

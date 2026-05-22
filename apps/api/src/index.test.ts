@@ -100,10 +100,19 @@ vi.mock('./service-config/mongoose/index.ts', () => ({
 	mongooseContextBuilder: vi.fn(() => dataSourcesFactory),
 }));
 vi.mock('./service-config/blob-storage/index.ts', () => ({
-	blobStorageConfig: {
-		accountName: 'devstoreaccount1',
-		connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
-	},
+	accountName: 'devstoreaccount1',
+	connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+}));
+vi.mock('./service-config/queue/index.ts', () => ({
+	createQueueServices: vi.fn(() => ({
+		queueService: { startUp: vi.fn() },
+		queueLogger: undefined,
+		provisionQueues: ['email-notifications', 'audit-events', 'import-requests'],
+	})),
+	accountName: 'devstoreaccount1',
+	connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+	logContainer: undefined,
+	POISON_RETRY_THRESHOLD: 3,
 }));
 vi.mock('./service-config/token-validation/index.ts', () => ({
 	portalTokens: new Map([['AccountPortal', 'ACCOUNT_PORTAL']]),
@@ -146,7 +155,7 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(5);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
 		// Find the registered blob services by the semantic registration name instead of relying on call order.
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];

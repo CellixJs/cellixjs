@@ -1,8 +1,8 @@
 import type { DataSourcesFactory } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
+import type { AppQueueConsumerContext, AppQueueProducerContext } from '@ocom/service-queue-storage';
 import type { TokenValidation } from '@ocom/service-token-validation';
-
 
 /**
  * Application context specification for OCOM.
@@ -86,4 +86,9 @@ export interface ApiContextSpec {
 	 */
 	// Client-facing narrow contract for upload/signing operations. Named to match runtime registration (ClientOperationsService)
 	clientOperationsService: ClientUploadOperations;
+
+	/** Queue producer (send) operations */
+	queueProducer?: AppQueueProducerContext;
+	/** Queue consumer (receive/delete) operations */
+	queueConsumer?: AppQueueConsumerContext;
 }

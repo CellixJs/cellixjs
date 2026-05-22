@@ -38,6 +38,8 @@
 		"@ocom/service-apollo-server": "workspace:*",
 		"@ocom/service-blob-storage": "workspace:*",
 		"@ocom/service-mongoose": "workspace:*",
+		"@cellix/service-queue-storage": "workspace:*",
+		"@ocom/service-queue-storage": "workspace:*",
 		"@ocom/service-otel": "workspace:*",
 		"@ocom/service-token-validation": "workspace:*",
 		"@opentelemetry/api": "1.9.0"
