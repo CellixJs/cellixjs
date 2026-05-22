@@ -200,22 +200,20 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 				<Divider>Permissions</Divider>
 				{PERMISSION_GROUPS.filter(({ techAdminOnly }) => !techAdminOnly || showTechAdminPermissions).map((group) => (
 					<div key={group.title}>
-						<div style={{ marginBottom: 8, fontWeight: 600 }}>{group.title}</div>
-						<Space
-							direction="vertical"
-							size="small"
-							style={{ marginBottom: 16 }}
-						>
+						<div style={{ marginBottom: 6, fontWeight: 600 }}>{group.title}</div>
+						{/* compact two-column layout for permission checkboxes */}
+						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '4px 12px', marginBottom: 12 }}>
 							{group.fields.map(({ key, label }) => (
 								<Form.Item
 									key={key}
 									name={key}
 									valuePropName="checked"
+									style={{ margin: 0 }}
 								>
 									<Checkbox>{label}</Checkbox>
 								</Form.Item>
 							))}
-						</Space>
+						</div>
 					</div>
 				))}
 				<Form.Item>

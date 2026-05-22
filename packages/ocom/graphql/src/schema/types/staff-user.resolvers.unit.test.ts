@@ -1,33 +1,43 @@
 import { describe, it, expect, vi } from 'vitest';
 import staffUserResolvers from './staff-user.resolvers.ts';
+import type { GraphContext } from '../context.ts';
+import type { GraphQLResolveInfo } from 'graphql';
+import type { StaffUserMutationResult } from '../builder/generated.ts';
 
 describe('staff-user.resolvers - unit tests', () => {
 	it('currentStaffUserAndCreateIfNotExists throws Unauthorized when no verifiedJwt', async () => {
-		const ctx: any = { applicationServices: {} };
-		await expect((staffUserResolvers.Query as any).currentStaffUserAndCreateIfNotExists(null, null, ctx, {} as any)).rejects.toThrow('Unauthorized');
+		const ctx = { applicationServices: {} } as unknown as GraphContext;
+		const Query = staffUserResolvers.Query as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>;
+		const currentStaffUserAndCreateIfNotExists = Query['currentStaffUserAndCreateIfNotExists'] as (...args: unknown[]) => Promise<unknown>;
+		await expect(currentStaffUserAndCreateIfNotExists(null, null, ctx, {} as unknown as GraphQLResolveInfo)).rejects.toThrow('Unauthorized');
 	});
 
 	it('staffUserAssignRole returns failure status when assignRole throws', async () => {
 		// assignRole will throw; resolver should catch and return a failure status
-		const ctx: any = {
+		const ctx = {
 			applicationServices: {
 				verifiedUser: { verifiedJwt: { sub: 'actor-1', roles: ['Staff.CaseManager'] } },
 				User: {
 					StaffRole: { list: async () => [{ id: 'r1', enterpriseAppRole: 'Staff.CaseManager' }] },
 					StaffUser: {
 						queryByExternalId: async () => null,
-						assignRole: async () => { throw new Error('assign failed'); },
+						assignRole: () => Promise.reject(new Error('assign failed')),
 					},
 				},
 			},
 		};
 
-		const consoleErr = vi.spyOn(console, 'error').mockImplementation(() => {});
-		const res = await (staffUserResolvers.Mutation as any).staffUserAssignRole(null, { input: { staffUserId: 's1', roleId: 'r1' } }, ctx, {} as any);
-		expect(res).toBeDefined();
-		expect(res.status).toBeDefined();
-		expect(res.status.success).toBe(false);
-		expect(res.status.errorMessage).toBe('assign failed');
+		const consoleErr = vi.spyOn(console, 'error').mockImplementation(() => {
+			/* noop */
+		});
+		const Mutation = staffUserResolvers.Mutation as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>;
+		const staffUserAssignRoleFn = Mutation['staffUserAssignRole'] as (...args: unknown[]) => Promise<unknown>;
+		const res = await staffUserAssignRoleFn(null, { input: { staffUserId: 's1', roleId: 'r1' } }, ctx, {} as unknown as GraphQLResolveInfo);
+		const resTyped = res as StaffUserMutationResult;
+		expect(resTyped).toBeDefined();
+		expect(resTyped.status).toBeDefined();
+		expect(resTyped.status.success).toBe(false);
+		expect(resTyped.status.errorMessage).toBe('assign failed');
 		expect(consoleErr).toHaveBeenCalled();
 		consoleErr.mockRestore();
 	});
