@@ -5,13 +5,13 @@
 			"dependsOn": ["^build"],
 			"persistent": true,
 			"interruptible": false,
-			"inputs": [".env", "package.json", "vite.config.ts", "tsconfig.json", "tsconfig.app.json", "tsconfig.node.json"]
+			"inputs": [".env", ".env.*", "package.json", "vite.config.ts", "tsconfig.json", "tsconfig.app.json", "tsconfig.node.json"]
 		},
 		"dev:worktree": {
 			"dependsOn": ["^build"],
 			"persistent": true,
 			"interruptible": false,
-			"inputs": [".env", "package.json", "start-dev.mjs", "vite.config.ts", "tsconfig.json", "tsconfig.app.json", "tsconfig.node.json"]
+			"inputs": [".env", ".env.*", "package.json", "start-dev.mjs", "vite.config.ts", "tsconfig.json", "tsconfig.app.json", "tsconfig.node.json"]
 		}
 	}
 }

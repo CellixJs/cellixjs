@@ -1,21 +1,7 @@
-import net from 'node:net';
-import { getMongoPort } from '../../build-pipeline/scripts/worktree-ports.mjs';
+import { isPortListening } from '../../scripts/local-dev/port-ready.mjs';
+import { getMongoPort } from '../../scripts/local-dev/worktree-ports.mjs';
 
 const MONGO_PORT = getMongoPort();
-
-function isPortListening(port) {
-	return new Promise((resolve) => {
-		const socket = net.createConnection({ port, host: '127.0.0.1' });
-		socket.once('connect', () => {
-			socket.destroy();
-			resolve(true);
-		});
-		socket.once('error', () => {
-			socket.destroy();
-			resolve(false);
-		});
-	});
-}
 
 if (await isPortListening(MONGO_PORT)) {
 	console.log(`[mongo-mock] already running on port ${MONGO_PORT}, skipping`);

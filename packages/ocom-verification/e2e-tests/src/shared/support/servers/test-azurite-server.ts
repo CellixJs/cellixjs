@@ -1,10 +1,24 @@
 import { type ChildProcess, spawn } from 'node:child_process';
-import net from 'node:net';
 import { join } from 'node:path';
 import type { TestServer } from '@ocom-verification/verification-shared/servers';
-import { apiSettings, getTimeout } from '@ocom-verification/verification-shared/settings';
-import { getAzuritePorts } from '../../../../../../../build-pipeline/scripts/worktree-ports.mjs';
-import { spawnEnv } from './e2e-defaults.ts';
+import { getTimeout } from '@ocom-verification/verification-shared/settings';
+import { appPaths } from './app-paths.ts';
+import { spawnEnv } from './child-process-env.ts';
+
+interface PortReadyModule {
+	isPortListening(port: number): Promise<boolean>;
+	waitForPort(port: number, options?: { timeoutMs?: number; intervalMs?: number }): Promise<boolean>;
+}
+
+interface WorktreePortsModule {
+	getAzuritePorts(): { blob: number; queue: number; table: number };
+}
+
+const portReadyModuleUrl = new URL('../../../../../../../scripts/local-dev/port-ready.mjs', import.meta.url).href;
+const worktreePortsModuleUrl = new URL('../../../../../../../scripts/local-dev/worktree-ports.mjs', import.meta.url).href;
+
+const { isPortListening, waitForPort } = (await import(portReadyModuleUrl)) as PortReadyModule;
+const { getAzuritePorts } = (await import(worktreePortsModuleUrl)) as WorktreePortsModule;
 
 /**
  * Starts Azurite via apps/api/start-azurite.mjs. The script itself short-circuits
@@ -24,10 +38,10 @@ export class TestAzuriteServer implements TestServer {
 		if (this.process || this.startedByUs) return;
 		if (await isPortListening(this.blobPort)) return;
 
-		const binDir = join(apiSettings.apiDir, 'node_modules', '.bin');
+		const binDir = join(appPaths.apiDir, 'node_modules', '.bin');
 
 		this.process = spawn('node', ['start-azurite.mjs'], {
-			cwd: apiSettings.apiDir,
+			cwd: appPaths.apiDir,
 			env: spawnEnv({ PATH: `${binDir}:${process.env['PATH'] ?? ''}` }),
 			detached: this.useDetachedProcessGroup,
 			stdio: ['ignore', 'pipe', 'pipe'],
@@ -68,28 +82,14 @@ export class TestAzuriteServer implements TestServer {
 	}
 
 	private async waitForReady(): Promise<void> {
-		const deadline = Date.now() + getTimeout('serverStartup');
-		const interval = getTimeout('healthProbeInterval');
-		while (Date.now() < deadline) {
-			if (await isPortListening(this.blobPort)) return;
-			await new Promise((resolve) => setTimeout(resolve, interval));
+		const ready = await waitForPort(this.blobPort, {
+			timeoutMs: getTimeout('serverStartup'),
+			intervalMs: getTimeout('healthProbeInterval'),
+		});
+		if (!ready) {
+			throw new Error(`TestAzuriteServer: blob port ${this.blobPort} did not start within timeout`);
 		}
-		throw new Error(`TestAzuriteServer: blob port ${this.blobPort} did not start within timeout`);
 	}
-}
-
-function isPortListening(port: number): Promise<boolean> {
-	return new Promise((resolve) => {
-		const socket = net.createConnection({ port, host: '127.0.0.1' });
-		socket.once('connect', () => {
-			socket.destroy();
-			resolve(true);
-		});
-		socket.once('error', () => {
-			socket.destroy();
-			resolve(false);
-		});
-	});
 }
 
 function killProcess(proc: ChildProcess, signal: NodeJS.Signals, useGroup: boolean): void {

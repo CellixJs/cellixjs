@@ -1,6 +1,5 @@
 import { execFileSync } from 'node:child_process';
 import { buildPortlessUrl, getHostnames } from '@ocom-verification/verification-shared/settings';
-import { applyE2EDefaultsToEnv } from './e2e-defaults.ts';
 import { getPortlessPath } from './resolve-portless.ts';
 
 let proxyInitialized = false;
@@ -16,15 +15,12 @@ export const mockOidcIssuer = buildPortlessUrl(hostnames.mockAuth, '/community')
 export const mockOidcEndpoint = `${mockOidcIssuer}/.well-known/jwks.json`;
 
 /**
- * Apply e2e env defaults (so CI runs without local.settings.json) and ensure
- * the portless proxy is running. The `proxy start` invocation is idempotent —
+ * Ensure the portless proxy is running. The `proxy start` invocation is idempotent,
  * if another worktree or dev session already started it on the shared port,
  * this returns immediately.
  */
 export function initTestEnvironment() {
 	if (proxyInitialized) return;
-
-	applyE2EDefaultsToEnv();
 
 	execFileSync(getPortlessPath(), ['proxy', 'start', '--https', '-p', '1355'], {
 		timeout: 15_000,

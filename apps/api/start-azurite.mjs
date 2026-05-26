@@ -1,28 +1,14 @@
 import { spawn } from 'node:child_process';
-import net from 'node:net';
-import { isGracefulInterruptExit } from '../../build-pipeline/scripts/dev-process-exit.mjs';
-import { getAzuritePorts } from '../../build-pipeline/scripts/worktree-ports.mjs';
+import { isGracefulInterruptExit } from '../../scripts/local-dev/dev-process-exit.mjs';
+import { isPortListening, waitForPort } from '../../scripts/local-dev/port-ready.mjs';
+import { getAzuritePorts } from '../../scripts/local-dev/worktree-ports.mjs';
 
 const ports = getAzuritePorts();
 const worktreeName = process.env.WORKTREE_NAME ?? '';
 const storageSuffix = worktreeName ? `-${worktreeName}` : '';
 
-function isPortListening(port) {
-	return new Promise((resolve) => {
-		const socket = net.createConnection({ port, host: '127.0.0.1' });
-		socket.once('connect', () => {
-			socket.destroy();
-			resolve(true);
-		});
-		socket.once('error', () => {
-			socket.destroy();
-			resolve(false);
-		});
-	});
-}
-
 if (await isPortListening(ports.blob)) {
-	console.log(`[azurite] already running (blob port ${ports.blob}), skipping`);
+	console.log(`[azurite] ready (blob port ${ports.blob})`);
 	process.exit(0);
 }
 
@@ -47,6 +33,14 @@ for (const proc of procs) {
 		for (const p of procs) p.kill();
 		process.exit(code ?? 1);
 	});
+}
+
+if (await waitForPort(ports.blob, { timeoutMs: 30_000 })) {
+	console.log(`[azurite] ready (blob port ${ports.blob})`);
+} else {
+	console.error(`[azurite] blob port ${ports.blob} did not become ready within 30000ms`);
+	for (const p of procs) p.kill();
+	process.exit(1);
 }
 
 process.on('SIGINT', () => {

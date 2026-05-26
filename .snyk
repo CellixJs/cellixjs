@@ -91,3 +91,8 @@ ignore:
         reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
         expires: '2026-06-18T00:00:00.000Z'
         created: '2026-05-18T11:04:00.000Z'
+  'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
+    - '* > postcss-selector-parser':
+        reason: 'Transitive dependency in @docusaurus/core build pipeline; no upgrade or patch available from upstream. Not exploitable in current usage (build-time CSS processing only).'
+        expires: '2026-08-26T00:00:00.000Z'
+        created: '2026-05-26T00:00:00.000Z'

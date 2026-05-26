@@ -19,12 +19,27 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+/**
+ * @typedef {Record<string, string>} DotEnvValues
+ * @typedef {object} PortlessHostnames
+ * @property {string} uiCommunity
+ * @property {string} uiStaff
+ * @property {string} api
+ * @property {string} mockAuth
+ * @property {string} docs
+ */
+
 const PORTLESS_PORT = 1355;
 const scriptDir = fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = resolve(scriptDir, '../..');
 
+/**
+ * @param {string} filePath
+ * @returns {DotEnvValues}
+ */
 function readDotEnv(filePath) {
 	if (!existsSync(filePath)) return {};
+	/** @type {DotEnvValues} */
 	const result = {};
 	for (const line of readFileSync(filePath, 'utf-8').split('\n')) {
 		const trimmed = line.trim();
@@ -36,6 +51,10 @@ function readDotEnv(filePath) {
 	return result;
 }
 
+/**
+ * @param {string} url
+ * @returns {string | null}
+ */
 function hostnameFrom(url) {
 	try {
 		return new URL(url).hostname;
@@ -44,7 +63,12 @@ function hostnameFrom(url) {
 	}
 }
 
-/** Splice `.<worktreeName>` in before `.localhost` in an existing hostname. */
+/**
+ * Splice `.<worktreeName>` in before `.localhost` in an existing hostname.
+ * @param {string} hostname
+ * @param {string} worktreeName
+ * @returns {string}
+ */
 function applyWorktreeSuffix(hostname, worktreeName) {
 	if (!worktreeName) return hostname;
 	return hostname.replace('.localhost', `.${worktreeName}.localhost`);
@@ -54,6 +78,7 @@ function applyWorktreeSuffix(hostname, worktreeName) {
  * Returns all service hostnames scoped to the current worktree (if any).
  * Hostname shapes are read from the tracked .env files — no names are
  * hardcoded in this module.
+ * @returns {PortlessHostnames}
  */
 export function getHostnames() {
 	const uiEnv = readDotEnv(resolve(workspaceRoot, 'apps/ui-community/.env'));
@@ -80,6 +105,9 @@ export function getHostnames() {
 
 /**
  * Builds a full portless-proxied URL for the given hostname and optional path.
+ * @param {string} hostname
+ * @param {string} [path]
+ * @returns {string}
  */
 export function buildPortlessUrl(hostname, path = '') {
 	return `https://${hostname}:${PORTLESS_PORT}${path}`;

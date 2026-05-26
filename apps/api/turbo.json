@@ -4,7 +4,7 @@
 		"build": {
 			"cache": true,
 			"dependsOn": ["^build", "//#gen"],
-			"inputs": ["$TURBO_EXTENDS$", "rolldown.config.ts", "host.json", "$TURBO_ROOT$/build-pipeline/scripts/**"],
+			"inputs": ["$TURBO_EXTENDS$", "rolldown.config.ts", "host.json", "$TURBO_ROOT$/scripts/local-dev/**"],
 			"outputs": ["$TURBO_EXTENDS$", "deploy/**"]
 		},
 		"dev": {

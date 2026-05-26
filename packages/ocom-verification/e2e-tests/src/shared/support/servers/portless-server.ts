@@ -1,7 +1,7 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import type { TestServer } from '@ocom-verification/verification-shared/servers';
 import { getTimeout } from '@ocom-verification/verification-shared/settings';
-import { spawnEnv } from './e2e-defaults.ts';
+import { spawnEnv } from './child-process-env.ts';
 import { getPortlessPath } from './resolve-portless.ts';
 
 /**

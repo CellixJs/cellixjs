@@ -98,7 +98,21 @@
 		}
 	},
 	"ignoreWorkspaces": ["packages/cellix/config-typescript"],
-	"ignore": ["build-pipeline/scripts/**", "**/fixtures/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**", ".agents/**", ".github/**", "portless.config.cjs"],
+	"ignore": [
+		"build-pipeline/scripts/**",
+		"scripts/local-dev/**",
+		"**/fixtures/**",
+		"**/*.test.ts",
+		"**/*.spec.ts",
+		"**/*.stories.tsx",
+		"**/dist/**",
+		"**/coverage/**",
+		"**/__tests__/**",
+		"**/tests/**",
+		".agents/**",
+		".github/**",
+		"portless.config.cjs"
+	],
 	"ignoreIssues": {
 		"codegen.yml": ["unlisted"]
 	},

@@ -11,7 +11,7 @@ const dom = new JSDOM('<!DOCTYPE html><div id="root"></div>', {
 	url: 'http://localhost:3000',
 	pretendToBeVisual: true,
 });
-const domGlobal = (dom as unknown as Record<string, Window & typeof globalThis>)['window'];
+const domGlobal = dom['window'] as unknown as Window & typeof globalThis;
 
 // biome-ignore lint/suspicious/noExplicitAny: attaching browser globals requires dynamic property assignment
 const g = globalThis as any;

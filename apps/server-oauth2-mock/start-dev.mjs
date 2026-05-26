@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
-import { isGracefulInterruptExit } from '../../build-pipeline/scripts/dev-process-exit.mjs';
-import { buildPortlessUrl, getHostnames } from '../../build-pipeline/scripts/portless-hostnames.mjs';
+import { forwardChildExit } from '../../scripts/local-dev/dev-process-exit.mjs';
+import { buildPortlessUrl, getHostnames } from '../../scripts/local-dev/portless-hostnames.mjs';
 
 const childEnv = { ...process.env };
 
@@ -17,10 +17,4 @@ const child = spawn('tsx', ['src/index.ts'], {
 	env: childEnv,
 });
 
-child.on('exit', (code, signal) => {
-	if (isGracefulInterruptExit(signal, code)) {
-		process.exitCode = 0;
-		return;
-	}
-	process.exitCode = code ?? 1;
-});
+forwardChildExit(child);

@@ -3,6 +3,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /**
+ * @typedef {Record<string, string>} SettingsValues
+ * @typedef {{ blob: number, queue: number, table: number }} AzuritePorts
+ */
+
+/**
  * Worktree-scoped port computation for service isolation.
  *
  * When WORKTREE_NAME is set, each worktree gets a deterministic port offset
@@ -19,17 +24,30 @@ import { fileURLToPath } from 'node:url';
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const apiLocalSettingsPaths = [path.join(workspaceRoot, 'apps', 'api', 'deploy', 'local.settings.json'), path.join(workspaceRoot, 'apps', 'api', 'local.settings.json')];
+/** @type {SettingsValues | undefined} */
 let apiLocalSettingsValues;
 
-function getSetting(name) {
-	return process.env[name] ?? getApiLocalSetting(name);
+/**
+ * @param {string} name
+ * @param {SettingsValues} [values]
+ * @returns {string | undefined}
+ */
+function getSetting(name, values) {
+	return process.env[name] ?? values?.[name] ?? getApiLocalSetting(name);
 }
 
+/**
+ * @param {string} name
+ * @returns {string | undefined}
+ */
 function getApiLocalSetting(name) {
 	apiLocalSettingsValues ??= readApiLocalSettingsValues();
 	return apiLocalSettingsValues[name];
 }
 
+/**
+ * @returns {SettingsValues}
+ */
 function readApiLocalSettingsValues() {
 	for (const settingsPath of apiLocalSettingsPaths) {
 		if (!fs.existsSync(settingsPath)) continue;
@@ -42,6 +60,7 @@ function readApiLocalSettingsValues() {
 /**
  * Returns a deterministic port offset in the range [100, 4900] (step 100)
  * for the current worktree. Returns 0 when WORKTREE_NAME is not set.
+ * @returns {number}
  */
 export function getWorktreePortOffset() {
 	const name = process.env.WORKTREE_NAME;
@@ -51,12 +70,18 @@ export function getWorktreePortOffset() {
 	return ((Math.abs(hash) % 49) + 1) * 100;
 }
 
-/** MongoDB port for the current worktree. */
+/**
+ * MongoDB port for the current worktree.
+ * @returns {number}
+ */
 export function getMongoPort() {
 	return 50000 + getWorktreePortOffset();
 }
 
-/** Azurite blob/queue/table ports for the current worktree. */
+/**
+ * Azurite blob/queue/table ports for the current worktree.
+ * @returns {AzuritePorts}
+ */
 export function getAzuritePorts() {
 	const offset = getWorktreePortOffset();
 	return {
@@ -69,12 +94,14 @@ export function getAzuritePorts() {
 /**
  * Azurite connection string for worktree-specific ports.
  * Returns `UseDevelopmentStorage=true` for the default worktree (port 10000).
+ * @param {SettingsValues} [values]
+ * @returns {string}
  */
-export function getAzuriteConnectionString() {
+export function getAzuriteConnectionString(values) {
 	const ports = getAzuritePorts();
 	if (ports.blob === 10000) return 'UseDevelopmentStorage=true';
-	const accountName = getSetting('STORAGE_ACCOUNT_NAME');
-	const accountKey = getSetting('STORAGE_ACCOUNT_KEY');
+	const accountName = getSetting('STORAGE_ACCOUNT_NAME', values);
+	const accountKey = getSetting('STORAGE_ACCOUNT_KEY', values);
 	if (!accountName || !accountKey) {
 		throw new Error('[worktree-ports] STORAGE_ACCOUNT_NAME and STORAGE_ACCOUNT_KEY must be set to build a worktree Azurite connection string');
 	}
@@ -92,6 +119,7 @@ export function getAzuriteConnectionString() {
  * MongoDB connection string with the worktree-specific port patched in.
  * Reads COSMOSDB_CONNECTION_STRING from env or local.settings.json and replaces
  * the host:port segment.
+ * @returns {string}
  */
 export function getMongoConnectionString() {
 	const base = getSetting('COSMOSDB_CONNECTION_STRING');

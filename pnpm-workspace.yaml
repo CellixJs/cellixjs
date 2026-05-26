@@ -97,6 +97,8 @@ overrides:
   ip-address: ^10.1.1
   fast-uri: ^3.1.2
   '@babel/plugin-transform-modules-systemjs': 7.29.4
+  'shell-quote@<1.8.4': 1.8.4
+  '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
 
 patchedDependencies:
   '@azure/functions@4.11.0': patches/@azure__functions@4.11.0.patch

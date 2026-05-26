@@ -1,4 +1,4 @@
-import { apiSettings } from '@ocom-verification/verification-shared/settings';
+import { appPaths } from './app-paths.ts';
 import { PortlessServer } from './portless-server.ts';
 import { getHostnames, mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
 
@@ -24,7 +24,7 @@ export class TestOAuth2Server extends PortlessServer {
 		return [hostnames.mockAuth, 'node', 'start-dev.mjs'];
 	}
 	protected get cwd() {
-		return apiSettings.oauth2MockDir;
+		return appPaths.oauth2MockDir;
 	}
 
 	getUrl(): string {

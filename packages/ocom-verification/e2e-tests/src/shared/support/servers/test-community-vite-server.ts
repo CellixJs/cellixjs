@@ -1,4 +1,4 @@
-import { apiSettings } from '@ocom-verification/verification-shared/settings';
+import { appPaths } from './app-paths.ts';
 import { PortlessServer } from './portless-server.ts';
 import { buildUrl, getHostnames } from './test-environment.ts';
 
@@ -25,12 +25,13 @@ export class TestCommunityViteServer extends PortlessServer {
 		return [hostnames.uiCommunity, 'node', 'start-dev.mjs'];
 	}
 	protected get cwd() {
-		return apiSettings.uiCommunityDir;
+		return appPaths.uiCommunityDir;
 	}
 	protected override get extraEnv() {
 		return {
 			BROWSER: 'none',
 			NODE_ENV: 'development',
+			VITE_MODE: 'e2e',
 		};
 	}
 

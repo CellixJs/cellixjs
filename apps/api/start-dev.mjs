@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
-import { isGracefulInterruptExit } from '../../build-pipeline/scripts/dev-process-exit.mjs';
-import { buildPortlessUrl, getHostnames } from '../../build-pipeline/scripts/portless-hostnames.mjs';
-import { getAzuriteConnectionString, getMongoConnectionString } from '../../build-pipeline/scripts/worktree-ports.mjs';
+import { forwardChildExit } from '../../scripts/local-dev/dev-process-exit.mjs';
+import { buildPortlessUrl, getHostnames } from '../../scripts/local-dev/portless-hostnames.mjs';
+import { getAzuriteConnectionString, getMongoConnectionString } from '../../scripts/local-dev/worktree-ports.mjs';
 
 const envPort = process.env.PORT;
 
@@ -22,8 +22,7 @@ const childEnv = {
 
 // Only inject worktree-scoped overrides when running in worktree mode.
 // When WORKTREE_NAME is absent, local.settings.json remains the source of truth.
-// Use `??=` so callers (e.g. e2e harness with a MongoMemoryServer port) can override
-// any individual value via process.env before invoking this script.
+// Use `??=` so callers can override any individual value via process.env.
 if (process.env.WORKTREE_NAME) {
 	const hostnames = getHostnames();
 	childEnv.ACCOUNT_PORTAL_OIDC_ISSUER ??= buildPortlessUrl(hostnames.mockAuth, '/community');
@@ -42,11 +41,4 @@ const child = spawn('func', ['start', '--typescript', '--script-root', 'deploy/'
 	env: childEnv,
 });
 
-child.on('exit', (code, signal) => {
-	// Turbo sends signals to interrupt persistent tasks; treat those as graceful exits.
-	if (isGracefulInterruptExit(signal, code)) {
-		process.exitCode = 0;
-		return;
-	}
-	process.exitCode = code ?? 1;
-});
+forwardChildExit(child);

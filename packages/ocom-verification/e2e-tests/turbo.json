@@ -3,12 +3,36 @@
 	"tasks": {
 		"test:e2e": {
 			"dependsOn": ["^build"],
-			"inputs": ["src/**/*.ts", "cucumber.js", "package.json"],
+			"inputs": [
+				"src/**/*.ts",
+				"config/**",
+				"$TURBO_ROOT$/apps/api/local-settings.e2e.json",
+				"$TURBO_ROOT$/apps/api/scripts/sync-local-settings.mjs",
+				"$TURBO_ROOT$/apps/ui-community/.env",
+				"$TURBO_ROOT$/apps/ui-community/.env.e2e",
+				"$TURBO_ROOT$/apps/ui-staff/.env",
+				"$TURBO_ROOT$/apps/ui-staff/.env.e2e",
+				"$TURBO_ROOT$/scripts/local-dev/**",
+				"cucumber.js",
+				"package.json"
+			],
 			"cache": false
 		},
 		"test:serenity": {
 			"dependsOn": ["^build"],
-			"inputs": ["src/**/*.ts", "cucumber.js", "package.json"],
+			"inputs": [
+				"src/**/*.ts",
+				"config/**",
+				"$TURBO_ROOT$/apps/api/local-settings.e2e.json",
+				"$TURBO_ROOT$/apps/api/scripts/sync-local-settings.mjs",
+				"$TURBO_ROOT$/apps/ui-community/.env",
+				"$TURBO_ROOT$/apps/ui-community/.env.e2e",
+				"$TURBO_ROOT$/apps/ui-staff/.env",
+				"$TURBO_ROOT$/apps/ui-staff/.env.e2e",
+				"$TURBO_ROOT$/scripts/local-dev/**",
+				"cucumber.js",
+				"package.json"
+			],
 			"cache": false
 		}
 	}
