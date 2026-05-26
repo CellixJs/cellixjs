@@ -687,7 +687,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
-	Scenario('Getting and setting canViewDatabaseExplorer from techAdminPermissions', ({ Given, When, And, Then }) => {
+	Scenario('Getting and setting canViewDatabaseDocuments from techAdminPermissions', ({ Given, When, And, Then }) => {
 		let permissions: StaffRolePermissionsAdapter;
 		let techAdminPermissions: StaffRoleTechAdminPermissionsAdapter;
 		Given('a StaffRoleDomainAdapter for the document', () => {
@@ -699,14 +699,14 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		And('I get the techAdminPermissions property', () => {
 			techAdminPermissions = permissions.techAdminPermissions as StaffRoleTechAdminPermissionsAdapter;
 		});
-		Then('the canViewDatabaseExplorer property should return false', () => {
-			expect(techAdminPermissions.canViewDatabaseExplorer).toBe(false);
+		Then('the canViewDatabaseDocuments property should return false', () => {
+			expect(techAdminPermissions.canViewDatabaseDocuments).toBe(false);
 		});
-		When('I set the canViewDatabaseExplorer property to true', () => {
-			techAdminPermissions.canViewDatabaseExplorer = true;
+		When('I set the canViewDatabaseDocuments property to true', () => {
+			techAdminPermissions.canViewDatabaseDocuments = true;
 		});
-		Then("the techAdminPermissions' canViewDatabaseExplorer should be true", () => {
-			expect(doc.permissions?.techAdminPermissions?.canViewDatabaseExplorer).toBe(true);
+		Then("the techAdminPermissions' canViewDatabaseDocuments should be true", () => {
+			expect(doc.permissions?.techAdminPermissions?.canViewDatabaseDocuments).toBe(true);
 		});
 	});
 

@@ -140,7 +140,7 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 		if (!this.doc.techAdminPermissions) {
 			this.doc.techAdminPermissions = {
 				canManageTechAdmin: false,
-				canViewDatabaseExplorer: false,
+				canViewDatabaseDocuments: false,
 				canViewBlobExplorer: false,
 				canViewQueueDashboard: false,
 				canSendQueueMessages: false,
@@ -407,11 +407,11 @@ export class StaffRoleTechAdminPermissionsAdapter implements Domain.Contexts.Use
 		this.doc.canManageTechAdmin = value;
 	}
 
-	get canViewDatabaseExplorer(): boolean {
-		return this.ensureValue(this.doc.canViewDatabaseExplorer);
+	get canViewDatabaseDocuments(): boolean {
+		return this.ensureValue(this.doc.canViewDatabaseDocuments);
 	}
-	set canViewDatabaseExplorer(value: boolean) {
-		this.doc.canViewDatabaseExplorer = value;
+	set canViewDatabaseDocuments(value: boolean) {
+		this.doc.canViewDatabaseDocuments = value;
 	}
 
 	get canViewBlobExplorer(): boolean {

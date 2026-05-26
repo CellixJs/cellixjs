@@ -19,14 +19,14 @@ Feature: <Entity> StaffRoleTechAdminPermissions
     When I try to set canManageTechAdmin to true
     Then a PermissionError should be thrown
 
-  Scenario: Changing canViewDatabaseExplorer with manage staff roles permission
+  Scenario: Changing canViewDatabaseDocuments with manage staff roles permission
     Given a StaffRoleTechAdminPermissions entity with permission to manage staff roles
-    When I set canViewDatabaseExplorer to true
+    When I set canViewDatabaseDocuments to true
     Then the property should be updated to true
 
-  Scenario: Changing canViewDatabaseExplorer without permission
+  Scenario: Changing canViewDatabaseDocuments without permission
     Given a StaffRoleTechAdminPermissions entity without permission to manage staff roles or system account
-    When I try to set canViewDatabaseExplorer to true
+    When I try to set canViewDatabaseDocuments to true
     Then a PermissionError should be thrown
 
   Scenario: Changing canViewBlobExplorer with manage staff roles permission

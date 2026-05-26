@@ -18,7 +18,7 @@ function makeVisa({ canManageStaffRolesAndPermissions = true, isSystemAccount = 
 function makeProps(overrides = {}) {
 	return {
 		canManageTechAdmin: false,
-		canViewDatabaseExplorer: false,
+		canViewDatabaseDocuments: false,
 		canViewBlobExplorer: false,
 		canViewQueueDashboard: false,
 		canSendQueueMessages: false,
@@ -89,28 +89,28 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Changing canViewDatabaseExplorer with manage staff roles permission', ({ Given, When, Then }) => {
+	Scenario('Changing canViewDatabaseDocuments with manage staff roles permission', ({ Given, When, Then }) => {
 		Given('a StaffRoleTechAdminPermissions entity with permission to manage staff roles', () => {
 			visa = makeVisa({ canManageStaffRolesAndPermissions: true, isSystemAccount: false });
 			entity = new StaffRoleTechAdminPermissions(makeProps(), visa);
 		});
-		When('I set canViewDatabaseExplorer to true', () => {
-			entity.canViewDatabaseExplorer = true;
+		When('I set canViewDatabaseDocuments to true', () => {
+			entity.canViewDatabaseDocuments = true;
 		});
 		Then('the property should be updated to true', () => {
-			expect(entity.canViewDatabaseExplorer).toBe(true);
+			expect(entity.canViewDatabaseDocuments).toBe(true);
 		});
 	});
 
-	Scenario('Changing canViewDatabaseExplorer without permission', ({ Given, When, Then }) => {
+	Scenario('Changing canViewDatabaseDocuments without permission', ({ Given, When, Then }) => {
 		let setWithoutPermission: () => void;
 		Given('a StaffRoleTechAdminPermissions entity without permission to manage staff roles or system account', () => {
 			visa = makeVisa({ canManageStaffRolesAndPermissions: false, isSystemAccount: false });
 			entity = new StaffRoleTechAdminPermissions(makeProps(), visa);
 		});
-		When('I try to set canViewDatabaseExplorer to true', () => {
+		When('I try to set canViewDatabaseDocuments to true', () => {
 			setWithoutPermission = () => {
-				entity.canViewDatabaseExplorer = true;
+				entity.canViewDatabaseDocuments = true;
 			};
 		});
 		Then('a PermissionError should be thrown', () => {

@@ -69,6 +69,7 @@ export const RequireRole: FC<RequireRoleProps> = ({ roles, permKey, children }) 
 	}
 
 	const rolePermissions = data?.staffUserCurrent?.role?.permissions;
+	const canManageTechAdmin = rolePermissions?.techAdminPermissions.canManageTechAdmin ?? false;
 	const permissions: NonNullable<StaffAuth['permissions']> | undefined = rolePermissions
 		? {
 				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities,
@@ -77,8 +78,8 @@ export const RequireRole: FC<RequireRoleProps> = ({ roles, permKey, children }) 
 				canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles,
 				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance,
-				canManageTechAdmin: rolePermissions.techAdminPermissions.canManageTechAdmin,
-				canViewDatabaseDocuments: rolePermissions.techAdminPermissions.canViewDatabaseDocuments,
+				canManageTechAdmin,
+				canViewDatabaseDocuments: rolePermissions.techAdminPermissions.canViewDatabaseDocuments || canManageTechAdmin,
 				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles,
 				canAddRole: rolePermissions.staffRolePermissions.canAddRole,
 				canEditRole: rolePermissions.staffRolePermissions.canEditRole,
