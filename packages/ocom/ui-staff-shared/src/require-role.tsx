@@ -36,6 +36,7 @@ const STAFF_USER_CURRENT_QUERY = gql`
 					}
 					techAdminPermissions {
 						canManageTechAdmin
+						canViewDatabaseDocuments
 					}
 				}
 			}
@@ -51,7 +52,7 @@ interface StaffUserCurrentQueryResult {
 				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canViewStaffUsers: boolean };
 				staffRolePermissions: { canViewRoles: boolean; canAddRole: boolean; canEditRole: boolean; canRemoveRole: boolean };
 				financePermissions: { canManageFinance: boolean };
-				techAdminPermissions: { canManageTechAdmin: boolean };
+				techAdminPermissions: { canManageTechAdmin: boolean; canViewDatabaseDocuments: boolean };
 			};
 		};
 	};
@@ -77,6 +78,7 @@ export const RequireRole: FC<RequireRoleProps> = ({ roles, permKey, children }) 
 				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance,
 				canManageTechAdmin: rolePermissions.techAdminPermissions.canManageTechAdmin,
+				canViewDatabaseDocuments: rolePermissions.techAdminPermissions.canViewDatabaseDocuments,
 				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles,
 				canAddRole: rolePermissions.staffRolePermissions.canAddRole,
 				canEditRole: rolePermissions.staffRolePermissions.canEditRole,

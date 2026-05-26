@@ -16,7 +16,7 @@ type StaffRoleFinancePermissions {
 
 type StaffRoleTechAdminPermissions {
 	canManageTechAdmin: Boolean!
-	canViewDatabaseExplorer: Boolean!
+	canViewDatabaseDocuments: Boolean!
 	canViewBlobExplorer: Boolean!
 	canViewQueueDashboard: Boolean!
 	canSendQueueMessages: Boolean!
@@ -114,7 +114,7 @@ input StaffRoleCreateFinancePermissionsInput {
 
 input StaffRoleCreateTechAdminPermissionsInput {
 	canManageTechAdmin: Boolean
-	canViewDatabaseExplorer: Boolean
+	canViewDatabaseDocuments: Boolean
 	canViewBlobExplorer: Boolean
 	canViewQueueDashboard: Boolean
 	canSendQueueMessages: Boolean

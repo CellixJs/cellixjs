@@ -9,6 +9,12 @@ export const SectionLayout: React.FC = () => {
 			icon: <ToolOutlined />,
 			id: 'tech',
 		},
+		{
+			path: '/staff/tech/database-explorer',
+			title: 'Database Explorer',
+			icon: <ToolOutlined />,
+			id: 'database-explorer',
+		},
 	];
 
 	return (

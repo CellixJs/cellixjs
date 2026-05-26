@@ -19,8 +19,12 @@
 		"@ocom/ui-staff-shared": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"react-router-dom": "catalog:"
+		"react-router-dom": "catalog:",
+		"antd": "catalog:",
+		"@apollo/client": "^3.13.9",
+		"@cellix/ui-core": "workspace:*"
 	},
+
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",

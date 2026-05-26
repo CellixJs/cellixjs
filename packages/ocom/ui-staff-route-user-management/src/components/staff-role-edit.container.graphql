@@ -49,7 +49,7 @@ fragment StaffRoleEditFields on StaffRole {
 		}
 		techAdminPermissions {
 			canManageTechAdmin
-			canViewDatabaseExplorer
+			canViewDatabaseDocuments
 			canViewBlobExplorer
 			canViewQueueDashboard
 			canSendQueueMessages

@@ -33,7 +33,7 @@ interface StaffRoleCreateCommandFinancePermissions {
 
 interface StaffRoleCreateCommandTechAdminPermissions {
 	canManageTechAdmin?: boolean;
-	canViewDatabaseExplorer?: boolean;
+	canViewDatabaseDocuments?: boolean;
 	canViewBlobExplorer?: boolean;
 	canViewQueueDashboard?: boolean;
 	canSendQueueMessages?: boolean;
@@ -175,8 +175,8 @@ const applyTechAdminPermissions = (
 	if (permissions.canManageTechAdmin !== undefined) {
 		techAdminPermissions.canManageTechAdmin = permissions.canManageTechAdmin;
 	}
-	if (permissions.canViewDatabaseExplorer !== undefined) {
-		techAdminPermissions.canViewDatabaseExplorer = permissions.canViewDatabaseExplorer;
+	if (permissions.canViewDatabaseDocuments !== undefined) {
+		techAdminPermissions.canViewDatabaseDocuments = permissions.canViewDatabaseDocuments;
 	}
 	if (permissions.canViewBlobExplorer !== undefined) {
 		techAdminPermissions.canViewBlobExplorer = permissions.canViewBlobExplorer;

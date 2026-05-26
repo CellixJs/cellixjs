@@ -105,7 +105,7 @@ export const StaffRoleCreateContainer: React.FC = () => {
 								? {
 										techAdminPermissions: {
 											canManageTechAdmin: values.canManageTechAdmin,
-											canViewDatabaseExplorer: values.canViewDatabaseExplorer,
+											canViewDatabaseDocuments: values.canViewDatabaseDocuments,
 											canViewBlobExplorer: values.canViewBlobExplorer,
 											canViewQueueDashboard: values.canViewQueueDashboard,
 											canSendQueueMessages: values.canSendQueueMessages,
