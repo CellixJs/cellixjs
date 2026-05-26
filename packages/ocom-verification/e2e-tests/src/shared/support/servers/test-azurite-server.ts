@@ -4,21 +4,8 @@ import type { TestServer } from '@ocom-verification/verification-shared/servers'
 import { getTimeout } from '@ocom-verification/verification-shared/settings';
 import { appPaths } from './app-paths.ts';
 import { spawnEnv } from './child-process-env.ts';
-
-interface PortReadyModule {
-	isPortListening(port: number): Promise<boolean>;
-	waitForPort(port: number, options?: { timeoutMs?: number; intervalMs?: number }): Promise<boolean>;
-}
-
-interface WorktreePortsModule {
-	getAzuritePorts(): { blob: number; queue: number; table: number };
-}
-
-const portReadyModuleUrl = new URL('../../../../../../../scripts/local-dev/port-ready.mjs', import.meta.url).href;
-const worktreePortsModuleUrl = new URL('../../../../../../../scripts/local-dev/worktree-ports.mjs', import.meta.url).href;
-
-const { isPortListening, waitForPort } = (await import(portReadyModuleUrl)) as PortReadyModule;
-const { getAzuritePorts } = (await import(worktreePortsModuleUrl)) as WorktreePortsModule;
+import { isPortListening, waitForPort } from './port-ready.ts';
+import { getAzuritePorts } from './worktree-ports.ts';
 
 /**
  * Starts Azurite via apps/api/start-azurite.mjs. The script itself short-circuits

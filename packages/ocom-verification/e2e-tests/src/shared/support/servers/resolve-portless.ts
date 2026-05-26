@@ -1,14 +1,14 @@
 import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const currentDir = fileURLToPath(new URL('.', import.meta.url));
+const currentDir = dirname(fileURLToPath(import.meta.url));
+const workspaceRoot = resolve(currentDir, '../../../../../../..');
 
 let resolvedPath: string | undefined;
 
 export function getPortlessPath(): string {
 	if (!resolvedPath) {
-		const workspaceRoot = resolve(currentDir, '../../../../../../..');
 		const localBin = resolve(workspaceRoot, 'node_modules/.bin/portless');
 		if (existsSync(localBin)) {
 			resolvedPath = localBin;
