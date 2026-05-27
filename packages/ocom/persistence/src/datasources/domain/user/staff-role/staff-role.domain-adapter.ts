@@ -3,9 +3,9 @@ import type {
 	StaffRole,
 	StaffRoleCommunityPermissions,
 	StaffRoleFinancePermissions,
-	StaffRoleRolePermissions,
 	StaffRolePermissions,
 	StaffRolePropertyPermissions,
+	StaffRoleRolePermissions,
 	StaffRoleServicePermissions,
 	StaffRoleServiceTicketPermissions,
 	StaffRoleTechAdminPermissions,
@@ -30,13 +30,13 @@ export class StaffRoleDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		this.doc.enterpriseAppRole = roleName;
 	}
 
-    get enterpriseAppRole(): string {
-        return this.doc.enterpriseAppRole ?? '';
-    }
+	get enterpriseAppRole(): string {
+		return this.doc.enterpriseAppRole ?? '';
+	}
 
-    set enterpriseAppRole(enterpriseAppRole: string) {
-        this.doc.enterpriseAppRole = enterpriseAppRole;
-    }
+	set enterpriseAppRole(enterpriseAppRole: string) {
+		this.doc.enterpriseAppRole = enterpriseAppRole;
+	}
 
 	get isDefault(): boolean {
 		return this.doc.isDefault;

@@ -2,15 +2,15 @@ import mongoose from 'mongoose';
 import { GraphQLError, type GraphQLResolveInfo } from 'graphql';
 import type { Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
-
+ 
 function unauthorizedError() {
-	return new GraphQLError('Unauthorized', { extensions: { code: 'UNAUTHENTICATED' } });
+    return new GraphQLError('Unauthorized', { extensions: { code: 'UNAUTHENTICATED' } });
 }
-
+ 
 function userInputError(message: string) {
-	return new GraphQLError(message, { extensions: { code: 'BAD_USER_INPUT' } });
+    return new GraphQLError(message, { extensions: { code: 'BAD_USER_INPUT' } });
 }
-
+ 
 function normalizeBsonValue(value: unknown): unknown {
 	if (value === null || value === undefined) return value;
 	if (Array.isArray(value)) return value.map(normalizeBsonValue);
@@ -31,19 +31,19 @@ function normalizeBsonValue(value: unknown): unknown {
 	}
 	return value;
 }
-
+ 
 const ALLOWED_OPERATORS = new Set([
-	'$eq',
-	'$in',
-	'$gt',
-	'$gte',
-	'$lt',
-	'$lte',
-	'$exists',
-	'$regex',
-	'$and',
-	'$or',
-	'$not',
+    '$eq',
+    '$in',
+    '$gt',
+    '$gte',
+    '$lt',
+    '$lte',
+    '$exists',
+    '$regex',
+    '$and',
+    '$or',
+    '$not',
 ]);
 
 function validateOperatorKey(key: string): void {
@@ -256,5 +256,6 @@ const techAdminResolvers: Resolvers = {
 		},
 	},
 };
-
+ 
 export default techAdminResolvers;
+ 
