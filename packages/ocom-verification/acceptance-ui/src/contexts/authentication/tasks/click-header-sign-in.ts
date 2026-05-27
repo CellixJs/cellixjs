@@ -3,11 +3,9 @@ import { JsdomPageAdapter } from '@ocom-verification/verification-shared/pages/j
 import { Interaction } from '@serenity-js/core';
 
 async function flushAsync(): Promise<void> {
-	for (let i = 0; i < 10; i++) {
-		await new Promise<void>((resolve) => {
-			setTimeout(resolve, 0);
-		});
-	}
+	await new Promise<void>((resolve) => {
+		setTimeout(resolve, 0);
+	});
 }
 
 export const ClickHeaderSignIn = (container: HTMLElement) =>
