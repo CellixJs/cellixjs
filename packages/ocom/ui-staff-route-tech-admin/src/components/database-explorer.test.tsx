@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { expect, test } from 'vitest';
-import DatabaseExplorer from './database-explorer.tsx';
+import { DatabaseExplorer } from './database-explorer.tsx';
 
 test('renders database explorer title', () => {
 	render(

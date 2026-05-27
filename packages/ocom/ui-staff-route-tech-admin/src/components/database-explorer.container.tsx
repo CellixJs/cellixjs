@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import DatabaseExplorer from './database-explorer.tsx';
+import { DatabaseExplorer } from './database-explorer.tsx';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import type { DatabaseDocument } from './database-explorer.tsx';
 import { Empty } from 'antd';
@@ -76,5 +76,3 @@ export const DatabaseExplorerContainer: React.FC = () => {
 		/> 
 	);
 };
-
-export default DatabaseExplorerContainer;

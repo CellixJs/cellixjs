@@ -11,7 +11,7 @@ export interface DatabaseDocument {
 	json: string;
 }
 
-export interface DatabaseExplorerProps {
+interface DatabaseExplorerProps {
 	collections: string[];
 	selectedCollection?: string;
 	onSelectCollection: (col: string) => void;
@@ -141,5 +141,3 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 		</Space>
 	);
 };
-
-export default DatabaseExplorer;

@@ -29,5 +29,3 @@ export const DatabaseExplorerPage: React.FC = () => {
 		</RequireRole>
 	);
 };
-
-export default DatabaseExplorerPage;

@@ -1451,6 +1451,9 @@ importers:
       graphql:
         specifier: 'catalog:'
         version: 16.12.0
+      mongoose:
+        specifier: 'catalog:'
+        version: 8.17.0
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
