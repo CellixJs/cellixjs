@@ -34,6 +34,7 @@
 		"test:coverage:merge": "pnpm run test:coverage && pnpm run merge-lcov-reports",
 		"test:e2e": "turbo run test:e2e --filter=@ocom-verification/e2e-tests",
 		"test:e2e:worktree": "WORKTREE_NAME=$(basename $PWD) turbo run test:e2e --filter=@ocom-verification/e2e-tests",
+		"test:e2e:workspace": "WORKTREE_NAME=$(basename $PWD) turbo run test:e2e --filter=@ocom-verification/e2e-tests",
 		"test:acceptance": "turbo run test:acceptance --filter=@ocom-verification/acceptance-api --filter=@ocom-verification/acceptance-ui",
 		"merge-lcov-reports": "node build-pipeline/scripts/merge-coverage.js",
 		"test:integration": "turbo run test:integration",

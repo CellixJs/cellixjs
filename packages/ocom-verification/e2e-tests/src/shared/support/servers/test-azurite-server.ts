@@ -4,13 +4,12 @@ import type { TestServer } from '@ocom-verification/verification-shared/servers'
 import { getTimeout } from '@ocom-verification/verification-shared/settings';
 import { appPaths } from './app-paths.ts';
 import { spawnEnv } from './child-process-env.ts';
-import { isPortListening, waitForPort } from './port-ready.ts';
 import { getAzuritePorts } from './worktree-ports.ts';
 
 /**
- * Starts Azurite via apps/api/start-azurite.mjs. The script itself short-circuits
- * if the blob port is already listening, so concurrent worktrees and re-runs are
- * safe. We track the spawned process only when we started it ourselves.
+ * Starts Azurite via apps/api/start-azurite.mjs.
+ * If ports are already bound (EADDRINUSE), we treat that as an existing
+ * reusable instance for this worktree.
  */
 export class TestAzuriteServer implements TestServer {
 	private process: ChildProcess | null = null;
@@ -23,19 +22,19 @@ export class TestAzuriteServer implements TestServer {
 
 	async start(): Promise<void> {
 		if (this.process || this.startedByUs) return;
-		if (await isPortListening(this.blobPort)) return;
 
 		const binDir = join(appPaths.apiDir, 'node_modules', '.bin');
+		const { PATH: pathValue = '' } = process.env;
 
 		this.process = spawn('node', ['start-azurite.mjs'], {
 			cwd: appPaths.apiDir,
-			env: spawnEnv({ PATH: `${binDir}:${process.env['PATH'] ?? ''}` }),
+			env: spawnEnv({ PATH: `${binDir}:${pathValue}` }),
 			detached: this.useDetachedProcessGroup,
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
 		this.startedByUs = true;
 
-		await this.waitForReady();
+		await this.waitForStartedMarker();
 	}
 
 	async stop(): Promise<void> {
@@ -68,14 +67,47 @@ export class TestAzuriteServer implements TestServer {
 		return `http://127.0.0.1:${this.blobPort}`;
 	}
 
-	private async waitForReady(): Promise<void> {
-		const ready = await waitForPort(this.blobPort, {
-			timeoutMs: getTimeout('serverStartup'),
-			intervalMs: getTimeout('healthProbeInterval'),
+	private waitForStartedMarker(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const proc = this.process;
+			if (!proc) {
+				reject(new Error('TestAzuriteServer process not started'));
+				return;
+			}
+
+			const timeout = setTimeout(() => {
+				reject(new Error(`TestAzuriteServer did not emit start marker within ${getTimeout('serverStartup')}ms`));
+			}, getTimeout('serverStartup'));
+
+			let stderrOutput = '';
+
+			proc.stdout?.on('data', (data: Buffer) => {
+				if (data.toString().includes('[azurite] started')) {
+					clearTimeout(timeout);
+					resolve();
+				}
+			});
+
+			proc.stderr?.on('data', (data: Buffer) => {
+				stderrOutput += data.toString();
+			});
+
+			proc.on('error', (error: Error) => {
+				clearTimeout(timeout);
+				reject(new Error(`TestAzuriteServer failed to start: ${error.message}`));
+			});
+
+			proc.on('exit', (code, signal) => {
+				clearTimeout(timeout);
+				if (stderrOutput.includes('EADDRINUSE')) {
+					this.process = null;
+					this.startedByUs = false;
+					resolve();
+					return;
+				}
+				reject(new Error(`TestAzuriteServer exited unexpectedly (code: ${code}, signal: ${signal}). stderr: ${stderrOutput.slice(-2000)}`));
+			});
 		});
-		if (!ready) {
-			throw new Error(`TestAzuriteServer: blob port ${this.blobPort} did not start within timeout`);
-		}
 	}
 }
 

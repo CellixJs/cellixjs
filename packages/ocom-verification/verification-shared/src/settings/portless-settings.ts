@@ -1,7 +1,3 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 interface PortlessHostnames {
 	uiCommunity: string;
 	uiStaff: string;
@@ -10,43 +6,22 @@ interface PortlessHostnames {
 	docs: string;
 }
 
-type DotEnvValues = Record<string, string>;
-
 const PORTLESS_PORT = 1355;
-const currentDir = dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = resolve(currentDir, '../../../../..');
-const uiCommunityEnvPath = resolve(workspaceRoot, 'apps/ui-community/.env');
-const uiStaffEnvPath = resolve(workspaceRoot, 'apps/ui-staff/.env');
 
 function buildPortlessUrl(hostname: string, path = ''): string {
 	return `https://${hostname}:${PORTLESS_PORT}${path}`;
 }
 
 function getHostnames(): PortlessHostnames {
-	const uiCommunityEnv = readDotEnv(uiCommunityEnvPath);
-	const uiStaffEnv = readDotEnv(uiStaffEnvPath);
-
 	const hostnames = {
-		uiCommunity: requireHostname(uiCommunityEnv, 'VITE_APP_UI_COMMUNITY_BASE_URL', uiCommunityEnvPath),
-		uiStaff: requireHostname(uiStaffEnv, 'VITE_APP_UI_STAFF_AAD_REDIRECT_URI', uiStaffEnvPath),
-		api: requireHostname(uiCommunityEnv, 'VITE_COMMON_API_ENDPOINT', uiCommunityEnvPath),
-		mockAuth: requireHostname(uiCommunityEnv, 'VITE_APP_UI_COMMUNITY_B2C_AUTHORITY', uiCommunityEnvPath),
+		uiCommunity: requireHostname('VITE_APP_UI_COMMUNITY_BASE_URL'),
+		uiStaff: requireHostname('VITE_APP_UI_STAFF_AAD_REDIRECT_URI'),
+		api: requireHostname('VITE_COMMON_API_ENDPOINT'),
+		mockAuth: requireHostname('VITE_APP_UI_COMMUNITY_B2C_AUTHORITY'),
 	};
+	const { WORKTREE_NAME: worktreeName = '' } = process.env;
 
-	return applyWorktreeSuffixes(hostnames, process.env['WORKTREE_NAME'] ?? '');
-}
-
-function readDotEnv(filePath: string): DotEnvValues {
-	if (!existsSync(filePath)) return {};
-	const result: DotEnvValues = {};
-	for (const line of readFileSync(filePath, 'utf-8').split('\n')) {
-		const trimmed = line.trim();
-		if (!trimmed || trimmed.startsWith('#')) continue;
-		const eqIdx = trimmed.indexOf('=');
-		if (eqIdx === -1) continue;
-		result[trimmed.slice(0, eqIdx)] = trimmed.slice(eqIdx + 1);
-	}
-	return result;
+	return applyWorktreeSuffixes(hostnames, worktreeName);
 }
 
 function hostnameFrom(url: string): string | null {
@@ -57,10 +32,10 @@ function hostnameFrom(url: string): string | null {
 	}
 }
 
-function requireHostname(values: DotEnvValues, key: string, filePath: string): string {
-	const hostname = hostnameFrom(values[key] ?? '');
+function requireHostname(key: string): string {
+	const hostname = hostnameFrom(process.env[key] ?? '');
 	if (!hostname) {
-		throw new Error(`portless-settings: could not derive hostname from ${key} in ${filePath}`);
+		throw new Error(`portless-settings: required env var ${key} is missing or invalid`);
 	}
 	return hostname;
 }

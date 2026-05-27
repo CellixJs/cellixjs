@@ -14,22 +14,6 @@ let browserBaseUrl: string | undefined;
 let authenticatedBrowserContext: BrowserContext | undefined;
 let browseTheWeb: BrowseTheWeb | undefined;
 
-let shutdownHandlersRegistered = false;
-
-function registerShutdownHandlers(): void {
-	if (shutdownHandlersRegistered) return;
-	shutdownHandlersRegistered = true;
-
-	const shutdown = (signal: string) => {
-		void stopAll().finally(() => {
-			process.exit(signal === 'SIGINT' ? 130 : 143);
-		});
-	};
-
-	process.once('SIGINT', () => shutdown('SIGINT'));
-	process.once('SIGTERM', () => shutdown('SIGTERM'));
-}
-
 export interface InfrastructureState {
 	apiUrl: string | undefined;
 	browseTheWeb: BrowseTheWeb | undefined;
@@ -77,7 +61,6 @@ export async function stopAll(): Promise<void> {
 }
 
 export async function ensureE2EServers(): Promise<void> {
-	registerShutdownHandlers();
 	initTestEnvironment();
 
 	// Phase 1: Start MongoDB, Azurite, and OAuth2 in parallel (no interdependency)

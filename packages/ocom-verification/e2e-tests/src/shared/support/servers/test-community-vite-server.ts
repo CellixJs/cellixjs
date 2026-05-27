@@ -12,9 +12,6 @@ const hostnames = getHostnames();
  * are needed here beyond suppressing browser auto-launch.
  */
 export class TestCommunityViteServer extends PortlessServer {
-	protected get probeUrl() {
-		return buildUrl(hostnames.uiCommunity);
-	}
 	protected get readyMarker() {
 		return 'ready in';
 	}
@@ -31,7 +28,7 @@ export class TestCommunityViteServer extends PortlessServer {
 		return {
 			BROWSER: 'none',
 			NODE_ENV: 'development',
-			VITE_MODE: 'e2e',
+			E2E_VITE_MODE: 'e2e',
 		};
 	}
 

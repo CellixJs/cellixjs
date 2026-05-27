@@ -16,9 +16,7 @@ import { getPortlessPath } from './resolve-portless.ts';
 export abstract class PortlessServer implements TestServer {
 	private process: ChildProcess | null = null;
 	private startedByUs = false;
-	private readonly useDetachedProcessGroup = process.platform !== 'win32';
 
-	protected abstract get probeUrl(): string;
 	protected abstract get readyMarker(): string;
 	protected abstract get serverName(): string;
 	protected abstract get spawnArgs(): string[];
@@ -28,16 +26,8 @@ export abstract class PortlessServer implements TestServer {
 		return getPortlessPath();
 	}
 
-	protected get probeRequestInit(): RequestInit {
-		return {};
-	}
-
 	protected get extraEnv(): Record<string, string> {
 		return {};
-	}
-
-	protected isProbeHealthy(response: Response): boolean | Promise<boolean> {
-		return response.ok;
 	}
 
 	protected get startupTimeoutMs(): number {
@@ -47,32 +37,14 @@ export abstract class PortlessServer implements TestServer {
 	abstract getUrl(): string;
 
 	/**
-	 * Check if server is already running (via health probe).
-	 */
-	async isAlreadyRunning(): Promise<boolean> {
-		try {
-			const controller = new AbortController();
-			const probeTimeout = getTimeout('healthProbe');
-			const timeout = setTimeout(() => controller.abort(), probeTimeout);
-			const res = await fetch(this.probeUrl, { ...this.probeRequestInit, signal: controller.signal });
-			clearTimeout(timeout);
-			return await this.isProbeHealthy(res);
-		} catch {
-			return false;
-		}
-	}
-
-	/**
 	 * Start the server subprocess and wait for it to be ready.
 	 */
 	async start(): Promise<void> {
 		if (this.process || this.startedByUs) return;
-		if (await this.isAlreadyRunning()) return;
 
 		this.process = spawn(this.executable, this.spawnArgs, {
 			cwd: this.cwd,
 			env: spawnEnv(this.extraEnv),
-			detached: this.useDetachedProcessGroup,
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
 		this.startedByUs = true;
@@ -90,15 +62,12 @@ export abstract class PortlessServer implements TestServer {
 		this.process = null;
 		this.startedByUs = false;
 
-		// SIGINT lets portless run its cleanup branch — deregister the hostname from
-		// ~/.portless/routes.json before exiting. Fall back to SIGKILL after the
-		// shutdown timeout for anything that ignores SIGINT.
-		this.killProcess(proc, 'SIGINT');
+		proc.kill('SIGINT');
 
 		const shutdownTimeout = getTimeout('serverShutdown');
 		await new Promise<void>((resolve) => {
 			const timeout = setTimeout(() => {
-				this.killProcess(proc, 'SIGKILL');
+				proc.kill('SIGKILL');
 				resolve();
 			}, shutdownTimeout);
 
@@ -129,26 +98,12 @@ export abstract class PortlessServer implements TestServer {
 			let stderrOutput = '';
 			let ready = false;
 
-			const resolveWhenReachable = () => {
-				if (ready) return;
-				ready = true;
-
-				this.waitForProbeReady()
-					.then(() => {
-						clearTimeout(timeout);
-						resolve();
-					})
-					.catch((error: unknown) => {
-						clearTimeout(timeout);
-						reject(error);
-					});
-			};
-
-			// stdout listener detects the readyMarker then waits for the probe to respond
 			proc.stdout?.on('data', (data: Buffer) => {
 				const text = data.toString();
-				if (text.includes(this.readyMarker)) {
-					resolveWhenReachable();
+				if (!ready && text.includes(this.readyMarker)) {
+					ready = true;
+					clearTimeout(timeout);
+					resolve();
 				}
 			});
 
@@ -163,30 +118,12 @@ export abstract class PortlessServer implements TestServer {
 			});
 
 			proc.on('exit', (code, signal) => {
+				if (ready) return;
 				clearTimeout(timeout);
 				this.process = null;
 				this.startedByUs = false;
 				reject(new Error(`${this.serverName} exited unexpectedly (code: ${code}, signal: ${signal}). stderr: ${stderrOutput.slice(-2000)}`));
 			});
 		});
-	}
-
-	private async waitForProbeReady(): Promise<void> {
-		const probeInterval = getTimeout('healthProbeInterval');
-		while (!(await this.isAlreadyRunning())) {
-			await new Promise((resolve) => setTimeout(resolve, probeInterval));
-		}
-	}
-
-	private killProcess(proc: ChildProcess, signal: NodeJS.Signals): void {
-		if (this.useDetachedProcessGroup && proc.pid) {
-			try {
-				process.kill(-proc.pid, signal);
-				return;
-			} catch {
-				/* Fall back to killing the direct child below. */
-			}
-		}
-		proc.kill(signal);
 	}
 }

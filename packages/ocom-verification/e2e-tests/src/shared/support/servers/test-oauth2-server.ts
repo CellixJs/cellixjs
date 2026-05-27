@@ -1,6 +1,6 @@
 import { appPaths } from './app-paths.ts';
 import { PortlessServer } from './portless-server.ts';
-import { getHostnames, mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
+import { getHostnames, mockOidcIssuer } from './test-environment.ts';
 
 const hostnames = getHostnames();
 
@@ -11,9 +11,6 @@ const hostnames = getHostnames();
  * by programmatic token generation — this tests the real OIDC redirect flow.
  */
 export class TestOAuth2Server extends PortlessServer {
-	protected get probeUrl() {
-		return mockOidcEndpoint;
-	}
 	protected get readyMarker() {
 		return 'Registered OIDC config';
 	}

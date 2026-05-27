@@ -8,7 +8,6 @@ const SKIP_DIRS = new Set(['node_modules', '.turbo', 'build-artifacts', 'dist', 
 // Single source of truth for known portal identifiers (ADR-0031).
 // Keep this list in sync with apps/docs/docs/portals/PORTAL_REGISTRY.md.
 const CANONICAL_PORTALS = ['UI_COMMUNITY', 'UI_STAFF'];
-const VITE_RESERVED_VARS = new Set(['VITE_MODE']);
 
 function walkDir(dir, fileList = []) {
 	const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -320,16 +319,6 @@ function validateEnvNames(options = {}) {
 		for (const m of matches) {
 			const variable = m.match;
 			const relPath = `${path.relative(rootDir, filePath)}:${getLineNumber(newlineOffsets, m.index)}`;
-			if (VITE_RESERVED_VARS.has(variable)) {
-				results.push({
-					variable,
-					status: 'compliant',
-					portal: 'BUILD',
-					ownerGroup: 'ocm-platform',
-					location: relPath,
-				});
-				continue;
-			}
 			if (!variable.startsWith('VITE_APP_') && !variable.startsWith('VITE_COMMON_')) {
 				results.push({
 					variable,

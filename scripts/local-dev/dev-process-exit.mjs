@@ -1,26 +1,11 @@
 /** @typedef {import('node:child_process').ChildProcess} ChildProcess */
 
-const INTERRUPT_SIGNALS = new Set(['SIGINT', 'SIGTERM', 'SIGQUIT']);
-const INTERRUPT_EXIT_CODES = new Set([130, 143]);
-
-/**
- * @param {NodeJS.Signals | null | undefined} signal
- * @returns {boolean}
- */
-export const isInterruptSignal = (signal) => Boolean(signal && INTERRUPT_SIGNALS.has(signal));
-
-/**
- * @param {number | null | undefined} code
- * @returns {boolean}
- */
-export const isInterruptExitCode = (code) => Number.isInteger(code) && INTERRUPT_EXIT_CODES.has(/** @type {number} */ (code));
-
 /**
  * @param {NodeJS.Signals | null | undefined} signal
  * @param {number | null | undefined} code
  * @returns {boolean}
  */
-export const isGracefulInterruptExit = (signal, code) => isInterruptSignal(signal) || isInterruptExitCode(code);
+export const isGracefulInterruptExit = (signal, code) => signal === 'SIGINT' || signal === 'SIGTERM' || signal === 'SIGQUIT' || code === 130 || code === 143;
 
 /**
  * Wires a spawned dev child process to forward its exit status to the parent,

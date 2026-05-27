@@ -10,28 +10,6 @@ const hostnames = getHostnames();
  * from the committed e2e local settings plus runtime-only test values.
  */
 export class TestApiServer extends PortlessServer {
-	protected get probeUrl() {
-		return buildUrl(hostnames.api, '/api/graphql');
-	}
-
-	protected override get probeRequestInit(): RequestInit {
-		return {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ query: '{ __typename }' }),
-		};
-	}
-
-	protected override async isProbeHealthy(response: Response): Promise<boolean> {
-		if (!response.ok) return false;
-		try {
-			const data = (await response.json()) as { data?: { __typename?: string } };
-			return data?.data?.__typename === 'Query';
-		} catch {
-			return false;
-		}
-	}
-
 	protected get readyMarker() {
 		return 'Functions:';
 	}
