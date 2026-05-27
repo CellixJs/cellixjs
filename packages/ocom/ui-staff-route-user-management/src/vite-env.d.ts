@@ -1,1 +1,1 @@
-/// <reference types="vite/client" />
+/// <reference types="@ocom/ui-staff-shared/env" />
