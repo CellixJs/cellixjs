@@ -4,8 +4,37 @@ import { QueueServiceClient } from '@azure/storage-queue';
 import type { IQueueStorageOperations, PeekMessagesOptions, QueueMessage, QueueStorageConfig, ReceiveMessagesOptions, SendMessageOptions } from './interfaces.js';
 import type { MessageLogEnvelope } from './logging.js';
 
-export class ServiceQueueStorage implements IQueueStorageOperations {
-	private options: QueueStorageConfig;
+export interface QueueServiceLifecycle {
+	startUp(): Promise<this>;
+	shutDown(): Promise<void>;
+}
+
+export type InternalQueueTransport = IQueueStorageOperations &
+	QueueServiceLifecycle & {
+		createQueueIfNotExists(queue: string): Promise<void>;
+	};
+
+/**
+ * InternalQueueStorageService is a thin wrapper around Azure Queue Storage that provides
+ * typed send/receive/peek operations and optional message logging to a blob
+ * storage sink.
+ *
+ * The service supports two authentication modes: shared key (connection string)
+ * and managed identity (account name + DefaultAzureCredential). It also can
+ * auto-provision queues during startup when running in development against
+ * Azurite.
+ *
+ * @example
+ * ```ts
+ * const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true' });
+ * await svc.startUp();
+ * await svc.sendMessage('my-queue', { hello: 'world' });
+ * ```
+ *
+ * @returns The class exposes lifecycle methods such as `startUp()` which returns the started service instance for chaining.
+ */
+export class InternalQueueStorageService implements InternalQueueTransport {
+	protected options: QueueStorageConfig;
 	private inferredMode: 'sharedKey' | 'managedIdentity' | undefined;
 	private queueServiceClient: QueueServiceClient | undefined = undefined;
 	private started = false;
@@ -16,25 +45,31 @@ export class ServiceQueueStorage implements IQueueStorageOperations {
 		else if (options.accountName) this.inferredMode = 'managedIdentity';
 	}
 
-	public async startUp(): Promise<IQueueStorageOperations> {
+	/**
+	 * Start the service and initialize the Azure QueueServiceClient.
+	 *
+	 * @returns The started service instance (useful for chaining in tests)
+	 */
+	public async startUp(): Promise<this> {
 		await Promise.resolve();
 		if (this.started) return this;
 		this.started = true;
 
 		if (this.inferredMode === 'sharedKey') {
 			this.queueServiceClient = QueueServiceClient.fromConnectionString(this.options.connectionString as string);
-			console.info('[ServiceQueueStorage] started (sharedKey)');
+			console.info('[InternalQueueStorageService] started (sharedKey)');
 
 			// Auto-provision queues in local dev / azurite scenarios when requested
 			const conn = this.options.connectionString as string;
 			const isAzuriteConnection = conn.includes('UseDevelopmentStorage=true') || conn.includes('127.0.0.1');
-			if (this.options.localDev === true || isAzuriteConnection) {
+			const nodeEnv = (process.env as unknown as { NODE_ENV?: string }).NODE_ENV;
+			if (nodeEnv === 'development' || isAzuriteConnection) {
 				if (Array.isArray(this.options.provisionQueues)) {
 					for (const q of this.options.provisionQueues) {
 						try {
 							await this.createQueueIfNotExists(q);
 						} catch (e) {
-							console.warn('[ServiceQueueStorage] failed to auto-provision queue', q, e);
+							console.warn('[InternalQueueStorageService] failed to auto-provision queue', q, e);
 						}
 					}
 				}
@@ -48,11 +83,11 @@ export class ServiceQueueStorage implements IQueueStorageOperations {
 			const credential: TokenCredential = new DefaultAzureCredential();
 			const url = `https://${accountName}.queue.core.windows.net`;
 			this.queueServiceClient = new QueueServiceClient(url, credential);
-			console.info('[ServiceQueueStorage] started (managedIdentity)');
+			console.info('[InternalQueueStorageService] started (managedIdentity)');
 			return this;
 		}
 
-		throw new Error('Invalid ServiceQueueStorage configuration: provide connectionString or accountName');
+		throw new Error('Invalid queue storage configuration: provide connectionString or accountName');
 	}
 
 	public shutDown(): Promise<void> {
@@ -63,12 +98,14 @@ export class ServiceQueueStorage implements IQueueStorageOperations {
 	}
 
 	private getQueueClient(queue: string): QueueClient {
-		if (!this.queueServiceClient) throw new Error('ServiceQueueStorage is not started');
+		if (!this.queueServiceClient) throw new Error('Queue storage service is not started');
 		return this.queueServiceClient.getQueueClient(queue);
 	}
 
 	/**
 	 * Ensure a queue exists. Useful for localDev auto-provisioning.
+	 *
+	 * @param queue - queue name to ensure exists
 	 */
 	public async createQueueIfNotExists(queue: string): Promise<void> {
 		const q = this.getQueueClient(queue);
@@ -76,10 +113,17 @@ export class ServiceQueueStorage implements IQueueStorageOperations {
 		try {
 			await q.createIfNotExists();
 		} catch (e) {
-			console.warn('[ServiceQueueStorage] createQueueIfNotExists failed for', queue, e);
+			console.warn('[InternalQueueStorageService] createQueueIfNotExists failed for', queue, e);
 		}
 	}
 
+	/**
+	 * Send a raw message (string or object) to a queue. Objects are JSON-serialized.
+	 *
+	 * @param queue - target queue name
+	 * @param message - message payload (object or already-serialized string)
+	 * @param opts - optional send options (visibility timeout, logging tags)
+	 */
 	public async sendMessage<_T = unknown>(queue: string, message: string | object, opts?: SendMessageOptions): Promise<void> {
 		const queueClient = this.getQueueClient(queue);
 		const body = typeof message === 'string' ? message : JSON.stringify(message);
@@ -88,28 +132,33 @@ export class ServiceQueueStorage implements IQueueStorageOperations {
 
 		// Logging: if configured and logger provided, record envelope
 		if (this.options.logging?.enabled && this.options.logger) {
+			const direction = opts?.loggingDirection ?? 'outbound';
+			const mergedTags = { ...(opts?.loggingTags ?? {}), queueName: queue };
+			const mergedMetadata = opts?.loggingMetadata ?? undefined;
 			const envelope: MessageLogEnvelope = {
 				queue,
+				direction,
 				messageId: (res as unknown as { messageId?: string })?.messageId ?? '',
 				payload:
 					typeof message === 'string'
 						? (() => {
 								try {
-									return JSON.parse(message as string);
+									return JSON.parse(message);
 								} catch {
 									return message;
 								}
 							})()
 						: message,
-				metadata: opts?.loggingTags ? { loggingTags: opts.loggingTags } : {},
 				createdAt: new Date().toISOString(),
+				...(mergedMetadata !== undefined ? { metadata: mergedMetadata } : {}),
+				tags: mergedTags,
 			};
 
 			const doLog = async () => {
 				try {
 					await this.options.logger?.logMessage(envelope);
 				} catch (e) {
-					console.error('[ServiceQueueStorage] logging failed', e);
+					console.error('[InternalQueueStorageService] logging failed', e);
 				}
 			};
 
@@ -118,11 +167,21 @@ export class ServiceQueueStorage implements IQueueStorageOperations {
 		}
 	}
 
+	/**
+	 * Send a message using a precompiled validation/encoding contract.
+	 */
 	public async sendValidatedMessage<T>(queue: string, contract: { encode(payload: T): string }, payload: T, opts?: SendMessageOptions): Promise<void> {
 		const encoded = contract.encode(payload);
 		await this.sendMessage(queue, encoded, opts);
 	}
 
+	/**
+	 * Receive messages from a queue and decode JSON payloads where possible.
+	 *
+	 * @param queue - queue name to receive from
+	 * @param opts - optional receive options (max messages, visibility timeout)
+	 * @returns Array of received messages with decoded payloads when possible
+	 */
 	public async receiveMessages<_T = unknown>(queue: string, opts?: ReceiveMessagesOptions): Promise<QueueMessage<_T>[]> {
 		const queueClient = this.getQueueClient(queue);
 
@@ -147,11 +206,17 @@ export class ServiceQueueStorage implements IQueueStorageOperations {
 		return messages;
 	}
 
+	/**
+	 * Delete a received message using its id and popReceipt
+	 */
 	public async deleteMessage(queue: string, messageId: string, popReceipt: string): Promise<void> {
 		const q = this.getQueueClient(queue);
 		await q.deleteMessage(messageId, popReceipt);
 	}
 
+	/**
+	 * Peek at messages from a queue without dequeuing them.
+	 */
 	public async peekMessages<_T = unknown>(queue: string, opts?: PeekMessagesOptions): Promise<QueueMessage<_T>[]> {
 		const q = this.getQueueClient(queue);
 		const res = await q.peekMessages({ numberOfMessages: opts?.maxMessages ?? 32 });

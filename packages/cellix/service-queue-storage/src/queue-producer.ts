@@ -1,33 +1,47 @@
-import type { ZodTypeAny, z } from 'zod';
-import type { ServiceQueueStorage } from './service-queue-storage.js';
+import type { MessagePayload, QueueMap, QueueMessage } from './interfaces.js';
+import { resolveLoggingFields } from './interfaces.js';
+import type { InternalQueueTransport } from './service-queue-storage.js';
 
-export type QueueDefinition<S extends ZodTypeAny> = {
-	queueName: string;
-	schema: S;
-	loggingTags?: Record<string, string>;
+type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S;
+
+export type QueueProducerContext<O extends QueueMap> = {
+	[K in keyof O as `sendMessageTo${Capitalize<string & K>}Queue`]: (payload: MessagePayload<O[K]>) => Promise<void>;
+} & {
+	[K in keyof O as `peekAt${Capitalize<string & K>}Queue`]: (maxMessages?: number) => Promise<QueueMessage<MessagePayload<O[K]>>[]>;
 };
 
-export type QueueDefinitions = Record<string, QueueDefinition<ZodTypeAny>>;
-
-// Maps { emailNotifications: QueueDefinition<EmailSchema>, ... }
-// to   { sendEmailNotifications: (payload: EmailType) => Promise<void>, ... }
-export type QueueProducerContext<Q extends QueueDefinitions> = {
-	[K in keyof Q as `send${Capitalize<string & K>}`]: (payload: z.infer<Q[K]['schema']>) => Promise<void>;
-};
-
-export function createQueueProducer<Q extends QueueDefinitions>(service: Pick<ServiceQueueStorage, 'sendMessage'>, definitions: Q): QueueProducerContext<Q> {
-	const context = {} as Record<string, (payload: unknown) => Promise<void>>;
+export function createQueueProducer<O extends QueueMap>(service: Pick<InternalQueueTransport, 'sendMessage' | 'peekMessages'>, definitions: O, validators: Record<string, (d: unknown) => boolean>): QueueProducerContext<O> {
+	const context = {} as Record<string, unknown>;
 
 	for (const [key, def] of Object.entries(definitions)) {
-		const methodName = `send${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-		context[methodName] = async (payload: unknown) => {
-			// Validate using the zod schema from the definition
-			const validated = def.schema.parse(payload);
-			// Delegate to the framework service for delivery + logging
-			const opts = def.loggingTags ? { loggingTags: def.loggingTags } : undefined;
-			await service.sendMessage(def.queueName, validated, opts);
+		const cap = `${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+		const validate = validators[key];
+		if (!validate) throw new Error(`Validator missing for queue "${String(key)}"`);
+
+		context[`sendMessageTo${cap}Queue`] = async (payload: unknown) => {
+			if (!validate(payload)) {
+				throw new Error(`Invalid payload for queue "${def.queueName}": validation failed`);
+			}
+			const tags = resolveLoggingFields(def.loggingTags, payload);
+			const metadata = resolveLoggingFields(def.loggingMetadata, payload);
+			const opts = {
+				loggingDirection: 'outbound' as const,
+				...(tags !== undefined ? { loggingTags: tags } : {}),
+				...(metadata !== undefined ? { loggingMetadata: metadata } : {}),
+			};
+			await service.sendMessage(def.queueName, payload as object, opts);
 		};
+
+		context[`peekAt${cap}Queue`] = (maxMessages?: number) =>
+			service.peekMessages(def.queueName, { maxMessages: maxMessages ?? 32 }).then((msgs) =>
+				msgs.map((m) => {
+					if (!validate(m.payload)) {
+						throw new Error(`Invalid payload for queue "${def.queueName}": validation failed`);
+					}
+					return m;
+				}),
+			);
 	}
 
-	return context as QueueProducerContext<Q>;
+	return context as unknown as QueueProducerContext<O>;
 }

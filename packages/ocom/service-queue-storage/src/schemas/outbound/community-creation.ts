@@ -1,14 +1,15 @@
-import type { OutboundQueueSchema } from '@cellix/service-queue-storage';
-import { z } from 'zod';
+import type { QueueDefinition } from '@cellix/service-queue-storage';
+import schema from './community-creation.schema.json' with { type: 'json' };
 
-export const communityCreationQueue = {
+export interface CommunityCreationMessage {
+	communityId: string;
+	name: string;
+	createdBy: string;
+}
+
+export const communityCreationQueue: QueueDefinition<CommunityCreationMessage> = {
 	queueName: 'community-creation',
-	schema: z.object({
-		communityId: z.string(),
-		name: z.string(),
-		createdBy: z.string(),
-	}),
+	schema,
 	loggingTags: { domain: 'community', type: 'creation' },
-} satisfies OutboundQueueSchema;
-
-export type CommunityCreationMessage = z.infer<typeof communityCreationQueue.schema>;
+	loggingMetadata: { communityId: { payloadField: 'communityId' } },
+};

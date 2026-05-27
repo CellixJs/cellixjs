@@ -103,17 +103,6 @@ vi.mock('./service-config/blob-storage/index.ts', () => ({
 	accountName: 'devstoreaccount1',
 	connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
 }));
-vi.mock('./service-config/queue/index.ts', () => ({
-	createQueueServices: vi.fn(() => ({
-		queueService: { startUp: vi.fn() },
-		queueLogger: undefined,
-		provisionQueues: ['email-notifications', 'audit-events', 'import-requests'],
-	})),
-	accountName: 'devstoreaccount1',
-	connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
-	logContainer: undefined,
-	POISON_RETRY_THRESHOLD: 3,
-}));
 vi.mock('./service-config/token-validation/index.ts', () => ({
 	portalTokens: new Map([['AccountPortal', 'ACCOUNT_PORTAL']]),
 }));
@@ -125,6 +114,18 @@ vi.mock('@ocom/graphql-handler', () => ({
 }));
 vi.mock('@ocom/rest', () => ({
 	restHandlerCreator: vi.fn(),
+}));
+vi.mock('@ocom/service-queue-storage', () => ({
+	ServiceQueueStorage: vi.fn(function MockServiceQueueStorage() {
+		return {
+			startUp: vi.fn(),
+			shutDown: vi.fn(),
+			sendMessageToCommunityCreationQueue: vi.fn(),
+			receiveFromImportRequestsQueue: vi.fn(),
+			peekAtImportRequestsQueue: vi.fn(),
+		};
+	}),
+	allQueueNames: ['email-notifications', 'audit-events', 'import-requests'],
 }));
 
 describe('apps/api bootstrap', () => {

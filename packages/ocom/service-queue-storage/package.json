@@ -25,10 +25,8 @@
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
-		"@cellix/service-queue-storage": "workspace:*",
-		"zod": "^3.22.2"
+		"@cellix/service-queue-storage": "workspace:*"
 	},
-
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",

@@ -1,26 +1,9 @@
-export type {
-	InboundQueueMap,
-	InboundQueueSchema,
-	IQueueConsumerOperations,
-	IQueueStorageOperations,
-	OutboundQueueMap,
-	OutboundQueueSchema,
-	PeekMessagesOptions,
-	QueueMessage,
-	QueueMessageContract,
-	QueueStorageConfig,
-	ReceiveMessagesOptions,
-	SendMessageOptions,
-} from './interfaces.js';
-export type { LogAddress } from './logging.js';
+export type { InboundQueueDefinition, LoggingFieldSpec, OutboundQueueDefinition, QueueDefinition, QueueMessage, QueueStorageConfig } from './interfaces.js';
+export { $payload, resolveLoggingFields } from './interfaces.js';
+export type { IQueueMessageLogger, MessageLogEnvelope } from './logging.js';
 export { BlobQueueMessageLogger } from './logging.js';
-
-export { defineQueueMessage } from './message-contracts.js';
-export { moveMessageToPoison } from './poison.js';
 export type { QueueConsumerContext } from './queue-consumer.js';
-export { createQueueConsumer } from './queue-consumer.js';
-export type { QueueDefinition, QueueDefinitions, QueueProducerContext } from './queue-producer.js';
-export { createQueueProducer } from './queue-producer.js';
-
+export type { QueueProducerContext } from './queue-producer.js';
+export type { RegisteredQueueService } from './register-queues.js';
 export { registerQueues } from './register-queues.js';
-export { ServiceQueueStorage } from './service-queue-storage.js';
+export type { QueueServiceLifecycle } from './service-queue-storage.js';

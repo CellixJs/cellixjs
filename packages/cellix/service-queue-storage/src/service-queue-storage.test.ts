@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ServiceQueueStorage } from './service-queue-storage.js';
+import { InternalQueueStorageService } from './service-queue-storage.js';
 
 vi.mock('@azure/storage-queue', () => {
 	return {
@@ -24,18 +24,18 @@ vi.mock('@azure/identity', () => {
 	return { DefaultAzureCredential: vi.fn() };
 });
 
-describe('ServiceQueueStorage', () => {
+describe('InternalQueueStorageService', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
 	it('startUp with connectionString uses fromConnectionString', async () => {
-		const svc = new ServiceQueueStorage({ connectionString: 'UseDevelopmentStorage=true' });
+		const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true' });
 		await expect(svc.startUp()).resolves.toBe(svc);
 	});
 
 	it('sendMessage calls underlying queue client sendMessage and logging optional', async () => {
-		const svc = new ServiceQueueStorage({ connectionString: 'UseDevelopmentStorage=true', logging: { enabled: false, container: 'x' } });
+		const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true', logging: { enabled: false, container: 'x' } });
 		await svc.startUp();
 
 		// sendMessage should not throw
@@ -43,7 +43,7 @@ describe('ServiceQueueStorage', () => {
 	});
 
 	it('createQueueIfNotExists does not throw for missing queue', async () => {
-		const svc = new ServiceQueueStorage({ connectionString: 'UseDevelopmentStorage=true' });
+		const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true' });
 		await svc.startUp();
 		await expect(svc.createQueueIfNotExists('some-queue')).resolves.toBeUndefined();
 	});

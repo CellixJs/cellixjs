@@ -55,22 +55,6 @@ const community: Resolvers = {
 					endUserExternalId: context.applicationServices.verifiedUser?.verifiedJwt.sub,
 				});
 
-				// Fire-and-forget: send community creation event to outbound queue if configured
-				try {
-					// biome-ignore lint/complexity/useLiteralKeys: index signature requires bracket notation
-					if (context.queueProducer && typeof context.queueProducer['sendCommunityCreation'] === 'function') {
-						// biome-ignore lint/complexity/useLiteralKeys: index signature requires bracket notation
-						void context.queueProducer['sendCommunityCreation']({
-							communityId: created.id,
-							name: created.name,
-							// biome-ignore lint/suspicious/noExplicitAny: runtime type extension
-							createdBy: (created as any).createdBy?.id ?? (created as any).createdBy?.externalId ?? '',
-						});
-					}
-				} catch (e) {
-					console.error('[communityCreate] failed to enqueue community creation', e);
-				}
-
 				return { status: { success: true }, community: created };
 			} catch (error) {
 				console.error('Community > Mutation  : ', error);

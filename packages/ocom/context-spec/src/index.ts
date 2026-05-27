@@ -1,7 +1,7 @@
 import type { DataSourcesFactory } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
-import type { AppQueueConsumerContext, AppQueueProducerContext } from '@ocom/service-queue-storage';
+import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation } from '@ocom/service-token-validation';
 
 /**
@@ -87,8 +87,21 @@ export interface ApiContextSpec {
 	// Client-facing narrow contract for upload/signing operations. Named to match runtime registration (ClientOperationsService)
 	clientOperationsService: ClientUploadOperations;
 
-	/** Queue producer (send) operations */
-	queueProducer?: AppQueueProducerContext;
-	/** Queue consumer (receive/delete) operations */
-	queueConsumer?: AppQueueConsumerContext;
+	/**
+	 * Application-specific queue storage service.
+	 * Combines all strongly-typed send, receive, and peek operations derived from the
+	 * registered queue definitions. Each registered queue gets its own named method:
+	 *  - Outbound queues: `sendMessageTo<QueueName>Queue(payload)`
+	 *  - Inbound queues: `receiveFrom<QueueName>Queue()`, `peekAt<QueueName>Queue()`
+	 *
+	 * Example:
+	 * ```ts
+	 * await context.queueStorageService.sendMessageToCommunityCreationQueue({
+	 *   communityId: '123',
+	 *   name: 'Test Community',
+	 *   createdBy: 'user-1',
+	 * });
+	 * ```
+	 */
+	queueStorageService: QueueStorageOperations;
 }

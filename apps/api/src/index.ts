@@ -10,14 +10,12 @@ import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
-// queue service imports — framework types only imported here
-import { queueRegistry } from '@ocom/service-queue-storage';
+import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as BlobStorageConfig from './service-config/blob-storage/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
-import * as QueueConfig from './service-config/queue/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
@@ -29,14 +27,15 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 	const clientOperationsService = new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString });
 	const tokenValidationService = new ServiceTokenValidation(TokenValidationConfig.portalTokens);
 	const apolloService = new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions);
-
-	const { queueService } = QueueConfig.createQueueServices(clientOperationsService, isProd);
+	const queueStorageService = isProd
+		? new ServiceQueueStorage({ accountName: BlobStorageConfig.accountName as string, blobStorage: blobStorageService })
+		: new ServiceQueueStorage({ connectionString: BlobStorageConfig.connectionString, blobStorage: blobStorageService });
 
 	serviceRegistry
 		.registerInfrastructureService(mongooseService)
 		.registerInfrastructureService(blobStorageService, 'BlobStorageService')
 		.registerInfrastructureService(clientOperationsService, 'ClientOperationsService')
-		.registerInfrastructureService(queueService, 'QueueStorageService')
+		.registerInfrastructureService(queueStorageService)
 		.registerInfrastructureService(tokenValidationService)
 		.registerInfrastructureService(apolloService);
 })
@@ -52,11 +51,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 			apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),
 			blobStorageService: serviceRegistry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService'),
 			clientOperationsService: serviceRegistry.getInfrastructureService<ServiceBlobStorage>('ClientOperationsService'),
-			// create typed producer/consumer context for queues (OCOM adapter provides registry)
-			...(() => {
-				const bound = queueRegistry._bind(serviceRegistry.getInfrastructureService('QueueStorageService'));
-				return { queueProducer: bound.producer, queueConsumer: bound.consumer };
-			})(),
+			queueStorageService: serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage),
 		};
 	})
 	.initializeApplicationServices((context) => buildApplicationServicesFactory(context))
