@@ -1,4 +1,4 @@
-import DatabaseExplorer from './database-explorer';
+import DatabaseExplorer from './database-explorer.tsx';
 
 export default { title: 'Tech Admin/Database Explorer' };
 

@@ -27,6 +27,8 @@ function StaffRoutes() {
 	const canViewStaffUsers = perms?.canViewStaffUsers === true;
 	const canManageFinance = perms?.canManageFinance === true;
 	const canManageTechAdmin = perms?.canManageTechAdmin === true;
+	const canViewDatabaseDocuments = perms?.canViewDatabaseDocuments === true;
+	const canAccessTechAdmin = canManageTechAdmin || canViewDatabaseDocuments;
 	const canViewRoles = perms?.canViewRoles === true;
 	const canAddRole = perms?.canAddRole === true;
 	const canEditRole = perms?.canEditRole === true;
@@ -35,7 +37,7 @@ function StaffRoutes() {
 		canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
 
 	let defaultStaffRoute = '/unauthorized';
-	if (canManageTechAdmin) {
+	if (canAccessTechAdmin) {
 		defaultStaffRoute = '/staff/tech';
 	} else if (canManageFinance) {
 		defaultStaffRoute = '/staff/finance';
@@ -74,7 +76,7 @@ function StaffRoutes() {
 					element={<Finance />}
 				/>
 			)}
-			{canManageTechAdmin && (
+			{canAccessTechAdmin && (
 				<Route
 					path="tech/*"
 					element={<TechAdmin />}

@@ -51,6 +51,12 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 		} },
 	];
 
+	const formatValueType = (value: unknown): string => {
+		if (value === null) return 'null';
+		if (Array.isArray(value)) return 'array';
+		return typeof value;
+	};
+
 	return (
 		<Space direction="vertical" style={{ width: '100%' }} size="large">
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -88,17 +94,32 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 					expandedRowRender: (record: DatabaseDocument) => {
 						try {
 							const obj = JSON.parse(record.json);
+							const fullJson = JSON.stringify(obj, null, 2);
 							const rows: { key: string; type: string; value: string }[] = [];
 							for (const [k, v] of Object.entries(obj)) {
-								rows.push({ key: k, type: typeof v, value: JSON.stringify(v) });
+								rows.push({ key: k, type: formatValueType(v), value: JSON.stringify(v, null, 2) });
 							}
 							return (
-								<Table
-									dataSource={rows}
-									columns={[{ title: 'Field', dataIndex: 'key', key: 'key' }, { title: 'Type', dataIndex: 'type', key: 'type' }, { title: 'Value', dataIndex: 'value', key: 'value', render: (val: string) => <pre style={{ whiteSpace: 'pre-wrap' }}>{val}</pre> }]}
-									rowKey="key"
-									pagination={false}
-								/>
+								<Space
+									direction="vertical"
+									style={{ width: '100%' }}
+									size="middle"
+								>
+									<div>
+										<Typography.Text strong={true}>Full JSON</Typography.Text>
+										<pre style={{ whiteSpace: 'pre-wrap', marginTop: 8 }}>{fullJson}</pre>
+									</div>
+									<Table
+										dataSource={rows}
+										columns={[
+											{ title: 'Field', dataIndex: 'key', key: 'key' },
+											{ title: 'Type', dataIndex: 'type', key: 'type' },
+											{ title: 'Value', dataIndex: 'value', key: 'value', render: (val: string) => <pre style={{ whiteSpace: 'pre-wrap' }}>{val}</pre> },
+										]}
+										rowKey="key"
+										pagination={false}
+									/>
+								</Space>
 							);
 						} catch (_e) {
 							return <div>Invalid JSON</div>;

@@ -2,7 +2,7 @@ import { PlaceholderPage } from '@ocom/ui-staff-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { SectionLayout } from './section-layout.tsx';
-import { DatabaseExplorerPage } from './pages/database-explorer';
+import { DatabaseExplorerPage } from './pages/database-explorer.tsx';
 
 export const Root: React.FC = () => {
 	return (

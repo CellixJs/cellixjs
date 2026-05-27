@@ -1,9 +1,9 @@
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import DatabaseExplorer from './database-explorer';
+import DatabaseExplorer from './database-explorer.tsx';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import type { DatabaseDocument } from './database-explorer';
+import type { DatabaseDocument } from './database-explorer.tsx';
 import { Empty } from 'antd';
 
 const COLLECTIONS_QUERY = gql`
@@ -55,7 +55,7 @@ export const DatabaseExplorerContainer: React.FC = () => {
 					<DatabaseExplorer
 						collections={collections}
 						selectedCollection={selectedCollection ?? ''}
-						onSelectCollection={(c) => { setSelectedCollection(c); setPage(1); }}
+						onSelectCollection={(c: string) => { setSelectedCollection(c); setPage(1); }}
 						filter={filter}
 						onChangeFilter={setFilter}
 						onApplyFilter={() => { setPage(1); }}
@@ -63,7 +63,7 @@ export const DatabaseExplorerContainer: React.FC = () => {
 						totalCount={totalCount}
 						page={page}
 						pageSize={pageSize}
-						onChangePage={(p, ps) => { setPage(p); if (ps) setPageSize(ps); }}
+						onChangePage={(p: number, ps?: number) => { setPage(p); if (ps) setPageSize(ps); }}
 						loading={documentsLoading}
 					/>
 				)
