@@ -48,16 +48,21 @@ export abstract class PortlessServer implements TestServer {
 	 * Check if server is already running (via health probe).
 	 * Uses centralized health probe timeout.
 	 */
-	async isAlreadyRunning(): Promise<boolean> {
+	isAlreadyRunning(): Promise<boolean> {
+		return this.isProbeReadyWithin(getTimeout('healthProbe'));
+	}
+
+	private async isProbeReadyWithin(timeoutMs: number): Promise<boolean> {
+		let timeout: ReturnType<typeof setTimeout> | undefined;
 		try {
 			const controller = new AbortController();
-			const probeTimeout = getTimeout('healthProbe');
-			const timeout = setTimeout(() => controller.abort(), probeTimeout);
+			timeout = setTimeout(() => controller.abort(), timeoutMs);
 			const res = await fetch(this.probeUrl, { ...this.probeRequestInit, signal: controller.signal });
-			clearTimeout(timeout);
 			return await this.isProbeHealthy(res);
 		} catch {
 			return false;
+		} finally {
+			if (timeout) clearTimeout(timeout);
 		}
 	}
 
@@ -150,6 +155,7 @@ export abstract class PortlessServer implements TestServer {
 			}
 
 			const startupTimeout = this.startupTimeoutMs;
+			const startupDeadline = Date.now() + startupTimeout;
 			const timeout = setTimeout(() => {
 				reject(new Error(`${this.serverName} did not start within ${startupTimeout}ms`));
 			}, startupTimeout);
@@ -163,7 +169,7 @@ export abstract class PortlessServer implements TestServer {
 				}
 				ready = true;
 
-				this.waitForProbeReady()
+				this.waitForProbeReady(startupDeadline, startupTimeout)
 					.then(() => {
 						clearTimeout(timeout);
 						resolve();
@@ -203,10 +209,26 @@ export abstract class PortlessServer implements TestServer {
 		});
 	}
 
-	private async waitForProbeReady(): Promise<void> {
+	private async waitForProbeReady(startupDeadline: number, startupTimeout: number): Promise<void> {
 		const probeInterval = getTimeout('healthProbeInterval');
-		while (!(await this.isAlreadyRunning())) {
-			await new Promise((resolve) => setTimeout(resolve, probeInterval));
+		const timeoutError = () => new Error(`${this.serverName} did not become healthy within ${startupTimeout}ms`);
+
+		while (true) {
+			const remainingMs = startupDeadline - Date.now();
+			if (remainingMs <= 0) {
+				throw timeoutError();
+			}
+
+			if (await this.isProbeReadyWithin(Math.min(getTimeout('healthProbe'), remainingMs))) {
+				return;
+			}
+
+			const retryDelay = Math.min(probeInterval, startupDeadline - Date.now());
+			if (retryDelay <= 0) {
+				throw timeoutError();
+			}
+
+			await new Promise((resolve) => setTimeout(resolve, retryDelay));
 		}
 	}
 
