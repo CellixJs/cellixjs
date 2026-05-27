@@ -37,7 +37,11 @@ export const DatabaseExplorerContainer: React.FC = () => {
 	const { data: collectionsData, loading: collectionsLoading, error: collectionsError } = useQuery<{ techAdminDatabaseCollections: string[] }>(COLLECTIONS_QUERY, { fetchPolicy: 'cache-first' });
 
 	const variables = useMemo(() => ({ collection: selectedCollection ?? '', filter: filter ?? undefined, page, pageSize }), [selectedCollection, filter, page, pageSize]);
-	const { data: documentsData, loading: documentsLoading } = useQuery<DocumentsQueryResult>(DOCUMENTS_QUERY, { variables, skip: !selectedCollection });
+	const { data: documentsData, loading: documentsLoading } = useQuery<DocumentsQueryResult>(DOCUMENTS_QUERY, {
+		variables,
+		skip: !selectedCollection,
+		pollInterval: 5000,
+	});
 
 	const collections = collectionsData?.techAdminDatabaseCollections ?? [];
 	const documents: DatabaseDocument[] = (documentsData?.techAdminDatabaseDocuments?.documents ?? []).map((d: { id: string; json: string }) => ({ id: d.id, json: d.json }));

@@ -20,15 +20,8 @@ function normalizeBsonValue(value: unknown): unknown {
 	// Decimal128
 	if (value && (value as { _bsontype?: unknown })._bsontype === 'Decimal128') return (value as { toString: () => string }).toString();
 	// Buffer
-	const maybeBuffer = value as { readUInt8?: unknown };
-	if (value && typeof maybeBuffer.readUInt8 === 'function') {
-		// Buffer-like
-		try {
-			return Buffer.isBuffer(value) ? value.toString('base64') : Buffer.from(value as Uint8Array).toString('base64');
-		} catch (_e) {
-			// fall through
-		}
-	}
+	if (Buffer.isBuffer(value)) return value.toString('base64');
+	if (value instanceof Uint8Array) return Buffer.from(value).toString('base64');
 	if (typeof value === 'object') {
 		const out: Record<string, unknown> = {};
 		for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
@@ -53,6 +46,16 @@ const ALLOWED_OPERATORS = new Set([
 	'$not',
 ]);
 
+function validateOperatorKey(key: string): void {
+	if (!key.startsWith('$')) return;
+	if (key === '$where' || key === '$function' || key === '$expr') {
+		throw userInputError(`Operator ${key} is not allowed in filter`);
+	}
+	if (!ALLOWED_OPERATORS.has(key)) {
+		throw userInputError(`Unknown operator: ${key}`);
+	}
+}
+
 function validateFilterOperators(obj: unknown, path = ''): void {
 	if (obj === null || obj === undefined) return;
 	if (Array.isArray(obj)) {
@@ -61,16 +64,105 @@ function validateFilterOperators(obj: unknown, path = ''): void {
 	}
 	if (typeof obj !== 'object') return;
 	for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-		if (k.startsWith('$')) {
-			if (k === '$where' || k === '$function' || k === '$expr') {
-				throw userInputError(`Operator ${k} is not allowed in filter`);
-			}
-			if (!ALLOWED_OPERATORS.has(k)) {
-				throw userInputError(`Unknown operator: ${k}`);
-			}
-		}
+		validateOperatorKey(k);
 		validateFilterOperators(v, path ? `${path}.${k}` : k);
 	}
+}
+
+const OBJECT_ID_KEYS = new Set(['_id', 'role']);
+const objectIdPattern = /^[a-fA-F0-9]{24}$/;
+
+function compareAlphabetically(a: string, b: string): number {
+	return a.localeCompare(b, 'en', { sensitivity: 'base' });
+}
+
+function getObjectIdHex(value: unknown): string | null {
+	if (!value) return null;
+	if (typeof value === 'string' && objectIdPattern.test(value)) {
+		return value;
+	}
+	if (typeof value === 'object') {
+		if (value instanceof mongoose.Types.ObjectId) {
+			return value.toHexString();
+		}
+		const maybeHex = value as { toHexString?: unknown };
+		if (typeof maybeHex.toHexString === 'function') {
+			return maybeHex.toHexString();
+		}
+		const maybeBson = value as { _bsontype?: unknown; toString?: unknown };
+		if (maybeBson._bsontype === 'ObjectId' && typeof maybeBson.toString === 'function') {
+			return maybeBson.toString();
+		}
+	}
+	return null;
+}
+
+function normalizeObjectIdValue(value: unknown): unknown {
+	if (typeof value === 'string' && objectIdPattern.test(value)) {
+		return new mongoose.Types.ObjectId(value);
+	}
+	if (Array.isArray(value)) {
+		return value.map((item) => normalizeObjectIdValue(item));
+	}
+	if (value && typeof value === 'object') {
+		const out: Record<string, unknown> = {};
+		for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+			out[k] = normalizeObjectIdValue(v);
+		}
+		return out;
+	}
+	return value;
+}
+
+function normalizeFilterObjectIds(obj: unknown): unknown {
+	if (obj === null || obj === undefined) return obj;
+	if (Array.isArray(obj)) {
+		return obj.map((item) => normalizeFilterObjectIds(item));
+	}
+	if (typeof obj !== 'object') return obj;
+	const out: Record<string, unknown> = {};
+	for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+		if (k.startsWith('$')) {
+			out[k] = normalizeFilterObjectIds(v);
+			continue;
+		}
+		if (OBJECT_ID_KEYS.has(k)) {
+			out[k] = normalizeObjectIdValue(v);
+			continue;
+		}
+		out[k] = normalizeFilterObjectIds(v);
+	}
+	return out;
+}
+
+async function enrichStaffUserRoles(collection: string, docs: Record<string, unknown>[], db: mongoose.mongo.Db): Promise<Record<string, unknown>[]> {
+	if (collection !== 'users') return docs;
+	const roleIds = new Set<string>();
+	for (const doc of docs) {
+		const roleId = getObjectIdHex(doc['role']);
+		if (roleId) roleIds.add(roleId);
+	}
+	if (roleIds.size === 0) return docs;
+
+	const roleObjectIds = [...roleIds].map((id) => new mongoose.Types.ObjectId(id));
+	const roles = await db.collection('roles').find({ _id: { $in: roleObjectIds } }, { projection: { roleName: 1, enterpriseAppRole: 1 } }).toArray();
+	const roleMap = new Map(
+		roles.map((role) => [
+			String(role._id),
+			{
+				roleName: role['roleName'] ?? null,
+				enterpriseAppRole: role['enterpriseAppRole'] ?? null,
+			},
+		]),
+	);
+
+	return docs.map((doc) => {
+		const roleId = getObjectIdHex(doc['role']);
+		if (!roleId) return doc;
+		const roleInfo = roleMap.get(roleId);
+		if (!roleInfo) return doc;
+		return { ...doc, role: { id: roleId, ...roleInfo } };
+	});
 }
 
 const techAdminResolvers: Resolvers = {
@@ -98,7 +190,7 @@ const techAdminResolvers: Resolvers = {
 			const db = mongoose.connection.db;
 			if (!db) throw new Error('Database connection is not available');
 			const cols = await db.listCollections().toArray();
-			return cols.map((c) => (c as { name: string }).name).filter((n) => !n.startsWith('system.')).sort();
+			return cols.map((c) => (c as { name: string }).name).filter((n) => !n.startsWith('system.')).sort(compareAlphabetically);
 		},
 
 		techAdminDatabaseDocuments: async (_parent: unknown, args, context: GraphContext, _info: GraphQLResolveInfo) => {
@@ -143,6 +235,7 @@ const techAdminResolvers: Resolvers = {
 				}
 				// Validate operators
 				validateFilterOperators(parsedFilter);
+				parsedFilter = normalizeFilterObjectIds(parsedFilter) as Record<string, unknown>;
 			}
 
 			const pageSize = Math.min(Math.max(args.pageSize ?? 20, 1), 100);
@@ -152,8 +245,9 @@ const techAdminResolvers: Resolvers = {
 			const coll = db.collection(args.collection);
 			const totalCount = await coll.countDocuments(parsedFilter);
 			const docs = await coll.find(parsedFilter).skip(skip).limit(pageSize).toArray();
+			const enrichedDocs = await enrichStaffUserRoles(args.collection, docs as Record<string, unknown>[], db);
 
-			const documents = docs.map((d) => {
+			const documents = enrichedDocs.map((d) => {
 				const sanitized = normalizeBsonValue(d as Record<string, unknown>);
 				return { id: String((d as { _id?: unknown })._id), json: JSON.stringify(sanitized) };
 			});

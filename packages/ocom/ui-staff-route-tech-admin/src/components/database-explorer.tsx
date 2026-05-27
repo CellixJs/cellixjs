@@ -1,6 +1,7 @@
 import { Button, Input, Select, Space, Table, Typography } from 'antd';
 import type { TableColumnsType } from 'antd';
 import type React from 'react';
+import { useState } from 'react';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -39,23 +40,31 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 	onChangePage,
 	loading,
 }) => {
-	const columns: TableColumnsType<DatabaseDocument> = [
-		{ title: 'ID', dataIndex: 'id', key: 'id' },
-		{ title: 'Preview', dataIndex: 'json', key: 'preview', render: (json: string) => {
-			try {
-				const obj = JSON.parse(json);
-				return <pre style={{ whiteSpace: 'pre-wrap', maxHeight: 80, overflow: 'auto' }}>{JSON.stringify(obj, null, 2)}</pre>;
-			} catch (_e) {
-				return <span>Invalid JSON</span>;
-			}
-		} },
-	];
+	const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
 
 	const formatValueType = (value: unknown): string => {
 		if (value === null) return 'null';
 		if (Array.isArray(value)) return 'array';
 		return typeof value;
 	};
+
+	const columns: TableColumnsType<DatabaseDocument> = [
+		{ title: 'ID', dataIndex: 'id', key: 'id' },
+		{
+			title: 'Preview',
+			dataIndex: 'json',
+			key: 'preview',
+			render: (json: string, record: DatabaseDocument) => {
+				if (expandedRowKeys.includes(record.id)) return null;
+				try {
+					const obj = JSON.parse(json);
+					return <pre style={{ whiteSpace: 'pre-wrap', maxHeight: 80, overflow: 'auto' }}>{JSON.stringify(obj, null, 2)}</pre>;
+				} catch (_e) {
+					return <span>Invalid JSON</span>;
+				}
+			},
+		},
+	];
 
 	return (
 		<Space direction="vertical" style={{ width: '100%' }} size="large">
@@ -125,6 +134,8 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 							return <div>Invalid JSON</div>;
 						}
 					},
+					expandedRowKeys,
+					onExpandedRowsChange: (keys) => { setExpandedRowKeys([...keys]); },
 				}}
 			/>
 		</Space>
