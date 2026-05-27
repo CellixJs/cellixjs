@@ -214,13 +214,13 @@ Feature: <DomainAdapter> StaffRoleDomainAdapter
     When I set the canManageTechAdmin property to true
     Then the techAdminPermissions' canManageTechAdmin should be true
 
-  Scenario: Getting and setting canViewDatabaseExplorer from techAdminPermissions
+  Scenario: Getting and setting canViewDatabaseDocuments from techAdminPermissions
     Given a StaffRoleDomainAdapter for the document
     When I get the permissions property
     And I get the techAdminPermissions property
-    Then the canViewDatabaseExplorer property should return false
-    When I set the canViewDatabaseExplorer property to true
-    Then the techAdminPermissions' canViewDatabaseExplorer should be true
+    Then the canViewDatabaseDocuments property should return false
+    When I set the canViewDatabaseDocuments property to true
+    Then the techAdminPermissions' canViewDatabaseDocuments should be true
 
   Scenario: Getting and setting canViewBlobExplorer from techAdminPermissions
     Given a StaffRoleDomainAdapter for the document

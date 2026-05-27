@@ -1,8 +1,7 @@
-import mongoose from 'mongoose';
 import type { GraphQLResolveInfo } from 'graphql';
+import mongoose from 'mongoose';
 import type { Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
-import { AuthenticationError, UserInputError } from 'apollo-server-errors';
 
 function normalizeBsonValue(value: unknown): unknown {
 	if (value === null || value === undefined) return value;
@@ -13,13 +12,8 @@ function normalizeBsonValue(value: unknown): unknown {
 	// Decimal128
 	if (value && (value as { _bsontype?: unknown })._bsontype === 'Decimal128') return (value as { toString: () => string }).toString();
 	// Buffer
-	if (value && (value as { valueOf?: unknown }) && typeof (value as any).readUInt8 === 'function') {
-		// Buffer-like
-		try {
-			return (value as Buffer).toString('base64');
-		} catch (_e) {
-			// fall through
-		}
+	if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(value)) {
+		return (value as Buffer).toString('base64');
 	}
 	if (typeof value === 'object') {
 		const out: Record<string, unknown> = {};
@@ -31,19 +25,7 @@ function normalizeBsonValue(value: unknown): unknown {
 	return value;
 }
 
-const ALLOWED_OPERATORS = new Set([
-	'$eq',
-	'$in',
-	'$gt',
-	'$gte',
-	'$lt',
-	'$lte',
-	'$exists',
-	'$regex',
-	'$and',
-	'$or',
-	'$not',
-]);
+const ALLOWED_OPERATORS = new Set(['$eq', '$in', '$gt', '$gte', '$lt', '$lte', '$exists', '$regex', '$and', '$or', '$not']);
 
 function validateFilterOperators(obj: unknown, path = ''): void {
 	if (obj === null || obj === undefined) return;
@@ -55,10 +37,10 @@ function validateFilterOperators(obj: unknown, path = ''): void {
 	for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
 		if (k.startsWith('$')) {
 			if (k === '$where' || k === '$function' || k === '$expr') {
-				throw new UserInputError(`Operator ${k} is not allowed in filter`);
+				throw new Error(`Operator ${k} is not allowed in filter`);
 			}
 			if (!ALLOWED_OPERATORS.has(k)) {
-				throw new UserInputError(`Unknown operator: ${k}`);
+				throw new Error(`Unknown operator: ${k}`);
 			}
 		}
 		validateFilterOperators(v, path ? `${path}.${k}` : k);
@@ -70,7 +52,7 @@ const techAdminResolvers: Resolvers = {
 		techAdminDatabaseCollections: async (_parent: unknown, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
-				throw new AuthenticationError('Unauthorized');
+				throw new Error('Unauthorized');
 			}
 
 			const staff = await context.applicationServices.User.StaffUser.createIfNotExists({
@@ -84,19 +66,22 @@ const techAdminResolvers: Resolvers = {
 			const canView = staff.role?.permissions?.techAdminPermissions?.canViewDatabaseDocuments === true;
 			const canManage = staff.role?.permissions?.techAdminPermissions?.canManageTechAdmin === true;
 			if (!canView && !canManage) {
-				throw new AuthenticationError('Unauthorized');
+				throw new Error('Unauthorized');
 			}
 
 			const db = mongoose.connection.db;
 			if (!db) throw new Error('Database connection is not available');
 			const cols = await db.listCollections().toArray();
-			return cols.map((c) => (c as { name: string }).name).filter((n) => !n.startsWith('system.')).sort();
+			return cols
+				.map((c) => (c as { name: string }).name)
+				.filter((n) => !n.startsWith('system.'))
+				.sort();
 		},
 
-		techAdminDatabaseDocuments: async (_parent: unknown, args: { collection: string; filter?: string; page?: number; pageSize?: number }, context: GraphContext, _info: GraphQLResolveInfo) => {
+		techAdminDatabaseDocuments: async (_parent: unknown, args: { collection: string; filter?: string | null; page?: number | null; pageSize?: number | null }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
-				throw new AuthenticationError('Unauthorized');
+				throw new Error('Unauthorized');
 			}
 
 			const staff = await context.applicationServices.User.StaffUser.createIfNotExists({
@@ -110,12 +95,12 @@ const techAdminResolvers: Resolvers = {
 			const canView = staff.role?.permissions?.techAdminPermissions?.canViewDatabaseDocuments === true;
 			const canManage = staff.role?.permissions?.techAdminPermissions?.canManageTechAdmin === true;
 			if (!canView && !canManage) {
-				throw new AuthenticationError('Unauthorized');
+				throw new Error('Unauthorized');
 			}
 
 			// Validate collection name
 			if (!/^[a-zA-Z0-9_-]+$/.test(args.collection)) {
-				throw new UserInputError('Invalid collection name');
+				throw new Error('Invalid collection name');
 			}
 
 			const db = mongoose.connection.db;
@@ -123,7 +108,7 @@ const techAdminResolvers: Resolvers = {
 			const cols = await db.listCollections().toArray();
 			const available = cols.map((c) => (c as { name: string }).name).filter((n) => !n.startsWith('system.'));
 			if (!available.includes(args.collection)) {
-				throw new UserInputError('Collection not found or not allowed');
+				throw new Error('Collection not found or not allowed');
 			}
 
 			let parsedFilter: Record<string, unknown> = {};
@@ -131,7 +116,7 @@ const techAdminResolvers: Resolvers = {
 				try {
 					parsedFilter = JSON.parse(args.filter);
 				} catch (_e) {
-					throw new UserInputError('Invalid filter JSON');
+					throw new Error('Invalid filter JSON');
 				}
 				// Validate operators
 				validateFilterOperators(parsedFilter);
