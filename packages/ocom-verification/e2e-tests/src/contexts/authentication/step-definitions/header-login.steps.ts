@@ -2,6 +2,7 @@ import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
 import type { BrowserContext, Page } from 'playwright';
 import * as infra from '../../../shared/support/shared-infrastructure.ts';
+import type { CellixE2EWorld } from '../../../world.ts';
 
 interface HeaderE2ENotes {
 	signinRedirectInvoked: boolean;
@@ -19,15 +20,23 @@ interface HeaderE2EState {
 	page?: Page;
 }
 
-let state: HeaderE2EState | undefined;
+type HeaderE2EWorld = CellixE2EWorld & {
+	__headerState?: HeaderE2EState;
+};
 
-function getHeaderState(): HeaderE2EState {
-	if (!state) throw new Error('Header scenario state not initialised');
+function getHeaderState(world: HeaderE2EWorld): HeaderE2EState {
+	if (!world.__headerState) throw new Error('Header scenario state not initialised');
+	return world.__headerState;
+}
+
+function setHeaderState(world: HeaderE2EWorld, actorName: string, site: Site): HeaderE2EState {
+	const state: HeaderE2EState = { actorName, site, identityProviderUnreachable: false };
+	world.__headerState = state;
 	return state;
 }
 
 /** Dispose the scenario's isolated browser context */
-async function cleanupHeaderContext(): Promise<void> {
+async function cleanupHeaderContext(state: HeaderE2EState): Promise<void> {
 	if (state?.page) {
 		await state.page.close().catch(() => undefined);
 		delete state.page;
@@ -38,20 +47,20 @@ async function cleanupHeaderContext(): Promise<void> {
 	}
 }
 
-Given('{word} visits the community site', async (actorName: string) => {
-	state = { actorName, site: 'community', identityProviderUnreachable: false };
+Given('{word} visits the community site', async function (this: HeaderE2EWorld, actorName: string) {
+	setHeaderState(this, actorName, 'community');
 	const actor = actorCalled(actorName);
 	await actor.attemptsTo(notes<HeaderE2ENotes>().set('signinRedirectInvoked', false), notes<HeaderE2ENotes>().set('fallbackTriggered', false), notes<HeaderE2ENotes>().set('postLoginUrl', ''));
 });
 
-Given('{word} visits the staff site', async (actorName: string) => {
-	state = { actorName, site: 'staff', identityProviderUnreachable: false };
+Given('{word} visits the staff site', async function (this: HeaderE2EWorld, actorName: string) {
+	setHeaderState(this, actorName, 'staff');
 	const actor = actorCalled(actorName);
 	await actor.attemptsTo(notes<HeaderE2ENotes>().set('signinRedirectInvoked', false), notes<HeaderE2ENotes>().set('fallbackTriggered', false), notes<HeaderE2ENotes>().set('postLoginUrl', ''));
 });
 
-Given('the identity provider is unreachable', () => {
-	getHeaderState().identityProviderUnreachable = true;
+Given('the identity provider is unreachable', function (this: HeaderE2EWorld) {
+	getHeaderState(this).identityProviderUnreachable = true;
 });
 
 // Credentials from apps/ui-{portal}/mock-oidc.users.json
@@ -60,8 +69,8 @@ const portalCredentials: Record<Site, { username: string; password: string }> = 
 	staff: { username: 'staff@ownercommunity.onmicrosoft.com', password: 'password' },
 };
 
-When('{word} chooses to sign in', async (actorName: string) => {
-	const s = getHeaderState();
+When('{word} chooses to sign in', async function (this: HeaderE2EWorld, actorName: string) {
+	const s = getHeaderState(this);
 	s.actorName = actorName;
 
 	const { browser } = infra.getState();
@@ -113,8 +122,9 @@ When('{word} chooses to sign in', async (actorName: string) => {
 	}
 });
 
-Then('{word} is taken to the sign-in flow', async (actorName: string) => {
-	const { page } = getHeaderState();
+Then('{word} is taken to the sign-in flow', async function (this: HeaderE2EWorld, actorName: string) {
+	const state = getHeaderState(this);
+	const { page } = state;
 	if (!page) throw new Error('No page — did the When step run?');
 
 	try {
@@ -127,12 +137,13 @@ Then('{word} is taken to the sign-in flow', async (actorName: string) => {
 			throw new Error(`Expected ${actorName} to complete the sign-in flow, but the page is stuck on the auth redirect callback: ${page.url()}`);
 		}
 	} finally {
-		await cleanupHeaderContext();
+		await cleanupHeaderContext(state);
 	}
 });
 
-Then('{word} can still reach the sign-in page', async (actorName: string) => {
-	const { page } = getHeaderState();
+Then('{word} can still reach the sign-in page', async function (this: HeaderE2EWorld, actorName: string) {
+	const state = getHeaderState(this);
+	const { page } = state;
 	if (!page) throw new Error('No page — did the When step run?');
 
 	try {
@@ -144,6 +155,6 @@ Then('{word} can still reach the sign-in page', async (actorName: string) => {
 			throw new Error(`Expected ${actorName} to reach the sign-in page via fallback, but somehow ended up on mock-auth: ${page.url()}`);
 		}
 	} finally {
-		await cleanupHeaderContext();
+		await cleanupHeaderContext(state);
 	}
 });

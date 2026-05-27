@@ -16,10 +16,6 @@ export class TestStaffViteServer extends PortlessServer {
 		return 'TestStaffViteServer';
 	}
 
-	protected override get startupTimeoutMs() {
-		return 60_000;
-	}
-
 	protected get spawnArgs() {
 		return ['run', 'dev'];
 	}

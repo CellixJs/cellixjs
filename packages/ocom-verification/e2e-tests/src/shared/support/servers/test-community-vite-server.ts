@@ -17,14 +17,6 @@ export class TestCommunityViteServer extends PortlessServer {
 		return 'TestCommunityViteServer';
 	}
 
-	/**
-	 * Vite typically starts faster than API servers.
-	 * Using a shorter timeout (60s vs default 120s) for faster feedback on failures.
-	 */
-	protected override get startupTimeoutMs() {
-		return 60_000;
-	}
-
 	protected get spawnArgs() {
 		return ['run', 'dev'];
 	}

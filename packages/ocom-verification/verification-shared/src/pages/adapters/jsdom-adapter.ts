@@ -32,14 +32,22 @@ class JsdomElementHandle implements ElementHandle {
 	fill(value: string): Promise<void> {
 		if (!this.el) return Promise.resolve();
 
-		const input = this.el as HTMLInputElement;
+		if (!(this.el instanceof HTMLInputElement || this.el instanceof HTMLTextAreaElement)) {
+			return Promise.resolve();
+		}
+
+		const input = this.el;
+		const proto = input instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+
 		act(() => {
-			const nativeInputValueSetter = Object.getOwnPropertyDescriptor(input instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype, 'value')?.set;
+			const nativeInputValueSetter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
+
 			if (nativeInputValueSetter) {
 				nativeInputValueSetter.call(input, value);
 			} else {
 				input.value = value;
 			}
+
 			fireEvent.input(input, { target: { value } });
 			fireEvent.change(input, { target: { value } });
 		});
