@@ -1,10 +1,11 @@
 import type { MessagePayload, QueueMap } from './interfaces.js';
 import { resolveLoggingFields } from './interfaces.js';
+import type { InternalQueueTransport } from './internal-queue-storage-service.js';
 import type { IQueueMessageLogger, MessageLogEnvelope } from './logging.js';
-import type { InternalQueueTransport } from './service-queue-storage.js';
 
 type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S;
 
+/** Public consumer methods generated for an application's inbound queues. */
 export type QueueConsumerContext<I extends QueueMap> = {
 	[K in keyof I as `receiveFrom${Capitalize<string & K>}Queue`]: () => Promise<QueueMessage<MessagePayload<I[K]>> | undefined>;
 } & {

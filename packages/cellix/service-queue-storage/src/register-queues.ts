@@ -1,9 +1,9 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import type { QueueMap, QueueStorageConfig } from './interfaces.js';
+import { InternalQueueStorageService, type QueueServiceLifecycle } from './internal-queue-storage-service.js';
 import { createQueueConsumer, type QueueConsumerContext } from './queue-consumer.js';
 import { createQueueProducer, type QueueProducerContext } from './queue-producer.js';
-import { InternalQueueStorageService, type QueueServiceLifecycle } from './service-queue-storage.js';
 
 // Setup Ajv once for the module lifecycle
 const AjvClass = Ajv as unknown as new (opts?: Record<string, unknown>) => { compile(schema: object): (data: unknown) => boolean };
@@ -15,6 +15,12 @@ if (typeof addFormatsAny === 'function') {
 	addFormatsAny.default?.(ajv);
 }
 
+/**
+ * Public service shape produced by {@link registerQueues}.
+ *
+ * Consumers typically use this through an application-specific alias, for example
+ * `type ServiceQueueStorage = RegisteredQueueService<typeof outbound, typeof inbound>`.
+ */
 export type RegisteredQueueService<O extends QueueMap, I extends QueueMap> = QueueServiceLifecycle & QueueProducerContext<O> & QueueConsumerContext<I>;
 
 /**
@@ -68,7 +74,7 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 	const makeProducerStub = <T extends QueueMap>(defs: T): QueueProducerContext<T> => {
 		const out: Record<string, unknown> = {};
 		for (const key of Object.keys(defs)) {
-			const cap = `${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+			const cap = capitalizeQueueKey(key);
 			out[`sendMessageTo${cap}Queue`] = () => Promise.reject(new Error('Queue producer not bound to a registered queue service'));
 			out[`peekAt${cap}Queue`] = (_maxMessages?: number) => Promise.resolve([]);
 		}
@@ -78,7 +84,7 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 	const makeConsumerStub = <T extends QueueMap>(defs: T): QueueConsumerContext<T> => {
 		const out: Record<string, unknown> = {};
 		for (const key of Object.keys(defs)) {
-			const cap = `${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+			const cap = capitalizeQueueKey(key);
 			out[`receiveFrom${cap}Queue`] = () => Promise.resolve(undefined);
 			out[`peekAt${cap}Queue`] = (_maxMessages?: number) => Promise.resolve([]);
 		}
@@ -106,4 +112,8 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 		consumer,
 		Service: BoundServiceQueueStorage as unknown as new (options: QueueStorageConfig) => RegisteredQueueService<O, I>,
 	} as const;
+}
+
+function capitalizeQueueKey(key: string): string {
+	return `${key.charAt(0).toUpperCase()}${key.slice(1)}`;
 }

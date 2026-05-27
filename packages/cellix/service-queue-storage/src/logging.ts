@@ -27,8 +27,12 @@ type BlobStorageLike = {
 
 /**
  * BlobQueueMessageLogger persists queue message envelopes to a blob storage
- * container. This is intentionally minimal so it can be adapted to different
- * blob storage clients in tests and production.
+ * container. The blob content is the payload JSON itself, while queue direction,
+ * queue name, and any resolved tags or metadata are expressed through the blob path
+ * and blob properties.
+ *
+ * This helper is intentionally minimal so it can be adapted to different blob
+ * storage clients in tests and production.
  *
  * @returns When messages are logged the helper returns a {@link LogAddress} describing where the envelope was stored.
  * @example

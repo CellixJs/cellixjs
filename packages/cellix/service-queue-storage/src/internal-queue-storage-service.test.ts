@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { InternalQueueStorageService } from './service-queue-storage.js';
+import { InternalQueueStorageService } from './internal-queue-storage-service.js';
 
 vi.mock('@azure/storage-queue', () => {
 	return {

@@ -3,6 +3,13 @@ import type { IQueueMessageLogger } from './logging.js';
 // Phantom symbol used solely for payload type inference — never set at runtime
 declare const _queuePayload: unique symbol;
 
+/**
+ * Construction options for registered queue services.
+ *
+ * Provide either `connectionString` for local/shared-key access or `accountName`
+ * for managed identity access. Logging is optional but, when enabled, is applied
+ * automatically by the typed send and receive methods created through `registerQueues()`.
+ */
 export type QueueStorageConfig = {
 	accountName?: string;
 	connectionString?: string;
@@ -17,6 +24,7 @@ export type QueueStorageConfig = {
 	logger?: IQueueMessageLogger;
 };
 
+/** Message shape returned from typed receive and peek queue methods. */
 export type QueueMessage<T = unknown> = {
 	id: string;
 	popReceipt?: string;
@@ -24,6 +32,7 @@ export type QueueMessage<T = unknown> = {
 	dequeueCount?: number;
 };
 
+/** Queue direction used when persisting message logs. */
 export type QueueDirection = 'inbound' | 'outbound';
 
 export type SendMessageOptions = {

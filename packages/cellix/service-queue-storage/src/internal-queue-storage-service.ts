@@ -4,11 +4,13 @@ import { QueueServiceClient } from '@azure/storage-queue';
 import type { IQueueStorageOperations, PeekMessagesOptions, QueueMessage, QueueStorageConfig, ReceiveMessagesOptions, SendMessageOptions } from './interfaces.js';
 import type { MessageLogEnvelope } from './logging.js';
 
+/** Public lifecycle contract implemented by registered queue services. */
 export interface QueueServiceLifecycle {
 	startUp(): Promise<this>;
 	shutDown(): Promise<void>;
 }
 
+/** Internal transport contract used to bind typed queue methods onto the base Azure service. */
 export type InternalQueueTransport = IQueueStorageOperations &
 	QueueServiceLifecycle & {
 		createQueueIfNotExists(queue: string): Promise<void>;
