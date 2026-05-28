@@ -6,7 +6,7 @@ Domain-driven architecture for Azure Functions with GraphQL/REST, MongoDB (Mongo
 
 
 [Getting Started](https://developers.cellixjs.org/docs/intro):
-Our Docusaurus website will help you get started in running and contributing to CellixJS
+Our Docusaurus website will help you get started with running and contributing to CellixJS
 
 ## Project Status
 
