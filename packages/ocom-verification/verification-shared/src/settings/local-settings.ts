@@ -1,12 +1,10 @@
 import path from 'node:path';
-import { findWorkspaceRoot, readDotEnv, readJsonSettings, readSetting, requireSetting, resolveWorkspacePath } from './settings-utils.ts';
+import { findWorkspaceRoot, readJsonSettings, readSetting, resolveWorkspacePath } from './settings-utils.ts';
 
 const workspaceRoot = findWorkspaceRoot();
 const apiSettingsPath = resolveWorkspacePath(workspaceRoot, 'apps/api/local.settings.json');
-const uiEnvPath = resolveWorkspacePath(workspaceRoot, 'apps/ui-community/.env');
 
 const apiValues = readJsonSettings(apiSettingsPath);
-const uiValues = readDotEnv(uiEnvPath);
 
 /**
  * Defaults for E2E/acceptance test settings when local.settings.json is absent
@@ -41,12 +39,6 @@ export const apiSettings = {
 
 	apiDir: path.dirname(apiSettingsPath),
 	oauth2MockDir: path.join(workspaceRoot, 'apps', 'server-oauth2-mock'),
-	uiCommunityDir: path.dirname(uiEnvPath),
+	uiCommunityDir: path.join(workspaceRoot, 'apps', 'ui-community'),
 	uiStaffDir: path.join(workspaceRoot, 'apps', 'ui-staff'),
-} as const;
-
-export const uiSettings = {
-	baseUrl: requireSetting(uiValues, 'VITE_APP_UI_COMMUNITY_BASE_URL', 'VITE_APP_UI_COMMUNITY_BASE_URL is required in .env'),
-
-	graphqlEndpoint: requireSetting(uiValues, 'VITE_COMMON_API_ENDPOINT', 'VITE_COMMON_API_ENDPOINT is required in .env'),
 } as const;
