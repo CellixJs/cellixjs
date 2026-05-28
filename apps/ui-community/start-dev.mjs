@@ -13,7 +13,10 @@ if (process.env.WORKTREE_NAME) {
 	childEnv.VITE_APP_UI_COMMUNITY_BASE_URL = buildPortlessUrl(hostnames.uiCommunity);
 }
 
-const viteArgs = ['--port', process.env.PORT, '--host', process.env.HOST ?? '127.0.0.1'];
+const viteArgs = ['--host', process.env.HOST ?? '127.0.0.1'];
+if (process.env.PORT) {
+	viteArgs.push('--port', process.env.PORT);
+}
 const viteMode = process.env.E2E_VITE_MODE ?? (isE2E() || process.env.TF_BUILD ? 'e2e' : undefined);
 if (viteMode) {
 	viteArgs.push('--mode', viteMode);

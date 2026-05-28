@@ -124,5 +124,7 @@ export function getAzuriteConnectionString(values) {
 export function getMongoConnectionString() {
 	const base = getSetting('COSMOSDB_CONNECTION_STRING');
 	if (!base) throw new Error('[worktree-ports] COSMOSDB_CONNECTION_STRING must be set');
-	return base.replace(/127\.0\.0\.1:\d+/, `127.0.0.1:${getMongoPort()}`);
+	const url = new URL(base);
+	url.port = String(getMongoPort());
+	return url.toString();
 }
