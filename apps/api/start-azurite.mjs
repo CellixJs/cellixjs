@@ -10,11 +10,20 @@ const blobDir = `../../__blobstorage__${storageSuffix}`;
 const queueDir = `../../__queuestorage__${storageSuffix}`;
 const tableDir = `../../__tablestorage__${storageSuffix}`;
 
-const procs = [
-	spawn('azurite-blob', ['--silent', '--blobPort', String(ports.blob), '--location', blobDir], { stdio: 'inherit' }),
-	spawn('azurite-queue', ['--silent', '--queuePort', String(ports.queue), '--location', queueDir], { stdio: 'inherit' }),
-	spawn('azurite-table', ['--silent', '--tablePort', String(ports.table), '--location', tableDir], { stdio: 'inherit' }),
+const procSpecs = [
+	['azurite-blob', ['--silent', '--blobPort', String(ports.blob), '--location', blobDir]],
+	['azurite-queue', ['--silent', '--queuePort', String(ports.queue), '--location', queueDir]],
+	['azurite-table', ['--silent', '--tablePort', String(ports.table), '--location', tableDir]],
 ];
+const procs = procSpecs.map(([command, args]) => {
+	const proc = spawn(command, args, { stdio: 'inherit' });
+	proc.on('error', (error) => {
+		console.error(`[azurite] failed to start ${command}: ${error.message}`);
+		for (const p of procs) p.kill();
+		process.exit(1);
+	});
+	return proc;
+});
 
 console.log(`[azurite] started (blob=${ports.blob}, queue=${ports.queue}, table=${ports.table})`);
 

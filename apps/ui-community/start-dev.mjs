@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { forwardChildExit } from '../../scripts/local-dev/dev-process-exit.mjs';
 import { buildPortlessUrl, getHostnames } from '../../scripts/local-dev/portless-hostnames.mjs';
+import { buildViteArgs } from '../../scripts/local-dev/vite-dev-args.mjs';
 
 const childEnv = { ...process.env };
 
@@ -13,14 +14,7 @@ if (process.env.WORKTREE_NAME) {
 	childEnv.VITE_APP_UI_COMMUNITY_BASE_URL = buildPortlessUrl(hostnames.uiCommunity);
 }
 
-const viteArgs = ['--host', process.env.HOST ?? '127.0.0.1'];
-if (process.env.PORT) {
-	viteArgs.push('--port', process.env.PORT);
-}
-const viteMode = process.env.E2E_VITE_MODE ?? (isE2E() || process.env.TF_BUILD ? 'e2e' : undefined);
-if (viteMode) {
-	viteArgs.push('--mode', viteMode);
-}
+const viteArgs = buildViteArgs({ host: process.env.HOST, port: process.env.PORT });
 
 const child = spawn('vite', viteArgs, {
 	stdio: 'inherit',
@@ -28,7 +22,3 @@ const child = spawn('vite', viteArgs, {
 });
 
 forwardChildExit(child);
-
-function isE2E() {
-	return ['1', 'true', 'yes'].includes((process.env.E2E ?? '').toLowerCase());
-}
