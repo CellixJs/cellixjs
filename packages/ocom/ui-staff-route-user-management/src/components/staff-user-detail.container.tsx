@@ -106,6 +106,12 @@ export const StaffUserDetailContainer: React.FC = () => {
 		if (targetUserEnterpriseAppRole && r.enterpriseAppRole !== targetUserEnterpriseAppRole) return false;
 		return true;
 	});
+	const availableRoles = filteredRoles.map((r) => ({ id: String(r.id), roleName: r.roleName }));
+	const currentRole = user?.role ? { id: String(user.role.id), roleName: user.role.roleName } : null;
+	const availableRolesWithCurrent =
+		currentRole && !availableRoles.some((r) => r.id === currentRole.id)
+			? [currentRole, ...availableRoles]
+			: availableRoles;
 
 	return (
 		<StaffUserDetail
@@ -114,7 +120,7 @@ export const StaffUserDetailContainer: React.FC = () => {
 					? { id: String(user.id), displayName: user.displayName, email: user.email, role: user.role ? { id: String(user.role.id), roleName: user.role.roleName } : null, createdAt: String(user.createdAt ?? '') }
 					: { id: userId, displayName: 'Loading...', email: '', role: null, createdAt: '' }
 			}
-			availableRoles={filteredRoles.map((r) => ({ id: String(r.id), roleName: r.roleName }))}
+			availableRoles={availableRolesWithCurrent}
 			canAssignRoles={canAssignRoles && !isEditingOwnRole}
 			isEditingOwnRole={isEditingOwnRole}
 			{...(user?.role?.roleName && { currentRoleName: user.role.roleName })}
