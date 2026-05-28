@@ -48,12 +48,12 @@ export const apiSettings = {
 } as const;
 
 export const uiCommunitySettings = {
-	baseUrl: requireSetting(uiCommunityValues, 'VITE_BASE_URL', 'VITE_BASE_URL is required in apps/ui-community/.env'),
+	baseUrl: requireSetting(uiCommunityValues, 'VITE_APP_UI_COMMUNITY_BASE_URL', 'VITE_APP_UI_COMMUNITY_BASE_URL is required in apps/ui-community/.env'),
 
 	graphqlEndpoint: requireSetting(uiCommunityValues, 'VITE_COMMON_API_ENDPOINT', 'VITE_COMMON_API_ENDPOINT is required in apps/ui-community/.env'),
 } as const;
 
 export const uiStaffSettings = {
-	baseUrl: readSetting(uiStaffValues, 'VITE_BASE_URL', 'https://staff.ownercommunity.localhost:1355') ?? 'https://staff.ownercommunity.localhost:1355',
+	baseUrl: readSetting(uiStaffValues, 'VITE_APP_UI_STAFF_BASE_URL', 'https://staff.ownercommunity.localhost:1355') ?? 'https://staff.ownercommunity.localhost:1355',
 	graphqlEndpoint: requireSetting(uiStaffValues, 'VITE_COMMON_API_ENDPOINT', 'VITE_COMMON_API_ENDPOINT is required in apps/ui-staff/.env'),
 } as const;
