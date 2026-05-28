@@ -22,7 +22,7 @@
 		"@cellix/ui-core": "workspace:*",
 		"@dr.pogodin/react-helmet": "^3.0.2",
 		"@graphql-typed-document-node/core": "^3.2.0",
-        "@ocom/ui-community-shared": "workspace:*",
+		"@ocom/ui-community-shared": "workspace:*",
 		"@ocom/ui-shared": "workspace:*",
 		"antd": "catalog:",
 		"react": "catalog:",

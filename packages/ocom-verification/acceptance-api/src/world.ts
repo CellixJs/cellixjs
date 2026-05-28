@@ -13,6 +13,7 @@ export class CellixApiWorld extends World {
 
 	async init(): Promise<void> {
 		await infra.ensureApiServers();
+		await infra.resetMongoForScenario();
 
 		const { apiUrl } = infra.getState();
 		if (apiUrl) {

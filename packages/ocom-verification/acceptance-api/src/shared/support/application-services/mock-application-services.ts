@@ -33,7 +33,7 @@ function createNoOpApolloServerService(): ServiceApolloServer<Record<string, nev
 		get service(): never {
 			return notImplemented() as never;
 		},
-	} as unknown as ServiceApolloServer<BaseContext>;
+	} as unknown as ServiceApolloServer<Record<string, never>>;
 }
 
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {

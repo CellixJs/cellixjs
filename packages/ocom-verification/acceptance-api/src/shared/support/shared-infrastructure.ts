@@ -60,3 +60,8 @@ export async function ensureApiServers(): Promise<void> {
 	await graphQLServer.start();
 	apiUrl = graphQLServer.getUrl();
 }
+
+export async function resetMongoForScenario(): Promise<void> {
+	if (!mongoDBServer) return;
+	await mongoDBServer.resetForScenario();
+}

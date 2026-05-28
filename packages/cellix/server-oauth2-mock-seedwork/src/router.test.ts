@@ -45,7 +45,7 @@ function createPassword(label: string) {
 async function startServer(port: number, store: MockOAuth2UserStore, getUserProfile: MockOAuth2PortalConfig['getUserProfile'] = () => ({ email: 'portal@example.com' })) {
 	const app = express();
 	app.disable('x-powered-by');
-	const srv = app.listen(port);
+	const srv = app.listen(port, '127.0.0.1');
 	await new Promise<void>((resolve) => srv.on('listening', () => resolve()));
 	const boundPort = (srv.address() as AddressInfo).port as number;
 	const redirect = `${baseUrlFor(boundPort)}/cb`;
