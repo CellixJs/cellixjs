@@ -139,6 +139,7 @@ async function enrichStaffUserRoles(collection: string, docs: Record<string, unk
 	if (collection !== 'users') return docs;
 	const roleIds = new Set<string>();
 	for (const doc of docs) {
+        // biome-ignore lint:useLiteralKeys
 		const roleId = getObjectIdHex(doc['role']);
 		if (roleId) roleIds.add(roleId);
 	}
@@ -150,13 +151,16 @@ async function enrichStaffUserRoles(collection: string, docs: Record<string, unk
 		roles.map((role) => [
 			String(role._id),
 			{
+				// biome-ignore lint:useLiteralKeys
 				roleName: role['roleName'] ?? null,
+				// biome-ignore lint:useLiteralKeys
 				enterpriseAppRole: role['enterpriseAppRole'] ?? null,
 			},
 		]),
 	);
 
 	return docs.map((doc) => {
+        // biome-ignore lint:useLiteralKeys
 		const roleId = getObjectIdHex(doc['role']);
 		if (!roleId) return doc;
 		const roleInfo = roleMap.get(roleId);
@@ -171,18 +175,12 @@ const techAdminResolvers: Resolvers = {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
 				throw unauthorizedError();
-			}
+                }
 
-			const staff = await context.applicationServices.User.StaffUser.createIfNotExists({
-				externalId: jwt.sub,
-				firstName: jwt.given_name ?? '',
-				lastName: jwt.family_name ?? '',
-				email: jwt.email ?? '',
-				aadRoles: jwt.roles ?? [],
-			});
+			const staff = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
 
-			const canView = staff.role?.permissions?.techAdminPermissions?.canViewDatabaseDocuments === true;
-			const canManage = staff.role?.permissions?.techAdminPermissions?.canManageTechAdmin === true;
+			const canView = staff?.role?.permissions?.techAdminPermissions?.canViewDatabaseDocuments === true;
+			const canManage = staff?.role?.permissions?.techAdminPermissions?.canManageTechAdmin === true;
 			if (!canView && !canManage) {
 				throw unauthorizedError();
 			}
@@ -199,16 +197,10 @@ const techAdminResolvers: Resolvers = {
 				throw unauthorizedError();
 			}
 
-			const staff = await context.applicationServices.User.StaffUser.createIfNotExists({
-				externalId: jwt.sub,
-				firstName: jwt.given_name ?? '',
-				lastName: jwt.family_name ?? '',
-				email: jwt.email ?? '',
-				aadRoles: jwt.roles ?? [],
-			});
+			const staff = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
 
-			const canView = staff.role?.permissions?.techAdminPermissions?.canViewDatabaseDocuments === true;
-			const canManage = staff.role?.permissions?.techAdminPermissions?.canManageTechAdmin === true;
+			const canView = staff?.role?.permissions?.techAdminPermissions?.canViewDatabaseDocuments === true;
+			const canManage = staff?.role?.permissions?.techAdminPermissions?.canManageTechAdmin === true;
 			if (!canView && !canManage) {
 				throw unauthorizedError();
 			}
