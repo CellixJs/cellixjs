@@ -1,4 +1,4 @@
-export { apiSettings, uiCommunitySettings, uiStaffSettings } from './local-settings.ts';
+export { apiSettings, } from './local-settings.ts';
 export {
 	findWorkspaceRoot,
 	readDotEnv,
