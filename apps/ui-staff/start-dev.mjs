@@ -12,7 +12,7 @@ if (process.env.WORKTREE_NAME) {
 }
 
 const viteArgs = ['--port', process.env.PORT, '--host', process.env.HOST ?? '127.0.0.1'];
-const viteMode = process.env.E2E_VITE_MODE ?? (process.env.TF_BUILD ? 'e2e' : undefined);
+const viteMode = process.env.E2E_VITE_MODE ?? (isE2E() || process.env.TF_BUILD ? 'e2e' : undefined);
 if (viteMode) {
 	viteArgs.push('--mode', viteMode);
 }
@@ -23,3 +23,7 @@ const child = spawn('vite', viteArgs, {
 });
 
 forwardChildExit(child);
+
+function isE2E() {
+	return ['1', 'true', 'yes'].includes((process.env.E2E ?? '').toLowerCase());
+}

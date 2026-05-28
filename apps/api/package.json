@@ -10,8 +10,6 @@
 		"build": "tsgo --build && rolldown -c rolldown.config.ts",
 		"predev": "pnpm run prepare:deploy && pnpm run sync-local-settings",
 		"dev": "pnpm exec portless data-access.ownercommunity.localhost --force node start-dev.mjs",
-		"predev:e2e": "pnpm run prepare:deploy && node scripts/sync-local-settings.mjs e2e",
-		"dev:e2e": "pnpm exec portless data-access.ownercommunity${WORKTREE_NAME:+.${WORKTREE_NAME}}.localhost --force node start-dev.mjs",
 		"predev:worktree": "pnpm run prepare:deploy && pnpm run sync-local-settings",
 		"dev:worktree": "pnpm exec portless data-access.ownercommunity.${WORKTREE_NAME}.localhost --force node start-dev.mjs",
 		"prepare:deploy": "cellix-prepare-func-deploy",

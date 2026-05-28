@@ -68,5 +68,11 @@ export const OAuth2Login = (_email?: string, _password?: string) =>
 			// Navigation may be interrupted by OIDC redirect on first access
 		}
 
+		if (page.url().includes('/login')) {
+			await page.fill('input[name="username"]', actors.CommunityOwner.email);
+			await page.fill('input[name="password"]', 'password');
+			await page.click('button[type="submit"]');
+		}
+
 		await page.waitForURL(isPostAuthUrl, { timeout: 30_000 });
 	});

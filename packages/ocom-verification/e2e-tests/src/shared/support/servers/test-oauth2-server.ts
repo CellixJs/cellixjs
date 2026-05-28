@@ -1,25 +1,32 @@
 import { appPaths } from './app-paths.ts';
+import { getPortlessDevScript } from './dev-script.ts';
 import { PortlessServer } from './portless-server.ts';
-import { getHostnames, mockOidcIssuer } from './test-environment.ts';
-
-const hostnames = getHostnames();
+import { mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
 
 /**
  * Starts the mock OAuth2/OIDC server via portless.
- *
- * Login is performed by the browser context in oauth2-login.ts rather than
- * by programmatic token generation — this tests the real OIDC redirect flow.
  */
 export class TestOAuth2Server extends PortlessServer {
+	protected get probeUrl() {
+		return mockOidcEndpoint;
+	}
+
 	protected get readyMarker() {
 		return 'Registered OIDC config';
 	}
+
 	protected get serverName() {
 		return 'TestOAuth2Server';
 	}
-	protected get spawnArgs() {
-		return [hostnames.mockAuth, 'node', 'start-dev.mjs'];
+
+	protected override get executable() {
+		return 'pnpm';
 	}
+
+	protected get spawnArgs() {
+		return ['run', getPortlessDevScript()];
+	}
+
 	protected get cwd() {
 		return appPaths.oauth2MockDir;
 	}

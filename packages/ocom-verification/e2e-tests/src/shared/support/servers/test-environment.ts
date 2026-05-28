@@ -10,23 +10,23 @@ let mongoConnectionString: string | undefined;
 
 loadE2EEnvDefaults();
 
-/** Module-level hostnames derived from .env files (matches dev:worktree pattern). */
 const hostnames = getHostnames();
 
-/** OIDC issuer URL for the community portal on the mock auth server. */
+export const mockOidcAudience = 'mock-client';
 export const mockOidcIssuer = buildPortlessUrl(hostnames.mockAuth, '/community');
-
-/** JWKS endpoint used as the OIDC discovery / probe URL. */
 export const mockOidcEndpoint = `${mockOidcIssuer}/.well-known/jwks.json`;
+export const mockStaffOidcIssuer = buildPortlessUrl(hostnames.mockAuth, '/staff');
 
 /**
- * Ensure the portless proxy is running. The `proxy start` invocation is idempotent,
- * if another worktree or dev session already started it on the shared port,
- * this returns immediately.
+ * Ensure the portless proxy is running for the PR's worktree-scoped hostnames.
  */
 export function initTestEnvironment() {
 	if (proxyInitialized) return;
 
+	execFileSync(getPortlessPath(), ['prune'], {
+		timeout: 10_000,
+		stdio: 'pipe',
+	});
 	execFileSync(getPortlessPath(), ['proxy', 'start', '--https', '-p', '1355'], {
 		timeout: 15_000,
 		stdio: 'pipe',
@@ -43,7 +43,7 @@ export function setMongoConnectionString(connStr: string): void {
 
 export function getMongoConnectionString(): string {
 	if (!mongoConnectionString) {
-		throw new Error('MongoDB connection string not set — call setMongoConnectionString() first');
+		throw new Error('MongoDB connection string not set - call setMongoConnectionString() first');
 	}
 	return mongoConnectionString;
 }

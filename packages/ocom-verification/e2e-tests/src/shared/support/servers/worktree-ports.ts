@@ -20,3 +20,7 @@ export function getAzuritePorts(): AzuritePorts {
 		table: 10002 + offset,
 	};
 }
+
+export function getMongoPort(): number {
+	return 50000 + getWorktreePortOffset();
+}

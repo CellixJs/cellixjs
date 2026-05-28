@@ -30,7 +30,7 @@ async function ensureMongoDBServer(): Promise<MongoDBTestServer> {
 	if (mongoDBServer) return mongoDBServer;
 
 	mongoDBServer = new MongoDBTestServer();
-	await mongoDBServer.start();
+	await mongoDBServer.start({ attachMongoose: true });
 	return mongoDBServer;
 }
 
@@ -43,4 +43,9 @@ export async function ensureApiServers(): Promise<void> {
 	graphQLServer = new GraphQLTestServer(mockApplicationServicesFactory);
 	await graphQLServer.start();
 	apiUrl = graphQLServer.getUrl();
+}
+
+export async function resetMongoForScenario(): Promise<void> {
+	if (!mongoDBServer) return;
+	await mongoDBServer.resetForScenario();
 }

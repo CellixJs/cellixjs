@@ -7,8 +7,11 @@ export {
 	buildUrl,
 	cleanupTestEnvironment,
 	initTestEnvironment,
+	mockOidcAudience,
 	mockOidcEndpoint,
 	mockOidcIssuer,
+	mockStaffOidcIssuer,
 	setMongoConnectionString,
 } from './test-environment.ts';
 export { TestOAuth2Server } from './test-oauth2-server.ts';
+export { TestStaffViteServer } from './test-staff-vite-server.ts';

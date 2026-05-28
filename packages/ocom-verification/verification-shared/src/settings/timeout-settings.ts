@@ -32,17 +32,26 @@ export const timeouts = {
 /** Type for timeout configuration keys */
 export type TimeoutKey = keyof typeof timeouts;
 
+function timeoutEnvName(key: TimeoutKey): string {
+	return `TIMEOUT_${key.replace(/[A-Z]/g, (letter) => `_${letter}`).toUpperCase()}`;
+}
+
 /**
  * Get timeout value with optional override from environment.
  * Usage: TIMEOUT_SERVER_STARTUP=300000 npm test
  */
 export function getTimeout(key: TimeoutKey): number {
-	const envOverride = process.env[`TIMEOUT_${key.toUpperCase()}`];
+	const envName = timeoutEnvName(key);
+	const envOverride = process.env[envName];
+
 	if (envOverride) {
-		const parsed = Number.parseInt(envOverride, 10);
-		if (!Number.isNaN(parsed)) {
+		const parsed = Number(envOverride);
+		if (Number.isInteger(parsed) && parsed > 0) {
 			return parsed;
 		}
+
+		console.warn(`Ignoring invalid ${envName} value "${envOverride}"; expected a positive integer.`);
 	}
+
 	return timeouts[key];
 }

@@ -5,7 +5,7 @@ import { buildPortlessUrl, getHostnames } from '../../../scripts/local-dev/portl
 import { getAzuriteConnectionString } from '../../../scripts/local-dev/worktree-ports.mjs';
 
 const apiDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const mode = process.argv[2];
+const mode = process.argv[2] ?? (isE2E() ? 'e2e' : undefined);
 const localSettingsPath = path.join(apiDir, 'local.settings.json');
 const e2eLocalSettingsPath = path.join(apiDir, 'local-settings.e2e.json');
 const targetPath = path.join(apiDir, 'deploy', 'local.settings.json');
@@ -56,4 +56,8 @@ function applyE2EOverrides(settings) {
 	}
 
 	settings.Values = values;
+}
+
+function isE2E() {
+	return ['1', 'true', 'yes'].includes((process.env.E2E ?? '').toLowerCase());
 }

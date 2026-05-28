@@ -11,7 +11,11 @@ export interface MongoMemoryReplicaSetDisposer {
 	stop: () => Promise<void>;
 }
 
-export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetConfig): Promise<{ replicaSet: MongoMemoryReplSet; disposer: MongoMemoryReplicaSetDisposer }> {
+export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetConfig): Promise<{
+	replicaSet: MongoMemoryReplSet;
+	connectionString: string;
+	disposer: MongoMemoryReplicaSetDisposer;
+}> {
 	console.log('Starting MongoDB Memory Replica Set', {
 		port: config.port,
 		dbName: config.dbName,
@@ -25,7 +29,12 @@ export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetCo
 			count: 1,
 			storageEngine: 'wiredTiger',
 		},
-		instanceOpts: [{ port: config.port }],
+		instanceOpts: [
+			{
+				port: config.port,
+				args: ['--setParameter', 'maxTransactionLockRequestTimeoutMillis=5000'],
+			},
+		],
 	});
 
 	const uri = replicaSet.getUri(config.dbName);
@@ -38,5 +47,5 @@ export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetCo
 		},
 	};
 
-	return { replicaSet, disposer };
+	return { replicaSet, connectionString: uri, disposer };
 }

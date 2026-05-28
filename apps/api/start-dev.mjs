@@ -36,6 +36,9 @@ if (process.env.WORKTREE_NAME) {
 	childEnv.languageWorkers__node__arguments ??= '';
 }
 
+// `--cors '*'` matches Host.CORS in local.settings.json but does not depend on
+// that file existing — local.settings.json is gitignored, so CI has no CORS
+// allowance otherwise and the UI's cross-origin GraphQL requests are blocked.
 const child = spawn('func', ['start', '--typescript', '--script-root', 'deploy/', '--port', envPort, '--cors', '*'], {
 	stdio: 'inherit',
 	env: childEnv,

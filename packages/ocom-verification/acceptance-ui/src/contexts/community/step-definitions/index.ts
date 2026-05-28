@@ -1,2 +1,2 @@
 // Community context step definitions
-import './create-community.steps.ts';
+import './create-community.steps.tsx';

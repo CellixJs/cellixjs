@@ -1,111 +1,75 @@
+import { type MongoMemoryReplicaSetConfig, type MongoMemoryReplicaSetDisposer, startMongoMemoryReplicaSet } from '@cellix/server-mongodb-memory-mock-seedwork';
 import { ServiceMongoose } from '@ocom/service-mongoose';
-import { MongoClient, ObjectId } from 'mongodb';
-import { MongoMemoryReplSet } from 'mongodb-memory-server';
-import { getAllMockUsers } from '../test-data/index.ts';
+import { type MongoDBSeedContext, type MongoDBSeedDataFunction, seedDatabase } from '@ocom-verification/verification-shared/test-data';
+import { MongoClient } from 'mongodb';
 
-const MONGO_BINARY_VERSION = '7.0.14';
-const DEFAULT_DB_NAME = 'owner-community-test';
-const MAX_REPLSET_START_ATTEMPTS = 5;
-type MongoMemoryReplSetConfig = NonNullable<Parameters<typeof MongoMemoryReplSet.create>[0]>;
+const DEFAULT_DB_NAME = 'owner-community';
+const DEFAULT_MONGO_PORT = 50_000;
+const DEFAULT_REPL_SET_NAME = 'globaldb';
 
-export type MongoDBSeedDataFunction = (connectionString: string, dbName: string) => Promise<void>;
+export type { MongoDBSeedDataFunction };
 
 export interface MongoDBTestServerStartOptions {
 	dbName?: string;
 	port?: number;
-	seedDataFn?: MongoDBSeedDataFunction;
-}
-
-export async function seedOwnerCommunityReferenceData(connectionString: string, dbName: string): Promise<void> {
-	const client = new MongoClient(connectionString);
-	try {
-		await client.connect();
-		const db = client.db(dbName);
-
-		const users = getAllMockUsers();
-		if (users.length > 0) {
-			const operations = users.map((user) => ({
-				updateOne: {
-					filter: { _id: new ObjectId(user.id) },
-					update: {
-						$setOnInsert: {
-							_id: new ObjectId(user.id),
-							externalId: user.externalId,
-							displayName: user.displayName,
-							email: user.email,
-							personalInformation: user.personalInformation,
-							accessBlocked: user.accessBlocked,
-							tags: user.tags,
-							userType: user.userType,
-							schemaVersion: user.schemaVersion,
-							createdAt: user.createdAt,
-							updatedAt: user.updatedAt,
-						},
-					},
-					upsert: true,
-				},
-			}));
-			await db.collection('users').bulkWrite(operations);
-		}
-	} finally {
-		await client.close();
-	}
+	replSetName?: string;
+	binaryVersion?: string;
+	attachMongoose?: boolean;
+	seedData?: MongoDBSeedDataFunction;
 }
 
 /**
- * In-memory MongoDB replica set with a Mongoose service attached.
- * Provides the test database for acceptance tests — callers supply
- * an optional db name and seed function.
+ * In-memory MongoDB replica set for verification tests.
  */
 export class MongoDBTestServer {
-	private replSet: MongoMemoryReplSet | null = null;
+	private disposer: MongoMemoryReplicaSetDisposer | null = null;
 	private serviceMongoose: ServiceMongoose | null = null;
-	private dbName = '';
+	private connectionString = '';
+	private dbName = DEFAULT_DB_NAME;
+	private seedData: MongoDBSeedDataFunction = seedDatabase;
 
 	async start(options?: MongoDBTestServerStartOptions): Promise<void> {
-		this.dbName = options?.dbName ?? DEFAULT_DB_NAME;
-
-		const config = {
-			binary: { version: MONGO_BINARY_VERSION },
-			replSet: { name: 'rs0', count: 1, storageEngine: 'wiredTiger' as const },
-			...(options?.port && { instanceOpts: [{ port: options.port }] }),
+		const config: MongoMemoryReplicaSetConfig = {
+			port: options?.port ?? DEFAULT_MONGO_PORT,
+			dbName: options?.dbName ?? DEFAULT_DB_NAME,
+			replSetName: options?.replSetName ?? DEFAULT_REPL_SET_NAME,
+			...(options?.binaryVersion && { binaryVersion: options.binaryVersion }),
 		};
 
-		this.replSet = await this.createReplicaSetWithRetry(config);
-		const uri = this.replSet.getUri();
+		this.dbName = config.dbName;
+		this.seedData = options?.seedData ?? seedDatabase;
 
-		this.serviceMongoose = new ServiceMongoose(uri, {
-			dbName: this.dbName,
-			autoIndex: true,
-			autoCreate: true,
-		});
-		await this.serviceMongoose.startUp();
+		const { connectionString, disposer } = await startMongoMemoryReplicaSet(config);
+		this.disposer = disposer;
+		this.connectionString = connectionString;
+		await this.seed();
 
-		const { connection } = this.serviceMongoose.service;
-		for (const modelName of Object.keys(connection.models)) {
-			try {
-				connection.deleteModel(modelName);
-			} catch {
-				/* already deleted */
-			}
+		if (options?.attachMongoose) {
+			await this.attachMongoose();
 		}
-
-		const seedFn = options?.seedDataFn ?? seedOwnerCommunityReferenceData;
-		await seedFn(uri, this.dbName);
 	}
 
 	getServiceMongoose(): ServiceMongoose {
 		if (!this.serviceMongoose) {
-			throw new Error('MongoDBTestServer not started');
+			throw new Error('MongoDBTestServer Mongoose service not attached');
 		}
 		return this.serviceMongoose;
 	}
 
 	getConnectionString(): string {
-		if (!this.replSet) {
+		if (!this.connectionString) {
 			throw new Error('MongoDBTestServer not started');
 		}
-		return this.replSet.getUri();
+		return this.connectionString;
+	}
+
+	async resetForScenario(seedData?: MongoDBSeedDataFunction): Promise<void> {
+		if (!this.connectionString) {
+			throw new Error('MongoDBTestServer not started');
+		}
+
+		await clearDatabase({ connectionString: this.connectionString, dbName: this.dbName });
+		await this.seed(seedData);
 	}
 
 	async stop(): Promise<void> {
@@ -113,59 +77,54 @@ export class MongoDBTestServer {
 			await this.serviceMongoose.shutDown();
 			this.serviceMongoose = null;
 		}
-		if (this.replSet) {
-			await this.replSet.stop();
-			this.replSet = null;
+		if (this.disposer) {
+			const disposer = this.disposer;
+			this.disposer = null;
+			await disposer.stop();
 		}
+		this.connectionString = '';
 	}
 
 	isRunning(): boolean {
-		return this.serviceMongoose !== null;
+		return this.disposer !== null;
 	}
 
-	private async createReplicaSetWithRetry(config: MongoMemoryReplSetConfig): Promise<MongoMemoryReplSet> {
-		let lastError: unknown;
+	private async attachMongoose(): Promise<void> {
+		this.serviceMongoose = new ServiceMongoose(this.connectionString, {
+			dbName: this.dbName,
+			autoIndex: true,
+			autoCreate: true,
+		});
+		await this.serviceMongoose.startUp();
+		this.clearMongooseModels();
+	}
 
-		for (let attempt = 1; attempt <= MAX_REPLSET_START_ATTEMPTS; attempt += 1) {
+	private clearMongooseModels(): void {
+		const connection = this.serviceMongoose?.service.connection;
+		if (!connection) return;
+
+		for (const modelName of Object.keys(connection.models)) {
 			try {
-				return await MongoMemoryReplSet.create(config);
-			} catch (error) {
-				lastError = error;
-				if (!this.isPortInUseError(error) || attempt === MAX_REPLSET_START_ATTEMPTS || config.instanceOpts) {
-					throw error;
-				}
+				connection.deleteModel(modelName);
+			} catch {
+				/* already deleted */
 			}
 		}
-
-		throw lastError instanceof Error ? lastError : new Error('Failed to start MongoDB replica set');
 	}
 
-	private isPortInUseError(error: unknown): boolean {
-		if (!(error instanceof Error)) {
-			return false;
-		}
-
-		return error.message.includes('already in use') || error.message.includes('EADDRINUSE');
+	private async seed(seedData = this.seedData): Promise<void> {
+		await seedData({ connectionString: this.connectionString, dbName: this.dbName });
 	}
+}
 
-	static async isReachable(connectionString: string): Promise<boolean> {
-		const client = new MongoClient(connectionString, {
-			serverSelectionTimeoutMS: 3_000,
-			connectTimeoutMS: 3_000,
-		});
-
-		try {
-			await client.connect();
-			await client.db().command({ ping: 1 });
-			return true;
-		} catch {
-			return false;
-		} finally {
-			await client.close();
-		}
-	}
-
-	static async seedData(connectionString: string, dbName: string): Promise<void> {
-		await seedOwnerCommunityReferenceData(connectionString, dbName);
+async function clearDatabase(context: MongoDBSeedContext): Promise<void> {
+	const client = new MongoClient(context.connectionString);
+	try {
+		await client.connect();
+		const db = client.db(context.dbName);
+		const collections = await db.listCollections({}, { nameOnly: true }).toArray();
+		await Promise.all(collections.map((collection) => db.collection(collection.name).deleteMany({})));
+	} finally {
+		await client.close();
 	}
 }

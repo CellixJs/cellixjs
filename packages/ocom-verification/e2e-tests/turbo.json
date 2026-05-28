@@ -16,6 +16,11 @@
 			],
 			"cache": false
 		},
+		"test:e2e:ci": {
+			"dependsOn": ["^build"],
+			"inputs": ["src/**/*.ts", "cucumber.js", "package.json"],
+			"cache": false
+		},
 		"test:serenity": {
 			"dependsOn": ["^build"],
 			"inputs": [
