@@ -11,11 +11,10 @@
 		"build": "tsgo --noEmit",
 		"lint": "biome lint",
 		"test": "vitest run --silent --reporter=dot",
-		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest"
 	},
 	"dependencies": {
-        "@ocom/ui-staff-shared": "workspace:*",
+		"@ocom/ui-staff-shared": "workspace:*",
 		"antd": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",

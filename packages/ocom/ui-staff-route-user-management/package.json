@@ -13,7 +13,6 @@
 		"storybook": "storybook dev --port 6007",
 		"build-storybook": "storybook build",
 		"test": "vitest run --silent --reporter=dot",
-		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest"
 	},
 	"dependencies": {

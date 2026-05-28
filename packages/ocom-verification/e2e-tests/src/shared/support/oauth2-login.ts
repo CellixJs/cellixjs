@@ -29,6 +29,15 @@ export async function performOAuth2Login(page: Page): Promise<void> {
 		// Navigation may be interrupted by OIDC redirect — this is expected
 	}
 
+	// If the mock OAuth2 server has a userStore, the /authorize endpoint
+	// redirects to a /login form instead of auto-completing the flow.
+	// Detect the login page and fill in credentials to proceed.
+	if (page.url().includes('/login')) {
+		await page.fill('input[name="username"]', 'test@example.com');
+		await page.fill('input[name="password"]', 'password');
+		await page.click('button[type="submit"]');
+	}
+
 	// Wait for the redirect chain to settle on an authenticated page
 	await page.waitForURL(isPostAuthUrl, { timeout: 30_000 });
 	await page.waitForLoadState('networkidle');
@@ -45,14 +54,7 @@ export const OAuth2Login = (_email?: string, _password?: string, options?: { pat
 	Interaction.where(the`#actor logs in via OAuth2`, async (serenityActor) => {
 		const actor = serenityActor as unknown as Actor;
 		const { page } = BrowseTheWeb.withActor(actor);
-		const targetPath = options?.path ?? '/community/accounts';
-		const expectedHost = options?.expectedHost;
-		const isExpectedPostAuthUrl = (url: URL) => {
-			if (url.hostname.includes('mock-auth')) return false;
-			if (url.pathname.includes('auth-redirect')) return false;
-			if (!expectedHost) return true;
-			return url.hostname.includes(expectedHost);
-		};
+		const targetPath = options?.path ?? '/community/accounts';		
 
 		// Session tokens live in sessionStorage from pre-auth.
 		try {
@@ -64,5 +66,11 @@ export const OAuth2Login = (_email?: string, _password?: string, options?: { pat
 			// Navigation may be interrupted by OIDC redirect on first access
 		}
 
-		await page.waitForURL(isExpectedPostAuthUrl, { timeout: 30_000 });
+		if (page.url().includes('/login')) {
+			await page.fill('input[name="username"]', 'test@example.com');
+			await page.fill('input[name="password"]', 'password');
+			await page.click('button[type="submit"]');
+		}
+
+		await page.waitForURL(isPostAuthUrl, { timeout: 30_000 });
 	});
