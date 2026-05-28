@@ -11,7 +11,8 @@ const dom = new JSDOM('<!DOCTYPE html><div id="root"></div>', {
 	url: 'http://localhost:3000',
 	pretendToBeVisual: true,
 });
-const domGlobal = (dom as unknown as Record<string, Window & typeof globalThis>)['window'];
+// biome-ignore lint/complexity/useLiteralKeys: `dom.window` is exposed via JSDOM's index signature, requiring bracket access under strict TypeScript
+const domGlobal = dom['window'] as unknown as Window & typeof globalThis;
 
 // biome-ignore lint/suspicious/noExplicitAny: attaching browser globals requires dynamic property assignment
 const g = globalThis as any;
@@ -43,6 +44,8 @@ safeAssign('HTMLButtonElement', domGlobal.HTMLButtonElement);
 safeAssign('HTMLSelectElement', domGlobal.HTMLSelectElement);
 safeAssign('HTMLAnchorElement', domGlobal.HTMLAnchorElement);
 safeAssign('Element', domGlobal.Element);
+safeAssign('SVGElement', domGlobal.SVGElement);
+safeAssign('ShadowRoot', domGlobal.ShadowRoot ?? class ShadowRoot {});
 safeAssign('Node', domGlobal.Node);
 safeAssign('NodeList', domGlobal.NodeList);
 safeAssign('Event', domGlobal.Event);

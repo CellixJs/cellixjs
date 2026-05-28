@@ -18,7 +18,10 @@ const childEnv = {
 	NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --use-system-ca`.trim(),
 };
 
-const child = spawn('func', ['start', '--typescript', '--script-root', 'deploy/', '--port', envPort], {
+// `--cors '*'` matches Host.CORS in local.settings.json but does not depend on
+// that file existing — local.settings.json is gitignored, so CI has no CORS
+// allowance otherwise and the UI's cross-origin GraphQL requests are blocked.
+const child = spawn('func', ['start', '--typescript', '--script-root', 'deploy/', '--port', envPort, '--cors', '*'], {
 	stdio: 'inherit',
 	env: childEnv,
 });
