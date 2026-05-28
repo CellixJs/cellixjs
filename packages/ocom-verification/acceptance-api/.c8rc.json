@@ -1,7 +1,7 @@
 {
-	"all": true,
-	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules", "dist"],
+	"allowExternal": true,
+	"include": ["**/ocom/application-services/dist/**", "**/ocom/domain/dist/**", "**/ocom/graphql/dist/**", "**/ocom/persistence/dist/**", "**/ocom/data-sources-mongoose-models/dist/**"],
+	"exclude": ["**/node_modules/**"],
 	"reporter": ["text", "lcovonly"],
 	"report-dir": "coverage"
 }
