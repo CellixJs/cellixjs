@@ -1,5 +1,5 @@
-import { SectionLayout as SharedSectionLayout, type SectionLayoutProps } from '@ocom/ui-staff-shared';
 import { DollarOutlined } from '@ant-design/icons';
+import { type SectionLayoutProps, SectionLayout as SharedSectionLayout } from '@ocom/ui-staff-shared';
 import type React from 'react';
 export const SectionLayout: React.FC = () => {
 	const pageLayouts: SectionLayoutProps['pageLayouts'] = [

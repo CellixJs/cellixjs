@@ -1,10 +1,14 @@
 import crypto from 'node:crypto';
 import express from 'express';
-import rateLimit from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit';
 import { exportJWK, generateKeyPair, errors as joseErrors, jwtVerify } from 'jose';
+import { buildEffectiveProfile, buildRedirectWithCode, extractClaimsFromPayload, normalizeUserInfo } from './helpers.ts';
 import { buildTokenResponse } from './jwt.ts';
-import type { MockOAuth2PortalConfig } from './types.ts';
-import { normalizeOrigin, normalizeUrl } from './utils.ts';
+import { debugLog } from './logger.ts';
+import { createLoginHandlers } from './login-handlers.ts';
+import { createTtlStore } from './ttl-store.ts';
+import type { MockOAuth2PortalConfig, MockOAuth2UserStore } from './types.ts';
+import { AUTH_CODE_PREFIX, normalizeOrigin, normalizeUrl } from './utils.ts';
 
 interface TokenProfile {
 	aud: string;
@@ -17,6 +21,26 @@ interface TokenProfile {
 	[key: string]: unknown;
 }
 
+export const AUTH_CODE_TTL_MS = 10 * 60 * 1000;
+
+/**
+ * Builds an Express router that exposes the mock OIDC discovery, authorize, login,
+ * signup, token, userinfo, and logout endpoints for one issuer.
+ *
+ * @param issuerBaseUrl - Fully qualified issuer base URL for the mounted router.
+ * @param config - Portal configuration, including redirects, claims, and optional async user store.
+ * @returns A promise that resolves to a configured Express router.
+ *
+ * @example
+ * ```ts
+ * const router = await buildOidcRouter('http://127.0.0.1:38200/portal', {
+ *   allowedRedirectUris: new Set(['http://localhost:3000/callback']),
+ *   allowedRedirectUri: 'http://localhost:3000/callback',
+ *   redirectUriToAudience: new Map([['http://localhost:3000/callback', 'mock-client']]),
+ *   getUserProfile: () => ({ email: 'test@example.com' }),
+ * });
+ * ```
+ */
 export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2PortalConfig): Promise<express.Router> {
 	const router = express.Router();
 
@@ -27,7 +51,12 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	publicJwk.kid = publicJwk.kid || 'mock-key';
 
 	const cachedUserProfile = config.getUserProfile();
-	const persistedSub = cachedUserProfile.sub ?? crypto.randomUUID();
+	// Auth code store: maps one-time auth codes to selected sub, redirectUri, and OIDC nonce
+	const authCodeStore = createTtlStore<{ sub?: string; redirectUri: string; nonce?: string }>(AUTH_CODE_TTL_MS);
+	// Maps short-lived nonces to redirect and authorization params so user-controlled values never appear in HTML
+	const loginSessionStore = createTtlStore<{ redirectUri: string; state: string; nonce?: string }>(AUTH_CODE_TTL_MS);
+	// For prefilled portal profile when no userStore, we may use portal sub as default when issuing codes without an explicit user selection.
+	const portalPrefilledSub = config.userStore ? undefined : (cachedUserProfile.sub ?? crypto.randomUUID());
 
 	const normalizedAllowedRedirectUris = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeUrl(u)));
 
@@ -83,7 +112,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 		}
 
 		const allowMethods = 'GET,POST,OPTIONS';
-		const requestHeaders = (req.headers['access-control-request-headers'] ?? '') as string;
+		const requestHeaders = (req.get('access-control-request-headers') ?? '') as string;
 		const allowHeaders = requestHeaders && requestHeaders.length > 0 ? requestHeaders : 'Content-Type,Authorization';
 
 		if (req.method === 'OPTIONS') {
@@ -125,39 +154,68 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 		const defaultAud = normalizedRedirectUriToAudience.get(primaryRedirectUri) ?? 'mock-client';
 		let aud = defaultAud;
-
-		if (code.startsWith('mock-auth-code-')) {
+		let resolvedSubFromCode: string | undefined;
+		// check one-time mapping first
+		const mapping = authCodeStore.get(code);
+		const resolvedNonce = mapping?.nonce;
+		if (mapping) {
 			try {
-				const base64Part = code.replace('mock-auth-code-', '');
-				const decodedRedirectUri = Buffer.from(base64Part, 'base64').toString('utf-8');
-				const normalizedDecoded = normalizeUrl(decodedRedirectUri);
+				const normalizedDecoded = normalizeUrl(mapping.redirectUri);
 				if (normalizedAllowedRedirectUris.has(normalizedDecoded)) {
 					aud = normalizedRedirectUriToAudience.get(normalizedDecoded) ?? aud;
 				}
-			} catch (error) {
-				console.error('Failed to decode redirect_uri from code:', error);
+			} catch (_err) {
+				// ignore
+			}
+			// consume one-time code
+			authCodeStore.delete(code);
+			resolvedSubFromCode = mapping.sub;
+		} else if (code.startsWith(AUTH_CODE_PREFIX)) {
+			// Code has expected prefix but no mapping (expired or invalid)
+			res.status(400).json({ error: 'invalid_grant', error_description: 'invalid or expired authorization code' });
+			return;
+		} else {
+			// Code does not have expected prefix, reject
+			res.status(400).json({ error: 'invalid_grant', error_description: 'invalid or expired authorization code' });
+			return;
+		}
+
+		const portalProfile = config.getUserProfile();
+		const { sub: upSub, tid: upTid } = portalProfile;
+
+		// Determine final subject (prefer the code-mapped sub, then portal-profile requested sub)
+		const finalSub = resolvedSubFromCode ?? (typeof upSub === 'string' ? upSub : (portalPrefilledSub ?? crypto.randomUUID()));
+
+		let userClaims: (Record<string, unknown> & { tid?: string }) | undefined;
+		if (config.userStore) {
+			const store = config.userStore as MockOAuth2UserStore;
+			try {
+				if (typeof finalSub === 'string') {
+					const user = await store.findBySub(finalSub);
+					if (user) userClaims = user.claims;
+				}
+			} catch (err) {
+				// User store lookup failed (e.g., corrupt data, duplicate entries). Return 500 with OAuth2-compliant error.
+				debugLog('[server-oauth2-mock] /token user store lookup failed', { error: err instanceof Error ? err.message : String(err), finalSub });
+				res.status(500).json({ error: 'server_error', error_description: `Failed to resolve user claims for sub=${finalSub}` });
+				return;
 			}
 		}
 
-		const userProfile = config.getUserProfile();
-		const { sub: upSub, email: upEmail, given_name: upGiven, family_name: upFamily, tid: upTid, ...extra } = userProfile;
-		let resolvedTid: string;
-		if (typeof tid === 'string') {
-			resolvedTid = tid;
-		} else if (typeof upTid === 'string') {
-			resolvedTid = upTid;
-		} else {
-			resolvedTid = 'test-tenant-id';
-		}
+		const effectiveProfile = buildEffectiveProfile(portalProfile, userClaims, finalSub);
+		// Prefer explicit request override (tid param), then tid from merged effective profile (portal + user claims), then portal default
+		const _ep = effectiveProfile as Record<string, unknown>;
+		// biome-ignore lint/complexity/useLiteralKeys: Required for TypeScript index signature access
+		const mergedTid = typeof _ep['tid'] === 'string' ? (_ep['tid'] as string) : undefined;
+		const resolvedTid = typeof tid === 'string' ? tid : (mergedTid ?? (typeof upTid === 'string' ? upTid : 'test-tenant-id'));
+
 		const profile: TokenProfile = {
-			...extra,
+			...effectiveProfile,
+			sub: finalSub,
 			aud,
-			sub: typeof upSub === 'string' ? upSub : persistedSub,
 			iss: issuerBaseUrl,
-			...(typeof upEmail === 'string' ? { email: upEmail } : {}),
-			...(typeof upGiven === 'string' ? { given_name: upGiven } : {}),
-			...(typeof upFamily === 'string' ? { family_name: upFamily } : {}),
 			tid: resolvedTid,
+			...(resolvedNonce !== undefined ? { nonce: resolvedNonce } : {}),
 		};
 		const tokenResponse = await buildTokenResponse(profile, privateKey, publicJwk, issuerBaseUrl);
 		res.json(tokenResponse);
@@ -181,7 +239,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	});
 
 	router.get('/authorize', (req, res) => {
-		const { state, redirect_uri } = req.query as { state?: string; redirect_uri?: string };
+		const { state, redirect_uri, nonce } = req.query as { state?: string; redirect_uri?: string; nonce?: string };
 		const requestedRedirectUri = redirect_uri ?? primaryRedirectUri;
 		const normalizedRequestedRedirectUri = normalizeUrl(requestedRedirectUri);
 		const isAllowed = normalizedAllowedRedirectUris.has(normalizedRequestedRedirectUri);
@@ -190,17 +248,58 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 			return;
 		}
 
+		// Structured debug logging
+		debugLog('[server-oauth2-mock] GET /authorize', {
+			portal: issuerBaseUrl,
+			state: typeof state === 'string' ? state : undefined,
+			redirectUri: requestedRedirectUri,
+			requestNonce: typeof nonce === 'string' ? nonce : undefined,
+		});
+
+		// If userStore exists, redirect to login to choose/authorize a user.
+		if (config.userStore) {
+			const forward: Record<string, string> = typeof nonce === 'string' ? { nonce } : {};
+			// Whitelist known OIDC and PKCE params and apply size limits to prevent oversized redirects
+			const allowedParams = new Set(['state', 'redirect_uri', 'response_type', 'client_id', 'scope', 'response_mode', 'code_challenge', 'code_challenge_method']);
+			for (const [key, value] of Object.entries(req.query)) {
+				if (!allowedParams.has(key) || typeof value !== 'string') continue;
+				// Apply 2048 limit for state param, reasonable defaults for others
+				if (key === 'state' && value.length > 2048) continue;
+				if (value.length > 4096) continue; // Prevent oversized query strings
+				forward[key] = value;
+			}
+			const q = new URLSearchParams(forward).toString();
+			res.setHeader('Location', `${issuerBaseUrl}/login${q ? `?${q}` : ''}`);
+			res.status(302).end();
+			return;
+		}
+
 		try {
-			const code = `mock-auth-code-${Buffer.from(normalizedRequestedRedirectUri).toString('base64')}`;
-			const redirectUrl = new URL(requestedRedirectUri);
-			redirectUrl.searchParams.set('code', code);
-			if (typeof state === 'string' && state.length <= 2048) redirectUrl.searchParams.set('state', state);
-			res.setHeader('Location', redirectUrl.toString());
+			const code = `${AUTH_CODE_PREFIX}${crypto.randomUUID()}`;
+			{
+				const entry: { redirectUri: string; sub?: string } = { redirectUri: normalizedRequestedRedirectUri };
+				if (typeof portalPrefilledSub === 'string') entry.sub = portalPrefilledSub;
+				authCodeStore.set(code, entry);
+			}
+			const location = buildRedirectWithCode(requestedRedirectUri, code, typeof state === 'string' ? state : undefined);
+			res.setHeader('Location', location);
 			res.status(302).end();
 		} catch {
 			res.status(400).send('Invalid redirect_uri format');
 		}
 	});
+
+	createLoginHandlers({
+		config,
+		issuerBaseUrl,
+		primaryRedirectUri,
+		normalizedAllowedRedirectUris,
+		loginSessionStore,
+		authCodeStore,
+		normalizeUrl,
+		buildRedirectWithCode,
+		logger: { debug: debugLog },
+	}).registerRoutes(router);
 
 	const userinfoRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many /userinfo requests, please try again later.' });
 
@@ -230,12 +329,33 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 				res.status(401).json({ error: 'invalid_token', error_description: 'missing_aud_claim' });
 				return;
 			}
-			const { email: emailProp, given_name: givenNameProp, family_name: familyNameProp } = payload as Record<string, unknown>;
-			const email = typeof emailProp === 'string' ? emailProp : undefined;
-			const givenName = typeof givenNameProp === 'string' ? givenNameProp : undefined;
-			const familyName = typeof familyNameProp === 'string' ? familyNameProp : undefined;
-			const username = email?.includes('@') ? email.split('@')[0] : payload.sub;
-			res.json({ sub: payload.sub, email, given_name: givenName, family_name: familyName, name: givenName && familyName ? `${givenName} ${familyName}` : (givenName ?? familyName ?? username), username });
+			const sub = typeof payload.sub === 'string' ? payload.sub : undefined;
+			if (!sub) {
+				res.status(401).json({ error: 'invalid_token', error_description: 'missing_sub_claim' });
+				return;
+			}
+
+			// Resolve full user claims from userStore when available; otherwise fallback to payload/profile fusion
+			let effectiveProfile: Record<string, unknown> = {};
+			const portalProfile = config.getUserProfile();
+			if (config.userStore) {
+				try {
+					const store = config.userStore as MockOAuth2UserStore;
+					const user = await store.findBySub(sub);
+					if (user) {
+						effectiveProfile = buildEffectiveProfile(portalProfile, user.claims, user.sub);
+					} else {
+						effectiveProfile = buildEffectiveProfile(portalProfile, extractClaimsFromPayload(payload as Record<string, unknown>), sub);
+					}
+				} catch (_err) {
+					effectiveProfile = buildEffectiveProfile(portalProfile, extractClaimsFromPayload(payload as Record<string, unknown>), sub);
+				}
+			} else {
+				effectiveProfile = buildEffectiveProfile(portalProfile, extractClaimsFromPayload(payload as Record<string, unknown>), sub);
+			}
+
+			const normalized = normalizeUserInfo(effectiveProfile);
+			res.json(normalized);
 		} catch (error: unknown) {
 			if (error instanceof joseErrors.JWTExpired) {
 				res.status(401).json({ error: 'invalid_token', error_description: 'token_expired' });
@@ -247,6 +367,8 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 
 	router.get('/logout', (req, res) => {
 		const { post_logout_redirect_uri, state } = req.query as { post_logout_redirect_uri?: string; state?: string };
+		// Debug
+		debugLog('[server-oauth2-mock] GET /logout', { portal: issuerBaseUrl });
 		if (!post_logout_redirect_uri) {
 			res.status(204).end();
 			return;

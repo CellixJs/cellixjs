@@ -96,7 +96,7 @@ stages:
           echo "Installing PNPM..."
           npm install --global corepack@latest
           corepack enable
-          corepack prepare pnpm@latest-10 --activate
+          corepack prepare pnpm@11.0.8 --activate
           pnpm config set store-dir ${{parameters.pnpm_config_cache}}
           pnpm --version
 
@@ -235,16 +235,15 @@ stages:
           fi
 
           # Audit pnpm packages for vulnerabilities
-          # echo "Running pnpm audit for vulnerabilities..."
-          # pnpm run audit
-          echo "Skip running pnpm audit for vulnerabilities..."
+          echo "Running pnpm audit for vulnerabilities..."
+          pnpm run audit
 
           # Use Turbo's built-in --affected flag for accurate change detection
           if [ "$(Build.Reason)" = "PullRequest" ] || [ "$(Build.SourceBranch)" != "refs/heads/main" ]; then
             echo "Testing affected packages only (PR/branch build)..."
             export TURBO_SCM_BASE="origin/$(System.PullRequest.TargetBranch)"
             export TURBO_CONCURRENCY=4
-            pnpm run test:coverage --affected
+            pnpm run test:coverage:affected
             pnpm run merge-lcov-reports
           else
             echo "Testing all packages (main branch build)..."
@@ -262,6 +261,41 @@ stages:
         PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
         ${{ each pair in parameters.buildEnvSettings }}:
           ${{ pair.key }}: ${{ pair.value }}
+
+    # Run architectural unit tests after build/test dependencies are available.
+    - task: Bash@3
+      displayName: 'Turbo: Run architecture unit tests'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          export NODE_OPTIONS=--max_old_space_size=16384
+          export TURBO_CONCURRENCY=4
+
+          echo "Running all architecture unit tests..."
+          pnpm run test:arch
+        workingDirectory: ''
+      env:
+        TURBO_CACHE_HIT: $(TURBO_CACHE_HIT)
+        TURBO_TELEMETRY_DISABLED: 1
+        ${{ each pair in parameters.buildEnvSettings }}:
+          ${{ pair.key }}: ${{ pair.value }}
+
+    # Run E2E tests
+    - task: Bash@3
+      displayName: 'Run E2E tests'
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+          export NODE_OPTIONS=--max_old_space_size=16384
+          export PLAYWRIGHT_BROWSERS_PATH="$(PLAYWRIGHT_BROWSERS_PATH)"
+          echo "Running E2E tests..."
+          pnpm run test:e2e:ci
+        workingDirectory: ''
+      env:
+        TURBO_TELEMETRY_DISABLED: 1
+        PLAYWRIGHT_BROWSERS_PATH: $(PLAYWRIGHT_BROWSERS_PATH)
 
     # Audit unused dependencies with knip (after packages are built)
     - task: Bash@3
@@ -541,7 +575,7 @@ stages:
       artifact: docs
 
     # Upload env-var evidence artifacts if present
-    - publish: $(Build.SourcesDirectory)/packages/ocom/archunit-tests/build-artifacts
+    - publish: $(Build.SourcesDirectory)/packages/ocom-verification/archunit-tests/build-artifacts
       displayName: 'Artifact: Publish Env-var Evidence'
       condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
       artifact: env-var-evidence

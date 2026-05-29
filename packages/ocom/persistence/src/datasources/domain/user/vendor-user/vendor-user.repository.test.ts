@@ -1,14 +1,13 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-
-import { VendorUserRepository } from './vendor-user.repository.ts';
-import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
-import type { ClientSession } from 'mongoose';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { VendorUser, VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
+import { Domain } from '@ocom/domain';
+import type { ClientSession } from 'mongoose';
+import { expect, vi } from 'vitest';
+import { VendorUserConverter, type VendorUserDomainAdapter } from './vendor-user.domain-adapter.ts';
+import { VendorUserRepository } from './vendor-user.repository.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -76,7 +75,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
-				exec: vi.fn(async () => (id === vendorUserDoc._id ? vendorUserDoc : null)),
+				exec: vi.fn(async () => (id === String(vendorUserDoc._id) ? vendorUserDoc : null)),
 			})),
 			findOne: vi.fn((query: { externalId: string }) => ({
 				exec: vi.fn(async () => (query.externalId === vendorUserDoc.externalId ? vendorUserDoc : null)),

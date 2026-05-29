@@ -1,15 +1,14 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-
-import { MemberRepository } from './member.repository.ts';
-import { MemberConverter, type MemberDomainAdapter } from './member.domain-adapter.ts';
-import type { ClientSession } from 'mongoose';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member, MemberModelType } from '@ocom/data-sources-mongoose-models/member';
+import { Domain } from '@ocom/domain';
+import type { ClientSession } from 'mongoose';
+import { expect, vi } from 'vitest';
+import { MemberConverter, type MemberDomainAdapter } from './member.domain-adapter.ts';
+import { MemberRepository } from './member.repository.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -93,7 +92,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			// This is set up in BeforeEachScenario
 		});
 		And('a valid Mongoose Member document with id "507f1f77bcf86cd799439011", name "Test Member", and a populated community field', () => {
-			memberDoc = makeMemberDoc({ _id: '507f1f77bcf86cd799439011', memberName: 'Test Member', community: communityDoc });
+			memberDoc = makeMemberDoc({ memberName: 'Test Member', community: communityDoc });
 		});
 	});
 

@@ -21,7 +21,9 @@ export class CellixE2EWorld extends World {
 	}
 
 	async cleanup(): Promise<void> {
-		// Reuse same browser session across scenarios.
+		// Reset DB state between scenarios so each starts from a clean baseline.
+		// Servers stay running — only mutable data is cleared and re-seeded.
+		await infra.resetScenarioState();
 	}
 }
 

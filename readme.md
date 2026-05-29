@@ -26,6 +26,7 @@ Our Docusaurus website will help you get started in running and contributing to 
 
 ## Developer usage
 
+
 - Full local dev (builds, starts the portless HTTPS proxy, starts Azurite, and runs the app-level dev servers):
 
   ```bash
@@ -324,6 +325,7 @@ flowchart BT
 ## Recipe History
 
 This section preserves prior setup notes and commands for reference as the repo evolved.
+
 
 ```bash
 npm i -D concurrently

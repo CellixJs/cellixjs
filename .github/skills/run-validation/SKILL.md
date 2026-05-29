@@ -39,8 +39,14 @@ pnpm run lint
 
 ### 4. Architecture Tests
 ```bash
-pnpm --filter @ocom/archunit-tests test
-pnpm --filter @cellix/archunit-tests test
+pnpm run test:arch
+```
+- Preferred repo-wide command from the root `package.json`; use when architecture boundaries changed or when validating a PR before handoff
+
+Focused package commands:
+```bash
+pnpm --filter @ocom-verification/archunit-tests test:arch
+pnpm --filter @cellix/archunit-tests test:arch
 ```
 - Use when domain, GraphQL, persistence, or architecture boundaries changed
 

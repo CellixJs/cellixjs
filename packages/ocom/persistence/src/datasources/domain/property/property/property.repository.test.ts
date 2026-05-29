@@ -1,15 +1,14 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-
-import { PropertyRepository } from './property.repository.ts';
-import { PropertyConverter, type PropertyDomainAdapter } from './property.domain-adapter.ts';
-import type { ClientSession } from 'mongoose';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Property, PropertyModelType } from '@ocom/data-sources-mongoose-models/property';
+import { Domain } from '@ocom/domain';
+import type { ClientSession } from 'mongoose';
+import { expect, vi } from 'vitest';
+import { PropertyConverter, type PropertyDomainAdapter } from './property.domain-adapter.ts';
+import { PropertyRepository } from './property.repository.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -93,7 +92,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			// This is set up in BeforeEachScenario
 		});
 		And('a valid Mongoose Property document with id "507f1f77bcf86cd799439011", name "Test Property", and a populated community field', () => {
-			propertyDoc = makePropertyDoc({ _id: '507f1f77bcf86cd799439011', propertyName: 'Test Property', community: communityDoc });
+			propertyDoc = makePropertyDoc({ propertyName: 'Test Property', community: communityDoc });
 		});
 	});
 
