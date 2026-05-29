@@ -97,7 +97,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('it should pass the default refresh interval to VerifiedTokenService', () => {
 			expect(VerifiedTokenService).toHaveBeenCalledWith(expect.any(Map), 1000 * 60 * 5);
 		});
-		And('it should initialize VerifiedTokenService', () => {
+		And('it should store the VerifiedTokenService instance', () => {
 			expect(VerifiedTokenService).toHaveBeenCalledOnce();
 		});
 	});
