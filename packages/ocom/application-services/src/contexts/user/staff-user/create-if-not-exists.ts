@@ -15,10 +15,7 @@ const isNotFoundError = (error: unknown): error is Error => {
 	return error instanceof Error && (error.name === 'NotFoundError' || error.message.toLowerCase().includes('not found'));
 };
 
-const getDefaultRoleByHighestPriorityEnterpriseAppRole = async (
-	dataSources: DataSources,
-	aadRoles: string[],
-): Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null> => {
+const getDefaultRoleByHighestPriorityEnterpriseAppRole = async (dataSources: DataSources, aadRoles: string[]): Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null> => {
 	let found: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null = null;
 	await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (repo) => {
 		for (const aadRole of aadRoles) {

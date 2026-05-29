@@ -285,4 +285,27 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(staffRole.schemaVersion).toBe('1.0.0');
 		});
 	});
+
+	// getDefaultRoleNames
+	Scenario('Getting default role names', ({ When, Then, And }) => {
+		let roleNames: string[];
+		When('I call getDefaultRoleNames', () => {
+			roleNames = StaffRole.getDefaultRoleNames();
+		});
+		Then('the result should contain "Default.CaseManager"', () => {
+			expect(roleNames).toContain('Default.CaseManager');
+		});
+		And('the result should contain "Default.ServiceLineOwner"', () => {
+			expect(roleNames).toContain('Default.ServiceLineOwner');
+		});
+		And('the result should contain "Default.Finance"', () => {
+			expect(roleNames).toContain('Default.Finance');
+		});
+		And('the result should contain "Default.TechAdmin"', () => {
+			expect(roleNames).toContain('Default.TechAdmin');
+		});
+		And('the result should have exactly 4 names', () => {
+			expect(roleNames).toHaveLength(4);
+		});
+	});
 });

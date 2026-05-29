@@ -78,3 +78,12 @@ Feature: <AggregateRoot> StaffRole
     And the createdAt property should return the correct date
     And the updatedAt property should return the correct date
     And the schemaVersion property should return the correct version
+
+  # getDefaultRoleNames
+  Scenario: Getting default role names
+    When I call getDefaultRoleNames
+    Then the result should contain "Default.CaseManager"
+    And the result should contain "Default.ServiceLineOwner"
+    And the result should contain "Default.Finance"
+    And the result should contain "Default.TechAdmin"
+    And the result should have exactly 4 names

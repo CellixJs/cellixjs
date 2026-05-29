@@ -7,10 +7,10 @@ export class RoleName extends VOString({
 }) {}
 
 export const EnterpriseAppRoleNames = {
-    CaseManager: 'Staff.CaseManager',
-    ServiceLineOwner: 'Staff.ServiceLineOwner',
-    Finance: 'Staff.Finance',
-    TechAdmin: 'Staff.TechAdmin',
+	CaseManager: 'Staff.CaseManager',
+	ServiceLineOwner: 'Staff.ServiceLineOwner',
+	Finance: 'Staff.Finance',
+	TechAdmin: 'Staff.TechAdmin',
 } as const;
 
 export class EnterpriseAppRole extends VOSet(Object.values(EnterpriseAppRoleNames)) {}
