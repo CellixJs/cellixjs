@@ -180,7 +180,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the community permission canManageCommunities should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.communityPermissions['canManageCommunities']).toBe(true);
+			expect(roleInstance.permissions.communityPermissions.canManageCommunities).toBe(true);
 		});
 	});
 
@@ -212,7 +212,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the user permission canManageUsers should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions['canManageUsers']).toBe(true);
+			expect(roleInstance.permissions.userPermissions.canManageUsers).toBe(true);
 		});
 	});
 
@@ -297,12 +297,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('all community permissions should be true on the updated instance', () => {
 			expect(thrownError).toBeUndefined();
 			const cp = roleInstance.permissions.communityPermissions;
-			expect(cp['canManageCommunities']).toBe(true);
-			expect(cp['canManageStaffRolesAndPermissions']).toBe(true);
-			expect(cp['canManageAllCommunities']).toBe(true);
-			expect(cp['canDeleteCommunities']).toBe(true);
-			expect(cp['canChangeCommunityOwner']).toBe(true);
-			expect(cp['canReIndexSearchCollections']).toBe(true);
+			expect(cp.canManageCommunities).toBe(true);
+			expect(cp.canManageStaffRolesAndPermissions).toBe(true);
+			expect(cp.canManageAllCommunities).toBe(true);
+			expect(cp.canDeleteCommunities).toBe(true);
+			expect(cp.canChangeCommunityOwner).toBe(true);
+			expect(cp.canReIndexSearchCollections).toBe(true);
 		});
 	});
 
@@ -327,7 +327,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		Then('the user permission canAssignStaffUserRoles should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions['canAssignStaffUserRoles']).toBe(true);
+			expect(roleInstance.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 
