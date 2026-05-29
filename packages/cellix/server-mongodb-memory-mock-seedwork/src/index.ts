@@ -25,7 +25,12 @@ export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetCo
 			count: 1,
 			storageEngine: 'wiredTiger',
 		},
-		instanceOpts: [{ port: config.port }],
+		instanceOpts: [
+			{
+				port: config.port,
+				args: ['--setParameter', 'maxTransactionLockRequestTimeoutMillis=5000'],
+			},
+		],
 	});
 
 	const uri = replicaSet.getUri(config.dbName);

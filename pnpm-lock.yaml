@@ -120,13 +120,13 @@ overrides:
   yaml@2.8.2: 2.8.3
   yauzl@3.2.0: 3.2.1
   qs: ^6.15.2
+  express@4.22.1: 4.22.2
   ajv@^6: 6.14.0
   lodash: 4.18.1
   lodash-es: 4.18.1
   node-forge: ^1.4.0
   node-forge@<1.3.2: '>=1.3.2'
   picomatch: ^4.0.4
-  shell-quote: 1.8.4
   webpack: ^5.105.4
   webpack-dev-server: ^5.2.4
   express-rate-limit: 8.5.1
@@ -138,6 +138,9 @@ overrides:
   fast-uri: ^3.1.2
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   ws: 8.20.1
+  shell-quote: 1.8.4
+
+packageExtensionsChecksum: sha256-mDviJarBPcwNNCTUf3T37btBxDGgV1wZ/iUGQfx5OCA=
 
 patchedDependencies:
   '@azure/functions@4.11.0': 69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645
@@ -910,11 +913,11 @@ importers:
   packages/cellix/server-oauth2-mock-seedwork:
     dependencies:
       express:
-        specifier: ^4.22.0
-        version: 4.22.1
+        specifier: ^4.22.2
+        version: 4.22.2
       express-rate-limit:
         specifier: 8.5.1
-        version: 8.5.1(express@4.22.1)
+        version: 8.5.1(express@4.22.2)
       jose:
         specifier: ^5.9.6
         version: 5.10.0
@@ -1163,9 +1166,15 @@ importers:
 
   packages/ocom-verification/acceptance-ui:
     dependencies:
+      '@apollo/client':
+        specifier: ^3.13.9
+        version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.1))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@cucumber/cucumber':
         specifier: 'catalog:'
         version: 12.8.1
+      '@dr.pogodin/react-helmet':
+        specifier: ^3.0.4
+        version: 3.0.4(react@19.2.0)
       '@serenity-js/console-reporter':
         specifier: 'catalog:'
         version: 3.42.2
@@ -1178,6 +1187,21 @@ importers:
       '@serenity-js/serenity-bdd':
         specifier: 'catalog:'
         version: 3.42.2
+      antd:
+        specifier: 'catalog:'
+        version: 6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      graphql:
+        specifier: 'catalog:'
+        version: 16.12.0
+      react:
+        specifier: ^19.1.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.0(react@19.2.0)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       std-env:
         specifier: ^4.0.0
         version: 4.0.0
@@ -1206,12 +1230,6 @@ importers:
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
-      react:
-        specifier: ^19.1.0
-        version: 19.2.0
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.2.0(react@19.2.0)
       tsx:
         specifier: ^4.20.3
         version: 4.21.0
@@ -1291,6 +1309,9 @@ importers:
       '@apollo/server':
         specifier: 'catalog:'
         version: 5.5.0(graphql@16.12.0)
+      '@cellix/server-mongodb-memory-mock-seedwork':
+        specifier: workspace:*
+        version: link:../../cellix/server-mongodb-memory-mock-seedwork
       '@cucumber/cucumber':
         specifier: 'catalog:'
         version: 12.8.1
@@ -1321,9 +1342,6 @@ importers:
       mongodb:
         specifier: 'catalog:'
         version: 6.18.0
-      mongodb-memory-server:
-        specifier: ^10.2.0
-        version: 10.3.0
       mongoose:
         specifier: 'catalog:'
         version: 8.17.0
@@ -7434,8 +7452,8 @@ packages:
   bn.js@5.2.3:
     resolution: {integrity: sha512-EAcmnPkxpntVL+DS7bO1zhcZNvCkxqtkd0ZY53h06GNQ3DEkkGZ/gKgmDv6DdZQGj9BgfSPKtJJ7Dp1GPP8f7w==}
 
-  body-parser@1.20.3:
-    resolution: {integrity: sha512-7rAxByjUMqQ3/bHJy7D6OGXvx/MMc4IqBn/X0fcM1QUcAItpZrBEYhWGem+tzXH90c+G01ypMcYJBO9Y30203g==}
+  body-parser@1.20.5:
+    resolution: {integrity: sha512-3grm+/2tUOvu2cjJkvsIxrv/wVpfXQW4PsQHYm7yk4vfpu7Ekl6nEsYBoJUL6qDwZUx8wUhQ8tR2qz+ad9c9OA==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
 
   body-parser@2.2.2:
@@ -8652,10 +8670,10 @@ packages:
     resolution: {integrity: sha512-5O6KYmyJEpuPJV5hNTXKbAHWRqrzyu+OI3vUnSd2kXFubIVpG7ezpgxQy76Zo5GQZtrQBg86hF+CM/NX+cioiQ==}
     engines: {node: '>= 16'}
     peerDependencies:
-      express: '>= 4.11'
+      express: 4.22.2
 
-  express@4.22.1:
-    resolution: {integrity: sha512-F2X8g9P1X7uCPZMA3MVf9wcTqlyNp7IhH5qPCI0izhaOIYXaW9L535tGA3qmjRzpH+bZczqq7hVKxTR4NWnu+g==}
+  express@4.22.2:
+    resolution: {integrity: sha512-IuL+Elrou2ZvCFHs18/CIzy2Nzvo25nZ1/D2eIZlz7c+QUayAcYoiM2BthCjs+EBHVpjYjcuLDAiCWgeIX3X1Q==}
     engines: {node: '>= 0.10.0'}
 
   extend-shallow@2.0.1:
@@ -11631,8 +11649,8 @@ packages:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
 
-  raw-body@2.5.2:
-    resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
+  raw-body@2.5.3:
+    resolution: {integrity: sha512-s4VSOf6yN0rvbRZGxs8Om5CWj6seneMwK3oDb4lWDH0UPhWcxwOWw5+qk24bxq87szX1ydrwylIOp2uG1ojUpA==}
     engines: {node: '>= 0.8'}
 
   raw-body@3.0.2:
@@ -14133,6 +14151,7 @@ snapshots:
   '@azure/functions-opentelemetry-instrumentation@0.1.0(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.57.2
       '@opentelemetry/instrumentation': 0.52.1(@opentelemetry/api@1.9.0)
     transitivePeerDependencies:
       - supports-color
@@ -19850,7 +19869,7 @@ snapshots:
       args: 5.0.3
       axios: 1.15.2
       etag: 1.8.1
-      express: 4.22.1
+      express: 4.22.2
       fs-extra: 11.3.2
       glob-to-regexp: 0.4.1
       jsonwebtoken: 9.0.2
@@ -19960,18 +19979,18 @@ snapshots:
 
   bn.js@5.2.3: {}
 
-  body-parser@1.20.3:
+  body-parser@1.20.5:
     dependencies:
       bytes: 3.1.2
       content-type: 1.0.5
       debug: 2.6.9
       depd: 2.0.0
       destroy: 1.2.0
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       iconv-lite: 0.4.24
       on-finished: 2.4.1
       qs: 6.15.2
-      raw-body: 2.5.2
+      raw-body: 2.5.3
       type-is: 1.6.18
       unpipe: 1.0.0
     transitivePeerDependencies:
@@ -21363,16 +21382,16 @@ snapshots:
 
   expect-type@1.3.0: {}
 
-  express-rate-limit@8.5.1(express@4.22.1):
+  express-rate-limit@8.5.1(express@4.22.2):
     dependencies:
-      express: 4.22.1
+      express: 4.22.2
       ip-address: 10.2.0
 
-  express@4.22.1:
+  express@4.22.2:
     dependencies:
       accepts: 1.3.8
       array-flatten: 1.1.1
-      body-parser: 1.20.3
+      body-parser: 1.20.5
       content-disposition: 0.5.4
       content-type: 1.0.5
       cookie: 0.7.2
@@ -24888,10 +24907,10 @@ snapshots:
 
   range-parser@1.2.1: {}
 
-  raw-body@2.5.2:
+  raw-body@2.5.3:
     dependencies:
       bytes: 3.1.2
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       iconv-lite: 0.4.24
       unpipe: 1.0.0
 
@@ -26829,7 +26848,7 @@ snapshots:
       colorette: 2.0.20
       compression: 1.8.1
       connect-history-api-fallback: 2.0.0
-      express: 4.22.1
+      express: 4.22.2
       graceful-fs: 4.2.11
       http-proxy-middleware: 2.0.9(@types/express@4.17.25)
       ipaddr.js: 2.3.0
