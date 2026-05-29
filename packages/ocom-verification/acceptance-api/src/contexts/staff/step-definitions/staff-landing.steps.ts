@@ -1,13 +1,12 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
-import { resolveActorName } from '../../../shared/support/domain-test-helpers.ts';
+
+type StaffBusinessRole = 'finance' | 'tech admin' | 'service line owner' | 'case manager';
 
 interface StaffApiNotes {
 	targetRoute: string;
 }
-
-type StaffBusinessRole = 'finance' | 'tech admin' | 'service line owner' | 'case manager';
 
 const defaultRouteByRole: Record<StaffBusinessRole, string> = {
 	finance: '/staff/finance',
@@ -34,19 +33,10 @@ const roleForActor = (actorName: string): StaffBusinessRole => actorRoles.get(ac
 
 const resolveFinanceWorkspaceRoute = (role: StaffBusinessRole): string => (role === 'finance' || role === 'tech admin' ? '/staff/finance' : '/unauthorized');
 
-Given('{word} is an authenticated staff user', async (actorName: string) => {
-	lastActorName = actorName;
-	const actor = actorCalled(actorName);
-	actorRoles.set(actorName, 'case manager');
-	await actor.attemptsTo(notes<StaffApiNotes>().set('targetRoute', ''));
-});
-
 Given('{word} is an authenticated {string} staff user', async (actorName: string, roleName: string) => {
 	lastActorName = actorName;
-	const role = normalizeRole(roleName);
-	const actor = actorCalled(actorName);
-	actorRoles.set(actorName, role);
-	await actor.attemptsTo(notes<StaffApiNotes>().set('targetRoute', ''));
+	actorRoles.set(actorName, normalizeRole(roleName));
+	await actorCalled(actorName).attemptsTo(notes<StaffApiNotes>().set('targetRoute', ''));
 });
 
 When('{word} enters the staff operations workspace', async (actorName: string) => {
@@ -62,10 +52,11 @@ When('{word} attempts to work in the finance workspace', async (actorName: strin
 });
 
 Then('{word} should be directed to {string}', async (actorName: string, expectedRoute: string) => {
-	const actor = actorCalled(resolveActorName(actorName, lastActorName));
-	const actualRoute = await actor.answer(notes<StaffApiNotes>().get('targetRoute'));
+	const resolvedName = /^(she|he|they)$/i.test(actorName) ? lastActorName : actorName;
+	const actor = actorCalled(resolvedName);
+	const targetRoute = await actor.answer(notes<StaffApiNotes>().get('targetRoute'));
 
-	if (actualRoute !== expectedRoute) {
-		throw new Error(`Expected route "${expectedRoute}", but got "${actualRoute}"`);
+	if (targetRoute !== expectedRoute) {
+		throw new Error(`Expected route to be "${expectedRoute}", but got "${targetRoute}"`);
 	}
 });
