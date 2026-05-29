@@ -1,4 +1,3 @@
-import type { BaseContext } from '@apollo/server';
 import type { BlobAddress, BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest, CreateBlobSasUrlRequest, ListBlobsRequest, UploadTextBlobRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
@@ -34,7 +33,7 @@ function createNoOpApolloServerService(): ServiceApolloServer<Record<string, nev
 		startUp: () => Promise.resolve({} as unknown as Awaited<ReturnType<ServiceApolloServer<Record<string, never>>['startUp']>>),
 		shutDown: () => Promise.resolve(),
 		get service(): never {
-			return notImplemented() as never;
+			return notImplemented();
 		},
 	} as unknown as ServiceApolloServer<Record<string, never>>;
 }

@@ -27,7 +27,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		.registerInfrastructureService(new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString }), 'ClientOperationsService')
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
-    })
+})
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
 

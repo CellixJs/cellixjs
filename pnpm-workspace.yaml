@@ -61,7 +61,7 @@ allowBuilds:
   snyk: true
 
 overrides:
-  axios: 1.15.2
+  axios: 1.16.1
   follow-redirects: ^1.16.0
   vite: "catalog:"
   jiti: 2.6.1

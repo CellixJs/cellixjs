@@ -21,9 +21,8 @@
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {
-		"@apollo/server": "catalog:",
 		"@cellix/config-typescript": "workspace:*",
-        "@cellix/service-blob-storage": "workspace:*",
+		"@cellix/service-blob-storage": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
 		"@ocom/persistence": "workspace:*",

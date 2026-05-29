@@ -3,7 +3,6 @@ import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
 import type { TokenValidation } from '@ocom/service-token-validation';
 
-
 /**
  * Application context specification for OCOM.
  *
