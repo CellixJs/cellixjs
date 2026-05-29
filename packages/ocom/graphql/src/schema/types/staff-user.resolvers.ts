@@ -28,6 +28,17 @@ function getAllowedEnterpriseAppRoles(entraRoles: string[]): string[] {
 }
 
 const staffUser: Resolvers = {
+	StaffUserActivityDetail: {
+		activityByStaffUserDisplayName: async (parent, _args, context: GraphContext) => {
+			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+				return parent.activityByStaffUserId;
+			}
+			const users = await context.applicationServices.User.StaffUser.list();
+			const found = users.find((u) => String(u.id) === String(parent.activityByStaffUserId));
+			return found?.displayName ?? parent.activityByStaffUserId;
+		},
+	},
+
 	Query: {
 		currentStaffUserAndCreateIfNotExists: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;

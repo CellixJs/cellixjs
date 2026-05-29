@@ -78,6 +78,7 @@ type StaffUserActivityDetail {
 	activityType: String!
 	activityDescription: String!
 	activityByStaffUserId: String!
+	activityByStaffUserDisplayName: String!
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }

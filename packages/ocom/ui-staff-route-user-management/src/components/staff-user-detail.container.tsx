@@ -107,6 +107,15 @@ export const StaffUserDetailContainer: React.FC = () => {
 		return true;
 	});
 
+	// Always include the user's current role in the options so the Select can render its label
+	// (the current role may be outside the viewer's assignable set but must still display correctly)
+	const currentUserRole = user?.role ? { id: String(user.role.id), roleName: user.role.roleName } : null;
+	const mappedFilteredRoles = filteredRoles.map((r) => ({ id: String(r.id), roleName: r.roleName }));
+	const availableRolesWithCurrent =
+		currentUserRole && !mappedFilteredRoles.some((r) => r.id === currentUserRole.id)
+			? [currentUserRole, ...mappedFilteredRoles]
+			: mappedFilteredRoles;
+
 	return (
 		<StaffUserDetail
 			data={
@@ -114,7 +123,7 @@ export const StaffUserDetailContainer: React.FC = () => {
 					? { id: String(user.id), displayName: user.displayName, email: user.email, role: user.role ? { id: String(user.role.id), roleName: user.role.roleName } : null, createdAt: String(user.createdAt ?? '') }
 					: { id: userId, displayName: 'Loading...', email: '', role: null, createdAt: '' }
 			}
-			availableRoles={filteredRoles.map((r) => ({ id: String(r.id), roleName: r.roleName }))}
+			availableRoles={availableRolesWithCurrent}
 			canAssignRoles={canAssignRoles && !isEditingOwnRole}
 			isEditingOwnRole={isEditingOwnRole}
 			{...(user?.role?.roleName && { currentRoleName: user.role.roleName })}
@@ -124,6 +133,13 @@ export const StaffUserDetailContainer: React.FC = () => {
 			saveDisabled={saveDisabled}
 			loading={loading}
 			saveLoading={assignLoading}
+			activityLog={(user?.activityLog ?? []).map((entry) => ({
+				activityType: entry.activityType,
+				activityDescription: entry.activityDescription,
+				activityByStaffUserId: entry.activityByStaffUserId,
+				activityByStaffUserDisplayName: entry.activityByStaffUserDisplayName,
+				createdAt: String(entry.createdAt),
+			}))}
 		/>
 	);
 };

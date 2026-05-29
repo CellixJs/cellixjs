@@ -828,7 +828,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 			docWithoutPermissions.set = vi.fn().mockImplementation((key: string, value: unknown) => {
 				(docWithoutPermissions as unknown as Record<string, unknown>)[key] = value;
 			});
-			(docWithoutPermissions as unknown as Record<string, unknown>)['permissions'] = undefined;
+			(docWithoutPermissions as unknown as Record<string, unknown>).permissions = undefined;
 			adapter = new StaffRoleDomainAdapter(docWithoutPermissions);
 		});
 		When('I get the permissions property', () => {
@@ -844,7 +844,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no communityPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['communityPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).communityPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -867,7 +867,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no financePermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['financePermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).financePermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -890,7 +890,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no techAdminPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['techAdminPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).techAdminPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -913,7 +913,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no userPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['userPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).userPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -934,7 +934,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 	Scenario('Getting roleType returns null when document roleType is undefined', ({ Given, When, Then }) => {
 		Given('a StaffRoleDomainAdapter wrapping a document with no roleType', () => {
 			const docWithout = makeStaffRoleDoc();
-			(docWithout as unknown as Record<string, unknown>)['roleType'] = undefined;
+			(docWithout as unknown as Record<string, unknown>).roleType = undefined;
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
 		When('I get the roleType property', () => {
@@ -1128,7 +1128,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no propertyPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['propertyPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).propertyPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -1151,7 +1151,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no servicePermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['servicePermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).servicePermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -1174,7 +1174,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no serviceTicketPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['serviceTicketPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).serviceTicketPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -1197,7 +1197,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no violationTicketPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['violationTicketPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).violationTicketPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
