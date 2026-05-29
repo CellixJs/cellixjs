@@ -10,6 +10,7 @@
 		"./formatters": "./src/formatters/index.ts",
 		"./servers": "./src/servers/index.ts",
 		"./settings": "./src/settings/index.ts",
+		"./serenity": "./src/serenity/index.ts",
 		"./pages": "./src/pages/index.ts",
 		"./pages/jsdom": "./src/pages/adapters/jsdom-adapter.ts",
 		"./pages/playwright": "./src/pages/adapters/playwright-adapter.ts"
@@ -20,6 +21,7 @@
 		"@ocom/service-mongoose": "workspace:*",
 		"@cucumber/cucumber": "catalog:",
 		"@cucumber/messages": "catalog:",
+		"@serenity-js/core": "catalog:",
 		"@ocom/graphql": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@testing-library/react": "^16.3.0",

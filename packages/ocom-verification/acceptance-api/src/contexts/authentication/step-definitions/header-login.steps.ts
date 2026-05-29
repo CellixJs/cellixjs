@@ -1,11 +1,7 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
-
-interface HeaderApiNotes {
-	identityProviderUnreachable: boolean;
-	signinRedirectInvoked: boolean;
-	fallbackTriggered: boolean;
-}
+import type { HeaderApiNotes } from '../abilities/header-types.ts';
+import { ClickHeaderSignIn } from '../tasks/click-header-sign-in.ts';
 
 let lastActorName = 'Alex';
 
@@ -32,8 +28,7 @@ Given('the identity provider is unreachable', async () => {
 When('{word} chooses to sign in', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	const unreachable = await actor.answer(notes<HeaderApiNotes>().get('identityProviderUnreachable'));
-	await actor.attemptsTo(notes<HeaderApiNotes>().set('signinRedirectInvoked', !unreachable), notes<HeaderApiNotes>().set('fallbackTriggered', unreachable));
+	await actor.attemptsTo(ClickHeaderSignIn());
 });
 
 Then('{word} is taken to the sign-in flow', async (actorName: string) => {

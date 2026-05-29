@@ -101,7 +101,7 @@ catalogs:
       version: 4.1.2
 
 overrides:
-  axios: 1.15.2
+  axios: 1.16.0
   follow-redirects: ^1.16.0
   vite: 8.0.5
   jiti: 2.6.1
@@ -1253,6 +1253,9 @@ importers:
       '@ocom/service-mongoose':
         specifier: workspace:*
         version: link:../../ocom/service-mongoose
+      '@serenity-js/core':
+        specifier: 'catalog:'
+        version: 3.42.2
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -7222,8 +7225,8 @@ packages:
     resolution: {integrity: sha512-ilYanEU8vxxBexpJd8cWM4ElSQq4QctCLKih0TSfjIfCQTeyH/6zVrmIJfLPrKTKJRbiG+cfnZbQIjAlJmF1jQ==}
     engines: {node: '>=4'}
 
-  axios@1.15.2:
-    resolution: {integrity: sha512-wLrXxPtcrPTsNlJmKjkPnNPK2Ihe0hn0wGSaTEiHRPxwjvJwT3hKmXF4dpqxmPO9SoNb2FsYXj/xEo0gHN+D5A==}
+  axios@1.16.0:
+    resolution: {integrity: sha512-6hp5CwvTPlN2A31g5dxnwAX0orzM7pmCRDLnZSX772mv8WDqICwFjowHuPs04Mc8deIld1+ejhtaMn5vp6b+1w==}
 
   azurite@3.35.0:
     resolution: {integrity: sha512-GzKmi+/5U0baNRjEEVtBMLpLuIKEJ0uSh0VWBzOI4qe4f5ziJyoZQmcTO7QhxZTF6+rphj7TZS3PtJY7uiiacA==}
@@ -13347,18 +13350,6 @@ packages:
   write-file-atomic@3.0.3:
     resolution: {integrity: sha512-AvHcyZ5JnSfq3ioSyjrBkH9yW4m7Ayk8/9My/DD9onKeu/94fwrMocemO2QAJFAlnnDN+ZDS+ZjAR5ua1/PV/Q==}
 
-  ws@7.5.10:
-    resolution: {integrity: sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ==}
-    engines: {node: '>=8.3.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: ^5.0.2
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
   ws@8.20.1:
     resolution: {integrity: sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w==}
     engines: {node: '>=10.0.0'}
@@ -14100,7 +14091,7 @@ snapshots:
   '@azure/ms-rest-js@1.11.2':
     dependencies:
       '@azure/core-auth': 1.10.1
-      axios: 1.15.2
+      axios: 1.16.0
       form-data: 2.5.5
       tough-cookie: 2.5.0
       tslib: 1.14.1
@@ -18360,7 +18351,7 @@ snapshots:
     dependencies:
       '@serenity-js/core': 3.42.2
       agent-base: 7.1.4
-      axios: 1.15.2
+      axios: 1.16.0
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 11.3.5
@@ -18375,7 +18366,7 @@ snapshots:
       '@serenity-js/core': 3.42.2
       '@serenity-js/rest': 3.42.2
       ansi-regex: 5.0.1
-      axios: 1.15.2
+      axios: 1.16.0
       chalk: 4.1.2
       find-java-home: 2.0.0
       progress: 2.0.3
@@ -18426,7 +18417,7 @@ snapshots:
   '@sonar/scan@4.3.2':
     dependencies:
       adm-zip: 0.5.16
-      axios: 1.15.2
+      axios: 1.16.0
       commander: 13.1.0
       fs-extra: 11.3.2
       hpagent: 1.2.0
@@ -19657,7 +19648,7 @@ snapshots:
 
   axe-core@4.11.0: {}
 
-  axios@1.15.2:
+  axios@1.16.0:
     dependencies:
       follow-redirects: 1.16.0(debug@4.4.3)
       form-data: 4.0.5
@@ -19670,7 +19661,7 @@ snapshots:
       '@azure/ms-rest-js': 1.11.2
       applicationinsights: 2.9.8
       args: 5.0.3
-      axios: 1.15.2
+      axios: 1.16.0
       etag: 1.8.1
       express: 4.22.2
       fs-extra: 11.3.2
@@ -26869,8 +26860,6 @@ snapshots:
       is-typedarray: 1.0.0
       signal-exit: 3.0.7
       typedarray-to-buffer: 3.1.5
-
-  ws@7.5.10: {}
 
   ws@8.20.1: {}
 
