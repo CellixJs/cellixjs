@@ -127,4 +127,58 @@ describe('RequireRole', () => {
 		);
 		expect(html).not.toContain('protected content');
 	});
+
+	it('redirects when permKey is not provided', () => {
+		useQueryMock.mockReturnValue({
+			loading: false,
+			error: undefined,
+			data: {
+				staffUserCurrent: {
+					role: {
+						permissions: {
+							communityPermissions: { canManageCommunities: true },
+							userPermissions: { canManageUsers: true },
+							financePermissions: { canManageFinance: true },
+							techAdminPermissions: { canManageTechAdmin: true },
+						},
+					},
+				},
+			},
+		});
+		const identity = {};
+		const html = renderToString(
+			<MemoryRouter initialEntries={['/staff/tech']}>
+				<StaffAuthProvider value={identity}>
+					<RequireRole roles={[]}>
+						<Protected />
+					</RequireRole>
+				</StaffAuthProvider>
+			</MemoryRouter>,
+		);
+		expect(html).not.toContain('protected content');
+	});
+
+	it('redirects when role permissions are missing', () => {
+		useQueryMock.mockReturnValue({
+			loading: false,
+			error: undefined,
+			data: {
+				staffUserCurrent: {},
+			},
+		});
+		const identity = {};
+		const html = renderToString(
+			<MemoryRouter initialEntries={['/staff/tech']}>
+				<StaffAuthProvider value={identity}>
+					<RequireRole
+						roles={[]}
+						permKey="canManageTechAdmin"
+					>
+						<Protected />
+					</RequireRole>
+				</StaffAuthProvider>
+			</MemoryRouter>,
+		);
+		expect(html).not.toContain('protected content');
+	});
 });

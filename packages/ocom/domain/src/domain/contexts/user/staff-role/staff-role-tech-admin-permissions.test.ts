@@ -208,4 +208,32 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(setWithoutPermission).toThrow('Cannot set permission');
 		});
 	});
+
+	Scenario('Reading tech admin permission flags', ({ Given, Then, And }) => {
+		Given('a StaffRoleTechAdminPermissions entity with all permission flags set to true', () => {
+			props = makeProps({
+				canManageTechAdmin: true,
+				canViewDatabaseExplorer: true,
+				canViewBlobExplorer: true,
+				canViewQueueDashboard: true,
+				canSendQueueMessages: true,
+			});
+			entity = new StaffRoleTechAdminPermissions(props, visa);
+		});
+		Then('canManageTechAdmin should be true', () => {
+			expect(entity.canManageTechAdmin).toBe(true);
+		});
+		And('canViewDatabaseExplorer should be true', () => {
+			expect(entity.canViewDatabaseExplorer).toBe(true);
+		});
+		And('canViewBlobExplorer should be true', () => {
+			expect(entity.canViewBlobExplorer).toBe(true);
+		});
+		And('canViewQueueDashboard should be true', () => {
+			expect(entity.canViewQueueDashboard).toBe(true);
+		});
+		And('canSendQueueMessages should be true', () => {
+			expect(entity.canSendQueueMessages).toBe(true);
+		});
+	});
 });
