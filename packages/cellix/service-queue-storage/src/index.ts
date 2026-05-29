@@ -1,5 +1,6 @@
 export type { InboundQueueDefinition, LoggingFieldSpec, OutboundQueueDefinition, QueueDefinition, QueueMessage, QueueStorageConfig } from './interfaces.js';
-export { $payload, resolveLoggingFields } from './interfaces.js';
+export { defineQueue } from './define-queue.js';
+export { $payload, payloadFields, resolveLoggingFields } from './logging-fields.js';
 export type { IQueueMessageLogger, MessageLogEnvelope } from './logging.js';
 export { BlobQueueMessageLogger } from './logging.js';
 export type { QueueConsumerContext } from './queue-consumer.js';

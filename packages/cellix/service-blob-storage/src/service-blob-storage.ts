@@ -25,6 +25,7 @@ export type ServiceBlobStorageOptions = {
 	connectionString?: string;
 	accountName?: string;
 	credential?: TokenCredential;
+	provisionContainers?: string[];
 };
 
 /**
@@ -86,6 +87,21 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 			const endpoint = this.blobServiceClientInternal?.url ?? '(unknown)';
 			const maskedAccount = accountName ? accountName.replace(/.(?=.{4})/g, '*') : 'unknown';
 			console.info(`[ServiceBlobStorage] started (sharedKey). endpoint=${endpoint}, account=${maskedAccount}`);
+
+			const conn = this.options.connectionString as string;
+			const isAzuriteConnection = conn.includes('UseDevelopmentStorage=true') || conn.includes('127.0.0.1');
+			const nodeEnv = (process.env as { NODE_ENV?: string }).NODE_ENV;
+			if (nodeEnv === 'development' || isAzuriteConnection) {
+				if (Array.isArray(this.options.provisionContainers)) {
+					for (const container of this.options.provisionContainers) {
+						try {
+							await this.createContainerIfNotExists(container);
+						} catch (error) {
+							console.warn('[ServiceBlobStorage] failed to auto-provision container', container, error);
+						}
+					}
+				}
+			}
 
 			return this;
 		}
@@ -197,6 +213,14 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 
 	public createReadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
 		return this.createBlobReadAuthorizationHeader(request);
+	}
+
+	public async createContainerIfNotExists(containerName: string): Promise<void> {
+		try {
+			await this.getContainerClient(containerName).createIfNotExists();
+		} catch (error) {
+			console.warn('[ServiceBlobStorage] createContainerIfNotExists failed for', containerName, error);
+		}
 	}
 
 	/**

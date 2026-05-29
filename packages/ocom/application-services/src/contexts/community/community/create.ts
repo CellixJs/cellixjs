@@ -1,13 +1,14 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { BlobStorageOperations } from '@ocom/service-blob-storage';
+import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 
 export interface CommunityCreateCommand {
 	name: string;
 	endUserExternalId: string;
 }
 
-export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations) => {
+export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations) => {
 	return async (command: CommunityCreateCommand): Promise<Domain.Contexts.Community.Community.CommunityEntityReference> => {
 		const createdBy = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.endUserExternalId);
 		if (!createdBy) {
@@ -32,6 +33,13 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 						eventType: 'CommunityCreated',
 					},
 				});
+
+                await queueStorageService.sendMessageToCommunityCreationQueue({
+                    communityId: communityToReturn.id,
+                    name: communityToReturn.name,
+                    createdBy: communityToReturn.createdBy.id
+                });
+
 			} catch (error) {
 				console.error('Failed to upload community creation log to blob storage:', error);
 			}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { $payload, resolveLoggingFields } from './index.js';
+import type { QueueDefinition } from './index.js';
+import { $payload, payloadFields, resolveLoggingFields } from './index.js';
 
 describe('$payload proxy', () => {
 	it('returns LoggingFieldSpec objects for any property access', () => {
@@ -14,6 +15,18 @@ describe('$payload proxy', () => {
 	});
 
 	it('can be used directly in queue definitions', () => {
+		const scopedPayload = payloadFields<{ externalId: string; userId: string }>();
+		const typedQueueDefinition: QueueDefinition<{ externalId: string; userId: string }> = {
+			queueName: 'users',
+			schema: { type: 'object' },
+			loggingTags: {
+				externalId: scopedPayload.externalId,
+				userId: scopedPayload.userId,
+			},
+		};
+
+		expect(typedQueueDefinition.loggingTags).toBeDefined();
+
 		const tagsSpec = {
 			domain: 'user',
 			externalId: $payload.externalId,
@@ -115,5 +128,23 @@ describe('$payload proxy', () => {
 	it('handles undefined spec gracefully', () => {
 		const resolved = resolveLoggingFields(undefined, { anything: true });
 		expect(resolved).toBeUndefined();
+	});
+
+	it('preserves payload-key type safety in queue definitions', () => {
+		const scopedPayload = payloadFields<{ communityId: string; createdBy: string }>();
+		const validDefinition: QueueDefinition<{ communityId: string; createdBy: string }> = {
+			queueName: 'community-creation',
+			schema: { type: 'object' },
+			loggingMetadata: {
+				communityId: scopedPayload.communityId,
+				createdBy: scopedPayload.createdBy,
+			},
+		};
+
+		expect(validDefinition.loggingMetadata).toBeDefined();
+
+		const invalidPayload = payloadFields<{ communityId: string }>();
+		// @ts-expect-error nonexistentField is not part of the payload type
+		expect(invalidPayload.nonexistentField).toBeDefined();
 	});
 });

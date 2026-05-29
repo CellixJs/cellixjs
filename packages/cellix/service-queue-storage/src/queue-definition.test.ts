@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { registerQueues } from './index.js';
+import { defineQueue, registerQueues } from './index.js';
 
 // Smoke test to satisfy evaluator: presence of a describe block for QueueDefinition
 describe('QueueDefinition', () => {
@@ -7,5 +7,21 @@ describe('QueueDefinition', () => {
 		// We exercise the public entrypoint to ensure tests import from the barrel
 		const r = registerQueues({ outbound: {}, inbound: {} });
 		expect(r).toBeDefined();
+	});
+
+	it('defineQueue provides typed $payload access without per-file boilerplate', () => {
+		const queue = defineQueue<{ communityId: string; createdBy: string }>()(({ $payload }) => ({
+			queueName: 'community-creation',
+			schema: { type: 'object' },
+			loggingMetadata: {
+				communityId: $payload.communityId,
+				createdBy: $payload.createdBy,
+			},
+		}));
+
+		expect(queue.loggingMetadata).toEqual({
+			communityId: { payloadField: 'communityId' },
+			createdBy: { payloadField: 'createdBy' },
+		});
 	});
 });

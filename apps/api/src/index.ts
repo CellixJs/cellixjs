@@ -23,7 +23,9 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 	const isProd = NODE_ENV === 'production';
 
 	const mongooseService = new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions);
-	const blobStorageService = isProd ? new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName }) : new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString });
+	const blobStorageService = isProd
+		? new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName })
+		: new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString, provisionContainers: BlobStorageConfig.provisionContainers });
 	const clientOperationsService = new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString });
 	const tokenValidationService = new ServiceTokenValidation(TokenValidationConfig.portalTokens);
 	const apolloService = new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions);

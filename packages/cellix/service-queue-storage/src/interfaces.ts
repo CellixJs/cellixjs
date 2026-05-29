@@ -9,6 +9,9 @@ declare const _queuePayload: unique symbol;
  * Provide either `connectionString` for local/shared-key access or `accountName`
  * for managed identity access. Logging is optional but, when enabled, is applied
  * automatically by the typed send and receive methods created through `registerQueues()`.
+ *
+ * `provisionQueues` is intended for local development and Azurite startup, not
+ * production infrastructure management.
  */
 export type QueueStorageConfig = {
 	accountName?: string;
@@ -24,7 +27,12 @@ export type QueueStorageConfig = {
 	logger?: IQueueMessageLogger;
 };
 
-/** Message shape returned from typed receive and peek queue methods. */
+/**
+ * Message shape returned from typed receive and peek queue methods.
+ *
+ * `payload` carries the decoded queue message body, while `id`, `popReceipt`, and
+ * `dequeueCount` reflect Azure Queue Storage delivery metadata when available.
+ */
 export type QueueMessage<T = unknown> = {
 	id: string;
 	popReceipt?: string;
@@ -35,6 +43,12 @@ export type QueueMessage<T = unknown> = {
 /** Queue direction used when persisting message logs. */
 export type QueueDirection = 'inbound' | 'outbound';
 
+/**
+ * Logging and delivery options used internally by typed queue producer methods.
+ *
+ * Consumers normally do not create this object directly; it is derived from queue
+ * definitions and logging configuration.
+ */
 export type SendMessageOptions = {
 	visibilityTimeoutSeconds?: number;
 	/** Already-resolved blob index tags to attach to the logged message envelope */
@@ -47,6 +61,12 @@ export type SendMessageOptions = {
 export type ReceiveMessagesOptions = { maxMessages?: number; visibilityTimeout?: number };
 export type PeekMessagesOptions = { maxMessages?: number };
 
+/**
+ * Internal raw queue transport contract implemented by the Azure queue service.
+ *
+ * Application consumers should use registered typed queue methods instead of this
+ * lower-level transport surface.
+ */
 export interface IQueueStorageOperations {
 	sendMessage<_T = unknown>(queue: string, message: string | object, opts?: SendMessageOptions): Promise<void>;
 	sendValidatedMessage<T>(queue: string, contract: QueueMessageContract<T>, payload: T, opts?: SendMessageOptions): Promise<void>;
@@ -59,7 +79,18 @@ type QueueMessageContract<T> = {
 	encode(payload: T): string;
 	decode(raw: string): T;
 };
-type QueueMessageSchema = Record<string, unknown>;
+export type QueueMessageSchema = Record<string, unknown>;
+export type PayloadFieldRef<TKey extends string = string> = { payloadField: TKey };
+export type PayloadFieldProxy<TPayload extends object> = {
+	[K in Extract<keyof TPayload, string>]-?: PayloadFieldRef<K>;
+};
+export type AnyLoggingFieldSpec = string | PayloadFieldRef<string>;
+export type QueueDefinitionBase = {
+	queueName: string;
+	schema: QueueMessageSchema;
+	loggingTags?: Record<string, AnyLoggingFieldSpec>;
+	loggingMetadata?: Record<string, AnyLoggingFieldSpec>;
+};
 
 /**
  * Describes a single logging field value: either a hardcoded string or a reference
@@ -78,59 +109,7 @@ type QueueMessageSchema = Record<string, unknown>;
  * const spec: LoggingFieldSpec = $payload.externalId;
  * ```
  */
-export type LoggingFieldSpec = string | { payloadField: string };
-
-/**
- * Proxy object for extracting field values from the message payload at runtime.
- * Makes it obvious that the value will come from the message, not a hardcoded string.
- *
- * @example
- * ```ts
- * import { $payload } from '@cellix/service-queue-storage';
- *
- * export const myQueue: QueueDefinition<MyMessage> = {
- *   queueName: 'my-queue',
- *   schema,
- *   loggingTags: {
- *     domain: 'user',              // hardcoded string
- *     externalId: $payload.externalId, // extracted from message at runtime
- *     userId: $payload.userId,         // extracted from message at runtime
- *   },
- *   loggingMetadata: {
- *     email: $payload.email,       // omitted if undefined in message
- *   },
- * };
- * ```
- */
-export const $payload: Record<string, LoggingFieldSpec> = new Proxy(
-	{},
-	{
-		get(_target, prop: string) {
-			return { payloadField: prop };
-		},
-	},
-);
-
-/**
- * Resolves a map of {@link LoggingFieldSpec} entries against a message payload,
- * returning a plain `Record<string, string>` suitable for blob metadata or tags.
- * Fields whose payload references are missing or nullish are omitted from the result.
- */
-export function resolveLoggingFields(specs: Record<string, LoggingFieldSpec> | undefined, payload: unknown): Record<string, string> | undefined {
-	if (!specs) return undefined;
-	const resolved: Record<string, string> = {};
-	for (const [key, spec] of Object.entries(specs)) {
-		if (typeof spec === 'string') {
-			resolved[key] = spec;
-		} else {
-			const val = (payload as Record<string, unknown>)?.[spec.payloadField];
-			if (val !== undefined && val !== null) {
-				resolved[key] = String(val);
-			}
-		}
-	}
-	return Object.keys(resolved).length > 0 ? resolved : undefined;
-}
+export type LoggingFieldSpec<TPayload = { [key: string]: unknown }> = string | PayloadFieldRef<Extract<keyof TPayload, string>>;
 
 /**
  * QueueDefinition describes a single logical queue: its physical queue name,
@@ -157,13 +136,11 @@ export function resolveLoggingFields(specs: Record<string, LoggingFieldSpec> | u
  * }
  * ```
  */
-export type QueueDefinition<TPayload = unknown> = {
-	queueName: string;
-	schema: QueueMessageSchema;
+export type QueueDefinition<TPayload = object> = QueueDefinitionBase & {
 	/** Blob index tags — supports hardcoded strings and payload field references */
-	loggingTags?: Record<string, LoggingFieldSpec>;
+	loggingTags?: Record<string, LoggingFieldSpec<TPayload>>;
 	/** Blob metadata — supports hardcoded strings and payload field references */
-	loggingMetadata?: Record<string, LoggingFieldSpec>;
+	loggingMetadata?: Record<string, LoggingFieldSpec<TPayload>>;
 	readonly [_queuePayload]?: TPayload;
 };
 
@@ -172,7 +149,7 @@ export type QueueDefinition<TPayload = unknown> = {
  * Structurally identical to QueueDefinition but provides compile-time
  * and runtime distinction for logging purposes.
  */
-export type OutboundQueueDefinition<TPayload = unknown> = QueueDefinition<TPayload> & {
+export type OutboundQueueDefinition<TPayload = object> = QueueDefinition<TPayload> & {
 	readonly _direction?: 'outbound';
 };
 
@@ -181,11 +158,11 @@ export type OutboundQueueDefinition<TPayload = unknown> = QueueDefinition<TPaylo
  * Structurally identical to QueueDefinition but provides compile-time
  * and runtime distinction for logging purposes.
  */
-export type InboundQueueDefinition<TPayload = unknown> = QueueDefinition<TPayload> & {
+export type InboundQueueDefinition<TPayload = object> = QueueDefinition<TPayload> & {
 	readonly _direction?: 'inbound';
 };
 
-export type QueueMap<T extends QueueDefinition = QueueDefinition> = Record<string, T>;
+export type QueueMap<T extends QueueDefinitionBase = QueueDefinitionBase> = Record<string, T>;
 
 /** Extracts the payload type from a QueueDefinition phantom type parameter. */
 export type MessagePayload<D> = D extends QueueDefinition<infer P> ? (P extends undefined ? unknown : P) : unknown;

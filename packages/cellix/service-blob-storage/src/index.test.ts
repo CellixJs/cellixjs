@@ -1,7 +1,7 @@
 import { ServiceBlobStorage } from '@cellix/service-blob-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, generateBlobSasUrlMock, generateBlobSasQueryParametersMock, MockStorageSharedKeyCredential } = vi.hoisted(() => {
+const { uploadMock, deleteBlobMock, listBlobsFlatMock, createIfNotExistsMock, blobServiceFromConnectionStringMock, generateBlobSasUrlMock, generateBlobSasQueryParametersMock, MockStorageSharedKeyCredential } = vi.hoisted(() => {
 	class HoistedStorageSharedKeyCredential {
 		public readonly accountName: string;
 		public readonly accountKey: string;
@@ -16,6 +16,7 @@ const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnection
 		uploadMock: vi.fn(),
 		deleteBlobMock: vi.fn(),
 		listBlobsFlatMock: vi.fn(),
+		createIfNotExistsMock: vi.fn(),
 		blobServiceFromConnectionStringMock: vi.fn(),
 		generateBlobSasUrlMock: vi.fn(),
 		generateBlobSasQueryParametersMock: vi.fn(),
@@ -49,6 +50,7 @@ describe('ServiceBlobStorage', () => {
 	const containerClient = {
 		url: 'https://blob.example.test/container',
 		getBlockBlobClient: vi.fn(() => blockBlobClient),
+		createIfNotExists: createIfNotExistsMock,
 		deleteBlob: deleteBlobMock,
 		listBlobsFlat: listBlobsFlatMock,
 	};
@@ -80,6 +82,19 @@ describe('ServiceBlobStorage', () => {
 		expect(started).toBe(service);
 		expect(blobServiceFromConnectionStringMock).toHaveBeenCalledWith(connectionString);
 		expect(service.blobServiceClient).toBe(blobServiceClient);
+	});
+
+	it('auto-provisions configured containers during local startup', async () => {
+		const service = new ServiceBlobStorage({
+			connectionString: 'UseDevelopmentStorage=true;AccountName=test-account;AccountKey=test-key;EndpointSuffix=core.windows.net',
+			provisionContainers: ['community-logs', 'queue-logs'],
+		});
+
+		await service.startUp();
+
+		expect(blobServiceClient.getContainerClient).toHaveBeenCalledWith('community-logs');
+		expect(blobServiceClient.getContainerClient).toHaveBeenCalledWith('queue-logs');
+		expect(createIfNotExistsMock).toHaveBeenCalledTimes(2);
 	});
 
 	it('uploads text with optional metadata and headers', async () => {

@@ -67,12 +67,12 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			}
 		}
 
-		const { dataSourcesFactory, blobStorageService } = context;
+		const { dataSourcesFactory, blobStorageService, queueStorageService } = context;
 
 		const dataSources = dataSourcesFactory.withPassport(passport);
 
 		return {
-			Community: Community(dataSources, blobStorageService),
+			Community: Community(dataSources, blobStorageService, queueStorageService),
 			Service: Service(dataSources),
 			User: User(dataSources),
 			get verifiedUser(): VerifiedUser | null {

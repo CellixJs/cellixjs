@@ -21,6 +21,7 @@ This package provides:
 ## Public API shape
 
 Public exports:
+- `defineQueue<TPayload>()` — preferred queue-definition helper that injects a typed `$payload` proxy into a callback
 - `registerQueues({ outbound, inbound })` — factory that returns a typed registry with `producer` stubs, `consumer` stubs, and a `Service` base class
 - `RegisteredQueueService<O, I>` — public type for lifecycle plus typed queue methods produced by `registerQueues`
 - `QueueServiceLifecycle` — lifecycle contract implemented by registered queue services
@@ -32,6 +33,7 @@ Public exports:
 ## Core concepts
 
 - `QueueDefinition`: describes a queue's logical name, the JSON Schema for messages, and optional logging tags and metadata.
+- `defineQueue`: preferred authoring helper for queue definitions because it provides a typed `$payload` proxy without per-file setup noise.
 - `registerQueues`: accepts maps of outbound and inbound `QueueDefinition` objects and returns a typed registry. The registry exposes a `Service` class with lifecycle methods and typed queue methods already wired in the constructor — no separate bind step is required.
 - `Service` class pattern: consumer packages extend `registry.Service` to create an application-specific queue storage service. The queue bindings (producer methods, consumer methods) are applied automatically during construction via `Object.assign`. AJV validators are compiled once at `registerQueues()` call time and reused across instances.
 

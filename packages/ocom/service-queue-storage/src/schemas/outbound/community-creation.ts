@@ -1,4 +1,4 @@
-import type { QueueDefinition } from '@cellix/service-queue-storage';
+import { defineQueue } from '@cellix/service-queue-storage';
 import schema from './community-creation.schema.json' with { type: 'json' };
 
 export interface CommunityCreationMessage {
@@ -7,9 +7,9 @@ export interface CommunityCreationMessage {
 	createdBy: string;
 }
 
-export const communityCreationQueue: QueueDefinition<CommunityCreationMessage> = {
+export const communityCreationQueue = defineQueue<CommunityCreationMessage>()(({ $payload }) => ({
 	queueName: 'community-creation',
 	schema,
 	loggingTags: { domain: 'community', type: 'creation' },
-	loggingMetadata: { communityId: { payloadField: 'communityId' } },
-};
+	loggingMetadata: { communityId: $payload.communityId, createdBy: $payload.createdBy },
+}));

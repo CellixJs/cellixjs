@@ -1,7 +1,7 @@
 import { BlobQueueMessageLogger, type QueueServiceLifecycle } from '@cellix/service-queue-storage';
 import { type AppQueueConsumerContext, type AppQueueProducerContext, allQueueNames, queueRegistry } from './registry.ts';
 
-const QUEUE_LOG_CONTAINER = 'queue-logs';
+export const QUEUE_LOG_CONTAINER = 'queue-logs';
 
 /**
  * Structural type accepted for queue message logging.
@@ -61,7 +61,4 @@ export type ServiceQueueStorage = QueueServiceLifecycle & AppQueueProducerContex
  * await svc.sendMessageToCommunityCreationQueue({ communityId: '1', name: 'Test', createdBy: 'user1' });
  * ```
  */
-export const ServiceQueueStorage = ServiceQueueStorageImpl as unknown as {
-	new (options: ServiceQueueStorageOptions): ServiceQueueStorage;
-	prototype: ServiceQueueStorage;
-};
+export const ServiceQueueStorage = ServiceQueueStorageImpl;

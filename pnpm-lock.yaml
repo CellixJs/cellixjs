@@ -1358,6 +1358,9 @@ importers:
       '@ocom/service-blob-storage':
         specifier: workspace:*
         version: link:../service-blob-storage
+      '@ocom/service-queue-storage':
+        specifier: workspace:*
+        version: link:../service-queue-storage
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*

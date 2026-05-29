@@ -1,4 +1,4 @@
-import type { QueueDefinition } from '@cellix/service-queue-storage';
+import { defineQueue } from '@cellix/service-queue-storage';
 import schema from './end-user-update.schema.json' with { type: 'json' };
 
 export interface EndUserUpdateMessage {
@@ -10,15 +10,15 @@ export interface EndUserUpdateMessage {
 	legalNameConsistsOfOneName?: boolean;
 }
 
-export const endUserUpdateQueue: QueueDefinition<EndUserUpdateMessage> = {
+export const endUserUpdateQueue = defineQueue<EndUserUpdateMessage>()(({ $payload }) => ({
 	queueName: 'end-user-update',
 	schema,
 	loggingTags: {
 		domain: 'user',
-		externalId: { payloadField: 'externalId' }, // Extracted from message.externalId at runtime
+		externalId: $payload.externalId,
 	},
 	loggingMetadata: {
 		updateType: 'external-sync',
-		email: { payloadField: 'email' }, // Extracted from message.email (omitted if undefined)
+		email: $payload.email,
 	},
-};
+}));

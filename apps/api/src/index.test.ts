@@ -10,6 +10,7 @@ const {
 	registerEventHandlers,
 	MockServiceApolloServer,
 	MockServiceBlobStorage,
+	SpyServiceBlobStorage,
 	MockServiceMongoose,
 	MockServiceTokenValidation,
 } = vi.hoisted(() => {
@@ -45,6 +46,10 @@ const {
 		}
 	}
 
+	const HoistedSpyServiceBlobStorage = vi.fn(function MockedBlobStorage(options: unknown) {
+		return new HoistedServiceBlobStorage(options);
+	});
+
 	return {
 		registerInfrastructureService: vi.fn(),
 		setContext: vi.fn(),
@@ -55,6 +60,7 @@ const {
 		registerEventHandlers: vi.fn(),
 		MockServiceApolloServer: HoistedServiceApolloServer,
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
+		SpyServiceBlobStorage: HoistedSpyServiceBlobStorage,
 		MockServiceMongoose: HoistedServiceMongoose,
 		MockServiceTokenValidation: HoistedServiceTokenValidation,
 	};
@@ -77,7 +83,7 @@ vi.mock('./cellix.ts', () => ({
 	},
 }));
 vi.mock('@ocom/service-blob-storage', () => ({
-	ServiceBlobStorage: MockServiceBlobStorage,
+	ServiceBlobStorage: SpyServiceBlobStorage,
 }));
 vi.mock('@ocom/service-mongoose', () => ({
 	ServiceMongoose: MockServiceMongoose,
@@ -125,6 +131,7 @@ vi.mock('@ocom/service-queue-storage', () => ({
 			peekAtImportRequestsQueue: vi.fn(),
 		};
 	}),
+	QUEUE_LOG_CONTAINER: 'queue-logs',
 	allQueueNames: ['email-notifications', 'audit-events', 'import-requests'],
 }));
 
@@ -157,6 +164,10 @@ describe('apps/api bootstrap', () => {
 		registerServices?.(serviceRegistry);
 
 		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(SpyServiceBlobStorage).toHaveBeenNthCalledWith(1, {
+			connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+			provisionContainers: ['community-logs', 'queue-logs'],
+		});
 		// Find the registered blob services by the semantic registration name instead of relying on call order.
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];

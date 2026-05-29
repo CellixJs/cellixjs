@@ -9,14 +9,14 @@ pnpm add @cellix/service-queue-storage
 ## Quick start
 
 ```typescript
-import { registerQueues, QueueDefinition } from '@cellix/service-queue-storage'
+import { defineQueue, registerQueues } from '@cellix/service-queue-storage'
 
 // 1. Define your queues (typically in @ocom/service-queue-storage)
-const myQueueDef: QueueDefinition = {
+const myQueueDef = defineQueue<{ id: string }>()(({ $payload }) => ({
   queueName: 'my-queue',
   schema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
-  loggingTags: { source: 'my-service' }
-}
+  loggingTags: { source: 'my-service', messageId: $payload.id }
+}))
 
 // 2. Register queues — returns typed stubs and a bound Service base class
 const queueRegistry = registerQueues({
@@ -43,6 +43,7 @@ await svc.sendMessageToMyQueueQueue({ id: '123' })
   - `producer` — typed stub object (used for TypeScript type inference in consumer packages)
   - `consumer` — typed stub object (used for TypeScript type inference in consumer packages)
   - `Service` — a class with lifecycle methods and all typed queue methods wired in the constructor. Extend this class to create an application-specific queue service.
+- `defineQueue`: preferred helper for authoring typed queue definitions with `$payload.<field>` support and no local setup boilerplate
 - `RegisteredQueueService`: public type for an application-specific queue service returned from `registerQueues()`
 - `QueueServiceLifecycle`: lifecycle contract implemented by registered queue services
 - `QueueDefinition`: type describing `queueName` and message JSON Schema.
@@ -58,7 +59,10 @@ When logging is enabled, the package writes one blob per message:
 - Blob filenames use the message timestamp in ISO UTC form, for example `2026-05-27T15:14:30.000Z.json`
 - Blob content is the message payload JSON itself, not a wrapper envelope
 - Blob tags always include `queueName`
-- Queue definitions can add custom tags and metadata, including values resolved from the message payload at runtime via `$payload.<field>`
+- Queue definitions can add custom tags and metadata, including values resolved from the message payload at runtime
+- The preferred syntax is `defineQueue<MyPayload>()(({ $payload }) => ({ ... }))`, then use `$payload.<field>` inside the definition callback
+- The equivalent explicit form `{ payloadField: 'communityId' }` is also supported for advanced/manual cases
+- `defineQueue<MyPayload>()` ensures `$payload.<field>` is checked against the keys of `MyPayload` without separate payload helper setup
 
 ## Auto-provisioning
 

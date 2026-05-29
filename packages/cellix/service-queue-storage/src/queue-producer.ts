@@ -1,10 +1,15 @@
 import type { MessagePayload, QueueMap, QueueMessage } from './interfaces.js';
-import { resolveLoggingFields } from './interfaces.js';
 import type { InternalQueueTransport } from './internal-queue-storage-service.js';
+import { resolveLoggingFields } from './logging-fields.js';
 
 type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S;
 
-/** Public producer methods generated for an application's outbound queues. */
+/**
+ * Public producer methods generated for an application's outbound queues.
+ *
+ * Each queue key becomes a strongly-typed `sendMessageTo...Queue` method and a
+ * matching `peekAt...Queue` method on the registered service surface.
+ */
 export type QueueProducerContext<O extends QueueMap> = {
 	[K in keyof O as `sendMessageTo${Capitalize<string & K>}Queue`]: (payload: MessagePayload<O[K]>) => Promise<void>;
 } & {
