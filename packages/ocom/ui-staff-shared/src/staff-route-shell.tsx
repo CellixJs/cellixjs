@@ -1,6 +1,4 @@
-import { DashboardOutlined } from '@ant-design/icons';
-import type { PageLayoutProps } from '@ocom/ui-shared';
-import { createContext, type FC, type ReactNode, useContext, useMemo } from 'react';
+import { createContext, type FC, type ReactNode, useContext } from 'react';
 import { SectionLayout, type SectionLayoutProps } from './section-layout.tsx';
 
 export interface StaffRouteShellProps {
@@ -15,6 +13,21 @@ export type StaffAuth = {
 	roles?: string[];
 	raw?: Record<string, unknown>;
 	onLogout?: () => Promise<void> | void;
+	enterpriseAppRole?: string;
+	permissions?: {
+		canManageCommunities?: boolean;
+		canManageStaffRolesAndPermissions?: boolean;
+		canManageUsers?: boolean;
+		canAssignStaffRoles?: boolean;
+		canViewStaffUsers?: boolean;
+		canManageFinance?: boolean;
+		canManageTechAdmin?: boolean;
+		canViewDatabaseDocuments?: boolean;
+		canViewRoles?: boolean;
+		canAddRole?: boolean;
+		canEditRole?: boolean;
+		canRemoveRole?: boolean;
+	};
 };
 
 export const StaffAuthContext = createContext<StaffAuth | undefined>(undefined);
@@ -24,42 +37,10 @@ export const StaffAuthProvider: FC<{ value: StaffAuth; children?: ReactNode }> =
 export const StaffRouteShell: FC<StaffRouteShellProps> = ({ title, description }) => {
 	const auth = useContext(StaffAuthContext);
 
-	// Default page layouts for staff portal with ROOT entry and parent relationships
-	const pageLayouts: PageLayoutProps[] = useMemo(
-		() => [
-			{
-				path: '/staff/community-management',
-				title: 'Communities',
-				icon: <DashboardOutlined />,
-				id: 'ROOT',
-			},
-			{
-				path: '/staff/user-management/*',
-				title: 'User Management',
-				icon: <DashboardOutlined />,
-				id: 'users',
-				parent: 'ROOT',
-			},
-			{
-				path: '/staff/finance/*',
-				title: 'Finance',
-				icon: <DashboardOutlined />,
-				id: 'finance',
-				parent: 'ROOT',
-			},
-			{
-				path: '/staff/tech/*',
-				title: 'Tech Admin',
-				icon: <DashboardOutlined />,
-				id: 'tech',
-				parent: 'ROOT',
-			},
-		],
-		[],
-	);
-
+	// Navigation items are built from backend permissions in SectionLayout.
+	// Pass an empty array so SectionLayout is the single source of truth for the menu.
 	const sectionLayoutProps: SectionLayoutProps = {
-		pageLayouts,
+		pageLayouts: [],
 		memberData: auth,
 		title,
 		description: description ?? '',

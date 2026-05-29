@@ -1,0 +1,13 @@
+query SectionLayoutHeaderCurrentStaffUser {
+	currentStaffUserAndCreateIfNotExists {
+		...SectionLayoutHeaderStaffUserFields
+	}
+}
+
+fragment SectionLayoutHeaderStaffUserFields on StaffUser {
+	id
+	displayName
+	firstName
+	lastName
+	email
+}

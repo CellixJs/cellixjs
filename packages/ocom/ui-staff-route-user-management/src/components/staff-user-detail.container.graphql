@@ -1,0 +1,49 @@
+query StaffUserDetail($id: ObjectID!) {
+	staffUserById(id: $id) {
+		...StaffUserDetailFields
+	}
+}
+
+query CurrentStaffUser {
+	currentStaffUserAndCreateIfNotExists {
+		...StaffUserDetailFields
+	}
+}
+
+query StaffRolesForSelect {
+	staffRoles {
+		id
+		roleName
+		enterpriseAppRole
+	}
+}
+
+mutation StaffUserAssignRole($input: StaffUserAssignRoleInput!) {
+	staffUserAssignRole(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		staffUser {
+			...StaffUserDetailFields
+		}
+	}
+}
+
+fragment StaffUserDetailFields on StaffUser {
+	id
+	displayName
+	email
+	createdAt
+	role {
+		id
+		roleName
+		enterpriseAppRole
+	}
+	activityLog {
+		activityType
+		activityDescription
+		activityByStaffUserId
+		createdAt
+	}
+}

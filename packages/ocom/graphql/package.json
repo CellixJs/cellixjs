@@ -31,7 +31,8 @@
 		"@graphql-tools/merge": "^9.1.6",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/domain": "workspace:*",
-		"graphql": "catalog:"
+		"graphql": "catalog:",
+        "mongoose": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/archunit-tests": "workspace:*",

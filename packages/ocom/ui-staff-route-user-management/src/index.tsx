@@ -1,6 +1,6 @@
-import { PlaceholderPage } from '@ocom/ui-staff-shared';
 import type React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { UserManagementPage } from './pages/user-management.tsx';
 import { SectionLayout } from './section-layout.tsx';
 
 export const Root: React.FC = () => {
@@ -13,22 +13,15 @@ export const Root: React.FC = () => {
 				<Route
 					index
 					element={
-						<PlaceholderPage
-							sectionName="User Management"
-							description="User management route package mounted under /staff/user-management."
-							expectedRoles={['Staff.CaseManager', 'Staff.ServiceLineOwner']}
+						<Navigate
+							to="staff-users"
+							replace
 						/>
 					}
 				/>
 				<Route
 					path="*"
-					element={
-						<PlaceholderPage
-							sectionName="User Management"
-							description="User management route package mounted under /staff/user-management."
-							expectedRoles={['Staff.CaseManager', 'Staff.ServiceLineOwner']}
-						/>
-					}
+					element={<UserManagementPage />}
 				/>
 			</Route>
 		</Routes>

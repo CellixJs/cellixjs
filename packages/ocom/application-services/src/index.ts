@@ -59,8 +59,7 @@ export const buildApplicationServicesFactory = (infrastructureServicesRegistry: 
 					passport = Domain.PassportFactory.forMember(endUser, member, community);
 				}
 			} else if (openIdConfigKey === 'StaffPortal') {
-				const staffUser = undefined;
-				// const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
+				const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
 				if (staffUser) {
 					passport = Domain.PassportFactory.forStaffUser(staffUser);
 				}

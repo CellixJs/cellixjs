@@ -1,0 +1,10 @@
+query TechAdminDatabaseExplorerContainerCollections {
+  techAdminDatabaseCollections
+}
+
+query TechAdminDatabaseExplorerContainerDocuments($collection: String!, $filter: String, $page: Int, $pageSize: Int) {
+  techAdminDatabaseDocuments(collection: $collection, filter: $filter, page: $page, pageSize: $pageSize) {
+    documents { id json }
+    totalCount
+  }
+}

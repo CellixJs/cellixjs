@@ -30,10 +30,27 @@ export interface SectionLayoutProps {
 	headerContent?: React.ReactNode;
 	/** Optional injected logged in user component (extension slot). */
 	loggedInUser?: React.ReactNode;
+	/** Optional displayName from container (e.g., from GraphQL query). When provided, takes priority over auth context. */
+	displayName?: string;
 }
 
 export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	const auth = useContext(StaffAuthContext);
+
+	// Debug logging to track displayName flow
+	if (typeof window !== 'undefined' && typeof window.location !== 'undefined') {
+		const href = window.location.href;
+		if (href.includes('dev') || href.includes('localhost')) {
+			console.debug('[SectionLayout] Component props & fallback chain:', {
+				propsDisplayName: props.displayName,
+				authName: auth?.name,
+				authUsername: auth?.username,
+				authEmail: auth?.email,
+				resolvedDisplayName: props.displayName || auth?.name || auth?.username || auth?.email || 'Staff User',
+			});
+		}
+	}
+
 	// Guard access to localStorage so this component is safe during server-side rendering (no globalThis/localStorage)
 	const [isExpanded, setIsExpanded] = useState(() => {
 		if (typeof globalThis === 'undefined') return true; // default to expanded during SSR
@@ -54,35 +71,50 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	// Merge canonical staff navigation with consumer-provided pageLayouts.
 	// Defaults are added only when the consumer hasn't provided an entry with the same id.
 	// Consumer-provided entries override defaults when ids conflict.
-	const defaultPageLayouts: PageLayoutProps[] = [
-		{
-			path: '/staff/community-management',
-			title: 'Communities',
-			icon: <TeamOutlined />,
-			id: 'ROOT',
-		},
-		{
-			path: '/staff/user-management/*',
-			title: 'Users',
-			icon: <TeamOutlined />,
-			id: 'users',
-			parent: 'ROOT',
-		},
-		{
-			path: '/staff/finance/*',
-			title: 'Finance',
-			icon: <DollarOutlined />,
-			id: 'finance',
-			parent: 'ROOT',
-		},
-		{
-			path: '/staff/tech/*',
-			title: 'Tech Admin',
-			icon: <ToolOutlined />,
-			id: 'tech',
-			parent: 'ROOT',
-		},
-	];
+	// Build default page layouts from backend permissions.
+	const perms = auth?.permissions;
+	const canManageCommunities = perms?.canManageCommunities === true;
+	const canManageStaffRolesAndPermissions = perms?.canManageStaffRolesAndPermissions === true;
+	const canManageUsers = perms?.canManageUsers === true;
+	const canAssignStaffRoles = perms?.canAssignStaffRoles === true;
+	const canViewStaffUsers = perms?.canViewStaffUsers === true;
+	const canManageFinance = perms?.canManageFinance === true;
+	const canManageTechAdmin = perms?.canManageTechAdmin === true;
+	const canViewDatabaseDocuments = perms?.canViewDatabaseDocuments === true;
+	const canAccessTechAdmin = canManageTechAdmin || canViewDatabaseDocuments;
+	const canViewRoles = perms?.canViewRoles === true;
+	const canAddRole = perms?.canAddRole === true;
+	const canEditRole = perms?.canEditRole === true;
+	const canRemoveRole = perms?.canRemoveRole === true;
+	const nestedParentProps = canManageCommunities ? { parent: 'ROOT' as const } : {};
+	const canAccessUserManagement =
+		canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
+
+	// Construct default page layouts ensuring a ROOT entry always exists so MenuComponent renders.
+	// If Communities is allowed, keep the historic behaviour: Communities is ROOT and others are its children.
+	// Otherwise, promote the first available section to ROOT so a finance-only user sees a single Finance item.
+	const defaultPageLayouts: PageLayoutProps[] = [];
+
+	if (canManageCommunities) {
+		// Communities as canonical root, others as children
+		defaultPageLayouts.push({ path: '/staff/community-management', title: 'Communities', icon: <TeamOutlined />, id: 'ROOT' });
+		if (canAccessUserManagement) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', ...nestedParentProps });
+		if (canManageFinance) defaultPageLayouts.push({ path: '/staff/finance/*', title: 'Finance', icon: <DollarOutlined />, id: 'finance', ...nestedParentProps });
+		if (canAccessTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', ...nestedParentProps });
+	} else {
+		// No Communities root. Promote the first available section to ROOT to render a single top-level item.
+		if (canManageFinance) {
+			defaultPageLayouts.push({ path: '/staff/finance/*', title: 'Finance', icon: <DollarOutlined />, id: 'ROOT' });
+			// add others as children if present
+			if (canAccessUserManagement) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', parent: 'ROOT' });
+			if (canAccessTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
+		} else if (canAccessUserManagement) {
+			defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'ROOT' });
+			if (canAccessTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
+		} else if (canAccessTechAdmin) {
+			defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'ROOT' });
+		}
+	}
 
 	// Build a map from default entries, then overlay consumer entries so consumers can override defaults.
 	// When consumers provide an entry with the same id, merge it with the default so that
@@ -160,7 +192,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 							marginLeft: 'auto',
 						}}
 					>
-						<span style={{ fontSize: '14px', color: '#666' }}>Staff User</span>
+						<span style={{ fontSize: '14px', color: '#666' }}>{props.displayName || auth?.name || auth?.username || auth?.email || 'Staff User'}</span>
 						<Button
 							type="link"
 							onClick={() => auth?.onLogout?.()}

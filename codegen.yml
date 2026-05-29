@@ -72,6 +72,7 @@ generates:
         Community: "import('@ocom/domain').Domain.Contexts.Community.Community.CommunityEntityReference"
         EndUser: "import('@ocom/domain').Domain.Contexts.User.EndUser.EndUserEntityReference"
         EndUserRole: "import('@ocom/domain').Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference"
+        StaffUser: "import('@ocom/domain').Domain.Contexts.User.StaffUser.StaffUserEntityReference"
     plugins:
       - typescript
       - typescript-resolvers
@@ -129,6 +130,34 @@ generates:
   # UI shared components client types
   './packages/ocom/ui-shared/src/generated.tsx':
     documents: './packages/ocom/ui-shared/src/components/**/**.graphql'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
+  # UI staff shared components client types
+  './packages/ocom/ui-staff-shared/src/generated.tsx':
+    documents: './packages/ocom/ui-staff-shared/src/**/**.graphql'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
+  './packages/ocom/ui-staff-route-user-management/src/generated.tsx':
+    documents:
+      - './packages/ocom/ui-staff-route-user-management/src/**/**.graphql'
     config:
       withHooks: true
       withHOC: false

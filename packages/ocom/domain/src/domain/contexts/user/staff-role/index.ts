@@ -5,10 +5,19 @@ export type {
 } from './staff-role.ts';
 export { StaffRole } from './staff-role.ts';
 export type { StaffRoleUnitOfWork } from './staff-role.uow.ts';
+export * as StaffRoleValueObjects from './staff-role.value-objects.ts';
 export type {
 	StaffRoleCommunityPermissionsEntityReference,
 	StaffRoleCommunityPermissionsProps,
 } from './staff-role-community-permissions.ts';
+export type {
+	StaffRoleFinancePermissionsEntityReference,
+	StaffRoleFinancePermissionsProps,
+} from './staff-role-finance-permissions.ts';
+export type {
+	StaffRoleRolePermissionsEntityReference,
+	StaffRoleRolePermissionsProps,
+} from './staff-role-role-permissions.ts';
 export type {
 	StaffRolePermissionsEntityReference,
 	StaffRolePermissionsProps,
@@ -25,6 +34,14 @@ export type {
 	StaffRoleServiceTicketPermissionsEntityReference,
 	StaffRoleServiceTicketPermissionsProps,
 } from './staff-role-service-ticket-permissions.ts';
+export type {
+	StaffRoleTechAdminPermissionsEntityReference,
+	StaffRoleTechAdminPermissionsProps,
+} from './staff-role-tech-admin-permissions.ts';
+export type {
+	StaffRoleUserPermissionsEntityReference,
+	StaffRoleUserPermissionsProps,
+} from './staff-role-user-permissions.ts';
 export type {
 	StaffRoleViolationTicketPermissionsEntityReference,
 	StaffRoleViolationTicketPermissionsProps,

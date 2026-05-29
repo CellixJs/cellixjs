@@ -7,6 +7,12 @@ import { Members } from './pages/members.tsx';
 import { Settings } from './pages/settings.tsx';
 import { SectionLayoutContainer } from './section-layout.container.tsx';
 
+interface AdminMenuData {
+	member?: {
+		isAdmin?: boolean | null;
+	};
+}
+
 export const Admin: React.FC = () => {
 	const pageLayouts: PageLayoutProps[] = [
 		{
@@ -21,7 +27,10 @@ export const Admin: React.FC = () => {
 			icon: <TeamOutlined />,
 			id: 2,
 			parent: 'ROOT',
-			// hasPermissions: (member: Member) => member?.isAdmin ?? false
+			hasPermissions: (data: unknown) => {
+				const adminData = data as AdminMenuData;
+				return adminData?.member?.isAdmin ?? false;
+			},
 		},
 		{
 			path: '/community/:communityId/admin/:memberId/settings/*',
@@ -29,9 +38,10 @@ export const Admin: React.FC = () => {
 			icon: <SettingOutlined />,
 			id: 3,
 			parent: 'ROOT',
-			// Note: Permission check would be:
-			// hasPermissions: (member: Member) => member?.role?.permissions?.communityPermissions?.canManageCommunitySettings ?? false
-			// Currently schema doesn't include role/permissions, so we allow all admin users to access settings
+			hasPermissions: (data: unknown) => {
+				const adminData = data as AdminMenuData;
+				return adminData?.member?.isAdmin ?? false;
+			},
 		},
 	];
 

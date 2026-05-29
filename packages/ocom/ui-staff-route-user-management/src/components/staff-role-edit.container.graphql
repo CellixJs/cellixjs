@@ -1,0 +1,58 @@
+query StaffRoleById($id: ObjectID!) {
+	staffRoleById(id: $id) {
+		...StaffRoleEditFields
+	}
+}
+
+mutation StaffRoleUpdate($input: StaffRoleUpdateInput!) {
+	staffRoleUpdate(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		staffRole {
+			...StaffRoleEditFields
+		}
+	}
+}
+
+fragment StaffRoleEditFields on StaffRole {
+	id
+	roleName
+	enterpriseAppRole
+	permissions {
+		communityPermissions {
+			canManageCommunities
+			canManageStaffRolesAndPermissions
+			canManageAllCommunities
+			canDeleteCommunities
+			canChangeCommunityOwner
+			canReIndexSearchCollections
+		}
+		userPermissions {
+			canManageUsers
+			canAssignStaffRoles
+			canAssignStaffUserRoles
+			canViewStaffUsers
+		}
+		staffRolePermissions {
+			canViewRoles
+			canAddRole
+			canEditRole
+			canRemoveRole
+		}
+		financePermissions {
+			canManageFinance
+			canViewGLBatchSummaries
+			canViewFinanceConfigs
+			canCreateFinanceConfigs
+		}
+		techAdminPermissions {
+			canManageTechAdmin
+			canViewDatabaseDocuments
+			canViewBlobExplorer
+			canViewQueueDashboard
+			canSendQueueMessages
+		}
+	}
+}

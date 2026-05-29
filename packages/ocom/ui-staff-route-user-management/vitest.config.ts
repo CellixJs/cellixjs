@@ -1,12 +1,10 @@
-import { baseConfig } from '@cellix/config-vitest';
-import { defineConfig, mergeConfig } from 'vitest/config';
+import { createStorybookVitestConfig, getDirnameFromImportMetaUrl } from '@cellix/config-vitest';
+import { defineConfig } from 'vitest/config';
 
-export default mergeConfig(
-	baseConfig,
-	defineConfig({
-		test: {
-			environment: 'jsdom',
-			passWithNoTests: true,
-		},
+const dirname = getDirnameFromImportMetaUrl(import.meta.url);
+
+export default defineConfig(
+	createStorybookVitestConfig(dirname, {
+		additionalCoverageExclude: ['src/index.tsx'],
 	}),
 );

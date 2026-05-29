@@ -4,7 +4,9 @@ import type * as Community from './community/community/index.ts';
 import { CommunityContext } from './community/index.ts';
 import type * as Member from './community/member/index.ts';
 import type * as EndUser from './user/end-user/index.ts';
+import type * as StaffRole from './user/staff-role/index.ts';
 import { UserContext } from './user/index.ts';
+import type * as StaffUser from './user/staff-user/index.ts';
 
 export interface ReadonlyDataSource {
 	Community: {
@@ -18,6 +20,12 @@ export interface ReadonlyDataSource {
 	User: {
 		EndUser: {
 			EndUserReadRepo: EndUser.EndUserReadRepository;
+		};
+		StaffRole: {
+			StaffRoleReadRepo: StaffRole.StaffRoleReadRepository;
+		};
+		StaffUser: {
+			StaffUserReadRepo: StaffUser.StaffUserReadRepository;
 		};
 	};
 }
