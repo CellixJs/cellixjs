@@ -16,6 +16,7 @@
 		"test:arch": "vitest run --config vitest.arch.config.ts"
 	},
 	"dependencies": {
+		"@ocom/ui-community-shared": "workspace:*",
 		"antd": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",

@@ -13,13 +13,19 @@ export const Header: React.FC = () => {
 				await auth.signinRedirect();
 				return;
 			}
-		} catch (_err) {
-			// swallow and fall back below
+		} catch (err) {
+			console.error('OIDC signinRedirect failed, falling back to direct navigation', err);
 		}
 
 		// fall back to direct navigation if the OIDC helper is unavailable or fails
-		// biome-ignore lint:useLiteralKeys
-		globalThis.location.href = `${import.meta.env['VITE_APP_UI_STAFF_AAD_REDIRECT_URI']}`;
+		const redirectUri = (import.meta as { env?: { VITE_APP_UI_STAFF_AAD_REDIRECT_URI?: string } }).env?.VITE_APP_UI_STAFF_AAD_REDIRECT_URI;
+
+		if (!redirectUri) {
+			console.error('Missing VITE_APP_UI_STAFF_AAD_REDIRECT_URI; cannot perform fallback redirect');
+			return;
+		}
+
+		globalThis.location.href = redirectUri;
 	};
 
 	const {

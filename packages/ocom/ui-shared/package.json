@@ -10,7 +10,8 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
-		}
+		},
+		"./env": "./env/index.d.ts"
 	},
 	"scripts": {
 		"format": "biome format --write",

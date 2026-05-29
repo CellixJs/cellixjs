@@ -3,12 +3,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ITestCaseHookParameter, IWorld } from '@cucumber/cucumber';
 import { After, AfterAll, Before, Status, setDefaultTimeout } from '@cucumber/cucumber';
+import { getTimeout } from '@ocom-verification/verification-shared/settings';
 import { type CellixE2EWorld, stopSharedServers } from '../../world.ts';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url));
 
-setDefaultTimeout(120_000);
+/** Default scenario timeout from centralized configuration */
+setDefaultTimeout(getTimeout('scenario'));
 
 Before(async function (this: IWorld) {
 	const world = this as IWorld & CellixE2EWorld;

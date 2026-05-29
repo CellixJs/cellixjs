@@ -5,13 +5,18 @@ import { useAuth } from 'react-oidc-context';
 import { useLocation } from 'react-router-dom';
 import { ApolloLinkToAddAuthHeader, ApolloLinkToAddCustomHeader, BaseApolloLink, client, TerminatingApolloLinkForGraphqlServer } from './apollo-client-links.js';
 
+const COMMON_API_ENDPOINT = import.meta.env.VITE_COMMON_API_ENDPOINT;
+
+if (!COMMON_API_ENDPOINT) {
+	throw new Error('Missing required environment variable VITE_COMMON_API_ENDPOINT for GraphQL server URI');
+}
+
 export interface ApolloConnectionProps {
 	children: React.ReactNode;
 }
 export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnectionProps) => {
 	const auth = useAuth();
 	const location = useLocation();
-	const { VITE_COMMON_API_ENDPOINT } = import.meta.env;
 
 	const communityId = location.pathname.match(/\/community\/([a-f\d]{24})/i)?.[1] ?? null;
 	const memberId = location.pathname.match(/\/(member|admin)\/([a-f\d]{24})/i)?.[2] ?? null;
@@ -22,7 +27,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = (props: ApolloConnect
 		ApolloLinkToAddCustomHeader('x-community-id', communityId, communityId !== 'accounts'),
 		ApolloLinkToAddCustomHeader('x-member-id', memberId),
 		TerminatingApolloLinkForGraphqlServer({
-			uri: `${VITE_COMMON_API_ENDPOINT}`,
+			uri: COMMON_API_ENDPOINT,
 			batchMax: 15,
 			batchInterval: 50,
 		}),
