@@ -84,19 +84,16 @@
 		"packages/ocom-verification/acceptance-api": {
 			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts"],
 			"project": ["src/**/*.ts"],
-			"ignoreBinaries": ["report"],
-			"ignoreUnresolved": ["progress-bar"]
+			"ignoreBinaries": ["report"]
 		},
 		"packages/ocom-verification/acceptance-ui": {
 			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts"],
 			"project": ["src/**/*.{ts,tsx,mjs}"],
-			"ignoreUnresolved": ["progress-bar"],
 			"ignore": ["src/shared/support/ui/**"]
 		},
 		"packages/ocom-verification/e2e-tests": {
 			"entry": ["cucumber.js", "src/world.ts", "src/contexts/**/step-definitions/**/*.steps.ts", "src/shared/support/**/*.ts"],
-			"project": ["src/**/*.ts"],
-			"ignoreUnresolved": ["progress-bar"]
+			"project": ["src/**/*.ts"]
 		},
 		"apps/server-oauth2-mock": {
 			"entry": ["src/index.ts"],

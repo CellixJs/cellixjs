@@ -35,9 +35,7 @@ type DefineQueueContext<TPayload extends object> = {
  * ```
  */
 export function defineQueue<TPayload extends object>() {
-	return (
-		definition: QueueDefinition<TPayload> | ((context: DefineQueueContext<TPayload>) => QueueDefinition<TPayload>),
-	): QueueDefinition<TPayload> => {
+	return (definition: QueueDefinition<TPayload> | ((context: DefineQueueContext<TPayload>) => QueueDefinition<TPayload>)): QueueDefinition<TPayload> => {
 		if (typeof definition === 'function') {
 			return definition({ $payload: payloadFields<TPayload>() });
 		}

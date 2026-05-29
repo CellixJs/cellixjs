@@ -24,7 +24,7 @@
  * client uploads. Server-only blob operations require only accountName.
  */
 
-import { QUEUE_LOG_CONTAINER } from "@ocom/service-queue-storage";
+import { QUEUE_LOG_CONTAINER } from '@ocom/service-queue-storage';
 
 const { AZURE_STORAGE_ACCOUNT_NAME: accountName, AZURE_STORAGE_CONNECTION_STRING: connectionString } = process.env;
 
@@ -36,10 +36,6 @@ if (!connectionString) {
 	throw new Error('Missing AZURE_STORAGE_CONNECTION_STRING environment variable. Required for SAS token generation for client uploads. ' + '(Applications that only perform server-side blob operations do not require this.)');
 }
 
-const provisionContainers = [
-    'public',
-    'private',
-    QUEUE_LOG_CONTAINER
-]
+const provisionContainers = ['public', 'private', QUEUE_LOG_CONTAINER];
 
-export { accountName, connectionString, provisionContainers};
+export { accountName, connectionString, provisionContainers };

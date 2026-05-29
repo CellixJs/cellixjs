@@ -79,13 +79,13 @@ type QueueMessageContract<T> = {
 	encode(payload: T): string;
 	decode(raw: string): T;
 };
-export type QueueMessageSchema = Record<string, unknown>;
-export type PayloadFieldRef<TKey extends string = string> = { payloadField: TKey };
+type QueueMessageSchema = Record<string, unknown>;
+type PayloadFieldRef<TKey extends string = string> = { payloadField: TKey };
 export type PayloadFieldProxy<TPayload extends object> = {
 	[K in Extract<keyof TPayload, string>]-?: PayloadFieldRef<K>;
 };
 export type AnyLoggingFieldSpec = string | PayloadFieldRef<string>;
-export type QueueDefinitionBase = {
+type QueueDefinitionBase = {
 	queueName: string;
 	schema: QueueMessageSchema;
 	loggingTags?: Record<string, AnyLoggingFieldSpec>;

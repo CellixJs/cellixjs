@@ -7,7 +7,6 @@ import { type CommunityQueryByEndUserExternalIdCommand, queryByEndUserExternalId
 import { type CommunityQueryByIdCommand, queryById } from './query-by-id.ts';
 import { type CommunityUpdateSettingsCommand, updateSettings } from './update-settings.ts';
 
-
 export type { CommunityUpdateSettingsCommand };
 
 export interface CommunityApplicationService {

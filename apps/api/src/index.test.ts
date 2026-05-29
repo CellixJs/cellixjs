@@ -108,6 +108,7 @@ vi.mock('./service-config/mongoose/index.ts', () => ({
 vi.mock('./service-config/blob-storage/index.ts', () => ({
 	accountName: 'devstoreaccount1',
 	connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+	provisionContainers: ['public', 'private', 'queue-logs'],
 }));
 vi.mock('./service-config/token-validation/index.ts', () => ({
 	portalTokens: new Map([['AccountPortal', 'ACCOUNT_PORTAL']]),
@@ -166,7 +167,7 @@ describe('apps/api bootstrap', () => {
 		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
 		expect(SpyServiceBlobStorage).toHaveBeenNthCalledWith(1, {
 			connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
-			provisionContainers: ['community-logs', 'queue-logs'],
+			provisionContainers: ['public', 'private', 'queue-logs'],
 		});
 		// Find the registered blob services by the semantic registration name instead of relying on call order.
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];

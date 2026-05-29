@@ -25,7 +25,7 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 			const logContent = `Community created with id: ${communityToReturn.id} and name: ${communityToReturn.name}`;
 			try {
 				await blobStorageService.uploadText({
-					containerName: 'community-logs',
+					containerName: 'private',
 					blobName: `community-${communityToReturn.id}-creation.log`,
 					text: logContent,
 					metadata: {
@@ -33,13 +33,11 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 						eventType: 'CommunityCreated',
 					},
 				});
-
-                await queueStorageService.sendMessageToCommunityCreationQueue({
-                    communityId: communityToReturn.id,
-                    name: communityToReturn.name,
-                    createdBy: communityToReturn.createdBy.id
-                });
-
+				await queueStorageService.sendMessageToCommunityCreationQueue({
+					communityId: communityToReturn.id,
+					name: communityToReturn.name,
+					createdBy: communityToReturn.createdBy.id,
+				});
 			} catch (error) {
 				console.error('Failed to upload community creation log to blob storage:', error);
 			}
