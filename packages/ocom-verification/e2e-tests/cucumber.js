@@ -7,5 +7,5 @@ export default {
 	formatOptions: {
 		snippetInterface: 'async-await',
 	},
-	parallel: 1,
+	parallel: 0,
 };

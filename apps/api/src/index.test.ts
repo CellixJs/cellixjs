@@ -100,10 +100,8 @@ vi.mock('./service-config/mongoose/index.ts', () => ({
 	mongooseContextBuilder: vi.fn(() => dataSourcesFactory),
 }));
 vi.mock('./service-config/blob-storage/index.ts', () => ({
-	blobStorageConfig: {
-		accountName: 'devstoreaccount1',
-		connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
-	},
+    accountName: 'devstoreaccount1',
+    connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
 }));
 vi.mock('./service-config/token-validation/index.ts', () => ({
 	portalTokens: new Map([['AccountPortal', 'ACCOUNT_PORTAL']]),
@@ -183,6 +181,7 @@ describe('apps/api bootstrap', () => {
 		expect(context).toMatchObject({
 			dataSourcesFactory,
 			blobStorageService: registeredBlobService,
+            clientOperationsService: registeredClientOpsService,
 			tokenValidationService: { service: 'token-validation' },
 			apolloServerService: { service: 'apollo' },
 		});

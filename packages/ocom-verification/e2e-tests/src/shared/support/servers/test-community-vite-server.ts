@@ -1,8 +1,12 @@
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { PortlessServer } from './portless-server.ts';
-import { buildUrl } from './test-environment.ts';
+import { buildUrl, mockOidcIssuer } from './test-environment.ts';
 
-export class TestViteServer extends PortlessServer {
+/**
+ * Starts the community (user) portal Vite dev server as a subprocess via `pnpm run dev`.
+ * This is for the owner-community UI only; a separate server class will be needed for the staff portal.
+ */
+export class TestCommunityViteServer extends PortlessServer {
 	protected get probeUrl() {
 		return buildUrl('ownercommunity.localhost');
 	}
@@ -10,16 +14,14 @@ export class TestViteServer extends PortlessServer {
 		return 'ready in';
 	}
 	protected get serverName() {
-		return 'TestViteServer';
+		return 'TestCommunityViteServer';
 	}
-	protected get startupTimeoutMs() {
-		return 60_000;
-	}
+
 	protected get spawnArgs() {
-		return ['ownercommunity.localhost', 'pnpm', 'exec', 'vite'];
+		return ['run', 'dev'];
 	}
 	protected get cwd() {
-		return apiSettings.uiDir;
+		return apiSettings.uiCommunityDir;
 	}
 
 	protected override get extraEnv() {
@@ -28,10 +30,12 @@ export class TestViteServer extends PortlessServer {
 
 		return {
 			BROWSER: 'none',
-			VITE_APP_UI_COMMUNITY_BASE_URL: uiBase,
-			VITE_AAD_B2C_ACCOUNT_AUTHORITY: apiSettings.accountPortalOidcIssuer,
-			VITE_AAD_B2C_REDIRECT_URI: `${uiBase}/auth-redirect`,
+			NODE_ENV: 'development',
+			VITE_BASE_URL: uiBase,
+			VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: mockOidcIssuer,
+			VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI: `${uiBase}/auth-redirect`,
 			VITE_COMMON_API_ENDPOINT: apiEndpoint,
+			VITE_FUNCTION_ENDPOINT: apiEndpoint,
 		};
 	}
 
