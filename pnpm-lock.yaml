@@ -7233,8 +7233,8 @@ packages:
     resolution: {integrity: sha512-ilYanEU8vxxBexpJd8cWM4ElSQq4QctCLKih0TSfjIfCQTeyH/6zVrmIJfLPrKTKJRbiG+cfnZbQIjAlJmF1jQ==}
     engines: {node: '>=4'}
 
-  axios@1.15.2:
-    resolution: {integrity: sha512-wLrXxPtcrPTsNlJmKjkPnNPK2Ihe0hn0wGSaTEiHRPxwjvJwT3hKmXF4dpqxmPO9SoNb2FsYXj/xEo0gHN+D5A==}
+  axios@1.16.0:
+    resolution: {integrity: sha512-6hp5CwvTPlN2A31g5dxnwAX0orzM7pmCRDLnZSX772mv8WDqICwFjowHuPs04Mc8deIld1+ejhtaMn5vp6b+1w==}
 
   azurite@3.35.0:
     resolution: {integrity: sha512-GzKmi+/5U0baNRjEEVtBMLpLuIKEJ0uSh0VWBzOI4qe4f5ziJyoZQmcTO7QhxZTF6+rphj7TZS3PtJY7uiiacA==}
@@ -14093,7 +14093,7 @@ snapshots:
   '@azure/ms-rest-js@1.11.2':
     dependencies:
       '@azure/core-auth': 1.10.1
-      axios: 1.15.2
+      axios: 1.16.0
       form-data: 2.5.5
       tough-cookie: 2.5.0
       tslib: 1.14.1
@@ -18333,7 +18333,7 @@ snapshots:
     dependencies:
       '@serenity-js/core': 3.42.2
       agent-base: 7.1.4
-      axios: 1.15.2
+      axios: 1.16.0
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 11.3.5
@@ -18348,7 +18348,7 @@ snapshots:
       '@serenity-js/core': 3.42.2
       '@serenity-js/rest': 3.42.2
       ansi-regex: 5.0.1
-      axios: 1.15.2
+      axios: 1.16.0
       chalk: 4.1.2
       find-java-home: 2.0.0
       progress: 2.0.3
@@ -18399,7 +18399,7 @@ snapshots:
   '@sonar/scan@4.3.2':
     dependencies:
       adm-zip: 0.5.16
-      axios: 1.15.2
+      axios: 1.16.0
       commander: 13.1.0
       fs-extra: 11.3.2
       hpagent: 1.2.0
@@ -19630,7 +19630,7 @@ snapshots:
 
   axe-core@4.11.0: {}
 
-  axios@1.15.2:
+  axios@1.16.0:
     dependencies:
       follow-redirects: 1.16.0(debug@4.4.3)
       form-data: 4.0.5
@@ -19643,7 +19643,7 @@ snapshots:
       '@azure/ms-rest-js': 1.11.2
       applicationinsights: 2.9.8
       args: 5.0.3
-      axios: 1.15.2
+      axios: 1.16.0
       etag: 1.8.1
       express: 4.22.2
       fs-extra: 11.3.2
