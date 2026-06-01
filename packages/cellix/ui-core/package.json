@@ -46,7 +46,7 @@
 		"@types/react": "^19.1.16",
 		"@types/react-dom": "^19.1.6",
 		"@vitest/browser": "^4.1.6",
-		"@vitest/browser-playwright": "^4.1.2",
+		"@vitest/browser-playwright": "^4.1.6",
 		"@vitest/coverage-istanbul": "catalog:",
 		"jsdom": "catalog:",
 		"@testing-library/react": "^16.3.0",
