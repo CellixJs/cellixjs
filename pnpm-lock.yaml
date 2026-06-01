@@ -101,7 +101,7 @@ catalogs:
       version: 4.1.2
 
 overrides:
-  axios: 1.15.2
+  axios: 1.16.0
   follow-redirects: ^1.16.0
   vite: 8.0.5
   jiti: 2.6.1
