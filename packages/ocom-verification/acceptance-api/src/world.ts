@@ -1,31 +1,31 @@
-import { setWorldConstructor, World } from '@cucumber/cucumber';
-import { engage } from '@serenity-js/core';
-import './shared/support/hooks.ts';
-import { CellixApiCast } from './shared/support/cast.ts';
-import * as infra from './shared/support/shared-infrastructure.ts';
+import { registerManagedSerenityWorld } from '@cellix/serenity-framework/cucumber';
+import { SerenityCast } from '@cellix/serenity-framework/serenity';
+import { createCommunityAbility } from './shared/abilities/create-community.ts';
+import { createGraphQLClientAbility } from './shared/abilities/graphql-client.ts';
+import './shared/cucumber-lifecycle-hooks.ts';
+import * as infra from './shared/shared-infrastructure.ts';
 
 export async function stopSharedServers(): Promise<void> {
 	await infra.stopAll();
 }
 
-export class CellixApiWorld extends World {
-	private apiUrl = '';
-
-	async init(): Promise<void> {
-		await infra.ensureApiServers();
-		await infra.resetMongoForScenario();
-
-		const { apiUrl } = infra.getState();
-		if (apiUrl) {
-			this.apiUrl = apiUrl;
+export const CellixApiWorld = registerManagedSerenityWorld({
+	infrastructure: {
+		ensureStarted: infra.ensureApiServers,
+		getState: infra.getState,
+		resetScenarioState: infra.resetMongoForScenario,
+		stopAll: infra.stopAll,
+	},
+	validateState: (state) => {
+		if (!state.apiUrl) {
+			throw new Error('API acceptance infrastructure did not expose an apiUrl');
 		}
+	},
+	createCast: (state) =>
+		new SerenityCast({
+			useNotepad: true,
+			abilities: [() => createGraphQLClientAbility(state.apiUrl ?? ''), () => createCommunityAbility()],
+		}),
+});
 
-		engage(new CellixApiCast(this.apiUrl));
-	}
-
-	async cleanup(): Promise<void> {
-		// Per-scenario cleanup — extend as needed.
-	}
-}
-
-setWorldConstructor(CellixApiWorld);
+export type CellixApiWorld = InstanceType<typeof CellixApiWorld>;

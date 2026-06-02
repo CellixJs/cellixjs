@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@cucumber/cucumber": "catalog:",
+		"@cellix/serenity-framework": "workspace:*",
 		"@serenity-js/assertions": "catalog:",
 		"@serenity-js/console-reporter": "catalog:",
 		"@serenity-js/core": "catalog:",

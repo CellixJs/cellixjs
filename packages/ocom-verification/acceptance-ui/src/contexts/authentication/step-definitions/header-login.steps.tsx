@@ -1,12 +1,13 @@
+import { mountComponent } from '@cellix/serenity-framework/jsdom/react-render';
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
 import React from 'react';
 import { AuthContext, type AuthContextProps } from 'react-oidc-context';
 import { SectionLayout as CommunitySectionLayout } from '../../../../../../ocom/ui-community-route-root/src/section-layout.tsx';
 import { SectionLayout as StaffSectionLayout } from '../../../../../../ocom/ui-staff-route-root/src/section-layout.tsx';
-import { mountComponent } from '../../../shared/support/ui/react-render.ts';
+import { wrapOcomComponent } from '../../../shared/ocom-component-wrapper.ts';
 import type { CellixUiWorld } from '../../../world.ts';
-import type { HeaderUiNotes } from '../abilities/header-types.ts';
+import type { HeaderUiNotes } from '../notes/header-notes.ts';
 import { ClickHeaderSignIn } from '../tasks/click-header-sign-in.ts';
 
 type Site = 'community' | 'staff';
@@ -77,7 +78,7 @@ When('{word} chooses to sign in', async function (this: CellixUiWorld, _actorNam
 		state.errorCalled = true;
 	};
 
-	const rendered = mountComponent(wrapped);
+	const rendered = mountComponent(wrapped, { wrapper: wrapOcomComponent() });
 	this.setHeaderContainer(rendered.container);
 
 	try {

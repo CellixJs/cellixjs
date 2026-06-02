@@ -1,17 +1,22 @@
-import { setWorldConstructor, World } from '@cucumber/cucumber';
-import { type Cast, serenity } from '@serenity-js/core';
-import { CellixUiCast } from './shared/support/cast.ts';
+import { ManagedSerenityWorld, type ManagedSerenityWorldOptions } from '@cellix/serenity-framework/cucumber';
+import { SerenityCast } from '@cellix/serenity-framework/serenity';
+import { type IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 
-export class CellixUiWorld extends World {
-	private cast!: Cast;
+const uiWorldConfig: ManagedSerenityWorldOptions<Record<string, never>> = {
+	infrastructure: {
+		ensureStarted: () => Promise.resolve(),
+		getState: () => ({}),
+	},
+	createCast: () => new SerenityCast({ useNotepad: true }),
+};
+
+export class CellixUiWorld extends ManagedSerenityWorld<Record<string, never>> {
 	private communityContainer: HTMLElement | null = null;
 	private communityActorName = '';
 	private headerContainer: HTMLElement | null = null;
 
-	init(): Promise<void> {
-		this.cast = new CellixUiCast();
-		serenity.engage(this.cast);
-		return Promise.resolve();
+	constructor(options: IWorldOptions) {
+		super(options, uiWorldConfig);
 	}
 
 	setCommunityContainer(container: HTMLElement): void {

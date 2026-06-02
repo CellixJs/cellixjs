@@ -1,30 +1,38 @@
-import { setWorldConstructor, World } from '@cucumber/cucumber';
-import { engage } from '@serenity-js/core';
-import './shared/support/hooks.ts';
-import { CellixE2ECast } from './shared/support/cast.ts';
-import * as infra from './shared/support/shared-infrastructure.ts';
+import { registerManagedSerenityWorld } from '@cellix/serenity-framework/cucumber';
+import { SerenityCast } from '@cellix/serenity-framework/serenity';
+import './shared/cucumber-lifecycle-hooks.ts';
+import { OAuth2Login } from './shared/abilities/oauth2-login.ts';
+import * as infra from './shared/shared-infrastructure.ts';
 
 export async function stopSharedServers(): Promise<void> {
 	await infra.stopAll();
 }
 
-export class CellixE2EWorld extends World {
-	async init(): Promise<void> {
-		await infra.ensureE2EServers();
-
-		const { browseTheWeb } = infra.getState();
-		if (!browseTheWeb) {
+export const CellixE2EWorld = registerManagedSerenityWorld({
+	infrastructure: {
+		ensureStarted: infra.ensureE2EServers,
+		getState: infra.getState,
+		resetScenarioState: infra.resetScenarioState,
+		stopAll: infra.stopAll,
+	},
+	validateState: (state) => {
+		if (!state.browseTheWeb) {
 			throw new Error('BrowseTheWeb ability not initialized');
 		}
+	},
+	createCast: (state) =>
+		new SerenityCast({
+			useNotepad: true,
+			abilities: [
+				() => {
+					if (!state.browseTheWeb) {
+						throw new Error('BrowseTheWeb ability not initialized');
+					}
+					return state.browseTheWeb;
+				},
+				() => OAuth2Login.throughProtectedRoute('/community/accounts'),
+			],
+		}),
+});
 
-		engage(new CellixE2ECast(browseTheWeb));
-	}
-
-	async cleanup(): Promise<void> {
-		// Reset DB state between scenarios so each starts from a clean baseline.
-		// Servers stay running — only mutable data is cleared and re-seeded.
-		await infra.resetScenarioState();
-	}
-}
-
-setWorldConstructor(CellixE2EWorld);
+export type CellixE2EWorld = InstanceType<typeof CellixE2EWorld>;

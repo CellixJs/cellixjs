@@ -1,7 +1,7 @@
+import { GraphQLClient } from '@cellix/serenity-framework/clients/graphql';
 import { type Actor, type AnswersQuestions, notes, Question, type UsesAbilities } from '@serenity-js/core';
-import { GraphQLClient } from '../../../shared/abilities/graphql-client.ts';
 import { GET_COMMUNITY_QUERY } from '../../../shared/graphql/community-operations.ts';
-import type { CommunityNotes } from '../abilities/community-types.ts';
+import type { CommunityNotes } from '../notes/community-notes.ts';
 
 export class CommunityName extends Question<Promise<string>> {
 	constructor() {

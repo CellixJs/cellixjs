@@ -1,9 +1,9 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
 import type { BrowserContext, Page } from 'playwright';
-import * as infra from '../../../shared/support/shared-infrastructure.ts';
+import * as infra from '../../../shared/shared-infrastructure.ts';
 import type { CellixE2EWorld } from '../../../world.ts';
-import type { HeaderE2ENotes, HeaderE2ESite } from '../abilities/header-types.ts';
+import type { HeaderE2ENotes, HeaderE2ESite } from '../notes/header-notes.ts';
 import { ClickHeaderSignIn } from '../tasks/click-header-sign-in.ts';
 
 interface HeaderE2EState {

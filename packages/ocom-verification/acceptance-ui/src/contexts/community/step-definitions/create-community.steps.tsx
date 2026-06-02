@@ -1,11 +1,15 @@
+import { ActorName } from '@cellix/serenity-framework/cucumber/actor-name';
+import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-data-table';
+import { mountComponent } from '@cellix/serenity-framework/jsdom/react-render';
+import { JsdomPageAdapter } from '@cellix/serenity-framework/pages/jsdom';
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
-import { CommunityPage, type UiCommunityPage } from '@ocom-verification/verification-shared/pages';
-import { JsdomPageAdapter } from '@ocom-verification/verification-shared/pages/jsdom';
+import { CommunityPage } from '@ocom-verification/verification-shared/pages';
 import { actorCalled, notes } from '@serenity-js/core';
 import { CommunityCreate } from '../../../../../../ocom/ui-community-route-accounts/src/components/community-create.tsx';
-import { mountComponent } from '../../../shared/support/ui/react-render.ts';
+import { wrapOcomComponent } from '../../../shared/ocom-component-wrapper.ts';
+import type { AcceptanceUiCommunityPage } from '../../../shared/page-contracts.ts';
 import type { CellixUiWorld } from '../../../world.ts';
-import type { CommunityUiNotes } from '../abilities/community-types.ts';
+import type { CommunityUiNotes } from '../notes/community-notes.ts';
 import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityErrorMessage } from '../questions/community-error-message.ts';
 import { CommunityName } from '../questions/community-name.ts';
@@ -19,7 +23,7 @@ Given('{word} is an authenticated community owner', async function (this: Cellix
 		await actor.attemptsTo(notes<CommunityUiNotes>().set('formSubmitted', true), notes<CommunityUiNotes>().set('communityName', values.name ?? ''), notes<CommunityUiNotes>().set('lastValidationError', ''));
 	};
 
-	const rendered = mountComponent(<CommunityCreate onSave={onSave} />);
+	const rendered = mountComponent(<CommunityCreate onSave={onSave} />, { wrapper: wrapOcomComponent() });
 	this.setCommunityContainer(rendered.container);
 
 	await actor.attemptsTo(notes<CommunityUiNotes>().set('formSubmitted', false), notes<CommunityUiNotes>().set('communityName', ''), notes<CommunityUiNotes>().set('lastValidationError', ''));
@@ -28,7 +32,7 @@ Given('{word} is an authenticated community owner', async function (this: Cellix
 When('{word} creates a community with:', async function (this: CellixUiWorld, actorName: string, dataTable: DataTable) {
 	this.setCommunityActorName(actorName);
 	const actor = actorCalled(actorName);
-	const { name: communityName = '' } = dataTable.rowsHash() as { name?: string };
+	const { name: communityName = '' } = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
 
 	await actor.attemptsTo(CreateCommunity(this.getCommunityContainer(), communityName));
 });
@@ -36,7 +40,7 @@ When('{word} creates a community with:', async function (this: CellixUiWorld, ac
 When('{word} attempts to create a community with:', async function (this: CellixUiWorld, actorName: string, dataTable: DataTable) {
 	this.setCommunityActorName(actorName);
 	const actor = actorCalled(actorName);
-	const { name: communityName = '' } = dataTable.rowsHash() as { name?: string };
+	const { name: communityName = '' } = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
 
 	await actor.attemptsTo(CreateCommunity(this.getCommunityContainer(), communityName));
 });
@@ -60,11 +64,11 @@ Then('the community name should be {string}', async function (this: CellixUiWorl
 });
 
 Then('{word} should see a community error for {string}', async function (this: CellixUiWorld, actorName: string, fieldName: string) {
-	const resolvedName = /^(she|he|they)$/i.test(actorName) ? this.getCommunityActorName() : actorName;
+	const resolvedName = ActorName.resolve(actorName, { defaultName: this.getCommunityActorName() });
 
 	const container = this.getCommunityContainer();
 	const adapter = new JsdomPageAdapter(container);
-	const page = new CommunityPage(adapter) as UiCommunityPage;
+	const page = new CommunityPage(adapter) as AcceptanceUiCommunityPage;
 
 	let storedError: string | undefined;
 	try {

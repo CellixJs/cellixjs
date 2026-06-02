@@ -1,7 +1,8 @@
-import { CommunityPage, type UiCommunityPage } from '@ocom-verification/verification-shared/pages';
-import { JsdomPageAdapter } from '@ocom-verification/verification-shared/pages/jsdom';
-import { TaskStep } from '@ocom-verification/verification-shared/serenity';
+import { JsdomPageAdapter } from '@cellix/serenity-framework/pages/jsdom';
+import { TaskStep } from '@cellix/serenity-framework/serenity';
+import { CommunityPage } from '@ocom-verification/verification-shared/pages';
 import { type Activity, Task } from '@serenity-js/core';
+import type { AcceptanceUiCommunityPage } from '../../../shared/page-contracts.ts';
 
 async function flushAsync(): Promise<void> {
 	await new Promise<void>((resolve) => {
@@ -17,7 +18,7 @@ export const CreateCommunity = (container: HTMLElement, name: string) =>
 		`#actor fills community name "${name}" and submits`,
 		new TaskStep(`#actor submits community name "${name}"`, async () => {
 			const adapter = new JsdomPageAdapter(container);
-			const page: UiCommunityPage = new CommunityPage(adapter);
+			const page: AcceptanceUiCommunityPage = new CommunityPage(adapter);
 
 			await page.fillName(name);
 			await page.clickCreate();

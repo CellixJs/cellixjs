@@ -13,5 +13,5 @@
 		"rootDir": "../..",
 		"outDir": "./dist"
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx", "../../ocom/ui-community-route-root/src/**/*.tsx", "../../ocom/ui-staff-route-root/src/**/*.tsx"]
+	"include": ["src/**/*.ts", "src/**/*.tsx", "../../cellix/serenity-framework/src/jsdom/css-module-types.d.ts", "../../ocom/ui-community-route-root/src/**/*.tsx", "../../ocom/ui-staff-route-root/src/**/*.tsx"]
 }

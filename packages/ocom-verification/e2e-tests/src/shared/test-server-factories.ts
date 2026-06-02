@@ -1,0 +1,108 @@
+import { join } from 'node:path';
+import { ApiTestServer, AuthTestServer, AzuriteTestServer, UiPortalTestServer } from '@cellix/serenity-framework/servers';
+import { appPaths } from './environment/app-paths.ts';
+import { e2eEnv, getPortlessDevScript } from './environment/dev-script.ts';
+import { buildUrl, cleanupTestEnvironment, getHostnames, initTestEnvironment, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer, mockStaffOidcIssuer } from './environment/test-environment.ts';
+import { getAzuritePorts } from './environment/worktree-ports.ts';
+
+const hostnames = getHostnames();
+
+export { buildUrl, cleanupTestEnvironment, initTestEnvironment, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer, mockStaffOidcIssuer };
+
+export function createTestApiServer(getMongoConnectionString: () => string): ApiTestServer {
+	return new ApiTestServer({
+		cwd: appPaths.apiDir,
+		executable: 'pnpm',
+		extraEnv: () =>
+			e2eEnv({
+				COSMOSDB_CONNECTION_STRING: getMongoConnectionString(),
+			}),
+		getUrl: () => buildUrl(hostnames.api, '/api/graphql'),
+		probe: {
+			url: () => buildUrl(hostnames.api, '/api/graphql'),
+			requestInit: () => ({
+				body: JSON.stringify({ query: '{ __typename }' }),
+				headers: { 'Content-Type': 'application/json' },
+				method: 'POST',
+			}),
+			isHealthy: async (response) => {
+				if (!response.ok) {
+					return false;
+				}
+
+				const payload = (await response.json().catch(() => null)) as {
+					data?: { __typename?: string };
+					errors?: unknown[];
+				} | null;
+
+				return payload?.data?.__typename === 'Query' && !payload.errors?.length;
+			},
+		},
+		readyMarker: 'Functions:',
+		serverName: 'TestApiServer',
+		spawnArgs: () => ['run', getPortlessDevScript()],
+	});
+}
+
+export function createTestAzuriteServer(): AzuriteTestServer {
+	return new AzuriteTestServer({
+		cwd: appPaths.apiDir,
+		executable: 'node',
+		extraEnv: () => {
+			const binDir = join(appPaths.apiDir, 'node_modules', '.bin');
+			const { PATH: pathValue = '' } = process.env;
+			return { PATH: `${binDir}:${pathValue}` };
+		},
+		getUrl: () => `http://127.0.0.1:${getAzuritePorts().blob}`,
+		isAlreadyRunning: async () => false,
+		isReusableExit: (stderrOutput) => stderrOutput.includes('EADDRINUSE'),
+		probe: false,
+		readyMarker: '[azurite] started',
+		serverName: 'TestAzuriteServer',
+		spawnArgs: ['start-azurite.mjs'],
+	});
+}
+
+export function createTestOAuth2Server(): AuthTestServer {
+	return new AuthTestServer({
+		cwd: appPaths.oauth2MockDir,
+		executable: 'pnpm',
+		getUrl: () => mockOidcIssuer,
+		probe: {
+			url: mockOidcEndpoint,
+		},
+		readyMarker: 'Registered OIDC config',
+		serverName: 'TestOAuth2Server',
+		spawnArgs: () => ['run', getPortlessDevScript()],
+	});
+}
+
+export function createCommunityUiPortalServer(): UiPortalTestServer {
+	return new UiPortalTestServer({
+		cwd: appPaths.uiCommunityDir,
+		executable: 'pnpm',
+		extraEnv: () => ({
+			BROWSER: 'none',
+			NODE_ENV: 'development',
+		}),
+		getUrl: () => buildUrl(hostnames.uiCommunity),
+		readyMarker: 'ready in',
+		serverName: 'TestCommunityViteServer',
+		spawnArgs: () => ['run', getPortlessDevScript()],
+	});
+}
+
+export function createStaffUiPortalServer(): UiPortalTestServer {
+	return new UiPortalTestServer({
+		cwd: appPaths.uiStaffDir,
+		executable: 'pnpm',
+		extraEnv: () => ({
+			BROWSER: 'none',
+			NODE_ENV: 'development',
+		}),
+		getUrl: () => buildUrl(hostnames.uiStaff),
+		readyMarker: 'ready in',
+		serverName: 'TestStaffViteServer',
+		spawnArgs: () => ['run', getPortlessDevScript()],
+	});
+}
