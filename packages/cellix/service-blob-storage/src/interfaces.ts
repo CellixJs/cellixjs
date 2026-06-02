@@ -3,6 +3,9 @@ import type { BlobHTTPHeaders, BlobUploadCommonResponse } from '@azure/storage-b
 /**
  * Identifies a blob within Azure Blob Storage.
  *
+ * Use this shape anywhere the caller needs to point at a specific blob without
+ * carrying transport or SDK details through the public contract.
+ *
  * @property containerName - Container holding the target blob.
  * @property blobName - Blob name relative to the container root.
  */
@@ -13,6 +16,9 @@ export interface BlobAddress {
 
 /**
  * Request contract for uploading UTF-8 text content to a blob.
+ *
+ * `httpHeaders`, `metadata`, and `tags` are all optional and are passed
+ * through to the Azure upload call when provided.
  *
  * @property text - Text payload to write to the blob.
  * @property httpHeaders - Optional HTTP headers, such as content type.
@@ -29,6 +35,9 @@ export interface UploadTextBlobRequest extends BlobAddress {
 /**
  * Request contract for listing blobs from a container.
  *
+ * Consumers can use `prefix` to scope the listing to a logical folder or
+ * naming convention within the container.
+ *
  * @property containerName - Container to enumerate.
  * @property prefix - Optional blob name prefix filter.
  */
@@ -40,6 +49,8 @@ export interface ListBlobsRequest {
 /**
  * Public summary returned for each listed blob.
  *
+ * The contract intentionally exposes only the blob name and absolute URL.
+ *
  * @property name - Blob name relative to the container.
  * @property url - Absolute blob URL.
  */
@@ -49,7 +60,9 @@ export interface BlobListItem {
 }
 
 /**
- * Request contract for generating a blob-scoped SAS URL.
+ * Request contract for generating a blob-scoped read SAS token.
+ *
+ * The resulting token is scoped to a single blob and a fixed expiration time.
  *
  * @property expiresOn - Expiration timestamp for the generated SAS URL.
  */
@@ -59,7 +72,11 @@ export interface CreateBlobSasUrlRequest extends BlobAddress {
 
 /**
  * Request contract for generating a blob-scoped signed authorization header.
- * Used for client-side direct uploads to Azure Blob Storage with metadata locking.
+ *
+ * Use this when a client needs to upload or download a blob directly against
+ * Azure Blob Storage while the framework controls the signature. The payload
+ * details are part of the signature, so `contentLength`, `contentType`, and
+ * any metadata must match the eventual request exactly.
  *
  * @property contentLength - Size of the blob being uploaded, in bytes.
  * @property contentType - MIME type of the blob (e.g., 'application/json').
@@ -72,16 +89,15 @@ export interface CreateBlobAuthorizationHeaderRequest extends BlobAddress {
 }
 
 /**
- * Authorization details for direct client uploads to Azure Blob Storage.
- * Contains the signed Authorization header and required request information.
+ * Authorization details for direct client blob requests.
+ *
+ * The caller is responsible for sending these headers exactly as returned so
+ * Azure can validate the signature.
  *
  * @property url - Direct upload URL to the blob endpoint.
- * @property authorizationHeader - Complete signed SharedKey authorization header value
- *           in format "SharedKey accountName:signature". Client uses this directly
- *           as the Authorization header when making PUT requests to the blob endpoint.
- * @property headers - Additional headers required for the upload request (Content-Type,
- *           Content-Length, x-ms-* metadata headers). Client must include all these
- *           headers in the PUT request for the signature to remain valid.
+ * @property authorizationHeader - Complete signed SharedKey authorization header value.
+ * @property headers - Required request headers, including `Content-Type`, `Content-Length`,
+ *           and any `x-ms-*` metadata headers.
  */
 export interface BlobUploadAuthorizationHeader {
 	url: string;
@@ -91,10 +107,15 @@ export interface BlobUploadAuthorizationHeader {
 
 /**
  * Framework-level blob storage contract used by application adapters.
+ *
+ * This is the public surface that downstream packages should adapt into a
+ * narrower application-specific interface.
  */
 export interface BlobStorage {
 	/**
-	 * Uploads text into a blob and returns the Azure upload response.
+	 * Uploads UTF-8 text into a blob and returns the Azure upload response.
+	 *
+	 * The request may include headers, metadata, and tags.
 	 */
 	uploadText(request: UploadTextBlobRequest): Promise<BlobUploadCommonResponse>;
 
@@ -105,25 +126,30 @@ export interface BlobStorage {
 
 	/**
 	 * Lists blobs in a container, optionally filtered by prefix.
+	 *
+	 * The return value includes the blob name and absolute URL for each item.
 	 */
 	listBlobs(request: ListBlobsRequest): Promise<BlobListItem[]>;
 
 	/**
-	 * Generates a blob-scoped read SAS token using shared-key credentials from a connection string.
-	 * Used for read-only access (for example, viewing files) when the service was configured for shared-key mode.
-	 * Returns the SAS query string (without the leading `?`).
+	 * Generates a blob-scoped read SAS token.
+	 *
+	 * The token is returned as a query string without the leading `?`. Shared-key
+	 * signing must be configured before calling this method.
 	 */
 	generateReadSasToken(request: CreateBlobSasUrlRequest): Promise<string>;
 
 	/**
-	 * Generates the signed authorization header details needed for a client-side blob write request.
+	 * Generates the signed authorization header details needed for a client-side
+	 * blob write request.
 	 *
 	 * Requires the service instance to be configured with shared-key signing capability.
 	 */
 	createBlobWriteAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader>;
 
 	/**
-	 * Generates the signed authorization header details needed for a client-side blob read request.
+	 * Generates the signed authorization header details needed for a client-side
+	 * blob read request.
 	 *
 	 * Requires the service instance to be configured with shared-key signing capability.
 	 */

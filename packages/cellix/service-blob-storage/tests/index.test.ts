@@ -53,7 +53,7 @@ vi.mock('@azure/storage-blob', () => {
 	};
 });
 
-describe('ServiceBlobStorage', () => {
+describe('@cellix/service-blob-storage public contract', () => {
 	const connectionString = 'DefaultEndpointsProtocol=https;AccountName=test-account;AccountKey=test-key;EndpointSuffix=core.windows.net';
 	const blockBlobClient = {
 		url: 'https://blob.example.test/container/blob.txt',
@@ -65,6 +65,7 @@ describe('ServiceBlobStorage', () => {
 		deleteBlob: deleteBlobMock,
 		listBlobsFlat: listBlobsFlatMock,
 	};
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 		blobServiceFromConnectionStringMock.mockReturnValue({
@@ -87,7 +88,7 @@ describe('ServiceBlobStorage', () => {
 		);
 	});
 
-	it('starts up from the connection string and parses shared-key credentials', async () => {
+	it('starts up from a connection string and exposes the started client', async () => {
 		const service = new ServiceBlobStorage({ connectionString });
 
 		const started = await service.startUp();
@@ -97,7 +98,15 @@ describe('ServiceBlobStorage', () => {
 		expect(service.blobServiceClient.url).toBe('http://127.0.0.1:10000/devstoreaccount1');
 	});
 
-	it('uploads text with optional metadata and headers', async () => {
+	it('supports managed identity for server-side blob access', async () => {
+		const service = new ServiceBlobStorage({ accountName: 'devstoreaccount1' });
+
+		await service.startUp();
+
+		expect(service.blobServiceClient.url).toBe('https://devstoreaccount1.blob.core.windows.net');
+	});
+
+	it('uploads text with optional metadata, tags, and headers', async () => {
 		const service = new ServiceBlobStorage({ connectionString });
 		await service.startUp();
 
@@ -119,7 +128,7 @@ describe('ServiceBlobStorage', () => {
 		});
 	});
 
-	it('lists blob names and absolute URLs for a prefix', async () => {
+	it('lists blob names and absolute URLs for an optional prefix', async () => {
 		const service = new ServiceBlobStorage({ connectionString });
 		await service.startUp();
 
@@ -195,6 +204,23 @@ describe('ServiceBlobStorage', () => {
 		expect(result.headers['x-ms-meta-source']).toBe('test');
 	});
 
+	it('creates blob read authorization headers in shared-key mode', async () => {
+		const service = new ServiceBlobStorage({ connectionString });
+		await service.startUp();
+
+		const result = await service.createBlobReadAuthorizationHeader({
+			containerName: 'member-assets',
+			blobName: 'avatars/member-1.png',
+			contentLength: 1024,
+			contentType: 'image/png',
+		});
+
+		expect(result.url).toContain('/member-assets/avatars/member-1.png');
+		expect(result.authorizationHeader).toContain('SharedKey');
+		expect(result.headers['Content-Type']).toBe('image/png');
+		expect(result.headers['Content-Length']).toBe('1024');
+	});
+
 	it('enables shared-key signing as an explicit opt-in capability on a managed-identity blob client', async () => {
 		const service = new ServiceBlobStorage({
 			accountName: 'devstoreaccount1',
@@ -228,6 +254,15 @@ describe('ServiceBlobStorage', () => {
 		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration');
 
 		await expect(
+			service.createBlobReadAuthorizationHeader({
+				containerName: 'member-assets',
+				blobName: 'avatars/member-1.png',
+				contentLength: 1024,
+				contentType: 'image/png',
+			}),
+		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration');
+
+		await expect(
 			service.generateReadSasToken({
 				containerName: 'member-assets',
 				blobName: 'avatars/member-1.png',
@@ -236,11 +271,10 @@ describe('ServiceBlobStorage', () => {
 		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration');
 	});
 
-	it('guards against invalid lifecycle access', async () => {
+	it('guards against invalid lifecycle access and supports idempotent shutdown', async () => {
 		const service = new ServiceBlobStorage({ connectionString });
 
 		expect(() => service.blobServiceClient).toThrow('ServiceBlobStorage is not started - cannot access blobServiceClient');
-		// shutdown is idempotent and should resolve even when not started
 		await expect(service.shutDown()).resolves.toBeUndefined();
 	});
 });

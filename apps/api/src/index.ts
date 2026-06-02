@@ -18,12 +18,9 @@ import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
-	const { NODE_ENV } = process.env;
-	const isProd = NODE_ENV === 'production';
-
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
-		.registerInfrastructureService(isProd ? new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName }) : new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString }), 'BlobStorageService')
+		.registerInfrastructureService(new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName }), 'BlobStorageService')
 		.registerInfrastructureService(new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName, signingConnectionString: BlobStorageConfig.connectionString }), 'ClientOperationsService')
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));

@@ -54,6 +54,7 @@
 ## Testing strategy
 
 - Validate observable behavior through the package root entrypoint only
+- Keep public-contract coverage in `tests/` so it mirrors the consumer-facing package surface
 - Mock the Azure Blob SDK so tests do not require live Azure or Azurite resources
 - Cover startup, upload, list, delete, and SAS generation through public methods
 

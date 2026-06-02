@@ -104,9 +104,9 @@ export class AuthHeaderGenerator {
 		let canonicalizedResource = `/${accountName}${path}`;
 
 		// Add query parameters if present, sorted and formatted as name:value
-		const searchParams = parsedUrl.searchParams;
+		const { searchParams } = parsedUrl;
 		if (searchParams.size > 0) {
-			const keys = Array.from(searchParams.keys()).sort();
+			const keys = Array.from(searchParams.keys()).sort((a, b) => a.localeCompare(b));
 			for (const key of keys) {
 				canonicalizedResource += `\n${key.toLowerCase()}:${searchParams.get(key)}`;
 			}

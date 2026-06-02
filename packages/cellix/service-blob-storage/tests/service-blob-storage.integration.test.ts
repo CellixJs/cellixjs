@@ -1,7 +1,7 @@
 import { BlobClient, BlobServiceClient } from '@azure/storage-blob';
 import { ServiceBlobStorage } from '@cellix/service-blob-storage';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { type AzuriteBlobServer, startAzuriteBlobServer } from './test-support/azurite.ts';
+import { type AzuriteBlobServer, startAzuriteBlobServer } from '../src/test-support/azurite.ts';
 
 describe('ServiceBlobStorage integration with Azurite', () => {
 	let azurite: AzuriteBlobServer;

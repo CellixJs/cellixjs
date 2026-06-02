@@ -6,11 +6,11 @@ import { ClientUploadSigner } from './client-upload-signer.js';
  * Reference: https://learn.microsoft.com/en-us/rest/api/storageservices/authorize-with-shared-key
  */
 describe('ClientUploadSigner - Canonical Auth Headers', () => {
-	// Azurite development account
-	const connectionString =
-		'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;';
-
-	const signer = new ClientUploadSigner(connectionString);
+	const signer = new ClientUploadSigner({
+		blobServiceUrl: 'http://127.0.0.1:10000/devstoreaccount1',
+		accountName: 'devstoreaccount1',
+		accountKey: 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==',
+	});
 
 	it('generates SharedKey authorization header for blob write with proper canonical format', async () => {
 		const result = await signer.createBlobWriteAuthorizationHeader({
@@ -91,18 +91,24 @@ describe('ClientUploadSigner - Canonical Auth Headers', () => {
 		expect(result2.authorizationHeader).toMatch(/^SharedKey devstoreaccount1:[A-Za-z0-9+/=]+$/);
 	});
 
-	it('throws when provided invalid connection string', () => {
+	it('throws when provided an empty blob service URL', () => {
 		expect(() => {
-			new ClientUploadSigner('invalid-connection-string');
-		}).toThrow();
+			new ClientUploadSigner({
+				blobServiceUrl: '',
+				accountName: 'devstoreaccount1',
+				accountKey: 'abc123=',
+			});
+		}).toThrow('blobServiceUrl is required to create ClientUploadSigner');
 	});
 
-	it('throws when connection string lacks AccountKey', () => {
-		const invalidConnectionString = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;';
-
+	it('throws when account credentials are missing', () => {
 		expect(() => {
-			new ClientUploadSigner(invalidConnectionString);
-		}).toThrow();
+			new ClientUploadSigner({
+				blobServiceUrl: 'http://127.0.0.1:10000/devstoreaccount1',
+				accountName: 'devstoreaccount1',
+				accountKey: '',
+			});
+		}).toThrow('accountKey is required to create ClientUploadSigner');
 	});
 
 	describe('Security - Metadata Locking (Negative Scenarios)', () => {

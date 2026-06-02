@@ -25,10 +25,11 @@ const frameworkBlobStorage = new ServiceBlobStorage({
 
 await frameworkBlobStorage.startUp();
 
-const uploadUrl = await frameworkBlobStorage.createBlobWriteSasUrl({
+const uploadHeader = await frameworkBlobStorage.createBlobWriteAuthorizationHeader({
 	containerName: 'member-assets',
 	blobName: 'avatars/member-123.png',
-	expiresOn: new Date(Date.now() + 5 * 60_000),
+	contentLength: 102400,
+	contentType: 'image/png',
 });
 ```
 
@@ -37,8 +38,8 @@ Application code should not receive that full framework contract directly. Inste
 Success paths that shaped the contract:
 
 - bootstrap startup from a connection string
-- direct-to-blob upload URL generation for application-side flows
-- read URL generation for controlled blob access
+- direct-to-blob authorization header generation for application-side flows
+- read SAS token generation for controlled blob access
 - server-side upload, list, and delete operations for framework-level reuse
 
 Failure and edge cases that shaped the contract:
@@ -55,15 +56,16 @@ Proposed public exports:
 
 - `ServiceBlobStorage`: Cellix infrastructure service that owns Azure Blob SDK startup, SAS generation, and reusable blob operations
 - `BlobStorage`: framework-level contract returned by `startUp()` and used by adapters
-- `BlobAddress`, `UploadTextBlobRequest`, `ListBlobsRequest`, `BlobListItem`, `CreateBlobSasUrlRequest`, `CreateContainerSasUrlRequest`, `ServiceBlobStorageOptions`: request and response contracts needed for public usage
+- `BlobAddress`, `UploadTextBlobRequest`, `ListBlobsRequest`, `BlobListItem`, `CreateBlobSasUrlRequest`, `CreateBlobAuthorizationHeaderRequest`, `BlobUploadAuthorizationHeader`, `ServiceBlobStorageOptions`: request and response contracts needed for public usage
 
 Primary success-path snippet:
 
 ```ts
-const uploadUrl = await blobStorage.createBlobWriteSasUrl({
+const uploadHeader = await blobStorage.createBlobWriteAuthorizationHeader({
 	containerName: 'member-assets',
 	blobName: 'avatars/member-123.png',
-	expiresOn: new Date(Date.now() + 5 * 60_000),
+	contentLength: 102400,
+	contentType: 'image/png',
 });
 ```
 
@@ -78,9 +80,9 @@ Consumers should rely on these observable behaviors:
 - `uploadText()` uploads text content with optional HTTP headers, metadata, and tags
 - `deleteBlob()` deletes a named blob from a container
 - `listBlobs()` returns blob names and absolute blob URLs, optionally filtered by prefix
-- `createBlobReadSasUrl()` returns a read-scoped SAS URL for a specific blob
-- `createBlobWriteSasUrl()` returns a create/write-scoped SAS URL for a specific blob
-- `createContainerListSasUrl()` returns a list-scoped SAS URL for a container
+- `generateReadSasToken()` returns a read-scoped SAS query string for a specific blob
+- `createBlobWriteAuthorizationHeader()` returns signed write-request headers for direct client uploads
+- `createBlobReadAuthorizationHeader()` returns signed read-request headers for direct client downloads
 
 These must remain internal:
 
@@ -91,7 +93,7 @@ These must remain internal:
 
 ## Test plan
 
-Public-contract tests were written through the package root entrypoint in `packages/cellix/service-blob-storage/src/index.test.ts`.
+Public-contract tests are written through the package root entrypoint in `packages/cellix/service-blob-storage/tests/index.test.ts`.
 
 Grouped by export:
 
@@ -105,7 +107,7 @@ Grouped by export:
 - `deleteBlob()`
   - deletes by container and blob name
 - SAS creation methods
-  - creates read, write, and container-list SAS URLs with the expected permissions
+  - creates read SAS tokens and write/read authorization headers with the expected permissions and request-scoped headers
 
 The tests avoid duplicate narrower coverage by exercising the public methods directly rather than testing internal helpers such as connection-string parsing or SAS-token formatting in isolation. No deep imports were used.
 
@@ -115,6 +117,7 @@ Created the greenfield framework package at `packages/cellix/service-blob-storag
 
 - package metadata, TS config, Vitest config, and turbo metadata
 - `ServiceBlobStorage` implementation over `@azure/storage-blob`
+- internal client-upload signing helper that receives the service URL instead of constructing its own Blob client
 - public request and response contracts for blob operations and SAS URL creation
 - package-scoped tests that mock the Azure SDK rather than using live Azure resources
 
@@ -157,12 +160,14 @@ Package build command: `pnpm --filter @cellix/service-blob-storage build` - pass
 
 Package existing test command: `pnpm --filter @cellix/service-blob-storage test` - passed.
 
+Package integration test command: `pnpm --filter @cellix/service-blob-storage test:integration` - passed.
+
 Additional dependent verification:
 
 - `pnpm --filter @ocom/service-blob-storage test` - passed
 - `pnpm --filter @ocom/service-blob-storage build` - passed
 - `pnpm --filter @ocom/context-spec build` - passed
-- `pnpm --filter @apps/api test -- --run src/index.test.ts` - passed
+- `pnpm --filter @apps/api test -- --run src/archunit-tests/architecture.test.ts` - passed
 - `pnpm --filter @apps/api build` - passed
 - `pnpm install --lockfile-only` - passed
 - `CI=true pnpm install` - passed
@@ -171,7 +176,7 @@ Wider verification beyond those touched packages was intentionally not run becau
 
 Public behaviors intentionally left unverified:
 
-- no live Azure or Azurite integration tests were run
+- no live Azure integration tests were run
 - no downstream application-service usage migration was added in this task
 
 Additional narrower tests were not retained beyond the public contract suite; package tests stay focused on observable public behavior through root imports.

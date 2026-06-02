@@ -2,11 +2,11 @@
  * Blob Storage Configuration for @ocom application
  *
  * This application supports client-side uploads with SAS token signing, so both environment variables
- * are required. Applications that only perform server-side blob operations via managed identity would
- * only need AZURE_STORAGE_ACCOUNT_NAME.
+ * are required. Server-side blob operations use managed identity through the Azure SDK and only
+ * need `AZURE_STORAGE_ACCOUNT_NAME`.
  *
  * Configuration values:
- * - AZURE_STORAGE_ACCOUNT_NAME: Required for blob URL construction and as fallback for managed identity auth.
+ * - AZURE_STORAGE_ACCOUNT_NAME: Required for blob URL construction and managed identity auth.
  *   Provided by Bicep auto-injection in deployed environments.
  *
  * - AZURE_STORAGE_CONNECTION_STRING: Required for SAS token generation (shared-key signing for client uploads).
@@ -14,9 +14,7 @@
  *   Sourced from Key Vault in production, local env in development.
  *
  * Authentication strategy:
- * - Backend blob operations use:
- *   - connectionString in local development (Azurite)
- *   - accountName in deployed Azure environments (managed identity)
+ * - Backend blob operations use managed identity through the Azure SDK.
  * - Client upload signing uses the same `ServiceBlobStorage` class with
  *   signingConnectionString configured explicitly.
  * - This keeps connection-string dependency opt-in for direct-upload flows instead of

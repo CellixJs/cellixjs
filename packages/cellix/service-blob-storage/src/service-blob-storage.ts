@@ -118,7 +118,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 			// connection string path
 			const connectionString = this.options.connectionString as string;
 			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(connectionString);
-			this.configureSharedKeySigning(this.options.signingConnectionString ?? connectionString);
+			this.configureSharedKeySigning(this.options.signingConnectionString ?? connectionString, this.blobServiceClientInternal.url);
 
 			const endpoint = this.blobServiceClientInternal?.url ?? '(unknown)';
 			const accountName = getConnectionStringValue(connectionString, 'AccountName');
@@ -138,7 +138,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		// fail at call time if the environment doesn't provide a valid managed identity.
 		this.blobServiceClientInternal = new BlobServiceClient(url, credentialToUse);
 		if (this.options.signingConnectionString) {
-			this.configureSharedKeySigning(this.options.signingConnectionString);
+			this.configureSharedKeySigning(this.options.signingConnectionString, this.blobServiceClientInternal.url);
 		}
 		console.info(`[ServiceBlobStorage] started (managedIdentity). account=${accountName}, endpoint=${url}`);
 		return this;
@@ -228,11 +228,9 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	}
 
 	/**
-	 * Consumer-facing convenience alias for {@link createBlobWriteAuthorizationHeader}.
-	 */
-
-	/**
-	 * Gets the started BlobServiceClient instance.
+	 * Gets the started `BlobServiceClient` instance.
+	 *
+	 * Throws if the service has not been started.
 	 */
 	public get blobServiceClient(): BlobServiceClient {
 		if (!this.blobServiceClientInternal) {
@@ -245,12 +243,17 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		return this.blobServiceClient.getContainerClient(containerName);
 	}
 
-	private configureSharedKeySigning(connectionString: string): void {
+	private configureSharedKeySigning(connectionString: string, blobServiceUrl: string): void {
 		const accountName = getConnectionStringValue(connectionString, 'AccountName');
 		const accountKey = getConnectionStringValue(connectionString, 'AccountKey');
-		if (accountName && accountKey) {
-			this.sharedKeyCredentialInternal = new StorageSharedKeyCredential(accountName, accountKey);
+		if (!accountName || !accountKey) {
+			throw new Error('signingConnectionString must include both AccountName and AccountKey');
 		}
-		this.clientUploadSignerInternal = new ClientUploadSigner(connectionString);
+		this.sharedKeyCredentialInternal = new StorageSharedKeyCredential(accountName, accountKey);
+		this.clientUploadSignerInternal = new ClientUploadSigner({
+			blobServiceUrl,
+			accountName,
+			accountKey,
+		});
 	}
 }
