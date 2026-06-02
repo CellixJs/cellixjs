@@ -6,7 +6,7 @@ This package is intentionally app-agnostic. It provides adapters, a generic Sere
 
 ## Page adapters
 
-Page objects should depend on `PageAdapter`, not directly on jsdom or Playwright:
+Page objects should depend on `PageAdapter`, not directly on happy-dom or Playwright:
 
 ```ts
 import { AdapterBackedPageObject, type PageAdapter } from '@cellix/serenity-framework/pages';
@@ -26,7 +26,7 @@ class CommunityPage extends AdapterBackedPageObject {
 Use the runtime-specific adapter at the edge of the test package:
 
 ```ts
-import { JsdomPageAdapter } from '@cellix/serenity-framework/pages/jsdom';
+import { DomPageAdapter } from '@cellix/serenity-framework/pages/dom';
 import { PlaywrightPageAdapter } from '@cellix/serenity-framework/pages/playwright';
 ```
 
@@ -36,9 +36,9 @@ Use generic server descriptors for app-specific processes, then load them into t
 
 ```ts
 import { E2EInfrastructure } from '@cellix/serenity-framework/infrastructure/e2e';
-import { ApiTestServer, AuthTestServer, AzuriteTestServer, UiPortalTestServer } from '@cellix/serenity-framework/servers';
+import { ProcessTestServer } from '@cellix/serenity-framework/servers';
 
-const communityPortal = new UiPortalTestServer({
+const communityPortal = new ProcessTestServer({
   portalName: 'community',
   cwd: '/repo/apps/ui-community',
   getUrl: () => 'https://community.localhost:1355',
@@ -51,7 +51,7 @@ export const infrastructure = E2EInfrastructure
     azuriteServer,
     authServer,
     createApiServer: ({ getMongoConnectionString }) =>
-      new ApiTestServer({
+      new ProcessTestServer({
         serverName: 'Api',
         executable: 'pnpm',
         spawnArgs: ['run', process.env.WORKTREE_NAME ? 'dev:worktree' : 'dev'],
@@ -115,17 +115,40 @@ export const ApiWorld = registerManagedSerenityWorld({
 });
 ```
 
-## jsdom helpers
+## DOM (happy-dom) helpers
 
-Component-level acceptance tests can import framework jsdom setup and asset-loader hooks instead of carrying per-suite copies:
+Component-level acceptance tests run against an in-process DOM provided by
+happy-dom. Preload the DOM setup and asset-loader hooks before any module that
+imports `react-dom`, so React binds its event system to the happy-dom
+environment. Both run as Node `--import` preloads, which is order-independent:
 
 ```sh
-NODE_OPTIONS='--import tsx/esm --import @cellix/serenity-framework/jsdom/register-asset-loader' cucumber-js
+NODE_OPTIONS='--import tsx/esm --import @cellix/serenity-framework/dom/register-asset-loader --import @cellix/serenity-framework/dom/setup' cucumber-js
 ```
 
+Include `@cellix/serenity-framework/src/dom/css-module-types.d.ts` in tsconfig
+when component imports include CSS modules.
+
+## Rendering components through actors
+
+Give actors the `RenderInDom` ability and let page objects read their root
+element from the actor, instead of threading a container through world state or
+task parameters. This is the in-process DOM counterpart to a browser
+`BrowseTheWeb` ability, so component acceptance tests and browser E2E tests share
+the same actor-centric shape. The ability unmounts the rendered tree when the
+scenario ends.
+
 ```ts
-import '@cellix/serenity-framework/jsdom/setup';
-/// Include `@cellix/serenity-framework/src/jsdom/css-module-types.d.ts`
-/// in tsconfig when component imports include CSS modules.
-import { mountComponent, unmountComponent } from '@cellix/serenity-framework/jsdom/react-render';
+import { Render, RenderInDom } from '@cellix/serenity-framework/dom/render-in-dom';
+import { DomPageAdapter } from '@cellix/serenity-framework/pages/dom';
+import { SerenityCast } from '@cellix/serenity-framework/serenity';
+
+// cast: grant every actor the ability
+new SerenityCast({ useNotepad: true, abilities: [() => new RenderInDom()] });
+
+// Given: render through the actor
+await actor.attemptsTo(Render.component(<LoginForm />, { wrapper: withProviders() }));
+
+// task/question: build the page object from the actor's container
+const page = new LoginPage(new DomPageAdapter(RenderInDom.as(actor).container));
 ```

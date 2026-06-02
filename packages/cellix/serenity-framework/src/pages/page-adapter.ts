@@ -100,4 +100,4 @@ export interface PageAdapter {
 }
 
 /** Supported adapter runtime labels. */
-export type PageAdapterMode = 'jsdom' | 'playwright';
+export type PageAdapterMode = 'dom' | 'playwright';

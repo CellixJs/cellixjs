@@ -32,18 +32,12 @@ const infrastructure = E2EInfrastructure.using({
 	.addUiPortal('community', createCommunityUiPortalServer())
 	.addUiPortal('staff', createStaffUiPortalServer());
 
-interface InfrastructureState extends E2EInfrastructureState {
-	staffBaseUrl: string | undefined;
-	communityBaseUrl: string | undefined;
+export function getState(): E2EInfrastructureState {
+	return infrastructure.getState();
 }
 
-export function getState(): InfrastructureState {
-	const state = infrastructure.getState();
-	return {
-		...state,
-		communityBaseUrl: state.uiPortalBaseUrls['community'],
-		staffBaseUrl: state.uiPortalBaseUrls['staff'],
-	};
+export function getUiBaseUrl(site: 'community' | 'staff'): string | undefined {
+	return infrastructure.getState().uiPortalBaseUrls[site];
 }
 
 export async function resetScenarioState(): Promise<void> {

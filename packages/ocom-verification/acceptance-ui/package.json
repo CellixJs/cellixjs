@@ -5,9 +5,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm --import @cellix/serenity-framework/jsdom/register-asset-loader' cucumber-js",
-		"test:acceptance:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm --import @cellix/serenity-framework/jsdom/register-asset-loader' c8 cucumber-js",
-		"test:coverage:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm --import @cellix/serenity-framework/jsdom/register-asset-loader' c8 cucumber-js"
+		"test:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm --import @cellix/serenity-framework/dom/register-asset-loader --import @cellix/serenity-framework/dom/setup' cucumber-js",
+		"test:acceptance:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm --import @cellix/serenity-framework/dom/register-asset-loader --import @cellix/serenity-framework/dom/setup' c8 cucumber-js",
+		"test:coverage:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm --import @cellix/serenity-framework/dom/register-asset-loader --import @cellix/serenity-framework/dom/setup' c8 cucumber-js"
 	},
 	"dependencies": {
 		"@apollo/client": "^3.13.9",

@@ -1,112 +1,80 @@
-import { mountComponent } from '@cellix/serenity-framework/jsdom/react-render';
+import { Render } from '@cellix/serenity-framework/dom/render-in-dom';
 import { Given, Then, When } from '@cucumber/cucumber';
-import { actorCalled, notes } from '@serenity-js/core';
+import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import React from 'react';
 import { AuthContext, type AuthContextProps } from 'react-oidc-context';
 import { SectionLayout as CommunitySectionLayout } from '../../../../../../ocom/ui-community-route-root/src/section-layout.tsx';
 import { SectionLayout as StaffSectionLayout } from '../../../../../../ocom/ui-staff-route-root/src/section-layout.tsx';
 import { wrapOcomComponent } from '../../../shared/ocom-component-wrapper.ts';
-import type { CellixUiWorld } from '../../../world.ts';
 import type { HeaderUiNotes } from '../notes/header-notes.ts';
 import { ClickHeaderSignIn } from '../tasks/click-header-sign-in.ts';
 
 type Site = 'community' | 'staff';
 
-interface HeaderScenarioState {
-	actorName: string;
-	site: Site;
-	identityProviderUnreachable: boolean;
-	originalConsoleError?: typeof console.error;
-	signinRedirectCalled: boolean;
-	errorCalled: boolean;
+async function visitSite(actorName: string, site: Site): Promise<void> {
+	await actorCalled(actorName).attemptsTo(
+		notes<HeaderUiNotes>().set('site', site),
+		notes<HeaderUiNotes>().set('identityProviderUnreachable', false),
+		notes<HeaderUiNotes>().set('signinRedirectCalled', false),
+		notes<HeaderUiNotes>().set('consoleErrorCalled', false),
+		notes<HeaderUiNotes>().set('fallbackInvoked', false),
+	);
 }
 
-function getState(world: CellixUiWorld): HeaderScenarioState {
-	const state = (world as unknown as { __headerState?: HeaderScenarioState }).__headerState;
-	if (!state) {
-		throw new Error('Header scenario state has not been initialised — did the Given step run?');
-	}
-	return state;
-}
+Given('{word} visits the community site', async (actorName: string) => {
+	await visitSite(actorName, 'community');
+});
 
-function initState(world: CellixUiWorld, actorName: string, site: Site): HeaderScenarioState {
-	const state: HeaderScenarioState = {
-		actorName,
-		site,
-		identityProviderUnreachable: false,
-		signinRedirectCalled: false,
-		errorCalled: false,
-	};
-	(world as unknown as { __headerState: HeaderScenarioState }).__headerState = state;
-	return state;
-}
+Given('{word} visits the staff site', async (actorName: string) => {
+	await visitSite(actorName, 'staff');
+});
 
-Given('{word} visits the community site', async function (this: CellixUiWorld, actorName: string) {
+Given('the identity provider is unreachable', async () => {
+	await actorInTheSpotlight().attemptsTo(notes<HeaderUiNotes>().set('identityProviderUnreachable', true));
+});
+
+When('{word} chooses to sign in', async (actorName: string) => {
 	const actor = actorCalled(actorName);
-	initState(this, actorName, 'community');
-	await actor.attemptsTo(notes<HeaderUiNotes>().set('signinRedirectCalled', false), notes<HeaderUiNotes>().set('consoleErrorCalled', false), notes<HeaderUiNotes>().set('fallbackInvoked', false));
-});
+	const site = await actor.answer(notes<HeaderUiNotes>().get('site'));
+	const identityProviderUnreachable = await actor.answer(notes<HeaderUiNotes>().get('identityProviderUnreachable'));
 
-Given('{word} visits the staff site', async function (this: CellixUiWorld, actorName: string) {
-	const actor = actorCalled(actorName);
-	initState(this, actorName, 'staff');
-	await actor.attemptsTo(notes<HeaderUiNotes>().set('signinRedirectCalled', false), notes<HeaderUiNotes>().set('consoleErrorCalled', false), notes<HeaderUiNotes>().set('fallbackInvoked', false));
-});
-
-Given('the identity provider is unreachable', function (this: CellixUiWorld) {
-	const state = getState(this);
-	state.identityProviderUnreachable = true;
-});
-
-When('{word} chooses to sign in', async function (this: CellixUiWorld, _actorName: string) {
-	const state = getState(this);
-
+	let signinRedirectCalled = false;
 	const signinRedirect = (): Promise<void> => {
-		state.signinRedirectCalled = true;
-		if (state.identityProviderUnreachable) {
-			return Promise.reject(new Error('Simulated identity provider failure'));
-		}
-		return Promise.resolve();
+		signinRedirectCalled = true;
+		return identityProviderUnreachable ? Promise.reject(new Error('Simulated identity provider failure')) : Promise.resolve();
 	};
 
 	const authValue = { signinRedirect } as unknown as AuthContextProps;
-	const PageComponent = state.site === 'community' ? CommunitySectionLayout : StaffSectionLayout;
+	const PageComponent = site === 'community' ? CommunitySectionLayout : StaffSectionLayout;
 	const wrapped = React.createElement(AuthContext.Provider, { value: authValue }, React.createElement(PageComponent));
 
-	state.originalConsoleError = console.error;
-	console.error = (..._args: unknown[]) => {
-		state.errorCalled = true;
+	const originalConsoleError = console.error;
+	let consoleErrorCalled = false;
+	console.error = () => {
+		consoleErrorCalled = true;
 	};
 
-	const rendered = mountComponent(wrapped, { wrapper: wrapOcomComponent() });
-	this.setHeaderContainer(rendered.container);
-
 	try {
-		await ClickHeaderSignIn(rendered.container).performAs(actorCalled(state.actorName));
+		await actor.attemptsTo(Render.component(wrapped, { wrapper: wrapOcomComponent() }), ClickHeaderSignIn());
 	} finally {
-		if (state.originalConsoleError) {
-			console.error = state.originalConsoleError;
-		}
-		const actor = actorCalled(state.actorName);
+		console.error = originalConsoleError;
 		await actor.attemptsTo(
-			notes<HeaderUiNotes>().set('signinRedirectCalled', state.signinRedirectCalled),
-			notes<HeaderUiNotes>().set('consoleErrorCalled', state.errorCalled),
-			notes<HeaderUiNotes>().set('fallbackInvoked', state.errorCalled),
+			notes<HeaderUiNotes>().set('signinRedirectCalled', signinRedirectCalled),
+			notes<HeaderUiNotes>().set('consoleErrorCalled', consoleErrorCalled),
+			notes<HeaderUiNotes>().set('fallbackInvoked', consoleErrorCalled),
 		);
 	}
 });
 
-Then('{word} is taken to the sign-in flow', async function (this: CellixUiWorld, actorName: string) {
-	const actor = actorCalled(actorName);
-	const called = await actor.answer(notes<HeaderUiNotes>().get('signinRedirectCalled'));
+Then('{word} is taken to the sign-in flow', async (actorName: string) => {
+	const called = await actorCalled(actorName).answer(notes<HeaderUiNotes>().get('signinRedirectCalled'));
 	if (!called) {
 		throw new Error(`Expected ${actorName} to be taken to the sign-in flow, but the sign-in handler was not invoked`);
 	}
 });
 
-Then('{word} can still reach the sign-in page', async function (this: CellixUiWorld, actorName: string) {
-	const actor = actorCalled(actorName);
-	const fallback = await actor.answer(notes<HeaderUiNotes>().get('fallbackInvoked'));
+Then('{word} can still reach the sign-in page', async (actorName: string) => {
+	const fallback = await actorCalled(actorName).answer(notes<HeaderUiNotes>().get('fallbackInvoked'));
 	if (!fallback) {
 		throw new Error(`Expected ${actorName} to reach the sign-in page via the fallback path, but the fallback was not triggered`);
 	}

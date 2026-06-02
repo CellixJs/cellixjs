@@ -76,14 +76,22 @@ export class GraphQLClient extends Ability {
 			body: JSON.stringify({ query, variables }),
 		});
 
-		const result = (await response.json()) as GraphQLResponse<TData>;
+		let result: GraphQLResponse<TData>;
+		try {
+			result = (await response.json()) as GraphQLResponse<TData>;
+		} catch (parseError) {
+			if (!response.ok) {
+				throw new Error(`GraphQL request failed: ${response.status} ${response.statusText}`);
+			}
+			throw parseError;
+		}
 
 		if (result.errors?.length) {
 			throw new Error(result.errors.map((error) => error.message ?? 'Unknown error').join('; '));
 		}
 
 		if (!response.ok) {
-			throw new Error(`GraphQL error: ${response.status} ${response.statusText}`);
+			throw new Error(`GraphQL request failed: ${response.status} ${response.statusText}`);
 		}
 
 		return result;

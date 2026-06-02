@@ -18,9 +18,7 @@ const infrastructure = ApiInfrastructure.using<ServiceMongoose>({
 	},
 });
 
-interface InfrastructureState extends ApiInfrastructureState<ServiceMongoose> {}
-
-export function getState(): InfrastructureState {
+export function getState(): ApiInfrastructureState<ServiceMongoose> {
 	return infrastructure.getState();
 }
 

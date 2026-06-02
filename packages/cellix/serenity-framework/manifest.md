@@ -8,13 +8,13 @@ Provide reusable Serenity/JS, Cucumber, page-adapter, and test-server framework 
 
 This package owns generic verification infrastructure only:
 
-- Serenity task, cast, and browser-ability primitives
+- Serenity task, cast, browser-ability, and in-process DOM render-ability primitives
 - Cucumber data-table, lifecycle, screenshot, and managed-world helpers
-- Runtime-agnostic page adapter contracts and jsdom/Playwright adapter implementations
-- jsdom globals, CSS module declarations, asset-loader hooks, and generic React render helpers for component acceptance tests
+- Runtime-agnostic page adapter contracts and in-process DOM (happy-dom) / Playwright adapter implementations
+- DOM globals (via happy-dom), CSS module declarations, asset-loader hooks, and generic React render helpers for component acceptance tests
 - Adapter-backed page-object base contracts
 - Timeout utilities
-- Configurable process, UI portal, Apollo GraphQL, Azurite, Mongo memory, and server-group lifecycle utilities
+- Configurable process, Apollo GraphQL, and Mongo memory server lifecycle utilities
 - API acceptance and browser E2E infrastructure managers that create MongoDB from options and compose consumer-owned server factories
 
 ## Non-goals
@@ -29,13 +29,13 @@ This package owns generic verification infrastructure only:
 - `@cellix/serenity-framework/cucumber`: `ActorName`, `GherkinDataTable`, lifecycle hook helpers
 - `@cellix/serenity-framework/cucumber/screenshot`: browser screenshot-on-failure hook helpers
 - `@cellix/serenity-framework/pages`: adapter contracts and page-object base types
-- `@cellix/serenity-framework/pages/jsdom`: `JsdomPageAdapter`
+- `@cellix/serenity-framework/pages/dom`: `DomPageAdapter`
 - `@cellix/serenity-framework/pages/playwright`: `PlaywrightPageAdapter`
 - `@cellix/serenity-framework/clients/graphql`: `GraphQLClient`
-- `@cellix/serenity-framework/jsdom/setup`: jsdom global bootstrap side-effect module
-- `@cellix/serenity-framework/jsdom/register-asset-loader`: jsdom asset-loader registration side-effect module
-- `@cellix/serenity-framework/jsdom/react-render`: generic React mount/unmount helpers
-- `@cellix/serenity-framework/jsdom/css-modules`: package-owned CSS module declaration target
+- `@cellix/serenity-framework/dom/setup`: DOM global bootstrap side-effect module (happy-dom)
+- `@cellix/serenity-framework/dom/register-asset-loader`: asset-loader registration side-effect module
+- `@cellix/serenity-framework/dom/render-in-dom`: `RenderInDom` ability and `Render` interaction for rendering components through actors
+- `@cellix/serenity-framework/dom/css-modules`: package-owned CSS module declaration target
 - `@cellix/serenity-framework/serenity`: `TaskStep`, `SerenityCast`
 - `@cellix/serenity-framework/serenity/browser`: `BrowseTheWeb`
 - `@cellix/serenity-framework/infrastructure/api`: API acceptance infrastructure manager with MongoDB options, optional Mongoose service management, and an API server factory

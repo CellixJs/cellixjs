@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { ApiTestServer, AuthTestServer, AzuriteTestServer, UiPortalTestServer } from '@cellix/serenity-framework/servers';
+import { ProcessTestServer } from '@cellix/serenity-framework/servers';
 import { appPaths } from './environment/app-paths.ts';
 import { e2eEnv, getPortlessDevScript } from './environment/dev-script.ts';
 import { buildUrl, cleanupTestEnvironment, getHostnames, initTestEnvironment, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer, mockStaffOidcIssuer } from './environment/test-environment.ts';
@@ -9,8 +9,8 @@ const hostnames = getHostnames();
 
 export { buildUrl, cleanupTestEnvironment, initTestEnvironment, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer, mockStaffOidcIssuer };
 
-export function createTestApiServer(getMongoConnectionString: () => string): ApiTestServer {
-	return new ApiTestServer({
+export function createTestApiServer(getMongoConnectionString: () => string): ProcessTestServer {
+	return new ProcessTestServer({
 		cwd: appPaths.apiDir,
 		executable: 'pnpm',
 		extraEnv: () =>
@@ -44,8 +44,8 @@ export function createTestApiServer(getMongoConnectionString: () => string): Api
 	});
 }
 
-export function createTestAzuriteServer(): AzuriteTestServer {
-	return new AzuriteTestServer({
+export function createTestAzuriteServer(): ProcessTestServer {
+	return new ProcessTestServer({
 		cwd: appPaths.apiDir,
 		executable: 'node',
 		extraEnv: () => {
@@ -63,8 +63,8 @@ export function createTestAzuriteServer(): AzuriteTestServer {
 	});
 }
 
-export function createTestOAuth2Server(): AuthTestServer {
-	return new AuthTestServer({
+export function createTestOAuth2Server(): ProcessTestServer {
+	return new ProcessTestServer({
 		cwd: appPaths.oauth2MockDir,
 		executable: 'pnpm',
 		getUrl: () => mockOidcIssuer,
@@ -77,8 +77,8 @@ export function createTestOAuth2Server(): AuthTestServer {
 	});
 }
 
-export function createCommunityUiPortalServer(): UiPortalTestServer {
-	return new UiPortalTestServer({
+export function createCommunityUiPortalServer(): ProcessTestServer {
+	return new ProcessTestServer({
 		cwd: appPaths.uiCommunityDir,
 		executable: 'pnpm',
 		extraEnv: () => ({
@@ -92,8 +92,8 @@ export function createCommunityUiPortalServer(): UiPortalTestServer {
 	});
 }
 
-export function createStaffUiPortalServer(): UiPortalTestServer {
-	return new UiPortalTestServer({
+export function createStaffUiPortalServer(): ProcessTestServer {
+	return new ProcessTestServer({
 		cwd: appPaths.uiStaffDir,
 		executable: 'pnpm',
 		extraEnv: () => ({

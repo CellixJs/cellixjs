@@ -7,7 +7,7 @@
 	"types": "dist/index.d.ts",
 	"files": [
 		"dist",
-		"src/jsdom/css-module-types.d.ts"
+		"src/dom/css-module-types.d.ts"
 	],
 	"exports": {
 		".": {
@@ -30,10 +30,6 @@
 			"types": "./dist/cucumber/gherkin-data-table.d.ts",
 			"default": "./dist/cucumber/gherkin-data-table.js"
 		},
-		"./cucumber/hooks": {
-			"types": "./dist/cucumber/hooks.d.ts",
-			"default": "./dist/cucumber/hooks.js"
-		},
 		"./cucumber/screenshot": {
 			"types": "./dist/cucumber/screenshot-hooks.d.ts",
 			"default": "./dist/cucumber/screenshot-hooks.js"
@@ -47,44 +43,44 @@
 			"default": "./dist/infrastructure/index.js"
 		},
 		"./infrastructure/api": {
-			"types": "./dist/infrastructure/api.d.ts",
-			"default": "./dist/infrastructure/api.js"
+			"types": "./dist/infrastructure/api-infrastructure.d.ts",
+			"default": "./dist/infrastructure/api-infrastructure.js"
 		},
 		"./infrastructure/e2e": {
-			"types": "./dist/infrastructure/e2e.d.ts",
-			"default": "./dist/infrastructure/e2e.js"
+			"types": "./dist/infrastructure/e2e-infrastructure.d.ts",
+			"default": "./dist/infrastructure/e2e-infrastructure.js"
 		},
 		"./pages": {
 			"types": "./dist/pages/index.d.ts",
 			"default": "./dist/pages/index.js"
 		},
-		"./pages/jsdom": {
-			"types": "./dist/pages/adapters/jsdom-adapter.d.ts",
-			"default": "./dist/pages/adapters/jsdom-adapter.js"
+		"./pages/dom": {
+			"types": "./dist/pages/adapters/dom-adapter.d.ts",
+			"default": "./dist/pages/adapters/dom-adapter.js"
 		},
 		"./pages/playwright": {
 			"types": "./dist/pages/adapters/playwright-adapter.d.ts",
 			"default": "./dist/pages/adapters/playwright-adapter.js"
 		},
-		"./jsdom/setup": {
-			"types": "./dist/jsdom/setup.d.ts",
-			"default": "./dist/jsdom/setup.js"
+		"./dom/setup": {
+			"types": "./dist/dom/setup.d.ts",
+			"default": "./dist/dom/setup.js"
 		},
-		"./jsdom/register-asset-loader": {
-			"types": "./dist/jsdom/register-asset-loader.d.ts",
-			"default": "./dist/jsdom/register-asset-loader.js"
+		"./dom/register-asset-loader": {
+			"types": "./dist/dom/register-asset-loader.d.ts",
+			"default": "./dist/dom/register-asset-loader.js"
 		},
-		"./jsdom/asset-loader-hooks": {
-			"types": "./dist/jsdom/asset-loader-hooks.d.ts",
-			"default": "./dist/jsdom/asset-loader-hooks.js"
+		"./dom/asset-loader-hooks": {
+			"types": "./dist/dom/asset-loader-hooks.d.ts",
+			"default": "./dist/dom/asset-loader-hooks.js"
 		},
-		"./jsdom/react-render": {
-			"types": "./dist/jsdom/react-render.d.ts",
-			"default": "./dist/jsdom/react-render.js"
+		"./dom/render-in-dom": {
+			"types": "./dist/dom/render-in-dom.d.ts",
+			"default": "./dist/dom/render-in-dom.js"
 		},
-		"./jsdom/css-modules": {
-			"types": "./src/jsdom/css-module-types.d.ts",
-			"default": "./dist/jsdom/css-modules.js"
+		"./dom/css-modules": {
+			"types": "./src/dom/css-module-types.d.ts",
+			"default": "./dist/dom/css-modules.js"
 		},
 		"./serenity": {
 			"types": "./dist/serenity/index.d.ts",
@@ -119,10 +115,11 @@
 		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",
 		"@cucumber/cucumber": "catalog:",
 		"@cucumber/messages": "catalog:",
+		"@happy-dom/global-registrator": "^20.9.0",
 		"@serenity-js/core": "catalog:",
 		"graphql": "catalog:",
 		"graphql-depth-limit": "^1.1.0",
-		"jsdom": "catalog:",
+		"happy-dom": "^20.9.0",
 		"mongodb": "catalog:"
 	},
 	"peerDependencies": {

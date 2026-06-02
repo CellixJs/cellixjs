@@ -1,7 +1,8 @@
 import { registerWorldLifecycleHooks } from '@cellix/serenity-framework/cucumber';
-import { unmountComponent } from '@cellix/serenity-framework/jsdom/react-render';
+import { RenderInDom } from '@cellix/serenity-framework/dom/render-in-dom';
 import { getTimeout } from '@cellix/serenity-framework/settings';
 import { After } from '@cucumber/cucumber';
+import { actorInTheSpotlight } from '@serenity-js/core';
 import type { CellixUiWorld } from '../world.ts';
 
 registerWorldLifecycleHooks<CellixUiWorld>({
@@ -13,5 +14,9 @@ registerWorldLifecycleHooks<CellixUiWorld>({
 });
 
 After({ timeout: getTimeout('uiCleanup') }, () => {
-	unmountComponent();
+	try {
+		RenderInDom.as(actorInTheSpotlight()).unmount();
+	} catch {
+		/* No component was rendered in this scenario. */
+	}
 });

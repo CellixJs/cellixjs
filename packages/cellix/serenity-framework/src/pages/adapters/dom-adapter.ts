@@ -25,9 +25,9 @@ function findLabelControl(container: Element, text: string): Element | null {
 }
 
 /**
- * Element handle backed by a jsdom `Element`.
+ * Element handle backed by an in-process DOM `Element` (happy-dom or jsdom).
  */
-export class JsdomElementHandle implements ElementHandle {
+export class DomElementHandle implements ElementHandle {
 	/**
 	 * @param element Element to adapt, or `null` for a missing selection.
 	 */
@@ -97,35 +97,36 @@ export class JsdomElementHandle implements ElementHandle {
 
 	querySelector(selector: string): Promise<ElementHandle | null> {
 		const child = this.element?.querySelector(selector) ?? null;
-		return Promise.resolve(child ? new JsdomElementHandle(child) : null);
+		return Promise.resolve(child ? new DomElementHandle(child) : null);
 	}
 
 	querySelectorAll(selector: string): Promise<ElementHandle[]> {
 		if (!this.element) {
 			return Promise.resolve([]);
 		}
-		return Promise.resolve(Array.from(this.element.querySelectorAll(selector)).map((element) => new JsdomElementHandle(element)));
+		return Promise.resolve(Array.from(this.element.querySelectorAll(selector)).map((element) => new DomElementHandle(element)));
 	}
 }
 
 /**
- * Page adapter backed by a jsdom container element.
+ * Page adapter backed by an in-process DOM container element.
  *
- * Use this adapter in component-level Cucumber tests that render React into
- * jsdom while reusing the same page-object classes used by browser E2E tests.
+ * Use this adapter in component-level Cucumber tests that render React into an
+ * in-process DOM (happy-dom or jsdom) while reusing the same page-object
+ * classes used by browser E2E tests.
  */
-export class JsdomPageAdapter implements PageAdapter {
+export class DomPageAdapter implements PageAdapter {
 	/**
 	 * @param container Root element that scopes all selections for this page.
 	 */
 	constructor(private readonly container: Element) {}
 
 	getByPlaceholder(text: string): ElementHandle {
-		return new JsdomElementHandle(this.container.querySelector(`[placeholder="${text}"], [placeholder*="${text}"]`));
+		return new DomElementHandle(this.container.querySelector(`[placeholder="${text}"], [placeholder*="${text}"]`));
 	}
 
 	getByLabel(text: string): ElementHandle {
-		return new JsdomElementHandle(findLabelControl(this.container, text));
+		return new DomElementHandle(findLabelControl(this.container, text));
 	}
 
 	getByRole(role: string, options?: { name?: string | RegExp }): ElementHandle {
@@ -154,18 +155,18 @@ export class JsdomPageAdapter implements PageAdapter {
 				const ariaLabel = element.getAttribute('aria-label') ?? '';
 				return nameFilter instanceof RegExp ? nameFilter.test(textContent) || nameFilter.test(ariaLabel) : textContent.includes(nameFilter) || ariaLabel.includes(nameFilter);
 			});
-			return new JsdomElementHandle(match ?? null);
+			return new DomElementHandle(match ?? null);
 		}
 
-		return new JsdomElementHandle(candidates[0] ?? null);
+		return new DomElementHandle(candidates[0] ?? null);
 	}
 
 	locator(selector: string): ElementHandle {
-		return new JsdomElementHandle(this.container.querySelector(selector));
+		return new DomElementHandle(this.container.querySelector(selector));
 	}
 
 	locatorAll(selector: string): Promise<ElementHandle[]> {
-		return Promise.resolve(Array.from(this.container.querySelectorAll(selector)).map((element) => new JsdomElementHandle(element)));
+		return Promise.resolve(Array.from(this.container.querySelectorAll(selector)).map((element) => new DomElementHandle(element)));
 	}
 
 	getByText(text: string | RegExp, options?: { selector?: string }): ElementHandle {
@@ -177,10 +178,10 @@ export class JsdomPageAdapter implements PageAdapter {
 			const content = node.textContent ?? '';
 			const matches = text instanceof RegExp ? text.test(content) : content.includes(text);
 			if (matches && node.parentElement) {
-				return new JsdomElementHandle(node.parentElement);
+				return new DomElementHandle(node.parentElement);
 			}
 		}
-		return new JsdomElementHandle(null);
+		return new DomElementHandle(null);
 	}
 
 	goto(url: string, _options?: PageNavigationOptions): Promise<void> {

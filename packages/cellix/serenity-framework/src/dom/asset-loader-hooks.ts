@@ -2,7 +2,7 @@
  * ESM loader hooks that intercept CSS, image, and other non-JS imports so
  * they resolve to empty modules instead of throwing in Node.js.
  *
- * Usage: `NODE_OPTIONS='--import @cellix/serenity-framework/jsdom/register-asset-loader' cucumber-js`
+ * Usage: `NODE_OPTIONS='--import @cellix/serenity-framework/dom/register-asset-loader' cucumber-js`
  */
 
 const ASSET_RE = /\.(css|less|scss|sass|svg|png|jpe?g|gif|webp|woff2?|ttf|eot|ico)$/i;
@@ -26,7 +26,7 @@ export interface AssetLoaderResolveResult {
 export type NextAssetLoaderResolve = (specifier: string, context: AssetLoaderResolveContext) => Promise<AssetLoaderResolveResult>;
 
 /**
- * Resolve CSS, image, font, and Ant Design ESM imports for jsdom acceptance tests.
+ * Resolve CSS, image, font, and Ant Design ESM imports for component acceptance tests.
  *
  * Asset imports resolve to empty JavaScript modules. Ant Design `antd/es/*`
  * imports are redirected to `antd/lib/*` when possible because many Node-based

@@ -3,7 +3,7 @@
  * without errors in Node.js.
  *
  * Use via NODE_OPTIONS:
- * `NODE_OPTIONS='--import @cellix/serenity-framework/jsdom/register-asset-loader'`.
+ * `NODE_OPTIONS='--import @cellix/serenity-framework/dom/register-asset-loader'`.
  */
 import { register } from 'node:module';
 

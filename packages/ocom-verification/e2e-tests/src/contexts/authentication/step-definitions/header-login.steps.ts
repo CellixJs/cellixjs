@@ -65,7 +65,7 @@ When('{word} chooses to sign in', async function (this: HeaderE2EWorld, actorNam
 	const { browser } = infra.getState();
 	if (!browser) throw new Error('Browser not launched');
 
-	const baseUrl = s.site === 'community' ? (infra.getState().communityBaseUrl ?? 'https://ownercommunity.localhost:1355') : (infra.getState().staffBaseUrl ?? 'https://staff.ownercommunity.localhost:1355');
+	const baseUrl = s.site === 'community' ? (infra.getUiBaseUrl('community') ?? 'https://ownercommunity.localhost:1355') : (infra.getUiBaseUrl('staff') ?? 'https://staff.ownercommunity.localhost:1355');
 
 	// Fresh unauthenticated context — isolated from the pre-auth context
 	// used by other test suites. Cleaned up in the Then step after verification.
