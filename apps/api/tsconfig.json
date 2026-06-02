@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"exactOptionalPropertyTypes": false,
 		"outDir": "dist",
+        "types": ["node"],
 		"rootDir": "src",
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
