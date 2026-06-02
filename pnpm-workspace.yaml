@@ -105,3 +105,4 @@ packageExtensions:
 
 patchedDependencies:
   '@azure/functions@4.11.0': patches/@azure__functions@4.11.0.patch
+  storybook-addon-apollo-client@10.0.0: patches/storybook-addon-apollo-client@10.0.0.patch

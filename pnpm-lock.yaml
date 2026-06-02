@@ -144,6 +144,7 @@ packageExtensionsChecksum: sha256-mDviJarBPcwNNCTUf3T37btBxDGgV1wZ/iUGQfx5OCA=
 
 patchedDependencies:
   '@azure/functions@4.11.0': 69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645
+  storybook-addon-apollo-client@10.0.0: 905cf092223975e6a9ac5b4612122fc720cb19386dbe77d3c02c3d2766bd1e52
 
 importers:
 
@@ -537,7 +538,7 @@ importers:
         version: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       storybook-addon-apollo-client:
         specifier: ^10.0.0
-        version: 10.0.0(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
+        version: 10.0.0(patch_hash=905cf092223975e6a9ac5b4612122fc720cb19386dbe77d3c02c3d2766bd1e52)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.18(tsx@4.21.0)(yaml@2.8.3)
@@ -2208,7 +2209,7 @@ importers:
         version: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       storybook-addon-apollo-client:
         specifier: ^10.0.0
-        version: 10.0.0(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
+        version: 10.0.0(patch_hash=905cf092223975e6a9ac5b4612122fc720cb19386dbe77d3c02c3d2766bd1e52)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -15334,7 +15335,7 @@ snapshots:
       '@cucumber/gherkin-utils': 11.0.0
       '@cucumber/html-formatter': 23.0.0(@cucumber/messages@32.2.0)
       '@cucumber/junit-xml-formatter': 0.13.3(@cucumber/messages@32.2.0)
-      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.3.1)
+      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.2.0)
       '@cucumber/messages': 32.2.0
       '@cucumber/pretty-formatter': 1.0.1(@cucumber/cucumber@12.8.1)(@cucumber/messages@32.2.0)
       '@cucumber/tag-expressions': 9.1.0
@@ -15370,7 +15371,7 @@ snapshots:
   '@cucumber/gherkin-streams@6.0.0(@cucumber/gherkin@38.0.0)(@cucumber/message-streams@4.1.1(@cucumber/messages@32.2.0))(@cucumber/messages@32.2.0)':
     dependencies:
       '@cucumber/gherkin': 38.0.0
-      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.3.1)
+      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.2.0)
       '@cucumber/messages': 32.2.0
       commander: 14.0.0
       source-map-support: 0.5.21
@@ -15419,9 +15420,9 @@ snapshots:
       luxon: 3.7.2
       xmlbuilder: 15.1.1
 
-  '@cucumber/message-streams@4.1.1(@cucumber/messages@32.3.1)':
+  '@cucumber/message-streams@4.1.1(@cucumber/messages@32.2.0)':
     dependencies:
-      '@cucumber/messages': 32.3.1
+      '@cucumber/messages': 32.2.0
       mime: 3.0.0
 
   '@cucumber/messages@26.0.1':
@@ -25782,7 +25783,7 @@ snapshots:
 
   stoppable@1.1.0: {}
 
-  storybook-addon-apollo-client@10.0.0(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)):
+  storybook-addon-apollo-client@10.0.0(patch_hash=905cf092223975e6a9ac5b4612122fc720cb19386dbe77d3c02c3d2766bd1e52)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)):
     dependencies:
       storybook: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
 
