@@ -10,7 +10,7 @@ consulted:
 informed:
 ---
 
-# Azure Blob Storage with Managed Identity & Canonical SharedKey Auth Headers
+# Azure Blob Storage and Client Uploads
 
 ## Problem Statement
 
@@ -157,15 +157,6 @@ Cellix.initializeInfrastructureServices((r) => {
   clientOperationsService: registry.getInfrastructureService<ServiceBlobStorage>('ClientOperationsService'),
 }));
 ```
-
-For detailed implementation guidance, code examples, and troubleshooting, see:
-
-- **[Cellix Blob Storage Guides](../technical-overview/blob-storage/01-overview.md)**
-  - [Overview](../technical-overview/blob-storage/01-overview.md)
-  - [Authentication Strategies](../technical-overview/blob-storage/02-authentication-strategies.md)
-  - [Client Uploads Implementation](../technical-overview/blob-storage/03-client-uploads-with-auth-headers.md)
-  - [Canonical Auth Headers Security Deep-Dive](../technical-overview/blob-storage/04-canonical-auth-headers.md)
-  - [Troubleshooting](../technical-overview/blob-storage/05-troubleshooting.md)
 
 ## Consequences
 
