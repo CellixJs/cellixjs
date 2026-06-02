@@ -48,6 +48,7 @@
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
+        "archunit": "catalog:",
 		"rimraf": "catalog:",
 		"rolldown": "1.0.0-beta.55",
 		"typescript": "catalog:",
