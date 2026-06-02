@@ -1,4 +1,4 @@
-import type { Decorator, Parameters } from '@storybook/react';
+import type { Decorator, Parameters } from '@storybook/react-vite';
 import { message } from 'antd';
 import { MemoryRouter } from 'react-router-dom';
 import 'antd/dist/reset.css';
@@ -18,12 +18,20 @@ export const decorators: Decorator[] = [
 ];
 
 export const parameters: Parameters = {
-	layout: 'padded',
-	actions: { argTypesRegex: '^on[A-Z].*' },
-	controls: {
+    layout: 'padded',
+    actions: { argTypesRegex: '^on[A-Z].*' },
+
+    controls: {
 		matchers: {
 			color: /(background|color)$/i,
 			date: /Date$/i,
 		},
 	},
+
+    a11y: {
+        // 'todo' - show a11y violations in the test UI only
+        // 'error' - fail CI on a11y violations
+        // 'off' - skip a11y checks entirely
+        test: 'todo'
+    }
 };

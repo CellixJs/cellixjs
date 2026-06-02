@@ -1,6 +1,6 @@
 import { MockedProvider } from '@apollo/client/testing';
 import { HelmetProvider } from '@dr.pogodin/react-helmet';
-import type { Decorator, Parameters, Preview } from '@storybook/react';
+import type { Decorator, Parameters, Preview } from '@storybook/react-vite';
 import 'antd/dist/reset.css';
 import { AuthProvider } from 'react-oidc-context';
 
@@ -42,17 +42,26 @@ export const decorators: Decorator[] = [
 ];
 
 export const parameters: Parameters = {
-	layout: 'padded',
-	actions: { argTypesRegex: '^on[A-Z].*' },
-	controls: {
+    layout: 'padded',
+    actions: { argTypesRegex: '^on[A-Z].*' },
+
+    controls: {
 		matchers: {
 			color: /(background|color)$/i,
 			date: /Date$/i,
 		},
 	},
-	apolloClient: {
+
+    apolloClient: {
 		MockedProvider,
 	},
+
+    a11y: {
+        // 'todo' - show a11y violations in the test UI only
+        // 'error' - fail CI on a11y violations
+        // 'off' - skip a11y checks entirely
+        test: 'todo'
+    }
 };
 
 const preview: Preview = {

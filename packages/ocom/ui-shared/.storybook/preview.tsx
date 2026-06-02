@@ -1,7 +1,7 @@
 // Global preview for Storybook in @ocom/ui-shared
 // Import Ant Design base styles so components render correctly
 import { MockedProvider } from '@apollo/client/testing';
-import type { Decorator, Parameters } from '@storybook/react';
+import type { Decorator, Parameters } from '@storybook/react-vite';
 import { AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
 import 'antd/dist/reset.css';
@@ -31,15 +31,24 @@ export const decorators: Decorator[] = [
 
 // Global parameters
 export const parameters: Parameters = {
-	layout: 'padded',
-	actions: { argTypesRegex: '^on[A-Z].*' },
-	controls: {
+    layout: 'padded',
+    actions: { argTypesRegex: '^on[A-Z].*' },
+
+    controls: {
 		matchers: {
 			color: /(background|color)$/i,
 			date: /Date$/i,
 		},
 	},
-	apolloClient: {
+
+    apolloClient: {
 		MockedProvider,
 	},
+
+    a11y: {
+        // 'todo' - show a11y violations in the test UI only
+        // 'error' - fail CI on a11y violations
+        // 'off' - skip a11y checks entirely
+        test: 'todo'
+    }
 };

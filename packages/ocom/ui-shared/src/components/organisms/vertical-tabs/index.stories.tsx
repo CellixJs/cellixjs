@@ -1,5 +1,5 @@
 import { HomeOutlined, ProfileOutlined, SettingOutlined } from '@ant-design/icons';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Route, Routes } from 'react-router-dom';
 import { VerticalTabs } from './index.tsx';
 

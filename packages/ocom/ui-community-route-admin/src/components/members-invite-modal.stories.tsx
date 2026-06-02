@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MembersInviteModal } from './members-invite-modal.tsx';
 
 const meta: Meta<typeof MembersInviteModal> = {

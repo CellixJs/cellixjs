@@ -1,5 +1,5 @@
 import { ApolloClient, ApolloLink, gql, InMemoryCache, Observable, useApolloClient } from '@apollo/client';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useMemo, useState } from 'react';
 import { type AuthContextProps, AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
