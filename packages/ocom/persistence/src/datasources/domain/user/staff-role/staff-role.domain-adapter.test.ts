@@ -120,6 +120,57 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
+	Scenario('Setting the roleName updates the enterpriseAppRole', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I set the roleName property to "Supervisor"', () => {
+			adapter.roleName = 'Supervisor';
+		});
+		Then('the document\'s enterpriseAppRole should be "Supervisor"', () => {
+			expect(doc.enterpriseAppRole).toBe('Supervisor');
+		});
+	});
+
+	Scenario('Getting the enterpriseAppRole property', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document with enterpriseAppRole "Staff.Manager"', () => {
+			doc = makeStaffRoleDoc({ enterpriseAppRole: 'Staff.Manager' });
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the enterpriseAppRole property', () => {
+			result = adapter.enterpriseAppRole;
+		});
+		Then('it should return "Staff.Manager"', () => {
+			expect(result).toBe('Staff.Manager');
+		});
+	});
+
+	Scenario('Getting the enterpriseAppRole property when missing', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document with no enterpriseAppRole', () => {
+			doc = makeStaffRoleDoc();
+			(doc as unknown as Record<string, unknown>)['enterpriseAppRole'] = undefined;
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the enterpriseAppRole property', () => {
+			result = adapter.enterpriseAppRole;
+		});
+		Then('it should return ""', () => {
+			expect(result).toBe('');
+		});
+	});
+
+	Scenario('Setting the enterpriseAppRole property', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I set the enterpriseAppRole property to "Staff.Supervisor"', () => {
+			adapter.enterpriseAppRole = 'Staff.Supervisor';
+		});
+		Then('the document\'s enterpriseAppRole should be "Staff.Supervisor"', () => {
+			expect(doc.enterpriseAppRole).toBe('Staff.Supervisor');
+		});
+	});
+
 	Scenario('Getting the isDefault property', ({ Given, When, Then }) => {
 		Given('a StaffRoleDomainAdapter for the document', () => {
 			adapter = new StaffRoleDomainAdapter(doc);

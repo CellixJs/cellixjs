@@ -58,3 +58,11 @@ Feature: <Entity> StaffRoleTechAdminPermissions
     Given a StaffRoleTechAdminPermissions entity without permission to manage staff roles or system account
     When I try to set canSendQueueMessages to true
     Then a PermissionError should be thrown
+
+  Scenario: Reading tech admin permission flags
+    Given a StaffRoleTechAdminPermissions entity with all permission flags set to true
+    Then canManageTechAdmin should be true
+    And canViewDatabaseExplorer should be true
+    And canViewBlobExplorer should be true
+    And canViewQueueDashboard should be true
+    And canSendQueueMessages should be true

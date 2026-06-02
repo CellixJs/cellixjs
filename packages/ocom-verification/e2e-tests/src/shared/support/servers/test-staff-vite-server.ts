@@ -29,7 +29,7 @@ export class TestStaffViteServer extends PortlessServer {
 		return {
 			BROWSER: 'none',
 			NODE_ENV: 'development',
-			VITE_BASE_URL: uiBase,
+			VITE_APP_UI_STAFF_BASE_URL: uiBase,
 			VITE_APP_UI_STAFF_AAD_AUTHORITY: mockStaffOidcIssuer,
 			VITE_APP_UI_STAFF_AAD_REDIRECT_URI: `${uiBase}/auth-redirect`,
 			VITE_APP_UI_STAFF_AAD_CLIENTID: 'mock-client',

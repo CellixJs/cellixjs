@@ -85,11 +85,11 @@ export const useStaffPermissions = (): { permissions: StaffPermissions | undefin
 	});
 
 	const rolePermissions = data?.currentStaffUserAndCreateIfNotExists?.role?.permissions;
-	const currentUser = data?.currentStaffUserAndCreateIfNotExists
-  
+	const currentUser = data?.currentStaffUserAndCreateIfNotExists;
+
 	// Treat a TechAdmin as an implicit manager of all sections
 	const isTechAdmin = rolePermissions?.techAdminPermissions?.canManageTechAdmin ?? false;
-  
+
 	const permissions: StaffPermissions | undefined = rolePermissions
 		? {
 				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
@@ -111,12 +111,12 @@ export const useStaffPermissions = (): { permissions: StaffPermissions | undefin
 		enterpriseAppRole: data?.currentStaffUserAndCreateIfNotExists?.role?.enterpriseAppRole,
 		user: currentUser
 			? {
-				id: currentUser.id,
-				displayName: currentUser.displayName,
-				firstName: currentUser.firstName,
-				lastName: currentUser.lastName,
-				email: currentUser.email,
-			}
+					id: currentUser.id,
+					displayName: currentUser.displayName,
+					firstName: currentUser.firstName,
+					lastName: currentUser.lastName,
+					email: currentUser.email,
+				}
 			: undefined,
 		loading,
 		error,

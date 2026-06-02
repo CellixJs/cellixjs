@@ -3,11 +3,11 @@ import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import { resolveActorName } from '../../../shared/support/domain-test-helpers.ts';
 
+type StaffBusinessRole = 'finance' | 'tech admin' | 'service line owner' | 'case manager';
+
 interface StaffApiNotes {
 	targetRoute: string;
 }
-
-type StaffBusinessRole = 'finance' | 'tech admin' | 'service line owner' | 'case manager';
 
 const defaultRouteByRole: Record<StaffBusinessRole, string> = {
 	finance: '/staff/finance',
