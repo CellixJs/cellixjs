@@ -740,7 +740,7 @@ importers:
         specifier: workspace:*
         version: link:../config-typescript
       '@storybook/addon-vitest':
-        specifier: ^10.4.2
+        specifier: 'catalog:'
         version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.6(vite@8.0.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(vitest@4.1.6)
       '@vitest/browser-playwright':
         specifier: 'catalog:'
