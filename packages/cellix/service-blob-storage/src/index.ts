@@ -1,10 +1,8 @@
-export { ClientUploadSigner } from './client-upload-signer.ts';
 export type {
 	BlobAddress,
 	BlobListItem,
 	BlobStorage,
 	BlobUploadAuthorizationHeader,
-	ClientUploadService,
 	CreateBlobAuthorizationHeaderRequest,
 	CreateBlobSasUrlRequest,
 	ListBlobsRequest,

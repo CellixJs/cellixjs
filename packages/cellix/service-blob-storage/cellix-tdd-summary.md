@@ -32,7 +32,7 @@ const uploadUrl = await frameworkBlobStorage.createBlobWriteSasUrl({
 });
 ```
 
-Application code should not receive that full framework contract directly. Instead, `@ocom/service-blob-storage` adapts it into the narrower `createUploadUrl` and `createReadUrl` API that is exposed through `ApiContext`.
+Application code should not receive that full framework contract directly. Instead, `@ocom/service-blob-storage` adapts it to fit the needs of the application, made available via `ApiContext`.
 
 Success paths that shaped the contract:
 
@@ -117,8 +117,6 @@ Created the greenfield framework package at `packages/cellix/service-blob-storag
 - `ServiceBlobStorage` implementation over `@azure/storage-blob`
 - public request and response contracts for blob operations and SAS URL creation
 - package-scoped tests that mock the Azure SDK rather than using live Azure resources
-
-Updated `@ocom/service-blob-storage` from a placeholder service into a narrow adapter package that exposes only `createUploadUrl()` and `createReadUrl()`.
 
 Updated `@ocom/context-spec`, `apps/api/src/index.ts`, and the acceptance-test mock application-services builder so application context now exposes the scoped OCOM blob-storage contract while bootstrap still registers the framework service.
 

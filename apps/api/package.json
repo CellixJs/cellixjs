@@ -13,6 +13,7 @@
 		"prepare:deploy": "cellix-prepare-func-deploy",
 		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",
+        "test:arch": "vitest run --config vitest.arch.config.ts",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",
 		"format": "biome format --write",
@@ -22,7 +23,7 @@
 		"prestart": "pnpm run prepare:deploy && pnpm run sync-local-settings",
 		"start": "func start --typescript --script-root deploy/",
 		"sync-local-settings": "node -e \"const fs=require('node:fs'); fs.mkdirSync('deploy',{recursive:true}); if (fs.existsSync('local.settings.json')) fs.copyFileSync('local.settings.json','deploy/local.settings.json');\"",
-		"azurite": "azurite-blob --silent --skipApiVersionCheck --location ../../__blobstorage__ & azurite-queue --silent --location ../../__queuestorage__ & azurite-table --silent --location ../../__tablestorage__"
+		"azurite": "azurite-blob --silent --skipApiVersionCheck --location ../../__blobstorage__ & azurite-queue --silent --location ../../__queuestorage__ & azurite-table --silent --location ../../__tablestorage__ & wait"
 	},
 	"dependencies": {
 		"@azure/functions": "catalog:",

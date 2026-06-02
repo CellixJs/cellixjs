@@ -10,7 +10,8 @@ export class TestApiServer extends PortlessServer {
 		const env = {
 			...process.env,
 		};
-		delete env.NODE_OPTIONS;
+        // biome-ignore lint:useLiteralKeys
+		delete env['NODE_OPTIONS'];
 
 		execFileSync('pnpm', ['run', 'predev'], {
 			cwd: this.cwd,
@@ -67,12 +68,12 @@ export class TestApiServer extends PortlessServer {
 			// as a 404 on /api/graphql even though the host is alive.
 			NODE_ENV: 'development',
 			languageWorkers__node__arguments: '',
+            // biome-ignore lint:useLiteralKeys
+			AZURE_STORAGE_ACCOUNT_NAME: process.env['AZURE_STORAGE_ACCOUNT_NAME'] ?? 'devstoreaccount1',
+            // biome-ignore lint:useLiteralKeys
+			AZURE_STORAGE_CONNECTION_STRING: process.env['AZURE_STORAGE_CONNECTION_STRING'] ?? 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;',
 			COSMOSDB_CONNECTION_STRING: getMongoConnectionString(),
 			COSMOSDB_DBNAME: apiSettings.cosmosDbName,
-			// AZURE_STORAGE_CONNECTION_STRING is required by ServiceBlobStorage
-			// at appStart. Locally set via gitignored local.settings.json; absent
-			// in CI without this override.
-			AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true',
 			ACCOUNT_PORTAL_OIDC_ISSUER: mockOidcIssuer,
 			ACCOUNT_PORTAL_OIDC_ENDPOINT: mockOidcEndpoint,
 			ACCOUNT_PORTAL_OIDC_AUDIENCE: mockOidcAudience,

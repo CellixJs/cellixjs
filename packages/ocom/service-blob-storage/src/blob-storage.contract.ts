@@ -17,6 +17,6 @@ export interface BlobStorageOperations {
  * Returns canonical SharedKey authorization headers that lock blob metadata (content type, length).
  */
 export interface ClientUploadOperations {
-	createUploadUrl(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
-	createReadUrl(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
+	createBlobWriteAuthorizationHeader(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
+	createBlobReadAuthorizationHeader(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
 }

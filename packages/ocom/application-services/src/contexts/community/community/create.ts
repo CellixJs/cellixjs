@@ -24,7 +24,7 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 			const logContent = `Community created with id: ${communityToReturn.id} and name: ${communityToReturn.name}`;
 			try {
 				await blobStorageService.uploadText({
-					containerName: 'community-logs',
+					containerName: 'private',
 					blobName: `community-${communityToReturn.id}-creation.log`,
 					text: logContent,
 					metadata: {

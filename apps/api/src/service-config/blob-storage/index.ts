@@ -14,24 +14,30 @@
  *   Sourced from Key Vault in production, local env in development.
  *
  * Authentication strategy:
- * - When both accountName and connectionString are provided (as in this OCOM config),
- *   the framework ServiceBlobStorage uses connection-string-based auth (shared key).
- * - When only accountName is provided, the service uses managed identity (DefaultAzureCredential).
- * - Connection string is also used separately for SAS token generation for client uploads.
+ * - Backend blob operations use:
+ *   - connectionString in local development (Azurite)
+ *   - accountName in deployed Azure environments (managed identity)
+ * - Client upload signing uses the same `ServiceBlobStorage` class with
+ *   signingConnectionString configured explicitly.
+ * - This keeps connection-string dependency opt-in for direct-upload flows instead of
+ *   coupling it to every server-side blob operation consumer.
  *
  * @remarks
  * To decouple concerns, applications should only require connection string if they implement
  * client uploads. Server-only blob operations require only accountName.
  */
 
-const { AZURE_STORAGE_ACCOUNT_NAME: accountName, AZURE_STORAGE_CONNECTION_STRING: connectionString } = process.env;
+const { AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_CONNECTION_STRING } = process.env;
 
-if (!accountName) {
+if (!AZURE_STORAGE_ACCOUNT_NAME) {
 	throw new Error('Missing AZURE_STORAGE_ACCOUNT_NAME environment variable. Required for blob operations with managed identity authentication.');
 }
 
-if (!connectionString) {
+if (!AZURE_STORAGE_CONNECTION_STRING) {
 	throw new Error('Missing AZURE_STORAGE_CONNECTION_STRING environment variable. Required for SAS token generation for client uploads. ' + '(Applications that only perform server-side blob operations do not require this.)');
 }
+
+const accountName = AZURE_STORAGE_ACCOUNT_NAME;
+const connectionString = AZURE_STORAGE_CONNECTION_STRING;
 
 export { accountName, connectionString };

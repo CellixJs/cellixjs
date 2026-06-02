@@ -14,29 +14,60 @@ import type { BlobAddress, BlobListItem, BlobStorage, BlobUploadAuthorizationHea
  * services during application bootstrap and retrieve the narrow adapter contracts from
  * the service registry.
  *
- * The constructor now infers the authentication mode from the provided properties:
- * - { connectionString } (only): use shared-key / connection string flow (SAS signing available)
- * - { accountName, credential? } (only): use managed identity flow (TokenCredential)
+ * The constructor separates two concerns:
+ * - blob SDK authentication for server-side operations
+ * - optional shared-key signing for direct client upload/read flows
  *
- * Provide exactly one of `connectionString` or `accountName`. Passing both or neither
- * will throw a clear Error.
+ * Blob SDK authentication options:
+ * - `{ connectionString }`: use connection-string / shared-key auth for blob SDK operations
+ * - `{ accountName, credential? }`: use managed identity (or supplied TokenCredential) for blob SDK operations
+ *
+ * Shared-key signing is an explicit opt-in capability:
+ * - `{ signingConnectionString }`: 
+ *   enables `createBlobWriteAuthorizationHeader()`, `createBlobReadAuthorizationHeader()`, and `generateReadSasToken()`
+ *   without changing how the blob SDK client authenticates
+ *
+ * @example
+ * ```ts
+ * const backendBlobService = new ServiceBlobStorage({
+ *   accountName: 'mystorageaccount',
+ * });
+ *
+ * const clientUploadService = new ServiceBlobStorage({
+ *   accountName: 'mystorageaccount',
+ *   signingConnectionString: process.env.AZURE_STORAGE_CONNECTION_STRING!,
+ * });
+ * ```
  */
-export type ServiceBlobStorageOptions = {
-	connectionString?: string;
-	accountName?: string;
-	credential?: TokenCredential;
+type SharedKeyBlobClientOptions = {
+	connectionString: string;
+	accountName?: never;
+	credential?: never;
+	signingConnectionString?: string;
 };
 
+type ManagedIdentityBlobClientOptions = {
+	accountName: string;
+	credential?: TokenCredential;
+	connectionString?: never;
+	signingConnectionString?: string;
+};
+
+export type ServiceBlobStorageOptions = SharedKeyBlobClientOptions | ManagedIdentityBlobClientOptions;
+
 /**
- * Validates the provided options at construction time and infers the auth mode.
- * Throws a clear Error if both or neither of `connectionString` and `accountName` are provided.
+ * Validates the provided options at construction time and infers the blob SDK auth mode.
  */
 function validateOptions(options: ServiceBlobStorageOptions): void {
-	const hasConnectionString = !!options.connectionString?.trim();
-	const hasAccountName = !!options.accountName?.trim();
+	const hasConnectionString = 'connectionString' in options && !!options.connectionString?.trim();
+	const hasAccountName = 'accountName' in options && !!options.accountName?.trim();
 
 	if (hasConnectionString === hasAccountName) {
-		throw new Error("Provide either 'connectionString' (for shared-key) or 'accountName' (for managed identity), but not both");
+		throw new Error("Provide exactly one blob client authentication strategy: either 'connectionString' or 'accountName'");
+	}
+
+	if ('signingConnectionString' in options && typeof options.signingConnectionString === 'string' && !options.signingConnectionString.trim()) {
+		throw new Error("'signingConnectionString' must be a non-empty string when provided");
 	}
 }
 
@@ -44,15 +75,29 @@ function validateOptions(options: ServiceBlobStorageOptions): void {
  * Azure Blob Storage infrastructure service for Cellix bootstraps.
  *
  * The service keeps Azure SDK usage and shared-key parsing inside the framework package
- * while exposing a small contract of blob operations and SAS URL creation.
+ * while exposing a small framework-native contract of blob operations and blob-scoped signing.
  *
- * Runtime behavior is unchanged: the connection-string path creates a StorageSharedKeyCredential
- * and a ClientUploadSigner for SAS/authorization header generation; the managed-identity path
- * constructs a TokenCredential-backed BlobServiceClient.
+ * Runtime behavior is split intentionally:
+ * - blob operations authenticate through either connection string or managed identity
+ * - shared-key signing is available only when explicitly configured
+ *
+ * @example
+ * ```ts
+ * const blobStorage = new ServiceBlobStorage({
+ *   accountName: 'mystorageaccount',
+ * });
+ *
+ * await blobStorage.startUp();
+ * await blobStorage.uploadText({
+ *   containerName: 'member-assets',
+ *   blobName: 'members/123/profile.json',
+ *   text: '{"hello":"world"}',
+ * });
+ * ```
  */
 export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage {
 	private readonly options: ServiceBlobStorageOptions;
-	private inferredMode: 'sharedKey' | 'managedIdentity';
+	private readonly inferredMode: 'sharedKey' | 'managedIdentity';
 	private blobServiceClientInternal: BlobServiceClient | undefined;
 	private sharedKeyCredentialInternal: StorageSharedKeyCredential | undefined;
 	private clientUploadSignerInternal: ClientUploadSigner | undefined;
@@ -71,19 +116,12 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 
 		if (this.inferredMode === 'sharedKey') {
 			// connection string path
-			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(this.options.connectionString as string);
-
-			// Extract shared key credential for SAS generation
-			const accountName = getConnectionStringValue(this.options.connectionString as string, 'AccountName');
-			const accountKey = getConnectionStringValue(this.options.connectionString as string, 'AccountKey');
-			if (accountName && accountKey) {
-				this.sharedKeyCredentialInternal = new StorageSharedKeyCredential(accountName, accountKey);
-			}
-
-			// Create signer for shared-key signing
-			this.clientUploadSignerInternal = new ClientUploadSigner(this.options.connectionString as string);
+			const connectionString = this.options.connectionString as string;
+			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(connectionString);
+			this.configureSharedKeySigning(this.options.signingConnectionString ?? connectionString);
 
 			const endpoint = this.blobServiceClientInternal?.url ?? '(unknown)';
+			const accountName = getConnectionStringValue(connectionString, 'AccountName');
 			const maskedAccount = accountName ? accountName.replace(/.(?=.{4})/g, '*') : 'unknown';
 			console.info(`[ServiceBlobStorage] started (sharedKey). endpoint=${endpoint}, account=${maskedAccount}`);
 
@@ -99,6 +137,9 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		// startup-time hangs when IMDS isn't available (local dev). Operations will
 		// fail at call time if the environment doesn't provide a valid managed identity.
 		this.blobServiceClientInternal = new BlobServiceClient(url, credentialToUse);
+		if (this.options.signingConnectionString) {
+			this.configureSharedKeySigning(this.options.signingConnectionString);
+		}
 		console.info(`[ServiceBlobStorage] started (managedIdentity). account=${accountName}, endpoint=${url}`);
 		return this;
 	}
@@ -148,7 +189,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 
 	public generateReadSasToken(request: CreateBlobSasUrlRequest): Promise<string> {
 		if (!this.sharedKeyCredentialInternal) {
-			return Promise.reject(new Error('SAS token generation requires a connection string with AccountKey - not configured'));
+			return Promise.reject(new Error('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration'));
 		}
 
 		const sas = generateBlobSASQueryParameters(
@@ -166,38 +207,29 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 
 	/**
 	 * Create signed authorization header for client-side blob write (PUT) requests.
-	 * Only available when the service was constructed in 'sharedKey' mode.
+	 * Only available when shared-key signing capability is configured.
 	 */
 	public createBlobWriteAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
-		if (this.inferredMode !== 'sharedKey' || !this.clientUploadSignerInternal) {
-			return Promise.reject(new Error('Instance not configured for shared-key signing; construct ServiceBlobStorage with { connectionString }'));
+		if (!this.clientUploadSignerInternal) {
+			return Promise.reject(new Error('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration'));
 		}
 		return this.clientUploadSignerInternal.createBlobWriteAuthorizationHeader(request);
 	}
 
 	/**
 	 * Create signed authorization header for client-side blob read (GET) requests.
-	 * Only available when the service was constructed in 'sharedKey' mode.
+	 * Only available when shared-key signing capability is configured.
 	 */
 	public createBlobReadAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
-		if (this.inferredMode !== 'sharedKey' || !this.clientUploadSignerInternal) {
-			return Promise.reject(new Error('Instance not configured for shared-key signing; construct ServiceBlobStorage with { connectionString }'));
+		if (!this.clientUploadSignerInternal) {
+			return Promise.reject(new Error('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration'));
 		}
 		return this.clientUploadSignerInternal.createBlobReadAuthorizationHeader(request);
 	}
 
 	/**
-	 * Backwards-compatible aliases matching the narrow ClientUploadService contract.
-	 * These delegate to the framework method names but allow structural assignment
-	 * to the ClientUploadService interface without requiring casts.
+	 * Consumer-facing convenience alias for {@link createBlobWriteAuthorizationHeader}.
 	 */
-	public createUploadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
-		return this.createBlobWriteAuthorizationHeader(request);
-	}
-
-	public createReadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
-		return this.createBlobReadAuthorizationHeader(request);
-	}
 
 	/**
 	 * Gets the started BlobServiceClient instance.
@@ -211,5 +243,14 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 
 	private getContainerClient(containerName: string) {
 		return this.blobServiceClient.getContainerClient(containerName);
+	}
+
+	private configureSharedKeySigning(connectionString: string): void {
+		const accountName = getConnectionStringValue(connectionString, 'AccountName');
+		const accountKey = getConnectionStringValue(connectionString, 'AccountKey');
+		if (accountName && accountKey) {
+			this.sharedKeyCredentialInternal = new StorageSharedKeyCredential(accountName, accountKey);
+		}
+		this.clientUploadSignerInternal = new ClientUploadSigner(connectionString);
 	}
 }

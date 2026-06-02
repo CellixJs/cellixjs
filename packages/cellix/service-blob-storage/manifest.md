@@ -2,13 +2,13 @@
 
 ## Purpose
 
-`@cellix/service-blob-storage` provides a reusable Azure Blob Storage infrastructure service for Cellix applications. It centralizes Azure SDK usage, lifecycle management, and blob operations behind a small framework-level contract that application packages can adapt into narrower consumer-facing interfaces.
+`@cellix/service-blob-storage` provides a reusable Azure Blob Storage infrastructure service for Cellix applications. It centralizes Azure SDK usage, lifecycle management, blob operations, and framework-native signing behavior behind a small contract that application packages can adapt into narrower consumer-facing interfaces.
 
 ## Scope
 
 - Azure Blob Storage lifecycle startup and shutdown for Cellix infrastructure bootstraps
 - General blob operations that are stable and reusable across applications
-- SAS URL creation for scoped blob access without exposing Azure SDK clients to consumers
+- Shared-key read SAS token creation and blob-scoped authorization header creation without exposing Azure SDK clients to consumers
 - Container/blob addressing and request typing that stays framework-level rather than app-specific
 
 ## Non-goals
@@ -21,25 +21,29 @@
 ## Public API shape
 
 - The supported public API is the package root import: `@cellix/service-blob-storage`
-- Public exports are limited to the service class plus request/response contracts needed by consumers and adapters
+- Public exports are limited to the service class plus framework-level request and response contracts needed by consumers and adapters
 - Azure SDK implementation details stay internal even though the package depends on `@azure/storage-blob`
 - Public request/response types are exported from the package root (declared internally in src/interfaces.ts). Import types from the package entrypoint rather than internal file paths.
 
 ## Core concepts
 
 - `ServiceBlobStorage` is a Cellix infrastructure service implementing `ServiceBase`
-- The service supports multiple authentication modes:
-  - **Managed identity mode**: Use only `accountName` and `DefaultAzureCredential` (recommended for production)
-  - **Connection string mode**: Use `connectionString` for local development (Azurite) or explicit shared-key auth
-- Consumers interact with framework-defined operations such as text upload, blob deletion, blob listing, and SAS URL creation
-- Application packages should adapt this framework contract into narrower scoped interfaces before exposing it through `ApiContext`
-- **Downstream adapters** can choose which auth mode to use. For example, `@ocom/service-blob-storage` uses managed identity for SDK operations and provides connection string separately for SAS token generation (opt-in for client uploads)
+- The service separates two configuration concerns:
+  - **Blob SDK authentication**:
+    - `accountName` for managed identity / token credential flows
+    - `connectionString` for shared-key / Azurite flows
+  - **Optional shared-key signing capability**:
+    - `signingConnectionString` enables direct-upload signing and read SAS generation without changing blob SDK auth mode
+- Consumers interact with framework-defined operations such as text upload, blob deletion, blob listing, read SAS token creation, and authorization-header creation
+- Application packages should expose narrower scoped interfaces before surfacing the service through `ApiContext`
+- The same framework service class can be registered multiple times under different semantic names with different option sets
 
 ## Package boundaries
 
 - This package owns Azure Blob SDK integration and credential parsing
-- This package does not own application-specific contracts, context exposure, or handler wiring
-- Any consumer-specific wrapper belongs in downstream packages such as `@ocom/service-blob-storage`
+- This package owns reusable direct-upload signing behavior because it is storage-implementation-specific rather than app-specific
+- This package does not own application context exposure, container naming policies, or handler wiring
+- Downstream packages such as `@ocom/service-blob-storage` should define narrowed contracts for application code, not reimplement blob-signing behavior
 
 ## Dependencies / relationships
 
@@ -64,4 +68,4 @@
 - Public exports stay intentionally small and documented
 - No raw Azure SDK clients are leaked through the framework contract
 - SAS generation and blob operations are covered by package-scoped contract tests
-- Application-specific adapters remain outside this package
+- Shared-key signing remains optional and explicitly configured

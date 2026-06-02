@@ -22,10 +22,11 @@ export interface ApiContextSpec {
 
 	/**
 	 * Blob storage service for backend operations (list, upload, delete).
-	 * Part of the dual blob storage architecture: manages SDK operations via managed identity.
+	 * Part of the dual blob storage architecture: one `ServiceBlobStorage` registration
+	 * configured for server-side SDK operations.
 	 *
-	 * Configured by: accountName only (no connection string)
-	 * Authentication: Azure Managed Identity (DefaultAzureCredential)
+	 * Configured by: connection string in local development or accountName in Azure
+	 * Authentication: shared-key in local dev, managed identity in Azure
 	 * Use for: Server-side blob operations, documents, app-generated assets
 	 *
 	 * Example:
@@ -41,17 +42,17 @@ export interface ApiContextSpec {
 	blobStorageService: BlobStorageOperations;
 
 	/**
-	 * Client upload service for generating signed SAS URLs.
-	 * Part of the dual blob storage architecture: isolates SAS signing via connection string.
-	 * Enables secure browser-based uploads with time-limited, write-only permissions.
+	 * Client upload service for generating signed authorization headers.
+	 * Part of the dual blob storage architecture: a second `ServiceBlobStorage` registration
+	 * with shared-key signing capability enabled via connection string.
 	 *
-	 * Configured by: connection string only (isolated from SDK operations)
-	 * Authentication: Shared-key SAS token generation
+	 * Configured by: accountName plus signingConnectionString
+	 * Authentication: managed identity for SDK client construction, shared-key for signing
 	 * Use for: Member avatars, community documents, user-generated content uploads
 	 *
 	 * Example:
 	 * ```ts
-	 * const uploadUrl = await context.clientOperationsService.createUploadUrl({
+	 * const uploadUrl = await context.clientOperationsService.createBlobWriteAuthorizationHeader({
 	 *   containerName: 'member-assets',
 	 *   blobName: `members/${memberId}/avatar.png`,
 	 *   expiresOn: new Date(Date.now() + 15 * 60 * 1000),
@@ -60,26 +61,25 @@ export interface ApiContextSpec {
 	 *
 	 * OCOM Dual Blob Storage Architecture:
 	 *
-	 * OCOM registers two separate ServiceBlobStorage instances, each optimized for one responsibility:
+	 * OCOM registers the same framework blob service class twice, each time with a different responsibility:
 	 *
-	 * 1. **Backend Blob Service** (blobStorageService)
-	 *    - Uses managed identity only
-	 *    - No credentials in code or environment
+	 * 1. **Backend Blob Service** (`blobStorageService`)
+	 *    - Uses local shared-key auth in development or managed identity in Azure
 	 *    - Handles: list, upload, delete operations
-	 *    - Production best practice
+	 *    - Optimized for server-side SDK work
 	 *
-	 * 2. **Client Upload Service** (clientOperationsService)
-	 *    - Uses connection string for SAS signing only
-	 *    - Connection string scope isolated to signing, not blob operations
-	 *    - Handles: createUploadUrl, createReadUrl for client-side browser uploads
-	 *    - Enables secure user-generated content uploads
+	 * 2. **Client Upload Service** (`clientOperationsService`)
+	 *    - Uses the same `ServiceBlobStorage` class
+	 *    - Opts into shared-key signing via `signingConnectionString`
+	 *    - Handles: `createBlobWriteAuthorizationHeader`, `createBlobReadAuthorizationHeader` for client-side browser uploads
+	 *    - Narrows the connection string dependency to direct-upload signing flows
 	 *
 	 * Benefits of this dual pattern:
-	 * - Managed identity GUARANTEED for all SDK operations (can't accidentally bypass)
-	 * - Connection string credential scope narrowed (signing only)
-	 * - Clear in code which auth method is used where
-	 * - Each service independently testable/mockable
-	 * - Aligns with principle: minimize credential exposure, maximize security
+	 * - Application code still sees narrow, intent-focused interfaces
+	 * - The framework service remains reusable and consistent across registrations
+	 * - Connection string scope stays isolated to the upload-signing role
+	 * - Production server-side blob operations do not require a connection string
+	 * - Clear in code which registration is intended for which responsibility
 	 *
 	 * See @ocom/service-blob-storage for full architecture rationale and ADR-0032.
 	 */

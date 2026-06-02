@@ -39,9 +39,11 @@ const {
 
 	class HoistedServiceBlobStorage {
 		public readonly service: string;
+		public readonly options: unknown;
 
-		constructor(_options: unknown) {
+		constructor(options: unknown) {
 			this.service = 'blob-storage';
+			this.options = options;
 		}
 	}
 
@@ -135,7 +137,7 @@ describe('apps/api bootstrap', () => {
 		});
 	});
 
-	it('registers the OCOM blob storage service and exposes the scoped adapter contract in ApiContext', async () => {
+	it('registers the framework blob storage service twice with independently scoped auth configuration', async () => {
 		await import('./index.ts');
 
 		expect(initializeInfrastructureServices).toHaveBeenCalledTimes(1);
@@ -151,6 +153,17 @@ describe('apps/api bootstrap', () => {
 		// Sanity: ensure we found instances of the mocked blob storage
 		expect(registeredBlobService).toBeInstanceOf(MockServiceBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceBlobStorage);
+		expect(registeredBlobService).toMatchObject({
+			options: {
+				connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+			},
+		});
+		expect(registeredClientOpsService).toMatchObject({
+			options: {
+				accountName: 'devstoreaccount1',
+				signingConnectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+			},
+		});
 
 		const contextBuilder = setContext.mock.calls[0]?.[0];
 		expect(contextBuilder).toBeTypeOf('function');
@@ -162,7 +175,7 @@ describe('apps/api bootstrap', () => {
 				return undefined;
 			}
 			if (serviceKey === MockServiceBlobStorage) {
-				return registeredBlobService;
+				return registeredClientOpsService;
 			}
 			if (serviceKey === MockServiceTokenValidation) {
 				return new MockServiceTokenValidation(undefined);

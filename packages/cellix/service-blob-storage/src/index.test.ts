@@ -1,7 +1,7 @@
 import { ServiceBlobStorage } from '@cellix/service-blob-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, generateBlobSasUrlMock, generateBlobSasQueryParametersMock, MockStorageSharedKeyCredential } = vi.hoisted(() => {
+const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, blobServiceConstructorMock, generateBlobSasQueryParametersMock, MockStorageSharedKeyCredential } = vi.hoisted(() => {
 	class HoistedStorageSharedKeyCredential {
 		public readonly accountName: string;
 		public readonly accountKey: string;
@@ -17,7 +17,7 @@ const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnection
 		deleteBlobMock: vi.fn(),
 		listBlobsFlatMock: vi.fn(),
 		blobServiceFromConnectionStringMock: vi.fn(),
-		generateBlobSasUrlMock: vi.fn(),
+		blobServiceConstructorMock: vi.fn(),
 		generateBlobSasQueryParametersMock: vi.fn(),
 		MockStorageSharedKeyCredential: HoistedStorageSharedKeyCredential,
 	};
@@ -30,10 +30,23 @@ vi.mock('@azure/storage-blob', () => {
 		},
 	};
 
+	class MockBlobServiceClient {
+		public readonly url: string;
+
+		constructor(url: string) {
+			this.url = url;
+			Object.assign(this, blobServiceConstructorMock(url));
+		}
+
+		public getContainerClient = vi.fn();
+
+		static fromConnectionString(connectionString: string) {
+			return blobServiceFromConnectionStringMock(connectionString);
+		}
+	}
+
 	return {
-		BlobServiceClient: {
-			fromConnectionString: blobServiceFromConnectionStringMock,
-		},
+		BlobServiceClient: MockBlobServiceClient,
 		BlobSASPermissions: MockBlobSASPermissions,
 		generateBlobSASQueryParameters: generateBlobSasQueryParametersMock,
 		StorageSharedKeyCredential: MockStorageSharedKeyCredential,
@@ -52,14 +65,16 @@ describe('ServiceBlobStorage', () => {
 		deleteBlob: deleteBlobMock,
 		listBlobsFlat: listBlobsFlatMock,
 	};
-	const blobServiceClient = {
-		getContainerClient: vi.fn(() => containerClient),
-		generateBlobSASUrl: generateBlobSasUrlMock,
-	};
-
 	beforeEach(() => {
 		vi.clearAllMocks();
-		blobServiceFromConnectionStringMock.mockReturnValue(blobServiceClient);
+		blobServiceFromConnectionStringMock.mockReturnValue({
+			url: 'http://127.0.0.1:10000/devstoreaccount1',
+			getContainerClient: vi.fn(() => containerClient),
+		});
+		blobServiceConstructorMock.mockImplementation((url: string) => ({
+			url,
+			getContainerClient: vi.fn(() => containerClient),
+		}));
 		generateBlobSasQueryParametersMock.mockReturnValue({
 			toString: () => 'sig=token-123&se=2026-05-14T12%3A00%3A00Z&sr=b&sp=r',
 		});
@@ -79,7 +94,7 @@ describe('ServiceBlobStorage', () => {
 
 		expect(started).toBe(service);
 		expect(blobServiceFromConnectionStringMock).toHaveBeenCalledWith(connectionString);
-		expect(service.blobServiceClient).toBe(blobServiceClient);
+		expect(service.blobServiceClient.url).toBe('http://127.0.0.1:10000/devstoreaccount1');
 	});
 
 	it('uploads text with optional metadata and headers', async () => {
@@ -95,7 +110,7 @@ describe('ServiceBlobStorage', () => {
 			tags: { tenant: 'ocom' },
 		});
 
-		expect(blobServiceClient.getContainerClient).toHaveBeenCalledWith('member-assets');
+		expect(service.blobServiceClient.getContainerClient).toHaveBeenCalledWith('member-assets');
 		expect(containerClient.getBlockBlobClient).toHaveBeenCalledWith('avatars/member-1.json');
 		expect(uploadMock).toHaveBeenCalledWith('{"hello":"world"}', Buffer.byteLength('{"hello":"world"}'), {
 			blobHTTPHeaders: { blobContentType: 'application/json' },
@@ -159,6 +174,66 @@ describe('ServiceBlobStorage', () => {
 			expect.any(MockStorageSharedKeyCredential),
 		);
 		expect(token).toContain('sig=token-123');
+	});
+
+	it('creates blob write authorization headers in shared-key mode', async () => {
+		const service = new ServiceBlobStorage({ connectionString });
+		await service.startUp();
+
+		const result = await service.createBlobWriteAuthorizationHeader({
+			containerName: 'member-assets',
+			blobName: 'avatars/member-1.png',
+			contentLength: 1024,
+			contentType: 'image/png',
+			metadata: { source: 'test' },
+		});
+
+		expect(result.url).toContain('/member-assets/avatars/member-1.png');
+		expect(result.authorizationHeader).toContain('SharedKey');
+		expect(result.headers['Content-Type']).toBe('image/png');
+		expect(result.headers['Content-Length']).toBe('1024');
+		expect(result.headers['x-ms-meta-source']).toBe('test');
+	});
+
+	it('enables shared-key signing as an explicit opt-in capability on a managed-identity blob client', async () => {
+		const service = new ServiceBlobStorage({
+			accountName: 'devstoreaccount1',
+			signingConnectionString: connectionString,
+		});
+		await service.startUp();
+
+		const result = await service.createBlobWriteAuthorizationHeader({
+			containerName: 'member-assets',
+			blobName: 'avatars/member-1.png',
+			contentLength: 1024,
+			contentType: 'image/png',
+		});
+
+		expect(service.blobServiceClient.url).toBe('https://devstoreaccount1.blob.core.windows.net');
+		expect(result.url).toContain('/member-assets/avatars/member-1.png');
+		expect(result.authorizationHeader).toContain('SharedKey');
+	});
+
+	it('rejects shared-key-only operations when signing capability is not configured', async () => {
+		const service = new ServiceBlobStorage({ accountName: 'devstoreaccount1' });
+		await service.startUp();
+
+		await expect(
+			service.createBlobWriteAuthorizationHeader({
+				containerName: 'member-assets',
+				blobName: 'avatars/member-1.png',
+				contentLength: 1024,
+				contentType: 'image/png',
+			}),
+		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration');
+
+		await expect(
+			service.generateReadSasToken({
+				containerName: 'member-assets',
+				blobName: 'avatars/member-1.png',
+				expiresOn: new Date('2026-05-14T12:00:00.000Z'),
+			}),
+		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration');
 	});
 
 	it('guards against invalid lifecycle access', async () => {

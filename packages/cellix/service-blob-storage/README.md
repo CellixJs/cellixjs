@@ -4,67 +4,54 @@ Reusable Azure Blob Storage infrastructure service for Cellix applications.
 
 ## Overview
 
-`@cellix/service-blob-storage` provides:
+`@cellix/service-blob-storage` exposes the framework-native blob contract:
 
-- A `ServiceBlobStorage` class implementing Cellix `ServiceBase` lifecycle conventions
-- Support for **dual authentication modes**: managed identity (production) and connection string (local dev)
-- Blob operations: upload, list, delete via SDK or text upload
-- Scoped SAS URL generation for client uploads (when connection string provided)
-- Framework-level contract for application packages to wrap into narrower, context-facing services
+- `ServiceBlobStorage` implementing Cellix `ServiceBase` lifecycle conventions
+- Blob operations for upload, list, and delete
+- Optional shared-key signing capability for:
+  - blob-scoped read SAS token generation
+  - direct client PUT/GET authorization header generation via `createBlobWriteAuthorizationHeader()` and `createBlobReadAuthorizationHeader()`
 
-## Authentication Modes
+The package separates two concerns:
 
-### Mode 1: Managed Identity (Recommended for Production)
+- how the Azure Blob SDK client authenticates for server-side operations
+- whether shared-key signing features are enabled
+
+## Blob Client Authentication
+
+### Managed identity mode
+
+Use `accountName` when Azure SDK operations should authenticate with `DefaultAzureCredential`.
 
 ```ts
 import { ServiceBlobStorage } from '@cellix/service-blob-storage';
 
 const blobStorage = new ServiceBlobStorage({
 	accountName: 'mystorageaccount',
-	// SDK will use DefaultAzureCredential (managed identity on Azure)
 });
 
 await blobStorage.startUp();
 
-// Blob operations available (read/write/delete)
 await blobStorage.uploadText({
 	containerName: 'member-assets',
 	blobName: 'members/123/info.txt',
-	content: 'Member info',
+	text: 'Member info',
 });
-
-// Client upload signing NOT available in this mode (no connection string provided)
 ```
 
-**When to use**:
-- Production deployments on Azure
-- Applications using Azure Managed Identity for authentication
-- No client uploads needed, or client uploads handled via server-side logic
+Use this mode for production backend blob operations on Azure.
 
-**Requirements**:
-- Managed Identity assigned to compute resource (Function App, Container, etc.)
-- Storage Blob Data Contributor RBAC role granted to the managed identity
-- `AZURE_STORAGE_ACCOUNT_NAME` environment variable set
+### Shared-key blob client mode
 
-### Mode 2: Connection String (Local Development & Client Upload Signing)
+Use `connectionString` when blob operations or signing must use shared-key credentials.
 
 ```ts
 const blobStorage = new ServiceBlobStorage({
 	connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
-	// For local dev: connection string to Azurite
-	// For prod client uploads: connection string with shared-key credentials
 });
 
 await blobStorage.startUp();
 
-// All blob operations available
-await blobStorage.uploadText({
-	containerName: 'member-assets',
-	blobName: 'members/123/info.txt',
-	content: 'Member info',
-});
-
-// Canonical SharedKey auth header generation available (uses shared-key credentials from connection string)
 const uploadHeader = await blobStorage.createBlobWriteAuthorizationHeader({
 	containerName: 'member-assets',
 	blobName: 'avatars/member-123.png',
@@ -73,201 +60,128 @@ const uploadHeader = await blobStorage.createBlobWriteAuthorizationHeader({
 });
 ```
 
-**When to use**:
-- Local development with Azurite emulation
-- Client-side uploads requiring canonical SharedKey auth headers
-- Scenarios where shared-key credentials are acceptable
+Use this mode for local Azurite development and for downstream adapters that need direct client upload signing.
 
-**Requirements**:
-- `AZURE_STORAGE_CONNECTION_STRING` environment variable set
-- For Azurite: `DefaultEndpointsProtocol=http://...`
-- For Azure with shared-key: connection string with AccountKey
+## Optional Shared-Key Signing Capability
 
-### Mode 3: Dual Registration (Production with Client Uploads)
+Applications that use managed identity for server-side blob operations can still opt into shared-key signing explicitly:
 
-This is the typical production pattern when both backend operations and client uploads are needed.
-
-**Service registration** (via Cellix framework):
 ```ts
-// Single unified class, registered twice with semantic names
-Cellix.initializeInfrastructureServices((r) => {
-  r.registerInfrastructureService(
-    new ServiceBlobStorage({ accountName: config.accountName }), 
-    'BlobStorageService'
-  )
-  .registerInfrastructureService(
-    new ServiceBlobStorage({ connectionString: config.connectionString }), 
-    'ClientOperationsService'
-  );
-})
-.setContext((registry) => ({
-  blobStorageService: registry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService'),
-  clientOperationsService: registry.getInfrastructureService<ServiceBlobStorage>('ClientOperationsService'),
-}));
+const clientUploadService = new ServiceBlobStorage({
+	accountName: 'mystorageaccount',
+	signingConnectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+});
+
+await clientUploadService.startUp();
+
+const uploadHeader = await clientUploadService.createBlobWriteAuthorizationHeader({
+	containerName: 'member-assets',
+	blobName: 'avatars/member-123.png',
+	contentLength: 102400,
+	contentType: 'image/png',
+});
 ```
 
-**Result**:
-- SDK operations use managed identity (secure, auditable)
-- Client uploads get canonical SharedKey auth headers (secure client access, metadata-locked)
-- No shared-key credentials used for blob operations
-- Connection string only used for signing (isolation of concerns)
+This keeps the connection string dependency scoped to direct-upload signing rather than coupling it to every blob-storage consumer.
 
-## Complete Example: Client Uploads with Managed Identity & Canonical Auth Headers
+## Recommended Registration Pattern
+
+The same `ServiceBlobStorage` class can be registered multiple times with different semantic roles.
 
 ```ts
 import { ServiceBlobStorage } from '@cellix/service-blob-storage';
 
-// Framework service for SDK operations (uses managed identity)
-const blobService = new ServiceBlobStorage({
-	accountName: 'mycompany',
+Cellix.initializeInfrastructureServices((registry) => {
+	registry
+		.registerInfrastructureService(
+			new ServiceBlobStorage({ accountName: config.accountName }),
+			'BlobStorageService',
+		)
+		.registerInfrastructureService(
+			new ServiceBlobStorage({
+				accountName: config.accountName,
+				signingConnectionString: config.connectionString,
+			}),
+			'ClientOperationsService',
+		);
 });
-await blobService.startUp();
-
-// Upload text (uses managed identity)
-await blobService.uploadText({
-	containerName: 'member-assets',
-	blobName: 'members/123/profile.json',
-	content: JSON.stringify({ name: 'Alice' }),
-});
-
-// For client uploads, use separate service configured for canonical auth header signing
-// (typically done by @ocom/service-blob-storage adapter)
-const signingService = new ServiceBlobStorage({
-	connectionString: 'DefaultEndpointsProtocol=https://...AccountKey=...',
-});
-await signingService.startUp();
-
-const uploadHeader = await signingService.createBlobWriteAuthorizationHeader({
-	containerName: 'member-assets',
-	blobName: 'avatars/alice-avatar.png',
-	contentLength: 51200,
-	contentType: 'image/png',
-	metadata: { userId: '123', uploadId: 'abc-def' },
-});
-
-// Send uploadHeader to client browser; client includes it in HTTP PUT request to blob storage
-// Signature is cryptographically bound to blob path, size, type, and metadata
 ```
+
+Result:
+
+- `BlobStorageService` owns backend SDK operations
+- `ClientOperationsService` exposes the same framework class with signing capability enabled
+- application context can still narrow each registration to the interfaces that match its intended use
 
 ## API Surface
 
-### Public Types Export
+### Public exports
 
-All public request/response types and interfaces are exported from the package root. Consumers should import types from the package entrypoint instead of referencing internal source files.
+Import from the package root only:
 
 ```ts
-import type { BlobAddress, UploadTextBlobRequest, CreateBlobSasUrlRequest } from '@cellix/service-blob-storage';
+import {
+	ServiceBlobStorage,
+	type BlobAddress,
+	type BlobListItem,
+	type BlobStorage,
+	type BlobUploadAuthorizationHeader,
+	type CreateBlobAuthorizationHeaderRequest,
+	type CreateBlobSasUrlRequest,
+	type ListBlobsRequest,
+	type UploadTextBlobRequest,
+} from '@cellix/service-blob-storage';
 ```
-
-(Internally these types are declared in src/interfaces.ts, but consumers should never import internal file paths.)
-
-
 
 ### Lifecycle
 
-- `async startUp(): Promise<void>` - Initialize blob service client
-- `async shutDown(): Promise<void>` - Gracefully close resources (idempotent)
+- `startUp(): Promise<BlobStorage>`
+- `shutDown(): Promise<void>`
 
-### Blob Operations
+### Blob operations
 
-- `async uploadText(request): Promise<void>` - Upload text content
-- `async uploadStream(request): Promise<void>` - Upload from stream
-- `async listBlobs(request): Promise<BlobListItem[]>` - List blobs in container
-- `async deleteBlob(request): Promise<void>` - Delete a blob
+- `uploadText(request): Promise<BlobUploadCommonResponse>`
+- `listBlobs(request): Promise<BlobListItem[]>`
+- `deleteBlob(address): Promise<void>`
 
-### Canonical SharedKey Authorization Headers (when connection string provided)
+### Shared-key-only operations
 
-- `async createBlobWriteAuthorizationHeader(request): Promise<BlobUploadAuthorizationHeader>` - Generate authorization header for write (upload)
-- `async createBlobReadAuthorizationHeader(request): Promise<BlobUploadAuthorizationHeader>` - Generate authorization header for read
+- `generateReadSasToken(request): Promise<string>`
+- `createBlobWriteAuthorizationHeader(request): Promise<BlobUploadAuthorizationHeader>`
+- `createBlobReadAuthorizationHeader(request): Promise<BlobUploadAuthorizationHeader>`
 
-## Design Philosophy
+These methods require shared-key signing capability. That capability is enabled when:
 
-1. **Azure SDK details are internal**: Consumers don't reference `@azure/storage-blob` directly
-2. **Framework-level contract only**: Focus on blob operations, not Azure-specific SDK models
-3. **Narrower consumer types required**: Application code should NOT depend directly on `ServiceBlobStorage`. Instead, application packages should:
-   - Create narrower interfaces (e.g., `BlobStorageOperations`, `ClientUploadService`)
-   - Register two specialized instances (one for managed identity, one for SAS signing)
-   - Expose only the narrower types in `ApiContext`
-   - This ensures type safety and clear intent in application code
-4. **Security-forward**: Default to managed identity; connection string optional for local dev or signing
-5. **Lifecycle management**: `startUp()` and `shutDown()` follow Cellix service patterns for consistent bootstrapping
-
-### The Narrower Types Pattern
-
-Instead of exposing `ServiceBlobStorage` directly in `ApiContext`, applications should:
-
-```typescript
-// ❌ DON'T: Expose the full framework service
-interface ApiContextSpec {
-  blobService: ServiceBlobStorage; // Too flexible, mixed concerns
-}
-
-// ✅ DO: Expose narrower, specialized types
-interface ApiContextSpec {
-  blobStorageService: BlobStorageOperations;    // Managed identity operations
-  clientUploadService: ClientUploadService;     // SAS signing only
-}
-```
-
-**Why?**
-- **Type Safety**: Compiler prevents accidentally calling SAS methods on the backend service
-- **Clear Intent**: Function signature tells you which auth method is used
-- **Single Responsibility**: Each service has one job
-- **Testability**: Each type can be mocked independently
-- **Best Practice**: Aligns with Dependency Inversion Principle
-
-See ADR-0032 "Implementation Pattern: Narrower Consumer Types" for the complete pattern and example.
+- the service is constructed with `connectionString`, or
+- the service is constructed with `signingConnectionString`
 
 ## Error Handling
 
-### Not Started
+### Service not started
+
 ```ts
 const blobService = new ServiceBlobStorage({ accountName: 'myaccount' });
-await blobService.uploadText(...); // ❌ Throws: "Framework ServiceBlobStorage is not started"
-
-await blobService.startUp();
-await blobService.uploadText(...); // ✅ Works
+await blobService.uploadText(...); // throws
 ```
 
-### Shutdown is Idempotent
-```ts
-await blobService.shutDown(); // ✅ OK even if not started
-await blobService.shutDown(); // ✅ OK (safe to call multiple times)
-```
+### Shared-key-only method in managed-identity mode
 
-### Canonical Auth Headers Without Connection String
 ```ts
 const blobService = new ServiceBlobStorage({ accountName: 'myaccount' });
 await blobService.startUp();
 
-await blobService.createBlobWriteAuthorizationHeader(...);
-// ❌ Throws: "Cannot create authorization header without connection string configured"
+await blobService.createBlobWriteAuthorizationHeader(...); // throws
+await blobService.createBlobReadAuthorizationHeader(...); // throws
+await blobService.generateReadSasToken(...); // throws
 ```
 
-## Integration with OCOM Applications
+### Shutdown is idempotent
 
-See `@ocom/service-blob-storage` for the application-facing adapter that:
-- Wraps the framework service
-- Provides `createUploadUrl()` and `createReadUrl()` methods
-- Registers itself in `ApiContext` for dependency injection
-- Handles the dual-service pattern (managed identity + SAS signing)
+```ts
+await blobService.shutDown();
+await blobService.shutDown();
+```
 
-## Testing
+## Integration with Application Context
 
-- Mock `@azure/storage-blob` client to avoid Azurite/Azure dependencies
-- Or use Azurite test helper (see `src/test-support/azurite.ts`)
-- Integration tests cover startup, upload, list, delete, and SAS generation paths
-
-## Related Documentation
-
-- **ADR-0032**: [Azure Blob Storage & Client Uploads](../../decisions/0032-azure-blob-storage-client-uploads.md) - Architecture decision for dual auth modes
-- **ADR-0014**: [Azure Infrastructure Deployments](../../decisions/0014-azure-infrastructure-deployments.md) - Managed identity and RBAC setup
-- **@cellix/api-services-spec**: Cellix infrastructure service lifecycle patterns
-- **@ocom/service-blob-storage**: Application adapter and usage example
-
-## Roadmap
-
-- Support for User Delegation Keys (for pure Azure AD scenarios)
-- Container policy management (retention, versioning)
-- Batch operations (delete multiple blobs)
-- Server-side encryption configuration
+Application packages can expose narrow context interfaces even when infrastructure bootstrap registers the full framework service class. For OCOM, see `@ocom/service-blob-storage`.

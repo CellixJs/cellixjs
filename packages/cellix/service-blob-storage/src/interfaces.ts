@@ -90,25 +90,6 @@ export interface BlobUploadAuthorizationHeader {
 }
 
 /**
- * Narrow client upload contract used for downscoped client operations.
- *
- * This interface intentionally includes only the signing operations required by
- * browser-based uploads. Implementations may be provided by the framework
- * ServiceBlobStorage when constructed with a shared-key connection string.
- */
-export interface ClientUploadService {
-	/**
-	 * Create signed authorization header information for a client upload (PUT).
-	 */
-	createUploadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader>;
-
-	/**
-	 * Create signed authorization header information for a client read (GET).
-	 */
-	createReadUrl(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader>;
-}
-
-/**
  * Framework-level blob storage contract used by application adapters.
  */
 export interface BlobStorage {
@@ -128,9 +109,23 @@ export interface BlobStorage {
 	listBlobs(request: ListBlobsRequest): Promise<BlobListItem[]>;
 
 	/**
-	 * Generates a blob-scoped read SAS token using managed identity credentials.
-	 * Used for read-only access (e.g., viewing files).
+	 * Generates a blob-scoped read SAS token using shared-key credentials from a connection string.
+	 * Used for read-only access (for example, viewing files) when the service was configured for shared-key mode.
 	 * Returns the SAS query string (without the leading `?`).
 	 */
 	generateReadSasToken(request: CreateBlobSasUrlRequest): Promise<string>;
+
+	/**
+	 * Generates the signed authorization header details needed for a client-side blob write request.
+	 *
+	 * Requires the service instance to be configured with shared-key signing capability.
+	 */
+	createBlobWriteAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader>;
+
+	/**
+	 * Generates the signed authorization header details needed for a client-side blob read request.
+	 *
+	 * Requires the service instance to be configured with shared-key signing capability.
+	 */
+	createBlobReadAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader>;
 }

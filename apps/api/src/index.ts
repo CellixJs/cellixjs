@@ -24,7 +24,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
 		.registerInfrastructureService(isProd ? new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName }) : new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString }), 'BlobStorageService')
-		.registerInfrastructureService(new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString }), 'ClientOperationsService')
+		.registerInfrastructureService(new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName, signingConnectionString: BlobStorageConfig.connectionString }), 'ClientOperationsService')
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
 })
