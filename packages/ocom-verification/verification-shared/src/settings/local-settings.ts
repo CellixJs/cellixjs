@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { findWorkspaceRoot, readDotEnv, readJsonSettings, readSetting, requireSetting, resolveWorkspacePath } from './settings-utils.ts';
+import { findWorkspaceRoot, readJsonSettings, readSetting, resolveWorkspacePath } from './settings-utils.ts';
  
 const workspaceRoot = findWorkspaceRoot();
 const apiSettingsPath = resolveWorkspacePath(workspaceRoot, 'apps/api/local.settings.json');
@@ -7,8 +7,6 @@ const uiCommunityEnvPath = resolveWorkspacePath(workspaceRoot, 'apps/ui-communit
 const uiStaffEnvPath = resolveWorkspacePath(workspaceRoot, 'apps/ui-staff/.env');
  
 const apiValues = readJsonSettings(apiSettingsPath);
-const uiCommunityValues = readDotEnv(uiCommunityEnvPath);
-const uiStaffValues = readDotEnv(uiStaffEnvPath);
  
 /**
 * Defaults for E2E/acceptance test settings when local.settings.json is absent
@@ -46,14 +44,4 @@ export const apiSettings = {
     uiCommunityDir: path.dirname(uiCommunityEnvPath),
     uiStaffDir: path.dirname(uiStaffEnvPath),
 } as const;
- 
-export const uiCommunitySettings = {
-    baseUrl: requireSetting(uiCommunityValues, 'VITE_APP_UI_COMMUNITY_BASE_URL', 'VITE_APP_UI_COMMUNITY_BASE_URL is required in apps/ui-community/.env'),
- 
-    graphqlEndpoint: requireSetting(uiCommunityValues, 'VITE_COMMON_API_ENDPOINT', 'VITE_COMMON_API_ENDPOINT is required in apps/ui-community/.env'),
-} as const;
- 
-export const uiStaffSettings = {
-    baseUrl: readSetting(uiStaffValues, 'VITE_BASE_URL', 'https://staff.ownercommunity.localhost:1355') ?? 'https://staff.ownercommunity.localhost:1355',
-    graphqlEndpoint: requireSetting(uiStaffValues, 'VITE_COMMON_API_ENDPOINT', 'VITE_COMMON_API_ENDPOINT is required in apps/ui-staff/.env'),
-} as const;
+
