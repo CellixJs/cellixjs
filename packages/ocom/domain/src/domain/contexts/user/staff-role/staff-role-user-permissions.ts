@@ -1,0 +1,34 @@
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
+import type { UserVisa } from '../user.visa.ts';
+
+interface StaffRoleUserPermissionsSpec {
+	canManageUsers: boolean;
+}
+
+export interface StaffRoleUserPermissionsProps extends StaffRoleUserPermissionsSpec, ValueObjectProps {}
+export interface StaffRoleUserPermissionsEntityReference extends Readonly<StaffRoleUserPermissionsProps> {}
+
+export class StaffRoleUserPermissions extends ValueObject<StaffRoleUserPermissionsProps> implements StaffRoleUserPermissionsEntityReference {
+	private readonly visa: UserVisa;
+
+	constructor(props: StaffRoleUserPermissionsProps, visa: UserVisa) {
+		super(props);
+		this.visa = visa;
+	}
+
+	private validateVisa() {
+		if (!this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set permission');
+		}
+	}
+
+	get canManageUsers(): boolean {
+		return this.props.canManageUsers;
+	}
+	set canManageUsers(value: boolean) {
+		this.validateVisa();
+		this.props.canManageUsers = value;
+	}
+}
