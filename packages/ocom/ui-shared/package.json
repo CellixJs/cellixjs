@@ -50,6 +50,7 @@
     "@storybook/addon-docs": "catalog:",
     "@storybook/addon-vitest": "catalog:",
     "@storybook/react-vite": "catalog:",
+    "@storybook/react": "10.4.2",
     "@types/react": "^19.1.11",
     "@types/react-dom": "^19.1.6",
     "@vitest/browser": "catalog:",

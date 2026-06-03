@@ -1,7 +1,7 @@
 // Global preview for Storybook in @ocom/ui-shared
 // Import Ant Design base styles so components render correctly
 import { MockedProvider } from '@apollo/client/testing';
-import type { Decorator, Parameters } from '@storybook/react-vite';
+import type { Decorator, Parameters } from '@storybook/react';
 import { AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
 import 'antd/dist/reset.css';

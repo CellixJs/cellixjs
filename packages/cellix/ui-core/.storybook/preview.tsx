@@ -1,4 +1,4 @@
-import type { Decorator, Parameters } from '@storybook/react-vite';
+import type { Decorator, Parameters } from '@storybook/react';
 import { message } from 'antd';
 import { MemoryRouter } from 'react-router-dom';
 import 'antd/dist/reset.css';

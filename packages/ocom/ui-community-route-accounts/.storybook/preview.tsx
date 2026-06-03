@@ -1,6 +1,6 @@
 import { MockedProvider } from '@apollo/client/testing';
 import { HelmetProvider } from '@dr.pogodin/react-helmet';
-import type { Decorator, Parameters, Preview } from '@storybook/react-vite';
+import type { Decorator, Parameters, Preview } from '@storybook/react';
 import 'antd/dist/reset.css';
 import { AuthProvider } from 'react-oidc-context';
 

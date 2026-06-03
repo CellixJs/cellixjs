@@ -27,7 +27,7 @@ catalog:
   jsdom: ^26.1.0
   mongodb: 6.18.0
   mongoose: 8.17.0
-  react-router-dom: 7.12.0
+  react-router-dom: 7.15.0
   react: ^19.1.1
   react-dom: ^19.1.1
   '@ant-design/icons': ^6.0.2
@@ -104,6 +104,7 @@ overrides:
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   ws: 8.20.1
   shell-quote: 1.8.4
+  react-router: 7.15.0
 
 packageExtensions:
   '@azure/functions-opentelemetry-instrumentation@0.1.0':
