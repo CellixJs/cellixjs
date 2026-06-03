@@ -30,9 +30,18 @@ const guest: TestActor = {
 	familyName: '',
 };
 
+const staffUser: TestActor = {
+	name: 'StaffUser',
+	externalId: '10000000-0000-4000-8000-000000000001',
+	email: 'staff@sharethrift.onmicrosoft.com',
+	givenName: 'Staff',
+	familyName: 'User',
+};
+
 export const actors = {
 	CommunityOwner: communityOwner,
 	CommunityMember: communityMember,
+	StaffUser: staffUser,
 	Guest: guest,
 } as const;
 

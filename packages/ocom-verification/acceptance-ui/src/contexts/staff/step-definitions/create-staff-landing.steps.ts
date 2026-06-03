@@ -1,0 +1,70 @@
+import { Given, Then, When } from '@cucumber/cucumber';
+import { actors } from '@ocom-verification/verification-shared/test-data';
+import { actorCalled, notes } from '@serenity-js/core';
+import type { StaffUiNotes } from '../abilities/staff-types.ts';
+import { StaffTargetRoute } from '../questions/staff-target-route.ts';
+import { OpenStaffLanding } from '../tasks/open-staff-landing.ts';
+
+type StaffBusinessRole = 'finance' | 'tech admin' | 'service line owner' | 'case manager';
+
+const defaultRouteByRole: Record<StaffBusinessRole, string> = {
+	finance: '/staff/finance',
+	'tech admin': '/staff/tech',
+	'service line owner': '/staff/community-management',
+	'case manager': '/staff/community-management',
+};
+
+const actorRoles = new Map<string, StaffBusinessRole>();
+
+let lastActorName = actors.StaffUser.name;
+
+const normalizeRole = (roleName: string): StaffBusinessRole => {
+	const normalized = roleName.trim().toLowerCase();
+
+	if (normalized === 'finance' || normalized === 'tech admin' || normalized === 'service line owner' || normalized === 'case manager') {
+		return normalized;
+	}
+
+	throw new Error(`Unsupported staff role "${roleName}"`);
+};
+
+const roleForActor = (actorName: string): StaffBusinessRole => actorRoles.get(actorName) ?? 'case manager';
+
+const resolveFinanceWorkspaceRoute = (role: StaffBusinessRole): string => (role === 'finance' || role === 'tech admin' ? '/staff/finance' : '/unauthorized');
+
+Given('{word} is an authenticated staff user', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	actorRoles.set(actorName, 'case manager');
+	await actor.attemptsTo(notes<StaffUiNotes>().set('targetRoute', ''));
+});
+
+Given('{word} is an authenticated {string} staff user', async (actorName: string, roleName: string) => {
+	lastActorName = actorName;
+	const role = normalizeRole(roleName);
+	const actor = actorCalled(actorName);
+	actorRoles.set(actorName, role);
+	await actor.attemptsTo(notes<StaffUiNotes>().set('targetRoute', ''));
+});
+
+When('{word} enters the staff operations workspace', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	await actor.attemptsTo(OpenStaffLanding(defaultRouteByRole[roleForActor(actorName)]));
+});
+
+When('{word} attempts to work in the finance workspace', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	await actor.attemptsTo(OpenStaffLanding(resolveFinanceWorkspaceRoute(roleForActor(actorName))));
+});
+
+Then('{word} should be directed to {string}', async (actorName: string, expectedRoute: string) => {
+	const resolvedName = /^(she|he|they)$/i.test(actorName) ? lastActorName : actorName;
+	const actor = actorCalled(resolvedName);
+	const targetRoute = await actor.answer(StaffTargetRoute());
+
+	if (targetRoute !== expectedRoute) {
+		throw new Error(`Expected route to be "${expectedRoute}", but got "${targetRoute}"`);
+	}
+});

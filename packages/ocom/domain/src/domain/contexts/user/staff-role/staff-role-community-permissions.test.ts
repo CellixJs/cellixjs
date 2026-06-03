@@ -18,6 +18,7 @@ function makeVisa({ canManageStaffRolesAndPermissions = true, isSystemAccount = 
 
 function makeProps(overrides = {}) {
 	return {
+		canManageCommunities: false,
 		canManageStaffRolesAndPermissions: false,
 		canManageAllCommunities: false,
 		canDeleteCommunities: false,
@@ -304,6 +305,50 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I try to set canReIndexSearchCollections to true', () => {
 			setWithoutPermission = () => {
 				entity.canReIndexSearchCollections = true;
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(setWithoutPermission).toThrow(PermissionError);
+			expect(setWithoutPermission).toThrow('Cannot set permission');
+		});
+	});
+
+	// canManageCommunities
+	Scenario('Changing canManageCommunities with manage staff roles permission', ({ Given, When, Then }) => {
+		Given('a StaffRoleCommunityPermissions entity with permission to manage staff roles', () => {
+			visa = makeVisa({ canManageStaffRolesAndPermissions: true, isSystemAccount: false });
+			entity = new StaffRoleCommunityPermissions(makeProps(), visa);
+		});
+		When('I set canManageCommunities to true', () => {
+			entity.canManageCommunities = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canManageCommunities).toBe(true);
+		});
+	});
+
+	Scenario('Changing canManageCommunities with system account permission', ({ Given, When, Then }) => {
+		Given('a StaffRoleCommunityPermissions entity with system account permission', () => {
+			visa = makeVisa({ canManageStaffRolesAndPermissions: false, isSystemAccount: true });
+			entity = new StaffRoleCommunityPermissions(makeProps(), visa);
+		});
+		When('I set canManageCommunities to true', () => {
+			entity.canManageCommunities = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canManageCommunities).toBe(true);
+		});
+	});
+
+	Scenario('Changing canManageCommunities without permission', ({ Given, When, Then }) => {
+		let setWithoutPermission: () => void;
+		Given('a StaffRoleCommunityPermissions entity without permission to manage staff roles or system account', () => {
+			visa = makeVisa({ canManageStaffRolesAndPermissions: false, isSystemAccount: false });
+			entity = new StaffRoleCommunityPermissions(makeProps(), visa);
+		});
+		When('I try to set canManageCommunities to true', () => {
+			setWithoutPermission = () => {
+				entity.canManageCommunities = true;
 			};
 		});
 		Then('a PermissionError should be thrown', () => {
