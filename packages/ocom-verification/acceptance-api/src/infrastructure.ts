@@ -1,31 +1,35 @@
-import { ApiInfrastructure, type ApiInfrastructureState } from '@cellix/serenity-framework/infrastructure/api';
-import type { ServiceMongoose } from '@ocom/service-mongoose';
+import { ApiInfrastructure } from '@cellix/serenity-framework/infrastructure/api';
+import { MongoMemoryTestServer } from '@cellix/serenity-framework/servers';
+import { ServiceMongoose } from '@ocom/service-mongoose';
 import { getMongoPort } from '@ocom-verification/verification-shared/environment';
 import { seedDatabase } from '@ocom-verification/verification-shared/test-data';
-import { createApiGraphQLServer, createApiMongooseService, resetApiGraphQLServerFactories } from './test-server-factories.ts';
+import { ApiGraphQLTestServer, MongooseTestServer } from './test-server-factories.ts';
 
 const apiDbName = 'owner-community';
 
-const infrastructure = ApiInfrastructure.using<ServiceMongoose>({
-	createGraphqlServer: ({ getMongooseService }) => createApiGraphQLServer(getMongooseService),
-	mongoServer: {
-		dbName: apiDbName,
-		port: getMongoPort(),
-		replSetName: 'globaldb',
-		seedData: seedDatabase,
-	},
-	mongoose: {
-		createService: (connectionString) => createApiMongooseService(connectionString, apiDbName),
-	},
-});
+const infrastructure = ApiInfrastructure.create()
+	.addServer('mongo', () => new MongoMemoryTestServer({ dbName: apiDbName, port: getMongoPort(), replSetName: 'globaldb', seedData: seedDatabase }), {
+		resetForScenario: (server) => (server as MongoMemoryTestServer).resetForScenario(),
+	})
+	.addServer('mongoose', (ctx) => new MongooseTestServer(() => new ServiceMongoose(ctx.server<MongoMemoryTestServer>('mongo').getConnectionString(), { autoCreate: true, autoIndex: true, dbName: apiDbName })), {
+		dependsOn: ['mongo'],
+	})
+	.addServer('graphql', (ctx) => new ApiGraphQLTestServer(() => ctx.server<MongooseTestServer>('mongoose').getService()), { dependsOn: ['mongoose'] });
 
-export function getState(): ApiInfrastructureState<ServiceMongoose> {
-	return infrastructure.getState();
+interface ApiAcceptanceState {
+	graphqlUrl: string | undefined;
+}
+
+export function getState(): ApiAcceptanceState {
+	// biome-ignore lint:useLiteralKeys - servers is an index-signature record; bracket access required by noPropertyAccessFromIndexSignature
+	const graphqlServer = infrastructure.getState().servers['graphql'];
+	return {
+		graphqlUrl: graphqlServer?.isRunning() ? graphqlServer.getUrl() : undefined,
+	};
 }
 
 export async function stopAll(): Promise<void> {
 	await infrastructure.stopAll();
-	resetApiGraphQLServerFactories();
 }
 
 export async function ensureApiServers(): Promise<void> {

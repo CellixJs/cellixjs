@@ -47,14 +47,6 @@ function mongoServer(url = 'mongodb://test'): FakeServer & MongoMemoryTestServer
 	return new FakeServer(url) as FakeServer & MongoMemoryTestServer;
 }
 
-function mongoOptions() {
-	return {
-		dbName: 'test',
-		port: 27_017,
-		replSetName: 'rs0',
-	};
-}
-
 function browserStubs() {
 	const page = {
 		close: vi.fn(),
@@ -73,43 +65,49 @@ function browserStubs() {
 }
 
 describe('ApiInfrastructure', () => {
-	it('starts MongoDB before the GraphQL server and exposes the GraphQL URL', async () => {
+	it('starts servers in dependency order and exposes them by name, wiring the factory context', async () => {
 		const mongo = mongoServer();
 		const graphQL = new FakeServer('http://127.0.0.1:4000/graphql');
 
-		const infrastructure = ApiInfrastructure.using({
-			createGraphqlServer: () => graphQL,
-			createMongoServer: () => mongo,
-			mongoServer: mongoOptions(),
-		});
+		let graphqlSawMongoUrl: string | undefined;
+		const infrastructure = ApiInfrastructure.create()
+			.addServer('mongo', () => mongo, { resetForScenario: (server) => (server as FakeServer).resetForScenario() })
+			.addServer(
+				'graphql',
+				(ctx) => {
+					graphqlSawMongoUrl = ctx.server('mongo').getUrl();
+					return graphQL;
+				},
+				{ dependsOn: ['mongo'] },
+			);
 
 		await infrastructure.ensureStarted();
 
-		expect(infrastructure.getState().graphqlUrl).toBe('http://127.0.0.1:4000/graphql');
+		expect(graphqlSawMongoUrl).toBe('mongodb://test');
+		expect(Object.keys(infrastructure.getState().servers)).toEqual(['mongo', 'graphql']);
+		expect(graphQL.getUrl()).toBe('http://127.0.0.1:4000/graphql');
 		expect(graphQL.startCalls).toBe(1);
 	});
 
-	it('runs the GraphQL server without a database when no mongoServer is configured', async () => {
+	it('runs a single server without a database when none is registered', async () => {
 		const graphQL = new FakeServer('http://127.0.0.1:4000/graphql');
 
-		const infrastructure = ApiInfrastructure.using({ createGraphqlServer: () => graphQL });
+		const infrastructure = ApiInfrastructure.create().addServer('graphql', () => graphQL);
 
 		await infrastructure.ensureStarted();
 		await infrastructure.resetScenarioState();
 
-		expect(infrastructure.getState().graphqlUrl).toBe('http://127.0.0.1:4000/graphql');
-		expect(infrastructure.getState().mongoServer).toBeUndefined();
+		expect(Object.keys(infrastructure.getState().servers)).toEqual(['graphql']);
+		expect(graphQL.getUrl()).toBe('http://127.0.0.1:4000/graphql');
 		expect(graphQL.startCalls).toBe(1);
 	});
 
-	it('resets MongoDB without restarting the GraphQL server between scenarios', async () => {
+	it('resets a server without restarting others between scenarios', async () => {
 		const mongo = mongoServer();
 		const graphQL = new FakeServer('http://127.0.0.1:4000/graphql');
-		const infrastructure = ApiInfrastructure.using({
-			createGraphqlServer: () => graphQL,
-			createMongoServer: () => mongo,
-			mongoServer: mongoOptions(),
-		});
+		const infrastructure = ApiInfrastructure.create()
+			.addServer('mongo', () => mongo, { resetForScenario: (server) => (server as FakeServer).resetForScenario() })
+			.addServer('graphql', () => graphQL, { dependsOn: ['mongo'] });
 
 		await infrastructure.ensureStarted();
 		await infrastructure.resetScenarioState();
@@ -117,6 +115,18 @@ describe('ApiInfrastructure', () => {
 
 		expect(mongo.resetCalls).toBe(1);
 		expect(graphQL.startCalls).toBe(1);
+	});
+
+	it('rejects duplicate server names', () => {
+		const infrastructure = ApiInfrastructure.create().addServer('graphql', () => new FakeServer('http://127.0.0.1:4000/graphql'));
+
+		expect(() => infrastructure.addServer('graphql', () => new FakeServer('http://127.0.0.1:4001/graphql'))).toThrow(/already registered/);
+	});
+
+	it('rejects an unknown dependency', async () => {
+		const infrastructure = ApiInfrastructure.create().addServer('graphql', () => new FakeServer('http://127.0.0.1:4000/graphql'), { dependsOn: ['mongo'] });
+
+		await expect(infrastructure.ensureStarted()).rejects.toThrow(/unknown server 'mongo'/);
 	});
 });
 

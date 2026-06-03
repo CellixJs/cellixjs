@@ -1,182 +1,176 @@
-import { MongoMemoryTestServer, type MongoMemoryTestServerOptions } from '../servers/mongo-memory-test-server.ts';
 import type { TestServer } from '../servers/test-server.ts';
 
-/** Minimal connection shape needed for model cleanup. */
-export interface ManagedMongooseConnection {
-	/** Registered Mongoose model map. */
-	models: Record<string, unknown>;
+/** Suite-level environment hooks for {@link ApiInfrastructure}. */
+export interface ApiInfrastructureOptions {
+	/** Suite environment setup, such as starting a local proxy. Runs before any server. */
+	setupEnvironment?: () => Promise<void> | void;
 
-	/** Delete a registered Mongoose model by name. */
-	deleteModel(name: string): unknown;
+	/** Suite environment cleanup. Runs after all servers stop. */
+	cleanupEnvironment?: () => Promise<void> | void;
 }
 
-/** Minimal Mongoose service shape managed by API infrastructure. */
-export interface ManagedMongooseService {
-	/** Start the service. */
-	startUp(): Promise<unknown> | unknown;
-
-	/** Stop the service. */
-	shutDown(): Promise<unknown> | unknown;
-
-	/** Service internals exposing the active connection. */
-	service: {
-		/** Active Mongoose connection. */
-		connection: ManagedMongooseConnection;
-	};
+/** Lookup passed to server factories so a server can read its already-started dependencies. */
+export interface ApiServerContext {
+	/**
+	 * Resolve an already-started server by name.
+	 *
+	 * @typeParam TServer Concrete server type, for example `MongoMemoryTestServer`.
+	 * @param name Name the dependency was registered with.
+	 * @throws Error when the named server has not been created yet. Declare it in
+	 *   `dependsOn` so the framework starts it first.
+	 */
+	server<TServer extends TestServer = TestServer>(name: string): TServer;
 }
 
-/** Options used when API infrastructure owns a consumer-provided Mongoose service. */
-export interface ApiInfrastructureMongooseOptions<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
-	/** Create the service from the framework-owned MongoDB connection string. */
-	createService: (connectionString: string) => TMongooseService;
+/** Factory that creates a server, optionally reading its dependencies from {@link ApiServerContext}. */
+export type ApiServerFactory = (context: ApiServerContext) => TestServer;
 
-	/** Clear registered models after startup. Defaults to true. */
-	clearModels?: boolean;
+/** Options accepted when registering a server with {@link ApiInfrastructure.addServer}. */
+export interface ApiServerOptions {
+	/** Names of servers that must be started before this one. */
+	dependsOn?: string[];
+
+	/** Reset this server between scenarios, e.g. clear and reseed a database. */
+	resetForScenario?: (server: TestServer) => Promise<void> | void;
 }
-
-/** Context supplied to the GraphQL server factory. */
-export interface GraphqlServerFactoryContext<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
-	/** Framework-owned MongoDB server, or `undefined` when none is configured. */
-	mongoServer: MongoMemoryTestServer | undefined;
-
-	/** Resolve the MongoDB connection string. Throws if no `mongoServer` is configured. */
-	getMongoConnectionString: () => string;
-
-	/** Resolve the managed Mongoose service. Throws if no `mongoose` option is configured. */
-	getMongooseService: () => TMongooseService;
-}
-
-/** Factory that creates the GraphQL server after framework-owned resources are available. */
-export type GraphqlServerFactory<TMongooseService extends ManagedMongooseService = ManagedMongooseService> = (context: GraphqlServerFactoryContext<TMongooseService>) => TestServer;
-
-/** Factory used to create the framework-owned MongoDB server. */
-export type ApiMongoServerFactory = (options: MongoMemoryTestServerOptions) => MongoMemoryTestServer;
 
 /** State exposed by {@link ApiInfrastructure}. */
-export interface ApiInfrastructureState<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
-	/** Running MongoDB server, or `undefined` when none is configured. */
-	mongoServer: MongoMemoryTestServer | undefined;
-
-	/** Running GraphQL server for the suite. */
-	graphqlServer: TestServer | undefined;
-
-	/** Running Mongoose service, or `undefined` when none is configured. */
-	mongooseService: TMongooseService | undefined;
-
-	/** GraphQL endpoint URL, when the server has started. */
-	graphqlUrl: string | undefined;
+export interface ApiInfrastructureState {
+	/** Every registered server, keyed by the name it was added with. */
+	servers: Readonly<Record<string, TestServer>>;
 }
 
-/** Options used by {@link ApiInfrastructure.using}. */
-export interface ApiInfrastructureOptions<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
-	/** MongoDB memory server options. Omit when the suite does not need a database. */
-	mongoServer?: MongoMemoryTestServerOptions;
-
-	/** Optional MongoDB server factory. Defaults to `new MongoMemoryTestServer(options)`. */
-	createMongoServer?: ApiMongoServerFactory;
-
-	/** Optional Mongoose service managed between MongoDB and the GraphQL server. Requires `mongoServer`. */
-	mongoose?: ApiInfrastructureMongooseOptions<TMongooseService>;
-
-	/** Factory that creates the GraphQL server with access to framework-owned resources. */
-	createGraphqlServer: GraphqlServerFactory<TMongooseService>;
+interface ServerRegistration {
+	name: string;
+	factory: ApiServerFactory;
+	dependsOn: string[];
+	resetForScenario?: (server: TestServer) => Promise<void> | void;
 }
 
 /**
- * Lifecycle manager for API acceptance tests.
+ * Lifecycle manager for API acceptance test suites.
  *
- * The only always-present piece is a consumer-provided GraphQL server. MongoDB
- * and a Mongoose service are both optional — omit them for an app with no
- * database, or supply `mongoServer` (and optionally `mongoose`) when the GraphQL
- * server needs persistence. Consumers configure the concrete server objects with
- * app-specific schema, context, services, seed data, and environment values
- * before passing factories to the framework.
+ * Servers are composed fluently with {@link addServer} rather than being fixed up
+ * front, so each consuming suite registers only the servers it needs — a database
+ * here, an ORM connection there, a GraphQL server on top — and the framework owns
+ * startup ordering, scenario reset, and shutdown. The manager is ignorant of what
+ * each server is: a Mongo memory server, a SQL server, an Apollo GraphQL server,
+ * or anything else implementing {@link TestServer}. A suite with no database, a
+ * non-Mongo database, or no GraphQL layer simply registers a different server set.
+ *
+ * Servers start in dependency waves: every server whose `dependsOn` is satisfied
+ * starts in parallel, then the next wave, and so on. A factory receives an
+ * {@link ApiServerContext} so a dependent server (for example a GraphQL server) can
+ * read a dependency's runtime state (for example a database connection string).
  *
  * @example
  * ```ts
- * // With a database:
- * ApiInfrastructure.using({
- *   mongoServer: { dbName, port, replSetName, seedData },
- *   mongoose: { createService: (connectionString) => createMongooseService(connectionString) },
- *   createGraphqlServer: ({ getMongooseService }) => new ApolloGraphQLTestServer({ ... }),
- * });
+ * // With a database and a GraphQL server:
+ * ApiInfrastructure.create()
+ *   .addServer('mongo', () => new MongoMemoryTestServer({ dbName, port, replSetName, seedData }), {
+ *     resetForScenario: (server) => (server as MongoMemoryTestServer).resetForScenario(),
+ *   })
+ *   .addServer('graphql', (ctx) => createGraphqlServer(() => ctx.server('mongo').getUrl()), {
+ *     dependsOn: ['mongo'],
+ *   });
  *
  * // Without a database:
- * ApiInfrastructure.using({
- *   createGraphqlServer: () => new ApolloGraphQLTestServer({ ... }),
- * });
+ * ApiInfrastructure.create().addServer('graphql', () => createGraphqlServer());
  * ```
  */
-export class ApiInfrastructure<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
-	private readonly mongoServer: MongoMemoryTestServer | undefined;
-	private graphqlServer: TestServer | undefined;
-	private graphqlUrl: string | undefined;
-	private mongooseService: TMongooseService | undefined;
+export class ApiInfrastructure {
+	private readonly registrations: ServerRegistration[] = [];
+	private readonly created = new Map<string, TestServer>();
+	private readonly startOrder: string[] = [];
+	private readonly context: ApiServerContext = {
+		server: <TServer extends TestServer = TestServer>(name: string): TServer => {
+			const server = this.created.get(name);
+			if (!server) {
+				throw new Error(`ApiInfrastructure: server '${name}' is not available — declare it in dependsOn so it starts first`);
+			}
+			return server as TServer;
+		},
+	};
+
+	private environmentReady = false;
 	private shutdownHandlersRegistered = false;
 
-	private constructor(private readonly options: ApiInfrastructureOptions<TMongooseService>) {
-		this.mongoServer = options.mongoServer ? (options.createMongoServer ?? ((mongoOptions) => new MongoMemoryTestServer(mongoOptions)))(options.mongoServer) : undefined;
-	}
+	private constructor(private readonly options: ApiInfrastructureOptions) {}
 
 	/**
 	 * Create an API acceptance infrastructure manager.
 	 *
-	 * @param options A GraphQL server factory, plus optional MongoDB and Mongoose configuration.
+	 * @param options Suite-environment setup. Defaults to an empty object.
 	 */
-	static using<TMongooseService extends ManagedMongooseService>(options: ApiInfrastructureOptions<TMongooseService>): ApiInfrastructure<TMongooseService> {
+	static create(options: ApiInfrastructureOptions = {}): ApiInfrastructure {
 		return new ApiInfrastructure(options);
 	}
 
-	/** Start MongoDB (when configured) and the GraphQL server if they are not already running. */
-	async ensureStarted(): Promise<void> {
-		if (this.graphqlServer?.isRunning()) {
-			return;
+	/**
+	 * Register a server.
+	 *
+	 * @param name Unique server name, used by `dependsOn` and {@link ApiServerContext.server}.
+	 * @param factory Creates the server, with access to already-started dependencies.
+	 * @param options Dependencies and optional per-scenario reset.
+	 */
+	addServer(name: string, factory: ApiServerFactory, options: ApiServerOptions = {}): this {
+		if (this.registrations.some((registration) => registration.name === name)) {
+			throw new Error(`ApiInfrastructure: server '${name}' is already registered`);
 		}
 
-		try {
-			if (this.mongoServer && !this.mongoServer.isRunning()) {
-				await this.mongoServer.start();
-			}
+		this.registrations.push({
+			name,
+			factory,
+			dependsOn: options.dependsOn ?? [],
+			...(options.resetForScenario && { resetForScenario: options.resetForScenario }),
+		});
+		return this;
+	}
 
-			await this.ensureMongooseService();
-			const graphqlServer = this.ensureGraphqlServer();
-			await graphqlServer.start();
-			this.graphqlUrl = graphqlServer.getUrl();
+	/** Start the environment and all servers (in dependency order) if they are not already running. */
+	async ensureStarted(): Promise<void> {
+		this.assertDependenciesResolvable();
+
+		try {
+			await this.ensureEnvironment();
+			await this.startServers();
 		} catch (error) {
 			await this.stopAll();
 			throw error;
 		}
 	}
 
-	/** Reset MongoDB between scenarios without restarting the GraphQL server. No-op when no database is configured. */
+	/** Reset mutable scenario state for every running server that opted into a per-scenario reset. */
 	async resetScenarioState(): Promise<void> {
-		if (this.mongoServer?.isRunning()) {
-			await this.mongoServer.resetForScenario();
+		for (const registration of this.registrations) {
+			const server = this.created.get(registration.name);
+			if (registration.resetForScenario && server?.isRunning()) {
+				await registration.resetForScenario(server);
+			}
 		}
 	}
 
-	/** Stop the GraphQL server, Mongoose service, and MongoDB, swallowing shutdown errors from already-failed resources. */
+	/** Stop every server (in reverse start order) and the suite environment, swallowing shutdown errors. */
 	async stopAll(): Promise<void> {
-		await this.graphqlServer?.stop().catch(() => undefined);
-		this.graphqlServer = undefined;
-
-		if (this.mongooseService) {
-			await Promise.resolve(this.mongooseService.shutDown()).catch(() => undefined);
-			this.mongooseService = undefined;
+		for (const name of [...this.startOrder].reverse()) {
+			await this.created
+				.get(name)
+				?.stop()
+				.catch(() => undefined);
 		}
+		this.created.clear();
+		this.startOrder.length = 0;
 
-		await this.mongoServer?.stop().catch(() => undefined);
-
-		this.graphqlUrl = undefined;
+		if (this.environmentReady) {
+			await this.options.cleanupEnvironment?.();
+			this.environmentReady = false;
+		}
 	}
 
 	/** Return the current infrastructure state. */
-	getState(): ApiInfrastructureState<TMongooseService> {
+	getState(): ApiInfrastructureState {
 		return {
-			graphqlUrl: this.graphqlUrl,
-			graphqlServer: this.graphqlServer,
-			mongooseService: this.mongooseService,
-			mongoServer: this.mongoServer,
+			servers: Object.fromEntries(this.created),
 		};
 	}
 
@@ -198,56 +192,58 @@ export class ApiInfrastructure<TMongooseService extends ManagedMongooseService =
 		return this;
 	}
 
-	private ensureGraphqlServer(): TestServer {
-		const { mongoServer } = this;
-		this.graphqlServer ??= this.options.createGraphqlServer({
-			getMongoConnectionString: mongoServer
-				? () => mongoServer.getConnectionString()
-				: () => {
-						throw new Error('ApiInfrastructure: no mongoServer configured');
-					},
-			getMongooseService: () => this.getMongooseService(),
-			mongoServer,
-		});
-
-		return this.graphqlServer;
-	}
-
-	private async ensureMongooseService(): Promise<TMongooseService | undefined> {
-		if (!this.options.mongoose) {
-			return undefined;
-		}
-
-		if (!this.mongoServer) {
-			throw new Error('ApiInfrastructure: mongoose option requires mongoServer to be configured');
-		}
-
-		if (!this.mongooseService) {
-			this.mongooseService = this.options.mongoose.createService(this.mongoServer.getConnectionString());
-			await this.mongooseService.startUp();
-			if (this.options.mongoose.clearModels ?? true) {
-				this.clearMongooseModels(this.mongooseService);
+	private assertDependenciesResolvable(): void {
+		const names = new Set(this.registrations.map((registration) => registration.name));
+		for (const registration of this.registrations) {
+			for (const dependency of registration.dependsOn) {
+				if (!names.has(dependency)) {
+					throw new Error(`ApiInfrastructure: server '${registration.name}' depends on unknown server '${dependency}'`);
+				}
 			}
 		}
-
-		return this.mongooseService;
 	}
 
-	private getMongooseService(): TMongooseService {
-		if (!this.mongooseService) {
-			throw new Error('ApiInfrastructure Mongoose service is not configured or has not started');
+	private async ensureEnvironment(): Promise<void> {
+		if (this.environmentReady) {
+			return;
 		}
 
-		return this.mongooseService;
+		await this.options.setupEnvironment?.();
+		this.environmentReady = true;
 	}
 
-	private clearMongooseModels(mongooseService: ManagedMongooseService): void {
-		for (const modelName of Object.keys(mongooseService.service.connection.models)) {
-			try {
-				mongooseService.service.connection.deleteModel(modelName);
-			} catch {
-				/* already deleted */
+	private async startServers(): Promise<void> {
+		const started = new Set(this.startOrder);
+		let remaining = this.registrations.filter((registration) => !started.has(registration.name));
+
+		while (remaining.length > 0) {
+			const wave = remaining.filter((registration) => registration.dependsOn.every((dependency) => started.has(dependency)));
+			if (wave.length === 0) {
+				throw new Error(`ApiInfrastructure: circular or unresolved dependencies among ${remaining.map((registration) => registration.name).join(', ')}`);
 			}
+
+			await Promise.all(wave.map((registration) => this.startServer(registration)));
+
+			for (const registration of wave) {
+				started.add(registration.name);
+			}
+			remaining = remaining.filter((registration) => !started.has(registration.name));
+		}
+	}
+
+	private async startServer(registration: ServerRegistration): Promise<void> {
+		let server = this.created.get(registration.name);
+		if (!server) {
+			server = registration.factory(this.context);
+			this.created.set(registration.name, server);
+		}
+
+		if (!server.isRunning()) {
+			await server.start();
+		}
+
+		if (!this.startOrder.includes(registration.name)) {
+			this.startOrder.push(registration.name);
 		}
 	}
 }
