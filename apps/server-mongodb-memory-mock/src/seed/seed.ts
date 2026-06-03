@@ -60,6 +60,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 		role: m.role ? toObjectId(String(m.role)) : undefined,
 		accounts: m.accounts.map((a) => ({
 			...a,
+			_id: toObjectId(String(a._id)),
 			user: toObjectId(String(a.user)),
 			createdBy: toObjectId(String(a.createdBy)),
 		})),

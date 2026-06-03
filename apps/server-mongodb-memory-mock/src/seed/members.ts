@@ -8,6 +8,11 @@ export const MEMBER_IDS = {
 	janeSmithMember: 'd00000000000000000000002',
 } as const;
 
+const MEMBER_ACCOUNT_IDS = {
+	testUserAccount: 'e00000000000000000000001',
+	janeSmithAccount: 'e00000000000000000000002',
+} as const;
+
 export const members = [
 	{
 		_id: MEMBER_IDS.testUserMember,
@@ -16,6 +21,7 @@ export const members = [
 		role: ROLE_IDS.admin,
 		accounts: [
 			{
+				_id: MEMBER_ACCOUNT_IDS.testUserAccount,
 				firstName: 'Test',
 				lastName: 'User',
 				user: END_USER_IDS.testUser,
@@ -51,6 +57,7 @@ export const members = [
 		role: ROLE_IDS.member,
 		accounts: [
 			{
+				_id: MEMBER_ACCOUNT_IDS.janeSmithAccount,
 				firstName: 'Jane',
 				lastName: 'Smith',
 				user: END_USER_IDS.janeSmith,
