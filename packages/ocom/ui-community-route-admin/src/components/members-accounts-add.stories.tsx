@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { MembersAccountsAdd } from './members-accounts-add.tsx';
 
 const meta: Meta<typeof MembersAccountsAdd> = {
