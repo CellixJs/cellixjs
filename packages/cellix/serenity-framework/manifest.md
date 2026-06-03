@@ -15,7 +15,7 @@ This package owns generic verification infrastructure only:
 - Adapter-backed page-object base contracts
 - Timeout utilities
 - Configurable process, Apollo GraphQL, and Mongo memory server lifecycle utilities
-- API acceptance and browser E2E infrastructure managers that create MongoDB from options and compose consumer-owned server factories
+- API acceptance and browser E2E infrastructure managers that compose consumer-owned server factories; the E2E manager starts a freely-composed, dependency-ordered server set and the browser
 
 ## Non-goals
 
@@ -39,7 +39,7 @@ This package owns generic verification infrastructure only:
 - `@cellix/serenity-framework/serenity`: `TaskStep`, `SerenityCast`
 - `@cellix/serenity-framework/serenity/browser`: `BrowseTheWeb`
 - `@cellix/serenity-framework/infrastructure/api`: API acceptance infrastructure manager with MongoDB options, optional Mongoose service management, and an API server factory
-- `@cellix/serenity-framework/infrastructure/e2e`: browser E2E infrastructure manager with MongoDB options, required Azurite/auth servers, an API server factory, and chainable UI portals
+- `@cellix/serenity-framework/infrastructure/e2e`: browser E2E infrastructure manager that composes a dependency-ordered server set via chainable `addServer`/`addUiPortal` and sets up the browser
 - `@cellix/serenity-framework/servers`: generic server lifecycle classes and interfaces
 - `@cellix/serenity-framework/settings`: timeout helpers
 

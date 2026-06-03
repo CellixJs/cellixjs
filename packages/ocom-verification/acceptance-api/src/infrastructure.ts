@@ -1,15 +1,16 @@
 import { ApiInfrastructure, type ApiInfrastructureState } from '@cellix/serenity-framework/infrastructure/api';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
+import { getMongoPort } from '@ocom-verification/verification-shared/environment';
 import { seedDatabase } from '@ocom-verification/verification-shared/test-data';
 import { createApiGraphQLServer, createApiMongooseService, resetApiGraphQLServerFactories } from './test-server-factories.ts';
 
 const apiDbName = 'owner-community';
 
 const infrastructure = ApiInfrastructure.using<ServiceMongoose>({
-	createApiServer: ({ getMongooseService }) => createApiGraphQLServer(getMongooseService),
+	createGraphqlServer: ({ getMongooseService }) => createApiGraphQLServer(getMongooseService),
 	mongoServer: {
 		dbName: apiDbName,
-		port: 50_000,
+		port: getMongoPort(),
 		replSetName: 'globaldb',
 		seedData: seedDatabase,
 	},

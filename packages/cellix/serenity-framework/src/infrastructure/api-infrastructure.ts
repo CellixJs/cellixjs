@@ -34,74 +34,83 @@ export interface ApiInfrastructureMongooseOptions<TMongooseService extends Manag
 	clearModels?: boolean;
 }
 
-/** Context supplied to the API server factory. */
-export interface ApiServerFactoryContext<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
+/** Context supplied to the GraphQL server factory. */
+export interface GraphqlServerFactoryContext<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
 	/** Framework-owned MongoDB server, or `undefined` when none is configured. */
 	mongoServer: MongoMemoryTestServer | undefined;
 
 	/** Resolve the MongoDB connection string. Throws if no `mongoServer` is configured. */
 	getMongoConnectionString: () => string;
 
-	/** Resolve the managed Mongoose service, when configured. */
+	/** Resolve the managed Mongoose service. Throws if no `mongoose` option is configured. */
 	getMongooseService: () => TMongooseService;
 }
 
-/** Factory that creates an API server after framework-owned resources are available. */
-export type ApiServerFactory<TMongooseService extends ManagedMongooseService = ManagedMongooseService> = (context: ApiServerFactoryContext<TMongooseService>) => TestServer;
+/** Factory that creates the GraphQL server after framework-owned resources are available. */
+export type GraphqlServerFactory<TMongooseService extends ManagedMongooseService = ManagedMongooseService> = (context: GraphqlServerFactoryContext<TMongooseService>) => TestServer;
 
 /** Factory used to create the framework-owned MongoDB server. */
 export type ApiMongoServerFactory = (options: MongoMemoryTestServerOptions) => MongoMemoryTestServer;
 
 /** State exposed by {@link ApiInfrastructure}. */
 export interface ApiInfrastructureState<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
-	/** Running MongoDB server for the suite. */
+	/** Running MongoDB server, or `undefined` when none is configured. */
 	mongoServer: MongoMemoryTestServer | undefined;
 
-	/** Running API server for the suite. */
-	apiServer: TestServer | undefined;
+	/** Running GraphQL server for the suite. */
+	graphqlServer: TestServer | undefined;
 
-	/** Running Mongoose service, when configured. */
+	/** Running Mongoose service, or `undefined` when none is configured. */
 	mongooseService: TMongooseService | undefined;
 
-	/** API endpoint URL, when the API server has started. */
-	apiUrl: string | undefined;
+	/** GraphQL endpoint URL, when the server has started. */
+	graphqlUrl: string | undefined;
 }
 
 /** Options used by {@link ApiInfrastructure.using}. */
 export interface ApiInfrastructureOptions<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
-	/** MongoDB memory server options. Omit when the suite does not need MongoDB. */
+	/** MongoDB memory server options. Omit when the suite does not need a database. */
 	mongoServer?: MongoMemoryTestServerOptions;
 
 	/** Optional MongoDB server factory. Defaults to `new MongoMemoryTestServer(options)`. */
 	createMongoServer?: ApiMongoServerFactory;
 
-	/** Optional Mongoose service managed between MongoDB and the API server. */
+	/** Optional Mongoose service managed between MongoDB and the GraphQL server. Requires `mongoServer`. */
 	mongoose?: ApiInfrastructureMongooseOptions<TMongooseService>;
 
-	/** Factory that creates the API server with access to framework-owned resources. */
-	createApiServer: ApiServerFactory<TMongooseService>;
+	/** Factory that creates the GraphQL server with access to framework-owned resources. */
+	createGraphqlServer: GraphqlServerFactory<TMongooseService>;
 }
 
 /**
  * Lifecycle manager for API acceptance tests.
  *
- * Use this when a suite needs only the always-present API acceptance base:
- * MongoDB plus an API server. Consumers configure the concrete server objects
- * with app-specific schema, context, services, seed data, and environment
- * values before passing factories to the framework.
+ * The only always-present piece is a consumer-provided GraphQL server. MongoDB
+ * and a Mongoose service are both optional — omit them for an app with no
+ * database, or supply `mongoServer` (and optionally `mongoose`) when the GraphQL
+ * server needs persistence. Consumers configure the concrete server objects with
+ * app-specific schema, context, services, seed data, and environment values
+ * before passing factories to the framework.
  *
  * @example
  * ```ts
- * export const infrastructure = ApiInfrastructure.using({
+ * // With a database:
+ * ApiInfrastructure.using({
  *   mongoServer: { dbName, port, replSetName, seedData },
- *   createApiServer: ({ getMongooseService }) => new ApolloGraphQLTestServer({ ... }),
+ *   mongoose: { createService: (connectionString) => createMongooseService(connectionString) },
+ *   createGraphqlServer: ({ getMongooseService }) => new ApolloGraphQLTestServer({ ... }),
+ * });
+ *
+ * // Without a database:
+ * ApiInfrastructure.using({
+ *   createGraphqlServer: () => new ApolloGraphQLTestServer({ ... }),
  * });
  * ```
  */
 export class ApiInfrastructure<TMongooseService extends ManagedMongooseService = ManagedMongooseService> {
 	private readonly mongoServer: MongoMemoryTestServer | undefined;
-	private apiServer: TestServer | undefined;
-	private apiUrl: string | undefined;
+	private graphqlServer: TestServer | undefined;
+	private graphqlUrl: string | undefined;
 	private mongooseService: TMongooseService | undefined;
 	private shutdownHandlersRegistered = false;
 
@@ -112,15 +121,15 @@ export class ApiInfrastructure<TMongooseService extends ManagedMongooseService =
 	/**
 	 * Create an API acceptance infrastructure manager.
 	 *
-	 * @param options Required MongoDB options and API server factory.
+	 * @param options A GraphQL server factory, plus optional MongoDB and Mongoose configuration.
 	 */
 	static using<TMongooseService extends ManagedMongooseService>(options: ApiInfrastructureOptions<TMongooseService>): ApiInfrastructure<TMongooseService> {
 		return new ApiInfrastructure(options);
 	}
 
-	/** Start MongoDB and the API server if they are not already running. */
+	/** Start MongoDB (when configured) and the GraphQL server if they are not already running. */
 	async ensureStarted(): Promise<void> {
-		if (this.apiServer?.isRunning()) {
+		if (this.graphqlServer?.isRunning()) {
 			return;
 		}
 
@@ -130,26 +139,26 @@ export class ApiInfrastructure<TMongooseService extends ManagedMongooseService =
 			}
 
 			await this.ensureMongooseService();
-			const apiServer = this.ensureApiServer();
-			await apiServer.start();
-			this.apiUrl = apiServer.getUrl();
+			const graphqlServer = this.ensureGraphqlServer();
+			await graphqlServer.start();
+			this.graphqlUrl = graphqlServer.getUrl();
 		} catch (error) {
 			await this.stopAll();
 			throw error;
 		}
 	}
 
-	/** Reset MongoDB between scenarios without restarting the API server. */
+	/** Reset MongoDB between scenarios without restarting the GraphQL server. No-op when no database is configured. */
 	async resetScenarioState(): Promise<void> {
 		if (this.mongoServer?.isRunning()) {
 			await this.mongoServer.resetForScenario();
 		}
 	}
 
-	/** Stop the API server and MongoDB, swallowing shutdown errors from already-failed resources. */
+	/** Stop the GraphQL server, Mongoose service, and MongoDB, swallowing shutdown errors from already-failed resources. */
 	async stopAll(): Promise<void> {
-		await this.apiServer?.stop().catch(() => undefined);
-		this.apiServer = undefined;
+		await this.graphqlServer?.stop().catch(() => undefined);
+		this.graphqlServer = undefined;
 
 		if (this.mongooseService) {
 			await Promise.resolve(this.mongooseService.shutDown()).catch(() => undefined);
@@ -158,14 +167,14 @@ export class ApiInfrastructure<TMongooseService extends ManagedMongooseService =
 
 		await this.mongoServer?.stop().catch(() => undefined);
 
-		this.apiUrl = undefined;
+		this.graphqlUrl = undefined;
 	}
 
 	/** Return the current infrastructure state. */
 	getState(): ApiInfrastructureState<TMongooseService> {
 		return {
-			apiUrl: this.apiUrl,
-			apiServer: this.apiServer,
+			graphqlUrl: this.graphqlUrl,
+			graphqlServer: this.graphqlServer,
 			mongooseService: this.mongooseService,
 			mongoServer: this.mongoServer,
 		};
@@ -189,9 +198,9 @@ export class ApiInfrastructure<TMongooseService extends ManagedMongooseService =
 		return this;
 	}
 
-	private ensureApiServer(): TestServer {
+	private ensureGraphqlServer(): TestServer {
 		const { mongoServer } = this;
-		this.apiServer ??= this.options.createApiServer({
+		this.graphqlServer ??= this.options.createGraphqlServer({
 			getMongoConnectionString: mongoServer
 				? () => mongoServer.getConnectionString()
 				: () => {
@@ -201,7 +210,7 @@ export class ApiInfrastructure<TMongooseService extends ManagedMongooseService =
 			mongoServer,
 		});
 
-		return this.apiServer;
+		return this.graphqlServer;
 	}
 
 	private async ensureMongooseService(): Promise<TMongooseService | undefined> {

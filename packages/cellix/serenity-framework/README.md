@@ -32,45 +32,48 @@ import { PlaywrightPageAdapter } from '@cellix/serenity-framework/pages/playwrig
 
 ## Server composition
 
-Use generic server descriptors for app-specific processes, then load them into the suite infrastructure manager instead of hand-writing suite startup code.
+Compose only the servers a suite needs by chaining `addServer` and `addUiPortal`. The framework starts them in dependency order (servers whose `dependsOn` is satisfied start in parallel), resets per-scenario state, sets up the browser when a UI portal exists, and tears everything down. Each application registers its own set — fewer or more servers — without changing the framework.
 
 ```ts
 import { E2EInfrastructure } from '@cellix/serenity-framework/infrastructure/e2e';
-import { ProcessTestServer } from '@cellix/serenity-framework/servers';
-
-const communityPortal = new ProcessTestServer({
-  portalName: 'community',
-  cwd: '/repo/apps/ui-community',
-  getUrl: () => 'https://community.localhost:1355',
-  spawnArgs: ['run', process.env.WORKTREE_NAME ? 'dev:worktree' : 'dev'],
-});
+import { MongoMemoryTestServer, ProcessTestServer } from '@cellix/serenity-framework/servers';
 
 export const infrastructure = E2EInfrastructure
-  .using({
-    mongoServer: { dbName, port, replSetName, seedData },
-    azuriteServer,
-    authServer,
-    createApiServer: ({ getMongoConnectionString }) =>
+  .create({
+    // Shared across every portal context; baseURL is supplied per portal.
+    browserContextOptions: { ignoreHTTPSErrors: true },
+  })
+  .addServer('mongo', () => new MongoMemoryTestServer({ dbName, port, replSetName, seedData }), {
+    resetForScenario: (server) => (server as MongoMemoryTestServer).resetForScenario(),
+  })
+  .addServer('auth', () => createAuthServer())
+  .addServer(
+    'api',
+    (ctx) =>
       new ProcessTestServer({
         serverName: 'Api',
         executable: 'pnpm',
         spawnArgs: ['run', process.env.WORKTREE_NAME ? 'dev:worktree' : 'dev'],
         cwd: '/repo/apps/api',
-        extraEnv: () => ({ COSMOSDB_CONNECTION_STRING: getMongoConnectionString() }),
+        extraEnv: () => ({ COSMOSDB_CONNECTION_STRING: ctx.server<MongoMemoryTestServer>('mongo').getConnectionString() }),
         getUrl: () => 'https://api.localhost:1355/api/graphql',
         readyMarker: 'Functions:',
       }),
-    launchBrowser: () => playwright.chromium.launch({ headless: true }),
-  })
-  .addUiPortal('community', communityPortal)
-  .addUiPortal('staff', staffPortal);
+    { dependsOn: ['mongo'] },
+  )
+  .addUiPortal('community', () => createCommunityPortal())
+  .addUiPortal('staff', () => createStaffPortal());
 
 await infrastructure.ensureStarted();
 await infrastructure.resetScenarioState();
 await infrastructure.stopAll();
+
+// Each portal carries its own context recipe — baseURL is that portal's URL —
+// so a scenario opens a context for whichever portal it needs, symmetrically:
+const staffContext = await infrastructure.newPortalContext('staff');
 ```
 
-The framework never imports app paths or app-specific environment helpers. Pass those values into descriptors from the consumer package.
+A server factory receives a context so a dependent server (such as the API) can read a started dependency's runtime state (such as the database connection string). Each UI portal owns its browser-context recipe, so `newPortalContext(name)` scopes navigation to that portal without any portal being special-cased. The framework never imports app paths or app-specific environment helpers — pass those into the factories from the consumer package.
 
 ## API acceptance infrastructure
 

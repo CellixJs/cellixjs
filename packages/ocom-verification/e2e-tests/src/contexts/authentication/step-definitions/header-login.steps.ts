@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
 import type { BrowserContext, Page } from 'playwright';
-import * as infra from '../../../shared/shared-infrastructure.ts';
+import * as infra from '../../../infrastructure.ts';
 import type { CellixE2EWorld } from '../../../world.ts';
 import type { HeaderE2ENotes, HeaderE2ESite } from '../notes/header-notes.ts';
 import { ClickHeaderSignIn } from '../tasks/click-header-sign-in.ts';
@@ -62,17 +62,10 @@ When('{word} chooses to sign in', async function (this: HeaderE2EWorld, actorNam
 	s.actorName = actorName;
 	const actor = actorCalled(actorName);
 
-	const { browser } = infra.getState();
-	if (!browser) throw new Error('Browser not launched');
-
-	const baseUrl = s.site === 'community' ? (infra.getUiBaseUrl('community') ?? 'https://ownercommunity.localhost:1355') : (infra.getUiBaseUrl('staff') ?? 'https://staff.ownercommunity.localhost:1355');
-
-	// Fresh unauthenticated context — isolated from the pre-auth context
-	// used by other test suites. Cleaned up in the Then step after verification.
-	const context = await browser.newContext({
-		baseURL: baseUrl,
-		ignoreHTTPSErrors: true,
-	});
+	// Fresh unauthenticated context for the portal under test — its baseURL is the
+	// portal's own URL. Isolated from the pre-auth context used by other suites;
+	// cleaned up in the Then step after verification.
+	const context = await infra.newPortalContext(s.site);
 	s.context = context;
 
 	if (s.identityProviderUnreachable) {

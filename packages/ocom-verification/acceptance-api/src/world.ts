@@ -1,13 +1,9 @@
 import { registerManagedSerenityWorld } from '@cellix/serenity-framework/cucumber';
 import { SerenityCast } from '@cellix/serenity-framework/serenity';
+import { registerLifecycleHooks } from './cucumber-lifecycle-hooks.ts';
+import * as infra from './infrastructure.ts';
 import { createCommunityAbility } from './shared/abilities/create-community.ts';
 import { createGraphQLClientAbility } from './shared/abilities/graphql-client.ts';
-import './shared/cucumber-lifecycle-hooks.ts';
-import * as infra from './shared/shared-infrastructure.ts';
-
-export async function stopSharedServers(): Promise<void> {
-	await infra.stopAll();
-}
 
 export const CellixApiWorld = registerManagedSerenityWorld({
 	infrastructure: {
@@ -17,15 +13,17 @@ export const CellixApiWorld = registerManagedSerenityWorld({
 		stopAll: infra.stopAll,
 	},
 	validateState: (state) => {
-		if (!state.apiUrl) {
-			throw new Error('API acceptance infrastructure did not expose an apiUrl');
+		if (!state.graphqlUrl) {
+			throw new Error('API acceptance infrastructure did not expose a graphqlUrl');
 		}
 	},
 	createCast: (state) =>
 		new SerenityCast({
 			useNotepad: true,
-			abilities: [() => createGraphQLClientAbility(state.apiUrl ?? ''), () => createCommunityAbility()],
+			abilities: [() => createGraphQLClientAbility(state.graphqlUrl ?? ''), () => createCommunityAbility()],
 		}),
 });
 
 export type CellixApiWorld = InstanceType<typeof CellixApiWorld>;
+
+registerLifecycleHooks();

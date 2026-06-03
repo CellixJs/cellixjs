@@ -1,13 +1,13 @@
 import { join } from 'node:path';
 import { ProcessTestServer } from '@cellix/serenity-framework/servers';
-import { appPaths } from './environment/app-paths.ts';
-import { e2eEnv, getPortlessDevScript } from './environment/dev-script.ts';
-import { buildUrl, cleanupTestEnvironment, getHostnames, initTestEnvironment, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer, mockStaffOidcIssuer } from './environment/test-environment.ts';
-import { getAzuritePorts } from './environment/worktree-ports.ts';
+import { getAzuritePorts } from '@ocom-verification/verification-shared/environment';
+import { appPaths } from './shared/environment/app-paths.ts';
+import { e2eEnv, getPortlessDevScript } from './shared/environment/dev-script.ts';
+import { buildUrl, getHostnames, mockOidcEndpoint, mockOidcIssuer } from './shared/environment/test-environment.ts';
+
+export { cleanupTestEnvironment, initTestEnvironment } from './shared/environment/test-environment.ts';
 
 const hostnames = getHostnames();
-
-export { buildUrl, cleanupTestEnvironment, initTestEnvironment, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer, mockStaffOidcIssuer };
 
 export function createTestApiServer(getMongoConnectionString: () => string): ProcessTestServer {
 	return new ProcessTestServer({

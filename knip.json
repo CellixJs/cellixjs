@@ -83,7 +83,7 @@
 			"ignoreUnresolved": ["progress-bar"]
 		},
 		"packages/ocom-verification/e2e-tests": {
-			"entry": ["cucumber.js", "src/world.ts", "src/contexts/**/step-definitions/**/*.steps.ts", "src/shared/environment/**/*.ts", "src/shared/abilities/**/*.ts", "src/shared/test-server-factories.ts"],
+			"entry": ["cucumber.js", "src/world.ts", "src/contexts/**/step-definitions/**/*.steps.ts", "src/shared/environment/**/*.ts", "src/shared/abilities/**/*.ts"],
 			"project": ["src/**/*.ts"],
 			"ignoreUnresolved": ["progress-bar"]
 		},

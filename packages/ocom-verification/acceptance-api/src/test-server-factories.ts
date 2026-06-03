@@ -4,7 +4,7 @@ import { combinedSchema } from '@ocom/graphql';
 import { ServiceMongoose } from '@ocom/service-mongoose';
 import depthLimit from 'graphql-depth-limit';
 import { applyMiddleware } from 'graphql-middleware';
-import { createMockApplicationServicesFactory } from './application-services/index.ts';
+import { createMockApplicationServicesFactory } from './shared/application-services/index.ts';
 
 let mockApplicationServicesFactory: ReturnType<typeof createMockApplicationServicesFactory> | undefined;
 

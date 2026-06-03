@@ -79,8 +79,8 @@ catalogs:
       specifier: ^19.1.1
       version: 19.2.0
     react-router-dom:
-      specifier: 7.12.0
-      version: 7.12.0
+      specifier: 7.15.0
+      version: 7.15.0
     rimraf:
       specifier: 6.0.1
       version: 6.0.1
@@ -487,7 +487,7 @@ importers:
         version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -617,7 +617,7 @@ importers:
         version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1084,7 +1084,7 @@ importers:
         version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1888,7 +1888,7 @@ importers:
         version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -1982,7 +1982,7 @@ importers:
         version: 19.2.0(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -2134,7 +2134,7 @@ importers:
         version: 19.2.0(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@ant-design/icons':
         specifier: 'catalog:'
@@ -2216,7 +2216,7 @@ importers:
         version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -2298,7 +2298,7 @@ importers:
         version: 19.2.0(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2341,7 +2341,7 @@ importers:
         version: 19.2.0(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2427,7 +2427,7 @@ importers:
         version: 19.2.0(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2470,7 +2470,7 @@ importers:
         version: 19.2.0(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2519,7 +2519,7 @@ importers:
         version: 19.2.0(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -11664,8 +11664,8 @@ packages:
     peerDependencies:
       react: '>=15'
 
-  react-router-dom@7.12.0:
-    resolution: {integrity: sha512-pfO9fiBcpEfX4Tx+iTYKDtPbrSLLCbwJ5EqP+SPYQu1VYCXdy79GSj0wttR0U4cikVdlImZuEZ/9ZNCgoaxwBA==}
+  react-router-dom@7.15.0:
+    resolution: {integrity: sha512-VcrVg64Fo8nwBvDscajG8gRTLIuTC6N50nb22l2HOOV4PTOHgoGp8mUjy9wLiHYoYTSYI36tUnXZgasSRFZorQ==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -11676,8 +11676,8 @@ packages:
     peerDependencies:
       react: '>=15'
 
-  react-router@7.12.0:
-    resolution: {integrity: sha512-kTPDYPFzDVGIIGNLS5VJykK0HfHLY5MF3b+xj0/tTyNYL1gF1qs7u67Z9jEhQk2sQ98SUaHxlG31g1JtF7IfVw==}
+  react-router@7.15.0:
+    resolution: {integrity: sha512-HW9vYwuM8f4yx66Izy8xfrzCM+SBJluoZcCbww9A1TySax11S5Vgw6fi3ZjMONw9J4gQwngL7PzkyIpJJpJ7RQ==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -24899,11 +24899,11 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  react-router-dom@7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  react-router-dom@7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
-      react-router: 7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-router: 7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
 
   react-router@5.3.4(react@19.2.0):
     dependencies:
@@ -24918,7 +24918,7 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  react-router@7.12.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  react-router@7.15.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       cookie: 1.1.1
       react: 19.2.0

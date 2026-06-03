@@ -73,19 +73,32 @@ function browserStubs() {
 }
 
 describe('ApiInfrastructure', () => {
-	it('starts MongoDB before the API server and exposes the API URL', async () => {
+	it('starts MongoDB before the GraphQL server and exposes the GraphQL URL', async () => {
 		const mongo = mongoServer();
 		const graphQL = new FakeServer('http://127.0.0.1:4000/graphql');
 
 		const infrastructure = ApiInfrastructure.using({
-			createApiServer: () => graphQL,
+			createGraphqlServer: () => graphQL,
 			createMongoServer: () => mongo,
 			mongoServer: mongoOptions(),
 		});
 
 		await infrastructure.ensureStarted();
 
-		expect(infrastructure.getState().apiUrl).toBe('http://127.0.0.1:4000/graphql');
+		expect(infrastructure.getState().graphqlUrl).toBe('http://127.0.0.1:4000/graphql');
+		expect(graphQL.startCalls).toBe(1);
+	});
+
+	it('runs the GraphQL server without a database when no mongoServer is configured', async () => {
+		const graphQL = new FakeServer('http://127.0.0.1:4000/graphql');
+
+		const infrastructure = ApiInfrastructure.using({ createGraphqlServer: () => graphQL });
+
+		await infrastructure.ensureStarted();
+		await infrastructure.resetScenarioState();
+
+		expect(infrastructure.getState().graphqlUrl).toBe('http://127.0.0.1:4000/graphql');
+		expect(infrastructure.getState().mongoServer).toBeUndefined();
 		expect(graphQL.startCalls).toBe(1);
 	});
 
@@ -93,7 +106,7 @@ describe('ApiInfrastructure', () => {
 		const mongo = mongoServer();
 		const graphQL = new FakeServer('http://127.0.0.1:4000/graphql');
 		const infrastructure = ApiInfrastructure.using({
-			createApiServer: () => graphQL,
+			createGraphqlServer: () => graphQL,
 			createMongoServer: () => mongo,
 			mongoServer: mongoOptions(),
 		});
@@ -108,7 +121,7 @@ describe('ApiInfrastructure', () => {
 });
 
 describe('E2EInfrastructure', () => {
-	it('requires at least one chained UI portal and exposes all portal URLs', async () => {
+	it('starts servers in dependency order, wires the factory context, and exposes all portal URLs', async () => {
 		const mongo = mongoServer();
 		const azurite = new FakeServer('http://127.0.0.1:10000');
 		const auth = new FakeServer('https://auth.test');
@@ -118,18 +131,27 @@ describe('E2EInfrastructure', () => {
 		const { browser } = browserStubs();
 		vi.mocked(chromium.launch).mockResolvedValue(browser);
 
-		const infrastructure = E2EInfrastructure.using({
-			authServer: auth,
-			azuriteServer: azurite,
-			createApiServer: () => api,
-			createMongoServer: () => mongo,
-			mongoServer: mongoOptions(),
-		})
-			.addUiPortal('community', community)
-			.addUiPortal('staff', staff);
+		let apiSawMongoUrl: string | undefined;
+		const infrastructure = E2EInfrastructure.create()
+			.addServer('mongo', () => mongo, { resetForScenario: (server) => (server as FakeServer).resetForScenario() })
+			.addServer('azurite', () => azurite)
+			.addServer('auth', () => auth)
+			.addServer(
+				'api',
+				(ctx) => {
+					apiSawMongoUrl = ctx.server('mongo').getUrl();
+					return api;
+				},
+				{ dependsOn: ['mongo'] },
+			)
+			.addUiPortal('community', () => community)
+			.addUiPortal('staff', () => staff);
 
 		await infrastructure.ensureStarted();
+		await infrastructure.resetScenarioState();
 
+		expect(apiSawMongoUrl).toBe('mongodb://test');
+		expect(mongo.resetCalls).toBe(1);
 		expect(infrastructure.getState().uiPortalBaseUrls).toEqual({
 			community: 'https://community.test',
 			staff: 'https://staff.test',
@@ -138,18 +160,16 @@ describe('E2EInfrastructure', () => {
 		expect(staff.startCalls).toBe(1);
 	});
 
-	it('creates the browser ability without owning app login behavior', async () => {
-		const mongo = mongoServer();
+	it('creates the browser ability for the registered server set, without an app-specific shape', async () => {
 		const { browser } = browserStubs();
 		vi.mocked(chromium.launch).mockResolvedValue(browser);
 
-		const infrastructure = E2EInfrastructure.using({
-			authServer: new FakeServer('https://auth.test'),
-			azuriteServer: new FakeServer('http://127.0.0.1:10000'),
-			createApiServer: () => new FakeServer('https://api.test/api/graphql'),
-			createMongoServer: () => mongo,
-			mongoServer: mongoOptions(),
-		}).addUiPortal('community', new FakeServer('https://community.test'));
+		// Deliberately a leaner set than the suite above: no Azurite server.
+		const infrastructure = E2EInfrastructure.create()
+			.addServer('mongo', () => mongoServer())
+			.addServer('auth', () => new FakeServer('https://auth.test'))
+			.addServer('api', () => new FakeServer('https://api.test/api/graphql'), { dependsOn: ['mongo'] })
+			.addUiPortal('community', () => new FakeServer('https://community.test'));
 
 		await infrastructure.ensureStarted();
 

@@ -1,12 +1,8 @@
 import { registerManagedSerenityWorld } from '@cellix/serenity-framework/cucumber';
 import { SerenityCast } from '@cellix/serenity-framework/serenity';
-import './shared/cucumber-lifecycle-hooks.ts';
+import { registerLifecycleHooks } from './cucumber-lifecycle-hooks.ts';
+import * as infra from './infrastructure.ts';
 import { OAuth2Login } from './shared/abilities/oauth2-login.ts';
-import * as infra from './shared/shared-infrastructure.ts';
-
-export async function stopSharedServers(): Promise<void> {
-	await infra.stopAll();
-}
 
 export const CellixE2EWorld = registerManagedSerenityWorld({
 	infrastructure: {
@@ -36,3 +32,5 @@ export const CellixE2EWorld = registerManagedSerenityWorld({
 });
 
 export type CellixE2EWorld = InstanceType<typeof CellixE2EWorld>;
+
+registerLifecycleHooks();
