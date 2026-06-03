@@ -39,12 +39,18 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 	async verifyJwt<ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null> {
 		// Try each config key for verification
 		for (const configKey of this.tokenSettings.keys()) {
-			const result = await this.tokenVerifier.getVerifiedJwt(token, configKey);
-			if (result?.payload) {
-				return {
-					verifiedJwt: result.payload as ClaimsType,
-					openIdConfigKey: configKey,
-				};
+			try {
+				const result = await this.tokenVerifier.getVerifiedJwt(token, configKey);
+				if (result?.payload) {
+					return {
+						verifiedJwt: result.payload as ClaimsType,
+						openIdConfigKey: configKey,
+					};
+				}
+			} catch (error) {
+				if (!this.isRetryableVerificationError(error)) {
+					throw error;
+				}
 			}
 		}
 		return null;
@@ -73,5 +79,13 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 		} else {
 			return defaultValue;
 		}
+	}
+
+	private isRetryableVerificationError(error: unknown): boolean {
+		if (!(error instanceof Error)) {
+			return false;
+		}
+
+		return ['JWSSignatureVerificationFailed', 'JWTClaimValidationFailed', 'JWTExpired', 'JWTInvalid', 'JWSInvalid'].includes(error.name);
 	}
 }

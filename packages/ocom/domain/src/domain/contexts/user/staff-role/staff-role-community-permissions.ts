@@ -4,6 +4,7 @@ import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
 import type { UserVisa } from '../user.visa.ts';
 
 interface StaffRoleCommunityPermissionsSpec {
+	canManageCommunities: boolean;
 	canManageStaffRolesAndPermissions: boolean;
 	canManageAllCommunities: boolean;
 	canDeleteCommunities: boolean;
@@ -28,6 +29,13 @@ export class StaffRoleCommunityPermissions extends ValueObject<StaffRoleCommunit
 		}
 	}
 
+	get canManageCommunities(): boolean {
+		return this.props.canManageCommunities;
+	}
+	set canManageCommunities(value: boolean) {
+		this.validateVisa();
+		this.props.canManageCommunities = value;
+	}
 	get canManageStaffRolesAndPermissions(): boolean {
 		return this.props.canManageStaffRolesAndPermissions;
 	}
