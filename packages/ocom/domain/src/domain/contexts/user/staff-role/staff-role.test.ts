@@ -6,7 +6,7 @@ import { expect, vi } from 'vitest';
 import { RoleDeletedReassignEvent } from '../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../passport.ts';
 import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from './staff-role.ts';
-import { StaffRolePermissions } from './staff-role-permissions.ts';
+import { StaffRolePermissions, type StaffRolePermissionsProps } from './staff-role-permissions.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,11 +27,61 @@ function makeBaseProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps 
 		id: 'role-1',
 		roleName: 'Support',
 		isDefault: false,
+		enterpriseAppRole: '',
 		permissions: {} as StaffRolePermissions,
 		roleType: 'staff-role',
 		createdAt: new Date('2020-01-01T00:00:00Z'),
 		updatedAt: new Date('2020-01-02T00:00:00Z'),
 		schemaVersion: '1.0.0',
+		...overrides,
+	};
+}
+
+function makePermissionsProps(overrides: Partial<StaffRolePermissionsProps> = {}): StaffRolePermissionsProps {
+	return {
+		communityPermissions: {
+			canManageCommunities: false,
+			canManageStaffRolesAndPermissions: false,
+			canManageAllCommunities: false,
+			canDeleteCommunities: false,
+			canChangeCommunityOwner: false,
+			canReIndexSearchCollections: false,
+		},
+		propertyPermissions: {
+			canManageProperties: false,
+			canEditOwnProperty: false,
+		},
+		serviceTicketPermissions: {
+			canCreateTickets: false,
+			canManageTickets: false,
+			canAssignTickets: false,
+			canWorkOnTickets: false,
+		},
+		servicePermissions: {
+			canManageServices: false,
+		},
+		violationTicketPermissions: {
+			canCreateTickets: false,
+			canManageTickets: false,
+			canAssignTickets: false,
+			canWorkOnTickets: false,
+		},
+		financePermissions: {
+			canManageFinance: false,
+			canViewGLBatchSummaries: false,
+			canViewFinanceConfigs: false,
+			canCreateFinanceConfigs: false,
+		},
+		techAdminPermissions: {
+			canManageTechAdmin: false,
+			canViewDatabaseExplorer: false,
+			canViewBlobExplorer: false,
+			canViewQueueDashboard: false,
+			canSendQueueMessages: false,
+		},
+		userPermissions: {
+			canManageUsers: false,
+		},
 		...overrides,
 	};
 }
@@ -282,6 +332,57 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('the schemaVersion property should return the correct version', () => {
 			expect(staffRole.schemaVersion).toBe('1.0.0');
+		});
+	});
+
+	// getDefaultRoleNames
+	Scenario('Getting default role names', ({ When, Then, And }) => {
+		let roleNames: string[];
+		When('I call getDefaultRoleNames', () => {
+			roleNames = StaffRole.getDefaultRoleNames();
+		});
+		Then('the result should contain "Default.CaseManager"', () => {
+			expect(roleNames).toContain('Default.CaseManager');
+		});
+		And('the result should contain "Default.ServiceLineOwner"', () => {
+			expect(roleNames).toContain('Default.ServiceLineOwner');
+		});
+		And('the result should contain "Default.Finance"', () => {
+			expect(roleNames).toContain('Default.Finance');
+		});
+		And('the result should contain "Default.TechAdmin"', () => {
+			expect(roleNames).toContain('Default.TechAdmin');
+		});
+		And('the result should have exactly 4 names', () => {
+			expect(roleNames).toHaveLength(4);
+		});
+	});
+
+	Scenario('Creating a default tech admin role', ({ When, Then, And }) => {
+		let techAdminRole: StaffRole<StaffRoleProps>;
+		When('I create a default tech admin staff role', () => {
+			techAdminRole = StaffRole.getNewDefaultTechAdminInstance(makeBaseProps({ permissions: makePermissionsProps() }), passport);
+		});
+		Then('the roleName should be "Default Tech Admin"', () => {
+			expect(techAdminRole.roleName).toBe('Default Tech Admin');
+		});
+		And('the enterpriseAppRole should be "Staff.TechAdmin"', () => {
+			expect(techAdminRole.enterpriseAppRole).toBe('Staff.TechAdmin');
+		});
+		And('the tech admin role should allow managing communities', () => {
+			expect(techAdminRole.permissions.communityPermissions.canManageCommunities).toBe(true);
+		});
+		And('the tech admin role should allow managing staff roles and permissions', () => {
+			expect(techAdminRole.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
+		});
+		And('the tech admin role should allow managing finance', () => {
+			expect(techAdminRole.permissions.financePermissions.canManageFinance).toBe(true);
+		});
+		And('the tech admin role should allow managing tech admin', () => {
+			expect(techAdminRole.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
+		});
+		And('the tech admin role should allow managing users', () => {
+			expect(techAdminRole.permissions.userPermissions.canManageUsers).toBe(true);
 		});
 	});
 });

@@ -40,6 +40,8 @@ catalog:
   vite: 8.0.5
   vitest: 4.1.6
   vite-plugin-node-polyfills: ^0.28.0
+  '@vitest/browser': 4.1.6
+  '@vitest/browser-playwright': 4.1.6
 
 auditConfig:
   ignoreGhsas:
@@ -60,8 +62,6 @@ allowBuilds:
   snyk: true
 
 overrides:
-  '@vitest/browser': 4.1.6
-  '@vitest/browser-playwright': 4.1.6
   axios: 1.16.0
   follow-redirects: ^1.16.0
   vite: "catalog:"

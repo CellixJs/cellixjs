@@ -17,6 +17,7 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
 	const base = {
 		_id: 'role-1',
 		roleName: 'Manager',
+		enterpriseAppRole: 'Staff.CaseManager',
 		isDefault: false,
 		roleType: 'staff',
 		permissions: {
@@ -84,10 +85,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		};
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
-				exec: vi.fn(async () => (id === String(staffRoleDoc._id) ? staffRoleDoc : null)),
+				exec: vi.fn(() => Promise.resolve(id === String(staffRoleDoc._id) ? staffRoleDoc : null)),
 			})),
-			findOne: vi.fn((query: { roleName: string }) => ({
-				exec: vi.fn(async () => (query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null)),
+			findOne: vi.fn((query: { roleName?: string; isDefault?: boolean; enterpriseAppRole?: string }) => ({
+				exec: vi.fn(() => {
+					if (query.enterpriseAppRole !== undefined) {
+						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && query.isDefault === staffRoleDoc.isDefault ? staffRoleDoc : null;
+					}
+					return query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null;
+				}),
 			})),
 			prototype: {},
 		});
@@ -164,6 +170,36 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		Then('an error should be thrown indicating "StaffRole with roleName nonexistent-role not found"', async () => {
 			await expect(getByRoleName).rejects.toThrow();
 			await expect(getByRoleName).rejects.toThrow(/StaffRole with roleName nonexistent-role not found/);
+		});
+	});
+
+	Scenario('Getting a default staff role by enterpriseAppRole', ({ Given, When, Then, And }) => {
+		let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+		Given('a valid default Mongoose StaffRole document with enterpriseAppRole "Staff.CaseManager"', () => {
+			staffRoleDoc = makeStaffRoleDoc({
+				isDefault: true,
+				enterpriseAppRole: 'Staff.CaseManager',
+			});
+		});
+		When('I call getDefaultRoleByEnterpriseAppRole with "Staff.CaseManager"', async () => {
+			result = await repo.getDefaultRoleByEnterpriseAppRole('Staff.CaseManager');
+		});
+		Then('I should receive a StaffRole domain object', () => {
+			expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+		});
+		And("the domain object's isDefault should be true", () => {
+			expect(result.isDefault).toBe(true);
+		});
+	});
+
+	Scenario('Getting a default staff role by enterpriseAppRole that does not exist', ({ When, Then }) => {
+		let getDefaultRoleByEnterpriseAppRole: () => Promise<unknown>;
+		When('I call getDefaultRoleByEnterpriseAppRole with "Staff.UnknownRole"', () => {
+			getDefaultRoleByEnterpriseAppRole = async () => await repo.getDefaultRoleByEnterpriseAppRole('Staff.UnknownRole');
+		});
+		Then('an error should be thrown indicating "Default StaffRole with enterpriseAppRole Staff.UnknownRole not found"', async () => {
+			await expect(getDefaultRoleByEnterpriseAppRole).rejects.toThrow();
+			await expect(getDefaultRoleByEnterpriseAppRole).rejects.toThrow(/Default StaffRole with enterpriseAppRole Staff.UnknownRole not found/);
 		});
 	});
 

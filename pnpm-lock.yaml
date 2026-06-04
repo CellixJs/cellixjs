@@ -48,6 +48,12 @@ catalogs:
     '@typescript/native-preview':
       specifier: 7.0.0-dev.20260428.1
       version: 7.0.0-dev.20260428.1
+    '@vitest/browser':
+      specifier: 4.1.6
+      version: 4.1.6
+    '@vitest/browser-playwright':
+      specifier: 4.1.6
+      version: 4.1.6
     '@vitest/coverage-istanbul':
       specifier: 4.1.6
       version: 4.1.6
@@ -104,8 +110,6 @@ catalogs:
       version: 4.1.6
 
 overrides:
-  '@vitest/browser': 4.1.6
-  '@vitest/browser-playwright': 4.1.6
   axios: 1.16.0
   follow-redirects: ^1.16.0
   vite: 8.0.5
@@ -739,7 +743,7 @@ importers:
         specifier: ^9.1.20
         version: 9.1.20(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.6(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)))(vitest@4.1.6)
       '@vitest/browser-playwright':
-        specifier: 4.1.6
+        specifier: 'catalog:'
         version: 4.1.6(playwright@1.59.0)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
       typescript:
         specifier: 'catalog:'
@@ -1007,10 +1011,10 @@ importers:
         specifier: ^19.1.6
         version: 19.2.3(@types/react@19.2.7)
       '@vitest/browser':
-        specifier: 4.1.6
+        specifier: 'catalog:'
         version: 4.1.6(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
       '@vitest/browser-playwright':
-        specifier: 4.1.6
+        specifier: 'catalog:'
         version: 4.1.6(playwright@1.59.0)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
@@ -2209,7 +2213,7 @@ importers:
         specifier: ^19.1.6
         version: 19.2.3(@types/react@19.2.7)
       '@vitest/browser':
-        specifier: 4.1.6
+        specifier: 'catalog:'
         version: 4.1.6(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
@@ -2413,6 +2417,9 @@ importers:
       '@ant-design/icons':
         specifier: 'catalog:'
         version: 6.1.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.12.0)
       '@ocom/ui-staff-shared':
         specifier: workspace:*
         version: link:../ui-staff-shared
@@ -2456,6 +2463,12 @@ importers:
       '@ant-design/icons':
         specifier: 'catalog:'
         version: 6.1.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@apollo/client':
+        specifier: ^3.13.9
+        version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.20.1))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@cellix/ui-core':
+        specifier: workspace:*
+        version: link:../../cellix/ui-core
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
@@ -2481,6 +2494,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
+      '@storybook/react':
+        specifier: ^9.1.9
+        version: 9.1.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)))(typescript@6.0.3)
       '@types/react':
         specifier: ^19.1.11
         version: 19.2.7
@@ -2490,6 +2506,9 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
+      storybook:
+        specifier: 'catalog:'
+        version: 9.1.20(@testing-library/dom@10.4.1)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

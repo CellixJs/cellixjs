@@ -7,6 +7,7 @@ export default mergeConfig(
 		test: {
 			environment: 'jsdom',
 			passWithNoTests: true,
+			exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
 		},
 	}),
 );

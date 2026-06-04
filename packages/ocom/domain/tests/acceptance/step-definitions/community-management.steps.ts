@@ -1,13 +1,12 @@
+import assert from 'node:assert';
 import { Given, setWorldConstructor, Then, When } from '@cucumber/cucumber';
 import type { Actor } from '@serenity-js/core';
-import assert from 'node:assert';
 import type { Community, CommunityProps } from '../../../src/domain/contexts/community/community/community.ts';
-import type { EndUserEntityReference } from '../../../src/domain/contexts/user/end-user/end-user.ts';
 import type { Passport } from '../../../src/domain/contexts/passport.ts';
-import { createMockPassport, generateStringOfLength } from '../support/community-test-utils.ts';
-
+import type { EndUserEntityReference } from '../../../src/domain/contexts/user/end-user/end-user.ts';
 // Import Screenplay pattern components
-import { Actors, CommunityManagementCast, ManageCommunities, CommunityManagement, CommunityState, CommunityCreationResults } from '../screenplay/index.ts';
+import { Actors, CommunityCreationResults, CommunityManagement, CommunityManagementCast, CommunityState, ManageCommunities } from '../screenplay/index.ts';
+import { createMockPassport, generateStringOfLength } from '../support/community-test-utils.ts';
 
 /**
  * Serenity-enhanced World class that maintains state between steps
@@ -33,7 +32,7 @@ class SerenityCommunityWorld {
 		// Initialize with default valid data
 		this.validCommunityData = {
 			id: '12345',
-			name: '',
+			name: 'Placeholder Community',
 			domain: '',
 			whiteLabelDomain: null,
 			handle: null,
@@ -331,8 +330,8 @@ Then('the full name should be preserved', function (this: SerenityCommunityWorld
 	this.syncResultsFromScreenplay();
 
 	assert.ok(this.createdCommunity, 'Community should have been created');
-	assert.strictEqual(this.createdCommunity.name.length, this.communityName.length, 'Full name length should be preserved');
-	assert.strictEqual(this.createdCommunity.name, this.communityName, 'Full name content should be preserved');
+	assert.strictEqual(this.createdCommunity?.name.length, this.communityName.length, 'Full name length should be preserved');
+	assert.strictEqual(this.createdCommunity?.name, this.communityName, 'Full name content should be preserved');
 
 	console.log(`✓ Full name preserved: ${this.communityName.length} characters`);
 });
