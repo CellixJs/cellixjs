@@ -7,10 +7,9 @@
 				"src/**/*.ts",
 				"config/**",
 				"$TURBO_ROOT$/apps/api/local-settings.e2e.json",
-				"$TURBO_ROOT$/apps/api/scripts/sync-local-settings.mjs",
 				"$TURBO_ROOT$/apps/ui-community/.env.e2e",
 				"$TURBO_ROOT$/apps/ui-staff/.env.e2e",
-				"$TURBO_ROOT$/scripts/local-dev/**",
+				"$TURBO_ROOT$/packages/cellix/local-dev/src/**",
 				"cucumber.js",
 				"package.json"
 			],
@@ -27,10 +26,9 @@
 				"src/**/*.ts",
 				"config/**",
 				"$TURBO_ROOT$/apps/api/local-settings.e2e.json",
-				"$TURBO_ROOT$/apps/api/scripts/sync-local-settings.mjs",
 				"$TURBO_ROOT$/apps/ui-community/.env.e2e",
 				"$TURBO_ROOT$/apps/ui-staff/.env.e2e",
-				"$TURBO_ROOT$/scripts/local-dev/**",
+				"$TURBO_ROOT$/packages/cellix/local-dev/src/**",
 				"cucumber.js",
 				"package.json"
 			],

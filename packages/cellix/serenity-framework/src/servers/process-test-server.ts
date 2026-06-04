@@ -223,7 +223,13 @@ export class ProcessTestServer implements TestServer {
 				clearTimeout(timeout);
 
 				if (this.options.isReusableExit?.(stderrOutput)) {
-					resolve();
+					this.waitForProbeReady(startupDeadline, startupTimeout)
+						.then(() => {
+							resolve();
+						})
+						.catch((error: unknown) => {
+							reject(error);
+						});
 					return;
 				}
 

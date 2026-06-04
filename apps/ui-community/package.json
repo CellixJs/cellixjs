@@ -9,8 +9,8 @@
 		"format:check": "biome format .",
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build && vite build",
-		"dev": "pnpm exec portless ownercommunity.localhost --force node start-dev.mjs",
-		"dev:worktree": "pnpm exec portless ownercommunity.${WORKTREE_NAME}.localhost --force node start-dev.mjs",
+		"dev": "pnpm exec portless ownercommunity.localhost --force cellix-local-dev vite --profile ui-community",
+		"dev:worktree": "pnpm exec portless ownercommunity.${WORKTREE_NAME}.localhost --force cellix-local-dev vite --profile ui-community",
 		"start": "vite",
 		"preview": "vite preview",
 		"test": "vitest run --silent --reporter=dot",
@@ -39,6 +39,7 @@
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@cellix/local-dev": "workspace:*",
 		"@chromatic-com/storybook": "^4.1.1",
 		"@storybook/addon-a11y": "^9.1.3",
 		"@storybook/addon-docs": "^9.1.3",

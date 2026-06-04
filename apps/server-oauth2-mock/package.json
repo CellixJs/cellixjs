@@ -11,8 +11,8 @@
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"start": "node dist/index.js",
-		"dev": "pnpm exec portless mock-auth.ownercommunity.localhost --force tsx src/index.ts",
-		"dev:worktree": "pnpm exec portless mock-auth.ownercommunity.${WORKTREE_NAME}.localhost --force node start-dev.mjs",
+		"dev": "pnpm exec portless mock-auth.ownercommunity.localhost --force cellix-local-dev tsx --profile oauth2-mock",
+		"dev:worktree": "pnpm exec portless mock-auth.ownercommunity.${WORKTREE_NAME}.localhost --force cellix-local-dev tsx --profile oauth2-mock",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
 		"test:watch": "vitest"
@@ -22,6 +22,7 @@
 		"dotenv": "^16.4.5"
 	},
 	"devDependencies": {
+		"@cellix/local-dev": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",

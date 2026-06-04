@@ -11,17 +11,17 @@
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"start": "node dist/index.js",
-		"dev": "tsx src/index.ts",
-		"dev:worktree": "node start-mongo.mjs"
+		"dev": "cellix-local-dev tsx --profile mongo-memory-mock",
+		"dev:worktree": "cellix-local-dev tsx --profile mongo-memory-mock"
 	},
 	"dependencies": {
 		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",
 		"dotenv": "^16.4.5"
 	},
 	"devDependencies": {
+		"@cellix/local-dev": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"rimraf": "catalog:",
-		"tsx": "catalog:",
 		"typescript": "catalog:"
 	}
 }

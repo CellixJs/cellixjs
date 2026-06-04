@@ -1,4 +1,3 @@
-import { join } from 'node:path';
 import { ProcessTestServer } from '@cellix/serenity-framework/servers';
 import { getAzuritePorts } from '@ocom-verification/verification-shared/environment';
 import { appPaths } from './shared/environment/app-paths.ts';
@@ -47,19 +46,14 @@ export function createTestApiServer(getMongoConnectionString: () => string): Pro
 export function createTestAzuriteServer(): ProcessTestServer {
 	return new ProcessTestServer({
 		cwd: appPaths.apiDir,
-		executable: 'node',
-		extraEnv: () => {
-			const binDir = join(appPaths.apiDir, 'node_modules', '.bin');
-			const { PATH: pathValue = '' } = process.env;
-			return { PATH: `${binDir}:${pathValue}` };
-		},
+		executable: 'pnpm',
 		getUrl: () => `http://127.0.0.1:${getAzuritePorts().blob}`,
 		isAlreadyRunning: async () => false,
 		isReusableExit: (stderrOutput) => stderrOutput.includes('EADDRINUSE'),
 		probe: false,
 		readyMarker: '[azurite] started',
 		serverName: 'TestAzuriteServer',
-		spawnArgs: ['start-azurite.mjs'],
+		spawnArgs: ['run', 'azurite'],
 	});
 }
 
@@ -68,6 +62,7 @@ export function createTestOAuth2Server(): ProcessTestServer {
 		cwd: appPaths.oauth2MockDir,
 		executable: 'pnpm',
 		getUrl: () => mockOidcIssuer,
+		isReusableExit: (stderrOutput) => stderrOutput.includes('EADDRINUSE'),
 		probe: {
 			url: mockOidcEndpoint,
 		},

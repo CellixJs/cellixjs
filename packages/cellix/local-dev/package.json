@@ -1,0 +1,42 @@
+{
+	"name": "@cellix/local-dev",
+	"version": "1.0.0",
+	"description": "Shared local-development runner orchestration for Cellix applications",
+	"type": "module",
+	"files": [
+		"dist",
+		"bin",
+		"src"
+	],
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"bin": {
+		"cellix-local-dev": "bin/cellix-local-dev.mjs"
+	},
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@types/node": "catalog:",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

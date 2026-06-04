@@ -9,8 +9,8 @@
 		"format:check": "biome format .",
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build && vite build",
-		"dev": "pnpm exec portless staff.ownercommunity.localhost --force node start-dev.mjs",
-		"dev:worktree": "pnpm exec portless staff.ownercommunity.${WORKTREE_NAME}.localhost --force node start-dev.mjs",
+		"dev": "pnpm exec portless staff.ownercommunity.localhost --force cellix-local-dev vite --profile ui-staff",
+		"dev:worktree": "pnpm exec portless staff.ownercommunity.${WORKTREE_NAME}.localhost --force cellix-local-dev vite --profile ui-staff",
 		"start": "vite",
 		"preview": "vite preview",
 		"test": "vitest run --silent --reporter=dot",
@@ -40,6 +40,7 @@
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@cellix/local-dev": "workspace:*",
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
 		"@vitejs/plugin-react": "^6.0.1",
