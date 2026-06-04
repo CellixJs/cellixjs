@@ -13,7 +13,7 @@ class FakeServer implements TestServer {
 	startCalls = 0;
 	stopCalls = 0;
 	resetCalls = 0;
-	private running = false;
+	protected running = false;
 
 	constructor(private readonly url: string) {}
 
@@ -40,6 +40,28 @@ class FakeServer implements TestServer {
 	resetForScenario(): Promise<void> {
 		this.resetCalls += 1;
 		return Promise.resolve();
+	}
+}
+
+class DeferredServer extends FakeServer {
+	constructor(
+		url: string,
+		private readonly startGate: Promise<void>,
+	) {
+		super(url);
+	}
+
+	override async start(): Promise<void> {
+		this.startCalls += 1;
+		await this.startGate;
+		this.running = true;
+	}
+}
+
+class FailingServer extends FakeServer {
+	override start(): Promise<void> {
+		this.startCalls += 1;
+		return Promise.reject(new Error('startup failed'));
 	}
 }
 
@@ -128,6 +150,28 @@ describe('ApiInfrastructure', () => {
 
 		await expect(infrastructure.ensureStarted()).rejects.toThrow(/unknown server 'mongo'/);
 	});
+
+	it('waits for a failed startup wave to settle and stops every created server', async () => {
+		let releaseStart: () => void = () => undefined;
+		const startGate = new Promise<void>((resolve) => {
+			releaseStart = resolve;
+		});
+		const slow = new DeferredServer('http://slow.test', startGate);
+		const failing = new FailingServer('http://failing.test');
+		const infrastructure = ApiInfrastructure.create()
+			.addServer('slow', () => slow)
+			.addServer('failing', () => failing);
+
+		const starting = expect(infrastructure.ensureStarted()).rejects.toThrow('startup failed');
+		await vi.waitFor(() => expect(failing.startCalls).toBe(1));
+		releaseStart();
+
+		await starting;
+		expect(slow.stopCalls).toBe(1);
+		expect(failing.stopCalls).toBe(1);
+		expect(slow.isRunning()).toBe(false);
+		expect(infrastructure.getState().servers).toEqual({});
+	});
 });
 
 describe('E2EInfrastructure', () => {
@@ -184,5 +228,27 @@ describe('E2EInfrastructure', () => {
 		await infrastructure.ensureStarted();
 
 		expect(infrastructure.getState().browseTheWeb).toBeDefined();
+	});
+
+	it('waits for a failed startup wave to settle and stops every created server', async () => {
+		let releaseStart: () => void = () => undefined;
+		const startGate = new Promise<void>((resolve) => {
+			releaseStart = resolve;
+		});
+		const slow = new DeferredServer('http://slow.test', startGate);
+		const failing = new FailingServer('http://failing.test');
+		const infrastructure = E2EInfrastructure.create()
+			.addServer('slow', () => slow)
+			.addServer('failing', () => failing);
+
+		const starting = expect(infrastructure.ensureStarted()).rejects.toThrow('startup failed');
+		await vi.waitFor(() => expect(failing.startCalls).toBe(1));
+		releaseStart();
+
+		await starting;
+		expect(slow.stopCalls).toBe(1);
+		expect(failing.stopCalls).toBe(1);
+		expect(slow.isRunning()).toBe(false);
+		expect(infrastructure.getState().servers).toEqual({});
 	});
 });

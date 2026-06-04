@@ -150,9 +150,13 @@ export class ApiInfrastructure {
 		}
 	}
 
-	/** Stop every server (in reverse start order) and the suite environment, swallowing shutdown errors. */
+	/** Stop every created server, including partial starts, then clean up the suite environment. */
 	async stopAll(): Promise<void> {
-		for (const name of [...this.startOrder].reverse()) {
+		const tracked = new Set(this.startOrder);
+		const createdButUntracked = [...this.created.keys()].filter((name) => !tracked.has(name)).reverse();
+		const stopOrder = [...createdButUntracked, ...[...this.startOrder].reverse()];
+
+		for (const name of stopOrder) {
 			await this.created
 				.get(name)
 				?.stop()
@@ -222,7 +226,11 @@ export class ApiInfrastructure {
 				throw new Error(`ApiInfrastructure: circular or unresolved dependencies among ${remaining.map((registration) => registration.name).join(', ')}`);
 			}
 
-			await Promise.all(wave.map((registration) => this.startServer(registration)));
+			const results = await Promise.allSettled(wave.map((registration) => this.startServer(registration)));
+			const failure = results.find((result) => result.status === 'rejected');
+			if (failure) {
+				throw failure.reason;
+			}
 
 			for (const registration of wave) {
 				started.add(registration.name);

@@ -101,7 +101,12 @@ export class ProcessTestServer implements TestServer {
 		});
 		this.startedByUs = true;
 
-		await this.waitForReady();
+		try {
+			await this.waitForReady();
+		} catch (error) {
+			await this.stop().catch(() => undefined);
+			throw error;
+		}
 	}
 
 	/**
@@ -148,6 +153,9 @@ export class ProcessTestServer implements TestServer {
 	private async isAlreadyRunning(): Promise<boolean> {
 		if (this.options.isAlreadyRunning) {
 			return await this.options.isAlreadyRunning();
+		}
+		if (this.options.probe === false) {
+			return false;
 		}
 		return await this.isProbeReadyWithin(this.value(this.options.healthProbeTimeoutMs) ?? 3_000);
 	}
@@ -205,12 +213,14 @@ export class ProcessTestServer implements TestServer {
 			});
 
 			childProcess.on('exit', (code, signal) => {
+				if (this.process === childProcess) {
+					this.process = null;
+					this.startedByUs = false;
+				}
 				if (ready) {
 					return;
 				}
 				clearTimeout(timeout);
-				this.process = null;
-				this.startedByUs = false;
 
 				if (this.options.isReusableExit?.(stderrOutput)) {
 					resolve();

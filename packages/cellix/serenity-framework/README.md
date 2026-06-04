@@ -77,23 +77,26 @@ A server factory receives a context so a dependent server (such as the API) can 
 
 ## API acceptance infrastructure
 
-API-only acceptance suites use the smaller infrastructure manager. It requires MongoDB options and an API server factory, and owns startup, URL state, reset, and shutdown. If the API needs a Mongoose service, pass a factory that returns the consumer's Mongoose-compatible service; the framework starts it, clears registered models, and stops it.
+API-only acceptance suites use the smaller infrastructure manager. It composes any consumer-owned `TestServer` implementations without launching a browser, and owns dependency-ordered startup, scenario reset, and shutdown.
 
 ```ts
 import { ApiInfrastructure } from '@cellix/serenity-framework/infrastructure/api';
-import { ApolloGraphQLTestServer } from '@cellix/serenity-framework/servers';
+import { MongoMemoryTestServer } from '@cellix/serenity-framework/servers';
 
-export const infrastructure = ApiInfrastructure.using({
-  mongoServer: { dbName, port, replSetName, seedData },
-  mongoose: {
-    createService: (connectionString) => createMongooseService(connectionString),
-  },
-  createApiServer: ({ getMongooseService }) =>
-    new ApolloGraphQLTestServer({
-      schema,
-      context: () => createContext(getMongooseService()),
-    }),
-});
+export const infrastructure = ApiInfrastructure
+  .create()
+  .addServer('mongo', () => new MongoMemoryTestServer({ dbName, port, replSetName, seedData }), {
+    resetForScenario: (server) => (server as MongoMemoryTestServer).resetForScenario(),
+  })
+  .addServer(
+    'graphql',
+    (ctx) => createGraphqlServer(ctx.server<MongoMemoryTestServer>('mongo').getConnectionString()),
+    { dependsOn: ['mongo'] },
+  );
+
+// Suites without a database can register only their API server.
+const apiOnly = ApiInfrastructure.create()
+  .addServer('graphql', () => createGraphqlServer());
 ```
 
 ## Managed worlds
