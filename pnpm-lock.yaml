@@ -100,8 +100,8 @@ catalogs:
       specifier: ^19.1.1
       version: 19.2.7
     react-router-dom:
-      specifier: 7.15.0
-      version: 7.15.0
+      specifier: 7.12.0
+      version: 7.12.0
     rimraf:
       specifier: 6.0.1
       version: 6.0.1
@@ -501,7 +501,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -631,7 +631,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1028,7 +1028,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1847,7 +1847,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -1941,7 +1941,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -2093,7 +2093,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@ant-design/icons':
         specifier: 'catalog:'
@@ -2175,7 +2175,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -2257,7 +2257,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2300,7 +2300,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2386,7 +2386,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2432,7 +2432,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2487,7 +2487,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -11918,8 +11918,8 @@ packages:
     peerDependencies:
       react: '>=15'
 
-  react-router-dom@7.15.0:
-    resolution: {integrity: sha512-VcrVg64Fo8nwBvDscajG8gRTLIuTC6N50nb22l2HOOV4PTOHgoGp8mUjy9wLiHYoYTSYI36tUnXZgasSRFZorQ==}
+  react-router-dom@7.12.0:
+    resolution: {integrity: sha512-pfO9fiBcpEfX4Tx+iTYKDtPbrSLLCbwJ5EqP+SPYQu1VYCXdy79GSj0wttR0U4cikVdlImZuEZ/9ZNCgoaxwBA==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -25873,7 +25873,7 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
 
-  react-router-dom@7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-router-dom@7.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
