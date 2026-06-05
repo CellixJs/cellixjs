@@ -4,8 +4,8 @@
 	"private": true,
 	"scripts": {
 		"docusaurus": "docusaurus",
-		"dev": "pnpm exec portless docs.ownercommunity.localhost --force cellix-local-dev docusaurus",
-		"dev:worktree": "pnpm exec portless docs.ownercommunity.${WORKTREE_NAME}.localhost --force cellix-local-dev docusaurus",
+		"dev": "pnpm exec portless docs.ownercommunity.localhost --force node start-dev.ts",
+		"dev:worktree": "pnpm exec portless docs.ownercommunity.${WORKTREE_NAME}.localhost --force node start-dev.ts",
 		"start": "docusaurus start --port 3001",
 		"build": "docusaurus build",
 		"swizzle": "docusaurus swizzle",

@@ -67,7 +67,7 @@
 		},
 		"test:e2e": {
 			"description": "Runs end-to-end tests from packages that expose them",
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "@cellix/local-dev#build", "@ocom/local-dev-config#build"],
 			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
 			"outputs": ["target/**", "reports/**"],
 			"cache": false
@@ -105,18 +105,19 @@
 		},
 		"dev": {
 			"description": "Starts application packages dev servers in watch mode",
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "@cellix/local-dev#build", "@ocom/local-dev-config#build"],
 			"cache": false,
 			"persistent": true
 		},
 		"dev:worktree": {
 			"description": "Starts dev servers with worktree-scoped portless hostnames for git worktree isolation",
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "@cellix/local-dev#build", "@ocom/local-dev-config#build"],
 			"cache": false,
 			"persistent": true
 		},
 		"azurite": {
 			"description": "Starts the Azurite storage emulator",
+			"dependsOn": ["^build", "@cellix/local-dev#build", "@ocom/local-dev-config#build"],
 			"cache": false,
 			"persistent": true
 		},

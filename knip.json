@@ -7,14 +7,14 @@
 			"ignoreDependencies": ["azurite"]
 		},
 		"apps/ui-community": {
-			"entry": ["src/main.tsx"],
-			"project": ["src/**/*.{ts,tsx}"],
+			"entry": ["src/main.tsx", "start-dev.ts"],
+			"project": ["src/**/*.{ts,tsx}", "start-dev.ts"],
 			"ignore": ["**/apollo-client-links.tsx"],
 			"ignoreDependencies": ["@cellix/local-dev"]
 		},
 		"apps/ui-staff": {
-			"entry": ["src/main.tsx"],
-			"project": ["src/**/*.{ts,tsx}"],
+			"entry": ["src/main.tsx", "start-dev.ts"],
+			"project": ["src/**/*.{ts,tsx}", "start-dev.ts"],
 			"ignore": [],
 			"ignoreDependencies": ["@cellix/local-dev"]
 		},
@@ -91,8 +91,8 @@
 			"ignoreUnresolved": ["progress-bar"]
 		},
 		"apps/server-oauth2-mock": {
-			"entry": ["src/index.ts"],
-			"project": ["src/**/*.ts"],
+			"entry": ["src/index.ts", "start-dev.ts"],
+			"project": ["src/**/*.ts", "start-dev.ts"],
 			"ignoreDependencies": ["@cellix/local-dev", "tsx"]
 		},
 		"apps/server-mongodb-memory-mock": {

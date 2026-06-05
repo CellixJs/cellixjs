@@ -1,51 +1,32 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
-	applyApiLocalSettingsOverrides,
+	applyWorktreeSuffix,
+	buildAzuriteConnectionString,
 	buildPortlessUrl,
 	buildViteArgs,
-	getAzuriteConnectionString,
 	getAzuritePorts,
-	getMongoConnectionString,
 	getMongoPort,
 	getWorktreePortOffset,
+	hostnameFromUrl,
 	PORTLESS_PORT,
-	resolvePortlessHostnames,
+	readDotEnv,
+	replaceUrlPort,
 	resolveWorkspaceRoot,
+	syncJsonFile,
 } from '@cellix/local-dev';
 import { describe, expect, it } from 'vitest';
+
+type DotEnvFixtureValues = Record<string, string> & {
+	API_URL?: string;
+	BASE_URL?: string;
+};
 
 function createWorkspaceFixture(): string {
 	const root = mkdtempSync(path.join(tmpdir(), 'cellix-local-dev-'));
 	writeFileSync(path.join(root, 'pnpm-workspace.yaml'), 'packages:\n  - "apps/*"\n');
-	mkdirSync(path.join(root, 'apps', 'ui-community'), { recursive: true });
-	mkdirSync(path.join(root, 'apps', 'ui-staff'), { recursive: true });
-	mkdirSync(path.join(root, 'apps', 'api'), { recursive: true });
-
-	writeFileSync(
-		path.join(root, 'apps', 'ui-community', '.env'),
-		[
-			'VITE_APP_UI_COMMUNITY_BASE_URL=https://ownercommunity.localhost:1355',
-			'VITE_COMMON_API_ENDPOINT=https://data-access.ownercommunity.localhost:1355/api/graphql',
-			'VITE_APP_UI_COMMUNITY_B2C_AUTHORITY=https://mock-auth.ownercommunity.localhost:1355/community',
-		].join('\n'),
-	);
-	writeFileSync(path.join(root, 'apps', 'ui-staff', '.env'), 'VITE_APP_UI_STAFF_AAD_REDIRECT_URI=https://staff.ownercommunity.localhost:1355/auth-redirect\n');
-	writeFileSync(
-		path.join(root, 'apps', 'api', 'local.settings.json'),
-		JSON.stringify(
-			{
-				Values: {
-					COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/test?replicaSet=rs0',
-					STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
-					STORAGE_ACCOUNT_KEY: 'key',
-				},
-			},
-			null,
-			2,
-		),
-	);
+	mkdirSync(path.join(root, 'fixtures'), { recursive: true });
 
 	return root;
 }
@@ -53,27 +34,33 @@ function createWorkspaceFixture(): string {
 describe('@cellix/local-dev', () => {
 	it('resolves the workspace root from a nested directory', () => {
 		const workspaceRoot = createWorkspaceFixture();
-		const nestedDir = path.join(workspaceRoot, 'apps', 'ui-community');
+		const nestedDir = path.join(workspaceRoot, 'fixtures');
 
 		expect(resolveWorkspaceRoot({ startDir: nestedDir })).toBe(workspaceRoot);
 	});
 
-	it('derives shared hostnames and applies the worktree suffix', () => {
+	it('parses dotenv values and applies worktree-aware URL helpers generically', () => {
 		const workspaceRoot = createWorkspaceFixture();
+		const envPath = path.join(workspaceRoot, 'fixtures', '.env');
+		writeFileSync(envPath, ['BASE_URL=https://ownercommunity.localhost:1355', 'API_URL=https://data-access.ownercommunity.localhost:1355/api/graphql'].join('\n'));
 
-		expect(
-			resolvePortlessHostnames({
-				startDir: path.join(workspaceRoot, 'apps', 'ui-community'),
-				env: { WORKTREE_NAME: 'feature-123' },
-			}),
-		).toEqual({
-			uiCommunity: 'ownercommunity.feature-123.localhost',
-			uiStaff: 'staff.ownercommunity.feature-123.localhost',
-			api: 'data-access.ownercommunity.feature-123.localhost',
-			mockAuth: 'mock-auth.ownercommunity.feature-123.localhost',
-			docs: 'docs.ownercommunity.feature-123.localhost',
+		const envValues = readDotEnv(envPath) as DotEnvFixtureValues;
+		const baseUrl = envValues.BASE_URL;
+		const apiUrl = envValues.API_URL;
+
+		expect(envValues).toEqual({
+			BASE_URL: 'https://ownercommunity.localhost:1355',
+			API_URL: 'https://data-access.ownercommunity.localhost:1355/api/graphql',
 		});
+		expect(baseUrl).toBe('https://ownercommunity.localhost:1355');
+		expect(apiUrl).toBe('https://data-access.ownercommunity.localhost:1355/api/graphql');
+		if (!baseUrl || !apiUrl) {
+			throw new Error('Expected dotenv fixture values to be defined');
+		}
+		expect(hostnameFromUrl(baseUrl)).toBe('ownercommunity.localhost');
+		expect(applyWorktreeSuffix('ownercommunity.localhost', 'feature-123')).toBe('ownercommunity.feature-123.localhost');
 		expect(buildPortlessUrl('ownercommunity.localhost')).toBe(`https://ownercommunity.localhost:${PORTLESS_PORT}`);
+		expect(replaceUrlPort(apiUrl, 50900)).toBe('https://data-access.ownercommunity.localhost:50900/api/graphql');
 	});
 
 	it('builds shared Vite args including e2e mode', () => {
@@ -87,9 +74,6 @@ describe('@cellix/local-dev', () => {
 	});
 
 	it('derives deterministic worktree ports and connection strings', () => {
-		const workspaceRoot = createWorkspaceFixture();
-		const env = { WORKTREE_NAME: 'feature-123' };
-
 		expect(getWorktreePortOffset('feature-123')).toBeGreaterThanOrEqual(100);
 		expect(getMongoPort('feature-123')).toBe(50000 + getWorktreePortOffset('feature-123'));
 		expect(getAzuritePorts('feature-123')).toEqual({
@@ -98,40 +82,47 @@ describe('@cellix/local-dev', () => {
 			table: 10002 + getWorktreePortOffset('feature-123'),
 		});
 		expect(
-			getMongoConnectionString({
-				startDir: path.join(workspaceRoot, 'apps', 'api'),
-				env,
-			}),
-		).toContain(`:${getMongoPort('feature-123')}/test?replicaSet=rs0`);
-		expect(
-			getAzuriteConnectionString({
-				startDir: path.join(workspaceRoot, 'apps', 'api'),
-				env,
+			buildAzuriteConnectionString({
+				accountKey: 'key',
+				accountName: 'devstoreaccount1',
+				ports: getAzuritePorts('feature-123'),
 			}),
 		).toContain(`BlobEndpoint=http://127.0.0.1:${getAzuritePorts('feature-123').blob}/devstoreaccount1`);
 	});
 
-	it('applies worktree and runtime overrides to API local settings', () => {
+	it('syncs json files through a consumer-supplied transform', () => {
 		const workspaceRoot = createWorkspaceFixture();
-		const settings = {
-			Values: {
-				STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
-				STORAGE_ACCOUNT_KEY: 'key',
-				AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true',
-			},
-		};
+		const sourcePath = path.join(workspaceRoot, 'fixtures', 'source.json');
+		const targetPath = path.join(workspaceRoot, 'fixtures', 'target', 'settings.json');
+		writeFileSync(
+			sourcePath,
+			JSON.stringify(
+				{
+					Values: {
+						MODE: 'local',
+					},
+				},
+				null,
+				2,
+			),
+		);
 
-		const updated = applyApiLocalSettingsOverrides(settings, {
-			workspaceRoot,
-			env: {
-				WORKTREE_NAME: 'feature-123',
-				COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:61234/override?replicaSet=rs0',
-			},
+		syncJsonFile({
+			sourcePath,
+			targetPath,
+			transform: (document: { Values?: Record<string, string> }) => ({
+				...document,
+				Values: {
+					...(document.Values ?? {}),
+					MODE: 'e2e',
+				},
+			}),
 		});
 
-		expect(updated.Values?.['ACCOUNT_PORTAL_OIDC_ISSUER']).toBe('https://mock-auth.ownercommunity.feature-123.localhost:1355/community');
-		expect(updated.Values?.['STAFF_PORTAL_OIDC_ENDPOINT']).toBe('https://mock-auth.ownercommunity.feature-123.localhost:1355/staff/.well-known/jwks.json');
-		expect(updated.Values?.['COSMOSDB_CONNECTION_STRING']).toBe('mongodb://127.0.0.1:61234/override?replicaSet=rs0');
-		expect(updated.Values?.['AZURE_STORAGE_CONNECTION_STRING']).not.toBe('UseDevelopmentStorage=true');
+		expect(JSON.parse(readFileSync(targetPath, 'utf8'))).toEqual({
+			Values: {
+				MODE: 'e2e',
+			},
+		});
 	});
 });

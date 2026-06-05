@@ -18,7 +18,9 @@ const infrastructure = E2EInfrastructure.create({
 	})
 	.addServer('azurite', () => createTestAzuriteServer())
 	.addServer('auth', () => createTestOAuth2Server())
-	.addServer('api', (ctx) => createTestApiServer(() => ctx.server<MongoMemoryTestServer>('mongo').getConnectionString()), { dependsOn: ['mongo'] })
+	.addServer('api', (ctx) => createTestApiServer(() => ctx.server<MongoMemoryTestServer>('mongo').getConnectionString()), {
+		dependsOn: ['mongo', 'azurite'],
+	})
 	.addUiPortal('community', () => createCommunityUiPortalServer())
 	.addUiPortal('staff', () => createStaffUiPortalServer());
 

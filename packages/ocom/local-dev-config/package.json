@@ -1,0 +1,47 @@
+{
+	"name": "@ocom/local-dev-config",
+	"version": "1.0.0",
+	"description": "OCOM-specific local-development hostname/URL helpers built on @cellix/local-dev",
+	"type": "module",
+	"files": [
+		"dist",
+		"src"
+	],
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./hostnames": {
+			"types": "./dist/hostnames.d.ts",
+			"default": "./dist/hostnames.js"
+		},
+		"./urls": {
+			"types": "./dist/urls.d.ts",
+			"default": "./dist/urls.js"
+		},
+		"./workspace": {
+			"types": "./dist/workspace.d.ts",
+			"default": "./dist/workspace.js"
+		}
+	},
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format ."
+	},
+	"dependencies": {
+		"@cellix/local-dev": "workspace:*"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@types/node": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

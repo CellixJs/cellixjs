@@ -302,6 +302,9 @@ importers:
       '@cellix/local-dev':
         specifier: workspace:*
         version: link:../../packages/cellix/local-dev
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
         version: 4.1.6(vitest@4.1.6)
@@ -421,6 +424,9 @@ importers:
       '@cellix/server-oauth2-mock-seedwork':
         specifier: workspace:*
         version: link:../../packages/cellix/server-oauth2-mock-seedwork
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -464,6 +470,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       '@ocom/ui-community-route-accounts':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-community-route-accounts
@@ -588,6 +597,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       '@ocom/ui-shared':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-shared
@@ -1639,6 +1651,25 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(happy-dom@20.9.0)(jsdom@26.1.0)(vite@8.0.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/ocom/local-dev-config:
+    dependencies:
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../cellix/local-dev
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.15
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
 
   packages/ocom/persistence:
     dependencies:

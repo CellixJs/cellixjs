@@ -4,11 +4,18 @@ export interface BuildViteArgsOptions {
 	env?: NodeJS.ProcessEnv;
 }
 
+type ViteEnv = NodeJS.ProcessEnv & {
+	E2E?: string;
+	E2E_VITE_MODE?: string;
+	TF_BUILD?: string;
+};
+
 /**
  * Returns true when the current process is running in an e2e-oriented mode.
  */
 export function isE2E(env: NodeJS.ProcessEnv = process.env): boolean {
-	return ['1', 'true', 'yes'].includes((env['E2E'] ?? '').toLowerCase());
+	const viteEnv = env as ViteEnv;
+	return ['1', 'true', 'yes'].includes((viteEnv.E2E ?? '').toLowerCase());
 }
 
 /**
@@ -16,13 +23,14 @@ export function isE2E(env: NodeJS.ProcessEnv = process.env): boolean {
  */
 export function buildViteArgs(options: BuildViteArgsOptions = {}): string[] {
 	const { host = '127.0.0.1', port, env = process.env } = options;
+	const viteEnv = env as ViteEnv;
 	const args = ['--host', host];
 
 	if (port) {
 		args.push('--port', port);
 	}
 
-	const viteMode = env['E2E_VITE_MODE'] ?? (isE2E(env) || env['TF_BUILD'] ? 'e2e' : undefined);
+	const viteMode = viteEnv.E2E_VITE_MODE ?? (isE2E(viteEnv) || viteEnv.TF_BUILD ? 'e2e' : undefined);
 	if (viteMode) {
 		args.push('--mode', viteMode);
 	}

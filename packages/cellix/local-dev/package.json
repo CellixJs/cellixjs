@@ -1,11 +1,10 @@
 {
 	"name": "@cellix/local-dev",
 	"version": "1.0.0",
-	"description": "Shared local-development runner orchestration for Cellix applications",
+	"description": "Generic local-development helpers for Cellix app wrappers",
 	"type": "module",
 	"files": [
 		"dist",
-		"bin",
 		"src"
 	],
 	"main": "dist/index.js",
@@ -15,9 +14,6 @@
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
 		}
-	},
-	"bin": {
-		"cellix-local-dev": "bin/cellix-local-dev.mjs"
 	},
 	"scripts": {
 		"prebuild": "pnpm run lint",

@@ -1,20 +1,8 @@
 # @cellix/local-dev
 
-Shared local-development runtime for Cellix application packages.
+Generic local-development helpers for Cellix app wrappers.
 
-This package replaces duplicated `start-dev.*`, `start-mongo.*`, `start-azurite.*`, and root `scripts/local-dev/*` orchestration with one reusable package plus a small CLI.
-
-## What this package provides
-
-- Worktree-aware portless hostname derivation
-- Worktree-aware MongoDB and Azurite port derivation
-- API local-settings sync for normal and `e2e` modes
-- Shared dev runners for:
-  - Vite apps
-  - Docusaurus docs
-  - Azure Functions local startup
-  - TSX-backed mock servers
-  - Azurite
+This package is intentionally policy-free. It owns reusable mechanics such as worktree port math, URL helpers, JSON and dotenv utilities, process exit forwarding, and generic dev runners. App-specific env keys, hostnames, auth routes, and `local.settings.json` mutations belong in app-owned wrapper scripts or internal repo helpers, not here.
 
 ## Install
 
@@ -28,55 +16,74 @@ In this monorepo, app packages consume the workspace package directly:
 }
 ```
 
-## CLI usage
+## What this package provides
 
-```bash
-cellix-local-dev vite --profile ui-community
-cellix-local-dev vite --profile ui-staff
-cellix-local-dev docusaurus
-cellix-local-dev azure-functions
-cellix-local-dev tsx --profile oauth2-mock
-cellix-local-dev tsx --profile mongo-memory-mock
-cellix-local-dev azurite
-cellix-local-dev sync-api-local-settings
-cellix-local-dev sync-api-local-settings e2e
+- Workspace-root discovery
+- Dotenv parsing and JSON file sync helpers
+- Worktree-aware hostname and URL utilities
+- Worktree-aware MongoDB and Azurite port derivation
+- Azurite connection-string construction from explicit credentials
+- Generic dev runners for:
+  - Vite
+  - Docusaurus
+  - Azure Functions
+  - TSX-backed processes
+  - Azurite
+
+## Recommended consumption pattern
+
+Keep the app policy in a wrapper script and compose this package's generic helpers inside it:
+
+```js
+import { buildPortlessUrl, getMongoPort, runTsxDev } from '@cellix/local-dev';
+
+runTsxDev({
+	env: {
+		...process.env,
+		BASE_URL: buildPortlessUrl('mock-auth.example.localhost'),
+		PORT: String(getMongoPort(process.env.WORKTREE_NAME)),
+	},
+});
 ```
 
-## Example app scripts
+For settings files, let the app decide what to change:
 
-```json
-{
-	"scripts": {
-		"dev": "pnpm exec portless ownercommunity.localhost --force cellix-local-dev vite --profile ui-community",
-		"dev:worktree": "pnpm exec portless ownercommunity.${WORKTREE_NAME}.localhost --force cellix-local-dev vite --profile ui-community"
-	}
-}
-```
+```js
+import { syncJsonFile } from '@cellix/local-dev';
 
-```json
-{
-	"scripts": {
-		"sync-local-settings": "cellix-local-dev sync-api-local-settings",
-		"dev": "pnpm exec portless data-access.ownercommunity.localhost --force cellix-local-dev azure-functions",
-		"azurite": "cellix-local-dev azurite"
-	}
-}
+syncJsonFile({
+	sourcePath: 'local-settings.e2e.json',
+	targetPath: 'deploy/local.settings.json',
+	transform: (document) => ({
+		...document,
+		Values: {
+			...(document.Values ?? {}),
+			MODE: 'e2e',
+		},
+	}),
+});
 ```
 
 ## Public API
 
-The package also exports the local-dev primitives for tests or scripted composition:
-
 - `resolveWorkspaceRoot`
-- `resolvePortlessHostnames`
+- `readDotEnv`
+- `readJsonFile`
+- `writeJsonFile`
+- `syncJsonFile`
+- `hostnameFromUrl`
+- `applyWorktreeSuffix`
 - `buildPortlessUrl`
+- `replaceUrlPort`
+- `PORTLESS_PORT`
 - `buildViteArgs`
+- `isE2E`
+- `forwardChildExit`
+- `isGracefulInterruptExit`
 - `getWorktreePortOffset`
 - `getMongoPort`
 - `getAzuritePorts`
-- `getAzuriteConnectionString`
-- `getMongoConnectionString`
-- `syncApiLocalSettings`
+- `buildAzuriteConnectionString`
 - `runViteDev`
 - `runDocusaurusDev`
 - `runAzureFunctionsDev`
@@ -85,5 +92,5 @@ The package also exports the local-dev primitives for tests or scripted composit
 
 ## Notes
 
-- The implementation is in TypeScript, but the package exposes a normal Node bin so consuming app scripts do not need to boot shared `.ts` files through `tsx`.
-- The package derives the workspace root from the caller's current working directory, so app packages do not need to hardcode repo-relative paths.
+- The package derives workspace roots from the caller's current working directory, but it does not infer app layouts or env-variable names.
+- If a helper only exists to support one app's local policy, it should usually live with that app instead of being exported here.

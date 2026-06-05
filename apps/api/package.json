@@ -9,9 +9,9 @@
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build && rolldown -c rolldown.config.ts",
 		"predev": "pnpm run prepare:deploy && pnpm run sync-local-settings",
-		"dev": "pnpm exec portless data-access.ownercommunity.localhost --force cellix-local-dev azure-functions",
+		"dev": "pnpm exec portless data-access.ownercommunity.localhost --force node start-dev.ts",
 		"predev:worktree": "pnpm run prepare:deploy && pnpm run sync-local-settings",
-		"dev:worktree": "pnpm exec portless data-access.ownercommunity.${WORKTREE_NAME}.localhost --force cellix-local-dev azure-functions",
+		"dev:worktree": "pnpm exec portless data-access.ownercommunity.${WORKTREE_NAME}.localhost --force node start-dev.ts",
 		"prepare:deploy": "cellix-prepare-func-deploy",
 		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",
@@ -23,8 +23,8 @@
 		"clean": "rimraf dist deploy",
 		"prestart": "pnpm run prepare:deploy && pnpm run sync-local-settings",
 		"start": "func start --typescript --script-root deploy/",
-		"sync-local-settings": "cellix-local-dev sync-api-local-settings",
-		"azurite": "cellix-local-dev azurite"
+		"sync-local-settings": "node sync-local-settings.ts",
+		"azurite": "node start-azurite.ts"
 	},
 	"dependencies": {
 		"@azure/functions": "catalog:",
@@ -49,6 +49,7 @@
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@cellix/local-dev": "workspace:*",
+		"@ocom/local-dev-config": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"azurite": "^3.35.0",
 		"rimraf": "catalog:",

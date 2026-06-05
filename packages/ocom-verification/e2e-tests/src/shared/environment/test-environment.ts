@@ -43,9 +43,23 @@ export function initTestEnvironment() {
 		timeout: 10_000,
 		stdio: 'pipe',
 	});
+	try {
+		execFileSync(getPortlessPath(), ['proxy', 'stop', '-p', '1355'], {
+			timeout: 10_000,
+			stdio: 'pipe',
+		});
+	} catch {
+		// It's fine if no proxy was already running on the test port.
+	}
 	execFileSync(getPortlessPath(), ['proxy', 'start', '--https', '-p', '1355'], {
 		timeout: 15_000,
 		stdio: 'pipe',
+		env: {
+			...process.env,
+			// E2E needs exact host matches so portal probes do not mistake the
+			// community app for the staff app via wildcard subdomain fallback.
+			PORTLESS_WILDCARD: '0',
+		},
 	});
 
 	proxyInitialized = true;
