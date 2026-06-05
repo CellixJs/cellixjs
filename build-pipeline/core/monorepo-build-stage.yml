@@ -60,21 +60,21 @@ stages:
         version: '22.22.2'
 
     # Cache Azure Functions Core Tools
-    # - task: Cache@2
-    #   displayName: 'Azure Functions: Restore Core Tools Cache'
-    #   inputs:
-    #     key: 'func-tools | "$(Agent.OS)" | "4.2.1"'
-    #     restoreKeys: |
-    #       func-tools | "$(Agent.OS)"
-    #     path: '/opt/hostedtoolcache/func'
-    #     cacheHitVar: FUNC_TOOLS_CACHE_HIT
+    - task: Cache@2
+      displayName: 'Azure Functions: Restore Core Tools Cache'
+      inputs:
+        key: 'func-tools | "$(Agent.OS)" | "4.2.1"'
+        restoreKeys: |
+          func-tools | "$(Agent.OS)"
+        path: '/opt/hostedtoolcache/func'
+        cacheHitVar: FUNC_TOOLS_CACHE_HIT
 
     # Ensure the correct version of function tools are installed.
-    # - task: FuncToolsInstaller@0
-    #   displayName: 'Install: func tools - 4.2.1'
-    #   condition: and(ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
-    #   inputs:
-    #     version: '4.2.1'
+    - task: FuncToolsInstaller@0
+      displayName: 'Install: func tools - 4.2.1'
+      condition: and(ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
+      inputs:
+        version: '4.2.1'
         
     # Cache PNPM store to speed up build process.
     - task: Cache@2
