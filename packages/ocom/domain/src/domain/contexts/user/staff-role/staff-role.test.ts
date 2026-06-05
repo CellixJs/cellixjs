@@ -361,10 +361,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	Scenario('Creating a default tech admin role', ({ When, Then, And }) => {
 		let techAdminRole: StaffRole<StaffRoleProps>;
 		When('I create a default tech admin staff role', () => {
-			techAdminRole = StaffRole.getNewDefaultTechAdminInstance(
-				makeBaseProps({ permissions: makePermissionsProps() }),
-				passport,
-			);
+			techAdminRole = StaffRole.getNewDefaultTechAdminInstance(makeBaseProps({ permissions: makePermissionsProps() }), passport);
 		});
 		Then('the roleName should be "Default Tech Admin"', () => {
 			expect(techAdminRole.roleName).toBe('Default Tech Admin');

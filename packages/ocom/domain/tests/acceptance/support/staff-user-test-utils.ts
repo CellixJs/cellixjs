@@ -9,7 +9,9 @@ type StaffUserPermissions = {
 
 function createVisa(permissions: StaffUserPermissions) {
 	return {
-		determineIf: (fn: (value: { canManageEndUsers: boolean; canManageStaffRolesAndPermissions: boolean; canManageStaffUsers: boolean; canManageVendorUsers: boolean; isEditingOwnAccount: boolean; isSystemAccount: boolean }) => boolean) =>
+		determineIf: (
+			fn: (value: { canManageEndUsers: boolean; canManageStaffRolesAndPermissions: boolean; canManageStaffUsers: boolean; canManageVendorUsers: boolean; isEditingOwnAccount: boolean; isSystemAccount: boolean }) => boolean,
+		) =>
 			fn({
 				canManageEndUsers: false,
 				canManageStaffRolesAndPermissions: permissions.canManageStaffRolesAndPermissions ?? true,
