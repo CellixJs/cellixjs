@@ -90,7 +90,7 @@ export function createMemberProps(accountStatusCode: string = 'CREATED'): Member
 		cybersourceCustomerId: 'customer-1',
 		communityId: 'community-1',
 		community: { id: 'community-1' } as CommunityEntityReference,
-		loadCommunity: async () => ({ id: 'community-1' } as CommunityEntityReference),
+		loadCommunity: async () => ({ id: 'community-1' }) as CommunityEntityReference,
 		accounts: createPropArray([accountProps], () => ({
 			id: 'account-new',
 			firstName: 'New',
@@ -100,7 +100,7 @@ export function createMemberProps(accountStatusCode: string = 'CREATED'): Member
 			createdBy: { id: 'creator-new' } as never,
 		})),
 		role: { id: 'role-1' } as EndUserRoleEntityReference,
-		loadRole: async () => ({ id: 'role-1' } as EndUserRoleEntityReference),
+		loadRole: async () => ({ id: 'role-1' }) as EndUserRoleEntityReference,
 		customViews: createPropArray<MemberCustomViewProps>([customViewProps], () => ({
 			id: 'custom-view-new',
 			name: 'New View',

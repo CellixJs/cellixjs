@@ -90,13 +90,7 @@ Then('the assigned role should be default', () => {
 
 Then(
 	'the assigned role permissions should be communities {word}, staff roles {word}, finance {word}, tech admin {word}, users {word}',
-	(
-		canManageCommunities: string,
-		canManageStaffRolesAndPermissions: string,
-		canManageFinance: string,
-		canManageTechAdmin: string,
-		canManageUsers: string,
-	) => {
+	(canManageCommunities: string, canManageStaffRolesAndPermissions: string, canManageFinance: string, canManageTechAdmin: string, canManageUsers: string) => {
 		assert.strictEqual(assignedRole.permissions.communityPermissions.canManageCommunities, canManageCommunities === 'true');
 		assert.strictEqual(assignedRole.permissions.communityPermissions.canManageStaffRolesAndPermissions, canManageStaffRolesAndPermissions === 'true');
 		assert.strictEqual(assignedRole.permissions.financePermissions.canManageFinance, canManageFinance === 'true');
