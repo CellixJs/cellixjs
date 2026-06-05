@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MembersInviteModal } from './members-invite-modal.tsx';
 
 const meta: Meta<typeof MembersInviteModal> = {
-	title: 'Admin/Components/MembersInviteModal',
+	title: 'Components/Community/Members Invite Modal',
 	component: MembersInviteModal,
 	parameters: {
 		layout: 'centered',

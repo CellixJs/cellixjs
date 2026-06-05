@@ -4,7 +4,7 @@ import { expect, within } from 'storybook/test';
 import { Accounts } from '../index.tsx';
 
 const meta = {
-	title: 'Pages/Accounts/Create Community',
+	title: 'Pages/Community/Accounts/Create Community',
 	component: Accounts,
 	parameters: {
 		layout: 'fullscreen',

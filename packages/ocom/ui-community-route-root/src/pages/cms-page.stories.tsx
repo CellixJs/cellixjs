@@ -3,7 +3,7 @@ import { expect, within } from 'storybook/test';
 import { Root } from '../index.tsx';
 
 const meta = {
-	title: 'Pages/Root/Cms Page',
+	title: 'Pages/Community/Root/Cms Page',
 	component: Root,
 	parameters: {
 		layout: 'fullscreen',

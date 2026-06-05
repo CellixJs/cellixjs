@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { NotLoggedIn, type NotLoggedInProps } from './not-logged-in.tsx';
 
 const meta = {
-	title: 'UI/Molecules/LoggedInUser/NotLoggedIn',
+	title: 'Components/Shared/UI/Molecules/LoggedInUser/NotLoggedIn',
 	component: NotLoggedIn,
 } satisfies Meta<typeof NotLoggedIn>;
 

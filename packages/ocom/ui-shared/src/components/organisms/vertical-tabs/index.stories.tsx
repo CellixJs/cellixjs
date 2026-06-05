@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import { VerticalTabs } from './index.tsx';
 
 const meta: Meta<typeof VerticalTabs> = {
-	title: 'UI/Organisms/VerticalTabs',
+	title: 'Components/Shared/UI/Organisms/VerticalTabs',
 	component: VerticalTabs,
 };
 

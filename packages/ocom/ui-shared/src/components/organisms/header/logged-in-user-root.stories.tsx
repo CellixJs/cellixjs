@@ -4,7 +4,7 @@ import type { LoggedInUserContainerEndUserFieldsFragment } from '../../../genera
 import { LoggedInUserRoot, type LoggedInUserRootProps } from './logged-in-user-root.tsx';
 
 const meta = {
-	title: 'UI/Organisms/Header/LoggedInUserRoot/Display',
+	title: 'Components/Shared/UI/Organisms/Header/LoggedInUserRoot/Display',
 	component: LoggedInUserRoot,
 	argTypes: {
 		handleLogout: { action: 'handleLogout' },
