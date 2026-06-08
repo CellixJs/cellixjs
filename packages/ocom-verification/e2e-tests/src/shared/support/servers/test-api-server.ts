@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { PortlessServer } from './portless-server.ts';
@@ -10,7 +10,7 @@ export class TestApiServer extends PortlessServer {
 		const env = {
 			...process.env,
 		};
-        // biome-ignore lint:useLiteralKeys
+		// biome-ignore lint:useLiteralKeys
 		delete env['NODE_OPTIONS'];
 
 		execFileSync('pnpm', ['run', 'predev'], {
@@ -92,7 +92,17 @@ export class TestApiServer extends PortlessServer {
 		const sourcePath = resolve(this.cwd, 'local.settings.json');
 		const targetDir = resolve(this.cwd, 'deploy');
 		const targetPath = resolve(targetDir, 'local.settings.json');
-		const settings = JSON.parse(readFileSync(sourcePath, 'utf8')) as {
+		const settings = (
+			existsSync(sourcePath)
+				? (JSON.parse(readFileSync(sourcePath, 'utf8')) as {
+						Values?: Record<string, string | boolean>;
+					})
+				: {
+						IsEncrypted: false,
+						Values: {},
+					}
+		) as {
+			IsEncrypted?: boolean;
 			Values?: Record<string, string | boolean>;
 		};
 

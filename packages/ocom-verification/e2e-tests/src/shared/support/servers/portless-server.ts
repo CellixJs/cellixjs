@@ -92,7 +92,7 @@ export abstract class PortlessServer implements TestServer {
 			...this.extraEnv,
 		};
 		// Remove NODE_OPTIONS from child process to avoid tsx import issues
-		delete env['NODE_OPTIONS'];
+		delete env.NODE_OPTIONS;
 
 		this.process = spawn(this.executable, this.spawnArgs, {
 			cwd: this.cwd,
@@ -101,6 +101,7 @@ export abstract class PortlessServer implements TestServer {
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
 		this.startedByUs = true;
+		mkdirSync(dirname(this.logFilePath), { recursive: true });
 		writeFileSync(this.logFilePath, '', 'utf8');
 		this.appendToLogFile(`[${new Date().toISOString()}] starting ${this.serverName}\n`);
 
