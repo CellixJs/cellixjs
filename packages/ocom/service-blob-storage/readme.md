@@ -4,28 +4,21 @@ OwnerCommunity blob-storage adapter package.
 
 ## Overview
 
-This package turns the framework-native Cellix blob service into the narrower contracts OCOM application code should consume:
+This package adapts the framework-native Cellix blob services into the narrower contracts OCOM application code should consume:
 
 - `BlobStorageOperations`
-  - a narrow view of the framework `ServiceBlobStorage` class for backend blob operations such as `uploadText()`, `listBlobs()`, and `deleteBlob()`
+  - a narrow view of `ServiceBlobStorage` for backend blob operations such as `uploadText()`, `listBlobs()`, and `deleteBlob()`
 - `ClientUploadOperations`
-  - a narrow view of the framework `ServiceBlobStorage` class for client-facing signing operations `createBlobWriteAuthorizationHeader()` and `createBlobReadAuthorizationHeader()`
+  - a narrow view of `ServiceClientBlobStorage` for client-facing signing operations `createBlobWriteAuthorizationHeader()` and `createBlobReadAuthorizationHeader()`
 - `ServiceBlobStorage`
-  - direct re-export of the framework implementation for application code that wants the full class and its Cellix-owned docs
+  - direct re-export of the framework managed-identity service for backend registration
+- `ServiceClientBlobStorage`
+  - direct re-export of the framework client-signing service for client upload/download registration
 
-## Why this package exists
-
-`@cellix/service-blob-storage` remains the one framework service class. OCOM uses this package only to define the narrowed contracts that application context should expose:
-
-- `blobStorageService: BlobStorageOperations`
-- `clientOperationsService: ClientUploadOperations`
-
-That lets application code depend on intent-focused views without redefining the underlying method contracts locally. `@ocom/service-blob-storage` is the package app code should import when it needs the service class itself.
-
-## Registration Pattern
+## Registration pattern
 
 ```ts
-import { ServiceBlobStorage } from '@ocom/service-blob-storage';
+import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
 
 registry
 	.registerInfrastructureService(
@@ -33,22 +26,20 @@ registry
 		'BlobStorageService',
 	)
 	.registerInfrastructureService(
-		new ServiceBlobStorage({
+		new ServiceClientBlobStorage({
 			accountName: config.accountName,
-			signingConnectionString: config.connectionString,
+			signingConnectionString: config.signingConnectionString,
 		}),
 		'ClientOperationsService',
 	);
 ```
 
-The first registration handles backend blob SDK operations. The second keeps the same framework class but opts into shared-key signing capability for client upload/read flows.
-
-## Context Exposure
+## Context exposure
 
 ```ts
 export interface ApiContextSpec {
-	blobStorageService: ServiceBlobStorage;
-	clientOperationsService: ServiceBlobStorage;
+	blobStorageService: BlobStorageOperations;
+	clientOperationsService: ClientUploadOperations;
 }
 ```
 
@@ -69,11 +60,12 @@ export class MemberAvatarService {
 }
 ```
 
-## Public Exports
+## Public exports
 
 ```ts
 import {
 	ServiceBlobStorage,
+	ServiceClientBlobStorage,
 	type BlobStorageOperations,
 	type ClientUploadOperations,
 	type CreateBlobAccessUrlRequest,

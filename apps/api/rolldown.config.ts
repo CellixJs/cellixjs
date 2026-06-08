@@ -10,12 +10,12 @@
  * packages when workspace packages are in the module graph.
  */
 
-/* 
-* Avoid VScode reporting "Cannot find name 'NodeJS'" errors in this file, which uses NodeJS types but is not compiled by TypeScript and thus does not have access to the types specified in tsconfig.json.
-* rolldown.config.ts is NOT expected to be included in the TypeScript compilation, as it is used by the rolldown bundler at build time and is not part of the runtime code. 
-* The types specified in tsconfig.json are only applied to files that are included in the compilation, and since rolldown.config.ts is not included, it does not have access to those types. 
-* By adding this reference directive, we can ensure that the NodeJS types are available for use in this file without causing phantom errors in the rest of the project.
-*/
+/*
+ * Avoid VScode reporting "Cannot find name 'NodeJS'" errors in this file, which uses NodeJS types but is not compiled by TypeScript and thus does not have access to the types specified in tsconfig.json.
+ * rolldown.config.ts is NOT expected to be included in the TypeScript compilation, as it is used by the rolldown bundler at build time and is not part of the runtime code.
+ * The types specified in tsconfig.json are only applied to files that are included in the compilation, and since rolldown.config.ts is not included, it does not have access to those types.
+ * By adding this reference directive, we can ensure that the NodeJS types are available for use in this file without causing phantom errors in the rest of the project.
+ */
 /// <reference types="node" />
 
 import path from 'node:path';

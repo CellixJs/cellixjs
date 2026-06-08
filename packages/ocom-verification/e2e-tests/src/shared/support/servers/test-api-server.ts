@@ -13,6 +13,12 @@ export class TestApiServer extends PortlessServer {
 		// biome-ignore lint:useLiteralKeys
 		delete env['NODE_OPTIONS'];
 
+		execFileSync('pnpm', ['run', 'build'], {
+			cwd: this.cwd,
+			env,
+			stdio: 'pipe',
+		});
+
 		execFileSync('pnpm', ['run', 'predev'], {
 			cwd: this.cwd,
 			env,

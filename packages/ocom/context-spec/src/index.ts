@@ -31,7 +31,7 @@ export interface ApiContextSpec {
 	/**
 	 * Blob storage service registered for client signing operations.
 	 *
-	 * This is the same framework `ServiceBlobStorage` class, configured with
+	 * This is the framework `ServiceClientBlobStorage` class, configured with
 	 * `signingConnectionString` so the application can generate SharedKey
 	 * authorization headers for direct browser uploads and downloads.
 	 */

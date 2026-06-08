@@ -1,6 +1,12 @@
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { ClientUploadSigner } from './client-upload-signer.js';
-import { azuriteAccountName, getAzuriteAccountKey } from './test-support/azurite.js';
+
+const azuriteAccountName = 'devstoreaccount1';
+
+function getAzuriteAccountKey(): string {
+	return createHash('sha256').update('cellix-azurite-test-account-key').digest('base64');
+}
 
 /**
  * Tests for SharedKey authorization header generation following Azure Blob Storage conventions.

@@ -1,4 +1,4 @@
-function getConnectionStringValue(connectionString: string, key: string): string | undefined {
+const getConnectionStringValue = (connectionString: string, key: string): string | undefined => {
 	const segments = connectionString.split(';');
 	const targetKey = key.trim().toLowerCase();
 	for (const rawSegment of segments) {
@@ -16,6 +16,42 @@ function getConnectionStringValue(connectionString: string, key: string): string
 		}
 	}
 	return undefined;
-}
+};
 
-export { getConnectionStringValue };
+const validateSigningConnectionString = (connectionString: string | undefined): { accountName: string; accountKey: string } => {
+	if (typeof connectionString !== 'string' || !connectionString.trim()) {
+		throw new Error("'signingConnectionString' must be a non-empty string");
+	}
+
+	const accountName = getConnectionStringValue(connectionString, 'AccountName');
+	const accountKey = getConnectionStringValue(connectionString, 'AccountKey');
+	if (!accountName || !accountKey) {
+		throw new Error('signingConnectionString must include both AccountName and AccountKey');
+	}
+
+	return { accountName, accountKey };
+};
+
+const isLocalBlobConnectionString = (connectionString: string | undefined): boolean => {
+	if (typeof connectionString !== 'string' || !connectionString.trim()) {
+		return false;
+	}
+
+	if (/usedevelopmentstorage=true/i.test(connectionString)) {
+		return true;
+	}
+
+	const blobEndpoint = getConnectionStringValue(connectionString, 'BlobEndpoint');
+	if (!blobEndpoint) {
+		return false;
+	}
+
+	try {
+		const url = new URL(blobEndpoint);
+		return url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]';
+	} catch {
+		return false;
+	}
+};
+
+export { isLocalBlobConnectionString, validateSigningConnectionString };

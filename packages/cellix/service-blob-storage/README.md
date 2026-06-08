@@ -1,38 +1,57 @@
 # `@cellix/service-blob-storage`
 
-Framework Azure Blob Storage service for Cellix applications.
+Framework Azure Blob Storage services for Cellix applications.
 
-`@cellix/service-blob-storage` provides the public `BlobStorage` contract and the `ServiceBlobStorage` implementation. It owns Azure SDK client setup, blob upload/list/delete operations, and optional shared-key signing for direct client access.
+`@cellix/service-blob-storage` exports two framework classes:
 
-Use this package when application code should depend on a narrow storage abstraction instead of raw Azure SDK clients.
+- `ServiceBlobStorage`
+  - managed-identity-backed server-side blob operations only
+- `ServiceClientBlobStorage`
+  - the same server-side blob operations plus SharedKey signing for direct client uploads and downloads
 
-## Authentication modes
+Use this package when application code should depend on a Cellix-owned blob abstraction instead of raw Azure SDK clients.
 
-`ServiceBlobStorage` uses managed identity for server-side blob operations by default:
+Choose `ServiceBlobStorage` when you only need backend blob I/O.
+Choose `ServiceClientBlobStorage` when the same application also needs to sign direct client upload or download requests.
 
-- `accountName` with an optional `credential` for managed identity or other token credential flows
+## Service split
 
-When `AZURE_STORAGE_CONNECTION_STRING` points at a local Azurite endpoint, the service automatically uses that connection string for the blob SDK client so local development keeps working without changing the public constructor contract.
+`ServiceBlobStorage` is intentionally narrow:
 
-You can also provide `signingConnectionString` to enable direct client signing while keeping server-side blob access on managed identity.
+- requires `accountName`
+- optionally accepts a `TokenCredential`
+- does not accept any connection string configuration
+- provides `uploadText()`, `listBlobs()`, and `deleteBlob()`
 
-Use:
+`ServiceClientBlobStorage` extends `ServiceBlobStorage`:
 
-- `accountName` when the app runs on Azure and should use managed identity for server-side access
-- `signingConnectionString` only when the app also needs direct client upload or download signatures
+- still uses managed identity for the Azure Blob client
+- additionally requires `signingConnectionString`
+- provides `generateReadSasToken()`
+- provides `createBlobWriteAuthorizationHeader()`
+- provides `createBlobReadAuthorizationHeader()`
 
-## Typical usage
+## Usage
 
 ```ts
-import { ServiceBlobStorage } from '@cellix/service-blob-storage';
+import { ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
 
 const blobStorage = new ServiceBlobStorage({
 	accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME!,
-	signingConnectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+});
+
+const clientBlobStorage = new ServiceClientBlobStorage({
+	accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME!,
+	signingConnectionString: process.env.AZURE_STORAGE_CONNECTION_STRING!,
 });
 
 await blobStorage.startUp();
+await clientBlobStorage.startUp();
+```
 
+Server-side blob operations:
+
+```ts
 await blobStorage.uploadText({
 	containerName: 'member-assets',
 	blobName: 'avatars/member-123.json',
@@ -40,18 +59,16 @@ await blobStorage.uploadText({
 });
 ```
 
-For direct client flows, use the signing APIs on the started service:
+Direct client-signing flow:
 
-- `generateReadSasToken()`
-- `createBlobWriteAuthorizationHeader()`
-- `createBlobReadAuthorizationHeader()`
-
-Common patterns:
-
-- server-side upload or cleanup: `uploadText()`, `listBlobs()`, `deleteBlob()`
-- read-only client access: `generateReadSasToken()`
-- direct browser or mobile upload: `createBlobWriteAuthorizationHeader()`
-- direct browser or mobile download: `createBlobReadAuthorizationHeader()`
+```ts
+const auth = await clientBlobStorage.createBlobWriteAuthorizationHeader({
+	containerName: 'member-assets',
+	blobName: 'avatars/member-123.png',
+	contentLength: 1024,
+	contentType: 'image/png',
+});
+```
 
 ## Public exports
 
@@ -59,7 +76,10 @@ Import from the package root only:
 
 - `ServiceBlobStorage`
 - `type ServiceBlobStorageOptions`
+- `ServiceClientBlobStorage`
+- `type ServiceClientBlobStorageOptions`
 - `type BlobStorage`
+- `type ClientBlobStorage`
 - `type BlobAddress`
 - `type UploadTextBlobRequest`
 - `type ListBlobsRequest`
@@ -70,6 +90,8 @@ Import from the package root only:
 
 ## Notes
 
-- Call `startUp()` before using blob operations.
+- Call `startUp()` before using any blob operations.
 - Call `shutDown()` during teardown; it is idempotent.
-- Shared-key signing is opt-in and must be configured explicitly.
+- Shared-key signing is isolated to `ServiceClientBlobStorage`.
+- The managed-identity base service no longer supports connection-string bootstrap behavior.
+- For local emulator scenarios, `ServiceClientBlobStorage` may use its required `signingConnectionString` to target Azurite while preserving the base service's managed-identity-only contract.

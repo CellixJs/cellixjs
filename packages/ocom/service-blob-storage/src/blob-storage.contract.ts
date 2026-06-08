@@ -1,7 +1,4 @@
-import type {
-	CreateBlobAuthorizationHeaderRequest,
-	ServiceBlobStorage,
-} from '@cellix/service-blob-storage';
+import type { CreateBlobAuthorizationHeaderRequest, ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
 
 export type CreateBlobAccessUrlRequest = CreateBlobAuthorizationHeaderRequest;
 
@@ -17,7 +14,7 @@ export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uplo
 /**
  * Client-side blob signing operations.
  *
- * This is a narrow view of the framework `ServiceBlobStorage` class for
+ * This is a narrow view of the framework `ServiceClientBlobStorage` class for
  * SharedKey signing workflows used by browser uploads and downloads.
  */
-export type ClientUploadOperations = Pick<ServiceBlobStorage, 'createBlobWriteAuthorizationHeader' | 'createBlobReadAuthorizationHeader'>;
+export type ClientUploadOperations = Pick<ServiceClientBlobStorage, 'createBlobWriteAuthorizationHeader' | 'createBlobReadAuthorizationHeader'>;
