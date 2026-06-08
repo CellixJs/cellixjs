@@ -20,4 +20,4 @@ Feature: <Passport> StaffUserPassport
   Scenario: Accessing the user passport
     When I create a StaffUserPassport with valid staff user
     And I access the user property
-    Then an error should be thrown indicating the user passport is not available
+    Then I should receive a StaffUserUserPassport instance

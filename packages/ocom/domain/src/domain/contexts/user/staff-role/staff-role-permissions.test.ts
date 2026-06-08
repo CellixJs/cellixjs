@@ -3,10 +3,13 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import { StaffRoleCommunityPermissions } from './staff-role-community-permissions.ts';
+import { StaffRoleFinancePermissions } from './staff-role-finance-permissions.ts';
 import { StaffRolePermissions } from './staff-role-permissions.ts';
 import { StaffRolePropertyPermissions } from './staff-role-property-permissions.ts';
 import { StaffRoleServicePermissions } from './staff-role-service-permissions.ts';
 import { StaffRoleServiceTicketPermissions } from './staff-role-service-ticket-permissions.ts';
+import { StaffRoleTechAdminPermissions } from './staff-role-tech-admin-permissions.ts';
+import { StaffRoleUserPermissions } from './staff-role-user-permissions.ts';
 import { StaffRoleViolationTicketPermissions } from './staff-role-violation-ticket-permissions.ts';
 
 const test = { for: describeFeature };
@@ -26,6 +29,9 @@ function makeProps() {
 		serviceTicketPermissions: {} as StaffRoleServiceTicketPermissions,
 		servicePermissions: {} as StaffRoleServicePermissions,
 		violationTicketPermissions: {} as StaffRoleViolationTicketPermissions,
+		financePermissions: {} as StaffRoleFinancePermissions,
+		techAdminPermissions: {} as StaffRoleTechAdminPermissions,
+		userPermissions: {} as StaffRoleUserPermissions,
 	};
 }
 
@@ -111,6 +117,45 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('I should receive a StaffRoleViolationTicketPermissions entity instance', () => {
 			expect(violationTicketPermissions).toBeInstanceOf(StaffRoleViolationTicketPermissions);
+		});
+	});
+
+	Scenario('Accessing financePermissions', ({ Given, When, Then }) => {
+		let financePermissions: StaffRoleFinancePermissions;
+		Given('a StaffRolePermissions entity', () => {
+			entity = new StaffRolePermissions(props, visa);
+		});
+		When('I access the financePermissions property', () => {
+			financePermissions = entity.financePermissions;
+		});
+		Then('I should receive a StaffRoleFinancePermissions entity instance', () => {
+			expect(financePermissions).toBeInstanceOf(StaffRoleFinancePermissions);
+		});
+	});
+
+	Scenario('Accessing techAdminPermissions', ({ Given, When, Then }) => {
+		let techAdminPermissions: StaffRoleTechAdminPermissions;
+		Given('a StaffRolePermissions entity', () => {
+			entity = new StaffRolePermissions(props, visa);
+		});
+		When('I access the techAdminPermissions property', () => {
+			techAdminPermissions = entity.techAdminPermissions;
+		});
+		Then('I should receive a StaffRoleTechAdminPermissions entity instance', () => {
+			expect(techAdminPermissions).toBeInstanceOf(StaffRoleTechAdminPermissions);
+		});
+	});
+
+	Scenario('Accessing userPermissions', ({ Given, When, Then }) => {
+		let userPermissions: StaffRoleUserPermissions;
+		Given('a StaffRolePermissions entity', () => {
+			entity = new StaffRolePermissions(props, visa);
+		});
+		When('I access the userPermissions property', () => {
+			userPermissions = entity.userPermissions;
+		});
+		Then('I should receive a StaffRoleUserPermissions entity instance', () => {
+			expect(userPermissions).toBeInstanceOf(StaffRoleUserPermissions);
 		});
 	});
 });

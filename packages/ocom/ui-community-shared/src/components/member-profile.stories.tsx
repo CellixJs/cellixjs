@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { SharedMemberProfileContainerMemberFieldsFragment } from '../generated.tsx';
 import { MemberProfile } from './member-profile';
 

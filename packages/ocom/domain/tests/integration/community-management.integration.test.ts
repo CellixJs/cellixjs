@@ -13,7 +13,7 @@ describe('Community Management - Cucumber Integration Tests', () => {
 	const createValidCommunityData = (): CommunityProps => {
 		return {
 			id: '12345',
-			name: '',
+			name: 'Placeholder Community',
 			domain: '',
 			whiteLabelDomain: null,
 			handle: null,

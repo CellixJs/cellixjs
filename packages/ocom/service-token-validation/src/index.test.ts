@@ -228,7 +228,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 			// Mock successful verification on second attempt
 			mockGetVerifiedJwt
-				.mockResolvedValueOnce(null) // First provider fails
+				.mockRejectedValueOnce(Object.assign(new Error('signature verification failed'), { name: 'JWSSignatureVerificationFailed' })) // First provider fails with signature mismatch
 				.mockResolvedValueOnce({
 					// Second provider succeeds
 					payload: { sub: 'user123', aud: 'audience2' },

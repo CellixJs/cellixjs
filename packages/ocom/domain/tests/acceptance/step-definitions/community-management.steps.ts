@@ -33,7 +33,7 @@ class SerenityCommunityWorld {
 		// Initialize with default valid data
 		this.validCommunityData = {
 			id: '12345',
-			name: '',
+			name: 'Placeholder Community',
 			domain: '',
 			whiteLabelDomain: null,
 			handle: null,
@@ -331,8 +331,8 @@ Then('the full name should be preserved', function (this: SerenityCommunityWorld
 	this.syncResultsFromScreenplay();
 
 	assert.ok(this.createdCommunity, 'Community should have been created');
-	assert.strictEqual(this.createdCommunity.name.length, this.communityName.length, 'Full name length should be preserved');
-	assert.strictEqual(this.createdCommunity.name, this.communityName, 'Full name content should be preserved');
+	assert.strictEqual(this.createdCommunity?.name.length, this.communityName.length, 'Full name length should be preserved');
+	assert.strictEqual(this.createdCommunity?.name, this.communityName, 'Full name content should be preserved');
 
 	console.log(`✓ Full name preserved: ${this.communityName.length} characters`);
 });

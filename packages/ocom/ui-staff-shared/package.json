@@ -15,9 +15,11 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
+		"@apollo/client": "^3.13.9",
 		"@ant-design/icons": "catalog:",
-		"@ocom/ui-shared": "workspace:*",
+		"@cellix/ui-core": "workspace:*",
 		"@graphql-typed-document-node/core": "^3.2.0",
+		"@ocom/ui-shared": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"react-router-dom": "catalog:",
@@ -28,6 +30,8 @@
 		"@cellix/config-vitest": "workspace:*",
 		"@types/react": "^19.1.11",
 		"@types/react-dom": "^19.1.6",
+        "@storybook/react": "^9.1.9",
+        "storybook": "catalog:",
 		"jsdom": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
