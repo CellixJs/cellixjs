@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { useState, useMemo } from 'react';
 import { AuthContext, type AuthContextProps } from 'react-oidc-context';
