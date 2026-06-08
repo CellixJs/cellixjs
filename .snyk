@@ -76,3 +76,23 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
         expires: '2026-06-28T00:00:00.000Z'
         created: '2026-05-11T10:00:00.000Z'
+  'SNYK-JS-AI-16734889':
+    - '@docusaurus/preset-classic@3.9.2 > * > ai@5.0.105':
+        reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
+        expires: '2026-09-08T00:00:00.000Z'
+        created: '2026-06-08T00:00:00.000Z'
+  'SNYK-JS-AISDKPROVIDERUTILS-16734888':
+    - '@docusaurus/preset-classic@3.9.2 > * > @ai-sdk/provider-utils@3.0.18':
+        reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
+        expires: '2026-09-08T00:00:00.000Z'
+        created: '2026-06-08T00:00:00.000Z'
+  'SNYK-JS-AISDKPROVIDERUTILS-16735288':
+    - '@docusaurus/preset-classic@3.9.2 > * > @ai-sdk/provider-utils@3.0.18':
+        reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
+        expires: '2026-09-08T00:00:00.000Z'
+        created: '2026-06-08T00:00:00.000Z'
+  'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
+    - '* > postcss-selector-parser':
+        reason: 'Transitive dependency in Docusaurus build tooling; Snyk reports no fixed upgrade or patch available.'
+        expires: '2026-09-08T00:00:00.000Z'
+        created: '2026-06-08T00:00:00.000Z'

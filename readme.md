@@ -33,6 +33,32 @@ Our Docusaurus website will help you get started in running and contributing to 
 brew install mise
 ```
 
+### Remove nvm first (if you already use it)
+
+If your shell still loads `nvm`, it can override the Node.js version that `mise` is managing for this repo. Remove the `nvm` setup before activating `mise`.
+
+1. Remove the `nvm` startup lines from your shell config (`~/.zshrc`, `~/.bashrc`, or `~/.profile`). They usually look like:
+
+```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+```
+
+2. If you installed `nvm` with Homebrew, uninstall it:
+
+```bash
+brew uninstall nvm
+```
+
+3. If you installed `nvm` manually, remove its local directory:
+
+```bash
+rm -rf ~/.nvm
+```
+
+4. Open a new terminal before continuing so the old `nvm` configuration is no longer loaded.
+
 ### Activate mise in your shell
 
 ```bash
