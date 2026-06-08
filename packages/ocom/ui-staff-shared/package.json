@@ -33,7 +33,6 @@
 		"@storybook/react": "^9.1.9",
 		"storybook": "catalog:",
 		"jsdom": "catalog:",
-		"react-dom": "^19.1.1",
 		"vite": "catalog:",
 		"vitest": "catalog:",
 		"typescript": "catalog:"

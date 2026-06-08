@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CommunitiesDropdownContainerMembersForCurrentEndUserDocument } from '../../../generated.tsx';
 import { CommunitiesDropdownContainer } from './communities-dropdown.container.tsx';
 

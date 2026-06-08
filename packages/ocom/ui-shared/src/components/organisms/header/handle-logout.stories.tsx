@@ -1,5 +1,5 @@
 import type { ApolloClient } from '@apollo/client';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type React from 'react';
 import type { AuthContextProps } from 'react-oidc-context';
 import { expect, fn, userEvent, within } from 'storybook/test';
