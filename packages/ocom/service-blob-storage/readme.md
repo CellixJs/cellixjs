@@ -7,11 +7,11 @@ OwnerCommunity blob-storage adapter package.
 This package turns the framework-native Cellix blob service into the narrower contracts OCOM application code should consume:
 
 - `BlobStorageOperations`
-  - backend blob operations such as `uploadText()`, `listBlobs()`, and `deleteBlob()`
+  - a narrow view of the framework `ServiceBlobStorage` class for backend blob operations such as `uploadText()`, `listBlobs()`, and `deleteBlob()`
 - `ClientUploadOperations`
-  - client-facing signing operations `createBlobWriteAuthorizationHeader()` and `createBlobReadAuthorizationHeader()`
+  - a narrow view of the framework `ServiceBlobStorage` class for client-facing signing operations `createBlobWriteAuthorizationHeader()` and `createBlobReadAuthorizationHeader()`
 - `ServiceBlobStorage`
-  - OCOM application-facing service class that extends the framework implementation
+  - direct re-export of the framework implementation for application code that wants the full class and its Cellix-owned docs
 
 ## Why this package exists
 
@@ -20,8 +20,7 @@ This package turns the framework-native Cellix blob service into the narrower co
 - `blobStorageService: BlobStorageOperations`
 - `clientOperationsService: ClientUploadOperations`
 
-That lets application code depend on intent-focused interfaces even though infrastructure bootstrap can register `ServiceBlobStorage` in multiple semantic roles.
-`@ocom/service-blob-storage` is the package app code should import when it needs the service class itself.
+That lets application code depend on intent-focused views without redefining the underlying method contracts locally. `@ocom/service-blob-storage` is the package app code should import when it needs the service class itself.
 
 ## Registration Pattern
 
@@ -48,8 +47,8 @@ The first registration handles backend blob SDK operations. The second keeps the
 
 ```ts
 export interface ApiContextSpec {
-	blobStorageService: BlobStorageOperations;
-	clientOperationsService: ClientUploadOperations;
+	blobStorageService: ServiceBlobStorage;
+	clientOperationsService: ServiceBlobStorage;
 }
 ```
 

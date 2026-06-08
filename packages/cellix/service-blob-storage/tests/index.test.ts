@@ -1,7 +1,17 @@
+import { createHash } from 'node:crypto';
 import { ServiceBlobStorage } from '@cellix/service-blob-storage';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, blobServiceConstructorMock, generateBlobSasQueryParametersMock, MockStorageSharedKeyCredential } = vi.hoisted(() => {
+const {
+	uploadMock,
+	deleteBlobMock,
+	listBlobsFlatMock,
+	blobServiceFromConnectionStringMock,
+	blobServiceConstructorMock,
+	generateBlobSasQueryParametersMock,
+	defaultAzureCredentialMock,
+	MockStorageSharedKeyCredential,
+} = vi.hoisted(() => {
 	class HoistedStorageSharedKeyCredential {
 		public readonly accountName: string;
 		public readonly accountKey: string;
@@ -19,9 +29,18 @@ const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnection
 		blobServiceFromConnectionStringMock: vi.fn(),
 		blobServiceConstructorMock: vi.fn(),
 		generateBlobSasQueryParametersMock: vi.fn(),
+		defaultAzureCredentialMock: vi.fn(),
 		MockStorageSharedKeyCredential: HoistedStorageSharedKeyCredential,
 	};
 });
+
+vi.mock('@azure/identity', () => ({
+	DefaultAzureCredential: class MockDefaultAzureCredential {
+		constructor() {
+			defaultAzureCredentialMock();
+		}
+	},
+}));
 
 vi.mock('@azure/storage-blob', () => {
 	const MockBlobSASPermissions = {
@@ -54,7 +73,11 @@ vi.mock('@azure/storage-blob', () => {
 });
 
 describe('@cellix/service-blob-storage public contract', () => {
-	const connectionString = 'DefaultEndpointsProtocol=https;AccountName=test-account;AccountKey=test-key;EndpointSuffix=core.windows.net';
+	const accountName = 'test-account';
+	const accountKey = createHash('sha256').update('cellix-azurite-test-account-key').digest('base64');
+	const signingConnectionString = `DefaultEndpointsProtocol=https;AccountName=${accountName};AccountKey=${accountKey};EndpointSuffix=core.windows.net`;
+	const localConnectionString = `DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=test;BlobEndpoint=https://127.0.0.1:10000/devstoreaccount1;`;
+	const originalConnectionString = process.env['AZURE_STORAGE_CONNECTION_STRING'];
 	const blockBlobClient = {
 		url: 'https://blob.example.test/container/blob.txt',
 		upload: uploadMock,
@@ -68,8 +91,9 @@ describe('@cellix/service-blob-storage public contract', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		restoreEnv('AZURE_STORAGE_CONNECTION_STRING', originalConnectionString);
 		blobServiceFromConnectionStringMock.mockReturnValue({
-			url: 'http://127.0.0.1:10000/devstoreaccount1',
+			url: 'https://127.0.0.1:10000/devstoreaccount1',
 			getContainerClient: vi.fn(() => containerClient),
 		});
 		blobServiceConstructorMock.mockImplementation((url: string) => ({
@@ -88,14 +112,19 @@ describe('@cellix/service-blob-storage public contract', () => {
 		);
 	});
 
-	it('starts up from a connection string and exposes the started client', async () => {
-		const service = new ServiceBlobStorage({ connectionString });
+	afterEach(() => {
+		restoreEnv('AZURE_STORAGE_CONNECTION_STRING', originalConnectionString);
+	});
+
+	it('starts up from a local emulator connection string in the environment and exposes the started client', async () => {
+		process.env['AZURE_STORAGE_CONNECTION_STRING'] = localConnectionString;
+		const service = new ServiceBlobStorage({ accountName: 'devstoreaccount1' });
 
 		const started = await service.startUp();
 
 		expect(started).toBe(service);
-		expect(blobServiceFromConnectionStringMock).toHaveBeenCalledWith(connectionString);
-		expect(service.blobServiceClient.url).toBe('http://127.0.0.1:10000/devstoreaccount1');
+		expect(blobServiceFromConnectionStringMock).toHaveBeenCalledWith(localConnectionString);
+		expect(service.blobServiceClient.url).toBe('https://127.0.0.1:10000/devstoreaccount1');
 	});
 
 	it('supports managed identity for server-side blob access', async () => {
@@ -104,10 +133,26 @@ describe('@cellix/service-blob-storage public contract', () => {
 		await service.startUp();
 
 		expect(service.blobServiceClient.url).toBe('https://devstoreaccount1.blob.core.windows.net');
+		expect(defaultAzureCredentialMock).toHaveBeenCalledTimes(1);
+	});
+
+	it('uses the local emulator connection string for managed-identity blob access', async () => {
+		process.env['AZURE_STORAGE_CONNECTION_STRING'] =
+			'DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=test;BlobEndpoint=https://127.0.0.1:10000/devstoreaccount1;';
+
+		const service = new ServiceBlobStorage({ accountName: 'devstoreaccount1' });
+
+		await service.startUp();
+
+		expect(blobServiceFromConnectionStringMock).toHaveBeenCalledWith(
+			'DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=test;BlobEndpoint=https://127.0.0.1:10000/devstoreaccount1;',
+		);
+		expect(defaultAzureCredentialMock).not.toHaveBeenCalled();
+		expect(service.blobServiceClient.url).toBe('https://127.0.0.1:10000/devstoreaccount1');
 	});
 
 	it('uploads text with optional metadata, tags, and headers', async () => {
-		const service = new ServiceBlobStorage({ connectionString });
+		const service = new ServiceBlobStorage({ accountName });
 		await service.startUp();
 
 		await service.uploadText({
@@ -129,7 +174,7 @@ describe('@cellix/service-blob-storage public contract', () => {
 	});
 
 	it('lists blob names and absolute URLs for an optional prefix', async () => {
-		const service = new ServiceBlobStorage({ connectionString });
+		const service = new ServiceBlobStorage({ accountName });
 		await service.startUp();
 
 		const result = await service.listBlobs({
@@ -151,7 +196,7 @@ describe('@cellix/service-blob-storage public contract', () => {
 	});
 
 	it('deletes a blob by container and name', async () => {
-		const service = new ServiceBlobStorage({ connectionString });
+		const service = new ServiceBlobStorage({ accountName });
 		await service.startUp();
 
 		await service.deleteBlob({
@@ -163,7 +208,10 @@ describe('@cellix/service-blob-storage public contract', () => {
 	});
 
 	it('generates read SAS tokens for blob access', async () => {
-		const service = new ServiceBlobStorage({ connectionString });
+		const service = new ServiceBlobStorage({
+			accountName,
+			signingConnectionString,
+		});
 		await service.startUp();
 
 		const expiresOn = new Date('2026-05-14T12:00:00.000Z');
@@ -186,7 +234,10 @@ describe('@cellix/service-blob-storage public contract', () => {
 	});
 
 	it('creates blob write authorization headers in shared-key mode', async () => {
-		const service = new ServiceBlobStorage({ connectionString });
+		const service = new ServiceBlobStorage({
+			accountName,
+			signingConnectionString,
+		});
 		await service.startUp();
 
 		const result = await service.createBlobWriteAuthorizationHeader({
@@ -205,7 +256,10 @@ describe('@cellix/service-blob-storage public contract', () => {
 	});
 
 	it('creates blob read authorization headers in shared-key mode', async () => {
-		const service = new ServiceBlobStorage({ connectionString });
+		const service = new ServiceBlobStorage({
+			accountName,
+			signingConnectionString,
+		});
 		await service.startUp();
 
 		const result = await service.createBlobReadAuthorizationHeader({
@@ -224,7 +278,7 @@ describe('@cellix/service-blob-storage public contract', () => {
 	it('enables shared-key signing as an explicit opt-in capability on a managed-identity blob client', async () => {
 		const service = new ServiceBlobStorage({
 			accountName: 'devstoreaccount1',
-			signingConnectionString: connectionString,
+			signingConnectionString,
 		});
 		await service.startUp();
 
@@ -251,7 +305,7 @@ describe('@cellix/service-blob-storage public contract', () => {
 				contentLength: 1024,
 				contentType: 'image/png',
 			}),
-		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration');
+		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString');
 
 		await expect(
 			service.createBlobReadAuthorizationHeader({
@@ -260,7 +314,7 @@ describe('@cellix/service-blob-storage public contract', () => {
 				contentLength: 1024,
 				contentType: 'image/png',
 			}),
-		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration');
+		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString');
 
 		await expect(
 			service.generateReadSasToken({
@@ -268,13 +322,22 @@ describe('@cellix/service-blob-storage public contract', () => {
 				blobName: 'avatars/member-1.png',
 				expiresOn: new Date('2026-05-14T12:00:00.000Z'),
 			}),
-		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration');
+		).rejects.toThrow('Shared-key signing is not configured; provide signingConnectionString');
 	});
 
 	it('guards against invalid lifecycle access and supports idempotent shutdown', async () => {
-		const service = new ServiceBlobStorage({ connectionString });
+		const service = new ServiceBlobStorage({ accountName });
 
 		expect(() => service.blobServiceClient).toThrow('ServiceBlobStorage is not started - cannot access blobServiceClient');
 		await expect(service.shutDown()).resolves.toBeUndefined();
 	});
 });
+
+function restoreEnv(key: 'AZURE_STORAGE_CONNECTION_STRING', value: string | undefined): void {
+	if (value === undefined) {
+		delete process.env[key];
+		return;
+	}
+
+	process.env[key] = value;
+}

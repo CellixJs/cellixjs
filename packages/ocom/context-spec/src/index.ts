@@ -21,68 +21,19 @@ export interface ApiContextSpec {
 	apolloServerService: ServiceApolloServer<Record<string, never>>;
 
 	/**
-	 * Blob storage service for backend operations (list, upload, delete).
-	 * Part of the dual blob storage architecture: one `ServiceBlobStorage` registration
-	 * configured for server-side SDK operations.
+	 * Blob storage service registered for backend blob operations.
 	 *
-	 * Configured by: connection string in local development or accountName in Azure
-	 * Authentication: shared-key in local dev, managed identity in Azure
-	 * Use for: Server-side blob operations, documents, app-generated assets
-	 *
-	 * Example:
-	 * ```ts
-	 * const documents = await context.blobStorageService.listBlobs({
-	 *   containerName: 'community-assets'
-	 * });
-	 * ```
-	 *
-	 * See dual blob storage architecture explanation below.
+	 * This is the framework `ServiceBlobStorage` class, configured for the
+	 * server-side registration that lists, uploads, and deletes blobs.
 	 */
-	// Server-side full service type: exposes the complete ServiceBlobStorage API (server-only operations included)
 	blobStorageService: BlobStorageOperations;
 
 	/**
-	 * Client upload service for generating signed authorization headers.
-	 * Part of the dual blob storage architecture: a second `ServiceBlobStorage` registration
-	 * with shared-key signing capability enabled via connection string.
+	 * Blob storage service registered for client signing operations.
 	 *
-	 * Configured by: accountName plus signingConnectionString
-	 * Authentication: managed identity for SDK client construction, shared-key for signing
-	 * Use for: Member avatars, community documents, user-generated content uploads
-	 *
-	 * Example:
-	 * ```ts
-	 * const uploadUrl = await context.clientOperationsService.createBlobWriteAuthorizationHeader({
-	 *   containerName: 'member-assets',
-	 *   blobName: `members/${memberId}/avatar.png`,
-	 *   expiresOn: new Date(Date.now() + 15 * 60 * 1000),
-	 * });
-	 * ```
-	 *
-	 * OCOM Dual Blob Storage Architecture:
-	 *
-	 * OCOM registers the same framework blob service class twice, each time with a different responsibility:
-	 *
-	 * 1. **Backend Blob Service** (`blobStorageService`)
-	 *    - Uses local shared-key auth in development or managed identity in Azure
-	 *    - Handles: list, upload, delete operations
-	 *    - Optimized for server-side SDK work
-	 *
-	 * 2. **Client Upload Service** (`clientOperationsService`)
-	 *    - Uses the same `ServiceBlobStorage` class
-	 *    - Opts into shared-key signing via `signingConnectionString`
-	 *    - Handles: `createBlobWriteAuthorizationHeader`, `createBlobReadAuthorizationHeader` for client-side browser uploads
-	 *    - Narrows the connection string dependency to direct-upload signing flows
-	 *
-	 * Benefits of this dual pattern:
-	 * - Application code still sees narrow, intent-focused interfaces
-	 * - The framework service remains reusable and consistent across registrations
-	 * - Connection string scope stays isolated to the upload-signing role
-	 * - Production server-side blob operations do not require a connection string
-	 * - Clear in code which registration is intended for which responsibility
-	 *
-	 * See @ocom/service-blob-storage for full architecture rationale and ADR-0032.
+	 * This is the same framework `ServiceBlobStorage` class, configured with
+	 * `signingConnectionString` so the application can generate SharedKey
+	 * authorization headers for direct browser uploads and downloads.
 	 */
-	// Client-facing narrow contract for upload/signing operations. Named to match runtime registration (ClientOperationsService)
 	clientOperationsService: ClientUploadOperations;
 }

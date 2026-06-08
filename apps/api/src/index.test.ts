@@ -152,12 +152,12 @@ describe('apps/api bootstrap', () => {
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		// Sanity: ensure we found instances of the mocked blob storage
 		expect(registeredBlobService).toBeInstanceOf(MockServiceBlobStorage);
-	expect(registeredClientOpsService).toBeInstanceOf(MockServiceBlobStorage);
-	expect(registeredBlobService).toMatchObject({
-		options: {
-			accountName: 'devstoreaccount1',
-		},
-	});
+		expect(registeredClientOpsService).toBeInstanceOf(MockServiceBlobStorage);
+		expect(registeredBlobService).toMatchObject({
+			options: {
+				accountName: 'devstoreaccount1',
+			},
+		});
 		expect(registeredClientOpsService).toMatchObject({
 			options: {
 				accountName: 'devstoreaccount1',

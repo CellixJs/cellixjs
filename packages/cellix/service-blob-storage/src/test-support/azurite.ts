@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { createServer, Socket } from 'node:net';
@@ -5,17 +6,16 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Azurite credentials are sourced from environment variables (AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_ACCOUNT_KEY)
-// which are typically set via local.settings.json in development environments.
-// Falls back to well-known Azurite development account if not set.
-function getAzuriteAccountName(): string {
-	// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for process.env in strict mode
-	return process.env['AZURE_STORAGE_ACCOUNT_NAME'] ?? 'devstoreaccount1';
-}
+export const azuriteAccountName = 'devstoreaccount1';
 
-function getAzuriteAccountKey(): string {
-	// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for process.env in strict mode
-	return process.env['AZURE_STORAGE_ACCOUNT_KEY'] ?? 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OtQ3Q7AeFFS=';
+/**
+ * Deterministic non-secret test credential for Azurite and SharedKey signing tests.
+ *
+ * The value is generated from a fixed label so it is stable across runs without
+ * embedding a literal account key in source code.
+ */
+export function getAzuriteAccountKey(): string {
+	return createHash('sha256').update('cellix-azurite-test-account-key').digest('base64');
 }
 
 export interface AzuriteBlobServer {
@@ -26,22 +26,24 @@ export interface AzuriteBlobServer {
 export async function startAzuriteBlobServer(): Promise<AzuriteBlobServer> {
 	const port = await getAvailablePort();
 	const location = mkdtempSync(join(tmpdir(), 'cellix-azurite-blob-'));
+	const accountKey = getAzuriteAccountKey();
 	let processHandle: ChildProcessWithoutNullStreams;
 	let spawnError: unknown;
 
-	// Resolve azurite-blob from node_modules/.bin to avoid depending on pnpm being on PATH
 	const azuriteBinaryPath = join(findRepoRoot(), 'node_modules', '.bin', 'azurite-blob');
 
 	try {
 		processHandle = spawn(azuriteBinaryPath, ['--silent', '--skipApiVersionCheck', '--blobPort', String(port), '--location', location], {
 			stdio: 'pipe',
-			env: process.env,
+			env: {
+				...process.env,
+				AZURITE_ACCOUNTS: `${azuriteAccountName}:${accountKey}`,
+			},
 		});
 	} catch (err) {
 		throw new Error(`Failed to spawn Azurite process (binary at ${azuriteBinaryPath}): ${String(err)}`);
 	}
 
-	// capture asynchronous spawn errors (ENOENT, EACCES, etc.)
 	processHandle.once('error', (err) => {
 		spawnError = err;
 	});
@@ -49,7 +51,7 @@ export async function startAzuriteBlobServer(): Promise<AzuriteBlobServer> {
 	await waitForAzuriteReady(processHandle, port, () => spawnError);
 
 	return {
-		connectionString: buildAzuriteConnectionString(port),
+		connectionString: `DefaultEndpointsProtocol=http;AccountName=${azuriteAccountName};AccountKey=${accountKey};BlobEndpoint=http://127.0.0.1:${port}/${azuriteAccountName};`,
 		stop: async () => {
 			await stopProcess(processHandle);
 			rmSync(location, { recursive: true, force: true });
@@ -123,12 +125,6 @@ async function canConnect(port: number): Promise<void> {
 	});
 }
 
-function buildAzuriteConnectionString(port: number): string {
-	const accountName = getAzuriteAccountName();
-	const accountKey = getAzuriteAccountKey();
-	return `DefaultEndpointsProtocol=http;AccountName=${accountName};AccountKey=${accountKey};BlobEndpoint=http://127.0.0.1:${port}/${accountName};`;
-}
-
 async function stopProcess(processHandle: ChildProcessWithoutNullStreams): Promise<void> {
 	if (processHandle.exitCode !== null) {
 		return;
@@ -153,13 +149,11 @@ function delay(ms: number): Promise<void> {
 function findRepoRoot(): string {
 	const __dirname = dirname(fileURLToPath(import.meta.url));
 
-	// Try environment variable first (e.g., set in CI or by test runners)
 	const { REPO_ROOT } = process.env;
 	if (REPO_ROOT && existsSync(join(REPO_ROOT, 'pnpm-workspace.yaml'))) {
 		return REPO_ROOT;
 	}
 
-	// Traverse up directory tree looking for pnpm-workspace.yaml marker
 	let current = __dirname;
 	let previous = '';
 	while (current !== previous) {

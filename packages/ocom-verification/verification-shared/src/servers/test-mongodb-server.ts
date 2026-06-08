@@ -24,7 +24,7 @@ export async function seedOwnerCommunityReferenceData(connectionString: string, 
 		if (users.length > 0) {
 			const operations = users.map((user) => ({
 				updateOne: {
-					filter: { _id: new ObjectId(user.id) },
+					filter: { externalId: user.externalId },
 					update: {
 						$setOnInsert: {
 							_id: new ObjectId(user.id),

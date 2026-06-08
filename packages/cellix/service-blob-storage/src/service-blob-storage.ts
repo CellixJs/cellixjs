@@ -19,7 +19,6 @@ import type { BlobAddress, BlobListItem, BlobStorage, BlobUploadAuthorizationHea
  * - optional shared-key signing for direct client upload/read flows
  *
  * Blob SDK authentication options:
- * - `{ connectionString }`: use connection-string / shared-key auth for blob SDK operations
  * - `{ accountName, credential? }`: use managed identity (or supplied TokenCredential) for blob SDK operations
  *
  * Shared-key signing is an explicit opt-in capability:
@@ -39,31 +38,22 @@ import type { BlobAddress, BlobListItem, BlobStorage, BlobUploadAuthorizationHea
  * });
  * ```
  */
-type SharedKeyBlobClientOptions = {
-	connectionString: string;
-	accountName?: never;
-	credential?: never;
-	signingConnectionString?: string;
-};
-
 type ManagedIdentityBlobClientOptions = {
 	accountName: string;
 	credential?: TokenCredential;
-	connectionString?: never;
 	signingConnectionString?: string;
 };
 
-export type ServiceBlobStorageOptions = SharedKeyBlobClientOptions | ManagedIdentityBlobClientOptions;
+export type ServiceBlobStorageOptions = ManagedIdentityBlobClientOptions;
 
 /**
  * Validates the provided options at construction time and infers the blob SDK auth mode.
  */
 function validateOptions(options: ServiceBlobStorageOptions): void {
-	const hasConnectionString = 'connectionString' in options && !!options.connectionString?.trim();
 	const hasAccountName = 'accountName' in options && !!options.accountName?.trim();
 
-	if (hasConnectionString === hasAccountName) {
-		throw new Error("Provide exactly one blob client authentication strategy: either 'connectionString' or 'accountName'");
+	if (!hasAccountName) {
+		throw new Error("Provide an 'accountName' for blob client authentication");
 	}
 
 	if ('signingConnectionString' in options && typeof options.signingConnectionString === 'string' && !options.signingConnectionString.trim()) {
@@ -74,12 +64,14 @@ function validateOptions(options: ServiceBlobStorageOptions): void {
 /**
  * Azure Blob Storage infrastructure service for Cellix bootstraps.
  *
- * The service keeps Azure SDK usage and shared-key parsing inside the framework package
- * while exposing a small framework-native contract of blob operations and blob-scoped signing.
+ * The service owns Azure Blob client construction, server-side blob operations,
+ * and optional SharedKey signing for direct client upload and download flows.
+ * It is the framework-level boundary that application packages adapt into
+ * narrower app-specific contracts.
  *
  * Runtime behavior is split intentionally:
- * - blob operations authenticate through either connection string or managed identity
- * - shared-key signing is available only when explicitly configured
+ * - server-side blob operations use managed identity by default and fall back to a local Azurite connection string only when the environment clearly points at an emulator
+ * - direct client signing is opt-in through `signingConnectionString`
  *
  * @example
  * ```ts
@@ -97,55 +89,82 @@ function validateOptions(options: ServiceBlobStorageOptions): void {
  */
 export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage {
 	private readonly options: ServiceBlobStorageOptions;
-	private readonly inferredMode: 'sharedKey' | 'managedIdentity';
 	private blobServiceClientInternal: BlobServiceClient | undefined;
 	private sharedKeyCredentialInternal: StorageSharedKeyCredential | undefined;
 	private clientUploadSignerInternal: ClientUploadSigner | undefined;
 
+	/**
+	 * Creates a blob storage service with either server-side Blob SDK auth or
+	 * optional SharedKey signing for direct client flows.
+	 *
+	 * @param options Authentication and signing configuration.
+	 */
 	constructor(options: ServiceBlobStorageOptions) {
 		validateOptions(options);
 		this.options = options;
-		this.inferredMode = options.connectionString ? 'sharedKey' : 'managedIdentity';
 	}
 
+	/**
+	 * Starts the underlying Azure Blob client and returns the started service contract.
+	 *
+	 * Call this during application bootstrap before invoking any blob operations or
+	 * client-signing helpers.
+	 */
 	public async startUp(): Promise<BlobStorage> {
 		// Avoid startup-time IMDS probes in environments without managed identity by deferring
 		// token acquisition to the Azure SDK. Keep function async and include a no-op await
 		// to satisfy the linter which enforces at least one await in async functions.
 		await Promise.resolve();
 
-		if (this.inferredMode === 'sharedKey') {
-			// connection string path
-			const connectionString = this.options.connectionString as string;
-			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(connectionString);
-			this.configureSharedKeySigning(this.options.signingConnectionString ?? connectionString, this.blobServiceClientInternal.url);
-
-			const endpoint = this.blobServiceClientInternal?.url ?? '(unknown)';
-			const accountName = getConnectionStringValue(connectionString, 'AccountName');
-			const maskedAccount = accountName ? accountName.replace(/.(?=.{4})/g, '*') : 'unknown';
-			console.info(`[ServiceBlobStorage] started (sharedKey). endpoint=${endpoint}, account=${maskedAccount}`);
-
-			return this;
+		// managed identity flow
+		const { accountName, signingConnectionString, credential } = this.options;
+		const { AZURE_STORAGE_CONNECTION_STRING: connectionString } = process.env;
+		if (connectionString) {
+			const configuredAccountName = getConnectionStringValue(connectionString, 'AccountName');
+			const blobEndpoint = getConnectionStringValue(connectionString, 'BlobEndpoint');
+			if (configuredAccountName?.trim().toLowerCase() === accountName.trim().toLowerCase()) {
+				if (isLocalBlobConnectionString(connectionString, blobEndpoint)) {
+					this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(connectionString);
+					if (signingConnectionString) {
+						this.configureSharedKeySigning(signingConnectionString, this.blobServiceClientInternal.url);
+					}
+					console.info(`[ServiceBlobStorage] started (localEmulator). account=${accountName}, endpoint=${this.blobServiceClientInternal.url}`);
+					return this;
+				}
+				if (blobEndpoint) {
+					const credentialToUse: TokenCredential = credential ?? new DefaultAzureCredential();
+					this.blobServiceClientInternal = new BlobServiceClient(blobEndpoint, credentialToUse);
+					if (signingConnectionString) {
+						this.configureSharedKeySigning(signingConnectionString, this.blobServiceClientInternal.url);
+					}
+					console.info(`[ServiceBlobStorage] started (managedIdentity). account=${accountName}, endpoint=${blobEndpoint}`);
+					return this;
+				}
+			}
 		}
 
-		// managed identity flow
-		const accountName = this.options.accountName as string;
-		const credentialToUse: TokenCredential = this.options.credential ?? new DefaultAzureCredential();
+		const credentialToUse: TokenCredential = credential ?? new DefaultAzureCredential();
 		const url = `https://${accountName}.blob.core.windows.net`;
 
 		// Construct the client and defer token acquisition to the SDK. This avoids
 		// startup-time hangs when IMDS isn't available (local dev). Operations will
 		// fail at call time if the environment doesn't provide a valid managed identity.
 		this.blobServiceClientInternal = new BlobServiceClient(url, credentialToUse);
-		if (this.options.signingConnectionString) {
-			this.configureSharedKeySigning(this.options.signingConnectionString, this.blobServiceClientInternal.url);
+		if (signingConnectionString) {
+			this.configureSharedKeySigning(signingConnectionString, this.blobServiceClientInternal.url);
 		}
 		console.info(`[ServiceBlobStorage] started (managedIdentity). account=${accountName}, endpoint=${url}`);
 		return this;
 	}
 
+	/**
+	 * Clears the started state.
+	 *
+	 * Returns immediately when the service was never started.
+	 *
+	 * @returns A promise that resolves when internal state has been cleared.
+	 */
 	public shutDown(): Promise<void> {
-		// Make shutdown idempotent: resolving when not started is OK.
 		if (!this.blobServiceClientInternal) {
 			return Promise.resolve();
 		}
@@ -156,6 +175,21 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		return Promise.resolve();
 	}
 
+	/**
+	 * Uploads UTF-8 text to a blob and returns the Azure upload response.
+	 *
+	 * @param request Blob target plus text payload and optional headers, metadata, and tags.
+	 * @returns The Azure storage SDK upload result for the completed write.
+	 *
+	 * @example
+	 * ```ts
+	 * await blobStorage.uploadText({
+	 *   containerName: 'member-assets',
+	 *   blobName: 'members/123/profile.json',
+	 *   text: '{"hello":"world"}',
+	 * });
+	 * ```
+	 */
 	public async uploadText(request: UploadTextBlobRequest): Promise<BlobUploadCommonResponse> {
 		const blockBlobClient = this.getContainerClient(request.containerName).getBlockBlobClient(request.blobName);
 		const uploadOptions = {
@@ -168,10 +202,30 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		});
 	}
 
+	/**
+	 * Deletes a blob if it exists.
+	 *
+	 * @param address Container and blob name that identify the blob to delete.
+	 * @returns A promise that resolves when the delete call completes.
+	 */
 	public async deleteBlob(address: BlobAddress): Promise<void> {
 		await this.getContainerClient(address.containerName).deleteBlob(address.blobName);
 	}
 
+	/**
+	 * Lists blobs in a container, optionally filtered by prefix.
+	 *
+	 * @param request Container to enumerate plus an optional prefix filter.
+	 * @returns A list of blob names and absolute URLs for the matching blobs.
+	 *
+	 * @example
+	 * ```ts
+	 * const blobs = await blobStorage.listBlobs({
+	 *   containerName: 'member-assets',
+	 *   prefix: 'members/',
+	 * });
+	 * ```
+	 */
 	public async listBlobs(request: ListBlobsRequest): Promise<BlobListItem[]> {
 		const containerClient = this.getContainerClient(request.containerName);
 		const blobs: BlobListItem[] = [];
@@ -187,9 +241,25 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		return blobs;
 	}
 
+	/**
+	 * Generates a blob-scoped read SAS token.
+	 *
+	 * @param request Blob target and expiration for the SAS token.
+	 * @returns The SAS query string without a leading `?`.
+	 * @throws If shared-key signing was not configured at startup.
+	 *
+	 * @example
+	 * ```ts
+	 * const sas = await blobStorage.generateReadSasToken({
+	 *   containerName: 'member-assets',
+	 *   blobName: 'members/123/avatar.png',
+	 *   expiresOn: new Date(Date.now() + 15 * 60_000),
+	 * });
+	 * ```
+	 */
 	public generateReadSasToken(request: CreateBlobSasUrlRequest): Promise<string> {
 		if (!this.sharedKeyCredentialInternal) {
-			return Promise.reject(new Error('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration'));
+			return Promise.reject(new Error('Shared-key signing is not configured; provide signingConnectionString'));
 		}
 
 		const sas = generateBlobSASQueryParameters(
@@ -206,23 +276,41 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	}
 
 	/**
-	 * Create signed authorization header for client-side blob write (PUT) requests.
-	 * Only available when shared-key signing capability is configured.
+	 * Generates the signed authorization header details needed for a client-side
+	 * blob write request.
+	 *
+	 * @param request Blob target plus payload details that must match the eventual client request.
+	 * @returns URL, authorization header, and required request headers for the upload call.
+	 * @throws If shared-key signing was not configured at startup.
+	 *
+	 * @example
+	 * ```ts
+	 * const auth = await blobStorage.createBlobWriteAuthorizationHeader({
+	 *   containerName: 'member-assets',
+	 *   blobName: 'members/123/avatar.png',
+	 *   contentLength: file.size,
+	 *   contentType: file.type,
+	 * });
+	 * ```
 	 */
 	public createBlobWriteAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
 		if (!this.clientUploadSignerInternal) {
-			return Promise.reject(new Error('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration'));
+			return Promise.reject(new Error('Shared-key signing is not configured; provide signingConnectionString'));
 		}
 		return this.clientUploadSignerInternal.createBlobWriteAuthorizationHeader(request);
 	}
 
 	/**
-	 * Create signed authorization header for client-side blob read (GET) requests.
-	 * Only available when shared-key signing capability is configured.
+	 * Generates the signed authorization header details needed for a client-side
+	 * blob read request.
+	 *
+	 * @param request Blob target plus payload details that must match the eventual client request.
+	 * @returns URL, authorization header, and required request headers for the download call.
+	 * @throws If shared-key signing was not configured at startup.
 	 */
 	public createBlobReadAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
 		if (!this.clientUploadSignerInternal) {
-			return Promise.reject(new Error('Shared-key signing is not configured; provide signingConnectionString or use connectionString-based blob client configuration'));
+			return Promise.reject(new Error('Shared-key signing is not configured; provide signingConnectionString'));
 		}
 		return this.clientUploadSignerInternal.createBlobReadAuthorizationHeader(request);
 	}
@@ -230,7 +318,10 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	/**
 	 * Gets the started `BlobServiceClient` instance.
 	 *
-	 * Throws if the service has not been started.
+	 * This is primarily for framework internals and advanced application adapters.
+	 *
+	 * @returns The started Azure SDK client.
+	 * @throws If the service has not been started.
 	 */
 	public get blobServiceClient(): BlobServiceClient {
 		if (!this.blobServiceClientInternal) {
@@ -255,5 +346,23 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 			accountName,
 			accountKey,
 		});
+	}
+
+}
+
+function isLocalBlobConnectionString(connectionString: string, blobEndpoint: string | undefined): boolean {
+	if (/usedevelopmentstorage=true/i.test(connectionString)) {
+		return true;
+	}
+
+	if (!blobEndpoint) {
+		return false;
+	}
+
+	try {
+		const url = new URL(blobEndpoint);
+		return url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]';
+	} catch {
+		return false;
 	}
 }

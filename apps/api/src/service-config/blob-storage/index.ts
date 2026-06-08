@@ -32,7 +32,7 @@ if (!AZURE_STORAGE_ACCOUNT_NAME) {
 }
 
 if (!AZURE_STORAGE_CONNECTION_STRING) {
-	throw new Error('Missing AZURE_STORAGE_CONNECTION_STRING environment variable. Required for SAS token generation for client uploads. ' + '(Applications that only perform server-side blob operations do not require this.)');
+	throw new Error('Missing AZURE_STORAGE_CONNECTION_STRING environment variable. Required for SAS token generation for client uploads.');
 }
 
 const accountName = AZURE_STORAGE_ACCOUNT_NAME;

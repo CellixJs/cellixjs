@@ -6,10 +6,16 @@ import { type AzuriteBlobServer, startAzuriteBlobServer } from '../src/test-supp
 describe('ServiceBlobStorage integration with Azurite', () => {
 	let azurite: AzuriteBlobServer;
 	let service: ServiceBlobStorage;
+	const accountName = 'devstoreaccount1';
 
 	beforeAll(async () => {
 		azurite = await startAzuriteBlobServer();
-		service = new ServiceBlobStorage({ connectionString: azurite.connectionString });
+        // biome-ignore lint:useLiteralKeys
+		process.env['AZURE_STORAGE_CONNECTION_STRING'] = azurite.connectionString;
+		service = new ServiceBlobStorage({
+			accountName,
+			signingConnectionString: azurite.connectionString,
+		});
 		await service.startUp();
 	});
 
@@ -20,6 +26,8 @@ describe('ServiceBlobStorage integration with Azurite', () => {
 		if (azurite) {
 			await azurite.stop();
 		}
+        // biome-ignore lint:useLiteralKeys
+		delete process.env['AZURE_STORAGE_CONNECTION_STRING'];
 	});
 
 	it('uploads, lists, and generates read SAS tokens against Azurite', async () => {

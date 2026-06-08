@@ -8,16 +8,16 @@ Use this package when application code should depend on a narrow storage abstrac
 
 ## Authentication modes
 
-`ServiceBlobStorage` supports two Azure SDK authentication styles:
+`ServiceBlobStorage` uses managed identity for server-side blob operations by default:
 
-- `connectionString` for shared-key auth in local development or Azurite
 - `accountName` with an optional `credential` for managed identity or other token credential flows
+
+When `AZURE_STORAGE_CONNECTION_STRING` points at a local Azurite endpoint, the service automatically uses that connection string for the blob SDK client so local development keeps working without changing the public constructor contract.
 
 You can also provide `signingConnectionString` to enable direct client signing while keeping server-side blob access on managed identity.
 
 Use:
 
-- `connectionString` when the application owns the storage connection and you want the simplest setup
 - `accountName` when the app runs on Azure and should use managed identity for server-side access
 - `signingConnectionString` only when the app also needs direct client upload or download signatures
 

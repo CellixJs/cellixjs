@@ -1,11 +1,17 @@
+import { createHash } from 'node:crypto';
 import { ServiceBlobStorage as CellixServiceBlobStorage } from '@cellix/service-blob-storage';
 import { describe, expect, it } from 'vitest';
 import { ServiceBlobStorage } from './index.js';
 
+const accountName = 'devstoreaccount1';
+const accountKey = createHash('sha256').update('cellix-azurite-test-account-key').digest('base64');
+const signingConnectionString = `DefaultEndpointsProtocol=https;AccountName=${accountName};AccountKey=${accountKey};EndpointSuffix=core.windows.net`;
+
 describe('@ocom/service-blob-storage', () => {
-	it('exports an application-facing ServiceBlobStorage that extends the Cellix base service', async () => {
+	it('re-exports the Cellix ServiceBlobStorage for application use', async () => {
 		const service = new ServiceBlobStorage({
-			connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+			accountName,
+			signingConnectionString,
 		});
 
 		expect(service).toBeInstanceOf(CellixServiceBlobStorage);
@@ -18,7 +24,7 @@ describe('@ocom/service-blob-storage', () => {
 				contentType: 'image/png',
 			}),
 		).resolves.toMatchObject({
-			url: 'http://127.0.0.1:10000/devstoreaccount1/member-assets/members/123/avatar.png',
+			url: expect.stringContaining(`/member-assets/members/123/avatar.png`),
 		});
 		await expect(service.shutDown()).resolves.toBeUndefined();
 	});

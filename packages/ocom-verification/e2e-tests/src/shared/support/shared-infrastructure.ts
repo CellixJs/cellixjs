@@ -15,6 +15,7 @@ let browserBaseUrl: string | undefined;
 let authenticatedBrowserContext: BrowserContext | undefined;
 let browseTheWeb: BrowseTheWeb | undefined;
 let shutdownHandlersRegistered = false;
+let ensureServersPromise: Promise<void> | undefined;
 
 export interface InfrastructureState {
 	apiUrl: string | undefined;
@@ -40,6 +41,7 @@ export async function resetScenarioState(): Promise<void> {
 }
 
 export async function stopAll(): Promise<void> {
+	ensureServersPromise = undefined;
 	if (browseTheWeb) {
 		await browseTheWeb.close().catch(() => undefined);
 		browseTheWeb = undefined;
@@ -85,6 +87,21 @@ export async function stopAll(): Promise<void> {
 }
 
 export async function ensureE2EServers(): Promise<void> {
+	if (ensureServersPromise) {
+		return await ensureServersPromise;
+	}
+
+	ensureServersPromise = ensureE2EServersInternal();
+
+	try {
+		await ensureServersPromise;
+	} catch (error) {
+		ensureServersPromise = undefined;
+		throw error;
+	}
+}
+
+async function ensureE2EServersInternal(): Promise<void> {
 	initTestEnvironment();
 
 	registerShutdownHandlers();
