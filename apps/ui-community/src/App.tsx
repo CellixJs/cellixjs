@@ -2,6 +2,7 @@ import { RequireAuth } from '@cellix/ui-core';
 import { Accounts } from '@ocom/ui-community-route-accounts';
 import { Admin } from '@ocom/ui-community-route-admin';
 import { Root } from '@ocom/ui-community-route-root';
+import { MemberProfileContainer } from '@ocom/ui-community-shared';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
@@ -30,6 +31,10 @@ export default function App() {
 				<Route
 					path="/:communityId/admin/:memberId/*"
 					element={<Admin />}
+				/>
+				<Route
+					path="/:communityId/member/:memberId/*"
+					element={<MemberProfileContainer />}
 				/>
 			</Routes>
 		</RequireAuth>
