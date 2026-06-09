@@ -32,37 +32,54 @@ import { PlaywrightPageAdapter } from '@cellix/serenity-framework/pages/playwrig
 
 ## Server composition
 
-Compose only the servers a suite needs by chaining `addServer` and `addUiPortal`. The framework starts them in dependency order (servers whose `dependsOn` is satisfied start in parallel), resets per-scenario state, sets up the browser when a UI portal exists, and tears everything down. Each application registers its own set — fewer or more servers — without changing the framework.
+Compose only the servers a suite needs by chaining `addServer`, then `addUiPortal`, then `finalize`. The framework starts them in dependency order (servers whose `dependsOn` is satisfied start in parallel), calls `resetForScenario()` on servers that implement it, sets up the browser when a UI portal exists, and tears everything down. Each application registers its own set — fewer or more servers — without changing the framework. Once UI portal registration starts, regular server registration is closed; once finalized, no registration methods remain on the typed runtime surface.
 
 ```ts
 import { E2EInfrastructure } from '@cellix/serenity-framework/infrastructure/e2e';
-import { MongoMemoryTestServer, ProcessTestServer } from '@cellix/serenity-framework/servers';
+import { MongoMemoryProcessTestServer, ProcessTestServer, ProcessUiTestServer } from '@cellix/serenity-framework/servers';
+
+const mongo = new MongoMemoryProcessTestServer({
+  serverName: 'Mongo',
+  executable: 'pnpm',
+  spawnArgs: ['run', 'dev'],
+  cwd: '/repo/apps/server-mongodb-memory-mock',
+  connectionString: () => mongoConnectionString,
+  dbName,
+  portsToCloseBeforeStart: () => mongoPort,
+  readyMarker: 'MongoDB Memory Replica Set ready at:',
+  seedData,
+});
+
+const api = new ProcessTestServer({
+  serverName: 'Api',
+  executable: 'pnpm',
+  spawnArgs: ['run', process.env.WORKTREE_NAME ? 'dev:worktree' : 'dev'],
+  cwd: '/repo/apps/api',
+  extraEnv: () => ({ COSMOSDB_CONNECTION_STRING: mongo.getConnectionString() }),
+  getUrl: () => 'https://api.localhost:1355/api/graphql',
+  readyMarker: 'Functions:',
+});
+
+const community = new ProcessUiTestServer({
+  serverName: 'Community portal',
+  executable: 'pnpm',
+  spawnArgs: ['run', 'dev'],
+  cwd: '/repo/apps/ui-community',
+  getUrl: () => 'https://community.localhost:1355',
+  readyMarker: 'ready in',
+});
 
 export const infrastructure = E2EInfrastructure
   .create({
     // Shared across every portal context; baseURL is supplied per portal.
     browserContextOptions: { ignoreHTTPSErrors: true },
   })
-  .addServer('mongo', () => new MongoMemoryTestServer({ dbName, port, replSetName, seedData }), {
-    resetForScenario: (server) => (server as MongoMemoryTestServer).resetForScenario(),
-  })
-  .addServer('auth', () => createAuthServer())
-  .addServer(
-    'api',
-    (ctx) =>
-      new ProcessTestServer({
-        serverName: 'Api',
-        executable: 'pnpm',
-        spawnArgs: ['run', process.env.WORKTREE_NAME ? 'dev:worktree' : 'dev'],
-        cwd: '/repo/apps/api',
-        extraEnv: () => ({ COSMOSDB_CONNECTION_STRING: ctx.server<MongoMemoryTestServer>('mongo').getConnectionString() }),
-        getUrl: () => 'https://api.localhost:1355/api/graphql',
-        readyMarker: 'Functions:',
-      }),
-    { dependsOn: ['mongo'] },
-  )
-  .addUiPortal('community', () => createCommunityPortal())
-  .addUiPortal('staff', () => createStaffPortal());
+  .addServer('mongo', mongo)
+  .addServer('auth', createAuthServer())
+  .addServer('api', api, { dependsOn: ['mongo'] })
+  .addUiPortal('community', community)
+  .addUiPortal('staff', createStaffPortal())
+  .finalize();
 
 await infrastructure.ensureStarted();
 await infrastructure.resetScenarioState();
@@ -73,7 +90,7 @@ await infrastructure.stopAll();
 const staffContext = await infrastructure.newPortalContext('staff');
 ```
 
-A server factory receives a context so a dependent server (such as the API) can read a started dependency's runtime state (such as the database connection string). Each UI portal owns its browser-context recipe, so `newPortalContext(name)` scopes navigation to that portal without any portal being special-cased. The framework never imports app paths or app-specific environment helpers — pass those into the factories from the consumer package.
+Register server objects directly. Dependencies that need one another receive those references through normal object construction; `dependsOn` describes startup order only. Each UI portal owns its browser-context recipe, so `newPortalContext(name)` scopes navigation to that portal without any portal being special-cased. The framework never imports app paths or app-specific environment helpers — pass those into server constructors from the consumer package.
 
 ## API acceptance infrastructure
 
@@ -81,22 +98,21 @@ API-only acceptance suites use the smaller infrastructure manager. It composes a
 
 ```ts
 import { ApiInfrastructure } from '@cellix/serenity-framework/infrastructure/api';
-import { MongoMemoryTestServer } from '@cellix/serenity-framework/servers';
+import { MongoMemoryProcessTestServer } from '@cellix/serenity-framework/servers';
+
+const mongo = new MongoMemoryProcessTestServer({ serverName, executable, spawnArgs, cwd, connectionString, dbName, portsToCloseBeforeStart: mongoPort, readyMarker, seedData });
+const graphql = createGraphqlServer(mongo);
 
 export const infrastructure = ApiInfrastructure
   .create()
-  .addServer('mongo', () => new MongoMemoryTestServer({ dbName, port, replSetName, seedData }), {
-    resetForScenario: (server) => (server as MongoMemoryTestServer).resetForScenario(),
-  })
-  .addServer(
-    'graphql',
-    (ctx) => createGraphqlServer(ctx.server<MongoMemoryTestServer>('mongo').getConnectionString()),
-    { dependsOn: ['mongo'] },
-  );
+  .addServer('mongo', mongo)
+  .addServer('graphql', graphql, { dependsOn: ['mongo'] })
+  .finalize();
 
 // Suites without a database can register only their API server.
 const apiOnly = ApiInfrastructure.create()
-  .addServer('graphql', () => createGraphqlServer());
+  .addServer('graphql', createGraphqlServer())
+  .finalize();
 ```
 
 ## Managed worlds

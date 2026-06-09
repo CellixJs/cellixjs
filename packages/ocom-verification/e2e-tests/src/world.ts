@@ -1,16 +1,11 @@
 import { registerManagedSerenityWorld } from '@cellix/serenity-framework/cucumber';
 import { SerenityCast } from '@cellix/serenity-framework/serenity';
 import { registerLifecycleHooks } from './cucumber-lifecycle-hooks.ts';
-import * as infra from './infrastructure.ts';
+import { infrastructure } from './infrastructure.ts';
 import { OAuth2Login } from './shared/abilities/oauth2-login.ts';
 
 export const CellixE2EWorld = registerManagedSerenityWorld({
-	infrastructure: {
-		ensureStarted: infra.ensureE2EServers,
-		getState: infra.getState,
-		resetScenarioState: infra.resetScenarioState,
-		stopAll: infra.stopAll,
-	},
+	infrastructure,
 	validateState: (state) => {
 		if (!state.browseTheWeb) {
 			throw new Error('BrowseTheWeb ability not initialized');

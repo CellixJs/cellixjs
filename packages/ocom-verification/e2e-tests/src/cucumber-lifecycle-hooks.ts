@@ -4,7 +4,7 @@ import { registerWorldLifecycleHooks } from '@cellix/serenity-framework/cucumber
 import { registerScreenshotOnFailureHook } from '@cellix/serenity-framework/cucumber/screenshot';
 import { getTimeout } from '@cellix/serenity-framework/settings';
 import type { IWorld } from '@cucumber/cucumber';
-import * as infra from './infrastructure.ts';
+import { infrastructure } from './infrastructure.ts';
 import type { CellixE2EWorld } from './world.ts';
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url));
@@ -19,7 +19,7 @@ export function registerLifecycleHooks(): void {
 		after: async (world) => {
 			await world.cleanup();
 		},
-		afterAll: () => infra.stopAll(),
+		afterAll: () => infrastructure.stopAll(),
 	});
 
 	registerScreenshotOnFailureHook({

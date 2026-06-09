@@ -5,8 +5,7 @@ vi.mock('playwright', () => ({
 	chromium: { launch: vi.fn() },
 }));
 
-import type { MongoMemoryTestServer } from '../servers/mongo-memory-test-server.ts';
-import type { TestServer } from '../servers/test-server.ts';
+import type { MongoMemoryTestServer, TestServer, UiTestServer } from '../servers/index.ts';
 import { ApiInfrastructure, E2EInfrastructure } from './index.ts';
 
 class FakeServer implements TestServer {
@@ -65,6 +64,10 @@ class FailingServer extends FakeServer {
 	}
 }
 
+class FakeUiServer extends FakeServer implements UiTestServer {
+	readonly uiPortal = true;
+}
+
 function mongoServer(url = 'mongodb://test'): FakeServer & MongoMemoryTestServer {
 	return new FakeServer(url) as FakeServer & MongoMemoryTestServer;
 }
@@ -87,34 +90,27 @@ function browserStubs() {
 }
 
 describe('ApiInfrastructure', () => {
-	it('starts servers in dependency order and exposes them by name, wiring the factory context', async () => {
+	it('starts server instances in dependency order and exposes them by name', async () => {
 		const mongo = mongoServer();
 		const graphQL = new FakeServer('http://127.0.0.1:4000/graphql');
 
-		let graphqlSawMongoUrl: string | undefined;
 		const infrastructure = ApiInfrastructure.create()
-			.addServer('mongo', () => mongo, { resetForScenario: (server) => (server as FakeServer).resetForScenario() })
-			.addServer(
-				'graphql',
-				(ctx) => {
-					graphqlSawMongoUrl = ctx.server('mongo').getUrl();
-					return graphQL;
-				},
-				{ dependsOn: ['mongo'] },
-			);
+			.addServer('mongo', mongo)
+			.addServer('graphql', graphQL, { dependsOn: ['mongo'] })
+			.finalize();
 
 		await infrastructure.ensureStarted();
 
-		expect(graphqlSawMongoUrl).toBe('mongodb://test');
 		expect(Object.keys(infrastructure.getState().servers)).toEqual(['mongo', 'graphql']);
 		expect(graphQL.getUrl()).toBe('http://127.0.0.1:4000/graphql');
 		expect(graphQL.startCalls).toBe(1);
+		expect(mongo.startCalls).toBe(1);
 	});
 
 	it('runs a single server without a database when none is registered', async () => {
 		const graphQL = new FakeServer('http://127.0.0.1:4000/graphql');
 
-		const infrastructure = ApiInfrastructure.create().addServer('graphql', () => graphQL);
+		const infrastructure = ApiInfrastructure.create().addServer('graphql', graphQL).finalize();
 
 		await infrastructure.ensureStarted();
 		await infrastructure.resetScenarioState();
@@ -128,8 +124,9 @@ describe('ApiInfrastructure', () => {
 		const mongo = mongoServer();
 		const graphQL = new FakeServer('http://127.0.0.1:4000/graphql');
 		const infrastructure = ApiInfrastructure.create()
-			.addServer('mongo', () => mongo, { resetForScenario: (server) => (server as FakeServer).resetForScenario() })
-			.addServer('graphql', () => graphQL, { dependsOn: ['mongo'] });
+			.addServer('mongo', mongo)
+			.addServer('graphql', graphQL, { dependsOn: ['mongo'] })
+			.finalize();
 
 		await infrastructure.ensureStarted();
 		await infrastructure.resetScenarioState();
@@ -140,13 +137,15 @@ describe('ApiInfrastructure', () => {
 	});
 
 	it('rejects duplicate server names', () => {
-		const infrastructure = ApiInfrastructure.create().addServer('graphql', () => new FakeServer('http://127.0.0.1:4000/graphql'));
+		const infrastructure = ApiInfrastructure.create().addServer('graphql', new FakeServer('http://127.0.0.1:4000/graphql'));
 
-		expect(() => infrastructure.addServer('graphql', () => new FakeServer('http://127.0.0.1:4001/graphql'))).toThrow(/already registered/);
+		expect(() => infrastructure.addServer('graphql', new FakeServer('http://127.0.0.1:4001/graphql'))).toThrow(/already registered/);
 	});
 
 	it('rejects an unknown dependency', async () => {
-		const infrastructure = ApiInfrastructure.create().addServer('graphql', () => new FakeServer('http://127.0.0.1:4000/graphql'), { dependsOn: ['mongo'] });
+		const infrastructure = ApiInfrastructure.create()
+			.addServer('graphql', new FakeServer('http://127.0.0.1:4000/graphql'), { dependsOn: ['mongo'] })
+			.finalize();
 
 		await expect(infrastructure.ensureStarted()).rejects.toThrow(/unknown server 'mongo'/);
 	});
@@ -158,9 +157,7 @@ describe('ApiInfrastructure', () => {
 		});
 		const slow = new DeferredServer('http://slow.test', startGate);
 		const failing = new FailingServer('http://failing.test');
-		const infrastructure = ApiInfrastructure.create()
-			.addServer('slow', () => slow)
-			.addServer('failing', () => failing);
+		const infrastructure = ApiInfrastructure.create().addServer('slow', slow).addServer('failing', failing).finalize();
 
 		const starting = expect(infrastructure.ensureStarted()).rejects.toThrow('startup failed');
 		await vi.waitFor(() => expect(failing.startCalls).toBe(1));
@@ -172,39 +169,37 @@ describe('ApiInfrastructure', () => {
 		expect(slow.isRunning()).toBe(false);
 		expect(infrastructure.getState().servers).toEqual({});
 	});
+
+	it('rejects registration after finalize at runtime', () => {
+		const infrastructure = ApiInfrastructure.create().addServer('graphql', new FakeServer('http://127.0.0.1:4000/graphql')).finalize() as ApiInfrastructure;
+
+		expect(() => infrastructure.addServer('late', new FakeServer('http://127.0.0.1:4001/graphql'))).toThrow(/cannot call addServer after finalize/);
+	});
 });
 
 describe('E2EInfrastructure', () => {
-	it('starts servers in dependency order, wires the factory context, and exposes all portal URLs', async () => {
+	it('starts server instances in dependency order and exposes all portal URLs', async () => {
 		const mongo = mongoServer();
 		const azurite = new FakeServer('http://127.0.0.1:10000');
 		const auth = new FakeServer('https://auth.test');
 		const api = new FakeServer('https://api.test/api/graphql');
-		const community = new FakeServer('https://community.test');
-		const staff = new FakeServer('https://staff.test');
+		const community = new FakeUiServer('https://community.test');
+		const staff = new FakeUiServer('https://staff.test');
 		const { browser } = browserStubs();
 		vi.mocked(chromium.launch).mockResolvedValue(browser);
 
-		let apiSawMongoUrl: string | undefined;
 		const infrastructure = E2EInfrastructure.create()
-			.addServer('mongo', () => mongo, { resetForScenario: (server) => (server as FakeServer).resetForScenario() })
-			.addServer('azurite', () => azurite)
-			.addServer('auth', () => auth)
-			.addServer(
-				'api',
-				(ctx) => {
-					apiSawMongoUrl = ctx.server('mongo').getUrl();
-					return api;
-				},
-				{ dependsOn: ['mongo'] },
-			)
-			.addUiPortal('community', () => community)
-			.addUiPortal('staff', () => staff);
+			.addServer('mongo', mongo)
+			.addServer('azurite', azurite)
+			.addServer('auth', auth)
+			.addServer('api', api, { dependsOn: ['mongo'] })
+			.addUiPortal('community', community)
+			.addUiPortal('staff', staff)
+			.finalize();
 
 		await infrastructure.ensureStarted();
 		await infrastructure.resetScenarioState();
 
-		expect(apiSawMongoUrl).toBe('mongodb://test');
 		expect(mongo.resetCalls).toBe(1);
 		expect(infrastructure.getState().uiPortalBaseUrls).toEqual({
 			community: 'https://community.test',
@@ -220,16 +215,31 @@ describe('E2EInfrastructure', () => {
 
 		// Deliberately a leaner set than the suite above: no Azurite server.
 		const infrastructure = E2EInfrastructure.create()
-			.addServer('mongo', () => mongoServer())
-			.addServer('auth', () => new FakeServer('https://auth.test'))
-			.addServer('api', () => new FakeServer('https://api.test/api/graphql'), { dependsOn: ['mongo'] })
-			.addUiPortal('community', () => new FakeServer('https://community.test'));
+			.addServer('mongo', mongoServer())
+			.addServer('auth', new FakeServer('https://auth.test'))
+			.addServer('api', new FakeServer('https://api.test/api/graphql'), { dependsOn: ['mongo'] })
+			.addUiPortal('community', new FakeUiServer('https://community.test'))
+			.finalize();
 
 		await infrastructure.ensureStarted();
 
 		expect(infrastructure.getState().browseTheWeb).toBeDefined();
 	});
 
+	it('rejects regular server registration after UI portal registration has started', () => {
+		const infrastructure = E2EInfrastructure.create().addUiPortal('community', new FakeUiServer('https://community.test')) as E2EInfrastructure;
+
+		expect(() => infrastructure.addServer('api', new FakeServer('https://api.test'))).toThrow(/cannot call addServer after addUiPortal/);
+	});
+
+	it('rejects registration after finalize at runtime', () => {
+		const infrastructure = E2EInfrastructure.create().addUiPortal('community', new FakeUiServer('https://community.test')).finalize() as E2EInfrastructure;
+
+		expect(() => infrastructure.addUiPortal('staff', new FakeUiServer('https://staff.test'))).toThrow(/cannot call addUiPortal after finalize/);
+	});
+});
+
+describe('E2EInfrastructure startup failures', () => {
 	it('waits for a failed startup wave to settle and stops every created server', async () => {
 		let releaseStart: () => void = () => undefined;
 		const startGate = new Promise<void>((resolve) => {
@@ -237,9 +247,7 @@ describe('E2EInfrastructure', () => {
 		});
 		const slow = new DeferredServer('http://slow.test', startGate);
 		const failing = new FailingServer('http://failing.test');
-		const infrastructure = E2EInfrastructure.create()
-			.addServer('slow', () => slow)
-			.addServer('failing', () => failing);
+		const infrastructure = E2EInfrastructure.create().addServer('slow', slow).addServer('failing', failing).finalize();
 
 		const starting = expect(infrastructure.ensureStarted()).rejects.toThrow('startup failed');
 		await vi.waitFor(() => expect(failing.startCalls).toBe(1));
