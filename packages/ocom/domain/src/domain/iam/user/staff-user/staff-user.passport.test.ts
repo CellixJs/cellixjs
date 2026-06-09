@@ -6,6 +6,7 @@ import type { CommunityEntityReference } from '../../../contexts/community/commu
 import type { StaffUserEntityReference } from '../../../contexts/user/staff-user/staff-user.ts';
 import { StaffUserCommunityPassport } from './contexts/staff-user.community.passport.ts';
 import { StaffUserCommunityVisa } from './contexts/staff-user.community.visa.ts';
+import { StaffUserUserPassport } from './contexts/staff-user.user.passport.ts';
 import { StaffUserPassport } from './staff-user.passport.ts';
 
 const test = { for: describeFeature };
@@ -85,15 +86,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Scenario('Accessing the user passport', ({ When, And, Then }) => {
-		let getUserPassport: () => void;
+		let userPassport: unknown;
 		When('I create a StaffUserPassport with valid staff user', () => {
 			passport = new StaffUserPassport(staffUser);
 		});
 		And('I access the user property', () => {
-			getUserPassport = () => passport.user;
+			userPassport = passport.user;
 		});
-		Then('an error should be thrown indicating the user passport is not available', () => {
-			expect(getUserPassport).toThrow('User passport is not available for StaffUserPassport');
+		Then('I should receive a StaffUserUserPassport instance', () => {
+			expect(userPassport).toBeInstanceOf(StaffUserUserPassport);
 		});
 	});
 });

@@ -35,7 +35,7 @@ export function buildEffectiveProfile(portalProfile: ProfileLike, userClaims?: R
 	return { ...merged, sub: finalSub };
 }
 
-export function normalizeUserInfo(profile: ProfileLike): Record<string, unknown> {
+export function normalizeUserInfo(profile: ProfileLike): ProfileLike {
 	const p = { ...profile } as ProfileLike;
 	const sub = typeof profile.sub === 'string' ? profile.sub : undefined;
 	const preferred = typeof profile.preferred_username === 'string' ? profile.preferred_username : undefined;

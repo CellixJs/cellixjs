@@ -16,7 +16,6 @@ export interface CommunityListProps {
 export const CommunityList: React.FC<CommunityListProps> = (props) => {
 	const [communityList, setCommunityList] = useState(props.data.communities);
 	const navigate = useNavigate();
-
 	const onChange = (event: ChangeEvent<HTMLInputElement>) => {
 		const searchValue = event.target.value;
 		if (searchValue === '') {

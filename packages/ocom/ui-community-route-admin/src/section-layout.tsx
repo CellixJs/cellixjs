@@ -21,6 +21,13 @@ const handleToggler = (isExpanded: boolean, setIsExpanded: (value: boolean) => v
 	}
 };
 
+export interface AdminStaffSectionPermissions {
+	canManageCommunities: boolean;
+	canManageUsers: boolean;
+	canManageFinance: boolean;
+	canManageTechAdmin: boolean;
+}
+
 interface AdminSectionLayoutProps {
 	pageLayouts: PageLayoutProps[];
 	memberData: Member;
@@ -36,7 +43,7 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 
 	const menuComponentProps: MenuComponentProps = {
 		pageLayouts: props.pageLayouts,
-		memberData: props.memberData,
+		memberData: { member: props.memberData },
 		theme: 'light',
 		mode: 'inline',
 	};

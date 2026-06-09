@@ -1,5 +1,5 @@
 import { ApolloClient, ApolloLink, gql, InMemoryCache, Observable, useApolloClient } from '@apollo/client';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useMemo, useState } from 'react';
 import { type AuthContextProps, AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
@@ -17,7 +17,6 @@ const mockEnv = {
 	VITE_COMMON_API_ENDPOINT: 'https://mock-functions.example.com',
 	VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: 'https://mock-authority.example.com',
 	VITE_APP_UI_COMMUNITY_B2C_CLIENTID: 'mock-id',
-	NODE_ENV: 'development',
 	PROD: false,
 };
 

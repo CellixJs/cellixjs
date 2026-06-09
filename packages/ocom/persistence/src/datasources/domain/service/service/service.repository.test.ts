@@ -1,16 +1,15 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-
-import { ServiceRepository } from './service.repository.ts';
-import { ServiceConverter } from './service.domain-adapter.ts';
-import type { ClientSession } from 'mongoose';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Service, ServiceModelType } from '@ocom/data-sources-mongoose-models/service';
+import { Domain } from '@ocom/domain';
+import type { ClientSession } from 'mongoose';
+import { expect, vi } from 'vitest';
+import { ServiceConverter } from './service.domain-adapter.ts';
+import { ServiceRepository } from './service.repository.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -83,7 +82,7 @@ test.for(repositoryFeature, ({ Scenario, Background, BeforeEachScenario }) => {
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				populate: vi.fn().mockReturnThis(),
-				exec: vi.fn(async () => (id === '123' ? makeServiceDoc({ _id: id }) : null)),
+				exec: vi.fn(async () => (id === '123' ? makeServiceDoc() : null)),
 			})),
 		});
 

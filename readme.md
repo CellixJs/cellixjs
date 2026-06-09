@@ -106,6 +106,7 @@ pnpm run build
 
 ## Developer usage
 
+
 - Full local dev (builds, starts the portless HTTPS proxy, starts Azurite, and runs the app-level dev servers):
 
   ```bash
@@ -405,6 +406,7 @@ flowchart BT
 
 This section preserves prior setup notes and commands for reference as the repo evolved.
 
+
 ```bash
 npm i -D concurrently
 
@@ -446,3 +448,4 @@ Have feedback? Leave a comment in [CellixJS discussions on GitHub](https://githu
 [![sharethrift contributors](https://contrib.rocks/image?repo=cellixjs/cellixjs)](https://github.com/cellixjs/cellixjs/graphs/contributors)
 
 [⬆ Back to Top](#table-of-contents)
+

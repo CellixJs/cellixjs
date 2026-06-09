@@ -1,3 +1,4 @@
+import type { StoredTheme } from '@cellix/ui-core';
 import { Button, theme } from 'antd';
 import type { SeedToken } from 'antd/lib/theme/interface/index.js';
 import { createContext, type ReactNode, useCallback, useEffect, useState } from 'react';
@@ -10,7 +11,7 @@ interface ThemeContextType {
 					textColor: string | undefined;
 					backgroundColor: string | undefined;
 				};
-				type: string;
+				type: StoredTheme['type'];
 		  }
 		| undefined;
 	setTheme: (tokens: Partial<SeedToken>, type: string) => void;

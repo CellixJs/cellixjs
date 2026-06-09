@@ -35,6 +35,11 @@
 			"dependsOn": ["^build", "@cellix/config-vitest#build"],
 			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"]
 		},
+		"test:arch": {
+			"description": "Runs architecture unit tests for each package",
+			"dependsOn": ["build", "^build", "@cellix/config-vitest#build", "@cellix/archunit-tests#build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"]
+		},
 		"test:coverage": {
 			"description": "Runs the coverage test suite and writes coverage reports",
 			"dependsOn": ["build", "^build", "@cellix/config-vitest#build"],
@@ -71,6 +76,13 @@
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
 			"outputs": ["target/**", "reports/**"],
+			"cache": false
+		},
+		"test:coverage:acceptance": {
+			"description": "Runs acceptance test coverage (c8 + Cucumber) for verification packages",
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"],
+			"outputs": ["coverage/**"],
 			"cache": false
 		},
 		"test:serenity": {

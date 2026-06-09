@@ -1,29 +1,41 @@
-import { apiSettings } from '@ocom-verification/verification-shared/settings';
-import { actors } from '@ocom-verification/verification-shared/test-data';
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
-import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestOAuth2Server, TestViteServer } from './servers/index.ts';
+import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestCommunityViteServer, TestOAuth2Server, TestStaffViteServer } from './servers/index.ts';
 
 let mongoDBServer: MongoDBTestServer | undefined;
 let oauth2Server: TestOAuth2Server | undefined;
 let apiServer: TestApiServer | undefined;
-let viteServer: TestViteServer | undefined;
+let communityViteServer: TestCommunityViteServer | undefined;
+let staffViteServer: TestStaffViteServer | undefined;
 let apiUrl: string | undefined;
-let accessToken: string | undefined;
 let browser: Browser | undefined;
 let browserBaseUrl: string | undefined;
 let authenticatedBrowserContext: BrowserContext | undefined;
 let browseTheWeb: BrowseTheWeb | undefined;
+let shutdownHandlersRegistered = false;
 
 export interface InfrastructureState {
 	apiUrl: string | undefined;
-	accessToken: string | undefined;
 	browseTheWeb: BrowseTheWeb | undefined;
+	staffBaseUrl: string | undefined;
+	communityBaseUrl: string | undefined;
+	browser: Browser | undefined;
 }
 
 export function getState(): InfrastructureState {
-	return { apiUrl, accessToken, browseTheWeb };
+	return { apiUrl, browseTheWeb, staffBaseUrl: staffViteServer?.getUrl(), communityBaseUrl: browserBaseUrl, browser };
+}
+
+/**
+ * Resets mutable state between scenarios without restarting servers.
+ * Drops all MongoDB collections and re-seeds reference data so each
+ * scenario starts from a clean baseline.
+ */
+export async function resetScenarioState(): Promise<void> {
+	if (mongoDBServer?.isRunning()) {
+		await mongoDBServer.resetForScenario();
+	}
 }
 
 export async function stopAll(): Promise<void> {
@@ -38,9 +50,13 @@ export async function stopAll(): Promise<void> {
 		await browser.close().catch(() => undefined);
 		browser = undefined;
 	}
-	if (viteServer) {
-		await viteServer.stop().catch(() => undefined);
-		viteServer = undefined;
+	if (communityViteServer) {
+		await communityViteServer.stop().catch(() => undefined);
+		communityViteServer = undefined;
+	}
+	if (staffViteServer) {
+		await staffViteServer.stop().catch(() => undefined);
+		staffViteServer = undefined;
 	}
 	if (apiServer) {
 		await apiServer.stop().catch(() => undefined);
@@ -56,22 +72,17 @@ export async function stopAll(): Promise<void> {
 	}
 	apiUrl = undefined;
 	browserBaseUrl = undefined;
-	accessToken = undefined;
 	cleanupTestEnvironment();
 }
 
 export async function ensureE2EServers(): Promise<void> {
 	initTestEnvironment();
 
+	registerShutdownHandlers();
+
 	// Phase 1: Start MongoDB and OAuth2 in parallel (no interdependency)
 	mongoDBServer ??= new MongoDBTestServer();
-	oauth2Server ??= new TestOAuth2Server({
-		testUser: {
-			email: actors.CommunityOwner.email,
-			given_name: actors.CommunityOwner.givenName,
-			family_name: actors.CommunityOwner.familyName,
-		},
-	});
+	oauth2Server ??= new TestOAuth2Server();
 	const mongo = mongoDBServer;
 	const oauth2 = oauth2Server;
 	const phase1: Promise<void>[] = [];
@@ -85,9 +96,11 @@ export async function ensureE2EServers(): Promise<void> {
 
 	// Phase 2: Start API (needs MongoDB conn string), Vite (independent), and generate token (needs OAuth2) in parallel
 	apiServer ??= new TestApiServer();
-	viteServer ??= new TestViteServer();
+	communityViteServer ??= new TestCommunityViteServer();
+	staffViteServer ??= new TestStaffViteServer();
 	const api = apiServer;
-	const vite = viteServer;
+	const vite = communityViteServer;
+	const staffVite = staffViteServer;
 	const phase2: Promise<void>[] = [];
 	if (!api.isRunning()) {
 		phase2.push(
@@ -99,16 +112,12 @@ export async function ensureE2EServers(): Promise<void> {
 	if (!vite.isRunning()) {
 		phase2.push(vite.start());
 	}
-	if (!accessToken) {
-		phase2.push(
-			oauth2.generateAccessToken(apiSettings.accountPortalOidcAudience).then((token) => {
-				accessToken = token;
-			}),
-		);
+	if (!staffVite.isRunning()) {
+		phase2.push(staffVite.start());
 	}
 	if (phase2.length > 0) await Promise.all(phase2);
 
-	browserBaseUrl = viteServer.getUrl();
+	browserBaseUrl = communityViteServer.getUrl();
 
 	if (!apiUrl) {
 		apiUrl = apiServer?.getUrl();
@@ -149,4 +158,18 @@ async function ensureAuthenticatedBrowserContext(options: { baseURL?: string; ig
 		authenticatedBrowserContext = undefined;
 		throw error;
 	}
+}
+
+function registerShutdownHandlers(): void {
+	if (shutdownHandlersRegistered) return;
+	shutdownHandlersRegistered = true;
+
+	const shutdown = (signal: string) => {
+		void stopAll().finally(() => {
+			process.exit(signal === 'SIGINT' ? 130 : 143);
+		});
+	};
+
+	process.once('SIGINT', () => shutdown('SIGINT'));
+	process.once('SIGTERM', () => shutdown('SIGTERM'));
 }

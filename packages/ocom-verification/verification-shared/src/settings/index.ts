@@ -1,4 +1,4 @@
-export { apiSettings, uiSettings } from './local-settings.ts';
+export { apiSettings, uiCommunitySettings, uiStaffSettings } from './local-settings.ts';
 export {
 	findWorkspaceRoot,
 	readDotEnv,
@@ -7,3 +7,4 @@ export {
 	requireSetting,
 	resolveWorkspacePath,
 } from './settings-utils.ts';
+export { getTimeout, type TimeoutKey, timeouts } from './timeout-settings.ts';

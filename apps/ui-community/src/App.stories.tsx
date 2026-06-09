@@ -1,5 +1,5 @@
 import { ApolloProvider } from '@apollo/client';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
 import { expect } from 'storybook/test';
@@ -11,7 +11,6 @@ const mockEnv = {
 	VITE_COMMON_API_ENDPOINT: 'https://mock-functions.example.com',
 	VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: 'https://mock-authority.example.com',
 	VITE_APP_UI_COMMUNITY_B2C_CLIENTID: 'mock-client-id',
-	NODE_ENV: 'development',
 };
 
 // Mock globalThis.sessionStorage and globalThis.localStorage

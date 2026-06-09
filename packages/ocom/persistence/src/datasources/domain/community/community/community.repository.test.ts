@@ -1,16 +1,15 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-
-import { CommunityRepository } from './community.repository.ts';
-import { CommunityConverter, type CommunityDomainAdapter } from './community.domain-adapter.ts';
-import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
-import type { ClientSession } from 'mongoose';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { Community, CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
+import { Domain } from '@ocom/domain';
+import type { ClientSession } from 'mongoose';
+import { expect, vi } from 'vitest';
+import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
+import { CommunityConverter, type CommunityDomainAdapter } from './community.domain-adapter.ts';
+import { CommunityRepository } from './community.repository.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -63,7 +62,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	BeforeEachScenario(() => {
 		userDoc = makeUserDoc();
 		userAdapter = new EndUserDomainAdapter(userDoc);
-		communityDoc = makeCommunityDoc({ _id: 'community-1', createdBy: userDoc });
+		communityDoc = makeCommunityDoc({ createdBy: userDoc });
 		converter = new CommunityConverter();
 		passport = makeMockPassport();
 		result = {} as Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>;
@@ -93,7 +92,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('a valid Mongoose Community document with id "community-1", name "Test Community", and a populated createdBy field', () => {
 			userDoc = makeUserDoc();
-			communityDoc = makeCommunityDoc({ _id: 'community-1', name: 'Test Community', createdBy: userDoc });
+			communityDoc = makeCommunityDoc({ name: 'Test Community', createdBy: userDoc });
 		});
 	});
 

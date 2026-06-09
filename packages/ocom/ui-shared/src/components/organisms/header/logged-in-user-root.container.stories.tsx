@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { GraphQLError } from 'graphql';
 import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } from '../../../generated.tsx';
 import { LoggedInUserRootContainer, type LoggedInUserRootContainerProps } from './logged-in-user-root.container.tsx';
