@@ -1,5 +1,8 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type { Resolvers } from '../builder/generated.ts';
+import type { Resolvers, RequireFields, MutationStaffRoleCreateArgs, MutationStaffRoleUpdateArgs, MutationStaffUserAssignRoleArgs } from '../builder/generated.ts';
+import type { StaffRoleCreateCommand } from '../../../../application-services/src/contexts/user/staff-role/create.js';
+import type { StaffRoleUpdateCommand } from '../../../../application-services/src/contexts/user/staff-role/update.js';
+import type { StaffUserAssignRoleCommand } from '../../../../application-services/src/contexts/user/staff-user/assign-role.js';
 import type { GraphContext } from '../context.ts';
 
 const EnterpriseAppRoleNames = {
@@ -87,7 +90,7 @@ const staffUser: Resolvers = {
 	},
 
 	Mutation: {
-		staffRoleCreate: async (_parent, args: { input: { roleName: string; enterpriseAppRole?: string | null; permissions?: { communityPermissions?: { canManageCommunities?: boolean | null; canManageStaffRolesAndPermissions?: boolean | null; canManageAllCommunities?: boolean | null; canDeleteCommunities?: boolean | null; canChangeCommunityOwner?: boolean | null; canReIndexSearchCollections?: boolean | null } | null; userPermissions?: { canManageUsers?: boolean | null; canAssignStaffRoles?: boolean | null; canAssignStaffUserRoles?: boolean | null; canViewStaffUsers?: boolean | null } | null; staffRolePermissions?: { canViewRoles?: boolean | null; canAddRole?: boolean | null; canEditRole?: boolean | null; canRemoveRole?: boolean | null } | null; financePermissions?: { canManageFinance?: boolean | null; canViewGLBatchSummaries?: boolean | null; canViewFinanceConfigs?: boolean | null; canCreateFinanceConfigs?: boolean | null } | null; techAdminPermissions?: { canManageTechAdmin?: boolean | null; canViewDatabaseExplorer?: boolean | null; canViewBlobExplorer?: boolean | null; canViewQueueDashboard?: boolean | null; canSendQueueMessages?: boolean | null } | null } | null } }, context: GraphContext, _info: GraphQLResolveInfo) => {
+		staffRoleCreate: async (_parent, args: RequireFields<MutationStaffRoleCreateArgs, 'input'>, context: GraphContext, _info: GraphQLResolveInfo) => {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
@@ -99,45 +102,9 @@ const staffUser: Resolvers = {
 				if (requestedEnterpriseAppRole && !allowedEnterpriseAppRoles.includes(requestedEnterpriseAppRole)) {
 					return { status: { success: false, errorMessage: `You do not have permission to create a role for enterprise app role type: ${requestedEnterpriseAppRole}` } };
 				}
-				const staffRole = await context.applicationServices.User.StaffRole.create({
-					roleName: args.input.roleName,
-					...(requestedEnterpriseAppRole ? { enterpriseAppRole: requestedEnterpriseAppRole } : {}),
-					permissions: {
-						community: {
-							canManageCommunities: args.input.permissions?.communityPermissions?.canManageCommunities ?? false,
-							canManageStaffRolesAndPermissions: args.input.permissions?.communityPermissions?.canManageStaffRolesAndPermissions ?? false,
-							canManageAllCommunities: args.input.permissions?.communityPermissions?.canManageAllCommunities ?? false,
-							canDeleteCommunities: args.input.permissions?.communityPermissions?.canDeleteCommunities ?? false,
-							canChangeCommunityOwner: args.input.permissions?.communityPermissions?.canChangeCommunityOwner ?? false,
-							canReIndexSearchCollections: args.input.permissions?.communityPermissions?.canReIndexSearchCollections ?? false,
-						},
-						user: {
-							canManageUsers: args.input.permissions?.userPermissions?.canManageUsers ?? false,
-							canAssignStaffRoles: args.input.permissions?.userPermissions?.canAssignStaffRoles ?? args.input.permissions?.userPermissions?.canAssignStaffUserRoles ?? false,
-							canAssignStaffUserRoles: args.input.permissions?.userPermissions?.canAssignStaffUserRoles ?? args.input.permissions?.userPermissions?.canAssignStaffRoles ?? false,
-							canViewStaffUsers: args.input.permissions?.userPermissions?.canViewStaffUsers ?? false,
-						},
-						staffRole: {
-							canViewRoles: args.input.permissions?.staffRolePermissions?.canViewRoles ?? false,
-							canAddRole: args.input.permissions?.staffRolePermissions?.canAddRole ?? false,
-							canEditRole: args.input.permissions?.staffRolePermissions?.canEditRole ?? false,
-							canRemoveRole: args.input.permissions?.staffRolePermissions?.canRemoveRole ?? false,
-						},
-						finance: {
-							canManageFinance: args.input.permissions?.financePermissions?.canManageFinance ?? false,
-							canViewGLBatchSummaries: args.input.permissions?.financePermissions?.canViewGLBatchSummaries ?? false,
-							canViewFinanceConfigs: args.input.permissions?.financePermissions?.canViewFinanceConfigs ?? false,
-							canCreateFinanceConfigs: args.input.permissions?.financePermissions?.canCreateFinanceConfigs ?? false,
-						},
-						techAdmin: {
-							canManageTechAdmin: args.input.permissions?.techAdminPermissions?.canManageTechAdmin ?? false,
-							canViewDatabaseExplorer: args.input.permissions?.techAdminPermissions?.canViewDatabaseExplorer ?? false,
-							canViewBlobExplorer: args.input.permissions?.techAdminPermissions?.canViewBlobExplorer ?? false,
-							canViewQueueDashboard: args.input.permissions?.techAdminPermissions?.canViewQueueDashboard ?? false,
-							canSendQueueMessages: args.input.permissions?.techAdminPermissions?.canSendQueueMessages ?? false,
-						},
-					},
-				});
+				// Map GraphQL input shape to application service command shape
+				const command = args.input as unknown as StaffRoleCreateCommand;
+				const staffRole = await context.applicationServices.User.StaffRole.create(command);
 				return { status: { success: true }, staffRole };
 			} catch (error) {
 				console.error('StaffRole > staffRoleCreate: ', error);
@@ -146,59 +113,15 @@ const staffUser: Resolvers = {
 			}
 		},
 
-		staffRoleUpdate: async (_parent, args: { input: { id: string; roleName: string; enterpriseAppRole: string; permissions?: { communityPermissions?: { canManageCommunities?: boolean | null; canManageStaffRolesAndPermissions?: boolean | null; canManageAllCommunities?: boolean | null; canDeleteCommunities?: boolean | null; canChangeCommunityOwner?: boolean | null; canReIndexSearchCollections?: boolean | null } | null; userPermissions?: { canManageUsers?: boolean | null; canAssignStaffRoles?: boolean | null; canAssignStaffUserRoles?: boolean | null; canViewStaffUsers?: boolean | null } | null; staffRolePermissions?: { canViewRoles?: boolean | null; canAddRole?: boolean | null; canEditRole?: boolean | null; canRemoveRole?: boolean | null } | null; financePermissions?: { canManageFinance?: boolean | null; canViewGLBatchSummaries?: boolean | null; canViewFinanceConfigs?: boolean | null; canCreateFinanceConfigs?: boolean | null } | null; techAdminPermissions?: { canManageTechAdmin?: boolean | null; canViewDatabaseExplorer?: boolean | null; canViewBlobExplorer?: boolean | null; canViewQueueDashboard?: boolean | null; canSendQueueMessages?: boolean | null } | null } | null } }, context: GraphContext, _info: GraphQLResolveInfo) => {
+		staffRoleUpdate: async (_parent, args: RequireFields<MutationStaffRoleUpdateArgs, 'input'>, context: GraphContext, _info: GraphQLResolveInfo) => {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
-				const entraRoles = jwt.roles ?? [];
-				const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(entraRoles);
-				if (!allowedEnterpriseAppRoles.includes(args.input.enterpriseAppRole)) {
-					return { status: { success: false, errorMessage: `You do not have permission to update a role for enterprise app role type: ${args.input.enterpriseAppRole}` } };
-				}
-				const communityPerms = args.input.permissions?.communityPermissions;
-				const userPerms = args.input.permissions?.userPermissions;
-				const staffRole = await context.applicationServices.User.StaffRole.update({
-					roleId: String(args.input.id),
-					roleName: args.input.roleName,
-					...(args.input.enterpriseAppRole ? { enterpriseAppRole: args.input.enterpriseAppRole } : {}),
-					permissions: {
-						community: {
-							...(communityPerms?.canManageCommunities != null ? { canManageCommunities: communityPerms.canManageCommunities } : {}),
-							...(communityPerms?.canManageStaffRolesAndPermissions != null ? { canManageStaffRolesAndPermissions: communityPerms.canManageStaffRolesAndPermissions } : {}),
-							...(communityPerms?.canManageAllCommunities != null ? { canManageAllCommunities: communityPerms.canManageAllCommunities } : {}),
-							...(communityPerms?.canDeleteCommunities != null ? { canDeleteCommunities: communityPerms.canDeleteCommunities } : {}),
-							...(communityPerms?.canChangeCommunityOwner != null ? { canChangeCommunityOwner: communityPerms.canChangeCommunityOwner } : {}),
-							...(communityPerms?.canReIndexSearchCollections != null ? { canReIndexSearchCollections: communityPerms.canReIndexSearchCollections } : {}),
-						},
-						user: {
-							...(userPerms?.canManageUsers != null ? { canManageUsers: userPerms.canManageUsers } : {}),
-							...(userPerms?.canAssignStaffRoles != null ? { canAssignStaffRoles: userPerms.canAssignStaffRoles } : {}),
-							...(userPerms?.canAssignStaffUserRoles != null ? { canAssignStaffRoles: userPerms.canAssignStaffUserRoles, canAssignStaffUserRoles: userPerms.canAssignStaffUserRoles } : {}),
-							...(userPerms?.canViewStaffUsers != null ? { canViewStaffUsers: userPerms.canViewStaffUsers } : {}),
-						},
-						staffRole: {
-							...(args.input.permissions?.staffRolePermissions?.canViewRoles != null ? { canViewRoles: args.input.permissions.staffRolePermissions.canViewRoles } : {}),
-							...(args.input.permissions?.staffRolePermissions?.canAddRole != null ? { canAddRole: args.input.permissions.staffRolePermissions.canAddRole } : {}),
-							...(args.input.permissions?.staffRolePermissions?.canEditRole != null ? { canEditRole: args.input.permissions.staffRolePermissions.canEditRole } : {}),
-							...(args.input.permissions?.staffRolePermissions?.canRemoveRole != null ? { canRemoveRole: args.input.permissions.staffRolePermissions.canRemoveRole } : {}),
-						},
-						finance: {
-							...(args.input.permissions?.financePermissions?.canManageFinance != null ? { canManageFinance: args.input.permissions.financePermissions.canManageFinance } : {}),
-							...(args.input.permissions?.financePermissions?.canViewGLBatchSummaries != null ? { canViewGLBatchSummaries: args.input.permissions.financePermissions.canViewGLBatchSummaries } : {}),
-							...(args.input.permissions?.financePermissions?.canViewFinanceConfigs != null ? { canViewFinanceConfigs: args.input.permissions.financePermissions.canViewFinanceConfigs } : {}),
-							...(args.input.permissions?.financePermissions?.canCreateFinanceConfigs != null ? { canCreateFinanceConfigs: args.input.permissions.financePermissions.canCreateFinanceConfigs } : {}),
-						},
-						techAdmin: {
-							...(args.input.permissions?.techAdminPermissions?.canManageTechAdmin != null ? { canManageTechAdmin: args.input.permissions.techAdminPermissions.canManageTechAdmin } : {}),
-							...(args.input.permissions?.techAdminPermissions?.canViewDatabaseExplorer != null ? { canViewDatabaseExplorer: args.input.permissions.techAdminPermissions.canViewDatabaseExplorer } : {}),
-							...(args.input.permissions?.techAdminPermissions?.canViewBlobExplorer != null ? { canViewBlobExplorer: args.input.permissions.techAdminPermissions.canViewBlobExplorer } : {}),
-							...(args.input.permissions?.techAdminPermissions?.canViewQueueDashboard != null ? { canViewQueueDashboard: args.input.permissions.techAdminPermissions.canViewQueueDashboard } : {}),
-							...(args.input.permissions?.techAdminPermissions?.canSendQueueMessages != null ? { canSendQueueMessages: args.input.permissions.techAdminPermissions.canSendQueueMessages } : {}),
-						},
-					},
-				});
+				// Forward update command to application service; application service enforces permissions and validation
+				const command = args.input as unknown as StaffRoleUpdateCommand;
+				const staffRole = await context.applicationServices.User.StaffRole.update(command);
 				return { status: { success: true }, staffRole };
 			} catch (error) {
 				console.error('StaffRole > staffRoleUpdate: ', error);
@@ -207,40 +130,29 @@ const staffUser: Resolvers = {
 			}
 		},
 
-		staffUserAssignRole: async (_parent, args: { input: { staffUserId: string; roleId: string } }, context: GraphContext, _info: GraphQLResolveInfo) => {
+
+		staffUserAssignRole: async (_parent, args: RequireFields<MutationStaffUserAssignRoleArgs, 'input'>, context: GraphContext, _info: GraphQLResolveInfo) => {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
-				return { status: { success: false, errorMessage: 'Unauthorized' } };
+			return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
-				const entraRoles = jwt.roles ?? [];
-				const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(entraRoles);
-				const isTechAdmin = entraRoles.includes(EnterpriseAppRoleNames.TechAdmin);
-
-				if (!isTechAdmin) {
-					const allRoles = await context.applicationServices.User.StaffRole.list();
-					const roleToAssign = allRoles.find((r) => String(r.id) === String(args.input.roleId));
-					if (!roleToAssign) {
-						return { status: { success: false, errorMessage: 'Role not found' } };
-					}
-					if (!allowedEnterpriseAppRoles.includes(roleToAssign.enterpriseAppRole)) {
-						return { status: { success: false, errorMessage: `You do not have permission to assign roles of type: ${roleToAssign.enterpriseAppRole}` } };
-					}
-				}
-
-				const actorStaffUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
+			// Resolve actor id from JWT and forward to application service
+			const actorStaffUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
 			const actorStaffUserId = actorStaffUser?.id ?? jwt.sub;
 
-			const staffUser = await context.applicationServices.User.StaffUser.assignRole({
-					staffUserId: String(args.input.staffUserId),
-					roleId: String(args.input.roleId),
-					actorStaffUserId,
-				});
-				return { status: { success: true }, staffUser };
-			} catch (error) {
-				console.error('StaffUser > staffUserAssignRole: ', error);
-				const { message } = error as Error;
-				return { status: { success: false, errorMessage: message } };
+			const command = {
+				staffUserId: String(args.input.staffUserId),
+				roleId: String(args.input.roleId),
+				actorStaffUserId,
+			} as unknown as StaffUserAssignRoleCommand;
+
+			const staffUser = await context.applicationServices.User.StaffUser.assignRole(command);
+			return { status: { success: true }, staffUser };
+						} catch (error) {
+			console.error('StaffUser > staffUserAssignRole: ', error);
+			const { message } = error as Error;
+			return { status: { success: false, errorMessage: message } };
 			}
 		},
 
