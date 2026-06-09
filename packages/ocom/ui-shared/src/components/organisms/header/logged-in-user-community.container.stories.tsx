@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Route, Routes } from 'react-router-dom';
 import { LoggedInUserCommunityContainer, type LoggedInUserCommunityContainerProps } from './logged-in-user-community.container.tsx';
 

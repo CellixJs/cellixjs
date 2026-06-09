@@ -16,7 +16,10 @@
 	},
 	"dependencies": {
 		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",
-		"dotenv": "^16.4.5"
+		"@ocom/data-sources-mongoose-models": "workspace:*",
+		"dotenv": "^16.4.5",
+		"mongodb": "catalog:",
+		"mongoose": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
