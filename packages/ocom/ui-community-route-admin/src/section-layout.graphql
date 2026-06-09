@@ -13,4 +13,3 @@ fragment AdminSectionLayoutContainerMemberFields on Member {
 		name
 	}
 }
-

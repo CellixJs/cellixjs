@@ -90,6 +90,9 @@ catalogs:
     mongodb:
       specifier: 6.18.0
       version: 6.18.0
+    mongodb-memory-server:
+      specifier: ^10.1.4
+      version: 10.3.0
     mongoose:
       specifier: 8.17.0
       version: 8.17.0
@@ -409,9 +412,18 @@ importers:
       '@cellix/server-mongodb-memory-mock-seedwork':
         specifier: workspace:*
         version: link:../../packages/cellix/server-mongodb-memory-mock-seedwork
+      '@ocom/data-sources-mongoose-models':
+        specifier: workspace:*
+        version: link:../../packages/ocom/data-sources-mongoose-models
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
+      mongodb:
+        specifier: 'catalog:'
+        version: 6.18.0
+      mongoose:
+        specifier: 'catalog:'
+        version: 8.17.0
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -915,8 +927,11 @@ importers:
   packages/cellix/server-mongodb-memory-mock-seedwork:
     dependencies:
       mongodb-memory-server:
-        specifier: ^10.1.4
+        specifier: 'catalog:'
         version: 10.3.0
+      mongoose:
+        specifier: 'catalog:'
+        version: 8.17.0
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

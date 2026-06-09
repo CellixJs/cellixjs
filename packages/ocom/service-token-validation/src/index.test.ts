@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi, afterEach, type Mock } from 'vitest';
-import { VerifiedTokenService } from './verified-token-service.ts';
+import { afterEach, expect, type Mock, vi } from 'vitest';
 import { ServiceTokenValidation } from './index.ts';
+import { VerifiedTokenService } from './verified-token-service.ts';
 
 // Mock VerifiedTokenService
 
