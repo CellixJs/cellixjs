@@ -1,10 +1,11 @@
-import { CommunityPage, type E2ECommunityPage } from '@ocom-verification/verification-shared/pages';
-import { PlaywrightPageAdapter } from '@ocom-verification/verification-shared/pages/playwright';
-import { TaskStep } from '@ocom-verification/verification-shared/serenity';
+import { PlaywrightPageAdapter } from '@cellix/serenity-framework/pages/playwright';
+import { TaskStep } from '@cellix/serenity-framework/serenity';
+import { BrowseTheWeb } from '@cellix/serenity-framework/serenity/browser';
+import { CommunityPage } from '@ocom-verification/verification-shared/pages';
 import { type Activity, type Actor, notes, Task, the } from '@serenity-js/core';
 import type { Response } from 'playwright';
-import { BrowseTheWeb } from '../../../shared/abilities/browse-the-web.ts';
-import type { CommunityE2ENotes } from '../abilities/community-types.ts';
+import type { E2ECommunityPage } from '../../../shared/page-contracts.ts';
+import type { CommunityE2ENotes } from '../notes/community-notes.ts';
 
 const createCommunityOperationName = 'AccountsCommunityCreateContainerCommunityCreate';
 const communityListOperationName = 'AccountsCommunityListContainerCommunitiesForCurrentEndUser';

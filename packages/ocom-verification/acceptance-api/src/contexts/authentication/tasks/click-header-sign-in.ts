@@ -1,6 +1,6 @@
-import { TaskStep } from '@ocom-verification/verification-shared/serenity';
+import { TaskStep } from '@cellix/serenity-framework/serenity';
 import { type Activity, type Actor, notes, Task } from '@serenity-js/core';
-import type { HeaderApiNotes } from '../abilities/header-types.ts';
+import type { HeaderApiNotes } from '../notes/header-notes.ts';
 
 export const ClickHeaderSignIn = () =>
 	Task.where(

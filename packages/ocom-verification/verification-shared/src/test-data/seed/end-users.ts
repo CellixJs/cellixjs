@@ -1,5 +1,4 @@
-import type { ActorDetails } from '../../helpers/actor-helpers.ts';
-import { actors } from '../test-actors.ts';
+import { actors, type TestActor } from '../test-actors.ts';
 
 export interface EndUserSeedDocument {
 	_id: string;
@@ -31,7 +30,7 @@ export const END_USER_IDS = {
 
 export const endUsers: EndUserSeedDocument[] = [createEndUserSeedDocument(END_USER_IDS.communityOwner, actors.CommunityOwner), createEndUserSeedDocument(END_USER_IDS.communityMember, actors.CommunityMember)];
 
-function createEndUserSeedDocument(id: string, actor: ActorDetails): EndUserSeedDocument {
+function createEndUserSeedDocument(id: string, actor: TestActor): EndUserSeedDocument {
 	return {
 		_id: id,
 		userType: 'end-users',

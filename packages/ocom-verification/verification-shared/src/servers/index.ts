@@ -1,8 +1,0 @@
-export { seedDatabase } from '../test-data/index.ts';
-export { GraphQLTestServer } from './graphql-test-server.ts';
-export type {
-	MongoDBSeedDataFunction,
-	MongoDBTestServerStartOptions,
-} from './test-mongodb-server.ts';
-export { MongoDBTestServer } from './test-mongodb-server.ts';
-export type { TestServer } from './test-server.interface.ts';

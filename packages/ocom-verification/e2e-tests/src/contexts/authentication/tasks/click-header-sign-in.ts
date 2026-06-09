@@ -1,9 +1,10 @@
-import { type E2EHomePage, HomePage } from '@ocom-verification/verification-shared/pages';
-import { PlaywrightPageAdapter } from '@ocom-verification/verification-shared/pages/playwright';
-import { TaskStep } from '@ocom-verification/verification-shared/serenity';
+import { PlaywrightPageAdapter } from '@cellix/serenity-framework/pages/playwright';
+import { TaskStep } from '@cellix/serenity-framework/serenity';
+import { HomePage } from '@ocom-verification/verification-shared/pages';
 import { type Activity, type Actor, notes, Task } from '@serenity-js/core';
 import type { Page } from 'playwright';
-import type { HeaderE2ENotes, HeaderE2ESite } from '../abilities/header-types.ts';
+import type { E2EHomePage } from '../../../shared/page-contracts.ts';
+import type { HeaderE2ENotes, HeaderE2ESite } from '../notes/header-notes.ts';
 
 const portalCredentials: Record<HeaderE2ESite, { username: string; password: string }> = {
 	community: { username: 'test@example.com', password: 'password' },

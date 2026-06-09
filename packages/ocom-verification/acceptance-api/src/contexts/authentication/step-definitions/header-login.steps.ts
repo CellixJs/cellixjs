@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
-import type { HeaderApiNotes } from '../abilities/header-types.ts';
+import type { HeaderApiNotes } from '../notes/header-notes.ts';
 import { ClickHeaderSignIn } from '../tasks/click-header-sign-in.ts';
 
 let lastActorName = 'Alex';
