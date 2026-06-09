@@ -1,5 +1,5 @@
 import { ApolloProvider } from '@apollo/client';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, within } from 'storybook/test';

@@ -78,3 +78,17 @@ Feature: <Entity> StaffRoleCommunityPermissions
     Given a StaffRoleCommunityPermissions entity without permission to manage staff roles or system account
     When I try to set canReIndexSearchCollections to true
     Then a PermissionError should be thrown
+  Scenario: Changing canManageCommunities with manage staff roles permission
+    Given a StaffRoleCommunityPermissions entity with permission to manage staff roles
+    When I set canManageCommunities to true
+    Then the property should be updated to true
+
+  Scenario: Changing canManageCommunities with system account permission
+    Given a StaffRoleCommunityPermissions entity with system account permission
+    When I set canManageCommunities to true
+    Then the property should be updated to true
+
+  Scenario: Changing canManageCommunities without permission
+    Given a StaffRoleCommunityPermissions entity without permission to manage staff roles or system account
+    When I try to set canManageCommunities to true
+    Then a PermissionError should be thrown

@@ -29,7 +29,7 @@ export class CreateCommunity extends Interaction {
 	static withName(name: string): CreateCommunity {
 		const communityData = {
 			id: '12345',
-			name: '',
+			name: 'Placeholder Community',
 			domain: '',
 			whiteLabelDomain: null,
 			handle: null,

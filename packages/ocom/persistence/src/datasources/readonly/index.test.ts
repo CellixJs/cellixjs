@@ -1,13 +1,13 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-
-import type { Domain } from '@ocom/domain';
-import { ReadonlyDataSourceImplementation } from './index.ts';
 import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
 import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
+import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import type { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
+import { ReadonlyDataSourceImplementation } from './index.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -32,6 +32,12 @@ function makeMockModelsContext() {
 			create: vi.fn(),
 			aggregate: vi.fn(),
 		} as unknown as EndUserModelType,
+		StaffUser: {
+			findById: vi.fn(),
+			findOne: vi.fn(),
+			find: vi.fn(),
+			create: vi.fn(),
+		} as unknown as StaffUserModelType,
 	} as unknown as Parameters<typeof ReadonlyDataSourceImplementation>[0];
 }
 
@@ -101,6 +107,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('the User property should have the correct structure', () => {
 			expect(result.User).toHaveProperty('EndUser');
 			expect(result.User.EndUser).toHaveProperty('EndUserReadRepo');
+			expect(result.User).toHaveProperty('StaffUser');
+			expect(result.User.StaffUser).toHaveProperty('StaffUserReadRepo');
 		});
 	});
 });

@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi, afterEach, type Mock } from 'vitest';
-import { VerifiedTokenService } from './verified-token-service.ts';
+import { afterEach, expect, type Mock, vi } from 'vitest';
 import { ServiceTokenValidation } from './index.ts';
+import { VerifiedTokenService } from './verified-token-service.ts';
 
 // Mock VerifiedTokenService
 
@@ -228,7 +228,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 			// Mock successful verification on second attempt
 			mockGetVerifiedJwt
-				.mockResolvedValueOnce(null) // First provider fails
+				.mockRejectedValueOnce(Object.assign(new Error('signature verification failed'), { name: 'JWSSignatureVerificationFailed' })) // First provider fails with signature mismatch
 				.mockResolvedValueOnce({
 					// Second provider succeeds
 					payload: { sub: 'user123', aud: 'audience2' },

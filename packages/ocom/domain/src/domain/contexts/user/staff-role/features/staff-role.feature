@@ -78,3 +78,22 @@ Feature: <AggregateRoot> StaffRole
     And the createdAt property should return the correct date
     And the updatedAt property should return the correct date
     And the schemaVersion property should return the correct version
+
+  # getDefaultRoleNames
+  Scenario: Getting default role names
+    When I call getDefaultRoleNames
+    Then the result should contain "Default.CaseManager"
+    And the result should contain "Default.ServiceLineOwner"
+    And the result should contain "Default.Finance"
+    And the result should contain "Default.TechAdmin"
+    And the result should have exactly 4 names
+
+  Scenario: Creating a default tech admin role
+    When I create a default tech admin staff role
+    Then the roleName should be "Default Tech Admin"
+    And the enterpriseAppRole should be "Staff.TechAdmin"
+    And the tech admin role should allow managing communities
+    And the tech admin role should allow managing staff roles and permissions
+    And the tech admin role should allow managing finance
+    And the tech admin role should allow managing tech admin
+    And the tech admin role should allow managing users
