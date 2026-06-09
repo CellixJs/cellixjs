@@ -1,16 +1,23 @@
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { ClientUploadSigner } from './client-upload-signer.js';
+
+const azuriteAccountName = 'devstoreaccount1';
+
+function getAzuriteAccountKey(): string {
+	return createHash('sha256').update('cellix-azurite-test-account-key').digest('base64');
+}
 
 /**
  * Tests for SharedKey authorization header generation following Azure Blob Storage conventions.
  * Reference: https://learn.microsoft.com/en-us/rest/api/storageservices/authorize-with-shared-key
  */
 describe('ClientUploadSigner - Canonical Auth Headers', () => {
-	// Azurite development account
-	const connectionString =
-		'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;';
-
-	const signer = new ClientUploadSigner(connectionString);
+	const signer = new ClientUploadSigner({
+		blobServiceUrl: `http://127.0.0.1:10000/${azuriteAccountName}`,
+		accountName: azuriteAccountName,
+		accountKey: getAzuriteAccountKey(),
+	});
 
 	it('generates SharedKey authorization header for blob write with proper canonical format', async () => {
 		const result = await signer.createBlobWriteAuthorizationHeader({
@@ -21,10 +28,10 @@ describe('ClientUploadSigner - Canonical Auth Headers', () => {
 		});
 
 		// Authorization header should start with SharedKey scheme
-		expect(result.authorizationHeader).toMatch(/^SharedKey devstoreaccount1:[A-Za-z0-9+/=]+$/);
+		expect(result.authorizationHeader).toMatch(new RegExp(`^SharedKey ${azuriteAccountName}:[A-Za-z0-9+/=]+$`));
 
 		// URL should point to blob endpoint
-		expect(result.url).toBe('http://127.0.0.1:10000/devstoreaccount1/test-container/test-blob.txt');
+		expect(result.url).toBe(`http://127.0.0.1:10000/${azuriteAccountName}/test-container/test-blob.txt`);
 
 		// Headers should include required x-ms-* fields
 		expect(result.headers['x-ms-blob-type']).toBe('BlockBlob');
@@ -43,10 +50,10 @@ describe('ClientUploadSigner - Canonical Auth Headers', () => {
 		});
 
 		// Authorization header should start with SharedKey scheme
-		expect(result.authorizationHeader).toMatch(/^SharedKey devstoreaccount1:[A-Za-z0-9+/=]+$/);
+		expect(result.authorizationHeader).toMatch(new RegExp(`^SharedKey ${azuriteAccountName}:[A-Za-z0-9+/=]+$`));
 
 		// URL should point to blob endpoint
-		expect(result.url).toBe('http://127.0.0.1:10000/devstoreaccount1/test-container/test-blob.txt');
+		expect(result.url).toBe(`http://127.0.0.1:10000/${azuriteAccountName}/test-container/test-blob.txt`);
 
 		// Headers should include required x-ms-* fields
 		expect(result.headers['x-ms-blob-type']).toBe('BlockBlob');
@@ -70,7 +77,7 @@ describe('ClientUploadSigner - Canonical Auth Headers', () => {
 		expect(result.headers['x-ms-meta-source']).toBe('portal');
 
 		// Authorization should be valid
-		expect(result.authorizationHeader).toMatch(/^SharedKey devstoreaccount1:[A-Za-z0-9+/=]+$/);
+		expect(result.authorizationHeader).toMatch(new RegExp(`^SharedKey ${azuriteAccountName}:[A-Za-z0-9+/=]+$`));
 	});
 
 	it('generates deterministic signature for same request data', async () => {
@@ -87,22 +94,28 @@ describe('ClientUploadSigner - Canonical Auth Headers', () => {
 		// Signatures should match (same inputs = same signature)
 		// Note: x-ms-date will differ, but the signature part (after the colon) should match
 		// when using the same date. We'll just verify both are valid signatures.
-		expect(result1.authorizationHeader).toMatch(/^SharedKey devstoreaccount1:[A-Za-z0-9+/=]+$/);
-		expect(result2.authorizationHeader).toMatch(/^SharedKey devstoreaccount1:[A-Za-z0-9+/=]+$/);
+		expect(result1.authorizationHeader).toMatch(new RegExp(`^SharedKey ${azuriteAccountName}:[A-Za-z0-9+/=]+$`));
+		expect(result2.authorizationHeader).toMatch(new RegExp(`^SharedKey ${azuriteAccountName}:[A-Za-z0-9+/=]+$`));
 	});
 
-	it('throws when provided invalid connection string', () => {
+	it('throws when provided an empty blob service URL', () => {
 		expect(() => {
-			new ClientUploadSigner('invalid-connection-string');
-		}).toThrow();
+			new ClientUploadSigner({
+				blobServiceUrl: '',
+				accountName: azuriteAccountName,
+				accountKey: getAzuriteAccountKey(),
+			});
+		}).toThrow('blobServiceUrl is required to create ClientUploadSigner');
 	});
 
-	it('throws when connection string lacks AccountKey', () => {
-		const invalidConnectionString = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;';
-
+	it('throws when account credentials are missing', () => {
 		expect(() => {
-			new ClientUploadSigner(invalidConnectionString);
-		}).toThrow();
+			new ClientUploadSigner({
+				blobServiceUrl: `http://127.0.0.1:10000/${azuriteAccountName}`,
+				accountName: azuriteAccountName,
+				accountKey: '',
+			});
+		}).toThrow('accountKey is required to create ClientUploadSigner');
 	});
 
 	describe('Security - Metadata Locking (Negative Scenarios)', () => {

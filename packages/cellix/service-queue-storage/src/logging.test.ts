@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { BlobQueueMessageLogger } from './index.js';
+import { BlobQueueMessageLogger } from './index.ts';
 
 type MockBlob = { uploadText: (req: { containerName: string; blobName: string; text: string; metadata?: Record<string, string>; tags?: Record<string, string> }) => Promise<unknown> };
 

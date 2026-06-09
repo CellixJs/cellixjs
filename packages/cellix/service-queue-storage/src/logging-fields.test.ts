@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { describe, expect, vi } from 'vitest';
-import { $payload, type IQueueMessageLogger, type LoggingFieldSpec, registerQueues, resolveLoggingFields } from './index.js';
+import { $payload, type IQueueMessageLogger, type LoggingFieldSpec, registerQueues, resolveLoggingFields } from './index.ts';
 
 type MockReceivedMessage = {
 	messageId: string;
@@ -139,7 +139,7 @@ describe('Logging field resolution', () => {
 			And('a logger is configured on the service', () => {
 				logSpy = vi.fn().mockResolvedValue({ container: 'c', blobName: 'b' });
 				const mockLogger: IQueueMessageLogger = { logMessage: logSpy as IQueueMessageLogger['logMessage'] };
-				svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true', logger: mockLogger });
+				svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' }).enableLogging(mockLogger, { enabled: true, container: 'logs' });
 			});
 
 			When('a message with externalId="ext-xyz" is received from the queue', async () => {
@@ -174,7 +174,7 @@ describe('Logging field resolution', () => {
 			And('a logger is configured on the service', async () => {
 				logSpy = vi.fn().mockResolvedValue({ container: 'c', blobName: 'b' });
 				const mockLogger: IQueueMessageLogger = { logMessage: logSpy as IQueueMessageLogger['logMessage'] };
-				svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true', logging: { enabled: true, container: 'logs' }, logger: mockLogger });
+				svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' }).enableLogging(mockLogger, { enabled: true, container: 'logs' });
 				await svc.startUp();
 			});
 

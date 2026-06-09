@@ -1,4 +1,28 @@
-import type { IQueueMessageLogger } from './logging.js';
+import type { IQueueMessageLogger } from './logging.ts';
+
+/**
+ * Runtime logging behavior for a registered queue service.
+ *
+ * Pass this either in the initial {@link QueueStorageConfig} or later through
+ * `service.enableLogging(logger, config)` when logging should be optional.
+ *
+ * @example
+ * ```ts
+ * const config: QueueLoggingConfig = {
+ *   enabled: true,
+ *   container: 'queue-logs',
+ *   await: false,
+ * };
+ * ```
+ */
+export type QueueLoggingConfig = {
+	/** Enables or disables queue message logging for subsequent operations. */
+	enabled: boolean;
+	/** Blob container name used by blob-backed loggers such as `BlobQueueMessageLogger`. */
+	container: string;
+	/** When `true`, queue operations wait for logging to complete before resolving. */
+	await?: boolean;
+};
 
 // Phantom symbol used solely for payload type inference — never set at runtime
 declare const _queuePayload: unique symbol;
@@ -12,18 +36,29 @@ declare const _queuePayload: unique symbol;
  *
  * `provisionQueues` is intended for local development and Azurite startup, not
  * production infrastructure management.
+ *
+ * @example
+ * ```ts
+ * const localConfig: QueueStorageConfig = {
+ *   connectionString: 'UseDevelopmentStorage=true',
+ *   provisionQueues: ['community-creation'],
+ * };
+ *
+ * const managedIdentityConfig: QueueStorageConfig = {
+ *   accountName: 'my-storage-account',
+ * };
+ * ```
  */
 export type QueueStorageConfig = {
+	/** Azure Storage account name used with `DefaultAzureCredential` authentication. */
 	accountName?: string;
+	/** Azure Queue Storage connection string used for shared-key or Azurite access. */
 	connectionString?: string;
-	/** Optional list of queues that should be auto-provisioned in local/dev environments */
+	/** Queue names to create automatically in development or Azurite scenarios. */
 	provisionQueues?: string[];
-	logging?: {
-		enabled: boolean;
-		container: string;
-		await?: boolean;
-	};
-	/** Optional logger implementation for persisting message envelopes */
+	/** Optional runtime logging behavior for typed send and receive operations. */
+	logging?: QueueLoggingConfig;
+	/** Logger implementation that persists queue message envelopes when logging is enabled. */
 	logger?: IQueueMessageLogger;
 };
 
@@ -32,11 +67,26 @@ export type QueueStorageConfig = {
  *
  * `payload` carries the decoded queue message body, while `id`, `popReceipt`, and
  * `dequeueCount` reflect Azure Queue Storage delivery metadata when available.
+ *
+ * @typeParam T - Decoded payload type for the queue definition being read.
+ *
+ * @example
+ * ```ts
+ * const message: QueueMessage<{ requestId: string }> = {
+ *   id: 'msg-1',
+ *   payload: { requestId: 'req-123' },
+ *   dequeueCount: 1,
+ * };
+ * ```
  */
 export type QueueMessage<T = unknown> = {
+	/** Azure Queue Storage message identifier. */
 	id: string;
+	/** Pop receipt required when deleting a received message. */
 	popReceipt?: string;
+	/** Decoded queue payload. */
 	payload: T;
+	/** Number of times Azure Queue Storage has dequeued the message. */
 	dequeueCount?: number;
 };
 
@@ -48,8 +98,14 @@ export type QueueDirection = 'inbound' | 'outbound';
  *
  * Consumers normally do not create this object directly; it is derived from queue
  * definitions and logging configuration.
+ *
+ * @remarks
+ * This type is public because the low-level transport contract is public, but
+ * application code should usually prefer typed queue methods created by
+ * `registerQueues()` over constructing these options manually.
  */
 export type SendMessageOptions = {
+	/** Number of seconds Azure should delay visibility of the message after enqueue. */
 	visibilityTimeoutSeconds?: number;
 	/** Already-resolved blob index tags to attach to the logged message envelope */
 	loggingTags?: Record<string, string>;
@@ -58,20 +114,92 @@ export type SendMessageOptions = {
 	/** Queue direction used by the blob logger when persisting the payload */
 	loggingDirection?: QueueDirection;
 };
-export type ReceiveMessagesOptions = { maxMessages?: number; visibilityTimeout?: number };
-export type PeekMessagesOptions = { maxMessages?: number };
+
+/**
+ * Options for low-level receive operations.
+ *
+ * @remarks
+ * Most consumers use generated `receiveFrom...Queue()` methods instead of this
+ * transport-level option bag.
+ */
+export type ReceiveMessagesOptions = {
+	/** Maximum number of messages to request from Azure in one receive call. */
+	maxMessages?: number;
+	/** Number of seconds Azure should hide received messages before they become visible again. */
+	visibilityTimeout?: number;
+};
+
+/**
+ * Options for low-level peek operations.
+ *
+ * @remarks
+ * Most consumers use generated `peekAt...Queue()` methods instead of this
+ * transport-level option bag.
+ */
+export type PeekMessagesOptions = {
+	/** Maximum number of messages to peek without dequeuing. */
+	maxMessages?: number;
+};
 
 /**
  * Internal raw queue transport contract implemented by the Azure queue service.
  *
  * Application consumers should use registered typed queue methods instead of this
  * lower-level transport surface.
+ *
+ * @remarks
+ * This interface is exported for advanced integrations and testing, but it is
+ * intentionally narrower than the application-facing surface returned by
+ * `registerQueues()`.
  */
 export interface IQueueStorageOperations {
+	/**
+	 * Sends a raw message to a physical queue.
+	 *
+	 * @typeParam _T - Payload type expected by the caller. This is not validated automatically.
+	 * @param queue - Physical Azure Queue Storage queue name.
+	 * @param message - Raw string payload or object to serialize as JSON.
+	 * @param opts - Optional delivery and logging options.
+	 * @returns Resolves when Azure accepts the message.
+	 */
 	sendMessage<_T = unknown>(queue: string, message: string | object, opts?: SendMessageOptions): Promise<void>;
+	/**
+	 * Sends a payload through an explicit encode contract before handing it to Azure.
+	 *
+	 * @typeParam T - Payload type accepted by the provided encode contract.
+	 * @param queue - Physical Azure Queue Storage queue name.
+	 * @param contract - Encoder/decoder pair used to serialize the payload.
+	 * @param payload - Message payload to encode and send.
+	 * @param opts - Optional delivery and logging options.
+	 * @returns Resolves when Azure accepts the encoded message.
+	 */
 	sendValidatedMessage<T>(queue: string, contract: QueueMessageContract<T>, payload: T, opts?: SendMessageOptions): Promise<void>;
+	/**
+	 * Receives and decodes messages from a physical queue.
+	 *
+	 * @typeParam _T - Expected decoded payload type.
+	 * @param queue - Physical Azure Queue Storage queue name.
+	 * @param opts - Optional receive settings such as batch size and visibility timeout.
+	 * @returns Decoded queue messages in dequeue order.
+	 */
 	receiveMessages<_T = unknown>(queue: string, opts?: ReceiveMessagesOptions): Promise<QueueMessage<_T>[]>;
+	/**
+	 * Deletes a previously received message.
+	 *
+	 * @param queue - Physical Azure Queue Storage queue name.
+	 * @param messageId - Azure message identifier.
+	 * @param popReceipt - Azure pop receipt returned by a receive operation.
+	 * @returns Resolves when Azure accepts the delete request.
+	 */
 	deleteMessage(queue: string, messageId: string, popReceipt: string): Promise<void>;
+	/**
+	 * Peeks at messages without dequeuing them.
+	 *
+	 * @typeParam _T - Expected decoded payload type.
+	 * @param queue - Physical Azure Queue Storage queue name.
+	 * @param opts - Optional peek settings such as batch size.
+	 * @returns Decoded queue messages without altering visibility or dequeue state.
+	 */
 	peekMessages<_T = unknown>(queue: string, opts?: PeekMessagesOptions): Promise<QueueMessage<_T>[]>;
 }
 
@@ -81,6 +209,26 @@ type QueueMessageContract<T> = {
 };
 type QueueMessageSchema = Record<string, unknown>;
 type PayloadFieldRef<TKey extends string = string> = { payloadField: TKey };
+
+/**
+ * Typed `$payload` helper shape used when authoring logging tags and metadata.
+ *
+ * Each property access produces a `{ payloadField: 'fieldName' }` reference that
+ * can be stored in a queue definition and resolved later against a runtime payload.
+ *
+ * @typeParam TPayload - Queue payload type whose keys should be addressable.
+ *
+ * @example
+ * ```ts
+ * type CommunityCreated = { communityId: string; createdBy: string };
+ * const $payload = payloadFields<CommunityCreated>();
+ *
+ * const metadata = {
+ *   communityId: $payload.communityId,
+ *   createdBy: $payload.createdBy,
+ * };
+ * ```
+ */
 export type PayloadFieldProxy<TPayload extends object> = {
 	[K in Extract<keyof TPayload, string>]-?: PayloadFieldRef<K>;
 };
@@ -108,6 +256,8 @@ type QueueDefinitionBase = {
  * // value extracted from payload.externalId at runtime
  * const spec: LoggingFieldSpec = $payload.externalId;
  * ```
+ *
+ * @typeParam TPayload - Payload type whose keys may be referenced when using `{ payloadField: ... }`.
  */
 export type LoggingFieldSpec<TPayload = { [key: string]: unknown }> = string | PayloadFieldRef<Extract<keyof TPayload, string>>;
 
@@ -121,8 +271,10 @@ export type LoggingFieldSpec<TPayload = { [key: string]: unknown }> = string | P
  * message payload at log time.
  *
  * The `TPayload` type parameter is a phantom type that declares the TypeScript
- * message type for compile-time safety. It does not appear in the runtime object —
+ * message type for compile-time safety. It does not appear in the runtime object -
  * set it by providing an explicit type annotation or using `satisfies`.
+ *
+ * @typeParam TPayload - Logical payload type associated with this queue definition.
  *
  * @example
  * ```ts
@@ -148,6 +300,8 @@ export type QueueDefinition<TPayload = object> = QueueDefinitionBase & {
  * Tag type for outbound queues (messages sent from the application).
  * Structurally identical to QueueDefinition but provides compile-time
  * and runtime distinction for logging purposes.
+ *
+ * @typeParam TPayload - Payload type carried by the outbound queue.
  */
 export type OutboundQueueDefinition<TPayload = object> = QueueDefinition<TPayload> & {
 	readonly _direction?: 'outbound';
@@ -157,6 +311,8 @@ export type OutboundQueueDefinition<TPayload = object> = QueueDefinition<TPayloa
  * Tag type for inbound queues (messages received by the application).
  * Structurally identical to QueueDefinition but provides compile-time
  * and runtime distinction for logging purposes.
+ *
+ * @typeParam TPayload - Payload type carried by the inbound queue.
  */
 export type InboundQueueDefinition<TPayload = object> = QueueDefinition<TPayload> & {
 	readonly _direction?: 'inbound';

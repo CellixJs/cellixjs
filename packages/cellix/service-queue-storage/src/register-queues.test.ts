@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { describe, expect, vi } from 'vitest';
-import { registerQueues } from './index.js';
+import { registerQueues } from './index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/register-queues.feature'));

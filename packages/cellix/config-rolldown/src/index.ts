@@ -10,9 +10,10 @@ type CellixAzureFunctionsRolldownConfigOptions = {
 	appPackageName: string;
 	input?: string;
 	outputDir?: string;
-	applicationNamespaces?: string[];
-	additionalExternal?: Array<string | RegExp>;
-	suppressEvalWarningsFor?: string[];
+	applicationNamespaces?: readonly string[];
+	skipAliasNamespaces?: readonly string[];
+	additionalExternal?: readonly (string | RegExp)[];
+	suppressEvalWarningsFor?: readonly string[];
 };
 
 type ExternalDependency = {
@@ -42,6 +43,7 @@ export async function createCellixAzureFunctionsRolldownConfig(
 		input = './dist/index.js',
 		outputDir = 'deploy/dist',
 		applicationNamespaces = [],
+		skipAliasNamespaces = [],
 		additionalExternal = [],
 		suppressEvalWarningsFor = ['@protobufjs/inquire/index.js'],
 	} = options;
@@ -51,13 +53,14 @@ export async function createCellixAzureFunctionsRolldownConfig(
 		platform: 'node',
 		treeshake: true,
 		external: [/^node:/, '@azure/functions-core', ...additionalExternal],
-		resolve: {
-			alias: await buildCjsAliasMap({
-				repoRoot,
-				appPackageName,
-				workspaceNamespaces: ['@cellix/', ...applicationNamespaces],
-			}),
-		},
+			resolve: {
+				alias: await buildCjsAliasMap({
+					repoRoot,
+					appPackageName,
+					workspaceNamespaces: ['@cellix/', ...applicationNamespaces],
+					skipAliasNamespaces,
+				}),
+			},
 		transform: { define: { __dirname: 'import.meta.dirname' } },
 		output: {
 			dir: outputDir,
@@ -83,9 +86,15 @@ export async function createCellixAzureFunctionsRolldownConfig(
 export async function buildCjsAliasMap(options: {
 	repoRoot: string;
 	appPackageName: string;
-	workspaceNamespaces?: string[];
+	workspaceNamespaces?: readonly string[];
+	skipAliasNamespaces?: readonly string[];
 }): Promise<AliasMap> {
-	const { repoRoot, appPackageName, workspaceNamespaces = ['@cellix/'] } = options;
+	const {
+		repoRoot,
+		appPackageName,
+		workspaceNamespaces = ['@cellix/'],
+		skipAliasNamespaces = [],
+	} = options;
 	const workspacePackages = await collectWorkspacePackages(repoRoot);
 	const externalDeps = await collectExternalDeps(
 		appPackageName,
@@ -95,6 +104,10 @@ export async function buildCjsAliasMap(options: {
 	const alias: AliasMap = {};
 
 	for (const { pkg, fromDir } of externalDeps) {
+		if (skipAliasNamespaces.some((namespace) => pkg.startsWith(namespace))) {
+			continue;
+		}
+
 		if (alias[pkg]) {
 			continue;
 		}
@@ -163,7 +176,7 @@ async function writeDeployPackageJson(
 async function collectExternalDeps(
 	pkgName: string,
 	workspacePackages: WorkspacePackageMap,
-	workspaceNamespaces: string[],
+	workspaceNamespaces: readonly string[],
 	visited = new Set<string>(),
 ): Promise<ExternalDependency[]> {
 	if (visited.has(pkgName)) {
@@ -240,6 +253,6 @@ function skipDir(name: string): boolean {
 	return ['node_modules', 'dist', 'build', 'deploy', 'coverage', '.turbo'].includes(name);
 }
 
-function isWorkspacePackage(name: string, workspaceNamespaces: string[]): boolean {
+function isWorkspacePackage(name: string, workspaceNamespaces: readonly string[]): boolean {
 	return workspaceNamespaces.some((namespace) => name.startsWith(namespace));
 }

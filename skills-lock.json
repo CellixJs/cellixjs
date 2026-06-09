@@ -11,6 +11,31 @@
 			"sourceType": "github",
 			"computedHash": "5e26c8042060bb811118927b5daf637af7929a00fa973dd8f5f804f3ba6e2bf2"
 		},
+		"apollo-client": {
+			"source": "apollographql/skills",
+			"sourceType": "github",
+			"computedHash": "554e9dc43c067508b8f8d37798441328789e1dd25f53b49a1f39839b993d6828"
+		},
+		"apollo-mcp-server": {
+			"source": "apollographql/skills",
+			"sourceType": "github",
+			"computedHash": "4d4a04a724639c66a4f295d4f70a89c7db6a05eca88e1f7c6e281d4b825f266b"
+		},
+		"apollo-server": {
+			"source": "apollographql/skills",
+			"sourceType": "github",
+			"computedHash": "7e56911da905caa99e0a429ab38fb04ea06b8abd46f9fd986b92a2a04268d9d4"
+		},
+		"graphql-operations": {
+			"source": "apollographql/skills",
+			"sourceType": "github",
+			"computedHash": "1dbec2cb28dbae3bddffb1004f00c965dbe2a70b08c43a144b91d63a0c5d14c6"
+		},
+		"graphql-schema": {
+			"source": "apollographql/skills",
+			"sourceType": "github",
+			"computedHash": "eb6fd4ed9072b7c118e8541514e1951d8b6bdc5526c0bddd549a445272bb2312"
+		},
 		"mongodb-connection": {
 			"source": "mongodb/agent-skills",
 			"sourceType": "github",
@@ -35,6 +60,16 @@
 			"source": "vercel/turborepo",
 			"sourceType": "github",
 			"computedHash": "632e1f08972f55532e817819f857d47f19d6a8b8b2b407541c2840e28ac5e13e"
+		},
+		"typescript-advanced-types": {
+			"source": "wshobson/agents",
+			"sourceType": "github",
+			"computedHash": "c142f64de35a7c7518e62d4a5c5b18800bbe4391be14ba45a5d049adfcf01c57"
+		},
+		"vercel-react-best-practices": {
+			"source": "vercel-labs/agent-skills",
+			"sourceType": "github",
+			"computedHash": "d7b0ec66ea66a17e882f824081ef1d79d5a7c4b0a0304046fde7345482b8cc06"
 		},
 		"vitest": {
 			"source": "antfu/skills",

@@ -1,9 +1,21 @@
-import type { QueueDirection } from './interfaces.js';
+import type { QueueDirection } from './interfaces.ts';
 
 /**
  * Envelope stored for logged queue messages. Contains queue name, optional
  * messageId (from Azure), the original payload, optional blob metadata,
  * optional blob index tags, queue direction, and a creation timestamp.
+ *
+ * @example
+ * ```ts
+ * const envelope: MessageLogEnvelope = {
+ *   queue: 'community-creation',
+ *   direction: 'outbound',
+ *   messageId: 'msg-123',
+ *   payload: { communityId: 'community-1' },
+ *   tags: { domain: 'community' },
+ *   createdAt: new Date().toISOString(),
+ * };
+ * ```
  */
 export type MessageLogEnvelope = {
 	queue: string;
@@ -17,7 +29,20 @@ export type MessageLogEnvelope = {
 
 type LogAddress = { container: string; blobName: string; url?: string };
 
+/**
+ * Pluggable sink for queue message logging.
+ *
+ * Supply an implementation through `QueueStorageConfig.logger` or
+ * `service.enableLogging(...)` when queue message delivery should also persist
+ * a durable audit copy.
+ */
 export interface IQueueMessageLogger {
+	/**
+	 * Persists one queue message envelope.
+	 *
+	 * @param envelope - Resolved queue message information ready for persistence.
+	 * @returns Address information describing where the message was stored.
+	 */
 	logMessage(envelope: MessageLogEnvelope): Promise<LogAddress>;
 }
 
@@ -34,6 +59,8 @@ type BlobStorageLike = {
  * This helper is intentionally minimal so it can be adapted to different blob
  * storage clients in tests and production.
  *
+ * @param blobStorage - Blob service abstraction with an `uploadText()` method.
+ * @param containerName - Blob container that should receive queue message logs.
  * @returns When messages are logged the helper returns a {@link LogAddress} describing where the envelope was stored.
  * @example
  * ```typescript

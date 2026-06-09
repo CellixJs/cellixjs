@@ -1,9 +1,9 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import type { QueueMap, QueueStorageConfig } from './interfaces.js';
-import { InternalQueueStorageService, type QueueServiceLifecycle } from './internal-queue-storage-service.js';
-import { createQueueConsumer, type QueueConsumerContext } from './queue-consumer.js';
-import { createQueueProducer, type QueueProducerContext } from './queue-producer.js';
+import type { QueueMap, QueueStorageConfig } from './interfaces.ts';
+import { InternalQueueStorageService, type QueueServiceLifecycle, type QueueServiceLogging } from './internal-queue-storage-service.ts';
+import { createQueueConsumer, type QueueConsumerContext } from './queue-consumer.ts';
+import { createQueueProducer, type QueueProducerContext } from './queue-producer.ts';
 
 // Setup Ajv once for the module lifecycle
 const AjvClass = Ajv as unknown as new (opts?: Record<string, unknown>) => { compile(schema: object): (data: unknown) => boolean };
@@ -20,8 +20,19 @@ if (typeof addFormatsAny === 'function') {
  *
  * Consumers typically use this through an application-specific alias, for example
  * `type ServiceQueueStorage = RegisteredQueueService<typeof outbound, typeof inbound>`.
+ *
+ * @typeParam O - Outbound queue definition map passed to `registerQueues()`.
+ * @typeParam I - Inbound queue definition map passed to `registerQueues()`.
+ *
+ * @example
+ * ```ts
+ * const outbound = { communityCreation: communityCreationQueue };
+ * const inbound = { importRequests: importRequestsQueue };
+ *
+ * type ServiceQueueStorage = RegisteredQueueService<typeof outbound, typeof inbound>;
+ * ```
  */
-export type RegisteredQueueService<O extends QueueMap, I extends QueueMap> = QueueServiceLifecycle & QueueProducerContext<O> & QueueConsumerContext<I>;
+export type RegisteredQueueService<O extends QueueMap, I extends QueueMap> = QueueServiceLifecycle & QueueServiceLogging & QueueProducerContext<O> & QueueConsumerContext<I>;
 
 /**
  * Registers outbound and inbound queue definitions and returns a typed registry.
@@ -35,8 +46,16 @@ export type RegisteredQueueService<O extends QueueMap, I extends QueueMap> = Que
  * AJV validators for all queue schemas are compiled once at registration time and
  * reused across all `Service` instances.
  *
- * @param definitions - Object containing `outbound` and `inbound` queue definition maps
- * @returns A queue registry with typed stubs and a bound `Service` base class
+ * @typeParam O - Outbound queue definition map for messages produced by the application.
+ * @typeParam I - Inbound queue definition map for messages consumed by the application.
+ * @param config - Object containing `outbound` and `inbound` queue definition maps.
+ * @returns A queue registry with typed stubs and a bound `Service` base class.
+ *
+ * @remarks
+ * The returned `producer` and `consumer` objects are type stubs, not live queue
+ * clients. They exist so consumer packages can export stable TypeScript aliases
+ * without instantiating a service. The actual queue methods are attached to the
+ * returned `Service` base class.
  *
  * @example
  * ```typescript
@@ -103,7 +122,7 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 		constructor(options: QueueStorageConfig) {
 			super(options);
 			Object.assign(this, createQueueProducer(this, config.outbound, outboundValidators));
-			Object.assign(this, createQueueConsumer(this, config.inbound, inboundValidators, options.logger));
+			Object.assign(this, createQueueConsumer(this, config.inbound, inboundValidators));
 		}
 	}
 

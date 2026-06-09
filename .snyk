@@ -101,9 +101,3 @@ ignore:
         reason: 'Transitive dependency in Docusaurus CSS optimization/build tooling; Snyk reports no fixed version for postcss-selector-parser yet. Not exploitable at runtime because docs CSS is repository-controlled and processed at build time.'
         expires: '2026-07-28T00:00:00.000Z'
         created: '2026-05-27T00:00:00.000Z'
-sast-ignore:
-  'packages/cellix/service-blob-storage/src/test-support/azurite.ts':
-    - 'Hardcoded-Non-Cryptographic-Secret @ line 10':
-        reason: 'This is the standard well-known Azurite/Azure Storage Emulator test account key from official Microsoft documentation (https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite). Used only for local testing and not a real credential.'
-        expires: '2027-05-14T00:00:00.000Z'
-        created: '2026-05-14T16:00:00.000Z'

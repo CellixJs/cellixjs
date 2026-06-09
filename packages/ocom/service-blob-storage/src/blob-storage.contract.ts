@@ -1,22 +1,20 @@
-import type { BlobAddress, BlobListItem, BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest, ListBlobsRequest, UploadTextBlobRequest } from '@cellix/service-blob-storage';
+import type { CreateBlobAuthorizationHeaderRequest, ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
 
 export type CreateBlobAccessUrlRequest = CreateBlobAuthorizationHeaderRequest;
 
 /**
- * Operations for server-side blob storage access via managed identity.
- * Subset of BlobStorage interface for backend operations.
+ * Server-side blob storage operations exposed to application services.
+ *
+ * This is a narrow view of the framework `ServiceBlobStorage` class so the
+ * application can depend on only the backend blob methods without redefining
+ * their documentation locally.
  */
-export interface BlobStorageOperations {
-	listBlobs(request: ListBlobsRequest): Promise<BlobListItem[]>;
-	uploadText(request: UploadTextBlobRequest): Promise<unknown>;
-	deleteBlob(address: BlobAddress): Promise<void>;
-}
+export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uploadText' | 'deleteBlob'>;
 
 /**
- * Operations for generating signed authorization headers for client-side uploads.
- * Returns canonical SharedKey authorization headers that lock blob metadata (content type, length).
+ * Client-side blob signing operations.
+ *
+ * This is a narrow view of the framework `ServiceClientBlobStorage` class for
+ * SharedKey signing workflows used by browser uploads and downloads.
  */
-export interface ClientUploadOperations {
-	createUploadUrl(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
-	createReadUrl(request: CreateBlobAccessUrlRequest): Promise<BlobUploadAuthorizationHeader>;
-}
+export type ClientUploadOperations = Pick<ServiceClientBlobStorage, 'createBlobWriteAuthorizationHeader' | 'createBlobReadAuthorizationHeader'>;

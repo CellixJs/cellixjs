@@ -8,7 +8,7 @@ import type { GraphContext } from '@ocom/graphql-handler';
 import { graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
-import { ServiceBlobStorage } from '@ocom/service-blob-storage';
+import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
 import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
@@ -18,31 +18,36 @@ import * as BlobStorageConfig from './service-config/blob-storage/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
+const { NODE_ENV } = process.env;
+const isProd = NODE_ENV === 'production';
+
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
-	const { NODE_ENV } = process.env;
-	const isProd = NODE_ENV === 'production';
-
-	const mongooseService = new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions);
-	const blobStorageService = isProd
-		? new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName })
-		: new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString, provisionContainers: BlobStorageConfig.provisionContainers });
-	const clientOperationsService = new ServiceBlobStorage({ connectionString: BlobStorageConfig.connectionString });
-	const tokenValidationService = new ServiceTokenValidation(TokenValidationConfig.portalTokens);
-	const apolloService = new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions);
-	const queueStorageService = isProd
-		? new ServiceQueueStorage({ accountName: BlobStorageConfig.accountName as string, blobStorage: blobStorageService })
-		: new ServiceQueueStorage({ connectionString: BlobStorageConfig.connectionString, blobStorage: blobStorageService });
-
 	serviceRegistry
-		.registerInfrastructureService(mongooseService)
-		.registerInfrastructureService(blobStorageService, 'BlobStorageService')
-		.registerInfrastructureService(clientOperationsService, 'ClientOperationsService')
-		.registerInfrastructureService(queueStorageService)
-		.registerInfrastructureService(tokenValidationService)
-		.registerInfrastructureService(apolloService);
+		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
+		.registerInfrastructureService(
+            isProd
+				? new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName })
+				: new ServiceClientBlobStorage({
+						accountName: BlobStorageConfig.accountName,
+						signingConnectionString: BlobStorageConfig.signingConnectionString,
+					}),
+			'BlobStorageService',
+		)
+		.registerInfrastructureService(
+			new ServiceClientBlobStorage({
+				accountName: BlobStorageConfig.accountName,
+				signingConnectionString: BlobStorageConfig.signingConnectionString,
+			}),
+			'ClientOperationsService',
+		)
+		.registerInfrastructureService(isProd ? new ServiceQueueStorage({ accountName: BlobStorageConfig.accountName as string }) : new ServiceQueueStorage({ connectionString: BlobStorageConfig.signingConnectionString }))
+		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
+		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
 })
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
+		const blobStorageService = serviceRegistry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService');
+		const queueStorageService = serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage).enableLogging(blobStorageService);
 
 		const { domainDataSource } = dataSourcesFactory.withSystemPassport();
 		RegisterEventHandlers(domainDataSource);
@@ -51,9 +56,9 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 			dataSourcesFactory,
 			tokenValidationService: serviceRegistry.getInfrastructureService<ServiceTokenValidation>(ServiceTokenValidation),
 			apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),
-			blobStorageService: serviceRegistry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService'),
-			clientOperationsService: serviceRegistry.getInfrastructureService<ServiceBlobStorage>('ClientOperationsService'),
-			queueStorageService: serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage),
+			blobStorageService,
+			clientOperationsService: serviceRegistry.getInfrastructureService<ServiceClientBlobStorage>('ClientOperationsService'),
+			queueStorageService,
 		};
 	})
 	.initializeApplicationServices((context) => buildApplicationServicesFactory(context))

@@ -1,25 +1,74 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import type { QueueClient, QueueReceiveMessageOptions } from '@azure/storage-queue';
 import { QueueServiceClient } from '@azure/storage-queue';
-import type { IQueueStorageOperations, PeekMessagesOptions, QueueMessage, QueueStorageConfig, ReceiveMessagesOptions, SendMessageOptions } from './interfaces.js';
-import type { MessageLogEnvelope } from './logging.js';
+import type { IQueueStorageOperations, PeekMessagesOptions, QueueLoggingConfig, QueueMessage, QueueStorageConfig, ReceiveMessagesOptions, SendMessageOptions } from './interfaces.ts';
+import type { IQueueMessageLogger, MessageLogEnvelope } from './logging.ts';
 
 /**
  * Public lifecycle contract implemented by registered queue services.
  *
  * Registered queue services are started during application bootstrap and should be
  * shut down when the hosting process disposes infrastructure services.
+ *
+ * @example
+ * ```ts
+ * const service = new queueRegistry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+ * await service.startUp();
+ * await service.shutDown();
+ * ```
  */
 export interface QueueServiceLifecycle {
-	/** Starts the service and returns the started instance for fluent bootstrap flows. */
+	/**
+	 * Starts the queue service and returns the same instance for fluent bootstrap flows.
+	 *
+	 * @returns The started queue service instance.
+	 */
 	startUp(): Promise<this>;
-	/** Releases any held client references and makes shutdown idempotent. */
+	/**
+	 * Releases held client references and makes shutdown idempotent.
+	 *
+	 * @returns Resolves when shutdown work has completed.
+	 */
 	shutDown(): Promise<void>;
+}
+
+/**
+ * Public logging configuration contract implemented by registered queue services.
+ *
+ * Logging can be enabled after construction so applications using fluent
+ * infrastructure registration can opt in only when a compatible logger
+ * dependency is available from the service registry.
+ *
+ * @example
+ * ```ts
+ * const service = new queueRegistry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+ * service.enableLogging(logger, { enabled: true, container: 'queue-logs' });
+ * ```
+ */
+export interface QueueServiceLogging {
+	/**
+	 * Enables queue message logging for subsequent send and receive operations.
+	 *
+	 * @param logger - Logger implementation that will persist resolved message envelopes.
+	 * @param config - Optional runtime logging behavior such as container name and await mode.
+	 * @returns The same service instance for fluent configuration.
+	 */
+	enableLogging(logger: IQueueMessageLogger, config?: QueueLoggingConfig): this;
+	/**
+	 * Disables queue message logging for subsequent send and receive operations.
+	 *
+	 * @returns The same service instance for fluent configuration.
+	 */
+	disableLogging(): this;
 }
 
 /** Internal transport contract used to bind typed queue methods onto the base Azure service. */
 export type InternalQueueTransport = IQueueStorageOperations &
-	QueueServiceLifecycle & {
+	QueueServiceLifecycle &
+	QueueServiceLogging & {
+		getLogger(): IQueueMessageLogger | undefined;
+		isLoggingEnabled(): boolean;
+		shouldAwaitLogging(): boolean;
 		createQueueIfNotExists(queue: string): Promise<void>;
 	};
 
@@ -47,11 +96,39 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 	private inferredMode: 'sharedKey' | 'managedIdentity' | undefined;
 	private queueServiceClient: QueueServiceClient | undefined = undefined;
 	private started = false;
+	private logger: IQueueMessageLogger | undefined;
+	private loggingConfig: QueueLoggingConfig | undefined;
 
 	constructor(options: QueueStorageConfig) {
 		this.options = options;
+		this.logger = options.logger;
+		this.loggingConfig = options.logging;
 		if (options.connectionString) this.inferredMode = 'sharedKey';
 		else if (options.accountName) this.inferredMode = 'managedIdentity';
+	}
+
+	public enableLogging(logger: IQueueMessageLogger, config?: QueueLoggingConfig): this {
+		this.logger = logger;
+		this.loggingConfig = config ?? this.loggingConfig ?? this.options.logging ?? { enabled: true, container: '' };
+		return this;
+	}
+
+	public disableLogging(): this {
+		this.logger = undefined;
+		this.loggingConfig = { ...(this.loggingConfig ?? this.options.logging ?? { enabled: true, container: '' }), enabled: false };
+		return this;
+	}
+
+	public getLogger(): IQueueMessageLogger | undefined {
+		return this.logger;
+	}
+
+	public isLoggingEnabled(): boolean {
+		return this.loggingConfig?.enabled === true && this.logger !== undefined;
+	}
+
+	public shouldAwaitLogging(): boolean {
+		return this.loggingConfig?.await === true;
 	}
 
 	/**
@@ -140,7 +217,7 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 		const res = await queueClient.sendMessage(encoded);
 
 		// Logging: if configured and logger provided, record envelope
-		if (this.options.logging?.enabled && this.options.logger) {
+		if (this.isLoggingEnabled()) {
 			const direction = opts?.loggingDirection ?? 'outbound';
 			const mergedTags = { ...(opts?.loggingTags ?? {}), queueName: queue };
 			const mergedMetadata = opts?.loggingMetadata ?? undefined;
@@ -165,13 +242,13 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 
 			const doLog = async () => {
 				try {
-					await this.options.logger?.logMessage(envelope);
+					await this.logger?.logMessage(envelope);
 				} catch (e) {
 					console.error('[InternalQueueStorageService] logging failed', e);
 				}
 			};
 
-			if (this.options.logging?.await) await doLog();
+			if (this.shouldAwaitLogging()) await doLog();
 			else void doLog();
 		}
 	}

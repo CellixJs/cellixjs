@@ -8,79 +8,71 @@ Summary path: `packages/cellix/service-blob-storage/cellix-tdd-summary.md`
 
 ## Package framing
 
-`@cellix/service-blob-storage` is a new framework infrastructure package that provides reusable Azure Blob Storage behavior for Cellix applications while keeping Azure SDK details inside the framework boundary.
+`@cellix/service-blob-storage` is an existing framework infrastructure package for Azure Blob Storage. This task is a public-contract refactor and API-surface reduction: the base service now covers only managed-identity-backed server-side blob operations, while client-signing behavior moves to a dedicated subclass.
 
-Intended consumers are application-specific infrastructure adapter packages such as `@ocom/service-blob-storage`, plus bootstrap code that registers the framework service in a Cellix application.
-
-This was greenfield package work for the framework package, plus downstream wiring and adapter work in OCOM packages.
+Intended consumers remain application-specific adapter packages such as `@ocom/service-blob-storage`, plus bootstrap code that registers framework services in a Cellix application.
 
 ## Consumer usage exploration
 
-Primary consumer flow:
+The key downstream consumer split is:
 
 ```ts
-const frameworkBlobStorage = new ServiceBlobStorage({
-	connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+const blobStorage = new ServiceBlobStorage({
+	accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME!,
 });
 
-await frameworkBlobStorage.startUp();
-
-const uploadUrl = await frameworkBlobStorage.createBlobWriteSasUrl({
-	containerName: 'member-assets',
-	blobName: 'avatars/member-123.png',
-	expiresOn: new Date(Date.now() + 5 * 60_000),
+const clientBlobStorage = new ServiceClientBlobStorage({
+	accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME!,
+	signingConnectionString: process.env.AZURE_STORAGE_CONNECTION_STRING!,
 });
 ```
 
-Application code should not receive that full framework contract directly. Instead, `@ocom/service-blob-storage` adapts it into the narrower `createUploadUrl` and `createReadUrl` API that is exposed through `ApiContext`.
+Consumer goals that shaped the contract:
 
-Success paths that shaped the contract:
-
-- bootstrap startup from a connection string
-- direct-to-blob upload URL generation for application-side flows
-- read URL generation for controlled blob access
-- server-side upload, list, and delete operations for framework-level reuse
+- backend blob operations should depend only on managed identity plus account name
+- client upload/download signing should be explicitly opt-in and isolated
+- application adapters should expose narrow views instead of the full framework class
 
 Failure and edge cases that shaped the contract:
 
-- missing or malformed connection string credentials for SAS generation
-- access before service startup
-- shutdown before startup
-- optional metadata, tags, and headers on text uploads
-- optional prefix filtering for blob listing
+- `ServiceBlobStorage` must reject connection-string-style configuration at compile time
+- `ServiceClientBlobStorage` must require `signingConnectionString`
+- access before startup should still fail clearly
+- upload/list/delete behavior must remain stable on the base service
 
 ## Contract gate summary
 
 Proposed public exports:
 
-- `ServiceBlobStorage`: Cellix infrastructure service that owns Azure Blob SDK startup, SAS generation, and reusable blob operations
-- `BlobStorage`: framework-level contract returned by `startUp()` and used by adapters
-- `BlobAddress`, `UploadTextBlobRequest`, `ListBlobsRequest`, `BlobListItem`, `CreateBlobSasUrlRequest`, `CreateContainerSasUrlRequest`, `ServiceBlobStorageOptions`: request and response contracts needed for public usage
+- `ServiceBlobStorage`: managed-identity-only framework service for server-side blob operations
+- `ServiceClientBlobStorage`: framework subclass that adds SharedKey signing and read SAS creation
+- `BlobStorage`: base contract for upload/list/delete operations
+- `ClientBlobStorage`: extended contract for signing-capable flows
+- `BlobAddress`, `UploadTextBlobRequest`, `ListBlobsRequest`, `BlobListItem`, `CreateBlobSasUrlRequest`, `CreateBlobAuthorizationHeaderRequest`, `BlobUploadAuthorizationHeader`, `ServiceBlobStorageOptions`, `ServiceClientBlobStorageOptions`: public request/response/config contracts needed by consumers
 
 Primary success-path snippet:
 
 ```ts
-const uploadUrl = await blobStorage.createBlobWriteSasUrl({
+const auth = await clientBlobStorage.createBlobWriteAuthorizationHeader({
 	containerName: 'member-assets',
 	blobName: 'avatars/member-123.png',
-	expiresOn: new Date(Date.now() + 5 * 60_000),
+	contentLength: 102400,
+	contentType: 'image/png',
 });
 ```
 
-Human review was not required before proceeding because the new framework package is additive, the export surface is intentionally small, and no existing downstream consumer contract was being removed or renamed. Human review is still required before release because this establishes the baseline framework contract for future consumers.
+Human review was warranted conceptually because this is a breaking public-contract change with downstream dependents. The user explicitly requested the split and the dependent updates in the same task, so implementation proceeded with the break handled end-to-end in-repo.
 
 ## Public contract
 
 Consumers should rely on these observable behaviors:
 
-- `startUp()` creates a Blob service client from the provided connection string and enables later blob operations
-- `shutDown()` clears the started state and rejects invalid shutdown-before-startup usage
-- `uploadText()` uploads text content with optional HTTP headers, metadata, and tags
-- `deleteBlob()` deletes a named blob from a container
-- `listBlobs()` returns blob names and absolute blob URLs, optionally filtered by prefix
-- `createBlobReadSasUrl()` returns a read-scoped SAS URL for a specific blob
-- `createBlobWriteSasUrl()` returns a create/write-scoped SAS URL for a specific blob
-- `createContainerListSasUrl()` returns a list-scoped SAS URL for a container
+- `ServiceBlobStorage.startUp()` creates a managed-identity Blob service client from `accountName`
+- `ServiceBlobStorage` exposes `uploadText()`, `listBlobs()`, and `deleteBlob()` only
+- `ServiceClientBlobStorage.startUp()` starts the same managed-identity blob client and separately enables SharedKey signing from `signingConnectionString`
+- `ServiceClientBlobStorage.generateReadSasToken()` returns a read-scoped SAS query string for a specific blob
+- `ServiceClientBlobStorage.createBlobWriteAuthorizationHeader()` returns signed write-request headers for direct client uploads
+- `ServiceClientBlobStorage.createBlobReadAuthorizationHeader()` returns signed read-request headers for direct client downloads
 
 These must remain internal:
 
@@ -91,89 +83,68 @@ These must remain internal:
 
 ## Test plan
 
-Public-contract tests were written through the package root entrypoint in `packages/cellix/service-blob-storage/src/index.test.ts`.
+Public-contract tests are written through the package root entrypoint in `packages/cellix/service-blob-storage/tests/index.test.ts`.
 
 Grouped by export:
 
 - `ServiceBlobStorage`
-  - starts up from the connection string and exposes the started client
-  - rejects lifecycle misuse before startup
-- `uploadText()`
+  - starts managed-identity blob access from the account blob endpoint
   - uploads text with optional headers, metadata, and tags
-- `listBlobs()`
   - lists names and URLs with prefix filtering
-- `deleteBlob()`
   - deletes by container and blob name
-- SAS creation methods
-  - creates read, write, and container-list SAS URLs with the expected permissions
+  - guards lifecycle misuse before startup
+- `ServiceClientBlobStorage`
+  - generates read SAS tokens
+  - creates write/read authorization headers
+  - keeps the blob client on the managed-identity endpoint
+- constructor type contract
+  - `ServiceBlobStorage` rejects `signingConnectionString`
+  - `ServiceClientBlobStorage` requires `signingConnectionString`
 
-The tests avoid duplicate narrower coverage by exercising the public methods directly rather than testing internal helpers such as connection-string parsing or SAS-token formatting in isolation. No deep imports were used.
+Duplicate narrower coverage was avoided by testing the public methods directly rather than re-testing internal helper parsing in isolation. The only narrower contract check added beyond runtime behavior is the constructor type-surface assertion because the new requirement is explicitly compile-time.
 
 ## Changes made
 
-Created the greenfield framework package at `packages/cellix/service-blob-storage` with:
-
-- package metadata, TS config, Vitest config, and turbo metadata
-- `ServiceBlobStorage` implementation over `@azure/storage-blob`
-- public request and response contracts for blob operations and SAS URL creation
-- package-scoped tests that mock the Azure SDK rather than using live Azure resources
-
-Updated `@ocom/service-blob-storage` from a placeholder service into a narrow adapter package that exposes only `createUploadUrl()` and `createReadUrl()`.
-
-Updated `@ocom/context-spec`, `apps/api/src/index.ts`, and the acceptance-test mock application-services builder so application context now exposes the scoped OCOM blob-storage contract while bootstrap still registers the framework service.
+- Split `ServiceBlobStorage` into a managed-identity-only base class and a new `ServiceClientBlobStorage` subclass
+- Narrowed `ServiceBlobStorageOptions` to `accountName` plus optional `credential`
+- Added `ServiceClientBlobStorageOptions`
+- Split the public interfaces into `BlobStorage` and `ClientBlobStorage`
+- Removed connection-string bootstrap behavior from the base service
+- Updated `@ocom/service-blob-storage` to re-export both framework classes and keep narrow backend/client contracts
+- Updated `apps/api` bootstrap to register `ServiceBlobStorage` for backend operations and `ServiceClientBlobStorage` for client signing
+- Updated `@ocom/context-spec` descriptions to match the split registration
 
 ## Documentation updates
 
-Added `manifest.md` describing the framework package purpose, boundaries, non-goals, and release standards.
-
-Added `README.md` with standalone consumer framing and a root-import usage example.
-
-Added rich TSDoc on the public request types and public service methods so the package contract is documented at the export point.
-
-Added a brief `readme.md` to `@ocom/service-blob-storage` describing the application-specific downscoped contract.
+- Updated `packages/cellix/service-blob-storage/README.md`
+- Updated `packages/cellix/service-blob-storage/manifest.md`
+- Added/updated TSDoc on `ServiceBlobStorage`, `ServiceClientBlobStorage`, and their option types
+- Updated `packages/ocom/service-blob-storage/readme.md`
+- Updated this `cellix-tdd-summary.md` to reflect the new public contract
 
 ## Release hardening notes
 
-Export-surface review:
-
-- the framework package exports a minimal root-only surface
-- Azure SDK clients and credentials do not leak through the public contract
-- application code receives only the OCOM adapter contract through `ApiContext`
-
-Compatibility impact:
-
-- semver impact: additive minor-level change for the monorepo because the framework package and context exposure are new surface area
-- existing placeholder `@ocom/service-blob-storage` behavior was replaced, but there were no real downstream consumers of that placeholder contract in this repo
-
-Remaining follow-up work:
-
-- migrate actual application flows to consume `blobStorageService` where needed
-- decide whether additional framework operations beyond upload/list/delete/SAS generation are required before external release
-- review whether GraphQL transport types such as `BlobAuthHeader` should be aligned with the new adapter contract in a separate task
+- Semver impact: breaking. `ServiceBlobStorage` no longer accepts `signingConnectionString` and no longer exposes the client-signing methods.
+- Export-surface review: the root package export is intentionally limited to `ServiceBlobStorage`, `ServiceClientBlobStorage`, and the public request/response/config contracts; connection-string parsing helpers and signer internals remain private.
+- Downstream impact handled in-repo:
+  - `@ocom/service-blob-storage`
+  - `@ocom/context-spec`
+  - `apps/api`
+- Remaining release risk: `ServiceClientBlobStorage` now owns the emulator path as well as SharedKey signing. That keeps all tests passing, but it means local-emulator compatibility is intentionally scoped to the client-signing subclass rather than the managed-identity base class.
 
 ## Validation performed
 
-Ran and verified the following commands and outcomes:
+Validated and re-ran the framework package build/test loop plus the directly affected downstream adapter and API bootstrap packages after the contract split.
 
-Package build command: `pnpm --filter @cellix/service-blob-storage build` - passed.
-
-Package existing test command: `pnpm --filter @cellix/service-blob-storage test` - passed.
-
-Additional dependent verification:
-
-- `pnpm --filter @ocom/service-blob-storage test` - passed
-- `pnpm --filter @ocom/service-blob-storage build` - passed
-- `pnpm --filter @ocom/context-spec build` - passed
-- `pnpm --filter @apps/api test -- --run src/index.test.ts` - passed
-- `pnpm --filter @apps/api build` - passed
-- `pnpm install --lockfile-only` - passed
-- `CI=true pnpm install` - passed
-
-Wider verification beyond those touched packages was intentionally not run because the change is isolated to the new framework package, the OCOM adapter/context boundary, and bootstrap wiring.
-
-Public behaviors intentionally left unverified:
-
-- no live Azure or Azurite integration tests were run
-- no downstream application-service usage migration was added in this task
-
-Additional narrower tests were not retained beyond the public contract suite; package tests stay focused on observable public behavior through root imports.
+- Package build command:
+  `pnpm --filter @cellix/service-blob-storage build` - passed
+- Package existing test command:
+  `pnpm --filter @cellix/service-blob-storage test` - passed
+- Package integration test command:
+  `pnpm --filter @cellix/service-blob-storage test:integration` - passed
+- Additional dependent verification:
+  `pnpm --filter @ocom/service-blob-storage test` - passed
+  `pnpm --filter @ocom/service-blob-storage build` - passed
+  `pnpm --filter @ocom/context-spec build` - passed
+  `pnpm --filter @apps/api test` - passed
+  `pnpm --filter @apps/api build` - passed

@@ -2,7 +2,10 @@ import React, { createElement, type FC } from 'react';
 import { SectionLayout } from './section-layout.tsx';
 
 export { VerticalTabs } from '@ocom/ui-shared';
+export { RequireRole, type RequireRoleProps } from './require-role.tsx';
+export { SectionLayoutContainer } from './section-layout.container.tsx';
 export { SectionLayout, type SectionLayoutProps } from './section-layout.tsx';
+export { extractRoles, type StaffAppRole, StaffAppRoles, staffRouteRoles } from './staff-app-roles.ts';
 export { type StaffAuth, StaffAuthContext, StaffAuthProvider, StaffRouteShell, type StaffRouteShellProps } from './staff-route-shell.tsx';
 export { SubPageLayout } from './sub-page-layout.tsx';
 
@@ -19,20 +22,13 @@ import { StaffAuthContext } from './staff-route-shell.tsx';
 export const PlaceholderPage: React.FC<PlaceholderProps> = ({ sectionName, description, expectedRoles, explicitRoles }) => {
 	const auth = React.useContext(StaffAuthContext);
 
-	const resolvedRoles = React.useMemo(() => {
+	const resolvedPermissions = React.useMemo(() => {
 		if (explicitRoles && explicitRoles.length > 0) return explicitRoles;
-		if (auth) {
-			const a = auth as StaffAuth;
-			if (Array.isArray(a.roles) && a.roles.length > 0) return a.roles as string[];
-			type RawProfile = { roles?: unknown; role?: unknown };
-			const raw = a.raw as RawProfile | undefined;
-			if (raw) {
-				const maybe = raw.roles ?? raw.role ?? undefined;
-				if (Array.isArray(maybe)) return maybe as string[];
-				if (typeof maybe === 'string') return [maybe];
-			}
-		}
-		return [];
+		const perms = auth?.permissions;
+		if (!perms) return [];
+		return Object.entries(perms)
+			.filter(([, isEnabled]) => isEnabled === true)
+			.map(([permKey]) => permKey);
 	}, [auth, explicitRoles]);
 
 	const identitySummary = React.useMemo<{ displayName: string; identifier: string | undefined } | null>(() => {
@@ -70,11 +66,11 @@ export const PlaceholderPage: React.FC<PlaceholderProps> = ({ sectionName, descr
 				)}
 
 				<div style={{ marginTop: 12 }}>
-					<div style={{ fontWeight: 600 }}>Resolved Roles</div>
-					{resolvedRoles && resolvedRoles.length > 0 ? (
+					<div style={{ fontWeight: 600 }}>Resolved Permissions</div>
+					{resolvedPermissions.length > 0 ? (
 						<ul>
-							{resolvedRoles.map((r) => (
-								<li key={r}>{r}</li>
+							{resolvedPermissions.map((permission) => (
+								<li key={permission}>{permission}</li>
 							))}
 						</ul>
 					) : (

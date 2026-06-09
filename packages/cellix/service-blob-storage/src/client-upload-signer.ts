@@ -1,43 +1,41 @@
-import { BlobServiceClient } from '@azure/storage-blob';
 import { HeaderConstants } from './auth-header-constants.js';
 import { AuthHeaderGenerator } from './auth-header-generator.js';
-import { createCredentialFromConnectionString, getConnectionStringValue } from './connection-string.js';
 import type { BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest } from './interfaces.js';
 
 /**
- * ClientUploadSigner handles generation of signed authorization headers for client-side blob uploads.
- * Uses canonical SharedKey authorization per Azure Storage REST API spec.
- * It requires a connection string to be provided at construction time.
+ * Internal helper for generating signed authorization headers for client-side blob requests.
+ *
+ * The signer is intentionally decoupled from Azure SDK client creation. The framework
+ * service provides the blob endpoint URL and the shared-key material to sign with.
  */
 export class ClientUploadSigner {
-	private readonly blobServiceClient: BlobServiceClient;
 	private readonly authHeaderGenerator: AuthHeaderGenerator;
 	private readonly accountName: string;
 	private readonly accountKey: string;
+	private readonly blobServiceUrl: string;
 
-	constructor(connectionString: string) {
-		if (!connectionString?.trim()) {
-			throw new Error('connectionString is required to create ClientUploadSigner');
+	constructor(options: { blobServiceUrl: string; accountName: string; accountKey: string }) {
+		if (!options.blobServiceUrl?.trim()) {
+			throw new Error('blobServiceUrl is required to create ClientUploadSigner');
 		}
-		void createCredentialFromConnectionString(connectionString); // Ensure credential can be created from the connection string
-		this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+		if (!options.accountName?.trim()) {
+			throw new Error('accountName is required to create ClientUploadSigner');
+		}
+		if (!options.accountKey?.trim()) {
+			throw new Error('accountKey is required to create ClientUploadSigner');
+		}
+
 		this.authHeaderGenerator = new AuthHeaderGenerator();
-
-		// Extract account name and key from connection string for auth header generation
-		const accountName = getConnectionStringValue(connectionString, 'AccountName');
-		const accountKey = getConnectionStringValue(connectionString, 'AccountKey');
-
-		if (!accountName || !accountKey) {
-			throw new Error('Connection string must include both AccountName and AccountKey for auth header generation');
-		}
-
-		this.accountName = accountName;
-		this.accountKey = accountKey;
+		this.accountName = options.accountName;
+		this.accountKey = options.accountKey;
+		this.blobServiceUrl = options.blobServiceUrl;
 	}
 
 	/**
 	 * Create a signed authorization header for blob write (PUT) requests.
-	 * Returns headers and authorization value for client-side uploads with metadata locking.
+	 *
+	 * Returns the target URL, the SharedKey authorization header, and the headers
+	 * that must be sent with the client request.
 	 */
 	public createBlobWriteAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
 		return Promise.resolve(this.createAuthorizationHeader(request, 'PUT'));
@@ -45,7 +43,9 @@ export class ClientUploadSigner {
 
 	/**
 	 * Create a signed authorization header for blob read (GET) requests.
-	 * Returns headers and authorization value for client-side downloads with metadata locking.
+	 *
+	 * Returns the target URL, the SharedKey authorization header, and the headers
+	 * that must be sent with the client request.
 	 */
 	public createBlobReadAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
 		return Promise.resolve(this.createAuthorizationHeader(request, 'GET'));
@@ -81,7 +81,7 @@ export class ClientUploadSigner {
 	}
 
 	private buildBlobUrl(containerName: string, blobName: string): string {
-		const baseUrl = this.blobServiceClient.url;
+		const baseUrl = this.blobServiceUrl;
 		// baseUrl might not have trailing slash, e.g., http://127.0.0.1:10000/devstoreaccount1
 		// Ensure we add slashes between account, container, and blob
 		const trimmedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;

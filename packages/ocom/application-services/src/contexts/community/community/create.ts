@@ -1,6 +1,6 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
-import type { BlobStorageOperations } from '@ocom/service-blob-storage';
+import type { BlobStorageOperations, UploadTextBlobRequest } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 
 export interface CommunityCreateCommand {
@@ -24,7 +24,7 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 		if (communityToReturn) {
 			const logContent = `Community created with id: ${communityToReturn.id} and name: ${communityToReturn.name}`;
 			try {
-				await blobStorageService.uploadText({
+				const uploadRequest: UploadTextBlobRequest = {
 					containerName: 'private',
 					blobName: `community-${communityToReturn.id}-creation.log`,
 					text: logContent,
@@ -32,12 +32,13 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 						communityId: communityToReturn.id,
 						eventType: 'CommunityCreated',
 					},
-				});
+				};
 				await queueStorageService.sendMessageToCommunityCreationQueue({
 					communityId: communityToReturn.id,
 					name: communityToReturn.name,
 					createdBy: communityToReturn.createdBy.id,
 				});
+				await blobStorageService.uploadText(uploadRequest);
 			} catch (error) {
 				console.error('Failed to upload community creation log to blob storage:', error);
 			}

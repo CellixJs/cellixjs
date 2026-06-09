@@ -1,4 +1,4 @@
-import type { AnyLoggingFieldSpec, PayloadFieldProxy } from './interfaces.js';
+import type { AnyLoggingFieldSpec, PayloadFieldProxy } from './interfaces.ts';
 
 const payloadFieldProxy = new Proxy(
 	{},
@@ -23,6 +23,11 @@ const payloadFieldProxy = new Proxy(
  *   externalId: $payload.externalId,
  * };
  * ```
+ *
+ * @remarks
+ * Because this export is intentionally broad, TypeScript cannot prevent typos in
+ * field names here. Prefer `defineQueue<TPayload>()` or `payloadFields<TPayload>()`
+ * when you want payload-key validation during authoring.
  */
 export const $payload = payloadFieldProxy as PayloadFieldProxy<Record<string, unknown>>;
 
@@ -60,6 +65,16 @@ export function payloadFields<TPayload extends object>(): PayloadFieldProxy<TPay
  * @param payload - Runtime queue payload to resolve against.
  * @returns A plain string map suitable for blob tags or metadata, or `undefined`
  * when no fields resolve to concrete values.
+ *
+ * @example
+ * ```ts
+ * const tags = resolveLoggingFields(
+ *   { domain: 'community', communityId: { payloadField: 'communityId' } },
+ *   { communityId: 'community-123' },
+ * );
+ *
+ * // => { domain: 'community', communityId: 'community-123' }
+ * ```
  */
 export function resolveLoggingFields(specs: Record<string, AnyLoggingFieldSpec> | undefined, payload: unknown): Record<string, string> | undefined {
 	if (!specs) return undefined;

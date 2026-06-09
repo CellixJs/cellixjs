@@ -42,16 +42,26 @@ await svc.sendMessageToMyQueueQueue({ id: '123' })
 - `registerQueues`: factory that accepts `outbound`/`inbound` queue maps and returns:
   - `producer` — typed stub object (used for TypeScript type inference in consumer packages)
   - `consumer` — typed stub object (used for TypeScript type inference in consumer packages)
-  - `Service` — a class with lifecycle methods and all typed queue methods wired in the constructor. Extend this class to create an application-specific queue service.
+  - `Service` — a class with lifecycle methods, opt-in logging controls, and all typed queue methods wired in the constructor. Extend this class to create an application-specific queue service.
 - `defineQueue`: preferred helper for authoring typed queue definitions with `$payload.<field>` support and no local setup boilerplate
 - `RegisteredQueueService`: public type for an application-specific queue service returned from `registerQueues()`
 - `QueueServiceLifecycle`: lifecycle contract implemented by registered queue services
+- `QueueServiceLogging`: enables or disables queue logging after construction
 - `QueueDefinition`: type describing `queueName` and message JSON Schema.
 - `QueueStorageConfig`: configuration type for constructing registered queue services.
 - `QueueMessage<T>`: type for received queue messages (id, payload, dequeueCount, optional popReceipt).
 - `BlobQueueMessageLogger`: optional helper to persist queue payloads to blob storage.
 
 ## Blob logging
+
+Logging can be enabled either in the constructor config or later through the registered service instance:
+
+```typescript
+const logger = new BlobQueueMessageLogger(blobStorage, 'queue-logs')
+const svc = new MyServiceQueueStorage({ connectionString: 'UseDevelopmentStorage=true' })
+await svc.startUp()
+svc.enableLogging(logger, { enabled: true, container: 'queue-logs' })
+```
 
 When logging is enabled, the package writes one blob per message:
 

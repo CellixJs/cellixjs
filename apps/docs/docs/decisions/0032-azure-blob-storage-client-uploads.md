@@ -10,7 +10,7 @@ consulted:
 informed:
 ---
 
-# Azure Blob Storage with Managed Identity & Canonical SharedKey Auth Headers
+# Azure Blob Storage and Client Uploads
 
 ## Problem Statement
 
@@ -141,31 +141,25 @@ As of the recent Cellix registry enhancement, infrastructure services may be reg
 - "BlobStorageService" — backend SDK operations (managed identity)
 - "ClientOperationsService" — REST signing of client uploads (shared-key connection string)
 
-The authentication mode is **inferred from configuration**:
-- If `accountName` is provided → Managed Identity mode (SDK operations)
-- If `connectionString` is provided → Shared-Key mode (signing operations)
+The service split is **explicit in the framework types**:
+- `ServiceBlobStorage` provides managed-identity server-side blob operations
+- `ServiceClientBlobStorage` extends that base service and additionally requires `signingConnectionString` for SharedKey signing
 
 Example registration and retrieval:
 
 ```typescript
 Cellix.initializeInfrastructureServices((r) => {
   r.registerInfrastructureService(new ServiceBlobStorage({ accountName }), 'BlobStorageService')
-   .registerInfrastructureService(new ServiceBlobStorage({ connectionString }), 'ClientOperationsService');
+   .registerInfrastructureService(
+     new ServiceClientBlobStorage({ accountName, signingConnectionString }),
+     'ClientOperationsService',
+   );
 })
 .setContext((registry) => ({
   blobStorageService: registry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService'),
-  clientOperationsService: registry.getInfrastructureService<ServiceBlobStorage>('ClientOperationsService'),
+  clientOperationsService: registry.getInfrastructureService<ServiceClientBlobStorage>('ClientOperationsService'),
 }));
 ```
-
-For detailed implementation guidance, code examples, and troubleshooting, see:
-
-- **[Cellix Blob Storage Guides](../technical-overview/blob-storage/01-overview.md)**
-  - [Overview](../technical-overview/blob-storage/01-overview.md)
-  - [Authentication Strategies](../technical-overview/blob-storage/02-authentication-strategies.md)
-  - [Client Uploads Implementation](../technical-overview/blob-storage/03-client-uploads-with-auth-headers.md)
-  - [Canonical Auth Headers Security Deep-Dive](../technical-overview/blob-storage/04-canonical-auth-headers.md)
-  - [Troubleshooting](../technical-overview/blob-storage/05-troubleshooting.md)
 
 ## Consequences
 
@@ -173,7 +167,7 @@ For detailed implementation guidance, code examples, and troubleshooting, see:
 1. **Production security**: Backend uses managed identity (auditable, no credentials in code)
 2. **Replay-attack proof**: Canonical signatures lock metadata cryptographically (different blobs = different signatures, impossible to forge)
 3. **Flexible**: Connection string optional (not forced on all applications)
-4. **Portable**: Same framework works locally (Azurite), staging, and production
+4. **Explicit**: Client signing is opt-in instead of being mixed into every blob service registration
 5. **Type-safe**: Narrow consumer interfaces prevent architectural misuse
 
 ### Neutral

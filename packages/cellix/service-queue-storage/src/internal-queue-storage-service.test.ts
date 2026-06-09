@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { InternalQueueStorageService } from './internal-queue-storage-service.js';
+import { InternalQueueStorageService } from './internal-queue-storage-service.ts';
+import type { IQueueMessageLogger } from './logging.ts';
 
 vi.mock('@azure/storage-queue', () => {
 	return {
@@ -46,5 +47,23 @@ describe('InternalQueueStorageService', () => {
 		const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true' });
 		await svc.startUp();
 		await expect(svc.createQueueIfNotExists('some-queue')).resolves.toBeUndefined();
+	});
+
+	it('logs outbound messages when logging is enabled after startUp', async () => {
+		const logSpy = vi.fn().mockResolvedValue({ container: 'logs', blobName: 'outbound/msg.json' });
+		const logger: IQueueMessageLogger = { logMessage: logSpy as IQueueMessageLogger['logMessage'] };
+		const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true' });
+
+		await svc.startUp();
+		svc.enableLogging(logger, { enabled: true, container: 'logs' });
+		await svc.sendMessage('q', { hello: 'world' });
+
+		expect(logSpy).toHaveBeenCalledOnce();
+		expect(logSpy.mock.calls[0]?.[0]).toMatchObject({
+			queue: 'q',
+			direction: 'outbound',
+			payload: { hello: 'world' },
+			tags: { queueName: 'q' },
+		});
 	});
 });

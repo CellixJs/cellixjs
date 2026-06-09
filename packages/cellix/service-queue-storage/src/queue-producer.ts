@@ -1,6 +1,6 @@
-import type { MessagePayload, QueueMap, QueueMessage } from './interfaces.js';
-import type { InternalQueueTransport } from './internal-queue-storage-service.js';
-import { resolveLoggingFields } from './logging-fields.js';
+import type { MessagePayload, QueueMap, QueueMessage } from './interfaces.ts';
+import type { InternalQueueTransport } from './internal-queue-storage-service.ts';
+import { resolveLoggingFields } from './logging-fields.ts';
 
 type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S;
 
@@ -9,6 +9,20 @@ type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Upperc
  *
  * Each queue key becomes a strongly-typed `sendMessageTo...Queue` method and a
  * matching `peekAt...Queue` method on the registered service surface.
+ *
+ * @typeParam O - Outbound queue definition map passed to `registerQueues()`.
+ *
+ * @example
+ * ```ts
+ * const outbound = { emailNotifications: emailNotificationsQueue };
+ * const queues = registerQueues({
+ *   outbound,
+ *   inbound: {},
+ * });
+ *
+ * type Producer = QueueProducerContext<typeof outbound>;
+ * // service.sendMessageToEmailNotificationsQueue(...)
+ * ```
  */
 export type QueueProducerContext<O extends QueueMap> = {
 	[K in keyof O as `sendMessageTo${Capitalize<string & K>}Queue`]: (payload: MessagePayload<O[K]>) => Promise<void>;

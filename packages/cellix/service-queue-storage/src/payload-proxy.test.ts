@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { QueueDefinition } from './index.js';
-import { $payload, payloadFields, resolveLoggingFields } from './index.js';
+import type { QueueDefinition } from './index.ts';
+import { $payload, payloadFields, resolveLoggingFields } from './index.ts';
 
 describe('$payload proxy', () => {
 	it('returns LoggingFieldSpec objects for any property access', () => {

@@ -1,4 +1,4 @@
-import { BlobQueueMessageLogger, type QueueServiceLifecycle } from '@cellix/service-queue-storage';
+import { BlobQueueMessageLogger, type IQueueMessageLogger, type QueueLoggingConfig, type QueueServiceLifecycle } from '@cellix/service-queue-storage';
 import { type AppQueueConsumerContext, type AppQueueProducerContext, allQueueNames, queueRegistry } from './registry.ts';
 
 export const QUEUE_LOG_CONTAINER = 'queue-logs';
@@ -12,7 +12,7 @@ type BlobStorageLike = {
 	uploadText(request: { containerName: string; blobName: string; text: string; metadata?: Record<string, string>; tags?: Record<string, string> }): Promise<unknown>;
 };
 
-export type ServiceQueueStorageOptions = { accountName: string; blobStorage: BlobStorageLike } | { connectionString: string; blobStorage: BlobStorageLike };
+export type ServiceQueueStorageOptions = { accountName: string } | { connectionString: string };
 
 /**
  * Private implementation. Extends the framework's pre-bound Service class returned
@@ -21,12 +21,24 @@ export type ServiceQueueStorageOptions = { accountName: string; blobStorage: Blo
  */
 class ServiceQueueStorageImpl extends queueRegistry.Service {
 	constructor(options: ServiceQueueStorageOptions) {
-		const logger = new BlobQueueMessageLogger(options.blobStorage, QUEUE_LOG_CONTAINER);
 		if ('accountName' in options) {
-			super({ accountName: options.accountName, logging: { enabled: true, container: QUEUE_LOG_CONTAINER }, logger, provisionQueues: allQueueNames });
+			super({ accountName: options.accountName, provisionQueues: allQueueNames });
 		} else {
-			super({ connectionString: options.connectionString, logging: { enabled: true, container: QUEUE_LOG_CONTAINER }, logger, provisionQueues: allQueueNames });
+			super({ connectionString: options.connectionString, provisionQueues: allQueueNames });
 		}
+	}
+
+	public override enableLogging(blobStorage: BlobStorageLike): this;
+	public override enableLogging(logger: IQueueMessageLogger, config?: QueueLoggingConfig): this;
+	public override enableLogging(blobStorageOrLogger: BlobStorageLike | IQueueMessageLogger, config?: QueueLoggingConfig): this {
+		if ('logMessage' in blobStorageOrLogger) {
+			return super.enableLogging(blobStorageOrLogger, config);
+		}
+		return super.enableLogging(new BlobQueueMessageLogger(blobStorageOrLogger, QUEUE_LOG_CONTAINER), {
+			enabled: true,
+			container: QUEUE_LOG_CONTAINER,
+			...config,
+		});
 	}
 }
 
@@ -34,7 +46,11 @@ class ServiceQueueStorageImpl extends queueRegistry.Service {
  * Application-specific queue storage service type: lifecycle methods plus all
  * strongly-typed send, receive, and peek operations for every registered queue.
  */
-export type ServiceQueueStorage = QueueServiceLifecycle & AppQueueProducerContext & AppQueueConsumerContext;
+export type ServiceQueueStorage = QueueServiceLifecycle &
+	AppQueueProducerContext &
+	AppQueueConsumerContext & {
+		enableLogging(blobStorage: BlobStorageLike): ServiceQueueStorage;
+	};
 
 /**
  * Application-specific queue storage service.
@@ -43,8 +59,9 @@ export type ServiceQueueStorage = QueueServiceLifecycle & AppQueueProducerContex
  * methods for this application's registered queues. The queue bindings are applied
  * automatically in the constructor — no manual `_bind()` or `Object.assign` step is needed.
  *
- * Blob-based message logging is configured automatically using the supplied `blobStorage`
- * instance, which must be the backend SDK blob storage service (not the SAS-signing client).
+ * Blob-based message logging is optional. Call `enableLogging(blobStorage)` after
+ * construction when a backend blob storage service is available from the
+ * infrastructure registry.
  *
  * Authentication follows the same mechanism as blob storage:
  * - `accountName`: uses DefaultAzureCredential (managed identity) in production
@@ -53,8 +70,9 @@ export type ServiceQueueStorage = QueueServiceLifecycle & AppQueueProducerContex
  * @example
  * ```ts
  * const queueStorageService = isProd
- *   ? new ServiceQueueStorage({ accountName: BlobStorageConfig.accountName as string, blobStorage: blobStorageService })
- *   : new ServiceQueueStorage({ connectionString: BlobStorageConfig.connectionString as string, blobStorage: blobStorageService });
+ *   ? new ServiceQueueStorage({ accountName: BlobStorageConfig.accountName as string })
+ *   : new ServiceQueueStorage({ connectionString: BlobStorageConfig.connectionString as string });
+ * queueStorageService.enableLogging(blobStorageService);
  * serviceRegistry.registerInfrastructureService(queueStorageService);
  * // Retrieve later:
  * const svc = serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage);

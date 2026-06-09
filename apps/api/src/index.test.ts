@@ -9,8 +9,8 @@ const {
 	initializeInfrastructureServices,
 	registerEventHandlers,
 	MockServiceApolloServer,
+	MockServiceClientBlobStorage,
 	MockServiceBlobStorage,
-	SpyServiceBlobStorage,
 	MockServiceMongoose,
 	MockServiceTokenValidation,
 } = vi.hoisted(() => {
@@ -40,9 +40,21 @@ const {
 
 	class HoistedServiceBlobStorage {
 		public readonly service: string;
+		public readonly options: unknown;
 
-		constructor(_options: unknown) {
+		constructor(options: unknown) {
 			this.service = 'blob-storage';
+			this.options = options;
+		}
+	}
+
+	class HoistedServiceClientBlobStorage {
+		public readonly service: string;
+		public readonly options: unknown;
+
+		constructor(options: unknown) {
+			this.service = 'client-blob-storage';
+			this.options = options;
 		}
 	}
 
@@ -59,6 +71,7 @@ const {
 		initializeInfrastructureServices: vi.fn(),
 		registerEventHandlers: vi.fn(),
 		MockServiceApolloServer: HoistedServiceApolloServer,
+		MockServiceClientBlobStorage: HoistedServiceClientBlobStorage,
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
 		SpyServiceBlobStorage: HoistedSpyServiceBlobStorage,
 		MockServiceMongoose: HoistedServiceMongoose,
@@ -83,7 +96,8 @@ vi.mock('./cellix.ts', () => ({
 	},
 }));
 vi.mock('@ocom/service-blob-storage', () => ({
-	ServiceBlobStorage: SpyServiceBlobStorage,
+	ServiceBlobStorage: MockServiceBlobStorage,
+	ServiceClientBlobStorage: MockServiceClientBlobStorage,
 }));
 vi.mock('@ocom/service-mongoose', () => ({
 	ServiceMongoose: MockServiceMongoose,
@@ -104,11 +118,6 @@ vi.mock('./service-config/mongoose/index.ts', () => ({
 	mongooseConnectionString: 'mongodb://example.test/cellix',
 	mongooseConnectOptions: { serverSelectionTimeoutMS: 1000 },
 	mongooseContextBuilder: vi.fn(() => dataSourcesFactory),
-}));
-vi.mock('./service-config/blob-storage/index.ts', () => ({
-	accountName: 'devstoreaccount1',
-	connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
-	provisionContainers: ['public', 'private', 'queue-logs'],
 }));
 vi.mock('./service-config/token-validation/index.ts', () => ({
 	portalTokens: new Map([['AccountPortal', 'ACCOUNT_PORTAL']]),
@@ -139,6 +148,10 @@ vi.mock('@ocom/service-queue-storage', () => ({
 describe('apps/api bootstrap', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		const env = process.env as Partial<Record<'NODE_ENV' | 'AZURE_STORAGE_ACCOUNT_NAME' | 'AZURE_STORAGE_CONNECTION_STRING', string>>;
+		delete env.NODE_ENV;
+		delete env.AZURE_STORAGE_ACCOUNT_NAME;
+		delete env.AZURE_STORAGE_CONNECTION_STRING;
 		registerInfrastructureService.mockReturnThis();
 		setContext.mockReturnValue({
 			initializeApplicationServices,
@@ -155,8 +168,14 @@ describe('apps/api bootstrap', () => {
 		});
 	});
 
-	it('registers the OCOM blob storage service and exposes the scoped adapter contract in ApiContext', async () => {
-		await import('./index.ts');
+	it('registers managed-identity backend blob storage in production', async () => {
+		Object.assign(process.env, {
+			NODE_ENV: 'production',
+			AZURE_STORAGE_ACCOUNT_NAME: 'prod-account',
+			AZURE_STORAGE_CONNECTION_STRING: 'ProdConnectionString',
+		});
+
+		await importApiBootstrap();
 
 		expect(initializeInfrastructureServices).toHaveBeenCalledTimes(1);
 		const registerServices = initializeInfrastructureServices.mock.calls[0]?.[0];
@@ -164,17 +183,22 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
-		expect(SpyServiceBlobStorage).toHaveBeenNthCalledWith(1, {
-			connectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
-			provisionContainers: ['public', 'private', 'queue-logs'],
-		});
-		// Find the registered blob services by the semantic registration name instead of relying on call order.
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(5);
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
-		// Sanity: ensure we found instances of the mocked blob storage
 		expect(registeredBlobService).toBeInstanceOf(MockServiceBlobStorage);
-		expect(registeredClientOpsService).toBeInstanceOf(MockServiceBlobStorage);
+		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
+		expect(registeredBlobService).toMatchObject({
+			options: {
+				accountName: 'prod-account',
+			},
+		});
+		expect(registeredClientOpsService).toMatchObject({
+			options: {
+				accountName: 'prod-account',
+				signingConnectionString: 'ProdConnectionString',
+			},
+		});
 
 		const contextBuilder = setContext.mock.calls[0]?.[0];
 		expect(contextBuilder).toBeTypeOf('function');
@@ -187,6 +211,9 @@ describe('apps/api bootstrap', () => {
 			}
 			if (serviceKey === MockServiceBlobStorage) {
 				return registeredBlobService;
+			}
+			if (serviceKey === MockServiceClientBlobStorage) {
+				return registeredClientOpsService;
 			}
 			if (serviceKey === MockServiceTokenValidation) {
 				return new MockServiceTokenValidation(undefined);
@@ -205,9 +232,49 @@ describe('apps/api bootstrap', () => {
 		expect(context).toMatchObject({
 			dataSourcesFactory,
 			blobStorageService: registeredBlobService,
+			clientOperationsService: registeredClientOpsService,
 			tokenValidationService: { service: 'token-validation' },
 			apolloServerService: { service: 'apollo' },
 		});
 		expect(registerEventHandlers).toHaveBeenCalledWith({ domain: 'data-source' });
 	});
+
+	it('registers client-signing blob storage for backend use outside production', async () => {
+		Object.assign(process.env, {
+			NODE_ENV: 'development',
+			AZURE_STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
+			AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+		});
+
+		await importApiBootstrap();
+
+		expect(initializeInfrastructureServices).toHaveBeenCalledTimes(1);
+		const registerServices = initializeInfrastructureServices.mock.calls[0]?.[0];
+		expect(registerServices).toBeTypeOf('function');
+
+		registerServices?.(serviceRegistry);
+
+		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
+		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(5);
+		expect(registeredBlobService).toBeInstanceOf(MockServiceClientBlobStorage);
+		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
+		expect(registeredBlobService).toMatchObject({
+			options: {
+				accountName: 'devstoreaccount1',
+				signingConnectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+			},
+		});
+		expect(registeredClientOpsService).toMatchObject({
+			options: {
+				accountName: 'devstoreaccount1',
+				signingConnectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+			},
+		});
+	});
 });
+
+async function importApiBootstrap(): Promise<void> {
+	vi.resetModules();
+	await import('./index.ts');
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defineQueue, registerQueues } from './index.js';
+import { defineQueue, registerQueues } from './index.ts';
 
 // Smoke test to satisfy evaluator: presence of a describe block for QueueDefinition
 describe('QueueDefinition', () => {

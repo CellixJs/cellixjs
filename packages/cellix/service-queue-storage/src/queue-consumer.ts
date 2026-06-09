@@ -1,7 +1,7 @@
-import type { MessagePayload, QueueMap } from './interfaces.js';
-import type { InternalQueueTransport } from './internal-queue-storage-service.js';
-import { resolveLoggingFields } from './logging-fields.js';
-import type { IQueueMessageLogger, MessageLogEnvelope } from './logging.js';
+import type { MessagePayload, QueueMap } from './interfaces.ts';
+import type { InternalQueueTransport } from './internal-queue-storage-service.ts';
+import { resolveLoggingFields } from './logging-fields.ts';
+import type { MessageLogEnvelope } from './logging.ts';
 
 type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S;
 
@@ -10,6 +10,20 @@ type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Upperc
  *
  * Each queue key becomes a strongly-typed `receiveFrom...Queue` method and a
  * matching `peekAt...Queue` method on the registered service surface.
+ *
+ * @typeParam I - Inbound queue definition map passed to `registerQueues()`.
+ *
+ * @example
+ * ```ts
+ * const inbound = { importRequests: importRequestsQueue };
+ * const queues = registerQueues({
+ *   outbound: {},
+ *   inbound,
+ * });
+ *
+ * type Consumer = QueueConsumerContext<typeof inbound>;
+ * // service.receiveFromImportRequestsQueue()
+ * ```
  */
 export type QueueConsumerContext<I extends QueueMap> = {
 	[K in keyof I as `receiveFrom${Capitalize<string & K>}Queue`]: () => Promise<QueueMessage<MessagePayload<I[K]>> | undefined>;
@@ -20,10 +34,9 @@ export type QueueConsumerContext<I extends QueueMap> = {
 type QueueMessage<T> = { id: string; popReceipt?: string; payload: T; dequeueCount?: number };
 
 export function createQueueConsumer<I extends QueueMap>(
-	service: Pick<InternalQueueTransport, 'receiveMessages' | 'peekMessages' | 'deleteMessage'>,
+	service: Pick<InternalQueueTransport, 'receiveMessages' | 'peekMessages' | 'deleteMessage' | 'getLogger' | 'isLoggingEnabled' | 'shouldAwaitLogging'>,
 	definitions: I,
 	validators: Record<string, (d: unknown) => boolean>,
-	logger?: IQueueMessageLogger,
 ): QueueConsumerContext<I> {
 	const context = {} as Record<string, unknown>;
 
@@ -39,7 +52,8 @@ export function createQueueConsumer<I extends QueueMap>(
 				if (!validate(m.payload)) {
 					throw new Error(`Invalid payload for queue "${def.queueName}": validation failed`);
 				}
-				if (logger) {
+				if (service.isLoggingEnabled()) {
+					const logger = service.getLogger();
 					const metadata = resolveLoggingFields(def.loggingMetadata, m.payload);
 					const tags = resolveLoggingFields(def.loggingTags, m.payload);
 					const mergedTags = { ...(tags ?? {}), queueName: def.queueName };
@@ -52,7 +66,17 @@ export function createQueueConsumer<I extends QueueMap>(
 						...(metadata !== undefined ? { metadata } : {}),
 						tags: mergedTags,
 					};
-					void logger.logMessage(envelope).catch((e) => console.error('[QueueConsumer] logging failed', e));
+					const doLog = async () => {
+						try {
+							await logger?.logMessage(envelope);
+						} catch (e) {
+							console.error('[QueueConsumer] logging failed', e);
+						}
+					};
+					if (service.shouldAwaitLogging()) {
+						return doLog().then(() => m);
+					}
+					void doLog();
 				}
 				return m;
 			});
