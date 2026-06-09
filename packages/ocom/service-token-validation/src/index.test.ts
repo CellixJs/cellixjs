@@ -5,6 +5,8 @@ import { expect, type Mock, vi } from 'vitest';
 import { ServiceTokenValidation } from './index.ts';
 import { VerifiedTokenService } from './verified-token-service.ts';
 
+// Mock VerifiedTokenService
+
 const test = { for: describeFeature };
 
 vi.mock('./verified-token-service.ts', () => ({

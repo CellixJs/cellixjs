@@ -2,10 +2,7 @@ import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import { useParams } from 'react-router-dom';
-import {
-	AdminSectionLayoutContainerMembersForCurrentEndUserDocument,
-	type Member,
-} from './generated.tsx';
+import { AdminSectionLayoutContainerMembersForCurrentEndUserDocument, type Member } from './generated.tsx';
 import { SectionLayout } from './section-layout.tsx';
 
 interface SectionLayoutContainerProps {
@@ -16,7 +13,6 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 	const params = useParams();
 
 	const { data: membersData, loading: membersLoading, error: membersError } = useQuery(AdminSectionLayoutContainerMembersForCurrentEndUserDocument);
-
 
 	return (
 		<ComponentQueryLoader

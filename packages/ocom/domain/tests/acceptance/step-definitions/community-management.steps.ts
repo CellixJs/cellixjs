@@ -1,13 +1,12 @@
+import assert from 'node:assert';
 import { Given, setWorldConstructor, Then, When } from '@cucumber/cucumber';
 import type { Actor } from '@serenity-js/core';
-import assert from 'node:assert';
 import type { Community, CommunityProps } from '../../../src/domain/contexts/community/community/community.ts';
-import type { EndUserEntityReference } from '../../../src/domain/contexts/user/end-user/end-user.ts';
 import type { Passport } from '../../../src/domain/contexts/passport.ts';
-import { createMockPassport, generateStringOfLength } from '../support/community-test-utils.ts';
-
+import type { EndUserEntityReference } from '../../../src/domain/contexts/user/end-user/end-user.ts';
 // Import Screenplay pattern components
-import { Actors, CommunityManagementCast, ManageCommunities, CommunityManagement, CommunityState, CommunityCreationResults } from '../screenplay/index.ts';
+import { Actors, CommunityCreationResults, CommunityManagement, CommunityManagementCast, CommunityState, ManageCommunities } from '../screenplay/index.ts';
+import { createMockPassport, generateStringOfLength } from '../support/community-test-utils.ts';
 
 /**
  * Serenity-enhanced World class that maintains state between steps
