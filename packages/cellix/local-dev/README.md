@@ -72,6 +72,7 @@ syncJsonFile({
 - `writeJsonFile`
 - `syncJsonFile`
 - `hostnameFromUrl`
+- `sanitizeWorktreeHostnameLabel`
 - `applyWorktreeSuffix`
 - `buildPortlessUrl`
 - `replaceUrlPort`
@@ -93,4 +94,5 @@ syncJsonFile({
 ## Notes
 
 - The package derives workspace roots from the caller's current working directory, but it does not infer app layouts or env-variable names.
+- Worktree names are sanitized before they are inserted into `.localhost` hostnames so branch-style names such as `jason/my-feature` become DNS-safe labels such as `jason-my-feature`. Suffixing is idempotent for hostnames that already contain the sanitized worktree label.
 - If a helper only exists to support one app's local policy, it should usually live with that app instead of being exported here.

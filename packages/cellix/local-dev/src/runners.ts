@@ -12,27 +12,40 @@ type RunnerEnv = NodeJS.ProcessEnv & {
 };
 
 export interface RunnerOptions {
+	/** Environment to pass to the spawned process. Defaults to `process.env`. */
 	env?: NodeJS.ProcessEnv;
 }
 
 export interface TsxRunnerOptions extends RunnerOptions {
+	/** TSX entrypoint to execute. Defaults to `src/index.ts`. */
 	entry?: string;
 }
 
 export interface AzureFunctionsDevOptions extends RunnerOptions {
+	/** Functions host port. Defaults to `env.PORT`; required after resolution. */
 	port?: string;
+	/** Azure Functions script root. Defaults to `deploy/`. */
 	scriptRoot?: string;
+	/** CORS value passed to the Functions host. Defaults to `*`. */
 	cors?: string;
+	/** Whether to pass `--typescript`. Defaults to `true`. */
 	typescript?: boolean;
 }
 
 export interface AzuriteDevOptions extends RunnerOptions {
+	/** Blob service port. */
 	blobPort: number;
+	/** Queue service port. */
 	queuePort: number;
+	/** Table service port. */
 	tablePort: number;
+	/** Blob storage working directory. */
 	blobLocation: string;
+	/** Queue storage working directory. */
 	queueLocation: string;
+	/** Table storage working directory. */
 	tableLocation: string;
+	/** Whether Azurite should run quietly. Defaults to `true`. */
 	silent?: boolean;
 }
 
@@ -45,6 +58,10 @@ function spawnInherited(command: string, args: string[], options: { env?: NodeJS
 
 /**
  * Starts a Vite dev process using the caller-provided environment.
+ *
+ * @param options - Optional environment overrides. `HOST`, `PORT`, `E2E`, and
+ * `E2E_VITE_MODE` are interpreted by `buildViteArgs`.
+ * @returns The spawned Vite child process.
  */
 export function runViteDev(options: RunnerOptions = {}): ChildProcess {
 	const env = (options.env ?? process.env) as RunnerEnv;
@@ -63,6 +80,10 @@ export function runViteDev(options: RunnerOptions = {}): ChildProcess {
 
 /**
  * Starts the Docusaurus dev server with the shared local-dev defaults.
+ *
+ * @param options - Optional environment overrides. `PORT` controls the internal
+ * Docusaurus listener and defaults to `3001`.
+ * @returns The spawned Docusaurus child process.
  */
 export function runDocusaurusDev(options: RunnerOptions = {}): ChildProcess {
 	const env = (options.env ?? process.env) as RunnerEnv;
@@ -74,6 +95,11 @@ export function runDocusaurusDev(options: RunnerOptions = {}): ChildProcess {
 /**
  * Starts an Azure Functions dev process using caller-supplied runtime
  * configuration and environment variables.
+ *
+ * @param options - Functions host options plus optional environment overrides.
+ * `PORT` must be provided directly or through the environment.
+ * @returns The spawned Functions host child process.
+ * @throws When no port can be resolved.
  */
 export function runAzureFunctionsDev(options: AzureFunctionsDevOptions = {}): ChildProcess {
 	const env = (options.env ?? process.env) as RunnerEnv;
@@ -104,6 +130,9 @@ export function runAzureFunctionsDev(options: AzureFunctionsDevOptions = {}): Ch
 /**
  * Starts a TSX-backed dev process using the caller-provided entrypoint and
  * environment.
+ *
+ * @param options - Optional entrypoint and environment overrides.
+ * @returns The spawned TSX child process.
  */
 export function runTsxDev(options: TsxRunnerOptions = {}): ChildProcess {
 	const env = options.env ?? process.env;
@@ -115,6 +144,10 @@ export function runTsxDev(options: TsxRunnerOptions = {}): ChildProcess {
 /**
  * Starts the three Azurite worker processes using caller-supplied ports and
  * storage paths.
+ *
+ * @param options - Explicit Azurite ports, storage locations, and optional
+ * environment.
+ * @returns The spawned blob, queue, and table child processes.
  */
 export function runAzuriteDev(options: AzuriteDevOptions): ChildProcess[] {
 	const procSpecs: Array<[string, string[]]> = [

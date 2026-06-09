@@ -33,15 +33,21 @@
 		"clean": "rimraf dist",
 		"lint": "biome lint",
 		"format": "biome format --write",
-		"format:check": "biome format ."
+		"format:check": "biome format .",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@cellix/local-dev": "workspace:*"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
 		"@types/node": "catalog:",
+		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

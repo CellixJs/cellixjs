@@ -26,6 +26,7 @@ export {
 	hostnameFromUrl,
 	PORTLESS_PORT,
 	replaceUrlPort,
+	sanitizeWorktreeHostnameLabel,
 } from './urls.ts';
 export { type BuildViteArgsOptions, buildViteArgs, isE2E } from './vite.ts';
 export { type ResolveWorkspaceRootOptions, resolveWorkspaceRoot } from './workspace.ts';

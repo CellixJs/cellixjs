@@ -20,7 +20,7 @@ This package owns generic worktree-aware port math, URL helpers, dotenv and JSON
 - `resolveWorkspaceRoot(options?)`
 - `readDotEnv(filePath)`
 - `readJsonFile(filePath)`, `writeJsonFile(filePath, data)`, `syncJsonFile(options)`
-- `hostnameFromUrl(url)`, `applyWorktreeSuffix(hostname, worktreeName)`, `buildPortlessUrl(hostname, path?)`, `replaceUrlPort(url, port)`, `PORTLESS_PORT`
+- `hostnameFromUrl(url)`, `sanitizeWorktreeHostnameLabel(worktreeName)`, `applyWorktreeSuffix(hostname, worktreeName)`, `buildPortlessUrl(hostname, path?)`, `replaceUrlPort(url, port)`, `PORTLESS_PORT`
 - `isE2E(env?)`, `buildViteArgs(options?)`
 - `isGracefulInterruptExit(signal, code)`, `forwardChildExit(child)`
 - `getWorktreePortOffset(worktreeName?)`, `getMongoPort(worktreeName?)`, `getAzuritePorts(worktreeName?)`, `buildAzuriteConnectionString(options)`
@@ -31,6 +31,7 @@ This package owns generic worktree-aware port math, URL helpers, dotenv and JSON
 - App packages own local-development policy such as env-variable names, URL mappings, auth-provider routes, and settings-file transforms.
 - This package should expose only reusable mechanics that make those wrappers smaller and more consistent.
 - Worktree isolation is deterministic and should keep MongoDB ports, Azurite ports, and hostname suffixing aligned across all participating apps.
+- Hostname suffixing must sanitize raw worktree names before inserting them into `.localhost` domains, and repeated suffixing with the same worktree label must leave hostnames unchanged.
 
 ## Package boundaries
 

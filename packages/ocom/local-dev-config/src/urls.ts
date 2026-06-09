@@ -2,6 +2,20 @@ import { buildPortlessUrl } from '@cellix/local-dev';
 import { getOcomHostnames } from './hostnames.ts';
 import type { OcomLocalDevOptions, OcomUrls } from './types.ts';
 
+/**
+ * Builds the full set of local URLs required by OCOM app wrapper scripts.
+ *
+ * @param options - Optional environment and workspace-root overrides forwarded
+ * to `getOcomHostnames`.
+ * @returns Portless HTTPS URLs for UI apps, API GraphQL, mock OIDC issuers,
+ * JWKS endpoints, and docs.
+ *
+ * @example
+ * ```ts
+ * const urls = buildOcomUrls();
+ * process.env.VITE_COMMON_API_ENDPOINT = urls.apiGraphqlUrl;
+ * ```
+ */
 export function buildOcomUrls(options: OcomLocalDevOptions = {}): OcomUrls {
 	const hostnames = getOcomHostnames(options);
 

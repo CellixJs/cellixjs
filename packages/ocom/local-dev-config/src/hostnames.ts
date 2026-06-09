@@ -25,6 +25,27 @@ function readAppEnv(workspaceRoot: string, appName: string): DotEnvValues & Ocom
 	return readDotEnv(path.join(workspaceRoot, 'apps', appName, '.env')) as DotEnvValues & OcomEnvValues;
 }
 
+/**
+ * Resolves the OCOM local-development hostnames from app `.env` files and
+ * optional process environment overrides.
+ *
+ * The package keeps OCOM-specific policy here: which app env files to read,
+ * which env keys define the public local hostnames, and how the documentation
+ * hostname is derived. Generic URL parsing and worktree suffixing remain in
+ * `@cellix/local-dev`.
+ *
+ * @param options - Optional environment and workspace-root overrides.
+ * @returns Worktree-aware OCOM hostnames.
+ * @throws When a required URL cannot be found or parsed.
+ *
+ * @example
+ * ```ts
+ * const hostnames = getOcomHostnames({
+ *   env: { WORKTREE_NAME: 'jason/feature' },
+ *   workspaceRoot,
+ * });
+ * ```
+ */
 export function getOcomHostnames(options: OcomLocalDevOptions = {}): OcomHostnames {
 	const env = (options.env ?? process.env) as NodeJS.ProcessEnv & OcomEnvValues;
 	const workspaceRoot = options.workspaceRoot ?? getWorkspaceRoot();

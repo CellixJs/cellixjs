@@ -14,6 +14,7 @@ import {
 	readDotEnv,
 	replaceUrlPort,
 	resolveWorkspaceRoot,
+	sanitizeWorktreeHostnameLabel,
 	syncJsonFile,
 } from '@cellix/local-dev';
 import { describe, expect, it } from 'vitest';
@@ -42,7 +43,7 @@ describe('@cellix/local-dev', () => {
 	it('parses dotenv values and applies worktree-aware URL helpers generically', () => {
 		const workspaceRoot = createWorkspaceFixture();
 		const envPath = path.join(workspaceRoot, 'fixtures', '.env');
-		writeFileSync(envPath, ['BASE_URL=https://ownercommunity.localhost:1355', 'API_URL=https://data-access.ownercommunity.localhost:1355/api/graphql'].join('\n'));
+		writeFileSync(envPath, ['export BASE_URL="https://ownercommunity.localhost:1355"', "API_URL='https://data-access.ownercommunity.localhost:1355/api/graphql'", 'IGNORED_LINE_WITHOUT_SEPARATOR'].join('\n'));
 
 		const envValues = readDotEnv(envPath) as DotEnvFixtureValues;
 		const baseUrl = envValues.BASE_URL;
@@ -58,7 +59,12 @@ describe('@cellix/local-dev', () => {
 			throw new Error('Expected dotenv fixture values to be defined');
 		}
 		expect(hostnameFromUrl(baseUrl)).toBe('ownercommunity.localhost');
-		expect(applyWorktreeSuffix('ownercommunity.localhost', 'feature-123')).toBe('ownercommunity.feature-123.localhost');
+		expect(sanitizeWorktreeHostnameLabel('Jason/Feature 123')).toBe('jason-feature-123');
+		expect(sanitizeWorktreeHostnameLabel('---')).toBeUndefined();
+		expect(applyWorktreeSuffix('ownercommunity.localhost', 'Jason/Feature 123')).toBe('ownercommunity.jason-feature-123.localhost');
+		expect(applyWorktreeSuffix('ownercommunity.jason-feature-123.localhost', 'Jason/Feature 123')).toBe('ownercommunity.jason-feature-123.localhost');
+		expect(applyWorktreeSuffix('localhost', 'Jason/Feature 123')).toBe('jason-feature-123.localhost');
+		expect(applyWorktreeSuffix('example.com', 'feature-123')).toBe('example.com');
 		expect(buildPortlessUrl('ownercommunity.localhost')).toBe(`https://ownercommunity.localhost:${PORTLESS_PORT}`);
 		expect(replaceUrlPort(apiUrl, 50900)).toBe('https://data-access.ownercommunity.localhost:50900/api/graphql');
 	});
