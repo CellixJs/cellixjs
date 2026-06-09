@@ -1,9 +1,9 @@
 import type { CommunityEntityReference } from '../../../src/domain/contexts/community/community/community.ts';
-import type { EndUserRoleEntityReference } from '../../../src/domain/contexts/community/role/end-user-role/end-user-role.ts';
+import type { MemberProps } from '../../../src/domain/contexts/community/member/member.ts';
 import type { MemberAccountProps } from '../../../src/domain/contexts/community/member/member-account.ts';
 import type { MemberCustomViewProps } from '../../../src/domain/contexts/community/member/member-custom-view.ts';
 import type { MemberProfileProps } from '../../../src/domain/contexts/community/member/member-profile.ts';
-import type { MemberProps } from '../../../src/domain/contexts/community/member/member.ts';
+import type { EndUserRoleEntityReference } from '../../../src/domain/contexts/community/role/end-user-role/end-user-role.ts';
 import type { Passport } from '../../../src/domain/contexts/passport.ts';
 
 type MemberPermissions = {

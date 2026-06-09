@@ -216,7 +216,12 @@ describe('SectionLayout with displayName prop', () => {
 					<Routes>
 						<Route
 							path="/staff/*"
-							element={<SectionLayout pageLayouts={[]} displayName="Alice Johnson" />}
+							element={
+								<SectionLayout
+									pageLayouts={[]}
+									displayName="Alice Johnson"
+								/>
+							}
 						/>
 					</Routes>
 				</StaffAuthProvider>
@@ -275,7 +280,12 @@ describe('SectionLayout with displayName prop', () => {
 					<Routes>
 						<Route
 							path="/staff/*"
-							element={<SectionLayout pageLayouts={[]} displayName="Prop Name" />}
+							element={
+								<SectionLayout
+									pageLayouts={[]}
+									displayName="Prop Name"
+								/>
+							}
 						/>
 					</Routes>
 				</StaffAuthProvider>

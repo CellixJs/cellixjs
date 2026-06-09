@@ -1,4 +1,4 @@
-import { VOString, VOSet } from '@lucaspaganini/value-objects';
+import { VOSet, VOString } from '@lucaspaganini/value-objects';
 
 export class RoleName extends VOString({
 	trim: true,

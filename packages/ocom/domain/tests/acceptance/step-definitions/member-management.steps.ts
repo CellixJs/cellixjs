@@ -1,11 +1,12 @@
-import { Before, Given, Then, When } from '@cucumber/cucumber';
 import assert from 'node:assert';
+import { Before, Given, Then, When } from '@cucumber/cucumber';
+import type { MemberProps } from '../../../src/domain/contexts/community/member/member.ts';
 import { Member } from '../../../src/domain/contexts/community/member/member.ts';
+import type { Passport } from '../../../src/domain/contexts/passport.ts';
 import { MemberActivatedEvent } from '../../../src/domain/events/types/member-activated.ts';
 import { MemberRemovedEvent } from '../../../src/domain/events/types/member-removed.ts';
-import type { Passport } from '../../../src/domain/contexts/passport.ts';
-import type { MemberProps } from '../../../src/domain/contexts/community/member/member.ts';
 import { createMemberProps, createMockPassport } from '../support/member-test-utils.ts';
+
 let passport: Passport;
 let member: Member<MemberProps>;
 

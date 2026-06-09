@@ -55,7 +55,7 @@ interface MockStaffUserInstance extends Domain.Contexts.User.StaffUser.StaffUser
 }
 
 function makeMockNewUser(externalId: string): MockStaffUserInstance {
-	let _role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined = undefined;
+	let _role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
 	return {
 		id: `new-id-${externalId}`,
 		externalId,

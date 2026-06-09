@@ -42,26 +42,26 @@ export const decorators: Decorator[] = [
 ];
 
 export const parameters: Parameters = {
-    layout: 'padded',
-    actions: { argTypesRegex: '^on[A-Z].*' },
+	layout: 'padded',
+	actions: { argTypesRegex: '^on[A-Z].*' },
 
-    controls: {
+	controls: {
 		matchers: {
 			color: /(background|color)$/i,
 			date: /Date$/i,
 		},
 	},
 
-    apolloClient: {
+	apolloClient: {
 		MockedProvider,
 	},
 
-    a11y: {
-        // 'todo' - show a11y violations in the test UI only
-        // 'error' - fail CI on a11y violations
-        // 'off' - skip a11y checks entirely
-        test: 'todo'
-    }
+	a11y: {
+		// 'todo' - show a11y violations in the test UI only
+		// 'error' - fail CI on a11y violations
+		// 'off' - skip a11y checks entirely
+		test: 'todo',
+	},
 };
 
 const preview: Preview = {

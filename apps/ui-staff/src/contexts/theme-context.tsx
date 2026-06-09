@@ -1,4 +1,4 @@
-import { type StoredTheme } from '@cellix/ui-core';
+import type { StoredTheme } from '@cellix/ui-core';
 import { Button, theme } from 'antd';
 import type { SeedToken } from 'antd/lib/theme/interface/index.js';
 import { createContext, type ReactNode, useCallback, useEffect, useState } from 'react';
