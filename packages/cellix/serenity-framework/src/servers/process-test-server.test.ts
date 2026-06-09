@@ -1,4 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const childProcessMock = vi.hoisted(() => ({
+	execFileSync: vi.fn(),
+}));
+
+vi.mock('node:child_process', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('node:child_process')>();
+	return {
+		...actual,
+		execFileSync: childProcessMock.execFileSync,
+	};
+});
+
 import { ProcessTestServer } from './index.ts';
 
 async function waitUntil(predicate: () => boolean, timeoutMs = 2_000): Promise<void> {
@@ -13,6 +26,8 @@ async function waitUntil(predicate: () => boolean, timeoutMs = 2_000): Promise<v
 
 describe('ProcessTestServer', () => {
 	afterEach(() => {
+		childProcessMock.execFileSync.mockReset();
+		vi.unstubAllGlobals();
 		vi.restoreAllMocks();
 	});
 
@@ -77,6 +92,37 @@ describe('ProcessTestServer', () => {
 			expect(server.isRunning()).toBe(false);
 		} finally {
 			await server.stop();
+		}
+	});
+
+	it('closes configured ports before checking whether the server is already running', async () => {
+		childProcessMock.execFileSync.mockReturnValue('123\n456\n');
+		const kill = vi.spyOn(process, 'kill').mockImplementation(() => true);
+		const isAlreadyRunning = vi.fn(async () => true);
+		const server = new ProcessTestServer({
+			serverName: 'fixed-port server',
+			executable: process.execPath,
+			spawnArgs: ['-e', "console.log('READY')"],
+			cwd: process.cwd(),
+			readyMarker: 'READY',
+			getUrl: () => 'http://unused.test',
+			isAlreadyRunning,
+			portsToCloseBeforeStart: () => 27_017,
+			probe: false,
+		});
+
+		await server.start();
+
+		try {
+			expect(childProcessMock.execFileSync).toHaveBeenCalledWith('lsof', ['-ti', 'tcp:27017'], {
+				encoding: 'utf-8',
+				stdio: ['ignore', 'pipe', 'ignore'],
+			});
+			expect(kill).toHaveBeenCalledWith(123, 'SIGTERM');
+			expect(kill).toHaveBeenCalledWith(456, 'SIGTERM');
+			expect(childProcessMock.execFileSync.mock.invocationCallOrder[0] ?? 0).toBeLessThan(isAlreadyRunning.mock.invocationCallOrder[0] ?? 0);
+		} finally {
+			kill.mockRestore();
 		}
 	});
 });

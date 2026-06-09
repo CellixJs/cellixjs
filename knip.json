@@ -70,7 +70,7 @@
 			"project": ["src/**/*.{ts,cjs}"]
 		},
 		"packages/ocom-verification/verification-shared": {
-			"entry": ["src/abilities/index.ts", "src/pages/index.ts", "src/test-data/index.ts"],
+			"entry": ["src/pages/index.ts", "src/test-data/index.ts"],
 			"project": ["src/**/*.ts"]
 		},
 		"packages/ocom-verification/acceptance-api": {

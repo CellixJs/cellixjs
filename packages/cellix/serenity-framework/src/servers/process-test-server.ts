@@ -1,6 +1,6 @@
-import { type ChildProcess, spawn } from 'node:child_process';
+import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
 import { createSpawnEnvironment } from './process-environment.ts';
-import type { TestServer } from './test-server.ts';
+import type { TestServer, UiTestServer } from './test-server.ts';
 
 /** Configuration for health probes used by {@link ProcessTestServer}. */
 export interface ProcessHealthProbe {
@@ -55,6 +55,9 @@ export interface ProcessTestServerOptions {
 	/** Return true when the server is already reachable before spawning. */
 	isAlreadyRunning?: () => Promise<boolean>;
 
+	/** Ports to clear before spawning, useful for fixed-port local dependencies. */
+	portsToCloseBeforeStart?: number | number[] | (() => number | number[]);
+
 	/** Treat an early process exit as an existing reusable server. */
 	isReusableExit?: (stderrOutput: string) => boolean;
 }
@@ -82,6 +85,8 @@ export class ProcessTestServer implements TestServer {
 		if (this.process || this.startedByUs) {
 			return;
 		}
+
+		this.closePortsBeforeStart();
 
 		if (await this.isAlreadyRunning()) {
 			return;
@@ -303,7 +308,50 @@ export class ProcessTestServer implements TestServer {
 		childProcess.kill(signal);
 	}
 
+	private closePortsBeforeStart(): void {
+		const ports = this.value(this.options.portsToCloseBeforeStart);
+		for (const port of Array.isArray(ports) ? ports : ports === undefined ? [] : [ports]) {
+			this.closeProcessesListeningOnPort(port);
+		}
+	}
+
+	private closeProcessesListeningOnPort(port: number): void {
+		if (process.platform === 'win32') {
+			return;
+		}
+
+		let output = '';
+		try {
+			output = execFileSync('lsof', ['-ti', `tcp:${port}`], {
+				encoding: 'utf-8',
+				stdio: ['ignore', 'pipe', 'ignore'],
+			});
+		} catch {
+			return;
+		}
+
+		const pids = output
+			.split('\n')
+			.map((pid) => Number.parseInt(pid, 10))
+			.filter((pid) => Number.isFinite(pid));
+
+		for (const pid of pids) {
+			try {
+				process.kill(pid, 'SIGTERM');
+			} catch {
+				/* Process already exited. */
+			}
+		}
+	}
+
 	private value<T>(value: T | (() => T) | undefined): T | undefined {
 		return typeof value === 'function' ? (value as () => T)() : value;
 	}
+}
+
+/**
+ * Child-process server for browser UI portals.
+ */
+export class ProcessUiTestServer extends ProcessTestServer implements UiTestServer {
+	readonly uiPortal = true;
 }

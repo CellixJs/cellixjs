@@ -2,7 +2,7 @@ import { registerWorldLifecycleHooks } from '@cellix/serenity-framework/cucumber
 import { getTimeout } from '@cellix/serenity-framework/settings';
 import type { IWorld } from '@cucumber/cucumber';
 import { isAgent } from 'std-env';
-import * as infra from './infrastructure.ts';
+import { infrastructure } from './infrastructure.ts';
 import type { CellixApiWorld } from './world.ts';
 
 let printedSuiteHeader = false;
@@ -23,6 +23,6 @@ export function registerLifecycleHooks(): void {
 		after: async (world) => {
 			await world.cleanup();
 		},
-		afterAll: () => infra.stopAll(),
+		afterAll: () => infrastructure.stopAll(),
 	});
 }

@@ -5,7 +5,6 @@
 	"private": true,
 	"type": "module",
 	"exports": {
-		"./abilities": "./src/abilities/index.ts",
 		"./environment": "./src/environment/index.ts",
 		"./pages": "./src/pages/index.ts",
 		"./test-data": "./src/test-data/index.ts"

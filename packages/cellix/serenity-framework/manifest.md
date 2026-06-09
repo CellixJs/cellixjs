@@ -14,8 +14,8 @@ This package owns generic verification infrastructure only:
 - DOM globals (via happy-dom), CSS module declarations, asset-loader hooks, and generic React render helpers for component acceptance tests
 - Adapter-backed page-object base contracts
 - Timeout utilities
-- Configurable process, Apollo GraphQL, and Mongo memory server lifecycle utilities
-- API acceptance and browser E2E infrastructure managers that compose consumer-owned server factories; the E2E manager starts a freely-composed, dependency-ordered server set and the browser
+- Configurable process, Apollo GraphQL, and Mongo memory server lifecycle utilities, including process-backed Mongo reset/seed support
+- API acceptance and browser E2E infrastructure managers that compose consumer-owned server instances; the E2E manager starts a dependency-ordered regular server set, then UI portal servers, then the browser
 
 ## Non-goals
 
@@ -38,14 +38,14 @@ This package owns generic verification infrastructure only:
 - `@cellix/serenity-framework/dom/css-modules`: package-owned CSS module declaration target
 - `@cellix/serenity-framework/serenity`: `TaskStep`, `SerenityCast`
 - `@cellix/serenity-framework/serenity/browser`: `BrowseTheWeb`
-- `@cellix/serenity-framework/infrastructure/api`: API acceptance infrastructure manager with MongoDB options, optional Mongoose service management, and an API server factory
-- `@cellix/serenity-framework/infrastructure/e2e`: browser E2E infrastructure manager that composes a dependency-ordered server set via chainable `addServer`/`addUiPortal` and sets up the browser
-- `@cellix/serenity-framework/servers`: generic server lifecycle classes and interfaces
+- `@cellix/serenity-framework/infrastructure/api`: API acceptance infrastructure manager with chainable `addServer(...).finalize()` registration and server-owned scenario reset
+- `@cellix/serenity-framework/infrastructure/e2e`: browser E2E infrastructure manager that composes regular servers before UI portal servers via `addServer(...).addUiPortal(...).finalize()` and sets up the browser
+- `@cellix/serenity-framework/servers`: generic server lifecycle classes and interfaces, including `UiTestServer` / `ProcessUiTestServer` for browser portal registration, process-owned fixed-port cleanup, and `MongoMemoryProcessTestServer` for process-backed Mongo startup with reset/seed behavior
 - `@cellix/serenity-framework/settings`: timeout helpers
 
 ## Package boundaries
 
-The package must not import from `@ocom/*`, `@ocom-verification/*`, `apps/*`, or local OCOM path helpers. Consumers pass app-specific values through options objects, descriptors, factories, or callbacks.
+The package must not import from `@ocom/*`, `@ocom-verification/*`, `apps/*`, or local OCOM path helpers. Consumers pass app-specific values through options objects, descriptors, server instances, or callbacks.
 
 ## Dependencies / relationships
 

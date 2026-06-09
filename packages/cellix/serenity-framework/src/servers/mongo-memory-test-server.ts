@@ -1,18 +1,6 @@
 import { type MongoMemoryReplicaSetConfig, type MongoMemoryReplicaSetDisposer, startMongoMemoryReplicaSet } from '@cellix/server-mongodb-memory-mock-seedwork';
-import { MongoClient } from 'mongodb';
-import type { SeedDataFunction, TestServer } from './test-server.ts';
-
-/** Context supplied to Mongo seed functions. */
-export interface MongoMemorySeedContext {
-	/** MongoDB connection string. */
-	connectionString: string;
-
-	/** Database name used by the test server. */
-	dbName: string;
-}
-
-/** Seed function used by {@link MongoMemoryTestServer}. */
-export type MongoMemorySeedDataFunction = SeedDataFunction<MongoMemorySeedContext>;
+import { clearMongoMemoryDatabase, type MongoMemorySeedDataFunction } from './mongo-memory-seed.ts';
+import type { TestServer } from './test-server.ts';
 
 /** Options used by {@link MongoMemoryTestServer}. */
 export interface MongoMemoryTestServerOptions {
@@ -85,7 +73,7 @@ export class MongoMemoryTestServer implements TestServer {
 			throw new Error('MongoMemoryTestServer not started');
 		}
 
-		await clearDatabase({ connectionString: this.connectionString, dbName: this.options.dbName });
+		await clearMongoMemoryDatabase({ connectionString: this.connectionString, dbName: this.options.dbName });
 		await this.seed(seedData);
 	}
 
@@ -106,17 +94,5 @@ export class MongoMemoryTestServer implements TestServer {
 
 	private async seed(seedData = this.options.seedData): Promise<void> {
 		await seedData?.({ connectionString: this.connectionString, dbName: this.options.dbName });
-	}
-}
-
-async function clearDatabase(context: MongoMemorySeedContext): Promise<void> {
-	const client = new MongoClient(context.connectionString);
-	try {
-		await client.connect();
-		const db = client.db(context.dbName);
-		const collections = await db.listCollections({}, { nameOnly: true }).toArray();
-		await Promise.all(collections.map((collection) => db.collection(collection.name).deleteMany({})));
-	} finally {
-		await client.close();
 	}
 }

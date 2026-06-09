@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
 import type { BrowserContext, Page } from 'playwright';
-import * as infra from '../../../infrastructure.ts';
+import { infrastructure } from '../../../infrastructure.ts';
 import type { CellixE2EWorld } from '../../../world.ts';
 import type { HeaderE2ENotes, HeaderE2ESite } from '../notes/header-notes.ts';
 import { ClickHeaderSignIn } from '../tasks/click-header-sign-in.ts';
@@ -65,7 +65,7 @@ When('{word} chooses to sign in', async function (this: HeaderE2EWorld, actorNam
 	// Fresh unauthenticated context for the portal under test — its baseURL is the
 	// portal's own URL. Isolated from the pre-auth context used by other suites;
 	// cleaned up in the Then step after verification.
-	const context = await infra.newPortalContext(s.site);
+	const context = await infrastructure.newPortalContext(s.site);
 	s.context = context;
 
 	if (s.identityProviderUnreachable) {

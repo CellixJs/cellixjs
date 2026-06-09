@@ -13,6 +13,17 @@ export interface TestServer {
 
 	/** Return the URL exposed by the server. */
 	getUrl(): string;
+
+	/** Reset mutable state between scenarios, when this server owns any. */
+	resetForScenario?(): Promise<void> | void;
+}
+
+/**
+ * Contract for browser UI portal test servers.
+ */
+export interface UiTestServer extends TestServer {
+	/** Marker that distinguishes UI portal servers from generic test servers. */
+	readonly uiPortal: true;
 }
 
 /**

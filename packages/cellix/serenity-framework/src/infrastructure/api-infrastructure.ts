@@ -9,29 +9,10 @@ export interface ApiInfrastructureOptions {
 	cleanupEnvironment?: () => Promise<void> | void;
 }
 
-/** Lookup passed to server factories so a server can read its already-started dependencies. */
-export interface ApiServerContext {
-	/**
-	 * Resolve an already-started server by name.
-	 *
-	 * @typeParam TServer Concrete server type, for example `MongoMemoryTestServer`.
-	 * @param name Name the dependency was registered with.
-	 * @throws Error when the named server has not been created yet. Declare it in
-	 *   `dependsOn` so the framework starts it first.
-	 */
-	server<TServer extends TestServer = TestServer>(name: string): TServer;
-}
-
-/** Factory that creates a server, optionally reading its dependencies from {@link ApiServerContext}. */
-export type ApiServerFactory = (context: ApiServerContext) => TestServer;
-
 /** Options accepted when registering a server with {@link ApiInfrastructure.addServer}. */
 export interface ApiServerOptions {
 	/** Names of servers that must be started before this one. */
 	dependsOn?: string[];
-
-	/** Reset this server between scenarios, e.g. clear and reseed a database. */
-	resetForScenario?: (server: TestServer) => Promise<void> | void;
 }
 
 /** State exposed by {@link ApiInfrastructure}. */
@@ -42,58 +23,80 @@ export interface ApiInfrastructureState {
 
 interface ServerRegistration {
 	name: string;
-	factory: ApiServerFactory;
+	server: TestServer;
 	dependsOn: string[];
-	resetForScenario?: (server: TestServer) => Promise<void> | void;
+}
+
+/** Fluent registration phase for API acceptance infrastructure. */
+export interface ApiInfrastructureServerChain {
+	/**
+	 * Register a server.
+	 *
+	 * @param name Unique server name, used by `dependsOn`.
+	 * @param server Test server instance that owns its own lifecycle.
+	 * @param options Dependencies.
+	 */
+	addServer(name: string, server: TestServer, options?: ApiServerOptions): ApiInfrastructureServerChain;
+
+	/** Freeze registration and return the runnable infrastructure. */
+	finalize(): ApiInfrastructureRuntime;
+}
+
+/** Runnable API acceptance infrastructure after registration is finalized. */
+export interface ApiInfrastructureRuntime {
+	/** Start the environment and all servers in dependency order. */
+	ensureStarted(): Promise<void>;
+
+	/** Reset mutable scenario state for every running server that implements reset. */
+	resetScenarioState(): Promise<void>;
+
+	/** Stop every created server, including partial starts, then clean up the suite environment. */
+	stopAll(): Promise<void>;
+
+	/** Return the current infrastructure state. */
+	getState(): ApiInfrastructureState;
 }
 
 /**
  * Lifecycle manager for API acceptance test suites.
  *
- * Servers are composed fluently with {@link addServer} rather than being fixed up
- * front, so each consuming suite registers only the servers it needs — a database
- * here, an ORM connection there, a GraphQL server on top — and the framework owns
- * startup ordering, scenario reset, and shutdown. The manager is ignorant of what
- * each server is: a Mongo memory server, a SQL server, an Apollo GraphQL server,
- * or anything else implementing {@link TestServer}. A suite with no database, a
+ * Servers are composed fluently with {@link addServer}, so each consuming suite
+ * registers only the server instances it needs — a database here, an ORM
+ * connection there, a GraphQL server on top — and the framework owns startup
+ * ordering, scenario reset, and shutdown. The manager is ignorant of what each
+ * server is: a Mongo memory server, a SQL server, an Apollo GraphQL server, or
+ * anything else implementing {@link TestServer}. A suite with no database, a
  * non-Mongo database, or no GraphQL layer simply registers a different server set.
  *
- * Servers start in dependency waves: every server whose `dependsOn` is satisfied
- * starts in parallel, then the next wave, and so on. A factory receives an
- * {@link ApiServerContext} so a dependent server (for example a GraphQL server) can
- * read a dependency's runtime state (for example a database connection string).
+ * Servers start in dependency waves: every server whose `dependsOn` is
+ * satisfied starts in parallel, then the next wave, and so on. Dependencies that
+ * need references to one another should receive those references through normal
+ * object construction; `dependsOn` only describes startup order.
  *
  * @example
  * ```ts
  * // With a database and a GraphQL server:
+ * const mongo = new MongoMemoryTestServer({ dbName, port, replSetName, seedData });
+ * const graphql = createGraphqlServer(mongo);
+ *
  * ApiInfrastructure.create()
- *   .addServer('mongo', () => new MongoMemoryTestServer({ dbName, port, replSetName, seedData }), {
- *     resetForScenario: (server) => (server as MongoMemoryTestServer).resetForScenario(),
- *   })
- *   .addServer('graphql', (ctx) => createGraphqlServer(() => ctx.server('mongo').getUrl()), {
- *     dependsOn: ['mongo'],
- *   });
+ *   .addServer('mongo', mongo)
+ *   .addServer('graphql', graphql, { dependsOn: ['mongo'] })
+ *   .finalize();
  *
  * // Without a database:
- * ApiInfrastructure.create().addServer('graphql', () => createGraphqlServer());
+ * ApiInfrastructure.create().addServer('graphql', createGraphqlServer()).finalize();
  * ```
  */
-export class ApiInfrastructure {
+export class ApiInfrastructure implements ApiInfrastructureServerChain, ApiInfrastructureRuntime {
+	private static readonly shutdownTargets = new Set<ApiInfrastructure>();
+
 	private readonly registrations: ServerRegistration[] = [];
 	private readonly created = new Map<string, TestServer>();
 	private readonly startOrder: string[] = [];
-	private readonly context: ApiServerContext = {
-		server: <TServer extends TestServer = TestServer>(name: string): TServer => {
-			const server = this.created.get(name);
-			if (!server) {
-				throw new Error(`ApiInfrastructure: server '${name}' is not available — declare it in dependsOn so it starts first`);
-			}
-			return server as TServer;
-		},
-	};
 
 	private environmentReady = false;
-	private shutdownHandlersRegistered = false;
+	private finalized = false;
 
 	private constructor(private readonly options: ApiInfrastructureOptions) {}
 
@@ -102,28 +105,39 @@ export class ApiInfrastructure {
 	 *
 	 * @param options Suite-environment setup. Defaults to an empty object.
 	 */
-	static create(options: ApiInfrastructureOptions = {}): ApiInfrastructure {
+	static create(options: ApiInfrastructureOptions = {}): ApiInfrastructureServerChain {
 		return new ApiInfrastructure(options);
 	}
 
 	/**
 	 * Register a server.
 	 *
-	 * @param name Unique server name, used by `dependsOn` and {@link ApiServerContext.server}.
-	 * @param factory Creates the server, with access to already-started dependencies.
+	 * @param name Unique server name, used by `dependsOn`.
+	 * @param server Test server instance that owns its own lifecycle.
 	 * @param options Dependencies and optional per-scenario reset.
 	 */
-	addServer(name: string, factory: ApiServerFactory, options: ApiServerOptions = {}): this {
+	addServer(name: string, server: TestServer, options: ApiServerOptions = {}): ApiInfrastructureServerChain {
+		this.assertCanRegister('addServer');
 		if (this.registrations.some((registration) => registration.name === name)) {
 			throw new Error(`ApiInfrastructure: server '${name}' is already registered`);
 		}
 
 		this.registrations.push({
 			name,
-			factory,
+			server,
 			dependsOn: options.dependsOn ?? [],
-			...(options.resetForScenario && { resetForScenario: options.resetForScenario }),
 		});
+		return this;
+	}
+
+	/** Freeze registration and return the runnable infrastructure. */
+	finalize(): ApiInfrastructureRuntime {
+		this.finalized = true;
+		const shouldRegisterShutdownHandlers = ApiInfrastructure.shutdownTargets.size === 0;
+		ApiInfrastructure.shutdownTargets.add(this);
+		if (shouldRegisterShutdownHandlers) {
+			ApiInfrastructure.installProcessShutdownHandlers();
+		}
 		return this;
 	}
 
@@ -144,8 +158,8 @@ export class ApiInfrastructure {
 	async resetScenarioState(): Promise<void> {
 		for (const registration of this.registrations) {
 			const server = this.created.get(registration.name);
-			if (registration.resetForScenario && server?.isRunning()) {
-				await registration.resetForScenario(server);
+			if (server?.isRunning()) {
+				await server.resetForScenario?.();
 			}
 		}
 	}
@@ -178,22 +192,21 @@ export class ApiInfrastructure {
 		};
 	}
 
-	/** Register SIGINT and SIGTERM handlers that stop infrastructure before exiting. */
-	registerProcessShutdownHandlers(): this {
-		if (this.shutdownHandlersRegistered) {
-			return this;
-		}
-
-		this.shutdownHandlersRegistered = true;
+	private static installProcessShutdownHandlers(): void {
 		const shutdown = (signal: NodeJS.Signals) => {
-			void this.stopAll().finally(() => {
+			void Promise.allSettled([...ApiInfrastructure.shutdownTargets].map((target) => target.stopAll())).finally(() => {
 				process.exit(signal === 'SIGINT' ? 130 : 143);
 			});
 		};
 
 		process.once('SIGINT', shutdown);
 		process.once('SIGTERM', shutdown);
-		return this;
+	}
+
+	private assertCanRegister(method: string): void {
+		if (this.finalized) {
+			throw new Error(`ApiInfrastructure: cannot call ${method} after finalize`);
+		}
 	}
 
 	private assertDependenciesResolvable(): void {
@@ -240,11 +253,8 @@ export class ApiInfrastructure {
 	}
 
 	private async startServer(registration: ServerRegistration): Promise<void> {
-		let server = this.created.get(registration.name);
-		if (!server) {
-			server = registration.factory(this.context);
-			this.created.set(registration.name, server);
-		}
+		const server = registration.server;
+		this.created.set(registration.name, server);
 
 		if (!server.isRunning()) {
 			await server.start();

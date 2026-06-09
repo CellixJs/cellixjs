@@ -1,5 +1,5 @@
-import { CreateCommunity as CreateCommunityAbility } from '@ocom-verification/verification-shared/abilities';
 import { type Actor, notes, Task } from '@serenity-js/core';
+import { CreateCommunity as CreateCommunityAbility } from '../../../shared/abilities/create-community.ts';
 import type { CommunityDetails, CommunityNotes } from '../notes/community-notes.ts';
 
 export class CreateCommunity extends Task {

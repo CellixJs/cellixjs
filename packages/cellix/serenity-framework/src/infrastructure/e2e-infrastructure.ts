@@ -1,6 +1,6 @@
 import { type Browser, type BrowserContext, type BrowserContextOptions, chromium } from 'playwright';
 import { BrowseTheWeb } from '../serenity/browse-the-web.ts';
-import type { TestServer } from '../servers/test-server.ts';
+import type { TestServer, UiTestServer } from '../servers/test-server.ts';
 
 /** State exposed by {@link E2EInfrastructure}. */
 export interface E2EInfrastructureState {
@@ -17,29 +17,10 @@ export interface E2EInfrastructureState {
 	browseTheWeb: BrowseTheWeb | undefined;
 }
 
-/** Lookup passed to server factories so a server can read its already-started dependencies. */
-export interface E2EServerContext {
-	/**
-	 * Resolve an already-started server by name.
-	 *
-	 * @typeParam TServer Concrete server type, for example `MongoMemoryTestServer`.
-	 * @param name Name the dependency was registered with.
-	 * @throws Error when the named server has not been created yet. Declare it in
-	 *   `dependsOn` so the framework starts it first.
-	 */
-	server<TServer extends TestServer = TestServer>(name: string): TServer;
-}
-
-/** Factory that creates a server, optionally reading its dependencies from {@link E2EServerContext}. */
-export type E2EServerFactory = (context: E2EServerContext) => TestServer;
-
 /** Options accepted when registering a server with {@link E2EInfrastructure.addServer}. */
 export interface E2EServerOptions {
 	/** Names of servers that must be started before this one. */
 	dependsOn?: string[];
-
-	/** Reset this server between scenarios, e.g. clear and reseed a database. */
-	resetForScenario?: (server: TestServer) => Promise<void> | void;
 }
 
 /** Options accepted when registering a UI portal with {@link E2EInfrastructure.addUiPortal}. */
@@ -74,69 +55,118 @@ export interface E2EInfrastructureOptions {
 
 interface ServerRegistration {
 	name: string;
-	factory: E2EServerFactory;
+	server: TestServer;
 	dependsOn: string[];
-	resetForScenario?: (server: TestServer) => Promise<void> | void;
 	contextOptions?: BrowserContextOptions;
 	isUiPortal: boolean;
+}
+
+/** Fluent registration phase before any UI portal has been added. */
+export interface E2EServerRegistrationChain {
+	/**
+	 * Register a non-UI server.
+	 *
+	 * @param name Unique server name, used by `dependsOn`.
+	 * @param server Test server instance that owns its own lifecycle.
+	 * @param options Dependencies.
+	 */
+	addServer(name: string, server: TestServer, options?: E2EServerOptions): E2EServerRegistrationChain;
+
+	/**
+	 * Register the first UI portal server and move into the UI-only registration phase.
+	 *
+	 * @param name Stable logical portal name, such as `community` or `staff`.
+	 * @param server UI portal server instance that owns its own lifecycle.
+	 * @param options Dependencies and portal-scoped browser-context options.
+	 */
+	addUiPortal(name: string, server: UiTestServer, options?: E2EUiPortalOptions): E2EUiPortalRegistrationChain;
+
+	/** Freeze registration and return the runnable infrastructure. */
+	finalize(): E2EInfrastructureRuntime;
+}
+
+/** Fluent registration phase after UI portal registration has started. */
+export interface E2EUiPortalRegistrationChain {
+	/**
+	 * Register another UI portal server.
+	 *
+	 * @param name Stable logical portal name, such as `community` or `staff`.
+	 * @param server UI portal server instance that owns its own lifecycle.
+	 * @param options Dependencies and portal-scoped browser-context options.
+	 */
+	addUiPortal(name: string, server: UiTestServer, options?: E2EUiPortalOptions): E2EUiPortalRegistrationChain;
+
+	/** Freeze registration and return the runnable infrastructure. */
+	finalize(): E2EInfrastructureRuntime;
+}
+
+/** Runnable browser E2E infrastructure after registration is finalized. */
+export interface E2EInfrastructureRuntime {
+	/** Open a fresh browser context scoped to a UI portal. */
+	newPortalContext(name: string): Promise<BrowserContext>;
+
+	/** Start the environment, all servers, and the browser ability. */
+	ensureStarted(): Promise<void>;
+
+	/** Reset mutable scenario state for every running server that implements reset. */
+	resetScenarioState(): Promise<void>;
+
+	/** Stop browser resources, every created server, and the suite environment. */
+	stopAll(): Promise<void>;
+
+	/** Return the current infrastructure state. */
+	getState(): E2EInfrastructureState;
 }
 
 /**
  * Lifecycle manager for browser E2E test suites.
  *
- * Servers are composed fluently with {@link addServer} and {@link addUiPortal}
- * instead of being fixed up front, so each consuming application registers only
- * the servers it needs — a database here, an auth server there, one or many UI
- * portals — and the framework owns startup ordering, scenario reset, browser
- * setup, and shutdown.
+ * Servers are composed fluently with {@link addServer} and {@link addUiPortal},
+ * so each consuming application registers only the server instances it needs —
+ * a database here, an auth server there, one or many UI portals — and the
+ * framework owns startup ordering, scenario reset, browser setup, and shutdown.
  *
- * Servers start in dependency waves: every server whose `dependsOn` is satisfied
- * starts in parallel, then the next wave, and so on. A factory receives an
- * {@link E2EServerContext} so a dependent server (for example an API) can read a
- * dependency's runtime state (for example a database connection string). The
- * browser is launched only when at least one UI portal is registered, and each
- * portal carries its own browser-context recipe — its `baseURL` is the portal's
- * own URL — so {@link newPortalContext} opens a context for any portal without a
- * caller naming the URL. The first registered portal backs the default
- * `BrowseTheWeb` ability exposed on the state.
+ * Servers start in dependency waves: every server whose `dependsOn` is
+ * satisfied starts in parallel, then the next wave, and so on. Dependencies that
+ * need references to one another should receive those references through normal
+ * object construction; `dependsOn` only describes startup order. The browser is
+ * launched only when at least one UI portal is registered, and each portal
+ * carries its own browser-context recipe — its `baseURL` is the portal's own URL
+ * — so {@link newPortalContext} opens a context for any portal without a caller
+ * naming the URL. The first registered portal backs the default `BrowseTheWeb`
+ * ability exposed on the state.
  *
  * @example
  * ```ts
+ * const mongo = new MongoMemoryTestServer({ dbName, port, replSetName, seedData });
+ * const api = createApiServer(mongo);
+ *
  * export const infrastructure = E2EInfrastructure
  *   .create({ browserContextOptions: { ignoreHTTPSErrors: true } })
- *   .addServer('mongo', () => new MongoMemoryTestServer({ dbName, port, replSetName, seedData }), {
- *     resetForScenario: (server) => (server as MongoMemoryTestServer).resetForScenario(),
- *   })
- *   .addServer('auth', () => createAuthServer())
- *   .addServer('api', (ctx) => createApiServer(() => ctx.server<MongoMemoryTestServer>('mongo').getConnectionString()), {
- *     dependsOn: ['mongo'],
- *   })
- *   .addUiPortal('community', () => createCommunityPortal())
- *   .addUiPortal('staff', () => createStaffPortal());
+ *   .addServer('mongo', mongo)
+ *   .addServer('auth', createAuthServer())
+ *   .addServer('api', api, { dependsOn: ['mongo'] })
+ *   .addUiPortal('community', createCommunityPortal())
+ *   .addUiPortal('staff', createStaffPortal())
+ *   .finalize();
  *
  * // Browse any portal — baseURL is that portal's own URL:
  * const staffContext = await infrastructure.newPortalContext('staff');
  * ```
  */
-export class E2EInfrastructure {
+export class E2EInfrastructure implements E2EServerRegistrationChain, E2EUiPortalRegistrationChain, E2EInfrastructureRuntime {
+	private static readonly shutdownTargets = new Set<E2EInfrastructure>();
+
 	private readonly registrations: ServerRegistration[] = [];
 	private readonly created = new Map<string, TestServer>();
 	private readonly startOrder: string[] = [];
-	private readonly context: E2EServerContext = {
-		server: <TServer extends TestServer = TestServer>(name: string): TServer => {
-			const server = this.created.get(name);
-			if (!server) {
-				throw new Error(`E2EInfrastructure: server '${name}' is not available — declare it in dependsOn so it starts first`);
-			}
-			return server as TServer;
-		},
-	};
 
 	private environmentReady = false;
 	private browser: Browser | undefined;
 	private browserContext: BrowserContext | undefined;
 	private browseTheWeb: BrowseTheWeb | undefined;
-	private shutdownHandlersRegistered = false;
+	private finalized = false;
+	private uiRegistrationStarted = false;
 
 	private constructor(private readonly options: E2EInfrastructureOptions) {}
 
@@ -145,19 +175,23 @@ export class E2EInfrastructure {
 	 *
 	 * @param options Browser and suite-environment setup. Defaults to an empty object.
 	 */
-	static create(options: E2EInfrastructureOptions = {}): E2EInfrastructure {
+	static create(options: E2EInfrastructureOptions = {}): E2EServerRegistrationChain {
 		return new E2EInfrastructure(options);
 	}
 
 	/**
 	 * Register a server.
 	 *
-	 * @param name Unique server name, used by `dependsOn` and {@link E2EServerContext.server}.
-	 * @param factory Creates the server, with access to already-started dependencies.
+	 * @param name Unique server name, used by `dependsOn`.
+	 * @param server Test server instance that owns its own lifecycle.
 	 * @param options Dependencies and optional per-scenario reset.
 	 */
-	addServer(name: string, factory: E2EServerFactory, options: E2EServerOptions = {}): this {
-		return this.register(name, factory, options, false);
+	addServer(name: string, server: TestServer, options: E2EServerOptions = {}): E2EServerRegistrationChain {
+		this.assertCanRegister('addServer');
+		if (this.uiRegistrationStarted) {
+			throw new Error('E2EInfrastructure: cannot call addServer after addUiPortal');
+		}
+		return this.register(name, server, options, false);
 	}
 
 	/**
@@ -165,11 +199,24 @@ export class E2EInfrastructure {
 	 * {@link E2EInfrastructureState.uiPortalBaseUrls} and gate browser startup.
 	 *
 	 * @param name Stable logical portal name, such as `community` or `staff`.
-	 * @param factory Creates the portal server.
+	 * @param server UI portal server instance that owns its own lifecycle.
 	 * @param options Dependencies, per-scenario reset, and portal-scoped browser-context options.
 	 */
-	addUiPortal(name: string, factory: E2EServerFactory, options: E2EUiPortalOptions = {}): this {
-		return this.register(name, factory, options, true);
+	addUiPortal(name: string, server: UiTestServer, options: E2EUiPortalOptions = {}): E2EUiPortalRegistrationChain {
+		this.assertCanRegister('addUiPortal');
+		this.uiRegistrationStarted = true;
+		return this.register(name, server, options, true);
+	}
+
+	/** Freeze registration and return the runnable infrastructure. */
+	finalize(): E2EInfrastructureRuntime {
+		this.finalized = true;
+		const shouldRegisterShutdownHandlers = E2EInfrastructure.shutdownTargets.size === 0;
+		E2EInfrastructure.shutdownTargets.add(this);
+		if (shouldRegisterShutdownHandlers) {
+			E2EInfrastructure.installProcessShutdownHandlers();
+		}
+		return this;
 	}
 
 	/**
@@ -204,8 +251,8 @@ export class E2EInfrastructure {
 	async resetScenarioState(): Promise<void> {
 		for (const registration of this.registrations) {
 			const server = this.created.get(registration.name);
-			if (registration.resetForScenario && server?.isRunning()) {
-				await registration.resetForScenario(server);
+			if (server?.isRunning()) {
+				await server.resetForScenario?.();
 			}
 		}
 	}
@@ -251,38 +298,36 @@ export class E2EInfrastructure {
 		};
 	}
 
-	/** Register SIGINT and SIGTERM handlers that stop infrastructure before exiting. */
-	registerProcessShutdownHandlers(): this {
-		if (this.shutdownHandlersRegistered) {
-			return this;
-		}
-
-		this.shutdownHandlersRegistered = true;
+	private static installProcessShutdownHandlers(): void {
 		const shutdown = (signal: NodeJS.Signals) => {
-			void this.stopAll().finally(() => {
+			void Promise.allSettled([...E2EInfrastructure.shutdownTargets].map((target) => target.stopAll())).finally(() => {
 				process.exit(signal === 'SIGINT' ? 130 : 143);
 			});
 		};
 
 		process.once('SIGINT', shutdown);
 		process.once('SIGTERM', shutdown);
-		return this;
 	}
 
-	private register(name: string, factory: E2EServerFactory, options: E2EUiPortalOptions, isUiPortal: boolean): this {
+	private register(name: string, server: TestServer, options: E2EUiPortalOptions, isUiPortal: boolean): this {
 		if (this.registrations.some((registration) => registration.name === name)) {
 			throw new Error(`E2EInfrastructure: server '${name}' is already registered`);
 		}
 
 		this.registrations.push({
 			name,
-			factory,
+			server,
 			dependsOn: options.dependsOn ?? [],
-			...(options.resetForScenario && { resetForScenario: options.resetForScenario }),
 			...(options.contextOptions && { contextOptions: options.contextOptions }),
 			isUiPortal,
 		});
 		return this;
+	}
+
+	private assertCanRegister(method: string): void {
+		if (this.finalized) {
+			throw new Error(`E2EInfrastructure: cannot call ${method} after finalize`);
+		}
 	}
 
 	private hasUiPortal(): boolean {
@@ -333,11 +378,8 @@ export class E2EInfrastructure {
 	}
 
 	private async startServer(registration: ServerRegistration): Promise<void> {
-		let server = this.created.get(registration.name);
-		if (!server) {
-			server = registration.factory(this.context);
-			this.created.set(registration.name, server);
-		}
+		const server = registration.server;
+		this.created.set(registration.name, server);
 
 		if (!server.isRunning()) {
 			await server.start();
