@@ -172,6 +172,69 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Registering a named infrastructure service', ({ Given, When, Then }) => {
+		Given('a Cellix instance in infrastructure phase', () => {
+			cellix = Cellix.initializeInfrastructureServices(() => {
+				/* no op */
+			}) as Cellix<unknown, unknown>;
+		});
+
+		When('an infrastructure service is registered with a name', () => {
+			const result = cellix.registerInfrastructureService(mockService, 'my-service');
+			expect(result).toBe(cellix);
+		});
+
+		Then('it should be retrievable by name', () => {
+			const named = cellix.getInfrastructureService('my-service');
+			expect(named).toBe(mockService);
+		});
+	});
+
+	Scenario('Registering a duplicate service name', ({ Given, When, Then }) => {
+		Given('a Cellix instance with a named service registered', () => {
+			cellix = Cellix.initializeInfrastructureServices((registry) => {
+				registry.registerInfrastructureService(mockService, 'my-service');
+			}) as Cellix<unknown, unknown>;
+		});
+
+		When('another service is registered with the same name', () => {
+			const anotherService = new MockService();
+			expect(() => {
+				cellix.registerInfrastructureService(anotherService, 'my-service');
+			}).toThrow('Service name already registered: my-service');
+		});
+
+		Then('it should throw an error indicating duplicate name registration', () => {
+			// Error is already thrown in When step
+		});
+	});
+
+	Scenario('Lifecycle deduplicates services registered by constructor and name', ({ Given, When, Then }) => {
+		Given('a Cellix instance with the same service registered by constructor and by name', () => {
+			cellix = Cellix.initializeInfrastructureServices((registry) => {
+				registry.registerInfrastructureService(mockService);
+				registry.registerInfrastructureService(mockService, 'alias-service');
+			}) as Cellix<unknown, unknown>;
+			cellix.setContext(() => ({}));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
+		});
+
+		When('the application starts', async () => {
+			await cellix.startUp();
+			// Trigger appStart hook
+			const mockHook = app.hook.appStart as unknown as { mock: { calls: [() => Promise<void>][] } };
+			const appStartCallback = mockHook.mock.calls[0]?.[0];
+			if (appStartCallback) {
+				await appStartCallback();
+			}
+		});
+
+		Then('the service startUp should be called exactly once', () => {
+			expect(mockService.startUp).toHaveBeenCalledTimes(1);
+		});
+	});
+
 	Scenario('Setting the infrastructure context', ({ Given, When, Then, And }) => {
 		let result: ReturnType<Cellix<unknown, unknown>['setContext']>;
 

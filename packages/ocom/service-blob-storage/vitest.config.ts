@@ -1,9 +1,14 @@
+import { nodeConfig } from '@cellix/config-vitest';
 import { defineConfig, mergeConfig } from 'vitest/config';
-import baseConfig from '@cellix/config-vitest';
 
 export default mergeConfig(
-	baseConfig,
+	nodeConfig,
 	defineConfig({
-		// Add package-specific overrides here if needed
+		resolve: {
+			alias: {
+				'@cellix/service-blob-storage': '../../cellix/service-blob-storage/src/index.ts',
+				'@ocom/service-blob-storage': './src/index.ts',
+			},
+		},
 	}),
 );

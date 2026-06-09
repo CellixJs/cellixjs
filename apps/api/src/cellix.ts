@@ -7,16 +7,21 @@ interface InfrastructureServiceRegistry<ContextType = unknown, AppServices = unk
 	 * Registers an infrastructure service with the application.
 	 *
 	 * @remarks
-	 * Must be called during the {@link Phase | 'infrastructure'} phase. Each
-	 * constructor key can be registered at most once.
+	 * Must be called during the {@link Phase | 'infrastructure'} phase.
+	 * By default, services are keyed by constructor identity (minification-safe).
+	 * This method now has an optional `name` argument to allow registering
+	 * multiple instances of the same constructor under distinct string keys.
 	 *
 	 * @typeParam T - The concrete service type.
 	 * @param service - The service instance to register.
+	 * @param name - Optional semantic name for the service. If provided, the
+	 *               service will be retrievable by name via getInfrastructureService(name).
 	 * @returns The registry (for chaining).
 	 *
-	 * @throws Error - If called outside the infrastructure phase or the service key is already registered.
+	 * @throws Error - If called outside the infrastructure phase, the constructor key is already registered (when name is omitted),
+	 *                 or the provided name is already registered.
 	 */
-	registerInfrastructureService<T extends ServiceBase>(service: T): InfrastructureServiceRegistry<ContextType, AppServices>;
+	registerInfrastructureService<T extends ServiceBase>(service: T, name?: string): InfrastructureServiceRegistry<ContextType, AppServices>;
 }
 
 interface ContextBuilder<ContextType = unknown, AppServices = unknown> {
@@ -119,30 +124,21 @@ interface StartedApplication<ContextType = unknown> extends InitializedServiceRe
 
 interface InitializedServiceRegistry {
 	/**
-	 * Retrieves a registered infrastructure service by its constructor key.
+	 * Retrieves a registered infrastructure service by its constructor key or by
+	 * its semantic name.
 	 *
 	 * @remarks
-	 * Services are keyed by their constructor identity (not by name), which is
-	 * minification-safe. You must pass the same class you used when registering
-	 * the service; base classes or interfaces will not match.
+	 * If a string `name` was used when registering the service, pass that name
+	 * to retrieve it. Otherwise, pass the service constructor used at
+	 * registration time.
 	 *
 	 * @typeParam T - The concrete service type.
-	 * @param serviceKey - The service class (constructor) used at registration time.
+	 * @param serviceKeyOrName - The service class (constructor) or the string name used at registration time.
 	 * @returns The registered service instance.
 	 *
-	 * @throws Error - If no service is registered for the provided key.
-	 *
-	 * @example
-	 * ```ts
-	 * // registration
-	 * registry.registerInfrastructureService(new BlobStorageService(...));
-	 *
-	 * // lookup
-	 * const blob = app.getInfrastructureService(BlobStorageService);
-	 * await blob.startUp();
-	 * ```
+	 * @throws Error - If no service is registered for the provided key or name.
 	 */
-	getInfrastructureService<T extends ServiceBase>(serviceKey: ServiceKey<T>): T;
+	getInfrastructureService<T extends ServiceBase>(serviceKeyOrName: ServiceKey<T> | string): T;
 	get servicesInitialized(): boolean;
 }
 
@@ -184,6 +180,12 @@ export class Cellix<ContextType, AppServices = unknown>
 	private appServicesHostBuilder: ((infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown>) | undefined;
 	private readonly tracer: Tracer;
 	private readonly servicesInternal: Map<ServiceKey<ServiceBase>, ServiceBase> = new Map();
+	/**
+	 * Optional name-based registry for services. Names are semantic strings that
+	 * allow multiple instances of the same constructor to coexist under
+	 * different names.
+	 */
+	private readonly nameMap: Map<string, ServiceBase> = new Map();
 	private readonly pendingHandlers: Array<PendingHandler<AppServices>> = [];
 	private serviceInitializedInternal = false;
 	private phase: Phase = 'infrastructure';
@@ -230,13 +232,24 @@ export class Cellix<ContextType, AppServices = unknown>
 		return instance;
 	}
 
-	public registerInfrastructureService<T extends ServiceBase>(service: T): InfrastructureServiceRegistry<ContextType, AppServices> {
+	public registerInfrastructureService<T extends ServiceBase>(service: T, name?: string): InfrastructureServiceRegistry<ContextType, AppServices> {
 		this.ensurePhase('infrastructure');
 		const key = service.constructor as ServiceKey<ServiceBase>;
-		if (this.servicesInternal.has(key)) {
-			throw new Error(`Service already registered for constructor: ${service.constructor.name}`);
+		if (name == null) {
+			// Backwards-compatible constructor-only registration: preserve existing
+			// behaviour and throw if the constructor key is already present.
+			if (this.servicesInternal.has(key)) {
+				throw new Error(`Service already registered for constructor: ${service.constructor.name}`);
+			}
+			this.servicesInternal.set(key, service);
+		} else {
+			// Name-based registration: ensure name uniqueness, but allow the same
+			// constructor to exist under multiple names.
+			if (this.nameMap.has(name)) {
+				throw new Error(`Service name already registered: ${name}`);
+			}
+			this.nameMap.set(name, service);
 		}
-		this.servicesInternal.set(key, service);
 		return this;
 	}
 
@@ -352,10 +365,17 @@ export class Cellix<ContextType, AppServices = unknown>
 		}
 	}
 
-	public getInfrastructureService<T extends ServiceBase>(serviceKey: ServiceKey<T>): T {
-		const service = this.servicesInternal.get(serviceKey as ServiceKey<ServiceBase>);
+	public getInfrastructureService<T extends ServiceBase>(serviceKeyOrName: ServiceKey<T> | string): T {
+		if (typeof serviceKeyOrName === 'string') {
+			const named = this.nameMap.get(serviceKeyOrName);
+			if (!named) {
+				throw new Error(`Service not found: ${serviceKeyOrName}`);
+			}
+			return named as T;
+		}
+		const service = this.servicesInternal.get(serviceKeyOrName as ServiceKey<ServiceBase>);
 		if (!service) {
-			const name = (serviceKey as { name?: string }).name ?? 'UnknownService';
+			const name = (serviceKeyOrName as { name?: string }).name ?? 'UnknownService';
 			throw new Error(`Service not found: ${name}`);
 		}
 		return service as T;
@@ -381,20 +401,32 @@ export class Cellix<ContextType, AppServices = unknown>
 
 	// Service lifecycle helpers
 	private async startAllServicesWithTracing(): Promise<void> {
-		await this.iterateServicesWithTracing('start', 'startUp');
+		const services = this.getUniqueServicesForLifecycle();
+		await this.iterateServicesWithTracing(services, 'start', 'startUp');
 	}
 	private async stopAllServicesWithTracing(): Promise<void> {
-		await this.iterateServicesWithTracing('stop', 'shutDown');
+		const services = this.getUniqueServicesForLifecycle();
+		await this.iterateServicesWithTracing(services, 'stop', 'shutDown');
 	}
-	private async iterateServicesWithTracing(operationName: 'start' | 'stop', serviceMethod: 'startUp' | 'shutDown'): Promise<void> {
+	private getUniqueServicesForLifecycle(): ServiceBase[] {
+		const set = new Set<ServiceBase>();
+		for (const svc of this.servicesInternal.values()) {
+			set.add(svc);
+		}
+		for (const svc of this.nameMap.values()) {
+			set.add(svc);
+		}
+		return Array.from(set.values());
+	}
+	private async iterateServicesWithTracing(services: ServiceBase[], operationName: 'start' | 'stop', serviceMethod: 'startUp' | 'shutDown'): Promise<void> {
 		const operationFullName = `${operationName.charAt(0).toUpperCase() + operationName.slice(1)}Service`;
 		const operationActionPending = operationName === 'start' ? 'starting' : 'stopping';
 		const operationActionCompleted = operationName === 'start' ? 'started' : 'stopped';
 		await Promise.all(
-			Array.from(this.servicesInternal.entries()).map(([ctor, service]) =>
-				this.tracer.startActiveSpan(`Service ${(ctor as unknown as { name?: string }).name ?? 'Service'} ${operationName}`, async (span) => {
+			services.map((service) =>
+				this.tracer.startActiveSpan(`Service ${service.constructor.name} ${operationName}`, async (span) => {
 					try {
-						const ctorName = (ctor as unknown as { name?: string }).name ?? 'Service';
+						const ctorName = service.constructor?.name ?? 'Service';
 						console.log(`${operationFullName}: Service ${ctorName} ${operationActionPending}`);
 						await service[serviceMethod]();
 						span.setStatus({ code: SpanStatusCode.OK, message: `Service ${ctorName} ${operationActionCompleted}` });

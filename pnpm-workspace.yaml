@@ -9,6 +9,7 @@ engineStrict: true
 catalog:
   '@apollo/server': 5.5.0
   '@azure/functions': 4.11.0
+  '@azure/storage-blob': 12.31.0
   '@cucumber/cucumber': 12.8.1
   '@cucumber/messages': 32.3.1
   '@cucumber/node': 0.4.0
@@ -55,6 +56,7 @@ auditConfig:
     - GHSA-8v8x-cx79-35w7
     - GHSA-wpg9-53fq-2r8h
     - GHSA-q7rr-3cgh-j5r3
+    - GHSA-869p-cjfg-cm3x  # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
 
 allowBuilds:
   '@apollo/protobufjs': true

@@ -1,19 +1,8 @@
-import { execFileSync } from 'node:child_process';
-import { getPortlessPath } from './resolve-portless.ts';
-
 let proxyInitialized = false;
 let mongoConnectionString: string | undefined;
 
 export function initTestEnvironment() {
 	if (proxyInitialized) return;
-
-	// Clean up orphaned route locks from previous runs that crashed or were killed.
-	// The proxy itself is started by the test:e2e script so the portless CA exists
-	// before Node reads NODE_EXTRA_CA_CERTS at startup.
-	execFileSync(getPortlessPath(), ['prune'], {
-		timeout: 10_000,
-		stdio: 'pipe',
-	});
 
 	proxyInitialized = true;
 }
