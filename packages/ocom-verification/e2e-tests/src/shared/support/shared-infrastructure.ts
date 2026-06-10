@@ -9,6 +9,7 @@ const apiDbName = 'owner-community';
 let mongoDBServer: MongoDBTestServer | undefined;
 let azuriteServer: TestAzuriteServer | undefined;
 let oauth2Server: TestOAuth2Server | undefined;
+let azuriteBlobServer: TestAzuriteServer | undefined;
 let apiServer: TestApiServer | undefined;
 let communityViteServer: TestCommunityViteServer | undefined;
 let staffViteServer: TestStaffViteServer | undefined;
@@ -18,6 +19,7 @@ let browserBaseUrl: string | undefined;
 let authenticatedBrowserContext: BrowserContext | undefined;
 let browseTheWeb: BrowseTheWeb | undefined;
 let shutdownHandlersRegistered = false;
+let ensureServersPromise: Promise<void> | undefined;
 
 export interface InfrastructureState {
 	apiUrl: string | undefined;
@@ -41,6 +43,7 @@ export async function resetScenarioState(): Promise<void> {
 }
 
 export async function stopAll(): Promise<void> {
+	ensureServersPromise = undefined;
 	if (browseTheWeb) {
 		await browseTheWeb.close().catch(() => undefined);
 		browseTheWeb = undefined;
@@ -69,6 +72,14 @@ export async function stopAll(): Promise<void> {
 		await oauth2Server.stop().catch(() => undefined);
 		oauth2Server = undefined;
 	}
+	if (azuriteBlobServer) {
+		await azuriteBlobServer.stop().catch(() => undefined);
+		azuriteBlobServer = undefined;
+	}
+	// biome-ignore lint:useLiteralKeys
+	delete process.env['AZURE_STORAGE_ACCOUNT_NAME'];
+	// biome-ignore lint:useLiteralKeys
+	delete process.env['AZURE_STORAGE_CONNECTION_STRING'];
 	if (mongoDBServer) {
 		await mongoDBServer.stop().catch(() => undefined);
 		mongoDBServer = undefined;
@@ -84,6 +95,21 @@ export async function stopAll(): Promise<void> {
 }
 
 export async function ensureE2EServers(): Promise<void> {
+	if (ensureServersPromise) {
+		return await ensureServersPromise;
+	}
+
+	ensureServersPromise = ensureE2EServersInternal();
+
+	try {
+		await ensureServersPromise;
+	} catch (error) {
+		ensureServersPromise = undefined;
+		throw error;
+	}
+}
+
+async function ensureE2EServersInternal(): Promise<void> {
 	initTestEnvironment();
 	registerShutdownHandlers();
 
@@ -111,6 +137,16 @@ export async function ensureE2EServers(): Promise<void> {
 	}
 	if (phase1.length > 0) await Promise.all(phase1);
 
+	azuriteBlobServer ??= new TestAzuriteServer();
+	if (!azuriteBlobServer.isRunning()) {
+		await azuriteBlobServer.start();
+	}
+	// biome-ignore lint:useLiteralKeys
+	process.env['AZURE_STORAGE_ACCOUNT_NAME'] = 'devstoreaccount1';
+	// biome-ignore lint:useLiteralKeys
+	process.env['AZURE_STORAGE_CONNECTION_STRING'] = azuriteBlobServer.getConnectionString();
+
+	// Phase 2: Start API (needs MongoDB conn string), Vite (independent), and generate token (needs OAuth2) in parallel
 	apiServer ??= new TestApiServer();
 	communityViteServer ??= new TestCommunityViteServer();
 	staffViteServer ??= new TestStaffViteServer();

@@ -1,7 +1,11 @@
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { appPaths } from './app-paths.ts';
-import { e2eEnv, getPortlessDevScript } from './dev-script.ts';
+import { getPortlessDevScript } from './dev-script.ts';
 import { PortlessServer } from './portless-server.ts';
-import { buildUrl, getHostnames, getMongoConnectionString } from './test-environment.ts';
+import { buildUrl, getHostnames, getMongoConnectionString, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
 
 const hostnames = getHostnames();
 
@@ -9,6 +13,29 @@ const hostnames = getHostnames();
  * Spawns the api e2e dev server through the PR's portless/worktree path.
  */
 export class TestApiServer extends PortlessServer {
+	override async start(): Promise<void> {
+		const env = {
+			...process.env,
+		};
+		// biome-ignore lint:useLiteralKeys
+		delete env['NODE_OPTIONS'];
+
+		execFileSync('pnpm', ['run', 'build'], {
+			cwd: this.cwd,
+			env,
+			stdio: 'pipe',
+		});
+
+		execFileSync('pnpm', ['run', 'predev'], {
+			cwd: this.cwd,
+			env,
+			stdio: 'pipe',
+		});
+
+		this.writeDeployLocalSettings();
+		await super.start();
+	}
+
 	protected get probeUrl() {
 		return this.getUrl();
 	}
@@ -55,12 +82,78 @@ export class TestApiServer extends PortlessServer {
 	}
 
 	protected override get extraEnv() {
-		return e2eEnv({
+		return {
+			// Force dev mode so OtelBuilder uses console exporters and doesn't
+			// require APPLICATIONINSIGHTS_CONNECTION_STRING. CI agents may
+			// inherit NODE_ENV=production from pipeline variable groups, which
+			// causes the bundled entry point to throw at module load and func
+			// to register zero functions ("No job functions found"), surfacing
+			// as a 404 on /api/graphql even though the host is alive.
+			NODE_ENV: 'development',
+			NODE_TLS_REJECT_UNAUTHORIZED: '0',
+			languageWorkers__node__arguments: '',
 			COSMOSDB_CONNECTION_STRING: getMongoConnectionString(),
-		});
+			COSMOSDB_DBNAME: apiSettings.cosmosDbName,
+			ACCOUNT_PORTAL_OIDC_ISSUER: mockOidcIssuer,
+			ACCOUNT_PORTAL_OIDC_ENDPOINT: mockOidcEndpoint,
+			ACCOUNT_PORTAL_OIDC_AUDIENCE: mockOidcAudience,
+			ACCOUNT_PORTAL_OIDC_IGNORE_ISSUER: 'true',
+			STAFF_PORTAL_OIDC_ISSUER: mockOidcIssuer,
+			STAFF_PORTAL_OIDC_ENDPOINT: mockOidcEndpoint,
+			STAFF_PORTAL_OIDC_AUDIENCE: mockOidcAudience,
+			STAFF_PORTAL_OIDC_IGNORE_ISSUER: 'true',
+			VITE_COMMON_API_ENDPOINT: buildUrl('data-access.ownercommunity.localhost', '/api/graphql'),
+		};
 	}
 
 	getUrl(): string {
 		return buildUrl(hostnames.api, '/api/graphql');
 	}
+
+	private writeDeployLocalSettings(): void {
+		const sourcePath = resolve(this.cwd, 'local.settings.json');
+		const targetDir = resolve(this.cwd, 'deploy');
+		const targetPath = resolve(targetDir, 'local.settings.json');
+		const settings = (
+			existsSync(sourcePath)
+				? (JSON.parse(readFileSync(sourcePath, 'utf8')) as {
+						Values?: Record<string, string | boolean>;
+					})
+				: {
+						IsEncrypted: false,
+						Values: {},
+					}
+		) as {
+			IsEncrypted?: boolean;
+			Values?: Record<string, string | boolean>;
+		};
+
+		settings.Values ??= {};
+		applyEnvOverride(settings.Values, 'AZURE_STORAGE_ACCOUNT_NAME');
+		applyEnvOverride(settings.Values, 'AZURE_STORAGE_CONNECTION_STRING');
+		applyEnvOverride(settings.Values, 'COSMOSDB_CONNECTION_STRING');
+		applyEnvOverride(settings.Values, 'COSMOSDB_DBNAME');
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ISSUER');
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ENDPOINT');
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_AUDIENCE');
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_IGNORE_ISSUER');
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ISSUER');
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ENDPOINT');
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_AUDIENCE');
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_IGNORE_ISSUER');
+		applyEnvOverride(settings.Values, 'NODE_ENV');
+		applyEnvOverride(settings.Values, 'languageWorkers__node__arguments');
+
+		mkdirSync(targetDir, { recursive: true });
+		writeFileSync(targetPath, `${JSON.stringify(settings, null, '\t')}\n`, 'utf8');
+	}
+}
+
+function applyEnvOverride(target: Record<string, string | boolean>, key: string): void {
+	const value = process.env[key];
+	if (value === undefined) {
+		return;
+	}
+
+	target[key] = value;
 }

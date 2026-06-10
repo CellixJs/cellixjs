@@ -18,6 +18,21 @@ Feature: Cellix Application Bootstrap
     When the same service type is registered again
     Then it should throw an error indicating the service is already registered
 
+  Scenario: Registering a named infrastructure service
+    Given a Cellix instance in infrastructure phase
+    When an infrastructure service is registered with a name
+    Then it should be retrievable by name
+
+  Scenario: Registering a duplicate service name
+    Given a Cellix instance with a named service registered
+    When another service is registered with the same name
+    Then it should throw an error indicating duplicate name registration
+
+  Scenario: Lifecycle deduplicates services registered by constructor and name
+    Given a Cellix instance with the same service registered by constructor and by name
+    When the application starts
+    Then the service startUp should be called exactly once
+
   Scenario: Setting the infrastructure context
     Given a Cellix instance in infrastructure phase
     When the context creator is set
