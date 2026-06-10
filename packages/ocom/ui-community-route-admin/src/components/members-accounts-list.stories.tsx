@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MemoryRouter } from 'react-router-dom';
 import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } from '../generated.tsx';
 import { MembersAccountsList } from './members-accounts-list.tsx';

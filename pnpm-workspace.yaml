@@ -26,21 +26,27 @@ catalog:
   graphql: ^16.10.0
   jsdom: ^26.1.0
   mongodb: 6.18.0
+  mongodb-memory-server: ^10.1.4
   mongoose: 8.17.0
   react-router-dom: 7.15.0
   react: ^19.1.1
   react-dom: ^19.1.1
   '@ant-design/icons': ^6.0.2
   rimraf: 6.0.1
-  storybook: 9.1.20
+  storybook: 10.4.2
+  '@storybook/addon-a11y': ^10.4.2
+  '@storybook/addon-docs': ^10.4.2
+  '@storybook/addon-onboarding': ^10.4.2
+  '@storybook/addon-vitest': ^10.4.2
+  '@storybook/react-vite': ^10.4.2
   tsx: ^4.21.0
   typescript: 6.0.3
   "@typescript/native-preview": 7.0.0-dev.20260428.1
   vite: 8.0.5
   vitest: 4.1.6
-  vite-plugin-node-polyfills: ^0.28.0
   '@vitest/browser': 4.1.6
   '@vitest/browser-playwright': 4.1.6
+  vite-plugin-node-polyfills: ^0.28.0
 
 auditConfig:
   ignoreGhsas:

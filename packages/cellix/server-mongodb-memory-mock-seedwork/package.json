@@ -15,7 +15,8 @@
 		"format:check": "biome format ."
 	},
 	"dependencies": {
-		"mongodb-memory-server": "^10.1.4"
+		"mongodb-memory-server": "catalog:",
+		"mongoose": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",

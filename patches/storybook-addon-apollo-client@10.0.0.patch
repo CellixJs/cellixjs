@@ -1,0 +1,9 @@
+diff --git a/dist/preset.js b/dist/preset.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..6fc9093abe302aea82b13f454c034bb34c52013d
+--- /dev/null
++++ b/dist/preset.js	
+@@ -0,0 +1,3 @@
++// Empty preset for storybook-addon-apollo-client v10
++// The addon functionality is provided through manager and preview modules
++export {};
