@@ -1,13 +1,13 @@
 ---
 sidebar_position: 31
-sidebar_label: ADR 0031 — UI env vars
+sidebar_label: 0031 UI Env Vars Naming Convention
 status: accepted
 date: 2026-05-05
 contact: nnoce14
 deciders: gidich nnoce14
 ---
 
-# ADR 0031 — UI environment variables naming convention (VITE_*)
+# UI Environment Variables Naming Convention
 
 ## Context and Problem Statement
 
