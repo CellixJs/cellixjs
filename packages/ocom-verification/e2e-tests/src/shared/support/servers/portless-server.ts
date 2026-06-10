@@ -1,6 +1,11 @@
 import { type ChildProcess, spawn } from 'node:child_process';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { TestServer } from '@ocom-verification/verification-shared/servers';
 import { getTimeout } from '@ocom-verification/verification-shared/settings';
+
+const harnessTargetDir = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../target');
 
 /**
  * Abstract base class for subprocess-backed test servers.
@@ -44,6 +49,14 @@ export abstract class PortlessServer implements TestServer {
 		return response.ok;
 	}
 
+	protected get waitForProbeAfterReadyMarker(): boolean {
+		return true;
+	}
+
+	protected get logFilePath(): string {
+		return resolve(harnessTargetDir, 'e2e-server-logs', `${this.serverName}.log`);
+	}
+
 	/**
 	 * Check if server is already running (via health probe).
 	 * Uses centralized health probe timeout.
@@ -79,7 +92,7 @@ export abstract class PortlessServer implements TestServer {
 			...this.extraEnv,
 		};
 		// Remove NODE_OPTIONS from child process to avoid tsx import issues
-		delete env['NODE_OPTIONS'];
+		delete env.NODE_OPTIONS;
 
 		this.process = spawn(this.executable, this.spawnArgs, {
 			cwd: this.cwd,
@@ -88,6 +101,9 @@ export abstract class PortlessServer implements TestServer {
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
 		this.startedByUs = true;
+		mkdirSync(dirname(this.logFilePath), { recursive: true });
+		writeFileSync(this.logFilePath, '', 'utf8');
+		this.appendToLogFile(`[${new Date().toISOString()}] starting ${this.serverName}\n`);
 
 		await this.waitForReady();
 	}
@@ -169,6 +185,12 @@ export abstract class PortlessServer implements TestServer {
 				}
 				ready = true;
 
+				if (!this.waitForProbeAfterReadyMarker) {
+					clearTimeout(timeout);
+					resolve();
+					return;
+				}
+
 				this.waitForProbeReady(startupDeadline, startupTimeout)
 					.then(() => {
 						clearTimeout(timeout);
@@ -184,13 +206,16 @@ export abstract class PortlessServer implements TestServer {
 			// for error reporting if the process exits unexpectedly.
 			proc.stdout?.on('data', (data: Buffer) => {
 				const text = data.toString();
+				this.appendToLogFile(text);
 				if (text.includes(this.readyMarker)) {
 					resolveWhenReachable();
 				}
 			});
 
 			proc.stderr?.on('data', (data: Buffer) => {
-				stderrOutput += data.toString();
+				const text = data.toString();
+				stderrOutput += text;
+				this.appendToLogFile(text);
 			});
 
 			proc.on('error', (err) => {
@@ -207,6 +232,12 @@ export abstract class PortlessServer implements TestServer {
 				reject(new Error(`${this.serverName} exited unexpectedly (code: ${code}, signal: ${signal}). stderr: ${stderrOutput.slice(-2000)}`));
 			});
 		});
+	}
+
+	private appendToLogFile(content: string): void {
+		const logFile = this.logFilePath;
+		mkdirSync(dirname(logFile), { recursive: true });
+		appendFileSync(logFile, content);
 	}
 
 	private async waitForProbeReady(startupDeadline: number, startupTimeout: number): Promise<void> {

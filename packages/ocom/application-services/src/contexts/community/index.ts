@@ -1,9 +1,10 @@
 import type { DataSources } from '@ocom/persistence';
-import { Community as CommunityApi, type CommunityApplicationService, type CommunityUpdateSettingsCommand } from './community/index.ts';
+import type { BlobStorageOperations } from '@ocom/service-blob-storage';
+import { Community as CommunityApi, type CommunityApplicationService } from './community/index.ts';
 import { Member as MemberApi, type MemberApplicationService } from './member/index.ts';
 import { Role as RoleApi, type RoleContext } from './role/index.ts';
 
-export type { CommunityUpdateSettingsCommand };
+export type { CommunityUpdateSettingsCommand } from './community/index.ts';
 
 export interface CommunityContextApplicationService {
 	Community: CommunityApplicationService;
@@ -11,9 +12,9 @@ export interface CommunityContextApplicationService {
 	Role: RoleContext;
 }
 
-export const Community = (dataSources: DataSources): CommunityContextApplicationService => {
+export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations): CommunityContextApplicationService => {
 	return {
-		Community: CommunityApi(dataSources),
+		Community: CommunityApi(dataSources, blobStorageService),
 		Member: MemberApi(dataSources),
 		Role: RoleApi(dataSources),
 	};
