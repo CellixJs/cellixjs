@@ -23,7 +23,7 @@
 		"prestart": "pnpm run prepare:deploy && pnpm run sync-local-settings",
 		"start": "func start --typescript --script-root deploy/",
 		"sync-local-settings": "node -e \"const fs=require('node:fs'); fs.mkdirSync('deploy',{recursive:true}); if (fs.existsSync('local.settings.json')) fs.copyFileSync('local.settings.json','deploy/local.settings.json');\"",
-		"azurite": "azurite-blob --silent --skipApiVersionCheck --location ../../__blobstorage__ & azurite-queue --silent --location ../../__queuestorage__ & azurite-table --silent --location ../../__tablestorage__"
+		"azurite": "azurite-blob --silent --skipApiVersionCheck --location ../../__blobstorage__ & azurite-queue --silent --skipApiVersionCheck --location ../../__queuestorage__ & azurite-table --silent --location ../../__tablestorage__"
 	},
 	"dependencies": {
 		"@azure/functions": "catalog:",
@@ -39,6 +39,7 @@
 		"@ocom/service-apollo-server": "workspace:*",
 		"@ocom/service-blob-storage": "workspace:*",
 		"@ocom/service-mongoose": "workspace:*",
+		"@ocom/service-queue-storage": "workspace:*",
 		"@ocom/service-otel": "workspace:*",
 		"@ocom/service-token-validation": "workspace:*",
 		"@opentelemetry/api": "1.9.0"

@@ -1,0 +1,36 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "end-user-update",
+	"title": "EndUserUpdateMessage",
+	"description": "External update message for synchronizing end-user data from external systems",
+	"type": "object",
+	"properties": {
+		"externalId": {
+			"type": "string",
+			"description": "External system identifier for the end user (required for lookup)"
+		},
+		"email": {
+			"type": "string",
+			"format": "email",
+			"description": "Updated email address"
+		},
+		"displayName": {
+			"type": "string",
+			"description": "Updated display name"
+		},
+		"lastName": {
+			"type": "string",
+			"description": "Updated last name / family name"
+		},
+		"restOfName": {
+			"type": "string",
+			"description": "Updated first name / given name (rest of name)"
+		},
+		"legalNameConsistsOfOneName": {
+			"type": "boolean",
+			"description": "Whether the legal name consists of only one name"
+		}
+	},
+	"required": ["externalId"],
+	"additionalProperties": false
+}

@@ -1,0 +1,10 @@
+{
+	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
+	"compilerOptions": {
+		"paths": {
+			"@cellix/service-queue-storage": ["./src/index.ts"]
+		},
+		"noPropertyAccessFromIndexSignature": false,
+		"noUncheckedIndexedAccess": false
+	}
+}

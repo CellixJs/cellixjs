@@ -126,6 +126,24 @@ vi.mock('@ocom/graphql-handler', () => ({
 vi.mock('@ocom/rest', () => ({
 	restHandlerCreator: vi.fn(),
 }));
+vi.mock('@ocom/service-queue-storage', () => ({
+	ServiceQueueStorage: vi.fn(function MockServiceQueueStorage() {
+		const service = {
+			startUp: vi.fn(),
+			shutDown: vi.fn(),
+			sendMessageToCommunityCreationQueue: vi.fn(),
+			receiveFromImportRequestsQueue: vi.fn(),
+			peekAtImportRequestsQueue: vi.fn(),
+			enableLogging: vi.fn(),
+		};
+		service.enableLogging.mockReturnValue(service);
+		return {
+			...service,
+		};
+	}),
+	QUEUE_LOG_CONTAINER: 'queue-logs',
+	allQueueNames: ['email-notifications', 'audit-events', 'import-requests'],
+}));
 
 describe('apps/api bootstrap', () => {
 	beforeEach(() => {
@@ -165,9 +183,12 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(5);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
+        const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0] as
+            | { enableLogging: ReturnType<typeof vi.fn> }
+            | undefined;
 		expect(registeredBlobService).toBeInstanceOf(MockServiceBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredBlobService).toMatchObject({
@@ -206,15 +227,20 @@ describe('apps/api bootstrap', () => {
 			if (serviceKey === MockServiceMongoose) {
 				return new MockServiceMongoose('', undefined);
 			}
+			if (registeredQueueService && serviceKey && typeof serviceKey === 'function') {
+				return registeredQueueService;
+			}
 			return undefined;
 		});
 
 		const context = contextBuilder?.(serviceRegistry);
 
+		expect(registeredQueueService?.enableLogging).toHaveBeenCalledWith(registeredBlobService);
 		expect(context).toMatchObject({
 			dataSourcesFactory,
 			blobStorageService: registeredBlobService,
 			clientOperationsService: registeredClientOpsService,
+			queueStorageService: registeredQueueService,
 			tokenValidationService: { service: 'token-validation' },
 			apolloServerService: { service: 'apollo' },
 		});
@@ -238,9 +264,11 @@ describe('apps/api bootstrap', () => {
 
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(5);
+		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0];
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
 		expect(registeredBlobService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
+		expect(registeredQueueService).toBeDefined();
 		expect(registeredBlobService).toMatchObject({
 			options: {
 				accountName: 'devstoreaccount1',
