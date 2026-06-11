@@ -72,7 +72,7 @@ export const createIfNotExists = (dataSources: DataSources) => {
 			newUser.requestCreate(newUser.id);
 
 			if (matchingRole) {
-				newUser.requestRoleAssignment(matchingRole, 'Role assigned on creation', newUser.id);
+				newUser.requestRoleAssignment(matchingRole, `${matchingRole.roleName} assigned on creation`, newUser.id);
 			}
 
 			createdUser = await repository.save(newUser);

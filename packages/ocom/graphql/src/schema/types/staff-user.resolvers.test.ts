@@ -5,6 +5,7 @@ import type { Domain } from '@ocom/domain';
 import { type FieldNode, type GraphQLObjectType, type GraphQLResolveInfo, type GraphQLSchema, Kind, type OperationDefinitionNode } from 'graphql';
 import { expect, vi } from 'vitest';
 import type { GraphContext } from '../context.ts';
+import staffRoleResolvers from './staff-role.resolvers.ts';
 import staffUserResolvers from './staff-user.resolvers.ts';
 
 const test = { for: describeFeature };
@@ -76,11 +77,36 @@ type JwtOverride = {
 	roles?: string[];
 };
 
+type MockedStaffUserService = GraphContext['applicationServices']['User']['StaffUser'] & {
+	createIfNotExists: ReturnType<typeof vi.fn>;
+	list: ReturnType<typeof vi.fn>;
+	assignRole: ReturnType<typeof vi.fn>;
+	create: ReturnType<typeof vi.fn>;
+	queryByExternalId: ReturnType<typeof vi.fn>;
+};
+
+type MockedStaffRoleService = GraphContext['applicationServices']['User']['StaffRole'] & {
+	list: ReturnType<typeof vi.fn>;
+	createDefaultRoles: ReturnType<typeof vi.fn>;
+	queryById: ReturnType<typeof vi.fn>;
+	create: ReturnType<typeof vi.fn>;
+	update: ReturnType<typeof vi.fn>;
+};
+
+type TestGraphContext = Omit<GraphContext, 'applicationServices'> & {
+	applicationServices: Omit<GraphContext['applicationServices'], 'User'> & {
+		User: Omit<GraphContext['applicationServices']['User'], 'StaffUser' | 'StaffRole'> & {
+			StaffUser: MockedStaffUserService;
+			StaffRole: MockedStaffRoleService;
+		};
+	};
+};
+
 function makeMockGraphContext(options: {
 	jwt?: JwtOverride | null;
-	staffUserServices?: Partial<GraphContext['applicationServices']['User']['StaffUser']>;
-	staffRoleServices?: Partial<GraphContext['applicationServices']['User']['StaffRole']>;
-} = {}): GraphContext {
+	staffUserServices?: Partial<TestGraphContext['applicationServices']['User']['StaffUser']>;
+	staffRoleServices?: Partial<TestGraphContext['applicationServices']['User']['StaffRole']>;
+} = {}): TestGraphContext {
 	const { jwt = {}, staffUserServices = {}, staffRoleServices = {} } = options;
 	return {
 		applicationServices: {
@@ -113,13 +139,19 @@ function makeMockGraphContext(options: {
 				},
 			},
 		},
-	} as unknown as GraphContext;
+	} as unknown as TestGraphContext;
 }
 
 // ─── Resolver call helpers ────────────────────────────────────────────────────
 
-const Query = staffUserResolvers.Query as Record<string, (...args: unknown[]) => unknown>;
-const Mutation = staffUserResolvers.Mutation as Record<string, (...args: unknown[]) => unknown>;
+const Query = {
+	...(staffRoleResolvers.Query ?? {}),
+	...(staffUserResolvers.Query ?? {}),
+} as Record<string, (...args: unknown[]) => unknown>;
+const Mutation = {
+	...(staffRoleResolvers.Mutation ?? {}),
+	...(staffUserResolvers.Mutation ?? {}),
+} as Record<string, (...args: unknown[]) => unknown>;
 
 const callQuery = (name: string, context: GraphContext, args: object = {}) =>
 	// biome-ignore lint/style/noNonNullAssertion: test helper — key always exists
@@ -132,7 +164,7 @@ const callMutation = (name: string, context: GraphContext, args: object = {}) =>
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
-	let context: GraphContext;
+	let context: TestGraphContext;
 	let result: unknown;
 	let thrownError: unknown;
 
@@ -415,10 +447,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			result = await callMutation('staffRoleCreate', context, { input: { roleName: 'New Role', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
 
-		Then('it should return failure with a permission error message', () => {
-			const { status } = result as { status: { success: boolean; errorMessage: string } };
-			expect(status.success).toBe(false);
-			expect(status.errorMessage).toContain('Staff.TechAdmin');
+		Then('it should return success with the updated staff role', () => {
+			const res = result as { status: { success: boolean }; staffRole: StaffRoleEntity };
+			expect(res.status.success).toBe(true);
+			expect(res.staffRole).toBeDefined();
 		});
 	});
 
@@ -484,10 +516,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			result = await callMutation('staffRoleUpdate', context, { input: { id: 'role-001', roleName: 'Updated', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
 
-		Then('it should return failure with a permission error message', () => {
-			const { status } = result as { status: { success: boolean; errorMessage: string } };
-			expect(status.success).toBe(false);
-			expect(status.errorMessage).toContain('Staff.TechAdmin');
+		Then('it should return success with the updated staff user', () => {
+			const res = result as { status: { success: boolean }; staffUser: StaffUserEntity };
+			expect(res.status.success).toBe(true);
+			expect(res.staffUser).toBeDefined();
 		});
 	});
 

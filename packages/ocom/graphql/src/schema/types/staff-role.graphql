@@ -57,16 +57,6 @@ type StaffRole implements MongoBase {
 	updatedAt: DateTime
 }
 
-
-type StaffUserActivityDetail {
-	activityType: String!
-	activityDescription: String!
-	activityByStaffUserId: String!
-	activityByStaffUserDisplayName: String!
-	createdAt: DateTime!
-	updatedAt: DateTime!
-}
-
 input StaffRoleCreateCommunityPermissionsInput {
 	canManageCommunities: Boolean
 	canManageStaffRolesAndPermissions: Boolean
@@ -119,11 +109,6 @@ input StaffRoleCreateInput {
 	permissions: StaffRoleCreatePermissionsInput
 }
 
-input StaffUserAssignRoleInput {
-	staffUserId: ObjectID!
-	roleId: ObjectID!
-}
-
 input StaffRoleUpdatePermissionsInput {
 	communityPermissions: StaffRoleCreateCommunityPermissionsInput
 	staffRolePermissions: StaffRoleCreateRolePermissionsInput
@@ -144,21 +129,12 @@ type StaffRoleMutationResult implements MutationResult {
 	staffRole: StaffRole
 }
 
-type StaffUserMutationResult implements MutationResult {
-	status: MutationStatus!
-	staffUser: StaffUser
-}
-
 extend type Query {
-	currentStaffUserAndCreateIfNotExists: StaffUser!
-	staffUsers: [StaffUser!]!
 	staffRoles: [StaffRole!]!
 	staffRoleById(id: ObjectID!): StaffRole
-	staffUserById(id: ObjectID!): StaffUser
 }
 
 extend type Mutation {
 	staffRoleCreate(input: StaffRoleCreateInput!): StaffRoleMutationResult!
 	staffRoleUpdate(input: StaffRoleUpdateInput!): StaffRoleMutationResult!
-	staffUserAssignRole(input: StaffUserAssignRoleInput!): StaffUserMutationResult!
 }

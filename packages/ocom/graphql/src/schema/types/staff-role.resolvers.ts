@@ -4,7 +4,6 @@ import type {
 	RequireFields,
 	MutationStaffRoleCreateArgs,
 	MutationStaffRoleUpdateArgs,
-	MutationStaffUserAssignRoleArgs,
 } from '../builder/generated.ts';
 import type { StaffRoleCreateCommand } from '../../../../application-services/src/contexts/user/staff-role/create.js';
 import type { StaffRoleUpdateCommand } from '../../../../application-services/src/contexts/user/staff-role/update.js';
@@ -36,27 +35,6 @@ function getAllowedEnterpriseAppRoles(entraRoles: string[]): string[] {
 
 const staffRole: Resolvers = {
 	Query: {
-		currentStaffUserAndCreateIfNotExists: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
-			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
-			if (!jwt) {
-				throw new Error('Unauthorized');
-			}
-			return await context.applicationServices.User.StaffUser.createIfNotExists({
-				externalId: jwt.sub,
-				firstName: jwt.given_name ?? '',
-				lastName: jwt.family_name ?? '',
-				email: jwt.email ?? '',
-				aadRoles: jwt.roles ?? [],
-			});
-		},
-
-		staffUsers: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
-			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
-				throw new Error('Unauthorized');
-			}
-			return await context.applicationServices.User.StaffUser.list();
-		},
-
 		staffRoles: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 				throw new Error('Unauthorized');
@@ -72,13 +50,6 @@ const staffRole: Resolvers = {
 			return await context.applicationServices.User.StaffRole.queryById({ roleId: String(args.id) });
 		},
 
-		staffUserById: async (_parent, args: { id: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
-			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
-				throw new Error('Unauthorized');
-			}
-			const users = await context.applicationServices.User.StaffUser.list();
-			return users.find((u) => String(u.id) === String(args.id)) ?? null;
-		},
 	},
 
 	Mutation: {
@@ -122,28 +93,6 @@ const staffRole: Resolvers = {
 				return { status: { success: true }, staffRole };
 			} catch (error) {
 				console.error('StaffRole > staffRoleUpdate: ', error);
-				const { message } = error as Error;
-				return { status: { success: false, errorMessage: message } };
-			}
-		},
-
-		staffUserAssignRole: async (_parent, args: RequireFields<MutationStaffUserAssignRoleArgs, 'input'>, context: GraphContext, _info: GraphQLResolveInfo) => {
-			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
-			if (!jwt) {
-				return { status: { success: false, errorMessage: 'Unauthorized' } };
-			}
-			try {
-				const actorStaffUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
-				const actorStaffUserId = actorStaffUser?.id ?? jwt.sub;
-				const command = {
-					staffUserId: String(args.input.staffUserId),
-					roleId: String(args.input.roleId),
-					actorStaffUserId,
-				};
-				const staffUser = await context.applicationServices.User.StaffUser.assignRole(command);
-				return { status: { success: true }, staffUser };
-			} catch (error) {
-				console.error('StaffUser > staffUserAssignRole: ', error);
 				const { message } = error as Error;
 				return { status: { success: false, errorMessage: message } };
 			}

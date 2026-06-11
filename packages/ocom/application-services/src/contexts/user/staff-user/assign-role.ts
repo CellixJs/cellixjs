@@ -32,7 +32,7 @@ export const assignRole = (dataSources: DataSources) => {
 				// ignore - use id fallback
 			}
 			const roleName = (role as unknown as { roleName?: string })?.roleName ?? command.roleId;
-			const description = `${roleName} assigned to ${staffUser.displayName} by ${actorDisplayName}`;
+			const description = `${roleName} assigned by ${actorDisplayName}`;
 			staffUser.requestRoleAssignment(role, description, command.actorStaffUserId);
 			result = await staffUserRepo.save(staffUser);
 		});

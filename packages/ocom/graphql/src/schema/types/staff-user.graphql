@@ -1,3 +1,12 @@
+type StaffUserActivityDetail {
+	activityType: String!
+	activityDescription: String!
+	activityByStaffUserId: String!
+	activityByStaffUserDisplayName: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
 type StaffUser implements MongoBase {
 	externalId: String!
 	firstName: String!
@@ -15,3 +24,22 @@ type StaffUser implements MongoBase {
 	updatedAt: DateTime
 }
 
+input StaffUserAssignRoleInput {
+	staffUserId: ObjectID!
+	roleId: ObjectID!
+}
+
+type StaffUserMutationResult implements MutationResult {
+	status: MutationStatus!
+	staffUser: StaffUser
+}
+
+extend type Query {
+	currentStaffUserAndCreateIfNotExists: StaffUser!
+	staffUsers: [StaffUser!]!
+	staffUserById(id: ObjectID!): StaffUser
+}
+
+extend type Mutation {
+	staffUserAssignRole(input: StaffUserAssignRoleInput!): StaffUserMutationResult!
+}
