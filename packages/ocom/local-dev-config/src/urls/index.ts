@@ -1,6 +1,6 @@
-import { buildPortlessUrl } from '@cellix/local-dev';
-import { getOcomHostnames } from './hostnames.ts';
-import type { OcomLocalDevOptions, OcomUrls } from './types.ts';
+import { buildPortlessUrl } from '@cellix/local-dev/urls';
+import { getOcomHostnames } from '../hostnames/index.ts';
+import type { OcomLocalDevOptions, OcomUrls } from '../types.ts';
 
 /**
  * Builds the full set of local URLs required by OCOM app wrapper scripts.
@@ -33,4 +33,4 @@ export function buildOcomUrls(options: OcomLocalDevOptions = {}): OcomUrls {
 	};
 }
 
-export type { OcomLocalDevOptions, OcomUrls } from './types.ts';
+export type { OcomLocalDevOptions, OcomUrls } from '../types.ts';

@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { buildOcomUrls, getOcomHostnames, getWorkspaceRoot } from '@ocom/local-dev-config';
+import { buildOcomUrls, getOcomHostnames } from '@ocom/local-dev-config';
 import { describe, expect, it } from 'vitest';
 
 function createWorkspaceFixture(): string {
@@ -55,13 +55,6 @@ describe('@ocom/local-dev-config', () => {
 			mockStaffJwksUrl: 'https://mock-auth.ownercommunity.localhost:1355/staff/.well-known/jwks.json',
 			docsBaseUrl: 'https://docs.ownercommunity.localhost:1355',
 		});
-	});
-
-	it('resolves the workspace root from a nested OCOM package directory', () => {
-		const workspaceRoot = createWorkspaceFixture();
-		const nestedDir = path.join(workspaceRoot, 'apps', 'ui-community');
-
-		expect(getWorkspaceRoot(nestedDir)).toBe(workspaceRoot);
 	});
 
 	it('lets environment values override app env files', () => {

@@ -6,29 +6,36 @@ Provide Owner Community local-development URL and hostname policy as a reusable 
 
 ## Scope
 
-This package resolves OCOM hostnames from app `.env` files and environment overrides, applies worktree-safe host suffixing through `@cellix/local-dev`, and builds the complete local URL set needed by UI, API, mock-auth, and docs wrapper scripts.
+This package resolves OCOM hostnames from app `.env` files and environment overrides, applies the shared hostname suffixing helper from `@cellix/local-dev`, and builds the complete local URL set needed by UI, API, mock-auth, docs, e2e, and other build-time consumers.
 
 ## Non-goals
 
 - Generic process runners, port math, JSON syncing, or dotenv parsing
 - Production runtime configuration
 - Non-OCOM app defaults
-- Starting local dev processes directly
+- Generic local dev process orchestration
 
 ## Public API shape
 
+Published entrypoints:
+
+- `@ocom/local-dev-config`
+- `@ocom/local-dev-config/hostnames`
+- `@ocom/local-dev-config/urls`
+
+Root entrypoint exports:
+
 - `getOcomHostnames(options?)`
 - `buildOcomUrls(options?)`
-- `getWorkspaceRoot(startDir?)`
 - `OcomLocalDevOptions`
 - `OcomHostnames`
 - `OcomUrls`
 
 ## Core concepts
 
-- OCOM app wrappers should compose this package with `@cellix/local-dev`.
+- OCOM app wrappers should use this package to get OCOM URL values, then pass those values into generic `@cellix/local-dev` worktree-aware runners or settings syncers.
 - Environment values override app `.env` file values so task runners can inject per-process configuration.
-- Worktree suffixing is delegated to `@cellix/local-dev` so all participating apps share one hostname-safety and idempotency rule.
+- Worktree suffixing, Mongo ports, Azurite ports, and settings-file connection-string transforms are delegated to `@cellix/local-dev` so all participating apps share one rule.
 
 ## Package boundaries
 

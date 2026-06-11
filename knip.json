@@ -8,15 +8,13 @@
 		},
 		"apps/ui-community": {
 			"entry": ["src/main.tsx", "start-dev.ts"],
-			"project": ["src/**/*.{ts,tsx}", "start-dev.ts"],
-			"ignore": ["**/apollo-client-links.tsx"],
-			"ignoreDependencies": ["@cellix/local-dev"]
+			"project": ["src/**/*.{ts,tsx}"],
+			"ignore": ["**/apollo-client-links.tsx"]
 		},
 		"apps/ui-staff": {
 			"entry": ["src/main.tsx", "start-dev.ts"],
-			"project": ["src/**/*.{ts,tsx}", "start-dev.ts"],
-			"ignore": [],
-			"ignoreDependencies": ["@cellix/local-dev"]
+			"project": ["src/**/*.{ts,tsx}"],
+			"ignore": []
 		},
 		"apps/docs": {
 			"entry": ["src/**/*.{ts,tsx,js,jsx}"],
@@ -92,8 +90,7 @@
 		},
 		"apps/server-oauth2-mock": {
 			"entry": ["src/index.ts", "start-dev.ts"],
-			"project": ["src/**/*.ts", "start-dev.ts"],
-			"ignoreDependencies": ["@cellix/local-dev", "tsx"]
+			"project": ["src/**/*.ts"]
 		},
 		"apps/server-mongodb-memory-mock": {
 			"entry": ["src/index.ts"],

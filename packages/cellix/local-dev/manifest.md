@@ -6,7 +6,7 @@ Provide generic local-development primitives for Cellix app packages so app-owne
 
 ## Scope
 
-This package owns generic worktree-aware port math, URL helpers, dotenv and JSON file utilities, child-process lifecycle handling, and generic dev-runner orchestration for Vite, Docusaurus, Azure Functions, TSX-based processes, and Azurite.
+This package owns generic worktree-aware port math, URL helpers, dotenv and JSON file utilities, child-process lifecycle handling, worktree settings transforms, and generic dev-runner orchestration for Vite, Docusaurus, Azure Functions, Node-backed processes, and Azurite.
 
 ## Non-goals
 
@@ -17,6 +17,19 @@ This package owns generic worktree-aware port math, URL helpers, dotenv and JSON
 
 ## Public API shape
 
+Published entrypoints:
+
+- `@cellix/local-dev`
+- `@cellix/local-dev/files`
+- `@cellix/local-dev/process`
+- `@cellix/local-dev/runners`
+- `@cellix/local-dev/urls`
+- `@cellix/local-dev/vite`
+- `@cellix/local-dev/workspace`
+- `@cellix/local-dev/worktree`
+
+Root entrypoint exports:
+
 - `resolveWorkspaceRoot(options?)`
 - `readDotEnv(filePath)`
 - `readJsonFile(filePath)`, `writeJsonFile(filePath, data)`, `syncJsonFile(options)`
@@ -24,18 +37,23 @@ This package owns generic worktree-aware port math, URL helpers, dotenv and JSON
 - `isE2E(env?)`, `buildViteArgs(options?)`
 - `isGracefulInterruptExit(signal, code)`, `forwardChildExit(child)`
 - `getWorktreePortOffset(worktreeName?)`, `getMongoPort(worktreeName?)`, `getAzuritePorts(worktreeName?)`, `buildAzuriteConnectionString(options)`
-- `runViteDev(options?)`, `runDocusaurusDev(options?)`, `runAzureFunctionsDev(options?)`, `runTsxDev(options?)`, `runAzuriteDev(options)`
+- `ViteDevRunner`, `DocusaurusDevRunner`, `AzureFunctionsDevRunner`, `NodeDevRunner`, `AzuriteDevRunner`
+- `WorktreeSettings`, `WorktreeViteDevRunner`, `WorktreeAzureFunctionsDevRunner`, `WorktreeAzureFunctionsLocalSettings`, `WorktreeNodeDevRunner`, `WorktreeAzuriteDevRunner`, `WorktreeJsonFileSync`, `WorktreeMode`
+- `runViteDev(options?)`, `runDocusaurusDev(options?)`, `runAzureFunctionsDev(options?)`, `runNodeDev(options?)`, `runAzuriteDev(options)`
+- `runTsxDev(options?)` remains as a deprecated compatibility alias for `runNodeDev(options?)`
 
 ## Core concepts
 
-- App packages own local-development policy such as env-variable names, URL mappings, auth-provider routes, and settings-file transforms.
+- App packages own local-development policy such as env-variable names, URL mappings, auth-provider routes, and which settings values are passed into the worktree transformer.
 - This package should expose only reusable mechanics that make those wrappers smaller and more consistent.
-- Worktree isolation is deterministic and should keep MongoDB ports, Azurite ports, and hostname suffixing aligned across all participating apps.
+- Worktree isolation is deterministic and should keep MongoDB ports, Azurite ports, hostname suffixing, URL-like env values, and JSON settings aligned across all participating apps.
+- Worktree transforms are explicit when `worktree` or `CELLIX_WORKTREE` is set; otherwise helpers fall back to applying transforms only when a worktree name is available.
+- Azure Functions dev runners may prepare `local.settings.json` before startup because the Functions host reads settings from its script root rather than the process environment alone.
 - Hostname suffixing must sanitize raw worktree names before inserting them into `.localhost` domains, and repeated suffixing with the same worktree label must leave hostnames unchanged.
 
 ## Package boundaries
 
-- Do not encode OCOM app names, env-variable names, or `local.settings.json` schemas in this package.
+- Do not encode OCOM app names, auth paths, env-variable names, or `local.settings.json` schemas in this package.
 - Keep repo-specific hostname and env mapping logic in app-owned scripts or internal repo helpers outside this package.
 - Avoid widening the public surface with one-off helpers that only exist to support a single app branch.
 
@@ -46,7 +64,7 @@ This package owns generic worktree-aware port math, URL helpers, dotenv and JSON
 
 ## Testing strategy
 
-- Prefer public-entrypoint tests for dotenv parsing, URL helpers, worktree port derivation, Vite arg building, Azurite connection-string building, and generic JSON syncing.
+- Prefer public-entrypoint tests for dotenv parsing, URL helpers, worktree port derivation, runner object spawning, Vite arg building, Azurite connection-string building, worktree settings transforms, and generic JSON syncing.
 - Avoid tests that prove repo-specific wrapper policy through this package's public contract.
 
 ## Documentation obligations

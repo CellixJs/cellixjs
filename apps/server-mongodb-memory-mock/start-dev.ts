@@ -1,8 +1,7 @@
-import { getMongoPort, runTsxDev } from '@cellix/local-dev';
+import { NodeDevRunner } from '@cellix/local-dev';
 
-runTsxDev({
-	env: {
-		...process.env,
-		PORT: String(getMongoPort(process.env['WORKTREE_NAME'])),
+new NodeDevRunner({
+	settings: {
+		PORT: '50000',
 	},
-});
+}).start();

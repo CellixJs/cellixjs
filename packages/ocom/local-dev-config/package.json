@@ -15,16 +15,12 @@
 			"default": "./dist/index.js"
 		},
 		"./hostnames": {
-			"types": "./dist/hostnames.d.ts",
-			"default": "./dist/hostnames.js"
+			"types": "./dist/hostnames/index.d.ts",
+			"default": "./dist/hostnames/index.js"
 		},
 		"./urls": {
-			"types": "./dist/urls.d.ts",
-			"default": "./dist/urls.js"
-		},
-		"./workspace": {
-			"types": "./dist/workspace.d.ts",
-			"default": "./dist/workspace.js"
+			"types": "./dist/urls/index.d.ts",
+			"default": "./dist/urls/index.js"
 		}
 	},
 	"scripts": {

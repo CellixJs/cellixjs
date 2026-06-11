@@ -1,3 +1,6 @@
-import { runAzureFunctionsDev } from '@cellix/local-dev';
+import { AzureFunctionsDevRunner } from '@cellix/local-dev';
+import { buildOcomApiLocalSettings } from '@ocom/local-dev-config';
 
-runAzureFunctionsDev();
+new AzureFunctionsDevRunner({
+	localSettings: buildOcomApiLocalSettings(),
+}).start();

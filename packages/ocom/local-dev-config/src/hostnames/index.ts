@@ -1,7 +1,8 @@
 import path from 'node:path';
-import { applyWorktreeSuffix, type DotEnvValues, hostnameFromUrl, readDotEnv } from '@cellix/local-dev';
-import type { OcomHostnames, OcomLocalDevOptions } from './types.ts';
-import { getWorkspaceRoot } from './workspace.ts';
+import { type DotEnvValues, readDotEnv } from '@cellix/local-dev/files';
+import { applyWorktreeSuffix, hostnameFromUrl } from '@cellix/local-dev/urls';
+import { resolveWorkspaceRoot } from '@cellix/local-dev/workspace';
+import type { OcomHostnames, OcomLocalDevOptions } from '../types.ts';
 
 interface OcomEnvValues {
 	WORKTREE_NAME?: string;
@@ -48,7 +49,7 @@ function readAppEnv(workspaceRoot: string, appName: string): DotEnvValues & Ocom
  */
 export function getOcomHostnames(options: OcomLocalDevOptions = {}): OcomHostnames {
 	const env = (options.env ?? process.env) as NodeJS.ProcessEnv & OcomEnvValues;
-	const workspaceRoot = options.workspaceRoot ?? getWorkspaceRoot();
+	const workspaceRoot = options.workspaceRoot ?? resolveWorkspaceRoot();
 	const communityEnv = readAppEnv(workspaceRoot, 'ui-community');
 	const staffEnv = readAppEnv(workspaceRoot, 'ui-staff');
 	const worktreeName = env.WORKTREE_NAME;
@@ -69,4 +70,4 @@ export function getOcomHostnames(options: OcomLocalDevOptions = {}): OcomHostnam
 	};
 }
 
-export type { OcomHostnames, OcomLocalDevOptions } from './types.ts';
+export type { OcomHostnames, OcomLocalDevOptions } from '../types.ts';

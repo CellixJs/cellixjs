@@ -16,28 +16,32 @@ This package owns Owner Community application policy: which app `.env` files def
 
 ## Usage
 
-Use this package from app-owned `start-dev.ts` or settings-sync wrappers:
+Use this package as the OCOM source of local URLs, then pass those values into the generic Cellix worktree runners:
 
 ```ts
-import { runViteDev } from '@cellix/local-dev';
+import { WorktreeViteDevRunner } from '@cellix/local-dev';
 import { buildOcomUrls } from '@ocom/local-dev-config';
 
 const urls = buildOcomUrls();
 
-runViteDev({
-	env: {
-		...process.env,
-		VITE_COMMON_API_ENDPOINT: urls.apiGraphqlUrl,
+new WorktreeViteDevRunner({
+	settings: {
 		VITE_APP_UI_COMMUNITY_BASE_URL: urls.uiCommunityBaseUrl,
+		VITE_COMMON_API_ENDPOINT: urls.apiGraphqlUrl,
 	},
-});
+}).start();
 ```
 
 ## Public API
 
+All exports are available from `@ocom/local-dev-config`. Focused subpaths are
+also published for narrower imports:
+
+- `@ocom/local-dev-config/hostnames`
+- `@ocom/local-dev-config/urls`
+
 - `getOcomHostnames(options?)`
 - `buildOcomUrls(options?)`
-- `getWorkspaceRoot(startDir?)`
 - `OcomLocalDevOptions`
 - `OcomHostnames`
 - `OcomUrls`
@@ -47,3 +51,4 @@ runViteDev({
 - Keep reusable process runners, dotenv parsing, JSON syncing, and port math in `@cellix/local-dev`.
 - Keep OCOM-specific hostname derivation, auth paths, redirect paths, and app `.env` lookup policy here.
 - Keep one-off runtime behavior in the consuming app wrapper script instead of widening this package.
+- Keep app wrapper scripts thin: get OCOM URL values here, pass them into a generic `@cellix/local-dev` worktree object, and call `start()` or `sync()`.

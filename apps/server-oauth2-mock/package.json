@@ -11,7 +11,7 @@
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"start": "node dist/index.js",
-		"dev": "pnpm exec portless mock-auth.ownercommunity.localhost --force node start-dev.ts",
+		"dev": "pnpm exec portless mock-auth.ownercommunity.localhost --force node src/index.ts",
 		"dev:worktree": "pnpm exec portless mock-auth.ownercommunity.${WORKTREE_NAME}.localhost --force node start-dev.ts",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
@@ -28,7 +28,6 @@
 		"@cellix/config-typescript": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",
-		"tsx": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
 	}
