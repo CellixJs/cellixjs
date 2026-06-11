@@ -1020,7 +1020,7 @@ importers:
         specifier: ^4.13.1
         version: 4.13.1
       '@azure/storage-queue':
-        specifier: ^12.10.0
+        specifier: 12.29.0
         version: 12.29.0
       ajv:
         specifier: ^8.12.0
