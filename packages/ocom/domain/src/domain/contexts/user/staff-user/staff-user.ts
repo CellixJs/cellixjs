@@ -1,17 +1,13 @@
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../events/types/staff-user-created.ts';
 import type { Passport } from '../../passport.ts';
 import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from '../staff-role/staff-role.ts';
 import type { UserVisa } from '../user.visa.ts';
-import {
-	StaffUserActivityLog,
-	type StaffUserActivityLogEntityReference,
-	type StaffUserActivityLogProps,
-} from './staff-user-activity-log.entity.ts';
 import * as ValueObjects from './staff-user.value-objects.ts';
+import { StaffUserActivityLog, type StaffUserActivityLogEntityReference, type StaffUserActivityLogProps } from './staff-user-activity-log.entity.ts';
 import * as ActivityLogValueObjects from './staff-user-activity-log.value-objects.ts';
 
 export interface StaffUserProps extends DomainEntityProps {

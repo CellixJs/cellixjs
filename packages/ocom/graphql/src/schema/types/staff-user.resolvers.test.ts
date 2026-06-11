@@ -102,11 +102,9 @@ type TestGraphContext = Omit<GraphContext, 'applicationServices'> & {
 	};
 };
 
-function makeMockGraphContext(options: {
-	jwt?: JwtOverride | null;
-	staffUserServices?: Partial<TestGraphContext['applicationServices']['User']['StaffUser']>;
-	staffRoleServices?: Partial<TestGraphContext['applicationServices']['User']['StaffRole']>;
-} = {}): TestGraphContext {
+function makeMockGraphContext(
+	options: { jwt?: JwtOverride | null; staffUserServices?: Partial<TestGraphContext['applicationServices']['User']['StaffUser']>; staffRoleServices?: Partial<TestGraphContext['applicationServices']['User']['StaffRole']> } = {},
+): TestGraphContext {
 	const { jwt = {}, staffUserServices = {}, staffRoleServices = {} } = options;
 	return {
 		applicationServices: {
@@ -128,16 +126,22 @@ function makeMockGraphContext(options: {
 					...staffRoleServices,
 				},
 			},
-			verifiedUser: jwt === null ? undefined : {
-				verifiedJwt: jwt === null ? undefined : {
-					sub: 'default-user-sub',
-					given_name: 'Jane',
-					family_name: 'Smith',
-					email: 'jane@example.com',
-					roles: [],
-					...jwt,
-				},
-			},
+			verifiedUser:
+				jwt === null
+					? undefined
+					: {
+							verifiedJwt:
+								jwt === null
+									? undefined
+									: {
+											sub: 'default-user-sub',
+											given_name: 'Jane',
+											family_name: 'Smith',
+											email: 'jane@example.com',
+											roles: [],
+											...jwt,
+										},
+						},
 		},
 	} as unknown as TestGraphContext;
 }
@@ -618,5 +622,4 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(status.errorMessage).toBe('Unauthorized');
 		});
 	});
-
 });

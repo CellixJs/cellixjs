@@ -1,10 +1,5 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type {
-	MutationStaffUserAssignRoleArgs,
-	QueryStaffUserByIdArgs,
-	Resolvers,
-	RequireFields,
-} from '../builder/generated.ts';
+import type { MutationStaffUserAssignRoleArgs, QueryStaffUserByIdArgs, RequireFields, Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
 
 const staffUser: Resolvers = {
@@ -49,12 +44,7 @@ const staffUser: Resolvers = {
 		},
 	},
 	Mutation: {
-		staffUserAssignRole: async (
-			_parent,
-			args: RequireFields<MutationStaffUserAssignRoleArgs, 'input'>,
-			context: GraphContext,
-			_info: GraphQLResolveInfo,
-		) => {
+		staffUserAssignRole: async (_parent, args: RequireFields<MutationStaffUserAssignRoleArgs, 'input'>, context: GraphContext, _info: GraphQLResolveInfo) => {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
@@ -77,6 +67,5 @@ const staffUser: Resolvers = {
 		},
 	},
 };
-
 
 export default staffUser;

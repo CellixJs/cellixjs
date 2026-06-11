@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { update, type StaffRoleUpdateCommand } from './update.ts';
+import { type StaffRoleUpdateCommand, update } from './update.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -55,10 +55,7 @@ function makeMockStaffRoleInstance(id: string, roleName = 'Original Role'): Mock
 	};
 }
 
-function makeDataSources(overrides: {
-	roleInstance?: MockStaffRoleInstance;
-	explicitUndefinedSave?: boolean;
-}): DataSources & { _repo: unknown } {
+function makeDataSources(overrides: { roleInstance?: MockStaffRoleInstance; explicitUndefinedSave?: boolean }): DataSources & { _repo: unknown } {
 	const { roleInstance, explicitUndefinedSave } = overrides;
 	const instance = roleInstance ?? makeMockStaffRoleInstance('role-001');
 	const savedRole = explicitUndefinedSave ? undefined : (instance as unknown as Domain.Contexts.User.StaffRole.StaffRoleEntityReference);

@@ -1,12 +1,7 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type {
-	Resolvers,
-	RequireFields,
-	MutationStaffRoleCreateArgs,
-	MutationStaffRoleUpdateArgs,
-} from '../builder/generated.ts';
 import type { StaffRoleCreateCommand } from '../../../../application-services/src/contexts/user/staff-role/create.js';
 import type { StaffRoleUpdateCommand } from '../../../../application-services/src/contexts/user/staff-role/update.js';
+import type { MutationStaffRoleCreateArgs, MutationStaffRoleUpdateArgs, RequireFields, Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
 
 const EnterpriseAppRoleNames = {
@@ -49,7 +44,6 @@ const staffRole: Resolvers = {
 			}
 			return await context.applicationServices.User.StaffRole.queryById({ roleId: String(args.id) });
 		},
-
 	},
 
 	Mutation: {
@@ -82,11 +76,11 @@ const staffRole: Resolvers = {
 			try {
 				const input = args.input as unknown as Record<string, unknown>;
 				const command: StaffRoleUpdateCommand = {
-                    // biome-ignore lint:useLiteralKeys
+					// biome-ignore lint:useLiteralKeys
 					roleId: String(input['id'] ?? input['roleId']),
-                    // biome-ignore lint:useLiteralKeys
+					// biome-ignore lint:useLiteralKeys
 					name: String(input['roleName'] ?? input['name'] ?? ''),
-                    // biome-ignore lint:useLiteralKeys
+					// biome-ignore lint:useLiteralKeys
 					enterpriseAppRole: String(input['enterpriseAppRole'] ?? ''),
 				} as unknown as StaffRoleUpdateCommand;
 				const staffRole = await context.applicationServices.User.StaffRole.update(command);

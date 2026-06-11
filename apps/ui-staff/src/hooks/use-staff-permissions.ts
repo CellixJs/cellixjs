@@ -79,7 +79,13 @@ interface StaffUserQueryResult {
 	};
 }
 
-export const useStaffPermissions = (): { permissions: StaffPermissions | undefined; enterpriseAppRole: string | undefined; user: { id?: string; displayName?: string; firstName?: string; lastName?: string; email?: string } | undefined; loading: boolean; error: Error | undefined } => {
+export const useStaffPermissions = (): {
+	permissions: StaffPermissions | undefined;
+	enterpriseAppRole: string | undefined;
+	user: { id?: string; displayName?: string; firstName?: string; lastName?: string; email?: string } | undefined;
+	loading: boolean;
+	error: Error | undefined;
+} => {
 	const { data, loading, error } = useQuery<StaffUserQueryResult>(CURRENT_STAFF_USER_QUERY, {
 		fetchPolicy: 'cache-first',
 	});

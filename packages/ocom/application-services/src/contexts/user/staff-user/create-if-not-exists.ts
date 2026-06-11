@@ -44,14 +44,11 @@ export const createIfNotExists = (dataSources: DataSources) => {
 			const existingByEmail = await dataSources.readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByEmail(command.email);
 			if (existingByEmail) {
 				let updatedUser: Domain.Contexts.User.StaffUser.StaffUserEntityReference | undefined;
-				await dataSources.domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(
-					DomainRuntime.PassportFactory.forSystem({ canManageStaffRolesAndPermissions: true }),
-					async (repository) => {
-						const staffUser = await repository.get(existingByEmail.id);
-						staffUser.externalId = command.externalId;
-						updatedUser = await repository.save(staffUser);
-					},
-				);
+				await dataSources.domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(DomainRuntime.PassportFactory.forSystem({ canManageStaffRolesAndPermissions: true }), async (repository) => {
+					const staffUser = await repository.get(existingByEmail.id);
+					staffUser.externalId = command.externalId;
+					updatedUser = await repository.save(staffUser);
+				});
 				if (!updatedUser) {
 					throw new Error('Unable to update staff user externalId');
 				}

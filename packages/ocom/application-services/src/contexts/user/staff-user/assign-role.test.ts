@@ -78,9 +78,7 @@ function makeDataSources(overrides: {
 	} as unknown as Domain.Contexts.User.StaffUser.StaffUserRepository<Domain.Contexts.User.StaffUser.StaffUserProps>;
 
 	const staffRoleRepo = {
-		getById: staffRole === null
-			? vi.fn().mockResolvedValue(null)
-			: vi.fn().mockResolvedValue(staffRole),
+		getById: staffRole === null ? vi.fn().mockResolvedValue(null) : vi.fn().mockResolvedValue(staffRole),
 	} as unknown as Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 
 	return {

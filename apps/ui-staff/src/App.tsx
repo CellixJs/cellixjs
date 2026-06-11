@@ -31,8 +31,7 @@ function StaffRoutes() {
 	const canAddRole = perms?.canAddRole === true;
 	const canEditRole = perms?.canEditRole === true;
 	const canRemoveRole = perms?.canRemoveRole === true;
-	const canAccessUserManagement =
-		canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
+	const canAccessUserManagement = canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
 
 	let defaultStaffRoute = '/unauthorized';
 	if (canManageTechAdmin) {

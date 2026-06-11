@@ -45,7 +45,7 @@
 		"@storybook/react": "10.4.2",
 		"@types/react": "^19.1.16",
 		"@types/react-dom": "^19.1.6",
-        "@testing-library/react": "^16.2.0",
+		"@testing-library/react": "^16.2.0",
 		"@vitest/browser": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
 		"@vitest/coverage-istanbul": "catalog:",

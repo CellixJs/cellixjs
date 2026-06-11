@@ -58,15 +58,31 @@ function makeBaseProps(overrides: Partial<StaffUserProps> = {}): StaffUserProps 
 			_role = role;
 		},
 		activityLog: {
-			get items() { return activityLogItems as ReadonlyArray<import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps>; },
-			addItem: (item: import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps) => { activityLogItems.push(item); },
+			get items() {
+				return activityLogItems as ReadonlyArray<import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps>;
+			},
+			addItem: (item: import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps) => {
+				activityLogItems.push(item);
+			},
 			getNewItem: () => {
-				const item = { id: `activity-${activityLogItems.length}`, activityType: '', activityDescription: '', activityByStaffUserId: '', createdAt: new Date(), updatedAt: new Date() } as import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps;
+				const item = {
+					id: `activity-${activityLogItems.length}`,
+					activityType: '',
+					activityDescription: '',
+					activityByStaffUserId: '',
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				} as import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps;
 				activityLogItems.push(item);
 				return item;
 			},
-			removeItem: (item: import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps) => { const idx = activityLogItems.indexOf(item); if (idx > -1) activityLogItems.splice(idx, 1); },
-			removeAll: () => { activityLogItems.splice(0); },
+			removeItem: (item: import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps) => {
+				const idx = activityLogItems.indexOf(item);
+				if (idx > -1) activityLogItems.splice(idx, 1);
+			},
+			removeAll: () => {
+				activityLogItems.splice(0);
+			},
 		},
 		...overrides,
 	};

@@ -54,10 +54,7 @@ export interface StaffRoleUpdateCommand {
 	permissions?: StaffRoleUpdateCommandPermissions;
 }
 
-const applyCommunityPermissions = (
-	staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>,
-	permissions?: StaffRoleUpdateCommandCommunityPermissions,
-) => {
+const applyCommunityPermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, permissions?: StaffRoleUpdateCommandCommunityPermissions) => {
 	if (!permissions) return;
 	const { communityPermissions } = staffRole.permissions;
 	if (permissions.canManageCommunities !== undefined) communityPermissions.canManageCommunities = permissions.canManageCommunities;
@@ -68,10 +65,7 @@ const applyCommunityPermissions = (
 	if (permissions.canReIndexSearchCollections !== undefined) communityPermissions.canReIndexSearchCollections = permissions.canReIndexSearchCollections;
 };
 
-const applyUserPermissions = (
-	staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>,
-	permissions?: StaffRoleUpdateCommandUserPermissions,
-) => {
+const applyUserPermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, permissions?: StaffRoleUpdateCommandUserPermissions) => {
 	if (!permissions) return;
 	const { userPermissions } = staffRole.permissions;
 	if (permissions.canManageUsers !== undefined) userPermissions.canManageUsers = permissions.canManageUsers;
@@ -87,10 +81,7 @@ const applyUserPermissions = (
 	if (permissions.canViewStaffUsers !== undefined) userPermissions.canViewStaffUsers = permissions.canViewStaffUsers;
 };
 
-const applyRolePermissions = (
-	staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>,
-	permissions?: StaffRoleUpdateCommandRolePermissions,
-) => {
+const applyRolePermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, permissions?: StaffRoleUpdateCommandRolePermissions) => {
 	if (!permissions) return;
 	const { staffRolePermissions } = staffRole.permissions;
 	if (permissions.canViewRoles !== undefined) staffRolePermissions.canViewRoles = permissions.canViewRoles;
@@ -99,10 +90,7 @@ const applyRolePermissions = (
 	if (permissions.canRemoveRole !== undefined) staffRolePermissions.canRemoveRole = permissions.canRemoveRole;
 };
 
-const applyFinancePermissions = (
-	staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>,
-	permissions?: StaffRoleUpdateCommandFinancePermissions,
-) => {
+const applyFinancePermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, permissions?: StaffRoleUpdateCommandFinancePermissions) => {
 	if (!permissions) return;
 	const { financePermissions } = staffRole.permissions;
 	if (permissions.canManageFinance !== undefined) financePermissions.canManageFinance = permissions.canManageFinance;
@@ -111,10 +99,7 @@ const applyFinancePermissions = (
 	if (permissions.canCreateFinanceConfigs !== undefined) financePermissions.canCreateFinanceConfigs = permissions.canCreateFinanceConfigs;
 };
 
-const applyTechAdminPermissions = (
-	staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>,
-	permissions?: StaffRoleUpdateCommandTechAdminPermissions,
-) => {
+const applyTechAdminPermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, permissions?: StaffRoleUpdateCommandTechAdminPermissions) => {
 	if (!permissions) return;
 	const { techAdminPermissions } = staffRole.permissions;
 	if (permissions.canManageTechAdmin !== undefined) techAdminPermissions.canManageTechAdmin = permissions.canManageTechAdmin;

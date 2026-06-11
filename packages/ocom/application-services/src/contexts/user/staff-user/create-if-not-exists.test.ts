@@ -210,7 +210,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				result = await createIfNotExists(dataSources)(command);
 			});
 
-			Then('it should update the existing user\'s externalId', () => {
+			Then("it should update the existing user's externalId", () => {
 				const repo = (dataSources as unknown as { _staffUserRepo: { save: ReturnType<typeof vi.fn> } })._staffUserRepo;
 				expect(repo.save).toHaveBeenCalled();
 			});

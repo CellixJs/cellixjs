@@ -162,10 +162,7 @@ const applyFinancePermissions = (staffRole: Domain.Contexts.User.StaffRole.Staff
 	}
 };
 
-const applyTechAdminPermissions = (
-	staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>,
-	permissions?: StaffRoleCreateCommandTechAdminPermissions,
-) => {
+const applyTechAdminPermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, permissions?: StaffRoleCreateCommandTechAdminPermissions) => {
 	if (!permissions) {
 		return;
 	}

@@ -4,9 +4,9 @@ import type { UserVisa } from '../user.visa.ts';
 import { StaffRoleCommunityPermissions, type StaffRoleCommunityPermissionsEntityReference, type StaffRoleCommunityPermissionsProps } from './staff-role-community-permissions.ts';
 import { StaffRoleFinancePermissions, type StaffRoleFinancePermissionsEntityReference, type StaffRoleFinancePermissionsProps } from './staff-role-finance-permissions.ts';
 import { StaffRolePropertyPermissions, type StaffRolePropertyPermissionsEntityReference, type StaffRolePropertyPermissionsProps } from './staff-role-property-permissions.ts';
+import { StaffRoleRolePermissions, type StaffRoleRolePermissionsEntityReference, type StaffRoleRolePermissionsProps } from './staff-role-role-permissions.ts';
 import { StaffRoleServicePermissions, type StaffRoleServicePermissionsEntityReference, type StaffRoleServicePermissionsProps } from './staff-role-service-permissions.ts';
 import { StaffRoleServiceTicketPermissions, type StaffRoleServiceTicketPermissionsEntityReference, type StaffRoleServiceTicketPermissionsProps } from './staff-role-service-ticket-permissions.ts';
-import { StaffRoleRolePermissions, type StaffRoleRolePermissionsEntityReference, type StaffRoleRolePermissionsProps } from './staff-role-role-permissions.ts';
 import { StaffRoleTechAdminPermissions, type StaffRoleTechAdminPermissionsEntityReference, type StaffRoleTechAdminPermissionsProps } from './staff-role-tech-admin-permissions.ts';
 import { StaffRoleUserPermissions, type StaffRoleUserPermissionsEntityReference, type StaffRoleUserPermissionsProps } from './staff-role-user-permissions.ts';
 import { StaffRoleViolationTicketPermissions, type StaffRoleViolationTicketPermissionsEntityReference, type StaffRoleViolationTicketPermissionsProps } from './staff-role-violation-ticket-permissions.ts';
@@ -27,7 +27,7 @@ export interface StaffRolePermissionsEntityReference
 	extends Readonly<
 		Omit<
 			StaffRolePermissionsProps,
-		'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions' | 'financePermissions' | 'techAdminPermissions' | 'userPermissions' | 'staffRolePermissions'
+			'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions' | 'financePermissions' | 'techAdminPermissions' | 'userPermissions' | 'staffRolePermissions'
 		>
 	> {
 	readonly communityPermissions: StaffRoleCommunityPermissionsEntityReference;

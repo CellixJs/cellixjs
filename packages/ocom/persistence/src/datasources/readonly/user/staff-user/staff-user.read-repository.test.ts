@@ -139,9 +139,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			doc1 = { ...makeMockStaffUserDocument(), id: 'id-1', externalId: 'ext-1' } as unknown as StaffUser;
 			doc2 = { ...makeMockStaffUserDocument(), id: 'id-2', externalId: 'ext-2' } as unknown as StaffUser;
 			models = { StaffUser: makeMockModelMulti([doc1, doc2]) } as unknown as ModelsContext;
-			mockConverter.toDomain
-				.mockReturnValueOnce({ id: 'id-1', externalId: 'ext-1' })
-				.mockReturnValueOnce({ id: 'id-2', externalId: 'ext-2' });
+			mockConverter.toDomain.mockReturnValueOnce({ id: 'id-1', externalId: 'ext-1' }).mockReturnValueOnce({ id: 'id-2', externalId: 'ext-2' });
 			repository = getStaffUserReadRepository(models, passport);
 		});
 		When('I call getAll', async () => {

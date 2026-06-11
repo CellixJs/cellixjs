@@ -16,8 +16,7 @@ function makePassport(): Passport {
 	return {
 		user: {
 			forStaffRole: () => ({
-				determineIf: (fn: (p: { canManageStaffRolesAndPermissions: boolean; isSystemAccount: boolean }) => boolean) =>
-					fn({ canManageStaffRolesAndPermissions: true, isSystemAccount: false }),
+				determineIf: (fn: (p: { canManageStaffRolesAndPermissions: boolean; isSystemAccount: boolean }) => boolean) => fn({ canManageStaffRolesAndPermissions: true, isSystemAccount: false }),
 			}),
 		},
 	} as unknown as Passport;
@@ -65,26 +64,14 @@ function makeMockRepository(passport: Passport): StaffRoleRepository<StaffRolePr
 		save: vi.fn(async (item: StaffRole<StaffRoleProps>) => item),
 
 		// Domain-specific methods
-		getNewInstance: vi.fn(async (name: string) =>
-			StaffRole.getNewInstance(makeBaseProps({ roleName: name }), passport, name, false),
-		),
-		getNewDefaultCaseManagerInstance: vi.fn(async () =>
-			StaffRole.getNewDefaultCaseManagerInstance(makeBaseProps({ roleName: 'Default.CaseManager', isDefault: true }), passport),
-		),
-		getNewDefaultServiceLineOwnerInstance: vi.fn(async () =>
-			StaffRole.getNewDefaultServiceLineOwnerInstance(makeBaseProps({ roleName: 'Default.ServiceLineOwner', isDefault: true }), passport),
-		),
-		getNewDefaultFinanceInstance: vi.fn(async () =>
-			StaffRole.getNewDefaultFinanceInstance(makeBaseProps({ roleName: 'Default.Finance', isDefault: true }), passport),
-		),
-		getNewDefaultTechAdminInstance: vi.fn(async () =>
-			StaffRole.getNewDefaultTechAdminInstance(makeBaseProps({ roleName: 'Default.TechAdmin', isDefault: true }), passport),
-		),
+		getNewInstance: vi.fn(async (name: string) => StaffRole.getNewInstance(makeBaseProps({ roleName: name }), passport, name, false)),
+		getNewDefaultCaseManagerInstance: vi.fn(async () => StaffRole.getNewDefaultCaseManagerInstance(makeBaseProps({ roleName: 'Default.CaseManager', isDefault: true }), passport)),
+		getNewDefaultServiceLineOwnerInstance: vi.fn(async () => StaffRole.getNewDefaultServiceLineOwnerInstance(makeBaseProps({ roleName: 'Default.ServiceLineOwner', isDefault: true }), passport)),
+		getNewDefaultFinanceInstance: vi.fn(async () => StaffRole.getNewDefaultFinanceInstance(makeBaseProps({ roleName: 'Default.Finance', isDefault: true }), passport)),
+		getNewDefaultTechAdminInstance: vi.fn(async () => StaffRole.getNewDefaultTechAdminInstance(makeBaseProps({ roleName: 'Default.TechAdmin', isDefault: true }), passport)),
 		getById: vi.fn(async (id: string) => new StaffRole(makeBaseProps({ id }), passport)),
 		getByRoleName: vi.fn(async (roleName: string) => new StaffRole(makeBaseProps({ roleName }), passport)),
-		getDefaultRoleByEnterpriseAppRole: vi.fn(async (enterpriseAppRole: string) =>
-			new StaffRole(makeBaseProps({ enterpriseAppRole, isDefault: true }), passport),
-		),
+		getDefaultRoleByEnterpriseAppRole: vi.fn(async (enterpriseAppRole: string) => new StaffRole(makeBaseProps({ enterpriseAppRole, isDefault: true }), passport)),
 	} satisfies StaffRoleRepository<StaffRoleProps>;
 }
 
