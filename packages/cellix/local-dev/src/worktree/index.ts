@@ -1,4 +1,4 @@
-export { WorktreeJsonFileSync, type WorktreeJsonFileSyncOptions } from './json-file-sync.ts';
+export { convertSettingsForWorktree, type WorktreeConversionPlan } from './conversion.ts';
 export {
 	type AzuritePorts,
 	buildAzuriteConnectionString,

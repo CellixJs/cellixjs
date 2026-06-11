@@ -9,6 +9,7 @@ import {
 	buildAzuriteConnectionString,
 	buildPortlessUrl,
 	buildViteArgs,
+	convertSettingsForWorktree,
 	getAzuritePorts,
 	getMongoPort,
 	getWorktreePortOffset,
@@ -22,7 +23,6 @@ import {
 	sanitizeWorktreeHostnameLabel,
 	syncJsonFile,
 	ViteDevRunner,
-	WorktreeJsonFileSync,
 	WorktreeSettings,
 } from '@cellix/local-dev';
 import { describe, expect, it } from 'vitest';
@@ -264,74 +264,37 @@ describe('@cellix/local-dev', () => {
 		});
 	});
 
-	it('syncs json settings with generic worktree URL, Mongo, and Azurite transforms', () => {
-		const workspaceRoot = createWorkspaceFixture();
-		const sourcePath = path.join(workspaceRoot, 'fixtures', 'settings.e2e.json');
-		const targetPath = path.join(workspaceRoot, 'fixtures', 'deploy', 'local.settings.json');
-		writeFileSync(
-			sourcePath,
-			JSON.stringify({
-				Values: {
-					STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
-					STORAGE_ACCOUNT_KEY: 'key',
-					COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
-				},
-			}),
+	it('converts only the named settings for a worktree, leaving the rest untouched', () => {
+		const converted = convertSettingsForWorktree(
+			{
+				ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.localhost:1355/community',
+				COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
+				STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
+				STORAGE_ACCOUNT_KEY: 'key',
+				AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true',
+				AzureWebJobsStorage: 'UseDevelopmentStorage=true',
+				COSMOSDB_DBNAME: 'ocom',
+			},
+			'Jason/Feature 123',
+			{
+				urlKeys: ['ACCOUNT_PORTAL_OIDC_ISSUER'],
+				mongoKeys: ['COSMOSDB_CONNECTION_STRING'],
+				azuriteKeys: ['AZURE_STORAGE_CONNECTION_STRING', 'AzureWebJobsStorage'],
+			},
 		);
 
-		new WorktreeJsonFileSync({
-			env: { WORKTREE_NAME: 'Jason/Feature 123' },
-			sourcePath,
-			targetPath,
-			values: {
-				ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.localhost:1355/community',
-			},
-			azuriteConnectionStringKeys: ['AZURE_STORAGE_CONNECTION_STRING', 'AzureWebJobsStorage'],
-		}).sync();
-
-		const settings = JSON.parse(readFileSync(targetPath, 'utf8'));
-		expect(settings.Values).toMatchObject({
+		expect(converted).toMatchObject({
 			ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.jason-feature-123.localhost:1355/community',
 			AZURE_STORAGE_CONNECTION_STRING: expect.stringContaining('BlobEndpoint=http://127.0.0.1:'),
 			AzureWebJobsStorage: expect.stringContaining('QueueEndpoint=http://127.0.0.1:'),
+			// Unlisted keys are passed through untouched.
+			COSMOSDB_DBNAME: 'ocom',
+			STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
 		});
-		expect(settings.Values.COSMOSDB_CONNECTION_STRING).not.toBe('mongodb://127.0.0.1:50000/ocom');
+		expect(converted['COSMOSDB_CONNECTION_STRING']).toBe(`mongodb://127.0.0.1:${getMongoPort('Jason/Feature 123')}/ocom`);
 	});
 
-	it('syncs json settings without worktree transforms when CELLIX_WORKTREE disables them', () => {
-		const workspaceRoot = createWorkspaceFixture();
-		const sourcePath = path.join(workspaceRoot, 'fixtures', 'settings.local.json');
-		const targetPath = path.join(workspaceRoot, 'fixtures', 'deploy', 'local.settings.json');
-		writeFileSync(
-			sourcePath,
-			JSON.stringify({
-				Values: {
-					STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
-					STORAGE_ACCOUNT_KEY: 'key',
-					COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
-				},
-			}),
-		);
-
-		new WorktreeJsonFileSync({
-			env: { CELLIX_WORKTREE: '0', WORKTREE_NAME: 'Jason/Feature 123' },
-			sourcePath,
-			targetPath,
-			values: {
-				ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.localhost:1355/community',
-			},
-			azuriteConnectionStringKeys: ['AzureWebJobsStorage'],
-		}).sync();
-
-		const settings = JSON.parse(readFileSync(targetPath, 'utf8'));
-		expect(settings.Values).toMatchObject({
-			ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.localhost:1355/community',
-			COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
-		});
-		expect(settings.Values.AzureWebJobsStorage).toBeUndefined();
-	});
-
-	it('prepares Azure Functions local settings before starting func', () => {
+	it('generates Azure Functions local settings before starting func', () => {
 		const workspaceRoot = createWorkspaceFixture();
 		const appDir = path.join(workspaceRoot, 'fixtures', 'api');
 		const calls: Array<{ command: string; args: string[]; env?: NodeJS.ProcessEnv }> = [];
@@ -343,26 +306,27 @@ describe('@cellix/local-dev', () => {
 			});
 			return new EventEmitter() as ReturnType<RunnerSpawn>;
 		};
-		mkdirSync(appDir, { recursive: true });
-		writeFileSync(
-			path.join(appDir, 'local-settings.e2e.json'),
-			JSON.stringify({
-				Values: {
-					STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
-					STORAGE_ACCOUNT_KEY: 'key',
-					COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
-				},
-			}),
-		);
 
 		new AzureFunctionsDevRunner({
 			env: { E2E: 'true', PORT: '7071', WORKTREE_NAME: 'Jason/Feature 123' },
 			localSettings: {
 				appDir,
-				e2eValues: {
+				values: {
+					STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
+					STORAGE_ACCOUNT_KEY: 'key',
+					COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
+					AzureWebJobsStorage: 'UseDevelopmentStorage=true',
 					ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.localhost:1355/community',
+					languageWorkers__node__arguments: '--inspect=5858',
 				},
-				azuriteConnectionStringKeys: ['AzureWebJobsStorage'],
+				e2eValues: {
+					languageWorkers__node__arguments: '',
+				},
+				worktreeConversion: {
+					urlKeys: ['ACCOUNT_PORTAL_OIDC_ISSUER'],
+					mongoKeys: ['COSMOSDB_CONNECTION_STRING'],
+					azuriteKeys: ['AzureWebJobsStorage'],
+				},
 			},
 			spawn,
 		}).start();
@@ -371,11 +335,41 @@ describe('@cellix/local-dev', () => {
 		expect(settings.Values).toMatchObject({
 			ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.jason-feature-123.localhost:1355/community',
 			AzureWebJobsStorage: expect.stringContaining('BlobEndpoint=http://127.0.0.1:'),
+			// E2E override applied over the base value.
+			languageWorkers__node__arguments: '',
 		});
 		expect(settings.Values.COSMOSDB_CONNECTION_STRING).not.toBe('mongodb://127.0.0.1:50000/ocom');
 		expect(calls[0]).toMatchObject({
 			command: 'func',
 			args: ['start', '--typescript', '--script-root', 'deploy/', '--port', '7071', '--cors', '*'],
+		});
+	});
+
+	it('skips worktree conversion outside a worktree', () => {
+		const workspaceRoot = createWorkspaceFixture();
+		const appDir = path.join(workspaceRoot, 'fixtures', 'api');
+		const spawn: RunnerSpawn = () => new EventEmitter() as ReturnType<RunnerSpawn>;
+
+		new AzureFunctionsDevRunner({
+			env: { PORT: '7071' },
+			localSettings: {
+				appDir,
+				values: {
+					COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
+					AzureWebJobsStorage: 'UseDevelopmentStorage=true',
+				},
+				worktreeConversion: {
+					mongoKeys: ['COSMOSDB_CONNECTION_STRING'],
+					azuriteKeys: ['AzureWebJobsStorage'],
+				},
+			},
+			spawn,
+		}).start();
+
+		const settings = JSON.parse(readFileSync(path.join(appDir, 'deploy', 'local.settings.json'), 'utf8'));
+		expect(settings.Values).toMatchObject({
+			COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
+			AzureWebJobsStorage: 'UseDevelopmentStorage=true',
 		});
 	});
 });

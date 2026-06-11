@@ -16,15 +16,6 @@ export type KnownWorktreeSettings = SettingsRecord & {
 };
 
 /**
- * Azure Functions-style settings JSON document.
- */
-export interface SettingsDocument {
-	/** Runtime values merged and transformed by local-dev helpers. */
-	Values?: SettingsRecord;
-	[key: string]: unknown;
-}
-
-/**
  * Environment shape used by worktree helpers.
  */
 export type WorktreeEnv = NodeJS.ProcessEnv & {

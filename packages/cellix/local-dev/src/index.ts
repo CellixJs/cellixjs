@@ -44,8 +44,8 @@ export {
 export { type BuildViteArgsOptions, buildViteArgs, isE2E } from './vite/index.ts';
 export { type ResolveWorkspaceRootOptions, resolveWorkspaceRoot } from './workspace/index.ts';
 export {
-	WorktreeJsonFileSync,
-	type WorktreeJsonFileSyncOptions,
+	convertSettingsForWorktree,
+	type WorktreeConversionPlan,
 	type WorktreeMode,
 	WorktreeSettings,
 	type WorktreeSettingsOptions,

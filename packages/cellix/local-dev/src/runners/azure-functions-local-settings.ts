@@ -1,6 +1,8 @@
 import path from 'node:path';
-import { WorktreeJsonFileSync } from '../worktree/json-file-sync.ts';
+import { writeJsonFile } from '../files/json.ts';
+import { convertSettingsForWorktree, type WorktreeConversionPlan } from '../worktree/conversion.ts';
 import type { SettingsRecord, WorktreeMode } from '../worktree/types.ts';
+import { resolveWorktreeName } from '../worktree/worktree-name.ts';
 
 type LocalSettingsEnv = NodeJS.ProcessEnv & {
 	E2E?: string;
@@ -11,7 +13,7 @@ function isE2E(env: NodeJS.ProcessEnv): boolean {
 }
 
 export interface AzureFunctionsLocalSettingsOptions {
-	/** App directory containing the source local settings files. Defaults to `process.cwd()`. */
+	/** App directory used to resolve the default target path. Defaults to `process.cwd()`. */
 	appDir?: string;
 	/** Functions script root. Defaults to `deploy/`. */
 	scriptRoot?: string;
@@ -21,28 +23,24 @@ export interface AzureFunctionsLocalSettingsOptions {
 	worktree?: WorktreeMode;
 	/** Worktree name. Defaults to `env.WORKTREE_NAME`. */
 	worktreeName?: string;
-	/** Source settings file for normal dev mode. Defaults to `<appDir>/local.settings.json`. */
-	sourcePath?: string;
-	/** Source settings file for E2E mode. Defaults to `<appDir>/local-settings.e2e.json`. */
-	e2eSourcePath?: string;
 	/** Target settings file. Defaults to `<appDir>/<scriptRoot>/local.settings.json`. */
 	targetPath?: string;
-	/** Values merged into every mode before worktree transforms. */
+	/** Functions `Values`, written in every mode. */
 	values?: SettingsRecord;
-	/** Values merged only when `E2E` is truthy. */
+	/** `Values` overrides merged only when `E2E` is truthy. */
 	e2eValues?: SettingsRecord;
-	/** Keys that should receive a worktree-scoped Azurite connection string. */
-	azuriteConnectionStringKeys?: string[];
+	/** Functions `Host` block (e.g. `{ LocalHttpPort, CORS }`). */
+	host?: SettingsRecord;
+	/** Which `Values` keys get worktree-scoped, and how. Applied only in a worktree. */
+	worktreeConversion?: WorktreeConversionPlan;
 }
 
 /**
- * Prepares Azure Functions `local.settings.json` before `func start`.
+ * Generates Azure Functions `local.settings.json` before `func start`.
  *
- * Azure Functions reads `local.settings.json` from the script root. This helper
- * copies the mode-appropriate source file into that location and applies the
- * generic worktree URL, Mongo, and Azurite transforms. Normal dev reads
- * `local.settings.json` when present; E2E mode reads `local-settings.e2e.json`
- * and fails if that source is missing.
+ * The flow is a flat three steps: load the mode's settings, convert the
+ * caller-named keys for the active worktree (a no-op outside a worktree), and
+ * write the document the Functions host reads from the script root.
  */
 export class AzureFunctionsLocalSettings {
 	private readonly options: AzureFunctionsLocalSettingsOptions;
@@ -52,41 +50,32 @@ export class AzureFunctionsLocalSettings {
 	}
 
 	/**
-	 * Syncs the mode-appropriate local settings file into the Functions script
-	 * root.
-	 *
-	 * @throws When E2E mode is active and its source file is missing.
+	 * Writes the worktree-scoped settings into the Functions script root.
 	 */
 	public sync(): void {
 		const { appDir = process.cwd(), scriptRoot = 'deploy/', env = process.env } = this.options;
-		const e2e = isE2E(env);
-
-		// Which settings file we copy from: E2E uses the mock-OIDC settings,
-		// normal dev uses the checked-in local.settings.json.
-		const sourcePath = e2e ? (this.options.e2eSourcePath ?? path.join(appDir, 'local-settings.e2e.json')) : (this.options.sourcePath ?? path.join(appDir, 'local.settings.json'));
-
-		// Where Azure Functions expects it: local.settings.json under the script root.
 		const targetPath = this.options.targetPath ?? path.join(appDir, scriptRoot, 'local.settings.json');
-
-		// E2E must fail loudly if its source is missing; normal dev tolerates a
-		// missing local.settings.json (the sync becomes a no-op).
-		const skipIfMissing = !e2e;
-
-		// Base values always apply; E2E-only overrides are layered on top in E2E mode.
-		const values: SettingsRecord = { ...this.options.values };
-		if (e2e && this.options.e2eValues) {
-			Object.assign(values, this.options.e2eValues);
-		}
-
-		new WorktreeJsonFileSync({
+		const worktreeName = resolveWorktreeName({
 			env,
 			...(typeof this.options.worktree === 'boolean' ? { worktree: this.options.worktree } : {}),
 			...(this.options.worktreeName ? { worktreeName: this.options.worktreeName } : {}),
-			sourcePath,
-			targetPath,
-			skipIfMissing,
-			values,
-			...(this.options.azuriteConnectionStringKeys ? { azuriteConnectionStringKeys: this.options.azuriteConnectionStringKeys } : {}),
-		}).sync();
+		});
+
+		// 1. LOAD — the settings for this mode (base, plus E2E overrides in E2E).
+		const values: SettingsRecord = { ...this.options.values };
+		if (isE2E(env) && this.options.e2eValues) {
+			Object.assign(values, this.options.e2eValues);
+		}
+
+		// 2. CONVERT — scope the caller-named keys to the active worktree (skipped otherwise).
+		const converted = worktreeName && this.options.worktreeConversion ? convertSettingsForWorktree(values, worktreeName, this.options.worktreeConversion) : values;
+
+		// 3. WRITE — emit local.settings.json for the Functions host.
+		writeJsonFile(targetPath, {
+			IsEncrypted: false,
+			Values: converted,
+			ConnectionStrings: {},
+			...(this.options.host ? { Host: this.options.host } : {}),
+		});
 	}
 }
