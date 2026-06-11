@@ -1,4 +1,4 @@
-import { app, type HttpFunctionOptions, type HttpHandler } from '@azure/functions';
+import { app, type HttpFunctionOptions, type HttpHandler, type StorageQueueFunctionOptions, type StorageQueueHandler } from '@azure/functions';
 import type { ServiceBase } from '@cellix/api-services-spec';
 import api, { SpanStatusCode, type Tracer, trace } from '@opentelemetry/api';
 
@@ -104,6 +104,27 @@ interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unkn
 		handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
 	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
 	/**
+	 * Registers an Azure Function Storage Queue trigger.
+	 *
+	 * @remarks
+	 * The `handlerCreator` is invoked when handlers are registered and receives the
+	 * application services host plus infrastructure registry so queue handlers can
+	 * resolve only the scoped services they need at invocation time.
+	 *
+	 * @typeParam TMessage - Queue payload shape received from Azure Functions.
+	 * @param name - Function name to bind in Azure Functions.
+	 * @param options - Azure Functions queue options (excluding the handler).
+	 * @param handlerCreator - Factory that returns a queue handler for the message type.
+	 * @returns The registry (for chaining).
+	 *
+	 * @throws Error - If called before application services are initialized.
+	 */
+	registerAzureFunctionQueueHandler<TMessage>(
+		name: string,
+		options: Omit<StorageQueueFunctionOptions<TMessage>, 'handler'>,
+		handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<TMessage>,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
+	/**
 	 * Finalizes configuration and starts the application.
 	 *
 	 * @remarks
@@ -148,12 +169,20 @@ type RequestScopedHost<S, H = unknown> = {
 	forRequest(rawAuthHeader?: string, hints?: H): Promise<S>;
 };
 
-type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;
+type AppHost<AppServices> = RequestScopedHost<AppServices, unknown> & {
+	forSystem?(): Promise<AppServices>;
+};
 
 interface PendingHandler<AppServices> {
 	name: string;
 	options: Omit<HttpFunctionOptions, 'handler'>;
 	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler;
+}
+
+interface PendingQueueHandler<AppServices> {
+	name: string;
+	options: Omit<StorageQueueFunctionOptions<unknown>, 'handler'>;
+	handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<unknown>;
 }
 
 type Phase = 'infrastructure' | 'context' | 'app-services' | 'handlers' | 'started';
@@ -175,9 +204,9 @@ export class Cellix<ContextType, AppServices = unknown>
 		StartedApplication<ContextType>
 {
 	private contextInternal: ContextType | undefined;
-	private appServicesHostInternal: RequestScopedHost<AppServices, unknown> | undefined;
+	private appServicesHostInternal: AppHost<AppServices> | undefined;
 	private contextCreatorInternal: ((serviceRegistry: InitializedServiceRegistry) => ContextType) | undefined;
-	private appServicesHostBuilder: ((infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown>) | undefined;
+	private appServicesHostBuilder: ((infrastructureContext: ContextType) => AppHost<AppServices>) | undefined;
 	private readonly tracer: Tracer;
 	private readonly servicesInternal: Map<ServiceKey<ServiceBase>, ServiceBase> = new Map();
 	/**
@@ -187,6 +216,7 @@ export class Cellix<ContextType, AppServices = unknown>
 	 */
 	private readonly nameMap: Map<string, ServiceBase> = new Map();
 	private readonly pendingHandlers: Array<PendingHandler<AppServices>> = [];
+	private readonly pendingQueueHandlers: Array<PendingQueueHandler<AppServices>> = [];
 	private serviceInitializedInternal = false;
 	private phase: Phase = 'infrastructure';
 
@@ -260,7 +290,7 @@ export class Cellix<ContextType, AppServices = unknown>
 		return this;
 	}
 
-	public initializeApplicationServices(factory: (infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown>): AzureFunctionHandlerRegistry<ContextType, AppServices> {
+	public initializeApplicationServices(factory: (infrastructureContext: ContextType) => AppHost<AppServices>): AzureFunctionHandlerRegistry<ContextType, AppServices> {
 		this.ensurePhase('context');
 		if (!this.contextCreatorInternal) {
 			throw new Error('Context creator must be set before initializing application services');
@@ -277,6 +307,21 @@ export class Cellix<ContextType, AppServices = unknown>
 	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
 		this.ensurePhase('app-services', 'handlers');
 		this.pendingHandlers.push({ name, options, handlerCreator });
+		this.phase = 'handlers';
+		return this;
+	}
+
+	public registerAzureFunctionQueueHandler<TMessage>(
+		name: string,
+		options: Omit<StorageQueueFunctionOptions<TMessage>, 'handler'>,
+		handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<TMessage>,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
+		this.ensurePhase('app-services', 'handlers');
+		this.pendingQueueHandlers.push({
+			name,
+			options: options as Omit<StorageQueueFunctionOptions<unknown>, 'handler'>,
+			handlerCreator: handlerCreator as (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<unknown>,
+		});
 		this.phase = 'handlers';
 		return this;
 	}
@@ -301,6 +346,17 @@ export class Cellix<ContextType, AppServices = unknown>
 						throw new Error('Application not started yet');
 					}
 					return h.handlerCreator(this.appServicesHostInternal, this)(request, context);
+				},
+			});
+		}
+		for (const h of this.pendingQueueHandlers) {
+			app.storageQueue(h.name, {
+				...h.options,
+				handler: (message, context) => {
+					if (!this.appServicesHostInternal) {
+						throw new Error('Application not started yet');
+					}
+					return h.handlerCreator(this.appServicesHostInternal, this)(message, context);
 				},
 			});
 		}
@@ -392,7 +448,7 @@ export class Cellix<ContextType, AppServices = unknown>
 		return this.contextInternal;
 	}
 
-	public get applicationServices(): RequestScopedHost<AppServices, unknown> {
+	public get applicationServices(): AppHost<AppServices> {
 		if (!this.appServicesHostInternal) {
 			throw new Error('Application services not initialized');
 		}

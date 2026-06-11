@@ -1,0 +1,31 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "community-update",
+	"title": "CommunityUpdateMessage",
+	"description": "Message consumed to apply a trivial community settings update",
+	"type": "object",
+	"properties": {
+		"communityId": {
+			"type": "string",
+			"description": "The unique identifier of the community to update"
+		},
+		"name": {
+			"type": "string",
+			"description": "Optional replacement community name"
+		},
+		"domain": {
+			"type": "string",
+			"description": "Optional replacement primary domain"
+		},
+		"whiteLabelDomain": {
+			"type": ["string", "null"],
+			"description": "Optional replacement white-label domain"
+		},
+		"handle": {
+			"type": ["string", "null"],
+			"description": "Optional replacement community handle"
+		}
+	},
+	"required": ["communityId"],
+	"additionalProperties": false
+}

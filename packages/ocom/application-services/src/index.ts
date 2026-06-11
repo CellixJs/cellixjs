@@ -36,7 +36,7 @@ export type PrincipalHints = {
 
 export interface AppServicesHost<S> {
 	forRequest(rawAuthHeader?: string, hints?: PrincipalHints): Promise<S>;
-	// forSystem: (opts?: unknown) => Promise<S>;
+	forSystem?(): Promise<S>;
 	// forAzureFunction: (opts?: unknown) => Promise<S>;
 }
 
@@ -80,7 +80,22 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 		};
 	};
 
+	const forSystem = (): Promise<ApplicationServices> => {
+		const { dataSourcesFactory, blobStorageService, queueStorageService } = context;
+		const dataSources = dataSourcesFactory.withSystemPassport();
+
+		return Promise.resolve({
+			Community: Community(dataSources, blobStorageService, queueStorageService),
+			Service: Service(dataSources),
+			User: User(dataSources),
+			get verifiedUser(): VerifiedUser | null {
+				return null;
+			},
+		});
+	};
+
 	return {
 		forRequest,
+		forSystem,
 	};
 };
