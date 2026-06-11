@@ -74,7 +74,7 @@ export class AzureFunctionsDevRunner {
 		const worktreeContext = resolveWorktreeContext(this.options);
 		const env = new WorktreeSettings({ ...this.options, ...worktreeContext }).toEnv() as RunnerEnv;
 
-		const localSettings = this.options.localSettings;
+		const { localSettings } = this.options;
 		if (localSettings) {
 			const scriptRoot = localSettings.scriptRoot ?? this.options.scriptRoot;
 			new AzureFunctionsLocalSettings({

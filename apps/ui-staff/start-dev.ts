@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { ViteDevRunner } from '@cellix/local-dev';
 import { buildOcomUrls } from '@ocom/local-dev-config';
 

@@ -50,40 +50,46 @@ export class WorktreeJsonFileSync {
 	}
 
 	private transformDocument(document: SettingsDocument): SettingsDocument {
-		const values = {
+		const env = this.options.env ?? process.env;
+		const worktreeName = resolveWorktreeName({ ...this.options, env });
+
+		const values: SettingsRecord = {
 			...(document.Values ?? {}),
 			...(this.options.values ?? {}),
 		};
-		const env = this.options.env ?? process.env;
-		const worktreeName = resolveWorktreeName({
-			env,
-			...(typeof this.options.worktree === 'boolean' ? { worktree: this.options.worktree } : {}),
-			...(this.options.worktreeName ? { worktreeName: this.options.worktreeName } : {}),
-		});
-		const settings = new WorktreeSettings({
-			env,
-			...(typeof this.options.worktree === 'boolean' ? { worktree: this.options.worktree } : {}),
-			...(worktreeName ? { worktreeName } : {}),
-		});
-		const transformedValues = settings.transformRecord(values) as KnownWorktreeSettings;
-		const accountName = String(transformedValues.STORAGE_ACCOUNT_NAME ?? '');
-		const accountKey = String(transformedValues.STORAGE_ACCOUNT_KEY ?? '');
+		const transformedValues = new WorktreeSettings(worktreeName ? { env, worktreeName } : { env, worktree: false }).transformRecord(values) as KnownWorktreeSettings;
 
-		if (accountName && accountKey && worktreeName) {
-			const connectionString = buildAzuriteConnectionString({
-				accountName,
-				accountKey,
-				ports: getAzuritePorts(worktreeName),
-			});
-
-			for (const key of this.options.azuriteConnectionStringKeys ?? []) {
-				transformedValues[key] = connectionString;
-			}
+		if (worktreeName) {
+			this.applyAzuriteConnectionString(transformedValues, worktreeName);
 		}
 
 		return {
 			...document,
 			Values: transformedValues,
 		};
+	}
+
+	/**
+	 * Replaces each configured key with a worktree-scoped Azurite connection
+	 * string, when the document carries Azurite account credentials.
+	 *
+	 * @param values - Transformed settings to mutate in place.
+	 * @param worktreeName - Active worktree used to derive Azurite ports.
+	 */
+	private applyAzuriteConnectionString(values: KnownWorktreeSettings, worktreeName: string): void {
+		const accountName = String(values.STORAGE_ACCOUNT_NAME ?? '');
+		const accountKey = String(values.STORAGE_ACCOUNT_KEY ?? '');
+		if (!accountName || !accountKey) {
+			return;
+		}
+
+		const connectionString = buildAzuriteConnectionString({
+			accountName,
+			accountKey,
+			ports: getAzuritePorts(worktreeName),
+		});
+		for (const key of this.options.azuriteConnectionStringKeys ?? []) {
+			values[key] = connectionString;
+		}
 	}
 }

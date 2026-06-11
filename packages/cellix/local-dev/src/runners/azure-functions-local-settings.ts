@@ -61,17 +61,31 @@ export class AzureFunctionsLocalSettings {
 		const { appDir = process.cwd(), scriptRoot = 'deploy/', env = process.env } = this.options;
 		const e2e = isE2E(env);
 
+		// Which settings file we copy from: E2E uses the mock-OIDC settings,
+		// normal dev uses the checked-in local.settings.json.
+		const sourcePath = e2e ? (this.options.e2eSourcePath ?? path.join(appDir, 'local-settings.e2e.json')) : (this.options.sourcePath ?? path.join(appDir, 'local.settings.json'));
+
+		// Where Azure Functions expects it: local.settings.json under the script root.
+		const targetPath = this.options.targetPath ?? path.join(appDir, scriptRoot, 'local.settings.json');
+
+		// E2E must fail loudly if its source is missing; normal dev tolerates a
+		// missing local.settings.json (the sync becomes a no-op).
+		const skipIfMissing = !e2e;
+
+		// Base values always apply; E2E-only overrides are layered on top in E2E mode.
+		const values: SettingsRecord = { ...this.options.values };
+		if (e2e && this.options.e2eValues) {
+			Object.assign(values, this.options.e2eValues);
+		}
+
 		new WorktreeJsonFileSync({
 			env,
 			...(typeof this.options.worktree === 'boolean' ? { worktree: this.options.worktree } : {}),
 			...(this.options.worktreeName ? { worktreeName: this.options.worktreeName } : {}),
-			sourcePath: e2e ? (this.options.e2eSourcePath ?? path.join(appDir, 'local-settings.e2e.json')) : (this.options.sourcePath ?? path.join(appDir, 'local.settings.json')),
-			targetPath: this.options.targetPath ?? path.join(appDir, scriptRoot, 'local.settings.json'),
-			skipIfMissing: !e2e,
-			values: {
-				...(this.options.values ?? {}),
-				...(e2e ? (this.options.e2eValues ?? {}) : {}),
-			},
+			sourcePath,
+			targetPath,
+			skipIfMissing,
+			values,
 			...(this.options.azuriteConnectionStringKeys ? { azuriteConnectionStringKeys: this.options.azuriteConnectionStringKeys } : {}),
 		}).sync();
 	}
