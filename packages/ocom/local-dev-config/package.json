@@ -1,0 +1,49 @@
+{
+	"name": "@ocom/local-dev-config",
+	"version": "1.0.0",
+	"description": "OCOM-specific local-development hostname/URL helpers built on @cellix/local-dev",
+	"type": "module",
+	"files": [
+		"dist",
+		"src"
+	],
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./hostnames": {
+			"types": "./dist/hostnames/index.d.ts",
+			"default": "./dist/hostnames/index.js"
+		},
+		"./urls": {
+			"types": "./dist/urls/index.d.ts",
+			"default": "./dist/urls/index.js"
+		}
+	},
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
+	},
+	"dependencies": {
+		"@cellix/local-dev": "workspace:*"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@types/node": "catalog:",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

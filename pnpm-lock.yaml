@@ -105,9 +105,6 @@ catalogs:
     storybook:
       specifier: 10.4.2
       version: 10.4.2
-    tsx:
-      specifier: ^4.21.0
-      version: 4.21.0
     typescript:
       specifier: 6.0.3
       version: 6.0.3
@@ -119,6 +116,7 @@ catalogs:
       version: 4.1.6
 
 overrides:
+  '@grpc/grpc-js': ^1.14.4
   '@vitest/browser': 4.1.6
   '@vitest/browser-playwright': 4.1.6
   axios: 1.16.0
@@ -317,6 +315,12 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
         version: 4.1.6(vitest@4.1.6)
@@ -369,6 +373,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       '@docusaurus/module-type-aliases':
         specifier: 3.10.1
         version: 3.10.1(esbuild@0.27.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -427,12 +434,12 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../packages/cellix/config-typescript
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -442,6 +449,9 @@ importers:
       '@cellix/server-oauth2-mock-seedwork':
         specifier: workspace:*
         version: link:../../packages/cellix/server-oauth2-mock-seedwork
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -452,15 +462,15 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
         version: 4.1.6(vitest@4.1.6)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -482,6 +492,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       '@ocom/ui-community-route-accounts':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-community-route-accounts
@@ -522,6 +535,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       '@chromatic-com/storybook':
         specifier: ^5.2.1
         version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
@@ -603,6 +619,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       '@ocom/ui-shared':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-shared
@@ -652,6 +671,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       '@types/react':
         specifier: ^19.1.8
         version: 19.2.7
@@ -885,6 +907,30 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(happy-dom@20.9.0)(jsdom@26.1.0)(vite@8.0.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cellix/local-dev:
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../config-vitest
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.15
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.6(vitest@4.1.6)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(happy-dom@20.9.0)(jsdom@26.1.0)(vite@8.0.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@22.19.15)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/mongoose-seedwork:
     dependencies:
@@ -1630,6 +1676,34 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(happy-dom@20.9.0)(jsdom@26.1.0)(vite@8.0.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/ocom/local-dev-config:
+    dependencies:
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../cellix/local-dev
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.15
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.6(vitest@4.1.6)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(happy-dom@20.9.0)(jsdom@26.1.0)(vite@8.0.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@22.19.15)(esbuild@0.27.4)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/persistence:
     dependencies:
@@ -4738,8 +4812,8 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@grpc/grpc-js@1.14.3':
-    resolution: {integrity: sha512-Iq8QQQ/7X3Sac15oB6p0FmUg/klxQvXLeileoqrTRGJYLV+/9tubbr9ipz0GKHjmXVsgFPo/+W+2cA8eNcR+XA==}
+  '@grpc/grpc-js@1.14.4':
+    resolution: {integrity: sha512-k9Dj3DV/itK9D06Y8f190Qgop7/Ui+D0njFV3LHMPwPT75DpXLQohE9Wmz0QElrJnzsjB7KPWiKJbOl7IPDArQ==}
     engines: {node: '>=12.10.0'}
 
   '@grpc/proto-loader@0.8.0':
@@ -17065,7 +17139,7 @@ snapshots:
     dependencies:
       graphql: 16.12.0
 
-  '@grpc/grpc-js@1.14.3':
+  '@grpc/grpc-js@1.14.4':
     dependencies:
       '@grpc/proto-loader': 0.8.0
       '@js-sdsl/ordered-map': 4.4.2
@@ -17323,7 +17397,7 @@ snapshots:
 
   '@opentelemetry/exporter-logs-otlp-grpc@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
-      '@grpc/grpc-js': 1.14.3
+      '@grpc/grpc-js': 1.14.4
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
@@ -17353,7 +17427,7 @@ snapshots:
 
   '@opentelemetry/exporter-metrics-otlp-grpc@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
-      '@grpc/grpc-js': 1.14.3
+      '@grpc/grpc-js': 1.14.4
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-metrics-otlp-http': 0.57.2(@opentelemetry/api@1.9.0)
@@ -17392,7 +17466,7 @@ snapshots:
 
   '@opentelemetry/exporter-trace-otlp-grpc@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
-      '@grpc/grpc-js': 1.14.3
+      '@grpc/grpc-js': 1.14.4
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
@@ -17512,7 +17586,7 @@ snapshots:
 
   '@opentelemetry/otlp-grpc-exporter-base@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
-      '@grpc/grpc-js': 1.14.3
+      '@grpc/grpc-js': 1.14.4
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)

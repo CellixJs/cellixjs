@@ -2,23 +2,24 @@
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
 		"apps/api": {
-			"entry": ["src/index.ts", "start-*.mjs"],
-			"project": ["src/**/*.ts", "*.mjs"],
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.ts"],
 			"ignoreDependencies": ["azurite"]
 		},
 		"apps/ui-community": {
-			"entry": ["src/main.tsx"],
+			"entry": ["src/main.tsx", "start-dev.ts"],
 			"project": ["src/**/*.{ts,tsx}"],
 			"ignore": ["**/apollo-client-links.tsx"]
 		},
 		"apps/ui-staff": {
-			"entry": ["src/main.tsx"],
+			"entry": ["src/main.tsx", "start-dev.ts"],
 			"project": ["src/**/*.{ts,tsx}"],
 			"ignore": []
 		},
 		"apps/docs": {
 			"entry": ["src/**/*.{ts,tsx,js,jsx}"],
-			"project": ["src/**/*.{ts,tsx,js,jsx}"]
+			"project": ["src/**/*.{ts,tsx,js,jsx}"],
+			"ignoreDependencies": ["@cellix/local-dev"]
 		},
 		"packages/cellix/*": {
 			"project": ["src/**/*.ts"],
@@ -88,27 +89,17 @@
 			"ignoreUnresolved": ["progress-bar"]
 		},
 		"apps/server-oauth2-mock": {
+			"entry": ["src/index.ts", "start-dev.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"apps/server-mongodb-memory-mock": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.ts"],
-			"ignoreDependencies": ["tsx"]
+			"ignoreDependencies": []
 		}
 	},
 	"ignoreWorkspaces": ["packages/cellix/config-typescript"],
-	"ignore": [
-		"build-pipeline/scripts/**",
-		"scripts/local-dev/**",
-		"**/fixtures/**",
-		"**/*.test.ts",
-		"**/*.spec.ts",
-		"**/*.stories.tsx",
-		"**/dist/**",
-		"**/coverage/**",
-		"**/__tests__/**",
-		"**/tests/**",
-		".agents/**",
-		".github/**",
-		"portless.config.cjs"
-	],
+	"ignore": ["build-pipeline/scripts/**", "**/fixtures/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**", ".agents/**", ".github/**", "portless.config.cjs"],
 	"ignoreIssues": {
 		"codegen.yml": ["unlisted"]
 	},

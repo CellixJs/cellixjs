@@ -26,4 +26,5 @@ export const testApiServer = new ProcessTestServer({
 	readyMarker: 'Functions:',
 	serverName: 'TestApiServer',
 	spawnArgs: () => ['run', getPortlessDevScript()],
+	startupTimeoutMs: 180_000,
 });
