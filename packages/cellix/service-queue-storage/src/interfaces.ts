@@ -90,6 +90,24 @@ export type QueueMessage<T = unknown> = {
 	dequeueCount?: number;
 };
 
+/**
+ * Trigger-delivered queue message shape used when Azure Functions or other queue
+ * runtimes have already dequeued a message and application code still wants to
+ * reuse the generated typed consumer methods for validation and logging.
+ *
+ * @typeParam T - Decoded payload type for the queue definition being processed.
+ */
+export type TriggeredQueueMessage<T = unknown> = {
+	/** Decoded queue payload delivered by the trigger runtime. */
+	payload: T;
+	/** Optional trigger metadata for logging and downstream behavior. */
+	id?: string;
+	/** Optional pop receipt associated with the trigger-delivered message. */
+	popReceipt?: string;
+	/** Optional dequeue count reported by the trigger runtime. */
+	dequeueCount?: number;
+};
+
 /** Queue direction used when persisting message logs. */
 export type QueueDirection = 'inbound' | 'outbound';
 

@@ -6,11 +6,12 @@ import type { ApiContextSpec } from '@ocom/context-spec';
 import { RegisterEventHandlers } from '@ocom/event-handler';
 import type { GraphContext } from '@ocom/graphql-handler';
 import { graphHandlerCreator } from '@ocom/graphql-handler';
+import { communityUpdateQueueHandlerCreator } from '@ocom/handler-queue-community-update';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
-import { ServiceQueueStorage } from '@ocom/service-queue-storage';
+import { type CommunityUpdateMessage, communityUpdateQueue, ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
@@ -20,12 +21,13 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
 
 const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
+const storageQueueConnectionSetting = 'AZURE_STORAGE_CONNECTION_STRING';
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
 		.registerInfrastructureService(
-            isProd
+			isProd
 				? new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName })
 				: new ServiceClientBlobStorage({
 						accountName: BlobStorageConfig.accountName,
@@ -66,4 +68,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		graphHandlerCreator(infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer), appServicesFactory),
 	)
 	.registerAzureFunctionHttpHandler('rest', { route: '{communityId}/{role}/{memberId}/{*rest}' }, restHandlerCreator)
+	.registerAzureFunctionQueueHandler<CommunityUpdateMessage>('community-update', { queueName: communityUpdateQueue.queueName, connection: storageQueueConnectionSetting }, (applicationServicesFactory, infrastructureRegistry) =>
+		communityUpdateQueueHandlerCreator(applicationServicesFactory, infrastructureRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage)),
+	)
 	.startUp();
