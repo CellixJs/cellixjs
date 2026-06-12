@@ -1938,6 +1938,9 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.2.7(react@19.2.7)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
         version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)

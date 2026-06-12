@@ -28,7 +28,8 @@
     "dayjs": "^1.11.19",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "catalog:"
+    "react-router-dom": "catalog:",
+    "react-oidc-context": "^3.3.0"
   },
   "devDependencies": {
     "@cellix/archunit-tests": "workspace:*",
