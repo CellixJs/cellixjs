@@ -1,23 +1,24 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
 import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
 
 const test = { for: describeFeature };
+
 import {
+	StaffRoleCommunityPermissionsAdapter,
 	StaffRoleConverter,
 	StaffRoleDomainAdapter,
+	StaffRoleFinancePermissionsAdapter,
 	StaffRolePermissionsAdapter,
-	StaffRoleCommunityPermissionsAdapter,
 	StaffRolePropertyPermissionsAdapter,
 	StaffRoleServicePermissionsAdapter,
 	StaffRoleServiceTicketPermissionsAdapter,
-	StaffRoleViolationTicketPermissionsAdapter,
-	StaffRoleFinancePermissionsAdapter,
 	StaffRoleTechAdminPermissionsAdapter,
 	StaffRoleUserPermissionsAdapter,
+	StaffRoleViolationTicketPermissionsAdapter,
 } from './staff-role.domain-adapter.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

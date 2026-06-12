@@ -1,9 +1,9 @@
 import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import { MockedProvider } from '@apollo/client/testing';
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, within } from 'storybook/test';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { PageLayoutProps } from '@ocom/ui-shared';
+import type { Meta, StoryObj } from '@storybook/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { expect, within } from 'storybook/test';
 import type { Member } from './generated.tsx';
 import type { AdminStaffSectionPermissions } from './section-layout.tsx';
 import { SectionLayout } from './section-layout.tsx';
@@ -67,7 +67,10 @@ const meta: Meta<typeof SectionLayout> = {
 	component: SectionLayout,
 	decorators: [
 		(Story) => (
-			<MockedProvider mocks={[]} addTypename={false}>
+			<MockedProvider
+				mocks={[]}
+				addTypename={false}
+			>
 				<MemoryRouter initialEntries={['/community/comm-1/admin/member-1']}>
 					<Routes>
 						<Route

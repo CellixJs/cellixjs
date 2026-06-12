@@ -1,11 +1,11 @@
-import { Before, Given, Then, When } from '@cucumber/cucumber';
 import assert from 'node:assert';
+import { Before, Given, Then, When } from '@cucumber/cucumber';
 import type { Passport } from '../../../src/domain/contexts/passport.ts';
-import { StaffRole } from '../../../src/domain/contexts/user/staff-role/staff-role.ts';
 import type { StaffRoleProps } from '../../../src/domain/contexts/user/staff-role/staff-role.ts';
+import { StaffRole } from '../../../src/domain/contexts/user/staff-role/staff-role.ts';
+import type { StaffUserProps } from '../../../src/domain/contexts/user/staff-user/staff-user.ts';
 import { StaffUser } from '../../../src/domain/contexts/user/staff-user/staff-user.ts';
 import { StaffUserCreatedEvent } from '../../../src/domain/events/types/staff-user-created.ts';
-import type { StaffUserProps } from '../../../src/domain/contexts/user/staff-user/staff-user.ts';
 import { createAuthorizingStaffRoleProps, createMockPassport, createStaffUserProps } from '../support/staff-user-test-utils.ts';
 
 type DefaultRoleKey = 'case manager' | 'service line owner' | 'finance' | 'tech admin';

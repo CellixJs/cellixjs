@@ -102,6 +102,7 @@ module functionApp '../../../iac/function-app/main.bicep' = {
     tags: tags
     appServicePlanName: appServicePlan.outputs.appServicePlanName
     storageAccountName: functionAppStorageAccountName
+    applicationStorageAccountName: storageAccount.outputs.storageAccountName
     functionAppInstanceName: functionAppInstanceName
     functionWorkerRuntime: functionWorkerRuntime
     functionExtensionVersion: functionExtensionVersion

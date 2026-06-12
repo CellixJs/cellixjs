@@ -1,7 +1,9 @@
+import type { BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
+import type { BlobAddress, ListBlobsRequest, UploadTextBlobRequest, BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
 import { actors } from '@ocom-verification/verification-shared/test-data';
@@ -31,18 +33,53 @@ function createNoOpApolloServerService(): ServiceApolloServer<Record<string, nev
 		startUp: () => Promise.resolve({} as unknown as Awaited<ReturnType<ServiceApolloServer<Record<string, never>>['startUp']>>),
 		shutDown: () => Promise.resolve(),
 		get service(): never {
-			return notImplemented() as never;
+			return notImplemented();
 		},
 	} as unknown as ServiceApolloServer<Record<string, never>>;
 }
 
+const noOpBlobUploadAuthorizationHeader = {
+	url: 'https://blob.example.test/no-op',
+	authorizationHeader: '',
+	headers: {},
+} satisfies BlobUploadAuthorizationHeader;
+
+function createNoOpBlobStorageService(): BlobStorageOperations {
+	return {
+		uploadText(_request: UploadTextBlobRequest) {
+			return Promise.resolve({});
+		},
+		deleteBlob(_address: BlobAddress) {
+			return Promise.resolve();
+		},
+		listBlobs(_request: ListBlobsRequest) {
+			return Promise.resolve([]);
+		},
+	};
+}
+
+function createNoOpClientOperationsService(): ClientUploadOperations {
+	return {
+		createBlobWriteAuthorizationHeader(_request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+			return Promise.resolve(noOpBlobUploadAuthorizationHeader);
+		},
+		createBlobReadAuthorizationHeader(_request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
+			return Promise.resolve(noOpBlobUploadAuthorizationHeader);
+		},
+	};
+}
+
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {
 	const dataSourcesFactory = Persistence(serviceMongoose);
+	const blobStorageService = createNoOpBlobStorageService();
+	const clientOperationsService = createNoOpClientOperationsService();
 
 	const apiContextSpec: ApiContextSpec = {
 		dataSourcesFactory,
 		tokenValidationService: createMockTokenValidation(),
 		apolloServerService: createNoOpApolloServerService(),
+		blobStorageService,
+		clientOperationsService,
 	};
 
 	const mockApplicationServicesFactory = buildApplicationServicesFactory(apiContextSpec);
