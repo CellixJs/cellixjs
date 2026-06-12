@@ -8,9 +8,11 @@
 	"packageManager": "pnpm@11.0.8",
 	"scripts": {
 		"antd": "antd",
+		"install:all": "pnpm i && pnpm run install:python",
+		"install:python": "python -m pip install -r requirements.txt",
 		"audit": "(pnpm audit --audit-level=high --prod) && (pnpm audit --audit-level=critical --dev)",
 		"build": "turbo run build",
-        "build:iac": "node build-pipeline/scripts/build-bicep.js",
+		"build:iac": "node build-pipeline/scripts/build-bicep.js",
 		"test": "turbo run test",
 		"lint": "turbo run lint",
 		"dev": "pnpm proxy:stop && pnpm proxy:start && turbo watch azurite dev --filter='./apps/*' --filter='./packages/*'",

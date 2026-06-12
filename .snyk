@@ -58,9 +58,9 @@ ignore:
         expires: '2026-10-23T00:00:00.000Z'
         created: '2026-04-23T00:00:00.000Z'
     - '* > uuid':
-        reason: 'Transitive dependency in @apollo/server; override to uuid 14.0.0 breaks azurite.'
-        expires: '2026-05-24T00:00:00.000Z'
-        created: '2026-04-24T10:00:00.000Z'
+        reason: 'Transitive dependency in Azurite and related dev/test stacks; forcing uuid to 11.1.1 or 14.0.0 breaks packages that import legacy uuid subpaths such as uuid/v4.'
+        expires: '2026-09-08T00:00:00.000Z'
+        created: '2026-06-10T00:00:00.000Z'
   'SNYK-JS-APOLLOPROTOBUFJS-16321047':
     - '* > @apollo/protobufjs':
         reason: 'Apollo usage-reporting-protobuf depends on @apollo/protobufjs and Snyk reports no fixed version. We are accepting this temporarily until Apollo provides a non-vulnerable upgrade path.'
@@ -77,20 +77,20 @@ ignore:
         expires: '2026-06-28T00:00:00.000Z'
         created: '2026-05-11T10:00:00.000Z'
   'SNYK-JS-AI-16734889':
-    - '* > ai@5.0.105':
-        reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
-        expires: '2026-06-18T00:00:00.000Z'
-        created: '2026-05-18T11:04:00.000Z'
+    - '@docusaurus/preset-classic@3.10.1 > * > ai@5.0.105':
+        reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
+        expires: '2026-09-08T00:00:00.000Z'
+        created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16734888':
-    - '* > @ai-sdk/provider-utils@3.0.18':
-        reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
-        expires: '2026-06-18T00:00:00.000Z'
-        created: '2026-05-18T11:04:00.000Z'
+    - '@docusaurus/preset-classic@3.10.1 > * > @ai-sdk/provider-utils@3.0.18':
+        reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
+        expires: '2026-09-08T00:00:00.000Z'
+        created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16735288':
-    - '* > @ai-sdk/provider-utils@3.0.18':
-        reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
-        expires: '2026-06-18T00:00:00.000Z'
-        created: '2026-05-18T11:04:00.000Z'
+    - '@docusaurus/preset-classic@3.10.1 > * > @ai-sdk/provider-utils@3.0.18':
+        reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
+        expires: '2026-09-08T00:00:00.000Z'
+        created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050':
     - '* > @opentelemetry/exporter-prometheus@0.57.2':
         reason: 'Requires upgrade of @opentelemetry/sdk-node to 0.217.0, which has type errors that break compilation. Created task to upgrade OTEL service to 2.x and resolve vulnerability that way.'
@@ -98,9 +98,9 @@ ignore:
         created: '2026-06-01T10:00:00.000Z'
   'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
     - '* > postcss-selector-parser':
-        reason: 'Transitive dependency in Docusaurus CSS optimization/build tooling; Snyk reports no fixed version for postcss-selector-parser yet. Not exploitable at runtime because docs CSS is repository-controlled and processed at build time.'
-        expires: '2026-07-28T00:00:00.000Z'
-        created: '2026-05-27T00:00:00.000Z'
+        reason: 'Transitive dependency in Docusaurus CSS optimization/build tooling; Snyk reports no fixed upgrade or patch available. Not exploitable at runtime because docs CSS is repository-controlled and processed at build time.'
+        expires: '2026-09-08T00:00:00.000Z'
+        created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295814':
     - '* > image-size@<=2.0.2':
         reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
