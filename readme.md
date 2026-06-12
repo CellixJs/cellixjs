@@ -54,7 +54,7 @@ brew uninstall nvm
 3. If you installed `nvm` manually, remove its local directory:
 
 ```bash
-rm -rf ~/.nvm
+sudo rm -rf ~/.nvm
 ```
 
 4. Open a new terminal before continuing so the old `nvm` configuration is no longer loaded.
