@@ -1,10 +1,8 @@
 import { GraphQLTestServer, MongoDBTestServer } from '@ocom-verification/verification-shared/servers';
-import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { createMockApplicationServicesFactory } from './application-services/index.ts';
 
 // Shared infrastructure — persists across scenarios within a single test run
 let mongoDBServer: MongoDBTestServer | undefined;
-let mongoSeeded = false;
 let graphQLServer: GraphQLTestServer | undefined;
 let apiUrl: string | undefined;
 
@@ -26,27 +24,13 @@ export async function stopAll(): Promise<void> {
 		mongoDBServer = undefined;
 	}
 	apiUrl = undefined;
-	mongoSeeded = false;
 }
 
-async function ensureMongoDBServer(options?: { port?: number; dbName?: string }): Promise<MongoDBTestServer> {
+async function ensureMongoDBServer(): Promise<MongoDBTestServer> {
 	if (mongoDBServer) return mongoDBServer;
 
-	const connectionString = options?.port ? apiSettings.cosmosDbConnectionString : '';
-
-	if (connectionString && (await MongoDBTestServer.isReachable(connectionString))) {
-		if (!mongoSeeded) {
-			await MongoDBTestServer.seedData(connectionString, options?.dbName ?? apiSettings.cosmosDbName);
-			mongoSeeded = true;
-		}
-		mongoDBServer = new MongoDBTestServer();
-		await mongoDBServer.start(options);
-		return mongoDBServer;
-	}
-
 	mongoDBServer = new MongoDBTestServer();
-	await mongoDBServer.start(options);
-	mongoSeeded = true;
+	await mongoDBServer.start({ attachMongoose: true });
 	return mongoDBServer;
 }
 

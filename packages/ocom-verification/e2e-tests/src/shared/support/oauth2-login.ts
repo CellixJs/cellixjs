@@ -1,4 +1,6 @@
-import { type Actor, Interaction, the } from '@serenity-js/core';
+import { TaskStep } from '@ocom-verification/verification-shared/serenity';
+import { actors } from '@ocom-verification/verification-shared/test-data';
+import { type Activity, type Actor, Task, the } from '@serenity-js/core';
 import type { Page } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 
@@ -15,8 +17,8 @@ const isPostAuthUrl = (url: URL) => !url.hostname.includes('mock-auth') && !url.
  * The app uses RequireAuth + react-oidc-context.  When an unauthenticated
  * user hits a protected route, RequireAuth calls `signinRedirect()` which
  * navigates to the mock OAuth2 server's `/authorize` endpoint.  The mock
- * server auto-completes the flow (no login form) and redirects back with a
- * code that the OIDC library exchanges for tokens.
+ * server redirects to `/login` (since userStore is configured).  This
+ * function fills in the test user credentials and submits the form.
  */
 export async function performOAuth2Login(page: Page): Promise<void> {
 	// Navigate to a protected route to trigger the OIDC signinRedirect flow.
@@ -29,11 +31,13 @@ export async function performOAuth2Login(page: Page): Promise<void> {
 		// Navigation may be interrupted by OIDC redirect — this is expected
 	}
 
-	// If the mock OAuth2 server has a userStore, the /authorize endpoint
-	// redirects to a /login form instead of auto-completing the flow.
-	// Detect the login page and fill in credentials to proceed.
+	// Wait for redirects to settle on either the login page or the app
+	await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => undefined);
+
+	// If the mock OAuth2 login form is shown, fill credentials and submit.
+	// CommunityOwner is defined in mock-oidc.users.json with password "password".
 	if (page.url().includes('/login')) {
-		await page.fill('input[name="username"]', 'test@example.com');
+		await page.fill('input[name="username"]', actors.CommunityOwner.email);
 		await page.fill('input[name="password"]', 'password');
 		await page.click('button[type="submit"]');
 	}
@@ -44,33 +48,34 @@ export async function performOAuth2Login(page: Page): Promise<void> {
 }
 
 /**
- * Screenplay Interaction — confirms the actor is authenticated.
+ * Screenplay Task — confirms the actor is authenticated.
  *
  * The browser context is pre-authenticated by {@link performOAuth2Login}
- * during server setup.  This interaction navigates to a protected route and
+ * during server setup.  This task navigates to a protected route and
  * verifies the page loads without being kicked to the auth provider.
  */
-export const OAuth2Login = (_email?: string, _password?: string, options?: { path?: string; expectedHost?: string }) =>
-	Interaction.where(the`#actor logs in via OAuth2`, async (serenityActor) => {
-		const actor = serenityActor as unknown as Actor;
-		const { page } = BrowseTheWeb.withActor(actor);
-		const targetPath = options?.path ?? '/community/accounts';
+export const OAuth2Login = (_email?: string, _password?: string) =>
+	Task.where(
+		the`#actor logs in via OAuth2`,
+		new TaskStep('#actor confirms the OAuth2 session is active', async (actor) => {
+			const { page } = BrowseTheWeb.withActor(actor as Actor);
 
-		// Session tokens live in sessionStorage from pre-auth.
-		try {
-			await page.goto(targetPath, {
-				waitUntil: 'networkidle',
-				timeout: 30_000,
-			});
-		} catch {
-			// Navigation may be interrupted by OIDC redirect on first access
-		}
+			// Session tokens live in sessionStorage from pre-auth.
+			try {
+				await page.goto('/community/accounts', {
+					waitUntil: 'networkidle',
+					timeout: 30_000,
+				});
+			} catch {
+				// Navigation may be interrupted by OIDC redirect on first access
+			}
 
-		if (page.url().includes('/login')) {
-			await page.fill('input[name="username"]', 'test@example.com');
-			await page.fill('input[name="password"]', 'password');
-			await page.click('button[type="submit"]');
-		}
+			if (page.url().includes('/login')) {
+				await page.fill('input[name="username"]', actors.CommunityOwner.email);
+				await page.fill('input[name="password"]', 'password');
+				await page.click('button[type="submit"]');
+			}
 
-		await page.waitForURL(isPostAuthUrl, { timeout: 30_000 });
-	});
+			await page.waitForURL(isPostAuthUrl, { timeout: 30_000 });
+		}) as Activity,
+	);

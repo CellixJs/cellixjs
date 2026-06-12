@@ -4,23 +4,14 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { TestServer } from '@ocom-verification/verification-shared/servers';
 import { getTimeout } from '@ocom-verification/verification-shared/settings';
+import { spawnEnv } from './child-process-env.ts';
+import { getPortlessPath } from './resolve-portless.ts';
 
 const harnessTargetDir = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../target');
 
 /**
- * Abstract base class for subprocess-backed test servers.
- * Subclasses invoke an app package's own local script directly.
- *
- * This implements the TestServer interface for consistency with
- * GraphQLTestServer (in-process), while providing subprocess isolation
- * for full system tests.
- *
- * Use this for:
- * - E2E tests requiring real running servers
- * - Full system integration tests
- * - Testing the actual build artifacts
- *
- * For faster API tests, use GraphQLTestServer instead.
+ * Abstract base class for portless-proxied servers.
+ * Subclasses define the hostname, command, ready marker, probe URL, and working directory.
  */
 export abstract class PortlessServer implements TestServer {
 	private process: ChildProcess | null = null;
@@ -30,11 +21,11 @@ export abstract class PortlessServer implements TestServer {
 	protected abstract get probeUrl(): string;
 	protected abstract get readyMarker(): string;
 	protected abstract get serverName(): string;
-	protected abstract get cwd(): string;
 	protected abstract get spawnArgs(): string[];
+	protected abstract get cwd(): string;
 
 	protected get executable(): string {
-		return 'pnpm';
+		return getPortlessPath();
 	}
 
 	protected get probeRequestInit(): RequestInit {
@@ -43,6 +34,10 @@ export abstract class PortlessServer implements TestServer {
 
 	protected get extraEnv(): Record<string, string> {
 		return {};
+	}
+
+	protected get startupTimeoutMs(): number {
+		return getTimeout('serverStartup');
 	}
 
 	protected isProbeHealthy(response: Response): boolean | Promise<boolean> {
@@ -65,38 +60,15 @@ export abstract class PortlessServer implements TestServer {
 		return this.isProbeReadyWithin(getTimeout('healthProbe'));
 	}
 
-	private async isProbeReadyWithin(timeoutMs: number): Promise<boolean> {
-		let timeout: ReturnType<typeof setTimeout> | undefined;
-		try {
-			const controller = new AbortController();
-			timeout = setTimeout(() => controller.abort(), timeoutMs);
-			const res = await fetch(this.probeUrl, { ...this.probeRequestInit, signal: controller.signal });
-			return await this.isProbeHealthy(res);
-		} catch {
-			return false;
-		} finally {
-			if (timeout) clearTimeout(timeout);
-		}
-	}
+	abstract getUrl(): string;
 
-	/**
-	 * Start the server subprocess and wait for it to be ready.
-	 * Uses centralized server startup timeout.
-	 */
 	async start(): Promise<void> {
 		if (this.process || this.startedByUs) return;
 		if (await this.isAlreadyRunning()) return;
 
-		const env = {
-			...process.env,
-			...this.extraEnv,
-		};
-		// Remove NODE_OPTIONS from child process to avoid tsx import issues
-		delete env.NODE_OPTIONS;
-
 		this.process = spawn(this.executable, this.spawnArgs, {
 			cwd: this.cwd,
-			env,
+			env: spawnEnv(this.extraEnv),
 			detached: this.useDetachedProcessGroup,
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
@@ -108,10 +80,6 @@ export abstract class PortlessServer implements TestServer {
 		await this.waitForReady();
 	}
 
-	/**
-	 * Stop the server gracefully, with fallback to SIGKILL.
-	 * Uses centralized server shutdown timeout.
-	 */
 	async stop(): Promise<void> {
 		if (!this.process || !this.startedByUs) return;
 
@@ -119,11 +87,6 @@ export abstract class PortlessServer implements TestServer {
 		this.process = null;
 		this.startedByUs = false;
 
-		// SIGINT (the same signal Ctrl+C sends in `pnpm dev`) lets portless's
-		// CLI run its cleanup branch — deregister the hostname from
-		// ~/.portless/routes.json before exiting. SIGTERM skips that handler in
-		// some tools and leaves stale state. Fall back to SIGKILL after the
-		// shutdown timeout for anything that ignores SIGINT.
 		this.killProcess(proc, 'SIGINT');
 
 		const shutdownTimeout = getTimeout('serverShutdown');
@@ -140,26 +103,8 @@ export abstract class PortlessServer implements TestServer {
 		});
 	}
 
-	/**
-	 * Check if server is currently running (started by this instance).
-	 */
 	isRunning(): boolean {
 		return this.process !== null;
-	}
-
-	/**
-	 * Get the server URL.
-	 * Subclasses must implement this to return the appropriate URL.
-	 * @throws Error if server is not running
-	 */
-	abstract getUrl(): string;
-
-	/**
-	 * Get the startup timeout from centralized configuration.
-	 * Subclasses can override for specific requirements.
-	 */
-	protected get startupTimeoutMs(): number {
-		return getTimeout('serverStartup');
 	}
 
 	private waitForReady(): Promise<void> {
@@ -202,8 +147,6 @@ export abstract class PortlessServer implements TestServer {
 					});
 			};
 
-			// stdout/stderr listeners detect the readyMarker and collect stderr
-			// for error reporting if the process exits unexpectedly.
 			proc.stdout?.on('data', (data: Buffer) => {
 				const text = data.toString();
 				this.appendToLogFile(text);
@@ -218,7 +161,7 @@ export abstract class PortlessServer implements TestServer {
 				this.appendToLogFile(text);
 			});
 
-			proc.on('error', (err) => {
+			proc.on('error', (err: Error) => {
 				clearTimeout(timeout);
 				this.process = null;
 				this.startedByUs = false;
@@ -226,6 +169,7 @@ export abstract class PortlessServer implements TestServer {
 			});
 
 			proc.on('exit', (code, signal) => {
+				if (ready) return;
 				clearTimeout(timeout);
 				this.process = null;
 				this.startedByUs = false;
@@ -260,6 +204,20 @@ export abstract class PortlessServer implements TestServer {
 			}
 
 			await new Promise((resolve) => setTimeout(resolve, retryDelay));
+		}
+	}
+
+	private async isProbeReadyWithin(timeoutMs: number): Promise<boolean> {
+		let timeout: ReturnType<typeof setTimeout> | undefined;
+		try {
+			const controller = new AbortController();
+			timeout = setTimeout(() => controller.abort(), timeoutMs);
+			const response = await fetch(this.probeUrl, { ...this.probeRequestInit, signal: controller.signal });
+			return await this.isProbeHealthy(response);
+		} catch {
+			return false;
+		} finally {
+			if (timeout) clearTimeout(timeout);
 		}
 	}
 

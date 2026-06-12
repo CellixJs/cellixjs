@@ -33,6 +33,7 @@
 		"@cellix/config-vitest": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"typescript": "catalog:",
+		"vitest": "catalog:",
 		"rimraf": "catalog:"
 	}
 }

@@ -4,8 +4,9 @@ Domain-driven architecture for Azure Functions with GraphQL/REST, MongoDB (Mongo
 
 ## Introduction
 
+
 [Getting Started](https://developers.cellixjs.org/docs/intro):
-Our Docusaurus website will help you get started in running and contributing to CellixJS
+Our Docusaurus website will help you get started with running and contributing to CellixJS
 
 ## Project Status
 
@@ -24,8 +25,8 @@ Our Docusaurus website will help you get started in running and contributing to 
 [![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs?branchName=main)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=12&branchName=main)
 
 
-## Developer usage
 
+## Developer usage
 
 - Full local dev (builds, starts the portless HTTPS proxy, starts Azurite, and runs the app-level dev servers):
 
@@ -350,6 +351,7 @@ npm init -w ./packages/event-bus-seedwork-node
 
 npm install --save-dev @tsconfig/node20 @tsconfig/node-ts vitest @vitest/coverage-istanbul
 ```
+
 
 ## Your feedback matters!
 

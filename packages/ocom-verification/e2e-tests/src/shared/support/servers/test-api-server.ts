@@ -2,13 +2,21 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
+import { appPaths } from './app-paths.ts';
+import { getPortlessDevScript } from './dev-script.ts';
 import { PortlessServer } from './portless-server.ts';
-import { buildUrl, getMongoConnectionString, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
+import { buildUrl, getHostnames, getMongoConnectionString, mockOidcAudience, mockOidcEndpoint, mockOidcIssuer } from './test-environment.ts';
 
+const hostnames = getHostnames();
+
+/**
+ * Spawns the api e2e dev server through the PR's portless/worktree path.
+ */
 export class TestApiServer extends PortlessServer {
 	override async start(): Promise<void> {
 		const env = {
 			...process.env,
+			...this.extraEnv,
 		};
 		// biome-ignore lint:useLiteralKeys
 		delete env['NODE_OPTIONS'];
@@ -30,8 +38,9 @@ export class TestApiServer extends PortlessServer {
 	}
 
 	protected get probeUrl() {
-		return buildUrl('data-access.ownercommunity.localhost', '/api/graphql');
+		return this.getUrl();
 	}
+
 	protected override get probeRequestInit(): RequestInit {
 		return {
 			method: 'POST',
@@ -39,6 +48,7 @@ export class TestApiServer extends PortlessServer {
 			body: JSON.stringify({ query: '{ __typename }' }),
 		};
 	}
+
 	protected override async isProbeHealthy(response: Response): Promise<boolean> {
 		if (!response.ok) {
 			return false;
@@ -51,18 +61,25 @@ export class TestApiServer extends PortlessServer {
 
 		return payload?.data?.__typename === 'Query' && !payload.errors?.length;
 	}
+
 	protected get readyMarker() {
 		return 'Functions:';
 	}
+
 	protected get serverName() {
 		return 'TestApiServer';
 	}
 
-	protected get spawnArgs() {
-		return ['run', 'dev'];
+	protected override get executable() {
+		return 'pnpm';
 	}
+
+	protected get spawnArgs() {
+		return ['run', getPortlessDevScript()];
+	}
+
 	protected get cwd() {
-		return apiSettings.apiDir;
+		return appPaths.apiDir;
 	}
 
 	protected override get extraEnv() {
@@ -74,6 +91,7 @@ export class TestApiServer extends PortlessServer {
 			// to register zero functions ("No job functions found"), surfacing
 			// as a 404 on /api/graphql even though the host is alive.
 			NODE_ENV: 'development',
+			E2E: 'true',
 			NODE_TLS_REJECT_UNAUTHORIZED: '0',
 			languageWorkers__node__arguments: '',
 			COSMOSDB_CONNECTION_STRING: getMongoConnectionString(),
@@ -91,10 +109,11 @@ export class TestApiServer extends PortlessServer {
 	}
 
 	getUrl(): string {
-		return buildUrl('data-access.ownercommunity.localhost', '/api/graphql');
+		return buildUrl(hostnames.api, '/api/graphql');
 	}
 
 	private writeDeployLocalSettings(): void {
+		const envOverrides = this.extraEnv;
 		const sourcePath = resolve(this.cwd, 'local.settings.json');
 		const targetDir = resolve(this.cwd, 'deploy');
 		const targetPath = resolve(targetDir, 'local.settings.json');
@@ -113,28 +132,28 @@ export class TestApiServer extends PortlessServer {
 		};
 
 		settings.Values ??= {};
-		applyEnvOverride(settings.Values, 'AZURE_STORAGE_ACCOUNT_NAME');
-		applyEnvOverride(settings.Values, 'AZURE_STORAGE_CONNECTION_STRING');
-		applyEnvOverride(settings.Values, 'COSMOSDB_CONNECTION_STRING');
-		applyEnvOverride(settings.Values, 'COSMOSDB_DBNAME');
-		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ISSUER');
-		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ENDPOINT');
-		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_AUDIENCE');
-		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_IGNORE_ISSUER');
-		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ISSUER');
-		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ENDPOINT');
-		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_AUDIENCE');
-		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_IGNORE_ISSUER');
-		applyEnvOverride(settings.Values, 'NODE_ENV');
-		applyEnvOverride(settings.Values, 'languageWorkers__node__arguments');
+		applyEnvOverride(settings.Values, 'AZURE_STORAGE_ACCOUNT_NAME', envOverrides);
+		applyEnvOverride(settings.Values, 'AZURE_STORAGE_CONNECTION_STRING', envOverrides);
+		applyEnvOverride(settings.Values, 'COSMOSDB_CONNECTION_STRING', envOverrides);
+		applyEnvOverride(settings.Values, 'COSMOSDB_DBNAME', envOverrides);
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ISSUER', envOverrides);
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ENDPOINT', envOverrides);
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_AUDIENCE', envOverrides);
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_IGNORE_ISSUER', envOverrides);
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ISSUER', envOverrides);
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ENDPOINT', envOverrides);
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_AUDIENCE', envOverrides);
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_IGNORE_ISSUER', envOverrides);
+		applyEnvOverride(settings.Values, 'NODE_ENV', envOverrides);
+		applyEnvOverride(settings.Values, 'languageWorkers__node__arguments', envOverrides);
 
 		mkdirSync(targetDir, { recursive: true });
 		writeFileSync(targetPath, `${JSON.stringify(settings, null, '\t')}\n`, 'utf8');
 	}
 }
 
-function applyEnvOverride(target: Record<string, string | boolean>, key: string): void {
-	const value = process.env[key];
+function applyEnvOverride(target: Record<string, string | boolean>, key: string, overrides: Record<string, string>): void {
+	const value = overrides[key] ?? process.env[key];
 	if (value === undefined) {
 		return;
 	}

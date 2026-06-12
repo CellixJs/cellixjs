@@ -2,8 +2,12 @@ import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
 import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestAzuriteServer, TestCommunityViteServer, TestOAuth2Server, TestStaffViteServer } from './servers/index.ts';
+import { getMongoPort } from './servers/worktree-ports.ts';
+
+const apiDbName = 'owner-community';
 
 let mongoDBServer: MongoDBTestServer | undefined;
+let azuriteServer: TestAzuriteServer | undefined;
 let oauth2Server: TestOAuth2Server | undefined;
 let azuriteBlobServer: TestAzuriteServer | undefined;
 let apiServer: TestApiServer | undefined;
@@ -31,8 +35,6 @@ export function getState(): InfrastructureState {
 
 /**
  * Resets mutable state between scenarios without restarting servers.
- * Drops all MongoDB collections and re-seeds reference data so each
- * scenario starts from a clean baseline.
  */
 export async function resetScenarioState(): Promise<void> {
 	if (mongoDBServer?.isRunning()) {
@@ -49,6 +51,7 @@ export async function stopAll(): Promise<void> {
 		await authenticatedBrowserContext.close().catch(() => undefined);
 	}
 	authenticatedBrowserContext = undefined;
+
 	if (browser) {
 		await browser.close().catch(() => undefined);
 		browser = undefined;
@@ -81,6 +84,11 @@ export async function stopAll(): Promise<void> {
 		await mongoDBServer.stop().catch(() => undefined);
 		mongoDBServer = undefined;
 	}
+	if (azuriteServer) {
+		await azuriteServer.stop().catch(() => undefined);
+		azuriteServer = undefined;
+	}
+
 	apiUrl = undefined;
 	browserBaseUrl = undefined;
 	cleanupTestEnvironment();
@@ -103,17 +111,26 @@ export async function ensureE2EServers(): Promise<void> {
 
 async function ensureE2EServersInternal(): Promise<void> {
 	initTestEnvironment();
-
 	registerShutdownHandlers();
 
-	// Phase 1: Start MongoDB and OAuth2 in parallel (no interdependency)
 	mongoDBServer ??= new MongoDBTestServer();
+	azuriteServer ??= new TestAzuriteServer();
 	oauth2Server ??= new TestOAuth2Server();
+
 	const mongo = mongoDBServer;
+	const azurite = azuriteServer;
 	const oauth2 = oauth2Server;
 	const phase1: Promise<void>[] = [];
+
 	if (!mongo.isRunning()) {
-		phase1.push(mongo.start().then(() => setMongoConnectionString(mongo.getConnectionString())));
+		phase1.push(
+			mongo.start({ dbName: apiDbName, port: getMongoPort() }).then(() => {
+				setMongoConnectionString(mongo.getConnectionString());
+			}),
+		);
+	}
+	if (!azurite.isRunning()) {
+		phase1.push(azurite.start());
 	}
 	if (!oauth2.isRunning()) {
 		phase1.push(oauth2.start());
@@ -133,10 +150,12 @@ async function ensureE2EServersInternal(): Promise<void> {
 	apiServer ??= new TestApiServer();
 	communityViteServer ??= new TestCommunityViteServer();
 	staffViteServer ??= new TestStaffViteServer();
+
 	const api = apiServer;
-	const vite = communityViteServer;
+	const communityVite = communityViteServer;
 	const staffVite = staffViteServer;
 	const phase2: Promise<void>[] = [];
+
 	if (!api.isRunning()) {
 		phase2.push(
 			api.start().then(() => {
@@ -144,19 +163,16 @@ async function ensureE2EServersInternal(): Promise<void> {
 			}),
 		);
 	}
-	if (!vite.isRunning()) {
-		phase2.push(vite.start());
+	if (!communityVite.isRunning()) {
+		phase2.push(communityVite.start());
 	}
 	if (!staffVite.isRunning()) {
 		phase2.push(staffVite.start());
 	}
 	if (phase2.length > 0) await Promise.all(phase2);
 
-	browserBaseUrl = communityViteServer.getUrl();
-
-	if (!apiUrl) {
-		apiUrl = apiServer?.getUrl();
-	}
+	browserBaseUrl = communityVite.getUrl();
+	apiUrl ??= api.getUrl();
 
 	if (!browser) {
 		browser = await playwright.chromium.launch({ headless: true });

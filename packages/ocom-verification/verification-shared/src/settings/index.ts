@@ -1,10 +1,4 @@
 export { apiSettings, uiCommunitySettings, uiStaffSettings } from './local-settings.ts';
-export {
-	findWorkspaceRoot,
-	readDotEnv,
-	readJsonSettings,
-	readSetting,
-	requireSetting,
-	resolveWorkspacePath,
-} from './settings-utils.ts';
+export { buildPortlessUrl, getHostnames, PORTLESS_PORT } from './portless-settings.ts';
+export { findWorkspaceRoot, readDotEnv, readJsonSettings, readSetting, requireSetting, resolveWorkspacePath } from './settings-utils.ts';
 export { getTimeout, type TimeoutKey, timeouts } from './timeout-settings.ts';

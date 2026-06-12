@@ -2,8 +2,9 @@
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
 		"apps/api": {
-			"entry": ["src/index.ts"],
-			"project": ["src/**/*.ts"]
+			"entry": ["src/index.ts", "start-*.mjs"],
+			"project": ["src/**/*.ts", "*.mjs"],
+			"ignoreDependencies": ["azurite"]
 		},
 		"apps/ui-community": {
 			"entry": ["src/main.tsx"],
@@ -97,7 +98,21 @@
 		}
 	},
 	"ignoreWorkspaces": ["packages/cellix/config-typescript"],
-	"ignore": ["build-pipeline/scripts/**", "**/fixtures/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**", ".agents/**", ".github/**", "portless.config.cjs"],
+	"ignore": [
+		"build-pipeline/scripts/**",
+		"scripts/local-dev/**",
+		"**/fixtures/**",
+		"**/*.test.ts",
+		"**/*.spec.ts",
+		"**/*.stories.tsx",
+		"**/dist/**",
+		"**/coverage/**",
+		"**/__tests__/**",
+		"**/tests/**",
+		".agents/**",
+		".github/**",
+		"portless.config.cjs"
+	],
 	"ignoreIssues": {
 		"codegen.yml": ["unlisted"]
 	},

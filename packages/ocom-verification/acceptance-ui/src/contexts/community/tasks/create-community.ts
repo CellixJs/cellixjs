@@ -1,6 +1,7 @@
 import { CommunityPage, type UiCommunityPage } from '@ocom-verification/verification-shared/pages';
 import { JsdomPageAdapter } from '@ocom-verification/verification-shared/pages/jsdom';
-import { Interaction } from '@serenity-js/core';
+import { TaskStep } from '@ocom-verification/verification-shared/serenity';
+import { type Activity, Task } from '@serenity-js/core';
 
 async function flushAsync(): Promise<void> {
 	await new Promise<void>((resolve) => {
@@ -12,12 +13,15 @@ async function flushAsync(): Promise<void> {
 }
 
 export const CreateCommunity = (container: HTMLElement, name: string) =>
-	Interaction.where(`#actor fills community name "${name}" and submits`, async () => {
-		const adapter = new JsdomPageAdapter(container);
-		const page: UiCommunityPage = new CommunityPage(adapter);
+	Task.where(
+		`#actor fills community name "${name}" and submits`,
+		new TaskStep(`#actor submits community name "${name}"`, async () => {
+			const adapter = new JsdomPageAdapter(container);
+			const page: UiCommunityPage = new CommunityPage(adapter);
 
-		await page.fillName(name);
-		await page.clickCreate();
+			await page.fillName(name);
+			await page.clickCreate();
 
-		await flushAsync();
-	});
+			await flushAsync();
+		}) as Activity,
+	);

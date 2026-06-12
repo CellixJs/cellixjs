@@ -119,16 +119,17 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 	const clientIdVar = config.envVars.clientId;
 	const redirectUriVar = config.envVars.redirectUri;
 
-	const clientId = parsedEnv[clientIdVar];
-	const redirectUri = parsedEnv[redirectUriVar];
+	// process.env takes precedence — allows worktree-scoped overrides injected at startup
+	const clientId = process.env[clientIdVar] ?? parsedEnv[clientIdVar];
+	const redirectUri = process.env[redirectUriVar] ?? parsedEnv[redirectUriVar];
 
 	if (!clientId) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${clientIdVar} not found in .env`);
+		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${clientIdVar} not found in .env or process.env`);
 		return null;
 	}
 
 	if (!redirectUri) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${redirectUriVar} not found in .env`);
+		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${redirectUriVar} not found in .env or process.env`);
 		return null;
 	}
 

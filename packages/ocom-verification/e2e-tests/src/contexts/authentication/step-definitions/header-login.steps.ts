@@ -3,18 +3,12 @@ import { actorCalled, notes } from '@serenity-js/core';
 import type { BrowserContext, Page } from 'playwright';
 import * as infra from '../../../shared/support/shared-infrastructure.ts';
 import type { CellixE2EWorld } from '../../../world.ts';
-
-interface HeaderE2ENotes {
-	signinRedirectInvoked: boolean;
-	fallbackTriggered: boolean;
-	postLoginUrl: string;
-}
-
-type Site = 'community' | 'staff';
+import type { HeaderE2ENotes, HeaderE2ESite } from '../abilities/header-types.ts';
+import { ClickHeaderSignIn } from '../tasks/click-header-sign-in.ts';
 
 interface HeaderE2EState {
 	actorName: string;
-	site: Site;
+	site: HeaderE2ESite;
 	identityProviderUnreachable: boolean;
 	context?: BrowserContext;
 	page?: Page;
@@ -29,7 +23,7 @@ function getHeaderState(world: HeaderE2EWorld): HeaderE2EState {
 	return world.__headerState;
 }
 
-function setHeaderState(world: HeaderE2EWorld, actorName: string, site: Site): HeaderE2EState {
+function setHeaderState(world: HeaderE2EWorld, actorName: string, site: HeaderE2ESite): HeaderE2EState {
 	const state: HeaderE2EState = { actorName, site, identityProviderUnreachable: false };
 	world.__headerState = state;
 	return state;
@@ -63,15 +57,10 @@ Given('the identity provider is unreachable', function (this: HeaderE2EWorld) {
 	getHeaderState(this).identityProviderUnreachable = true;
 });
 
-// Credentials from apps/ui-{portal}/mock-oidc.users.json
-const portalCredentials: Record<Site, { username: string; password: string }> = {
-	community: { username: 'test@example.com', password: 'password' },
-	staff: { username: 'staff@ownercommunity.onmicrosoft.com', password: 'password' },
-};
-
 When('{word} chooses to sign in', async function (this: HeaderE2EWorld, actorName: string) {
 	const s = getHeaderState(this);
 	s.actorName = actorName;
+	const actor = actorCalled(actorName);
 
 	const { browser } = infra.getState();
 	if (!browser) throw new Error('Browser not launched');
@@ -93,33 +82,7 @@ When('{word} chooses to sign in', async function (this: HeaderE2EWorld, actorNam
 	const page = await context.newPage();
 	s.page = page;
 
-	// Navigate to site root — the unauthenticated home page is visible
-	await page.goto('/', { waitUntil: 'networkidle', timeout: 30_000 });
-
-	// Click the sign-in button on the home page
-	const signInButton = page.getByRole('button', { name: /Log In|Sign In/i });
-	await signInButton.click();
-
-	if (s.identityProviderUnreachable) {
-		// IdP is blocked — the app should handle the error gracefully.
-		// Wait for error handling to settle, then leave the page open for Then to inspect.
-		await page.waitForTimeout(2000);
-	} else {
-		// Wait for redirect to mock-auth login form
-		await page.waitForURL((url) => url.hostname.includes('mock-auth'), { timeout: 15_000 });
-
-		// Complete the login form with portal-specific credentials
-		const creds = portalCredentials[s.site];
-		if (page.url().includes('/login')) {
-			await page.fill('input[name="username"]', creds.username);
-			await page.fill('input[name="password"]', creds.password);
-			await page.click('button[type="submit"]');
-		}
-
-		// Wait for the redirect chain to settle back on the portal
-		await page.waitForURL((url) => !url.hostname.includes('mock-auth') && !url.pathname.includes('auth-redirect'), { timeout: 30_000 });
-		await page.waitForLoadState('networkidle');
-	}
+	await actor.attemptsTo(ClickHeaderSignIn(page, s.site, s.identityProviderUnreachable));
 });
 
 Then('{word} is taken to the sign-in flow', async function (this: HeaderE2EWorld, actorName: string) {
