@@ -30,7 +30,6 @@ function makeMockStaffRoleRef(id: string, roleName: string): Domain.Contexts.Use
 			},
 			userPermissions: {
 				canManageUsers: false,
-				canAssignStaffUserRoles: false,
 			},
 		},
 		createdAt: new Date(),

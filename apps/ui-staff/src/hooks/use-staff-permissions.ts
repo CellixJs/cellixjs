@@ -21,7 +21,6 @@ const CURRENT_STAFF_USER_QUERY = gql`
 					userPermissions {
 						canManageUsers
 						canAssignStaffRoles
-						canAssignStaffUserRoles
 						canViewStaffUsers
 					}
 					staffRolePermissions {
@@ -70,7 +69,7 @@ interface StaffUserQueryResult {
 			enterpriseAppRole: string;
 			permissions: {
 				communityPermissions: { canManageCommunities: boolean; canManageStaffRolesAndPermissions: boolean };
-				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canAssignStaffUserRoles: boolean; canViewStaffUsers: boolean };
+				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canViewStaffUsers: boolean };
 				staffRolePermissions: { canViewRoles: boolean; canAddRole: boolean; canEditRole: boolean; canRemoveRole: boolean };
 				financePermissions: { canManageFinance: boolean };
 				techAdminPermissions: { canManageTechAdmin: boolean };
@@ -101,7 +100,7 @@ export const useStaffPermissions = (): {
 				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
 				canManageStaffRolesAndPermissions: rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canManageUsers: rolePermissions.userPermissions.canManageUsers || isTechAdmin,
-				canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles || rolePermissions.userPermissions.canAssignStaffUserRoles || isTechAdmin,
+				canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles || isTechAdmin,
 				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers || rolePermissions.userPermissions.canManageUsers || isTechAdmin,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
 				canManageTechAdmin: isTechAdmin,

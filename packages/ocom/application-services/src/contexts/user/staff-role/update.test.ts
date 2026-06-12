@@ -40,7 +40,6 @@ function makeMockStaffRoleInstance(id: string, roleName = 'Original Role'): Mock
 	};
 	const userPermissions: Record<string, boolean> = {
 		canManageUsers: false,
-		canAssignStaffUserRoles: false,
 	};
 	return {
 		id,
@@ -300,31 +299,6 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(cp.canDeleteCommunities).toBe(true);
 			expect(cp.canChangeCommunityOwner).toBe(true);
 			expect(cp.canReIndexSearchCollections).toBe(true);
-		});
-	});
-
-	// ─── canAssignStaffUserRoles ──────────────────────────────────────────────
-
-	Scenario('Successfully updates a staff role with canAssignStaffUserRoles set', ({ Given, When, Then }) => {
-		Given('a staff role with id "role-assign" exists in the repository', () => {
-			roleInstance = makeMockStaffRoleInstance('role-assign');
-			dataSources = makeDataSources({ roleInstance });
-			command = {
-				roleId: 'role-assign',
-				roleName: 'Assign Role',
-				permissions: { user: { canAssignStaffUserRoles: true } },
-			};
-		});
-		When('I call update with user permissions canAssignStaffUserRoles true', async () => {
-			try {
-				result = await update(dataSources)(command);
-			} catch (e) {
-				thrownError = e;
-			}
-		});
-		Then('the user permission canAssignStaffUserRoles should be true', () => {
-			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 

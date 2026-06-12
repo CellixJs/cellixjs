@@ -13,7 +13,6 @@ interface StaffRoleUpdateCommandCommunityPermissions {
 interface StaffRoleUpdateCommandUserPermissions {
 	canManageUsers?: boolean;
 	canAssignStaffRoles?: boolean;
-	canAssignStaffUserRoles?: boolean;
 	canViewStaffUsers?: boolean;
 }
 
@@ -69,14 +68,8 @@ const applyUserPermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRol
 	if (!permissions) return;
 	const { userPermissions } = staffRole.permissions;
 	if (permissions.canManageUsers !== undefined) userPermissions.canManageUsers = permissions.canManageUsers;
-	if (permissions.canAssignStaffUserRoles !== undefined) userPermissions.canAssignStaffUserRoles = permissions.canAssignStaffUserRoles;
 	if (permissions.canAssignStaffRoles !== undefined) {
 		userPermissions.canAssignStaffRoles = permissions.canAssignStaffRoles;
-		userPermissions.canAssignStaffUserRoles = permissions.canAssignStaffRoles;
-	}
-	if (permissions.canAssignStaffUserRoles !== undefined) {
-		userPermissions.canAssignStaffRoles = permissions.canAssignStaffUserRoles;
-		userPermissions.canAssignStaffUserRoles = permissions.canAssignStaffUserRoles;
 	}
 	if (permissions.canViewStaffUsers !== undefined) userPermissions.canViewStaffUsers = permissions.canViewStaffUsers;
 };

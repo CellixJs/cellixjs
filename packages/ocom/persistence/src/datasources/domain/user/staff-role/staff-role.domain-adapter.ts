@@ -3,9 +3,9 @@ import type {
 	StaffRole,
 	StaffRoleCommunityPermissions,
 	StaffRoleFinancePermissions,
-	StaffRoleRolePermissions,
 	StaffRolePermissions,
 	StaffRolePropertyPermissions,
+	StaffRoleRolePermissions,
 	StaffRoleServicePermissions,
 	StaffRoleServiceTicketPermissions,
 	StaffRoleTechAdminPermissions,
@@ -154,7 +154,6 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 			this.doc.userPermissions = {
 				canManageUsers: false,
 				canAssignStaffRoles: false,
-				canAssignStaffUserRoles: false,
 				canViewStaffUsers: false,
 			};
 		}
@@ -459,19 +458,10 @@ export class StaffRoleUserPermissionsAdapter implements Domain.Contexts.User.Sta
 	}
 
 	get canAssignStaffRoles(): boolean {
-		return this.ensureValue(this.doc.canAssignStaffRoles ?? this.doc.canAssignStaffUserRoles);
+		return this.ensureValue(this.doc.canAssignStaffRoles);
 	}
 	set canAssignStaffRoles(value: boolean) {
 		this.doc.canAssignStaffRoles = value;
-		this.doc.canAssignStaffUserRoles = value;
-	}
-
-	get canAssignStaffUserRoles(): boolean {
-		return this.ensureValue(this.doc.canAssignStaffRoles ?? this.doc.canAssignStaffUserRoles);
-	}
-	set canAssignStaffUserRoles(value: boolean) {
-		this.doc.canAssignStaffRoles = value;
-		this.doc.canAssignStaffUserRoles = value;
 	}
 
 	get canViewStaffUsers(): boolean {

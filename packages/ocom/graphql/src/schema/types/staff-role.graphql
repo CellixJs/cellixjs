@@ -25,7 +25,6 @@ type StaffRoleTechAdminPermissions {
 type StaffRoleUserPermissions {
 	canManageUsers: Boolean!
 	canAssignStaffRoles: Boolean!
-	canAssignStaffUserRoles: Boolean! @deprecated(reason: "Use canAssignStaffRoles instead")
 	canViewStaffUsers: Boolean!
 }
 
@@ -69,7 +68,6 @@ input StaffRoleCreateCommunityPermissionsInput {
 input StaffRoleCreateUserPermissionsInput {
 	canManageUsers: Boolean
 	canAssignStaffRoles: Boolean
-	canAssignStaffUserRoles: Boolean @deprecated(reason: "Use canAssignStaffRoles instead")
 	canViewStaffUsers: Boolean
 }
 

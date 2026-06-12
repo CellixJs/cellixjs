@@ -54,11 +54,6 @@ Feature: Create staff role
     When I call create with roleName "Full Community Role" and all community permissions true
     Then all community permissions should be true on the saved instance
 
-  Scenario: Successfully creates a staff role with canAssignStaffUserRoles set
-    Given a staff role with name "Assign Role" does not exist in the repository
-    When I call create with roleName "Assign Role" and user permissions canAssignStaffUserRoles true
-    Then the user permission canAssignStaffUserRoles should be true
-
   Scenario: Omitting community permissions sub-object leaves community permissions unchanged
     Given a staff role with name "Test Role" does not exist in the repository
     When I call create with roleName "Test Role" and only user permissions

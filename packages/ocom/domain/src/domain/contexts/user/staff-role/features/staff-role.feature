@@ -120,7 +120,6 @@ Feature: <AggregateRoot> StaffRole
     And finance canManageFinance should be false
     And techAdmin canManageTechAdmin should be false
     And user canManageUsers should be true
-    And user canAssignStaffUserRoles should be true
 
   Scenario: Creating a new default Service Line Owner role
     When I call getNewDefaultServiceLineOwnerInstance
@@ -132,7 +131,6 @@ Feature: <AggregateRoot> StaffRole
     And finance canManageFinance should be false
     And techAdmin canManageTechAdmin should be false
     And user canManageUsers should be true
-    And user canAssignStaffUserRoles should be true
 
   Scenario: Creating a new default Finance role
     When I call getNewDefaultFinanceInstance
@@ -144,7 +142,6 @@ Feature: <AggregateRoot> StaffRole
     And finance canManageFinance should be true
     And techAdmin canManageTechAdmin should be false
     And user canManageUsers should be true
-    And user canAssignStaffUserRoles should be true
 
   Scenario: Creating a new default Tech Admin role
     When I call getNewDefaultTechAdminInstance
@@ -156,7 +153,6 @@ Feature: <AggregateRoot> StaffRole
     And finance canManageFinance should be true
     And techAdmin canManageTechAdmin should be true
     And user canManageUsers should be true
-    And user canAssignStaffUserRoles should be true
   # getDefaultRoleNames
   Scenario: Getting default role names
     When I call getDefaultRoleNames

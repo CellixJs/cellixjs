@@ -32,7 +32,6 @@ fragment StaffRoleEditFields on StaffRole {
 		userPermissions {
 			canManageUsers
 			canAssignStaffRoles
-			canAssignStaffUserRoles
 			canViewStaffUsers
 		}
 		staffRolePermissions {

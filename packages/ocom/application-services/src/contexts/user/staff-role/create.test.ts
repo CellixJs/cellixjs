@@ -47,7 +47,6 @@ function makeMockStaffRoleInstance(roleName: string): MockStaffRoleInstance {
 	};
 	const userPermissions: Record<string, boolean> = {
 		canManageUsers: false,
-		canAssignStaffUserRoles: false,
 		canAssignStaffRoles: false,
 		canViewStaffUsers: false,
 	};
@@ -447,30 +446,6 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	// ─── canAssignStaffUserRoles ──────────────────────────────────────────────
-
-	Scenario('Successfully creates a staff role with canAssignStaffUserRoles set', ({ Given, When, Then }) => {
-		Given('a staff role with name "Assign Role" does not exist in the repository', () => {
-			roleInstance = makeMockStaffRoleInstance('Assign Role');
-			dataSources = makeDataSources({ newRoleInstance: roleInstance });
-			command = {
-				roleName: 'Assign Role',
-				permissions: { user: { canAssignStaffUserRoles: true } } satisfies StaffRoleCreateCommandPermissions,
-			};
-		});
-		When('I call create with roleName "Assign Role" and user permissions canAssignStaffUserRoles true', async () => {
-			try {
-				result = await create(dataSources)(command);
-			} catch (e) {
-				thrownError = e;
-			}
-		});
-		Then('the user permission canAssignStaffUserRoles should be true', () => {
-			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
-		});
-	});
-
 	// ─── No-op when sub-objects absent ───────────────────────────────────────
 
 	Scenario('Omitting community permissions sub-object leaves community permissions unchanged', ({ Given, When, Then }) => {
@@ -633,7 +608,6 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('both user permission flags for assigning staff roles should be true', () => {
 			expect(thrownError).toBeUndefined();
 			expect(roleInstance.permissions.userPermissions.canAssignStaffRoles).toBe(true);
-			expect(roleInstance.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 });

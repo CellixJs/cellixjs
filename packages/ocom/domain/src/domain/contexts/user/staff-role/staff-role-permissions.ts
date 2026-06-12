@@ -126,7 +126,6 @@ export class StaffRolePermissions extends ValueObject<StaffRolePermissionsProps>
 			this.props.userPermissions ?? {
 				canManageUsers: false,
 				canAssignStaffRoles: false,
-				canAssignStaffUserRoles: false,
 				canViewStaffUsers: false,
 			},
 			this.visa,

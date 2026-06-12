@@ -43,7 +43,7 @@ function makeBaseProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps 
 			violationTicketPermissions: { canCreateTickets: false, canManageTickets: false, canAssignTickets: false, canWorkOnTickets: false },
 			financePermissions: { canManageFinance: false, canViewGLBatchSummaries: false, canViewFinanceConfigs: false, canCreateFinanceConfigs: false },
 			techAdminPermissions: { canManageTechAdmin: false },
-			userPermissions: { canManageUsers: false, canAssignStaffUserRoles: false },
+			userPermissions: { canManageUsers: false },
 		} as unknown as StaffRoleProps['permissions'],
 		roleType: 'staff-role',
 		createdAt: new Date(),

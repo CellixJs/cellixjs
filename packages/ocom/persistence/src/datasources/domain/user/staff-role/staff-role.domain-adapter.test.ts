@@ -47,7 +47,6 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
 			userPermissions: {
 				canManageUsers: false,
 				canAssignStaffRoles: false,
-				canAssignStaffUserRoles: false,
 				canViewStaffUsers: false,
 			},
 			serviceTicketPermissions: {
@@ -1034,42 +1033,16 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
-	// ─── canAssignStaffUserRoles ──────────────────────────────────────────────
-
-	Scenario('Getting and setting canAssignStaffUserRoles from userPermissions', ({ Given, When, And, Then }) => {
+	Scenario('canAssignStaffRoles getter falls back to canAssignStaffRoles when unset', ({ Given, When, And, Then }) => {
 		let permissions: StaffRolePermissionsAdapter;
 		let userPermissions: StaffRoleUserPermissionsAdapter;
-		Given('a StaffRoleDomainAdapter for the document', () => {
-			adapter = new StaffRoleDomainAdapter(doc);
-		});
-		When('I get the permissions property', () => {
-			permissions = adapter.permissions as StaffRolePermissionsAdapter;
-		});
-		And('I get the userPermissions property', () => {
-			userPermissions = permissions.userPermissions as StaffRoleUserPermissionsAdapter;
-		});
-		Then('the canAssignStaffUserRoles property should return false', () => {
-			expect(userPermissions.canAssignStaffUserRoles).toBe(false);
-		});
-		When('I set the canAssignStaffUserRoles property to true', () => {
-			userPermissions.canAssignStaffUserRoles = true;
-		});
-		Then("the userPermissions' canAssignStaffUserRoles should be true", () => {
-			expect(doc.permissions?.userPermissions?.canAssignStaffUserRoles).toBe(true);
-		});
-	});
-
-	Scenario('canAssignStaffRoles getter falls back to canAssignStaffUserRoles when unset', ({ Given, When, And, Then }) => {
-		let permissions: StaffRolePermissionsAdapter;
-		let userPermissions: StaffRoleUserPermissionsAdapter;
-		Given('a StaffRoleDomainAdapter wrapping a document with userPermissions having only canAssignStaffUserRoles true', () => {
+		Given('a StaffRoleDomainAdapter wrapping a document with userPermissions having only canAssignStaffRoles true', () => {
 			const docWith = makeStaffRoleDoc({
 				permissions: {
 					...(makeStaffRoleDoc().permissions ?? {}),
 					userPermissions: {
 						canManageUsers: false,
 						canAssignStaffRoles: true,
-						canAssignStaffUserRoles: true,
 						canViewStaffUsers: false,
 					},
 				},
@@ -1087,7 +1060,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
-	Scenario('Setting canAssignStaffRoles updates both canAssignStaffRoles and canAssignStaffUserRoles', ({ Given, When, And, Then }) => {
+	Scenario('Setting canAssignStaffRoles updates the canAssignStaffRoles property', ({ Given, When, And, Then }) => {
 		let permissions: StaffRolePermissionsAdapter;
 		let userPermissions: StaffRoleUserPermissionsAdapter;
 		Given('a StaffRoleDomainAdapter for the document', () => {
@@ -1104,9 +1077,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then("the userPermissions' canAssignStaffRoles should be true", () => {
 			expect(doc.permissions?.userPermissions?.canAssignStaffRoles).toBe(true);
-		});
-		And("the userPermissions' canAssignStaffUserRoles should be true", () => {
-			expect(doc.permissions?.userPermissions?.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 
