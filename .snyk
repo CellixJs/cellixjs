@@ -53,6 +53,10 @@ ignore:
         expires: '2026-03-26T00:00:00.000Z'
         created: '2026-03-12T12:35:00.000Z'
   'SNYK-JS-UUID-16133035':
+    - '* > azurite@3.35.0 > uuid@3.4.0':
+        reason: 'Transitive dependency in the dev-only Azurite emulator. Forcing uuid to a patched major breaks Azurite because it requires the legacy uuid/v4 subpath.'
+        expires: '2026-12-12T00:00:00.000Z'
+        created: '2026-06-12T00:00:00.000Z'
     - '* > uuid@8.3.2':
         reason: 'Transitive dependency in Docusaurus and Azurite dev-only stacks; no compatible fix path available yet from upstream.'
         expires: '2026-10-23T00:00:00.000Z'
@@ -86,11 +90,19 @@ ignore:
         reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
         expires: '2026-06-18T00:00:00.000Z'
         created: '2026-05-18T11:04:00.000Z'
+    - '* > @ai-sdk/provider-utils@4.0.28':
+        reason: 'Transitive dependency in @docusaurus/preset-classic (via @docsearch/react > @ai-sdk/react); pulled in at 4.0.28 by the @ai-sdk/provider-utils override. No fixed version published yet for this issue. Not exploitable in current usage (build-time docs search only).'
+        expires: '2026-09-12T00:00:00.000Z'
+        created: '2026-06-12T00:00:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16735288':
     - '* > @ai-sdk/provider-utils@3.0.18':
         reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
         expires: '2026-06-18T00:00:00.000Z'
         created: '2026-05-18T11:04:00.000Z'
+    - '* > @ai-sdk/provider-utils@4.0.28':
+        reason: 'Transitive dependency in @docusaurus/preset-classic (via @docsearch/react > @ai-sdk/react); pulled in at 4.0.28 by the @ai-sdk/provider-utils override. No fixed version published yet for this issue. Not exploitable in current usage (build-time docs search only).'
+        expires: '2026-09-12T00:00:00.000Z'
+        created: '2026-06-12T00:00:00.000Z'
   'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
     - '* > postcss-selector-parser':
         reason: 'Transitive dependency in @docusaurus/core build pipeline; no upgrade or patch available from upstream. Not exploitable in current usage (build-time CSS processing only).'
@@ -101,3 +113,21 @@ ignore:
         reason: 'Requires upgrade of @opentelemetry/sdk-node to 0.217.0, which has type errors that break compilation. Created task to upgrade OTEL service to 2.x and resolve vulnerability that way.'
         expires: '2026-07-28T00:00:00.000Z'
         created: '2026-06-01T10:00:00.000Z'
+  'SNYK-JS-IMAGESIZE-17295814':
+    - '* > image-size@2.0.2':
+        reason: 'Transitive dependency in @docusaurus/core > mdx-loader; no upgrade or patch available. Not exploitable in current usage (build-time markdown image processing only).'
+        expires: '2026-09-12T00:00:00.000Z'
+        created: '2026-06-12T00:00:00.000Z'
+    - '* > image-size@0.5.5':
+        reason: 'Transitive dependency via less > vite in dev/test tooling (ui-community, ui-staff, config-vitest); no upgrade or patch available. Not exploitable in current usage (dev-server CSS processing only).'
+        expires: '2026-09-12T00:00:00.000Z'
+        created: '2026-06-12T00:00:00.000Z'
+  'SNYK-JS-IMAGESIZE-17295816':
+    - '* > image-size@2.0.2':
+        reason: 'Transitive dependency in @docusaurus/core > mdx-loader; no upgrade or patch available. Not exploitable in current usage (build-time markdown image processing only).'
+        expires: '2026-09-12T00:00:00.000Z'
+        created: '2026-06-12T00:00:00.000Z'
+    - '* > image-size@0.5.5':
+        reason: 'Transitive dependency via less > vite in dev/test tooling (ui-community, ui-staff, config-vitest); no upgrade or patch available. Not exploitable in current usage (dev-server CSS processing only).'
+        expires: '2026-09-12T00:00:00.000Z'
+        created: '2026-06-12T00:00:00.000Z'

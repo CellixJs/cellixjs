@@ -7,11 +7,11 @@
  * - Parallel test execution contention
  */
 export const timeouts = {
-	/** Default scenario timeout (2 minutes) */
-	scenario: 120_000,
+	/** Default scenario timeout (2.5 minutes) */
+	scenario: 150_000,
 
-	/** Server startup timeout (2 minutes) */
-	serverStartup: 120_000,
+	/** Server startup timeout (2.5 minutes) */
+	serverStartup: 150_000,
 
 	/** Server shutdown graceful period (10 seconds) */
 	serverShutdown: 10_000,

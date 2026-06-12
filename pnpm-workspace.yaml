@@ -57,6 +57,7 @@ auditConfig:
     - GHSA-wpg9-53fq-2r8h
     - GHSA-q7rr-3cgh-j5r3
     - GHSA-869p-cjfg-cm3x  # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
+    - GHSA-848j-6mx2-7j84  # elliptic@6.6.1: no patched release is published on npm
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -99,8 +100,6 @@ overrides:
   webpack: ^5.105.4
   webpack-dev-server: ^5.2.4
   express-rate-limit: 8.5.1
-  '@azure/ms-rest-js>uuid': '^3.4.0'
-  'azurite>uuid': '^3.4.0'
   'ws@8.20.0': 8.20.1
   playwright-core: 1.59.0
   playwright: 1.59.0
@@ -113,6 +112,16 @@ overrides:
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   ws: 8.20.1
   shell-quote: 1.8.4
+  xml2js: ^0.6.2
+  '@azure/ms-rest-js>tough-cookie': ^4.1.4
+  '@azure/identity': ^4.13.0
+  dottie: 2.0.7
+  smol-toml: ^1.6.1
+  'brace-expansion@2.0.2': 2.0.3
+  immutable: 3.8.3
+  '@ai-sdk/provider-utils': ^4.0.28
+  '@grpc/grpc-js': ^1.14.4
+  joi: ^18.2.1
 
 packageExtensions:
   '@azure/functions-opentelemetry-instrumentation@0.1.0':

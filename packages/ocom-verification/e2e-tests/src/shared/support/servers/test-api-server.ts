@@ -16,6 +16,7 @@ export class TestApiServer extends PortlessServer {
 	override async start(): Promise<void> {
 		const env = {
 			...process.env,
+			...this.extraEnv,
 		};
 		// biome-ignore lint:useLiteralKeys
 		delete env['NODE_OPTIONS'];
@@ -90,6 +91,7 @@ export class TestApiServer extends PortlessServer {
 			// to register zero functions ("No job functions found"), surfacing
 			// as a 404 on /api/graphql even though the host is alive.
 			NODE_ENV: 'development',
+			E2E: 'true',
 			NODE_TLS_REJECT_UNAUTHORIZED: '0',
 			languageWorkers__node__arguments: '',
 			COSMOSDB_CONNECTION_STRING: getMongoConnectionString(),
@@ -111,6 +113,7 @@ export class TestApiServer extends PortlessServer {
 	}
 
 	private writeDeployLocalSettings(): void {
+		const envOverrides = this.extraEnv;
 		const sourcePath = resolve(this.cwd, 'local.settings.json');
 		const targetDir = resolve(this.cwd, 'deploy');
 		const targetPath = resolve(targetDir, 'local.settings.json');
@@ -129,28 +132,28 @@ export class TestApiServer extends PortlessServer {
 		};
 
 		settings.Values ??= {};
-		applyEnvOverride(settings.Values, 'AZURE_STORAGE_ACCOUNT_NAME');
-		applyEnvOverride(settings.Values, 'AZURE_STORAGE_CONNECTION_STRING');
-		applyEnvOverride(settings.Values, 'COSMOSDB_CONNECTION_STRING');
-		applyEnvOverride(settings.Values, 'COSMOSDB_DBNAME');
-		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ISSUER');
-		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ENDPOINT');
-		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_AUDIENCE');
-		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_IGNORE_ISSUER');
-		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ISSUER');
-		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ENDPOINT');
-		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_AUDIENCE');
-		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_IGNORE_ISSUER');
-		applyEnvOverride(settings.Values, 'NODE_ENV');
-		applyEnvOverride(settings.Values, 'languageWorkers__node__arguments');
+		applyEnvOverride(settings.Values, 'AZURE_STORAGE_ACCOUNT_NAME', envOverrides);
+		applyEnvOverride(settings.Values, 'AZURE_STORAGE_CONNECTION_STRING', envOverrides);
+		applyEnvOverride(settings.Values, 'COSMOSDB_CONNECTION_STRING', envOverrides);
+		applyEnvOverride(settings.Values, 'COSMOSDB_DBNAME', envOverrides);
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ISSUER', envOverrides);
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_ENDPOINT', envOverrides);
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_AUDIENCE', envOverrides);
+		applyEnvOverride(settings.Values, 'ACCOUNT_PORTAL_OIDC_IGNORE_ISSUER', envOverrides);
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ISSUER', envOverrides);
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_ENDPOINT', envOverrides);
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_AUDIENCE', envOverrides);
+		applyEnvOverride(settings.Values, 'STAFF_PORTAL_OIDC_IGNORE_ISSUER', envOverrides);
+		applyEnvOverride(settings.Values, 'NODE_ENV', envOverrides);
+		applyEnvOverride(settings.Values, 'languageWorkers__node__arguments', envOverrides);
 
 		mkdirSync(targetDir, { recursive: true });
 		writeFileSync(targetPath, `${JSON.stringify(settings, null, '\t')}\n`, 'utf8');
 	}
 }
 
-function applyEnvOverride(target: Record<string, string | boolean>, key: string): void {
-	const value = process.env[key];
+function applyEnvOverride(target: Record<string, string | boolean>, key: string, overrides: Record<string, string>): void {
+	const value = overrides[key] ?? process.env[key];
 	if (value === undefined) {
 		return;
 	}
