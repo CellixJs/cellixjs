@@ -3,8 +3,8 @@
 # Set FORCE_DEPLOY_* flags to control manual deployment overrides
 # Set to 'true' to force deployment, 'false' to disable
 
-FORCE_DEPLOY_API=false
-FORCE_DEPLOY_UI=false
+FORCE_DEPLOY_API=true
+FORCE_DEPLOY_UI=true
 FORCE_DEPLOY_UI_STAFF=true
 FORCE_DEPLOY_DOCS=false
 
