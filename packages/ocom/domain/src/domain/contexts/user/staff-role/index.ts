@@ -15,6 +15,10 @@ export type {
 	StaffRoleFinancePermissionsProps,
 } from './staff-role-finance-permissions.ts';
 export type {
+	StaffRoleRolePermissionsEntityReference,
+	StaffRoleRolePermissionsProps,
+} from './staff-role-role-permissions.ts';
+export type {
 	StaffRolePermissionsEntityReference,
 	StaffRolePermissionsProps,
 } from './staff-role-permissions.ts';

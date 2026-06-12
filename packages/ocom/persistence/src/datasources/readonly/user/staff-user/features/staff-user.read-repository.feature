@@ -10,6 +10,29 @@ Feature: StaffUserReadRepository
     When I call getStaffUserReadRepository with those models and a passport
     Then I should receive a StaffUserReadRepository instance
     And the repository should have a getByExternalId method
+    And the repository should have a getByEmail method
+    And the repository should have a getAll method
+
+  Scenario: getAll returns all converted entities when documents exist
+    Given two StaffUser documents exist in the collection
+    When I call getAll
+    Then I should receive an array of two StaffUserEntityReference objects
+    And the converter toDomain should have been called once for each document
+
+  Scenario: getAll returns an empty array when no documents exist
+    Given no StaffUser documents exist in the collection
+    When I call getAll
+    Then I should receive an empty array
+
+  Scenario: getByExternalId passes the correct filter to findOne
+    Given a StaffUser document exists with externalId "ext-filter-test"
+    When I call getByExternalId with "ext-filter-test"
+    Then findOne should have been called with the externalId filter
+
+  Scenario: getByEmail passes the correct filter to findOne
+    Given a StaffUser document exists with email "filter@example.com"
+    When I call getByEmail with "filter@example.com"
+    Then findOne should have been called with the email filter
 
   Scenario: getByExternalId returns entity when document is found
     Given a StaffUser document exists with externalId "ext-abc"
@@ -20,4 +43,15 @@ Feature: StaffUserReadRepository
   Scenario: getByExternalId returns null when no document is found
     Given no StaffUser document exists with externalId "missing-ext"
     When I call getByExternalId with "missing-ext"
+    Then I should receive null
+
+  Scenario: getByEmail returns entity when document is found
+    Given a StaffUser document exists with email "alice@example.com"
+    When I call getByEmail with "alice@example.com"
+    Then I should receive a StaffUserEntityReference object
+    And the converter toDomain should have been called with the document and passport
+
+  Scenario: getByEmail returns null when no document is found
+    Given no StaffUser document exists with email "missing@example.com"
+    When I call getByEmail with "missing@example.com"
     Then I should receive null

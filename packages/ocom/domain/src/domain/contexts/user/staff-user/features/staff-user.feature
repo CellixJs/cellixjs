@@ -138,3 +138,43 @@ Feature: <AggregateRoot> StaffUser
     And the createdAt property should return the correct date
     And the updatedAt property should return the correct date
     And the schemaVersion property should return the correct version
+
+  # activityLog
+  Scenario: Logging a general update via requestAddUpdate
+    Given a StaffUser aggregate with permission to manage staff roles and permissions
+    When I call requestAddUpdate with description "Profile updated" and activityByStaffUserId "staff-99"
+    Then an activity log entry with activityType "UPDATED" and description "Profile updated" should be added
+
+  Scenario: requestAddUpdate without permission throws PermissionError
+    Given a StaffUser aggregate without permission to manage staff roles and permissions
+    When I try to call requestAddUpdate with description "Profile updated" and activityByStaffUserId "staff-99"
+    Then a PermissionError should be thrown
+
+  Scenario: Logging a role assignment via requestRoleAssignment
+    Given a StaffUser aggregate with permission to manage staff roles and permissions
+    When I call requestRoleAssignment with a valid role, description "Role assigned", and activityByStaffUserId "staff-99"
+    Then the staff user's role should be updated
+    And an activity log entry with activityType "ROLE_ASSIGNED" and description "Role assigned" should be added
+
+  Scenario: Logging a role removal via requestRoleRemoval
+    Given a StaffUser aggregate with permission to manage staff roles and permissions
+    When I call requestRoleRemoval with description "Role removed" and activityByStaffUserId "staff-99"
+    Then the staff user's role should be undefined
+    And an activity log entry with activityType "ROLE_REMOVED" and description "Role removed" should be added
+
+  Scenario: Logging a block via requestBlock
+    Given a StaffUser aggregate with permission to manage staff roles and permissions
+    When I call requestBlock with description "User blocked" and activityByStaffUserId "staff-99"
+    Then the staff user's accessBlocked should be true
+    And an activity log entry with activityType "BLOCKED" and description "User blocked" should be added
+
+  Scenario: Logging an unblock via requestUnblock
+    Given a StaffUser aggregate with permission to manage staff roles and permissions
+    When I call requestUnblock with description "User unblocked" and activityByStaffUserId "staff-99"
+    Then the staff user's accessBlocked should be false
+    And an activity log entry with activityType "UNBLOCKED" and description "User unblocked" should be added
+
+  Scenario: Logging a create action via requestCreate
+    Given a StaffUser aggregate with permission to manage staff roles and permissions
+    When I call requestCreate with activityByStaffUserId "staff-99"
+    Then an activity log entry with activityType "CREATED" and description "User created" should be added
