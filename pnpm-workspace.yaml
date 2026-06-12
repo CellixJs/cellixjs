@@ -120,7 +120,7 @@ overrides:
   'brace-expansion@2.0.2': 2.0.3
   immutable: 3.8.3
   '@ai-sdk/provider-utils': ^4.0.28
-  '@grpc/grpc-js': ^1.14.4
+  '@grpc/grpc-js': '>=1.14.4'
   joi: ^18.2.1
 
 packageExtensions:

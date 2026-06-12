@@ -122,6 +122,10 @@ ignore:
         reason: 'Transitive dependency via less > vite in dev/test tooling (ui-community, ui-staff, config-vitest); no upgrade or patch available. Not exploitable in current usage (dev-server CSS processing only).'
         expires: '2026-09-12T00:00:00.000Z'
         created: '2026-06-12T00:00:00.000Z'
+    - '* > image-size@<=2.0.2':
+        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
+        expires: '2026-07-11T00:00:00.000Z'
+        created: '2026-06-11T10:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295816':
     - '* > image-size@2.0.2':
         reason: 'Transitive dependency in @docusaurus/core > mdx-loader; no upgrade or patch available. Not exploitable in current usage (build-time markdown image processing only).'
@@ -131,3 +135,7 @@ ignore:
         reason: 'Transitive dependency via less > vite in dev/test tooling (ui-community, ui-staff, config-vitest); no upgrade or patch available. Not exploitable in current usage (dev-server CSS processing only).'
         expires: '2026-09-12T00:00:00.000Z'
         created: '2026-06-12T00:00:00.000Z'
+    - '* > image-size@<=2.0.2':
+        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
+        expires: '2026-07-11T00:00:00.000Z'
+        created: '2026-06-11T10:00:00.000Z'

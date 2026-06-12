@@ -25,18 +25,11 @@ import { defineConfig } from 'rolldown';
 
 const apiDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(apiDir, '../..');
-const temporaryRolldownWorkaround = {
-	// Remove this block once rolldown no longer panics on
-	// packages/cellix/service-blob-storage/dist/service-blob-storage.js.
-	skipAliasNamespaces: ['@azure/'],
-	additionalExternal: ['@ocom/service-blob-storage'],
-} as const;
 
 export default defineConfig(async () =>
 	createCellixAzureFunctionsRolldownConfig({
 		repoRoot,
 		appPackageName: '@apps/api',
 		applicationNamespaces: ['@ocom/'],
-		...temporaryRolldownWorkaround,
 	}),
 );
