@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { LoggedInUserCommunity, type LoggedInUserCommunityProps } from './logged-in-user-community.tsx';
 
 const meta = {
-	title: 'UI/Organisms/Header/LoggedInUserCommunity/Display',
+	title: 'Components/Shared/UI/Organisms/Header/LoggedInUserCommunity/Display',
 	component: LoggedInUserCommunity,
 	argTypes: {
 		handleLogout: { action: 'handleLogout' },

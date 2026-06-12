@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { MembersAccountsAdd } from './members-accounts-add.tsx';
 
 const meta: Meta<typeof MembersAccountsAdd> = {
-	title: 'Admin/Components/MembersAccountsAdd',
+	title: 'Components/Community/Members Accounts Add',
 	component: MembersAccountsAdd,
 	parameters: {
 		layout: 'centered',

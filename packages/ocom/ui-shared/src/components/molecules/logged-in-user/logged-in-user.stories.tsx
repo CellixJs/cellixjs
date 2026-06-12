@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { LoggedInUser } from './index.tsx';
 
 const meta = {
-	title: 'UI/Molecules/LoggedInUser',
+	title: 'Components/Shared/UI/Molecules/LoggedInUser',
 	component: LoggedInUser,
 	argTypes: {
 		onLoginClicked: { action: 'onLoginClicked' },

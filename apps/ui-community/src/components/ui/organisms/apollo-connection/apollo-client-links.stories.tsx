@@ -62,7 +62,7 @@ try {
 }
 
 const meta = {
-	title: 'Components/UI/Organisms/ApolloConnection/Apollo Client Links',
+	title: 'Components/Community/Apollo Connection/Apollo Client Links',
 	parameters: {
 		layout: 'fullscreen',
 	},
