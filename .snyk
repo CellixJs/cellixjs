@@ -98,6 +98,16 @@ ignore:
         created: '2026-06-01T10:00:00.000Z'
   'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
     - '* > postcss-selector-parser':
-        reason: 'Transitive dependency in Docusaurus build tooling; Snyk reports no fixed upgrade or patch available.'
+        reason: 'Transitive dependency in Docusaurus CSS optimization/build tooling; Snyk reports no fixed upgrade or patch available. Not exploitable at runtime because docs CSS is repository-controlled and processed at build time.'
         expires: '2026-09-08T00:00:00.000Z'
         created: '2026-06-08T00:00:00.000Z'
+  'SNYK-JS-IMAGESIZE-17295814':
+    - '* > image-size@<=2.0.2':
+        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
+        expires: '2026-07-11T00:00:00.000Z'
+        created: '2026-06-11T10:00:00.000Z'
+  'SNYK-JS-IMAGESIZE-17295816':
+    - '* > image-size@<=2.0.2':
+        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
+        expires: '2026-07-11T00:00:00.000Z'
+        created: '2026-06-11T10:00:00.000Z'
