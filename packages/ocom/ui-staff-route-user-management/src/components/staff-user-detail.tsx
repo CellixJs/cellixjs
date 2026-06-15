@@ -122,7 +122,7 @@ export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({
 			<div>
 				<Title level={5}>Activity Log</Title>
 				<Table<ActivityLogEntry>
-					dataSource={activityLog}
+					dataSource={activityLog.slice().sort((a, b) => (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()))}
 					columns={activityLogColumns}
 					rowKey={(record) => `${record.activityType}-${record.createdAt}-${record.activityByStaffUserId}`}
 					pagination={{ pageSize: 10, showSizeChanger: false }}

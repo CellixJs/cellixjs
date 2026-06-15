@@ -65,12 +65,12 @@ function makeMockStaffUserInstance(id: string): MockStaffUserInstance {
 function makeDataSources(overrides: {
 	staffUser?: MockStaffUserInstance;
 	staffRole?: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null;
-	savedUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference | undefined;
+	savedUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference;
 	explicitUndefinedSave?: boolean;
 }): DataSources & { _staffUserRepo: unknown; _staffRoleRepo: unknown } {
 	const staffUser = overrides.staffUser ?? makeMockStaffUserInstance('user-123');
 	const { staffRole } = overrides;
-	const savedUser = overrides.explicitUndefinedSave ? undefined : (overrides.savedUser ?? (staffUser as unknown as Domain.Contexts.User.StaffUser.StaffUserEntityReference));
+	const savedUser = overrides.explicitUndefinedSave ? undefined : (overrides.savedUser ?? staffUser);
 
 	const staffUserRepo = {
 		get: vi.fn().mockResolvedValue(staffUser),
