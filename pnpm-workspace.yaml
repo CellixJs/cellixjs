@@ -71,6 +71,7 @@ allowBuilds:
 overrides:
   axios: 1.16.0
   follow-redirects: ^1.16.0
+  esbuild: "catalog:"
   vite: "catalog:"
   jiti: 2.6.1
   rollup: ^4.59.0
