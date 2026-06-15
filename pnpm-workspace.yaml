@@ -23,7 +23,7 @@ catalog:
   '@vitest/coverage-istanbul': 4.1.6
   antd: 6.3.5
   archunit: ^2.1.63
-  esbuild: 0.27.4
+  esbuild: 0.28.1
   graphql: ^16.10.0
   jsdom: ^26.1.0
   mongodb: 6.18.0
