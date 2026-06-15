@@ -16,8 +16,7 @@
     "test:coverage": "vitest run --coverage --silent --reporter=dot",
     "test:watch": "vitest",
     "storybook": "pnpm exec portless ownercommunity.localhost --force storybook dev -p 6008",
-    "build-storybook": "storybook build",
-    "chromatic": "chromatic --project-token=$CHROMATIC_PROJECT_TOKEN"
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@apollo/client": "^3.13.9",
