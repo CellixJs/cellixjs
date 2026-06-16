@@ -10,18 +10,15 @@ export interface StaffRoleCreateCommand {
 	permissions?: StaffRoleCommandPermissions;
 }
 
-const isNotFoundError = (error: unknown): boolean => {
-	return error instanceof Error && (error.name === 'NotFoundError' || error.message.toLowerCase().includes('not found'));
-};
-
 const ensureRoleDoesNotExist = async (repository: Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>, roleName: string): Promise<void> => {
 	try {
 		await repository.getByRoleName(roleName);
 		throw new Error(`Staff role with name ${roleName} already exists`);
-	} catch (error) {
-		if (isNotFoundError(error)) {
-			return;
-		}
+	} catch (e) {
+		const error = e as Error;
+        if(error.name !== 'NotFoundError') {
+            throw error;
+        }
 		throw error;
 	}
 };
