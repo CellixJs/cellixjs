@@ -30,15 +30,14 @@ export const assignRole = (dataSources: DataSources) => {
 			// Build a descriptive activity message including role name, target user and actor (fallback to IDs when names unavailable)
 			let actorDisplayName = command.actorStaffUserId;
 			try {
-				const actor = await staffUserRepo.get(command.actorStaffUserId);
+				const actor = await staffUserRepo.get(command.actorStaffUserId); 
 				if (actor?.displayName) actorDisplayName = actor.displayName;
-			} catch (error) {
-				// If actor not found, ignore and use id fallback. Rethrow other errors.
-				const errName = error && typeof error === 'object' && 'name' in error ? (error as { name?: unknown }).name : undefined;
-				if (errName !== 'NotFoundError') {
-					throw error;
-				}
-				// ignore NotFoundError - use id fallback
+			} catch (e) {
+				const error = e as Error;
+                if (error.name !== 'NotFoundError') {
+                    return;
+                }
+                throw error;
 			}
 			const roleName = role.roleName ?? command.roleId;
 			const description = `${roleName} assigned by ${actorDisplayName}`;

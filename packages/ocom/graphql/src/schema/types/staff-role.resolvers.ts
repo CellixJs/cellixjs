@@ -1,32 +1,7 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type { StaffRoleCreateCommand } from '../../../../application-services/src/contexts/user/staff-role/create.js';
-import type { StaffRoleUpdateCommand } from '../../../../application-services/src/contexts/user/staff-role/update.js';
 import type { MutationStaffRoleCreateArgs, MutationStaffRoleUpdateArgs, RequireFields, Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
-
-const EnterpriseAppRoleNames = {
-	CaseManager: 'Staff.CaseManager',
-	ServiceLineOwner: 'Staff.ServiceLineOwner',
-	Finance: 'Staff.Finance',
-	TechAdmin: 'Staff.TechAdmin',
-} as const;
-
-function getAllowedEnterpriseAppRoles(entraRoles: string[]): string[] {
-	if (entraRoles.includes(EnterpriseAppRoleNames.TechAdmin)) {
-		return Object.values(EnterpriseAppRoleNames);
-	}
-	const allowed: string[] = [];
-	if (entraRoles.includes(EnterpriseAppRoleNames.ServiceLineOwner)) {
-		allowed.push(EnterpriseAppRoleNames.ServiceLineOwner, EnterpriseAppRoleNames.CaseManager);
-	}
-	if (entraRoles.includes(EnterpriseAppRoleNames.CaseManager) && !allowed.includes(EnterpriseAppRoleNames.CaseManager)) {
-		allowed.push(EnterpriseAppRoleNames.CaseManager);
-	}
-	if (entraRoles.includes(EnterpriseAppRoleNames.Finance)) {
-		allowed.push(EnterpriseAppRoleNames.Finance);
-	}
-	return allowed;
-}
+import { buildStaffRoleCreateCommand, buildStaffRoleUpdateCommand } from './staff-role.command-mapper.ts';
 
 const staffRole: Resolvers = {
 	Query: {
@@ -53,12 +28,10 @@ const staffRole: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
-				const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(jwt.roles ?? []);
-				const requestedEnterpriseAppRole = args.input.enterpriseAppRole ?? '';
-				if (requestedEnterpriseAppRole && !allowedEnterpriseAppRoles.includes(requestedEnterpriseAppRole)) {
-					return { status: { success: false, errorMessage: `You do not have permission to create a role for enterprise app role type: ${requestedEnterpriseAppRole}` } };
+				const command = buildStaffRoleCreateCommand(args.input, jwt.roles ?? []);
+				if ('errorMessage' in command) {
+					return { status: { success: false, errorMessage: command.errorMessage } };
 				}
-				const command = args.input as unknown as StaffRoleCreateCommand;
 				const staffRole = await context.applicationServices.User.StaffRole.create(command);
 				return { status: { success: true }, staffRole };
 			} catch (error) {
@@ -74,15 +47,7 @@ const staffRole: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
-				const input = args.input as unknown as Record<string, unknown>;
-				const command: StaffRoleUpdateCommand = {
-					// biome-ignore lint:useLiteralKeys
-					roleId: String(input['id'] ?? input['roleId']),
-					// biome-ignore lint:useLiteralKeys
-					name: String(input['roleName'] ?? input['name'] ?? ''),
-					// biome-ignore lint:useLiteralKeys
-					enterpriseAppRole: String(input['enterpriseAppRole'] ?? ''),
-				} as unknown as StaffRoleUpdateCommand;
+				const command = buildStaffRoleUpdateCommand(args.input);
 				const staffRole = await context.applicationServices.User.StaffRole.update(command);
 				return { status: { success: true }, staffRole };
 			} catch (error) {
