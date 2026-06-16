@@ -10,6 +10,11 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; upgrade path blocked until https://github.com/jonschlinkert/gray-matter/pull/137#issuecomment-3533768351 is merged and transitive deps are updated. Not exploitable in current usage.'
         expires: '2026-07-28T00:00:00.000Z'
         created: '2025-11-17T09:06:00.000Z'
+  'SNYK-JS-JSYAML-17342520':
+    - '* > gray-matter@4.0.3 > js-yaml@3.14.2':
+        reason: 'Transitive dependency in Docusaurus front matter parsing. Forcing gray-matter@4.0.3 to js-yaml@4 breaks Docusaurus because gray-matter still calls safeLoad; accept until upstream ships a compatible release.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
   'SNYK-JS-NODEFORGE-14114940':
     - '* > node-forge':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'

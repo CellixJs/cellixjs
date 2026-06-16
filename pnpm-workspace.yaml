@@ -23,13 +23,13 @@ catalog:
   '@vitest/coverage-istanbul': 4.1.8
   antd: 6.3.5
   archunit: ^2.1.63
-  esbuild: 0.27.4
+  esbuild: 0.28.1
   graphql: ^16.10.0
   jsdom: ^26.1.0
   mongodb: 6.18.0
   mongodb-memory-server: ^10.1.4
   mongoose: 8.17.0
-  react-router-dom: 7.15.0
+  react-router-dom: 7.15.1
   react: ^19.1.1
   react-dom: ^19.1.1
   '@ant-design/icons': ^6.0.2
@@ -43,7 +43,7 @@ catalog:
   tsx: ^4.21.0
   typescript: 6.0.3
   "@typescript/native-preview": 7.0.0-dev.20260428.1
-  vite: 8.0.5
+  vite: 8.0.16
   vitest: 4.1.8
   '@vitest/browser': 4.1.8
   '@vitest/browser-playwright': 4.1.8
@@ -69,6 +69,7 @@ allowBuilds:
   snyk: true
 
 overrides:
+  esbuild: 0.28.1
   axios: 1.16.0
   follow-redirects: ^1.16.0
   vite: "catalog:"
@@ -81,7 +82,7 @@ overrides:
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
-  'protobufjs@7.5.4': 7.5.8
+  'protobufjs@7.5.4': 7.6.1
   'serve-handler>minimatch': 3.1.5
   'serialize-javascript@6.0.2': 7.0.5
   'serialize-javascript@7.0.4': 7.0.5
@@ -103,11 +104,14 @@ overrides:
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: 8.5.10
-  protobufjs: 7.5.8
+  protobufjs: 7.6.1
   ip-address: ^10.1.1
   fast-uri: ^3.1.2
   '@babel/plugin-transform-modules-systemjs': 7.29.4
-  ws: 8.20.1
+  '@babel/core': 7.29.6
+  'js-yaml@4.1.1': 4.2.0
+  ws: 8.21.0
+  form-data: 4.0.6
   shell-quote: 1.8.4
   '@grpc/grpc-js': '>=1.14.4'
   joi: '>=18.2.1'
