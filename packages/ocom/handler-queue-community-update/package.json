@@ -1,0 +1,41 @@
+{
+	"name": "@ocom/handler-queue-community-update",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Azure Functions queue trigger handler for community-update messages",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@azure/functions": "catalog:",
+		"@ocom/application-services": "workspace:*",
+		"@ocom/service-queue-storage": "workspace:*"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

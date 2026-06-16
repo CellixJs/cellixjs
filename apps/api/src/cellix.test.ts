@@ -13,6 +13,7 @@ const test = { for: describeFeature };
 vi.mock('@azure/functions', () => ({
 	app: {
 		http: vi.fn(),
+		storageQueue: vi.fn(),
 		hook: {
 			appStart: vi.fn(),
 			appTerminate: vi.fn(),
@@ -361,6 +362,33 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Registering an Azure Function queue handler', ({ Given, When, Then, And }) => {
+		Given('a Cellix instance in app-services phase', () => {
+			cellix = Cellix.initializeInfrastructureServices(() => {
+				/* no op */
+			}) as Cellix<unknown, unknown>;
+			cellix.setContext(() => ({}));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
+		});
+
+		When('an Azure Function queue handler is registered', () => {
+			const result = cellix.registerAzureFunctionQueueHandler('community-update', { queueName: 'community-update', connection: 'AZURE_STORAGE_CONNECTION_STRING' }, () => vi.fn());
+			expect(result).toBe(cellix);
+		});
+
+		Then('it should store the queue handler configuration', () => {
+			expect(app.storageQueue).not.toHaveBeenCalled();
+		});
+
+		And('it should transition to handlers phase for queue handlers', () => {
+			expect(cellix.startUp).toBeDefined();
+		});
+
+		And('it should return the registry for queue handler chaining', () => {
+			// Already verified in When step
+		});
+	});
+
 	Scenario('Registering handler in wrong phase', ({ Given, When, Then }) => {
 		Given('a Cellix instance in infrastructure phase', () => {
 			cellix = Cellix.initializeInfrastructureServices(() => {
@@ -379,6 +407,120 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Registering a queue handler in wrong phase', ({ Given, When, Then }) => {
+		Given('a Cellix instance in infrastructure phase', () => {
+			cellix = Cellix.initializeInfrastructureServices(() => {
+				/* no op */
+			}) as Cellix<unknown, unknown>;
+		});
+
+		When('registerAzureFunctionQueueHandler is called', () => {
+			expect(() => {
+				cellix.registerAzureFunctionQueueHandler('community-update', { queueName: 'community-update', connection: 'AZURE_STORAGE_CONNECTION_STRING' }, () => vi.fn());
+			}).toThrow("Invalid operation in phase 'infrastructure'. Allowed phases: app-services, handlers");
+		});
+
+		Then('it should throw an error for invalid phase', () => {
+			// Error is already thrown in When step
+		});
+	});
+
+	Scenario('Chaining mixed Azure Function handler registrations', ({ Given, When, Then, And }) => {
+		Given('a Cellix instance in app-services phase', () => {
+			cellix = Cellix.initializeInfrastructureServices(() => {
+				/* no op */
+			}) as Cellix<unknown, unknown>;
+			cellix.setContext(() => ({}));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
+		});
+
+		When('queue and HTTP handlers are registered in mixed order', async () => {
+			cellix
+				.registerAzureFunctionQueueHandler('queue-first', { queueName: 'queue-first', connection: 'AZURE_STORAGE_CONNECTION_STRING' }, () => vi.fn())
+				.registerAzureFunctionHttpHandler('http-second', { authLevel: 'anonymous' }, () => vi.fn())
+				.registerAzureFunctionQueueHandler('queue-third', { queueName: 'queue-third', connection: 'AZURE_STORAGE_CONNECTION_STRING' }, () => vi.fn())
+				.registerAzureFunctionHttpHandler('http-fourth', { authLevel: 'anonymous' }, () => vi.fn());
+
+			await cellix.startUp();
+		});
+
+		Then('it should allow chaining mixed handler registrations', () => {
+			expect(app.storageQueue).toHaveBeenCalledTimes(2);
+			expect(app.http).toHaveBeenCalledTimes(2);
+		});
+
+		And('it should register each mixed handler at startup', () => {
+			expect(app.storageQueue).toHaveBeenNthCalledWith(1, 'queue-first', expect.objectContaining({ queueName: 'queue-first', connection: 'AZURE_STORAGE_CONNECTION_STRING', handler: expect.any(Function) }));
+			expect(app.http).toHaveBeenNthCalledWith(1, 'http-second', expect.objectContaining({ authLevel: 'anonymous', handler: expect.any(Function) }));
+			expect(app.storageQueue).toHaveBeenNthCalledWith(2, 'queue-third', expect.objectContaining({ queueName: 'queue-third', connection: 'AZURE_STORAGE_CONNECTION_STRING', handler: expect.any(Function) }));
+			expect(app.http).toHaveBeenNthCalledWith(2, 'http-fourth', expect.objectContaining({ authLevel: 'anonymous', handler: expect.any(Function) }));
+		});
+	});
+
+	Scenario('Starting up directly from app-services phase', ({ Given, When, Then, And }) => {
+		let result: Promise<unknown>;
+
+		Given('a Cellix instance in app-services phase with all configurations', () => {
+			cellix = Cellix.initializeInfrastructureServices((registry) => {
+				registry.registerInfrastructureService(mockService);
+			}) as Cellix<unknown, unknown>;
+			cellix.setContext(() => ({}));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
+		});
+
+		When('startUp is called directly from app-services', async () => {
+			result = cellix.startUp();
+			await result;
+			const mockHook = app.hook.appStart as unknown as { mock: { calls: [() => Promise<void>][] } };
+			const appStartCallback = mockHook.mock.calls[0]?.[0];
+			if (appStartCallback) {
+				await appStartCallback();
+			}
+		});
+
+		Then('it should start without requiring any handler registrations', () => {
+			expect(app.http).not.toHaveBeenCalled();
+			expect(app.storageQueue).not.toHaveBeenCalled();
+		});
+
+		And('it should transition to started phase', () => {
+			expect(result).toBeInstanceOf(Promise);
+			expect(cellix.servicesInitialized).toBe(true);
+		});
+	});
+
+	Scenario('Rejecting fluent operations after startup', ({ Given, When, Then }) => {
+		let assertAfterStartGuards: (() => void) | undefined;
+
+		Given('a started Cellix application', async () => {
+			cellix = Cellix.initializeInfrastructureServices((registry) => {
+				registry.registerInfrastructureService(mockService);
+			}) as Cellix<unknown, unknown>;
+			cellix.setContext(() => ({}));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
+			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
+			await cellix.startUp();
+
+			assertAfterStartGuards = () => {
+				expect(() => cellix.setContext(() => ({}))).toThrow("Invalid operation in phase 'started'. Allowed phases: infrastructure");
+				expect(() => cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }))).toThrow("Invalid operation in phase 'started'. Allowed phases: context");
+				expect(() => cellix.registerAzureFunctionHttpHandler('another-http', { authLevel: 'anonymous' }, () => vi.fn())).toThrow("Invalid operation in phase 'started'. Allowed phases: app-services, handlers");
+				expect(() => cellix.registerAzureFunctionQueueHandler('another-queue', { queueName: 'another-queue', connection: 'AZURE_STORAGE_CONNECTION_STRING' }, () => vi.fn())).toThrow(
+					"Invalid operation in phase 'started'. Allowed phases: app-services, handlers",
+				);
+				expect(() => cellix.startUp()).toThrow("Invalid operation in phase 'started'. Allowed phases: handlers, app-services");
+			};
+		});
+
+		When('a fluent bootstrap method is called after startup', () => {
+			assertAfterStartGuards?.();
+		});
+
+		Then('it should reject further bootstrap mutations in started phase', () => {
+			// Assertions already executed in When step
+		});
+	});
+
 	Scenario('Starting up the application', ({ Given, When, Then, And }) => {
 		let result: Promise<unknown>;
 
@@ -387,8 +529,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				registry.registerInfrastructureService(mockService);
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
+			cellix.registerAzureFunctionQueueHandler('community-update', { queueName: 'community-update', connection: 'AZURE_STORAGE_CONNECTION_STRING' }, () => vi.fn());
 		});
 
 		When('startUp is called', async () => {
@@ -415,6 +558,17 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('it should set up appStart and appTerminate hooks', () => {
 			expect(app.hook.appStart).toHaveBeenCalled();
 			expect(app.hook.appTerminate).toHaveBeenCalled();
+		});
+
+		And('it should register Azure Functions queue handlers with app.storageQueue', () => {
+			expect(app.storageQueue).toHaveBeenCalledWith(
+				'community-update',
+				expect.objectContaining({
+					queueName: 'community-update',
+					connection: 'AZURE_STORAGE_CONNECTION_STRING',
+					handler: expect.any(Function),
+				}),
+			);
 		});
 
 		And('it should transition to started phase', () => {

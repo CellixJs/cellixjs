@@ -64,16 +64,46 @@ Feature: Cellix Application Bootstrap
     And it should transition to handlers phase
     And it should return the registry for chaining
 
+  Scenario: Registering an Azure Function queue handler
+    Given a Cellix instance in app-services phase
+    When an Azure Function queue handler is registered
+    Then it should store the queue handler configuration
+    And it should transition to handlers phase for queue handlers
+    And it should return the registry for queue handler chaining
+
   Scenario: Registering handler in wrong phase
     Given a Cellix instance in infrastructure phase
     When registerAzureFunctionHttpHandler is called
     Then it should throw an error for invalid phase
+
+  Scenario: Registering a queue handler in wrong phase
+    Given a Cellix instance in infrastructure phase
+    When registerAzureFunctionQueueHandler is called
+    Then it should throw an error for invalid phase
+
+  Scenario: Chaining mixed Azure Function handler registrations
+    Given a Cellix instance in app-services phase
+    When queue and HTTP handlers are registered in mixed order
+    Then it should allow chaining mixed handler registrations
+    And it should register each mixed handler at startup
+
+  Scenario: Starting up directly from app-services phase
+    Given a Cellix instance in app-services phase with all configurations
+    When startUp is called directly from app-services
+    Then it should start without requiring any handler registrations
+    And it should transition to started phase
+
+  Scenario: Rejecting fluent operations after startup
+    Given a started Cellix application
+    When a fluent bootstrap method is called after startup
+    Then it should reject further bootstrap mutations in started phase
 
   Scenario: Starting up the application
     Given a Cellix instance in handlers phase with all configurations
     When startUp is called
     Then it should register Azure Functions with app.http
     And it should set up appStart and appTerminate hooks
+    And it should register Azure Functions queue handlers with app.storageQueue
     And it should transition to started phase
     And it should return the started application
 

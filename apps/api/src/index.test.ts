@@ -5,6 +5,8 @@ const {
 	setContext,
 	initializeApplicationServices,
 	registerAzureFunctionHttpHandler,
+	registerAzureFunctionQueueHandler,
+	communityUpdateQueueHandlerCreator,
 	startUp,
 	initializeInfrastructureServices,
 	registerEventHandlers,
@@ -63,6 +65,8 @@ const {
 		setContext: vi.fn(),
 		initializeApplicationServices: vi.fn(),
 		registerAzureFunctionHttpHandler: vi.fn(),
+		registerAzureFunctionQueueHandler: vi.fn(),
+		communityUpdateQueueHandlerCreator: vi.fn(),
 		startUp: vi.fn(),
 		initializeInfrastructureServices: vi.fn(),
 		registerEventHandlers: vi.fn(),
@@ -104,7 +108,7 @@ vi.mock('@ocom/service-apollo-server', () => ({
 	ServiceApolloServer: MockServiceApolloServer,
 }));
 vi.mock('@ocom/application-services', () => ({
-	buildApplicationServicesFactory: vi.fn(() => ({ forRequest: vi.fn() })),
+	buildApplicationServicesFactory: vi.fn(() => ({ forRequest: vi.fn(), forSystem: vi.fn() })),
 }));
 vi.mock('@ocom/event-handler', () => ({
 	RegisterEventHandlers: registerEventHandlers,
@@ -123,6 +127,9 @@ vi.mock('./service-config/apollo-server/index.ts', () => ({
 vi.mock('@ocom/graphql-handler', () => ({
 	graphHandlerCreator: vi.fn(),
 }));
+vi.mock('@ocom/handler-queue-community-update', () => ({
+	communityUpdateQueueHandlerCreator,
+}));
 vi.mock('@ocom/rest', () => ({
 	restHandlerCreator: vi.fn(),
 }));
@@ -132,6 +139,8 @@ vi.mock('@ocom/service-queue-storage', () => ({
 			startUp: vi.fn(),
 			shutDown: vi.fn(),
 			sendMessageToCommunityCreationQueue: vi.fn(),
+			receiveFromCommunityUpdateQueue: vi.fn(),
+			peekAtCommunityUpdateQueue: vi.fn(),
 			receiveFromImportRequestsQueue: vi.fn(),
 			peekAtImportRequestsQueue: vi.fn(),
 			enableLogging: vi.fn(),
@@ -141,8 +150,23 @@ vi.mock('@ocom/service-queue-storage', () => ({
 			...service,
 		};
 	}),
+	communityUpdateQueue: {
+		queueName: 'community-update',
+		schema: {
+			type: 'object',
+			properties: {
+				communityId: { type: 'string' },
+				name: { type: 'string' },
+				domain: { type: 'string' },
+				whiteLabelDomain: { type: ['string', 'null'] },
+				handle: { type: ['string', 'null'] },
+			},
+			required: ['communityId'],
+			additionalProperties: false,
+		},
+	},
 	QUEUE_LOG_CONTAINER: 'queue-logs',
-	allQueueNames: ['email-notifications', 'audit-events', 'import-requests'],
+	allQueueNames: ['community-update', 'email-notifications', 'audit-events', 'import-requests'],
 }));
 
 describe('apps/api bootstrap', () => {
@@ -158,9 +182,16 @@ describe('apps/api bootstrap', () => {
 		});
 		initializeApplicationServices.mockReturnValue({
 			registerAzureFunctionHttpHandler,
+			registerAzureFunctionQueueHandler,
 		});
 		registerAzureFunctionHttpHandler.mockReturnValue({
 			registerAzureFunctionHttpHandler,
+			registerAzureFunctionQueueHandler,
+			startUp,
+		});
+		registerAzureFunctionQueueHandler.mockReturnValue({
+			registerAzureFunctionHttpHandler,
+			registerAzureFunctionQueueHandler,
 			startUp,
 		});
 		initializeInfrastructureServices.mockReturnValue({
@@ -281,6 +312,47 @@ describe('apps/api bootstrap', () => {
 				signingConnectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
 			},
 		});
+	});
+
+	it('registers a community-update queue handler with queue trigger settings', async () => {
+		await importApiBootstrap();
+
+		expect(registerAzureFunctionQueueHandler).toHaveBeenCalledWith('community-update', { queueName: 'community-update', connection: 'AZURE_STORAGE_CONNECTION_STRING' }, expect.any(Function));
+	});
+
+	it('updates an existing community from the community-update queue handler', async () => {
+		await importApiBootstrap();
+
+		const handlerCreator = registerAzureFunctionQueueHandler.mock.calls[0]?.[2];
+		const applicationServicesFactory = { forSystem: vi.fn() };
+		const queueStorageService = { receiveFromCommunityUpdateQueue: vi.fn() };
+		serviceRegistry.getInfrastructureService.mockReturnValue(queueStorageService);
+
+		expect(handlerCreator).toBeTypeOf('function');
+		handlerCreator?.(applicationServicesFactory, serviceRegistry);
+		expect(serviceRegistry.getInfrastructureService).toHaveBeenCalled();
+		expect(communityUpdateQueueHandlerCreator).toHaveBeenCalledWith(applicationServicesFactory, queueStorageService);
+	});
+
+	it('logs and skips persistence when the community-update queue handler cannot find a community', async () => {
+		await importApiBootstrap();
+
+		expect(communityUpdateQueueHandlerCreator).toHaveBeenCalledTimes(0);
+		const handlerCreator = registerAzureFunctionQueueHandler.mock.calls[0]?.[2];
+		const queueStorageService = { receiveFromCommunityUpdateQueue: vi.fn() };
+		serviceRegistry.getInfrastructureService.mockReturnValue(queueStorageService);
+		handlerCreator?.({ forSystem: vi.fn() }, serviceRegistry);
+		expect(communityUpdateQueueHandlerCreator).toHaveBeenCalledTimes(1);
+	});
+
+	it('fails predictably when the community-update queue handler receives an invalid message', async () => {
+		await importApiBootstrap();
+
+		const handlerCreator = registerAzureFunctionQueueHandler.mock.calls[0]?.[2];
+		expect(handlerCreator).toBeTypeOf('function');
+		serviceRegistry.getInfrastructureService.mockReturnValue({ receiveFromCommunityUpdateQueue: vi.fn() });
+		handlerCreator?.({ forSystem: vi.fn() }, serviceRegistry);
+		expect(communityUpdateQueueHandlerCreator).toHaveBeenCalledTimes(1);
 	});
 });
 

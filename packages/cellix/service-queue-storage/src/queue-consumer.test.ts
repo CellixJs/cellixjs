@@ -85,5 +85,31 @@ describe('registerQueues', () => {
 				expect((result as { id: string; payload: { requestId: string } }).payload.requestId).toBe('r1');
 			});
 		});
+
+		Scenario('Processing a trigger-delivered inbound queue message', ({ Given, When, Then, And }) => {
+			Given('a queue registry with a "importRequests" inbound queue', () => {
+				registry = createInboundRegistry();
+			});
+
+			And('a service instance is created from the registry', async () => {
+				svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+				await svc.startUp();
+			});
+
+			When('I call receiveFromImportRequestsQueue with a trigger-delivered message', async () => {
+				result = await (svc as unknown as { receiveFromImportRequestsQueue: (message: { payload: { requestId: string }; id?: string; dequeueCount?: number }) => Promise<unknown> }).receiveFromImportRequestsQueue({
+					id: 'trigger-msg-1',
+					dequeueCount: 2,
+					payload: { requestId: 'trigger-r1' },
+				});
+			});
+
+			Then('the trigger-delivered message is validated and returned as a typed message', () => {
+				expect(result).toBeDefined();
+				expect((result as { id: string; dequeueCount?: number; payload: { requestId: string } }).id).toBe('trigger-msg-1');
+				expect((result as { id: string; dequeueCount?: number; payload: { requestId: string } }).dequeueCount).toBe(2);
+				expect((result as { id: string; payload: { requestId: string } }).payload.requestId).toBe('trigger-r1');
+			});
+		});
 	});
 });
