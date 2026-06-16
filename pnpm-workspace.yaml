@@ -29,7 +29,7 @@ catalog:
   mongodb: 6.18.0
   mongodb-memory-server: ^10.1.4
   mongoose: 8.17.0
-  react-router-dom: 7.15.0
+  react-router-dom: 7.15.1
   react: ^19.1.1
   react-dom: ^19.1.1
   '@ant-design/icons': ^6.0.2
@@ -113,6 +113,7 @@ overrides:
   joi: 18.2.1
   form-data: 4.0.6
   '@vitest/browser': "catalog:"
+  js-yaml: ^4.2.0
 
 
 packageExtensions:

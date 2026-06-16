@@ -100,8 +100,8 @@ catalogs:
       specifier: ^19.1.1
       version: 19.2.7
     react-router-dom:
-      specifier: 7.15.0
-      version: 7.15.0
+      specifier: 7.15.1
+      version: 7.15.1
     rimraf:
       specifier: 6.0.1
       version: 6.0.1
@@ -165,6 +165,7 @@ overrides:
   joi: 18.2.1
   form-data: 4.0.6
   '@vitest/browser': 4.1.8
+  js-yaml: ^4.2.0
 
 packageExtensionsChecksum: sha256-mDviJarBPcwNNCTUf3T37btBxDGgV1wZ/iUGQfx5OCA=
 
@@ -517,7 +518,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -644,7 +645,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1075,7 +1076,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1912,7 +1913,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -2006,7 +2007,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -2158,7 +2159,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@ant-design/icons':
         specifier: 'catalog:'
@@ -2240,7 +2241,7 @@ importers:
         version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -2322,7 +2323,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2365,7 +2366,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2451,7 +2452,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2503,7 +2504,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2579,7 +2580,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-router-dom:
         specifier: 'catalog:'
-        version: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -7609,9 +7610,6 @@ packages:
   arg@5.0.2:
     resolution: {integrity: sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==}
 
-  argparse@1.0.10:
-    resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
-
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
@@ -10130,10 +10128,6 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@3.14.2:
-    resolution: {integrity: sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==}
-    hasBin: true
-
   js-yaml@4.2.0:
     resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
     hasBin: true
@@ -12046,8 +12040,8 @@ packages:
     peerDependencies:
       react: '>=15'
 
-  react-router-dom@7.15.0:
-    resolution: {integrity: sha512-VcrVg64Fo8nwBvDscajG8gRTLIuTC6N50nb22l2HOOV4PTOHgoGp8mUjy9wLiHYoYTSYI36tUnXZgasSRFZorQ==}
+  react-router-dom@7.15.1:
+    resolution: {integrity: sha512-AzF62gjY6U9rkMq4RfP/r2EVtQ7DMfNMjyOp/flLTCrtRylLiK4wT4pSq6O8rOXZ2eXdZYJPEYe+ifomiv+Igg==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -12058,8 +12052,8 @@ packages:
     peerDependencies:
       react: '>=15'
 
-  react-router@7.15.0:
-    resolution: {integrity: sha512-HW9vYwuM8f4yx66Izy8xfrzCM+SBJluoZcCbww9A1TySax11S5Vgw6fi3ZjMONw9J4gQwngL7PzkyIpJJpJ7RQ==}
+  react-router@7.15.1:
+    resolution: {integrity: sha512-R8rl9HhgikFYoPJymnUtPXWbnDb3oget6lQnfIoupbt61aT9aOhRkDsY2XRhZRyX1Z/8a5sL74fXmFNm3NRK5A==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -12709,9 +12703,6 @@ packages:
 
   sponge-case@1.0.1:
     resolution: {integrity: sha512-dblb9Et4DAtiZ5YSUZHLl4XhH4uK80GhAZrVXdN4O2P4gQ40Wa5UIOPUHlA/nFd2PLblBZWUioLMMAVrgpoYcA==}
-
-  sprintf-js@1.0.3:
-    resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
   sprintf-js@1.1.3:
     resolution: {integrity: sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==}
@@ -20880,10 +20871,6 @@ snapshots:
 
   arg@5.0.2: {}
 
-  argparse@1.0.10:
-    dependencies:
-      sprintf-js: 1.0.3
-
   argparse@2.0.1: {}
 
   args@5.0.3:
@@ -23002,7 +22989,7 @@ snapshots:
 
   gray-matter@4.0.3:
     dependencies:
-      js-yaml: 3.14.2
+      js-yaml: 4.2.0
       kind-of: 6.0.3
       section-matter: 1.0.0
       strip-bom-string: 1.0.0
@@ -23740,11 +23727,6 @@ snapshots:
   js-md4@0.3.2: {}
 
   js-tokens@4.0.0: {}
-
-  js-yaml@3.14.2:
-    dependencies:
-      argparse: 1.0.10
-      esprima: 4.0.1
 
   js-yaml@4.2.0:
     dependencies:
@@ -26103,11 +26085,11 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  react-router-dom@7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-router-dom@7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-      react-router: 7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react-router: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
 
   react-router@5.3.4(react@19.2.7):
     dependencies:
@@ -26122,7 +26104,7 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  react-router@7.15.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-router@7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       cookie: 1.1.1
       react: 19.2.7
@@ -26929,8 +26911,6 @@ snapshots:
   sponge-case@1.0.1:
     dependencies:
       tslib: 2.6.3
-
-  sprintf-js@1.0.3: {}
 
   sprintf-js@1.1.3: {}
 
