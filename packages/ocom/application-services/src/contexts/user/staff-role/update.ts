@@ -5,7 +5,7 @@ import type { StaffRoleCommandPermissions } from './apply-permissions.ts';
 
 export interface StaffRoleUpdateCommand {
 	roleId: string;
-	roleName: string;
+	roleName: string | undefined;
 	enterpriseAppRole?: string;
 	permissions?: StaffRoleCommandPermissions;
 }
@@ -16,7 +16,9 @@ export const update = (dataSources: DataSources) => {
 
 		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (repository) => {
 			const staffRole = await repository.getById(command.roleId);
-			staffRole.roleName = command.roleName;
+            if(command.roleName !== undefined) {
+			    staffRole.roleName = command.roleName;
+            }
 			if (command.enterpriseAppRole) {
 				staffRole.enterpriseAppRole = command.enterpriseAppRole;
 			}
