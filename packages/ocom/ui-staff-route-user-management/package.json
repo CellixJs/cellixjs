@@ -29,7 +29,7 @@
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@chromatic-com/storybook": "^5.2.1",
-		"@storybook/react": "10.4.2",
+		"@storybook/react": "catalog:",
 		"@storybook/addon-a11y": "catalog:",
 		"@storybook/addon-docs": "catalog:",
 		"@storybook/addon-vitest": "catalog:",
