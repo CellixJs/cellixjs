@@ -1,6 +1,6 @@
 # @cellix/service-queue-storage
 
-Type-safe Azure Queue Storage helpers for CellixJS. This package provides a small framework for defining typed queue contracts (JSON Schema), wiring producers and consumers via a typed registry, and returning registered queue services that expose only lifecycle methods plus the typed queue operations for that application. It also includes an optional `BlobQueueMessageLogger` for persisting queue payloads to blob storage.
+Type-safe Azure Queue Storage helpers for CellixJS. This package provides a small framework for defining typed queue contracts (JSON Schema), wiring producers and consumers via a typed registry, and returning registered queue services that expose only lifecycle methods plus the typed queue operations for that application.
 
 ## Installation
 
@@ -26,16 +26,21 @@ const queueRegistry = registerQueues({
 
 // 3. Extend the Service base class in your application-specific package
 class MyServiceQueueStorage extends queueRegistry.Service {
-  constructor(options: { connectionString: string }) {
-    super({ connectionString: options.connectionString })
+  constructor(options: { accountName?: string; connectionString?: string }) {
+    super({
+      accountName: options.accountName,
+      connectionString: options.connectionString,
+    })
   }
 }
 
 // 4. Create an instance and use it — queue methods are available immediately
-const svc = new MyServiceQueueStorage({ connectionString: 'UseDevelopmentStorage=true' })
+const svc = new MyServiceQueueStorage({ accountName: 'my-storage-account' })
 await svc.startUp()
 await svc.sendMessageToMyQueueQueue({ id: '123' })
 ```
+
+Managed identity is the preferred production authentication mode. `connectionString` remains supported for Azurite and for consumers that explicitly need shared-key access.
 
 ## API reference
 
@@ -50,20 +55,19 @@ await svc.sendMessageToMyQueueQueue({ id: '123' })
 - `QueueDefinition`: type describing `queueName` and message JSON Schema.
 - `QueueStorageConfig`: configuration type for constructing registered queue services.
 - `QueueMessage<T>`: type for received queue messages (id, payload, dequeueCount, optional popReceipt).
-- `BlobQueueMessageLogger`: optional helper to persist queue payloads to blob storage.
+- `QueueMessageLogBlobStorage`: minimal blob-storage shape accepted by `enableLogging(...)`.
 
 ## Blob logging
 
 Logging can be enabled either in the constructor config or later through the registered service instance:
 
 ```typescript
-const logger = new BlobQueueMessageLogger(blobStorage, 'queue-logs')
-const svc = new MyServiceQueueStorage({ connectionString: 'UseDevelopmentStorage=true' })
+const svc = new MyServiceQueueStorage({ accountName: 'my-storage-account' })
 await svc.startUp()
-svc.enableLogging(logger, { enabled: true, container: 'queue-logs' })
+svc.enableLogging(blobStorage, { enabled: true, container: 'queue-logs' })
 ```
 
-When logging is enabled, the package writes one blob per message:
+When blob-backed logging is enabled, the package writes one blob per message:
 
 - Blob names are prefixed by queue direction: `inbound/` or `outbound/`
 - Blob filenames use the message timestamp in ISO UTC form, for example `2026-05-27T15:14:30.000Z.json`
@@ -73,6 +77,7 @@ When logging is enabled, the package writes one blob per message:
 - The preferred syntax is `defineQueue<MyPayload>()(({ $payload }) => ({ ... }))`, then use `$payload.<field>` inside the definition callback
 - The equivalent explicit form `{ payloadField: 'communityId' }` is also supported for advanced/manual cases
 - `defineQueue<MyPayload>()` ensures `$payload.<field>` is checked against the keys of `MyPayload` without separate payload helper setup
+- Advanced consumers may still provide a custom `IQueueMessageLogger` implementation instead of blob storage when they need a different persistence mechanism
 
 ## Auto-provisioning
 

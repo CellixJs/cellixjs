@@ -1,8 +1,0 @@
-{
-  "label": "Queue Storage",
-  "position": 4,
-  "link": {
-    "type": "generated-index",
-    "description": "Azure Queue Storage patterns and framework guidance"
-  }
-}

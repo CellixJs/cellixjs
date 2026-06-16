@@ -128,4 +128,4 @@ This decision complements:
 - [0014 Azure Infrastructure Deployments](/docs/decisions/0014-azure-infrastructure-deployments.md)
 - [0032 Azure Blob Storage with Managed Identity & Client Uploads](/docs/decisions/0032-azure-blob-storage-client-uploads.md)
 
-Detailed developer and agent guidance belongs in the queue-storage technical overview and framework package docs rather than in this ADR.
+Detailed developer and agent guidance belongs in the framework package documentation, including `@cellix/service-queue-storage` README material and public-export TSDoc, rather than in this ADR.

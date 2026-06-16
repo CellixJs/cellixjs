@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Type-safe Azure Queue Storage service for CellixJS — provides consistent message delivery with JSON Schema validation (Ajv), blob storage logging, and auto-provisioning in development environments.
+Type-safe Azure Queue Storage service for CellixJS — provides consistent message delivery with JSON Schema validation (Ajv), blob-backed logging on typed queue paths, and auto-provisioning in development environments.
 
 ## Scope
 
@@ -10,7 +10,7 @@ This package provides:
 - Outbound queue send operations with per-queue JSON Schema validation and encoding
 - Inbound queue receive and peek operations for consumers (dequeue and visibility)
 - Auto-provisioning of queues when running against Azurite or when NODE_ENV=development
-- Optional message logging to blob storage via a pluggable logger interface
+- Optional message logging via either a pluggable logger interface or a blob storage dependency that the framework adapts internally
 
 ## Non-goals
 
@@ -27,15 +27,17 @@ Public exports:
 - `QueueServiceLifecycle` — lifecycle contract implemented by registered queue services
 - `QueueServiceLogging` — opt-in logging contract for enabling or disabling logging after construction
 - `QueueDefinition<S>` — type describing queue name and message JSON Schema
-- `QueueStorageConfig` — configuration type for constructing registered queue services
+- `QueueStorageConfig` — configuration type for constructing registered queue services, supporting `accountName`, `connectionString`, and optional managed-identity credential override
 - `QueueMessage<T>` — type for received queue messages
-- `BlobQueueMessageLogger` — optional helper that writes queue payloads to blob storage under `inbound/` or `outbound/` prefixes and automatically tags each blob with `queueName`
+- `QueueMessageLogBlobStorage` — minimal blob storage contract accepted when enabling blob-backed queue logging without exposing a logging adapter class
 
 ## Core concepts
 
 - `QueueDefinition`: describes a queue's logical name, the JSON Schema for messages, and optional logging tags and metadata.
 - `defineQueue`: preferred authoring helper for queue definitions because it provides a typed `$payload` proxy without per-file setup noise.
 - `registerQueues`: accepts maps of outbound and inbound `QueueDefinition` objects and returns a typed registry. The registry exposes a `Service` class with lifecycle methods, opt-in logging controls, and typed queue methods already wired in the constructor — no separate bind step is required.
+- `QueueStorageConfig`: supports both connection-string access and managed identity. Managed identity is the preferred production approach; connection strings remain supported for Azurite and consumers that explicitly need shared-key access.
+- Blob-backed logging: consumers can pass a blob storage service directly to `enableLogging(...)`; the framework creates the internal queue-message logger adapter automatically.
 - `Service` class pattern: consumer packages extend `registry.Service` to create an application-specific queue storage service. The queue bindings (producer methods, consumer methods) are applied automatically during construction via `Object.assign`. AJV validators are compiled once at `registerQueues()` call time and reused across instances.
 
 ## Package boundaries
@@ -44,7 +46,7 @@ This package is framework-level infrastructure. It must not contain application-
 
 ## Dependencies / relationships
 
-- Depends on `@cellix/service-blob-storage` (or a blob-like adapter) for message envelope persistence when logging is enabled.
+- Depends on `@cellix/service-blob-storage` (or a blob-like adapter) for message payload persistence when logging is enabled.
 - Consumed by `@ocom/service-queue-storage` which provides concrete queue definitions and wiring.
 
 ## Testing strategy
