@@ -95,7 +95,7 @@ class BlobQueueMessageLogger implements IQueueMessageLogger {
 	}
 }
 
-export function isQueueMessageLogger(value: IQueueMessageLogger | QueueMessageLogBlobStorage): value is IQueueMessageLogger {
+function isQueueMessageLogger(value: IQueueMessageLogger | QueueMessageLogBlobStorage): value is IQueueMessageLogger {
 	return 'logMessage' in value;
 }
 

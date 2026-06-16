@@ -3,7 +3,7 @@ import type { QueueMessageLogBlobStorage, QueueServiceLifecycle } from '@cellix/
 import { endUserUpdateQueue } from './schemas/inbound/end-user-update.ts';
 import { communityCreationQueue } from './schemas/outbound/community-creation.ts';
 
-export const QUEUE_LOG_CONTAINER = 'queue-logs';
+const QUEUE_LOG_CONTAINER = 'queue-logs';
 
 const outboundQueues = {
 	communityCreation: communityCreationQueue,
@@ -13,7 +13,7 @@ const inboundQueues = {
 	endUserUpdate: endUserUpdateQueue,
 };
 
-export const queues: ReturnType<typeof registerQueues<typeof outboundQueues, typeof inboundQueues>> = registerQueues({
+const queues: ReturnType<typeof registerQueues<typeof outboundQueues, typeof inboundQueues>> = registerQueues({
 	outbound: outboundQueues,
 	inbound: inboundQueues,
 	serviceDefaults: {
@@ -25,12 +25,14 @@ export const queues: ReturnType<typeof registerQueues<typeof outboundQueues, typ
 	},
 });
 
-export type AppQueueProducerContext = typeof queues.producer;
-export type AppQueueConsumerContext = typeof queues.consumer;
+type AppQueueProducerContext = typeof queues.producer;
+type AppQueueConsumerContext = typeof queues.consumer;
 export type ServiceQueueStorageOptions = { accountName: string } | { connectionString: string };
 export interface ServiceQueueStorage extends QueueServiceLifecycle, AppQueueProducerContext, AppQueueConsumerContext {
 	enableLogging(blobStorage: QueueMessageLogBlobStorage): ServiceQueueStorage;
 }
 export const ServiceQueueStorage = queues.Service as unknown as new (options: ServiceQueueStorageOptions) => ServiceQueueStorage;
 
-export const allQueueNames = [communityCreationQueue.queueName, endUserUpdateQueue.queueName];
+type QueueStorageOperations = AppQueueProducerContext & AppQueueConsumerContext;
+
+export type { QueueStorageOperations };
