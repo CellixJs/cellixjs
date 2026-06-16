@@ -36,9 +36,9 @@ In this monorepo, app packages consume the workspace package directly:
 Keep the app policy in a wrapper script and compose this package's generic helpers inside it:
 
 ```js
-import { buildPortlessUrl, WorktreeNodeDevRunner } from '@cellix/local-dev';
+import { buildPortlessUrl, NodeDevRunner } from '@cellix/local-dev';
 
-new WorktreeNodeDevRunner({
+new NodeDevRunner({
 	settings: {
 		BASE_URL: buildPortlessUrl('mock-auth.example.localhost'),
 		PORT: '50000',
@@ -46,32 +46,38 @@ new WorktreeNodeDevRunner({
 }).start();
 ```
 
-For settings files, let the app decide the keys and values. The shared syncer applies worktree URL suffixes, Mongo port offsets, and requested Azurite connection strings:
+For settings files, let the app decide the document shape and any app-owned transform:
 
 ```js
-import { WorktreeJsonFileSync } from '@cellix/local-dev';
+import { syncJsonFile } from '@cellix/local-dev';
 
-new WorktreeJsonFileSync({
+syncJsonFile({
 	sourcePath: 'local-settings.e2e.json',
 	targetPath: 'deploy/local.settings.json',
-	values: {
-		ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.example.localhost:1355/community',
-	},
-	azuriteConnectionStringKeys: ['AzureWebJobsStorage'],
-}).sync();
+	transform: (document) => ({
+		...document,
+		Values: {
+			...document.Values,
+			MODE: 'e2e',
+		},
+	}),
+});
 ```
 
-Azure Functions can do this directly in the runner so `func start` sees the prepared `local.settings.json` in its script root:
+Azure Functions can sync worktree-aware values directly in the runner so `func start` sees the prepared `local.settings.json` in its script root:
 
 ```js
-import { WorktreeAzureFunctionsDevRunner } from '@cellix/local-dev';
+import { AzureFunctionsDevRunner } from '@cellix/local-dev';
 
-new WorktreeAzureFunctionsDevRunner({
+new AzureFunctionsDevRunner({
 	localSettings: {
 		e2eValues: {
 			ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.example.localhost:1355/community',
 		},
-		azuriteConnectionStringKeys: ['AzureWebJobsStorage'],
+		worktreeConversion: {
+			urlKeys: ['ACCOUNT_PORTAL_OIDC_ISSUER'],
+			azuriteKeys: ['AzureWebJobsStorage'],
+		},
 	},
 }).start();
 ```
@@ -116,13 +122,10 @@ also published for consumers that want narrower imports:
 - `NodeDevRunner`
 - `AzuriteDevRunner`
 - `WorktreeSettings`
-- `WorktreeViteDevRunner`
-- `WorktreeAzureFunctionsDevRunner`
-- `WorktreeAzureFunctionsLocalSettings`
+- `AzureFunctionsLocalSettings`
 - `WorktreeMode`
-- `WorktreeNodeDevRunner`
-- `WorktreeAzuriteDevRunner`
-- `WorktreeJsonFileSync`
+- `convertSettingsForWorktree`
+- `WorktreeConversionPlan`
 - `getWorktreePortOffset`
 - `getMongoPort`
 - `getAzuritePorts`

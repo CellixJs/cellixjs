@@ -46,13 +46,3 @@ export class ViteDevRunner {
 		return child;
 	}
 }
-
-/**
- * Starts a Vite dev process.
- *
- * @param options - Optional env and spawn override.
- * @returns The spawned child process.
- */
-export function runViteDev(options: ViteDevOptions = {}): ChildProcess {
-	return new ViteDevRunner(options).start();
-}

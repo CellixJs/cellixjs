@@ -15,7 +15,9 @@ export interface WorktreeConversionPlan {
 	mongoKeys?: string[];
 	/**
 	 * Keys that receive a worktree-scoped Azurite connection string, built from
-	 * the document's `STORAGE_ACCOUNT_NAME` / `STORAGE_ACCOUNT_KEY`.
+	 * the same settings record's `STORAGE_ACCOUNT_NAME` and
+	 * `STORAGE_ACCOUNT_KEY` values. When either credential is missing, these keys
+	 * are left untouched.
 	 */
 	azuriteKeys?: string[];
 }
@@ -37,6 +39,22 @@ function suffixUrlHostname(value: string, worktreeName: string): string {
 	} catch {
 		return value;
 	}
+}
+
+function buildWorktreeAzuriteConnectionString(values: SettingsRecord, worktreeName: string): string | undefined {
+	// biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
+	const accountName = String(values['STORAGE_ACCOUNT_NAME'] ?? '');
+	// biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
+	const accountKey = String(values['STORAGE_ACCOUNT_KEY'] ?? '');
+	if (!accountName || !accountKey) {
+		return undefined;
+	}
+
+	return buildAzuriteConnectionString({
+		accountName,
+		accountKey,
+		ports: getAzuritePorts(worktreeName),
+	});
 }
 
 /**
@@ -67,14 +85,8 @@ export function convertSettingsForWorktree(values: SettingsRecord, worktreeName:
 	}
 
 	if (plan.azuriteKeys?.length) {
-		const accountName = String(converted['STORAGE_ACCOUNT_NAME'] ?? '');
-		const accountKey = String(converted['STORAGE_ACCOUNT_KEY'] ?? '');
-		if (accountName && accountKey) {
-			const connectionString = buildAzuriteConnectionString({
-				accountName,
-				accountKey,
-				ports: getAzuritePorts(worktreeName),
-			});
+		const connectionString = buildWorktreeAzuriteConnectionString(converted, worktreeName);
+		if (connectionString) {
 			for (const key of plan.azuriteKeys) {
 				converted[key] = connectionString;
 			}

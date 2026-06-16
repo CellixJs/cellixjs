@@ -42,30 +42,3 @@ export class NodeDevRunner {
 		return child;
 	}
 }
-
-/**
- * Starts a Node-backed dev process.
- *
- * @param options - Optional entrypoint, Node arguments, env, and spawn
- * override.
- * @returns The spawned child process.
- */
-export function runNodeDev(options: NodeDevOptions = {}): ChildProcess {
-	return new NodeDevRunner(options).start();
-}
-
-/**
- * @deprecated Use `NodeDevRunner` or `runNodeDev`. TSX is no longer required
- * for local dev entrypoints on the supported Node runtime.
- */
-export type TsxRunnerOptions = NodeDevOptions;
-
-/**
- * @deprecated Use `runNodeDev`.
- *
- * @param options - Node dev options preserved for compatibility.
- * @returns The spawned child process.
- */
-export function runTsxDev(options: TsxRunnerOptions = {}): ChildProcess {
-	return runNodeDev(options);
-}

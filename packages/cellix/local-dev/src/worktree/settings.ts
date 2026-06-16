@@ -3,6 +3,9 @@ import { getMongoPort, getWorktreePortOffset } from './ports.ts';
 import type { KnownWorktreeSettings, SettingsRecord, WorktreeSettingsOptions } from './types.ts';
 import { resolveWorktreeName } from './worktree-name.ts';
 
+const HTTP_URL_PATTERN = /https?:\/\/[^\s;'"<>]+/g;
+const MONGO_URL_PATTERN = /mongodb:\/\/[^\s;'"<>]+/g;
+
 function isPlainRecord(value: unknown): value is SettingsRecord {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -11,6 +14,10 @@ function stringifyEnvValue(value: unknown): string | undefined {
 	if (typeof value === 'string') return value;
 	if (typeof value === 'number' || typeof value === 'boolean') return String(value);
 	return undefined;
+}
+
+function preservesBareOriginShape(originalValue: string, parsedUrl: URL): boolean {
+	return !originalValue.endsWith('/') && parsedUrl.pathname === '/' && !parsedUrl.search && !parsedUrl.hash;
 }
 
 function transformUrl(urlValue: string, worktreeName: string | undefined): string {
@@ -25,7 +32,7 @@ function transformUrl(urlValue: string, worktreeName: string | undefined): strin
 		}
 
 		const transformedUrl = url.toString();
-		if (!urlValue.endsWith('/') && url.pathname === '/' && !url.search && !url.hash) {
+		if (preservesBareOriginShape(urlValue, url)) {
 			return transformedUrl.slice(0, -1);
 		}
 
@@ -36,8 +43,8 @@ function transformUrl(urlValue: string, worktreeName: string | undefined): strin
 }
 
 function transformStringValue(value: string, worktreeName: string | undefined): string {
-	const withHttpUrls = value.replace(/https?:\/\/[^\s;'"<>]+/g, (match) => transformUrl(match, worktreeName));
-	return withHttpUrls.replace(/mongodb:\/\/[^\s;'"<>]+/g, (match) => transformUrl(match, worktreeName));
+	const withHttpUrls = value.replace(HTTP_URL_PATTERN, (match) => transformUrl(match, worktreeName));
+	return withHttpUrls.replace(MONGO_URL_PATTERN, (match) => transformUrl(match, worktreeName));
 }
 
 function transformValue(value: unknown, worktreeName: string | undefined): unknown {
@@ -62,6 +69,17 @@ function transformValue(value: unknown, worktreeName: string | undefined): unkno
  *
  * URL-like strings receive `.localhost` hostname suffixes, MongoDB URLs receive
  * worktree-specific ports, and `PORT` receives the generic worktree port offset.
+ *
+ * @example
+ * ```ts
+ * new WorktreeSettings({
+ *   env: { WORKTREE_NAME: 'feature-a' },
+ *   settings: {
+ *     BASE_URL: 'https://ownercommunity.localhost:1355',
+ *     COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
+ *   },
+ * }).toEnv();
+ * ```
  */
 export class WorktreeSettings {
 	private readonly env: NodeJS.ProcessEnv;

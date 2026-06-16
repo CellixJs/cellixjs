@@ -38,7 +38,7 @@ Root entrypoint exports:
 - `isGracefulInterruptExit(signal, code)`, `forwardChildExit(child)`
 - `getWorktreePortOffset(worktreeName?)`, `getMongoPort(worktreeName?)`, `getAzuritePorts(worktreeName?)`, `buildAzuriteConnectionString(options)`
 - `ViteDevRunner`, `DocusaurusDevRunner`, `AzureFunctionsDevRunner`, `NodeDevRunner`, `AzuriteDevRunner`
-- `WorktreeSettings`, `WorktreeViteDevRunner`, `WorktreeAzureFunctionsDevRunner`, `WorktreeAzureFunctionsLocalSettings`, `WorktreeNodeDevRunner`, `WorktreeAzuriteDevRunner`, `WorktreeJsonFileSync`, `WorktreeMode`
+- `WorktreeSettings`, `AzureFunctionsLocalSettings`, `convertSettingsForWorktree`, `WorktreeConversionPlan`, `WorktreeMode`
 - `runViteDev(options?)`, `runDocusaurusDev(options?)`, `runAzureFunctionsDev(options?)`, `runNodeDev(options?)`, `runAzuriteDev(options)`
 - `runTsxDev(options?)` remains as a deprecated compatibility alias for `runNodeDev(options?)`
 

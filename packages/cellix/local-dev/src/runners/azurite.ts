@@ -1,11 +1,23 @@
 import type { ChildProcess } from 'node:child_process';
 import path from 'node:path';
 import { isGracefulInterruptExit } from '../process/index.ts';
+import { sanitizeWorktreeHostnameLabel } from '../urls/index.ts';
 import { resolveWorkspaceRoot } from '../workspace/index.ts';
 import { getAzuritePorts } from '../worktree/ports.ts';
 import { resolveWorktreeName } from '../worktree/worktree-name.ts';
 import { spawnInherited } from './spawn.ts';
 import type { RunnerOptions } from './types.ts';
+
+function setProcessExitCode(code: number): void {
+	if (process.exitCode === undefined || process.exitCode === 0) {
+		process.exitCode = code;
+	}
+}
+
+function getWorktreeStorageSuffix(worktreeName: string | undefined): string {
+	const safeLabel = sanitizeWorktreeHostnameLabel(worktreeName);
+	return safeLabel ? `-${safeLabel}` : '';
+}
 
 export interface AzuriteDevOptions extends RunnerOptions {
 	/** Workspace root used for storage directories. Defaults to auto-discovery. */
@@ -44,8 +56,8 @@ export interface ResolvedAzuriteOptions {
  *
  * When no worktree is active the runner falls back to Azurite's default ports
  * and unsuffixed storage directories. All three services inherit stdio; if one
- * exits unexpectedly the runner terminates the others and forwards a non-zero
- * exit code.
+ * exits unexpectedly the runner terminates the others and sets the parent
+ * process exit code for CLI callers without forcing embedders to exit.
  */
 export class AzuriteDevRunner {
 	private readonly options: AzuriteDevOptions;
@@ -64,7 +76,7 @@ export class AzuriteDevRunner {
 		const worktreeName = resolveWorktreeName(this.options);
 		const workspaceRoot = this.options.workspaceRoot ?? resolveWorkspaceRoot();
 		const ports = getAzuritePorts(worktreeName);
-		const storageSuffix = worktreeName ? `-${worktreeName}` : '';
+		const storageSuffix = getWorktreeStorageSuffix(worktreeName);
 		const directories = this.options.storageDirectories ?? {};
 
 		return {
@@ -85,23 +97,35 @@ export class AzuriteDevRunner {
 	public start(): ChildProcess[] {
 		const resolved = this.resolveOptions();
 		const silent = this.options.silent ?? true;
-		const procSpecs: Array<[string, string[]]> = [
+		const azuriteProcesses: Array<[string, string[]]> = [
 			['azurite-blob', [...(silent ? ['--silent'] : []), '--blobPort', String(resolved.blobPort), '--location', path.resolve(resolved.blobLocation)]],
 			['azurite-queue', [...(silent ? ['--silent'] : []), '--queuePort', String(resolved.queuePort), '--location', path.resolve(resolved.queueLocation)]],
 			['azurite-table', [...(silent ? ['--silent'] : []), '--tablePort', String(resolved.tablePort), '--location', path.resolve(resolved.tableLocation)]],
 		];
 
-		const procs = procSpecs.map(([command, args]) => {
+		let procs: ChildProcess[] = [];
+		const stopAzuriteProcesses = (signal?: NodeJS.Signals) => {
+			for (const proc of procs) {
+				proc.kill(signal);
+			}
+		};
+		const stopOnSigint = () => stopAzuriteProcesses('SIGINT');
+		const stopOnSigterm = () => stopAzuriteProcesses('SIGTERM');
+		const removeSignalHandlers = () => {
+			process.off('SIGINT', stopOnSigint);
+			process.off('SIGTERM', stopOnSigterm);
+		};
+
+		procs = azuriteProcesses.map(([command, args]) => {
 			const proc = spawnInherited(command, args, {
 				...(this.options.env ? { env: this.options.env } : {}),
 				...(this.options.spawn ? { spawn: this.options.spawn } : {}),
 			});
 			proc.on('error', (error) => {
 				console.error(`[azurite] failed to start ${command}: ${error.message}`);
-				for (const runningProc of procs) {
-					runningProc.kill();
-				}
-				process.exit(1);
+				stopAzuriteProcesses();
+				removeSignalHandlers();
+				setProcessExitCode(1);
 			});
 			return proc;
 		});
@@ -113,41 +137,22 @@ export class AzuriteDevRunner {
 			proc.on('exit', (code, signal) => {
 				if (isGracefulInterruptExit(signal, code)) {
 					if (++exited === procs.length) {
-						process.exit(0);
+						removeSignalHandlers();
+						setProcessExitCode(0);
 					}
 					return;
 				}
 
 				console.error(`[azurite] process exited unexpectedly: code=${code} signal=${signal}`);
-				for (const runningProc of procs) {
-					runningProc.kill();
-				}
-				process.exit(code ?? 1);
+				stopAzuriteProcesses();
+				removeSignalHandlers();
+				setProcessExitCode(code ?? 1);
 			});
 		}
 
-		process.on('SIGINT', () => {
-			for (const proc of procs) {
-				proc.kill('SIGINT');
-			}
-		});
-		process.on('SIGTERM', () => {
-			for (const proc of procs) {
-				proc.kill('SIGTERM');
-			}
-		});
+		process.on('SIGINT', stopOnSigint);
+		process.on('SIGTERM', stopOnSigterm);
 
 		return procs;
 	}
-}
-
-/**
- * Starts Azurite blob, queue, and table services on worktree-scoped ports.
- *
- * @param options - Optional workspace root, storage directories, worktree
- * context, env, and spawn override.
- * @returns The spawned Azurite child processes.
- */
-export function runAzuriteDev(options: AzuriteDevOptions = {}): ChildProcess[] {
-	return new AzuriteDevRunner(options).start();
 }

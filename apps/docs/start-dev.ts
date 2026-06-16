@@ -1,3 +1,3 @@
-import { runDocusaurusDev } from '@cellix/local-dev';
+import { DocusaurusDevRunner } from '@cellix/local-dev';
 
-runDocusaurusDev();
+new DocusaurusDevRunner().start();

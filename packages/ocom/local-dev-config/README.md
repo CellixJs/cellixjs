@@ -19,12 +19,12 @@ This package owns Owner Community application policy: which app `.env` files def
 Use this package as the OCOM source of local URLs, then pass those values into the generic Cellix worktree runners:
 
 ```ts
-import { WorktreeViteDevRunner } from '@cellix/local-dev';
+import { ViteDevRunner } from '@cellix/local-dev';
 import { buildOcomUrls } from '@ocom/local-dev-config';
 
 const urls = buildOcomUrls();
 
-new WorktreeViteDevRunner({
+new ViteDevRunner({
 	settings: {
 		VITE_APP_UI_COMMUNITY_BASE_URL: urls.uiCommunityBaseUrl,
 		VITE_COMMON_API_ENDPOINT: urls.apiGraphqlUrl,
@@ -42,6 +42,7 @@ also published for narrower imports:
 
 - `getOcomHostnames(options?)`
 - `buildOcomUrls(options?)`
+- `buildOcomApiLocalSettings(options?)`
 - `OcomLocalDevOptions`
 - `OcomHostnames`
 - `OcomUrls`

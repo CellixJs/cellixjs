@@ -35,13 +35,3 @@ export class DocusaurusDevRunner {
 		return child;
 	}
 }
-
-/**
- * Starts the Docusaurus dev server.
- *
- * @param options - Optional env and spawn override.
- * @returns The spawned child process.
- */
-export function runDocusaurusDev(options: RunnerOptions = {}): ChildProcess {
-	return new DocusaurusDevRunner(options).start();
-}

@@ -110,14 +110,3 @@ export class AzureFunctionsDevRunner {
 		return child;
 	}
 }
-
-/**
- * Starts an Azure Functions dev process.
- *
- * @param options - Functions host options, worktree context, env, and spawn
- * override.
- * @returns The spawned Functions host process.
- */
-export function runAzureFunctionsDev(options: AzureFunctionsDevOptions = {}): ChildProcess {
-	return new AzureFunctionsDevRunner(options).start();
-}

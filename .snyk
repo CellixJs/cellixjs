@@ -111,3 +111,38 @@ ignore:
         reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'
         expires: '2026-09-11T00:00:00.000Z'
         created: '2026-06-11T00:00:00.000Z'
+  'SNYK-JS-AZUREIDENTITY-7964589':
+    - '* > @azure/identity@3.4.2':
+        reason: 'Transitive dependency via azurite>tedious; upgrade to 4.x is a breaking major-version change incompatible with azurite. Not exploitable in dev-only local storage emulation context.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-XML2JS-5414874':
+    - '* > xml2js@0.4.23':
+        reason: 'Transitive dependency via azurite>@azure/ms-rest-js; 0.4→0.5 is a breaking major change incompatible with @azure/ms-rest-js. Not exploitable in dev-only local storage emulation context.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-TOUGHCOOKIE-5672873':
+    - '* > tough-cookie@2.5.5':
+        reason: 'Transitive dependency via azurite>@azure/ms-rest-js; 2.x→4.x is a breaking major change. Not exploitable in dev-only local storage emulation context.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-OPENTELEMETRYCORE-17000000':
+    - '* > @opentelemetry/core':
+        reason: 'OTEL core 2.8.0+ requires sdk-node upgrade which has TypeScript compilation errors. Tracked alongside SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050 for resolution in the planned OTEL 2.x migration.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-BABELCORE-17342497':
+    - '* > @babel/core@7.29.0':
+        reason: 'No 7.29.x fix release exists; next release is major v8.0.0 which is a breaking change for all transitive consumers. Low severity, dev tooling only.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-JOI-17317897':
+    - '* > joi':
+        reason: 'No upgrade or patch available per Snyk; overridden to 17.13.4 which fixes the pnpm advisory. Accepting residual Snyk finding until a patched release is published.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-JSYAML-17342520':
+    - '* > js-yaml@3.14.2':
+        reason: 'js-yaml 3.x→4.x is a breaking major change for all transitive consumers (gray-matter/Docusaurus chain). js-yaml@4.1.1 patched to 4.2.0 via pnpm override; 3.x path has no safe upgrade.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'

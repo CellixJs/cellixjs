@@ -27,6 +27,7 @@ Root entrypoint exports:
 
 - `getOcomHostnames(options?)`
 - `buildOcomUrls(options?)`
+- `buildOcomApiLocalSettings(options?)`
 - `OcomLocalDevOptions`
 - `OcomHostnames`
 - `OcomUrls`

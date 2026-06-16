@@ -11,6 +11,10 @@ export function isGracefulInterruptExit(signal: NodeJS.Signals | null | undefine
 /**
  * Forwards a spawned child process exit code back to the parent process while
  * treating common interrupt exits as a successful shutdown.
+ *
+ * This helper sets `process.exitCode` instead of calling `process.exit()`, so a
+ * wrapper script can finish naturally and embedders do not lose control of the
+ * current Node process.
  */
 export function forwardChildExit(child: ChildProcess): void {
 	child.on('exit', (code, signal) => {

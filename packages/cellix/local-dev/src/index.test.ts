@@ -8,7 +8,6 @@ import {
 	applyWorktreeSuffix,
 	buildAzuriteConnectionString,
 	buildPortlessUrl,
-	buildViteArgs,
 	convertSettingsForWorktree,
 	getAzuritePorts,
 	getMongoPort,
@@ -25,7 +24,8 @@ import {
 	ViteDevRunner,
 	WorktreeSettings,
 } from '@cellix/local-dev';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { buildViteArgs } from './vite/index.ts';
 
 type DotEnvFixtureValues = Record<string, string> & {
 	API_URL?: string;
@@ -40,7 +40,24 @@ function createWorkspaceFixture(): string {
 	return root;
 }
 
+function createMockChildProcess(): ReturnType<RunnerSpawn> {
+	const proc = new EventEmitter() as ReturnType<RunnerSpawn>;
+	proc.kill = vi.fn(() => true);
+	return proc;
+}
+
+function expectNoDirectProcessExit(): ReturnType<typeof vi.spyOn> {
+	return vi.spyOn(process, 'exit').mockImplementation((() => {
+		throw new Error('process.exit should not be called by embeddable runners');
+	}) as never);
+}
+
 describe('@cellix/local-dev', () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+		process.exitCode = undefined;
+	});
+
 	it('resolves the workspace root from a nested directory', () => {
 		const workspaceRoot = createWorkspaceFixture();
 		const nestedDir = path.join(workspaceRoot, 'fixtures');
@@ -260,8 +277,80 @@ describe('@cellix/local-dev', () => {
 			blobPort: getAzuritePorts('Jason/Feature 123').blob,
 			queuePort: getAzuritePorts('Jason/Feature 123').queue,
 			tablePort: getAzuritePorts('Jason/Feature 123').table,
-			blobLocation: path.join(workspaceRoot, '__blobstorage__-Jason/Feature 123'),
+			blobLocation: path.join(workspaceRoot, '__blobstorage__-jason-feature-123'),
 		});
+	});
+
+	it('sets exitCode instead of terminating the parent process when Azurite spawn fails', () => {
+		const children: ReturnType<RunnerSpawn>[] = [];
+		const spawn: RunnerSpawn = () => {
+			const child = createMockChildProcess();
+			children.push(child);
+			return child;
+		};
+		const exitSpy = expectNoDirectProcessExit();
+		const listenerCountBeforeStart = process.listenerCount('SIGINT');
+
+		new AzuriteDevRunner({ spawn }).start();
+		children[1]?.emit('error', new Error('missing binary'));
+
+		expect(exitSpy).not.toHaveBeenCalled();
+		expect(process.exitCode).toBe(1);
+		expect(process.listenerCount('SIGINT')).toBe(listenerCountBeforeStart);
+		expect(children.map((child) => child.kill)).toEqual([expect.any(Function), expect.any(Function), expect.any(Function)]);
+		expect(children.every((child) => vi.mocked(child.kill).mock.calls.length === 1)).toBe(true);
+	});
+
+	it('sets exitCode instead of terminating the parent process when Azurite exits unexpectedly', () => {
+		const children: ReturnType<RunnerSpawn>[] = [];
+		const spawn: RunnerSpawn = () => {
+			const child = createMockChildProcess();
+			children.push(child);
+			return child;
+		};
+		const exitSpy = expectNoDirectProcessExit();
+		const listenerCountBeforeStart = process.listenerCount('SIGTERM');
+
+		new AzuriteDevRunner({ spawn }).start();
+		children[0]?.emit('exit', 17, null);
+
+		expect(exitSpy).not.toHaveBeenCalled();
+		expect(process.exitCode).toBe(17);
+		expect(process.listenerCount('SIGTERM')).toBe(listenerCountBeforeStart);
+		expect(children.every((child) => vi.mocked(child.kill).mock.calls.length === 1)).toBe(true);
+	});
+
+	it('sets a successful exitCode after all Azurite processes stop gracefully', () => {
+		const children: ReturnType<RunnerSpawn>[] = [];
+		const spawn: RunnerSpawn = () => {
+			const child = createMockChildProcess();
+			children.push(child);
+			return child;
+		};
+		const exitSpy = expectNoDirectProcessExit();
+
+		new AzuriteDevRunner({ spawn }).start();
+		for (const child of children) {
+			child.emit('exit', 130, 'SIGINT');
+		}
+
+		expect(exitSpy).not.toHaveBeenCalled();
+		expect(process.exitCode).toBe(0);
+	});
+
+	it('preserves an existing non-zero exitCode when Azurite later reports another failure', () => {
+		const children: ReturnType<RunnerSpawn>[] = [];
+		const spawn: RunnerSpawn = () => {
+			const child = createMockChildProcess();
+			children.push(child);
+			return child;
+		};
+		process.exitCode = 9;
+
+		new AzuriteDevRunner({ spawn }).start();
+		children[2]?.emit('exit', 17, null);
+
+		expect(process.exitCode).toBe(9);
 	});
 
 	it('converts only the named settings for a worktree, leaving the rest untouched', () => {
@@ -282,6 +371,9 @@ describe('@cellix/local-dev', () => {
 				azuriteKeys: ['AZURE_STORAGE_CONNECTION_STRING', 'AzureWebJobsStorage'],
 			},
 		);
+		const typedConverted = converted as typeof converted & {
+			COSMOSDB_CONNECTION_STRING: string;
+		};
 
 		expect(converted).toMatchObject({
 			ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.jason-feature-123.localhost:1355/community',
@@ -291,7 +383,7 @@ describe('@cellix/local-dev', () => {
 			COSMOSDB_DBNAME: 'ocom',
 			STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
 		});
-		expect(converted['COSMOSDB_CONNECTION_STRING']).toBe(`mongodb://127.0.0.1:${getMongoPort('Jason/Feature 123')}/ocom`);
+		expect(typedConverted.COSMOSDB_CONNECTION_STRING).toBe(`mongodb://127.0.0.1:${getMongoPort('Jason/Feature 123')}/ocom`);
 	});
 
 	it('generates Azure Functions local settings before starting func', () => {

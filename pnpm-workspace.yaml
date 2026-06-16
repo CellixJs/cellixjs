@@ -19,16 +19,16 @@ catalog:
   '@serenity-js/cucumber': 3.42.2
   '@serenity-js/serenity-bdd': 3.42.2
   '@types/node': ^22.19.5
-  '@vitest/coverage-istanbul': 4.1.6
+  '@vitest/coverage-istanbul': 4.1.8
   antd: 6.3.5
   archunit: ^2.1.63
-  esbuild: 0.27.4
+  esbuild: 0.28.1
   graphql: ^16.10.0
   jsdom: ^26.1.0
   mongodb: 6.18.0
   mongodb-memory-server: ^10.1.4
   mongoose: 8.17.0
-  react-router-dom: 7.15.0
+  react-router-dom: 7.15.1
   react: ^19.1.1
   react-dom: ^19.1.1
   '@ant-design/icons': ^6.0.2
@@ -42,10 +42,10 @@ catalog:
   tsx: ^4.21.0
   typescript: 6.0.3
   "@typescript/native-preview": 7.0.0-dev.20260428.1
-  vite: 8.0.5
-  vitest: 4.1.6
-  '@vitest/browser': 4.1.6
-  '@vitest/browser-playwright': 4.1.6
+  vite: 8.0.16
+  vitest: 4.1.8
+  '@vitest/browser': 4.1.8
+  '@vitest/browser-playwright': 4.1.8
   vite-plugin-node-polyfills: ^0.28.0
 
 auditConfig:
@@ -55,6 +55,24 @@ auditConfig:
     - GHSA-8v8x-cx79-35w7
     - GHSA-wpg9-53fq-2r8h
     - GHSA-q7rr-3cgh-j5r3
+    # uuid: override to uuid 14+ breaks azurite (see .snyk SNYK-JS-UUID-16133035)
+    - GHSA-w5hq-g745-h8pq
+    # @azure/identity: 3.x→4.x major bump required; transitive via azurite>tedious
+    - GHSA-m5vv-6r4h-3vj9
+    # @opentelemetry/core: 2.x upgrade blocked; see .snyk SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050
+    - GHSA-8988-4f7v-96qf
+    # @ai-sdk/provider-utils: transitive via docusaurus, not exploitable (see .snyk)
+    - GHSA-866g-f22w-33x8
+    # xml2js@0.4.23: 0.4→0.5 major bump would break azurite>@azure/ms-rest-js
+    - GHSA-776f-qx25-q3cc
+    # tough-cookie@2.5.x: 2.x→4.x major bump required; transitive via azurite>@azure/ms-rest-js
+    - GHSA-72xf-g2v4-qvf3
+    # js-yaml@3.x: 3→4 major bump required for old transitive consumers; 4.1.1 patched via override
+    - GHSA-h67p-54hq-rp68
+    # @babel/core: 7.x→8.0.0 major bump; no 7.29.1 release exists; low severity, dev tooling only
+    - GHSA-4x5r-pxfx-6jf8
+    # elliptic: 6.6.2 does not exist, 6.6.1 is latest; low severity, dev tooling only
+    - GHSA-848j-6mx2-7j84
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -68,8 +86,8 @@ allowBuilds:
 
 overrides:
   '@grpc/grpc-js': ^1.14.4
-  '@vitest/browser': 4.1.6
-  '@vitest/browser-playwright': 4.1.6
+  '@vitest/browser': 4.1.8
+  '@vitest/browser-playwright': 4.1.8
   axios: 1.16.0
   follow-redirects: ^1.16.0
   vite: "catalog:"
@@ -77,12 +95,13 @@ overrides:
   rollup: ^4.59.0
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
   'brace-expansion@1.1.12': 1.1.13
+  'brace-expansion@2.0.2': 2.0.3
   'brace-expansion@5.0.4': 5.0.6
   'brace-expansion@5.0.5': 5.0.6
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
-  'protobufjs@7.5.4': 7.5.8
+  'protobufjs@7.5.4': 7.6.3
   'serve-handler>minimatch': 3.1.5
   'serialize-javascript@6.0.2': 7.0.5
   'serialize-javascript@7.0.4': 7.0.5
@@ -102,18 +121,26 @@ overrides:
   express-rate-limit: 8.5.1
   '@azure/ms-rest-js>uuid': '^3.4.0'
   'azurite>uuid': '^3.4.0'
-  'ws@8.20.0': 8.20.1
+  'ws@8.20.0': 8.21.0
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: 8.5.10
-  protobufjs: 7.5.8
+  protobufjs: 7.6.3
   ip-address: ^10.1.1
   fast-uri: ^3.1.2
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   'shell-quote@<1.8.4': 1.8.4
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
-  ws: 8.20.1
+  ws: 8.21.0
   shell-quote: 1.8.4
+  esbuild: 0.28.1
+  'form-data@2.5.5': 2.5.6
+  'form-data@4.0.5': 4.0.6
+  immutable: '>=3.8.3'
+  'joi@17.13.3': 17.13.4
+  'js-yaml@4.1.1': 4.2.0
+  'launch-editor@2.12.0': 2.14.1
+  'smol-toml@1.5.2': 1.6.1
 
 packageExtensions:
   '@azure/functions-opentelemetry-instrumentation@0.1.0':

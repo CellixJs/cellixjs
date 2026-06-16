@@ -26,6 +26,14 @@ function readAppEnv(workspaceRoot: string, appName: string): DotEnvValues & Ocom
 	return readDotEnv(path.join(workspaceRoot, 'apps', appName, '.env')) as DotEnvValues & OcomEnvValues;
 }
 
+function firstDefinedUrl(...values: Array<string | undefined>): string {
+	return values.find((value) => value !== undefined) ?? '';
+}
+
+function requiredHostnameFromSources(key: string, ...values: Array<string | undefined>): string {
+	return requiredHostname(firstDefinedUrl(...values), key);
+}
+
 /**
  * Resolves the OCOM local-development hostnames from app `.env` files and
  * optional process environment overrides.
@@ -53,12 +61,15 @@ export function getOcomHostnames(options: OcomLocalDevOptions = {}): OcomHostnam
 	const communityEnv = readAppEnv(workspaceRoot, 'ui-community');
 	const staffEnv = readAppEnv(workspaceRoot, 'ui-staff');
 	const worktreeName = env.WORKTREE_NAME;
-	const communityHostname = requiredHostname(env.VITE_APP_UI_COMMUNITY_BASE_URL ?? communityEnv.VITE_APP_UI_COMMUNITY_BASE_URL ?? '', 'VITE_APP_UI_COMMUNITY_BASE_URL');
-	const apiHostname = requiredHostname(env.VITE_COMMON_API_ENDPOINT ?? communityEnv.VITE_COMMON_API_ENDPOINT ?? '', 'VITE_COMMON_API_ENDPOINT');
-	const mockAuthHostname = requiredHostname(env.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY ?? communityEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY ?? '', 'VITE_APP_UI_COMMUNITY_B2C_AUTHORITY');
-	const staffHostname = requiredHostname(
-		env.VITE_APP_UI_STAFF_BASE_URL ?? staffEnv.VITE_APP_UI_STAFF_BASE_URL ?? env.VITE_APP_UI_STAFF_AAD_REDIRECT_URI ?? staffEnv.VITE_APP_UI_STAFF_AAD_REDIRECT_URI ?? '',
+	const communityHostname = requiredHostnameFromSources('VITE_APP_UI_COMMUNITY_BASE_URL', env.VITE_APP_UI_COMMUNITY_BASE_URL, communityEnv.VITE_APP_UI_COMMUNITY_BASE_URL);
+	const apiHostname = requiredHostnameFromSources('VITE_COMMON_API_ENDPOINT', env.VITE_COMMON_API_ENDPOINT, communityEnv.VITE_COMMON_API_ENDPOINT);
+	const mockAuthHostname = requiredHostnameFromSources('VITE_APP_UI_COMMUNITY_B2C_AUTHORITY', env.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY, communityEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY);
+	const staffHostname = requiredHostnameFromSources(
 		'VITE_APP_UI_STAFF_BASE_URL',
+		env.VITE_APP_UI_STAFF_BASE_URL,
+		staffEnv.VITE_APP_UI_STAFF_BASE_URL,
+		env.VITE_APP_UI_STAFF_AAD_REDIRECT_URI,
+		staffEnv.VITE_APP_UI_STAFF_AAD_REDIRECT_URI,
 	);
 
 	return {

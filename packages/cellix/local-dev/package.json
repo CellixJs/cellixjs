@@ -18,10 +18,6 @@
 			"types": "./dist/files/index.d.ts",
 			"default": "./dist/files/index.js"
 		},
-		"./process": {
-			"types": "./dist/process/index.d.ts",
-			"default": "./dist/process/index.js"
-		},
 		"./runners": {
 			"types": "./dist/runners/index.d.ts",
 			"default": "./dist/runners/index.js"
@@ -29,10 +25,6 @@
 		"./urls": {
 			"types": "./dist/urls/index.d.ts",
 			"default": "./dist/urls/index.js"
-		},
-		"./vite": {
-			"types": "./dist/vite/index.d.ts",
-			"default": "./dist/vite/index.js"
 		},
 		"./workspace": {
 			"types": "./dist/workspace/index.d.ts",

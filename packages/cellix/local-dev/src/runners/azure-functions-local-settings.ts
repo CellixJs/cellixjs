@@ -12,6 +12,31 @@ function isE2E(env: NodeJS.ProcessEnv): boolean {
 	return ['1', 'true', 'yes'].includes(((env as LocalSettingsEnv).E2E ?? '').toLowerCase());
 }
 
+function resolveTargetPath(options: AzureFunctionsLocalSettingsOptions): string {
+	const { appDir = process.cwd(), scriptRoot = 'deploy/' } = options;
+	return options.targetPath ?? path.join(appDir, scriptRoot, 'local.settings.json');
+}
+
+function resolveSettingsWorktreeName(options: AzureFunctionsLocalSettingsOptions, env: NodeJS.ProcessEnv): string | undefined {
+	return resolveWorktreeName({
+		env,
+		...(typeof options.worktree === 'boolean' ? { worktree: options.worktree } : {}),
+		...(options.worktreeName ? { worktreeName: options.worktreeName } : {}),
+	});
+}
+
+function buildModeValues(options: AzureFunctionsLocalSettingsOptions, env: NodeJS.ProcessEnv): SettingsRecord {
+	const values: SettingsRecord = { ...options.values };
+	if (isE2E(env) && options.e2eValues) {
+		Object.assign(values, options.e2eValues);
+	}
+	return values;
+}
+
+function applyWorktreeConversion(values: SettingsRecord, worktreeName: string | undefined, plan: WorktreeConversionPlan | undefined): SettingsRecord {
+	return worktreeName && plan ? convertSettingsForWorktree(values, worktreeName, plan) : values;
+}
+
 export interface AzureFunctionsLocalSettingsOptions {
 	/** App directory used to resolve the default target path. Defaults to `process.cwd()`. */
 	appDir?: string;
@@ -53,24 +78,12 @@ export class AzureFunctionsLocalSettings {
 	 * Writes the worktree-scoped settings into the Functions script root.
 	 */
 	public sync(): void {
-		const { appDir = process.cwd(), scriptRoot = 'deploy/', env = process.env } = this.options;
-		const targetPath = this.options.targetPath ?? path.join(appDir, scriptRoot, 'local.settings.json');
-		const worktreeName = resolveWorktreeName({
-			env,
-			...(typeof this.options.worktree === 'boolean' ? { worktree: this.options.worktree } : {}),
-			...(this.options.worktreeName ? { worktreeName: this.options.worktreeName } : {}),
-		});
+		const env = this.options.env ?? process.env;
+		const targetPath = resolveTargetPath(this.options);
+		const worktreeName = resolveSettingsWorktreeName(this.options, env);
+		const values = buildModeValues(this.options, env);
+		const converted = applyWorktreeConversion(values, worktreeName, this.options.worktreeConversion);
 
-		// 1. LOAD — the settings for this mode (base, plus E2E overrides in E2E).
-		const values: SettingsRecord = { ...this.options.values };
-		if (isE2E(env) && this.options.e2eValues) {
-			Object.assign(values, this.options.e2eValues);
-		}
-
-		// 2. CONVERT — scope the caller-named keys to the active worktree (skipped otherwise).
-		const converted = worktreeName && this.options.worktreeConversion ? convertSettingsForWorktree(values, worktreeName, this.options.worktreeConversion) : values;
-
-		// 3. WRITE — emit local.settings.json for the Functions host.
 		writeJsonFile(targetPath, {
 			IsEncrypted: false,
 			Values: converted,

@@ -1,4 +1,4 @@
-export interface BuildViteArgsOptions {
+interface BuildViteArgsOptions {
 	/** Host passed to Vite. Defaults to `127.0.0.1`. */
 	host?: string;
 	/** Optional port passed to Vite. */
@@ -19,7 +19,7 @@ type ViteEnv = NodeJS.ProcessEnv & {
  * @param env - Environment to inspect. Defaults to `process.env`.
  * @returns Whether `E2E` is enabled with a truthy local-dev value.
  */
-export function isE2E(env: NodeJS.ProcessEnv = process.env): boolean {
+function isE2E(env: NodeJS.ProcessEnv = process.env): boolean {
 	const viteEnv = env as ViteEnv;
 	return ['1', 'true', 'yes'].includes((viteEnv.E2E ?? '').toLowerCase());
 }
