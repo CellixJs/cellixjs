@@ -1,4 +1,5 @@
-import type { IQueueMessageLogger } from './logging.ts';
+import type { TokenCredential } from '@azure/identity';
+import type { IQueueMessageLogger, QueueMessageLogBlobStorage } from './logging.ts';
 
 /**
  * Runtime logging behavior for a registered queue service.
@@ -31,8 +32,10 @@ declare const _queuePayload: unique symbol;
  * Construction options for registered queue services.
  *
  * Provide either `connectionString` for local/shared-key access or `accountName`
- * for managed identity access. Logging is optional but, when enabled, is applied
- * automatically by the typed send and receive methods created through `registerQueues()`.
+ * for managed identity access. A custom `credential` can be supplied for the
+ * managed-identity path when a host wants to override `DefaultAzureCredential`.
+ * Logging is optional but, when enabled, is applied automatically by the typed
+ * send and receive methods created through `registerQueues()`.
  *
  * `provisionQueues` is intended for local development and Azurite startup, not
  * production infrastructure management.
@@ -52,14 +55,16 @@ declare const _queuePayload: unique symbol;
 export type QueueStorageConfig = {
 	/** Azure Storage account name used with `DefaultAzureCredential` authentication. */
 	accountName?: string;
+	/** Optional credential override used with `accountName` instead of `DefaultAzureCredential`. */
+	credential?: TokenCredential;
 	/** Azure Queue Storage connection string used for shared-key or Azurite access. */
 	connectionString?: string;
 	/** Queue names to create automatically in development or Azurite scenarios. */
 	provisionQueues?: string[];
 	/** Optional runtime logging behavior for typed send and receive operations. */
 	logging?: QueueLoggingConfig;
-	/** Logger implementation that persists queue message envelopes when logging is enabled. */
-	logger?: IQueueMessageLogger;
+	/** Logger implementation or blob storage dependency used when queue logging is enabled. */
+	logger?: IQueueMessageLogger | QueueMessageLogBlobStorage;
 };
 
 /**

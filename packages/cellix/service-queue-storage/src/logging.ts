@@ -46,32 +46,25 @@ export interface IQueueMessageLogger {
 	logMessage(envelope: MessageLogEnvelope): Promise<LogAddress>;
 }
 
-type BlobStorageLike = {
+/**
+ * Minimal blob-storage contract accepted for blob-backed queue logging.
+ *
+ * Consumers can provide a storage service with this shape to
+ * `service.enableLogging(...)` and the framework will adapt it into an internal
+ * queue-message logger automatically.
+ */
+export type QueueMessageLogBlobStorage = {
 	uploadText(request: { containerName: string; blobName: string; text: string; metadata?: Record<string, string>; tags?: Record<string, string> }): Promise<unknown>;
 };
 
 /**
- * BlobQueueMessageLogger persists queue message envelopes to a blob storage
- * container. The blob content is the payload JSON itself, while queue direction,
- * queue name, and any resolved tags or metadata are expressed through the blob path
- * and blob properties.
- *
- * This helper is intentionally minimal so it can be adapted to different blob
- * storage clients in tests and production.
- *
- * @param blobStorage - Blob service abstraction with an `uploadText()` method.
- * @param containerName - Blob container that should receive queue message logs.
- * @returns When messages are logged the helper returns a {@link LogAddress} describing where the envelope was stored.
- * @example
- * ```typescript
- * const logger = new BlobQueueMessageLogger(myBlobClient, 'queue-logs');
- * await logger.logMessage({ queue: 'email', payload: { to: 'a@b.com' }, createdAt: new Date().toISOString() });
- * ```
+ * Internal blob-backed queue logger used when consumers provide a storage
+ * service instead of a custom logger implementation.
  */
-export class BlobQueueMessageLogger implements IQueueMessageLogger {
-	private readonly blobStorage: BlobStorageLike;
+class BlobQueueMessageLogger implements IQueueMessageLogger {
+	private readonly blobStorage: QueueMessageLogBlobStorage;
 	private readonly containerName: string;
-	constructor(blobStorage: BlobStorageLike, containerName: string) {
+	constructor(blobStorage: QueueMessageLogBlobStorage, containerName: string) {
 		this.blobStorage = blobStorage;
 		this.containerName = containerName;
 	}
@@ -100,6 +93,21 @@ export class BlobQueueMessageLogger implements IQueueMessageLogger {
 		});
 		return { container: this.containerName, blobName: name, url: `${this.containerName}/${name}` };
 	}
+}
+
+export function isQueueMessageLogger(value: IQueueMessageLogger | QueueMessageLogBlobStorage): value is IQueueMessageLogger {
+	return 'logMessage' in value;
+}
+
+export function createQueueMessageLogger(
+	value: IQueueMessageLogger | QueueMessageLogBlobStorage,
+	containerName: string,
+): IQueueMessageLogger {
+	if (isQueueMessageLogger(value)) {
+		return value;
+	}
+
+	return new BlobQueueMessageLogger(value, containerName);
 }
 
 function toIsoTimestamp(createdAt?: string): string {

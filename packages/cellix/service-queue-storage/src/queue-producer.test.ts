@@ -117,7 +117,10 @@ describe('registerQueues', () => {
 				let threw = false;
 				try {
 					await svc.sendMessageToEmailNotificationsQueue({ to: 'not-an-email', subject: 'hi' });
-				} catch (_e) {
+				} catch (e) {
+                    if (e instanceof Error) {
+                        expect(e.message).toMatch(/invalid/i);
+                    }
 					threw = true;
 				}
 				threwGlobal = threw;

@@ -1,8 +1,7 @@
 export type { InboundQueueDefinition, LoggingFieldSpec, OutboundQueueDefinition, QueueDefinition, QueueLoggingConfig, QueueMessage, QueueStorageConfig } from './interfaces.ts';
 export { defineQueue } from './define-queue.ts';
 export { $payload, payloadFields, resolveLoggingFields } from './logging-fields.ts';
-export type { IQueueMessageLogger, MessageLogEnvelope } from './logging.ts';
-export { BlobQueueMessageLogger } from './logging.ts';
+export type { IQueueMessageLogger, MessageLogEnvelope, QueueMessageLogBlobStorage } from './logging.ts';
 export type { QueueConsumerContext } from './queue-consumer.ts';
 export type { QueueProducerContext } from './queue-producer.ts';
 export type { RegisteredQueueService } from './register-queues.ts';

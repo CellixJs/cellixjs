@@ -5,6 +5,8 @@ import { InternalQueueStorageService, type QueueServiceLifecycle, type QueueServ
 import { createQueueConsumer, type QueueConsumerContext } from './queue-consumer.ts';
 import { createQueueProducer, type QueueProducerContext } from './queue-producer.ts';
 
+type QueueServiceDefaults = Pick<QueueStorageConfig, 'logging' | 'provisionQueues'>;
+
 // Setup Ajv once for the module lifecycle
 const AjvClass = Ajv as unknown as new (opts?: Record<string, unknown>) => { compile(schema: object): (data: unknown) => boolean };
 const ajv = new AjvClass({ allErrors: true });
@@ -48,7 +50,11 @@ export type RegisteredQueueService<O extends QueueMap, I extends QueueMap> = Que
  *
  * @typeParam O - Outbound queue definition map for messages produced by the application.
  * @typeParam I - Inbound queue definition map for messages consumed by the application.
- * @param config - Object containing `outbound` and `inbound` queue definition maps.
+ * @param config - Object containing `outbound` and `inbound` queue definition maps,
+ * plus optional `serviceDefaults` that are merged into every created `Service`
+ * instance. Use `serviceDefaults` for framework-owned defaults such as
+ * `provisionQueues` and a default logging container so consumer packages do not
+ * have to re-implement those policies in subclasses.
  * @returns A queue registry with typed stubs and a bound `Service` base class.
  *
  * @remarks
@@ -65,17 +71,24 @@ export type RegisteredQueueService<O extends QueueMap, I extends QueueMap> = Que
  *   inbound:  { importRequests: importRequestsDef }
  * })
  *
- * class ServiceQueueStorage extends queues.Service {
- *   constructor(options: AppOptions) {
- *     super({ connectionString: options.connectionString, ... })
- *   }
- * }
+ * const queues = registerQueues({
+ *   outbound: { communityCreation: communityCreationDef },
+ *   inbound:  { importRequests: importRequestsDef },
+ *   serviceDefaults: {
+ *     provisionQueues: ['community-creation', 'import-requests'],
+ *     logging: { enabled: true, container: 'queue-logs' },
+ *   },
+ * })
  *
  * export type AppQueueProducerContext = typeof queues.producer
  * export type AppQueueConsumerContext = typeof queues.consumer
  * ```
  */
-export function registerQueues<O extends QueueMap, I extends QueueMap>(config: { outbound: O; inbound: I }) {
+export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
+	outbound: O;
+	inbound: I;
+	serviceDefaults?: QueueServiceDefaults;
+}) {
 	// Compile validators once at registration time
 	const outboundValidators: Record<string, (d: unknown) => boolean> = {};
 	for (const [k, v] of Object.entries(config.outbound)) {
@@ -120,7 +133,21 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 	 */
 	class BoundServiceQueueStorage extends InternalQueueStorageService {
 		constructor(options: QueueStorageConfig) {
-			super(options);
+			const mergedOptions: QueueStorageConfig = {
+				...config.serviceDefaults,
+				...options,
+				...(options.logging !== undefined
+					? { logging: options.logging }
+					: config.serviceDefaults?.logging !== undefined
+						? { logging: config.serviceDefaults.logging }
+						: {}),
+				...(options.provisionQueues !== undefined
+					? { provisionQueues: options.provisionQueues }
+					: config.serviceDefaults?.provisionQueues !== undefined
+						? { provisionQueues: config.serviceDefaults.provisionQueues }
+						: {}),
+			};
+			super(mergedOptions);
 			Object.assign(this, createQueueProducer(this, config.outbound, outboundValidators));
 			Object.assign(this, createQueueConsumer(this, config.inbound, inboundValidators));
 		}

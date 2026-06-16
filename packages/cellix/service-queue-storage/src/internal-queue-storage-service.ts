@@ -2,7 +2,7 @@ import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import type { QueueClient, QueueReceiveMessageOptions } from '@azure/storage-queue';
 import { QueueServiceClient } from '@azure/storage-queue';
 import type { IQueueStorageOperations, PeekMessagesOptions, QueueLoggingConfig, QueueMessage, QueueStorageConfig, ReceiveMessagesOptions, SendMessageOptions } from './interfaces.ts';
-import type { IQueueMessageLogger, MessageLogEnvelope } from './logging.ts';
+import { createQueueMessageLogger, type IQueueMessageLogger, type MessageLogEnvelope, type QueueMessageLogBlobStorage } from './logging.ts';
 
 /**
  * Public lifecycle contract implemented by registered queue services.
@@ -42,18 +42,19 @@ export interface QueueServiceLifecycle {
  * @example
  * ```ts
  * const service = new queueRegistry.Service({ connectionString: 'UseDevelopmentStorage=true' });
- * service.enableLogging(logger, { enabled: true, container: 'queue-logs' });
+ * service.enableLogging(blobStorage, { enabled: true, container: 'queue-logs' });
  * ```
  */
 export interface QueueServiceLogging {
 	/**
 	 * Enables queue message logging for subsequent send and receive operations.
 	 *
-	 * @param logger - Logger implementation that will persist resolved message envelopes.
+	 * @param loggerOrBlobStorage - Logger implementation or blob storage dependency
+	 * that will persist resolved message envelopes.
 	 * @param config - Optional runtime logging behavior such as container name and await mode.
 	 * @returns The same service instance for fluent configuration.
 	 */
-	enableLogging(logger: IQueueMessageLogger, config?: QueueLoggingConfig): this;
+	enableLogging(loggerOrBlobStorage: IQueueMessageLogger | QueueMessageLogBlobStorage, config?: QueueLoggingConfig): this;
 	/**
 	 * Disables queue message logging for subsequent send and receive operations.
 	 *
@@ -101,15 +102,18 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 
 	constructor(options: QueueStorageConfig) {
 		this.options = options;
-		this.logger = options.logger;
 		this.loggingConfig = options.logging;
+		if (options.logger) {
+			this.logger = this.resolveLogger(options.logger, options.logging);
+		}
 		if (options.connectionString) this.inferredMode = 'sharedKey';
 		else if (options.accountName) this.inferredMode = 'managedIdentity';
 	}
 
-	public enableLogging(logger: IQueueMessageLogger, config?: QueueLoggingConfig): this {
-		this.logger = logger;
-		this.loggingConfig = config ?? this.loggingConfig ?? this.options.logging ?? { enabled: true, container: '' };
+	public enableLogging(loggerOrBlobStorage: IQueueMessageLogger | QueueMessageLogBlobStorage, config?: QueueLoggingConfig): this {
+		const nextConfig = config ?? this.loggingConfig ?? this.options.logging ?? { enabled: true, container: '' };
+		this.logger = this.resolveLogger(loggerOrBlobStorage, nextConfig);
+		this.loggingConfig = nextConfig;
 		return this;
 	}
 
@@ -166,7 +170,7 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 
 		if (this.inferredMode === 'managedIdentity') {
 			const accountName = this.options.accountName as string;
-			const credential: TokenCredential = new DefaultAzureCredential();
+			const credential: TokenCredential = this.options.credential ?? new DefaultAzureCredential();
 			const url = `https://${accountName}.queue.core.windows.net`;
 			this.queueServiceClient = new QueueServiceClient(url, credential);
 			console.info('[InternalQueueStorageService] started (managedIdentity)');
@@ -186,6 +190,19 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 	private getQueueClient(queue: string): QueueClient {
 		if (!this.queueServiceClient) throw new Error('Queue storage service is not started');
 		return this.queueServiceClient.getQueueClient(queue);
+	}
+
+	private resolveLogger(
+		loggerOrBlobStorage: IQueueMessageLogger | QueueMessageLogBlobStorage,
+		config?: QueueLoggingConfig,
+	): IQueueMessageLogger {
+		if ('logMessage' in loggerOrBlobStorage) {
+			return loggerOrBlobStorage;
+		}
+		if (!config?.container.trim()) {
+			throw new Error('Provide logging.container when enabling blob-backed queue logging');
+		}
+		return createQueueMessageLogger(loggerOrBlobStorage, config.container);
 	}
 
 	/**

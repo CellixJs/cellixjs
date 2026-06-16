@@ -29,14 +29,14 @@ describe('registerQueues', () => {
 			});
 
 			Then('the producer contains stub sendMessageTo<QueueName>Queue methods', () => {
-				expect((registry as unknown as { producer: Record<string, unknown> }).producer.sendMessageToAQueue).toBeDefined();
+				expect((registry as { producer: Record<string, unknown> }).producer.sendMessageToAQueue).toBeDefined();
 			});
 			And('the producer contains stub peekAt<QueueName>Queue methods', () => {
-				expect((registry as unknown as { producer: Record<string, unknown> }).producer.peekAtAQueue).toBeDefined();
+				expect((registry as { producer: Record<string, unknown> }).producer.peekAtAQueue).toBeDefined();
 			});
 			And('the consumer contains stub receiveFrom<QueueName>Queue and peekAt<QueueName>Queue methods', () => {
-				expect((registry as unknown as { consumer: Record<string, unknown> }).consumer.receiveFromBQueue).toBeDefined();
-				expect((registry as unknown as { consumer: Record<string, unknown> }).consumer.peekAtBQueue).toBeDefined();
+				expect((registry as { consumer: Record<string, unknown> }).consumer.receiveFromBQueue).toBeDefined();
+				expect((registry as { consumer: Record<string, unknown> }).consumer.peekAtBQueue).toBeDefined();
 			});
 		});
 

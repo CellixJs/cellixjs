@@ -1,24 +1,26 @@
-import { BlobQueueMessageLogger } from '@cellix/service-queue-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ServiceQueueStorage } from './service.ts';
 
 describe('ServiceQueueStorage', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
-	it('enables blob-backed logging after construction', () => {
+	it('uses registration defaults so consumer wrappers do not need to reimplement queue policy', async () => {
+		const { ServiceQueueStorage } = await import('./index.ts');
 		const service = new ServiceQueueStorage({ connectionString: 'UseDevelopmentStorage=true' });
-		const uploadText = vi.fn().mockResolvedValue({});
-		const baseEnableLogging = vi.spyOn(Object.getPrototypeOf(Object.getPrototypeOf(service)), 'enableLogging');
+		const serviceWithOptions = service as unknown as {
+			options: {
+				logging?: { container: string; enabled: boolean };
+				provisionQueues?: string[];
+			};
+		};
 
-		service.enableLogging({ uploadText });
-
-		expect(baseEnableLogging).toHaveBeenCalledOnce();
-		expect(baseEnableLogging.mock.calls[0]?.[0]).toBeInstanceOf(BlobQueueMessageLogger);
-		expect(baseEnableLogging.mock.calls[0]?.[1]).toEqual({
-			enabled: true,
-			container: 'queue-logs',
+		expect(serviceWithOptions.options).toMatchObject({
+			logging: {
+				enabled: true,
+				container: 'queue-logs',
+			},
+			provisionQueues: ['community-creation', 'end-user-update'],
 		});
 	});
 });

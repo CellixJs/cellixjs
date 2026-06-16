@@ -14,7 +14,7 @@ import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
-import * as BlobStorageConfig from './service-config/blob-storage/index.ts';
+import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
@@ -26,21 +26,21 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
 		.registerInfrastructureService(
             isProd
-				? new ServiceBlobStorage({ accountName: BlobStorageConfig.accountName })
+				? new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName })
 				: new ServiceClientBlobStorage({
-						accountName: BlobStorageConfig.accountName,
-						signingConnectionString: BlobStorageConfig.signingConnectionString,
+						accountName: AzureStorageConfig.accountName,
+						signingConnectionString: AzureStorageConfig.connectionString,
 					}),
 			'BlobStorageService',
 		)
 		.registerInfrastructureService(
 			new ServiceClientBlobStorage({
-				accountName: BlobStorageConfig.accountName,
-				signingConnectionString: BlobStorageConfig.signingConnectionString,
+				accountName: AzureStorageConfig.accountName,
+				signingConnectionString: AzureStorageConfig.connectionString,
 			}),
 			'ClientOperationsService',
 		)
-		.registerInfrastructureService(isProd ? new ServiceQueueStorage({ accountName: BlobStorageConfig.accountName as string }) : new ServiceQueueStorage({ connectionString: BlobStorageConfig.signingConnectionString }))
+		.registerInfrastructureService(isProd ? new ServiceQueueStorage({ accountName: AzureStorageConfig.accountName as string }) : new ServiceQueueStorage({ connectionString: AzureStorageConfig.connectionString }))
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
 })
