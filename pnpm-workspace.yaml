@@ -40,6 +40,7 @@ catalog:
   '@storybook/addon-onboarding': ^10.4.2
   '@storybook/addon-vitest': ^10.4.2
   '@storybook/react-vite': ^10.4.2
+  '@storybook/react': ^10.4.2
   tsx: ^4.21.0
   typescript: 6.0.3
   "@typescript/native-preview": 7.0.0-dev.20260428.1

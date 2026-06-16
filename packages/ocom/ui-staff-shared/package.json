@@ -30,7 +30,7 @@
 		"@cellix/config-vitest": "workspace:*",
 		"@types/react": "^19.1.11",
 		"@types/react-dom": "^19.1.6",
-        "@storybook/react": "10.4.2",
+        "@storybook/react": "catalog:",
         "storybook": "catalog:",
 		"jsdom": "catalog:",
 		"vite": "catalog:",
