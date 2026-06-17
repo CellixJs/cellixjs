@@ -1,6 +1,6 @@
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 
-export interface RecordedCommunityCreationMessage {
+interface RecordedCommunityCreationMessage {
 	communityId: string;
 	name: string;
 	createdBy: string;
