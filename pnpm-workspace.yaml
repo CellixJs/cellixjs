@@ -48,6 +48,7 @@ catalog:
   '@vitest/browser': 4.1.6
   '@vitest/browser-playwright': 4.1.6
   vite-plugin-node-polyfills: ^0.28.0
+  '@storybook/react': ^10.4.2
 
 auditConfig:
   ignoreGhsas:

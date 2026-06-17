@@ -4,7 +4,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import { CommunitiesDropdown, type CommunitiesDropdownProps } from './communities-dropdown.tsx';
 
 const meta = {
-	title: 'UI/Organisms/DropdownMenu/CommunitiesDropdown/Display',
+	title: 'Components/Shared/Dropdown Menu/Communities Dropdown',
 	component: CommunitiesDropdown,
 } satisfies Meta<typeof CommunitiesDropdown>;
 
