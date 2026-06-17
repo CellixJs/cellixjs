@@ -23,7 +23,7 @@
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {
-		"@azure/storage-queue": "12.29.0",
+		"@ocom/service-queue-storage": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@ocom-verification/verification-shared": "workspace:*",
 		"@types/node": "catalog:",

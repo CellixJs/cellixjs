@@ -25,7 +25,7 @@
 		"@ocom/persistence": "workspace:*",
 		"@ocom/service-apollo-server": "workspace:*",
 		"@ocom/service-blob-storage": "workspace:*",
-        "@ocom/service-queue-storage": "workspace:*",
+		"@ocom/service-queue-storage": "workspace:*",
 		"@ocom/service-token-validation": "workspace:*"
 	},
 

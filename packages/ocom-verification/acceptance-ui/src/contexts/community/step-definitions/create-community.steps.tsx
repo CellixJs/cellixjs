@@ -59,6 +59,15 @@ Then('the community name should be {string}', async function (this: CellixUiWorl
 	}
 });
 
+Then('a community creation queue message should be recorded', async function (this: CellixUiWorld) {
+	const actor = actorCalled(this.getCommunityActorName());
+	const submitted = await actor.answer(CommunityCreatedFlag());
+
+	if (!submitted) {
+		throw new Error('Expected the community form to be submitted before asserting delegated queue side effects');
+	}
+});
+
 Then('{word} should see a community error for {string}', async function (this: CellixUiWorld, actorName: string, fieldName: string) {
 	const resolvedName = /^(she|he|they)$/i.test(actorName) ? this.getCommunityActorName() : actorName;
 

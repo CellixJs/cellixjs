@@ -1323,15 +1323,15 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
     devDependencies:
-      '@azure/storage-queue':
-        specifier: 12.29.0
-        version: 12.29.0
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../cellix/config-typescript
       '@ocom-verification/verification-shared':
         specifier: workspace:*
         version: link:../verification-shared
+      '@ocom/service-queue-storage':
+        specifier: workspace:*
+        version: link:../../ocom/service-queue-storage
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15

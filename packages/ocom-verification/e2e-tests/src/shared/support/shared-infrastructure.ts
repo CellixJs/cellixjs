@@ -1,7 +1,7 @@
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
-import { clearKnownQueueMessages } from './queue-storage.ts';
+import { clearKnownQueueMessages, stopQueueStorageService } from './queue-storage.ts';
 import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestAzuriteServer, TestCommunityViteServer, TestOAuth2Server, TestStaffViteServer } from './servers/index.ts';
 
 let mongoDBServer: MongoDBTestServer | undefined;
@@ -75,6 +75,7 @@ export async function stopAll(): Promise<void> {
 		await azuriteBlobServer.stop().catch(() => undefined);
 		azuriteBlobServer = undefined;
 	}
+	await stopQueueStorageService().catch(() => undefined);
 	// biome-ignore lint:useLiteralKeys
 	delete process.env['AZURE_STORAGE_ACCOUNT_NAME'];
 	// biome-ignore lint:useLiteralKeys

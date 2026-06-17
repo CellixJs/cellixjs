@@ -1,70 +1,91 @@
-import { QueueServiceClient } from '@azure/storage-queue';
-
-export interface CommunityCreationQueueMessage {
-	communityId: string;
-	name: string;
-	createdBy: string;
-}
+import { readFileSync } from 'node:fs';
+import { getCACertificates, setDefaultCACertificates } from 'node:tls';
+import { ServiceQueueStorage, type CommunityCreationMessage } from '@ocom/service-queue-storage';
+import { getAzuriteCertPath } from './servers/test-azurite-server.ts';
 
 const communityCreationQueueName = 'community-creation';
+let azuriteCertificateTrusted = false;
+let queueStorageService: ServiceQueueStorage | undefined;
+
+type QueueMaintenanceOperations = {
+	receiveMessages<T>(queue: string, opts?: { maxMessages?: number }): Promise<Array<{ id: string; popReceipt?: string; payload: T }>>;
+	deleteMessage(queue: string, messageId: string, popReceipt: string): Promise<void>;
+};
 
 function getQueueConnectionString(): string | undefined {
-	return process.env.AZURE_STORAGE_CONNECTION_STRING;
+	// biome-ignore lint/complexity/useLiteralKeys: process.env is typed as an index-signature map here
+	return process.env['AZURE_STORAGE_CONNECTION_STRING'];
 }
 
-async function withAzuriteTlsBypass<T>(action: () => Promise<T>): Promise<T> {
-	const previous = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-	try {
-		return await action();
-	} finally {
-		if (previous === undefined) {
-			delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-		} else {
-			process.env.NODE_TLS_REJECT_UNAUTHORIZED = previous;
-		}
+function trustAzuriteCertificate(): void {
+	if (azuriteCertificateTrusted) {
+		return;
 	}
+
+	const azuriteCertificate = readFileSync(getAzuriteCertPath(), 'utf8');
+	const existingCertificates = getCACertificates();
+	if (!existingCertificates.includes(azuriteCertificate)) {
+		setDefaultCACertificates([...existingCertificates, azuriteCertificate]);
+	}
+	azuriteCertificateTrusted = true;
 }
 
-function getQueueServiceClient(): QueueServiceClient {
+async function getQueueStorageService(): Promise<ServiceQueueStorage & QueueMaintenanceOperations> {
+	if (queueStorageService) {
+		return queueStorageService as ServiceQueueStorage & QueueMaintenanceOperations;
+	}
+
 	const connectionString = getQueueConnectionString();
 	if (!connectionString) {
 		throw new Error('AZURE_STORAGE_CONNECTION_STRING is not set for queue verification');
 	}
-	return QueueServiceClient.fromConnectionString(connectionString);
+
+	trustAzuriteCertificate();
+	queueStorageService = new ServiceQueueStorage({ connectionString });
+	await queueStorageService.startUp();
+	return queueStorageService as ServiceQueueStorage & QueueMaintenanceOperations;
 }
 
-async function getQueueClient(queueName: string) {
-	const queueClient = getQueueServiceClient().getQueueClient(queueName);
-	await queueClient.createIfNotExists();
-	return queueClient;
+export async function stopQueueStorageService(): Promise<void> {
+	if (!queueStorageService) {
+		return;
+	}
+	await queueStorageService.shutDown();
+	queueStorageService = undefined;
 }
 
 export async function clearKnownQueueMessages(): Promise<void> {
 	if (!getQueueConnectionString()) {
 		return;
 	}
-	await withAzuriteTlsBypass(async () => {
-		const queueClient = await getQueueClient(communityCreationQueueName);
-		await queueClient.clearMessages();
-	});
+
+	const service = await getQueueStorageService();
+	while (true) {
+		const messages = await service.receiveMessages<CommunityCreationMessage>(communityCreationQueueName, { maxMessages: 32 });
+		if (messages.length === 0) {
+			return;
+		}
+
+		for (const message of messages) {
+			if (!message.popReceipt) {
+				throw new Error(`Cannot clear message "${message.id}" from "${communityCreationQueueName}" without a popReceipt`);
+			}
+			await service.deleteMessage(communityCreationQueueName, message.id, message.popReceipt);
+		}
+	}
 }
 
-export async function waitForCommunityCreationQueueMessage(expected: { communityId?: string | null; name: string; createdBy?: string }, timeoutMs = 5_000): Promise<CommunityCreationQueueMessage> {
+export async function waitForCommunityCreationQueueMessage(expected: { communityId?: string | null; name: string; createdBy?: string }, timeoutMs = 5_000): Promise<CommunityCreationMessage> {
 	const deadline = Date.now() + timeoutMs;
+	const service = await getQueueStorageService();
 
 	while (Date.now() < deadline) {
-		const response = await withAzuriteTlsBypass(async () => {
-			const queueClient = await getQueueClient(communityCreationQueueName);
-			return await queueClient.peekMessages({ numberOfMessages: 32 });
-		});
-		const matchingMessage = response.peekedMessageItems
-			.map((message) => decodeQueueMessage<CommunityCreationQueueMessage>(message.messageText))
-			.find(
-				(message): message is CommunityCreationQueueMessage =>
-					message !== undefined && message.name === expected.name && (expected.createdBy === undefined || message.createdBy === expected.createdBy) && (expected.communityId == null || message.communityId === expected.communityId),
-			);
+		const matchingMessage = (await service.peekAtCommunityCreationQueue(32)).find(
+			(message) =>
+				message.payload.name === expected.name &&
+				(expected.createdBy === undefined || message.payload.createdBy === expected.createdBy) &&
+				(expected.communityId == null || message.payload.communityId === expected.communityId),
+		)?.payload;
 
 		if (matchingMessage) {
 			return matchingMessage;
@@ -74,12 +95,4 @@ export async function waitForCommunityCreationQueueMessage(expected: { community
 	}
 
 	throw new Error(`Expected a matching message in "${communityCreationQueueName}" within ${timeoutMs}ms`);
-}
-
-function decodeQueueMessage<T>(messageText: string): T | undefined {
-	try {
-		return JSON.parse(Buffer.from(messageText, 'base64').toString('utf-8')) as T;
-	} catch {
-		return undefined;
-	}
 }

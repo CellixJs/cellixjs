@@ -21,7 +21,8 @@ When('{word} creates a community with:', async (actorName: string, dataTable: Da
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	const details = dataTable.rowsHash();
-	const name = details.name ?? '';
+	// biome-ignore lint/complexity/useLiteralKeys: rowsHash returns an index-signature map
+	const name = details['name'] ?? '';
 
 	await actor.attemptsTo(CreateCommunity(name));
 });
@@ -30,7 +31,8 @@ When('{word} attempts to create a community with:', async (actorName: string, da
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	const details = dataTable.rowsHash();
-	const name = details.name ?? '';
+	// biome-ignore lint/complexity/useLiteralKeys: rowsHash returns an index-signature map
+	const name = details['name'] ?? '';
 
 	try {
 		await actor.attemptsTo(CreateCommunity(name));

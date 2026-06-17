@@ -15,6 +15,10 @@ const certDirectory = join(resolve(dirname(fileURLToPath(import.meta.url)), '../
 const certPath = join(certDirectory, 'azurite-cert.pem');
 const keyPath = join(certDirectory, 'azurite-key.pem');
 
+export function getAzuriteCertPath(): string {
+	return certPath;
+}
+
 export class TestAzuriteServer extends PortlessServer {
 	override async start(): Promise<void> {
 		this.ensureCertificate();
@@ -93,28 +97,9 @@ export class TestAzuriteServer extends PortlessServer {
 		}
 
 		mkdirSync(certDirectory, { recursive: true });
-		execFileSync(
-			'openssl',
-			[
-				'req',
-				'-x509',
-				'-newkey',
-				'rsa:2048',
-				'-sha256',
-				'-nodes',
-				'-days',
-				'365',
-				'-subj',
-				'/CN=127.0.0.1',
-				'-addext',
-				'subjectAltName=IP:127.0.0.1,DNS:localhost',
-				'-keyout',
-				keyPath,
-				'-out',
-				certPath,
-			],
-			{ stdio: 'ignore' },
-		);
+		execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-sha256', '-nodes', '-days', '365', '-subj', '/CN=127.0.0.1', '-addext', 'subjectAltName=IP:127.0.0.1,DNS:localhost', '-keyout', keyPath, '-out', certPath], {
+			stdio: 'ignore',
+		});
 	}
 
 	private stopProcessesUsingAzuritePorts(): void {
