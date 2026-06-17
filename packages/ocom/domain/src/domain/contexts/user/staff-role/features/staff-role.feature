@@ -12,12 +12,12 @@ Feature: <AggregateRoot> StaffRole
   # roleName
   Scenario: Changing the roleName with permission to manage staff roles
     Given a StaffRole aggregate with permission to manage staff roles and permissions
-    When I set the roleName to "Manager"
+    When I set the roleName to "manager"
     Then the staff role's roleName should be "Manager"
 
   Scenario: Changing the roleName with system account permission
     Given a StaffRole aggregate with system account permission
-    When I set the roleName to "Manager"
+    When I set the roleName to "manager"
     Then the staff role's roleName should be "Manager"
 
   Scenario: Changing the roleName without permission
@@ -79,6 +79,80 @@ Feature: <AggregateRoot> StaffRole
     And the updatedAt property should return the correct date
     And the schemaVersion property should return the correct version
 
+  # enterpriseAppRole
+  Scenario: Getting the enterpriseAppRole property
+    Given a StaffRole aggregate with permission to manage staff roles and permissions
+    Then the enterpriseAppRole should return the initial value
+
+  Scenario: Changing the enterpriseAppRole with permission to manage staff roles
+    Given a StaffRole aggregate with permission to manage staff roles and permissions
+    When I set the enterpriseAppRole to "Staff.CaseManager"
+    Then the staff role's enterpriseAppRole should be "Staff.CaseManager"
+
+  Scenario: Changing the enterpriseAppRole with system account permission
+    Given a StaffRole aggregate with system account permission
+    When I set the enterpriseAppRole to "Staff.Finance"
+    Then the staff role's enterpriseAppRole should be "Staff.Finance"
+
+  Scenario: Changing the enterpriseAppRole without permission
+    Given a StaffRole aggregate without permission to manage staff roles and permissions or system account
+    When I try to set the enterpriseAppRole to "Staff.CaseManager"
+    Then a PermissionError should be thrown for enterpriseAppRole
+
+  Scenario: Changing the enterpriseAppRole to an invalid value
+    Given a StaffRole aggregate with permission to manage staff roles and permissions
+    When I try to set the enterpriseAppRole to an invalid value
+    Then an error should be thrown for the invalid enterpriseAppRole
+
+  # getDefaultRoleNames
+  Scenario: Getting the list of default role names
+    When I call getDefaultRoleNames
+    Then it should return the four canonical default role name strings
+
+  # default factory methods
+  Scenario: Creating a new default Case Manager role
+    When I call getNewDefaultCaseManagerInstance
+    Then the role name should be "Default Case Manager"
+    And the enterpriseAppRole should be "Staff.CaseManager"
+    And isDefault should be true
+    And community canManageCommunities should be true
+    And community canManageStaffRolesAndPermissions should be true
+    And finance canManageFinance should be false
+    And techAdmin canManageTechAdmin should be false
+    And user canManageUsers should be true
+
+  Scenario: Creating a new default Service Line Owner role
+    When I call getNewDefaultServiceLineOwnerInstance
+    Then the role name should be "Default Service Line Owner"
+    And the enterpriseAppRole should be "Staff.ServiceLineOwner"
+    And isDefault should be true
+    And community canManageCommunities should be true
+    And community canManageStaffRolesAndPermissions should be true
+    And finance canManageFinance should be false
+    And techAdmin canManageTechAdmin should be false
+    And user canManageUsers should be true
+
+  Scenario: Creating a new default Finance role
+    When I call getNewDefaultFinanceInstance
+    Then the role name should be "Default Finance"
+    And the enterpriseAppRole should be "Staff.Finance"
+    And isDefault should be true
+    And community canManageCommunities should be false
+    And community canManageStaffRolesAndPermissions should be true
+    And finance canManageFinance should be true
+    And techAdmin canManageTechAdmin should be false
+    And user canManageUsers should be true
+
+  Scenario: Creating a new default Tech Admin role
+    When I call getNewDefaultTechAdminInstance
+    Then the role name should be "Default Tech Admin"
+    And the enterpriseAppRole should be "Staff.TechAdmin"
+    And isDefault should be true
+    And community canManageCommunities should be true
+    And community canManageStaffRolesAndPermissions should be true
+    And finance canManageFinance should be true
+    And techAdmin canManageTechAdmin should be true
+    And user canManageUsers should be true
   # getDefaultRoleNames
   Scenario: Getting default role names
     When I call getDefaultRoleNames

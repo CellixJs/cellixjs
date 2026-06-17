@@ -13,11 +13,19 @@ export type StaffAuth = {
 	roles?: string[];
 	raw?: Record<string, unknown>;
 	onLogout?: () => Promise<void> | void;
+	enterpriseAppRole?: string;
 	permissions?: {
 		canManageCommunities?: boolean;
+		canManageStaffRolesAndPermissions?: boolean;
 		canManageUsers?: boolean;
+		canAssignStaffRoles?: boolean;
+		canViewStaffUsers?: boolean;
 		canManageFinance?: boolean;
 		canManageTechAdmin?: boolean;
+		canViewRoles?: boolean;
+		canAddRole?: boolean;
+		canEditRole?: boolean;
+		canRemoveRole?: boolean;
 	};
 };
 

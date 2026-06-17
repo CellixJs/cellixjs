@@ -5,7 +5,7 @@ import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } f
 import { LoggedInUserContainer, type LoggedInUserContainerProps } from './logged-in-user.container.tsx';
 
 const meta = {
-	title: 'UI/Organisms/Header/LoggedInUser/Container',
+	title: 'Components/Shared/Header/Logged In User/Container',
 	component: LoggedInUserContainer,
 	parameters: {
 		layout: 'padded',

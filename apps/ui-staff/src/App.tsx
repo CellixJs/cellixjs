@@ -21,9 +21,17 @@ function StaffRoutes() {
 	const auth = useContext(StaffAuthContext);
 	const perms = auth?.permissions;
 	const canManageCommunities = perms?.canManageCommunities === true;
+	const canManageStaffRolesAndPermissions = perms?.canManageStaffRolesAndPermissions === true;
 	const canManageUsers = perms?.canManageUsers === true;
+	const canAssignStaffRoles = perms?.canAssignStaffRoles === true;
+	const canViewStaffUsers = perms?.canViewStaffUsers === true;
 	const canManageFinance = perms?.canManageFinance === true;
 	const canManageTechAdmin = perms?.canManageTechAdmin === true;
+	const canViewRoles = perms?.canViewRoles === true;
+	const canAddRole = perms?.canAddRole === true;
+	const canEditRole = perms?.canEditRole === true;
+	const canRemoveRole = perms?.canRemoveRole === true;
+	const canAccessUserManagement = canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
 
 	let defaultStaffRoute = '/unauthorized';
 	if (canManageTechAdmin) {
@@ -32,7 +40,7 @@ function StaffRoutes() {
 		defaultStaffRoute = '/staff/finance';
 	} else if (canManageCommunities) {
 		defaultStaffRoute = '/staff/community-management';
-	} else if (canManageUsers) {
+	} else if (canAccessUserManagement) {
 		defaultStaffRoute = '/staff/user-management';
 	}
 
@@ -53,7 +61,7 @@ function StaffRoutes() {
 					element={<CommunityManagement />}
 				/>
 			)}
-			{canManageUsers && (
+			{(canAccessUserManagement || canManageFinance) && (
 				<Route
 					path="user-management/*"
 					element={<UserManagement />}
@@ -134,7 +142,7 @@ export default function App() {
 }
 
 function StaffSection({ identity }: { identity: Parameters<typeof StaffAuthProvider>[0]['value'] }) {
-	const { permissions, user, loading } = useStaffPermissions();
+	const { permissions, enterpriseAppRole, user, loading } = useStaffPermissions();
 
 	if (loading) {
 		return (
@@ -145,7 +153,7 @@ function StaffSection({ identity }: { identity: Parameters<typeof StaffAuthProvi
 	}
 
 	return (
-		<StaffAuthProvider value={{ ...identity, permissions, name: user?.displayName, email: user?.email }}>
+		<StaffAuthProvider value={{ ...identity, permissions, enterpriseAppRole, name: user?.displayName, email: user?.email }}>
 			<StaffRoutes />
 		</StaffAuthProvider>
 	);
