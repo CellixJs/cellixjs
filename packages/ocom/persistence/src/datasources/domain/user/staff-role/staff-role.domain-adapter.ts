@@ -5,6 +5,7 @@ import type {
 	StaffRoleFinancePermissions,
 	StaffRolePermissions,
 	StaffRolePropertyPermissions,
+	StaffRoleRolePermissions,
 	StaffRoleServicePermissions,
 	StaffRoleServiceTicketPermissions,
 	StaffRoleTechAdminPermissions,
@@ -152,9 +153,23 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 		if (!this.doc.userPermissions) {
 			this.doc.userPermissions = {
 				canManageUsers: false,
+				canAssignStaffRoles: false,
+				canViewStaffUsers: false,
 			};
 		}
 		return new StaffRoleUserPermissionsAdapter(this.doc.userPermissions);
+	}
+
+	get staffRolePermissions(): Domain.Contexts.User.StaffRole.StaffRoleRolePermissionsProps {
+		if (!this.doc.staffRolePermissions) {
+			this.doc.staffRolePermissions = {
+				canViewRoles: false,
+				canAddRole: false,
+				canEditRole: false,
+				canRemoveRole: false,
+			};
+		}
+		return new StaffRoleRolePermissionsAdapter(this.doc.staffRolePermissions);
 	}
 }
 
@@ -440,5 +455,59 @@ export class StaffRoleUserPermissionsAdapter implements Domain.Contexts.User.Sta
 	}
 	set canManageUsers(value: boolean) {
 		this.doc.canManageUsers = value;
+	}
+
+	get canAssignStaffRoles(): boolean {
+		return this.ensureValue(this.doc.canAssignStaffRoles);
+	}
+	set canAssignStaffRoles(value: boolean) {
+		this.doc.canAssignStaffRoles = value;
+	}
+
+	get canViewStaffUsers(): boolean {
+		return this.ensureValue(this.doc.canViewStaffUsers);
+	}
+	set canViewStaffUsers(value: boolean) {
+		this.doc.canViewStaffUsers = value;
+	}
+}
+
+class StaffRoleRolePermissionsAdapter implements Domain.Contexts.User.StaffRole.StaffRoleRolePermissionsProps {
+	public readonly doc: StaffRoleRolePermissions;
+
+	constructor(permissions: StaffRoleRolePermissions) {
+		this.doc = permissions;
+	}
+
+	get id(): string | undefined {
+		return this.doc.id?.toString();
+	}
+
+	get canViewRoles(): boolean {
+		return this.doc.canViewRoles;
+	}
+	set canViewRoles(value: boolean) {
+		this.doc.canViewRoles = value;
+	}
+
+	get canAddRole(): boolean {
+		return this.doc.canAddRole;
+	}
+	set canAddRole(value: boolean) {
+		this.doc.canAddRole = value;
+	}
+
+	get canEditRole(): boolean {
+		return this.doc.canEditRole;
+	}
+	set canEditRole(value: boolean) {
+		this.doc.canEditRole = value;
+	}
+
+	get canRemoveRole(): boolean {
+		return this.doc.canRemoveRole;
+	}
+	set canRemoveRole(value: boolean) {
+		this.doc.canRemoveRole = value;
 	}
 }

@@ -85,14 +85,17 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		};
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
-				exec: vi.fn(() => Promise.resolve(id === String(staffRoleDoc._id) ? staffRoleDoc : null)),
+				exec: vi.fn(() => (id === staffRoleDoc._id ? staffRoleDoc : null)),
 			})),
-			findOne: vi.fn((query: { roleName?: string; isDefault?: boolean; enterpriseAppRole?: string }) => ({
+			findOne: vi.fn((query: { roleName?: string; enterpriseAppRole?: string; isDefault?: boolean }) => ({
 				exec: vi.fn(() => {
 					if (query.enterpriseAppRole !== undefined) {
 						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && query.isDefault === staffRoleDoc.isDefault ? staffRoleDoc : null;
 					}
-					return query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null;
+					if (query.enterpriseAppRole && query.isDefault === true) {
+						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && staffRoleDoc.isDefault ? staffRoleDoc : null;
+					}
+					return null;
 				}),
 			})),
 			prototype: {},

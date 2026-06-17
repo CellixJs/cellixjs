@@ -1,48 +1,10 @@
-type StaffRoleCommunityPermissions {
-	canManageCommunities: Boolean!
-	canManageStaffRolesAndPermissions: Boolean!
-	canManageAllCommunities: Boolean!
-	canDeleteCommunities: Boolean!
-	canChangeCommunityOwner: Boolean!
-	canReIndexSearchCollections: Boolean!
-}
-
-type StaffRoleFinancePermissions {
-	canManageFinance: Boolean!
-	canViewGLBatchSummaries: Boolean!
-	canViewFinanceConfigs: Boolean!
-	canCreateFinanceConfigs: Boolean!
-}
-
-type StaffRoleTechAdminPermissions {
-	canManageTechAdmin: Boolean!
-	canViewDatabaseExplorer: Boolean!
-	canViewBlobExplorer: Boolean!
-	canViewQueueDashboard: Boolean!
-	canSendQueueMessages: Boolean!
-}
-
-type StaffRoleUserPermissions {
-	canManageUsers: Boolean!
-}
-
-type StaffRolePermissions {
-	communityPermissions: StaffRoleCommunityPermissions!
-	financePermissions: StaffRoleFinancePermissions!
-	techAdminPermissions: StaffRoleTechAdminPermissions!
-	userPermissions: StaffRoleUserPermissions!
-}
-
-type StaffRole implements MongoBase {
-	roleName: String!
-	isDefault: Boolean!
-	roleType: String
-	permissions: StaffRolePermissions!
-
-	id: ObjectID!
-	schemaVersion: String
-	createdAt: DateTime
-	updatedAt: DateTime
+type StaffUserActivityDetail {
+	activityType: String!
+	activityDescription: String!
+	activityByStaffUserId: String!
+	activityByStaffUserDisplayName: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 type StaffUser implements MongoBase {
@@ -54,6 +16,7 @@ type StaffUser implements MongoBase {
 	accessBlocked: Boolean!
 	tags: [String!]!
 	role: StaffRole
+	activityLog: [StaffUserActivityDetail!]!
 
 	id: ObjectID!
 	schemaVersion: String
@@ -61,6 +24,22 @@ type StaffUser implements MongoBase {
 	updatedAt: DateTime
 }
 
+input StaffUserAssignRoleInput {
+	staffUserId: ObjectID!
+	roleId: ObjectID!
+}
+
+type StaffUserMutationResult implements MutationResult {
+	status: MutationStatus!
+	staffUser: StaffUser
+}
+
 extend type Query {
 	currentStaffUserAndCreateIfNotExists: StaffUser!
+	staffUsers: [StaffUser!]!
+	staffUserById(id: ObjectID!): StaffUser
+}
+
+extend type Mutation {
+	staffUserAssignRole(input: StaffUserAssignRoleInput!): StaffUserMutationResult!
 }

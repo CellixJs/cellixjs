@@ -34,12 +34,13 @@ catalog:
   react-dom: ^19.1.1
   '@ant-design/icons': ^6.0.2
   rimraf: 6.0.1
-  storybook: 10.4.2
+  storybook: ^10.4.2
   '@storybook/addon-a11y': ^10.4.2
   '@storybook/addon-docs': ^10.4.2
   '@storybook/addon-onboarding': ^10.4.2
   '@storybook/addon-vitest': ^10.4.2
   '@storybook/react-vite': ^10.4.2
+  '@storybook/react': ^10.4.2
   tsx: ^4.21.0
   typescript: 6.0.3
   "@typescript/native-preview": 7.0.0-dev.20260428.1
@@ -48,6 +49,8 @@ catalog:
   '@vitest/browser': 4.1.8
   '@vitest/browser-playwright': 4.1.6
   vite-plugin-node-polyfills: ^0.28.0
+  '@babel/core': 7.29.6
+  launch-editor: 2.14.1
 
 auditConfig:
   ignoreGhsas:

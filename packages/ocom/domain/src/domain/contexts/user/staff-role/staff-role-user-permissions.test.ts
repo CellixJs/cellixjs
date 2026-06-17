@@ -18,6 +18,8 @@ function makeVisa({ canManageStaffRolesAndPermissions = true, isSystemAccount = 
 function makeProps(overrides = {}) {
 	return {
 		canManageUsers: false,
+		canAssignStaffRoles: false,
+		canViewStaffUsers: false,
 		...overrides,
 	};
 }

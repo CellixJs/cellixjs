@@ -3,7 +3,7 @@ import { CommunitiesDropdownContainerMembersForCurrentEndUserDocument } from '..
 import { CommunitiesDropdownContainer } from './communities-dropdown.container.tsx';
 
 const meta: Meta = {
-	title: 'Components/Shared/UI/Organisms/DropdownMenu/CommunitiesDropdown/Container',
+	title: 'Components/Shared/Dropdown Menu/Communities Dropdown/Container',
 	parameters: {
 		layout: 'padded',
 	},

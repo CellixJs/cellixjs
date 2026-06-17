@@ -44,7 +44,7 @@ const deniedPermissions = {
 };
 
 const meta = {
-	title: 'Staff/RequireRole',
+	title: 'Components/Staff/Require Role',
 	component: RequireRole,
 	parameters: {
 		layout: 'fullscreen',

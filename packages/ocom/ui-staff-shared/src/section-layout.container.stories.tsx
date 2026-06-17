@@ -18,7 +18,7 @@ const pageLayouts: PageLayoutProps[] = [
 ];
 
 const meta = {
-	title: 'Staff/SectionLayoutContainer',
+	title: 'Components/Staff/Section Layout Container',
 	component: SectionLayoutContainer,
 	parameters: {
 		layout: 'fullscreen',

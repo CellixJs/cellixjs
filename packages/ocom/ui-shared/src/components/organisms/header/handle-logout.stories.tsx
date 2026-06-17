@@ -23,7 +23,7 @@ const LogoutTestHarness: React.FC<HarnessProps> = ({ auth, client, redirect }) =
 };
 
 const meta = {
-	title: 'Components/Shared/UI/Organisms/Header/Actions/HandleLogout',
+	title: 'Components/Shared/Header/Handle Logout',
 	component: LogoutTestHarness,
 	parameters: {
 		layout: 'padded',

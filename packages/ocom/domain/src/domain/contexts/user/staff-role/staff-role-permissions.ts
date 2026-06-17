@@ -4,6 +4,7 @@ import type { UserVisa } from '../user.visa.ts';
 import { StaffRoleCommunityPermissions, type StaffRoleCommunityPermissionsEntityReference, type StaffRoleCommunityPermissionsProps } from './staff-role-community-permissions.ts';
 import { StaffRoleFinancePermissions, type StaffRoleFinancePermissionsEntityReference, type StaffRoleFinancePermissionsProps } from './staff-role-finance-permissions.ts';
 import { StaffRolePropertyPermissions, type StaffRolePropertyPermissionsEntityReference, type StaffRolePropertyPermissionsProps } from './staff-role-property-permissions.ts';
+import { StaffRoleRolePermissions, type StaffRoleRolePermissionsEntityReference, type StaffRoleRolePermissionsProps } from './staff-role-role-permissions.ts';
 import { StaffRoleServicePermissions, type StaffRoleServicePermissionsEntityReference, type StaffRoleServicePermissionsProps } from './staff-role-service-permissions.ts';
 import { StaffRoleServiceTicketPermissions, type StaffRoleServiceTicketPermissionsEntityReference, type StaffRoleServiceTicketPermissionsProps } from './staff-role-service-ticket-permissions.ts';
 import { StaffRoleTechAdminPermissions, type StaffRoleTechAdminPermissionsEntityReference, type StaffRoleTechAdminPermissionsProps } from './staff-role-tech-admin-permissions.ts';
@@ -19,13 +20,14 @@ export interface StaffRolePermissionsProps extends ValueObjectProps {
 	readonly financePermissions: StaffRoleFinancePermissionsProps;
 	readonly techAdminPermissions: StaffRoleTechAdminPermissionsProps;
 	readonly userPermissions: StaffRoleUserPermissionsProps;
+	readonly staffRolePermissions: StaffRoleRolePermissionsProps;
 }
 
 export interface StaffRolePermissionsEntityReference
 	extends Readonly<
 		Omit<
 			StaffRolePermissionsProps,
-			'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions' | 'financePermissions' | 'techAdminPermissions' | 'userPermissions'
+			'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions' | 'financePermissions' | 'techAdminPermissions' | 'userPermissions' | 'staffRolePermissions'
 		>
 	> {
 	readonly communityPermissions: StaffRoleCommunityPermissionsEntityReference;
@@ -36,6 +38,7 @@ export interface StaffRolePermissionsEntityReference
 	readonly financePermissions: StaffRoleFinancePermissionsEntityReference;
 	readonly techAdminPermissions: StaffRoleTechAdminPermissionsEntityReference;
 	readonly userPermissions: StaffRoleUserPermissionsEntityReference;
+	readonly staffRolePermissions: StaffRoleRolePermissionsEntityReference;
 }
 
 export class StaffRolePermissions extends ValueObject<StaffRolePermissionsProps> implements StaffRolePermissionsEntityReference {
@@ -47,27 +50,96 @@ export class StaffRolePermissions extends ValueObject<StaffRolePermissionsProps>
 	}
 
 	get communityPermissions(): StaffRoleCommunityPermissions {
-		return new StaffRoleCommunityPermissions(this.props.communityPermissions, this.visa);
+		return new StaffRoleCommunityPermissions(
+			this.props.communityPermissions ?? {
+				canManageCommunities: false,
+				canManageStaffRolesAndPermissions: false,
+				canManageAllCommunities: false,
+				canDeleteCommunities: false,
+				canChangeCommunityOwner: false,
+				canReIndexSearchCollections: false,
+			},
+			this.visa,
+		);
 	}
 	get propertyPermissions(): StaffRolePropertyPermissions {
-		return new StaffRolePropertyPermissions(this.props.propertyPermissions, this.visa);
+		return new StaffRolePropertyPermissions(
+			this.props.propertyPermissions ?? {
+				canManageProperties: false,
+				canEditOwnProperty: false,
+			},
+			this.visa,
+		);
 	}
 	get serviceTicketPermissions(): StaffRoleServiceTicketPermissions {
-		return new StaffRoleServiceTicketPermissions(this.props.serviceTicketPermissions, this.visa);
+		return new StaffRoleServiceTicketPermissions(
+			this.props.serviceTicketPermissions ?? {
+				canCreateTickets: false,
+				canManageTickets: false,
+				canAssignTickets: false,
+				canUpdateTickets: false,
+				canWorkOnTickets: false,
+			},
+			this.visa,
+		);
 	}
 	get servicePermissions(): StaffRoleServicePermissions {
-		return new StaffRoleServicePermissions(this.props.servicePermissions, this.visa);
+		return new StaffRoleServicePermissions(this.props.servicePermissions ?? { canManageServices: false }, this.visa);
 	}
 	get violationTicketPermissions(): StaffRoleViolationTicketPermissions {
-		return new StaffRoleViolationTicketPermissions(this.props.violationTicketPermissions, this.visa);
+		return new StaffRoleViolationTicketPermissions(
+			this.props.violationTicketPermissions ?? {
+				canCreateTickets: false,
+				canManageTickets: false,
+				canAssignTickets: false,
+				canUpdateTickets: false,
+				canWorkOnTickets: false,
+			},
+			this.visa,
+		);
 	}
 	get financePermissions(): StaffRoleFinancePermissions {
-		return new StaffRoleFinancePermissions(this.props.financePermissions, this.visa);
+		return new StaffRoleFinancePermissions(
+			this.props.financePermissions ?? {
+				canManageFinance: false,
+				canViewGLBatchSummaries: false,
+				canViewFinanceConfigs: false,
+				canCreateFinanceConfigs: false,
+			},
+			this.visa,
+		);
 	}
 	get techAdminPermissions(): StaffRoleTechAdminPermissions {
-		return new StaffRoleTechAdminPermissions(this.props.techAdminPermissions, this.visa);
+		return new StaffRoleTechAdminPermissions(
+			this.props.techAdminPermissions ?? {
+				canManageTechAdmin: false,
+				canViewDatabaseExplorer: false,
+				canViewBlobExplorer: false,
+				canViewQueueDashboard: false,
+				canSendQueueMessages: false,
+			},
+			this.visa,
+		);
 	}
 	get userPermissions(): StaffRoleUserPermissions {
-		return new StaffRoleUserPermissions(this.props.userPermissions, this.visa);
+		return new StaffRoleUserPermissions(
+			this.props.userPermissions ?? {
+				canManageUsers: false,
+				canAssignStaffRoles: false,
+				canViewStaffUsers: false,
+			},
+			this.visa,
+		);
+	}
+	get staffRolePermissions(): StaffRoleRolePermissions {
+		return new StaffRoleRolePermissions(
+			this.props.staffRolePermissions ?? {
+				canViewRoles: false,
+				canAddRole: false,
+				canEditRole: false,
+				canRemoveRole: false,
+			},
+			this.visa,
+		);
 	}
 }

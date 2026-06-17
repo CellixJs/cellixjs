@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { LoggedInUserCommunityContainer, type LoggedInUserCommunityContainerProps } from './logged-in-user-community.container.tsx';
 
 const meta = {
-	title: 'Components/Shared/UI/Organisms/Header/LoggedInUserCommunity/Container',
+	title: 'Components/Shared/Header/Logged In User Community/Container',
 	component: LoggedInUserCommunityContainer,
 	parameters: {
 		layout: 'padded',
