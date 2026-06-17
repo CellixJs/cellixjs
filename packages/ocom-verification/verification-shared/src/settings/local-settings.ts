@@ -54,6 +54,6 @@ export const uiCommunitySettings = {
 } as const;
 
 export const uiStaffSettings = {
-	baseUrl: readSetting(uiStaffValues, 'VITE_APP_UI_STAFF_BASE_URL', 'https://staff.ownercommunity.localhost:1355') ?? 'https://staff.ownercommunity.localhost:1355',
+	baseUrl: readSetting(uiStaffValues, 'VITE_BASE_URL', 'https://staff.ownercommunity.localhost:1355') ?? 'https://staff.ownercommunity.localhost:1355',
 	graphqlEndpoint: requireSetting(uiStaffValues, 'VITE_COMMON_API_ENDPOINT', 'VITE_COMMON_API_ENDPOINT is required in apps/ui-staff/.env'),
 } as const;

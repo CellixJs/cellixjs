@@ -75,7 +75,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			})),
 			find: vi.fn((query: Record<string, string>) => ({
 				exec: vi.fn(() => {
-					if (query['communityId'] === 'empty-community') return [];
+					if (query.communityId === 'empty-community') return [];
 					return [invitationDoc];
 				}),
 			})),

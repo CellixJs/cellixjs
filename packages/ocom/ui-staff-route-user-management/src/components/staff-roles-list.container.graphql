@@ -1,0 +1,13 @@
+query StaffRolesList {
+	staffRoles {
+		...StaffRolesListFields
+	}
+}
+
+fragment StaffRolesListFields on StaffRole {
+	id
+	roleName
+	enterpriseAppRole
+	createdAt
+	updatedAt
+}
