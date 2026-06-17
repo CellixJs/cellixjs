@@ -35,9 +35,8 @@ export const assignRole = (dataSources: DataSources) => {
 			} catch (e) {
 				const error = e as Error;
                 if (error.name !== 'NotFoundError') {
-                    return;
+                    throw error;
                 }
-                throw error;
 			}
 			const roleName = role.roleName ?? command.roleId;
 			const description = `${roleName} assigned by ${actorDisplayName}`;

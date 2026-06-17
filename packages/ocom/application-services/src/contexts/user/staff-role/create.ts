@@ -17,9 +17,8 @@ const ensureRoleDoesNotExist = async (repository: Domain.Contexts.User.StaffRole
 	} catch (e) {
 		const error = e as Error;
         if(error.name !== 'NotFoundError') {
-            return;
+            throw error;
         }
-		throw error;
 	}
 };
 
