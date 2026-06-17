@@ -15,6 +15,7 @@ type CommunityCreateGraphqlPayload = {
 				errorMessage?: string | null;
 			};
 			community?: {
+				id?: string | null;
 				name?: string | null;
 			} | null;
 		};
@@ -72,7 +73,7 @@ export const CreateCommunity = (name: string) =>
 		const validationError = await communityPage.firstValidationError.isVisible().catch(() => false);
 		if (validationError) {
 			const errorText = await communityPage.firstValidationError.textContent();
-			await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityCreated', false), notes<CommunityE2ENotes>().set('errorMessage', errorText || 'Validation error'));
+			await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityId', null), notes<CommunityE2ENotes>().set('communityCreated', false), notes<CommunityE2ENotes>().set('errorMessage', errorText || 'Validation error'));
 			return;
 		}
 
@@ -92,9 +93,18 @@ export const CreateCommunity = (name: string) =>
 						: createdName !== name
 							? `Expected created community name "${name}" but GraphQL returned "${createdName ?? 'null'}"`
 							: `Community create GraphQL request failed with HTTP ${mutationResponse.status()}`);
-				await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityCreated', false), notes<CommunityE2ENotes>().set('errorMessage', message));
+				await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityId', null), notes<CommunityE2ENotes>().set('communityCreated', false), notes<CommunityE2ENotes>().set('errorMessage', message));
 				throw new Error(message);
 			}
+
+			const communityId = mutationResult?.community?.id ?? null;
+			if (!communityId) {
+				const message = `${createCommunityOperationName} succeeded but returned no community id`;
+				await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityId', null), notes<CommunityE2ENotes>().set('communityCreated', false), notes<CommunityE2ENotes>().set('errorMessage', message));
+				throw new Error(message);
+			}
+
+			await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityId', communityId));
 		}
 
 		await page.waitForURL(/\/community\/accounts(?:\/)?(?:\?.*)?$/, { timeout: 15_000 }).catch(() => undefined);
@@ -103,7 +113,7 @@ export const CreateCommunity = (name: string) =>
 		if (hasErrorToast) {
 			const errorText = await communityPage.errorToast.textContent();
 			const message = errorText || 'Community creation failed';
-			await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityCreated', false), notes<CommunityE2ENotes>().set('errorMessage', message));
+			await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityId', null), notes<CommunityE2ENotes>().set('communityCreated', false), notes<CommunityE2ENotes>().set('errorMessage', message));
 			throw new Error(message);
 		}
 

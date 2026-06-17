@@ -1,6 +1,7 @@
 import playwright, { type Browser, type BrowserContext } from 'playwright';
 import { BrowseTheWeb } from '../abilities/browse-the-web.ts';
 import { performOAuth2Login } from './oauth2-login.ts';
+import { clearKnownQueueMessages } from './queue-storage.ts';
 import { cleanupTestEnvironment, initTestEnvironment, MongoDBTestServer, setMongoConnectionString, TestApiServer, TestAzuriteServer, TestCommunityViteServer, TestOAuth2Server, TestStaffViteServer } from './servers/index.ts';
 
 let mongoDBServer: MongoDBTestServer | undefined;
@@ -38,6 +39,7 @@ export async function resetScenarioState(): Promise<void> {
 	if (mongoDBServer?.isRunning()) {
 		await mongoDBServer.resetForScenario();
 	}
+	await clearKnownQueueMessages();
 }
 
 export async function stopAll(): Promise<void> {
@@ -128,6 +130,7 @@ async function ensureE2EServersInternal(): Promise<void> {
 	process.env['AZURE_STORAGE_ACCOUNT_NAME'] = 'devstoreaccount1';
 	// biome-ignore lint:useLiteralKeys
 	process.env['AZURE_STORAGE_CONNECTION_STRING'] = azuriteBlobServer.getConnectionString();
+	await clearKnownQueueMessages();
 
 	// Phase 2: Start API (needs MongoDB conn string), Vite (independent), and generate token (needs OAuth2) in parallel
 	apiServer ??= new TestApiServer();

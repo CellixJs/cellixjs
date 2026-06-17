@@ -1183,6 +1183,9 @@ importers:
       '@ocom/service-mongoose':
         specifier: workspace:*
         version: link:../../ocom/service-mongoose
+      '@ocom/service-queue-storage':
+        specifier: workspace:*
+        version: link:../../ocom/service-queue-storage
       '@ocom/service-token-validation':
         specifier: workspace:*
         version: link:../../ocom/service-token-validation
@@ -1320,6 +1323,9 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
     devDependencies:
+      '@azure/storage-queue':
+        specifier: 12.29.0
+        version: 12.29.0
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../cellix/config-typescript

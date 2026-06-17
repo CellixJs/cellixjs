@@ -2,6 +2,7 @@ import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { Ensure, equals } from '@serenity-js/assertions';
 import { actorCalled, notes } from '@serenity-js/core';
+import { getRecordedCommunityCreationMessages } from '../../../shared/support/application-services/mock-queue-storage.ts';
 import { resolveActorName } from '../../../shared/support/domain-test-helpers.ts';
 import type { CommunityDetails, CommunityNotes } from '../abilities/community-types.ts';
 import { CommunityName } from '../questions/community-name.ts';
@@ -48,6 +49,26 @@ Then('the community name should be {string}', async (expectedName: string) => {
 	const actor = actorCalled(lastActorName);
 
 	await actor.attemptsTo(Ensure.that(CommunityName.displayed(), equals(expectedName)));
+});
+
+Then('a community creation queue message should be recorded', async () => {
+	const actor = actorCalled(lastActorName);
+	const communityId = await actor.answer(notes<CommunityNotes>().get('lastCommunityId'));
+	const communityName = await actor.answer(notes<CommunityNotes>().get('lastCommunityName'));
+
+	const recordedMessage = getRecordedCommunityCreationMessages().find((message) => message.communityId === communityId);
+
+	if (!recordedMessage) {
+		throw new Error(`Expected a community creation queue message for community "${communityId}" but none was recorded`);
+	}
+
+	if (recordedMessage.name !== communityName) {
+		throw new Error(`Expected queued community name "${communityName}" but got "${recordedMessage.name}"`);
+	}
+
+	if (!recordedMessage.createdBy) {
+		throw new Error('Expected queued createdBy to be populated');
+	}
 });
 
 Then('{word} should see a community error for {string}', async (actorName: string, fieldName: string) => {

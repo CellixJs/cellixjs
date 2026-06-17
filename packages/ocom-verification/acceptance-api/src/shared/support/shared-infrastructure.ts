@@ -1,6 +1,7 @@
 import { GraphQLTestServer, MongoDBTestServer } from '@ocom-verification/verification-shared/servers';
 import { apiSettings } from '@ocom-verification/verification-shared/settings';
 import { createMockApplicationServicesFactory } from './application-services/index.ts';
+import { resetRecordedQueueMessages } from './application-services/mock-queue-storage.ts';
 
 // Shared infrastructure — persists across scenarios within a single test run
 let mongoDBServer: MongoDBTestServer | undefined;
@@ -62,6 +63,7 @@ export async function ensureApiServers(): Promise<void> {
 }
 
 export async function resetMongoForScenario(): Promise<void> {
+	resetRecordedQueueMessages();
 	if (!mongoDBServer) return;
 	await mongoDBServer.resetForScenario();
 }

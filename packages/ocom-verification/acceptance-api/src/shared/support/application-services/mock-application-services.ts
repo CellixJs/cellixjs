@@ -1,12 +1,13 @@
-import type { BlobUploadAuthorizationHeader, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
+import type { BlobUploadAuthorizationHeader, BlobUploadCommonResponse, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
-import type { BlobAddress, ListBlobsRequest, UploadTextBlobRequest, BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
+import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
 import { actors } from '@ocom-verification/verification-shared/test-data';
+import { createRecordingQueueStorageService } from './mock-queue-storage.ts';
 
 function createMockTokenValidation(): TokenValidation {
 	return {
@@ -47,7 +48,7 @@ const noOpBlobUploadAuthorizationHeader = {
 function createNoOpBlobStorageService(): BlobStorageOperations {
 	return {
 		uploadText(_request: UploadTextBlobRequest) {
-			return Promise.resolve({});
+			return Promise.resolve({ _response: {} } as BlobUploadCommonResponse);
 		},
 		deleteBlob(_address: BlobAddress) {
 			return Promise.resolve();
@@ -73,6 +74,7 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 	const dataSourcesFactory = Persistence(serviceMongoose);
 	const blobStorageService = createNoOpBlobStorageService();
 	const clientOperationsService = createNoOpClientOperationsService();
+	const queueStorageService = createRecordingQueueStorageService();
 
 	const apiContextSpec: ApiContextSpec = {
 		dataSourcesFactory,
@@ -80,6 +82,7 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 		apolloServerService: createNoOpApolloServerService(),
 		blobStorageService,
 		clientOperationsService,
+		queueStorageService,
 	};
 
 	const mockApplicationServicesFactory = buildApplicationServicesFactory(apiContextSpec);
