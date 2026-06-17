@@ -14,7 +14,7 @@ function getAbsolutePath(value: string) {
 const config: StorybookConfig = {
 	stories: [
 		'../src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-		//'../../../packages/ocom/ui-shared/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../packages/ocom/ui-shared/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
 		'../../../packages/ocom/ui-community-*/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
 	],
 	addons: [
