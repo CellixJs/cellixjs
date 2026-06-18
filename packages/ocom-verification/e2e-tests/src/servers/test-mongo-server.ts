@@ -2,7 +2,6 @@ import { MongoMemoryProcessTestServer } from '@cellix/serenity-framework/servers
 import { getMongoPort } from '@ocom-verification/verification-shared/environment';
 import { seedDatabase } from '@ocom-verification/verification-shared/test-data';
 import { appPaths } from '../shared/environment/app-paths.ts';
-import { getPortlessDevScript } from '../shared/environment/dev-script.ts';
 
 const mongoDbName = 'owner-community';
 const mongoReplSetName = 'globaldb';
@@ -17,7 +16,7 @@ export const testMongoServer = new MongoMemoryProcessTestServer({
 	readyMarker: 'MongoDB Memory Replica Set ready at:',
 	seedData: seedDatabase,
 	serverName: 'TestMongoMemoryServer',
-	spawnArgs: () => ['run', getPortlessDevScript()],
+	spawnArgs: () => ['run', process.env['WORKTREE_NAME'] ? 'dev:worktree' : 'dev'],
 });
 
 function mongoConnectionString(): string {

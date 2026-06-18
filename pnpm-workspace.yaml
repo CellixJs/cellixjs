@@ -43,7 +43,7 @@ catalog:
   tsx: ^4.21.0
   typescript: 6.0.3
   "@typescript/native-preview": 7.0.0-dev.20260428.1
-  vite: 8.0.5
+  vite: 8.0.16
   vitest: 4.1.6
   '@vitest/browser': 4.1.6
   '@vitest/browser-playwright': 4.1.6
@@ -57,6 +57,7 @@ auditConfig:
     - GHSA-wpg9-53fq-2r8h
     - GHSA-q7rr-3cgh-j5r3
     - GHSA-869p-cjfg-cm3x  # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
+    - GHSA-g8mr-85jm-7xhm  # @vitest/browser <=4.1.7: Browser Mode API can proxy CDP; dev/test-only tooling, pinned to 4.1.6 to match catalog, not in production runtime
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -71,6 +72,7 @@ allowBuilds:
 overrides:
   '@vitest/browser': 4.1.6
   '@vitest/browser-playwright': 4.1.6
+  happy-dom: 20.10.1
   axios: 1.16.0
   follow-redirects: ^1.16.0
   vite: "catalog:"
@@ -83,7 +85,7 @@ overrides:
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
-  'protobufjs@7.5.4': 7.5.8
+  'protobufjs@7.5.4': 7.6.3
   'serve-handler>minimatch': 3.1.5
   'serialize-javascript@6.0.2': 7.0.5
   'serialize-javascript@7.0.4': 7.0.5
@@ -99,22 +101,30 @@ overrides:
   node-forge@<1.3.2: '>=1.3.2'
   picomatch: ^4.0.4
   webpack: ^5.105.4
-  webpack-dev-server: ^5.2.4
+  webpack-dev-server: ^5.2.5
   express-rate-limit: 8.5.1
   '@azure/ms-rest-js>uuid': '^3.4.0'
   'azurite>uuid': '^3.4.0'
-  'ws@8.20.0': 8.20.1
+  'ws@8.20.0': 8.21.0
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: 8.5.10
-  protobufjs: 7.5.8
+  protobufjs: 7.6.3
   ip-address: ^10.1.1
   fast-uri: ^3.1.2
   '@babel/plugin-transform-modules-systemjs': 7.29.4
+  '@babel/core': ^7.29.6
   'shell-quote@<1.8.4': 1.8.4
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
-  ws: 8.20.1
+  '@opentelemetry/core@2.7.1': 2.8.0
+  ws: 8.21.0
   shell-quote: 1.8.4
+  '@grpc/grpc-js': '>=1.14.4'
+  form-data: ^4.0.6
+  'webpack-dev-server>http-proxy-middleware': 3.0.7
+  joi: ^17.13.4
+  launch-editor: ^2.14.1
+  react-router: 7.15.1
 
 packageExtensions:
   '@azure/functions-opentelemetry-instrumentation@0.1.0':

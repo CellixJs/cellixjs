@@ -100,10 +100,11 @@ export function getAzuritePorts() {
 export function getAzuriteConnectionString(values) {
 	const ports = getAzuritePorts();
 	if (ports.blob === 10000) return 'UseDevelopmentStorage=true';
-	const accountName = getSetting('STORAGE_ACCOUNT_NAME', values);
-	const accountKey = getSetting('STORAGE_ACCOUNT_KEY', values);
+	const accountName = getSetting('AZURE_STORAGE_ACCOUNT_NAME', values);
+	const connectionString = getSetting('AZURE_STORAGE_CONNECTION_STRING', values);
+	const accountKey = connectionString ? /(?:^|;)AccountKey=([^;]+)/.exec(connectionString)?.[1] : undefined;
 	if (!accountName || !accountKey) {
-		throw new Error('[worktree-ports] STORAGE_ACCOUNT_NAME and STORAGE_ACCOUNT_KEY must be set to build a worktree Azurite connection string');
+		throw new Error('[worktree-ports] AZURE_STORAGE_ACCOUNT_NAME and an AZURE_STORAGE_CONNECTION_STRING containing AccountKey must be set to build a worktree Azurite connection string');
 	}
 	return [
 		'DefaultEndpointsProtocol=http',

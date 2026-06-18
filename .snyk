@@ -79,17 +79,17 @@ ignore:
   'SNYK-JS-AI-16734889':
     - '* > ai@5.0.105':
         reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
-        expires: '2026-06-18T00:00:00.000Z'
+        expires: '2026-09-18T00:00:00.000Z'
         created: '2026-05-18T11:04:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16734888':
     - '* > @ai-sdk/provider-utils@3.0.18':
         reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
-        expires: '2026-06-18T00:00:00.000Z'
+        expires: '2026-09-18T00:00:00.000Z'
         created: '2026-05-18T11:04:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16735288':
     - '* > @ai-sdk/provider-utils@3.0.18':
         reason: 'Transitive dependency in @docusaurus/preset-classic; not exploitable in current usage.'
-        expires: '2026-06-18T00:00:00.000Z'
+        expires: '2026-09-18T00:00:00.000Z'
         created: '2026-05-18T11:04:00.000Z'
   'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
     - '* > postcss-selector-parser':
@@ -101,3 +101,23 @@ ignore:
         reason: 'Requires upgrade of @opentelemetry/sdk-node to 0.217.0, which has type errors that break compilation. Created task to upgrade OTEL service to 2.x and resolve vulnerability that way.'
         expires: '2026-07-28T00:00:00.000Z'
         created: '2026-06-01T10:00:00.000Z'
+  'SNYK-JS-IMAGESIZE-17295814':
+    - '* > image-size@<=2.0.2':
+        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
+        expires: '2026-07-11T00:00:00.000Z'
+        created: '2026-06-11T10:00:00.000Z'
+  'SNYK-JS-IMAGESIZE-17295816':
+    - '* > image-size@<=2.0.2':
+        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
+        expires: '2026-07-11T00:00:00.000Z'
+        created: '2026-06-11T10:00:00.000Z'
+  'SNYK-JS-JSYAML-17342520':
+    - '* > js-yaml':
+        reason: 'Transitive in Docusaurus build tooling (gray-matter pins js-yaml@3.x; fix is in 4.2.0, a major bump blocked by gray-matter). Build-time parsing of repository-controlled input only.'
+        expires: '2026-09-18T00:00:00.000Z'
+        created: '2026-06-18T00:00:00.000Z'
+  'SNYK-JS-OPENTELEMETRYCORE-17373280':
+    - '* > @opentelemetry/core':
+        reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. Accepted temporarily while the existing OTEL 2.x migration is completed.'
+        expires: '2026-07-18T00:00:00.000Z'
+        created: '2026-06-18T00:00:00.000Z'

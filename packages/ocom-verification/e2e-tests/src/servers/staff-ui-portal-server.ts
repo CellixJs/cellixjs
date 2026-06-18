@@ -1,6 +1,5 @@
 import { ProcessUiTestServer } from '@cellix/serenity-framework/servers';
 import { appPaths } from '../shared/environment/app-paths.ts';
-import { getPortlessDevScript } from '../shared/environment/dev-script.ts';
 import { buildUrl, getHostnames } from '../shared/environment/test-environment.ts';
 
 const hostnames = getHostnames();
@@ -19,5 +18,5 @@ export const staffUiPortalServer = new ProcessUiTestServer({
 	},
 	readyMarker: 'ready in',
 	serverName: 'TestStaffViteServer',
-	spawnArgs: () => ['run', getPortlessDevScript()],
+	spawnArgs: () => ['run', process.env['WORKTREE_NAME'] ? 'dev:worktree' : 'dev'],
 });
