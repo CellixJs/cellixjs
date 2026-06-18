@@ -1,13 +1,6 @@
-import { baseConfig } from '@cellix/config-vitest';
-import { defineConfig, mergeConfig } from 'vitest/config';
+import { createStorybookVitestConfig, getDirnameFromImportMetaUrl } from '@cellix/config-vitest';
+import { defineConfig } from 'vitest/config';
 
-export default mergeConfig(
-	baseConfig,
-	defineConfig({
-		test: {
-			environment: 'jsdom',
-			passWithNoTests: true,
-			exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
-		},
-	}),
-);
+const dirname = getDirnameFromImportMetaUrl(import.meta.url);
+
+export default defineConfig(createStorybookVitestConfig(dirname));

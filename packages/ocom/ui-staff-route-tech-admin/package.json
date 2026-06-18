@@ -23,6 +23,7 @@
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@storybook/react": "catalog:",
 		"@types/react": "^19.1.11",
 		"@types/react-dom": "^19.1.6",
 		"jsdom": "catalog:",
