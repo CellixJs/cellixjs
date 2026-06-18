@@ -52,7 +52,7 @@ Object.defineProperty(import.meta, 'env', {
 });
 
 const meta = {
-	title: 'App/Main Application',
+	title: 'Pages/Community/Main Application',
 	component: App,
 	parameters: {
 		layout: 'fullscreen',

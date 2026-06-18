@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MembersAccountsEdit } from './members-accounts-edit.tsx';
 
 const meta: Meta<typeof MembersAccountsEdit> = {
-	title: 'Admin/Components/MembersAccountsEdit',
+	title: 'Components/Community/Members Accounts Edit',
 	component: MembersAccountsEdit,
 	parameters: {
 		layout: 'centered',

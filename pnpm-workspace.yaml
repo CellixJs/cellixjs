@@ -112,8 +112,8 @@ overrides:
   ws: 8.21.0
   shell-quote: 1.8.4
   '@grpc/grpc-js': '>=1.14.4'
-  joi: 18.2.1
   form-data: 4.0.6
+  joi: 18.2.1
   '@vitest/browser': "catalog:"
   '@babel/core': 7.29.6
   launch-editor: 2.14.1

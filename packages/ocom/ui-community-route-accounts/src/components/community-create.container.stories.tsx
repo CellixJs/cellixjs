@@ -6,7 +6,7 @@ import { AccountsCommunityCreateContainerCommunityCreateDocument, AccountsCommun
 import { CommunityCreateContainer } from './community-create.container.tsx';
 
 const meta = {
-	title: 'Components/Accounts/CommunityCreateContainer',
+	title: 'Components/Community/CommunityCreateContainer',
 	component: CommunityCreateContainer,
 	decorators: [
 		(Story) => (

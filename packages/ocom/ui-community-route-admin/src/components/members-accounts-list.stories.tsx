@@ -4,7 +4,7 @@ import type { AdminMembersAccountsListContainerMemberAccountFieldsFragment } fro
 import { MembersAccountsList } from './members-accounts-list.tsx';
 
 const meta: Meta<typeof MembersAccountsList> = {
-	title: 'Admin/Components/MembersAccountsList',
+	title: 'Components/Community/Members Accounts List',
 	component: MembersAccountsList,
 	decorators: [
 		(Story) => (

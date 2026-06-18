@@ -63,7 +63,7 @@ const makePageLayouts = (permissions: AdminStaffSectionPermissions | null): Page
 ];
 
 const meta: Meta<typeof SectionLayout> = {
-	title: 'Admin/Layouts/SectionLayout',
+	title: 'Components/Community/Layouts/SectionLayout',
 	component: SectionLayout,
 	decorators: [
 		(Story) => (
