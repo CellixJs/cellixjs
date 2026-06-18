@@ -116,5 +116,5 @@
 		"ts-scope-trimmer-plugin",
 		"chrome-devtools-mcp"
 	],
-	"ignoreBinaries": ["func", "python"]
+	"ignoreBinaries": ["func", "mise"]
 }
