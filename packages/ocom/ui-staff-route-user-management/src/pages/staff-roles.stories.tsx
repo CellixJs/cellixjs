@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { StaffRoleCreateDocument, StaffRolesListDocument } from '../generated.tsx';
 import { StaffRolesPage } from './staff-roles.tsx';
 
@@ -19,14 +19,11 @@ const createMock = {
 };
 
 const meta: Meta<typeof StaffRolesPage> = {
-	title: 'UserManagement/Pages/StaffRolesPage',
+	title: 'Pages/Staff/User Management/Staff Roles',
 	component: StaffRolesPage,
 	parameters: {
 		layout: 'padded',
-		memoryRouter: {
-			initialEntries: ['/'],
-		},
-		apolloMocks: [listMock, createMock],
+		apolloClient: { mocks: [listMock, createMock] },
 	},
 };
 
@@ -35,28 +32,29 @@ type Story = StoryObj<typeof StaffRolesPage>;
 
 export const Default: Story = {
 	render: () => (
-		<Routes>
-			<Route
-				path="/*"
-				element={<StaffRolesPage />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/']}>
+			<Routes>
+				<Route
+					path="/*"
+					element={<StaffRolesPage />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };
 
 export const CreateView: Story = {
 	parameters: {
-		memoryRouter: {
-			initialEntries: ['/create'],
-		},
-		apolloMocks: [listMock, createMock],
+		apolloClient: { mocks: [listMock, createMock] },
 	},
 	render: () => (
-		<Routes>
-			<Route
-				path="/*"
-				element={<StaffRolesPage />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/create']}>
+			<Routes>
+				<Route
+					path="/*"
+					element={<StaffRolesPage />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };

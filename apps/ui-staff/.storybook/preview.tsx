@@ -5,7 +5,6 @@ import { HelmetProvider } from '@dr.pogodin/react-helmet';
 import type { Decorator, Parameters } from '@storybook/react';
 import 'antd/dist/reset.css';
 import { AuthProvider } from 'react-oidc-context';
-import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '../src/contexts/theme-context.tsx';
 import { apolloMocks } from './apollo-mocks.ts';
 
@@ -25,7 +24,6 @@ const mockOidcConfig = {
 
 export const decorators: Decorator[] = [
 	(Story, context) => {
-		const initialEntries = context.parameters?.memoryRouter?.initialEntries ?? ['/'];
 		const apolloParams = context.parameters?.apolloClient ?? {};
 		const mocks = apolloParams.mocks ?? apolloMocks;
 		const { defaultOptions } = apolloParams;
@@ -43,9 +41,7 @@ export const decorators: Decorator[] = [
 								query: { fetchPolicy: 'network-only' },
 							}}
 						>
-							<MemoryRouter initialEntries={initialEntries}>
-								<Story />
-							</MemoryRouter>
+							<Story />
 						</MockedProvider>
 					</ThemeProvider>
 				</AuthProvider>

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { StaffUsersListDocument } from '../generated.tsx';
 import { StaffUsersPage } from './staff-users.tsx';
 
@@ -9,19 +9,18 @@ const mockStaffUsers = [
 ];
 
 const meta: Meta<typeof StaffUsersPage> = {
-	title: 'UserManagement/Pages/StaffUsersPage',
+	title: 'Pages/Staff/User Management/Staff Users',
 	component: StaffUsersPage,
 	parameters: {
 		layout: 'padded',
-		memoryRouter: {
-			initialEntries: ['/'],
+		apolloClient: {
+			mocks: [
+				{
+					request: { query: StaffUsersListDocument },
+					result: { data: { staffUsers: mockStaffUsers } },
+				},
+			],
 		},
-		apolloMocks: [
-			{
-				request: { query: StaffUsersListDocument },
-				result: { data: { staffUsers: mockStaffUsers } },
-			},
-		],
 	},
 };
 
@@ -30,11 +29,13 @@ type Story = StoryObj<typeof StaffUsersPage>;
 
 export const Default: Story = {
 	render: () => (
-		<Routes>
-			<Route
-				path="/*"
-				element={<StaffUsersPage />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/']}>
+			<Routes>
+				<Route
+					path="/*"
+					element={<StaffUsersPage />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };
