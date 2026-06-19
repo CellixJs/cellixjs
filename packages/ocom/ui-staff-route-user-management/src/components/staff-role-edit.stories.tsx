@@ -31,7 +31,7 @@ const existingRoleValues = {
 };
 
 const meta: Meta<typeof StaffRoleCreate> = {
-	title: 'UserManagement/Components/StaffRoleEdit',
+	title: 'Components/Staff/User Management/Staff Role Edit',
 	component: StaffRoleCreate,
 	parameters: { layout: 'padded' },
 };

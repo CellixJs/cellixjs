@@ -34,7 +34,7 @@ const mockActivityLog = [
 ];
 
 const meta: Meta<typeof StaffUserDetail> = {
-	title: 'UserManagement/Components/StaffUserDetail',
+	title: 'Components/Staff/User Management/Staff User Detail',
 	component: StaffUserDetail,
 	parameters: { layout: 'padded' },
 };
