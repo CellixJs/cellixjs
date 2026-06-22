@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { describe, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { registerQueues } from './index.ts';
 
 type MockReceivedMessage = {
@@ -12,6 +12,7 @@ type MockReceivedMessage = {
 };
 
 let receivedMessageItems: MockReceivedMessage[] = [];
+let peekedMessageItems: MockReceivedMessage[] = [];
 
 vi.mock('@azure/storage-queue', () => ({
 	QueueServiceClient: {
@@ -20,7 +21,7 @@ vi.mock('@azure/storage-queue', () => ({
 				sendMessage: vi.fn(async () => ({ messageId: 'mid' })),
 				createIfNotExists: vi.fn(async () => ({ succeeded: true })),
 				receiveMessages: vi.fn(async () => ({ receivedMessageItems })),
-				peekMessages: vi.fn(async () => ({ peekedMessageItems: [] })),
+				peekMessages: vi.fn(async () => ({ peekedMessageItems })),
 				deleteMessage: vi.fn(async () => ({})),
 			})),
 		})),
@@ -56,6 +57,7 @@ describe('registerQueues', () => {
 		BeforeEachScenario(() => {
 			vi.clearAllMocks();
 			receivedMessageItems = [];
+			peekedMessageItems = [];
 		});
 
 		Scenario('Successfully receiving messages from an inbound queue', ({ Given, When, Then, And }) => {
@@ -85,5 +87,43 @@ describe('registerQueues', () => {
 				expect((result as { id: string; payload: { requestId: string } }).payload.requestId).toBe('r1');
 			});
 		});
+	});
+
+	it('includes Ajv field errors when receive validation fails', async () => {
+		const registry = createInboundRegistry();
+		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+		receivedMessageItems = [
+			{
+				messageId: 'msg-invalid',
+				messageText: Buffer.from(JSON.stringify({})).toString('base64'),
+				dequeueCount: 1,
+			},
+		];
+		await svc.startUp();
+
+		await expect((svc as unknown as { receiveFromImportRequestsQueue: () => Promise<unknown> }).receiveFromImportRequestsQueue()).rejects.toThrow(
+			'Invalid payload for queue "import-requests": / is missing required property "requestId"',
+		);
+	});
+
+	it('allows peeking invalid inbound payloads without throwing', async () => {
+		const registry = createInboundRegistry();
+		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+		peekedMessageItems = [
+			{
+				messageId: 'msg-invalid',
+				messageText: Buffer.from(JSON.stringify({ unexpected: true })).toString('base64'),
+				dequeueCount: 0,
+			},
+		];
+		await svc.startUp();
+
+		await expect((svc as unknown as { peekAtImportRequestsQueue: () => Promise<unknown> }).peekAtImportRequestsQueue()).resolves.toEqual([
+			{
+				id: 'msg-invalid',
+				payload: { unexpected: true },
+				dequeueCount: 0,
+			},
+		]);
 	});
 });

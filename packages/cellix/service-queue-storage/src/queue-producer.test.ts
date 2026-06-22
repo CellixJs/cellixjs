@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { describe, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { registerQueues } from './index.ts';
 
 type SentMessage = { queue: string; messageText: string };
@@ -159,5 +159,36 @@ describe('registerQueues', () => {
 				expect((result as unknown[]).length).toBe(1);
 			});
 		});
+	});
+
+	it('includes Ajv field errors when send validation fails', async () => {
+		const registry = createOutboundRegistry();
+		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+		await svc.startUp();
+
+		await expect(svc.sendMessageToEmailNotificationsQueue({ to: 'not-an-email', subject: 'hello' })).rejects.toThrow(
+			'Invalid payload for queue "email-notifications": /to must match format "email"',
+		);
+	});
+
+	it('allows peeking invalid outbound payloads without throwing', async () => {
+		const registry = createPeekRegistry();
+		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+		peekedMessageItems = [
+			{
+				messageId: 'msg-invalid',
+				messageText: Buffer.from(JSON.stringify({ to: 'user@example.com' })).toString('base64'),
+				dequeueCount: 0,
+			},
+		];
+		await svc.startUp();
+
+		await expect(svc.peekAtEmailNotificationsQueue()).resolves.toEqual([
+			{
+				id: 'msg-invalid',
+				payload: { to: 'user@example.com' },
+				dequeueCount: 0,
+			},
+		]);
 	});
 });

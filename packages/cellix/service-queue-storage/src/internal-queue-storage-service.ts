@@ -1,6 +1,7 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import type { QueueClient, QueueReceiveMessageOptions } from '@azure/storage-queue';
 import { QueueServiceClient } from '@azure/storage-queue';
+import { diag } from '@opentelemetry/api';
 import type { IQueueStorageOperations, PeekMessagesOptions, QueueLoggingConfig, QueueMessage, QueueStorageConfig, ReceiveMessagesOptions, SendMessageOptions } from './interfaces.ts';
 import { createQueueMessageLogger, type IQueueMessageLogger, type MessageLogEnvelope, type QueueMessageLogBlobStorage } from './logging.ts';
 
@@ -143,11 +144,11 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 	public async startUp(): Promise<this> {
 		await Promise.resolve();
 		if (this.started) return this;
-		this.started = true;
 
 		if (this.inferredMode === 'sharedKey') {
 			this.queueServiceClient = QueueServiceClient.fromConnectionString(this.options.connectionString as string);
-			console.info('[InternalQueueStorageService] started (sharedKey)');
+			this.started = true;
+			diag.info('[InternalQueueStorageService] started (sharedKey)');
 
 			// Auto-provision queues in local dev / azurite scenarios when requested
 			const conn = this.options.connectionString as string;
@@ -159,7 +160,7 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 						try {
 							await this.createQueueIfNotExists(q);
 						} catch (e) {
-							console.warn('[InternalQueueStorageService] failed to auto-provision queue', q, e);
+							diag.warn('[InternalQueueStorageService] failed to auto-provision queue', { queueName: q, error: e });
 						}
 					}
 				}
@@ -173,7 +174,8 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 			const credential: TokenCredential = this.options.credential ?? new DefaultAzureCredential();
 			const url = `https://${accountName}.queue.core.windows.net`;
 			this.queueServiceClient = new QueueServiceClient(url, credential);
-			console.info('[InternalQueueStorageService] started (managedIdentity)');
+			this.started = true;
+			diag.info('[InternalQueueStorageService] started (managedIdentity)', { accountName, endpoint: url });
 			return this;
 		}
 
@@ -216,7 +218,7 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 		try {
 			await q.createIfNotExists();
 		} catch (e) {
-			console.warn('[InternalQueueStorageService] createQueueIfNotExists failed for', queue, e);
+			diag.warn('[InternalQueueStorageService] createQueueIfNotExists failed', { queueName: queue, error: e });
 		}
 	}
 
@@ -231,7 +233,9 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 		const queueClient = this.getQueueClient(queue);
 		const body = typeof message === 'string' ? message : JSON.stringify(message);
 		const encoded = Buffer.from(body).toString('base64');
-		const res = await queueClient.sendMessage(encoded);
+		const res = await queueClient.sendMessage(encoded, {
+			...(typeof opts?.visibilityTimeoutSeconds === 'number' ? { visibilityTimeout: opts.visibilityTimeoutSeconds } : {}),
+		});
 
 		// Logging: if configured and logger provided, record envelope
 		if (this.isLoggingEnabled()) {
@@ -261,21 +265,13 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 				try {
 					await this.logger?.logMessage(envelope);
 				} catch (e) {
-					console.error('[InternalQueueStorageService] logging failed', e);
+					diag.error('[InternalQueueStorageService] logging failed', e);
 				}
 			};
 
 			if (this.shouldAwaitLogging()) await doLog();
 			else void doLog();
 		}
-	}
-
-	/**
-	 * Send a message using a precompiled validation/encoding contract.
-	 */
-	public async sendValidatedMessage<T>(queue: string, contract: { encode(payload: T): string }, payload: T, opts?: SendMessageOptions): Promise<void> {
-		const encoded = contract.encode(payload);
-		await this.sendMessage(queue, encoded, opts);
 	}
 
 	/**

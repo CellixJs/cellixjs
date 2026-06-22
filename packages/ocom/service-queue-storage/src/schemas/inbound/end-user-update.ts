@@ -1,18 +1,11 @@
 import { defineQueue } from '@cellix/service-queue-storage';
-import schema from './end-user-update.schema.json' with { type: 'json' };
+import { schema as endUserUpdateSchema, type Schema as EndUserUpdateMessage } from './end-user-update.schema.generated.ts';
 
-export interface EndUserUpdateMessage {
-	externalId: string;
-	email?: string;
-	displayName?: string;
-	lastName?: string;
-	restOfName?: string;
-	legalNameConsistsOfOneName?: boolean;
-}
+export type { EndUserUpdateMessage };
 
 export const endUserUpdateQueue = defineQueue<EndUserUpdateMessage>()(({ $payload }) => ({
 	queueName: 'end-user-update',
-	schema,
+	schema: endUserUpdateSchema,
 	loggingTags: {
 		domain: 'user',
 		externalId: $payload.externalId,

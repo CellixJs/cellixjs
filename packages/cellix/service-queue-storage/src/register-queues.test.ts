@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { describe, expect, vi } from 'vitest';
-import { registerQueues } from './index.ts';
+import { describe, expect, it, vi } from 'vitest';
+import { deriveProvisionQueues, registerQueues } from './index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/register-queues.feature'));
@@ -53,5 +53,22 @@ describe('registerQueues', () => {
 				expect((service as Record<string, unknown>).sendMessageToEmailNotificationsQueue).toBeDefined();
 			});
 		});
+	});
+});
+
+describe('deriveProvisionQueues', () => {
+	it('returns unique queue names from outbound and inbound definitions', () => {
+		expect(
+			deriveProvisionQueues(
+				{
+					communityCreation: { queueName: 'community-creation', schema: {} },
+					communityAudit: { queueName: 'community-audit', schema: {} },
+				},
+				{
+					communityReplay: { queueName: 'community-creation', schema: {} },
+					endUserUpdate: { queueName: 'end-user-update', schema: {} },
+				},
+			),
+		).toEqual(['community-creation', 'community-audit', 'end-user-update']);
 	});
 });

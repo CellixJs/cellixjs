@@ -1,6 +1,5 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"$id": "community-creation",
 	"title": "CommunityCreationMessage",
 	"description": "Message sent when a new community is created",
 	"type": "object",

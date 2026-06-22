@@ -24,6 +24,15 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 		if (communityToReturn) {
 			const logContent = `Community created with id: ${communityToReturn.id} and name: ${communityToReturn.name}`;
 			try {
+				await queueStorageService.sendMessageToCommunityCreationQueue({
+					communityId: communityToReturn.id,
+					name: communityToReturn.name,
+					createdBy: communityToReturn.createdBy.id,
+				});
+			} catch (error) {
+				console.error('Failed to send community creation message to queue storage:', error);
+			}
+			try {
 				const uploadRequest: UploadTextBlobRequest = {
 					containerName: 'private',
 					blobName: `community-${communityToReturn.id}-creation.log`,
@@ -33,11 +42,6 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 						eventType: 'CommunityCreated',
 					},
 				};
-				await queueStorageService.sendMessageToCommunityCreationQueue({
-					communityId: communityToReturn.id,
-					name: communityToReturn.name,
-					createdBy: communityToReturn.createdBy.id,
-				});
 				await blobStorageService.uploadText(uploadRequest);
 			} catch (error) {
 				console.error('Failed to upload community creation log to blob storage:', error);

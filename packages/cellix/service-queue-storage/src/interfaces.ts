@@ -169,17 +169,6 @@ export interface IQueueStorageOperations {
 	 */
 	sendMessage<_T = unknown>(queue: string, message: string | object, opts?: SendMessageOptions): Promise<void>;
 	/**
-	 * Sends a payload through an explicit encode contract before handing it to Azure.
-	 *
-	 * @typeParam T - Payload type accepted by the provided encode contract.
-	 * @param queue - Physical Azure Queue Storage queue name.
-	 * @param contract - Encoder/decoder pair used to serialize the payload.
-	 * @param payload - Message payload to encode and send.
-	 * @param opts - Optional delivery and logging options.
-	 * @returns Resolves when Azure accepts the encoded message.
-	 */
-	sendValidatedMessage<T>(queue: string, contract: QueueMessageContract<T>, payload: T, opts?: SendMessageOptions): Promise<void>;
-	/**
 	 * Receives and decodes messages from a physical queue.
 	 *
 	 * @typeParam _T - Expected decoded payload type.
@@ -208,11 +197,7 @@ export interface IQueueStorageOperations {
 	peekMessages<_T = unknown>(queue: string, opts?: PeekMessagesOptions): Promise<QueueMessage<_T>[]>;
 }
 
-type QueueMessageContract<T> = {
-	encode(payload: T): string;
-	decode(raw: string): T;
-};
-type QueueMessageSchema = Record<string, unknown>;
+type QueueMessageSchema = Readonly<Record<string, unknown>>;
 type PayloadFieldRef<TKey extends string = string> = { payloadField: TKey };
 
 /**

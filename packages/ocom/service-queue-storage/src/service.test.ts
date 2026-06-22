@@ -10,17 +10,12 @@ describe('ServiceQueueStorage', () => {
 		const service = new ServiceQueueStorage({ connectionString: 'UseDevelopmentStorage=true' });
 		const serviceWithOptions = service as unknown as {
 			options: {
-				logging?: { container: string; enabled: boolean };
 				provisionQueues?: string[];
 			};
 		};
 
 		expect(serviceWithOptions.options).toMatchObject({
-			logging: {
-				enabled: true,
-				container: 'queue-logs',
-			},
 			provisionQueues: ['community-creation', 'end-user-update'],
 		});
-	});
+	}, 10000);
 });

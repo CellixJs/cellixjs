@@ -1,6 +1,5 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"$id": "end-user-update",
 	"title": "EndUserUpdateMessage",
 	"description": "External update message for synchronizing end-user data from external systems",
 	"type": "object",

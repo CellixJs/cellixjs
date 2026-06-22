@@ -16,6 +16,7 @@ import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
+import * as QueueStorageConfig from './service-config/queue-storage/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
 const { NODE_ENV } = process.env;
@@ -47,7 +48,10 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
 		const blobStorageService = serviceRegistry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService');
-		const queueStorageService = serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage).enableLogging(blobStorageService);
+		const queueStorageService = serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage);
+		if (QueueStorageConfig.logging.enabled) {
+			queueStorageService.enableLogging(blobStorageService, QueueStorageConfig.logging);
+		}
 
 		const { domainDataSource } = dataSourcesFactory.withSystemPassport();
 		RegisterEventHandlers(domainDataSource);

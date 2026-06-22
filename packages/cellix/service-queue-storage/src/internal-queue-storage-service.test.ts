@@ -81,6 +81,25 @@ describe('InternalQueueStorageService', () => {
 		await expect(svc.sendMessage('q', { hello: 'world' })).resolves.toBeUndefined();
 	});
 
+	it('passes visibility timeout to the Azure queue client', async () => {
+		const sendMessage = vi.fn(async (_m: string, _options?: unknown) => ({ messageId: 'mid' }));
+		fromConnectionStringMock.mockImplementation((_conn: string) => ({
+			getQueueClient: vi.fn((_q: string) => ({
+				sendMessage,
+				createIfNotExists: vi.fn(async () => ({ succeeded: true })),
+				receiveMessages: vi.fn(async () => ({ receivedMessageItems: [] })),
+				peekMessages: vi.fn(async () => ({ peekedMessageItems: [] })),
+				deleteMessage: vi.fn(async () => ({})),
+			})),
+		}));
+		const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true' });
+		await svc.startUp();
+
+		await svc.sendMessage('q', { hello: 'world' }, { visibilityTimeoutSeconds: 45 });
+
+		expect(sendMessage).toHaveBeenCalledWith(expect.any(String), { visibilityTimeout: 45 });
+	});
+
 	it('createQueueIfNotExists does not throw for missing queue', async () => {
 		const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true' });
 		await svc.startUp();
@@ -103,5 +122,12 @@ describe('InternalQueueStorageService', () => {
 			payload: { hello: 'world' },
 			tags: { queueName: 'q' },
 		});
+	});
+
+	it('does not mark the service started when configuration is invalid', async () => {
+		const svc = new InternalQueueStorageService({} as never);
+
+		await expect(svc.startUp()).rejects.toThrow('Invalid queue storage configuration: provide connectionString or accountName');
+		expect((svc as unknown as { started: boolean }).started).toBe(false);
 	});
 });

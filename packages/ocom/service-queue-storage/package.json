@@ -13,10 +13,11 @@
 		}
 	},
 	"scripts": {
+		"gen": "cellix-generate-queue-schema-types src/schemas",
 		"lint": "biome lint",
 		"format": "biome format --write",
 		"format:check": "biome format .",
-		"prebuild": "pnpm run lint",
+		"prebuild": "pnpm run gen && pnpm run lint",
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
 		"test": "vitest run --passWithNoTests --silent --reporter=dot",

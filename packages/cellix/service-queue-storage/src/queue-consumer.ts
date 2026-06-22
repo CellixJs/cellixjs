@@ -2,6 +2,8 @@ import type { MessagePayload, QueueMap } from './interfaces.ts';
 import type { InternalQueueTransport } from './internal-queue-storage-service.ts';
 import { resolveLoggingFields } from './logging-fields.ts';
 import type { MessageLogEnvelope } from './logging.ts';
+import { diag } from '@opentelemetry/api';
+import { formatQueueValidationErrors, type QueuePayloadValidator } from './validation.ts';
 
 type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S;
 
@@ -36,7 +38,7 @@ type QueueMessage<T> = { id: string; popReceipt?: string; payload: T; dequeueCou
 export function createQueueConsumer<I extends QueueMap>(
 	service: Pick<InternalQueueTransport, 'receiveMessages' | 'peekMessages' | 'deleteMessage' | 'getLogger' | 'isLoggingEnabled' | 'shouldAwaitLogging'>,
 	definitions: I,
-	validators: Record<string, (d: unknown) => boolean>,
+	validators: Record<string, QueuePayloadValidator>,
 ): QueueConsumerContext<I> {
 	const context = {} as Record<string, unknown>;
 
@@ -50,7 +52,7 @@ export function createQueueConsumer<I extends QueueMap>(
 				const [m] = msgs;
 				if (!m) return undefined;
 				if (!validate(m.payload)) {
-					throw new Error(`Invalid payload for queue "${def.queueName}": validation failed`);
+					throw new Error(`Invalid payload for queue "${def.queueName}": ${formatQueueValidationErrors(validate.errors)}`);
 				}
 				if (service.isLoggingEnabled()) {
 					const logger = service.getLogger();
@@ -70,7 +72,7 @@ export function createQueueConsumer<I extends QueueMap>(
 						try {
 							await logger?.logMessage(envelope);
 						} catch (e) {
-							console.error('[QueueConsumer] logging failed', e);
+							diag.error('[QueueConsumer] logging failed', e);
 						}
 					};
 					if (service.shouldAwaitLogging()) {
@@ -81,15 +83,7 @@ export function createQueueConsumer<I extends QueueMap>(
 				return m;
 			});
 
-		context[`peekAt${cap}Queue`] = (maxMessages?: number) =>
-			service.peekMessages(def.queueName, { maxMessages: maxMessages ?? 32 }).then((msgs) =>
-				msgs.map((m) => {
-					if (!validate(m.payload)) {
-						throw new Error(`Invalid payload for queue "${def.queueName}": validation failed`);
-					}
-					return m;
-				}),
-			);
+		context[`peekAt${cap}Queue`] = (maxMessages?: number) => service.peekMessages(def.queueName, { maxMessages: maxMessages ?? 32 });
 	}
 
 	return context as unknown as QueueConsumerContext<I>;

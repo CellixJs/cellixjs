@@ -120,6 +120,13 @@ vi.mock('./service-config/token-validation/index.ts', () => ({
 vi.mock('./service-config/apollo-server/index.ts', () => ({
 	apolloServerOptions: { schema: {} },
 }));
+vi.mock('./service-config/queue-storage/index.ts', () => ({
+	logging: {
+		enabled: true,
+		container: 'queue-logs',
+		await: false,
+	},
+}));
 vi.mock('@ocom/graphql-handler', () => ({
 	graphHandlerCreator: vi.fn(),
 }));
@@ -141,8 +148,6 @@ vi.mock('@ocom/service-queue-storage', () => ({
 			...service,
 		};
 	}),
-	QUEUE_LOG_CONTAINER: 'queue-logs',
-	allQueueNames: ['email-notifications', 'audit-events', 'import-requests'],
 }));
 
 describe('apps/api bootstrap', () => {
@@ -235,7 +240,11 @@ describe('apps/api bootstrap', () => {
 
 		const context = contextBuilder?.(serviceRegistry);
 
-		expect(registeredQueueService?.enableLogging).toHaveBeenCalledWith(registeredBlobService);
+		expect(registeredQueueService?.enableLogging).toHaveBeenCalledWith(registeredBlobService, {
+			enabled: true,
+			container: 'queue-logs',
+			await: false,
+		});
 		expect(context).toMatchObject({
 			dataSourcesFactory,
 			blobStorageService: registeredBlobService,

@@ -9,19 +9,22 @@ pnpm add @cellix/service-queue-storage
 ## Quick start
 
 ```typescript
-import { defineQueue, registerQueues } from '@cellix/service-queue-storage'
+import { createRegisteredQueueService, defineQueue, registerQueues } from '@cellix/service-queue-storage'
+import { schema as orderCreatedSchema, type Schema as OrderCreatedMessage } from './schemas/outbound/order-created.schema.generated'
 
 // 1. Define your queues (typically in @ocom/service-queue-storage)
-const myQueueDef = defineQueue<{ id: string }>()(({ $payload }) => ({
-  queueName: 'my-queue',
-  schema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
-  loggingTags: { source: 'my-service', messageId: $payload.id }
+// The generated wrapper comes from a sibling order-created.schema.json file.
+
+const orderCreatedQueue = defineQueue<OrderCreatedMessage>()(({ $payload }) => ({
+  queueName: 'order-created',
+  schema: orderCreatedSchema,
+  loggingTags: { source: 'orders', orderId: $payload.orderId }
 }))
 
 // 2. Register queues — returns typed stubs and a bound Service base class
 const queueRegistry = registerQueues({
-  outbound: { myQueue: myQueueDef },
-  inbound: {}
+  outbound: { orderCreated: orderCreatedQueue },
+  inbound: {},
 })
 
 // 3. Extend the Service base class in your application-specific package
@@ -34,13 +37,39 @@ class MyServiceQueueStorage extends queueRegistry.Service {
   }
 }
 
+// Or expose the registered service directly
+const MyServiceQueueStorage = createRegisteredQueueService(queueRegistry)
+
 // 4. Create an instance and use it — queue methods are available immediately
 const svc = new MyServiceQueueStorage({ accountName: 'my-storage-account' })
 await svc.startUp()
-await svc.sendMessageToMyQueueQueue({ id: '123' })
+await svc.sendMessageToOrderCreatedQueue({ orderId: '123' })
 ```
 
+Use a domain noun for the queue key. The key drives generated method names, so keys should not end in `Queue` unless you want names like `sendMessageToOrderCreatedQueueQueue`.
+
 Managed identity is the preferred production authentication mode. `connectionString` remains supported for Azurite and for consumers that explicitly need shared-key access.
+
+## Schema type generation
+
+If you keep queue payload schemas in standalone `.schema.json` files, use the bundled CLI to generate typed wrapper modules:
+
+```json
+{
+  "scripts": {
+    "gen": "cellix-generate-queue-schema-types src/schemas",
+    "prebuild": "pnpm run gen && pnpm run lint"
+  }
+}
+```
+
+For `src/schemas/outbound/order-created.schema.json`, the CLI writes `src/schemas/outbound/order-created.schema.generated.ts`:
+
+```typescript
+import { schema as orderCreatedSchema, type Schema as OrderCreatedMessage } from './order-created.schema.generated'
+```
+
+The generator is intentionally minimal. It only converts external JSON into a typed `as const satisfies JSONSchema` wrapper so `json-schema-to-ts` can continue to own schema-to-type inference.
 
 ## API reference
 
@@ -48,6 +77,8 @@ Managed identity is the preferred production authentication mode. `connectionStr
   - `producer` — typed stub object (used for TypeScript type inference in consumer packages)
   - `consumer` — typed stub object (used for TypeScript type inference in consumer packages)
   - `Service` — a class with lifecycle methods, opt-in logging controls, and all typed queue methods wired in the constructor. Extend this class to create an application-specific queue service.
+- `deriveProvisionQueues`: helper that derives unique physical queue names from registered definitions when you intentionally want to override the default provisioning subset
+- `createRegisteredQueueService`: helper that turns a registered queue registry into an instantiable service constructor; the registry type is inferred from the argument
 - `defineQueue`: preferred helper for authoring typed queue definitions with `$payload.<field>` support and no local setup boilerplate
 - `RegisteredQueueService`: public type for an application-specific queue service returned from `registerQueues()`
 - `QueueServiceLifecycle`: lifecycle contract implemented by registered queue services
@@ -81,4 +112,4 @@ When blob-backed logging is enabled, the package writes one blob per message:
 
 ## Auto-provisioning
 
-When a registered queue service is started with a connection string pointing at Azurite or when `NODE_ENV=development`, it will attempt to create queues listed in the `provisionQueues` option. This is intended for local development only.
+When a registered queue service is started with a connection string pointing at Azurite or when `NODE_ENV=development`, it will attempt to create all registered queue names by default. Override `serviceDefaults.provisionQueues` only when you intentionally want to provision a subset. This is intended for local development only.
