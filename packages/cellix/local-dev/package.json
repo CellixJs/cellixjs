@@ -12,10 +12,12 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
+			"source": "./src/index.ts",
 			"default": "./dist/index.js"
 		},
 		"./silent-runners": {
 			"types": "./dist/silent-runners/index.d.ts",
+			"source": "./src/silent-runners/index.ts",
 			"default": "./dist/silent-runners/index.js"
 		}
 	},
