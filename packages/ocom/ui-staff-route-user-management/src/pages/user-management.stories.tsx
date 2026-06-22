@@ -18,7 +18,7 @@ export const StaffUsersTab: Story = {
 		<MemoryRouter initialEntries={['/staff-users']}>
 			<Routes>
 				<Route
-					path="/*"
+					path="/"
 					element={<UserManagementPage />}
 				/>
 			</Routes>
@@ -31,7 +31,7 @@ export const StaffRolesTab: Story = {
 		<MemoryRouter initialEntries={['/staff-roles']}>
 			<Routes>
 				<Route
-					path="/*"
+					path="/"
 					element={<UserManagementPage />}
 				/>
 			</Routes>

@@ -15,7 +15,7 @@
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",
-		"storybook": "storybook dev -p 6008",
+		"storybook": "storybook dev --config-dir ./.storybook -p 6008",
 		"build-storybook": "storybook build"
 	},
 	"dependencies": {

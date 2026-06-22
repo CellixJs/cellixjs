@@ -6,5 +6,6 @@ const dirname = getDirnameFromImportMetaUrl(import.meta.url);
 export default defineConfig(
 	createStorybookVitestConfig(dirname, {
 		additionalCoverageExclude: ['src/index.tsx'],
+        storybookDirRelativeToPackage: '../../../apps/ui-staff/.storybook'
 	}),
 );
