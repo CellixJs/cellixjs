@@ -32,7 +32,6 @@ describe('MongoMemoryProcessTestServer', () => {
 			cwd: process.cwd(),
 			dbName: 'owner-community',
 			executable: process.execPath,
-			probe: false,
 			readyMarker: 'READY',
 			seedData,
 			serverName: 'mongo process',

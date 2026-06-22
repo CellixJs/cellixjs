@@ -7,12 +7,11 @@ const mongoDbName = 'owner-community';
 const mongoReplSetName = 'globaldb';
 
 export const testMongoServer = new MongoMemoryProcessTestServer({
-	connectionString: mongoConnectionString,
+	connectionString: mongoConnectionString(),
 	cwd: appPaths.mongodbMemoryMockDir,
 	dbName: mongoDbName,
 	executable: 'pnpm',
 	portsToCloseBeforeStart: getMongoPort,
-	probe: false,
 	readyMarker: 'MongoDB Memory Replica Set ready at:',
 	seedData: seedDatabase,
 	serverName: 'TestMongoMemoryServer',

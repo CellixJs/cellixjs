@@ -2,7 +2,7 @@ import { clearMongoMemoryDatabase, type MongoMemorySeedDataFunction } from './mo
 import { ProcessTestServer, type ProcessTestServerOptions } from './process-test-server.ts';
 
 /** Options used by {@link MongoMemoryProcessTestServer}. */
-export interface MongoMemoryProcessTestServerOptions extends Omit<ProcessTestServerOptions, 'getUrl'> {
+export interface MongoMemoryProcessTestServerOptions extends Omit<ProcessTestServerOptions, 'url'> {
 	/** Database name. */
 	dbName: string;
 
@@ -24,7 +24,7 @@ export class MongoMemoryProcessTestServer extends ProcessTestServer {
 	constructor(private readonly mongoOptions: MongoMemoryProcessTestServerOptions) {
 		super({
 			...mongoOptions,
-			getUrl: () => resolveValue(mongoOptions.connectionString),
+			url: resolveValue(mongoOptions.connectionString),
 		});
 	}
 

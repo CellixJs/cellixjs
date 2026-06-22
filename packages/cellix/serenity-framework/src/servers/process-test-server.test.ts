@@ -29,15 +29,14 @@ describe('ProcessTestServer', () => {
 		childProcessMock.execFileSync.mockReset();
 	});
 
-	it('starts a process and trusts the ready marker when probing is disabled', async () => {
+	it('starts a process and trusts the ready marker for non-HTTP URLs', async () => {
 		const server = new ProcessTestServer({
 			serverName: 'marker-only server',
 			executable: process.execPath,
 			spawnArgs: ['-e', "console.log('READY'); setInterval(() => undefined, 1_000)"],
 			cwd: process.cwd(),
 			readyMarker: 'READY',
-			getUrl: () => 'http://unused.test',
-			probe: false,
+			url: 'process://marker-only',
 			shutdownTimeoutMs: 500,
 		});
 
@@ -57,8 +56,7 @@ describe('ProcessTestServer', () => {
 			spawnArgs: ['-e', "console.log('READY'); setTimeout(() => process.exit(0), 20)"],
 			cwd: process.cwd(),
 			readyMarker: 'READY',
-			getUrl: () => 'http://unused.test',
-			probe: false,
+			url: 'process://short-lived',
 			shutdownTimeoutMs: 500,
 		});
 
@@ -68,34 +66,63 @@ describe('ProcessTestServer', () => {
 		expect(server.isRunning()).toBe(false);
 	});
 
-	it('closes configured ports before checking whether the server is already running', async () => {
+	it('closes configured ports before spawning', async () => {
 		childProcessMock.execFileSync.mockReturnValue('123\n456\n');
 		const kill = vi.spyOn(process, 'kill').mockImplementation(() => true);
-		const isAlreadyRunning = vi.fn(async () => true);
 		const server = new ProcessTestServer({
 			serverName: 'fixed-port server',
 			executable: process.execPath,
-			spawnArgs: ['-e', "console.log('READY')"],
+			spawnArgs: ['-e', "console.log('READY'); setInterval(() => undefined, 1_000)"],
 			cwd: process.cwd(),
 			readyMarker: 'READY',
-			getUrl: () => 'http://unused.test',
-			isAlreadyRunning,
+			url: 'process://fixed-port',
 			portsToCloseBeforeStart: () => 27_017,
-			probe: false,
+			shutdownTimeoutMs: 500,
 		});
 
-		await server.start();
-
 		try {
+			await server.start();
+
 			expect(childProcessMock.execFileSync).toHaveBeenCalledWith('lsof', ['-ti', 'tcp:27017'], {
 				encoding: 'utf-8',
 				stdio: ['ignore', 'pipe', 'ignore'],
 			});
 			expect(kill).toHaveBeenCalledWith(123, 'SIGTERM');
 			expect(kill).toHaveBeenCalledWith(456, 'SIGTERM');
-			expect(childProcessMock.execFileSync.mock.invocationCallOrder[0] ?? 0).toBeLessThan(isAlreadyRunning.mock.invocationCallOrder[0] ?? 0);
+			expect(server.isRunning()).toBe(true);
 		} finally {
+			await server.stop();
 			kill.mockRestore();
+		}
+	});
+
+	it('uses a POST typename probe for GraphQL URLs by default', async () => {
+		const fetch = vi
+			.spyOn(globalThis, 'fetch')
+			.mockResolvedValueOnce(new Response('', { status: 404 }))
+			.mockResolvedValueOnce(new Response('', { status: 200 }));
+		const server = new ProcessTestServer({
+			serverName: 'graphql server',
+			executable: process.execPath,
+			spawnArgs: ['-e', "console.log('READY'); setInterval(() => undefined, 1_000)"],
+			cwd: process.cwd(),
+			readyMarker: 'READY',
+			url: 'http://127.0.0.1:4000/graphql',
+			shutdownTimeoutMs: 500,
+		});
+
+		try {
+			await server.start();
+
+			expect(fetch).toHaveBeenLastCalledWith('http://127.0.0.1:4000/graphql', {
+				body: JSON.stringify({ query: '{ __typename }' }),
+				headers: { 'Content-Type': 'application/json' },
+				method: 'POST',
+				signal: expect.any(AbortSignal) as AbortSignal,
+			});
+		} finally {
+			await server.stop();
+			fetch.mockRestore();
 		}
 	});
 });

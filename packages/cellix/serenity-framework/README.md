@@ -43,7 +43,7 @@ const mongo = new MongoMemoryProcessTestServer({
   executable: 'pnpm',
   spawnArgs: ['run', 'dev'],
   cwd: '/repo/apps/server-mongodb-memory-mock',
-  connectionString: () => mongoConnectionString,
+  connectionString: mongoConnectionString,
   dbName,
   portsToCloseBeforeStart: () => mongoPort,
   readyMarker: 'MongoDB Memory Replica Set ready at:',
@@ -55,8 +55,7 @@ const api = new ProcessTestServer({
   executable: 'pnpm',
   spawnArgs: ['run', process.env.WORKTREE_NAME ? 'dev:worktree' : 'dev'],
   cwd: '/repo/apps/api',
-  extraEnv: () => ({ COSMOSDB_CONNECTION_STRING: mongo.getConnectionString() }),
-  getUrl: () => 'https://api.localhost:1355/api/graphql',
+  url: 'https://api.localhost:1355/api/graphql',
   readyMarker: 'Functions:',
 });
 
@@ -65,7 +64,7 @@ const community = new ProcessUiTestServer({
   executable: 'pnpm',
   spawnArgs: ['run', 'dev'],
   cwd: '/repo/apps/ui-community',
-  getUrl: () => 'https://community.localhost:1355',
+  url: 'https://community.localhost:1355',
   readyMarker: 'ready in',
 });
 
@@ -91,6 +90,8 @@ const staffContext = await infrastructure.newPortalContext('staff');
 ```
 
 Register server objects directly. Dependencies that need one another receive those references through normal object construction; `dependsOn` describes startup order only. Each UI portal owns its browser-context recipe, so `newPortalContext(name)` scopes navigation to that portal without any portal being special-cased. The framework never imports app paths or app-specific environment helpers — pass those into server constructors from the consumer package.
+
+`ProcessTestServer` performs a narrow health check after it sees the ready marker: GraphQL URLs ending in `/graphql` use a small POST `{ __typename }` request, and root web URLs use the fetch default. Service-specific URLs, raw localhost dependencies, and non-HTTP URLs trust the ready marker.
 
 ## API acceptance infrastructure
 
