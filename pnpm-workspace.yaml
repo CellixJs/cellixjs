@@ -14,22 +14,22 @@ catalog:
   '@cucumber/messages': 32.3.1
   '@cucumber/node': 0.4.0
   '@cucumber/pretty-formatter': 1.0.1
-  '@serenity-js/assertions': 3.42.2
-  '@serenity-js/console-reporter': 3.42.2
-  '@serenity-js/core': 3.42.2
-  '@serenity-js/cucumber': 3.42.2
-  '@serenity-js/serenity-bdd': 3.42.2
+  '@serenity-js/assertions': 3.43.0
+  '@serenity-js/console-reporter': 3.43.0
+  '@serenity-js/core': 3.43.0
+  '@serenity-js/cucumber': 3.43.0
+  '@serenity-js/serenity-bdd': 3.43.0
   '@types/node': ^22.19.5
-  '@vitest/coverage-istanbul': 4.1.6
+  '@vitest/coverage-istanbul': 4.1.8
   antd: 6.3.5
   archunit: ^2.1.63
-  esbuild: 0.27.4
+  esbuild: 0.28.1
   graphql: ^16.10.0
   jsdom: ^26.1.0
   mongodb: 6.18.0
   mongodb-memory-server: ^10.1.4
   mongoose: 8.17.0
-  react-router-dom: 7.15.0
+  react-router-dom: 7.15.1
   react: ^19.1.1
   react-dom: ^19.1.1
   '@ant-design/icons': ^6.0.2
@@ -43,10 +43,10 @@ catalog:
   tsx: ^4.21.0
   typescript: 6.0.3
   "@typescript/native-preview": 7.0.0-dev.20260428.1
-  vite: 8.0.5
-  vitest: 4.1.6
-  '@vitest/browser': 4.1.6
-  '@vitest/browser-playwright': 4.1.6
+  vite: 8.0.16
+  vitest: 4.1.8
+  '@vitest/browser': 4.1.8
+  '@vitest/browser-playwright': 4.1.8
   vite-plugin-node-polyfills: ^0.28.0
 
 auditConfig:
@@ -69,6 +69,7 @@ allowBuilds:
   snyk: true
 
 overrides:
+  esbuild: 0.28.1
   axios: 1.16.0
   follow-redirects: ^1.16.0
   vite: "catalog:"
@@ -77,10 +78,11 @@ overrides:
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
   'brace-expansion@1.1.12': 1.1.13
   'brace-expansion@5.0.4': 5.0.6
+  'brace-expansion@5.0.5': 5.0.6
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
-  'protobufjs@7.5.4': 7.5.8
+  'protobufjs@7.5.4': 7.6.1
   'serve-handler>minimatch': 3.1.5
   'serialize-javascript@6.0.2': 7.0.5
   'serialize-javascript@7.0.4': 7.0.5
@@ -88,6 +90,7 @@ overrides:
   'yaml@2.8.2': 2.8.3
   'yauzl@3.2.0': 3.2.1
   qs: ^6.15.2
+  'uuid@11.1.0': 11.1.1
   'express@4.22.1': 4.22.2
   'ajv@^6': 6.14.0
   lodash: 4.18.1
@@ -96,18 +99,32 @@ overrides:
   node-forge@<1.3.2: '>=1.3.2'
   picomatch: ^4.0.4
   webpack: ^5.105.4
-  webpack-dev-server: ^5.2.4
+  webpack-dev-server: 5.2.5
   express-rate-limit: 8.5.1
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: 8.5.10
-  protobufjs: 7.5.8
+  protobufjs: 7.6.3
   ip-address: ^10.1.1
   fast-uri: ^3.1.2
   '@babel/plugin-transform-modules-systemjs': 7.29.4
-  ws: 8.20.1
+  '@babel/core': 7.29.6
+  'js-yaml@4.1.1': 4.2.0
+  ws: 8.21.0
+  form-data: 4.0.6
   shell-quote: 1.8.4
   '@grpc/grpc-js': '>=1.14.4'
+  joi: '>=18.2.1'
+  brace-expansion@2: 2.0.3
+  dottie: 2.0.7
+  http-proxy-middleware: 3.0.7
+  immutable: 3.8.3
+  launch-editor: 2.14.1
+  sequelize: 6.37.8
+  smol-toml: 1.6.1
+  '@azure/ms-rest-js>tough-cookie': 4.1.3
+  '@azure/ms-rest-js>xml2js': 0.5.0
+  'tedious>@azure/identity': 4.2.1
 
 packageExtensions:
   '@azure/functions-opentelemetry-instrumentation@0.1.0':
