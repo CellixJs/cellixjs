@@ -20,7 +20,7 @@ catalog:
   '@serenity-js/cucumber': 3.42.2
   '@serenity-js/serenity-bdd': 3.42.2
   '@types/node': ^22.19.5
-  '@vitest/coverage-istanbul': 4.1.6
+  '@vitest/coverage-istanbul': 4.1.8
   antd: 6.3.5
   archunit: ^2.1.63
   esbuild: 0.27.4
@@ -44,9 +44,9 @@ catalog:
   typescript: 6.0.3
   "@typescript/native-preview": 7.0.0-dev.20260428.1
   vite: 8.0.16
-  vitest: 4.1.6
-  '@vitest/browser': 4.1.6
-  '@vitest/browser-playwright': 4.1.6
+  vitest: 4.1.8
+  '@vitest/browser': 4.1.8
+  '@vitest/browser-playwright': 4.1.8
   vite-plugin-node-polyfills: ^0.28.0
 
 auditConfig:
@@ -57,7 +57,6 @@ auditConfig:
     - GHSA-wpg9-53fq-2r8h
     - GHSA-q7rr-3cgh-j5r3
     - GHSA-869p-cjfg-cm3x  # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
-    - GHSA-g8mr-85jm-7xhm  # @vitest/browser <=4.1.7: Browser Mode API can proxy CDP; dev/test-only tooling, pinned to 4.1.6 to match catalog, not in production runtime
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -70,8 +69,8 @@ allowBuilds:
   snyk: true
 
 overrides:
-  '@vitest/browser': 4.1.6
-  '@vitest/browser-playwright': 4.1.6
+  '@vitest/browser': 4.1.8
+  '@vitest/browser-playwright': 4.1.8
   happy-dom: 20.10.1
   axios: 1.16.0
   follow-redirects: ^1.16.0
@@ -124,7 +123,7 @@ overrides:
   'webpack-dev-server>http-proxy-middleware': 3.0.7
   joi: ^17.13.4
   launch-editor: ^2.14.1
-  react-router: 7.15.1
+  'react-router-dom@7.15.0>react-router': 7.15.1
 
 packageExtensions:
   '@azure/functions-opentelemetry-instrumentation@0.1.0':
