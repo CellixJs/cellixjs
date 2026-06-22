@@ -9,7 +9,7 @@ engineStrict: true
 catalog:
   '@apollo/server': 5.5.0
   '@azure/functions': 4.11.0
-  '@azure/storage-blob': 12.31.0
+
   '@cucumber/cucumber': 12.8.1
   '@cucumber/messages': 32.3.1
   '@cucumber/node': 0.4.0
@@ -49,9 +49,6 @@ catalog:
   '@vitest/browser': 4.1.8
   '@vitest/browser-playwright': 4.1.8
   vite-plugin-node-polyfills: ^0.28.0
-  '@babel/core': 7.29.6
-  launch-editor: 2.14.1
-
 auditConfig:
   ignoreGhsas:
     - GHSA-6rw7-vpxm-498p

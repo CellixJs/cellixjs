@@ -1958,24 +1958,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@ocom-verification/archunit-tests':
         specifier: workspace:*
         version: link:../../ocom-verification/archunit-tests
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
-      '@storybook/react':
-        specifier: 10.4.2
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@storybook/react-vite':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
@@ -2055,21 +2040,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@ocom-verification/archunit-tests':
         specifier: workspace:*
         version: link:../../ocom-verification/archunit-tests
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: ^10.4.2
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -2125,24 +2098,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@ocom-verification/archunit-tests':
         specifier: workspace:*
         version: link:../../ocom-verification/archunit-tests
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
-      '@storybook/react':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@storybook/react-vite':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
@@ -2207,21 +2165,6 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
-      '@storybook/react':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@storybook/react-vite':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
@@ -2289,24 +2232,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@ocom-verification/archunit-tests':
         specifier: workspace:*
         version: link:../../ocom-verification/archunit-tests
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
-      '@storybook/react':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@storybook/react-vite':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
@@ -2331,9 +2259,6 @@ importers:
       storybook:
         specifier: 'catalog:'
         version: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      storybook-addon-apollo-client:
-        specifier: ^9.0.0
-        version: 9.0.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(graphql@16.12.0)(react@19.2.0)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2558,24 +2483,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
-      '@storybook/react-vite':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
       '@types/react':
         specifier: ^19.1.11
         version: 19.2.7
