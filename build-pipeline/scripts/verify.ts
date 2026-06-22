@@ -26,8 +26,6 @@ const cellixVerify = verificationSequence
 	.addStep(sonarPullRequestAnalysis())
 	.addStep(sonarQualityGate());
 
-const isRunningAsCommand = import.meta.main;
-
 function runVerifyCommand(): void {
 	const result = cellixVerify.run();
 	if (result.status !== 0) {
@@ -38,6 +36,4 @@ function runVerifyCommand(): void {
 	process.exitCode = result.status;
 }
 
-if (isRunningAsCommand) {
-	runVerifyCommand();
-}
+runVerifyCommand();
