@@ -1,9 +1,10 @@
 import { App as AntdApp } from 'antd';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import type { AdminMembersAccountsListContainerMemberFieldsFragment } from '../generated.tsx';
-import { AdminMembersAccountsListContainerMemberDocument } from '../generated.tsx';
-import { MembersAccounts } from './members-accounts.tsx';
+import type { AdminMembersAccountsListContainerMemberFieldsFragment, AdminSectionLayoutContainerMemberFieldsFragment } from '../generated.tsx';
+import { AdminMembersAccountsListContainerMemberDocument, AdminSectionLayoutContainerMembersForCurrentEndUserDocument } from '../generated.tsx';
+import { CommunitiesDropdownContainerMembersForCurrentEndUserDocument } from '../../../ui-shared/src/generated.tsx';
+import { Admin } from '../index.tsx';
 
 const communityId = 'community-1';
 const memberId = 'member-1';
@@ -35,16 +36,30 @@ const mockMember: AdminMembersAccountsListContainerMemberFieldsFragment = {
 	],
 };
 
+const mockSectionLayoutMembers: AdminSectionLayoutContainerMemberFieldsFragment[] = [
+	{
+		__typename: 'Member',
+		id: memberId,
+		memberName: 'John Doe',
+		isAdmin: true,
+		community: {
+			__typename: 'Community',
+			id: communityId,
+			name: 'Test Community',
+		},
+	},
+];
+
 const meta = {
 	title: 'Pages/Community/Admin/Members/Accounts',
-	component: MembersAccounts,
+	component: Admin,
 	decorators: [
 		(Story) => (
 			<AntdApp>
 				<MemoryRouter initialEntries={[`/community/${communityId}/admin/${memberId}/members/${memberId}/accounts`]}>
 					<Routes>
 						<Route
-							path="/community/:communityId/admin/:memberId/members/:id/accounts/*"
+							path="/community/:communityId/admin/:memberId/*"
 							element={<Story />}
 						/>
 					</Routes>
@@ -53,8 +68,29 @@ const meta = {
 		),
 	],
 	parameters: {
+		layout: 'fullscreen',
 		apolloClient: {
 			mocks: [
+				{
+					request: {
+						query: AdminSectionLayoutContainerMembersForCurrentEndUserDocument,
+					},
+					result: {
+						data: {
+							membersForCurrentEndUser: mockSectionLayoutMembers,
+						},
+					},
+				},
+				{
+					request: {
+						query: CommunitiesDropdownContainerMembersForCurrentEndUserDocument,
+					},
+					result: {
+						data: {
+							membersForCurrentEndUser: mockSectionLayoutMembers,
+						},
+					},
+				},
 				{
 					request: {
 						query: AdminMembersAccountsListContainerMemberDocument,
@@ -71,9 +107,9 @@ const meta = {
 			],
 		},
 	},
-} satisfies Meta<typeof MembersAccounts>;
+} satisfies Meta<typeof Admin>;
 
 export default meta;
-type Story = StoryObj<typeof MembersAccounts>;
+type Story = StoryObj<typeof Admin>;
 
 export const Default: Story = {};
