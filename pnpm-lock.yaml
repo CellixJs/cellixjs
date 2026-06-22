@@ -67,8 +67,8 @@ catalogs:
       specifier: 7.0.0-dev.20260428.1
       version: 7.0.0-dev.20260428.1
     '@vitest/browser-playwright':
-      specifier: 4.1.6
-      version: 4.1.6
+      specifier: 4.1.8
+      version: 4.1.8
     '@vitest/coverage-istanbul':
       specifier: 4.1.6
       version: 4.1.6
@@ -118,8 +118,8 @@ catalogs:
       specifier: ^0.28.0
       version: 0.28.0
     vitest:
-      specifier: 4.1.6
-      version: 4.1.6
+      specifier: 4.1.8
+      version: 4.1.8
 
 overrides:
   axios: 1.16.0
@@ -179,7 +179,7 @@ importers:
     devDependencies:
       '@amiceli/vitest-cucumber':
         specifier: ^6.3.0
-        version: 6.3.0(vitest@4.1.6)
+        version: 6.3.0(vitest@4.1.8)
       '@ant-design/cli':
         specifier: ^6.3.5
         version: 6.3.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
@@ -224,7 +224,7 @@ importers:
         version: 7.0.0-dev.20260428.1
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       azurite:
         specifier: ^3.35.0
         version: 3.35.0
@@ -260,7 +260,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   apps/api:
     dependencies:
@@ -324,7 +324,7 @@ importers:
         version: link:../../packages/cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       archunit:
         specifier: 'catalog:'
         version: 2.1.63
@@ -339,7 +339,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   apps/docs:
     dependencies:
@@ -400,7 +400,7 @@ importers:
         version: 6.0.1(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
@@ -409,7 +409,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   apps/server-mongodb-memory-mock:
     dependencies:
@@ -459,7 +459,7 @@ importers:
         version: link:../../packages/cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -471,7 +471,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   apps/ui-community:
     dependencies:
@@ -541,7 +541,7 @@ importers:
         version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 10.4.2
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -559,7 +559,7 @@ importers:
         version: 6.0.1(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -589,7 +589,7 @@ importers:
         version: 0.28.0(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   apps/ui-staff:
     dependencies:
@@ -668,7 +668,7 @@ importers:
         version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 10.4.2
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -689,7 +689,7 @@ importers:
         version: 6.0.1(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       chromatic:
         specifier: ^11.0.0
         version: 11.29.0
@@ -722,7 +722,7 @@ importers:
         version: 0.28.0(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/api-services-spec:
     devDependencies:
@@ -758,7 +758,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/config-rolldown:
     devDependencies:
@@ -770,7 +770,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -782,7 +782,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/config-typescript: {}
 
@@ -793,16 +793,16 @@ importers:
         version: link:../config-typescript
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@vitest/browser-playwright':
         specifier: 'catalog:'
-        version: 4.1.6(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
+        version: 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/domain-seedwork:
     devDependencies:
@@ -814,7 +814,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -823,7 +823,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/event-bus-seedwork-node:
     dependencies:
@@ -842,7 +842,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -873,7 +873,7 @@ importers:
     devDependencies:
       '@amiceli/vitest-cucumber':
         specifier: ^6.3.0
-        version: 6.3.0(vitest@4.1.6)
+        version: 6.3.0(vitest@4.1.8)
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
@@ -882,7 +882,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -891,7 +891,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/graphql-core:
     dependencies:
@@ -910,7 +910,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -919,7 +919,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/mongoose-seedwork:
     dependencies:
@@ -938,7 +938,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       mongodb:
         specifier: 'catalog:'
         version: 6.18.0
@@ -956,7 +956,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/server-mongodb-memory-mock-seedwork:
     dependencies:
@@ -1003,7 +1003,7 @@ importers:
         version: 5.0.5
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1012,7 +1012,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/service-blob-storage:
     dependencies:
@@ -1034,7 +1034,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1043,7 +1043,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/ui-core:
     dependencies:
@@ -1077,7 +1077,7 @@ importers:
         version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 10.4.2
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -1095,13 +1095,13 @@ importers:
         version: 19.2.3(@types/react@19.2.7)
       '@vitest/browser':
         specifier: 4.1.8
-        version: 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
+        version: 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/browser-playwright':
         specifier: 'catalog:'
-        version: 4.1.6(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
+        version: 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
@@ -1122,7 +1122,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom-verification/acceptance-api:
     dependencies:
@@ -1286,7 +1286,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom-verification/e2e-tests:
     dependencies:
@@ -1421,7 +1421,7 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1430,7 +1430,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/context-spec:
     dependencies:
@@ -1486,7 +1486,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/domain:
     dependencies:
@@ -1538,7 +1538,7 @@ importers:
         version: 3.42.2
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1547,7 +1547,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/event-handler:
     dependencies:
@@ -1600,7 +1600,7 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1609,7 +1609,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/graphql-handler:
     dependencies:
@@ -1643,7 +1643,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1652,7 +1652,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/persistence:
     dependencies:
@@ -1692,7 +1692,7 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1701,7 +1701,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/rest:
     dependencies:
@@ -1754,7 +1754,7 @@ importers:
         version: 1.1.6
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1763,7 +1763,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/service-blob-storage:
     dependencies:
@@ -1779,7 +1779,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1788,7 +1788,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/service-mongoose:
     dependencies:
@@ -1810,7 +1810,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1868,7 +1868,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1877,7 +1877,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/service-token-validation:
     dependencies:
@@ -1896,7 +1896,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1905,7 +1905,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-community-route-accounts:
     dependencies:
@@ -1972,7 +1972,7 @@ importers:
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 10.4.2
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -1999,7 +1999,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-community-route-admin:
     dependencies:
@@ -2069,7 +2069,7 @@ importers:
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: ^10.4.2
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -2096,7 +2096,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-community-route-root:
     dependencies:
@@ -2139,7 +2139,7 @@ importers:
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -2166,7 +2166,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-community-shared:
     dependencies:
@@ -2218,7 +2218,7 @@ importers:
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -2245,7 +2245,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-shared:
     dependencies:
@@ -2303,7 +2303,7 @@ importers:
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -2318,10 +2318,10 @@ importers:
         version: 19.2.3(@types/react@19.2.7)
       '@vitest/browser':
         specifier: 4.1.8
-        version: 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
+        version: 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.8)
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
@@ -2342,7 +2342,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-community-management:
     dependencies:
@@ -2388,7 +2388,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-finance:
     dependencies:
@@ -2434,7 +2434,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-root:
     dependencies:
@@ -2477,7 +2477,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-tech-admin:
     dependencies:
@@ -2523,7 +2523,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-user-management:
     dependencies:
@@ -2569,7 +2569,7 @@ importers:
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -2596,7 +2596,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/ui-staff-shared:
     dependencies:
@@ -2657,7 +2657,7 @@ importers:
         version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
 packages:
 
@@ -7093,11 +7093,11 @@ packages:
       babel-plugin-react-compiler:
         optional: true
 
-  '@vitest/browser-playwright@4.1.6':
-    resolution: {integrity: sha512-4csoeyl/qwHyxU2zNL0++WaoDr8YJDXOQPwWPNJoTZ+QzcdO3INYKgF5Zfz730Io7zbkuv914aZmfQ+QE+1Hvw==}
+  '@vitest/browser-playwright@4.1.8':
+    resolution: {integrity: sha512-SR7FqgegaexEg73xvf3ArtygXegagMdXnL0EZMpxrWvvhQxvicD/E8p0ib0J91riPRtQUViyh67Xjw3NqvyhVg==}
     peerDependencies:
       playwright: 1.59.0
-      vitest: 4.1.6
+      vitest: 4.1.8
 
   '@vitest/browser@4.1.8':
     resolution: {integrity: sha512-u21VzX07HzlJYpFgkxmjEXar/tG2UqWGgyGG/46SrrPc7rSdCTPw5vuowopO9CIqF8UCUQzDFdbVnNpw6N0BfQ==}
@@ -7112,19 +7112,8 @@ packages:
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
 
-  '@vitest/expect@4.1.6':
-    resolution: {integrity: sha512-7EHDquPthALSV0jhhjgEW8FXaviMx7rSqu8W6oqCoAuOhKov814P99QDV1pxMA3QPv21YudvJngIhjrNI4opLg==}
-
-  '@vitest/mocker@4.1.6':
-    resolution: {integrity: sha512-MCFc63czMjEInOlcY2cpQCvCN+KgbAn+60xu9cMgP4sKaLC5JNAKw7JH8QdAnoAC88hW1IiSNZ+GgVXlN1UcMQ==}
-    peerDependencies:
-      msw: ^2.4.9
-      vite: 8.0.16
-    peerDependenciesMeta:
-      msw:
-        optional: true
-      vite:
-        optional: true
+  '@vitest/expect@4.1.8':
+    resolution: {integrity: sha512-h3nDO677RDLEGlBxyQ5CW8RlMThSKSRLUePLOx09gNIWRL40edgA1GCZSZgf1W55MFAG6/Sw14KeaAnqv0NKdQ==}
 
   '@vitest/mocker@4.1.8':
     resolution: {integrity: sha512-LEiN/xe4OSIbKe9HQIp5OC24agGD9J5CnmMgsLohVVoOPWL9a2sBoR6VBx43jQZb7Kr1l4RCuyCJzcAa0+dojw==}
@@ -7140,32 +7129,23 @@ packages:
   '@vitest/pretty-format@3.2.4':
     resolution: {integrity: sha512-IVNZik8IVRJRTr9fxlitMKeJeXFFFN0JaB9PHPGQ8NKQbGpfjlTx9zO4RefN8gp7eqjNy8nyK3NZmBzOPeIxtA==}
 
-  '@vitest/pretty-format@4.1.6':
-    resolution: {integrity: sha512-h5SxD/IzNhZYnrSZRsUZQIC+vD0GY8cUvq0iwsmkFKixRCKLLWqCXa/FIQ4S1R+sI+PGoojkHsdNrbZiM9Qpgw==}
-
   '@vitest/pretty-format@4.1.8':
     resolution: {integrity: sha512-9GasEBxpZ1VYIpqHf/0+YGg121uSNwCKOJqIrTwWP/TB7DmFCiaBpNl3aPZzoLWfWkuqhbH8vJIVobZkvdo2cA==}
 
-  '@vitest/runner@4.1.6':
-    resolution: {integrity: sha512-nOPCmn2+yD0ZNmKdsXGv/UxMMWbMuKeD6GyYncNwdkYDxpQvrPSKYj2rWuDjC2Y4b6w6hjip5dBKFzEUuZe3vA==}
+  '@vitest/runner@4.1.8':
+    resolution: {integrity: sha512-EmVxeBAfMJvycdjd6Hm+RbFBbA9fKvo0Kx37hNpBYoYeavH3RNsBXWDooR1mgD52dCrxIIuP7UotpfiwOikvcg==}
 
-  '@vitest/snapshot@4.1.6':
-    resolution: {integrity: sha512-YhsdE6xAVfTDmzjxL2ZDUvjj+ZsgyOKe+TdQzqkD72wIOmHka8NuGQ6NpTNZv9D2Z63fbwWKJPeVpEw4EQgYxw==}
+  '@vitest/snapshot@4.1.8':
+    resolution: {integrity: sha512-acfZboRmAIf05DEKcBQy33VXojFJjtUdLyo7oOmV9kebb2xdU01UknNiPuPZoJZQyO7DF0gZdTGTpeAzET9QPQ==}
 
   '@vitest/spy@3.2.4':
     resolution: {integrity: sha512-vAfasCOe6AIK70iP5UD11Ac4siNUNJ9i/9PZ3NKx07sG6sUxeag1LWdNrMWeKKYBLlzuK+Gn65Yd5nyL6ds+nw==}
-
-  '@vitest/spy@4.1.6':
-    resolution: {integrity: sha512-JFKxMx6udhwKh/Ldo270e17QX710vgunMkuPAvXjHSvC6oqLWAHhVhjg/I71q0u0CBSErIODV1Kjv0FQNSWjdg==}
 
   '@vitest/spy@4.1.8':
     resolution: {integrity: sha512-6EevtBp6OZOPF7bmz36HrGMeP3txgVSrgebWxHOafDXGkhIzfXK14f8KF6MuFfgXXUeHxmpD3BQxkV00/3s5mA==}
 
   '@vitest/utils@3.2.4':
     resolution: {integrity: sha512-fB2V0JFrQSMsCo9HiSq3Ezpdv4iYaXRG1Sx8edX3MwxfyNn83mKiGzOcH+Fkxt4MHxr3y42fQi1oeAInqgX2QA==}
-
-  '@vitest/utils@4.1.6':
-    resolution: {integrity: sha512-FxIY+U81R3LGKCxaHHFRQ5+g6/iRgGLmeHWdp2Amj4ljQRrEIWHmZyDfDYBRZlpyqA7qKxtS9DD1dhk8RnRIVQ==}
 
   '@vitest/utils@4.1.8':
     resolution: {integrity: sha512-uOJamYALNhfJ6iolExyQM40yIQwDqYnkKtQ5VCiSe17E33H0aQ/u+1GlRuz4LZBk6Mm3sg90G9hEbmEt37C1Zg==}
@@ -13440,20 +13420,20 @@ packages:
       yaml:
         optional: true
 
-  vitest@4.1.6:
-    resolution: {integrity: sha512-6lvjbS3p9b4CrdCmguzbh2/4uoXhGE2q71R4OX5sqF9R1bo9Xd6fGrMAfvp5wnCzlBnFVdCOp6onuTQVbo8iUQ==}
+  vitest@4.1.8:
+    resolution: {integrity: sha512-flY6ScbCIt9HThs+C5HS7jvGOB560DJtk/Z15IQROTA6zEy49Nh8T/dofWTQL+n3vswqn87sbJNiuqw1SDp5Ig==}
     engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@opentelemetry/api': ^1.9.0
       '@types/node': ^20.0.0 || ^22.0.0 || >=24.0.0
-      '@vitest/browser-playwright': 4.1.6
-      '@vitest/browser-preview': 4.1.6
-      '@vitest/browser-webdriverio': 4.1.6
-      '@vitest/coverage-istanbul': 4.1.6
-      '@vitest/coverage-v8': 4.1.6
-      '@vitest/ui': 4.1.6
+      '@vitest/browser-playwright': 4.1.8
+      '@vitest/browser-preview': 4.1.8
+      '@vitest/browser-webdriverio': 4.1.8
+      '@vitest/coverage-istanbul': 4.1.8
+      '@vitest/coverage-v8': 4.1.8
+      '@vitest/ui': 4.1.8
       happy-dom: '*'
       jsdom: '*'
       vite: 8.0.16
@@ -13936,13 +13916,13 @@ snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
 
-  '@amiceli/vitest-cucumber@6.3.0(vitest@4.1.6)':
+  '@amiceli/vitest-cucumber@6.3.0(vitest@4.1.8)':
     dependencies:
       callsites: 4.2.0
       minimist: 1.2.8
       parsecurrency: 1.1.1
       ts-morph: 27.0.2
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   '@ant-design/cli@6.3.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
@@ -18934,16 +18914,16 @@ snapshots:
     dependencies:
       storybook: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
 
-  '@storybook/addon-vitest@10.4.2(@vitest/browser-playwright@4.1.6)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6))(@vitest/runner@4.1.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.6)':
+  '@storybook/addon-vitest@10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)':
     dependencies:
       '@storybook/global': 5.0.0
       '@storybook/icons': 2.0.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       storybook: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     optionalDependencies:
-      '@vitest/browser': 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
-      '@vitest/browser-playwright': 4.1.6(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
-      '@vitest/runner': 4.1.6
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@vitest/browser': 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
+      '@vitest/browser-playwright': 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
+      '@vitest/runner': 4.1.8
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
     transitivePeerDependencies:
       - react
       - react-dom
@@ -19503,13 +19483,13 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-rc.7
       vite: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
 
-  '@vitest/browser-playwright@4.1.6(playwright@1.59.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)':
+  '@vitest/browser-playwright@4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)':
     dependencies:
-      '@vitest/browser': 4.1.8(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
-      '@vitest/mocker': 4.1.6(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@vitest/browser': 4.1.8(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
+      '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       playwright: 1.59.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -19517,20 +19497,20 @@ snapshots:
       - vite
     optional: true
 
-  '@vitest/browser-playwright@4.1.6(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)':
+  '@vitest/browser-playwright@4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)':
     dependencies:
-      '@vitest/browser': 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
-      '@vitest/mocker': 4.1.6(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@vitest/browser': 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
+      '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       playwright: 1.59.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
     transitivePeerDependencies:
       - bufferutil
       - msw
       - utf-8-validate
       - vite
 
-  '@vitest/browser@4.1.8(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)':
+  '@vitest/browser@4.1.8(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)':
     dependencies:
       '@blazediff/core': 1.9.1
       '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
@@ -19539,7 +19519,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
@@ -19548,7 +19528,7 @@ snapshots:
       - vite
     optional: true
 
-  '@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)':
+  '@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)':
     dependencies:
       '@blazediff/core': 1.9.1
       '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
@@ -19557,7 +19537,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
@@ -19565,7 +19545,7 @@ snapshots:
       - utf-8-validate
       - vite
 
-  '@vitest/coverage-istanbul@4.1.6(vitest@4.1.6)':
+  '@vitest/coverage-istanbul@4.1.6(vitest@4.1.8)':
     dependencies:
       '@babel/core': 7.29.6
       '@istanbuljs/schema': 0.1.3
@@ -19577,7 +19557,7 @@ snapshots:
       magicast: 0.5.2
       obug: 2.1.1
       tinyrainbow: 3.1.0
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
     transitivePeerDependencies:
       - supports-color
 
@@ -19589,30 +19569,14 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/expect@4.1.6':
+  '@vitest/expect@4.1.8':
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@types/chai': 5.2.3
-      '@vitest/spy': 4.1.6
-      '@vitest/utils': 4.1.6
+      '@vitest/spy': 4.1.8
+      '@vitest/utils': 4.1.8
       chai: 6.2.2
       tinyrainbow: 3.1.0
-
-  '@vitest/mocker@4.1.6(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))':
-    dependencies:
-      '@vitest/spy': 4.1.6
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
-
-  '@vitest/mocker@4.1.6(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))':
-    dependencies:
-      '@vitest/spy': 4.1.6
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
 
   '@vitest/mocker@4.1.8(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))':
     dependencies:
@@ -19621,7 +19585,6 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
-    optional: true
 
   '@vitest/mocker@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))':
     dependencies:
@@ -19635,31 +19598,25 @@ snapshots:
     dependencies:
       tinyrainbow: 2.0.0
 
-  '@vitest/pretty-format@4.1.6':
-    dependencies:
-      tinyrainbow: 3.1.0
-
   '@vitest/pretty-format@4.1.8':
     dependencies:
       tinyrainbow: 3.1.0
 
-  '@vitest/runner@4.1.6':
+  '@vitest/runner@4.1.8':
     dependencies:
-      '@vitest/utils': 4.1.6
+      '@vitest/utils': 4.1.8
       pathe: 2.0.3
 
-  '@vitest/snapshot@4.1.6':
+  '@vitest/snapshot@4.1.8':
     dependencies:
-      '@vitest/pretty-format': 4.1.6
-      '@vitest/utils': 4.1.6
+      '@vitest/pretty-format': 4.1.8
+      '@vitest/utils': 4.1.8
       magic-string: 0.30.21
       pathe: 2.0.3
 
   '@vitest/spy@3.2.4':
     dependencies:
       tinyspy: 4.0.4
-
-  '@vitest/spy@4.1.6': {}
 
   '@vitest/spy@4.1.8': {}
 
@@ -19668,12 +19625,6 @@ snapshots:
       '@vitest/pretty-format': 3.2.4
       loupe: 3.2.1
       tinyrainbow: 2.0.0
-
-  '@vitest/utils@4.1.6':
-    dependencies:
-      '@vitest/pretty-format': 4.1.6
-      convert-source-map: 2.0.0
-      tinyrainbow: 3.1.0
 
   '@vitest/utils@4.1.8':
     dependencies:
@@ -26990,15 +26941,15 @@ snapshots:
       tsx: 4.21.0
       yaml: 2.8.3
 
-  vitest@4.1.6(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)):
+  vitest@4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
-      '@vitest/expect': 4.1.6
-      '@vitest/mocker': 4.1.6(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
-      '@vitest/pretty-format': 4.1.6
-      '@vitest/runner': 4.1.6
-      '@vitest/snapshot': 4.1.6
-      '@vitest/spy': 4.1.6
-      '@vitest/utils': 4.1.6
+      '@vitest/expect': 4.1.8
+      '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@vitest/pretty-format': 4.1.8
+      '@vitest/runner': 4.1.8
+      '@vitest/snapshot': 4.1.8
+      '@vitest/spy': 4.1.8
+      '@vitest/utils': 4.1.8
       es-module-lexer: 2.0.0
       expect-type: 1.3.0
       magic-string: 0.30.21
@@ -27008,28 +26959,28 @@ snapshots:
       std-env: 4.0.0
       tinybench: 2.9.0
       tinyexec: 1.0.4
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@types/node': 22.19.15
-      '@vitest/browser-playwright': 4.1.6(playwright@1.59.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
-      '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.6)
+      '@vitest/browser-playwright': 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
+      '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.8)
       jsdom: 26.1.0
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.6)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)):
+  vitest@4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
-      '@vitest/expect': 4.1.6
-      '@vitest/mocker': 4.1.6(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
-      '@vitest/pretty-format': 4.1.6
-      '@vitest/runner': 4.1.6
-      '@vitest/snapshot': 4.1.6
-      '@vitest/spy': 4.1.6
-      '@vitest/utils': 4.1.6
+      '@vitest/expect': 4.1.8
+      '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@vitest/pretty-format': 4.1.8
+      '@vitest/runner': 4.1.8
+      '@vitest/snapshot': 4.1.8
+      '@vitest/spy': 4.1.8
+      '@vitest/utils': 4.1.8
       es-module-lexer: 2.0.0
       expect-type: 1.3.0
       magic-string: 0.30.21
@@ -27039,15 +26990,15 @@ snapshots:
       std-env: 4.0.0
       tinybench: 2.9.0
       tinyexec: 1.0.4
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@types/node': 24.10.1
-      '@vitest/browser-playwright': 4.1.6(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.6)
-      '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.6)
+      '@vitest/browser-playwright': 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8)
+      '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.8)
       jsdom: 26.1.0
     transitivePeerDependencies:
       - msw
