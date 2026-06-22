@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { StaffUsersListDocument } from '../generated.tsx';
 import { StaffUsersPage } from './staff-users.tsx';
@@ -27,15 +28,24 @@ const meta: Meta<typeof StaffUsersPage> = {
 export default meta;
 type Story = StoryObj<typeof StaffUsersPage>;
 
+const mockAuth = {
+	permissions: {
+		canViewStaffUsers: true,
+		canManageUsers: true,
+	},
+};
+
 export const Default: Story = {
 	render: () => (
-		<MemoryRouter initialEntries={['/']}>
-			<Routes>
-				<Route
-					path="/*"
-					element={<StaffUsersPage />}
-				/>
-			</Routes>
-		</MemoryRouter>
+		<StaffAuthProvider value={mockAuth}>
+			<MemoryRouter initialEntries={['/']}>
+				<Routes>
+					<Route
+						path="/*"
+						element={<StaffUsersPage />}
+					/>
+				</Routes>
+			</MemoryRouter>
+		</StaffAuthProvider>
 	),
 };

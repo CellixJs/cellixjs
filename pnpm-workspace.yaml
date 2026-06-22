@@ -20,7 +20,7 @@ catalog:
   '@serenity-js/cucumber': 3.42.2
   '@serenity-js/serenity-bdd': 3.42.2
   '@types/node': ^22.19.5
-  '@vitest/coverage-istanbul': 4.1.6
+  '@vitest/coverage-istanbul': 4.1.8
   antd: 6.3.5
   archunit: ^2.1.63
   esbuild: 0.28.1

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { StaffRoleCreateDocument, StaffRolesListDocument } from '../generated.tsx';
 import { StaffRolesPage } from './staff-roles.tsx';
@@ -30,16 +31,26 @@ const meta: Meta<typeof StaffRolesPage> = {
 export default meta;
 type Story = StoryObj<typeof StaffRolesPage>;
 
+const mockAuth = {
+	permissions: {
+		canViewRoles: true,
+		canAddRole: true,
+		canEditRole: true,
+	},
+};
+
 export const Default: Story = {
 	render: () => (
-		<MemoryRouter initialEntries={['/']}>
-			<Routes>
-				<Route
-					path="/*"
-					element={<StaffRolesPage />}
-				/>
-			</Routes>
-		</MemoryRouter>
+		<StaffAuthProvider value={mockAuth}>
+			<MemoryRouter initialEntries={['/']}>
+				<Routes>
+					<Route
+						path="/*"
+						element={<StaffRolesPage />}
+					/>
+				</Routes>
+			</MemoryRouter>
+		</StaffAuthProvider>
 	),
 };
 
@@ -48,13 +59,15 @@ export const CreateView: Story = {
 		apolloClient: { mocks: [listMock, createMock] },
 	},
 	render: () => (
-		<MemoryRouter initialEntries={['/create']}>
-			<Routes>
-				<Route
-					path="/*"
-					element={<StaffRolesPage />}
-				/>
-			</Routes>
-		</MemoryRouter>
+		<StaffAuthProvider value={mockAuth}>
+			<MemoryRouter initialEntries={['/create']}>
+				<Routes>
+					<Route
+						path="/*"
+						element={<StaffRolesPage />}
+					/>
+				</Routes>
+			</MemoryRouter>
+		</StaffAuthProvider>
 	),
 };
