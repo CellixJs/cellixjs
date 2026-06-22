@@ -5,7 +5,7 @@ import { architectureTests, coverageMerge, e2eTests, knipCheck, pnpmAudit, pnpmS
 
 const snykOrgArgs = ['--org=cellixjs', '--remote-repo-url=https://github.com/CellixJs/cellixjs'];
 
-export const cellixVerify = verificationSequence
+const cellixVerify = verificationSequence
 	.addStep(pnpmScript('format:check'))
 	.addStep(architectureTests())
 	.addStep(coverageMerge())
