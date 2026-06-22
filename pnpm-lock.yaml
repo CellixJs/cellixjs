@@ -28,20 +28,20 @@ catalogs:
       specifier: 1.0.1
       version: 1.0.1
     '@serenity-js/assertions':
-      specifier: 3.42.2
-      version: 3.42.2
+      specifier: 3.43.0
+      version: 3.43.0
     '@serenity-js/console-reporter':
-      specifier: 3.42.2
-      version: 3.42.2
+      specifier: 3.43.0
+      version: 3.43.0
     '@serenity-js/core':
-      specifier: 3.42.2
-      version: 3.42.2
+      specifier: 3.43.0
+      version: 3.43.0
     '@serenity-js/cucumber':
-      specifier: 3.42.2
-      version: 3.42.2
+      specifier: 3.43.0
+      version: 3.43.0
     '@serenity-js/serenity-bdd':
-      specifier: 3.42.2
-      version: 3.42.2
+      specifier: 3.43.0
+      version: 3.43.0
     '@storybook/addon-a11y':
       specifier: ^10.4.2
       version: 10.4.4
@@ -66,12 +66,15 @@ catalogs:
     '@typescript/native-preview':
       specifier: 7.0.0-dev.20260428.1
       version: 7.0.0-dev.20260428.1
+    '@vitest/browser':
+      specifier: 4.1.8
+      version: 4.1.8
     '@vitest/browser-playwright':
       specifier: 4.1.8
       version: 4.1.8
     '@vitest/coverage-istanbul':
-      specifier: 4.1.6
-      version: 4.1.6
+      specifier: 4.1.8
+      version: 4.1.8
     antd:
       specifier: 6.3.5
       version: 6.3.5
@@ -122,19 +125,20 @@ catalogs:
       version: 4.1.8
 
 overrides:
+  esbuild: 0.28.1
   axios: 1.16.0
   follow-redirects: ^1.16.0
-  esbuild: 0.28.1
   vite: 8.0.16
   jiti: 2.6.1
   rollup: ^4.59.0
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
   brace-expansion@1.1.12: 1.1.13
   brace-expansion@5.0.4: 5.0.6
+  brace-expansion@5.0.5: 5.0.6
   diff@4.0.2: 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
-  protobufjs@7.5.4: 7.5.8
+  protobufjs@7.5.4: 7.6.1
   serve-handler>minimatch: 3.1.5
   serialize-javascript@6.0.2: 7.0.5
   serialize-javascript@7.0.4: 7.0.5
@@ -142,6 +146,7 @@ overrides:
   yaml@2.8.2: 2.8.3
   yauzl@3.2.0: 3.2.1
   qs: ^6.15.2
+  uuid@11.1.0: 11.1.1
   express@4.22.1: 4.22.2
   ajv@^6: 6.14.0
   lodash: 4.18.1
@@ -150,7 +155,7 @@ overrides:
   node-forge@<1.3.2: '>=1.3.2'
   picomatch: ^4.0.4
   webpack: ^5.105.4
-  webpack-dev-server: ^5.2.5
+  webpack-dev-server: 5.2.5
   express-rate-limit: 8.5.1
   playwright-core: 1.59.0
   playwright: 1.59.0
@@ -159,13 +164,23 @@ overrides:
   ip-address: ^10.1.1
   fast-uri: ^3.1.2
   '@babel/plugin-transform-modules-systemjs': 7.29.4
+  '@babel/core': 7.29.6
+  js-yaml@4.1.1: 4.2.0
   ws: 8.21.0
+  form-data: 4.0.6
   shell-quote: 1.8.4
   '@grpc/grpc-js': '>=1.14.4'
-  joi: 18.2.1
-  form-data: 4.0.6
-  '@vitest/browser': 4.1.8
-  '@opentelemetry/core': 2.8.0
+  joi: '>=18.2.1'
+  brace-expansion@2: 2.0.3
+  dottie: 2.0.7
+  http-proxy-middleware: 3.0.7
+  immutable: 3.8.3
+  launch-editor: 2.14.1
+  sequelize: 6.37.8
+  smol-toml: 1.6.1
+  '@azure/ms-rest-js>tough-cookie': 4.1.3
+  '@azure/ms-rest-js>xml2js': 0.5.0
+  tedious>@azure/identity: 4.2.1
 
 packageExtensionsChecksum: sha256-mDviJarBPcwNNCTUf3T37btBxDGgV1wZ/iUGQfx5OCA=
 
@@ -223,13 +238,13 @@ importers:
         version: 7.0.0-dev.20260428.1
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       azurite:
         specifier: ^3.35.0
         version: 3.35.0(@types/node@22.19.20)
       chrome-devtools-mcp:
-        specifier: ^0.21.0
-        version: 0.21.0
+        specifier: ^1.3.0
+        version: 1.3.0
       concurrently:
         specifier: ^9.1.2
         version: 9.2.1
@@ -252,14 +267,14 @@ importers:
         specifier: ^1.0.2
         version: 1.0.4(typescript@6.0.3)
       turbo:
-        specifier: 2.9.9
-        version: 2.9.9
+        specifier: 2.9.18
+        version: 2.9.18
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   apps/api:
     dependencies:
@@ -323,7 +338,7 @@ importers:
         version: link:../../packages/cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       archunit:
         specifier: 'catalog:'
         version: 2.3.0
@@ -338,7 +353,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   apps/docs:
     dependencies:
@@ -399,7 +414,7 @@ importers:
         version: 6.0.2(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
@@ -408,7 +423,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   apps/server-mongodb-memory-mock:
     dependencies:
@@ -458,7 +473,7 @@ importers:
         version: link:../../packages/cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -470,7 +485,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   apps/ui-community:
     dependencies:
@@ -558,7 +573,7 @@ importers:
         version: 6.0.2(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -588,7 +603,7 @@ importers:
         version: 0.28.0(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   apps/ui-staff:
     dependencies:
@@ -664,7 +679,7 @@ importers:
         version: 6.0.2(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -688,7 +703,7 @@ importers:
         version: 0.28.0(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/api-services-spec:
     devDependencies:
@@ -724,7 +739,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/config-rolldown:
     devDependencies:
@@ -736,7 +751,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -748,7 +763,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/config-typescript: {}
 
@@ -768,7 +783,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/domain-seedwork:
     devDependencies:
@@ -780,7 +795,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -789,7 +804,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/event-bus-seedwork-node:
     dependencies:
@@ -808,7 +823,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -848,7 +863,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -857,7 +872,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/graphql-core:
     dependencies:
@@ -876,7 +891,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -885,7 +900,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/mongoose-seedwork:
     dependencies:
@@ -904,7 +919,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       mongodb:
         specifier: 'catalog:'
         version: 6.18.0
@@ -922,7 +937,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/server-mongodb-memory-mock-seedwork:
     dependencies:
@@ -969,7 +984,7 @@ importers:
         version: 5.0.6
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -978,7 +993,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/service-blob-storage:
     dependencies:
@@ -1000,7 +1015,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1009,7 +1024,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/cellix/ui-core:
     dependencies:
@@ -1060,14 +1075,14 @@ importers:
         specifier: ^19.1.6
         version: 19.2.3(@types/react@19.2.17)
       '@vitest/browser':
-        specifier: 4.1.8
+        specifier: 'catalog:'
         version: 4.1.8(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/browser-playwright':
         specifier: 'catalog:'
         version: 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
@@ -1088,7 +1103,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom-verification/acceptance-api:
     dependencies:
@@ -1097,19 +1112,19 @@ importers:
         version: 12.8.1
       '@serenity-js/assertions':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/console-reporter':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/core':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/cucumber':
         specifier: 'catalog:'
-        version: 3.42.2(@cucumber/cucumber@12.8.1)
+        version: 3.43.0(@cucumber/cucumber@12.8.1)
       '@serenity-js/serenity-bdd':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       std-env:
         specifier: ^4.0.0
         version: 4.1.0
@@ -1173,16 +1188,16 @@ importers:
         version: 3.2.2(react@19.2.7)
       '@serenity-js/console-reporter':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/core':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/cucumber':
         specifier: 'catalog:'
-        version: 3.42.2(@cucumber/cucumber@12.8.1)
+        version: 3.43.0(@cucumber/cucumber@12.8.1)
       '@serenity-js/serenity-bdd':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       antd:
         specifier: 'catalog:'
         version: 6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1252,7 +1267,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.21)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.21)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom-verification/e2e-tests:
     dependencies:
@@ -1261,19 +1276,19 @@ importers:
         version: 12.8.1
       '@serenity-js/assertions':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/console-reporter':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/core':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/cucumber':
         specifier: 'catalog:'
-        version: 3.42.2(@cucumber/cucumber@12.8.1)
+        version: 3.43.0(@cucumber/cucumber@12.8.1)
       '@serenity-js/serenity-bdd':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       std-env:
         specifier: ^4.0.0
         version: 4.1.0
@@ -1387,7 +1402,7 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1396,7 +1411,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/context-spec:
     dependencies:
@@ -1452,7 +1467,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/domain:
     dependencies:
@@ -1489,22 +1504,22 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@serenity-js/assertions':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/console-reporter':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/core':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@serenity-js/cucumber':
         specifier: 'catalog:'
-        version: 3.42.2(@cucumber/cucumber@12.8.1)
+        version: 3.43.0(@cucumber/cucumber@12.8.1)
       '@serenity-js/serenity-bdd':
         specifier: 'catalog:'
-        version: 3.42.2
+        version: 3.43.0
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1513,7 +1528,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/event-handler:
     dependencies:
@@ -1566,7 +1581,7 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1575,7 +1590,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/graphql-handler:
     dependencies:
@@ -1609,7 +1624,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1618,7 +1633,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/persistence:
     dependencies:
@@ -1658,7 +1673,7 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1667,7 +1682,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/rest:
     dependencies:
@@ -1720,7 +1735,7 @@ importers:
         version: 1.1.6
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1729,7 +1744,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/service-blob-storage:
     dependencies:
@@ -1745,7 +1760,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1754,7 +1769,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/service-mongoose:
     dependencies:
@@ -1776,7 +1791,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1834,7 +1849,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1843,7 +1858,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/service-token-validation:
     dependencies:
@@ -1862,7 +1877,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1871,7 +1886,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-community-route-accounts:
     dependencies:
@@ -1965,7 +1980,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-community-route-admin:
     dependencies:
@@ -2059,7 +2074,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-community-route-root:
     dependencies:
@@ -2129,7 +2144,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-community-shared:
     dependencies:
@@ -2208,7 +2223,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-shared:
     dependencies:
@@ -2280,11 +2295,11 @@ importers:
         specifier: ^19.1.6
         version: 19.2.3(@types/react@19.2.17)
       '@vitest/browser':
-        specifier: 4.1.8
+        specifier: 'catalog:'
         version: 4.1.8(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.6(vitest@4.1.8)
+        version: 4.1.8(vitest@4.1.8)
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
@@ -2305,7 +2320,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-community-management:
     dependencies:
@@ -2348,7 +2363,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-finance:
     dependencies:
@@ -2391,7 +2406,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-root:
     dependencies:
@@ -2434,7 +2449,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-tech-admin:
     dependencies:
@@ -2477,7 +2492,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-staff-route-user-management:
     dependencies:
@@ -2550,7 +2565,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   packages/ocom/ui-staff-shared:
     dependencies:
@@ -2611,7 +2626,7 @@ importers:
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
 packages:
 
@@ -2978,13 +2993,13 @@ packages:
     resolution: {integrity: sha512-J0We2gav3YZFLO9pJlXDKUSOT0r/DzkUaJTaruhm8pwoSMbi4zjsS5N6fARrTel+IBCm77hlD0IgZSKSWvVpUw==}
     engines: {node: '>=20.0'}
 
-  '@azure/identity@3.4.2':
-    resolution: {integrity: sha512-0q5DL4uyR0EZ4RXQKD8MadGH6zTIcloUoS/RVbCpNpej4pwte0xpqYxk8K97Py2RiuUvI7F4GXpoT4046VfufA==}
-    engines: {node: '>=14.0.0'}
-
   '@azure/identity@4.13.1':
     resolution: {integrity: sha512-5C/2WD5Vb1lHnZS16dNQRPMjN6oV/Upba+C9nBIs15PmOi6A3ZGs4Lr2u60zw4S04gi+u3cEXiqTVP7M4Pz3kw==}
     engines: {node: '>=20.0.0'}
+
+  '@azure/identity@4.2.1':
+    resolution: {integrity: sha512-U8hsyC9YPcEIzoaObJlRDvp7KiF0MGS7xcWbyJSVvXRkC/HXo1f0oYeBYmEvVgRfacw7GHf6D6yAoh9JHz6A5Q==}
+    engines: {node: '>=18.0.0'}
 
   '@azure/keyvault-common@2.1.0':
     resolution: {integrity: sha512-aCDidWuKY06LWQ4x7/8TIXK6iRqTaRWRL3t7T+LC+j1b07HtoIsOxP/tU90G4jCSBn5TAyUTCtA4MS/y5Hudaw==}
@@ -3050,8 +3065,8 @@ packages:
     resolution: {integrity: sha512-locTkQyKvwIEgBzVrn8693ebc97F2U8ZHjbXwDXJ5Fn2TCpNwTlKcaKLkdHop5c/icOFE7qt7Q9JC5hnKNa6Gg==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/core@7.29.7':
-    resolution: {integrity: sha512-RgHBCvtjbOK2gXSNBNIkNoEc9qoVEtau3hj8gEqKQuL3HZAibKarWFEI3Lfm6EYKkLalOh8eSrj9b+ch9H/VBA==}
+  '@babel/core@7.29.6':
+    resolution: {integrity: sha512-QdxmAo/ikZqqRGA8s43ww8lcql6naWRvEz0FFrl6MIlc7Gi6TroXnSdWa5U/kq6fzcpqpHesicQxFZIieZbyIA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/generator@7.29.7':
@@ -3070,18 +3085,18 @@ packages:
     resolution: {integrity: sha512-IY3ZD9Tmooqr3TUhc3DUWxiuo8xx1DWLhd5M7hQ+ZWJamqM2BbalrBJb2MisSLoYorOj75U03qULCxQTY9r3hg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/helper-create-regexp-features-plugin@7.29.7':
     resolution: {integrity: sha512-907Uymvqgg1dwUA+7IGwFAOSYzQOuzPXKNJ1yxzwPffzkYFg2q2eHi1fIOs6sXkG9NbIUMunnUlkYsfRFNvomg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/helper-define-polyfill-provider@0.6.8':
     resolution: {integrity: sha512-47UwBLPpQi1NoWzLuHNjRoHlYXMwIJoBf7MFou6viC/sIHWYygpvr0B6IAyh5sBdA2nr2LPIRww8lfaUVQINBA==}
     peerDependencies:
-      '@babel/core': ^7.4.0 || ^8.0.0-0 <8.0.0
+      '@babel/core': 7.29.6
 
   '@babel/helper-globals@7.29.7':
     resolution: {integrity: sha512-3nQVUAtvkKH9zahfWgw96Jc/uFOmjACE1kQz82E2lqWmHBgjzbNlsC22nuQTfahmWeQtTq5nQ/4Nnd2A1wj4zA==}
@@ -3099,7 +3114,7 @@ packages:
     resolution: {integrity: sha512-UPUVSyXbOh627KiCIGQSgwWzGeBKLkaJ9PJEdrngIwMSzxLR4jS4+f1f1jb7VzBbg8nFLaYotvVPFCTqdrmTAg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/helper-optimise-call-expression@7.29.7':
     resolution: {integrity: sha512-+kmGVjcT9RGYzoDwdwEqEvGgKe3BYq+O1iGzjFubaNgZHwYHP6lsF2Yghf4kEuv9BV7tYDZ913aBW9am6YKong==}
@@ -3113,13 +3128,13 @@ packages:
     resolution: {integrity: sha512-16AMiW26DbXWBbr3B8wNozKM0ydMLB892vaOaJW/fPJdnT8vJk5sdkQcU/isqUxyCE0cEoa8wZOcbgDuC4b6Og==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/helper-replace-supers@7.29.7':
     resolution: {integrity: sha512-atfGXWSeCiF4DnKZIfmJfQRkSw9b9gNNXR1kqKjbhG4pGYCOnkp8OcTB8E3NXjBu8NpheSnOeNKz8KT7UNFTmQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/helper-skip-transparent-expression-wrappers@7.29.7':
     resolution: {integrity: sha512-brcMGQaVzIeUb+6/bs1Av0f8YuNNjKY2JyvfRCsFuFsdKccEQ5Ges2y74D74NZ1Rz8lKJ9ksJkfqwQFJ/iNEyQ==}
@@ -3154,449 +3169,449 @@ packages:
     resolution: {integrity: sha512-j8SrR0zLZrRsC09DlszEx8FpMiwukKffYXMK0d5LmOglO7vGG6sz/BR/20yHqWH+Lnn31JTt2PE3hIWNgM2J6w==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-bugfix-safari-class-field-initializer-scope@7.29.7':
     resolution: {integrity: sha512-r8j8escF+U2FUHo0KOhPUdMzUO+jp9fInva6+ACVAF3Y97Ev+5iNZwiqTghmzNeWwDkOPlYuTcfb1vDaoZKmAQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.29.7':
     resolution: {integrity: sha512-GE1TFSiuFeGsCxmYXZl8HwoPrVlwe4rHPFE8weieGKZqnDORK+Ar3vgWMgW+AOxQ6/2TgLSKx9p6W7O4rC6qgQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-bugfix-safari-rest-destructuring-rhs-array@7.29.7':
     resolution: {integrity: sha512-oBNVCvnO5tND+xSopWvV8WNGfpTfgP4Zr/YXXSj8zfmcPktp5Ku/aZlsIowgSD4fjmgHn6sGmB9APVsU5zOdhA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining@7.29.7':
     resolution: {integrity: sha512-QQt9qKHZ2sg/kivaLr7lnQr8HVrQDdBNSfCsTjiDxRuX/K5ORyKq+Bu8Xr0cDE3Dfkv0cw28Ve0EKyKMvulkOw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.13.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly@7.29.7':
     resolution: {integrity: sha512-pn6QacGLgvCcwc+syUhKE/qSjV2D1IHDB84RNxWYSt1mW3K/SCtjinZ2p0cETJxAWBjPy3K/1lHwG5BjjPxNlw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-proposal-private-property-in-object@7.21.0-placeholder-for-preset-env.2':
     resolution: {integrity: sha512-SOSkfJDddaM7mak6cPEpswyTRnuRltl429hMraQEglW+OkovnCzsiszTmsrlY//qLFjCpQDFRvjdm2wA5pPm9w==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-syntax-dynamic-import@7.8.3':
     resolution: {integrity: sha512-5gdGbFon+PszYzqs83S3E5mpi7/y/8M9eC90MRTZfduQOYW76ig6SOSPNe41IG5LoP3FGBn2N0RjVDSQiS94kQ==}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-syntax-import-assertions@7.29.7':
     resolution: {integrity: sha512-/An1OCBN93thpBAGyfsK2pcf0jvju1SAtKkL2Ny++B5Sy6sqgzXDQH1cZxWbF96Wuk+bn41MDA9bLd4VVAw6rw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-syntax-import-attributes@7.29.7':
     resolution: {integrity: sha512-zGYcYfq/WmZ4V+kBIXQon9dSSc8ircGZqw9ZaNhhGj9nZkeBu1jHLBDQqYYi5WA9uawvA2sIMbry2nCFhf5Djg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-syntax-jsx@7.29.7':
     resolution: {integrity: sha512-TSu8+mHCoEaaCDEZ0I3+6mvTBYR4PCxQwf2z9/r5Tbztv6NaLR3B9thGTTxX2WGuGHJqRiAbKPeGTJ5XWXVg6A==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-syntax-typescript@7.29.7':
     resolution: {integrity: sha512-ngr+82Sh0xMz25TPCZi+nC2iTzjfCdWS2ONXTp/PtSCHCgaCNBpdMqgvJ2ccdLlClVZ7sisIgB914j/JFe+RZA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-syntax-unicode-sets-regex@7.18.6':
     resolution: {integrity: sha512-727YkEAPwSIQTv5im8QHz3upqp92JTWhidIC81Tdx4VJYIte/VndKf1qKrfnnhPLiPghStWfvC/iFaMCQu7Nqg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-arrow-functions@7.29.7':
     resolution: {integrity: sha512-N7zArUXWzAMzm+/N0uPBeVB3Fam5lMxtUwMmDK5f/IBBS7a7p1qeUoxd/6CckXoxUdgsntq1Dh8xNW06maZbDQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-async-generator-functions@7.29.7':
     resolution: {integrity: sha512-d98gXZkgswvkyohMBABkhm3GeXhYj8psWfwQ2C7gtfrKGTykQa/iOIi+JJhwMjPlZ6Vm2XN+DCf3Es1EoG4ZLA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-async-to-generator@7.29.7':
     resolution: {integrity: sha512-pcUb2SS+RMo9TWVBwKGI5ShtoG7R+zBsFmCKDa6fe8c+hPr3XJlZgoE5j6i8W7gDjhyvy+85vmYexanvXh3d1w==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-block-scoped-functions@7.29.7':
     resolution: {integrity: sha512-cUSmjh72N+rN4PrkFlN1dJwNCwjVp5d38/CQrEsFggkD10UiFlBFgdH3tv5dNsLuHY+3S8db2xCHjhZcv5WgvA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-block-scoping@7.29.7':
     resolution: {integrity: sha512-ONyr4+AZhKh8yKWInVxU9AXA9EbsyeLcL6V0dJy6M2/62vuvpGm29zzuymbTpdc451GEpDIdAyPLP3r+P61yKQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-class-properties@7.29.7':
     resolution: {integrity: sha512-GtcpjFvanPfzNQi3eTitsCqtRRmmqzpy/A+yhTR1HaZo1Ly3EA8ZXxlPyHdR8/IuRMYc3E4wdGBewB2QKQjAaA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-class-static-block@7.29.7':
     resolution: {integrity: sha512-kibJgmEdX2iMwsHY2tSZNDgj8PwIlCQz7FK9KuGKO8zsuoUwSEhoNnNVp/emKWrbY4HeO6kkXfdMqRKKKXBm2A==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.12.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-classes@7.29.7':
     resolution: {integrity: sha512-qV0OGGBVacduzQHE649JyCneOFI/maT+YKsO+K4Yi3xv2wTPNjM/W2o2gdzMwEAZz7fXNTHAe0NcSg30bIN69g==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-computed-properties@7.29.7':
     resolution: {integrity: sha512-RK7/IyU5phpuCdBAuig5VkzG/EnbDaui5SQGdU9BFrHdV+mV4cUjLMQ9lJDjLNtWHsqtiefpGZUXQP2BiTYMsA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-destructuring@7.29.7':
     resolution: {integrity: sha512-iPX8aD6H9zV5s7ZsqTdNocPN/MGQ5sSMnElKrktxjJRMnB2jN/1p2+R7GkfD6CAYoVFqy5A4XnSIUeGgJzIWpg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-dotall-regex@7.29.7':
     resolution: {integrity: sha512-3qc18hsD2RdZiyJNDNc7HQpv6xbncwh8FYtxNFFzclSyh/trPD9KkVR9BDECUjDLvb7yJVF15GfYUuC+LMkkiQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-duplicate-keys@7.29.7':
     resolution: {integrity: sha512-6IvRRriEMqnBwD6chtxdLpMYCHWEzN+oL5cyQtjykya19UgzbmKhxmhZgKC/LHxS2nYr9Q/qYPZ5Lr6jOL9+yQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-duplicate-named-capturing-groups-regex@7.29.7':
     resolution: {integrity: sha512-2wiIyo2BjtgU7HufSeDnL9L2O7zr8jmhFKuSr65VpRkUiRKRNpb0mdlk56+XPPKoIrfHqzbMuglDvZun0RISsA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-dynamic-import@7.29.7':
     resolution: {integrity: sha512-giOlEm/EFjfjr+te9NsdjkUo2v4f8rS/SXPumRVHAtbNcyNlvtREkU1dZzaIDclNpnaVhlCqRdFKhJBjBikzLg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-explicit-resource-management@7.29.7':
     resolution: {integrity: sha512-Rstj7coNz8sE+7Ju7ihpHLI564lsK5pUpNNlvptCIC/16E/S5hbl6n3kESPKdNRmqEWlpn5xpS5Q2dvXBsySLw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-exponentiation-operator@7.29.7':
     resolution: {integrity: sha512-zFpMOTLZBdW5LfObqcSbL6kefg4R4eLdmvS0wbN9M6D5Mym/sKm9toOoWyVOa+xDjvCnuWcHls2YonXwHvH3CQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-export-namespace-from@7.29.7':
     resolution: {integrity: sha512-24B2nOy2TeJSMheqwPD4DDQOV/elLSIlKxjZt4i05H5AgdPdWR3n18HnNrcJ+j76WJd9gbwb9jPjNYUy6RautA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-for-of@7.29.7':
     resolution: {integrity: sha512-zeSIHh0+E1Um1WJRXCFlHQYu2ieJNdivLLjlBEp+dIBu3S51n+SZZmIXjxnItw6pz56Cn+KvK68BIBVsxq2JiQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-function-name@7.29.7':
     resolution: {integrity: sha512-otRWaHXE6fbAGkePvaj/kvs3HsqXfPhlnzwSOlnFgbqCPMd975dW+4wZ00WFBt+/YlBGcJwNrARQTOJOb4ZrIg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-json-strings@7.29.7':
     resolution: {integrity: sha512-RRnE2+eon1rJAq8MnoF1b5kTpY1vU88twHcvcKMrsqP/jxIRqDVs9iJB5fqPuqyeFAW0wJo4MlUIPpQCq/aRsg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-literals@7.29.7':
     resolution: {integrity: sha512-DZ/oLP21ZuWx1vKqnoNv6/tvEK48AQOBRai40CX9dTjGluvT/YZCyY3rryDtyUqCEoyNroy5KKPwX2iQCiRvyw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-logical-assignment-operators@7.29.7':
     resolution: {integrity: sha512-A0H91hh6W8MFRkp5TqJmMr39jzGD1A1E1Ysiv2O06Sfbhkapm+XyIzxWCEh5kqwOZ1/8QZ0dY3SeQ7XBqfJd5Q==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-member-expression-literals@7.29.7':
     resolution: {integrity: sha512-hl1kwFZCCiDyfH25Xmco9jTrkPgnS9pmOzSG7W5I4SaGbLeqKv417hcU2RKmaxoPEgsoJh7ZPOrnPGq99bHoUg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-modules-amd@7.29.7':
     resolution: {integrity: sha512-fxtQoH3m5ywUSIfaH0FGCzWu4McsYon5bD3K4XnskC7f+OyQMj7rsOMi4NvvmJ83WwBAg4UCe+ov4VZlqEvyew==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-modules-commonjs@7.29.7':
     resolution: {integrity: sha512-j0vCldybPC5b5dwCQOJ21uKtHzt7hxLygJTg9eF1ScfaikEDNfzn94XoW5Fi+seBR0nCyL23xaBFFkq7dTM8XQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-modules-systemjs@7.29.4':
     resolution: {integrity: sha512-N7QmZ0xRZfjHOfZeQLJjwgX2zS9pdGHSVl/cjSGlo4dXMqvurfxXDMKY4RqEKzPozV78VMcd0lxyG13mlbKc4w==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-modules-umd@7.29.7':
     resolution: {integrity: sha512-B4UkaTK3QpgCwJnrxKfMPKdo92CN7OKXAlpAAnM3UPu0Q0lCCk57ylA9AJbRy2v8dDKOPAAWcoR6CMyeoHwRCA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-named-capturing-groups-regex@7.29.7':
     resolution: {integrity: sha512-vuFoLwr4qnv2xbZ16SQd6uPcH5FNrLHhk/Jzo++0XJFcaDsr4gjJVg6j398oMHiC+83k/GiBzviwF5KBJkPUtQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-new-target@7.29.7':
     resolution: {integrity: sha512-fEo41GmsOUhOBlw8ioo6zvjX5Xc2Lqkzlyfqbpsk3eB6TReV18uhxZ0esfEokVbY2+PVJAQHNKxER6lGrzNd3A==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-nullish-coalescing-operator@7.29.7':
     resolution: {integrity: sha512-idmp1dFaekP9GbcMvG24Kvw2BfhFZjHnNJCkV4WuIY4PskJzwI3f1N5OdgYke38T7rftO6ERulFRn2cFeZwRkg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-numeric-separator@7.29.7':
     resolution: {integrity: sha512-zR7fv/z14OjgHl4AgRtkDBvBMhIzCxqV/qN/2BCRC7LjFwvuzjYe7gDWxC4Wl/SNsLM6SE1IWvRPYMgSJaUvNw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-object-rest-spread@7.29.7':
     resolution: {integrity: sha512-Ld98jn4c0smUywL57m7SgsHq3OpThOa6LqZJif3G6jYOovPleoFhVrBJ1WegRApSFB2wu4+RelAj9AC9G08Z4A==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-object-super@7.29.7':
     resolution: {integrity: sha512-Ea/diGcw0twB5IlZPO5sgET6fJsLJqPABqTuFWIR+iMPGPZJkATEIWx0wa+aEQ5UY1CBQyP/gkAiLEqn1vBiQA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-optional-catch-binding@7.29.7':
     resolution: {integrity: sha512-sLsyndxK2VwX6yNUOakMb7Sh553ZTe/vVM1XJ+9Z5aW1ytsc8xOIwmyk05NNjN60vkc5/KqoTH6hB4V41LJhng==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-optional-chaining@7.29.7':
     resolution: {integrity: sha512-6GM1dhvK3gNODkXcEcMCOLEDCLSoZ/sBbro2Ax8HURyasQ4NshagQixkRFdh5niI6E4gmA/jYI/4aT7rRos3ZQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-parameters@7.29.7':
     resolution: {integrity: sha512-ZDOBqV/qLYJI0YElr8DcENEyARsFQeESqWXH6gZlghYXuPPjvweuDhP4VyEi4BlUBlLRFZVjxoZDMjxhLW766g==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-private-methods@7.29.7':
     resolution: {integrity: sha512-/6Rz4DK1ETDEM/bWHsPHcaEe7ZaT1EqSXjtSP/L0DijOYuaUhiRiOKcwpZ8P7zR4xXEHc2ITdiCgBm9Tpyv9ug==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-private-property-in-object@7.29.7':
     resolution: {integrity: sha512-+BNo06dnrzdNNqCm1X6YUaVv0DKk8Q+JYcoZfOkLhYWNCXzlwTSRq8zGWayT1csjcpNXV9CQTBRRbmTLZac5cA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-property-literals@7.29.7':
     resolution: {integrity: sha512-bOMRLQuI0A5ZqHq3OWJ89/rXpJ/NJrbVhXiP4zwPGMs6kpcVsuTUNjwoE30K0Qm3mf48a/TnRYYD6vPNqcg6jA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-react-constant-elements@7.29.7':
     resolution: {integrity: sha512-J0wGhKan+rIiE2OhfhRptySLrJ6SjQYM6b6N1FMlhyhCcw1Mig8vQjWchyB+bgHGDvaWo6Diu6CLRMra2uMtmg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-react-display-name@7.29.7':
     resolution: {integrity: sha512-+1wdDMGNb4UPeY3Q4L5yLiYe6TXPXubs4NjrgRFw13hPRLJfEMw2Q5OXkee6/IfdqePIeW4Jjwe3aBh7SdKz4Q==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-react-jsx-development@7.29.7':
     resolution: {integrity: sha512-Xfy3UVMF04+ypnFbkhvfqtmvwfe92qwQdbGZVonhE+6v35GzlofmOnA1szaZqzb9xYWr0nl1e5EMmzi0DNON1g==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-react-jsx@7.29.7':
     resolution: {integrity: sha512-WsZulLVBUHXVj2cUcPVx6UE21TpalB6bHbSFErKT0Ib++ax24jjXe73FqlWvdylFOjiuPHYi6VCcgRad1ItN+A==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-react-pure-annotations@7.29.7':
     resolution: {integrity: sha512-H5E+HBgDpr6Q5t+Aj11tL7XkIui1jhbIoArVQnqjgXo5/3YxkN7ZEBcWF4RQlB0T4rrxJQbXS6kiFV6B7XTqUA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-regenerator@7.29.7':
     resolution: {integrity: sha512-rNNFV0DBAJp988xW2DOntfDoYn1eR8GGF5AT5vYc+rjyfaQkM242c9tZUHHPe7KYaiJizXPWhQTzzdbXySyhBw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-regexp-modifiers@7.29.7':
     resolution: {integrity: sha512-mB5Fs0VWrJ42ZCmc8114v60qetdaUVNkj9PmSZRmanCZM3S9hm0CFRLjRmYIsuXav14l2jvZ+4T8iiCGnhj3nQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-reserved-words@7.29.7':
     resolution: {integrity: sha512-5+YhdpVgmfSmwZyLMftfaiffLRMHjzIRHFHHLdibcSyJm2pasMrKHrO3Ptrt2DRshjvpgjEJJ1zVW14WPq/6QA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-runtime@7.29.7':
     resolution: {integrity: sha512-xmAscdE/AsqRW7vutbPNoUmu/nF5SrLKPs7aoJgEjo35lLKA/Bc0i2rMv/hr1+Y0o1bQCiVtith3u2vdgRL39Q==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-shorthand-properties@7.29.7':
     resolution: {integrity: sha512-I+WYbGBAiCn7nA6xBrlgPH+MB7HWb4u8pv5S0Pv7OtwNvIFvCCb24YlttKEeUFVurfBCEaOTnuhlqsb7f0Z5Dg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-spread@7.29.7':
     resolution: {integrity: sha512-/u5K1QWada7tbYNqTjMh96718g9NTwh9tfPJMsSmVsQwGT447FskV+KcfeXkXq2GWki4EM/MuTdmBec+hOuVTQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-sticky-regex@7.29.7':
     resolution: {integrity: sha512-BCHzNYJGe9l7EpwwDBN/ztlL2NYFFq8hp9ddjtUEM9f2O7S7kKV/lL6Fwo7IF7NSkYhPK2vO+86nIGltA90MsA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-template-literals@7.29.7':
     resolution: {integrity: sha512-NCSEJ4sLFU2gqAub45HYh4fus2yQ36rr6ei6vpU7NdoJqCpxvEG8E6eJpscGyXP3VHD2Ny+fSXr04k1hoUrFqA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-typeof-symbol@7.29.7':
     resolution: {integrity: sha512-223mNGoTkBiTEWFoK+Q6Go3tueMRclO8vxxxxquNCYuNI4jWOofFKJRRDu6SDrB8Sgo1UEGW9T4GAQ8ZyRso1A==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-typescript@7.29.7':
     resolution: {integrity: sha512-jK52h8LaLc7JarhQV2ofeFMts4H7vnOXnqZNA6fYglBTZewRBE51KWt3BUltW1P+KoPsYkHoJeXePuz4zo2LMw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-unicode-escapes@7.29.7':
     resolution: {integrity: sha512-jCfXxSjf94lf4E0hKE0AByxF6F3/pVFqRdUUNkDJhsY0m1ZKjnN6ZYyMeHNpzflxb/0q5b7t3p+BE+SLF1WOtA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-unicode-property-regex@7.29.7':
     resolution: {integrity: sha512-OgZ+zoAJgZLUCunsTRQ5LAjOywDv5zzZ2/hQ5aMw1pGXyY2rtE8/chXYUmu3AlVHKpm10KEdG9aMwbI/K76ZGw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-unicode-regex@7.29.7':
     resolution: {integrity: sha512-7D/x/23/d/3VqZ0QA+LGbZMlGwZjztBygSWWWsfTPoQ1oQ6Q1P6Mr3d0kk42XabyUVw+fha3LqdRsFqeKqvCyA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/plugin-transform-unicode-sets-regex@7.29.7':
     resolution: {integrity: sha512-BLOhLht9DOJwIxlmp91wHvkXv1lguuHS3/FwUO8HL1H0u8s4hR1gASVFyilu9iGtcTRYqjTZmlsFFeQletntEg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0
+      '@babel/core': 7.29.6
 
   '@babel/preset-env@7.29.7':
     resolution: {integrity: sha512-GYzX36n1nsciIb0uyH0GHwxwtNwPQIcpxSeiVLDtG/B7jB5xXgchnmL1f/jCX5o+pwnaDBtO60ONSJhEBJfxYA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/preset-modules@0.1.6-no-external-plugins':
     resolution: {integrity: sha512-HrcgcIESLm9aIR842yhJ5RWan/gebQUJ6E/E5+rf0y9o6oj7w0Br+sWuL6kEQ/o/AdfvR1Je9jG18/gnpwjEyA==}
     peerDependencies:
-      '@babel/core': ^7.0.0-0 || ^8.0.0-0 <8.0.0
+      '@babel/core': 7.29.6
 
   '@babel/preset-react@7.29.7':
     resolution: {integrity: sha512-C+PV1TFUPTmBQGoPBL8j2QmLpZ117YTCwxIZeJOM96GbYMFSc7/pOXU5lVykwnZxyTqQxRsvoRk6f2FktZgGHA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/preset-typescript@7.29.7':
     resolution: {integrity: sha512-/Foi8vKY2EVbed/1eZx0gJEEwHAIxogrySI7rULcRIvhZzbvoE/b5qG5Ghc0WKAFKOHA9SD1x7RsFlOYdutIiQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@babel/runtime@7.29.7':
     resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
@@ -4031,8 +4046,8 @@ packages:
   '@cucumber/gherkin@38.0.0':
     resolution: {integrity: sha512-duEXK+KDfQUzu3vsSzXjkxQ2tirF5PRsc1Xrts6THKHJO6mjw4RjM8RV+vliuDasmhhrmdLcOcM7d9nurNTJKw==}
 
-  '@cucumber/gherkin@39.0.0':
-    resolution: {integrity: sha512-6tCR0ZIF0tVkd2iBqA3IcYUovwdpJM6oorACisgIdDJMsKufOq962qk9jncRUi5Bja1kEAAEKpxcRtvnp9k/dg==}
+  '@cucumber/gherkin@39.1.0':
+    resolution: {integrity: sha512-pqmSO2bUWxJm3TbNrKXlDaHjL6c77+ez9kWmfCd9oRPeTRPEVH3spZvpAqdXYWOZYSNYwWFCAAeZ4RGpkauNoQ==}
 
   '@cucumber/html-formatter@21.9.0':
     resolution: {integrity: sha512-Jj4pIdJHzFFy4mSoOfM1NqR3RgOQMycUvV52PjVnpj0OBZC6Y2M7K5sx2KiDyxSBTW4N9ametgVNG/GGnkOSRA==}
@@ -5130,6 +5145,24 @@ packages:
   '@opentelemetry/context-async-hooks@1.30.1':
     resolution: {integrity: sha512-s5vvxXPVdjqS3kTLKMeBMvop9hbWkwzBpu+mUO2M7sZtlkyDJGwFe33wRKnbaYDo8ExRVBIIdwIGrqpxHuKttA==}
     engines: {node: '>=14'}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/core@1.25.1':
+    resolution: {integrity: sha512-GeT/l6rBYWVQ4XArluLVB6WWQ8flHbdb6r2FCHC3smtdOAbrJBIv35tpV/yp9bmYUJf+xmZpu9DRTIeJVhFbEQ==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/core@1.30.1':
+    resolution: {integrity: sha512-OOCM2C/QIURhJMuKaekP3TRBxBKxG/TWWA0TL2J6nXUtDnuCtccy49LUJF8xPFXMX+0LMcxFpCo8M9cGY1W6rQ==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/core@2.7.1':
+    resolution: {integrity: sha512-QAqIj32AtK6+pEVNG7EOVxHdE06RP+FM5qpiEJ4RtDcFIqKUZHYhl7/7UY5efhwmwNAg7j8QbJVBLxMerc0+gw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
@@ -6507,20 +6540,20 @@ packages:
     resolution: {integrity: sha512-zCKpyDIWKHwtervNK2ZlaK8mMV7gVUijAgFeJStH+CU/imcdquizV3pFLlSQYRswG+Lbyd6CT/LGRh3IbtkCFw==}
     engines: {node: '>=8'}
 
-  '@serenity-js/assertions@3.42.2':
-    resolution: {integrity: sha512-cMldH4tmKv5ootLkbZu+O+RIbtR6+eu7TqsfC+zRun1y8vvSODogog4WqfhBaOzuhUxh2NzPy9ekXMhJd+t4+g==}
+  '@serenity-js/assertions@3.43.0':
+    resolution: {integrity: sha512-ZcBhu4hs8fT25JqUMXsflVqnPt+8xCeIKT7IKfKaO6/2bsVFa+H+cHZY3tlwERNbTT0M053TLdImf438o2dcZw==}
     engines: {node: ^20 || ^22 || ^24}
 
-  '@serenity-js/console-reporter@3.42.2':
-    resolution: {integrity: sha512-ybuPplh4mjuQb3/EM+U/2ifASo/iOWf7cZJ2Q/kt5sq5I0MHKDZgH/7SqWy6LWpCOcqAc0yIyMhEYZ8Wsr5H5w==}
+  '@serenity-js/console-reporter@3.43.0':
+    resolution: {integrity: sha512-IqQCvg21qqBEWeZr+0DwhA49begHBhRqQ/E/z8mv7Ec3KW9EA4uT8ABMJmP4hEgTJNiEAq13q9Ac7P/Wq8tVTQ==}
     engines: {node: ^20 || ^22 || ^24}
 
-  '@serenity-js/core@3.42.2':
-    resolution: {integrity: sha512-R2RfidErszAVLqVlEr0fTOnRsq9r1pqUCZB99ljFY5TeFge9dH4wWR+fuZ6jE81N/RIUgZNYngjI7r3dgjeAgA==}
+  '@serenity-js/core@3.43.0':
+    resolution: {integrity: sha512-r9MfqbSgOfnedPjbykShPDrje77HiEjER6i4+URxh6/TfH71fzAFvCB4dx01ts0Z6xWik+8/opbIewenekTKxg==}
     engines: {node: ^20 || ^22 || ^24}
 
-  '@serenity-js/cucumber@3.42.2':
-    resolution: {integrity: sha512-/7xekdgftWiJCDdPErh7lXF5onR46m5uovnx9jCtym9RbDhJ3SV61UL1UFDTHqDKuaccNCTKHXE9cK1no2sXLQ==}
+  '@serenity-js/cucumber@3.43.0':
+    resolution: {integrity: sha512-9mUoEWZKnqzwD9x31di8b0hj3ohdo0On6feHtJyytIeSZuPOOJM+OuICXQp8zOSFjc7I6VqQyeN7hHVLa+l6IQ==}
     engines: {node: ^20 || ^22 || ^24}
     peerDependencies:
       '@cucumber/cucumber': ^7.3.2 || ^8.5.0 || ^9.1.0 || ^10.0.0 || ^11.0.0 || ^12.0.0
@@ -6531,12 +6564,12 @@ packages:
       cucumber:
         optional: true
 
-  '@serenity-js/rest@3.42.2':
-    resolution: {integrity: sha512-+9su3BIZN6WXWMJMlKWODZq0FC+XMHIJIa0RZ5Xm20vptMQu+5BKmD3hhxwtw0uv16oYJ/KTkQ+yo4GEWJn58w==}
+  '@serenity-js/rest@3.43.0':
+    resolution: {integrity: sha512-LVGNgJX5qz3rwSBV9Nw/uL0FIqZv2d4pLRM9Kki1V+mFBjEfawai8tRsTIcnP0YHbr0nxG0UtEEFv+LzMpnrcg==}
     engines: {node: ^20 || ^22 || ^24}
 
-  '@serenity-js/serenity-bdd@3.42.2':
-    resolution: {integrity: sha512-zmsBOnnTzUs6lAXZlhRxI5b9RPstxsDk/O5XY1ZLfKtuhJq9lL1uJT6Jdp9JImaSmLX6FU5M1Hwm7MA/3Zb4XA==}
+  '@serenity-js/serenity-bdd@3.43.0':
+    resolution: {integrity: sha512-Y+1qzmrsGcd10alhZoYGOLb0flXQrLNz6momjEwDbQFGz+KfFJ++xaRL+kzbg7PAyBOsPOrFPMoLyKpXGvAQmw==}
     engines: {node: ^20 || ^22 || ^24}
     hasBin: true
 
@@ -6616,7 +6649,7 @@ packages:
   '@storybook/addon-vitest@10.4.3':
     resolution: {integrity: sha512-np5qbyc/A7bZTvRlap9eaNmp9ix9yBBhMc3ClF4u2NkyI9MNLRH2xh66mI9lsShTyUZ6NAD8Uj72YJXkcigP6w==}
     peerDependencies:
-      '@vitest/browser': 4.1.8
+      '@vitest/browser': ^3.0.0 || ^4.0.0
       '@vitest/browser-playwright': ^4.0.0
       '@vitest/runner': ^3.0.0 || ^4.0.0
       storybook: ^10.4.3
@@ -6634,7 +6667,7 @@ packages:
   '@storybook/addon-vitest@10.4.4':
     resolution: {integrity: sha512-VPpBwf1Elr+0g33am8ZE6aHhLB+r1TPxUsnDuCVNhxGjRxMFyQkAE8+jPJFPvS/YIUGMbVXarzaV7PcI/sJuVQ==}
     peerDependencies:
-      '@vitest/browser': 4.1.8
+      '@vitest/browser': ^3.0.0 || ^4.0.0
       '@vitest/browser-playwright': ^4.0.0
       '@vitest/runner': ^3.0.0 || ^4.0.0
       storybook: ^10.4.4
@@ -6819,55 +6852,55 @@ packages:
     resolution: {integrity: sha512-b9MIk7yhdS1pMCZM8VeNfUlSKVRhsHZNMl5O9SfaX0l0t5wjdgu4IDzGB8bpnGBBOjGST3rRFVsaaEtI4W6f7g==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@svgr/babel-plugin-remove-jsx-attribute@8.0.0':
     resolution: {integrity: sha512-BcCkm/STipKvbCl6b7QFrMh/vx00vIP63k2eM66MfHJzPr6O2U0jYEViXkHJWqXqQYjdeA9cuCl5KWmlwjDvbA==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@svgr/babel-plugin-remove-jsx-empty-expression@8.0.0':
     resolution: {integrity: sha512-5BcGCBfBxB5+XSDSWnhTThfI9jcO5f0Ai2V24gZpG+wXF14BzwxxdDb4g6trdOux0rhibGs385BeFMSmxtS3uA==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@svgr/babel-plugin-replace-jsx-attribute-value@8.0.0':
     resolution: {integrity: sha512-KVQ+PtIjb1BuYT3ht8M5KbzWBhdAjjUPdlMtpuw/VjT8coTrItWX6Qafl9+ji831JaJcu6PJNKCV0bp01lBNzQ==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@svgr/babel-plugin-svg-dynamic-title@8.0.0':
     resolution: {integrity: sha512-omNiKqwjNmOQJ2v6ge4SErBbkooV2aAWwaPFs2vUY7p7GhVkzRkJ00kILXQvRhA6miHnNpXv7MRnnSjdRjK8og==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@svgr/babel-plugin-svg-em-dimensions@8.0.0':
     resolution: {integrity: sha512-mURHYnu6Iw3UBTbhGwE/vsngtCIbHE43xCRK7kCw4t01xyGqb2Pd+WXekRRoFOBIY29ZoOhUCTEweDMdrjfi9g==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@svgr/babel-plugin-transform-react-native-svg@8.1.0':
     resolution: {integrity: sha512-Tx8T58CHo+7nwJ+EhUwx3LfdNSG9R2OKfaIXXs5soiy5HtgoAEkDay9LIimLOcG8dJQH1wPZp/cnAv6S9CrR1Q==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@svgr/babel-plugin-transform-svg-component@8.0.0':
     resolution: {integrity: sha512-DFx8xa3cZXTdb/k3kfPeaixecQLgKh5NVBMwD0AQxOzcZawK4oo1Jh9LbrcACUivsCA7TLG8eeWgrDXjTMhRmw==}
     engines: {node: '>=12'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@svgr/babel-preset@8.1.0':
     resolution: {integrity: sha512-7EYDbHE7MxHpv4sxvnVPngw5fuR6pw79SkcrILHJ/iMpuKySNCl5W1qcwPEpU+LgyRXOaAFgH0KhwD18wwg6ug==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': 7.29.6
 
   '@svgr/core@8.1.0':
     resolution: {integrity: sha512-8QqtOQT5ACVlmsvKOJNEaWmRPmcojMOzCz4Hs2BGG/toAp/K38LcsMRyLp349glq5AzJbCEeimEoxaX6v/fLrA==}
@@ -6933,33 +6966,33 @@ packages:
   '@ts-morph/common@0.29.0':
     resolution: {integrity: sha512-35oUmphHbJvQ/+UTwFNme/t2p3FoKiGJ5auTjjpNTop2dyREspirjMy82PLSC1pnDJ8ah1GU98hwpVt64YXQsg==}
 
-  '@turbo/darwin-64@2.9.9':
-    resolution: {integrity: sha512-hTEiNu2ABZZOO1qbjnKASI8eF3BdOOzU6iKv5w5uGOK65DDMc10cS40N1kqM99YT0uSAGUwNu6GdFctRPeEeVA==}
+  '@turbo/darwin-64@2.9.18':
+    resolution: {integrity: sha512-9f27peFu16ur8c0v9nUFUEyBnbKuuFsUTjHFWfmwGfzySBXbHwzU44QhZon6Mznz0cHsIr3984NQj/bVrnGSRw==}
     cpu: [x64]
     os: [darwin]
 
-  '@turbo/darwin-arm64@2.9.9':
-    resolution: {integrity: sha512-MinO40EEcP5mJiTVpfjtEulsEBhVeryfq21QhYtJZ8hQJLHGgy459rcmDVAY8/JERe4dkVU4KW+zoLF22o01EA==}
+  '@turbo/darwin-arm64@2.9.18':
+    resolution: {integrity: sha512-9A6TMRq/Ib+QnbhLlgkhOm+624wO4pzSQ/yQviQfWHOlFvaYxdnIAYmu2H6TS6y7kSVL0DvzNe04NbESTOzFVQ==}
     cpu: [arm64]
     os: [darwin]
 
-  '@turbo/linux-64@2.9.9':
-    resolution: {integrity: sha512-7JNLw88Isk+gMlbsC8pulLDkrqe2B827ZsKFEHilb17AC6Xn/62pzH7afjY7fEU6Ayp4XP/vGhlRWOzqBvBvIQ==}
+  '@turbo/linux-64@2.9.18':
+    resolution: {integrity: sha512-zCdIDtz69AnbYh913elJRRoF3QY5aa2HNnf+4rAkc7bQ+tWujiDkCNV7stazOUPggaDvhKIf2Z87qHftTeXSkw==}
     cpu: [x64]
     os: [linux]
 
-  '@turbo/linux-arm64@2.9.9':
-    resolution: {integrity: sha512-0pnXDwPw1rHii98JZPRg7SvsjIzy7jrhkwGU9Jy5fVYoMdYd3P2vbtLfII+OJ0Mm4Ar5yykdHDTz3RWiRI1o9g==}
+  '@turbo/linux-arm64@2.9.18':
+    resolution: {integrity: sha512-Va1kXI04naMgYwqv/5Dfa36dTDx8015U7oaQAjrXa45ua9OoFjSV4OmvkML4EmXvUclQHCiBRbY8bvd0jV7eAg==}
     cpu: [arm64]
     os: [linux]
 
-  '@turbo/windows-64@2.9.9':
-    resolution: {integrity: sha512-vjDQycz4gQVvIq4n2rPtiiIESwJlAc406qtkiZlqyL+fHZEd9SxYNlBIFYtc5cuMuwrk+sIKrhN7XvwjmvS9YQ==}
+  '@turbo/windows-64@2.9.18':
+    resolution: {integrity: sha512-m0kDhZANxSNz9ck1ybogFscHabriAsp4eDFNrN/1H5WrgTF7b3VlcPZnhuO3v2+E2KnCbeAc+UUT10BZZHdDKw==}
     cpu: [x64]
     os: [win32]
 
-  '@turbo/windows-arm64@2.9.9':
-    resolution: {integrity: sha512-V6NiH43oCctepbOdQFp7UjqLyK8p6Tt824QA+G4TE+B1BBHu80A0W8OCL+H7uBJ3XZjAj/hvPDw3k3l65DoDGw==}
+  '@turbo/windows-arm64@2.9.18':
+    resolution: {integrity: sha512-nUdR8WqoomUys9iIQmG45TMiizJ+5BV8egSeLLZba/AWblyp3fVBcIH1kSE58OtK4g2YzbMJEth6Ttv9w5rqMA==}
     cpu: [arm64]
     os: [win32]
 
@@ -7270,10 +7303,10 @@ packages:
     peerDependencies:
       vitest: 4.1.8
 
-  '@vitest/coverage-istanbul@4.1.6':
-    resolution: {integrity: sha512-lOt/VDh+sihAx3OUxCE5CC0qZfAhIzE3Dxw75NJ3P0C6ruUgT9b/jZKECE1ctpbxSVic9OkLdXz5UEX39ks4Sw==}
+  '@vitest/coverage-istanbul@4.1.8':
+    resolution: {integrity: sha512-/h514nMZMKI6foh21mVgO1zlCH6pdDamwKMbla1uLU2GMxTlfp0PQMxovWozmzQdCIQYZ2XXEzg2zNZom2zAOg==}
     peerDependencies:
-      vitest: 4.1.6
+      vitest: 4.1.8
 
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
@@ -7710,7 +7743,7 @@ packages:
     resolution: {integrity: sha512-fqe8naHt46e0yIdkjUZYqddSXfej3AHajX+CSO5X7oy0EmPc6o5Xh+RClNoHjnieWz9AW4kZxW9yyFMhVB1QLA==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
-      '@babel/core': ^7.12.0
+      '@babel/core': 7.29.6
       webpack: ^5.105.4
 
   babel-plugin-dynamic-import-node@2.3.3:
@@ -7719,22 +7752,22 @@ packages:
   babel-plugin-polyfill-corejs2@0.4.17:
     resolution: {integrity: sha512-aTyf30K/rqAsNwN76zYrdtx8obu0E4KoUME29B1xj+B3WxgvWkp943vYQ+z8Mv3lw9xHXMHpvSPOBxzAkIa94w==}
     peerDependencies:
-      '@babel/core': ^7.4.0 || ^8.0.0-0 <8.0.0
+      '@babel/core': 7.29.6
 
   babel-plugin-polyfill-corejs3@0.13.0:
     resolution: {integrity: sha512-U+GNwMdSFgzVmfhNm8GJUX88AadB3uo9KpJqS3FaqNIPKgySuvMb+bHPsOmmuWyIcuqZj/pzt1RUIUZns4y2+A==}
     peerDependencies:
-      '@babel/core': ^7.4.0 || ^8.0.0-0 <8.0.0
+      '@babel/core': 7.29.6
 
   babel-plugin-polyfill-corejs3@0.14.2:
     resolution: {integrity: sha512-coWpDLJ410R781Npmn/SIBZEsAetR4xVi0SxLMXPaMO4lSf1MwnkGYMtkFxew0Dn8B3/CpbpYxN0JCgg8mn67g==}
     peerDependencies:
-      '@babel/core': ^7.4.0 || ^8.0.0-0 <8.0.0
+      '@babel/core': 7.29.6
 
   babel-plugin-polyfill-regenerator@0.6.8:
     resolution: {integrity: sha512-M762rNHfSF1EV3SLtnCJXFoQbbIIz0OyRwnCmV0KPC7qosSfCO0QLTSuJX3ayAebubhE6oYBAYPrBA5ljowaZg==}
     peerDependencies:
-      '@babel/core': ^7.4.0 || ^8.0.0-0 <8.0.0
+      '@babel/core': 7.29.6
 
   bail@2.0.2:
     resolution: {integrity: sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw==}
@@ -7850,8 +7883,8 @@ packages:
   brace-expansion@1.1.13:
     resolution: {integrity: sha512-9ZLprWS6EENmhEOpjCYW2c8VkmOvckIJZfkr7rBW6dObmfgJ/L1GpSYW5Hpo9lDz4D1+n0Ckz8rU7FwHDQiG/w==}
 
-  brace-expansion@2.1.1:
-    resolution: {integrity: sha512-WR1cURNjuvBLMZBMbqM0UoE+WAfdUcEV1ccD8PVBVOI+Z3ND4+SZbN8RsfT2bMuG1qwz5RFvPukSZm5fF2D5eA==}
+  brace-expansion@2.0.3:
+    resolution: {integrity: sha512-MCV/fYJEbqx68aE58kv2cA/kiky1G8vux3OR6/jbS+jIMe/6fJWa0DTzJU7dqijOWYwHi1t29FlfYI9uytqlpA==}
 
   brace-expansion@5.0.6:
     resolution: {integrity: sha512-kLpxurY4Z4r9sgMsyG0Z9uzsBlgiU/EFKhj/h91/8yHu0edo7XuixOIH3VcJ8kkxs6/jPzoI6U9Vj3WqbMQ94g==}
@@ -8087,8 +8120,8 @@ packages:
       '@chromatic-com/vitest':
         optional: true
 
-  chrome-devtools-mcp@0.21.0:
-    resolution: {integrity: sha512-d+iqrRmcwpRFV3Q4DRCF2LCoq+WCRU3GhISKQ9v8g+1C2Uh8upj3urkjxNO4QIjhBMIYei/VQ1OQLFceby80Og==}
+  chrome-devtools-mcp@1.3.0:
+    resolution: {integrity: sha512-52NVUwWSL4eW7W9nsDrzYJF96IKVuxEwAn4O7ZfdNRtopS954P9nryJbdYwg7vdqxhLrvioGFlm5e4P41WXsiw==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=23}
     hasBin: true
 
@@ -9598,14 +9631,9 @@ packages:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
     engines: {node: '>= 14'}
 
-  http-proxy-middleware@2.0.9:
-    resolution: {integrity: sha512-c1IyJYLYppU574+YI7R4QyX2ystMtVXZwIdzazUIPIJsHuWNd+mho2j+bKoHftndicGj9yh+xjd+l0yj7VeT1Q==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      '@types/express': ^4.17.13
-    peerDependenciesMeta:
-      '@types/express':
-        optional: true
+  http-proxy-middleware@3.0.7:
+    resolution: {integrity: sha512-iwbQltVlx8bCrqePUM8C+hllHvdawVhQJaLrj1X7qllkvFQdXFsr16pW/mo9+JDVjN+QO2XUx9jd8SmoFkE5qw==}
+    engines: {node: ^14.18.0 || ^16.10.0 || >=18.0.0}
 
   http-proxy@1.18.1:
     resolution: {integrity: sha512-7mz/721AbnJwIVbnaSv1Cz3Am0ZLT/UBwkC92VlxhXv/k/BBQfM2fXElQNC27BVGr0uwUpplYPQM9LnaBMR5NQ==}
@@ -9677,8 +9705,9 @@ packages:
   immediate@3.0.6:
     resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
 
-  immutable@5.1.6:
-    resolution: {integrity: sha512-q1swsS8K7L8usSHuOqF2TAoCCkonYz0SG38wLAggaa4Wml70zixIvt2ql4coQ2C2B3hTjltJry4r6bULwgAXLQ==}
+  immutable@3.8.3:
+    resolution: {integrity: sha512-AUY/VyX0E5XlibOmWt10uabJzam1zlYjwiEgQSDc5+UIkFNaF9WM0JxXKaNMGf+F/ffUF+7kRKXM9A7C0xXqMg==}
+    engines: {node: '>=0.10.0'}
 
   import-fresh@3.3.1:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
@@ -9914,16 +9943,16 @@ packages:
     resolution: {integrity: sha512-Fd4gABb+ycGAmKou8eMftCupSir5lRxqf4aD/vd0cD2qc4HL07OjCeuHMr8Ro4CoMaeCKDB0/ECBOVWjTwUvPQ==}
     engines: {node: '>=8'}
 
-  is-plain-obj@3.0.0:
-    resolution: {integrity: sha512-gwsOE28k+23GP1B6vFl1oVh/WOzmawBrKwo5Ev6wMKzPkaXaCDIQKzLnvsA42DRlbVTWorkgTKIviAKCWkfUwA==}
-    engines: {node: '>=10'}
-
   is-plain-obj@4.1.0:
     resolution: {integrity: sha512-+Pgi+vMuUNkJyExiMBt5IlFoMyKnr5zhJ4Uspz58WOhBF5QoIZkFyNHIbBAtHwzVAgk5RtndVNsDRN61/mmDqg==}
     engines: {node: '>=12'}
 
   is-plain-object@2.0.4:
     resolution: {integrity: sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==}
+    engines: {node: '>=0.10.0'}
+
+  is-plain-object@5.0.0:
+    resolution: {integrity: sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==}
     engines: {node: '>=0.10.0'}
 
   is-potential-custom-element-name@1.0.1:
@@ -10436,8 +10465,8 @@ packages:
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
 
-  lru-cache@11.3.5:
-    resolution: {integrity: sha512-NxVFwLAnrd9i7KUBxC4DrUhmgjzOs+1Qm50D3oF1/oL+r1NpZ4gA7xvG0/zJ8evR7zIKn4vLf7qTNduWFtCrRw==}
+  lru-cache@11.3.6:
+    resolution: {integrity: sha512-Gf/KoL3C/MlI7Bt0PGI9I+TeTC/I6r/csU58N4BSNc4lppLBeKsOdFYkK+dX0ABDUMJNfCHTyPpzwwO21Awd3A==}
     engines: {node: 20 || >=22}
 
   lru-cache@11.5.1:
@@ -11908,6 +11937,9 @@ packages:
     resolution: {integrity: sha512-773xhDQnZBMFobEiztv8LIl70ch5MSF/jUQVlhwFyBILqq96anmoctVIYz+ZRp0qbCKATTn6ev02M3r7Ga5vqA==}
     engines: {node: '>=0.4.x'}
 
+  querystringify@2.2.0:
+    resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
+
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
@@ -12422,6 +12454,11 @@ packages:
 
   semver@7.7.4:
     resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  semver@7.8.0:
+    resolution: {integrity: sha512-AcM7dV/5ul4EekoQ29Agm5vri8JNqRyj39o0qpX6vDF2GZrtutZl5RwgD1XnZjiTAfncsJhMI48QQH3sN87YNA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -13124,9 +13161,9 @@ packages:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
     engines: {node: '>=6'}
 
-  tough-cookie@2.5.0:
-    resolution: {integrity: sha512-nlLsUzgm1kfLXSXfRZMc1KLAugd4hqJHDTvc2hDIwS3mZAfMEuMbc03SujMF+GEcpaX/qboeycw6iO8JwVv2+g==}
-    engines: {node: '>=0.8'}
+  tough-cookie@4.1.3:
+    resolution: {integrity: sha512-aX/y5pVRkfRnfmuX+OdbSdXvPe6ieKX/G2s7e98f4poJHnqH3281gDPm/metm6E/WRamfx7WC4HUqkWHfQHprw==}
+    engines: {node: '>=6'}
 
   tough-cookie@5.1.2:
     resolution: {integrity: sha512-FVDYdxtnj0G6Qm/DhNPSb8Ju59ULcup3tuJxkFb5K8Bv2pUXILbf0xZWU8PX8Ov19OXljbUyveOFwRMwkXzO+A==}
@@ -13217,8 +13254,8 @@ packages:
     resolution: {integrity: sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==}
     engines: {node: '>=0.6.11 <=0.7.0 || >=0.7.3'}
 
-  turbo@2.9.9:
-    resolution: {integrity: sha512-3xfzXE/yTjhh0S5dIWlE+3E+J9A09REpLI1ZqVh2+HrNZoVzZn0pkvjiRgVK/Ev3PF9XnaTwCntTx+CADWXcyA==}
+  turbo@2.9.18:
+    resolution: {integrity: sha512-bwabv6PupzeavybzEoArBAkwq5fnzwf8OFnRtpHwnviFWuwJPFxtyH+aVp36TmIqK3aYYgtTJ3J0m2ysxxSzQg==}
     hasBin: true
 
   type-fest@0.13.1:
@@ -13353,6 +13390,10 @@ packages:
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
+  universalify@0.2.0:
+    resolution: {integrity: sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==}
+    engines: {node: '>= 4.0.0'}
+
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
@@ -13404,6 +13445,9 @@ packages:
     peerDependenciesMeta:
       file-loader:
         optional: true
+
+  url-parse@1.5.10:
+    resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}
 
   url@0.11.4:
     resolution: {integrity: sha512-oCwdVC7mTuWiPyjLUz/COz5TLk6wgp0RCsN+wHZ2Ekneac9w8uuV0njcbbie2ME+Vs+d6duwmYuR3HgQXs1fOg==}
@@ -13816,8 +13860,8 @@ packages:
     resolution: {integrity: sha512-k8KO9hrMyNk6tUWqUfkTEZbezRRpONVOzUTnc97VnCvyj6Tf9lyUR9EDAIeiVLv56jsMcoXEwjW8Kv5yPY52lw==}
     engines: {node: '>=16.0.0'}
 
-  xml2js@0.4.23:
-    resolution: {integrity: sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==}
+  xml2js@0.5.0:
+    resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
     engines: {node: '>=4.0.0'}
 
   xml2js@0.6.2:
@@ -14039,7 +14083,7 @@ snapshots:
       minimist: 1.2.8
       parsecurrency: 1.1.1
       ts-morph: 28.0.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
 
   '@ant-design/cli@6.4.3':
     dependencies:
@@ -14308,7 +14352,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.7
       graphql: 16.14.2
-      immutable: 5.1.6
+      immutable: 3.8.3
       invariant: 2.2.4
 
   '@asamuzakjp/css-color@3.2.0':
@@ -14443,7 +14487,23 @@ snapshots:
       cookie: 0.7.2
       long: 4.0.0
 
-  '@azure/identity@3.4.2':
+  '@azure/identity@4.13.1':
+    dependencies:
+      '@azure/abort-controller': 2.1.2
+      '@azure/core-auth': 1.10.1
+      '@azure/core-client': 1.10.2
+      '@azure/core-rest-pipeline': 1.24.0
+      '@azure/core-tracing': 1.3.1
+      '@azure/core-util': 1.13.1
+      '@azure/logger': 1.3.0
+      '@azure/msal-browser': 5.12.0
+      '@azure/msal-node': 5.2.3
+      open: 10.2.0
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@azure/identity@4.2.1':
     dependencies:
       '@azure/abort-controller': 1.1.0
       '@azure/core-auth': 1.10.1
@@ -14458,22 +14518,6 @@ snapshots:
       jws: 4.0.1
       open: 8.4.2
       stoppable: 1.1.0
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - supports-color
-
-  '@azure/identity@4.13.1':
-    dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1
-      '@azure/core-client': 1.10.2
-      '@azure/core-rest-pipeline': 1.24.0
-      '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1
-      '@azure/logger': 1.3.0
-      '@azure/msal-browser': 5.12.0
-      '@azure/msal-node': 5.2.3
-      open: 10.2.0
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -14521,7 +14565,7 @@ snapshots:
       '@azure/core-rest-pipeline': 1.24.0
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.57.2
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-logs': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-metrics': 1.30.1(@opentelemetry/api@1.9.0)
@@ -14536,11 +14580,11 @@ snapshots:
       '@azure/core-auth': 1.10.1
       axios: 1.16.0
       form-data: 4.0.6
-      tough-cookie: 2.5.0
+      tough-cookie: 4.1.3
       tslib: 1.14.1
       tunnel: 0.0.6
       uuid: 3.4.0
-      xml2js: 0.4.23
+      xml2js: 0.5.0
     transitivePeerDependencies:
       - debug
       - supports-color
@@ -14622,12 +14666,12 @@ snapshots:
 
   '@babel/compat-data@7.29.7': {}
 
-  '@babel/core@7.29.7':
+  '@babel/core@7.29.6':
     dependencies:
       '@babel/code-frame': 7.29.7
       '@babel/generator': 7.29.7
       '@babel/helper-compilation-targets': 7.29.7
-      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7)
+      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.6)
       '@babel/helpers': 7.29.7
       '@babel/parser': 7.29.7
       '@babel/template': 7.29.7
@@ -14662,29 +14706,29 @@ snapshots:
       lru-cache: 5.1.1
       semver: 6.3.1
 
-  '@babel/helper-create-class-features-plugin@7.29.7(@babel/core@7.29.7)':
+  '@babel/helper-create-class-features-plugin@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-annotate-as-pure': 7.29.7
       '@babel/helper-member-expression-to-functions': 7.29.7
       '@babel/helper-optimise-call-expression': 7.29.7
-      '@babel/helper-replace-supers': 7.29.7(@babel/core@7.29.7)
+      '@babel/helper-replace-supers': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-skip-transparent-expression-wrappers': 7.29.7
       '@babel/traverse': 7.29.7
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/helper-create-regexp-features-plugin@7.29.7(@babel/core@7.29.7)':
+  '@babel/helper-create-regexp-features-plugin@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-annotate-as-pure': 7.29.7
       regexpu-core: 6.4.0
       semver: 6.3.1
 
-  '@babel/helper-define-polyfill-provider@0.6.8(@babel/core@7.29.7)':
+  '@babel/helper-define-polyfill-provider@0.6.8(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-compilation-targets': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
       debug: 4.4.3(supports-color@8.1.1)
@@ -14709,9 +14753,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/helper-module-transforms@7.29.7(@babel/core@7.29.7)':
+  '@babel/helper-module-transforms@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-module-imports': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
       '@babel/traverse': 7.29.7
@@ -14724,18 +14768,18 @@ snapshots:
 
   '@babel/helper-plugin-utils@7.29.7': {}
 
-  '@babel/helper-remap-async-to-generator@7.29.7(@babel/core@7.29.7)':
+  '@babel/helper-remap-async-to-generator@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-annotate-as-pure': 7.29.7
       '@babel/helper-wrap-function': 7.29.7
       '@babel/traverse': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/helper-replace-supers@7.29.7(@babel/core@7.29.7)':
+  '@babel/helper-replace-supers@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-member-expression-to-functions': 7.29.7
       '@babel/helper-optimise-call-expression': 7.29.7
       '@babel/traverse': 7.29.7
@@ -14772,578 +14816,578 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.7
 
-  '@babel/plugin-bugfix-firefox-class-in-computed-class-key@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-bugfix-firefox-class-in-computed-class-key@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/traverse': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-bugfix-safari-class-field-initializer-scope@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-bugfix-safari-class-field-initializer-scope@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-bugfix-safari-rest-destructuring-rhs-array@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-bugfix-safari-rest-destructuring-rhs-array@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-skip-transparent-expression-wrappers': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-skip-transparent-expression-wrappers': 7.29.7
-      '@babel/plugin-transform-optional-chaining': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-transform-optional-chaining': 7.29.7(@babel/core@7.29.6)
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/traverse': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-proposal-private-property-in-object@7.21.0-placeholder-for-preset-env.2(@babel/core@7.29.7)':
+  '@babel/plugin-proposal-private-property-in-object@7.21.0-placeholder-for-preset-env.2(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
 
-  '@babel/plugin-syntax-dynamic-import@7.8.3(@babel/core@7.29.7)':
+  '@babel/plugin-syntax-dynamic-import@7.8.3(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-syntax-import-assertions@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-syntax-import-assertions@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-syntax-import-attributes@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-syntax-import-attributes@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-syntax-unicode-sets-regex@7.18.6(@babel/core@7.29.7)':
+  '@babel/plugin-syntax-unicode-sets-regex@7.18.6(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-arrow-functions@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-arrow-functions@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-async-generator-functions@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-async-generator-functions@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
-      '@babel/helper-remap-async-to-generator': 7.29.7(@babel/core@7.29.7)
+      '@babel/helper-remap-async-to-generator': 7.29.7(@babel/core@7.29.6)
       '@babel/traverse': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-async-to-generator@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-async-to-generator@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-module-imports': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
-      '@babel/helper-remap-async-to-generator': 7.29.7(@babel/core@7.29.7)
+      '@babel/helper-remap-async-to-generator': 7.29.7(@babel/core@7.29.6)
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-block-scoped-functions@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-block-scoped-functions@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-block-scoping@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-block-scoping@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-class-properties@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-class-properties@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.7)
-      '@babel/helper-plugin-utils': 7.29.7
-    transitivePeerDependencies:
-      - supports-color
-
-  '@babel/plugin-transform-class-static-block@7.29.7(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-classes@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-class-static-block@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
+      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.6)
+      '@babel/helper-plugin-utils': 7.29.7
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/plugin-transform-classes@7.29.7(@babel/core@7.29.6)':
+    dependencies:
+      '@babel/core': 7.29.6
       '@babel/helper-annotate-as-pure': 7.29.7
       '@babel/helper-compilation-targets': 7.29.7
       '@babel/helper-globals': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
-      '@babel/helper-replace-supers': 7.29.7(@babel/core@7.29.7)
+      '@babel/helper-replace-supers': 7.29.7(@babel/core@7.29.6)
       '@babel/traverse': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-computed-properties@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-computed-properties@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/template': 7.29.7
 
-  '@babel/plugin-transform-destructuring@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-destructuring@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/traverse': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-dotall-regex@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-dotall-regex@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-duplicate-keys@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-duplicate-keys@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-duplicate-named-capturing-groups-regex@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-duplicate-named-capturing-groups-regex@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-dynamic-import@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-dynamic-import@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-explicit-resource-management@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-explicit-resource-management@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
-      '@babel/plugin-transform-destructuring': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-transform-destructuring': 7.29.7(@babel/core@7.29.6)
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-exponentiation-operator@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-exponentiation-operator@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-export-namespace-from@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-export-namespace-from@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-for-of@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-for-of@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-skip-transparent-expression-wrappers': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-function-name@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-function-name@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-compilation-targets': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/traverse': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-json-strings@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-json-strings@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-literals@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-literals@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-logical-assignment-operators@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-logical-assignment-operators@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-member-expression-literals@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-member-expression-literals@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-modules-amd@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-modules-amd@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7)
-      '@babel/helper-plugin-utils': 7.29.7
-    transitivePeerDependencies:
-      - supports-color
-
-  '@babel/plugin-transform-modules-commonjs@7.29.7(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-modules-systemjs@7.29.4(@babel/core@7.29.7)':
+  '@babel/plugin-transform-modules-commonjs@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.6)
+      '@babel/helper-plugin-utils': 7.29.7
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/plugin-transform-modules-systemjs@7.29.4(@babel/core@7.29.6)':
+    dependencies:
+      '@babel/core': 7.29.6
+      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
       '@babel/traverse': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-modules-umd@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-modules-umd@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-named-capturing-groups-regex@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-named-capturing-groups-regex@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-new-target@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-new-target@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-nullish-coalescing-operator@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-nullish-coalescing-operator@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-numeric-separator@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-numeric-separator@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-object-rest-spread@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-object-rest-spread@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-compilation-targets': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
-      '@babel/plugin-transform-destructuring': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-parameters': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-transform-destructuring': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-parameters': 7.29.7(@babel/core@7.29.6)
       '@babel/traverse': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-object-super@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-object-super@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
-      '@babel/helper-replace-supers': 7.29.7(@babel/core@7.29.7)
+      '@babel/helper-replace-supers': 7.29.7(@babel/core@7.29.6)
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-optional-catch-binding@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-optional-catch-binding@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-optional-chaining@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-optional-chaining@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-skip-transparent-expression-wrappers': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-parameters@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-parameters@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-private-methods@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-private-methods@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-private-property-in-object@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-private-property-in-object@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-annotate-as-pure': 7.29.7
-      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-property-literals@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-property-literals@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-react-constant-elements@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-react-constant-elements@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-react-display-name@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-react-display-name@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-react-jsx-development@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-react-jsx-development@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/plugin-transform-react-jsx': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/plugin-transform-react-jsx': 7.29.7(@babel/core@7.29.6)
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-react-jsx@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-react-jsx@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-annotate-as-pure': 7.29.7
       '@babel/helper-module-imports': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
-      '@babel/plugin-syntax-jsx': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-syntax-jsx': 7.29.7(@babel/core@7.29.6)
       '@babel/types': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-react-pure-annotations@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-react-pure-annotations@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-annotate-as-pure': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-regenerator@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-regenerator@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-regexp-modifiers@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-regexp-modifiers@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-reserved-words@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-reserved-words@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-runtime@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-runtime@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-module-imports': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
-      babel-plugin-polyfill-corejs2: 0.4.17(@babel/core@7.29.7)
-      babel-plugin-polyfill-corejs3: 0.13.0(@babel/core@7.29.7)
-      babel-plugin-polyfill-regenerator: 0.6.8(@babel/core@7.29.7)
+      babel-plugin-polyfill-corejs2: 0.4.17(@babel/core@7.29.6)
+      babel-plugin-polyfill-corejs3: 0.13.0(@babel/core@7.29.6)
+      babel-plugin-polyfill-regenerator: 0.6.8(@babel/core@7.29.6)
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-shorthand-properties@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-shorthand-properties@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-spread@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-spread@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-skip-transparent-expression-wrappers': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-sticky-regex@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-sticky-regex@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-template-literals@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-template-literals@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-typeof-symbol@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-typeof-symbol@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-typescript@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-typescript@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-annotate-as-pure': 7.29.7
-      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/helper-create-class-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-skip-transparent-expression-wrappers': 7.29.7
-      '@babel/plugin-syntax-typescript': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-syntax-typescript': 7.29.7(@babel/core@7.29.6)
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-unicode-escapes@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-unicode-escapes@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-unicode-property-regex@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-unicode-property-regex@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-unicode-regex@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-unicode-regex@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-unicode-sets-regex@7.29.7(@babel/core@7.29.7)':
+  '@babel/plugin-transform-unicode-sets-regex@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.6)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/preset-env@7.29.7(@babel/core@7.29.7)':
+  '@babel/preset-env@7.29.7(@babel/core@7.29.6)':
     dependencies:
       '@babel/compat-data': 7.29.7
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-compilation-targets': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-validator-option': 7.29.7
-      '@babel/plugin-bugfix-firefox-class-in-computed-class-key': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-bugfix-safari-class-field-initializer-scope': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-bugfix-safari-rest-destructuring-rhs-array': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-proposal-private-property-in-object': 7.21.0-placeholder-for-preset-env.2(@babel/core@7.29.7)
-      '@babel/plugin-syntax-import-assertions': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-syntax-import-attributes': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-syntax-unicode-sets-regex': 7.18.6(@babel/core@7.29.7)
-      '@babel/plugin-transform-arrow-functions': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-async-generator-functions': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-async-to-generator': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-block-scoped-functions': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-block-scoping': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-class-properties': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-class-static-block': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-classes': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-computed-properties': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-destructuring': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-dotall-regex': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-duplicate-keys': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-duplicate-named-capturing-groups-regex': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-dynamic-import': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-explicit-resource-management': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-exponentiation-operator': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-export-namespace-from': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-for-of': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-function-name': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-json-strings': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-literals': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-logical-assignment-operators': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-member-expression-literals': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-modules-amd': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-modules-commonjs': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-modules-systemjs': 7.29.4(@babel/core@7.29.7)
-      '@babel/plugin-transform-modules-umd': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-named-capturing-groups-regex': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-new-target': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-nullish-coalescing-operator': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-numeric-separator': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-object-rest-spread': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-object-super': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-optional-catch-binding': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-optional-chaining': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-parameters': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-private-methods': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-private-property-in-object': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-property-literals': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-regenerator': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-regexp-modifiers': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-reserved-words': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-shorthand-properties': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-spread': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-sticky-regex': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-template-literals': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-typeof-symbol': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-unicode-escapes': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-unicode-property-regex': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-unicode-regex': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-unicode-sets-regex': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-modules': 0.1.6-no-external-plugins(@babel/core@7.29.7)
-      babel-plugin-polyfill-corejs2: 0.4.17(@babel/core@7.29.7)
-      babel-plugin-polyfill-corejs3: 0.14.2(@babel/core@7.29.7)
-      babel-plugin-polyfill-regenerator: 0.6.8(@babel/core@7.29.7)
+      '@babel/plugin-bugfix-firefox-class-in-computed-class-key': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-bugfix-safari-class-field-initializer-scope': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-bugfix-safari-rest-destructuring-rhs-array': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-proposal-private-property-in-object': 7.21.0-placeholder-for-preset-env.2(@babel/core@7.29.6)
+      '@babel/plugin-syntax-import-assertions': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-syntax-import-attributes': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-syntax-unicode-sets-regex': 7.18.6(@babel/core@7.29.6)
+      '@babel/plugin-transform-arrow-functions': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-async-generator-functions': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-async-to-generator': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-block-scoped-functions': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-block-scoping': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-class-properties': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-class-static-block': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-classes': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-computed-properties': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-destructuring': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-dotall-regex': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-duplicate-keys': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-duplicate-named-capturing-groups-regex': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-dynamic-import': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-explicit-resource-management': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-exponentiation-operator': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-export-namespace-from': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-for-of': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-function-name': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-json-strings': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-literals': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-logical-assignment-operators': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-member-expression-literals': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-modules-amd': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-modules-commonjs': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-modules-systemjs': 7.29.4(@babel/core@7.29.6)
+      '@babel/plugin-transform-modules-umd': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-named-capturing-groups-regex': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-new-target': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-nullish-coalescing-operator': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-numeric-separator': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-object-rest-spread': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-object-super': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-optional-catch-binding': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-optional-chaining': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-parameters': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-private-methods': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-private-property-in-object': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-property-literals': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-regenerator': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-regexp-modifiers': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-reserved-words': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-shorthand-properties': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-spread': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-sticky-regex': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-template-literals': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-typeof-symbol': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-unicode-escapes': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-unicode-property-regex': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-unicode-regex': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-unicode-sets-regex': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-modules': 0.1.6-no-external-plugins(@babel/core@7.29.6)
+      babel-plugin-polyfill-corejs2: 0.4.17(@babel/core@7.29.6)
+      babel-plugin-polyfill-corejs3: 0.14.2(@babel/core@7.29.6)
+      babel-plugin-polyfill-regenerator: 0.6.8(@babel/core@7.29.6)
       core-js-compat: 3.49.0
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/preset-modules@0.1.6-no-external-plugins(@babel/core@7.29.7)':
+  '@babel/preset-modules@0.1.6-no-external-plugins(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/types': 7.29.7
       esutils: 2.0.3
 
-  '@babel/preset-react@7.29.7(@babel/core@7.29.7)':
+  '@babel/preset-react@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-validator-option': 7.29.7
-      '@babel/plugin-transform-react-display-name': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-react-jsx': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-react-jsx-development': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-react-pure-annotations': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-transform-react-display-name': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-react-jsx': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-react-jsx-development': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-react-pure-annotations': 7.29.7(@babel/core@7.29.6)
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/preset-typescript@7.29.7(@babel/core@7.29.7)':
+  '@babel/preset-typescript@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/helper-validator-option': 7.29.7
-      '@babel/plugin-syntax-jsx': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-modules-commonjs': 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-typescript': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-syntax-jsx': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-modules-commonjs': 7.29.7(@babel/core@7.29.6)
+      '@babel/plugin-transform-typescript': 7.29.7(@babel/core@7.29.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -15817,7 +15861,7 @@ snapshots:
     dependencies:
       '@cucumber/messages': 32.2.0
 
-  '@cucumber/gherkin@39.0.0':
+  '@cucumber/gherkin@39.1.0':
     dependencies:
       '@cucumber/messages': 32.3.1
 
@@ -15953,13 +15997,13 @@ snapshots:
 
   '@docusaurus/babel@3.10.1(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.10))(esbuild@0.28.1)(html-minifier-terser@7.2.0)(postcss@8.5.10)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/generator': 7.29.7
-      '@babel/plugin-syntax-dynamic-import': 7.8.3(@babel/core@7.29.7)
-      '@babel/plugin-transform-runtime': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-env': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-typescript': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-syntax-dynamic-import': 7.8.3(@babel/core@7.29.6)
+      '@babel/plugin-transform-runtime': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-env': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-react': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-typescript': 7.29.7(@babel/core@7.29.6)
       '@babel/runtime': 7.29.7
       '@babel/traverse': 7.29.7
       '@docusaurus/logger': 3.10.1
@@ -15987,13 +16031,13 @@ snapshots:
 
   '@docusaurus/babel@3.10.1(esbuild@0.28.1)(postcss@8.5.10)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/generator': 7.29.7
-      '@babel/plugin-syntax-dynamic-import': 7.8.3(@babel/core@7.29.7)
-      '@babel/plugin-transform-runtime': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-env': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-typescript': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-syntax-dynamic-import': 7.8.3(@babel/core@7.29.6)
+      '@babel/plugin-transform-runtime': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-env': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-react': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-typescript': 7.29.7(@babel/core@7.29.6)
       '@babel/runtime': 7.29.7
       '@babel/traverse': 7.29.7
       '@docusaurus/logger': 3.10.1
@@ -16021,13 +16065,13 @@ snapshots:
 
   '@docusaurus/bundler@3.10.1(esbuild@0.28.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@docusaurus/babel': 3.10.1(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.10))(esbuild@0.28.1)(html-minifier-terser@7.2.0)(postcss@8.5.10)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/cssnano-preset': 3.10.1
       '@docusaurus/logger': 3.10.1
       '@docusaurus/types': 3.10.1(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.10))(esbuild@0.28.1)(html-minifier-terser@7.2.0)(postcss@8.5.10)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils': 3.10.1(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.10))(esbuild@0.28.1)(html-minifier-terser@7.2.0)(postcss@8.5.10)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      babel-loader: 9.2.1(@babel/core@7.29.7)(webpack@5.107.2(esbuild@0.28.1)(postcss@8.5.10))
+      babel-loader: 9.2.1(@babel/core@7.29.6)(webpack@5.107.2(esbuild@0.28.1)(postcss@8.5.10))
       clean-css: 5.3.3
       copy-webpack-plugin: 11.0.0(webpack@5.107.2(esbuild@0.28.1)(postcss@8.5.10))
       css-loader: 6.11.0(webpack@5.107.2(esbuild@0.28.1)(postcss@8.5.10))
@@ -16120,7 +16164,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16251,7 +16294,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16297,7 +16339,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16333,7 +16374,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16364,7 +16404,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16400,7 +16439,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16432,7 +16470,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16465,7 +16502,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16497,7 +16533,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16534,7 +16569,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16570,7 +16604,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16615,7 +16648,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16675,7 +16707,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -16754,7 +16785,6 @@ snapshots:
       - clean-css
       - cssnano
       - csso
-      - debug
       - esbuild
       - html-minifier-terser
       - lightningcss
@@ -17516,9 +17546,9 @@ snapshots:
 
   '@graphql-tools/graphql-tag-pluck@8.3.31(graphql@16.14.2)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/parser': 7.29.7
-      '@babel/plugin-syntax-import-assertions': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-syntax-import-assertions': 7.29.7(@babel/core@7.29.6)
       '@babel/traverse': 7.29.7
       '@babel/types': 7.29.7
       '@graphql-tools/utils': 11.1.0(graphql@16.14.2)
@@ -18030,6 +18060,21 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.0
 
+  '@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/semantic-conventions': 1.25.1
+
+  '@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/semantic-conventions': 1.28.0
+
+  '@opentelemetry/core@2.7.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/semantic-conventions': 1.41.1
+
   '@opentelemetry/core@2.8.0(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -18039,7 +18084,7 @@ snapshots:
     dependencies:
       '@grpc/grpc-js': 1.14.4
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-grpc-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
@@ -18049,7 +18094,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.57.2
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-logs': 0.57.2(@opentelemetry/api@1.9.0)
@@ -18058,7 +18103,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.57.2
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
@@ -18069,7 +18114,7 @@ snapshots:
     dependencies:
       '@grpc/grpc-js': 1.14.4
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-metrics-otlp-http': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-grpc-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
@@ -18080,7 +18125,7 @@ snapshots:
   '@opentelemetry/exporter-metrics-otlp-http@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
@@ -18089,7 +18134,7 @@ snapshots:
   '@opentelemetry/exporter-metrics-otlp-proto@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-metrics-otlp-http': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
@@ -18099,7 +18144,7 @@ snapshots:
   '@opentelemetry/exporter-prometheus@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-metrics': 1.30.1(@opentelemetry/api@1.9.0)
 
@@ -18107,7 +18152,7 @@ snapshots:
     dependencies:
       '@grpc/grpc-js': 1.14.4
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-grpc-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
@@ -18117,7 +18162,7 @@ snapshots:
   '@opentelemetry/exporter-trace-otlp-http@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
@@ -18126,7 +18171,7 @@ snapshots:
   '@opentelemetry/exporter-trace-otlp-proto@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
@@ -18135,7 +18180,7 @@ snapshots:
   '@opentelemetry/exporter-zipkin@1.30.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.28.0
@@ -18157,7 +18202,7 @@ snapshots:
   '@opentelemetry/instrumentation-http@0.52.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.25.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation': 0.52.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.25.1
       semver: 7.8.4
@@ -18220,14 +18265,14 @@ snapshots:
   '@opentelemetry/otlp-exporter-base@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
 
   '@opentelemetry/otlp-grpc-exporter-base@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@grpc/grpc-js': 1.14.4
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-exporter-base': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-transformer': 0.57.2(@opentelemetry/api@1.9.0)
 
@@ -18235,7 +18280,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.57.2
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-logs': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-metrics': 1.30.1(@opentelemetry/api@1.9.0)
@@ -18245,43 +18290,43 @@ snapshots:
   '@opentelemetry/propagator-b3@1.30.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
 
   '@opentelemetry/propagator-jaeger@1.30.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
 
   '@opentelemetry/resources@1.30.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.28.0
 
   '@opentelemetry/resources@2.7.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 2.7.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.41.1
 
   '@opentelemetry/sdk-logs@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.57.2
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
 
   '@opentelemetry/sdk-metrics@1.30.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
 
   '@opentelemetry/sdk-node@0.57.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.57.2
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-logs-otlp-grpc': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-logs-otlp-http': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-logs-otlp-proto': 0.57.2(@opentelemetry/api@1.9.0)
@@ -18306,14 +18351,14 @@ snapshots:
   '@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.28.0
 
   '@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 2.7.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 2.7.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.41.1
 
@@ -18321,7 +18366,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/context-async-hooks': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/propagator-b3': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/propagator-jaeger': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.0)
@@ -18330,7 +18375,7 @@ snapshots:
   '@opentelemetry/sdk-trace-web@2.7.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 2.7.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 2.7.1(@opentelemetry/api@1.9.0)
 
   '@opentelemetry/semantic-conventions@1.25.1': {}
@@ -19353,18 +19398,18 @@ snapshots:
     dependencies:
       '@sentry/types': 7.120.4
 
-  '@serenity-js/assertions@3.42.2':
+  '@serenity-js/assertions@3.43.0':
     dependencies:
-      '@serenity-js/core': 3.42.2
+      '@serenity-js/core': 3.43.0
       tiny-types: 2.0.5
 
-  '@serenity-js/console-reporter@3.42.2':
+  '@serenity-js/console-reporter@3.43.0':
     dependencies:
-      '@serenity-js/core': 3.42.2
+      '@serenity-js/core': 3.43.0
       chalk: 4.1.2
       tiny-types: 2.0.5
 
-  '@serenity-js/core@3.42.2':
+  '@serenity-js/core@3.43.0':
     dependencies:
       '@paralleldrive/cuid2': 2.3.1
       chalk: 4.1.2
@@ -19373,39 +19418,39 @@ snapshots:
       fast-glob: 3.3.3
       filenamify: 4.3.0
       graceful-fs: 4.2.11
-      semver: 7.7.4
+      semver: 7.8.0
       tiny-types: 2.0.5
       upath: 2.0.1
       validate-npm-package-name: 7.0.2
 
-  '@serenity-js/cucumber@3.42.2(@cucumber/cucumber@12.8.1)':
+  '@serenity-js/cucumber@3.43.0(@cucumber/cucumber@12.8.1)':
     dependencies:
-      '@cucumber/gherkin': 39.0.0
+      '@cucumber/gherkin': 39.1.0
       '@cucumber/messages': 32.3.1
-      '@serenity-js/core': 3.42.2
+      '@serenity-js/core': 3.43.0
       cli-table3: 0.6.5
       tiny-types: 2.0.5
     optionalDependencies:
       '@cucumber/cucumber': 12.8.1
 
-  '@serenity-js/rest@3.42.2':
+  '@serenity-js/rest@3.43.0':
     dependencies:
-      '@serenity-js/core': 3.42.2
+      '@serenity-js/core': 3.43.0
       agent-base: 7.1.4
       axios: 1.16.0
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
-      lru-cache: 11.3.5
+      lru-cache: 11.3.6
       tiny-types: 2.0.5
     transitivePeerDependencies:
       - debug
       - supports-color
 
-  '@serenity-js/serenity-bdd@3.42.2':
+  '@serenity-js/serenity-bdd@3.43.0':
     dependencies:
-      '@serenity-js/assertions': 3.42.2
-      '@serenity-js/core': 3.42.2
-      '@serenity-js/rest': 3.42.2
+      '@serenity-js/assertions': 3.43.0
+      '@serenity-js/core': 3.43.0
+      '@serenity-js/rest': 3.43.0
       ansi-regex: 5.0.1
       axios: 1.16.0
       chalk: 4.1.2
@@ -19553,7 +19598,7 @@ snapshots:
       '@vitest/browser': 4.1.8(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/browser-playwright': 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/runner': 4.1.8
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
     transitivePeerDependencies:
       - react
       - react-dom
@@ -19567,7 +19612,7 @@ snapshots:
       '@vitest/browser': 4.1.8(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/browser-playwright': 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
       '@vitest/runner': 4.1.8
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
     transitivePeerDependencies:
       - react
       - react-dom
@@ -19751,54 +19796,54 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.29.7)':
+  '@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
 
-  '@svgr/babel-plugin-remove-jsx-attribute@8.0.0(@babel/core@7.29.7)':
+  '@svgr/babel-plugin-remove-jsx-attribute@8.0.0(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
 
-  '@svgr/babel-plugin-remove-jsx-empty-expression@8.0.0(@babel/core@7.29.7)':
+  '@svgr/babel-plugin-remove-jsx-empty-expression@8.0.0(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
 
-  '@svgr/babel-plugin-replace-jsx-attribute-value@8.0.0(@babel/core@7.29.7)':
+  '@svgr/babel-plugin-replace-jsx-attribute-value@8.0.0(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
 
-  '@svgr/babel-plugin-svg-dynamic-title@8.0.0(@babel/core@7.29.7)':
+  '@svgr/babel-plugin-svg-dynamic-title@8.0.0(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
 
-  '@svgr/babel-plugin-svg-em-dimensions@8.0.0(@babel/core@7.29.7)':
+  '@svgr/babel-plugin-svg-em-dimensions@8.0.0(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
 
-  '@svgr/babel-plugin-transform-react-native-svg@8.1.0(@babel/core@7.29.7)':
+  '@svgr/babel-plugin-transform-react-native-svg@8.1.0(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
 
-  '@svgr/babel-plugin-transform-svg-component@8.0.0(@babel/core@7.29.7)':
+  '@svgr/babel-plugin-transform-svg-component@8.0.0(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
 
-  '@svgr/babel-preset@8.1.0(@babel/core@7.29.7)':
+  '@svgr/babel-preset@8.1.0(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@svgr/babel-plugin-add-jsx-attribute': 8.0.0(@babel/core@7.29.7)
-      '@svgr/babel-plugin-remove-jsx-attribute': 8.0.0(@babel/core@7.29.7)
-      '@svgr/babel-plugin-remove-jsx-empty-expression': 8.0.0(@babel/core@7.29.7)
-      '@svgr/babel-plugin-replace-jsx-attribute-value': 8.0.0(@babel/core@7.29.7)
-      '@svgr/babel-plugin-svg-dynamic-title': 8.0.0(@babel/core@7.29.7)
-      '@svgr/babel-plugin-svg-em-dimensions': 8.0.0(@babel/core@7.29.7)
-      '@svgr/babel-plugin-transform-react-native-svg': 8.1.0(@babel/core@7.29.7)
-      '@svgr/babel-plugin-transform-svg-component': 8.0.0(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@svgr/babel-plugin-add-jsx-attribute': 8.0.0(@babel/core@7.29.6)
+      '@svgr/babel-plugin-remove-jsx-attribute': 8.0.0(@babel/core@7.29.6)
+      '@svgr/babel-plugin-remove-jsx-empty-expression': 8.0.0(@babel/core@7.29.6)
+      '@svgr/babel-plugin-replace-jsx-attribute-value': 8.0.0(@babel/core@7.29.6)
+      '@svgr/babel-plugin-svg-dynamic-title': 8.0.0(@babel/core@7.29.6)
+      '@svgr/babel-plugin-svg-em-dimensions': 8.0.0(@babel/core@7.29.6)
+      '@svgr/babel-plugin-transform-react-native-svg': 8.1.0(@babel/core@7.29.6)
+      '@svgr/babel-plugin-transform-svg-component': 8.0.0(@babel/core@7.29.6)
 
   '@svgr/core@8.1.0(typescript@6.0.3)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@svgr/babel-preset': 8.1.0(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@svgr/babel-preset': 8.1.0(@babel/core@7.29.6)
       camelcase: 6.3.0
       cosmiconfig: 8.3.6(typescript@6.0.3)
       snake-case: 3.0.4
@@ -19813,8 +19858,8 @@ snapshots:
 
   '@svgr/plugin-jsx@8.1.0(@svgr/core@8.1.0(typescript@6.0.3))':
     dependencies:
-      '@babel/core': 7.29.7
-      '@svgr/babel-preset': 8.1.0(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@svgr/babel-preset': 8.1.0(@babel/core@7.29.6)
       '@svgr/core': 8.1.0(typescript@6.0.3)
       '@svgr/hast-util-to-babel-ast': 8.0.0
       svg-parser: 2.0.4
@@ -19832,11 +19877,11 @@ snapshots:
 
   '@svgr/webpack@8.1.0(typescript@6.0.3)':
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/plugin-transform-react-constant-elements': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-env': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react': 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-typescript': 7.29.7(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/plugin-transform-react-constant-elements': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-env': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-react': 7.29.7(@babel/core@7.29.6)
+      '@babel/preset-typescript': 7.29.7(@babel/core@7.29.6)
       '@svgr/core': 8.1.0(typescript@6.0.3)
       '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@6.0.3))
       '@svgr/plugin-svgo': 8.1.0(@svgr/core@8.1.0(typescript@6.0.3))(typescript@6.0.3)
@@ -19890,22 +19935,22 @@ snapshots:
       path-browserify: 1.0.1
       tinyglobby: 0.2.17
 
-  '@turbo/darwin-64@2.9.9':
+  '@turbo/darwin-64@2.9.18':
     optional: true
 
-  '@turbo/darwin-arm64@2.9.9':
+  '@turbo/darwin-arm64@2.9.18':
     optional: true
 
-  '@turbo/linux-64@2.9.9':
+  '@turbo/linux-64@2.9.18':
     optional: true
 
-  '@turbo/linux-arm64@2.9.9':
+  '@turbo/linux-arm64@2.9.18':
     optional: true
 
-  '@turbo/windows-64@2.9.9':
+  '@turbo/windows-64@2.9.18':
     optional: true
 
-  '@turbo/windows-arm64@2.9.9':
+  '@turbo/windows-arm64@2.9.18':
     optional: true
 
   '@tybys/wasm-util@0.10.2':
@@ -20223,7 +20268,7 @@ snapshots:
       '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       playwright: 1.59.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -20237,7 +20282,7 @@ snapshots:
       '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       playwright: 1.59.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.21)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.21)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -20251,7 +20296,7 @@ snapshots:
       '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       playwright: 1.59.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -20267,7 +20312,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
@@ -20285,7 +20330,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.21)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.21)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
@@ -20303,7 +20348,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
@@ -20311,9 +20356,9 @@ snapshots:
       - utf-8-validate
       - vite
 
-  '@vitest/coverage-istanbul@4.1.6(vitest@4.1.8)':
+  '@vitest/coverage-istanbul@4.1.8(vitest@4.1.8)':
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@istanbuljs/schema': 0.1.6
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
@@ -20323,7 +20368,7 @@ snapshots:
       magicast: 0.5.3
       obug: 2.1.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
     transitivePeerDependencies:
       - supports-color
 
@@ -20782,7 +20827,7 @@ snapshots:
       '@azure/opentelemetry-instrumentation-azure-sdk': 1.0.0
       '@microsoft/applicationinsights-web-snippet': 1.0.1
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.28.0
       cls-hooked: 4.2.2
@@ -20967,9 +21012,9 @@ snapshots:
 
   b4a@1.8.1: {}
 
-  babel-loader@9.2.1(@babel/core@7.29.7)(webpack@5.107.2(esbuild@0.28.1)(postcss@8.5.10)):
+  babel-loader@9.2.1(@babel/core@7.29.6)(webpack@5.107.2(esbuild@0.28.1)(postcss@8.5.10)):
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       find-cache-dir: 4.0.0
       schema-utils: 4.3.3
       webpack: 5.107.2(esbuild@0.28.1)(postcss@8.5.10)
@@ -20978,35 +21023,35 @@ snapshots:
     dependencies:
       object.assign: 4.1.7
 
-  babel-plugin-polyfill-corejs2@0.4.17(@babel/core@7.29.7):
+  babel-plugin-polyfill-corejs2@0.4.17(@babel/core@7.29.6):
     dependencies:
       '@babel/compat-data': 7.29.7
-      '@babel/core': 7.29.7
-      '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.6)
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
-  babel-plugin-polyfill-corejs3@0.13.0(@babel/core@7.29.7):
+  babel-plugin-polyfill-corejs3@0.13.0(@babel/core@7.29.6):
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.6)
       core-js-compat: 3.49.0
     transitivePeerDependencies:
       - supports-color
 
-  babel-plugin-polyfill-corejs3@0.14.2(@babel/core@7.29.7):
+  babel-plugin-polyfill-corejs3@0.14.2(@babel/core@7.29.6):
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.6)
       core-js-compat: 3.49.0
     transitivePeerDependencies:
       - supports-color
 
-  babel-plugin-polyfill-regenerator@0.6.8(@babel/core@7.29.7):
+  babel-plugin-polyfill-regenerator@0.6.8(@babel/core@7.29.6):
     dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.7)
+      '@babel/core': 7.29.6
+      '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -21146,7 +21191,7 @@ snapshots:
       balanced-match: 1.0.2
       concat-map: 0.0.1
 
-  brace-expansion@2.1.1:
+  brace-expansion@2.0.3:
     dependencies:
       balanced-match: 1.0.2
 
@@ -21439,7 +21484,7 @@ snapshots:
     dependencies:
       semver: 7.8.4
 
-  chrome-devtools-mcp@0.21.0: {}
+  chrome-devtools-mcp@1.3.0: {}
 
   chrome-trace-event@1.0.4: {}
 
@@ -23197,19 +23242,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  http-proxy-middleware@2.0.9(@types/express@4.17.25):
+  http-proxy-middleware@3.0.7:
     dependencies:
       '@types/http-proxy': 1.17.17
-      http-proxy: 1.18.1
+      debug: 4.4.3(supports-color@8.1.1)
+      http-proxy: 1.18.1(debug@4.4.3)
       is-glob: 4.0.3
-      is-plain-obj: 3.0.0
+      is-plain-object: 5.0.0
       micromatch: 4.0.8
-    optionalDependencies:
-      '@types/express': 4.17.25
     transitivePeerDependencies:
-      - debug
+      - supports-color
 
-  http-proxy@1.18.1:
+  http-proxy@1.18.1(debug@4.4.3):
     dependencies:
       eventemitter3: 4.0.7
       follow-redirects: 1.16.0(debug@4.4.3)
@@ -23266,7 +23310,7 @@ snapshots:
 
   immediate@3.0.6: {}
 
-  immutable@5.1.6: {}
+  immutable@3.8.3: {}
 
   import-fresh@3.3.1:
     dependencies:
@@ -23490,13 +23534,13 @@ snapshots:
 
   is-path-inside@3.0.3: {}
 
-  is-plain-obj@3.0.0: {}
-
   is-plain-obj@4.1.0: {}
 
   is-plain-object@2.0.4:
     dependencies:
       isobject: 3.0.1
+
+  is-plain-object@5.0.0: {}
 
   is-potential-custom-element-name@1.0.1: {}
 
@@ -23995,7 +24039,7 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
-  lru-cache@11.3.5: {}
+  lru-cache@11.3.6: {}
 
   lru-cache@11.5.1: {}
 
@@ -24633,7 +24677,7 @@ snapshots:
 
   minimatch@9.0.9:
     dependencies:
-      brace-expansion: 2.1.1
+      brace-expansion: 2.0.3
 
   minimist@1.2.8: {}
 
@@ -24880,7 +24924,7 @@ snapshots:
   normalize-package-data@8.0.0:
     dependencies:
       hosted-git-info: 9.0.3
-      semver: 7.7.4
+      semver: 7.8.4
       validate-npm-package-license: 3.0.4
 
   normalize-path@2.1.1:
@@ -25902,6 +25946,8 @@ snapshots:
 
   querystring-es3@0.2.1: {}
 
+  querystringify@2.2.0: {}
+
   queue-microtask@1.2.3: {}
 
   quick-lru@5.1.1: {}
@@ -25966,7 +26012,7 @@ snapshots:
 
   react-docgen@8.0.3:
     dependencies:
-      '@babel/core': 7.29.7
+      '@babel/core': 7.29.6
       '@babel/traverse': 7.29.7
       '@babel/types': 7.29.7
       '@types/babel__core': 7.20.5
@@ -26550,6 +26596,8 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.7.4: {}
+
+  semver@7.8.0: {}
 
   semver@7.8.4: {}
 
@@ -27178,7 +27226,7 @@ snapshots:
 
   tedious@16.7.1:
     dependencies:
-      '@azure/identity': 3.4.2
+      '@azure/identity': 4.2.1
       '@azure/keyvault-keys': 4.10.2
       '@js-joda/core': 5.7.0
       bl: 6.1.6
@@ -27335,10 +27383,12 @@ snapshots:
 
   totalist@3.0.1: {}
 
-  tough-cookie@2.5.0:
+  tough-cookie@4.1.3:
     dependencies:
       psl: 1.15.0
       punycode: 2.3.1
+      universalify: 0.2.0
+      url-parse: 1.5.10
 
   tough-cookie@5.1.2:
     dependencies:
@@ -27414,14 +27464,14 @@ snapshots:
 
   tunnel@0.0.6: {}
 
-  turbo@2.9.9:
+  turbo@2.9.18:
     optionalDependencies:
-      '@turbo/darwin-64': 2.9.9
-      '@turbo/darwin-arm64': 2.9.9
-      '@turbo/linux-64': 2.9.9
-      '@turbo/linux-arm64': 2.9.9
-      '@turbo/windows-64': 2.9.9
-      '@turbo/windows-arm64': 2.9.9
+      '@turbo/darwin-64': 2.9.18
+      '@turbo/darwin-arm64': 2.9.18
+      '@turbo/linux-64': 2.9.18
+      '@turbo/linux-arm64': 2.9.18
+      '@turbo/windows-64': 2.9.18
+      '@turbo/windows-arm64': 2.9.18
 
   type-fest@0.13.1: {}
 
@@ -27562,6 +27612,8 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
+  universalify@0.2.0: {}
+
   universalify@2.0.1: {}
 
   unixify@1.0.0:
@@ -27624,6 +27676,11 @@ snapshots:
       webpack: 5.107.2(esbuild@0.28.1)(postcss@8.5.10)
     optionalDependencies:
       file-loader: 6.2.0(webpack@5.107.2(esbuild@0.28.1)(postcss@8.5.10))
+
+  url-parse@1.5.10:
+    dependencies:
+      querystringify: 2.2.0
+      requires-port: 1.0.0
 
   url@0.11.4:
     dependencies:
@@ -27759,7 +27816,7 @@ snapshots:
       tsx: 4.22.4
       yaml: 2.8.3
 
-  vitest@4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)):
+  vitest@4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.20)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)):
     dependencies:
       '@vitest/expect': 4.1.8
       '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
@@ -27785,12 +27842,12 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@types/node': 22.19.20
       '@vitest/browser-playwright': 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
-      '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.8)
+      '@vitest/coverage-istanbul': 4.1.8(vitest@4.1.8)
       jsdom: 26.1.0
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.21)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)):
+  vitest@4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.21)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)):
     dependencies:
       '@vitest/expect': 4.1.8
       '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
@@ -27816,12 +27873,12 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@types/node': 22.19.21
       '@vitest/browser-playwright': 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
-      '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.8)
+      '@vitest/coverage-istanbul': 4.1.8(vitest@4.1.8)
       jsdom: 26.1.0
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.6(vitest@4.1.8))(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)):
+  vitest@4.1.8(@opentelemetry/api@1.9.0)(@types/node@25.9.2)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(jsdom@26.1.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3)):
     dependencies:
       '@vitest/expect': 4.1.8
       '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))
@@ -27847,7 +27904,7 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@types/node': 25.9.2
       '@vitest/browser-playwright': 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.6.1)(less@4.6.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.8.3))(vitest@4.1.8)
-      '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.8)
+      '@vitest/coverage-istanbul': 4.1.8(vitest@4.1.8)
       jsdom: 26.1.0
     transitivePeerDependencies:
       - msw
@@ -27934,7 +27991,7 @@ snapshots:
       connect-history-api-fallback: 2.0.0
       express: 4.22.2
       graceful-fs: 4.2.11
-      http-proxy-middleware: 2.0.9(@types/express@4.17.25)
+      http-proxy-middleware: 3.0.7
       ipaddr.js: 2.4.0
       launch-editor: 2.14.1
       open: 10.2.0
@@ -27950,7 +28007,6 @@ snapshots:
       webpack: 5.107.2(esbuild@0.28.1)(postcss@8.5.10)
     transitivePeerDependencies:
       - bufferutil
-      - debug
       - supports-color
       - tslib
       - utf-8-validate
@@ -28253,7 +28309,7 @@ snapshots:
 
   xml-naming@0.1.0: {}
 
-  xml2js@0.4.23:
+  xml2js@0.5.0:
     dependencies:
       sax: 1.6.0
       xmlbuilder: 11.0.1
