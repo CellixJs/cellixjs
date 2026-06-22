@@ -7,7 +7,6 @@
 			"**",
 			"!**/mock-oidc.users.local.json",
 			"!**/dist",
-			"!**/.verify-dist",
 			"!**/build",
 			"!**/deploy",
 			"!**/node_modules",

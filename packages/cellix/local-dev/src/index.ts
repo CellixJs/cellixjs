@@ -25,4 +25,7 @@ export {
 	snykIacScan,
 	sonarPullRequestAnalysis,
 	sonarQualityGate,
+	VerificationSequence,
+	type VerificationSequenceOptions,
+	verificationSequence,
 } from './silent-runners/index.ts';

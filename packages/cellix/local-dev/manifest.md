@@ -13,7 +13,6 @@ package after the branches are merged.
 
 ## Non-goals
 
-- E2E or acceptance test output changes
 - Project-specific Snyk, Edgescan, or scanner policy such as org names,
   repository URLs, token handling, or report publishing
 - Worktree ports, app dev-server runners, URL transforms, or settings sync
@@ -29,6 +28,8 @@ Root entrypoint exports:
 
 - `runSilentCommand(options)`
 - `runSilentCommandSequence(options)`
+- `VerificationSequence`
+- `verificationSequence`
 - tool-wrapper builders such as `knipCheck()`, `pnpmAudit(options)`,
   `snykDependencyScan(options)`, `snykCodeScan(options)`, and
   `sonarPullRequestAnalysis(options)`
@@ -38,8 +39,10 @@ Root entrypoint exports:
 - Silent verification runners capture external command output, emit nothing on
   success, and replay whatever the command wrote to stdout/stderr on failure.
 - Silent command sequences run ordered verification steps, defaulting each step
-  to silent output while allowing explicit passthrough steps for e2e or
-  acceptance suites.
+  to silent output while allowing explicit passthrough where live output is
+  intentionally part of the command contract.
+- Fluent verification sequences provide a reusable `.addStep(...).run(...)`
+  object API over the same ordered, stop-on-failure behavior.
 - Tool wrappers encode portable CLI shapes; root or app scripts own
   project-specific arguments.
 - Commands are spawned without shell interpolation.
@@ -57,8 +60,8 @@ Root entrypoint exports:
 ## Testing strategy
 
 - Public-entrypoint tests prove success output is suppressed, failure output is
-  replayed, and the root verify sequence uses the expected tool wrappers and
-  keeps only e2e output live on success.
+  replayed, and the root verify sequence uses the expected tool wrappers while
+  remaining fully silent on success.
 
 ## Documentation obligations
 

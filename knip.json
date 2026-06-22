@@ -2,8 +2,8 @@
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
 		".": {
-			"entry": ["scripts/verify.ts"],
-			"project": ["scripts/**/*.ts"]
+			"entry": ["build-pipeline/scripts/verify.ts"],
+			"project": ["build-pipeline/scripts/**/*.ts"]
 		},
 		"apps/api": {
 			"entry": ["src/index.ts"],

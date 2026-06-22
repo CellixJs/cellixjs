@@ -13,6 +13,7 @@ import {
 	snykDependencyScan,
 	sonarPullRequestAnalysis,
 	sonarQualityGate,
+	verificationSequence,
 } from '@cellix/local-dev/silent-runners';
 import { describe, expect, it } from 'vitest';
 
@@ -72,6 +73,7 @@ describe('@cellix/local-dev/silent-runners', () => {
 		const spawn: SilentRunnerSpawnSync = (command, args, options) => {
 			expect(command).toBe('snyk');
 			expect(args).toEqual(['test']);
+			expect(options.maxBuffer).toBe(64 * 1024 * 1024);
 			expect(options.stdio).toBe('pipe');
 			return {
 				output: ['tool output', '', ''],
@@ -155,7 +157,7 @@ describe('@cellix/local-dev/silent-runners', () => {
 		});
 	});
 
-	it('keeps the verify sequence silent except for e2e passthrough steps', () => {
+	it('keeps the successful verify sequence fully silent', () => {
 		const { calls, spawn } = createVerifySpawn();
 		const output = { stderr: '', stdout: '' };
 		const steps = [
@@ -198,7 +200,7 @@ describe('@cellix/local-dev/silent-runners', () => {
 			steps.map((step) => ({
 				args: step.args ?? [],
 				command: step.command,
-				stdio: step.output === 'inherit' ? 'inherit' : 'pipe',
+				stdio: 'pipe',
 			})),
 		);
 	});
@@ -246,5 +248,22 @@ describe('@cellix/local-dev/silent-runners', () => {
 			stdout: 'snyk:code stdout\n',
 		});
 		expect(calls.map((call) => getStepName(call.command, call.args))).toEqual(['format:check', 'test:arch', 'test:coverage:merge', 'test:e2e', 'knip', 'audit:prod', 'audit:dev', 'snyk:test', 'snyk:code']);
+	});
+
+	it('builds and runs reusable verification sequences with a fluent addStep API', () => {
+		const { calls, spawn } = createVerifySpawn();
+		const sequence = verificationSequence.addStep(pnpmScript('format:check')).addStep(architectureTests());
+
+		const result = sequence.run({ spawn });
+
+		expect(result.status).toBe(0);
+		expect(calls.map((call) => getStepName(call.command, call.args))).toEqual(['format:check', 'test:arch']);
+	});
+
+	it('keeps the shared verification sequence immutable', () => {
+		const configuredSequence = verificationSequence.addStep(pnpmScript('format:check'));
+
+		expect(() => verificationSequence.run()).toThrow('runSilentCommandSequence requires at least one step');
+		expect(configuredSequence).not.toBe(verificationSequence);
 	});
 });

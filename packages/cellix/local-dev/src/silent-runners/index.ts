@@ -1,5 +1,7 @@
 import { type SpawnSyncOptionsWithStringEncoding, type SpawnSyncReturns, spawnSync } from 'node:child_process';
 
+const DEFAULT_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
+
 export { knipCheck } from './knip.ts';
 export { livePnpmScript, type PnpmScriptOptions, pnpmScript } from './pnpm.ts';
 export { type PnpmAuditOptions, pnpmAudit } from './pnpm-audit.ts';
@@ -111,6 +113,8 @@ export interface SilentCommandSequenceResult extends SilentCommandResult {
 	step: CommandSequenceStep;
 }
 
+export type VerificationSequenceOptions = Omit<SilentCommandSequenceOptions, 'steps'>;
+
 /**
  * Runs a command with stdout and stderr captured instead of inherited.
  *
@@ -149,6 +153,7 @@ export function runSilentCommand(options: SilentCommandOptions): SilentCommandRe
 		cwd,
 		encoding: 'utf8',
 		env,
+		maxBuffer: DEFAULT_MAX_BUFFER_BYTES,
 		stdio: 'pipe',
 	});
 	const normalizedResult = toSilentCommandResult(result);
@@ -163,9 +168,8 @@ export function runSilentCommand(options: SilentCommandOptions): SilentCommandRe
 /**
  * Runs commands in order, stopping at the first failure.
  *
- * Steps default to silent output. Steps marked with `output: 'inherit'` are
- * useful for suites whose reporting should remain live, such as e2e or
- * acceptance tests.
+ * Steps default to silent output. Use `output: 'inherit'` only when live output
+ * is part of the command's intended consumer experience.
  *
  * @param options - Sequence steps and optional process context.
  * @returns The final successful step result or the first failing step result.
@@ -197,6 +201,67 @@ export function runSilentCommandSequence(options: SilentCommandSequenceOptions):
 
 	return lastResult;
 }
+
+/**
+ * Fluent builder for an ordered sequence of verification commands.
+ *
+ * Steps execute in insertion order and stop at the first failure. The sequence
+ * can be configured once with shared process options and run repeatedly.
+ *
+ * @example
+ * ```ts
+ * const verify = verificationSequence
+ *   .addStep(pnpmScript('format:check'))
+ *   .addStep(pnpmScript('test'));
+ *
+ * const result = verify.run();
+ * process.exitCode = result.status;
+ * ```
+ */
+export class VerificationSequence {
+	readonly #options: VerificationSequenceOptions;
+	readonly #steps: CommandSequenceStep[];
+
+	constructor(options: VerificationSequenceOptions = {}, steps: CommandSequenceStep[] = []) {
+		this.#options = options;
+		this.#steps = steps;
+	}
+
+	/**
+	 * Appends a command to the sequence.
+	 *
+	 * @param step - Command descriptor to execute after previously added steps.
+	 * @returns A new sequence containing the appended step.
+	 */
+	addStep(step: CommandSequenceStep): VerificationSequence {
+		return new VerificationSequence(this.#options, [...this.#steps, step]);
+	}
+
+	/**
+	 * Runs the configured steps in insertion order.
+	 *
+	 * Per-run options override options supplied when the sequence was created.
+	 *
+	 * @param options - Optional process context and test seams for this run.
+	 * @returns The final successful result or the first failing step result.
+	 * @throws When the sequence has no steps.
+	 */
+	run(options: VerificationSequenceOptions = {}): SilentCommandSequenceResult {
+		return runSilentCommandSequence({
+			...this.#options,
+			...options,
+			steps: [...this.#steps],
+		});
+	}
+}
+
+/**
+ * Empty reusable verification sequence for fluent workflow definitions.
+ *
+ * Adding a step returns a new sequence, so this shared object remains empty and
+ * can safely be reused by multiple consumers.
+ */
+export const verificationSequence = new VerificationSequence();
 
 function runInheritedCommand(options: SilentCommandOptions): SilentCommandResult {
 	const { args = [], command, cwd, env, spawn = spawnCommandSync } = options;

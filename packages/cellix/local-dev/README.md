@@ -36,8 +36,8 @@ process.exitCode = result.status;
 ```
 
 Use `runSilentCommandSequence` when a wrapper needs to run several commands in
-order. Steps are silent by default; mark steps such as e2e or acceptance suites
-with `output: 'inherit'` when their live runner output should remain visible.
+order. Steps are silent by default; mark a step with `output: 'inherit'` only
+when its live output is part of the intended consumer experience.
 
 ```js
 import { runSilentCommandSequence } from '@cellix/local-dev/silent-runners';
@@ -45,10 +45,23 @@ import { runSilentCommandSequence } from '@cellix/local-dev/silent-runners';
 const result = runSilentCommandSequence({
 	steps: [
 		{ name: 'format:check', command: 'pnpm', args: ['run', 'format:check'] },
-		{ name: 'test:e2e', command: 'pnpm', args: ['run', 'test:e2e'], output: 'inherit' },
+		{ name: 'test:e2e', command: 'pnpm', args: ['run', 'test:e2e'] },
 	],
 });
 
+process.exitCode = result.status;
+```
+
+For reusable verification workflows, use the fluent sequence builder:
+
+```js
+import { pnpmScript, verificationSequence } from '@cellix/local-dev/silent-runners';
+
+const verify = verificationSequence
+	.addStep(pnpmScript('format:check'))
+	.addStep(pnpmScript('test'));
+
+const result = verify.run();
 process.exitCode = result.status;
 ```
 
@@ -94,6 +107,9 @@ Exports are available from `@cellix/local-dev` and
 - `snykIacScan`
 - `sonarPullRequestAnalysis`
 - `sonarQualityGate`
+- `VerificationSequence`
+- `VerificationSequenceOptions`
+- `verificationSequence`
 
 ## Notes
 

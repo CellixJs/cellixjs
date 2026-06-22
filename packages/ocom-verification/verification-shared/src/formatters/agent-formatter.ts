@@ -93,6 +93,10 @@ export default class AgentFormatter extends Formatter {
 	}
 
 	private onTestRunFinished(testRunFinished: TestRunFinished): void {
+		if (this.issueCount === 0) {
+			return;
+		}
+
 		this.log('\n--- (Agent) Results ---\n');
 
 		const parts: string[] = [];
@@ -106,10 +110,6 @@ export default class AgentFormatter extends Formatter {
 			this.log(`Duration: ${ms}ms\n`);
 		}
 
-		if (this.issueCount === 0) {
-			this.log('All scenarios passed.\n');
-		} else {
-			this.log(`Issues: ${this.issueCount}\n`);
-		}
+		this.log(`Issues: ${this.issueCount}\n`);
 	}
 }
