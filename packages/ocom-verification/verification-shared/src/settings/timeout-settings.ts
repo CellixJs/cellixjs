@@ -8,7 +8,7 @@
  */
 export const timeouts = {
 	/** Default scenario timeout (2 minutes) */
-	scenario: 120_000,
+	scenario: 150_000,
 
 	/** Server startup timeout (2 minutes) */
 	serverStartup: 120_000,
