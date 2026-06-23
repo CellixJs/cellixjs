@@ -268,9 +268,9 @@ export type LoggingFieldSpec<TPayload = { [key: string]: unknown }> = string | P
  *
  * @example
  * ```ts
- * export interface CommunityCreationMessage { communityId: string; externalId: string; createdBy: string }
+ * export interface CommunityCreationPayload { communityId: string; externalId: string; createdBy: string }
  *
- * export const communityCreationQueue: QueueDefinition<CommunityCreationMessage> = {
+ * export const communityCreationQueue: QueueDefinition<CommunityCreationPayload> = {
  *   queueName: 'community-creation',
  *   schema: communityCreationSchema,
  *   loggingTags: { domain: 'community', externalId: { payloadField: 'externalId' } },

@@ -28,9 +28,9 @@ Example:
 
 ```ts
 import { defineQueue } from '@cellix/service-queue-storage';
-import { schema as memberInvitedSchema, type Schema as MemberInvitedMessage } from './member-invited.schema.generated.ts';
+import { schema as memberInvitedSchema, type Schema as MemberInvitedPayload } from './member-invited.schema.generated.ts';
 
-export const memberInvitedQueue = defineQueue<MemberInvitedMessage>()(({ $payload }) => ({
+export const memberInvitedQueue = defineQueue<MemberInvitedPayload>()(({ $payload }) => ({
 	queueName: 'member-invited',
 	schema: memberInvitedSchema,
 	loggingTags: { domain: 'community', memberId: $payload.memberId },

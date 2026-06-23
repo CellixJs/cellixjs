@@ -25,12 +25,12 @@ type DefineQueueContext<TPayload extends object> = {
  * ```ts
  * import { defineQueue } from '@cellix/service-queue-storage';
  *
- * interface CommunityCreationMessage {
+ * interface CommunityCreationPayload {
  *   communityId: string;
  *   createdBy: string;
  * }
  *
- * export const communityCreationQueue = defineQueue<CommunityCreationMessage>()(({ $payload }) => ({
+ * export const communityCreationQueue = defineQueue<CommunityCreationPayload>()(({ $payload }) => ({
  *   queueName: 'community-creation',
  *   schema,
  *   loggingMetadata: {

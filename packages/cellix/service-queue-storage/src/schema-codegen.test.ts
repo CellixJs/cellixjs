@@ -25,7 +25,7 @@ describe('cellix-generate-queue-schema-types', () => {
 			JSON.stringify(
 				{
 					$schema: 'http://json-schema.org/draft-07/schema#',
-					title: 'OrderCreatedMessage',
+					title: 'OrderCreatedPayload',
 					type: 'object',
 					properties: {
 						orderId: { type: 'string' },

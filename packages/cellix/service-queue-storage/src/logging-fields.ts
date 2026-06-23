@@ -42,12 +42,12 @@ export const $payload = payloadFieldProxy as PayloadFieldProxy<Record<string, un
  *
  * @example
  * ```ts
- * interface MemberUpdatedMessage {
+ * interface MemberUpdatedPayload {
  *   memberId: string;
  *   email?: string;
  * }
  *
- * const $payload = payloadFields<MemberUpdatedMessage>();
+ * const $payload = payloadFields<MemberUpdatedPayload>();
  * const metadata = { memberId: $payload.memberId, email: $payload.email };
  * ```
  */

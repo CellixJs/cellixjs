@@ -22,19 +22,31 @@ This package provides:
 
 Public exports:
 - `defineQueue<TPayload>()` — preferred queue-definition helper that injects a typed `$payload` proxy into a callback
+- `$payload` / `payloadFields<TPayload>()` / `resolveLoggingFields(...)` — payload-field authoring helpers for logging tags and metadata
 - `registerQueues({ outbound, inbound })` — factory that returns a typed registry with `producer` stubs, `consumer` stubs, and a `Service` base class
+- `deriveProvisionQueues(...)` — helper that derives unique physical queue names from a registry
+- `createRegisteredQueueService(...)` — helper that narrows a registered `Service` constructor to a consumer-facing options type
+- `RegisteredQueueRegistry<O, I>` — public type for the registry returned by `registerQueues`
 - `RegisteredQueueService<O, I>` — public type for lifecycle plus typed queue methods produced by `registerQueues`
+- `QueueRegistryProducer<TRegistry>` / `QueueRegistryConsumer<TRegistry>` / `QueueRegistryOperations<TRegistry>` / `QueueRegistryService<TRegistry>` — type helpers for extracting consumer-facing queue method surfaces from a registry
+- `QueueProducerContext<O>` / `QueueConsumerContext<I>` — generated method surfaces for outbound and inbound queue maps
+- `QueueServiceConstructorOptions` — common narrowed constructor contract for consumer packages
 - `QueueServiceLifecycle` — lifecycle contract implemented by registered queue services
 - `QueueServiceLogging` — opt-in logging contract for enabling or disabling logging after construction
 - `QueueDefinition<S>` — type describing queue name and message JSON Schema
+- `OutboundQueueDefinition<S>` / `InboundQueueDefinition<S>` — direction-tagged queue definition aliases
+- `LoggingFieldSpec<TPayload>` — type describing one hardcoded or payload-derived logging field
 - `QueueStorageConfig` — configuration type for constructing registered queue services, supporting `accountName`, `connectionString`, and optional managed-identity credential override
+- `QueueLoggingConfig` — runtime logging configuration for registered queue services
 - `QueueMessage<T>` — type for received queue messages
-- `QueueMessageLogBlobStorage` — minimal blob storage contract accepted when enabling blob-backed queue logging without exposing a logging adapter class
+- `IQueueMessageLogger` / `MessageLogEnvelope` / `QueueMessageLogBlobStorage` — public logging contracts
+- `FromSchema` / `JSONSchema` — `json-schema-to-ts` re-exports used by generated schema wrapper modules
 
 ## Core concepts
 
 - `QueueDefinition`: describes a queue's logical name, the JSON Schema for messages, and optional logging tags and metadata.
 - `defineQueue`: preferred authoring helper for queue definitions because it provides a typed `$payload` proxy without per-file setup noise.
+- Schema wrapper generation: the bundled `cellix-generate-queue-schema-types` CLI converts `.schema.json` files into sibling `.schema.generated.ts` modules so payload types can be derived from JSON Schema without handwritten interfaces.
 - `registerQueues`: accepts maps of outbound and inbound `QueueDefinition` objects and returns a typed registry. The registry exposes a `Service` class with lifecycle methods, opt-in logging controls, and typed queue methods already wired in the constructor — no separate bind step is required.
 - `QueueStorageConfig`: supports both connection-string access and managed identity. Managed identity is the preferred production approach; connection strings remain supported for Azurite and consumers that explicitly need shared-key access.
 - Blob-backed logging: consumers can pass a blob storage service directly to `enableLogging(...)`; the framework creates the internal queue-message logger adapter automatically.

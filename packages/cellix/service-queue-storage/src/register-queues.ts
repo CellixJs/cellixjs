@@ -7,6 +7,23 @@ import { createQueueProducer, type QueueProducerContext } from './queue-producer
 import type { QueuePayloadValidator } from './validation.ts';
 
 type QueueServiceDefaults = Pick<QueueStorageConfig, 'logging' | 'provisionQueues'>;
+
+/**
+ * Minimal constructor surface commonly exposed by application-specific queue services.
+ *
+ * Many consumer packages want callers to choose exactly one authentication mode:
+ * managed identity via `accountName` or shared-key access via `connectionString`.
+ * Use this type as the default constructor contract when wrapping a registered
+ * queue service with {@link createRegisteredQueueService}.
+ *
+ * @example
+ * ```ts
+ * const ServiceQueueStorage = createRegisteredQueueService(queues);
+ *
+ * const prod = new ServiceQueueStorage({ accountName: 'my-storage-account' });
+ * const local = new ServiceQueueStorage({ connectionString: 'UseDevelopmentStorage=true' });
+ * ```
+ */
 export type QueueServiceConstructorOptions = { accountName: string } | { connectionString: string };
 
 // Setup Ajv once for the module lifecycle
@@ -40,14 +57,74 @@ if (typeof addFormatsAny === 'function') {
  * ```
  */
 export type RegisteredQueueService<O extends QueueMap, I extends QueueMap> = QueueServiceLifecycle & QueueServiceLogging & QueueProducerContext<O> & QueueConsumerContext<I>;
+
+/**
+ * Full registry shape returned by {@link registerQueues}.
+ *
+ * The registry contains:
+ * - `producer`: typed method stubs for outbound queues
+ * - `consumer`: typed method stubs for inbound queues
+ * - `Service`: a constructable base class with typed queue methods already bound
+ *
+ * Consumers usually keep the value returned from `registerQueues(...)` private
+ * and export narrower aliases such as `QueueRegistryOperations<typeof queues>`
+ * or a constructor created by {@link createRegisteredQueueService}.
+ *
+ * @typeParam O - Outbound queue map registered for the application.
+ * @typeParam I - Inbound queue map registered for the application.
+ */
 export type RegisteredQueueRegistry<O extends QueueMap, I extends QueueMap> = {
 	producer: QueueProducerContext<O>;
 	consumer: QueueConsumerContext<I>;
 	Service: new (options: QueueStorageConfig) => RegisteredQueueService<O, I>;
 };
+
+/**
+ * Extracts the outbound producer method surface from a registered queue registry.
+ *
+ * @example
+ * ```ts
+ * const queues = registerQueues({ outbound, inbound });
+ * type Producer = QueueRegistryProducer<typeof queues>;
+ * ```
+ */
 export type QueueRegistryProducer<TRegistry> = TRegistry extends { producer: infer TProducer } ? TProducer : never;
+
+/**
+ * Extracts the inbound consumer method surface from a registered queue registry.
+ *
+ * @example
+ * ```ts
+ * const queues = registerQueues({ outbound, inbound });
+ * type Consumer = QueueRegistryConsumer<typeof queues>;
+ * ```
+ */
 export type QueueRegistryConsumer<TRegistry> = TRegistry extends { consumer: infer TConsumer } ? TConsumer : never;
+
+/**
+ * Combines the producer and consumer method surfaces from a registered queue registry.
+ *
+ * This is the most common alias exported by application packages when other
+ * services should depend only on queue operations, not on lifecycle or
+ * logging toggles.
+ *
+ * @example
+ * ```ts
+ * const queues = registerQueues({ outbound, inbound });
+ * export type QueueStorageOperations = QueueRegistryOperations<typeof queues>;
+ * ```
+ */
 export type QueueRegistryOperations<TRegistry> = QueueRegistryProducer<TRegistry> & QueueRegistryConsumer<TRegistry>;
+
+/**
+ * Extracts the concrete service instance type from a registered queue registry.
+ *
+ * @example
+ * ```ts
+ * const queues = registerQueues({ outbound, inbound });
+ * type ServiceQueueStorage = QueueRegistryService<typeof queues>;
+ * ```
+ */
 export type QueueRegistryService<TRegistry> = TRegistry extends { Service: new (...args: never[]) => infer TService } ? TService : never;
 
 /**
@@ -74,6 +151,20 @@ export function deriveProvisionQueues<O extends QueueMap, I extends QueueMap>(ou
  * Consumer packages often want to expose a smaller constructor surface than the full
  * internal `QueueStorageConfig`. This helper preserves the registry-derived instance
  * type while avoiding a repeated `as unknown as new (...) => ...` cast in each package.
+ *
+ * @typeParam TOptions - Public constructor options exposed by the consumer package.
+ * Defaults to {@link QueueServiceConstructorOptions}.
+ * @typeParam TRegistry - Registered queue registry whose `Service` constructor should be narrowed.
+ * @param registry - Queue registry returned from {@link registerQueues}.
+ * @returns A constructor with the same instance type as `registry.Service` but a narrower public options type.
+ *
+ * @example
+ * ```ts
+ * const queues = registerQueues({ outbound, inbound });
+ * export const ServiceQueueStorage = createRegisteredQueueService(queues);
+ *
+ * const service = new ServiceQueueStorage({ accountName: 'my-storage-account' });
+ * ```
  */
 export function createRegisteredQueueService<
 	TOptions extends QueueStorageConfig = QueueServiceConstructorOptions,

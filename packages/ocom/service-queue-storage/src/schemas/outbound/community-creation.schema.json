@@ -1,6 +1,6 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"title": "CommunityCreationMessage",
+	"title": "CommunityCreationPayload",
 	"description": "Message sent when a new community is created",
 	"type": "object",
 	"properties": {

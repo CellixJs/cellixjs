@@ -1,115 +1,214 @@
 # @cellix/service-queue-storage
 
-Type-safe Azure Queue Storage helpers for CellixJS. This package provides a small framework for defining typed queue contracts (JSON Schema), wiring producers and consumers via a typed registry, and returning registered queue services that expose only lifecycle methods plus the typed queue operations for that application.
+Use this package when an application needs Azure Storage Queue send, receive, or peek operations through a typed service instead of raw queue client calls.
 
-## Installation
+## Install
 
+```bash
 pnpm add @cellix/service-queue-storage
-
-## Quick start
-
-```typescript
-import { createRegisteredQueueService, defineQueue, registerQueues } from '@cellix/service-queue-storage'
-import { schema as orderCreatedSchema, type Schema as OrderCreatedMessage } from './schemas/outbound/order-created.schema.generated'
-
-// 1. Define your queues (typically in @ocom/service-queue-storage)
-// The generated wrapper comes from a sibling order-created.schema.json file.
-
-const orderCreatedQueue = defineQueue<OrderCreatedMessage>()(({ $payload }) => ({
-  queueName: 'order-created',
-  schema: orderCreatedSchema,
-  loggingTags: { source: 'orders', orderId: $payload.orderId }
-}))
-
-// 2. Register queues — returns typed stubs and a bound Service base class
-const queueRegistry = registerQueues({
-  outbound: { orderCreated: orderCreatedQueue },
-  inbound: {},
-})
-
-// 3. Extend the Service base class in your application-specific package
-class MyServiceQueueStorage extends queueRegistry.Service {
-  constructor(options: { accountName?: string; connectionString?: string }) {
-    super({
-      accountName: options.accountName,
-      connectionString: options.connectionString,
-    })
-  }
-}
-
-// Or expose the registered service directly
-const MyServiceQueueStorage = createRegisteredQueueService(queueRegistry)
-
-// 4. Create an instance and use it — queue methods are available immediately
-const svc = new MyServiceQueueStorage({ accountName: 'my-storage-account' })
-await svc.startUp()
-await svc.sendMessageToOrderCreatedQueue({ orderId: '123' })
 ```
 
-Use a domain noun for the queue key. The key drives generated method names, so keys should not end in `Queue` unless you want names like `sendMessageToOrderCreatedQueueQueue`.
+## What You Do With It
 
-Managed identity is the preferred production authentication mode. `connectionString` remains supported for Azurite and for consumers that explicitly need shared-key access.
+In an application package such as `@ocom/service-queue-storage`, you:
 
-## Schema type generation
+1. define queue payload schemas in `.schema.json` files
+2. generate typed schema wrappers
+3. define queues with `defineQueue<TPayload>()`
+4. register outbound and inbound queues
+5. export a concrete `ServiceQueueStorage` constructor and a `QueueStorageOperations` type
+6. use the generated queue methods in application services
 
-If you keep queue payload schemas in standalone `.schema.json` files, use the bundled CLI to generate typed wrapper modules:
+## Add A Queue
+
+### 1. Create the payload schema
+
+Create a JSON Schema file beside the queue definition:
 
 ```json
 {
-  "scripts": {
-    "gen": "cellix-generate-queue-schema-types src/schemas",
-    "prebuild": "pnpm run gen && pnpm run lint"
-  }
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "OrderCreatedPayload",
+	"type": "object",
+	"properties": {
+		"orderId": { "type": "string" },
+		"createdBy": { "type": "string" }
+	},
+	"required": ["orderId", "createdBy"],
+	"additionalProperties": false
 }
 ```
 
-For `src/schemas/outbound/order-created.schema.json`, the CLI writes `src/schemas/outbound/order-created.schema.generated.ts`:
+### 2. Generate the typed wrapper
 
-```typescript
-import { schema as orderCreatedSchema, type Schema as OrderCreatedMessage } from './order-created.schema.generated'
+Add this to the consumer package:
+
+```json
+{
+	"scripts": {
+		"gen": "cellix-generate-queue-schema-types src/schemas",
+		"prebuild": "pnpm run gen && pnpm run lint"
+	}
+}
 ```
 
-The generator is intentionally minimal. It only converts external JSON into a typed `as const satisfies JSONSchema` wrapper so `json-schema-to-ts` can continue to own schema-to-type inference.
+This generates a sibling `.schema.generated.ts` file that exports:
 
-## API reference
-
-- `registerQueues`: factory that accepts `outbound`/`inbound` queue maps and returns:
-  - `producer` — typed stub object (used for TypeScript type inference in consumer packages)
-  - `consumer` — typed stub object (used for TypeScript type inference in consumer packages)
-  - `Service` — a class with lifecycle methods, opt-in logging controls, and all typed queue methods wired in the constructor. Extend this class to create an application-specific queue service.
-- `deriveProvisionQueues`: helper that derives unique physical queue names from registered definitions when you intentionally want to override the default provisioning subset
-- `createRegisteredQueueService`: helper that turns a registered queue registry into an instantiable service constructor; the registry type is inferred from the argument
-- `defineQueue`: preferred helper for authoring typed queue definitions with `$payload.<field>` support and no local setup boilerplate
-- `RegisteredQueueService`: public type for an application-specific queue service returned from `registerQueues()`
-- `QueueServiceLifecycle`: lifecycle contract implemented by registered queue services
-- `QueueServiceLogging`: enables or disables queue logging after construction
-- `QueueDefinition`: type describing `queueName` and message JSON Schema.
-- `QueueStorageConfig`: configuration type for constructing registered queue services.
-- `QueueMessage<T>`: type for received queue messages (id, payload, dequeueCount, optional popReceipt).
-- `QueueMessageLogBlobStorage`: minimal blob-storage shape accepted by `enableLogging(...)`.
-
-## Blob logging
-
-Logging can be enabled either in the constructor config or later through the registered service instance:
-
-```typescript
-const svc = new MyServiceQueueStorage({ accountName: 'my-storage-account' })
-await svc.startUp()
-svc.enableLogging(blobStorage, { enabled: true, container: 'queue-logs' })
+```ts
+export const schema = /* schema value */;
+export type Schema = /* inferred payload type */;
 ```
 
-When blob-backed logging is enabled, the package writes one blob per message:
+### 3. Define the queue
 
-- Blob names are prefixed by queue direction: `inbound/` or `outbound/`
-- Blob filenames use the message timestamp in ISO UTC form, for example `2026-05-27T15:14:30.000Z.json`
-- Blob content is the message payload JSON itself, not a wrapper envelope
-- Blob tags always include `queueName`
-- Queue definitions can add custom tags and metadata, including values resolved from the message payload at runtime
-- The preferred syntax is `defineQueue<MyPayload>()(({ $payload }) => ({ ... }))`, then use `$payload.<field>` inside the definition callback
-- The equivalent explicit form `{ payloadField: 'communityId' }` is also supported for advanced/manual cases
-- `defineQueue<MyPayload>()` ensures `$payload.<field>` is checked against the keys of `MyPayload` without separate payload helper setup
-- Advanced consumers may still provide a custom `IQueueMessageLogger` implementation instead of blob storage when they need a different persistence mechanism
+```ts
+import { defineQueue } from '@cellix/service-queue-storage';
+import { schema as orderCreatedSchema, type Schema as OrderCreatedPayload } from './order-created.schema.generated';
 
-## Auto-provisioning
+export type { OrderCreatedPayload };
 
-When a registered queue service is started with a connection string pointing at Azurite or when `NODE_ENV=development`, it will attempt to create all registered queue names by default. Override `serviceDefaults.provisionQueues` only when you intentionally want to provision a subset. This is intended for local development only.
+export const orderCreatedQueue = defineQueue<OrderCreatedPayload>()(({ $payload }) => ({
+	queueName: 'order-created',
+	schema: orderCreatedSchema,
+	loggingTags: {
+		orderId: $payload.orderId,
+	},
+	loggingMetadata: {
+		createdBy: $payload.createdBy,
+	},
+}));
+```
+
+### 4. Register the queue
+
+```ts
+import { registerQueues } from '@cellix/service-queue-storage';
+import { orderCreatedQueue } from './schemas/outbound/order-created';
+import { importRequestsQueue } from './schemas/inbound/import-requests';
+
+const queues = registerQueues({
+	outbound: {
+		orderCreated: orderCreatedQueue,
+	},
+	inbound: {
+		importRequests: importRequestsQueue,
+	},
+});
+```
+
+### 5. Export the service and operations type
+
+```ts
+import {
+	createRegisteredQueueService,
+	type QueueRegistryOperations,
+	type QueueRegistryService,
+} from '@cellix/service-queue-storage';
+
+export const ServiceQueueStorage = createRegisteredQueueService(queues);
+
+export type ServiceQueueStorage = QueueRegistryService<typeof queues>;
+export type QueueStorageOperations = QueueRegistryOperations<typeof queues>;
+```
+
+Use:
+
+- `ServiceQueueStorage` at application bootstrap
+- `QueueStorageOperations` in application-service dependencies
+
+## Use The Service
+
+### Create the service
+
+Use one of:
+
+- `new ServiceQueueStorage({ accountName })`
+- `new ServiceQueueStorage({ connectionString })`
+
+Example:
+
+```ts
+const service = new ServiceQueueStorage({ accountName: 'my-storage-account' });
+await service.startUp();
+```
+
+### Send to an outbound queue
+
+```ts
+await service.sendMessageToOrderCreatedQueue({
+	orderId: 'order-123',
+	createdBy: 'system',
+});
+```
+
+### Receive from an inbound queue
+
+```ts
+const message = await service.receiveFromImportRequestsQueue();
+
+if (message) {
+	console.log(message.payload);
+}
+```
+
+### Peek at a queue
+
+```ts
+const messages = await service.peekAtImportRequestsQueue();
+```
+
+## Queue Naming
+
+Each queue has:
+
+- a registry key, for example `orderCreated`
+- a physical queue name, for example `order-created`
+- generated methods, for example `sendMessageToOrderCreatedQueue(...)`
+
+The method name comes from the registry key. Keep keys concise and do not end them with `Queue`.
+
+## Logging
+
+If you want queue messages logged to blob storage:
+
+```ts
+service.enableLogging(blobStorage, {
+	enabled: true,
+	container: 'queue-logs',
+});
+```
+
+You can set:
+
+- `enabled`
+- `container`
+- `await`
+
+Queue definitions can also provide:
+
+- `loggingTags`
+- `loggingMetadata`
+
+Use `$payload.<field>` inside `defineQueue<TPayload>()` when those values should come from the payload.
+
+## Local Development
+
+When using Azurite or `NODE_ENV=development`, registered queues are created automatically by default.
+
+If you want to provision only a subset, pass `serviceDefaults.provisionQueues` to `registerQueues(...)`.
+
+## Exports You Will Usually Use
+
+- `defineQueue`
+- `registerQueues`
+- `createRegisteredQueueService`
+- `QueueRegistryOperations`
+- `QueueRegistryService`
+- `QueueStorageConfig`
+- `QueueLoggingConfig`
+- `$payload`
+- `payloadFields`
+- `JSONSchema`
+- `FromSchema`
+
+Most consumers do not need anything else.
