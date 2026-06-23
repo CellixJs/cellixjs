@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { StaffRolesListDocument, StaffUsersListDocument } from '../generated.tsx';
+import { SectionLayout } from '../section-layout.tsx';
 import { UserManagementPage } from './user-management.tsx';
 
 const mockStaffUsers = [
@@ -15,6 +16,7 @@ const mockStaffRoles = [
 ];
 
 const mockAuth = {
+	name: 'Admin User',
 	permissions: {
 		canViewStaffUsers: true,
 		canManageUsers: true,
@@ -28,7 +30,7 @@ const meta: Meta<typeof UserManagementPage> = {
 	title: 'Pages/Staff/User Management/User Management',
 	component: UserManagementPage,
 	parameters: {
-		layout: 'padded',
+		layout: 'fullscreen',
 	},
 };
 
@@ -43,12 +45,17 @@ export const StaffUsersTab: Story = {
 	},
 	render: () => (
 		<StaffAuthProvider value={mockAuth}>
-			<MemoryRouter initialEntries={['/staff-users']}>
+			<MemoryRouter initialEntries={['/staff/user-management/staff-users']}>
 				<Routes>
 					<Route
-						path="/*"
-						element={<UserManagementPage />}
-					/>
+						path="/staff/user-management"
+						element={<SectionLayout />}
+					>
+						<Route
+							path="*"
+							element={<UserManagementPage />}
+						/>
+					</Route>
 				</Routes>
 			</MemoryRouter>
 		</StaffAuthProvider>
@@ -63,12 +70,17 @@ export const StaffRolesTab: Story = {
 	},
 	render: () => (
 		<StaffAuthProvider value={mockAuth}>
-			<MemoryRouter initialEntries={['/staff-roles']}>
+			<MemoryRouter initialEntries={['/staff/user-management/staff-roles']}>
 				<Routes>
 					<Route
-						path="/*"
-						element={<UserManagementPage />}
-					/>
+						path="/staff/user-management"
+						element={<SectionLayout />}
+					>
+						<Route
+							path="*"
+							element={<UserManagementPage />}
+						/>
+					</Route>
 				</Routes>
 			</MemoryRouter>
 		</StaffAuthProvider>
