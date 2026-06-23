@@ -8,7 +8,7 @@ param principalId string
 @description('The principal type (usually ServicePrincipal for managed identities)')
 param principalType string = 'ServicePrincipal'
 
-@description('The role definition ID for Storage Blob Data Contributor')
+@description('The role definition ID for the storage data-plane role to assign')
 param roleDefinitionId string = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor
 
 // Reference existing Storage Account
@@ -16,10 +16,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' existing 
   name: storageAccountName
 }
 
-// Add RBAC role assignment for the managed identity (Storage Blob Data Contributor)
+// Add RBAC role assignment for the managed identity on the storage account
 resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: storageAccount
-  name: guid(storageAccount.id, principalId, 'StorageBlobDataContributor')
+  name: guid(storageAccount.id, principalId, roleDefinitionId)
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
     principalId: principalId
