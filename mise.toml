@@ -1,0 +1,15 @@
+#:schema https://mise.jdx.dev/schema/mise.json
+
+[tools]
+node = "22.22.2"
+python = "3.13"
+
+[settings]
+# Automatically install tools when entering the project directory
+auto_install = true
+
+[env]
+# Ensure pnpm is available (installed via corepack)
+_.path = ["./node_modules/.bin"]
+# Python virtual environment
+_.python.venv = { path = ".venv", create = true }

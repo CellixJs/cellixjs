@@ -3,7 +3,7 @@ import { type ApplicationServicesFactory, buildApplicationServicesFactory } from
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
-import type { BlobAddress, ListBlobsRequest, UploadTextBlobRequest, BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
+import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
 import { actors } from '@ocom-verification/verification-shared/test-data';
