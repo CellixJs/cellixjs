@@ -23,6 +23,10 @@ export type {
 	StaffRolePropertyPermissionsProps,
 } from './staff-role-property-permissions.ts';
 export type {
+	StaffRoleRolePermissionsEntityReference,
+	StaffRoleRolePermissionsProps,
+} from './staff-role-role-permissions.ts';
+export type {
 	StaffRoleServicePermissionsEntityReference,
 	StaffRoleServicePermissionsProps,
 } from './staff-role-service-permissions.ts';
