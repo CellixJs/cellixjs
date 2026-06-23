@@ -5,18 +5,29 @@ import path from 'node:path';
 
 const SCHEMA_SUFFIX = '.schema.json';
 const GENERATED_SUFFIX = '.schema.generated.ts';
+const DEFAULT_TARGET_DIR = 'src';
+const SAFE_TARGET_DIR_PATTERN = /^[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/;
 
 async function main() {
 	const args = process.argv.slice(2);
-	const targetDirs = args.length > 0 ? args : ['src'];
+	const targetDirs = args.length > 0 ? args : [DEFAULT_TARGET_DIR];
+	const workspaceRoot = process.cwd();
 
 	const schemaFiles = [];
 	for (const targetDir of targetDirs) {
-		const resolvedDir = path.resolve(process.cwd(), targetDir);
+		const resolvedDir = resolveTargetDir(workspaceRoot, targetDir);
 		schemaFiles.push(...(await findSchemaFiles(resolvedDir)));
 	}
 
 	await Promise.all(schemaFiles.map((schemaFile) => generateSchemaModule(schemaFile)));
+}
+
+function resolveTargetDir(workspaceRoot, targetDir) {
+	if (!SAFE_TARGET_DIR_PATTERN.test(targetDir)) {
+		throw new Error(`Schema scan path must be a relative workspace subdirectory like "${DEFAULT_TARGET_DIR}" or "${DEFAULT_TARGET_DIR}/schemas": ${targetDir}`);
+	}
+
+	return path.join(workspaceRoot, ...targetDir.split('/'));
 }
 
 async function findSchemaFiles(targetDir) {
@@ -74,4 +85,4 @@ main().catch((error) => {
 	process.exitCode = 1;
 });
 
-export { findSchemaFiles, renderGeneratedModule };
+export { findSchemaFiles, renderGeneratedModule, resolveTargetDir };

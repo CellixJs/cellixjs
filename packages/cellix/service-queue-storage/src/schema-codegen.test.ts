@@ -76,4 +76,14 @@ describe('cellix-generate-queue-schema-types', () => {
 
 		await expect(readFile(path.join(schemasDir, 'unreferenced.schema.generated.ts'), 'utf8')).rejects.toThrow();
 	});
+
+	it('rejects schema scan paths outside the current workspace', async () => {
+		const tempDir = await mkdtemp(path.join(os.tmpdir(), 'queue-schema-codegen-'));
+		tempDirs.push(tempDir);
+
+		const { execaNode } = await import('execa');
+		await expect(execaNode(scriptPath, ['../outside'], { cwd: tempDir })).rejects.toMatchObject({
+			stderr: expect.stringContaining('Schema scan path must be a relative workspace subdirectory'),
+		});
+	});
 });
