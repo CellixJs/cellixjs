@@ -1,8 +1,6 @@
-import * as opentelemetry from '@opentelemetry/sdk-node';
-
-import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-
 import type { SyncServiceBase } from '@cellix/api-services-spec';
+import * as opentelemetry from '@opentelemetry/sdk-node';
+import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { OtelBuilder } from './otel-builder.ts';
 
 // biome-ignore lint:noEmptyInterface
