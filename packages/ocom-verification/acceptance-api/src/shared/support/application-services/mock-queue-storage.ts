@@ -31,8 +31,13 @@ export function createRecordingQueueStorageService(): QueueStorageOperations {
 				})),
 			);
 		},
-		receiveFromEndUserUpdateQueue() {
-			return Promise.resolve(undefined);
+		receiveFromEndUserUpdateQueue(_payload: unknown, _metadata?: { id?: string; popReceipt?: string; dequeueCount?: number }) {
+			return Promise.resolve({
+				id: _metadata?.id ?? '',
+				...( _metadata?.popReceipt !== undefined ? { popReceipt: _metadata.popReceipt } : {}),
+				payload: _payload,
+				...( _metadata?.dequeueCount !== undefined ? { dequeueCount: _metadata.dequeueCount } : {}),
+			});
 		},
 		peekAtEndUserUpdateQueue() {
 			return Promise.resolve([]);

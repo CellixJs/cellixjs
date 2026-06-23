@@ -4,15 +4,13 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { describe, expect, it, vi } from 'vitest';
 import { registerQueues } from './index.ts';
 
-type MockReceivedMessage = {
+type MockPeekedMessage = {
 	messageId: string;
-	popReceipt?: string;
 	messageText: string;
 	dequeueCount?: number;
 };
 
-let receivedMessageItems: MockReceivedMessage[] = [];
-let peekedMessageItems: MockReceivedMessage[] = [];
+let peekedMessageItems: MockPeekedMessage[] = [];
 
 vi.mock('@azure/storage-queue', () => ({
 	QueueServiceClient: {
@@ -20,7 +18,6 @@ vi.mock('@azure/storage-queue', () => ({
 			getQueueClient: vi.fn(() => ({
 				sendMessage: vi.fn(async () => ({ messageId: 'mid' })),
 				createIfNotExists: vi.fn(async () => ({ succeeded: true })),
-				receiveMessages: vi.fn(async () => ({ receivedMessageItems })),
 				peekMessages: vi.fn(async () => ({ peekedMessageItems })),
 				deleteMessage: vi.fn(async () => ({})),
 			})),
@@ -56,7 +53,6 @@ describe('registerQueues', () => {
 
 		BeforeEachScenario(() => {
 			vi.clearAllMocks();
-			receivedMessageItems = [];
 			peekedMessageItems = [];
 		});
 
@@ -67,18 +63,13 @@ describe('registerQueues', () => {
 
 			And('a service instance is created from the registry', async () => {
 				svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
-				receivedMessageItems = [
-					{
-						messageId: 'msg-1',
-						messageText: Buffer.from(JSON.stringify({ requestId: 'r1' })).toString('base64'),
-						dequeueCount: 1,
-					},
-				];
 				await svc.startUp();
 			});
 
 			When('I call receiveFromImportRequestsQueue', async () => {
-				result = await (svc as unknown as { receiveFromImportRequestsQueue: () => Promise<unknown> }).receiveFromImportRequestsQueue();
+				result = await (svc as unknown as {
+					receiveFromImportRequestsQueue: (payload: unknown, metadata?: { id?: string; popReceipt?: string; dequeueCount?: number }) => Promise<unknown>;
+				}).receiveFromImportRequestsQueue({ requestId: 'r1' }, { id: 'msg-1', dequeueCount: 1 });
 			});
 
 			Then('a single typed message is returned', () => {
@@ -89,21 +80,43 @@ describe('registerQueues', () => {
 		});
 	});
 
+	it('validates an already-received inbound payload and returns typed trigger metadata', async () => {
+		const registry = createInboundRegistry();
+		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+		await svc.startUp();
+
+		await expect(
+			(
+				svc as unknown as {
+					receiveFromImportRequestsQueue: (
+						payload: unknown,
+						metadata?: { id?: string; popReceipt?: string; dequeueCount?: number },
+					) => Promise<unknown>;
+				}
+			).receiveFromImportRequestsQueue({ requestId: 'r1' }, { id: 'msg-1', popReceipt: 'receipt-1', dequeueCount: 1 }),
+		).resolves.toEqual({
+			id: 'msg-1',
+			popReceipt: 'receipt-1',
+			payload: { requestId: 'r1' },
+			dequeueCount: 1,
+		});
+	});
+
 	it('includes Ajv field errors when receive validation fails', async () => {
 		const registry = createInboundRegistry();
 		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
-		receivedMessageItems = [
-			{
-				messageId: 'msg-invalid',
-				messageText: Buffer.from(JSON.stringify({})).toString('base64'),
-				dequeueCount: 1,
-			},
-		];
 		await svc.startUp();
 
-		await expect((svc as unknown as { receiveFromImportRequestsQueue: () => Promise<unknown> }).receiveFromImportRequestsQueue()).rejects.toThrow(
-			'Invalid payload for queue "import-requests": / is missing required property "requestId"',
-		);
+		await expect(
+			(
+				svc as unknown as {
+					receiveFromImportRequestsQueue: (
+						payload: unknown,
+						metadata?: { id?: string; popReceipt?: string; dequeueCount?: number },
+					) => Promise<unknown>;
+				}
+			).receiveFromImportRequestsQueue({}, { id: 'msg-invalid', dequeueCount: 1 }),
+		).rejects.toThrow('Invalid payload for queue "import-requests": / is missing required property "requestId"');
 	});
 
 	it('allows peeking invalid inbound payloads without throwing', async () => {

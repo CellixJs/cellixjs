@@ -1,4 +1,4 @@
-export type { InboundQueueDefinition, LoggingFieldSpec, OutboundQueueDefinition, QueueDefinition, QueueLoggingConfig, QueueMessage, QueueStorageConfig } from './interfaces.ts';
+export type { InboundQueueDefinition, LoggingFieldSpec, OutboundQueueDefinition, QueueDefinition, QueueLoggingConfig, QueueMessage, QueueStorageConfig, QueueTriggerMetadata } from './interfaces.ts';
 export { defineQueue } from './define-queue.ts';
 export { $payload, payloadFields, resolveLoggingFields } from './logging-fields.ts';
 export type { IQueueMessageLogger, MessageLogEnvelope, QueueMessageLogBlobStorage } from './logging.ts';

@@ -51,8 +51,8 @@ export function createQueueProducer<O extends QueueMap>(
 			const metadata = resolveLoggingFields(def.loggingMetadata, payload);
 			const opts = {
 				loggingDirection: 'outbound' as const,
-				...(tags !== undefined ? { loggingTags: tags } : {}),
-				...(metadata !== undefined ? { loggingMetadata: metadata } : {}),
+				...(tags === undefined ? {} : { loggingTags: tags }),
+				...(metadata === undefined ? {} : { loggingMetadata: metadata }),
 			};
 			await service.sendMessage(def.queueName, payload as object, opts);
 		};

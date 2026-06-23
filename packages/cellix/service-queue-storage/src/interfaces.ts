@@ -95,6 +95,23 @@ export type QueueMessage<T = unknown> = {
 	dequeueCount?: number;
 };
 
+/**
+ * Queue trigger metadata that may accompany an already-received inbound message.
+ *
+ * Use this with `receiveFrom...Queue(payload, metadata)` when validating and
+ * logging a message that Azure Functions already delivered to your handler.
+ *
+ * @example
+ * ```ts
+ * const metadata: QueueTriggerMetadata = {
+ *   id: 'msg-1',
+ *   popReceipt: 'receipt-1',
+ *   dequeueCount: 2,
+ * };
+ * ```
+ */
+export type QueueTriggerMetadata = Pick<QueueMessage<never>, 'id' | 'popReceipt' | 'dequeueCount'>;
+
 /** Queue direction used when persisting message logs. */
 export type QueueDirection = 'inbound' | 'outbound';
 
@@ -124,8 +141,9 @@ export type SendMessageOptions = {
  * Options for low-level receive operations.
  *
  * @remarks
- * Most consumers use generated `receiveFrom...Queue()` methods instead of this
- * transport-level option bag.
+ * Most consumers should not use this directly. It exists for low-level queue
+ * transport access, while queue-trigger integrations should use generated
+ * `receiveFrom...Queue(payload, metadata)` methods instead.
  */
 export type ReceiveMessagesOptions = {
 	/** Maximum number of messages to request from Azure in one receive call. */

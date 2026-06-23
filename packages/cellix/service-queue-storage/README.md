@@ -144,12 +144,14 @@ await service.sendMessageToOrderCreatedQueue({
 ### Receive from an inbound queue
 
 ```ts
-const message = await service.receiveFromImportRequestsQueue();
-
-if (message) {
-	console.log(message.payload);
-}
+const message = await service.receiveFromImportRequestsQueue(queueItem, {
+	id: context.triggerMetadata.id,
+	popReceipt: context.triggerMetadata.popReceipt,
+	dequeueCount: context.triggerMetadata.dequeueCount,
+});
 ```
+
+`receiveFrom...Queue(payload, metadata)` is intended for Azure Functions queue triggers. Pass the payload the Functions host already delivered, plus trigger metadata when available. The framework validates the payload, returns a typed message shape, logs inbound messages when logging is enabled, and throws on invalid payloads so the Functions host can retry or move the message to the poison queue.
 
 ### Peek at a queue
 
@@ -206,6 +208,7 @@ If you want to provision only a subset, pass `serviceDefaults.provisionQueues` t
 - `QueueRegistryService`
 - `QueueStorageConfig`
 - `QueueLoggingConfig`
+- `QueueTriggerMetadata`
 - `$payload`
 - `payloadFields`
 - `JSONSchema`

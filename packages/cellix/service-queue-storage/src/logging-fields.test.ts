@@ -4,15 +4,6 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { describe, expect, vi } from 'vitest';
 import { $payload, type IQueueMessageLogger, type LoggingFieldSpec, registerQueues, resolveLoggingFields } from './index.ts';
 
-type MockReceivedMessage = {
-	messageId: string;
-	popReceipt?: string;
-	messageText: string;
-	dequeueCount?: number;
-};
-
-let receivedMessageItems: MockReceivedMessage[] = [];
-
 vi.mock('@azure/storage-queue', () => {
 	return {
 		QueueServiceClient: {
@@ -20,7 +11,6 @@ vi.mock('@azure/storage-queue', () => {
 				getQueueClient: vi.fn(() => ({
 					sendMessage: vi.fn(async () => ({ messageId: 'msg-123' })),
 					createIfNotExists: vi.fn(async () => ({ succeeded: true })),
-					receiveMessages: vi.fn(async () => ({ receivedMessageItems })),
 					peekMessages: vi.fn(async () => ({ peekedMessageItems: [] })),
 					deleteMessage: vi.fn(async () => ({})),
 				})),
@@ -143,15 +133,8 @@ describe('Logging field resolution', () => {
 			});
 
 			When('a message with externalId="ext-xyz" is received from the queue', async () => {
-				receivedMessageItems = [
-					{
-						messageId: 'msg-1',
-						messageText: Buffer.from(JSON.stringify({ requestId: 'r1', externalId: 'ext-xyz' })).toString('base64'),
-						dequeueCount: 1,
-					},
-				];
 				await svc.startUp();
-				await svc.receiveFromImportRequestsQueue();
+				await svc.receiveFromImportRequestsQueue({ requestId: 'r1', externalId: 'ext-xyz' }, { id: 'msg-1', dequeueCount: 1 });
 			});
 
 			Then('the logger is called with tags containing externalId="ext-xyz"', () => {

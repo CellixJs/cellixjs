@@ -43,7 +43,7 @@ export interface ApiContextSpec {
 	 * Combines all strongly-typed send, receive, and peek operations derived from the
 	 * registered queue definitions. Each registered queue gets its own named method:
 	 *  - Outbound queues: `sendMessageTo<QueueName>Queue(payload)`
-	 *  - Inbound queues: `receiveFrom<QueueName>Queue()`, `peekAt<QueueName>Queue()`
+	 *  - Inbound queues: `receiveFrom<QueueName>Queue(payload, metadata?)`, `peekAt<QueueName>Queue()`
 	 *
 	 * Example:
 	 * ```ts

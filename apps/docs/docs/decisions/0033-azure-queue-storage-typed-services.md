@@ -42,6 +42,14 @@ Chosen option: **Hide Azure Queue Storage behind typed registered queue services
 - Raw queue transport operations remain framework-internal
 - Queue validation and queue logging are enforced by the framework on the normal typed send and receive paths
 
+### Inbound Queue Consumption Decision
+
+- Outbound queues continue to use typed `sendMessageTo<QueueName>Queue(payload)` methods.
+- Inbound queues are designed for **Azure Functions queue-trigger consumption**, not for backend polling.
+- Framework `receiveFrom<QueueName>Queue(payload, metadata?)` methods therefore accept a payload that the Azure Functions host has already received, validate it, log it, and return a typed message shape.
+- These inbound methods do **not** dequeue messages, delete messages, or manage retries.
+- Invalid inbound payloads must throw so Azure Functions can apply its built-in retry and poison-queue handling.
+
 ### Boundary Decision
 
 #### Public to application consumers
@@ -50,12 +58,19 @@ Chosen option: **Hide Azure Queue Storage behind typed registered queue services
 - Queue registration
 - Typed send, receive, and peek methods for registered queues
 
+For inbound queues specifically:
+
+- `receiveFrom<QueueName>Queue(payload, metadata?)` is a trigger-processing helper
+- it is not a queue-polling abstraction
+- completion semantics belong to the Azure Functions host
+
 #### Internal to the framework
 
 - Raw Azure Queue Storage transport operations
 - Method binding and naming mechanics
 - Logging enforcement mechanics
 - Local provisioning mechanics
+- Any future Azure Functions trigger adapter details beyond payload validation/logging
 
 ### Environment Decision
 
@@ -66,6 +81,17 @@ Cellix distinguishes between local development convenience and production owners
 
 This avoids turning normal runtime queue or logging operations into hidden infrastructure mutation.
 
+### Azure Functions Trigger Behavior
+
+For inbound queue processing, Cellix intentionally aligns with Azure Functions queue-trigger behavior documented by Microsoft:
+
+- the Functions host receives the message
+- successful execution deletes the message
+- failed execution retries the message
+- repeated failures move the message to a poison queue by default
+
+Because the host already owns those concerns, the framework should validate and log inbound payloads, then throw on invalid payloads rather than attempting to acknowledge or delete queue messages itself.
+
 ## Consequences
 
 ### Positive
@@ -75,6 +101,7 @@ This avoids turning normal runtime queue or logging operations into hidden infra
 3. Logging becomes a framework guarantee on typed queue paths
 4. The framework remains reusable across multiple application packages
 5. Local development remains practical without redefining production standards
+6. Inbound queue processing matches Azure Functions trigger semantics instead of introducing a competing polling model
 
 ### Neutral
 
@@ -85,6 +112,7 @@ This avoids turning normal runtime queue or logging operations into hidden infra
 
 1. The framework must maintain the typed registered-service abstraction over Azure Queue Storage
 2. Consumers who need to bypass the typed queue model would require explicit framework changes
+3. Inbound queue methods are intentionally coupled to Azure Functions trigger delivery semantics rather than serving as general-purpose poller APIs
 
 ## Validation
 
@@ -127,5 +155,6 @@ This decision complements:
 - [0011 Bicep](/docs/decisions/0011-bicep.md)
 - [0014 Azure Infrastructure Deployments](/docs/decisions/0014-azure-infrastructure-deployments.md)
 - [0032 Azure Blob Storage with Managed Identity & Client Uploads](/docs/decisions/0032-azure-blob-storage-client-uploads.md)
+- [Azure Queue storage trigger for Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-queue-trigger)
 
 Detailed developer and agent guidance belongs in the framework package documentation, including `@cellix/service-queue-storage` README material and public-export TSDoc, rather than in this ADR.
