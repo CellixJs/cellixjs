@@ -35,14 +35,19 @@ import { PlaywrightPageAdapter } from '@cellix/serenity-framework/pages/playwrig
 Compose only the servers a suite needs by chaining `addServer`, then `addUiPortal`, then `finalize`. The framework starts them in dependency order (servers whose `dependsOn` is satisfied start in parallel), calls `resetForScenario()` on servers that implement it, sets up the browser when a UI portal exists, and tears everything down. Each application registers its own set — fewer or more servers — without changing the framework. Once UI portal registration starts, regular server registration is closed; once finalized, no registration methods remain on the typed runtime surface.
 
 ```ts
+import { fileURLToPath } from 'node:url';
 import { E2EInfrastructure } from '@cellix/serenity-framework/infrastructure/e2e';
 import { MongoMemoryProcessTestServer, ProcessTestServer, ProcessUiTestServer } from '@cellix/serenity-framework/servers';
+
+const mongoAppPath = fileURLToPath(new URL('../../apps/server-mongodb-memory-mock', import.meta.url));
+const apiAppPath = fileURLToPath(new URL('../../apps/api', import.meta.url));
+const communityAppPath = fileURLToPath(new URL('../../apps/ui-community', import.meta.url));
 
 const mongo = new MongoMemoryProcessTestServer({
   serverName: 'Mongo',
   executable: 'pnpm',
   spawnArgs: ['run', 'dev'],
-  cwd: '/repo/apps/server-mongodb-memory-mock',
+  cwd: mongoAppPath,
   connectionString: mongoConnectionString,
   dbName,
   portsToCloseBeforeStart: () => mongoPort,
@@ -54,7 +59,7 @@ const api = new ProcessTestServer({
   serverName: 'Api',
   executable: 'pnpm',
   spawnArgs: ['run', process.env.WORKTREE_NAME ? 'dev:worktree' : 'dev'],
-  cwd: '/repo/apps/api',
+  cwd: apiAppPath,
   url: 'https://api.localhost:1355/api/graphql',
   readyMarker: 'Functions:',
 });
@@ -63,7 +68,7 @@ const community = new ProcessUiTestServer({
   serverName: 'Community portal',
   executable: 'pnpm',
   spawnArgs: ['run', 'dev'],
-  cwd: '/repo/apps/ui-community',
+  cwd: communityAppPath,
   url: 'https://community.localhost:1355',
   readyMarker: 'ready in',
 });
@@ -91,7 +96,7 @@ const staffContext = await infrastructure.newPortalContext('staff');
 
 Register server objects directly. Dependencies that need one another receive those references through normal object construction; `dependsOn` describes startup order only. Each UI portal owns its browser-context recipe, so `newPortalContext(name)` scopes navigation to that portal without any portal being special-cased. The framework never imports app paths or app-specific environment helpers — pass those into server constructors from the consumer package.
 
-`ProcessTestServer` performs a narrow health check after it sees the ready marker: GraphQL URLs ending in `/graphql` use a small POST `{ __typename }` request, and root web URLs use the fetch default. Service-specific URLs, raw localhost dependencies, and non-HTTP URLs trust the ready marker.
+`ProcessTestServer` performs a narrow health check after it sees the ready marker: GraphQL URLs ending in `/graphql` use a small POST `{ __typename }` request, and root web URLs use the fetch default. Service-specific URLs, raw localhost dependencies, and non-HTTP URLs trust the ready marker. In particular, root URLs on `localhost` or `127.0.0.1` are considered ready as soon as the marker appears; no HTTP probe runs for them.
 
 ## API acceptance infrastructure
 
@@ -138,6 +143,23 @@ export const ApiWorld = registerManagedSerenityWorld({
 });
 ```
 
+DOM-only component suites can use the same managed-world lifecycle without
+starting external infrastructure. Pass the smallest infrastructure object that
+can initialize the cast:
+
+```ts
+import { registerManagedSerenityWorld } from '@cellix/serenity-framework/cucumber';
+import { SerenityCast } from '@cellix/serenity-framework/serenity';
+
+export const DomWorld = registerManagedSerenityWorld<Record<string, never>>({
+  infrastructure: {
+    ensureStarted: () => Promise.resolve(),
+    getState: () => ({}),
+  },
+  createCast: () => new SerenityCast({ useNotepad: true, abilities: [] }),
+});
+```
+
 ## DOM (happy-dom) helpers
 
 Component-level acceptance tests run against an in-process DOM provided by
@@ -175,3 +197,10 @@ await actor.attemptsTo(Render.component(<LoginForm />, { wrapper: withProviders(
 // task/question: build the page object from the actor's container
 const page = new LoginPage(new DomPageAdapter(RenderInDom.as(actor).container));
 ```
+
+`DomPageAdapter` intentionally keeps unresolved element handles inert: `fill`,
+`click`, and `check` are no-ops when the selector did not resolve, while
+`isVisible()` returns `false` and reads such as `textContent()` return `null`.
+Assert that important selectors resolve in DOM-mode tests before relying on
+them as a correctness signal. Browser-backed Playwright adapters may throw for
+the same unresolved operations.

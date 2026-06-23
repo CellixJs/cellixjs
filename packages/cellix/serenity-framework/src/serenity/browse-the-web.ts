@@ -8,7 +8,11 @@ let fallbackInstance: BrowseTheWeb | undefined;
  * Serenity ability that exposes a Playwright page and browser context.
  *
  * The ability supports a current fallback page for single-browser test suites
- * and optional actor registration for multi-actor scenarios.
+ * and optional actor registration for multi-actor scenarios. Calling
+ * {@link BrowseTheWeb.using} replaces the fallback instance. Closing an ability
+ * detaches it from the fallback and actor registries; suites that create
+ * browser abilities directly should close them during teardown to avoid leaking
+ * actor registrations across scenarios in the same process.
  */
 export class BrowseTheWeb extends Ability {
 	/** Playwright page used by tasks and page adapters. */
@@ -21,6 +25,9 @@ export class BrowseTheWeb extends Ability {
 	 *
 	 * @param page Playwright page assigned to the ability.
 	 * @param context Playwright browser context that owns the page.
+	 * @returns The active browser ability. This also replaces the fallback used by
+	 * {@link BrowseTheWeb.current} and by actors without an actor-specific
+	 * registration.
 	 */
 	static using(page: Page, context: BrowserContext): BrowseTheWeb {
 		const ability = new BrowseTheWeb(page, context);
@@ -32,6 +39,7 @@ export class BrowseTheWeb extends Ability {
 	 * Register this ability for a named actor.
 	 *
 	 * @param name Actor name used by Serenity/JS.
+	 * @returns This ability, for fluent cast setup.
 	 */
 	registerForActor(name: string): this {
 		this.actorName = name;

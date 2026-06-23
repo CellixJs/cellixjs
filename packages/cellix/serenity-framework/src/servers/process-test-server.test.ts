@@ -125,4 +125,27 @@ describe('ProcessTestServer', () => {
 			fetch.mockRestore();
 		}
 	});
+
+	it('trusts the ready marker for localhost root URLs without an HTTP probe', async () => {
+		const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 500 }));
+		const server = new ProcessTestServer({
+			serverName: 'localhost web server',
+			executable: process.execPath,
+			spawnArgs: ['-e', "console.log('READY'); setInterval(() => undefined, 1_000)"],
+			cwd: process.cwd(),
+			readyMarker: 'READY',
+			url: 'http://127.0.0.1:4000/',
+			shutdownTimeoutMs: 500,
+		});
+
+		try {
+			await server.start();
+
+			expect(server.isRunning()).toBe(true);
+			expect(fetch).not.toHaveBeenCalled();
+		} finally {
+			await server.stop();
+			fetch.mockRestore();
+		}
+	});
 });
