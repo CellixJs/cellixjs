@@ -1,3 +1,4 @@
+import { NotFoundError } from '@cellix/domain-seedwork/repository';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
 import { Domain } from '@ocom/domain';
@@ -13,7 +14,7 @@ export class StaffRoleRepository
 	async getById(id: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
 		const staffRole = await this.model.findById(id).exec();
 		if (!staffRole) {
-			throw new Error(`StaffRole with id ${id} not found`);
+			throw new NotFoundError(`StaffRole with id ${id} not found`);
 		}
 		return this.typeConverter.toDomain(staffRole, this.passport);
 	}
@@ -21,7 +22,7 @@ export class StaffRoleRepository
 	async getByRoleName(roleName: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
 		const staffRole = await this.model.findOne({ roleName }).exec();
 		if (!staffRole) {
-			throw new Error(`StaffRole with roleName ${roleName} not found`);
+			throw new NotFoundError(`StaffRole with roleName ${roleName} not found`);
 		}
 		return this.typeConverter.toDomain(staffRole, this.passport);
 	}
@@ -29,7 +30,7 @@ export class StaffRoleRepository
 	async getDefaultRoleByEnterpriseAppRole(enterpriseAppRole: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
 		const staffRole = await this.model.findOne({ isDefault: true, enterpriseAppRole }).exec();
 		if (!staffRole) {
-			throw new Error(`Default StaffRole with enterpriseAppRole ${enterpriseAppRole} not found`);
+			throw new NotFoundError(`Default StaffRole with enterpriseAppRole ${enterpriseAppRole} not found`);
 		}
 		return this.typeConverter.toDomain(staffRole, this.passport);
 	}

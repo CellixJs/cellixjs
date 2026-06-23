@@ -90,7 +90,7 @@ describe('SectionLayout merging behaviour', () => {
 		await new Promise((r) => setTimeout(r, 10));
 
 		expect(container.textContent).not.toContain('Communities');
-		expect(container.textContent).not.toContain('Users');
+		expect(container.textContent).toContain('Users');
 		expect(container.textContent).toContain('Finance');
 		expect(container.textContent).not.toContain('Tech Admin');
 	});

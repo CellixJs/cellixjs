@@ -13,7 +13,7 @@ export type StaffAppRole = (typeof StaffAppRoles)[keyof typeof StaffAppRoles];
  */
 export const staffRouteRoles = {
 	'/staff/community-management': [StaffAppRoles.CaseManager, StaffAppRoles.ServiceLineOwner, StaffAppRoles.TechAdmin],
-	'/staff/user-management': [StaffAppRoles.CaseManager, StaffAppRoles.ServiceLineOwner, StaffAppRoles.TechAdmin],
+	'/staff/user-management': [StaffAppRoles.CaseManager, StaffAppRoles.ServiceLineOwner, StaffAppRoles.Finance, StaffAppRoles.TechAdmin],
 	'/staff/finance': [StaffAppRoles.Finance, StaffAppRoles.TechAdmin],
 	'/staff/tech': [StaffAppRoles.TechAdmin],
 } satisfies Record<string, readonly StaffAppRole[]>;

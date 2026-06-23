@@ -12,12 +12,22 @@ const CURRENT_STAFF_USER_QUERY = gql`
 			role {
 				id
 				roleName
+				enterpriseAppRole
 				permissions {
 					communityPermissions {
 						canManageCommunities
+						canManageStaffRolesAndPermissions
 					}
 					userPermissions {
 						canManageUsers
+						canAssignStaffRoles
+						canViewStaffUsers
+					}
+					staffRolePermissions {
+						canViewRoles
+						canAddRole
+						canEditRole
+						canRemoveRole
 					}
 					financePermissions {
 						canManageFinance
@@ -33,9 +43,16 @@ const CURRENT_STAFF_USER_QUERY = gql`
 
 interface StaffPermissions {
 	canManageCommunities: boolean;
+	canManageStaffRolesAndPermissions: boolean;
 	canManageUsers: boolean;
+	canAssignStaffRoles: boolean;
+	canViewStaffUsers: boolean;
 	canManageFinance: boolean;
 	canManageTechAdmin: boolean;
+	canViewRoles: boolean;
+	canAddRole: boolean;
+	canEditRole: boolean;
+	canRemoveRole: boolean;
 }
 
 interface StaffUserQueryResult {
@@ -49,9 +66,11 @@ interface StaffUserQueryResult {
 		role?: {
 			id: string;
 			roleName: string;
+			enterpriseAppRole: string;
 			permissions: {
-				communityPermissions: { canManageCommunities: boolean };
-				userPermissions: { canManageUsers: boolean };
+				communityPermissions: { canManageCommunities: boolean; canManageStaffRolesAndPermissions: boolean };
+				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canViewStaffUsers: boolean };
+				staffRolePermissions: { canViewRoles: boolean; canAddRole: boolean; canEditRole: boolean; canRemoveRole: boolean };
 				financePermissions: { canManageFinance: boolean };
 				techAdminPermissions: { canManageTechAdmin: boolean };
 			};
@@ -61,6 +80,7 @@ interface StaffUserQueryResult {
 
 export const useStaffPermissions = (): {
 	permissions: StaffPermissions | undefined;
+	enterpriseAppRole: string | undefined;
 	user: { id?: string; displayName?: string; firstName?: string; lastName?: string; email?: string } | undefined;
 	loading: boolean;
 	error: Error | undefined;
@@ -78,14 +98,22 @@ export const useStaffPermissions = (): {
 	const permissions: StaffPermissions | undefined = rolePermissions
 		? {
 				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
+				canManageStaffRolesAndPermissions: rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canManageUsers: rolePermissions.userPermissions.canManageUsers || isTechAdmin,
+				canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles || isTechAdmin,
+				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers || rolePermissions.userPermissions.canManageUsers || isTechAdmin,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
 				canManageTechAdmin: isTechAdmin,
+				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+				canAddRole: rolePermissions.staffRolePermissions.canAddRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+				canEditRole: rolePermissions.staffRolePermissions.canEditRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+				canRemoveRole: rolePermissions.staffRolePermissions.canRemoveRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 			}
 		: undefined;
 
 	return {
 		permissions,
+		enterpriseAppRole: data?.currentStaffUserAndCreateIfNotExists?.role?.enterpriseAppRole,
 		user: currentUser
 			? {
 					id: currentUser.id,

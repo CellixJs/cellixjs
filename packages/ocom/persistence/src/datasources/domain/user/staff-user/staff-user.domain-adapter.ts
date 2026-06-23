@@ -1,9 +1,10 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 
 import { Domain } from '@ocom/domain';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
 import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
-import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import type { StaffUser, StaffUserActivityDetail } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 export class StaffUserDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<StaffUser> implements Domain.Contexts.User.StaffUser.StaffUserProps {
 	get role(): Domain.Contexts.User.StaffRole.StaffRoleProps {
@@ -100,6 +101,51 @@ export class StaffUserDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 
 	override get schemaVersion(): string {
 		return this.doc.schemaVersion ?? '1.0.0';
+	}
+
+	get activityLog(): PropArray<Domain.Contexts.User.StaffUser.StaffUserActivityLogProps> {
+		return new MongooseSeedwork.MongoosePropArray(this.doc.activityLog, StaffUserActivityLogDomainAdapter);
+	}
+}
+
+class StaffUserActivityLogDomainAdapter implements Domain.Contexts.User.StaffUser.StaffUserActivityLogProps {
+	public readonly doc: StaffUserActivityDetail;
+
+	constructor(doc: StaffUserActivityDetail) {
+		this.doc = doc;
+	}
+
+	get id(): string {
+		return this.doc.id?.valueOf() as string;
+	}
+
+	get activityType(): string {
+		return this.doc.activityType;
+	}
+	set activityType(activityType: string) {
+		this.doc.activityType = activityType;
+	}
+
+	get activityDescription(): string {
+		return this.doc.activityDescription;
+	}
+	set activityDescription(activityDescription: string) {
+		this.doc.activityDescription = activityDescription;
+	}
+
+	get activityByStaffUserId(): string {
+		return this.doc.activityBy?.valueOf() as string;
+	}
+	set activityByStaffUserId(id: string) {
+		this.doc.set('activityBy', new MongooseSeedwork.ObjectId(id));
+	}
+
+	get createdAt(): Date {
+		return this.doc.createdAt;
+	}
+
+	get updatedAt(): Date {
+		return this.doc.updatedAt;
 	}
 }
 

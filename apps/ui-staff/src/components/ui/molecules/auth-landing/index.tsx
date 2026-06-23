@@ -29,7 +29,16 @@ export const AuthLanding: React.FC = () => {
 		targetRoute = '/staff/finance';
 	} else if (permissions?.canManageCommunities) {
 		targetRoute = '/staff/community-management';
-	} else if (permissions?.canManageUsers) {
+	} else if (
+		permissions?.canManageUsers ||
+		permissions?.canAssignStaffRoles ||
+		permissions?.canViewStaffUsers ||
+		permissions?.canManageStaffRolesAndPermissions ||
+		permissions?.canViewRoles ||
+		permissions?.canAddRole ||
+		permissions?.canEditRole ||
+		permissions?.canRemoveRole
+	) {
 		targetRoute = '/staff/user-management';
 	}
 

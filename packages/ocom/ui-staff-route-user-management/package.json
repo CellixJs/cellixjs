@@ -10,14 +10,17 @@
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --noEmit",
 		"lint": "biome lint",
+		"storybook": "storybook dev --port 6007",
+		"build-storybook": "storybook build",
 		"test": "vitest run --silent --reporter=dot",
 		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@ant-design/icons": "catalog:",
+		"@apollo/client": "^3.13.9",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"@ocom/ui-staff-shared": "workspace:*",
-		"@graphql-typed-document-node/core": "^3.2.0",
+		"antd": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"react-router-dom": "catalog:"
@@ -25,9 +28,16 @@
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@chromatic-com/storybook": "^5.2.1",
+		"@storybook/react": "catalog:",
+		"@storybook/addon-a11y": "catalog:",
+		"@storybook/addon-docs": "catalog:",
+		"@storybook/addon-vitest": "catalog:",
+		"@storybook/react-vite": "catalog:",
 		"@types/react": "^19.1.11",
 		"@types/react-dom": "^19.1.6",
 		"jsdom": "catalog:",
+		"storybook": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
 		"typescript": "catalog:"

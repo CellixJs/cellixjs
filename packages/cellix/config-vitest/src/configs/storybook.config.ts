@@ -6,7 +6,6 @@ import { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns } 
 
 export type StorybookVitestConfigOptions = {
 	storybookDirRelativeToPackage?: string; // default: '.storybook'
-	setupFiles?: string[]; // default: ['.storybook/vitest.setup.ts']
 	browsers?: { browser: 'chromium' | 'firefox' | 'webkit' }[]; // default: [{ browser: 'chromium' }]
 	additionalCoverageExclude?: string[];
 };
@@ -21,7 +20,6 @@ function getBrowserApiPort(pkgDirname: string): number {
 
 export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookVitestConfigOptions = {}): ViteUserConfig {
 	const STORYBOOK_DIR = opts.storybookDirRelativeToPackage ?? '.storybook';
-	const setupFiles = opts.setupFiles ?? ['.storybook/vitest.setup.ts'];
 	const instances = opts.browsers ?? [{ browser: 'chromium' }];
 	const browserApiPort = getBrowserApiPort(pkgDirname);
 
@@ -61,7 +59,6 @@ export function createStorybookVitestConfig(pkgDirname: string, opts: StorybookV
 							provider: playwright(),
 							instances,
 						},
-						setupFiles,
 					},
 				},
 			],

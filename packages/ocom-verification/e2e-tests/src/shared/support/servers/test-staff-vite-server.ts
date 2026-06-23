@@ -15,7 +15,6 @@ export class TestStaffViteServer extends PortlessServer {
 	protected get serverName() {
 		return 'TestStaffViteServer';
 	}
-
 	protected get spawnArgs() {
 		return ['run', 'dev'];
 	}
