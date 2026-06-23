@@ -9,7 +9,7 @@ param principalId string
 param principalType string = 'ServicePrincipal'
 
 @description('The role definition ID for the storage data-plane role to assign')
-param roleDefinitionId string = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor
+param roleDefinitionId string
 
 // Reference existing Storage Account
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
