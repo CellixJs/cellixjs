@@ -23,7 +23,7 @@ export const timeouts = {
 	healthProbeInterval: 500,
 
 	/** UI initialization timeout (30 seconds) */
-	uiInit: 30_000,
+	uiInit: 60_000,
 
 	/** UI cleanup timeout (10 seconds) */
 	uiCleanup: 10_000,

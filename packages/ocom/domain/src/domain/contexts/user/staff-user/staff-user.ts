@@ -1,11 +1,14 @@
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../events/types/staff-user-created.ts';
 import type { Passport } from '../../passport.ts';
 import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from '../staff-role/staff-role.ts';
 import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './staff-user.value-objects.ts';
+import { StaffUserActivityLog, type StaffUserActivityLogEntityReference, type StaffUserActivityLogProps } from './staff-user-activity-log.entity.ts';
+import * as ActivityLogValueObjects from './staff-user-activity-log.value-objects.ts';
 
 export interface StaffUserProps extends DomainEntityProps {
 	readonly role?: StaffRoleProps;
@@ -22,10 +25,12 @@ export interface StaffUserProps extends DomainEntityProps {
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 	readonly schemaVersion: string;
+	activityLog: PropArray<StaffUserActivityLogProps>;
 }
 
-export interface StaffUserEntityReference extends Readonly<Omit<StaffUserProps, 'role' | 'setRoleRef'>> {
+export interface StaffUserEntityReference extends Readonly<Omit<StaffUserProps, 'role' | 'setRoleRef' | 'activityLog'>> {
 	readonly role: StaffRoleEntityReference | undefined;
+	readonly activityLog: ReadonlyArray<StaffUserActivityLogEntityReference>;
 }
 
 export class StaffUser<props extends StaffUserProps> extends AggregateRoot<props, Passport> implements StaffUserEntityReference {
@@ -61,6 +66,44 @@ export class StaffUser<props extends StaffUserProps> extends AggregateRoot<props
 		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions)) {
 			throw new PermissionError('Unauthorized');
 		}
+	}
+
+	public requestAddActivityLog(activityType: ActivityLogValueObjects.ActivityTypeCode, description: string, activityByStaffUserId: string): void {
+		const activityLogProps = this.props.activityLog.getNewItem();
+		StaffUserActivityLog.getNewInstance(activityLogProps, this.visa, {
+			activityType,
+			activityDescription: new ActivityLogValueObjects.Description(description),
+			activityByStaffUserId,
+		});
+	}
+
+	public requestCreate(activityByStaffUserId: string): void {
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.Created), 'User created', activityByStaffUserId);
+	}
+
+	public requestAddUpdate(description: string, activityByStaffUserId: string): void {
+		this.validateVisa();
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.Updated), description, activityByStaffUserId);
+	}
+
+	public requestRoleAssignment(role: StaffRoleEntityReference, description: string, activityByStaffUserId: string): void {
+		this.role = role;
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.RoleAssigned), description, activityByStaffUserId);
+	}
+
+	public requestRoleRemoval(description: string, activityByStaffUserId: string): void {
+		this.role = undefined;
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.RoleRemoved), description, activityByStaffUserId);
+	}
+
+	public requestBlock(description: string, activityByStaffUserId: string): void {
+		this.accessBlocked = true;
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.Blocked), description, activityByStaffUserId);
+	}
+
+	public requestUnblock(description: string, activityByStaffUserId: string): void {
+		this.accessBlocked = false;
+		this.requestAddActivityLog(new ActivityLogValueObjects.ActivityTypeCode(ActivityLogValueObjects.ActivityTypeCodes.Unblocked), description, activityByStaffUserId);
 	}
 
 	get role(): StaffRoleEntityReference | undefined {
@@ -125,6 +168,10 @@ export class StaffUser<props extends StaffUserProps> extends AggregateRoot<props
 	set tags(tags: string[]) {
 		this.validateVisa();
 		this.props.tags = tags;
+	}
+
+	get activityLog(): ReadonlyArray<StaffUserActivityLogEntityReference> {
+		return this.props.activityLog.items.map((p) => new StaffUserActivityLog(p, this.visa));
 	}
 
 	get userType(): string {

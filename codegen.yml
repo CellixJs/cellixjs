@@ -155,6 +155,20 @@ generates:
       - typescript-operations
       - typed-document-node
 
+  './packages/ocom/ui-staff-route-user-management/src/generated.tsx':
+    documents:
+      - './packages/ocom/ui-staff-route-user-management/src/**/**.graphql'
+    config:
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
   # Cellix core base type defs (static array for rolldown bundling)
   './packages/cellix/graphql-core/src/schema/base-type-defs.generated.ts':
     plugins:
