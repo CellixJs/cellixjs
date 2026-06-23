@@ -152,9 +152,40 @@ describe('@cellix/local-dev/silent-runners', () => {
 
 		expect(result.status).toBe(2);
 		expect(output).toEqual({
-			stderr: 'failure stderr',
+			stderr: '\nCommand failed (exit 2): snyk code test\n\nfailure stderr',
 			stdout: 'failure stdout',
 		});
+	});
+
+	it('allows callers to configure the captured output buffer', () => {
+		const observedMaxBuffers: Array<number | undefined> = [];
+		const spawn: SilentRunnerSpawnSync = (_command, _args, options) => {
+			observedMaxBuffers.push(options.maxBuffer);
+			return {
+				output: ['', '', ''],
+				pid: 123,
+				signal: null,
+				status: 0,
+				stderr: '',
+				stdout: '',
+			};
+		};
+
+		runSilentCommand({
+			command: 'large-output-tool',
+			maxBuffer: 128 * 1024 * 1024,
+			spawn,
+		});
+		runSilentCommandSequence({
+			maxBuffer: 96 * 1024 * 1024,
+			spawn,
+			steps: [
+				{ command: 'first-tool', name: 'first-tool' },
+				{ command: 'second-tool', maxBuffer: 160 * 1024 * 1024, name: 'second-tool' },
+			],
+		});
+
+		expect(observedMaxBuffers).toEqual([128 * 1024 * 1024, 96 * 1024 * 1024, 160 * 1024 * 1024]);
 	});
 
 	it('keeps the successful verify sequence fully silent', () => {
@@ -244,7 +275,7 @@ describe('@cellix/local-dev/silent-runners', () => {
 		expect(result.status).toBe(9);
 		expect(result.step.name).toBe('snyk:code');
 		expect(output).toEqual({
-			stderr: 'snyk:code stderr\n',
+			stderr: '\nCommand failed (exit 9): pnpm exec snyk code test\n\nsnyk:code stderr\n',
 			stdout: 'snyk:code stdout\n',
 		});
 		expect(calls.map((call) => getStepName(call.command, call.args))).toEqual(['format:check', 'test:arch', 'test:coverage:merge', 'test:e2e', 'knip', 'audit:prod', 'audit:dev', 'snyk:test', 'snyk:code']);

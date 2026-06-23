@@ -115,4 +115,5 @@ Exports are available from `@cellix/local-dev` and
 
 - Tool wrappers encode reusable CLI shape; scripts still own project-specific arguments such as org names, paths, and CI policy.
 - Success is silent; failure replays whatever the command wrote to stdout/stderr.
+- Captured output defaults to 64 MiB and can be adjusted with `maxBuffer` for a command, sequence, or individual sequence step.
 - Commands run without shell interpolation. Pass the executable as `command` and arguments as `args`.

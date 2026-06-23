@@ -28,9 +28,7 @@ const cellixVerify = verificationSequence
 
 function runVerifyCommand(): void {
 	const result = cellixVerify.run();
-	if (result.status !== 0) {
-		process.stderr.write(`\nverify failed at step "${result.step.name}" (exit ${result.status})\n`);
-	} else {
+	if (result.status === 0) {
 		process.stdout.write('verify passed\n');
 	}
 	process.exitCode = result.status;

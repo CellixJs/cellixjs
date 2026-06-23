@@ -41,6 +41,8 @@ export interface SilentCommandOptions {
 	cwd?: string;
 	/** Environment to pass to the command. Defaults to the current process env. */
 	env?: NodeJS.ProcessEnv;
+	/** Maximum captured output in bytes. Defaults to 64 MiB. */
+	maxBuffer?: number;
 	/** Process spawner used by tests and advanced consumers. Defaults to `child_process.spawnSync`. */
 	spawn?: SilentRunnerSpawnSync;
 	/** Streams used when replaying captured failure output. Defaults to `process.stdout` and `process.stderr`. */
@@ -64,6 +66,8 @@ export interface CommandSequenceStep {
 	args?: string[];
 	/** Output policy for this step. Defaults to `silent`. */
 	output?: CommandOutputMode;
+	/** Maximum captured output in bytes for this step. */
+	maxBuffer?: number;
 }
 
 /**
@@ -76,6 +80,8 @@ export interface SilentCommandSequenceOptions {
 	cwd?: string;
 	/** Environment to pass to each command. Defaults to the current process env. */
 	env?: NodeJS.ProcessEnv;
+	/** Default maximum captured output in bytes for silent steps. Defaults to 64 MiB. */
+	maxBuffer?: number;
 	/** Process spawner used by tests and advanced consumers. Defaults to `child_process.spawnSync`. */
 	spawn?: SilentRunnerSpawnSync;
 	/** Streams used when replaying captured failure output. Defaults to `process.stdout` and `process.stderr`. */
@@ -85,6 +91,7 @@ export interface SilentCommandSequenceOptions {
 interface CommandSequenceContext {
 	cwd: string | undefined;
 	env: NodeJS.ProcessEnv | undefined;
+	maxBuffer: number | undefined;
 	spawn: SilentRunnerSpawnSync | undefined;
 	streams: SilentRunnerStreams | undefined;
 }
@@ -143,6 +150,7 @@ export function runSilentCommand(options: SilentCommandOptions): SilentCommandRe
 		command,
 		cwd,
 		env,
+		maxBuffer = DEFAULT_MAX_BUFFER_BYTES,
 		spawn = spawnCommandSync,
 		streams = {
 			stderr: process.stderr,
@@ -153,13 +161,13 @@ export function runSilentCommand(options: SilentCommandOptions): SilentCommandRe
 		cwd,
 		encoding: 'utf8',
 		env,
-		maxBuffer: DEFAULT_MAX_BUFFER_BYTES,
+		maxBuffer,
 		stdio: 'pipe',
 	});
 	const normalizedResult = toSilentCommandResult(result);
 
 	if (normalizedResult.status !== 0) {
-		replayFailureOutput(normalizedResult, streams);
+		replayFailureOutput(normalizedResult, streams, command, args);
 	}
 
 	return normalizedResult;
@@ -175,15 +183,12 @@ export function runSilentCommand(options: SilentCommandOptions): SilentCommandRe
  * @returns The final successful step result or the first failing step result.
  */
 export function runSilentCommandSequence(options: SilentCommandSequenceOptions): SilentCommandSequenceResult {
-	const { cwd, env, spawn, steps, streams } = options;
-	if (steps.length === 0) {
-		throw new Error('runSilentCommandSequence requires at least one step');
-	}
+	const { cwd, env, maxBuffer, spawn, steps, streams } = options;
 
 	let lastResult: SilentCommandSequenceResult | undefined;
 
 	for (const step of steps) {
-		const context: CommandSequenceContext = { cwd, env, spawn, streams };
+		const context: CommandSequenceContext = { cwd, env, maxBuffer, spawn, streams };
 		const result = step.output === 'inherit' ? runInheritedCommand(buildCommandOptions(step, context)) : runSilentCommand(buildCommandOptions(step, context));
 		lastResult = {
 			...result,
@@ -280,6 +285,7 @@ function buildCommandOptions(step: CommandSequenceStep, options: CommandSequence
 		...(step.args ? { args: step.args } : {}),
 		...(options.cwd ? { cwd: options.cwd } : {}),
 		...(options.env ? { env: options.env } : {}),
+		...(step.maxBuffer !== undefined ? { maxBuffer: step.maxBuffer } : options.maxBuffer !== undefined ? { maxBuffer: options.maxBuffer } : {}),
 		...(options.spawn ? { spawn: options.spawn } : {}),
 		...(options.streams ? { streams: options.streams } : {}),
 		command: step.command,
@@ -303,9 +309,15 @@ function spawnCommandSync(command: string, args: string[], options: SpawnSyncOpt
 	});
 }
 
-function replayFailureOutput(result: SilentCommandResult, streams: SilentRunnerStreams): void {
-	streams.stdout?.write(result.stdout);
-	streams.stderr?.write(result.stderr);
+function replayFailureOutput(result: SilentCommandResult, streams: SilentRunnerStreams, command: string, args: string[]): void {
+	const commandLine = [command, ...args].join(' ');
+	streams.stderr?.write(`\nCommand failed (exit ${result.status}): ${commandLine}\n\n`);
+	if (result.stdout) {
+		streams.stdout?.write(result.stdout);
+	}
+	if (result.stderr) {
+		streams.stderr?.write(result.stderr);
+	}
 	if (result.error) {
 		streams.stderr?.write(`${result.error.message}\n`);
 	}
