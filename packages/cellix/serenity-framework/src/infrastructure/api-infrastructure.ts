@@ -166,6 +166,8 @@ export class ApiInfrastructure implements ApiInfrastructureServerChain, ApiInfra
 
 	/** Stop every created server, including partial starts, then clean up the suite environment. */
 	async stopAll(): Promise<void> {
+		ApiInfrastructure.shutdownTargets.delete(this);
+
 		const tracked = new Set(this.startOrder);
 		const createdButUntracked = [...this.created.keys()].filter((name) => !tracked.has(name)).reverse();
 		const stopOrder = [...createdButUntracked, ...[...this.startOrder].reverse()];

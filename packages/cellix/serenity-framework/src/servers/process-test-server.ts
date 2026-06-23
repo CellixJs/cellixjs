@@ -2,17 +2,8 @@ import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
 import { createSpawnEnvironment } from './process-environment.ts';
 import type { TestServer, UiTestServer } from './test-server.ts';
 
-/** Configuration for health probes used by {@link ProcessTestServer}. */
-export interface ProcessHealthProbe {
-	/** URL to probe after the ready marker is observed. */
-	url: string | (() => string);
-
-	/** Request options supplied to `fetch`. */
-	requestInit?: RequestInit | (() => RequestInit);
-
-	/** Predicate that decides whether the probe response is healthy. Defaults to `response.ok`. */
-	isHealthy?: (response: Response) => boolean | Promise<boolean>;
-}
+const healthCheckTimeoutMs = 3_000;
+const healthCheckIntervalMs = 500;
 
 /** Options used by {@link ProcessTestServer}. */
 export interface ProcessTestServerOptions {
@@ -32,13 +23,7 @@ export interface ProcessTestServerOptions {
 	readyMarker: string | RegExp;
 
 	/** URL exposed by the server. */
-	getUrl: () => string;
-
-	/** Additional process environment values. */
-	extraEnv?: Record<string, string> | (() => Record<string, string>);
-
-	/** Health probe configuration. Defaults to probing `getUrl()`. Use `false` to trust the ready marker. */
-	probe?: ProcessHealthProbe | false;
+	url: string;
 
 	/** Maximum startup time in milliseconds. */
 	startupTimeoutMs?: number | (() => number);
@@ -46,27 +31,15 @@ export interface ProcessTestServerOptions {
 	/** Maximum graceful shutdown time in milliseconds. */
 	shutdownTimeoutMs?: number | (() => number);
 
-	/** Individual health probe timeout in milliseconds. */
-	healthProbeTimeoutMs?: number | (() => number);
-
-	/** Delay between health probes in milliseconds. */
-	healthProbeIntervalMs?: number | (() => number);
-
-	/** Return true when the server is already reachable before spawning. */
-	isAlreadyRunning?: () => Promise<boolean>;
-
 	/** Ports to clear before spawning, useful for fixed-port local dependencies. */
 	portsToCloseBeforeStart?: number | number[] | (() => number | number[]);
-
-	/** Treat an early process exit as an existing reusable server. */
-	isReusableExit?: (stderrOutput: string) => boolean;
 }
 
 /**
  * Configurable child-process test server.
  *
- * Consumers pass app-specific commands, paths, URLs, and probes through the
- * descriptor. The framework owns lifecycle, readiness, probing, and shutdown.
+ * Consumers pass app-specific commands, paths, and URLs through the descriptor.
+ * The framework owns lifecycle, readiness checks, and shutdown.
  */
 export class ProcessTestServer implements TestServer {
 	private process: ChildProcess | null = null;
@@ -88,10 +61,6 @@ export class ProcessTestServer implements TestServer {
 
 		this.closePortsBeforeStart();
 
-		if (await this.isAlreadyRunning()) {
-			return;
-		}
-
 		const executable = this.value(this.options.executable);
 		const spawnArgs = this.value(this.options.spawnArgs);
 		if (!executable || !spawnArgs) {
@@ -100,7 +69,7 @@ export class ProcessTestServer implements TestServer {
 
 		this.process = spawn(executable, spawnArgs, {
 			cwd: this.options.cwd,
-			env: createSpawnEnvironment(this.value(this.options.extraEnv) ?? {}),
+			env: createSpawnEnvironment(),
 			detached: this.useDetachedProcessGroup,
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
@@ -152,17 +121,7 @@ export class ProcessTestServer implements TestServer {
 	 * Return the descriptor URL.
 	 */
 	getUrl(): string {
-		return this.options.getUrl();
-	}
-
-	private async isAlreadyRunning(): Promise<boolean> {
-		if (this.options.isAlreadyRunning) {
-			return await this.options.isAlreadyRunning();
-		}
-		if (this.options.probe === false) {
-			return false;
-		}
-		return await this.isProbeReadyWithin(this.value(this.options.healthProbeTimeoutMs) ?? 3_000);
+		return this.options.url;
 	}
 
 	private waitForReady(): Promise<void> {
@@ -179,7 +138,6 @@ export class ProcessTestServer implements TestServer {
 				reject(new Error(`${this.options.serverName} did not start within ${startupTimeout}ms`));
 			}, startupTimeout);
 
-			let stderrOutput = '';
 			let ready = false;
 
 			const resolveWhenReachable = () => {
@@ -206,6 +164,7 @@ export class ProcessTestServer implements TestServer {
 				}
 			});
 
+			let stderrOutput = '';
 			childProcess.stderr?.on('data', (data: Buffer) => {
 				stderrOutput += data.toString();
 			});
@@ -227,24 +186,17 @@ export class ProcessTestServer implements TestServer {
 				}
 				clearTimeout(timeout);
 
-				if (this.options.isReusableExit?.(stderrOutput)) {
-					this.waitForProbeReady(startupDeadline, startupTimeout)
-						.then(() => {
-							resolve();
-						})
-						.catch((error: unknown) => {
-							reject(error);
-						});
-					return;
-				}
-
 				reject(new Error(`${this.options.serverName} exited unexpectedly (code: ${code}, signal: ${signal}). stderr: ${stderrOutput.slice(-2000)}`));
 			});
 		});
 	}
 
 	private async waitForProbeReady(startupDeadline: number, startupTimeout: number): Promise<void> {
-		const probeInterval = this.value(this.options.healthProbeIntervalMs) ?? 500;
+		if (!shouldHealthCheck(this.getUrl())) {
+			return;
+		}
+
+		const probeInterval = healthCheckIntervalMs;
 		const timeoutError = () => new Error(`${this.options.serverName} did not become healthy within ${startupTimeout}ms`);
 
 		while (true) {
@@ -253,7 +205,7 @@ export class ProcessTestServer implements TestServer {
 				throw timeoutError();
 			}
 
-			if (await this.isProbeReadyWithin(Math.min(this.value(this.options.healthProbeTimeoutMs) ?? 3_000, remainingMs))) {
+			if (await this.isProbeReadyWithin(Math.min(healthCheckTimeoutMs, remainingMs))) {
 				return;
 			}
 
@@ -267,7 +219,8 @@ export class ProcessTestServer implements TestServer {
 	}
 
 	private async isProbeReadyWithin(timeoutMs: number): Promise<boolean> {
-		if (this.options.probe === false) {
+		const url = this.getUrl();
+		if (!shouldHealthCheck(url)) {
 			return true;
 		}
 
@@ -275,12 +228,11 @@ export class ProcessTestServer implements TestServer {
 		try {
 			const controller = new AbortController();
 			timeout = setTimeout(() => controller.abort(), timeoutMs);
-			const probe = this.options.probe;
-			const response = await fetch(this.value(probe?.url) ?? this.getUrl(), {
-				...(this.value(probe?.requestInit) ?? {}),
+			const response = await fetch(url, {
+				...this.defaultRequestInit(url),
 				signal: controller.signal,
 			});
-			return probe?.isHealthy ? await probe.isHealthy(response) : response.ok;
+			return response.ok;
 		} catch {
 			return false;
 		} finally {
@@ -293,6 +245,16 @@ export class ProcessTestServer implements TestServer {
 	private matchesReadyMarker(text: string): boolean {
 		const marker = this.options.readyMarker;
 		return typeof marker === 'string' ? text.includes(marker) : marker.test(text);
+	}
+
+	private defaultRequestInit(url: string): RequestInit {
+		return isGraphQLEndpoint(url)
+			? {
+					body: JSON.stringify({ query: '{ __typename }' }),
+					headers: { 'Content-Type': 'application/json' },
+					method: 'POST',
+				}
+			: {};
 	}
 
 	private killProcess(childProcess: ChildProcess, signal: NodeJS.Signals): void {
@@ -346,6 +308,29 @@ export class ProcessTestServer implements TestServer {
 
 	private value<T>(value: T | (() => T) | undefined): T | undefined {
 		return typeof value === 'function' ? (value as () => T)() : value;
+	}
+}
+
+function isGraphQLEndpoint(url: string): boolean {
+	try {
+		return new URL(url).pathname.endsWith('/graphql');
+	} catch {
+		return false;
+	}
+}
+
+function shouldHealthCheck(url: string): boolean {
+	try {
+		const parsedUrl = new URL(url);
+		if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+			return false;
+		}
+		if (parsedUrl.pathname.endsWith('/graphql')) {
+			return true;
+		}
+		return parsedUrl.pathname === '/' && parsedUrl.hostname !== '127.0.0.1' && parsedUrl.hostname !== 'localhost';
+	} catch {
+		return false;
 	}
 }
 

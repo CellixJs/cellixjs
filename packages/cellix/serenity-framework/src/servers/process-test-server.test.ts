@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const childProcessMock = vi.hoisted(() => ({
 	execFileSync: vi.fn(),
@@ -25,21 +25,18 @@ async function waitUntil(predicate: () => boolean, timeoutMs = 2_000): Promise<v
 }
 
 describe('ProcessTestServer', () => {
-	afterEach(() => {
+	beforeEach(() => {
 		childProcessMock.execFileSync.mockReset();
-		vi.unstubAllGlobals();
-		vi.restoreAllMocks();
 	});
 
-	it('starts a process and trusts the ready marker when probing is disabled', async () => {
+	it('starts a process and trusts the ready marker for non-HTTP URLs', async () => {
 		const server = new ProcessTestServer({
 			serverName: 'marker-only server',
 			executable: process.execPath,
 			spawnArgs: ['-e', "console.log('READY'); setInterval(() => undefined, 1_000)"],
 			cwd: process.cwd(),
 			readyMarker: 'READY',
-			getUrl: () => 'http://unused.test',
-			probe: false,
+			url: 'process://marker-only',
 			shutdownTimeoutMs: 500,
 		});
 
@@ -59,8 +56,7 @@ describe('ProcessTestServer', () => {
 			spawnArgs: ['-e', "console.log('READY'); setTimeout(() => process.exit(0), 20)"],
 			cwd: process.cwd(),
 			readyMarker: 'READY',
-			getUrl: () => 'http://unused.test',
-			probe: false,
+			url: 'process://short-lived',
 			shutdownTimeoutMs: 500,
 		});
 
@@ -70,59 +66,86 @@ describe('ProcessTestServer', () => {
 		expect(server.isRunning()).toBe(false);
 	});
 
-	it('reuses an already-running server when a replacement exits with EADDRINUSE', async () => {
-		vi.stubGlobal(
-			'fetch',
-			vi.fn(async () => new Response('ok', { status: 200 })),
-		);
-
+	it('closes configured ports before spawning', async () => {
+		childProcessMock.execFileSync.mockReturnValue('123\n456\n');
+		const kill = vi.spyOn(process, 'kill').mockImplementation(() => true);
 		const server = new ProcessTestServer({
-			serverName: 'reusable-existing server',
+			serverName: 'fixed-port server',
 			executable: process.execPath,
-			spawnArgs: ['-e', "console.error('Error: listen EADDRINUSE: address already in use 127.0.0.1:4965'); process.exit(1)"],
+			spawnArgs: ['-e', "console.log('READY'); setInterval(() => undefined, 1_000)"],
 			cwd: process.cwd(),
 			readyMarker: 'READY',
-			getUrl: () => 'http://127.0.0.1:4965',
-			isReusableExit: (stderrOutput) => stderrOutput.includes('EADDRINUSE'),
+			url: 'process://fixed-port',
+			portsToCloseBeforeStart: () => 27_017,
 			shutdownTimeoutMs: 500,
 		});
 
 		try {
 			await server.start();
-			expect(server.isRunning()).toBe(false);
-		} finally {
-			await server.stop();
-		}
-	});
 
-	it('closes configured ports before checking whether the server is already running', async () => {
-		childProcessMock.execFileSync.mockReturnValue('123\n456\n');
-		const kill = vi.spyOn(process, 'kill').mockImplementation(() => true);
-		const isAlreadyRunning = vi.fn(async () => true);
-		const server = new ProcessTestServer({
-			serverName: 'fixed-port server',
-			executable: process.execPath,
-			spawnArgs: ['-e', "console.log('READY')"],
-			cwd: process.cwd(),
-			readyMarker: 'READY',
-			getUrl: () => 'http://unused.test',
-			isAlreadyRunning,
-			portsToCloseBeforeStart: () => 27_017,
-			probe: false,
-		});
-
-		await server.start();
-
-		try {
 			expect(childProcessMock.execFileSync).toHaveBeenCalledWith('lsof', ['-ti', 'tcp:27017'], {
 				encoding: 'utf-8',
 				stdio: ['ignore', 'pipe', 'ignore'],
 			});
 			expect(kill).toHaveBeenCalledWith(123, 'SIGTERM');
 			expect(kill).toHaveBeenCalledWith(456, 'SIGTERM');
-			expect(childProcessMock.execFileSync.mock.invocationCallOrder[0] ?? 0).toBeLessThan(isAlreadyRunning.mock.invocationCallOrder[0] ?? 0);
+			expect(server.isRunning()).toBe(true);
 		} finally {
+			await server.stop();
 			kill.mockRestore();
+		}
+	});
+
+	it('uses a POST typename probe for GraphQL URLs by default', async () => {
+		const fetch = vi
+			.spyOn(globalThis, 'fetch')
+			.mockResolvedValueOnce(new Response('', { status: 404 }))
+			.mockResolvedValueOnce(new Response('', { status: 200 }));
+		const server = new ProcessTestServer({
+			serverName: 'graphql server',
+			executable: process.execPath,
+			spawnArgs: ['-e', "console.log('READY'); setInterval(() => undefined, 1_000)"],
+			cwd: process.cwd(),
+			readyMarker: 'READY',
+			url: 'http://127.0.0.1:4000/graphql',
+			shutdownTimeoutMs: 500,
+		});
+
+		try {
+			await server.start();
+
+			expect(fetch).toHaveBeenLastCalledWith('http://127.0.0.1:4000/graphql', {
+				body: JSON.stringify({ query: '{ __typename }' }),
+				headers: { 'Content-Type': 'application/json' },
+				method: 'POST',
+				signal: expect.any(AbortSignal) as AbortSignal,
+			});
+		} finally {
+			await server.stop();
+			fetch.mockRestore();
+		}
+	});
+
+	it('trusts the ready marker for localhost root URLs without an HTTP probe', async () => {
+		const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 500 }));
+		const server = new ProcessTestServer({
+			serverName: 'localhost web server',
+			executable: process.execPath,
+			spawnArgs: ['-e', "console.log('READY'); setInterval(() => undefined, 1_000)"],
+			cwd: process.cwd(),
+			readyMarker: 'READY',
+			url: 'http://127.0.0.1:4000/',
+			shutdownTimeoutMs: 500,
+		});
+
+		try {
+			await server.start();
+
+			expect(server.isRunning()).toBe(true);
+			expect(fetch).not.toHaveBeenCalled();
+		} finally {
+			await server.stop();
+			fetch.mockRestore();
 		}
 	});
 });

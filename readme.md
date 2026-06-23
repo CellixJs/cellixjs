@@ -27,6 +27,86 @@ Our Docusaurus website will help you get started with running and contributing t
 [![Build Status](https://dev.azure.com/simnova/ShareThrift/_apis/build/status%2FCellixJs?branchName=main)](https://dev.azure.com/simnova/ShareThrift/_build/latest?definitionId=12&branchName=main)
 
 
+## Prerequisites
+
+### Install mise (version manager for Node.js + Python)
+
+```bash
+# macOS with Homebrew
+brew install mise
+```
+
+### Remove nvm first (if you already use it)
+
+If your shell still loads `nvm`, it can override the Node.js version that `mise` is managing for this repo. Remove the `nvm` setup before activating `mise`.
+
+1. Remove the `nvm` startup lines from your shell config (`~/.zshrc`, `~/.bashrc`, or `~/.profile`). They usually look like:
+
+```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+```
+
+2. If you installed `nvm` with Homebrew, uninstall it:
+
+```bash
+brew uninstall nvm
+```
+
+3. If you installed `nvm` manually, remove its local directory:
+
+```bash
+sudo rm -rf ~/.nvm
+```
+
+4. Open a new terminal before continuing so the old `nvm` configuration is no longer loaded.
+
+### Activate mise in your shell
+
+```bash
+# Add this to ~/.zshrc or ~/.bashrc (one-time setup)
+eval "$(mise activate zsh)"  # or bash/fish
+# Then reload: source ~/.zshrc
+```
+
+> **Troubleshooting:** You may need to run `mise trust` if mise says it does not have permission. Create a new terminal after editing your shell config so it reloads.
+
+### Install tools
+
+```bash
+mise install  # Installs Node.js + Python per mise.toml
+```
+
+This automatically:
+- Installs **Node.js v22.22.2** (from `mise.toml`)
+- Installs **Python 3.13** (from `mise.toml`)
+- Creates `.venv/` Python virtual environment when mise activates the project
+
+### Install dependencies
+
+Run the combined installer from the repository root:
+
+```bash
+pnpm run install:all
+```
+
+This runs:
+- `pnpm i` for Node.js workspace dependencies
+- `python -m pip install -r requirements.txt` for Python tools such as Sourcery
+
+To install only the Python requirements later, run:
+
+```bash
+pnpm run install:python
+```
+
+### Build
+
+```bash
+pnpm run build
+```
+
 ## Developer usage
 
 - Full local dev (builds, starts the portless HTTPS proxy, starts Azurite, and runs the app-level dev servers):
@@ -106,6 +186,7 @@ The mock auth server now runs as a single instance. Configure it using the follo
 
 - PORT — port the HTTP server listens on (default: 1355). For local development you may either use the portless HTTPS proxy with `PORT=443` (recommended for a production-like experience), or run services on the non-privileged port 1355 and include `:1355` in BASE_URL values to avoid TLS trust prompts.
 - BASE_URL — externally visible origin used as the OIDC issuer (in local development this is typically handled by the portless dev proxy). Example: `https://mock-auth.ownercommunity.localhost` (do not include `:443` when using the standard HTTPS port). When running on port 1355 include the explicit port: `https://mock-auth.ownercommunity.localhost:1355`.
+
 
 See ADR-0028 — Portless Local Development (apps/docs/docs/decisions/0028-portless-local-development.md) for the canonical proxy start/stop commands.
 

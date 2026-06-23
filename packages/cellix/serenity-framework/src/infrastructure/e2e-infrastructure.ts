@@ -259,6 +259,8 @@ export class E2EInfrastructure implements E2EServerRegistrationChain, E2EUiPorta
 
 	/** Stop browser resources, every created server including partial starts, and the suite environment. */
 	async stopAll(): Promise<void> {
+		E2EInfrastructure.shutdownTargets.delete(this);
+
 		await this.closeBrowser();
 
 		const tracked = new Set(this.startOrder);

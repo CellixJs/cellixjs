@@ -74,6 +74,8 @@ export function cleanupTestEnvironment(): void {
 }
 
 function loadE2EEnvDefaults(): void {
+	process.env['E2E'] ??= 'true';
+
 	const currentDir = dirname(fileURLToPath(import.meta.url));
 	const workspaceRoot = resolve(currentDir, '../../../../../..');
 	for (const filePath of [resolve(workspaceRoot, 'apps/ui-community/.env.e2e'), resolve(workspaceRoot, 'apps/ui-staff/.env.e2e')]) {

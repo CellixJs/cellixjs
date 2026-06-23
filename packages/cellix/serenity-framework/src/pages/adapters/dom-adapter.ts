@@ -26,6 +26,13 @@ function findLabelControl(container: Element, text: string): Element | null {
 
 /**
  * Element handle backed by an in-process DOM `Element` (happy-dom or jsdom).
+ *
+ * Missing selections are represented as `null` elements. Mutating operations
+ * such as `fill`, `click`, and `check` become no-ops in that state so DOM
+ * component acceptance tests can share page-object code with browser E2E
+ * tests. Use `isVisible`, `textContent`, or another assertion before treating a
+ * selector as proven; Playwright-backed handles still throw for many unresolved
+ * operations.
  */
 export class DomElementHandle implements ElementHandle {
 	/**

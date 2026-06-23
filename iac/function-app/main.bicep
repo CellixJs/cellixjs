@@ -4,7 +4,10 @@ param applicationPrefix string
 param location string
 param tags object
 param appServicePlanName string
+@description('Storage account for Function App runtime and content (e.g., queue triggers). Used only for Azure Functions infrastructure.')
 param storageAccountName string
+@description('Storage account name for application blob operations (e.g., uploads, downloads). Auto-injected into app settings for managed identity auth.')
+param applicationStorageAccountName string
 param functionAppInstanceName string
 param functionWorkerRuntime string = 'node'
 @description('The version of the Functions runtime that hosts your function app.')
@@ -72,6 +75,7 @@ module functionApp 'br/public:avm/res/web/site:0.19.3' = {
           WEBSITE_RUN_FROM_PACKAGE: '1'
           languageWorkers__node__arguments: '--max-old-space-size=${maxOldSpaceSizeMB}' // Set max memory size for V8 old memory section
           APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsightsConnectionString
+          AZURE_STORAGE_ACCOUNT_NAME: applicationStorageAccountName
         }
       }
       {
@@ -130,8 +134,18 @@ module keyVaultRoleAssignment 'key-vault-role-assignment.bicep' = {
   }
 }
 
+module storageRoleAssignment 'storage-role-assignment.bicep' = {
+  name: 'storageRoleAssignment${moduleNameSuffix}'
+  params: {
+    storageAccountName: applicationStorageAccountName
+    principalId: functionApp.outputs.systemAssignedMIPrincipalId!
+    principalType: 'ServicePrincipal'
+  }
+}
+
 // Outputs
 output functionAppNamePri string = functionApp.outputs.name
 @secure()
 output systemAssignedMIPrincipalId string = functionApp.outputs.systemAssignedMIPrincipalId!
 output keyVaultRoleAssignmentId string = keyVaultRoleAssignment.outputs.roleAssignmentId
+output storageRoleAssignmentId string = storageRoleAssignment.outputs.roleAssignmentId
