@@ -121,8 +121,3 @@ ignore:
         reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
         expires: '2026-07-11T00:00:00.000Z'
         created: '2026-06-11T10:00:00.000Z'
-  'SNYK-JS-JSYAML-17342520':
-    - '* > js-yaml':
-        reason: 'Transitive dependency in @docusaurus/core; patched in 4.2.0 but fails @apps/docs build. Not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
-        created: '2026-06-17T10:00:00.000Z'
