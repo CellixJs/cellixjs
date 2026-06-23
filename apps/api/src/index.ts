@@ -41,10 +41,14 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 			}),
 			'ClientOperationsService',
 		)
-		.registerInfrastructureService(isProd ? new ServiceQueueStorage({ accountName: AzureStorageConfig.accountName as string }) : new ServiceQueueStorage({ connectionString: AzureStorageConfig.connectionString }))
+		.registerInfrastructureService(
+            isProd 
+                ? new ServiceQueueStorage({ accountName: AzureStorageConfig.accountName as string }) 
+                : new ServiceQueueStorage({ connectionString: AzureStorageConfig.connectionString })
+        )
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
-})
+    })
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
 		const blobStorageService = serviceRegistry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService');
