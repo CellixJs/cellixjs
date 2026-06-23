@@ -89,6 +89,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			})),
 			findOne: vi.fn((query: { roleName?: string; enterpriseAppRole?: string; isDefault?: boolean }) => ({
 				exec: vi.fn(() => {
+					if (query.roleName !== undefined) {
+						return query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null;
+					}
 					if (query.enterpriseAppRole !== undefined) {
 						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && query.isDefault === staffRoleDoc.isDefault ? staffRoleDoc : null;
 					}
