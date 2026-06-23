@@ -70,6 +70,16 @@ function transformValue(value: unknown, worktreeName: string | undefined): unkno
  * URL-like strings receive `.localhost` hostname suffixes, MongoDB URLs receive
  * worktree-specific ports, and `PORT` receives the generic worktree port offset.
  *
+ * Unlike {@link convertSettingsForWorktree}, which only touches the keys an
+ * explicit {@link WorktreeConversionPlan} names, this class scans every string
+ * value (including nested objects/arrays) for an `http(s)://` or `mongodb://`
+ * substring and rewrites it wherever found, regardless of key name. This is
+ * intentional — it's meant for small, app-wrapper-owned `settings` records
+ * (Vite/Node/Azure Functions dev env), not arbitrary free-text — but a
+ * setting whose value happens to *contain* such a URL (e.g. a description or
+ * log line) will be rewritten too. Prefer {@link convertSettingsForWorktree}
+ * when the settings record may hold unrelated values you don't want touched.
+ *
  * @example
  * ```ts
  * new WorktreeSettings({

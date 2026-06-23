@@ -1,20 +1,12 @@
 import path from 'node:path';
-import type { AzureFunctionsLocalSettingsOptions } from '@cellix/local-dev';
+import { type AzureFunctionsLocalSettingsOptions, isE2E } from '@cellix/local-dev';
 import { readJsonFile } from '@cellix/local-dev/files';
 import { resolveWorkspaceRoot } from '@cellix/local-dev/workspace';
 import type { OcomLocalDevOptions } from '../types.ts';
 
-type ApiEnv = NodeJS.ProcessEnv & {
-	E2E?: string;
-};
-
 interface ApiSettingsDocument {
 	Values?: Record<string, unknown>;
 	Host?: Record<string, unknown>;
-}
-
-function isE2E(env: NodeJS.ProcessEnv): boolean {
-	return ['1', 'true', 'yes'].includes(((env as ApiEnv).E2E ?? '').toLowerCase());
 }
 
 /**

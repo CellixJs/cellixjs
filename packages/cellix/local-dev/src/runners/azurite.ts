@@ -1,18 +1,12 @@
 import type { ChildProcess } from 'node:child_process';
 import path from 'node:path';
-import { isGracefulInterruptExit } from '../process/index.ts';
+import { isGracefulInterruptExit, setProcessExitCode } from '../process/index.ts';
 import { sanitizeWorktreeHostnameLabel } from '../urls/index.ts';
 import { resolveWorkspaceRoot } from '../workspace/index.ts';
 import { getAzuritePorts } from '../worktree/ports.ts';
 import { resolveWorktreeName } from '../worktree/worktree-name.ts';
 import { spawnInherited } from './spawn.ts';
 import type { RunnerOptions } from './types.ts';
-
-function setProcessExitCode(code: number): void {
-	if (process.exitCode === undefined || process.exitCode === 0) {
-		process.exitCode = code;
-	}
-}
 
 function getWorktreeStorageSuffix(worktreeName: string | undefined): string {
 	const safeLabel = sanitizeWorktreeHostnameLabel(worktreeName);

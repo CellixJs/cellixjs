@@ -1,3 +1,4 @@
+export { isE2E } from './env/index.ts';
 export { type DotEnvValues, readDotEnv } from './files/dotenv.ts';
 export { readJsonFile, type SyncJsonFileOptions, syncJsonFile } from './files/json.ts';
 export {

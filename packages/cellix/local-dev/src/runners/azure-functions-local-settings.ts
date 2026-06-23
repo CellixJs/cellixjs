@@ -1,16 +1,9 @@
 import path from 'node:path';
+import { isE2E } from '../env/index.ts';
 import { writeJsonFile } from '../files/json.ts';
 import { convertSettingsForWorktree, type WorktreeConversionPlan } from '../worktree/conversion.ts';
 import type { SettingsRecord, WorktreeMode } from '../worktree/types.ts';
 import { resolveWorktreeName } from '../worktree/worktree-name.ts';
-
-type LocalSettingsEnv = NodeJS.ProcessEnv & {
-	E2E?: string;
-};
-
-function isE2E(env: NodeJS.ProcessEnv): boolean {
-	return ['1', 'true', 'yes'].includes(((env as LocalSettingsEnv).E2E ?? '').toLowerCase());
-}
 
 function resolveTargetPath(options: AzureFunctionsLocalSettingsOptions): string {
 	const { appDir = process.cwd(), scriptRoot = 'deploy/' } = options;

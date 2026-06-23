@@ -1,3 +1,5 @@
+import { isE2E } from '../env/index.ts';
+
 interface BuildViteArgsOptions {
 	/** Host passed to Vite. Defaults to `127.0.0.1`. */
 	host?: string;
@@ -8,21 +10,9 @@ interface BuildViteArgsOptions {
 }
 
 type ViteEnv = NodeJS.ProcessEnv & {
-	E2E?: string;
 	E2E_VITE_MODE?: string;
 	TF_BUILD?: string;
 };
-
-/**
- * Returns true when the current process is running in an e2e-oriented mode.
- *
- * @param env - Environment to inspect. Defaults to `process.env`.
- * @returns Whether `E2E` is enabled with a truthy local-dev value.
- */
-function isE2E(env: NodeJS.ProcessEnv = process.env): boolean {
-	const viteEnv = env as ViteEnv;
-	return ['1', 'true', 'yes'].includes((viteEnv.E2E ?? '').toLowerCase());
-}
 
 /**
  * Builds the shared argument list for Vite dev startup across Cellix apps.
