@@ -4,7 +4,7 @@ import { App } from 'antd';
 import type React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { StaffRolesForSelectDocument, StaffUserAssignRoleDocument, StaffUserDetailDocument, StaffUsersListDocument, CurrentStaffUserDocument } from '../generated.tsx';
+import { CurrentStaffUserDocument, StaffRolesForSelectDocument, StaffUserAssignRoleDocument, StaffUserDetailDocument, StaffUsersListDocument } from '../generated.tsx';
 import { StaffUserDetail } from './staff-user-detail.tsx';
 
 const EnterpriseAppRoleNames = {
@@ -34,10 +34,7 @@ export const StaffUserDetailContainer: React.FC = () => {
 	const userId = params.id ?? '';
 	const auth = useContext(StaffAuthContext);
 	const canAssignRoles =
-		auth?.permissions?.canAssignStaffRoles === true ||
-		auth?.permissions?.canManageUsers === true ||
-		auth?.permissions?.canManageStaffRolesAndPermissions === true ||
-		auth?.permissions?.canManageTechAdmin === true;
+		auth?.permissions?.canAssignStaffRoles === true || auth?.permissions?.canManageUsers === true || auth?.permissions?.canManageStaffRolesAndPermissions === true || auth?.permissions?.canManageTechAdmin === true;
 	const { message } = App.useApp();
 
 	const { data: userData, loading: userLoading } = useQuery(StaffUserDetailDocument, {
@@ -60,10 +57,7 @@ export const StaffUserDetailContainer: React.FC = () => {
 	const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
 
 	const [assignRole, { loading: assignLoading }] = useMutation(StaffUserAssignRoleDocument, {
-		refetchQueries: [
-			{ query: StaffUserDetailDocument, variables: { id: userId } },
-			{ query: StaffUsersListDocument },
-		],
+		refetchQueries: [{ query: StaffUserDetailDocument, variables: { id: userId } }, { query: StaffUsersListDocument }],
 	});
 
 	useEffect(() => {
@@ -111,10 +105,7 @@ export const StaffUserDetailContainer: React.FC = () => {
 	// (the current role may be outside the viewer's assignable set but must still display correctly)
 	const currentUserRole = user?.role ? { id: String(user.role.id), roleName: user.role.roleName } : null;
 	const mappedFilteredRoles = filteredRoles.map((r) => ({ id: String(r.id), roleName: r.roleName }));
-	const availableRolesWithCurrent =
-		currentUserRole && !mappedFilteredRoles.some((r) => r.id === currentUserRole.id)
-			? [currentUserRole, ...mappedFilteredRoles]
-			: mappedFilteredRoles;
+	const availableRolesWithCurrent = currentUserRole && !mappedFilteredRoles.some((r) => r.id === currentUserRole.id) ? [currentUserRole, ...mappedFilteredRoles] : mappedFilteredRoles;
 
 	return (
 		<StaffUserDetail

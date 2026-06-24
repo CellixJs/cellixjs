@@ -10,11 +10,7 @@ export const StaffUsersListContainer: React.FC = () => {
 	const navigate = useNavigate();
 	const auth = useContext(StaffAuthContext);
 	const perms = auth?.permissions;
-	const canEdit =
-		perms?.canAssignStaffRoles === true ||
-		perms?.canManageUsers === true ||
-		perms?.canManageStaffRolesAndPermissions === true ||
-		perms?.canManageTechAdmin === true;
+	const canEdit = perms?.canAssignStaffRoles === true || perms?.canManageUsers === true || perms?.canManageStaffRolesAndPermissions === true || perms?.canManageTechAdmin === true;
 	const { data, loading } = useQuery(StaffUsersListDocument, {
 		fetchPolicy: 'cache-and-network',
 	});
@@ -31,7 +27,7 @@ export const StaffUsersListContainer: React.FC = () => {
 				email: u.email,
 				role: u.role ? { id: String(u.role.id), roleName: u.role.roleName } : null,
 				createdAt: u.createdAt ? String(u.createdAt) : '',
-			})			)}
+			}))}
 			onEdit={handleEdit}
 			loading={loading}
 			canEdit={canEdit}

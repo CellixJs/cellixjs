@@ -1,5 +1,5 @@
-import { PermissionError, DomainEntity } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { DomainEntity, PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { UserVisa } from '../user.visa.ts';
 import type * as ValueObjects from './staff-user-activity-log.value-objects.ts';
 

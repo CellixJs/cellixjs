@@ -4,8 +4,10 @@ Domain-driven architecture for Azure Functions with GraphQL/REST, MongoDB (Mongo
 
 ## Introduction
 
+
+
 [Getting Started](https://developers.cellixjs.org/docs/intro):
-Our Docusaurus website will help you get started in running and contributing to CellixJS
+Our Docusaurus website will help you get started with running and contributing to CellixJS
 
 ## Project Status
 
@@ -106,7 +108,6 @@ pnpm run build
 
 ## Developer usage
 
-
 - Full local dev (builds, starts the portless HTTPS proxy, starts Azurite, and runs the app-level dev servers):
 
   ```bash
@@ -184,6 +185,7 @@ The mock auth server now runs as a single instance. Configure it using the follo
 
 - PORT — port the HTTP server listens on (default: 1355). For local development you may either use the portless HTTPS proxy with `PORT=443` (recommended for a production-like experience), or run services on the non-privileged port 1355 and include `:1355` in BASE_URL values to avoid TLS trust prompts.
 - BASE_URL — externally visible origin used as the OIDC issuer (in local development this is typically handled by the portless dev proxy). Example: `https://mock-auth.ownercommunity.localhost` (do not include `:443` when using the standard HTTPS port). When running on port 1355 include the explicit port: `https://mock-auth.ownercommunity.localhost:1355`.
+
 
 See ADR-0028 — Portless Local Development (apps/docs/docs/decisions/0028-portless-local-development.md) for the canonical proxy start/stop commands.
 
@@ -430,6 +432,7 @@ npm init -w ./packages/event-bus-seedwork-node
 
 npm install --save-dev @tsconfig/node20 @tsconfig/node-ts vitest @vitest/coverage-istanbul
 ```
+
 
 ## Your feedback matters!
 

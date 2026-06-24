@@ -1,0 +1,12 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"erasableSyntaxOnly": false,
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
+		"rootDir": "src",
+		"outDir": "dist",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["src/**/*.test.ts"]
+}
