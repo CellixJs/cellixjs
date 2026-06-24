@@ -98,7 +98,7 @@ export function discoverPortalConfigs(appsDir: string, options?: DiscoverPortalC
 	const entries = safeReadAppsDir(appsDir);
 	const portals: PortalOidcConfig[] = [];
 	const seenNames = new Set<string>();
-	const nonConformingWarnState = { fired: false };
+	const nonConformingWarnedEntries = new Set<string>();
 	const resolvedEnv: Record<string, string | undefined> = options?.env ?? process.env;
 
 	for (const entry of entries) {
@@ -129,7 +129,7 @@ export function discoverPortalConfigs(appsDir: string, options?: DiscoverPortalC
 				continue;
 			}
 
-			const portal = buildPortalFromConfig(config, parsedEnv, name, nonConformingWarnState, resolvedEnv);
+			const portal = buildPortalFromConfig(config, parsedEnv, name, nonConformingWarnedEntries, resolvedEnv);
 			if (!portal) continue;
 
 			// Replace portal.name with computed registrationName
@@ -192,7 +192,7 @@ function loadAppEnv(appDir: string, entryName: string): Record<string, string> |
 	const envPath = path.join(appDir, '.env');
 	const envLocalPath = path.join(appDir, '.env.local');
 	if (!fs.existsSync(envPath) && !fs.existsSync(envLocalPath)) {
-		console.warn(`[server-oauth2-mock] No .env files found for "${entryName}"; resolving env vars from process.env only`);
+		console.warn(`[server-oauth2-mock] No .env files found for "${entryName}"; resolving env vars from configured env only`);
 		return {};
 	}
 
@@ -211,14 +211,15 @@ function isLikelyViteEnvVarName(name: string): boolean {
 	return name.startsWith('VITE_APP_') || name.startsWith('VITE_COMMON_');
 }
 
-function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string, nonConformingWarnState: { fired: boolean }, env: Record<string, string | undefined>): PortalOidcConfig | null {
+function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string, warnedNonConformingEntries: Set<string>, env: Record<string, string | undefined>): PortalOidcConfig | null {
 	const clientIdVar = config.envVars.clientId;
 	const redirectUriVar = config.envVars.redirectUri;
 
-	// Validate env var naming (best-effort). Warn at most once per discovery run to avoid log spam from legacy configs.
+	// Validate env var naming (best-effort). Warn at most once per app directory to ensure
+	// every directory with legacy names gets exactly one warning, without per-config spam.
 	if (!isLikelyViteEnvVarName(clientIdVar) || !isLikelyViteEnvVarName(redirectUriVar)) {
-		if (!nonConformingWarnState.fired) {
-			nonConformingWarnState.fired = true;
+		if (!warnedNonConformingEntries.has(entryName)) {
+			warnedNonConformingEntries.add(entryName);
 			console.warn(
 				`[server-oauth2-mock] Warning: mock-oidc.json for "${entryName}" (config: "${config.name}") uses non-conforming env var names (expected VITE_APP_* or VITE_COMMON_*, got "${clientIdVar}" and "${redirectUriVar}"). ` +
 					`Discovery will still attempt to resolve these names but please consider renaming to follow project conventions.`,
@@ -231,12 +232,12 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 	const redirectUri = env[redirectUriVar] ?? parsedEnv[redirectUriVar];
 
 	if (!clientId) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${clientIdVar} not found in .env or process.env`);
+		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${clientIdVar} not found in .env or configured env`);
 		return null;
 	}
 
 	if (!redirectUri) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${redirectUriVar} not found in .env or process.env`);
+		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${redirectUriVar} not found in .env or configured env`);
 		return null;
 	}
 
