@@ -24,10 +24,10 @@ export function sanitizeWorktreeHostnameLabel(worktreeName: string | undefined):
 	const label = worktreeName
 		?.toLowerCase()
 		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/^-+/, '')
-		.replace(/-+$/, '')
+		.replace(/^-/, '')
+		.replace(/-$/, '')
 		.slice(0, 63)
-		.replace(/-+$/g, '');
+		.replace(/-$/, '');
 
 	return label || undefined;
 }
