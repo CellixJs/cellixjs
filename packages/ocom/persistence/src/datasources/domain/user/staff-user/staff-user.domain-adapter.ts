@@ -1,6 +1,5 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 
 import { Domain } from '@ocom/domain';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
