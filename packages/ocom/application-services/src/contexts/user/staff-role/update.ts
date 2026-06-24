@@ -1,7 +1,7 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
-import { applyCommunityPermissions, applyUserPermissions, applyRolePermissions, applyFinancePermissions, applyTechAdminPermissions } from './apply-permissions.ts';
 import type { StaffRoleCommandPermissions } from './apply-permissions.ts';
+import { applyCommunityPermissions, applyFinancePermissions, applyRolePermissions, applyTechAdminPermissions, applyUserPermissions } from './apply-permissions.ts';
 
 export interface StaffRoleUpdateCommand {
 	roleId: string;
@@ -16,9 +16,9 @@ export const update = (dataSources: DataSources) => {
 
 		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (repository) => {
 			const staffRole = await repository.getById(command.roleId);
-            if(command.roleName !== undefined) {
-			    staffRole.roleName = command.roleName;
-            }
+			if (command.roleName !== undefined) {
+				staffRole.roleName = command.roleName;
+			}
 			if (command.enterpriseAppRole) {
 				staffRole.enterpriseAppRole = command.enterpriseAppRole;
 			}
