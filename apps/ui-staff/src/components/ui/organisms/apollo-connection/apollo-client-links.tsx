@@ -34,7 +34,7 @@ export const ApolloLinkToAddAuthHeader = (auth: AuthContextProps): ApolloLink =>
 		if (!access_token && typeof globalThis !== 'undefined' && !import.meta.env.PROD) {
 			try {
 				const authority = import.meta.env.VITE_APP_UI_STAFF_AAD_AUTHORITY ?? '';
-				const client_id = import.meta.env.VITE_APP_UI_STAFF_AAD_CLIENTID ?? '';
+				const client_id = import.meta.env.VITE_APP_UI_STAFF_STAFF_USER_AAD_CLIENTID ?? import.meta.env.VITE_APP_UI_STAFF_AAD_CLIENTID ?? '';
 				const storageKey = `oidc.user:${authority}:${client_id}`;
 				const raw = globalThis.sessionStorage.getItem(storageKey) ?? globalThis.localStorage.getItem(storageKey);
 				if (raw) {

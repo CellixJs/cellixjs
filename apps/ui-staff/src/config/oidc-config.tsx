@@ -10,9 +10,9 @@ type OIDCConfig = {
 };
 
 export const oidcConfig: OIDCConfig = {
-	authority: import.meta.env.VITE_APP_UI_STAFF_AAD_AUTHORITY ?? 'https://mock-auth.ownercommunity.localhost:1355/staff',
-	client_id: import.meta.env.VITE_APP_UI_STAFF_AAD_CLIENTID ?? 'mock-client',
-	redirect_uri: import.meta.env.VITE_APP_UI_STAFF_AAD_REDIRECT_URI ?? 'https://staff.ownercommunity.localhost:1355/auth-redirect',
+	authority: import.meta.env.VITE_APP_UI_STAFF_AAD_AUTHORITY ?? 'https://mock-auth.ownercommunity.localhost:1355/staff-staff-user',
+	client_id: import.meta.env.VITE_APP_UI_STAFF_STAFF_USER_AAD_CLIENTID ?? import.meta.env.VITE_APP_UI_STAFF_AAD_CLIENTID ?? 'mock-client',
+	redirect_uri: import.meta.env.VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI ?? import.meta.env.VITE_APP_UI_STAFF_AAD_REDIRECT_URI ?? 'https://staff.ownercommunity.localhost:1355/auth-redirect',
 	code_verifier: true,
 	nonce: true,
 	response_type: 'code',

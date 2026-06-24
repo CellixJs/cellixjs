@@ -35,22 +35,48 @@ export interface PortalOidcConfig {
 export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 	const entries = safeReadAppsDir(appsDir);
 	const portals: PortalOidcConfig[] = [];
+	const seenNames = new Set<string>();
 
 	for (const entry of entries) {
 		if (!isUiAppDir(entry)) continue;
 		const { name } = entry;
 
-		const config = loadMockOidcConfig(appsDir, name);
-		if (!config) continue;
+		const configs = loadMockOidcConfigs(appsDir, name);
+		if (!configs || configs.length === 0) continue;
 
 		const appDir = path.join(appsDir, name);
 		const parsedEnv = loadAppEnv(appDir, name);
 		if (!parsedEnv) continue;
 
-		const portal = buildPortalFromConfig(config, parsedEnv, name);
-		if (!portal) continue;
+		for (const config of configs) {
+			// Compute registration name: strip ui- prefix from directory and combine with config name
+			const portalDirNameWithoutUiPrefix = name.replace(/^ui-/, '');
+			const registrationName = `${portalDirNameWithoutUiPrefix}-${config.name}`;
 
-		portals.push(portal);
+			if (!SAFE_NAME_RE.test(registrationName)) {
+				console.warn(
+					`[server-oauth2-mock] Skipping "${name}": invalid computed registration name "${registrationName}" for config name "${config.name}" in ${path.join(
+						appsDir,
+						name,
+						'mock-oidc.json',
+					)} — must contain letters, digits, '_' and '-' only`,
+				);
+				continue;
+			}
+
+			if (seenNames.has(registrationName)) {
+				console.warn(`[server-oauth2-mock] Skipping duplicate registration name "${registrationName}" from ${path.join(appsDir, name, 'mock-oidc.json')}`);
+				continue;
+			}
+
+			const portal = buildPortalFromConfig(config, parsedEnv, name);
+			if (!portal) continue;
+
+			// Replace portal.name with computed registrationName
+			const finalPortal: PortalOidcConfig = { ...portal, name: registrationName };
+			portals.push(finalPortal);
+			seenNames.add(registrationName);
+		}
 	}
 
 	return portals;
@@ -69,7 +95,7 @@ function isUiAppDir(entry: fs.Dirent): boolean {
 	return entry.isDirectory() && entry.name.startsWith('ui-');
 }
 
-function loadMockOidcConfig(appsDir: string, entryName: string): MockOidcConfig | undefined {
+function loadMockOidcConfigs(appsDir: string, entryName: string): MockOidcConfig[] | undefined {
 	const mockOidcPath = path.join(appsDir, entryName, 'mock-oidc.json');
 	if (!fs.existsSync(mockOidcPath)) return undefined;
 
@@ -81,19 +107,25 @@ function loadMockOidcConfig(appsDir: string, entryName: string): MockOidcConfig 
 		return undefined;
 	}
 
+	// Accept either a single object (back-compat) or an array of objects
+	if (Array.isArray(parsed)) {
+		const configs: MockOidcConfig[] = [];
+		for (const item of parsed) {
+			if (!isValidMockOidcConfig(item)) {
+				console.warn(`[server-oauth2-mock] Skipping an element in ${mockOidcPath}: element missing required fields or has invalid claims`);
+				continue;
+			}
+			configs.push(item);
+		}
+		return configs;
+	}
+
 	if (!isValidMockOidcConfig(parsed)) {
 		console.warn(`[server-oauth2-mock] Skipping ${entryName}: mock-oidc.json missing required fields (name, envVars) or contains invalid claims`);
 		return undefined;
 	}
 
-	const config = parsed;
-
-	if (!SAFE_NAME_RE.test(config.name)) {
-		console.warn(`[server-oauth2-mock] Skipping "${entryName}": invalid portal name "${config.name}" in ${mockOidcPath} — must contain letters, digits, '_' and '-' only`);
-		return undefined;
-	}
-
-	return config;
+	return [parsed];
 }
 
 function loadAppEnv(appDir: string, entryName: string): Record<string, string> | null {
@@ -115,9 +147,21 @@ function loadAppEnv(appDir: string, entryName: string): Record<string, string> |
 	}
 }
 
+function isLikelyViteEnvVarName(name: string): boolean {
+	return name.startsWith('VITE_APP_') || name.startsWith('VITE_COMMON_');
+}
+
 function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string): PortalOidcConfig | null {
 	const clientIdVar = config.envVars.clientId;
 	const redirectUriVar = config.envVars.redirectUri;
+
+	// Validate env var naming sanity (best-effort). Emit a warning if names do not follow VITE_* conventions
+	if (!isLikelyViteEnvVarName(clientIdVar) || !isLikelyViteEnvVarName(redirectUriVar)) {
+		console.warn(
+			`[server-oauth2-mock] Warning: mock-oidc.json for ${entryName} uses non-conforming env var names (expected VITE_APP_* or VITE_COMMON_*, got ${clientIdVar} and ${redirectUriVar}). ` +
+				`Discovery will still attempt to resolve these names but please consider renaming to follow project conventions.`,
+		);
+	}
 
 	// process.env takes precedence — allows worktree-scoped overrides injected at startup
 	const clientId = process.env[clientIdVar] ?? parsedEnv[clientIdVar];

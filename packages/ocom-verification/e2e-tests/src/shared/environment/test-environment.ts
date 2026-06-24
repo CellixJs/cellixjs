@@ -16,7 +16,7 @@ export function getHostnames(): Record<OcomPortlessHostKey | 'docs', string> {
 			api: 'VITE_COMMON_API_ENDPOINT',
 			mockAuth: 'VITE_APP_UI_COMMUNITY_B2C_AUTHORITY',
 			uiCommunity: 'VITE_APP_UI_COMMUNITY_BASE_URL',
-			uiStaff: 'VITE_APP_UI_STAFF_AAD_REDIRECT_URI',
+			uiStaff: 'VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI',
 		},
 	});
 
@@ -29,9 +29,9 @@ export function getHostnames(): Record<OcomPortlessHostKey | 'docs', string> {
 const hostnames = getHostnames();
 
 export const mockOidcAudience = 'mock-client';
-export const mockOidcIssuer = buildUrl(hostnames.mockAuth, '/community');
+export const mockOidcIssuer = buildUrl(hostnames.mockAuth, '/community-end-user');
 export const mockOidcEndpoint = `${mockOidcIssuer}/.well-known/jwks.json`;
-export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/staff');
+export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/staff-staff-user');
 
 /**
  * Ensure the portless proxy is running for the PR's worktree-scoped hostnames.

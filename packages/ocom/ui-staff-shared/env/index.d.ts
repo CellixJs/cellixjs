@@ -2,6 +2,8 @@
 
 declare global {
 	interface ImportMetaEnv {
+		readonly VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI: string;
+		readonly VITE_APP_UI_STAFF_STAFF_USER_AAD_CLIENTID: string;
 		readonly VITE_APP_UI_STAFF_AAD_REDIRECT_URI: string;
 		readonly VITE_APP_UI_STAFF_AAD_CLIENTID: string;
 		readonly VITE_APP_UI_STAFF_AAD_AUTHORITY: string;
