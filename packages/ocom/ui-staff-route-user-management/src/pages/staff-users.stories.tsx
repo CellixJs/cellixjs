@@ -42,6 +42,7 @@ const mockRolesForSelect = [
 ];
 
 const mockUserDetail = {
+    __typename: 'StaffUser',
 	id: '1',
 	displayName: 'Alice Admin',
 	email: 'alice@example.com',
