@@ -11,7 +11,7 @@
 			"dependsOn": [],
 			"persistent": true,
 			"interruptible": false,
-			"inputs": [".env", "package.json", "docusaurus.config.ts", "sidebars.ts", "tsconfig.json"]
+			"inputs": [".env", "package.json", "start-dev.ts", "docusaurus.config.ts", "sidebars.ts", "tsconfig.json"]
 		},
 		"test": {
 			"inputs": ["$TURBO_EXTENDS$", "!docs/**", "!blog/**", "!static/**"]

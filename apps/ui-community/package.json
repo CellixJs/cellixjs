@@ -48,7 +48,6 @@
 		"@storybook/addon-vitest": "catalog:",
 		"@storybook/react": "10.4.2",
 		"@storybook/react-vite": "catalog:",
-		"@testing-library/jest-dom": "^6.6.4",
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
 		"@vitejs/plugin-react": "^6.0.1",

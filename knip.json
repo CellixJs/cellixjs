@@ -2,8 +2,8 @@
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
 		"apps/api": {
-			"entry": ["src/index.ts"],
-			"project": ["src/**/*.ts"],
+			"entry": ["src/index.ts", "start-*.ts", "sync-local-settings.ts", "rolldown.config.ts"],
+			"project": ["src/**/*.ts", "*.ts"],
 			"ignoreDependencies": ["azurite"]
 		},
 		"apps/ui-community": {
@@ -17,9 +17,8 @@
 			"ignore": []
 		},
 		"apps/docs": {
-			"entry": ["src/**/*.{ts,tsx,js,jsx}"],
-			"project": ["src/**/*.{ts,tsx,js,jsx}"],
-			"ignoreDependencies": ["@cellix/local-dev"]
+			"entry": ["src/**/*.{ts,tsx,js,jsx}", "start-dev.ts"],
+			"project": ["src/**/*.{ts,tsx,js,jsx}", "*.ts"]
 		},
 		"packages/cellix/*": {
 			"project": ["src/**/*.ts"],
@@ -93,8 +92,8 @@
 			"project": ["src/**/*.ts"]
 		},
 		"apps/server-mongodb-memory-mock": {
-			"entry": ["src/index.ts"],
-			"project": ["src/**/*.ts"],
+			"entry": ["src/index.ts", "start-dev.ts"],
+			"project": ["src/**/*.ts", "*.ts"],
 			"ignoreDependencies": []
 		}
 	},

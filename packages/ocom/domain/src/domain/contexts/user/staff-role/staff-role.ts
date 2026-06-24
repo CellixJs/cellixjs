@@ -53,9 +53,13 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.CaseManager;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = true;
+		role.permissions.communityPermissions.canManageStaffRolesAndPermissions = true;
 		role.permissions.financePermissions.canManageFinance = false;
 		role.permissions.techAdminPermissions.canManageTechAdmin = false;
 		role.permissions.userPermissions.canManageUsers = true;
+		role.permissions.userPermissions.canAssignStaffRoles = true;
+		role.permissions.userPermissions.canViewStaffUsers = true;
+		role.permissions.staffRolePermissions.canViewRoles = true;
 		role.isNew = false;
 		return role;
 	}
@@ -67,9 +71,13 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.ServiceLineOwner;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = true;
+		role.permissions.communityPermissions.canManageStaffRolesAndPermissions = true;
 		role.permissions.financePermissions.canManageFinance = false;
 		role.permissions.techAdminPermissions.canManageTechAdmin = false;
 		role.permissions.userPermissions.canManageUsers = true;
+		role.permissions.userPermissions.canAssignStaffRoles = true;
+		role.permissions.userPermissions.canViewStaffUsers = true;
+		role.permissions.staffRolePermissions.canViewRoles = true;
 		role.isNew = false;
 		return role;
 	}
@@ -81,9 +89,16 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.enterpriseAppRole = ValueObjects.EnterpriseAppRoleNames.Finance;
 		role.isDefault = true;
 		role.permissions.communityPermissions.canManageCommunities = false;
+		role.permissions.communityPermissions.canManageStaffRolesAndPermissions = true;
 		role.permissions.financePermissions.canManageFinance = true;
 		role.permissions.techAdminPermissions.canManageTechAdmin = false;
-		role.permissions.userPermissions.canManageUsers = false;
+		role.permissions.userPermissions.canManageUsers = true;
+		role.permissions.userPermissions.canAssignStaffRoles = true;
+		role.permissions.userPermissions.canViewStaffUsers = true;
+		role.permissions.staffRolePermissions.canViewRoles = true;
+		role.permissions.staffRolePermissions.canAddRole = true;
+		role.permissions.staffRolePermissions.canEditRole = true;
+		role.permissions.staffRolePermissions.canRemoveRole = true;
 		role.isNew = false;
 		return role;
 	}
@@ -101,6 +116,12 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.permissions.financePermissions.canManageFinance = true;
 		role.permissions.techAdminPermissions.canManageTechAdmin = true;
 		role.permissions.userPermissions.canManageUsers = true;
+		role.permissions.userPermissions.canAssignStaffRoles = true;
+		role.permissions.userPermissions.canViewStaffUsers = true;
+		role.permissions.staffRolePermissions.canViewRoles = true;
+		role.permissions.staffRolePermissions.canAddRole = true;
+		role.permissions.staffRolePermissions.canEditRole = true;
+		role.permissions.staffRolePermissions.canRemoveRole = true;
 		role.isNew = false;
 		return role;
 	}
@@ -125,7 +146,8 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
 			throw new PermissionError('Cannot set role name');
 		}
-		this.props.roleName = new ValueObjects.RoleName(roleName).valueOf();
+		const normalizedRoleName = new ValueObjects.RoleName(roleName).valueOf();
+		this.props.roleName = normalizedRoleName.charAt(0).toUpperCase() + normalizedRoleName.slice(1);
 	}
 
 	get enterpriseAppRole() {

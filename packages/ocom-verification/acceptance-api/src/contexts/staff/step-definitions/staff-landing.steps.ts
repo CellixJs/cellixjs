@@ -33,10 +33,19 @@ const roleForActor = (actorName: string): StaffBusinessRole => actorRoles.get(ac
 
 const resolveFinanceWorkspaceRoute = (role: StaffBusinessRole): string => (role === 'finance' || role === 'tech admin' ? '/staff/finance' : '/unauthorized');
 
+Given('{word} is an authenticated staff user', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	actorRoles.set(actorName, 'case manager');
+	await actor.attemptsTo(notes<StaffApiNotes>().set('targetRoute', ''));
+});
+
 Given('{word} is an authenticated {string} staff user', async (actorName: string, roleName: string) => {
 	lastActorName = actorName;
-	actorRoles.set(actorName, normalizeRole(roleName));
-	await actorCalled(actorName).attemptsTo(notes<StaffApiNotes>().set('targetRoute', ''));
+	const role = normalizeRole(roleName);
+	const actor = actorCalled(actorName);
+	actorRoles.set(actorName, role);
+	await actor.attemptsTo(notes<StaffApiNotes>().set('targetRoute', ''));
 });
 
 When('{word} enters the staff operations workspace', async (actorName: string) => {

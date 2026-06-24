@@ -74,10 +74,18 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	// Build default page layouts from backend permissions.
 	const perms = auth?.permissions;
 	const canManageCommunities = perms?.canManageCommunities === true;
+	const canManageStaffRolesAndPermissions = perms?.canManageStaffRolesAndPermissions === true;
 	const canManageUsers = perms?.canManageUsers === true;
+	const canAssignStaffRoles = perms?.canAssignStaffRoles === true;
+	const canViewStaffUsers = perms?.canViewStaffUsers === true;
 	const canManageFinance = perms?.canManageFinance === true;
 	const canManageTechAdmin = perms?.canManageTechAdmin === true;
+	const canViewRoles = perms?.canViewRoles === true;
+	const canAddRole = perms?.canAddRole === true;
+	const canEditRole = perms?.canEditRole === true;
+	const canRemoveRole = perms?.canRemoveRole === true;
 	const nestedParentProps = canManageCommunities ? { parent: 'ROOT' as const } : {};
+	const canAccessUserManagement = canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
 
 	// Construct default page layouts ensuring a ROOT entry always exists so MenuComponent renders.
 	// If Communities is allowed, keep the historic behaviour: Communities is ROOT and others are its children.
@@ -87,7 +95,7 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	if (canManageCommunities) {
 		// Communities as canonical root, others as children
 		defaultPageLayouts.push({ path: '/staff/community-management', title: 'Communities', icon: <TeamOutlined />, id: 'ROOT' });
-		if (canManageUsers) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', ...nestedParentProps });
+		if (canAccessUserManagement) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', ...nestedParentProps });
 		if (canManageFinance) defaultPageLayouts.push({ path: '/staff/finance/*', title: 'Finance', icon: <DollarOutlined />, id: 'finance', ...nestedParentProps });
 		if (canManageTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', ...nestedParentProps });
 	} else {
@@ -95,9 +103,9 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 		if (canManageFinance) {
 			defaultPageLayouts.push({ path: '/staff/finance/*', title: 'Finance', icon: <DollarOutlined />, id: 'ROOT' });
 			// add others as children if present
-			if (canManageUsers) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', parent: 'ROOT' });
+			if (canAccessUserManagement) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', parent: 'ROOT' });
 			if (canManageTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
-		} else if (canManageUsers) {
+		} else if (canAccessUserManagement) {
 			defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'ROOT' });
 			if (canManageTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
 		} else if (canManageTechAdmin) {
