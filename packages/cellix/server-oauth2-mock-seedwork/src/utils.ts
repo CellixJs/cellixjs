@@ -76,3 +76,23 @@ export const normalizeOrigin = (value: string) => {
 export function normalizeBaseUrl(url: string): string {
 	return url.replace(/\/$/, '');
 }
+
+/**
+ * Ensures a port is present in the given URL.
+ * If the URL already has a port, or the port is 443, the URL is returned unchanged.
+ * @param baseUrl - The base URL to add the port to.
+ * @param port - The port number to add.
+ * @returns The URL with the port added, or the original URL if it already has a port or port is 443.
+ */
+export function ensurePortInUrl(baseUrl: string, port: number): string {
+	try {
+		const parsed = new URL(baseUrl);
+		if (!parsed.port && port !== 443) {
+			parsed.port = String(port);
+			return parsed.toString();
+		}
+		return baseUrl;
+	} catch {
+		return baseUrl;
+	}
+}

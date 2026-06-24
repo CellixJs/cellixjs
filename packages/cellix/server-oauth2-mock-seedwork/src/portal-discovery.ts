@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { SAFE_NAME_RE } from '@cellix/server-oauth2-mock-seedwork';
 import * as dotenv from 'dotenv';
+import { SAFE_NAME_RE } from './utils.ts';
 
 function readEnvFile(filePath: string): Record<string, string> {
 	try {

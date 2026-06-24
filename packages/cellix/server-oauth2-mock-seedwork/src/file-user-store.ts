@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { debugLog, type MockOAuth2User, type MockOAuth2UserStore } from '@cellix/server-oauth2-mock-seedwork';
+import { debugLog } from './logger.ts';
+import type { MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 
 export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	const committedPath = path.join(appDir, 'mock-oidc.users.json');
