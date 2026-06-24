@@ -9,13 +9,14 @@ import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityErrorMessage } from '../questions/community-error-message.ts';
 import { CommunityName } from '../questions/community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
-import { waitForCommunityCreationQueueMessage } from '../../../shared/support/queue-storage.ts';
+import { clearKnownQueueMessages, waitForCommunityCreationQueueMessage } from '../../../shared/support/queue-storage.ts';
 
 let lastActorName = actors.CommunityOwner.name;
 
 Given('{word} is an authenticated community owner', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
+	await clearKnownQueueMessages();
 	await actor.attemptsTo(LogInWithOAuth2(actors.CommunityOwner.email));
 });
 

@@ -3,7 +3,7 @@ import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-da
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
-import { getRecordedCommunityCreationMessages } from '../../../mock-application-services.ts';
+import { getRecordedCommunityCreationMessages, resetRecordedQueueMessages } from '../../../mock-application-services.ts';
 import type { CommunityDetails, CommunityNotes } from '../notes/community-notes.ts';
 import { CommunityName } from '../questions/community-name.ts';
 import { CommunityStatus } from '../questions/community-status.ts';
@@ -13,6 +13,7 @@ let lastActorName = actors.CommunityOwner.name;
 
 Given('{word} is an authenticated community owner', (actorName: string) => {
 	lastActorName = actorName;
+	resetRecordedQueueMessages();
 	actorCalled(actorName);
 });
 

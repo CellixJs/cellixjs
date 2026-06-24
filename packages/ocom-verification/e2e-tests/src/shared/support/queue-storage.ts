@@ -1,4 +1,4 @@
-import { ServiceQueueStorage, type CommunityCreationMessage } from '@ocom/service-queue-storage';
+import { ServiceQueueStorage, type CommunityCreationPayload } from '@ocom/service-queue-storage';
 
 const communityCreationQueueName = 'community-creation';
 let queueStorageService: ServiceQueueStorage | undefined;
@@ -28,14 +28,6 @@ async function getQueueStorageService(): Promise<ServiceQueueStorage & QueueMain
 	return queueStorageService as ServiceQueueStorage & QueueMaintenanceOperations;
 }
 
-export async function stopQueueStorageService(): Promise<void> {
-	if (!queueStorageService) {
-		return;
-	}
-	await queueStorageService.shutDown();
-	queueStorageService = undefined;
-}
-
 export async function clearKnownQueueMessages(): Promise<void> {
 	if (!getQueueConnectionString()) {
 		return;
@@ -43,7 +35,7 @@ export async function clearKnownQueueMessages(): Promise<void> {
 
 	const service = await getQueueStorageService();
 	while (true) {
-		const messages = await service.receiveMessages<CommunityCreationMessage>(communityCreationQueueName, { maxMessages: 32 });
+		const messages = await service.receiveMessages<CommunityCreationPayload>(communityCreationQueueName, { maxMessages: 32 });
 		if (messages.length === 0) {
 			return;
 		}
@@ -57,7 +49,7 @@ export async function clearKnownQueueMessages(): Promise<void> {
 	}
 }
 
-export async function waitForCommunityCreationQueueMessage(expected: { communityId?: string | null; name: string; createdBy?: string }, timeoutMs = 5_000): Promise<CommunityCreationMessage> {
+export async function waitForCommunityCreationQueueMessage(expected: { communityId?: string | null; name: string; createdBy?: string }, timeoutMs = 5_000): Promise<CommunityCreationPayload> {
 	const deadline = Date.now() + timeoutMs;
 	const service = await getQueueStorageService();
 
