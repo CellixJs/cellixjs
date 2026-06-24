@@ -55,7 +55,8 @@ export interface PortalOidcConfig {
  * Invalid entries, missing env files, unresolvable vars, duplicate or unsafe registration
  * names are skipped with a `console.warn`; all remaining entries continue to be processed.
  * Env var names that do not follow the `VITE_APP_*` / `VITE_COMMON_*` convention produce
- * a single warning per discovery run (not one per entry) to avoid log spam.
+ * at most one warning per `discoverPortalConfigs` call across all portals, to avoid log
+ * spam when multiple legacy configs are present.
  *
  * @param appsDir - Absolute path to the directory containing `ui-*` app subdirectories.
  * @returns Array of resolved portal configs ordered alphabetically by `ui-*` directory name.
@@ -74,6 +75,7 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 	const entries = safeReadAppsDir(appsDir);
 	const portals: PortalOidcConfig[] = [];
 	const seenNames = new Set<string>();
+	const nonConformingWarnState = { fired: false };
 
 	for (const entry of entries) {
 		if (!isUiAppDir(entry)) continue;
@@ -86,7 +88,6 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 		const parsedEnv = loadAppEnv(appDir, name);
 		if (!parsedEnv) continue;
 
-		const nonConformingWarnState = { fired: false };
 		for (const config of configs) {
 			// Compute registration name: strip ui- prefix from directory and combine with config name
 			const portalDirNameWithoutUiPrefix = name.replace(/^ui-/, '');
