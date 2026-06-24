@@ -7,7 +7,7 @@ const childEnv = { ...process.env };
 
 if (process.env.WORKTREE_NAME) {
 	const hostnames = getHostnames();
-	childEnv.VITE_APP_UI_STAFF_AAD_AUTHORITY = buildPortlessUrl(hostnames.mockAuth, '/staff');
+	childEnv.VITE_APP_UI_STAFF_AAD_AUTHORITY = buildPortlessUrl(hostnames.mockAuth, '/ui-staff-staff');
 	childEnv.VITE_APP_UI_STAFF_AAD_REDIRECT_URI = buildPortlessUrl(hostnames.uiStaff, '/auth-redirect');
 	childEnv.VITE_COMMON_API_ENDPOINT = buildPortlessUrl(hostnames.api, '/api/graphql');
 }

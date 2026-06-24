@@ -40,10 +40,10 @@ function applyE2EOverrides(settings) {
 	// already match the default hostnames, so we leave them alone.
 	if (process.env.WORKTREE_NAME) {
 		const hostnames = getHostnames();
-		values.ACCOUNT_PORTAL_OIDC_ISSUER = buildPortlessUrl(hostnames.mockAuth, '/community');
-		values.ACCOUNT_PORTAL_OIDC_ENDPOINT = buildPortlessUrl(hostnames.mockAuth, '/community/.well-known/jwks.json');
-		values.STAFF_PORTAL_OIDC_ISSUER = buildPortlessUrl(hostnames.mockAuth, '/staff');
-		values.STAFF_PORTAL_OIDC_ENDPOINT = buildPortlessUrl(hostnames.mockAuth, '/staff/.well-known/jwks.json');
+		values.ACCOUNT_PORTAL_OIDC_ISSUER = buildPortlessUrl(hostnames.mockAuth, '/ui-community-community');
+		values.ACCOUNT_PORTAL_OIDC_ENDPOINT = buildPortlessUrl(hostnames.mockAuth, '/ui-community-community/.well-known/jwks.json');
+		values.STAFF_PORTAL_OIDC_ISSUER = buildPortlessUrl(hostnames.mockAuth, '/ui-staff-staff');
+		values.STAFF_PORTAL_OIDC_ENDPOINT = buildPortlessUrl(hostnames.mockAuth, '/ui-staff-staff/.well-known/jwks.json');
 		const azurite = getAzuriteConnectionString(values);
 		values.AZURE_STORAGE_CONNECTION_STRING = azurite;
 		values.AzureWebJobsStorage = azurite;

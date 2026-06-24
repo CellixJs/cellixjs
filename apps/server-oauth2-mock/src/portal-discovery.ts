@@ -30,27 +30,45 @@ export interface PortalOidcConfig {
 	clientId: string;
 	redirectUri: string;
 	claims?: Record<string, unknown>;
+	// composed registration key: `${dirName}-${name}`
+	registrationKey: string;
 }
 
 export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 	const entries = safeReadAppsDir(appsDir);
 	const portals: PortalOidcConfig[] = [];
+	const registrationMap = new Map<string, { portalDir: string; configName: string }>();
 
 	for (const entry of entries) {
 		if (!isUiAppDir(entry)) continue;
 		const { name } = entry;
 
-		const config = loadMockOidcConfig(appsDir, name);
-		if (!config) continue;
+		const configs = loadMockOidcConfig(appsDir, name);
+		if (!configs || configs.length === 0) continue;
 
 		const appDir = path.join(appsDir, name);
 		const parsedEnv = loadAppEnv(appDir, name);
 		if (!parsedEnv) continue;
 
-		const portal = buildPortalFromConfig(config, parsedEnv, name);
-		if (!portal) continue;
+		for (const config of configs) {
+			const portal = buildPortalFromConfig(config, parsedEnv, name);
+			if (!portal) continue;
 
-		portals.push(portal);
+			const composedKey = `${name}-${portal.name}`;
+			// Validate composed key
+			if (!SAFE_NAME_RE.test(composedKey)) {
+				throw new Error(`Invalid mock OIDC registration key '${composedKey}' composed from '${name}/${portal.name}'; registration keys must match ${SAFE_NAME_RE}`);
+			}
+
+			// Detect duplicates
+			const existing = registrationMap.get(composedKey);
+			if (existing) {
+				throw new Error(`Duplicate mock OIDC registration key '${composedKey}' found: first in '${existing.portalDir}/${existing.configName}', also in '${name}/${portal.name}'. Rename the config.name to ensure uniqueness.`);
+			}
+
+			registrationMap.set(composedKey, { portalDir: name, configName: portal.name });
+			portals.push({ ...portal, registrationKey: composedKey });
+		}
 	}
 
 	return portals;
@@ -69,7 +87,7 @@ function isUiAppDir(entry: fs.Dirent): boolean {
 	return entry.isDirectory() && entry.name.startsWith('ui-');
 }
 
-function loadMockOidcConfig(appsDir: string, entryName: string): MockOidcConfig | undefined {
+function loadMockOidcConfig(appsDir: string, entryName: string): MockOidcConfig[] | undefined {
 	const mockOidcPath = path.join(appsDir, entryName, 'mock-oidc.json');
 	if (!fs.existsSync(mockOidcPath)) return undefined;
 
@@ -81,19 +99,29 @@ function loadMockOidcConfig(appsDir: string, entryName: string): MockOidcConfig 
 		return undefined;
 	}
 
-	if (!isValidMockOidcConfig(parsed)) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: mock-oidc.json missing required fields (name, envVars) or contains invalid claims`);
-		return undefined;
+	// Accept either an array of configs or a single object (coerce) for compatibility
+	let configs: unknown[];
+	if (Array.isArray(parsed)) configs = parsed;
+	else configs = [parsed];
+
+	const validConfigs: MockOidcConfig[] = [];
+	for (const candidate of configs) {
+		if (!isValidMockOidcConfig(candidate)) {
+			console.warn(`[server-oauth2-mock] Skipping ${entryName}: mock-oidc.json contains invalid entry (missing required fields or invalid claims)`);
+			continue;
+		}
+
+		const cfg = candidate as MockOidcConfig;
+		if (!SAFE_NAME_RE.test(cfg.name)) {
+			console.warn(`[server-oauth2-mock] Skipping "${entryName}": invalid portal name "${cfg.name}" in ${mockOidcPath} — must contain letters, digits, '_' and '-' only`);
+			continue;
+		}
+
+		validConfigs.push(cfg);
 	}
 
-	const config = parsed;
-
-	if (!SAFE_NAME_RE.test(config.name)) {
-		console.warn(`[server-oauth2-mock] Skipping "${entryName}": invalid portal name "${config.name}" in ${mockOidcPath} — must contain letters, digits, '_' and '-' only`);
-		return undefined;
-	}
-
-	return config;
+	if (validConfigs.length === 0) return undefined;
+	return validConfigs;
 }
 
 function loadAppEnv(appDir: string, entryName: string): Record<string, string> | null {
@@ -115,27 +143,39 @@ function loadAppEnv(appDir: string, entryName: string): Record<string, string> |
 	}
 }
 
-function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string): PortalOidcConfig | null {
+function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string): Omit<PortalOidcConfig, 'registrationKey'> | null {
 	const clientIdVar = config.envVars.clientId;
 	const redirectUriVar = config.envVars.redirectUri;
+
+	// Validate env var naming convention (warn-only)
+	const canonicalPortal = entryName.toUpperCase().replace(/-/g, '_');
+	const validateEnvKey = (key: string) => {
+		if (key.startsWith('VITE_COMMON_')) return;
+		if (key.startsWith(`VITE_APP_${canonicalPortal}_`)) return;
+		console.warn(
+			`[server-oauth2-mock] Env var key "${key}" in ${entryName}/${config.name} does not follow naming convention (expected VITE_APP_${canonicalPortal}_* or VITE_COMMON_*). See apps/docs/docs/decisions/0031-ui-env-vars.md`,
+		);
+	};
+	validateEnvKey(clientIdVar);
+	validateEnvKey(redirectUriVar);
 
 	// process.env takes precedence — allows worktree-scoped overrides injected at startup
 	const clientId = process.env[clientIdVar] ?? parsedEnv[clientIdVar];
 	const redirectUri = process.env[redirectUriVar] ?? parsedEnv[redirectUriVar];
 
 	if (!clientId) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${clientIdVar} not found in .env or process.env`);
+		console.warn(`[server-oauth2-mock] Skipping ${entryName}/${config.name}: env var ${clientIdVar} not found in .env or process.env`);
 		return null;
 	}
 
 	if (!redirectUri) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${redirectUriVar} not found in .env or process.env`);
+		console.warn(`[server-oauth2-mock] Skipping ${entryName}/${config.name}: env var ${redirectUriVar} not found in .env or process.env`);
 		return null;
 	}
 
 	const base = { name: config.name, dirName: entryName, clientId, redirectUri };
 	if (config.claims !== undefined) return { ...base, claims: config.claims };
-	return base as PortalOidcConfig;
+	return base;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

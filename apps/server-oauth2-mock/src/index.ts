@@ -76,8 +76,8 @@ try {
 			},
 		};
 
-		await manager.register(portal.name, config);
-		console.log(`[server-oauth2-mock] Registered OIDC config "${portal.name}"`);
+		await manager.register(portal.registrationKey, config);
+		console.log(`[server-oauth2-mock] Registered OIDC config "${portal.registrationKey}" (portal: "${portal.name}")`);
 	}
 
 	const shutdown = async (signal?: string, exitCode = 0) => {

@@ -10,7 +10,7 @@ type OIDCConfig = {
 };
 
 export const oidcConfig: OIDCConfig = {
-	authority: import.meta.env.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY ?? 'https://mock-auth.ownercommunity.localhost',
+	authority: import.meta.env.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY ?? 'https://mock-auth.ownercommunity.localhost/ui-community-community',
 	client_id: import.meta.env.VITE_APP_UI_COMMUNITY_B2C_CLIENTID ?? 'mock-client',
 	redirect_uri: import.meta.env.VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI ?? 'https://ownercommunity.localhost/auth-redirect',
 	code_verifier: true,

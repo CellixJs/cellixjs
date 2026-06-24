@@ -29,9 +29,9 @@ export function getHostnames(): Record<OcomPortlessHostKey | 'docs', string> {
 const hostnames = getHostnames();
 
 export const mockOidcAudience = 'mock-client';
-export const mockOidcIssuer = buildUrl(hostnames.mockAuth, '/community');
+export const mockOidcIssuer = buildUrl(hostnames.mockAuth, '/ui-community-community');
 export const mockOidcEndpoint = `${mockOidcIssuer}/.well-known/jwks.json`;
-export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/staff');
+export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/ui-staff-staff');
 
 /**
  * Ensure the portless proxy is running for the PR's worktree-scoped hostnames.
@@ -60,7 +60,7 @@ export function cleanupTestEnvironment(): void {
 }
 
 function loadE2EEnvDefaults(): void {
-	process.env['E2E'] ??= 'true';
+	process.env.E2E ??= 'true';
 
 	const currentDir = dirname(fileURLToPath(import.meta.url));
 	const workspaceRoot = resolve(currentDir, '../../../../../..');
