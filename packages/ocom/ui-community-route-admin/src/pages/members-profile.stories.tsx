@@ -76,10 +76,37 @@ const meta = {
 				{
 					request: {
 						query: CommunitiesDropdownContainerMembersForCurrentEndUserDocument,
+						variables: {},
 					},
 					result: {
 						data: {
 							membersForCurrentEndUser: mockSectionLayoutMembers,
+						},
+					},
+				},
+				{
+					request: {
+						query: SharedMemberProfileContainerMemberDocument,
+						variables: {
+							id: memberId,
+						},
+					},
+					result: {
+						data: {
+							member: mockMember,
+						},
+					},
+				},
+				{
+					request: {
+						query: SharedMemberProfileContainerMemberDocument,
+						variables: {
+							id: memberId,
+						},
+					},
+					result: {
+						data: {
+							member: mockMember,
 						},
 					},
 				},

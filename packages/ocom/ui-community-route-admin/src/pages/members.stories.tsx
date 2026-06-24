@@ -58,6 +58,24 @@ const mockSectionLayoutMembers: AdminSectionLayoutContainerMemberFieldsFragment[
 	},
 ];
 
+const adminMemberListMock = {
+	request: {
+		query: AdminMemberListContainerMembersDocument,
+		variables: {
+			communityId,
+		},
+	},
+	result: {
+		data: {
+			membersByCommunityId: mockMembers,
+			memberForCurrentCommunity: {
+				__typename: 'Member',
+				id: memberId,
+			},
+		},
+	},
+};
+
 const meta = {
 	title: 'Pages/Community/Admin/Members',
 	component: Admin,
@@ -92,6 +110,7 @@ const meta = {
 				{
 					request: {
 						query: CommunitiesDropdownContainerMembersForCurrentEndUserDocument,
+						variables: {},
 					},
 					result: {
 						data: {
@@ -99,23 +118,9 @@ const meta = {
 						},
 					},
 				},
-				{
-					request: {
-						query: AdminMemberListContainerMembersDocument,
-						variables: {
-							communityId,
-						},
-					},
-					result: {
-						data: {
-							membersByCommunityId: mockMembers,
-							memberForCurrentCommunity: {
-								__typename: 'Member',
-								id: memberId,
-							},
-						},
-					},
-				},
+				adminMemberListMock,
+				adminMemberListMock,
+				adminMemberListMock,
 			],
 		},
 	},

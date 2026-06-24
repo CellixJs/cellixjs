@@ -7,6 +7,7 @@ import { expect, within } from 'storybook/test';
 import type { Member } from './generated.tsx';
 import type { AdminStaffSectionPermissions } from './section-layout.tsx';
 import { SectionLayout } from './section-layout.tsx';
+import { CommunitiesDropdownContainerMembersForCurrentEndUserDocument } from '../../ui-shared/src/generated.tsx';
 
 const mockMember: Member = {
 	__typename: 'Member',
@@ -62,13 +63,37 @@ const makePageLayouts = (permissions: AdminStaffSectionPermissions | null): Page
 	},
 ];
 
+const communitiesDropdownMock = {
+	request: {
+		query: CommunitiesDropdownContainerMembersForCurrentEndUserDocument,
+		variables: {},
+	},
+	result: {
+		data: {
+			membersForCurrentEndUser: [
+				{
+					__typename: 'Member',
+					id: 'member-1',
+					memberName: 'John Doe',
+					isAdmin: true,
+					community: {
+						__typename: 'Community',
+						id: 'community-1',
+						name: 'Test Community',
+					},
+				},
+			],
+		},
+	},
+};
+
 const meta: Meta<typeof SectionLayout> = {
 	title: 'Components/Community/Layouts/SectionLayout',
 	component: SectionLayout,
 	decorators: [
 		(Story) => (
 			<MockedProvider
-				mocks={[]}
+				mocks={[communitiesDropdownMock, communitiesDropdownMock, communitiesDropdownMock]}
 				addTypename={false}
 			>
 				<MemoryRouter initialEntries={['/community/comm-1/admin/member-1']}>
@@ -94,7 +119,6 @@ export const AllPermissions: Story = {
 	args: {
 		pageLayouts: makePageLayouts(allPermissions),
 		memberData: mockMember,
-		staffSectionPermissions: allPermissions,
 	},
 	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
 		const canvas = within(canvasElement);

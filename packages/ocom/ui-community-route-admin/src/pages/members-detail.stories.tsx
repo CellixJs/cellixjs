@@ -1,6 +1,8 @@
 import { App as AntdApp } from 'antd';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import type { SharedMemberProfileContainerMemberFieldsFragment } from '../../../ui-community-shared/src/generated.tsx';
+import { SharedMemberProfileContainerMemberDocument } from '../../../ui-community-shared/src/generated.tsx';
 import type { AdminMembersDetailContainerMemberFieldsFragment, AdminSectionLayoutContainerMemberFieldsFragment } from '../generated.tsx';
 import { AdminMembersDetailContainerMemberDocument, AdminSectionLayoutContainerMembersForCurrentEndUserDocument } from '../generated.tsx';
 import { CommunitiesDropdownContainerMembersForCurrentEndUserDocument } from '../../../ui-shared/src/generated.tsx';
@@ -17,6 +19,23 @@ const mockMember: AdminMembersDetailContainerMemberFieldsFragment = {
 		__typename: 'EndUserRole',
 		id: 'role-1',
 		roleName: 'Admin',
+	},
+	createdAt: '2024-01-01T00:00:00.000Z',
+	updatedAt: '2024-01-02T00:00:00.000Z',
+};
+
+const mockProfileMember: SharedMemberProfileContainerMemberFieldsFragment = {
+	id: memberId,
+	memberName: 'John Doe',
+	profile: {
+		name: 'John Doe',
+		email: 'john.doe@example.com',
+		bio: 'Admin member',
+		showInterests: true,
+		showEmail: true,
+		showProfile: true,
+		showLocation: false,
+		showProperties: true,
 	},
 	createdAt: '2024-01-01T00:00:00.000Z',
 	updatedAt: '2024-01-02T00:00:00.000Z',
@@ -70,6 +89,7 @@ const meta = {
 				{
 					request: {
 						query: CommunitiesDropdownContainerMembersForCurrentEndUserDocument,
+						variables: {},
 					},
 					result: {
 						data: {
@@ -87,6 +107,32 @@ const meta = {
 					result: {
 						data: {
 							member: mockMember,
+						},
+					},
+				},
+				{
+					request: {
+						query: SharedMemberProfileContainerMemberDocument,
+						variables: {
+							id: memberId,
+						},
+					},
+					result: {
+						data: {
+							member: mockProfileMember,
+						},
+					},
+				},
+				{
+					request: {
+						query: SharedMemberProfileContainerMemberDocument,
+						variables: {
+							id: memberId,
+						},
+					},
+					result: {
+						data: {
+							member: mockProfileMember,
 						},
 					},
 				},
