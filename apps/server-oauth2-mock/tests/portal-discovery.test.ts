@@ -100,6 +100,36 @@ describe('discoverPortalConfigs', () => {
 		expect(staff?.redirectUri).toBe('https://community/staff/cb');
 	});
 
+	it('handles partially invalid mock-oidc.json arrays and skips only invalid elements', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			writeJson(tmp, 'ui-community/mock-oidc.json', [
+				{
+					name: 'end-user-valid',
+					envVars: { clientId: 'VITE_APP_COMMUNITY_END_CLIENTID', redirectUri: 'VITE_APP_COMMUNITY_END_REDIRECT' },
+					claims: { sub: 'end' },
+				},
+				{
+					// missing envVars makes this entry invalid
+					name: 'end-user-invalid',
+					claims: { sub: 'invalid' },
+				},
+			]);
+			writeEnv(tmp, 'ui-community/.env', 'VITE_APP_COMMUNITY_END_CLIENTID=cid-end\nVITE_APP_COMMUNITY_END_REDIRECT=https://end/redirect\n');
+
+			const portals = discoverPortalConfigs(tmp);
+
+			expect(portals).toHaveLength(1);
+			expect(portals[0]?.name).toBe('community-end-user-valid');
+			expect(portals[0]?.clientId).toBe('cid-end');
+			expect(warnSpy).toHaveBeenCalled();
+		} finally {
+			warnSpy.mockRestore();
+		}
+	});
+
 	it('skips invalid mock-oidc.local.json and keeps base claims unchanged', () => {
 		if (!tmp) throw new Error('tmp not created');
 
@@ -474,6 +504,7 @@ describe('discoverPortalConfigs', () => {
 			expect(warnSpy).toHaveBeenCalled();
 			const p = portals[0];
 			expect(p?.clientId).toBe('cid-nc');
+			expect(p?.redirectUri).toBe('https://nc/redirect');
 		} finally {
 			warnSpy.mockRestore();
 		}

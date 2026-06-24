@@ -55,11 +55,7 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 
 			if (!SAFE_NAME_RE.test(registrationName)) {
 				console.warn(
-					`[server-oauth2-mock] Skipping "${name}": invalid computed registration name "${registrationName}" for config name "${config.name}" in ${path.join(
-						appsDir,
-						name,
-						'mock-oidc.json',
-					)} — must contain letters, digits, '_' and '-' only`,
+					`[server-oauth2-mock] Skipping config element "${config.name}" in ${path.join(appsDir, name, 'mock-oidc.json')} — invalid computed registration name "${registrationName}" (must contain only letters, digits, '_' and '-'). Other elements in the same file will still be processed.`,
 				);
 				continue;
 			}
@@ -158,7 +154,7 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 	// Validate env var naming sanity (best-effort). Emit a warning if names do not follow VITE_* conventions
 	if (!isLikelyViteEnvVarName(clientIdVar) || !isLikelyViteEnvVarName(redirectUriVar)) {
 		console.warn(
-			`[server-oauth2-mock] Warning: mock-oidc.json for ${entryName} uses non-conforming env var names (expected VITE_APP_* or VITE_COMMON_*, got ${clientIdVar} and ${redirectUriVar}). ` +
+			`[server-oauth2-mock] Warning: mock-oidc.json for "${entryName}" (config: "${config.name}") uses non-conforming env var names (expected VITE_APP_* or VITE_COMMON_*, got "${clientIdVar}" and "${redirectUriVar}"). ` +
 				`Discovery will still attempt to resolve these names but please consider renaming to follow project conventions.`,
 		);
 	}
