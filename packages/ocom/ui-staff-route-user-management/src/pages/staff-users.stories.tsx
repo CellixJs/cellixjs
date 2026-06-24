@@ -7,8 +7,23 @@ import { SectionLayout } from '../section-layout.tsx';
 import { StaffUsersPage } from './staff-users.tsx';
 
 const mockStaffUsers = [
-	{ id: '1', displayName: 'Alice Admin', email: 'alice@example.com', createdAt: '2024-01-01T00:00:00.000Z', role: { id: 'r1', roleName: 'Case Manager' } },
-	{ id: '2', displayName: 'Bob Staff', email: 'bob@example.com', createdAt: '2024-02-01T00:00:00.000Z', role: null },
+	{ 
+        __typename: 'StaffUser',
+        id: '1', 
+        displayName: 'Alice Admin', 
+        email: 'alice@example.com', 
+        createdAt: '2024-01-01T00:00:00.000Z', 
+        role: { 
+            __typename: 'StaffRole',
+            id: 'r1', 
+            roleName: 'Case Manager' } },
+	{ 
+        __typename: 'StaffUser', 
+        id: '2', 
+        displayName: 'Bob Staff', 
+        email: 'bob@example.com', 
+        createdAt: '2024-02-01T00:00:00.000Z', 
+        role: null },
 ];
 
 const mockCurrentUser = {
@@ -31,7 +46,12 @@ const mockUserDetail = {
 	displayName: 'Alice Admin',
 	email: 'alice@example.com',
 	createdAt: '2024-01-01T00:00:00.000Z',
-	role: { id: 'r1', roleName: 'Case Manager', enterpriseAppRole: 'Staff.CaseManager' },
+	role: { 
+        __typename: 'StaffRole', 
+        id: 'r1', 
+        roleName: 'Case Manager', 
+        enterpriseAppRole: 'Staff.CaseManager' 
+    },
 	activityLog: [
 		{
 			activityType: 'ROLE_ASSIGNED',

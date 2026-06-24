@@ -7,8 +7,21 @@ import { SectionLayout } from '../section-layout.tsx';
 import { StaffRolesPage } from './staff-roles.tsx';
 
 const mockStaffRoles = [
-	{ id: 'r1', roleName: 'Case Manager', enterpriseAppRole: 'Staff.CaseManager', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-15T00:00:00.000Z' },
-	{ id: 'r2', roleName: 'Finance', enterpriseAppRole: 'Staff.Finance', createdAt: '2024-01-02T00:00:00.000Z', updatedAt: '2024-01-15T00:00:00.000Z' },
+	{ 
+        __typename: 'StaffRole',
+        id: 'r1', roleName: 'Case Manager', 
+        enterpriseAppRole: 'Staff.CaseManager', 
+        createdAt: '2024-01-01T00:00:00.000Z', 
+        updatedAt: '2024-01-15T00:00:00.000Z' 
+    },
+	{   
+        __typename: 'StaffRole',
+         id: 'r2', 
+         roleName: 'Finance', 
+         enterpriseAppRole: 'Staff.Finance', 
+         createdAt: '2024-01-02T00:00:00.000Z', 
+         updatedAt: '2024-01-15T00:00:00.000Z' 
+    },
 ];
 
 const mockRoleDetail = {
