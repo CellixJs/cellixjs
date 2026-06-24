@@ -1,27 +1,28 @@
+import { ActorName } from '@cellix/serenity-framework/cucumber/actor-name';
+import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-data-table';
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
-import { OAuth2Login } from '../../../shared/support/oauth2-login.ts';
-import { waitForCommunityCreationQueueMessage } from '../../../shared/support/queue-storage.ts';
-import type { CommunityE2ENotes } from '../abilities/community-types.ts';
+import { LogInWithOAuth2 } from '../../../shared/abilities/oauth2-login.ts';
+import type { CommunityE2ENotes } from '../notes/community-notes.ts';
 import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityErrorMessage } from '../questions/community-error-message.ts';
 import { CommunityName } from '../questions/community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
+import { waitForCommunityCreationQueueMessage } from '../../../shared/support/queue-storage.ts';
 
 let lastActorName = actors.CommunityOwner.name;
 
 Given('{word} is an authenticated community owner', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	await actor.attemptsTo(OAuth2Login(actors.CommunityOwner.email));
+	await actor.attemptsTo(LogInWithOAuth2(actors.CommunityOwner.email));
 });
 
 When('{word} creates a community with:', async (actorName: string, dataTable: DataTable) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	const details = dataTable.rowsHash();
-	// biome-ignore lint/complexity/useLiteralKeys: rowsHash returns an index-signature map
+	const details = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
 	const name = details['name'] ?? '';
 
 	await actor.attemptsTo(CreateCommunity(name));
@@ -30,8 +31,7 @@ When('{word} creates a community with:', async (actorName: string, dataTable: Da
 When('{word} attempts to create a community with:', async (actorName: string, dataTable: DataTable) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	const details = dataTable.rowsHash();
-	// biome-ignore lint/complexity/useLiteralKeys: rowsHash returns an index-signature map
+	const details = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
 	const name = details['name'] ?? '';
 
 	try {
@@ -79,7 +79,7 @@ Then('a community creation queue message should be recorded', async () => {
 });
 
 Then('{word} should see a community error for {string}', async (actorName: string, fieldName: string) => {
-	const resolvedName = /^(she|he|they)$/i.test(actorName) ? lastActorName : actorName;
+	const resolvedName = ActorName.resolve(actorName, { defaultName: lastActorName });
 	const actor = actorCalled(resolvedName);
 	const errorMessage = await actor.answer(CommunityErrorMessage());
 

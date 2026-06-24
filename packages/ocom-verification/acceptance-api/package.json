@@ -18,6 +18,10 @@
 		"@serenity-js/core": "catalog:",
 		"@serenity-js/cucumber": "catalog:",
 		"@serenity-js/serenity-bdd": "catalog:",
+		"@cellix/serenity-framework": "workspace:*",
+		"graphql": "catalog:",
+		"graphql-depth-limit": "^1.1.0",
+		"graphql-middleware": "^6.1.35",
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {
@@ -25,6 +29,7 @@
 		"@cellix/service-blob-storage": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
+		"@ocom/graphql": "workspace:*",
 		"@ocom/persistence": "workspace:*",
 		"@ocom/service-apollo-server": "workspace:*",
 		"@ocom/service-blob-storage": "workspace:*",
@@ -32,6 +37,7 @@
 		"@ocom/service-queue-storage": "workspace:*",
 		"@ocom/service-token-validation": "workspace:*",
 		"@ocom-verification/verification-shared": "workspace:*",
+		"@types/graphql-depth-limit": "^1.1.6",
 		"@types/node": "catalog:",
 		"c8": "^11.0.0",
 		"rimraf": "^6.0.1",

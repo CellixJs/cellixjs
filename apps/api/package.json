@@ -10,6 +10,8 @@
 		"build": "tsgo --build && tsgo --noEmit --project tsconfig.rolldown.json && rolldown -c rolldown.config.ts",
 		"predev": "pnpm run prepare:deploy && pnpm run sync-local-settings",
 		"dev": "pnpm exec portless data-access.ownercommunity.localhost --force node start-dev.mjs",
+		"predev:worktree": "pnpm run prepare:deploy && pnpm run sync-local-settings",
+		"dev:worktree": "pnpm exec portless data-access.ownercommunity.${WORKTREE_NAME}.localhost --force node start-dev.mjs",
 		"prepare:deploy": "cellix-prepare-func-deploy",
 		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",
@@ -22,8 +24,8 @@
 		"clean": "rimraf dist deploy",
 		"prestart": "pnpm run prepare:deploy && pnpm run sync-local-settings",
 		"start": "func start --typescript --script-root deploy/",
-		"sync-local-settings": "node -e \"const fs=require('node:fs'); fs.mkdirSync('deploy',{recursive:true}); if (fs.existsSync('local.settings.json')) fs.copyFileSync('local.settings.json','deploy/local.settings.json');\"",
-		"azurite": "azurite-blob --silent --skipApiVersionCheck --location ../../__blobstorage__ & azurite-queue --silent --skipApiVersionCheck --location ../../__queuestorage__ & azurite-table --silent --location ../../__tablestorage__"
+		"sync-local-settings": "node scripts/sync-local-settings.mjs",
+		"azurite": "node start-azurite.mjs"
 	},
 	"dependencies": {
 		"@azure/functions": "catalog:",
@@ -32,8 +34,8 @@
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
 		"@ocom/event-handler": "workspace:*",
-		"@ocom/graphql-handler": "workspace:*",
 		"@ocom/graphql": "workspace:*",
+		"@ocom/graphql-handler": "workspace:*",
 		"@ocom/persistence": "workspace:*",
 		"@ocom/rest": "workspace:*",
 		"@ocom/service-apollo-server": "workspace:*",
@@ -50,6 +52,7 @@
 		"@cellix/config-vitest": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"archunit": "catalog:",
+		"azurite": "^3.35.0",
 		"rimraf": "catalog:",
 		"rolldown": "1.0.0-beta.55",
 		"typescript": "catalog:",

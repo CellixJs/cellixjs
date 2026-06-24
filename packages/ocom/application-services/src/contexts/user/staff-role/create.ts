@@ -1,7 +1,7 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
-import { applyCommunityPermissions, applyUserPermissions, applyRolePermissions, applyFinancePermissions, applyTechAdminPermissions } from './apply-permissions.ts';
 import type { StaffRoleCommandPermissions } from './apply-permissions.ts';
+import { applyCommunityPermissions, applyFinancePermissions, applyRolePermissions, applyTechAdminPermissions, applyUserPermissions } from './apply-permissions.ts';
 
 export interface StaffRoleCreateCommand {
 	roleName: string;
@@ -16,9 +16,9 @@ const ensureRoleDoesNotExist = async (repository: Domain.Contexts.User.StaffRole
 		throw new Error(`Staff role with name ${roleName} already exists`);
 	} catch (e) {
 		const error = e as Error;
-        if(error.name !== 'NotFoundError') {
-            throw error;
-        }
+		if (error.name !== 'NotFoundError') {
+			throw error;
+		}
 	}
 };
 

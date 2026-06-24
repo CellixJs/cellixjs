@@ -1,13 +1,13 @@
-import type { StaffRoleCreateCommand } from '../../../../application-services/src/contexts/user/staff-role/create.js';
-import type { StaffRoleUpdateCommand } from '../../../../application-services/src/contexts/user/staff-role/update.js';
 import type {
-	StaffRoleCommandPermissions,
 	StaffRoleCommandCommunityPermissions,
 	StaffRoleCommandFinancePermissions,
+	StaffRoleCommandPermissions,
 	StaffRoleCommandRolePermissions,
 	StaffRoleCommandTechAdminPermissions,
 	StaffRoleCommandUserPermissions,
 } from '../../../../application-services/src/contexts/user/staff-role/apply-permissions.js';
+import type { StaffRoleCreateCommand } from '../../../../application-services/src/contexts/user/staff-role/create.js';
+import type { StaffRoleUpdateCommand } from '../../../../application-services/src/contexts/user/staff-role/update.js';
 import type { MutationStaffRoleCreateArgs, MutationStaffRoleUpdateArgs } from '../builder/generated.ts';
 
 const EnterpriseAppRoleNames = {

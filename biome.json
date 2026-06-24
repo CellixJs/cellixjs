@@ -167,7 +167,7 @@
 		},
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
 		{
-			"includes": ["build-pipeline/scripts/**/*.{c|m}js"],
+			"includes": ["build-pipeline/scripts/**/*.{c|m}js", "scripts/local-dev/**/*.mjs"],
 			"linter": { "rules": { "style": { "noCommonJs": "off" } } }
 		},
 		{

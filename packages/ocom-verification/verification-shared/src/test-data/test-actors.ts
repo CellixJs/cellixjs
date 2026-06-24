@@ -1,6 +1,10 @@
-import type { ActorDetails } from '../helpers/actor-helpers.ts';
-
-export type TestActor = ActorDetails;
+export interface TestActor {
+	name: string;
+	externalId: string;
+	email: string;
+	givenName: string;
+	familyName: string;
+}
 
 const communityOwner: TestActor = {
 	name: 'CommunityOwner',

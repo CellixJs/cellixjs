@@ -2,8 +2,9 @@
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
 		"apps/api": {
-			"entry": ["src/index.ts"],
-			"project": ["src/**/*.ts"]
+			"entry": ["src/index.ts", "start-*.mjs"],
+			"project": ["src/**/*.ts", "*.mjs"],
+			"ignoreDependencies": ["azurite"]
 		},
 		"apps/ui-community": {
 			"entry": ["src/main.tsx"],
@@ -22,6 +23,11 @@
 		"packages/cellix/*": {
 			"project": ["src/**/*.ts"],
 			"ignore": ["**/graphql-tools-scalars.ts"]
+		},
+		"packages/cellix/serenity-framework": {
+			"project": ["src/**/*.ts"],
+			"ignore": ["**/graphql-tools-scalars.ts"],
+			"ignoreDependencies": ["@testing-library/react", "playwright", "react"]
 		},
 		"packages/cellix/mongoose-seedwork": {
 			"entry": ["src/index.ts"],
@@ -69,20 +75,11 @@
 			"project": ["src/**/*.{ts,cjs}"]
 		},
 		"packages/ocom-verification/verification-shared": {
-			"entry": [
-				"src/formatters/index.ts",
-				"src/helpers/index.ts",
-				"src/pages/index.ts",
-				"src/pages/adapters/jsdom-adapter.ts",
-				"src/pages/adapters/playwright-adapter.ts",
-				"src/servers/index.ts",
-				"src/settings/index.ts",
-				"src/test-data/index.ts"
-			],
+			"entry": ["src/pages/index.ts", "src/test-data/index.ts"],
 			"project": ["src/**/*.ts"]
 		},
 		"packages/ocom-verification/acceptance-api": {
-			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts"],
+			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts", "src/shared/abilities/index.ts"],
 			"project": ["src/**/*.ts"],
 			"ignoreBinaries": ["report"],
             "ignoreUnresolved": ["progress-bar"]
@@ -91,10 +88,10 @@
 			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts"],
 			"project": ["src/**/*.{ts,tsx,mjs}"],
 			"ignore": ["src/shared/support/ui/**"],
-            "ignoreUnresolved": ["progress-bar"]
+			"ignoreUnresolved": ["progress-bar"]
 		},
 		"packages/ocom-verification/e2e-tests": {
-			"entry": ["cucumber.js", "src/world.ts", "src/contexts/**/step-definitions/**/*.steps.ts", "src/shared/support/**/*.ts"],
+			"entry": ["cucumber.js", "src/world.ts", "src/contexts/**/step-definitions/**/*.steps.ts", "src/shared/environment/**/*.ts", "src/shared/abilities/**/*.ts"],
 			"project": ["src/**/*.ts"],
             "ignoreUnresolved": ["progress-bar"]
 		},
@@ -105,7 +102,21 @@
 		}
 	},
 	"ignoreWorkspaces": ["packages/cellix/config-typescript"],
-	"ignore": ["build-pipeline/scripts/**", "**/fixtures/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**", ".agents/**", ".github/**", "portless.config.cjs"],
+	"ignore": [
+		"build-pipeline/scripts/**",
+		"scripts/local-dev/**",
+		"**/fixtures/**",
+		"**/*.test.ts",
+		"**/*.spec.ts",
+		"**/*.stories.tsx",
+		"**/dist/**",
+		"**/coverage/**",
+		"**/__tests__/**",
+		"**/tests/**",
+		".agents/**",
+		".github/**",
+		"portless.config.cjs"
+	],
 	"ignoreIssues": {
 		"codegen.yml": ["unlisted"]
 	},

@@ -1,6 +1,7 @@
 {
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "tui",
+	"globalPassThroughEnv": ["WORKTREE_NAME"],
 	"futureFlags": {
 		"affectedUsingTaskInputs": true,
 		"watchUsingTaskInputs": true
@@ -104,6 +105,12 @@
 		},
 		"dev": {
 			"description": "Starts application packages dev servers in watch mode",
+			"dependsOn": ["^build"],
+			"cache": false,
+			"persistent": true
+		},
+		"dev:worktree": {
+			"description": "Starts dev servers with worktree-scoped portless hostnames for git worktree isolation",
 			"dependsOn": ["^build"],
 			"cache": false,
 			"persistent": true

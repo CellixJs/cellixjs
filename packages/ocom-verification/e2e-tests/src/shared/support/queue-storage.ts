@@ -1,10 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { getCACertificates, setDefaultCACertificates } from 'node:tls';
 import { ServiceQueueStorage, type CommunityCreationMessage } from '@ocom/service-queue-storage';
-import { getAzuriteCertPath } from './servers/test-azurite-server.ts';
 
 const communityCreationQueueName = 'community-creation';
-let azuriteCertificateTrusted = false;
 let queueStorageService: ServiceQueueStorage | undefined;
 
 type QueueMaintenanceOperations = {
@@ -17,19 +13,6 @@ function getQueueConnectionString(): string | undefined {
 	return process.env['AZURE_STORAGE_CONNECTION_STRING'];
 }
 
-function trustAzuriteCertificate(): void {
-	if (azuriteCertificateTrusted) {
-		return;
-	}
-
-	const azuriteCertificate = readFileSync(getAzuriteCertPath(), 'utf8');
-	const existingCertificates = getCACertificates();
-	if (!existingCertificates.includes(azuriteCertificate)) {
-		setDefaultCACertificates([...existingCertificates, azuriteCertificate]);
-	}
-	azuriteCertificateTrusted = true;
-}
-
 async function getQueueStorageService(): Promise<ServiceQueueStorage & QueueMaintenanceOperations> {
 	if (queueStorageService) {
 		return queueStorageService as ServiceQueueStorage & QueueMaintenanceOperations;
@@ -40,7 +23,6 @@ async function getQueueStorageService(): Promise<ServiceQueueStorage & QueueMain
 		throw new Error('AZURE_STORAGE_CONNECTION_STRING is not set for queue verification');
 	}
 
-	trustAzuriteCertificate();
 	queueStorageService = new ServiceQueueStorage({ connectionString });
 	await queueStorageService.startUp();
 	return queueStorageService as ServiceQueueStorage & QueueMaintenanceOperations;

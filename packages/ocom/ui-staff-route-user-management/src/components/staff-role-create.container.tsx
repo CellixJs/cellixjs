@@ -4,7 +4,7 @@ import { App } from 'antd';
 import type React from 'react';
 import { useContext } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { StaffRoleCreateDocument, StaffRolesForSelectDocument, StaffRolesListDocument, type StaffRolesForSelectQuery, type StaffRolesListQuery } from '../generated.tsx';
+import { StaffRoleCreateDocument, StaffRolesForSelectDocument, type StaffRolesForSelectQuery, StaffRolesListDocument, type StaffRolesListQuery } from '../generated.tsx';
 import { StaffRoleCreate, type StaffRoleFormValues } from './staff-role-create.tsx';
 
 const EnterpriseAppRoleNames = {
@@ -35,10 +35,7 @@ export const StaffRoleCreateContainer: React.FC = () => {
 	const auth = useContext(StaffAuthContext);
 	const availableEnterpriseAppRoles = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
 	const showTechAdminPermissions = auth?.permissions?.canManageTechAdmin === true;
-	const canCreateRole =
-		auth?.permissions?.canAddRole === true ||
-		auth?.permissions?.canManageStaffRolesAndPermissions === true ||
-		auth?.permissions?.canManageTechAdmin === true;
+	const canCreateRole = auth?.permissions?.canAddRole === true || auth?.permissions?.canManageStaffRolesAndPermissions === true || auth?.permissions?.canManageTechAdmin === true;
 
 	const [staffRoleCreate, { loading }] = useMutation(StaffRoleCreateDocument, {
 		update: (cache, { data }) => {
