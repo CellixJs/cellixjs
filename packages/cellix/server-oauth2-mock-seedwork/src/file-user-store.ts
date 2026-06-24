@@ -4,6 +4,37 @@ import path from 'node:path';
 import { debugLog } from './logger.ts';
 import type { MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 
+/**
+ * Creates a file-backed {@link MockOAuth2UserStore} that reads committed users from
+ * `mock-oidc.users.json` and writes newly registered users to `mock-oidc.users.local.json`
+ * inside `appDir`.
+ *
+ * **File layout:**
+ * - `mock-oidc.users.json` — committed, read-only source of truth for baseline users.
+ * - `mock-oidc.users.local.json` — writable overlay for users added at runtime via `/signup`;
+ *   safe to add to `.gitignore` to keep dev credentials out of source control.
+ *
+ * **Behavior:**
+ * - Both files are merged on every read; overlay entries are appended after committed entries.
+ * - Duplicate usernames or `sub` values between committed and overlay cause the merge to throw.
+ * - Writes are serialized with an async mutex to prevent lost updates under concurrent signups.
+ * - File contents are cached by `mtime` to avoid redundant disk reads on the request path.
+ * - The overlay file is written with mode `0o600` (owner-readable only) to protect plaintext passwords.
+ * - On startup, the store eagerly preloads both files and logs the combined user count.
+ *
+ * @param appDir - Absolute path to the application directory that owns the user store files
+ *   (typically the `ui-*` app directory, e.g. `/repo/apps/ui-community`).
+ * @returns A {@link MockOAuth2UserStore} backed by the two JSON files in `appDir`.
+ *
+ * @example
+ * ```ts
+ * import { createFileUserStore } from '@cellix/server-oauth2-mock-seedwork';
+ *
+ * const store = createFileUserStore('/repo/apps/ui-community');
+ * const users = await store.listUsers();
+ * await store.addUser({ username: 'alice', sub: 'sub-alice', password: 'secret' });
+ * ```
+ */
 export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 	const committedPath = path.join(appDir, 'mock-oidc.users.json');
 	const localPath = path.join(appDir, 'mock-oidc.users.local.json');

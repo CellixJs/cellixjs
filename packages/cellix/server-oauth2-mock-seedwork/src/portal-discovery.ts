@@ -23,15 +23,53 @@ interface MockOidcConfig {
 	claims?: Record<string, unknown>;
 }
 
-// Resolved config after reading the UI app's .env
+/**
+ * Resolved OIDC portal configuration after reading a `ui-*` application's `.env`.
+ *
+ * Returned by {@link discoverPortalConfigs} for each successfully resolved portal entry.
+ */
 export interface PortalOidcConfig {
+	/** Computed registration name: `<dir-without-ui-prefix>-<config.name>` (e.g. `community-end-user`). */
 	name: string;
+	/** The originating `ui-*` directory name (e.g. `ui-community`). */
 	dirName: string;
+	/** Resolved OAuth2 client identifier read from the app's `.env` or `process.env`. */
 	clientId: string;
+	/** Resolved OAuth2 redirect URI read from the app's `.env` or `process.env`. */
 	redirectUri: string;
+	/** Optional OIDC claims to pre-populate on the mock token (e.g. `sub`, `email`). */
 	claims?: Record<string, unknown>;
 }
 
+/**
+ * Scans `appsDir` for `ui-*` subdirectories and returns a resolved {@link PortalOidcConfig}
+ * for each valid `mock-oidc.json` entry found.
+ *
+ * For each `ui-*` directory the function:
+ * 1. Reads `mock-oidc.json` — accepts a single config object or an array of objects.
+ * 2. Merges `.env` and `.env.local` (`.env.local` takes precedence).
+ * 3. Resolves `clientId` and `redirectUri` env var names from `.env` or `process.env`
+ *    (`process.env` takes precedence to allow worktree-scoped overrides).
+ * 4. Computes a registration name as `<dir-without-ui-prefix>-<config.name>`.
+ *
+ * Invalid entries, missing env files, unresolvable vars, duplicate or unsafe registration
+ * names are skipped with a `console.warn`; all remaining entries continue to be processed.
+ * Env var names that do not follow the `VITE_APP_*` / `VITE_COMMON_*` convention produce
+ * a single warning per discovery run (not one per entry) to avoid log spam.
+ *
+ * @param appsDir - Absolute path to the directory containing `ui-*` app subdirectories.
+ * @returns Array of resolved portal configs ordered alphabetically by `ui-*` directory name.
+ *
+ * @example
+ * ```ts
+ * import { discoverPortalConfigs } from '@cellix/server-oauth2-mock-seedwork';
+ *
+ * const portals = discoverPortalConfigs('/repo/apps');
+ * for (const portal of portals) {
+ *   console.log(portal.name, portal.clientId, portal.redirectUri);
+ * }
+ * ```
+ */
 export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 	const entries = safeReadAppsDir(appsDir);
 	const portals: PortalOidcConfig[] = [];
@@ -179,7 +217,7 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 
 	const base = { name: config.name, dirName: entryName, clientId, redirectUri };
 	if (config.claims !== undefined) return { ...base, claims: config.claims };
-	return base as PortalOidcConfig;
+	return base;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

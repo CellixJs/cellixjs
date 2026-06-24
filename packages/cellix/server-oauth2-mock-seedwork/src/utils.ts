@@ -78,11 +78,28 @@ export function normalizeBaseUrl(url: string): string {
 }
 
 /**
- * Ensures a port is present in the given URL.
- * If the URL already has a port, or the port is 443, the URL is returned unchanged.
- * @param baseUrl - The base URL to add the port to.
- * @param port - The port number to add.
- * @returns The URL with the port added, or the original URL if it already has a port or port is 443.
+ * Ensures a non-standard port is present in the given URL.
+ *
+ * If the URL already carries an explicit port, or `port` is `443` (the HTTPS default),
+ * the original `baseUrl` string is returned unchanged. On URL parse failure the original
+ * value is returned as-is.
+ *
+ * @param baseUrl - The URL to inspect and potentially modify.
+ * @param port - The port number to inject when the URL has no explicit port.
+ * @returns The URL with the port set, or `baseUrl` unchanged when the port is already
+ *   present, the port equals `443`, or the URL cannot be parsed.
+ *
+ * @example
+ * ```ts
+ * ensurePortInUrl('https://mock-auth.example.localhost', 1355);
+ * // => 'https://mock-auth.example.localhost:1355/'
+ *
+ * ensurePortInUrl('https://mock-auth.example.localhost:8080', 1355);
+ * // => 'https://mock-auth.example.localhost:8080' (port already set — unchanged)
+ *
+ * ensurePortInUrl('https://secure.example.localhost', 443);
+ * // => 'https://secure.example.localhost' (443 is the HTTPS default — unchanged)
+ * ```
  */
 export function ensurePortInUrl(baseUrl: string, port: number): string {
 	try {
