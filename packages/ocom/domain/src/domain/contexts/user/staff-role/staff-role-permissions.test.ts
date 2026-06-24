@@ -6,6 +6,7 @@ import { StaffRoleCommunityPermissions } from './staff-role-community-permission
 import { StaffRoleFinancePermissions } from './staff-role-finance-permissions.ts';
 import { StaffRolePermissions } from './staff-role-permissions.ts';
 import { StaffRolePropertyPermissions } from './staff-role-property-permissions.ts';
+import type { StaffRoleRolePermissions } from './staff-role-role-permissions.ts';
 import { StaffRoleServicePermissions } from './staff-role-service-permissions.ts';
 import { StaffRoleServiceTicketPermissions } from './staff-role-service-ticket-permissions.ts';
 import { StaffRoleTechAdminPermissions } from './staff-role-tech-admin-permissions.ts';
@@ -32,6 +33,7 @@ function makeProps() {
 		financePermissions: {} as StaffRoleFinancePermissions,
 		techAdminPermissions: {} as StaffRoleTechAdminPermissions,
 		userPermissions: {} as StaffRoleUserPermissions,
+		staffRolePermissions: {} as StaffRoleRolePermissions,
 	};
 }
 

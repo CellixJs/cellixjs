@@ -1,5 +1,5 @@
 import { type AnswersQuestions, notes, Question, type UsesAbilities } from '@serenity-js/core';
-import type { CommunityNotes } from '../abilities/community-types.ts';
+import type { CommunityNotes } from '../notes/community-notes.ts';
 
 export class CommunityStatus extends Question<Promise<string>> {
 	constructor() {
