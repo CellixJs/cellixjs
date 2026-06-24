@@ -1,7 +1,7 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
-import { applyCommunityPermissions, applyUserPermissions, applyRolePermissions, applyFinancePermissions, applyTechAdminPermissions } from './apply-permissions.ts';
 import type { StaffRoleCommandPermissions } from './apply-permissions.ts';
+import { applyCommunityPermissions, applyFinancePermissions, applyRolePermissions, applyTechAdminPermissions, applyUserPermissions } from './apply-permissions.ts';
 
 export interface StaffRoleUpdateCommand {
 	roleId: string;

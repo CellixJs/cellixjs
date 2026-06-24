@@ -21,7 +21,11 @@ export interface MongoMemoryServerConfig {
 	seedDatabase?: (db: mongoose.Connection) => Promise<void>;
 }
 
-export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetConfig): Promise<{ replicaSet: MongoMemoryReplSet; disposer: MongoMemoryReplicaSetDisposer }> {
+export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetConfig): Promise<{
+	replicaSet: MongoMemoryReplSet;
+	connectionString: string;
+	disposer: MongoMemoryReplicaSetDisposer;
+}> {
 	console.log('Starting MongoDB Memory Replica Set', {
 		port: config.port,
 		dbName: config.dbName,
@@ -53,7 +57,7 @@ export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetCo
 		},
 	};
 
-	return { replicaSet, disposer };
+	return { replicaSet, connectionString: uri, disposer };
 }
 
 export async function startMockMongoDB(config: MongoMemoryServerConfig) {

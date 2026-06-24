@@ -1,8 +1,8 @@
-import { Types } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 /**
  * Generate a random MongoDB ObjectId string — useful for seeding test data.
  */
 export function generateObjectId(): string {
-	return new Types.ObjectId().toHexString();
+	return new ObjectId().toHexString();
 }

@@ -37,7 +37,7 @@ export const StaffUsersList: React.FC<StaffUsersListProps> = ({ data, onEdit, ca
 		{
 			title: 'Action',
 			key: 'action',
-			render: (_: unknown, record: StaffUser) => (
+			render: (_: unknown, record: StaffUser) =>
 				canEdit ? (
 					<Button
 						type="link"
@@ -45,8 +45,7 @@ export const StaffUsersList: React.FC<StaffUsersListProps> = ({ data, onEdit, ca
 					>
 						Edit
 					</Button>
-				) : null
-			),
+				) : null,
 		},
 	];
 

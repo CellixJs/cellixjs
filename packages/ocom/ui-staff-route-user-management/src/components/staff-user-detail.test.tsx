@@ -146,9 +146,7 @@ describe('StaffUserDetail', () => {
 		it('calls onSave when Save button is clicked', () => {
 			const onSave = vi.fn();
 			const rendered = renderComponent({ ...defaultProps, onSave, saveDisabled: false });
-			const saveButton = Array.from(rendered.querySelectorAll('button')).find((b) =>
-				b.textContent?.includes('Save'),
-			);
+			const saveButton = Array.from(rendered.querySelectorAll('button')).find((b) => b.textContent?.includes('Save'));
 			act(() => {
 				saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 			});
@@ -157,18 +155,14 @@ describe('StaffUserDetail', () => {
 
 		it('disables Save button when saveDisabled is true', () => {
 			const rendered = renderComponent({ ...defaultProps, saveDisabled: true });
-			const saveButton = Array.from(rendered.querySelectorAll('button')).find((b) =>
-				b.textContent?.includes('Save'),
-			);
+			const saveButton = Array.from(rendered.querySelectorAll('button')).find((b) => b.textContent?.includes('Save'));
 			expect(saveButton).toBeDefined();
 			expect(saveButton?.disabled).toBe(true);
 		});
 
 		it('disables Save button when canAssignRoles is false', () => {
 			const rendered = renderComponent({ ...defaultProps, canAssignRoles: false });
-			const saveButton = Array.from(rendered.querySelectorAll('button')).find((b) =>
-				b.textContent?.includes('Save'),
-			);
+			const saveButton = Array.from(rendered.querySelectorAll('button')).find((b) => b.textContent?.includes('Save'));
 			expect(saveButton?.disabled).toBe(true);
 		});
 

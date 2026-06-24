@@ -1,0 +1,155 @@
+{
+	"name": "@cellix/serenity-framework",
+	"version": "1.0.0",
+	"description": "Reusable Serenity/JS verification framework primitives for Cellix packages",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist",
+		"src/dom/css-module-types.d.ts"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./clients/graphql": {
+			"types": "./dist/clients/graphql-client.d.ts",
+			"default": "./dist/clients/graphql-client.js"
+		},
+		"./cucumber": {
+			"types": "./dist/cucumber/index.d.ts",
+			"default": "./dist/cucumber/index.js"
+		},
+		"./cucumber/actor-name": {
+			"types": "./dist/cucumber/actor-name.d.ts",
+			"default": "./dist/cucumber/actor-name.js"
+		},
+		"./cucumber/gherkin-data-table": {
+			"types": "./dist/cucumber/gherkin-data-table.d.ts",
+			"default": "./dist/cucumber/gherkin-data-table.js"
+		},
+		"./cucumber/screenshot": {
+			"types": "./dist/cucumber/screenshot-hooks.d.ts",
+			"default": "./dist/cucumber/screenshot-hooks.js"
+		},
+		"./formatters/agent": {
+			"types": "./dist/formatters/agent-formatter.d.ts",
+			"default": "./dist/formatters/agent-formatter.js"
+		},
+		"./infrastructure": {
+			"types": "./dist/infrastructure/index.d.ts",
+			"default": "./dist/infrastructure/index.js"
+		},
+		"./infrastructure/api": {
+			"types": "./dist/infrastructure/api-infrastructure.d.ts",
+			"default": "./dist/infrastructure/api-infrastructure.js"
+		},
+		"./infrastructure/e2e": {
+			"types": "./dist/infrastructure/e2e-infrastructure.d.ts",
+			"default": "./dist/infrastructure/e2e-infrastructure.js"
+		},
+		"./pages": {
+			"types": "./dist/pages/index.d.ts",
+			"default": "./dist/pages/index.js"
+		},
+		"./pages/dom": {
+			"types": "./dist/pages/adapters/dom-adapter.d.ts",
+			"default": "./dist/pages/adapters/dom-adapter.js"
+		},
+		"./pages/playwright": {
+			"types": "./dist/pages/adapters/playwright-adapter.d.ts",
+			"default": "./dist/pages/adapters/playwright-adapter.js"
+		},
+		"./dom/setup": {
+			"types": "./dist/dom/setup.d.ts",
+			"default": "./dist/dom/setup.js"
+		},
+		"./dom/register-asset-loader": {
+			"types": "./dist/dom/register-asset-loader.d.ts",
+			"default": "./dist/dom/register-asset-loader.js"
+		},
+		"./dom/asset-loader-hooks": {
+			"types": "./dist/dom/asset-loader-hooks.d.ts",
+			"default": "./dist/dom/asset-loader-hooks.js"
+		},
+		"./dom/render-in-dom": {
+			"types": "./dist/dom/render-in-dom.d.ts",
+			"default": "./dist/dom/render-in-dom.js"
+		},
+		"./dom/css-modules": {
+			"types": "./src/dom/css-module-types.d.ts",
+			"default": "./dist/dom/css-modules.js"
+		},
+		"./serenity": {
+			"types": "./dist/serenity/index.d.ts",
+			"default": "./dist/serenity/index.js"
+		},
+		"./serenity/browser": {
+			"types": "./dist/serenity/browser.d.ts",
+			"default": "./dist/serenity/browser.js"
+		},
+		"./servers": {
+			"types": "./dist/servers/index.d.ts",
+			"default": "./dist/servers/index.js"
+		},
+		"./settings": {
+			"types": "./dist/settings/index.d.ts",
+			"default": "./dist/settings/index.js"
+		}
+	},
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build",
+		"clean": "rimraf dist tsconfig.tsbuildinfo && tsgo --build --clean",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",
+		"@cucumber/cucumber": "catalog:",
+		"@cucumber/messages": "catalog:",
+		"@happy-dom/global-registrator": "^20.9.0",
+		"@serenity-js/core": "catalog:",
+		"graphql": "catalog:",
+		"graphql-depth-limit": "^1.1.0",
+		"happy-dom": "^20.9.0",
+		"mongodb": "catalog:"
+	},
+	"peerDependencies": {
+		"@testing-library/react": ">=16.0.0",
+		"playwright": ">=1.50.0",
+		"react": ">=18.0.0"
+	},
+	"peerDependenciesMeta": {
+		"@testing-library/react": {
+			"optional": true
+		},
+		"playwright": {
+			"optional": true
+		},
+		"react": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@testing-library/react": "^16.3.0",
+		"@types/graphql-depth-limit": "^1.1.0",
+		"@types/node": "catalog:",
+		"@types/react": "^19.1.8",
+		"@vitest/coverage-istanbul": "catalog:",
+		"playwright": "catalog:",
+		"react": "^19.1.0",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}
