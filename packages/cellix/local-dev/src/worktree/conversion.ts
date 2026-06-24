@@ -1,5 +1,5 @@
 import { applyWorktreeSuffix, replaceUrlPort } from '../urls/index.ts';
-import { buildAzuriteConnectionString, getAzuritePorts, getMongoPort } from './ports.ts';
+import { getAzuritePorts, getMongoPort } from './ports.ts';
 import type { SettingsRecord } from './types.ts';
 
 /**
@@ -14,18 +14,13 @@ export interface WorktreeConversionPlan {
 	/** Keys whose `mongodb://` URL value gets the worktree Mongo port. */
 	mongoKeys?: string[];
 	/**
-	 * Keys that receive a worktree-scoped Azurite connection string, built from
-	 * the same settings record's `STORAGE_ACCOUNT_NAME` and
-	 * `STORAGE_ACCOUNT_KEY` values. When either credential is missing, these keys
-	 * are left untouched.
+	 * Keys whose Azure Storage connection string value has its `BlobEndpoint`,
+	 * `QueueEndpoint`, and `TableEndpoint` ports replaced with worktree-scoped
+	 * ports. Values without explicit endpoint segments are left untouched.
 	 */
 	azuriteKeys?: string[];
 }
 
-/**
- * Suffixes a URL's hostname with the worktree label, preserving the rest of the
- * URL (path, query, and absence of a trailing slash).
- */
 function suffixUrlHostname(value: string, worktreeName: string): string {
 	try {
 		const url = new URL(value);
@@ -41,26 +36,29 @@ function suffixUrlHostname(value: string, worktreeName: string): string {
 	}
 }
 
-function buildWorktreeAzuriteConnectionString(values: SettingsRecord, worktreeName: string): string | undefined {
-	// biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
-	const accountName = String(values['STORAGE_ACCOUNT_NAME'] ?? '');
-	// biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
-	const accountKey = String(values['STORAGE_ACCOUNT_KEY'] ?? '');
-	if (!accountName || !accountKey) {
-		return undefined;
-	}
-
-	return buildAzuriteConnectionString({
-		accountName,
-		accountKey,
-		ports: getAzuritePorts(worktreeName),
-	});
+function replaceAzuriteConnectionStringPorts(value: string, worktreeName: string): string {
+	const ports = getAzuritePorts(worktreeName);
+	return value
+		.split(';')
+		.map((segment) => {
+			if (segment.startsWith('BlobEndpoint=')) {
+				return `BlobEndpoint=${replaceUrlPort(segment.slice('BlobEndpoint='.length), ports.blob)}`;
+			}
+			if (segment.startsWith('QueueEndpoint=')) {
+				return `QueueEndpoint=${replaceUrlPort(segment.slice('QueueEndpoint='.length), ports.queue)}`;
+			}
+			if (segment.startsWith('TableEndpoint=')) {
+				return `TableEndpoint=${replaceUrlPort(segment.slice('TableEndpoint='.length), ports.table)}`;
+			}
+			return segment;
+		})
+		.join(';');
 }
 
 /**
  * Returns a copy of `values` with the worktree conversion applied to exactly the
  * keys named in `plan` — URL hostnames suffixed, Mongo ports shifted, and
- * Azurite storage keys replaced with a worktree-scoped connection string.
+ * Azurite endpoint ports replaced with worktree-scoped ports.
  *
  * @param values - Settings to convert (not mutated).
  * @param worktreeName - Active worktree label.
@@ -84,12 +82,10 @@ export function convertSettingsForWorktree(values: SettingsRecord, worktreeName:
 		}
 	}
 
-	if (plan.azuriteKeys?.length) {
-		const connectionString = buildWorktreeAzuriteConnectionString(converted, worktreeName);
-		if (connectionString) {
-			for (const key of plan.azuriteKeys) {
-				converted[key] = connectionString;
-			}
+	for (const key of plan.azuriteKeys ?? []) {
+		const value = converted[key];
+		if (typeof value === 'string') {
+			converted[key] = replaceAzuriteConnectionStringPorts(value, worktreeName);
 		}
 	}
 

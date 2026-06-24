@@ -354,14 +354,14 @@ describe('@cellix/local-dev', () => {
 	});
 
 	it('converts only the named settings for a worktree, leaving the rest untouched', () => {
+		const azuriteConnectionString =
+			'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=key;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1';
 		const converted = convertSettingsForWorktree(
 			{
 				ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.localhost:1355/community',
 				COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
-				STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
-				STORAGE_ACCOUNT_KEY: 'key',
-				AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true',
-				AzureWebJobsStorage: 'UseDevelopmentStorage=true',
+				AZURE_STORAGE_CONNECTION_STRING: azuriteConnectionString,
+				AzureWebJobsStorage: azuriteConnectionString,
 				COSMOSDB_DBNAME: 'ocom',
 			},
 			'Jason/Feature 123',
@@ -374,14 +374,14 @@ describe('@cellix/local-dev', () => {
 		const typedConverted = converted as typeof converted & {
 			COSMOSDB_CONNECTION_STRING: string;
 		};
+		const ports = getAzuritePorts('Jason/Feature 123');
 
 		expect(converted).toMatchObject({
 			ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.jason-feature-123.localhost:1355/community',
-			AZURE_STORAGE_CONNECTION_STRING: expect.stringContaining('BlobEndpoint=http://127.0.0.1:'),
-			AzureWebJobsStorage: expect.stringContaining('QueueEndpoint=http://127.0.0.1:'),
+			AZURE_STORAGE_CONNECTION_STRING: expect.stringContaining(`BlobEndpoint=http://127.0.0.1:${ports.blob}/devstoreaccount1`),
+			AzureWebJobsStorage: expect.stringContaining(`QueueEndpoint=http://127.0.0.1:${ports.queue}/devstoreaccount1`),
 			// Unlisted keys are passed through untouched.
 			COSMOSDB_DBNAME: 'ocom',
-			STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
 		});
 		expect(typedConverted.COSMOSDB_CONNECTION_STRING).toBe(`mongodb://127.0.0.1:${getMongoPort('Jason/Feature 123')}/ocom`);
 	});
@@ -404,10 +404,9 @@ describe('@cellix/local-dev', () => {
 			localSettings: {
 				appDir,
 				values: {
-					STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
-					STORAGE_ACCOUNT_KEY: 'key',
 					COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
-					AzureWebJobsStorage: 'UseDevelopmentStorage=true',
+					AzureWebJobsStorage:
+						'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=key;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1',
 					ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.localhost:1355/community',
 					languageWorkers__node__arguments: '--inspect=5858',
 				},
