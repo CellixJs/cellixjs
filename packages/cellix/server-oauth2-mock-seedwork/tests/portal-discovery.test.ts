@@ -228,7 +228,7 @@ describe('discoverPortalConfigs', () => {
 		expect(warnSpy).toHaveBeenCalled();
 	});
 
-	it('skips portal when .env is missing with a warning', () => {
+	it('warns when .env is missing but still attempts to resolve env vars from process.env', () => {
 		if (!tmp) throw new Error('tmp not created');
 
 		writeJson(tmp, 'ui-missing-env/mock-oidc.json', {
@@ -238,9 +238,39 @@ describe('discoverPortalConfigs', () => {
 		});
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		// No .env file and no injected env — vars are unresolvable, portal is skipped
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(0);
 		expect(warnSpy).toHaveBeenCalled();
+	});
+
+	it('resolves portal from injected env when no .env files exist', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-envonly/mock-oidc.json', {
+			name: 'envonly',
+			envVars: { clientId: 'VITE_APP_ENVONLY_CLIENTID', redirectUri: 'VITE_APP_ENVONLY_REDIRECT' },
+			claims: { sub: 'env-sub' },
+		});
+		// No .env or .env.local — all values come from options.env (e.g. container deployment)
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			const portals = discoverPortalConfigs(tmp, {
+				env: {
+					VITE_APP_ENVONLY_CLIENTID: 'injected-client-id',
+					VITE_APP_ENVONLY_REDIRECT: 'https://env-only/callback',
+				},
+			});
+			expect(portals).toHaveLength(1);
+			expect(portals[0]?.clientId).toBe('injected-client-id');
+			expect(portals[0]?.redirectUri).toBe('https://env-only/callback');
+			// A warning is emitted because no .env files exist, but the portal is NOT skipped
+			expect(warnSpy).toHaveBeenCalled();
+			expect(warnSpy.mock.calls.some((args) => String(args[0]).includes('No .env files found'))).toBe(true);
+		} finally {
+			warnSpy.mockRestore();
+		}
 	});
 
 	it('skips portal when env var is not present in .env with a warning', () => {

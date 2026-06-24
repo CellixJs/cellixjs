@@ -24,6 +24,25 @@ interface MockOidcConfig {
 }
 
 /**
+ * Options for {@link discoverPortalConfigs}.
+ */
+export interface DiscoverPortalConfigsOptions {
+	/**
+	 * Environment variable lookup used when resolving `clientId` and `redirectUri` values.
+	 * Defaults to `process.env`. Inject a custom object in tests or container deployments
+	 * where `.env` files are absent and all configuration lives in the environment.
+	 *
+	 * @example
+	 * ```ts
+	 * discoverPortalConfigs('/apps', {
+	 *   env: { VITE_APP_COMMUNITY_B2C_CLIENTID: 'my-client', VITE_APP_COMMUNITY_B2C_REDIRECT_URI: 'https://...' },
+	 * });
+	 * ```
+	 */
+	env?: Record<string, string | undefined>;
+}
+
+/**
  * Resolved OIDC portal configuration after reading a `ui-*` application's `.env`.
  *
  * Returned by {@link discoverPortalConfigs} for each successfully resolved portal entry.
@@ -48,17 +67,21 @@ export interface PortalOidcConfig {
  * For each `ui-*` directory the function:
  * 1. Reads `mock-oidc.json` — accepts a single config object or an array of objects.
  * 2. Merges `.env` and `.env.local` (`.env.local` takes precedence).
- * 3. Resolves `clientId` and `redirectUri` env var names from `.env` or `process.env`
- *    (`process.env` takes precedence to allow worktree-scoped overrides).
+ * 3. Resolves `clientId` and `redirectUri` env var names from `.env` or the injected
+ *    `options.env` (defaults to `process.env`; injected env takes precedence to allow
+ *    worktree-scoped or test overrides).
  * 4. Computes a registration name as `<dir-without-ui-prefix>-<config.name>`.
  *
- * Invalid entries, missing env files, unresolvable vars, duplicate or unsafe registration
- * names are skipped with a `console.warn`; all remaining entries continue to be processed.
+ * Invalid entries, unresolvable vars, duplicate or unsafe registration names are skipped
+ * with a `console.warn`; all remaining entries continue to be processed. When neither
+ * `.env` nor `.env.local` exists for a `ui-*` directory, discovery still runs using
+ * `options.env` / `process.env` only (a warning is emitted but the portal is not skipped).
  * Env var names that do not follow the `VITE_APP_*` / `VITE_COMMON_*` convention produce
  * at most one warning per `discoverPortalConfigs` call across all portals, to avoid log
  * spam when multiple legacy configs are present.
  *
  * @param appsDir - Absolute path to the directory containing `ui-*` app subdirectories.
+ * @param options - Optional configuration; see {@link DiscoverPortalConfigsOptions}.
  * @returns Array of resolved portal configs ordered alphabetically by `ui-*` directory name.
  *
  * @example
@@ -71,11 +94,12 @@ export interface PortalOidcConfig {
  * }
  * ```
  */
-export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
+export function discoverPortalConfigs(appsDir: string, options?: DiscoverPortalConfigsOptions): PortalOidcConfig[] {
 	const entries = safeReadAppsDir(appsDir);
 	const portals: PortalOidcConfig[] = [];
 	const seenNames = new Set<string>();
 	const nonConformingWarnState = { fired: false };
+	const resolvedEnv: Record<string, string | undefined> = options?.env ?? process.env;
 
 	for (const entry of entries) {
 		if (!isUiAppDir(entry)) continue;
@@ -105,7 +129,7 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 				continue;
 			}
 
-			const portal = buildPortalFromConfig(config, parsedEnv, name, nonConformingWarnState);
+			const portal = buildPortalFromConfig(config, parsedEnv, name, nonConformingWarnState, resolvedEnv);
 			if (!portal) continue;
 
 			// Replace portal.name with computed registrationName
@@ -168,8 +192,8 @@ function loadAppEnv(appDir: string, entryName: string): Record<string, string> |
 	const envPath = path.join(appDir, '.env');
 	const envLocalPath = path.join(appDir, '.env.local');
 	if (!fs.existsSync(envPath) && !fs.existsSync(envLocalPath)) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: .env not found`);
-		return null;
+		console.warn(`[server-oauth2-mock] No .env files found for "${entryName}"; resolving env vars from process.env only`);
+		return {};
 	}
 
 	try {
@@ -187,7 +211,7 @@ function isLikelyViteEnvVarName(name: string): boolean {
 	return name.startsWith('VITE_APP_') || name.startsWith('VITE_COMMON_');
 }
 
-function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string, nonConformingWarnState: { fired: boolean }): PortalOidcConfig | null {
+function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string, nonConformingWarnState: { fired: boolean }, env: Record<string, string | undefined>): PortalOidcConfig | null {
 	const clientIdVar = config.envVars.clientId;
 	const redirectUriVar = config.envVars.redirectUri;
 
@@ -202,9 +226,9 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 		}
 	}
 
-	// process.env takes precedence — allows worktree-scoped overrides injected at startup
-	const clientId = process.env[clientIdVar] ?? parsedEnv[clientIdVar];
-	const redirectUri = process.env[redirectUriVar] ?? parsedEnv[redirectUriVar];
+	// Injected env takes precedence — allows worktree-scoped overrides and test injection
+	const clientId = env[clientIdVar] ?? parsedEnv[clientIdVar];
+	const redirectUri = env[redirectUriVar] ?? parsedEnv[redirectUriVar];
 
 	if (!clientId) {
 		console.warn(`[server-oauth2-mock] Skipping ${entryName}: env var ${clientIdVar} not found in .env or process.env`);
