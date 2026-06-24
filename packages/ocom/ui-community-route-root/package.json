@@ -28,6 +28,7 @@
 		"@cellix/config-vitest": "workspace:*",
 		"@ocom-verification/archunit-tests": "workspace:*",
 		"@storybook/react-vite": "catalog:",
+		"@storybook/react": "catalog:",
 		"@types/react": "^19.1.11",
 		"@types/react-dom": "^19.1.6",
 		"jsdom": "catalog:",

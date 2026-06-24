@@ -36,7 +36,10 @@ export const StaffRoleEditContainer: React.FC = () => {
 	const auth = useContext(StaffAuthContext);
 	const availableEnterpriseAppRoles = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
 	const showTechAdminPermissions = auth?.permissions?.canManageTechAdmin === true;
-	const canEditRole = auth?.permissions?.canEditRole === true || auth?.permissions?.canManageStaffRolesAndPermissions === true || auth?.permissions?.canManageTechAdmin === true;
+	const canEditRole =
+		auth?.permissions?.canEditRole === true ||
+		auth?.permissions?.canManageStaffRolesAndPermissions === true ||
+		auth?.permissions?.canManageTechAdmin === true;
 
 	const { data, loading: queryLoading } = useQuery(StaffRoleByIdDocument, {
 		variables: { id: id ?? '' },

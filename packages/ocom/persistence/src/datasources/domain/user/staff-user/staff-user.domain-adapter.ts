@@ -1,9 +1,11 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
-import type { StaffUser, StaffUserActivityDetail } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
+
 import { Domain } from '@ocom/domain';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
+import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import type { StaffUser, StaffUserActivityDetail } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 export class StaffUserDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<StaffUser> implements Domain.Contexts.User.StaffUser.StaffUserProps {
 	get role(): Domain.Contexts.User.StaffRole.StaffRoleProps {

@@ -12,6 +12,7 @@ import { StaffRoleServiceTicketPermissions } from './staff-role-service-ticket-p
 import { StaffRoleTechAdminPermissions } from './staff-role-tech-admin-permissions.ts';
 import { StaffRoleUserPermissions } from './staff-role-user-permissions.ts';
 import { StaffRoleViolationTicketPermissions } from './staff-role-violation-ticket-permissions.ts';
+import type { StaffRoleRolePermissions } from './staff-role-role-permissions.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

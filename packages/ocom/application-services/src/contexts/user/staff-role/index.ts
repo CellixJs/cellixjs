@@ -6,7 +6,7 @@ import { deleteAndReassign, type StaffRoleDeleteAndReassignCommand } from './del
 import { list } from './list.ts';
 import { queryById, type StaffRoleQueryByIdCommand } from './query-by-id.ts';
 import { queryByRoleName, type StaffRoleQueryByRoleNameCommand } from './query-by-role-name.ts';
-import { type StaffRoleUpdateCommand, update } from './update.ts';
+import { update, type StaffRoleUpdateCommand } from './update.ts';
 
 export interface StaffRoleApplicationService {
 	create: (command: StaffRoleCreateCommand) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference>;

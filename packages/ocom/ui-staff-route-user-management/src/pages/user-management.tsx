@@ -11,7 +11,12 @@ export const UserManagementPage: React.FC = () => {
 	const perms = auth?.permissions;
 	const canViewStaffUsers = perms?.canViewStaffUsers === true || perms?.canManageUsers === true || perms?.canManageStaffRolesAndPermissions === true || perms?.canManageTechAdmin === true;
 	const canViewRoles =
-		perms?.canViewRoles === true || perms?.canAddRole === true || perms?.canEditRole === true || perms?.canRemoveRole === true || perms?.canManageStaffRolesAndPermissions === true || perms?.canManageTechAdmin === true;
+		perms?.canViewRoles === true ||
+		perms?.canAddRole === true ||
+		perms?.canEditRole === true ||
+		perms?.canRemoveRole === true ||
+		perms?.canManageStaffRolesAndPermissions === true ||
+		perms?.canManageTechAdmin === true;
 
 	const pages = [
 		...(canViewStaffUsers

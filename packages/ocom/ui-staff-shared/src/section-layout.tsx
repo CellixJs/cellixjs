@@ -85,7 +85,8 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	const canEditRole = perms?.canEditRole === true;
 	const canRemoveRole = perms?.canRemoveRole === true;
 	const nestedParentProps = canManageCommunities ? { parent: 'ROOT' as const } : {};
-	const canAccessUserManagement = canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
+	const canAccessUserManagement =
+		canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
 
 	// Construct default page layouts ensuring a ROOT entry always exists so MenuComponent renders.
 	// If Communities is allowed, keep the historic behaviour: Communities is ROOT and others are its children.
