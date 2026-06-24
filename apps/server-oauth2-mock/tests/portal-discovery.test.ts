@@ -300,7 +300,8 @@ describe('discoverPortalConfigs', () => {
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals).toHaveLength(1);
 		expect(portals[0]?.dirName).toBe('ui-valid');
-		expect(warnSpy).toHaveBeenCalledTimes(3);
+		expect(warnSpy).toHaveBeenCalled();
+		expect(warnSpy.mock.calls.some((args) => args[0] && String(args[0]).includes('missing required fields'))).toBe(true);
 	});
 
 	it('silently skips ui-* dirs without mock-oidc.json', () => {

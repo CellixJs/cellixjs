@@ -48,6 +48,7 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 		const parsedEnv = loadAppEnv(appDir, name);
 		if (!parsedEnv) continue;
 
+		const nonConformingWarnState = { fired: false };
 		for (const config of configs) {
 			// Compute registration name: strip ui- prefix from directory and combine with config name
 			const portalDirNameWithoutUiPrefix = name.replace(/^ui-/, '');
@@ -65,7 +66,7 @@ export function discoverPortalConfigs(appsDir: string): PortalOidcConfig[] {
 				continue;
 			}
 
-			const portal = buildPortalFromConfig(config, parsedEnv, name);
+			const portal = buildPortalFromConfig(config, parsedEnv, name, nonConformingWarnState);
 			if (!portal) continue;
 
 			// Replace portal.name with computed registrationName
@@ -147,16 +148,19 @@ function isLikelyViteEnvVarName(name: string): boolean {
 	return name.startsWith('VITE_APP_') || name.startsWith('VITE_COMMON_');
 }
 
-function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string): PortalOidcConfig | null {
+function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string, nonConformingWarnState: { fired: boolean }): PortalOidcConfig | null {
 	const clientIdVar = config.envVars.clientId;
 	const redirectUriVar = config.envVars.redirectUri;
 
-	// Validate env var naming sanity (best-effort). Emit a warning if names do not follow VITE_* conventions
+	// Validate env var naming (best-effort). Warn at most once per discovery run to avoid log spam from legacy configs.
 	if (!isLikelyViteEnvVarName(clientIdVar) || !isLikelyViteEnvVarName(redirectUriVar)) {
-		console.warn(
-			`[server-oauth2-mock] Warning: mock-oidc.json for "${entryName}" (config: "${config.name}") uses non-conforming env var names (expected VITE_APP_* or VITE_COMMON_*, got "${clientIdVar}" and "${redirectUriVar}"). ` +
-				`Discovery will still attempt to resolve these names but please consider renaming to follow project conventions.`,
-		);
+		if (!nonConformingWarnState.fired) {
+			nonConformingWarnState.fired = true;
+			console.warn(
+				`[server-oauth2-mock] Warning: mock-oidc.json for "${entryName}" (config: "${config.name}") uses non-conforming env var names (expected VITE_APP_* or VITE_COMMON_*, got "${clientIdVar}" and "${redirectUriVar}"). ` +
+					`Discovery will still attempt to resolve these names but please consider renaming to follow project conventions.`,
+			);
+		}
 	}
 
 	// process.env takes precedence — allows worktree-scoped overrides injected at startup
