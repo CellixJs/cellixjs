@@ -16,9 +16,9 @@ const ensureRoleDoesNotExist = async (repository: Domain.Contexts.User.StaffRole
 		throw new Error(`Staff role with name ${roleName} already exists`);
 	} catch (e) {
 		const error = e as Error;
-        if(error.name !== 'NotFoundError') {
-            throw error;
-        }
+		if (error.name !== 'NotFoundError') {
+			throw error;
+		}
 	}
 };
 

@@ -29,7 +29,7 @@ export const decorators: Decorator[] = [
 		const mocks = apolloParams.mocks ?? apolloMocks;
 		const { defaultOptions } = apolloParams;
 
-		return ( 
+		return (
 			<HelmetProvider>
 				<AuthProvider {...mockOidcConfig}>
 					<ThemeProvider>

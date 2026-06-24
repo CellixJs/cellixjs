@@ -16,9 +16,9 @@ export const update = (dataSources: DataSources) => {
 
 		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (repository) => {
 			const staffRole = await repository.getById(command.roleId);
-            if(command.roleName !== undefined) {
-			    staffRole.roleName = command.roleName;
-            }
+			if (command.roleName !== undefined) {
+				staffRole.roleName = command.roleName;
+			}
 			if (command.enterpriseAppRole) {
 				staffRole.enterpriseAppRole = command.enterpriseAppRole;
 			}
