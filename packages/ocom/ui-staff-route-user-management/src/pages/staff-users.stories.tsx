@@ -27,6 +27,7 @@ const mockStaffUsers = [
 ];
 
 const mockCurrentUser = {
+    __typename: 'StaffUser',
 	id: 'admin-1',
 	displayName: 'Admin User',
 	email: 'admin@example.com',
@@ -55,6 +56,7 @@ const mockUserDetail = {
     },
 	activityLog: [
 		{
+            __typename: 'StaffUserActivityLog',
 			activityType: 'ROLE_ASSIGNED',
 			activityDescription: 'Role "Case Manager" was assigned',
 			activityByStaffUserId: 'admin-1',
@@ -62,6 +64,7 @@ const mockUserDetail = {
 			createdAt: '2024-03-15T10:00:00Z',
 		},
 		{
+            __typename: 'StaffUserActivityLog',
 			activityType: 'LOGIN',
 			activityDescription: 'User logged in',
 			activityByStaffUserId: '1',

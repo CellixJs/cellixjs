@@ -25,6 +25,7 @@ const mockStaffRoles = [
 ];
 
 const mockRoleDetail = {
+    __typename: 'StaffRole',
 	id: 'r1',
 	roleName: 'Case Manager',
 	enterpriseAppRole: 'Staff.CaseManager',

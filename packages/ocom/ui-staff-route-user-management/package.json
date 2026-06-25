@@ -32,6 +32,7 @@
 		"@types/react-dom": "^19.1.6",
 		"jsdom": "catalog:",
 		"storybook": "catalog:",
+        "@storybook/react": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
 		"typescript": "catalog:"
