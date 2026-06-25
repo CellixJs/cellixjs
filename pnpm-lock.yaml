@@ -1687,6 +1687,9 @@ importers:
       graphql:
         specifier: 'catalog:'
         version: 16.12.0
+      mongoose:
+        specifier: 'catalog:'
+        version: 8.17.0
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*
@@ -2602,9 +2605,18 @@ importers:
       '@ant-design/icons':
         specifier: 'catalog:'
         version: 6.1.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@apollo/client':
+        specifier: ^3.13.9
+        version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@cellix/ui-core':
+        specifier: workspace:*
+        version: link:../../cellix/ui-core
       '@ocom/ui-staff-shared':
         specifier: workspace:*
         version: link:../ui-staff-shared
+      antd:
+        specifier: 'catalog:'
+        version: 6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
         specifier: 'catalog:'
         version: 19.2.0
@@ -2621,6 +2633,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@types/react':
         specifier: ^19.1.11
         version: 19.2.7
@@ -15960,7 +15975,7 @@ snapshots:
       '@cucumber/gherkin-utils': 11.0.0
       '@cucumber/html-formatter': 23.0.0(@cucumber/messages@32.2.0)
       '@cucumber/junit-xml-formatter': 0.13.3(@cucumber/messages@32.2.0)
-      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.2.0)
+      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.3.1)
       '@cucumber/messages': 32.2.0
       '@cucumber/pretty-formatter': 1.0.1(@cucumber/cucumber@12.8.1)(@cucumber/messages@32.2.0)
       '@cucumber/tag-expressions': 9.1.0
@@ -15996,7 +16011,7 @@ snapshots:
   '@cucumber/gherkin-streams@6.0.0(@cucumber/gherkin@38.0.0)(@cucumber/message-streams@4.1.1(@cucumber/messages@32.2.0))(@cucumber/messages@32.2.0)':
     dependencies:
       '@cucumber/gherkin': 38.0.0
-      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.2.0)
+      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.3.1)
       '@cucumber/messages': 32.2.0
       commander: 14.0.0
       source-map-support: 0.5.21
@@ -16045,9 +16060,9 @@ snapshots:
       luxon: 3.7.2
       xmlbuilder: 15.1.1
 
-  '@cucumber/message-streams@4.1.1(@cucumber/messages@32.2.0)':
+  '@cucumber/message-streams@4.1.1(@cucumber/messages@32.3.1)':
     dependencies:
-      '@cucumber/messages': 32.2.0
+      '@cucumber/messages': 32.3.1
       mime: 3.0.0
 
   '@cucumber/messages@26.0.1':
