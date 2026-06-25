@@ -1,6 +1,5 @@
 import { SafetyOutlined, UserOutlined } from '@ant-design/icons';
-import { SubPageLayout, VerticalTabs } from '@ocom/ui-staff-shared';
-import { StaffAuthContext } from '@ocom/ui-staff-shared';
+import { StaffAuthContext, SubPageLayout, VerticalTabs } from '@ocom/ui-staff-shared';
 import type React from 'react';
 import { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
@@ -12,12 +11,7 @@ export const UserManagementPage: React.FC = () => {
 	const perms = auth?.permissions;
 	const canViewStaffUsers = perms?.canViewStaffUsers === true || perms?.canManageUsers === true || perms?.canManageStaffRolesAndPermissions === true || perms?.canManageTechAdmin === true;
 	const canViewRoles =
-		perms?.canViewRoles === true ||
-		perms?.canAddRole === true ||
-		perms?.canEditRole === true ||
-		perms?.canRemoveRole === true ||
-		perms?.canManageStaffRolesAndPermissions === true ||
-		perms?.canManageTechAdmin === true;
+		perms?.canViewRoles === true || perms?.canAddRole === true || perms?.canEditRole === true || perms?.canRemoveRole === true || perms?.canManageStaffRolesAndPermissions === true || perms?.canManageTechAdmin === true;
 
 	const pages = [
 		...(canViewStaffUsers

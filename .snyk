@@ -1,10 +1,5 @@
 version: v1.5.0
 ignore:
-  'SNYK-JS-OPENTELEMETRYCORE-17373280':
-    - '* > @opentelemetry/core':
-        reason: 'OpenTelemetry 2.x requires a coordinated runtime API migration and full E2E validation; defer to a dedicated migration PR rather than expanding this dependency-security PR.'
-        expires: '2026-09-16T00:00:00.000Z'
-        created: '2026-06-18T00:00:00.000Z'
   'SNYK-JS-SIRV-12558119':
     - '* > sirv@2.0.4':
         reason: 'Transitive dependency in Docusaurus; not exploitable in static site serving context (dev-only asset handler)'
@@ -15,11 +10,6 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; upgrade path blocked until https://github.com/jonschlinkert/gray-matter/pull/137#issuecomment-3533768351 is merged and transitive deps are updated. Not exploitable in current usage.'
         expires: '2026-07-28T00:00:00.000Z'
         created: '2025-11-17T09:06:00.000Z'
-  'SNYK-JS-JSYAML-17342520':
-    - '* > gray-matter@4.0.3 > js-yaml@3.14.2':
-        reason: 'Transitive dependency in Docusaurus front matter parsing. Forcing gray-matter@4.0.3 to js-yaml@4 breaks Docusaurus because gray-matter still calls safeLoad; accept until upstream ships a compatible release.'
-        expires: '2026-09-16T00:00:00.000Z'
-        created: '2026-06-16T00:00:00.000Z'
   'SNYK-JS-NODEFORGE-14114940':
     - '* > node-forge':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
@@ -89,17 +79,17 @@ ignore:
   'SNYK-JS-AI-16734889':
     - '@docusaurus/preset-classic@3.10.1 > * > ai@5.0.105':
         reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
-        expires: '2026-09-08T00:00:00.000Z'
+        expires: '2026-09-18T00:00:00.000Z'
         created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16734888':
     - '@docusaurus/preset-classic@3.10.1 > * > @ai-sdk/provider-utils@3.0.18':
         reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
-        expires: '2026-09-08T00:00:00.000Z'
+        expires: '2026-09-18T00:00:00.000Z'
         created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16735288':
     - '@docusaurus/preset-classic@3.10.1 > * > @ai-sdk/provider-utils@3.0.18':
         reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
-        expires: '2026-09-08T00:00:00.000Z'
+        expires: '2026-09-18T00:00:00.000Z'
         created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050':
     - '* > @opentelemetry/exporter-prometheus@0.57.2':
@@ -109,7 +99,7 @@ ignore:
   'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
     - '* > postcss-selector-parser':
         reason: 'Transitive dependency in Docusaurus CSS optimization/build tooling; Snyk reports no fixed upgrade or patch available. Not exploitable at runtime because docs CSS is repository-controlled and processed at build time.'
-        expires: '2026-09-08T00:00:00.000Z'
+        expires: '2026-09-18T00:00:00.000Z'
         created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295814':
     - '* > image-size@<=2.0.2':
@@ -121,3 +111,13 @@ ignore:
         reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
         expires: '2026-07-11T00:00:00.000Z'
         created: '2026-06-11T10:00:00.000Z'
+  'SNYK-JS-JSYAML-17342520':
+    - '* > js-yaml':
+        reason: 'Transitive in Docusaurus build tooling (gray-matter pins js-yaml@3.x; fix is in 4.2.0, a major bump blocked by gray-matter). Build-time parsing of repository-controlled input only.'
+        expires: '2026-09-18T00:00:00.000Z'
+        created: '2026-06-18T00:00:00.000Z'
+  'SNYK-JS-OPENTELEMETRYCORE-17373280':
+    - '* > @opentelemetry/core':
+        reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. Accepted temporarily while the existing OTEL 2.x migration is completed.'
+        expires: '2026-07-18T00:00:00.000Z'
+        created: '2026-06-18T00:00:00.000Z'

@@ -86,7 +86,11 @@ export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({
 			</Descriptions>
 			<div>
 				<div style={{ marginBottom: 8, fontWeight: 600 }}>Assigned Role</div>
-				<Space direction="horizontal" size="small" align="start">
+				<Space
+					direction="horizontal"
+					size="small"
+					align="start"
+				>
 					<Select
 						style={{ width: 240 }}
 						value={selectedRoleId}
@@ -114,15 +118,14 @@ export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({
 								width: 24,
 								height: 24,
 							}}
-						>
-						</div>
+						></div>
 					)}
 				</Space>
 			</div>
 			<div>
 				<Title level={5}>Activity Log</Title>
 				<Table<ActivityLogEntry>
-					dataSource={activityLog.slice().sort((a, b) => (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()))}
+					dataSource={activityLog.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())}
 					columns={activityLogColumns}
 					rowKey={(record) => `${record.activityType}-${record.createdAt}-${record.activityByStaffUserId}`}
 					pagination={{ pageSize: 10, showSizeChanger: false }}
