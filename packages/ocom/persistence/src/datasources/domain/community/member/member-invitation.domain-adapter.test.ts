@@ -121,7 +121,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	Scenario('Getting message when document message is undefined', ({ Given, When, Then }) => {
 		Given('a MemberInvitationDomainAdapter for a document with no message', () => {
 			const docWithoutMessage = makeMemberInvitationDoc();
-			delete (docWithoutMessage as unknown as Record<string, unknown>).message;
+            // biome-ignore lint:useLiteralKeys
+			delete (docWithoutMessage as unknown as Record<string, unknown>)['message'];
 			doc = docWithoutMessage;
 			adapter = new MemberInvitationDomainAdapter(doc);
 		});
@@ -187,7 +188,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('Getting invitedBy when it is a populated EndUser document', ({ Given, When, Then }) => {
 		Given('a MemberInvitationDomainAdapter for a document with a populated invitedBy EndUser', () => {
-			doc = makeMemberInvitationDoc({ invitedBy: makeEndUserDoc() as unknown as MemberInvitation['invitedBy'] });
+			doc = makeMemberInvitationDoc({ invitedBy: makeEndUserDoc() });
 			adapter = new MemberInvitationDomainAdapter(doc);
 		});
 
@@ -203,7 +204,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	Scenario('Getting invitedBy when it is an unpopulated ObjectId', ({ Given, When, Then }) => {
 		Given('a MemberInvitationDomainAdapter for a document with invitedBy as an ObjectId "507f1f77bcf86cd799439011"', () => {
 			const oid = new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439011');
-			doc = makeMemberInvitationDoc({ invitedBy: oid as unknown as MemberInvitation['invitedBy'] });
+			doc = makeMemberInvitationDoc({ invitedBy: oid });
 			adapter = new MemberInvitationDomainAdapter(doc);
 		});
 
@@ -263,7 +264,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	Scenario('Getting acceptedBy when it is an unpopulated ObjectId', ({ Given, When, Then }) => {
 		Given('a MemberInvitationDomainAdapter for a document with acceptedBy as an ObjectId "507f1f77bcf86cd799439012"', () => {
 			const oid = new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012');
-			doc = makeMemberInvitationDoc({ acceptedBy: oid as unknown as MemberInvitation['acceptedBy'] });
+			doc = makeMemberInvitationDoc({ acceptedBy: oid });
 			adapter = new MemberInvitationDomainAdapter(doc);
 		});
 
@@ -278,7 +279,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('Getting acceptedBy when it is a populated EndUser document', ({ Given, When, Then }) => {
 		Given('a MemberInvitationDomainAdapter for a document with a populated acceptedBy EndUser', () => {
-			doc = makeMemberInvitationDoc({ acceptedBy: makeEndUserDoc('507f1f77bcf86cd799439014') as unknown as MemberInvitation['acceptedBy'] });
+			doc = makeMemberInvitationDoc({ acceptedBy: makeEndUserDoc('507f1f77bcf86cd799439014') });
 			adapter = new MemberInvitationDomainAdapter(doc);
 		});
 

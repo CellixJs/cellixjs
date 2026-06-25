@@ -6,6 +6,6 @@
  * for local development and CI.
  */
 
-const { AZURE_STORAGE_ACCOUNT_NAME: accountName, AZURE_STORAGE_CONNECTION_STRING: signingConnectionString } = process.env;
+const { AZURE_STORAGE_ACCOUNT_NAME: accountName, AZURE_STORAGE_CONNECTION_STRING: connectionString } = process.env;
 
-export { accountName, signingConnectionString };
+export { accountName, connectionString };
