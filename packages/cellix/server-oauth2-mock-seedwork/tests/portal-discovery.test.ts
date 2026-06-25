@@ -394,7 +394,37 @@ describe('discoverPortalConfigs', () => {
 		expect(portal?.clientId).toBe('localonly-client-id');
 	});
 
-	it('skips portal and warns when reading .env throws', () => {
+	it('warns but does not skip portal when reading .env throws and options.env provides the vars', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-envthrow-recover/mock-oidc.json', {
+			name: 'envthrow-recover',
+			envVars: { clientId: 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID', redirectUri: 'VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI' },
+			claims: { sub: '00000000-0000-4000-8000-000000000001' },
+		});
+		// Make .env a directory so fs.readFileSync throws
+		fs.mkdirSync(path.join(tmp, 'ui-envthrow-recover', '.env'));
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+		try {
+			const portals = discoverPortalConfigs(tmp, {
+				env: {
+					VITE_APP_UI_COMMUNITY_B2C_CLIENTID: 'injected-client-id',
+					VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI: 'https://injected/cb',
+				},
+			});
+			const portal = portals.find((p) => p.dirName === 'ui-envthrow-recover');
+			expect(portal).toBeDefined();
+			expect(portal?.clientId).toBe('injected-client-id');
+			expect(portal?.redirectUri).toBe('https://injected/cb');
+			expect(warnSpy).toHaveBeenCalled();
+		} finally {
+			warnSpy.mockRestore();
+		}
+	});
+
+	it('skips portal and warns when reading .env throws and no options.env resolves the vars', () => {
 		if (!tmp) throw new Error('tmp not created');
 
 		writeJson(tmp, 'ui-envthrow/mock-oidc.json', {

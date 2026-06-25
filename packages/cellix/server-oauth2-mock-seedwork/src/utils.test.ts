@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeBaseUrl, normalizeOrigin, normalizeUrl, SAFE_NAME_RE, ensurePortInUrl } from './index.ts';
+import { ensurePortInUrl, normalizeBaseUrl, normalizeOrigin, normalizeUrl, SAFE_NAME_RE } from './index.ts';
 
 describe('normalizeUrl', () => {
 	it('trims trailing slash and sorts query params', () => {
@@ -58,11 +58,32 @@ describe('ensurePortInUrl preserves all URL components', () => {
 		expect(parsed.port).not.toBe('1355');
 	});
 
-	it('does not add port for default 443', () => {
+	it('does not add port 443 for https (protocol default)', () => {
 		const original = 'https://secure.example.local/path?x=1#h';
 		const result = ensurePortInUrl(original, 443);
 		const parsed = new URL(result);
 		expect(parsed.port).toBe('');
+	});
+
+	it('does add port 443 for http (not the http default)', () => {
+		const original = 'http://example.local/path';
+		const result = ensurePortInUrl(original, 443);
+		const parsed = new URL(result);
+		expect(parsed.port).toBe('443');
+	});
+
+	it('does not add port 80 for http (protocol default)', () => {
+		const original = 'http://example.local/path';
+		const result = ensurePortInUrl(original, 80);
+		const parsed = new URL(result);
+		expect(parsed.port).toBe('');
+	});
+
+	it('does add port 80 for https (not the https default)', () => {
+		const original = 'https://example.local/path';
+		const result = ensurePortInUrl(original, 80);
+		const parsed = new URL(result);
+		expect(parsed.port).toBe('80');
 	});
 
 	it('supports IPv6 hostnames', () => {

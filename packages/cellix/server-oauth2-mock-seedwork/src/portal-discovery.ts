@@ -3,6 +3,13 @@ import path from 'node:path';
 import * as dotenv from 'dotenv';
 import { SAFE_NAME_RE } from './utils.ts';
 
+/**
+ * Env var name prefixes that conform to the project's VITE_* naming convention.
+ * Used by {@link buildPortalFromConfig} to warn on non-conforming names and by the
+ * warning message to surface the expected prefixes without duplicating the list.
+ */
+const CONFORMING_VITE_PREFIXES = ['VITE_APP_', 'VITE_COMMON_'] as const;
+
 function readEnvFile(filePath: string): Record<string, string> {
 	try {
 		if (!fs.existsSync(filePath)) return {};
@@ -74,9 +81,10 @@ export interface PortalOidcConfig {
  *
  * Invalid entries, unresolvable vars, duplicate or unsafe registration names are skipped
  * with a `console.warn`; all remaining entries continue to be processed. When neither
- * `.env` nor `.env.local` exists for a `ui-*` directory, discovery still runs using
- * `options.env` / `process.env` only (a warning is emitted but the portal is not skipped).
- * Env var names that do not follow the `VITE_APP_*` / `VITE_COMMON_*` convention produce
+ * `.env` nor `.env.local` exists for a `ui-*` directory, or when the files cannot be
+ * read, discovery still runs using `options.env` / `process.env` only (a warning is
+ * emitted but the portal is not skipped).
+ * Env var names that do not follow the {@link CONFORMING_VITE_PREFIXES} convention produce
  * at most one warning per `discoverPortalConfigs` call across all portals, to avoid log
  * spam when multiple legacy configs are present.
  *
@@ -110,7 +118,10 @@ export function discoverPortalConfigs(appsDir: string, options?: DiscoverPortalC
 
 		const appDir = path.join(appsDir, name);
 		const parsedEnv = loadAppEnv(appDir, name);
-		if (!parsedEnv) continue;
+		// loadAppEnv returns null only on an unexpected read error (the warning is already
+		// emitted by loadAppEnv). Fall back to an empty object so that options.env /
+		// process.env (merged into resolvedEnv above) can still resolve the vars.
+		const effectiveParsedEnv = parsedEnv ?? {};
 
 		for (const config of configs) {
 			// Compute registration name: strip ui- prefix from directory and combine with config name
@@ -129,7 +140,7 @@ export function discoverPortalConfigs(appsDir: string, options?: DiscoverPortalC
 				continue;
 			}
 
-			const portal = buildPortalFromConfig(config, parsedEnv, name, nonConformingWarnedEntries, resolvedEnv);
+			const portal = buildPortalFromConfig(config, effectiveParsedEnv, name, nonConformingWarnedEntries, resolvedEnv);
 			if (!portal) continue;
 
 			// Replace portal.name with computed registrationName
@@ -208,7 +219,7 @@ function loadAppEnv(appDir: string, entryName: string): Record<string, string> |
 }
 
 function isLikelyViteEnvVarName(name: string): boolean {
-	return name.startsWith('VITE_APP_') || name.startsWith('VITE_COMMON_');
+	return CONFORMING_VITE_PREFIXES.some((prefix) => name.startsWith(prefix));
 }
 
 function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string, string>, entryName: string, warnedNonConformingEntries: Set<string>, env: Record<string, string | undefined>): PortalOidcConfig | null {
@@ -221,7 +232,7 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 		if (!warnedNonConformingEntries.has(entryName)) {
 			warnedNonConformingEntries.add(entryName);
 			console.warn(
-				`[server-oauth2-mock] Warning: mock-oidc.json for "${entryName}" (config: "${config.name}") uses non-conforming env var names (expected VITE_APP_* or VITE_COMMON_*, got "${clientIdVar}" and "${redirectUriVar}"). ` +
+				`[server-oauth2-mock] Warning: mock-oidc.json for "${entryName}" (config: "${config.name}") uses non-conforming env var names (expected ${CONFORMING_VITE_PREFIXES.map((p) => `${p}*`).join(' or ')}, got "${clientIdVar}" and "${redirectUriVar}"). ` +
 					`Discovery will still attempt to resolve these names but please consider renaming to follow project conventions.`,
 			);
 		}
