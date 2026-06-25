@@ -33,8 +33,8 @@ export const ApolloLinkToAddAuthHeader = (auth: AuthContextProps): ApolloLink =>
 		// In production, rely solely on react-oidc-context to provide the user/token.
 		if (!access_token && typeof globalThis !== 'undefined' && !import.meta.env.PROD) {
 			try {
-				const authority = import.meta.env.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY ?? '';
-				const client_id = import.meta.env.VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID ?? import.meta.env.VITE_APP_UI_COMMUNITY_B2C_CLIENTID ?? '';
+				const authority = import.meta.env.VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY ?? '';
+				const client_id = import.meta.env.VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID ?? '';
 				const storageKey = `oidc.user:${authority}:${client_id}`;
 				const raw = globalThis.sessionStorage.getItem(storageKey) ?? globalThis.localStorage.getItem(storageKey);
 				if (raw) {

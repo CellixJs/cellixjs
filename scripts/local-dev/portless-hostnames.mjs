@@ -67,8 +67,8 @@ export function getHostnames() {
 
 	const uiCommunity = hostnameFor('VITE_APP_UI_COMMUNITY_BASE_URL', uiEnv);
 	const api = hostnameFor('VITE_COMMON_API_ENDPOINT', uiEnv);
-	const mockAuth = hostnameFor('VITE_APP_UI_COMMUNITY_B2C_AUTHORITY', uiEnv);
-	const uiStaff = hostnameFor('VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI', staffEnv) ?? hostnameFor('VITE_APP_UI_STAFF_AAD_REDIRECT_URI', staffEnv);
+	const mockAuth = hostnameFor('VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY', uiEnv);
+	const uiStaff = hostnameFor('VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI', staffEnv);
 
 	if (!uiCommunity || !api || !mockAuth || !uiStaff) {
 		throw new Error('portless-hostnames: could not derive all hostnames from .env files. ' + 'Ensure apps/ui-community/.env and apps/ui-staff/.env are present.');

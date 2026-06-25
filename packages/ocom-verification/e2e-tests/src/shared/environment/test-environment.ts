@@ -14,7 +14,7 @@ export function getHostnames(): Record<OcomPortlessHostKey | 'docs', string> {
 	const hostnames = resolvePortlessHostnames({
 		keys: {
 			api: 'VITE_COMMON_API_ENDPOINT',
-			mockAuth: 'VITE_APP_UI_COMMUNITY_B2C_AUTHORITY',
+			mockAuth: 'VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY',
 			uiCommunity: 'VITE_APP_UI_COMMUNITY_BASE_URL',
 			uiStaff: 'VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI',
 		},

@@ -8,9 +8,7 @@ if (process.env.WORKTREE_NAME) {
 	const hostnames = getHostnames();
 	childEnv.BASE_URL = buildPortlessUrl(hostnames.mockAuth);
 	// Override redirect URIs so portal-discovery picks up worktree-scoped URLs.
-	childEnv.VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI = buildPortlessUrl(hostnames.uiCommunity, '/auth-redirect');
 	childEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_REDIRECT_URI = buildPortlessUrl(hostnames.uiCommunity, '/auth-redirect');
-	childEnv.VITE_APP_UI_STAFF_AAD_REDIRECT_URI = buildPortlessUrl(hostnames.uiStaff, '/auth-redirect');
 	childEnv.VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI = buildPortlessUrl(hostnames.uiStaff, '/auth-redirect');
 }
 
