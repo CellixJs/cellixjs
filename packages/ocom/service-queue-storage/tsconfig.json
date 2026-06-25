@@ -1,0 +1,12 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+		"module": "NodeNext",
+		"resolveJsonModule": true
+	},
+	"include": ["src/**/*.ts", "src/**/*.json"],
+	"references": [{ "path": "../service-blob-storage" }, { "path": "../../cellix/service-queue-storage" }]
+}

@@ -1,14 +1,13 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-
-import { CommunityConverter, CommunityDomainAdapter } from './community.domain-adapter.ts';
-import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
+import { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
+import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
+import { CommunityConverter, CommunityDomainAdapter } from './community.domain-adapter.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -175,19 +174,17 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 	});
 
 	Scenario('Getting the createdBy property when it is an ObjectId', ({ Given, When, Then }) => {
-		let gettingCreatedByWhenObjectId: () => void;
+		let createdByObjectId: MongooseSeedwork.ObjectId;
 		Given('a CommunityDomainAdapter for a document with createdBy as an ObjectId', () => {
-			doc = makeCommunityDoc({ createdBy: new MongooseSeedwork.ObjectId() });
+			createdByObjectId = new MongooseSeedwork.ObjectId();
+			doc = makeCommunityDoc({ createdBy: createdByObjectId });
 			adapter = new CommunityDomainAdapter(doc);
 		});
 		When('I get the createdBy property', () => {
-			gettingCreatedByWhenObjectId = () => {
-				result = adapter.createdBy;
-			};
+			result = adapter.createdBy;
 		});
-		Then('an error should be thrown indicating "createdBy is not populated or is not of the correct type"', () => {
-			expect(gettingCreatedByWhenObjectId).toThrow();
-			expect(gettingCreatedByWhenObjectId).throws(/createdBy is not populated or is not of the correct type/);
+		Then('it should return an EndUserEntityReference with the correct id', () => {
+			expect(result).toEqual({ id: createdByObjectId.toString() });
 		});
 	});
 
