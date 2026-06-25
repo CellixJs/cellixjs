@@ -341,7 +341,7 @@ Feature: <DomainAdapter> StaffRoleDomainAdapter
     And I get the userPermissions property
     Then the canAssignStaffRoles property should return true
 
-  Scenario: Setting canAssignStaffRoles updates both canAssignStaffRoles
+  Scenario: Setting canAssignStaffRoles updates the canAssignStaffRoles property
     Given a StaffRoleDomainAdapter for the document
     When I get the permissions property
     And I get the userPermissions property

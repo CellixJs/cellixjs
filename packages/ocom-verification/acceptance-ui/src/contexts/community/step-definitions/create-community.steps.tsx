@@ -16,10 +16,19 @@ Given('{word} is an authenticated community owner', async (actorName: string) =>
 	const actor = actorCalled(actorName);
 
 	const onSave = async (values: { name: string }): Promise<void> => {
-		await actor.attemptsTo(notes<CommunityUiNotes>().set('formSubmitted', true), notes<CommunityUiNotes>().set('communityName', values.name ?? ''));
+		await actor.attemptsTo(
+			notes<CommunityUiNotes>().set('formSubmitted', true),
+			notes<CommunityUiNotes>().set('communityName', values.name ?? ''),
+			notes<CommunityUiNotes>().set('communityCreationQueued', true),
+		);
 	};
 
-	await actor.attemptsTo(notes<CommunityUiNotes>().set('formSubmitted', false), notes<CommunityUiNotes>().set('communityName', ''), Render.component(<CommunityCreate onSave={onSave} />, { wrapper: wrapOcomComponent() }));
+	await actor.attemptsTo(
+		notes<CommunityUiNotes>().set('formSubmitted', false),
+		notes<CommunityUiNotes>().set('communityName', ''),
+		notes<CommunityUiNotes>().set('communityCreationQueued', false),
+		Render.component(<CommunityCreate onSave={onSave} />, { wrapper: wrapOcomComponent() }),
+	);
 });
 
 When('{word} creates a community with:', async (actorName: string, dataTable: DataTable) => {
@@ -43,6 +52,20 @@ Then('the community name should be {string}', async (expectedName: string) => {
 	const name = await actorInTheSpotlight().answer(CommunityName());
 	if (name !== expectedName) {
 		throw new Error(`Expected community name "${expectedName}" but got "${name}"`);
+	}
+});
+
+Then('a community creation queue message should be recorded', async () => {
+	const actor = actorInTheSpotlight();
+	const queued = await actor.answer(notes<CommunityUiNotes>().get('communityCreationQueued'));
+	const name = await actor.answer(CommunityName());
+
+	if (!queued) {
+		throw new Error('Expected community creation to delegate a queue message, but none was recorded');
+	}
+
+	if (!name) {
+		throw new Error('Expected a queued community creation message to include the community name');
 	}
 });
 

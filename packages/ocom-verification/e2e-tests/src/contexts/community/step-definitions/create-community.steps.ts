@@ -9,12 +9,14 @@ import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityErrorMessage } from '../questions/community-error-message.ts';
 import { CommunityName } from '../questions/community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
+import { clearKnownQueueMessages, waitForCommunityCreationQueueMessage } from '../../../shared/support/queue-storage.ts';
 
 let lastActorName = actors.CommunityOwner.name;
 
 Given('{word} is an authenticated community owner', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
+	await clearKnownQueueMessages();
 	await actor.attemptsTo(LogInWithOAuth2(actors.CommunityOwner.email));
 });
 
@@ -37,7 +39,7 @@ When('{word} attempts to create a community with:', async (actorName: string, da
 		await actor.attemptsTo(CreateCommunity(name));
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error);
-		await actor.attemptsTo(notes<CommunityE2ENotes>().set('errorMessage', errorMessage), notes<CommunityE2ENotes>().set('communityCreated', false));
+		await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityId', null), notes<CommunityE2ENotes>().set('errorMessage', errorMessage), notes<CommunityE2ENotes>().set('communityCreated', false));
 	}
 });
 
@@ -56,6 +58,24 @@ Then('the community name should be {string}', async (expectedName: string) => {
 
 	if (actualName !== expectedName) {
 		throw new Error(`Expected community name "${expectedName}" but got "${actualName}"`);
+	}
+});
+
+Then('a community creation queue message should be recorded', async () => {
+	const actor = actorCalled(lastActorName);
+	const communityId = await actor.answer(notes<CommunityE2ENotes>().get('communityId'));
+	const communityName = await actor.answer(notes<CommunityE2ENotes>().get('communityName'));
+	const message = await waitForCommunityCreationQueueMessage({
+		communityId,
+		name: communityName,
+	});
+
+	if (!message.communityId) {
+		throw new Error('Expected queued community creation message to include a communityId');
+	}
+
+	if (!message.createdBy) {
+		throw new Error('Expected queued community creation message to include createdBy');
 	}
 });
 

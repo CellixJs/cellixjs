@@ -38,6 +38,7 @@ CellixJS skills follow the agentskills.io directory convention:
 ├── mongodb-query-optimizer/         # Community skill for MongoDB query/index performance
 ├── mongodb-schema-design/           # Community skill for MongoDB schema modeling
 ├── turbo-graph-optimization/        # CellixJS-authored skill for Turborepo task graph optimization
+├── queue-authoring/                 # CellixJS-authored skill for queue registration packages
 └── (future skills)/                # Additional skills as needed
 
 .github/skills/                      # Symlinks for GitHub Copilot discovery
@@ -140,6 +141,19 @@ skills-lock.json                     # Upstream source + hash metadata for insta
 - [SKILL.md](madr-enforcement/SKILL.md) - Complete enforcement documentation
 - [EXAMPLES.md](madr-enforcement/EXAMPLES.md) - Code examples following ADRs
 - [All ADRs](../../apps/docs/docs/decisions/) - Source of architectural standards
+
+#### Queue Authoring
+
+**Purpose:** Keep consumer queue packages aligned with the Cellix queue framework by deriving payload types from schemas, wiring registries consistently, and documenting the add-a-queue workflow.
+
+**Use Cases:**
+- Adding a new queue to an application package such as `@ocom/service-queue-storage`
+- Refactoring queue definitions away from duplicated interfaces and schema files
+- Updating queue verification flows across acceptance and e2e suites
+- Repairing drift between queue registry keys, physical queue names, and generated method names
+
+**References:**
+- [SKILL.md](queue-authoring/SKILL.md) - Queue authoring workflow and conventions
 
 ### Turborepo Task Graph Optimization
 
