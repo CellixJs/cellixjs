@@ -9,11 +9,12 @@ const storageSuffix = worktreeName ? `-${worktreeName}` : '';
 const blobDir = `../../__blobstorage__${storageSuffix}`;
 const queueDir = `../../__queuestorage__${storageSuffix}`;
 const tableDir = `../../__tablestorage__${storageSuffix}`;
+const commonArgs = ['--silent', '--skipApiVersionCheck'];
 
 const procSpecs = [
-	['azurite-blob', ['--silent', '--blobPort', String(ports.blob), '--location', blobDir]],
-	['azurite-queue', ['--silent', '--queuePort', String(ports.queue), '--location', queueDir]],
-	['azurite-table', ['--silent', '--tablePort', String(ports.table), '--location', tableDir]],
+	['azurite-blob', [...commonArgs, '--blobPort', String(ports.blob), '--location', blobDir]],
+	['azurite-queue', [...commonArgs, '--queuePort', String(ports.queue), '--location', queueDir]],
+	['azurite-table', [...commonArgs, '--tablePort', String(ports.table), '--location', tableDir]],
 ];
 const procs = procSpecs.map(([command, args]) => {
 	const proc = spawn(command, args, { stdio: 'inherit' });

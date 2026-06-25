@@ -3,6 +3,7 @@ import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-da
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
+import { getRecordedCommunityCreationMessages, resetRecordedQueueMessages } from '../../../mock-application-services.ts';
 import type { CommunityDetails, CommunityNotes } from '../notes/community-notes.ts';
 import { CommunityName } from '../questions/community-name.ts';
 import { CommunityStatus } from '../questions/community-status.ts';
@@ -12,6 +13,7 @@ let lastActorName = actors.CommunityOwner.name;
 
 Given('{word} is an authenticated community owner', (actorName: string) => {
 	lastActorName = actorName;
+	resetRecordedQueueMessages();
 	actorCalled(actorName);
 });
 
@@ -53,6 +55,26 @@ Then('the community name should be {string}', async (expectedName: string) => {
 
 	if (actualName !== expectedName) {
 		throw new Error(`Expected community name "${expectedName}" but got "${actualName}"`);
+	}
+});
+
+Then('a community creation queue message should be recorded', async () => {
+	const actor = actorCalled(lastActorName);
+	const communityId = await actor.answer(notes<CommunityNotes>().get('lastCommunityId'));
+	const communityName = await actor.answer(notes<CommunityNotes>().get('lastCommunityName'));
+
+	const recordedMessage = getRecordedCommunityCreationMessages().find((message) => message.communityId === communityId);
+
+	if (!recordedMessage) {
+		throw new Error(`Expected a community creation queue message for community "${communityId}" but none was recorded`);
+	}
+
+	if (recordedMessage.name !== communityName) {
+		throw new Error(`Expected queued community name "${communityName}" but got "${recordedMessage.name}"`);
+	}
+
+	if (!recordedMessage.createdBy) {
+		throw new Error('Expected queued createdBy to be populated');
 	}
 });
 

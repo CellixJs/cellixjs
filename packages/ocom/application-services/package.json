@@ -29,7 +29,8 @@
 		"@ocom/context-spec": "workspace:*",
 		"@ocom/domain": "workspace:*",
 		"@ocom/persistence": "workspace:*",
-		"@ocom/service-blob-storage": "workspace:*"
+		"@ocom/service-blob-storage": "workspace:*",
+		"@ocom/service-queue-storage": "workspace:*"
 	},
 	"devDependencies": {
 		"@cellix/archunit-tests": "workspace:*",

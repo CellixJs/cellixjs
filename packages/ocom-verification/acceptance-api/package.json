@@ -34,6 +34,7 @@
 		"@ocom/service-apollo-server": "workspace:*",
 		"@ocom/service-blob-storage": "workspace:*",
 		"@ocom/service-mongoose": "workspace:*",
+		"@ocom/service-queue-storage": "workspace:*",
 		"@ocom/service-token-validation": "workspace:*",
 		"@ocom-verification/verification-shared": "workspace:*",
 		"@types/graphql-depth-limit": "^1.1.6",
