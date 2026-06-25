@@ -64,6 +64,7 @@ function loadE2EEnvDefaults(): void {
 
 	const currentDir = dirname(fileURLToPath(import.meta.url));
 	const workspaceRoot = resolve(currentDir, '../../../../../..');
+	loadApiLocalSettings(resolve(workspaceRoot, 'apps/api/local-settings.e2e.json'));
 	for (const filePath of [resolve(workspaceRoot, 'apps/ui-community/.env.e2e'), resolve(workspaceRoot, 'apps/ui-staff/.env.e2e')]) {
 		if (!existsSync(filePath)) continue;
 		for (const line of readFileSync(filePath, 'utf-8').split('\n')) {
@@ -74,6 +75,18 @@ function loadE2EEnvDefaults(): void {
 			const key = trimmed.slice(0, idx);
 			process.env[key] ??= trimmed.slice(idx + 1);
 		}
+	}
+}
+
+function loadApiLocalSettings(filePath: string): void {
+	if (!existsSync(filePath)) return;
+
+	const parsed = JSON.parse(readFileSync(filePath, 'utf-8')) as {
+		Values?: Record<string, string | boolean | number>;
+	};
+
+	for (const [key, value] of Object.entries(parsed.Values ?? {})) {
+		process.env[key] ??= String(value);
 	}
 }
 
