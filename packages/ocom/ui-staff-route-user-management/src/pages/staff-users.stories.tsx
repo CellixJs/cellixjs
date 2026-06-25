@@ -4,7 +4,7 @@ import { StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { CurrentStaffUserDocument, StaffRolesForSelectDocument, StaffUserDetailDocument, StaffUsersListDocument } from '../generated.tsx';
 import { SectionLayout } from '../section-layout.tsx';
-import { StaffUsersPage } from './staff-users.tsx';
+import { UserManagementPage } from './user-management.tsx';
 
 const mockStaffUsers = [
 	{ 
@@ -86,16 +86,16 @@ const mockAuth = {
 	},
 };
 
-const meta: Meta<typeof StaffUsersPage> = {
+const meta: Meta<typeof UserManagementPage> = {
 	title: 'Pages/Staff/User Management/Staff Users',
-	component: StaffUsersPage,
+	component: UserManagementPage,
 	parameters: {
 		layout: 'fullscreen',
 	},
 };
 
 export default meta;
-type Story = StoryObj<typeof StaffUsersPage>;
+type Story = StoryObj<typeof UserManagementPage>;
 
 export const Default: Story = {
 	parameters: {
@@ -112,8 +112,8 @@ export const Default: Story = {
 						element={<SectionLayout />}
 					>
 						<Route
-							path="staff-users/*"
-							element={<StaffUsersPage />}
+							path="*"
+							element={<UserManagementPage />}
 						/>
 					</Route>
 				</Routes>
@@ -150,8 +150,8 @@ export const StaffUserDetail: Story = {
 						element={<SectionLayout />}
 					>
 						<Route
-							path="staff-users/*"
-							element={<StaffUsersPage />}
+							path="*"
+							element={<UserManagementPage />}
 						/>
 					</Route>
 				</Routes>

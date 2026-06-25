@@ -2,9 +2,9 @@ import { MockedProvider } from '@apollo/client/testing';
 import type { Meta, StoryObj } from '@storybook/react';
 import { StaffAuthProvider } from '@ocom/ui-staff-shared';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { StaffRoleByIdDocument, StaffRoleCreateDocument, StaffRolesListDocument, StaffRoleUpdateDocument } from '../generated.tsx';
+import { StaffRoleByIdDocument, StaffRoleCreateDocument, StaffRolesListDocument, StaffRoleUpdateDocument, StaffUsersListDocument } from '../generated.tsx';
 import { SectionLayout } from '../section-layout.tsx';
-import { StaffRolesPage } from './staff-roles.tsx';
+import { UserManagementPage } from './user-management.tsx';
 
 const mockStaffRoles = [
 	{ 
@@ -70,6 +70,11 @@ const listMock = {
 	result: { data: { staffRoles: mockStaffRoles } },
 };
 
+const staffUsersListMock = {
+	request: { query: StaffUsersListDocument },
+	result: { data: { staffUsers: [] } },
+};
+
 const createMock = {
 	request: { query: StaffRoleCreateDocument, variables: { input: { roleName: 'New Role', enterpriseAppRole: '' } } },
 	result: { data: { staffRoleCreate: { status: { success: true, errorMessage: null }, staffRole: { id: 'r3', roleName: 'New Role', enterpriseAppRole: '' } } } },
@@ -95,20 +100,20 @@ const mockAuth = {
 	},
 };
 
-const meta: Meta<typeof StaffRolesPage> = {
+const meta: Meta<typeof UserManagementPage> = {
 	title: 'Pages/Staff/User Management/Staff Roles',
-	component: StaffRolesPage,
+	component: UserManagementPage,
 	parameters: {
 		layout: 'fullscreen',
 	},
 };
 
 export default meta;
-type Story = StoryObj<typeof StaffRolesPage>;
+type Story = StoryObj<typeof UserManagementPage>;
 
 export const Default: Story = {
 	parameters: {
-		apolloClient: { mocks: [listMock, createMock] },
+		apolloClient: { mocks: [listMock, staffUsersListMock, createMock] },
 	},
 	render: () => (
 		<StaffAuthProvider value={mockAuth}>
@@ -119,8 +124,8 @@ export const Default: Story = {
 						element={<SectionLayout />}
 					>
 						<Route
-							path="staff-roles/*"
-							element={<StaffRolesPage />}
+							path="*"
+							element={<UserManagementPage />}
 						/>
 					</Route>
 				</Routes>
@@ -131,7 +136,7 @@ export const Default: Story = {
 
 export const CreateView: Story = {
 	parameters: {
-		apolloClient: { mocks: [listMock, createMock] },
+		apolloClient: { mocks: [listMock, staffUsersListMock, createMock] },
 	},
 	render: () => (
 		<StaffAuthProvider value={mockAuth}>
@@ -142,8 +147,8 @@ export const CreateView: Story = {
 						element={<SectionLayout />}
 					>
 						<Route
-							path="staff-roles/*"
-							element={<StaffRolesPage />}
+							path="*"
+							element={<UserManagementPage />}
 						/>
 					</Route>
 				</Routes>
@@ -172,8 +177,8 @@ export const EditView: Story = {
 						element={<SectionLayout />}
 					>
 						<Route
-							path="staff-roles/*"
-							element={<StaffRolesPage />}
+							path="*"
+							element={<UserManagementPage />}
 						/>
 					</Route>
 				</Routes>
