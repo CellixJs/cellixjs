@@ -14,9 +14,13 @@ export const assignRole = (dataSources: DataSources) => {
 		await dataSources.domainDataSource.User.StaffUser.StaffUserUnitOfWork.withScopedTransaction(async (staffUserRepo) => {
 			const staffUser = await staffUserRepo.get(command.staffUserId);
 
-			let role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null = null;
+			let role!: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
 			await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (staffRoleRepo) => {
-				role = await staffRoleRepo.getById(command.roleId);
+				const foundRole = await staffRoleRepo.getById(command.roleId);
+				if (!foundRole) {
+					return;
+				}
+				role = foundRole;
 			});
 
 			if (!role) {
@@ -28,11 +32,14 @@ export const assignRole = (dataSources: DataSources) => {
 			try {
 				const actor = await staffUserRepo.get(command.actorStaffUserId);
 				if (actor?.displayName) actorDisplayName = actor.displayName;
-			} catch (_e) {
-				// ignore - use id fallback
+			} catch (e) {
+				const error = e as Error;
+				if (error.name !== 'NotFoundError') {
+					throw error;
+				}
 			}
-			const roleName = (role as unknown as { roleName?: string })?.roleName ?? command.roleId;
-			const description = `${roleName} assigned to ${staffUser.displayName} by ${actorDisplayName}`;
+			const roleName = role.roleName ?? command.roleId;
+			const description = `${roleName} assigned by ${actorDisplayName}`;
 			staffUser.requestRoleAssignment(role, description, command.actorStaffUserId);
 			result = await staffUserRepo.save(staffUser);
 		});

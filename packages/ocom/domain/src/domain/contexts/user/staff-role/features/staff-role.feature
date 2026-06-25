@@ -120,7 +120,6 @@ Feature: <AggregateRoot> StaffRole
     And finance canManageFinance should be false
     And techAdmin canManageTechAdmin should be false
     And user canManageUsers should be true
-    And user canAssignStaffUserRoles should be true
 
   Scenario: Creating a new default Service Line Owner role
     When I call getNewDefaultServiceLineOwnerInstance
@@ -132,7 +131,6 @@ Feature: <AggregateRoot> StaffRole
     And finance canManageFinance should be false
     And techAdmin canManageTechAdmin should be false
     And user canManageUsers should be true
-    And user canAssignStaffUserRoles should be true
 
   Scenario: Creating a new default Finance role
     When I call getNewDefaultFinanceInstance
@@ -144,7 +142,6 @@ Feature: <AggregateRoot> StaffRole
     And finance canManageFinance should be true
     And techAdmin canManageTechAdmin should be false
     And user canManageUsers should be true
-    And user canAssignStaffUserRoles should be true
 
   Scenario: Creating a new default Tech Admin role
     When I call getNewDefaultTechAdminInstance
@@ -156,4 +153,21 @@ Feature: <AggregateRoot> StaffRole
     And finance canManageFinance should be true
     And techAdmin canManageTechAdmin should be true
     And user canManageUsers should be true
-    And user canAssignStaffUserRoles should be true
+  # getDefaultRoleNames
+  Scenario: Getting default role names
+    When I call getDefaultRoleNames
+    Then the result should contain "Default.CaseManager"
+    And the result should contain "Default.ServiceLineOwner"
+    And the result should contain "Default.Finance"
+    And the result should contain "Default.TechAdmin"
+    And the result should have exactly 4 names
+
+  Scenario: Creating a default tech admin role
+    When I create a default tech admin staff role
+    Then the roleName should be "Default Tech Admin"
+    And the enterpriseAppRole should be "Staff.TechAdmin"
+    And the tech admin role should allow managing communities
+    And the tech admin role should allow managing staff roles and permissions
+    And the tech admin role should allow managing finance
+    And the tech admin role should allow managing tech admin
+    And the tech admin role should allow managing users

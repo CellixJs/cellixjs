@@ -117,3 +117,6 @@ module tableService './table-service.bicep' = if(enableTableService) {
     tables: tables
   }
 }
+
+output storageAccountName string = storageAccount.outputs.storageAccountName
+output storageAccountId string = storageAccount.outputs.storageAccountId

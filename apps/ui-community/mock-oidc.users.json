@@ -20,5 +20,16 @@
 			"family_name": "Doe",
 			"tid": "test-tenant-id"
 		}
+	},
+	{
+		"username": "owner@test.example",
+		"sub": "aaaaaaaa-bbbb-1ccc-9ddd-eeeeeeeeee01",
+		"password": "password",
+		"claims": {
+			"email": "owner@test.example",
+			"given_name": "Test",
+			"family_name": "Owner",
+			"tid": "test-tenant-id"
+		}
 	}
 ]

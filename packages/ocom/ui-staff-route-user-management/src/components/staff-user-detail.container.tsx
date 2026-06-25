@@ -130,6 +130,13 @@ export const StaffUserDetailContainer: React.FC = () => {
 			saveDisabled={saveDisabled}
 			loading={loading}
 			saveLoading={assignLoading}
+			activityLog={(user?.activityLog ?? []).map((entry) => ({
+				activityType: entry.activityType,
+				activityDescription: entry.activityDescription,
+				activityByStaffUserId: entry.activityByStaffUserId,
+				activityByStaffUserDisplayName: entry.activityByStaffUserDisplayName,
+				createdAt: String(entry.createdAt),
+			}))}
 		/>
 	);
 };

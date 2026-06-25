@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
 import { CommunitiesDropdown, type CommunitiesDropdownProps } from './communities-dropdown.tsx';

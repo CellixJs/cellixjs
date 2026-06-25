@@ -10,9 +10,10 @@ type CellixAzureFunctionsRolldownConfigOptions = {
 	appPackageName: string;
 	input?: string;
 	outputDir?: string;
-	applicationNamespaces?: string[];
-	additionalExternal?: Array<string | RegExp>;
-	suppressEvalWarningsFor?: string[];
+	applicationNamespaces?: readonly string[];
+	skipAliasNamespaces?: readonly string[];
+	additionalExternal?: readonly (string | RegExp)[];
+	suppressEvalWarningsFor?: readonly string[];
 };
 
 type ExternalDependency = {
@@ -33,15 +34,14 @@ const nodeRequire = createRequire(import.meta.url);
 const defaultBanner = `import { createRequire as __createRequire } from 'node:module';
 globalThis.require = __createRequire(import.meta.url);`;
 
-export async function createCellixAzureFunctionsRolldownConfig(
-	options: CellixAzureFunctionsRolldownConfigOptions,
-): Promise<RolldownOptions> {
+export async function createCellixAzureFunctionsRolldownConfig(options: CellixAzureFunctionsRolldownConfigOptions): Promise<RolldownOptions> {
 	const {
 		repoRoot,
 		appPackageName,
 		input = './dist/index.js',
 		outputDir = 'deploy/dist',
 		applicationNamespaces = [],
+		skipAliasNamespaces = [],
 		additionalExternal = [],
 		suppressEvalWarningsFor = ['@protobufjs/inquire/index.js'],
 	} = options;
@@ -56,6 +56,7 @@ export async function createCellixAzureFunctionsRolldownConfig(
 				repoRoot,
 				appPackageName,
 				workspaceNamespaces: ['@cellix/', ...applicationNamespaces],
+				skipAliasNamespaces,
 			}),
 		},
 		transform: { define: { __dirname: 'import.meta.dirname' } },
@@ -66,12 +67,7 @@ export async function createCellixAzureFunctionsRolldownConfig(
 			banner: defaultBanner,
 		},
 		onLog(level: LogLevel, log: RollupLog, defaultHandler: LogOrStringHandler) {
-			if (
-				level === 'warn' &&
-				log.code === 'EVAL' &&
-				typeof log.message === 'string' &&
-				suppressEvalWarningsFor.some((warning) => log.message?.includes(warning))
-			) {
+			if (level === 'warn' && log.code === 'EVAL' && typeof log.message === 'string' && suppressEvalWarningsFor.some((warning) => log.message?.includes(warning))) {
 				return;
 			}
 
@@ -80,21 +76,17 @@ export async function createCellixAzureFunctionsRolldownConfig(
 	};
 }
 
-export async function buildCjsAliasMap(options: {
-	repoRoot: string;
-	appPackageName: string;
-	workspaceNamespaces?: string[];
-}): Promise<AliasMap> {
-	const { repoRoot, appPackageName, workspaceNamespaces = ['@cellix/'] } = options;
+export async function buildCjsAliasMap(options: { repoRoot: string; appPackageName: string; workspaceNamespaces?: readonly string[]; skipAliasNamespaces?: readonly string[] }): Promise<AliasMap> {
+	const { repoRoot, appPackageName, workspaceNamespaces = ['@cellix/'], skipAliasNamespaces = [] } = options;
 	const workspacePackages = await collectWorkspacePackages(repoRoot);
-	const externalDeps = await collectExternalDeps(
-		appPackageName,
-		workspacePackages,
-		workspaceNamespaces,
-	);
+	const externalDeps = await collectExternalDeps(appPackageName, workspacePackages, workspaceNamespaces);
 	const alias: AliasMap = {};
 
 	for (const { pkg, fromDir } of externalDeps) {
+		if (skipAliasNamespaces.some((namespace) => pkg.startsWith(namespace))) {
+			continue;
+		}
+
 		if (alias[pkg]) {
 			continue;
 		}
@@ -109,15 +101,8 @@ export async function buildCjsAliasMap(options: {
 	return alias;
 }
 
-export async function prepareCellixAzureFunctionsDeploy(
-	options: PrepareCellixAzureFunctionsDeployOptions = {},
-): Promise<void> {
-	const {
-		appDir = process.cwd(),
-		deployDirName = 'deploy',
-		bundleEntryRelativePath = 'dist/index.js',
-		hostJsonFilename = 'host.json',
-	} = options;
+export async function prepareCellixAzureFunctionsDeploy(options: PrepareCellixAzureFunctionsDeployOptions = {}): Promise<void> {
+	const { appDir = process.cwd(), deployDirName = 'deploy', bundleEntryRelativePath = 'dist/index.js', hostJsonFilename = 'host.json' } = options;
 
 	const deployDir = path.join(appDir, deployDirName);
 	const bundleEntry = path.join(deployDir, bundleEntryRelativePath);
@@ -125,23 +110,15 @@ export async function prepareCellixAzureFunctionsDeploy(
 	const hostJsonPath = path.join(appDir, hostJsonFilename);
 
 	await fs.access(bundleEntry).catch(() => {
-		throw new Error(
-			`Bundled entry not found at ${bundleEntry}. Run the app build before prepare:deploy.`,
-		);
+		throw new Error(`Bundled entry not found at ${bundleEntry}. Run the app build before prepare:deploy.`);
 	});
 
 	await fs.mkdir(deployDir, { recursive: true });
 
-	await Promise.all([
-		fs.copyFile(hostJsonPath, path.join(deployDir, hostJsonFilename)),
-		writeDeployPackageJson(packageJsonPath, path.join(deployDir, 'package.json')),
-	]);
+	await Promise.all([fs.copyFile(hostJsonPath, path.join(deployDir, hostJsonFilename)), writeDeployPackageJson(packageJsonPath, path.join(deployDir, 'package.json'))]);
 }
 
-async function writeDeployPackageJson(
-	packageJsonPath: string,
-	deployPackageJsonPath: string,
-): Promise<void> {
+async function writeDeployPackageJson(packageJsonPath: string, deployPackageJsonPath: string): Promise<void> {
 	const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as {
 		name: string;
 		version: string;
@@ -154,18 +131,10 @@ async function writeDeployPackageJson(
 		main: 'dist/index.js',
 	};
 
-	await fs.writeFile(
-		deployPackageJsonPath,
-		`${JSON.stringify(deployPackageJson, null, 2)}\n`,
-	);
+	await fs.writeFile(deployPackageJsonPath, `${JSON.stringify(deployPackageJson, null, 2)}\n`);
 }
 
-async function collectExternalDeps(
-	pkgName: string,
-	workspacePackages: WorkspacePackageMap,
-	workspaceNamespaces: string[],
-	visited = new Set<string>(),
-): Promise<ExternalDependency[]> {
+async function collectExternalDeps(pkgName: string, workspacePackages: WorkspacePackageMap, workspaceNamespaces: readonly string[], visited = new Set<string>()): Promise<ExternalDependency[]> {
 	if (visited.has(pkgName)) {
 		return [];
 	}
@@ -177,24 +146,20 @@ async function collectExternalDeps(
 		throw new Error(`Workspace package not found: ${pkgName}`);
 	}
 
-	const pkgJson = JSON.parse(
-		await fs.readFile(path.join(pkgDir, 'package.json'), 'utf-8'),
-	) as {
+	const pkgJson = JSON.parse(await fs.readFile(path.join(pkgDir, 'package.json'), 'utf-8')) as {
 		dependencies?: Record<string, string>;
 		optionalDependencies?: Record<string, string>;
 	};
 
 	const deps = Object.keys({
-		...(pkgJson.dependencies),
-		...(pkgJson.optionalDependencies),
+		...pkgJson.dependencies,
+		...pkgJson.optionalDependencies,
 	});
 	const results: ExternalDependency[] = [];
 
 	for (const dep of deps) {
 		if (isWorkspacePackage(dep, workspaceNamespaces)) {
-			results.push(
-				...(await collectExternalDeps(dep, workspacePackages, workspaceNamespaces, visited)),
-			);
+			results.push(...(await collectExternalDeps(dep, workspacePackages, workspaceNamespaces, visited)));
 			continue;
 		}
 
@@ -240,6 +205,6 @@ function skipDir(name: string): boolean {
 	return ['node_modules', 'dist', 'build', 'deploy', 'coverage', '.turbo'].includes(name);
 }
 
-function isWorkspacePackage(name: string, workspaceNamespaces: string[]): boolean {
+function isWorkspacePackage(name: string, workspaceNamespaces: readonly string[]): boolean {
 	return workspaceNamespaces.some((namespace) => name.startsWith(namespace));
 }

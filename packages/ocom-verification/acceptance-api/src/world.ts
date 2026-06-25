@@ -1,31 +1,31 @@
-import { setWorldConstructor, World } from '@cucumber/cucumber';
-import { engage } from '@serenity-js/core';
-import './shared/support/hooks.ts';
-import { CellixApiCast } from './shared/support/cast.ts';
-import * as infra from './shared/support/shared-infrastructure.ts';
+import { registerManagedSerenityWorld } from '@cellix/serenity-framework/cucumber';
+import type { ApiInfrastructureState } from '@cellix/serenity-framework/infrastructure/api';
+import { SerenityCast } from '@cellix/serenity-framework/serenity';
+import { registerLifecycleHooks } from './cucumber-lifecycle-hooks.ts';
+import { infrastructure } from './infrastructure.ts';
+import { createCommunityAbility } from './shared/abilities/create-community.ts';
+import { createGraphQLClientAbility } from './shared/abilities/graphql-client.ts';
 
-export async function stopSharedServers(): Promise<void> {
-	await infra.stopAll();
-}
-
-export class CellixApiWorld extends World {
-	private apiUrl = '';
-
-	async init(): Promise<void> {
-		await infra.ensureApiServers();
-		await infra.resetMongoForScenario();
-
-		const { apiUrl } = infra.getState();
-		if (apiUrl) {
-			this.apiUrl = apiUrl;
+export const CellixApiWorld = registerManagedSerenityWorld({
+	infrastructure,
+	validateState: (state) => {
+		if (!graphqlUrl(state)) {
+			throw new Error('API acceptance infrastructure did not expose a graphqlUrl');
 		}
+	},
+	createCast: (state) =>
+		new SerenityCast({
+			useNotepad: true,
+			abilities: [() => createGraphQLClientAbility(graphqlUrl(state)), () => createCommunityAbility()],
+		}),
+});
 
-		engage(new CellixApiCast(this.apiUrl));
-	}
+export type CellixApiWorld = InstanceType<typeof CellixApiWorld>;
 
-	async cleanup(): Promise<void> {
-		// Per-scenario cleanup — extend as needed.
-	}
+registerLifecycleHooks();
+
+function graphqlUrl(state: ApiInfrastructureState): string {
+	// biome-ignore lint:useLiteralKeys - servers is an index-signature record; bracket access required by noPropertyAccessFromIndexSignature
+	const graphqlServer = state.servers['graphql'];
+	return graphqlServer?.isRunning() ? graphqlServer.getUrl() : '';
 }
-
-setWorldConstructor(CellixApiWorld);

@@ -77,6 +77,7 @@ export default defineConfig(async () =>
 - `input`: defaults to `./dist/index.js`
 - `outputDir`: defaults to `deploy/dist`
 - `additionalExternal`: extra externals to preserve in the bundle
+- `skipAliasNamespaces`: workspace namespaces that should remain bundled without alias rewriting
 - `suppressEvalWarningsFor`: warning substrings to suppress for known Rolldown ecosystem noise
 
 ## Deploy Preparation

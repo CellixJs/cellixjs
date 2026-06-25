@@ -1,8 +1,17 @@
-import { Button, Descriptions, Select, Space, Typography } from 'antd';
+import type { TableColumnsType } from 'antd';
+import { Button, Descriptions, Select, Space, Table, Tag, Typography } from 'antd';
 import type React from 'react';
 import type { StaffUser } from './staff-users-list.tsx';
 
 const { Title } = Typography;
+
+export interface ActivityLogEntry {
+	activityType: string;
+	activityDescription: string;
+	activityByStaffUserId: string;
+	activityByStaffUserDisplayName: string;
+	createdAt: string;
+}
 
 interface StaffUserDetailProps {
 	data: StaffUser;
@@ -16,9 +25,48 @@ interface StaffUserDetailProps {
 	saveDisabled?: boolean;
 	loading?: boolean;
 	saveLoading?: boolean;
+	activityLog?: ActivityLogEntry[];
 }
 
-export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({ data, availableRoles, canAssignRoles, isEditingOwnRole = false, currentRoleName, selectedRoleId, onRoleChange, onSave, saveDisabled = false, loading, saveLoading = false }) => {
+const activityLogColumns: TableColumnsType<ActivityLogEntry> = [
+	{
+		title: 'Activity Type',
+		dataIndex: 'activityType',
+		key: 'activityType',
+		render: (value: string) => <Tag>{value}</Tag>,
+	},
+	{
+		title: 'Description',
+		dataIndex: 'activityDescription',
+		key: 'activityDescription',
+	},
+	{
+		title: 'Performed By',
+		dataIndex: 'activityByStaffUserDisplayName',
+		key: 'activityByStaffUserDisplayName',
+	},
+	{
+		title: 'Date',
+		dataIndex: 'createdAt',
+		key: 'createdAt',
+		render: (value: string) => (value ? new Date(value).toLocaleString() : 'N/A'),
+	},
+];
+
+export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({
+	data,
+	availableRoles,
+	canAssignRoles,
+	isEditingOwnRole = false,
+	currentRoleName,
+	selectedRoleId,
+	onRoleChange,
+	onSave,
+	saveDisabled = false,
+	loading,
+	saveLoading = false,
+	activityLog = [],
+}) => {
 	return (
 		<Space
 			direction="vertical"
@@ -38,7 +86,11 @@ export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({ data, availabl
 			</Descriptions>
 			<div>
 				<div style={{ marginBottom: 8, fontWeight: 600 }}>Assigned Role</div>
-				<Space direction="horizontal" size="small" align="start">
+				<Space
+					direction="horizontal"
+					size="small"
+					align="start"
+				>
 					<Select
 						style={{ width: 240 }}
 						value={selectedRoleId}
@@ -66,10 +118,20 @@ export const StaffUserDetail: React.FC<StaffUserDetailProps> = ({ data, availabl
 								width: 24,
 								height: 24,
 							}}
-						>
-						</div>
+						></div>
 					)}
 				</Space>
+			</div>
+			<div>
+				<Title level={5}>Activity Log</Title>
+				<Table<ActivityLogEntry>
+					dataSource={activityLog.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())}
+					columns={activityLogColumns}
+					rowKey={(record) => `${record.activityType}-${record.createdAt}-${record.activityByStaffUserId}`}
+					pagination={{ pageSize: 10, showSizeChanger: false }}
+					locale={{ emptyText: 'No activity recorded' }}
+					size="small"
+				/>
 			</div>
 		</Space>
 	);

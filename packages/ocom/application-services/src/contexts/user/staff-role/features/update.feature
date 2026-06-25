@@ -39,11 +39,6 @@ Feature: Update staff role
     When I call update with all community permissions true
     Then all community permissions should be true on the updated instance
 
-  Scenario: Successfully updates a staff role with canAssignStaffUserRoles set
-    Given a staff role with id "role-assign" exists in the repository
-    When I call update with user permissions canAssignStaffUserRoles true
-    Then the user permission canAssignStaffUserRoles should be true
-
   Scenario: Omitting community permissions sub-object leaves community permissions unchanged
     Given a staff role with id "role-noc" exists in the repository
     When I call update with only user permissions

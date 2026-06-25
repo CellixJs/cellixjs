@@ -14,10 +14,7 @@ const feature = await loadFeature(path.resolve(__dirname, 'features/staff-user.u
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function makeStaffUser(
-	externalId = 'ext-1',
-	canManageStaffRolesAndPermissions = true,
-): StaffUserEntityReference {
+function makeStaffUser(externalId = 'ext-1', canManageStaffRolesAndPermissions = true): StaffUserEntityReference {
 	return {
 		id: 'staff-1',
 		externalId,

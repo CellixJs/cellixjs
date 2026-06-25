@@ -13,6 +13,26 @@ Feature: <DomainAdapter> StaffRoleDomainAdapter
     When I set the roleName property to "Supervisor"
     Then the document's roleName should be "Supervisor"
 
+  Scenario: Setting the roleName updates the enterpriseAppRole
+    Given a StaffRoleDomainAdapter for the document
+    When I set the roleName property to "Supervisor"
+    Then the document's enterpriseAppRole should be "Supervisor"
+
+  Scenario: Getting the enterpriseAppRole property
+    Given a StaffRoleDomainAdapter for the document with enterpriseAppRole "Staff.Manager"
+    When I get the enterpriseAppRole property
+    Then it should return "Staff.Manager"
+
+  Scenario: Getting the enterpriseAppRole property when missing
+    Given a StaffRoleDomainAdapter for the document with no enterpriseAppRole
+    When I get the enterpriseAppRole property
+    Then it should return ""
+
+  Scenario: Setting the enterpriseAppRole property
+    Given a StaffRoleDomainAdapter for the document
+    When I set the enterpriseAppRole property to "Staff.Supervisor"
+    Then the document's enterpriseAppRole should be "Staff.Supervisor"
+
   Scenario: Getting the isDefault property
     Given a StaffRoleDomainAdapter for the document
     When I get the isDefault property
@@ -315,29 +335,18 @@ Feature: <DomainAdapter> StaffRoleDomainAdapter
     When I set the roleName property to "Director"
     Then the document's enterpriseAppRole should also be "Director"
 
-  # ─── canAssignStaffUserRoles ─────────────────────────────────────────────────
-
-  Scenario: Getting and setting canAssignStaffUserRoles from userPermissions
-    Given a StaffRoleDomainAdapter for the document
-    When I get the permissions property
-    And I get the userPermissions property
-    Then the canAssignStaffUserRoles property should return false
-    When I set the canAssignStaffUserRoles property to true
-    Then the userPermissions' canAssignStaffUserRoles should be true
-
-  Scenario: canAssignStaffRoles getter falls back to canAssignStaffUserRoles when unset
-    Given a StaffRoleDomainAdapter wrapping a document with userPermissions having only canAssignStaffUserRoles true
+  Scenario: canAssignStaffRoles getter falls back to canAssignStaffRoles when unset
+    Given a StaffRoleDomainAdapter wrapping a document with userPermissions having only canAssignStaffRoles true
     When I get the permissions property
     And I get the userPermissions property
     Then the canAssignStaffRoles property should return true
 
-  Scenario: Setting canAssignStaffRoles updates both canAssignStaffRoles and canAssignStaffUserRoles
+  Scenario: Setting canAssignStaffRoles updates both canAssignStaffRoles
     Given a StaffRoleDomainAdapter for the document
     When I get the permissions property
     And I get the userPermissions property
     When I set the canAssignStaffRoles property to true
     Then the userPermissions' canAssignStaffRoles should be true
-    And the userPermissions' canAssignStaffUserRoles should be true
 
   # ─── violationTicketPermissions setters ──────────────────────────────────────
 

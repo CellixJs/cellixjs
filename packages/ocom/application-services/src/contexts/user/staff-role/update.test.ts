@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { update, type StaffRoleUpdateCommand } from './update.ts';
+import { type StaffRoleUpdateCommand, update } from './update.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -40,7 +40,6 @@ function makeMockStaffRoleInstance(id: string, roleName = 'Original Role'): Mock
 	};
 	const userPermissions: Record<string, boolean> = {
 		canManageUsers: false,
-		canAssignStaffUserRoles: false,
 	};
 	return {
 		id,
@@ -55,10 +54,7 @@ function makeMockStaffRoleInstance(id: string, roleName = 'Original Role'): Mock
 	};
 }
 
-function makeDataSources(overrides: {
-	roleInstance?: MockStaffRoleInstance;
-	explicitUndefinedSave?: boolean;
-}): DataSources & { _repo: unknown } {
+function makeDataSources(overrides: { roleInstance?: MockStaffRoleInstance; explicitUndefinedSave?: boolean }): DataSources & { _repo: unknown } {
 	const { roleInstance, explicitUndefinedSave } = overrides;
 	const instance = roleInstance ?? makeMockStaffRoleInstance('role-001');
 	const savedRole = explicitUndefinedSave ? undefined : (instance as unknown as Domain.Contexts.User.StaffRole.StaffRoleEntityReference);
@@ -180,7 +176,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the community permission canManageCommunities should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.communityPermissions['canManageCommunities']).toBe(true);
+			expect(roleInstance.permissions.communityPermissions.canManageCommunities).toBe(true);
 		});
 	});
 
@@ -212,7 +208,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the user permission canManageUsers should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions['canManageUsers']).toBe(true);
+			expect(roleInstance.permissions.userPermissions.canManageUsers).toBe(true);
 		});
 	});
 
@@ -297,37 +293,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('all community permissions should be true on the updated instance', () => {
 			expect(thrownError).toBeUndefined();
 			const cp = roleInstance.permissions.communityPermissions;
-			expect(cp['canManageCommunities']).toBe(true);
-			expect(cp['canManageStaffRolesAndPermissions']).toBe(true);
-			expect(cp['canManageAllCommunities']).toBe(true);
-			expect(cp['canDeleteCommunities']).toBe(true);
-			expect(cp['canChangeCommunityOwner']).toBe(true);
-			expect(cp['canReIndexSearchCollections']).toBe(true);
-		});
-	});
-
-	// ─── canAssignStaffUserRoles ──────────────────────────────────────────────
-
-	Scenario('Successfully updates a staff role with canAssignStaffUserRoles set', ({ Given, When, Then }) => {
-		Given('a staff role with id "role-assign" exists in the repository', () => {
-			roleInstance = makeMockStaffRoleInstance('role-assign');
-			dataSources = makeDataSources({ roleInstance });
-			command = {
-				roleId: 'role-assign',
-				roleName: 'Assign Role',
-				permissions: { user: { canAssignStaffUserRoles: true } },
-			};
-		});
-		When('I call update with user permissions canAssignStaffUserRoles true', async () => {
-			try {
-				result = await update(dataSources)(command);
-			} catch (e) {
-				thrownError = e;
-			}
-		});
-		Then('the user permission canAssignStaffUserRoles should be true', () => {
-			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions['canAssignStaffUserRoles']).toBe(true);
+			expect(cp.canManageCommunities).toBe(true);
+			expect(cp.canManageStaffRolesAndPermissions).toBe(true);
+			expect(cp.canManageAllCommunities).toBe(true);
+			expect(cp.canDeleteCommunities).toBe(true);
+			expect(cp.canChangeCommunityOwner).toBe(true);
+			expect(cp.canReIndexSearchCollections).toBe(true);
 		});
 	});
 

@@ -10,12 +10,13 @@ interface SectionLayoutContainerProps {
 }
 
 export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (props) => {
-	const { data: staffUserData, loading: staffUserLoading, error: staffUserError } = useQuery(
-		SectionLayoutHeaderCurrentStaffUserDocument,
-		{
-			fetchPolicy: 'cache-first',
-		},
-	);
+	const {
+		data: staffUserData,
+		loading: staffUserLoading,
+		error: staffUserError,
+	} = useQuery(SectionLayoutHeaderCurrentStaffUserDocument, {
+		fetchPolicy: 'cache-first',
+	});
 
 	const displayName = staffUserData?.currentStaffUserAndCreateIfNotExists?.displayName;
 
@@ -47,4 +48,3 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 		/>
 	);
 };
-

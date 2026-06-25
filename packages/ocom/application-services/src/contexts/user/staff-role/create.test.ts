@@ -47,7 +47,6 @@ function makeMockStaffRoleInstance(roleName: string): MockStaffRoleInstance {
 	};
 	const userPermissions: Record<string, boolean> = {
 		canManageUsers: false,
-		canAssignStaffUserRoles: false,
 		canAssignStaffRoles: false,
 		canViewStaffUsers: false,
 	};
@@ -240,7 +239,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the community permission canManageCommunities should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.communityPermissions['canManageCommunities']).toBe(true);
+			expect(roleInstance.permissions.communityPermissions.canManageCommunities).toBe(true);
 		});
 	});
 
@@ -271,7 +270,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the user permission canManageUsers should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions['canManageUsers']).toBe(true);
+			expect(roleInstance.permissions.userPermissions.canManageUsers).toBe(true);
 		});
 	});
 
@@ -438,36 +437,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('all community permissions should be true on the saved instance', () => {
 			expect(thrownError).toBeUndefined();
 			const cp = roleInstance.permissions.communityPermissions;
-			expect(cp['canManageCommunities']).toBe(true);
-			expect(cp['canManageStaffRolesAndPermissions']).toBe(true);
-			expect(cp['canManageAllCommunities']).toBe(true);
-			expect(cp['canDeleteCommunities']).toBe(true);
-			expect(cp['canChangeCommunityOwner']).toBe(true);
-			expect(cp['canReIndexSearchCollections']).toBe(true);
-		});
-	});
-
-	// ─── canAssignStaffUserRoles ──────────────────────────────────────────────
-
-	Scenario('Successfully creates a staff role with canAssignStaffUserRoles set', ({ Given, When, Then }) => {
-		Given('a staff role with name "Assign Role" does not exist in the repository', () => {
-			roleInstance = makeMockStaffRoleInstance('Assign Role');
-			dataSources = makeDataSources({ newRoleInstance: roleInstance });
-			command = {
-				roleName: 'Assign Role',
-				permissions: { user: { canAssignStaffUserRoles: true } } satisfies StaffRoleCreateCommandPermissions,
-			};
-		});
-		When('I call create with roleName "Assign Role" and user permissions canAssignStaffUserRoles true', async () => {
-			try {
-				result = await create(dataSources)(command);
-			} catch (e) {
-				thrownError = e;
-			}
-		});
-		Then('the user permission canAssignStaffUserRoles should be true', () => {
-			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions['canAssignStaffUserRoles']).toBe(true);
+			expect(cp.canManageCommunities).toBe(true);
+			expect(cp.canManageStaffRolesAndPermissions).toBe(true);
+			expect(cp.canManageAllCommunities).toBe(true);
+			expect(cp.canDeleteCommunities).toBe(true);
+			expect(cp.canChangeCommunityOwner).toBe(true);
+			expect(cp.canReIndexSearchCollections).toBe(true);
 		});
 	});
 
@@ -568,10 +543,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			const sp = roleInstance.permissions.staffRolePermissions;
 			expect(sp).toBeDefined();
 			// The create pipeline applies into staffRolePermissions adapter; check known keys
-			expect(sp?.['canViewRoles']).toBe(true);
-			expect(sp?.['canAddRole']).toBe(true);
-			expect(sp?.['canEditRole']).toBe(true);
-			expect(sp?.['canRemoveRole']).toBe(true);
+			expect(sp?.canViewRoles).toBe(true);
+			expect(sp?.canAddRole).toBe(true);
+			expect(sp?.canEditRole).toBe(true);
+			expect(sp?.canRemoveRole).toBe(true);
 		});
 	});
 
@@ -592,7 +567,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(thrownError).toBeUndefined();
 			const fp = roleInstance.permissions.financePermissions;
 			expect(fp).toBeDefined();
-			expect(fp?.['canManageFinance']).toBe(true);
+			expect(fp?.canManageFinance).toBe(true);
 		});
 	});
 
@@ -613,7 +588,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(thrownError).toBeUndefined();
 			const tp = roleInstance.permissions.techAdminPermissions;
 			expect(tp).toBeDefined();
-			expect(tp?.['canManageTechAdmin']).toBe(true);
+			expect(tp?.canManageTechAdmin).toBe(true);
 		});
 	});
 
@@ -632,8 +607,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		Then('both user permission flags for assigning staff roles should be true', () => {
 			expect(thrownError).toBeUndefined();
-			expect(roleInstance.permissions.userPermissions['canAssignStaffRoles']).toBe(true);
-			expect(roleInstance.permissions.userPermissions['canAssignStaffUserRoles']).toBe(true);
+			expect(roleInstance.permissions.userPermissions.canAssignStaffRoles).toBe(true);
 		});
 	});
 });

@@ -421,9 +421,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('user canManageUsers should be true', () => {
 			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
 		});
-		And('user canAssignStaffUserRoles should be true', () => {
-			expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
-		});
 	});
 
 	Scenario('Creating a new default Service Line Owner role', ({ When, Then, And }) => {
@@ -454,9 +451,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('user canManageUsers should be true', () => {
 			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
-		});
-		And('user canAssignStaffUserRoles should be true', () => {
-			expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 
@@ -489,9 +483,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('user canManageUsers should be true', () => {
 			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
 		});
-		And('user canAssignStaffUserRoles should be true', () => {
-			expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
-		});
 	});
 
 	Scenario('Creating a new default Tech Admin role', ({ When, Then, And }) => {
@@ -522,9 +513,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('user canManageUsers should be true', () => {
 			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
-		});
-		And('user canAssignStaffUserRoles should be true', () => {
-			expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 });

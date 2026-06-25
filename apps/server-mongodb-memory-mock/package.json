@@ -11,11 +11,15 @@
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"start": "node dist/index.js",
-		"dev": "tsx src/index.ts"
+		"dev": "tsx src/index.ts",
+		"dev:worktree": "node start-mongo.mjs"
 	},
 	"dependencies": {
 		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",
-		"dotenv": "^16.4.5"
+		"@ocom/data-sources-mongoose-models": "workspace:*",
+		"dotenv": "^16.4.5",
+		"mongodb": "catalog:",
+		"mongoose": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",

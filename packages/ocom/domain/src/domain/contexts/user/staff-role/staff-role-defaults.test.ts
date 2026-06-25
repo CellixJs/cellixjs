@@ -78,7 +78,6 @@ test('applyDefaultSpec sets CaseManager permissions correctly and marks default'
 	expect(role.permissions.financePermissions.canManageFinance).toBe(false);
 	expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
 	expect(role.permissions.userPermissions.canManageUsers).toBe(true);
-	expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 	expect(role.isDefault).toBe(true);
 });
 
@@ -91,7 +90,6 @@ test('applyDefaultSpec sets Finance permissions correctly and marks default', ()
 	expect(role.permissions.financePermissions.canManageFinance).toBe(true);
 	expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
 	expect(role.permissions.userPermissions.canManageUsers).toBe(true);
-	expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 	expect(role.isDefault).toBe(true);
 });
 
@@ -104,7 +102,6 @@ test('applyDefaultSpec sets ServiceLineOwner permissions correctly and marks def
 	expect(role.permissions.financePermissions.canManageFinance).toBe(false);
 	expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
 	expect(role.permissions.userPermissions.canManageUsers).toBe(true);
-	expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 	expect(role.isDefault).toBe(true);
 });
 
@@ -118,6 +115,5 @@ test('applyDefaultSpec sets TechAdmin permissions correctly and marks default', 
 	expect(role.permissions.financePermissions.canManageFinance).toBe(true);
 	expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
 	expect(role.permissions.userPermissions.canManageUsers).toBe(true);
-	expect(role.permissions.userPermissions.canAssignStaffUserRoles).toBe(true);
 	expect(role.isDefault).toBe(true);
 });

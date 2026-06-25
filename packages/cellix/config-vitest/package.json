@@ -15,8 +15,8 @@
 	},
 	"dependencies": {
 		"@cellix/config-typescript": "workspace:*",
-		"@storybook/addon-vitest": "^9.1.20",
-		"@vitest/browser-playwright": "^4.1.2",
+		"@storybook/addon-vitest": "catalog:",
+		"@vitest/browser-playwright": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
 	}

@@ -21,7 +21,6 @@ const CURRENT_STAFF_USER_QUERY = gql`
 					userPermissions {
 						canManageUsers
 						canAssignStaffRoles
-						canAssignStaffUserRoles
 						canViewStaffUsers
 					}
 					staffRolePermissions {
@@ -72,7 +71,7 @@ interface StaffUserQueryResult {
 			enterpriseAppRole: string;
 			permissions: {
 				communityPermissions: { canManageCommunities: boolean; canManageStaffRolesAndPermissions: boolean };
-				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canAssignStaffUserRoles: boolean; canViewStaffUsers: boolean };
+				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canViewStaffUsers: boolean };
 				staffRolePermissions: { canViewRoles: boolean; canAddRole: boolean; canEditRole: boolean; canRemoveRole: boolean };
 				financePermissions: { canManageFinance: boolean };
 				techAdminPermissions: { canManageTechAdmin: boolean; canViewDatabaseDocuments: boolean };
@@ -81,7 +80,13 @@ interface StaffUserQueryResult {
 	};
 }
 
-export const useStaffPermissions = (): { permissions: StaffPermissions | undefined; enterpriseAppRole: string | undefined; user: { id?: string; displayName?: string; firstName?: string; lastName?: string; email?: string } | undefined; loading: boolean; error: Error | undefined } => {
+export const useStaffPermissions = (): {
+	permissions: StaffPermissions | undefined;
+	enterpriseAppRole: string | undefined;
+	user: { id?: string; displayName?: string; firstName?: string; lastName?: string; email?: string } | undefined;
+	loading: boolean;
+	error: Error | undefined;
+} => {
 	const { data, loading, error } = useQuery<StaffUserQueryResult>(CURRENT_STAFF_USER_QUERY, {
 		fetchPolicy: 'cache-first',
 	});
@@ -97,11 +102,11 @@ export const useStaffPermissions = (): { permissions: StaffPermissions | undefin
 				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
 				canManageStaffRolesAndPermissions: rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canManageUsers: rolePermissions.userPermissions.canManageUsers || isTechAdmin,
-				canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles || rolePermissions.userPermissions.canAssignStaffUserRoles || isTechAdmin,
+				canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles || isTechAdmin,
 				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers || rolePermissions.userPermissions.canManageUsers || isTechAdmin,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
 				canManageTechAdmin: isTechAdmin,
-				canViewDatabaseDocuments: rolePermissions.techAdminPermissions.canViewDatabaseDocuments || isTechAdmin,
+                canViewDatabaseDocuments: rolePermissions.techAdminPermissions.canViewDatabaseDocuments || isTechAdmin,
 				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canAddRole: rolePermissions.staffRolePermissions.canAddRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canEditRole: rolePermissions.staffRolePermissions.canEditRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,

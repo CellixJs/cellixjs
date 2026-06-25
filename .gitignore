@@ -35,6 +35,13 @@ apps/api/deploy/
 # Ignore vscode mcp chrome user data
 .vscode/.mcp-chrome-user-data*
 
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
 # Agent runtime artifacts (per-session working state)
 .agents-work/
 
@@ -45,4 +52,3 @@ apps/api/deploy/
 
 # Build-time evidence artifacts (generated)
 build-artifacts/
-

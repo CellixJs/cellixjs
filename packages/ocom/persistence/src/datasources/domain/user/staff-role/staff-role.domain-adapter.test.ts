@@ -47,7 +47,6 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
 			userPermissions: {
 				canManageUsers: false,
 				canAssignStaffRoles: false,
-				canAssignStaffUserRoles: false,
 				canViewStaffUsers: false,
 			},
 			serviceTicketPermissions: {
@@ -117,6 +116,57 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then('the document\'s roleName should be "Supervisor"', () => {
 			expect(doc.roleName).toBe('Supervisor');
+		});
+	});
+
+	Scenario('Setting the roleName updates the enterpriseAppRole', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I set the roleName property to "Supervisor"', () => {
+			adapter.roleName = 'Supervisor';
+		});
+		Then('the document\'s enterpriseAppRole should be "Supervisor"', () => {
+			expect(doc.enterpriseAppRole).toBe('Supervisor');
+		});
+	});
+
+	Scenario('Getting the enterpriseAppRole property', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document with enterpriseAppRole "Staff.Manager"', () => {
+			doc = makeStaffRoleDoc({ enterpriseAppRole: 'Staff.Manager' });
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the enterpriseAppRole property', () => {
+			result = adapter.enterpriseAppRole;
+		});
+		Then('it should return "Staff.Manager"', () => {
+			expect(result).toBe('Staff.Manager');
+		});
+	});
+
+	Scenario('Getting the enterpriseAppRole property when missing', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document with no enterpriseAppRole', () => {
+			doc = makeStaffRoleDoc();
+			(doc as unknown as Record<string, unknown>)['enterpriseAppRole'] = undefined;
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the enterpriseAppRole property', () => {
+			result = adapter.enterpriseAppRole;
+		});
+		Then('it should return ""', () => {
+			expect(result).toBe('');
+		});
+	});
+
+	Scenario('Setting the enterpriseAppRole property', ({ Given, When, Then }) => {
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I set the enterpriseAppRole property to "Staff.Supervisor"', () => {
+			adapter.enterpriseAppRole = 'Staff.Supervisor';
+		});
+		Then('the document\'s enterpriseAppRole should be "Staff.Supervisor"', () => {
+			expect(doc.enterpriseAppRole).toBe('Staff.Supervisor');
 		});
 	});
 
@@ -828,7 +878,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 			docWithoutPermissions.set = vi.fn().mockImplementation((key: string, value: unknown) => {
 				(docWithoutPermissions as unknown as Record<string, unknown>)[key] = value;
 			});
-			(docWithoutPermissions as unknown as Record<string, unknown>)['permissions'] = undefined;
+			(docWithoutPermissions as unknown as Record<string, unknown>).permissions = undefined;
 			adapter = new StaffRoleDomainAdapter(docWithoutPermissions);
 		});
 		When('I get the permissions property', () => {
@@ -844,7 +894,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no communityPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['communityPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).communityPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -867,7 +917,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no financePermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['financePermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).financePermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -890,7 +940,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no techAdminPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['techAdminPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).techAdminPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -913,7 +963,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no userPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['userPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).userPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -934,7 +984,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 	Scenario('Getting roleType returns null when document roleType is undefined', ({ Given, When, Then }) => {
 		Given('a StaffRoleDomainAdapter wrapping a document with no roleType', () => {
 			const docWithout = makeStaffRoleDoc();
-			(docWithout as unknown as Record<string, unknown>)['roleType'] = undefined;
+			(docWithout as unknown as Record<string, unknown>).roleType = undefined;
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
 		When('I get the roleType property', () => {
@@ -983,42 +1033,16 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
-	// ─── canAssignStaffUserRoles ──────────────────────────────────────────────
-
-	Scenario('Getting and setting canAssignStaffUserRoles from userPermissions', ({ Given, When, And, Then }) => {
+	Scenario('canAssignStaffRoles getter falls back to canAssignStaffRoles when unset', ({ Given, When, And, Then }) => {
 		let permissions: StaffRolePermissionsAdapter;
 		let userPermissions: StaffRoleUserPermissionsAdapter;
-		Given('a StaffRoleDomainAdapter for the document', () => {
-			adapter = new StaffRoleDomainAdapter(doc);
-		});
-		When('I get the permissions property', () => {
-			permissions = adapter.permissions as StaffRolePermissionsAdapter;
-		});
-		And('I get the userPermissions property', () => {
-			userPermissions = permissions.userPermissions as StaffRoleUserPermissionsAdapter;
-		});
-		Then('the canAssignStaffUserRoles property should return false', () => {
-			expect(userPermissions.canAssignStaffUserRoles).toBe(false);
-		});
-		When('I set the canAssignStaffUserRoles property to true', () => {
-			userPermissions.canAssignStaffUserRoles = true;
-		});
-		Then("the userPermissions' canAssignStaffUserRoles should be true", () => {
-			expect(doc.permissions?.userPermissions?.canAssignStaffUserRoles).toBe(true);
-		});
-	});
-
-	Scenario('canAssignStaffRoles getter falls back to canAssignStaffUserRoles when unset', ({ Given, When, And, Then }) => {
-		let permissions: StaffRolePermissionsAdapter;
-		let userPermissions: StaffRoleUserPermissionsAdapter;
-		Given('a StaffRoleDomainAdapter wrapping a document with userPermissions having only canAssignStaffUserRoles true', () => {
+		Given('a StaffRoleDomainAdapter wrapping a document with userPermissions having only canAssignStaffRoles true', () => {
 			const docWith = makeStaffRoleDoc({
 				permissions: {
 					...(makeStaffRoleDoc().permissions ?? {}),
 					userPermissions: {
 						canManageUsers: false,
 						canAssignStaffRoles: true,
-						canAssignStaffUserRoles: true,
 						canViewStaffUsers: false,
 					},
 				},
@@ -1036,7 +1060,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
-	Scenario('Setting canAssignStaffRoles updates both canAssignStaffRoles and canAssignStaffUserRoles', ({ Given, When, And, Then }) => {
+	Scenario('Setting canAssignStaffRoles updates the canAssignStaffRoles property', ({ Given, When, And, Then }) => {
 		let permissions: StaffRolePermissionsAdapter;
 		let userPermissions: StaffRoleUserPermissionsAdapter;
 		Given('a StaffRoleDomainAdapter for the document', () => {
@@ -1053,9 +1077,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then("the userPermissions' canAssignStaffRoles should be true", () => {
 			expect(doc.permissions?.userPermissions?.canAssignStaffRoles).toBe(true);
-		});
-		And("the userPermissions' canAssignStaffUserRoles should be true", () => {
-			expect(doc.permissions?.userPermissions?.canAssignStaffUserRoles).toBe(true);
 		});
 	});
 
@@ -1128,7 +1149,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no propertyPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['propertyPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).propertyPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -1151,7 +1172,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no servicePermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['servicePermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).servicePermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -1174,7 +1195,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no serviceTicketPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['serviceTicketPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).serviceTicketPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -1197,7 +1218,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no violationTicketPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
-				(docWithout.permissions as unknown as Record<string, unknown>)['violationTicketPermissions'] = undefined;
+				(docWithout.permissions as unknown as Record<string, unknown>).violationTicketPermissions = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});

@@ -1,60 +1,10 @@
-type StaffRoleCommunityPermissions {
-	canManageCommunities: Boolean!
-	canManageStaffRolesAndPermissions: Boolean!
-	canManageAllCommunities: Boolean!
-	canDeleteCommunities: Boolean!
-	canChangeCommunityOwner: Boolean!
-	canReIndexSearchCollections: Boolean!
-}
-
-type StaffRoleFinancePermissions {
-	canManageFinance: Boolean!
-	canViewGLBatchSummaries: Boolean!
-	canViewFinanceConfigs: Boolean!
-	canCreateFinanceConfigs: Boolean!
-}
-
-type StaffRoleTechAdminPermissions {
-	canManageTechAdmin: Boolean!
-	canViewDatabaseDocuments: Boolean!
-	canViewBlobExplorer: Boolean!
-	canViewQueueDashboard: Boolean!
-	canSendQueueMessages: Boolean!
-}
-
-type StaffRoleUserPermissions {
-	canManageUsers: Boolean!
-	canAssignStaffRoles: Boolean!
-	canAssignStaffUserRoles: Boolean! @deprecated(reason: "Use canAssignStaffRoles instead")
-	canViewStaffUsers: Boolean!
-}
-
-type StaffRoleRolePermissions {
-	canViewRoles: Boolean!
-	canAddRole: Boolean!
-	canEditRole: Boolean!
-	canRemoveRole: Boolean!
-}
-
-type StaffRolePermissions {
-	communityPermissions: StaffRoleCommunityPermissions!
-	financePermissions: StaffRoleFinancePermissions!
-	staffRolePermissions: StaffRoleRolePermissions!
-	techAdminPermissions: StaffRoleTechAdminPermissions!
-	userPermissions: StaffRoleUserPermissions!
-}
-
-type StaffRole implements MongoBase {
-	roleName: String!
-	isDefault: Boolean!
-	roleType: String
-	enterpriseAppRole: String!
-	permissions: StaffRolePermissions!
-
-	id: ObjectID!
-	schemaVersion: String
-	createdAt: DateTime
-	updatedAt: DateTime
+type StaffUserActivityDetail {
+	activityType: String!
+	activityDescription: String!
+	activityByStaffUserId: String!
+	activityByStaffUserDisplayName: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 type StaffUser implements MongoBase {
@@ -74,89 +24,9 @@ type StaffUser implements MongoBase {
 	updatedAt: DateTime
 }
 
-type StaffUserActivityDetail {
-	activityType: String!
-	activityDescription: String!
-	activityByStaffUserId: String!
-	createdAt: DateTime!
-	updatedAt: DateTime!
-}
-
-input StaffRoleCreateCommunityPermissionsInput {
-	canManageCommunities: Boolean
-	canManageStaffRolesAndPermissions: Boolean
-	canManageAllCommunities: Boolean
-	canDeleteCommunities: Boolean
-	canChangeCommunityOwner: Boolean
-	canReIndexSearchCollections: Boolean
-}
-
-input StaffRoleCreateUserPermissionsInput {
-	canManageUsers: Boolean
-	canAssignStaffRoles: Boolean
-	canAssignStaffUserRoles: Boolean @deprecated(reason: "Use canAssignStaffRoles instead")
-	canViewStaffUsers: Boolean
-}
-
-input StaffRoleCreateRolePermissionsInput {
-	canViewRoles: Boolean
-	canAddRole: Boolean
-	canEditRole: Boolean
-	canRemoveRole: Boolean
-}
-
-input StaffRoleCreateFinancePermissionsInput {
-	canManageFinance: Boolean
-	canViewGLBatchSummaries: Boolean
-	canViewFinanceConfigs: Boolean
-	canCreateFinanceConfigs: Boolean
-}
-
-input StaffRoleCreateTechAdminPermissionsInput {
-	canManageTechAdmin: Boolean
-	canViewDatabaseDocuments: Boolean
-	canViewBlobExplorer: Boolean
-	canViewQueueDashboard: Boolean
-	canSendQueueMessages: Boolean
-}
-
-input StaffRoleCreatePermissionsInput {
-	communityPermissions: StaffRoleCreateCommunityPermissionsInput
-	staffRolePermissions: StaffRoleCreateRolePermissionsInput
-	financePermissions: StaffRoleCreateFinancePermissionsInput
-	techAdminPermissions: StaffRoleCreateTechAdminPermissionsInput
-	userPermissions: StaffRoleCreateUserPermissionsInput
-}
-
-input StaffRoleCreateInput {
-	roleName: String!
-	enterpriseAppRole: String
-	permissions: StaffRoleCreatePermissionsInput
-}
-
 input StaffUserAssignRoleInput {
 	staffUserId: ObjectID!
 	roleId: ObjectID!
-}
-
-input StaffRoleUpdatePermissionsInput {
-	communityPermissions: StaffRoleCreateCommunityPermissionsInput
-	staffRolePermissions: StaffRoleCreateRolePermissionsInput
-	financePermissions: StaffRoleCreateFinancePermissionsInput
-	techAdminPermissions: StaffRoleCreateTechAdminPermissionsInput
-	userPermissions: StaffRoleCreateUserPermissionsInput
-}
-
-input StaffRoleUpdateInput {
-	id: ObjectID!
-	roleName: String!
-	enterpriseAppRole: String!
-	permissions: StaffRoleUpdatePermissionsInput
-}
-
-type StaffRoleMutationResult implements MutationResult {
-	status: MutationStatus!
-	staffRole: StaffRole
 }
 
 type StaffUserMutationResult implements MutationResult {
@@ -167,13 +37,9 @@ type StaffUserMutationResult implements MutationResult {
 extend type Query {
 	currentStaffUserAndCreateIfNotExists: StaffUser!
 	staffUsers: [StaffUser!]!
-	staffRoles: [StaffRole!]!
-	staffRoleById(id: ObjectID!): StaffRole
 	staffUserById(id: ObjectID!): StaffUser
 }
 
 extend type Mutation {
-	staffRoleCreate(input: StaffRoleCreateInput!): StaffRoleMutationResult!
-	staffRoleUpdate(input: StaffRoleUpdateInput!): StaffRoleMutationResult!
 	staffUserAssignRole(input: StaffUserAssignRoleInput!): StaffUserMutationResult!
 }

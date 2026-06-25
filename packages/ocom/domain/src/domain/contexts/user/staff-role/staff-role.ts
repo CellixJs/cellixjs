@@ -1,6 +1,6 @@
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
@@ -151,16 +151,16 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		this.props.roleName = normalizedRoleName.charAt(0).toUpperCase() + normalizedRoleName.slice(1);
 	}
 
-    get enterpriseAppRole() {
-        return this.props.enterpriseAppRole;
-    }
+	get enterpriseAppRole() {
+		return this.props.enterpriseAppRole;
+	}
 
-    set enterpriseAppRole(enterpriseAppRole: string) {
-        if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
-            throw new PermissionError('Cannot set enterprise app role');
-        }
-    this.props.enterpriseAppRole = new ValueObjects.EnterpriseAppRole(enterpriseAppRole).valueOf();
-    }
+	set enterpriseAppRole(enterpriseAppRole: string) {
+		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) {
+			throw new PermissionError('Cannot set enterprise app role');
+		}
+		this.props.enterpriseAppRole = new ValueObjects.EnterpriseAppRole(enterpriseAppRole).valueOf();
+	}
 
 	get isDefault() {
 		return this.props.isDefault;
