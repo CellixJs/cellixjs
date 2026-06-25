@@ -140,6 +140,17 @@ module storageRoleAssignment 'storage-role-assignment.bicep' = {
     storageAccountName: applicationStorageAccountName
     principalId: functionApp.outputs.systemAssignedMIPrincipalId!
     principalType: 'ServicePrincipal'
+    roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor
+  }
+}
+
+module storageQueueRoleAssignment 'storage-role-assignment.bicep' = {
+  name: 'storageQueueRoleAssignment${moduleNameSuffix}'
+  params: {
+    storageAccountName: applicationStorageAccountName
+    principalId: functionApp.outputs.systemAssignedMIPrincipalId!
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '974c5e8b-45b9-4653-ba55-5f855dd0fb88' // Storage Queue Data Contributor
   }
 }
 
@@ -149,3 +160,4 @@ output functionAppNamePri string = functionApp.outputs.name
 output systemAssignedMIPrincipalId string = functionApp.outputs.systemAssignedMIPrincipalId!
 output keyVaultRoleAssignmentId string = keyVaultRoleAssignment.outputs.roleAssignmentId
 output storageRoleAssignmentId string = storageRoleAssignment.outputs.roleAssignmentId
+output storageQueueRoleAssignmentId string = storageQueueRoleAssignment.outputs.roleAssignmentId

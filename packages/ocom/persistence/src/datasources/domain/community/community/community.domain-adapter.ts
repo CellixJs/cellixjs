@@ -45,7 +45,7 @@ export class CommunityDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 			throw new Error('createdBy is not populated');
 		}
 		if (this.doc.createdBy instanceof MongooseSeedwork.ObjectId) {
-			throw new Error('createdBy is not populated or is not of the correct type');
+			return { id: this.doc.createdBy.toString() } as Domain.Contexts.User.EndUser.EndUserEntityReference;
 		}
 		return new EndUserDomainAdapter(this.doc.createdBy as EndUser);
 	}

@@ -34,6 +34,14 @@
 			"project": ["src/**/*.ts"],
 			"ignore": ["**/mongo-connection.ts"]
 		},
+		"packages/cellix/service-queue-storage": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"packages/ocom/service-queue-storage": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.ts"]
+		},
 		"packages/cellix/ui-core/*": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.{ts,tsx}"]
@@ -74,7 +82,7 @@
 			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts", "src/shared/abilities/index.ts"],
 			"project": ["src/**/*.ts"],
 			"ignoreBinaries": ["report"],
-			"ignoreUnresolved": ["progress-bar"]
+            "ignoreUnresolved": ["progress-bar"]
 		},
 		"packages/ocom-verification/acceptance-ui": {
 			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts"],
@@ -85,7 +93,7 @@
 		"packages/ocom-verification/e2e-tests": {
 			"entry": ["cucumber.js", "src/world.ts", "src/contexts/**/step-definitions/**/*.steps.ts", "src/shared/environment/**/*.ts", "src/shared/abilities/**/*.ts"],
 			"project": ["src/**/*.ts"],
-			"ignoreUnresolved": ["progress-bar"]
+            "ignoreUnresolved": ["progress-bar"]
 		},
 		"apps/server-oauth2-mock": {
 			"entry": ["src/index.ts"],

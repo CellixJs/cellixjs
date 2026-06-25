@@ -44,7 +44,7 @@ Feature: <DomainAdapter> CommunityDomainAdapter
   Scenario: Getting the createdBy property when it is an ObjectId
     Given a CommunityDomainAdapter for a document with createdBy as an ObjectId
     When I get the createdBy property
-    Then an error should be thrown indicating "createdBy is not populated or is not of the correct type"
+    Then it should return an EndUserEntityReference with the correct id
 
   Scenario: Setting the createdBy property with a valid EndUserDomainAdapter
     Given a CommunityDomainAdapter for the document
