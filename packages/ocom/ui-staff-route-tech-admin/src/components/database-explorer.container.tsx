@@ -30,13 +30,14 @@ interface DocumentsQueryResult {
 
 export const DatabaseExplorerContainer: React.FC = () => {
 	const [selectedCollection, setSelectedCollection] = useState<string | undefined>(undefined);
-	const [filter, setFilter] = useState<string>('');
-	const [page, setPage] = useState<number>(1);
+    const [draftFilter, setDraftFilter] = useState<string>('');
+    const [appliedFilter, setAppliedFilter] = useState<string>('');
+    const [page, setPage] = useState<number>(1);
 	const [pageSize, setPageSize] = useState<number>(20);
 
 	const { data: collectionsData, loading: collectionsLoading, error: collectionsError } = useQuery<{ techAdminDatabaseCollections: string[] }>(COLLECTIONS_QUERY, { fetchPolicy: 'cache-first' });
 
-	const variables = useMemo(() => ({ collection: selectedCollection ?? '', filter: filter ?? undefined, page, pageSize }), [selectedCollection, filter, page, pageSize]);
+	const variables = useMemo(() => ({ collection: selectedCollection ?? '', filter: appliedFilter ?? undefined, page, pageSize }), [selectedCollection, appliedFilter, page, pageSize]);
 	const { data: documentsData, loading: documentsLoading } = useQuery<DocumentsQueryResult>(DOCUMENTS_QUERY, {
 		variables,
 		skip: !selectedCollection,
@@ -60,9 +61,9 @@ export const DatabaseExplorerContainer: React.FC = () => {
 						collections={collections}
 						selectedCollection={selectedCollection ?? ''}
 						onSelectCollection={(c: string) => { setSelectedCollection(c); setPage(1); }}
-						filter={filter}
-						onChangeFilter={setFilter}
-						onApplyFilter={() => { setPage(1); }}
+						filter={draftFilter}
+						onChangeFilter={setDraftFilter}
+						onApplyFilter={() => { setAppliedFilter(draftFilter); setPage(1); }}
 						documents={documents}
 						totalCount={totalCount}
 						page={page}
