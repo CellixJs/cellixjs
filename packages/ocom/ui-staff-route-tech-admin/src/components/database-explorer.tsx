@@ -3,9 +3,7 @@ import type { TableColumnsType } from 'antd';
 import type React from 'react';
 import { useState } from 'react';
 
-const { Title } = Typography;
 const { TextArea } = Input;
-
 export interface DatabaseDocument {
 	id: string;
 	json: string;
@@ -69,23 +67,29 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 	return (
 		<Space direction="vertical" style={{ width: '100%' }} size="large">
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-				<Title level={3}>Database Explorer</Title>
 			</div>
 			<div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
 				<Select<string>
 					style={{ minWidth: 240 }}
+					size="large"
 					placeholder="Select collection"
 					value={selectedCollection ?? null}
 					onChange={onSelectCollection}
 					options={collections.map((c) => ({ label: c, value: c }))}
 				/>
 				<TextArea
-					style={{ width: 480 }}
+					style={{ width: 480, height: 40, minHeight: 40, resize: 'vertical' }}
 					placeholder='Filter (JSON) e.g. {"name":"Alice"}'
 					value={filter}
 					onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onChangeFilter(e.target.value)}
 				/>
-				<Button type="primary" onClick={onApplyFilter}>Apply</Button>
+				<Button
+					type="primary"
+					size="large"
+					onClick={onApplyFilter}
+				>
+					Apply
+				</Button>
 			</div>
 			<Table<DatabaseDocument>
 				dataSource={documents}
