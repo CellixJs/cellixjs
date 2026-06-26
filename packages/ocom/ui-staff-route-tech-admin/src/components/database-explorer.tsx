@@ -3,6 +3,7 @@ import type { TableColumnsType } from 'antd';
 import type React from 'react';
 import { useState } from 'react';
 
+const { Title } = Typography;
 const { TextArea } = Input;
 export interface DatabaseDocument {
 	id: string;
@@ -67,6 +68,7 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 	return (
 		<Space direction="vertical" style={{ width: '100%' }} size="large">
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<Title level={3}>Database Explorer</Title>
 			</div>
 			<div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
 				<Select<string>
