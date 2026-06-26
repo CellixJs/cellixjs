@@ -270,12 +270,15 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 	 */
 	class BoundServiceQueueStorage extends InternalQueueStorageService {
 		constructor(options: QueueStorageConfig) {
+			const resolvedLogging = options.logging !== undefined ? { logging: options.logging } : config.serviceDefaults?.logging !== undefined ? { logging: config.serviceDefaults.logging } : {};
+			const resolvedProvisionQueues =
+				options.provisionQueues !== undefined ? { provisionQueues: options.provisionQueues } : config.serviceDefaults?.provisionQueues !== undefined ? { provisionQueues: config.serviceDefaults.provisionQueues } : {};
 			const mergedOptions: QueueStorageConfig = {
 				...config.serviceDefaults,
 				provisionQueues: defaultProvisionQueues,
 				...options,
-				...(options.logging !== undefined ? { logging: options.logging } : config.serviceDefaults?.logging !== undefined ? { logging: config.serviceDefaults.logging } : {}),
-				...(options.provisionQueues !== undefined ? { provisionQueues: options.provisionQueues } : config.serviceDefaults?.provisionQueues !== undefined ? { provisionQueues: config.serviceDefaults.provisionQueues } : {}),
+				...resolvedLogging,
+				...resolvedProvisionQueues,
 			};
 			super(mergedOptions);
 			Object.assign(this, createQueueProducer(this, config.outbound, outboundValidators));

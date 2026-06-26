@@ -12,11 +12,12 @@ const CONFORMING_VITE_PREFIXES = ['VITE_APP_', 'VITE_COMMON_'] as const;
 
 function readEnvFile(filePath: string): Record<string, string> {
 	try {
-		if (!fs.existsSync(filePath)) return {};
 		const contents = fs.readFileSync(filePath, 'utf-8');
 		return dotenv.parse(contents);
 	} catch (err) {
-		console.warn(`[server-oauth2-mock] Warning: failed to read env file at "${filePath}"`, err);
+		if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+			console.warn(`[server-oauth2-mock] Warning: failed to read env file at "${filePath}"`, err);
+		}
 		return {};
 	}
 }
