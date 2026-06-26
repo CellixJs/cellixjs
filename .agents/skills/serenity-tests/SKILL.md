@@ -16,6 +16,12 @@ Use this skill when working with CellixJS verification suites that follow the Se
 - Prefer actor notes for scenario-local state such as created IDs, validation errors, submitted flags, and displayed names.
 - Register managed worlds and lifecycle hooks at the test-package edge; do not put Cucumber step definitions in the framework package.
 
+## Scenario Contract
+
+- When writing or changing Serenity tests, create or update the Gherkin scenario first in the `verification-shared` package. Shared `.feature` files are the source of truth for expected behavior.
+- Every shared scenario must be implemented by all three verification test packages: acceptance API, acceptance UI, and E2E. Do not add a scenario for only one suite unless the user explicitly asks for a suite-specific exception.
+- Keep shared page objects in the `verification-shared` package. Acceptance UI and E2E suites should consume those page objects instead of defining their own duplicate page contracts.
+
 ## Suite Selection
 
 Read only the relevant reference files:
