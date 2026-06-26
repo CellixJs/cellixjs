@@ -83,7 +83,7 @@ export interface PortalOidcConfig {
  * with a `console.warn`; all remaining entries continue to be processed. When neither
  * `.env` nor `.env.local` exists for a `ui-*` directory, or when the files cannot be
  * read, discovery still runs using `options.env` / `process.env` only (a warning is
- * emitted but the portal is not skipped).
+ * emitted and the portal is not skipped).
  * Env var names that do not follow the {@link CONFORMING_VITE_PREFIXES} convention produce
  * at most one warning per `discoverPortalConfigs` call across all portals, to avoid log
  * spam when multiple legacy configs are present.
@@ -117,11 +117,7 @@ export function discoverPortalConfigs(appsDir: string, options?: DiscoverPortalC
 		if (!configs || configs.length === 0) continue;
 
 		const appDir = path.join(appsDir, name);
-		const parsedEnv = loadAppEnv(appDir, name);
-		// loadAppEnv returns null only on an unexpected read error (the warning is already
-		// emitted by loadAppEnv). Fall back to an empty object so that options.env /
-		// process.env (merged into resolvedEnv above) can still resolve the vars.
-		const effectiveParsedEnv = parsedEnv ?? {};
+		const effectiveParsedEnv = loadAppEnv(appDir, name);
 
 		for (const config of configs) {
 			// Compute registration name: strip ui- prefix from directory and combine with config name
@@ -199,7 +195,7 @@ function loadMockOidcConfigs(appsDir: string, entryName: string): MockOidcConfig
 	return [parsed];
 }
 
-function loadAppEnv(appDir: string, entryName: string): Record<string, string> | null {
+function loadAppEnv(appDir: string, entryName: string): Record<string, string> {
 	const envPath = path.join(appDir, '.env');
 	const envLocalPath = path.join(appDir, '.env.local');
 	if (!fs.existsSync(envPath) && !fs.existsSync(envLocalPath)) {
@@ -207,15 +203,10 @@ function loadAppEnv(appDir: string, entryName: string): Record<string, string> |
 		return {};
 	}
 
-	try {
-		let parsedEnv: Record<string, string> = {};
-		parsedEnv = { ...parsedEnv, ...readEnvFile(envPath) };
-		parsedEnv = { ...parsedEnv, ...readEnvFile(envLocalPath) };
-		return parsedEnv;
-	} catch (err) {
-		console.warn(`[server-oauth2-mock] Skipping ${entryName}: failed to read .env`, err);
-		return null;
-	}
+	let parsedEnv: Record<string, string> = {};
+	parsedEnv = { ...parsedEnv, ...readEnvFile(envPath) };
+	parsedEnv = { ...parsedEnv, ...readEnvFile(envLocalPath) };
+	return parsedEnv;
 }
 
 function isLikelyViteEnvVarName(name: string): boolean {

@@ -99,10 +99,7 @@ function isQueueMessageLogger(value: IQueueMessageLogger | QueueMessageLogBlobSt
 	return 'logMessage' in value;
 }
 
-export function createQueueMessageLogger(
-	value: IQueueMessageLogger | QueueMessageLogBlobStorage,
-	containerName: string,
-): IQueueMessageLogger {
+export function createQueueMessageLogger(value: IQueueMessageLogger | QueueMessageLogBlobStorage, containerName: string): IQueueMessageLogger {
 	if (isQueueMessageLogger(value)) {
 		return value;
 	}

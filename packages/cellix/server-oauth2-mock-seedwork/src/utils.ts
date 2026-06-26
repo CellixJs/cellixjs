@@ -78,11 +78,11 @@ export function normalizeBaseUrl(url: string): string {
 }
 
 /**
- * Ensures a non-standard port is present in the given URL.
+ * Ensures the given port is present in a URL, unless it is the protocol's default.
  *
- * If the URL already carries an explicit port, or `port` is `443` (the HTTPS default),
- * the original `baseUrl` string is returned unchanged. On URL parse failure the original
- * value is returned as-is.
+ * If the URL already carries an explicit port, or `port` is the default for the URL's
+ * protocol (`443` for `https:`, `80` for `http:`), the original `baseUrl` string is
+ * returned unchanged. On URL parse failure the original value is returned as-is.
  *
  * @param baseUrl - The URL to inspect and potentially modify.
  * @param port - The port number to inject when the URL has no explicit port.
@@ -100,6 +100,9 @@ export function normalizeBaseUrl(url: string): string {
  *
  * ensurePortInUrl('https://secure.example.localhost', 443);
  * // => 'https://secure.example.localhost' (443 is the HTTPS default — unchanged)
+ *
+ * ensurePortInUrl('http://example.localhost', 80);
+ * // => 'http://example.localhost' (80 is the HTTP default — unchanged)
  *
  * ensurePortInUrl('http://example.localhost', 443);
  * // => 'http://example.localhost:443/' (443 is not the HTTP default — port is injected)

@@ -121,7 +121,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	Scenario('Getting message when document message is undefined', ({ Given, When, Then }) => {
 		Given('a MemberInvitationDomainAdapter for a document with no message', () => {
 			const docWithoutMessage = makeMemberInvitationDoc();
-            // biome-ignore lint:useLiteralKeys
+			// biome-ignore lint:useLiteralKeys
 			delete (docWithoutMessage as unknown as Record<string, unknown>)['message'];
 			doc = docWithoutMessage;
 			adapter = new MemberInvitationDomainAdapter(doc);

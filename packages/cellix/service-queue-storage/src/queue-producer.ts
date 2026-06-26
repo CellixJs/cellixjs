@@ -31,11 +31,7 @@ export type QueueProducerContext<O extends QueueMap> = {
 	[K in keyof O as `peekAt${Capitalize<string & K>}Queue`]: (maxMessages?: number) => Promise<QueueMessage<MessagePayload<O[K]>>[]>;
 };
 
-export function createQueueProducer<O extends QueueMap>(
-	service: Pick<InternalQueueTransport, 'sendMessage' | 'peekMessages'>,
-	definitions: O,
-	validators: Record<string, QueuePayloadValidator>,
-): QueueProducerContext<O> {
+export function createQueueProducer<O extends QueueMap>(service: Pick<InternalQueueTransport, 'sendMessage' | 'peekMessages'>, definitions: O, validators: Record<string, QueuePayloadValidator>): QueueProducerContext<O> {
 	const context = {} as Record<string, unknown>;
 
 	for (const [key, def] of Object.entries(definitions)) {
