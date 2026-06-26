@@ -91,10 +91,11 @@ export class AzuriteDevRunner {
 	public start(): ChildProcess[] {
 		const resolved = this.resolveOptions();
 		const silent = this.options.silent ?? true;
+		const commonArgs = [...(silent ? ['--silent'] : []), '--skipApiVersionCheck'];
 		const azuriteProcesses: Array<[string, string[]]> = [
-			['azurite-blob', [...(silent ? ['--silent'] : []), '--blobPort', String(resolved.blobPort), '--location', path.resolve(resolved.blobLocation)]],
-			['azurite-queue', [...(silent ? ['--silent'] : []), '--queuePort', String(resolved.queuePort), '--location', path.resolve(resolved.queueLocation)]],
-			['azurite-table', [...(silent ? ['--silent'] : []), '--tablePort', String(resolved.tablePort), '--location', path.resolve(resolved.tableLocation)]],
+			['azurite-blob', [...commonArgs, '--blobPort', String(resolved.blobPort), '--location', path.resolve(resolved.blobLocation)]],
+			['azurite-queue', [...commonArgs, '--queuePort', String(resolved.queuePort), '--location', path.resolve(resolved.queueLocation)]],
+			['azurite-table', [...commonArgs, '--tablePort', String(resolved.tablePort), '--location', path.resolve(resolved.tableLocation)]],
 		];
 
 		let procs: ChildProcess[] = [];

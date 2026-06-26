@@ -281,6 +281,31 @@ describe('@cellix/local-dev', () => {
 		});
 	});
 
+	it('starts Azurite with API version checks disabled for newer Azure SDK clients', () => {
+		const calls: Array<{ command: string; args: string[] }> = [];
+		const spawn: RunnerSpawn = (command, args) => {
+			calls.push({ command, args });
+			return createMockChildProcess();
+		};
+
+		new AzuriteDevRunner({ spawn }).start();
+
+		expect(calls).toEqual([
+			expect.objectContaining({
+				command: 'azurite-blob',
+				args: expect.arrayContaining(['--skipApiVersionCheck']),
+			}),
+			expect.objectContaining({
+				command: 'azurite-queue',
+				args: expect.arrayContaining(['--skipApiVersionCheck']),
+			}),
+			expect.objectContaining({
+				command: 'azurite-table',
+				args: expect.arrayContaining(['--skipApiVersionCheck']),
+			}),
+		]);
+	});
+
 	it('sets exitCode instead of terminating the parent process when Azurite spawn fails', () => {
 		const children: ReturnType<RunnerSpawn>[] = [];
 		const spawn: RunnerSpawn = () => {
