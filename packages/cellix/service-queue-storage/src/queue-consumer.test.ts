@@ -67,9 +67,11 @@ describe('registerQueues', () => {
 			});
 
 			When('I call receiveFromImportRequestsQueue', async () => {
-				result = await (svc as unknown as {
-					receiveFromImportRequestsQueue: (payload: unknown, metadata?: { id?: string; popReceipt?: string; dequeueCount?: number }) => Promise<unknown>;
-				}).receiveFromImportRequestsQueue({ requestId: 'r1' }, { id: 'msg-1', dequeueCount: 1 });
+				result = await (
+					svc as unknown as {
+						receiveFromImportRequestsQueue: (payload: unknown, metadata?: { id?: string; popReceipt?: string; dequeueCount?: number }) => Promise<unknown>;
+					}
+				).receiveFromImportRequestsQueue({ requestId: 'r1' }, { id: 'msg-1', dequeueCount: 1 });
 			});
 
 			Then('a single typed message is returned', () => {
@@ -88,10 +90,7 @@ describe('registerQueues', () => {
 		await expect(
 			(
 				svc as unknown as {
-					receiveFromImportRequestsQueue: (
-						payload: unknown,
-						metadata?: { id?: string; popReceipt?: string; dequeueCount?: number },
-					) => Promise<unknown>;
+					receiveFromImportRequestsQueue: (payload: unknown, metadata?: { id?: string; popReceipt?: string; dequeueCount?: number }) => Promise<unknown>;
 				}
 			).receiveFromImportRequestsQueue({ requestId: 'r1' }, { id: 'msg-1', popReceipt: 'receipt-1', dequeueCount: 1 }),
 		).resolves.toEqual({
@@ -110,10 +109,7 @@ describe('registerQueues', () => {
 		await expect(
 			(
 				svc as unknown as {
-					receiveFromImportRequestsQueue: (
-						payload: unknown,
-						metadata?: { id?: string; popReceipt?: string; dequeueCount?: number },
-					) => Promise<unknown>;
+					receiveFromImportRequestsQueue: (payload: unknown, metadata?: { id?: string; popReceipt?: string; dequeueCount?: number }) => Promise<unknown>;
 				}
 			).receiveFromImportRequestsQueue({}, { id: 'msg-invalid', dequeueCount: 1 }),
 		).rejects.toThrow('Invalid payload for queue "import-requests": / is missing required property "requestId"');

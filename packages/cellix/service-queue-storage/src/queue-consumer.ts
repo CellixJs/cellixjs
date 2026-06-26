@@ -1,8 +1,8 @@
 import { diag } from '@opentelemetry/api';
 import type { MessagePayload, QueueMap, QueueTriggerMetadata } from './interfaces.ts';
 import type { InternalQueueTransport } from './internal-queue-storage-service.ts';
-import { resolveLoggingFields } from './logging-fields.ts';
 import type { MessageLogEnvelope } from './logging.ts';
+import { resolveLoggingFields } from './logging-fields.ts';
 import { formatQueueValidationErrors, type QueuePayloadValidator } from './validation.ts';
 
 type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S;
@@ -28,10 +28,7 @@ type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Upperc
  * ```
  */
 export type QueueConsumerContext<I extends QueueMap> = {
-	[K in keyof I as `receiveFrom${Capitalize<string & K>}Queue`]: (
-		payload: unknown,
-		metadata?: QueueTriggerMetadata,
-	) => Promise<QueueMessage<MessagePayload<I[K]>>>;
+	[K in keyof I as `receiveFrom${Capitalize<string & K>}Queue`]: (payload: unknown, metadata?: QueueTriggerMetadata) => Promise<QueueMessage<MessagePayload<I[K]>>>;
 } & {
 	[K in keyof I as `peekAt${Capitalize<string & K>}Queue`]: (maxMessages?: number) => Promise<QueueMessage<MessagePayload<I[K]>>[]>;
 };
@@ -60,7 +57,7 @@ export function createQueueConsumer<I extends QueueMap>(
 				...(metadata?.popReceipt === undefined ? {} : { popReceipt: metadata.popReceipt }),
 				payload: payload,
 				...(metadata?.dequeueCount === undefined ? {} : { dequeueCount: metadata.dequeueCount }),
-			} as QueueMessage<MessagePayload<(typeof def)>>;
+			} as QueueMessage<MessagePayload<typeof def>>;
 
 			if (service.isLoggingEnabled()) {
 				const logger = service.getLogger();

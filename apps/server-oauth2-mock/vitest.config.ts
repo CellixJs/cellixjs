@@ -5,5 +5,8 @@ export default mergeConfig(
 	nodeConfig,
 	defineConfig({
 		// Add package-specific overrides here if needed
+		test: {
+			passWithNoTests: true,
+		},
 	}),
 );

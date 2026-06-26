@@ -76,3 +76,48 @@ export const normalizeOrigin = (value: string) => {
 export function normalizeBaseUrl(url: string): string {
 	return url.replace(/\/$/, '');
 }
+
+/**
+ * Ensures the given port is present in a URL, unless it is the protocol's default.
+ *
+ * If the URL already carries an explicit port, or `port` is the default for the URL's
+ * protocol (`443` for `https:`, `80` for `http:`), the original `baseUrl` string is
+ * returned unchanged. On URL parse failure the original value is returned as-is.
+ *
+ * @param baseUrl - The URL to inspect and potentially modify.
+ * @param port - The port number to inject when the URL has no explicit port.
+ * @returns The URL with the port set, or `baseUrl` unchanged when the port is already
+ *   present, the port is the protocol's default (`443` for `https:`, `80` for `http:`),
+ *   or the URL cannot be parsed.
+ *
+ * @example
+ * ```ts
+ * ensurePortInUrl('https://mock-auth.example.localhost', 1355);
+ * // => 'https://mock-auth.example.localhost:1355/'
+ *
+ * ensurePortInUrl('https://mock-auth.example.localhost:8080', 1355);
+ * // => 'https://mock-auth.example.localhost:8080' (port already set — unchanged)
+ *
+ * ensurePortInUrl('https://secure.example.localhost', 443);
+ * // => 'https://secure.example.localhost' (443 is the HTTPS default — unchanged)
+ *
+ * ensurePortInUrl('http://example.localhost', 80);
+ * // => 'http://example.localhost' (80 is the HTTP default — unchanged)
+ *
+ * ensurePortInUrl('http://example.localhost', 443);
+ * // => 'http://example.localhost:443/' (443 is not the HTTP default — port is injected)
+ * ```
+ */
+export function ensurePortInUrl(baseUrl: string, port: number): string {
+	try {
+		const parsed = new URL(baseUrl);
+		const isDefaultPort = (parsed.protocol === 'https:' && port === 443) || (parsed.protocol === 'http:' && port === 80);
+		if (!parsed.port && !isDefaultPort) {
+			parsed.port = String(port);
+			return parsed.toString();
+		}
+		return baseUrl;
+	} catch {
+		return baseUrl;
+	}
+}

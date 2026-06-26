@@ -33,10 +33,7 @@ describe('blob-backed queue logging', () => {
 		});
 		const service = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
 
-		service.enableLogging(
-			{ uploadText },
-			{ enabled: true, container: 'queue-logs' },
-		);
+		service.enableLogging({ uploadText }, { enabled: true, container: 'queue-logs' });
 		await service.startUp();
 		await service.sendMessageToExternalUpdatesQueue({ externalId: 'ext-123' });
 
