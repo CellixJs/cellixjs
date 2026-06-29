@@ -25,10 +25,10 @@ const childEnv = {
 // Use `??=` so callers can override any individual value via process.env.
 if (process.env.WORKTREE_NAME) {
 	const hostnames = getHostnames();
-	childEnv.ACCOUNT_PORTAL_OIDC_ISSUER ??= buildPortlessUrl(hostnames.mockAuth, '/community');
-	childEnv.ACCOUNT_PORTAL_OIDC_ENDPOINT ??= buildPortlessUrl(hostnames.mockAuth, '/community/.well-known/jwks.json');
-	childEnv.STAFF_PORTAL_OIDC_ISSUER ??= buildPortlessUrl(hostnames.mockAuth, '/staff');
-	childEnv.STAFF_PORTAL_OIDC_ENDPOINT ??= buildPortlessUrl(hostnames.mockAuth, '/staff/.well-known/jwks.json');
+	childEnv.ACCOUNT_PORTAL_OIDC_ISSUER ??= buildPortlessUrl(hostnames.mockAuth, '/community-end-user');
+	childEnv.ACCOUNT_PORTAL_OIDC_ENDPOINT ??= buildPortlessUrl(hostnames.mockAuth, '/community-end-user/.well-known/jwks.json');
+	childEnv.STAFF_PORTAL_OIDC_ISSUER ??= buildPortlessUrl(hostnames.mockAuth, '/staff-staff-user');
+	childEnv.STAFF_PORTAL_OIDC_ENDPOINT ??= buildPortlessUrl(hostnames.mockAuth, '/staff-staff-user/.well-known/jwks.json');
 	childEnv.COSMOSDB_CONNECTION_STRING ??= getMongoConnectionString();
 	childEnv.AZURE_STORAGE_CONNECTION_STRING ??= getAzuriteConnectionString();
 	childEnv.AzureWebJobsStorage ??= getAzuriteConnectionString();

@@ -118,9 +118,9 @@ describe('registerQueues', () => {
 				try {
 					await svc.sendMessageToEmailNotificationsQueue({ to: 'not-an-email', subject: 'hi' });
 				} catch (e) {
-                    if (e instanceof Error) {
-                        expect(e.message).toMatch(/invalid/i);
-                    }
+					if (e instanceof Error) {
+						expect(e.message).toMatch(/invalid/i);
+					}
 					threw = true;
 				}
 				threwGlobal = threw;
@@ -166,9 +166,7 @@ describe('registerQueues', () => {
 		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
 		await svc.startUp();
 
-		await expect(svc.sendMessageToEmailNotificationsQueue({ to: 'not-an-email', subject: 'hello' })).rejects.toThrow(
-			'Invalid payload for queue "email-notifications": /to must match format "email"',
-		);
+		await expect(svc.sendMessageToEmailNotificationsQueue({ to: 'not-an-email', subject: 'hello' })).rejects.toThrow('Invalid payload for queue "email-notifications": /to must match format "email"');
 	});
 
 	it('allows peeking invalid outbound payloads without throwing', async () => {

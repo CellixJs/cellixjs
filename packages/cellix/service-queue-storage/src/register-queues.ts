@@ -27,7 +27,9 @@ type QueueServiceDefaults = Pick<QueueStorageConfig, 'logging' | 'provisionQueue
 export type QueueServiceConstructorOptions = { accountName: string } | { connectionString: string };
 
 // Setup Ajv once for the module lifecycle
-const AjvClass = Ajv as unknown as new (opts?: Record<string, unknown>) => {
+const AjvClass = Ajv as unknown as new (
+	opts?: Record<string, unknown>,
+) => {
 	compile(schema: object): QueuePayloadValidator;
 	getSchema(schemaId: string): QueuePayloadValidator | undefined;
 };
@@ -169,10 +171,10 @@ export function deriveProvisionQueues<O extends QueueMap, I extends QueueMap>(ou
 export function createRegisteredQueueService<
 	TOptions extends QueueStorageConfig = QueueServiceConstructorOptions,
 	TRegistry extends { Service: new (options: QueueStorageConfig) => unknown } = { Service: new (options: QueueStorageConfig) => unknown },
->(
-	registry: TRegistry,
-): new (options: TOptions) => QueueRegistryService<TRegistry> {
-	return registry.Service as unknown as new (options: TOptions) => QueueRegistryService<TRegistry>;
+>(registry: TRegistry): new (options: TOptions) => QueueRegistryService<TRegistry> {
+	return registry.Service as unknown as new (
+		options: TOptions,
+	) => QueueRegistryService<TRegistry>;
 }
 
 /**
@@ -222,11 +224,7 @@ export function createRegisteredQueueService<
  * export type QueueStorageOperations = QueueRegistryOperations<typeof queues>
  * ```
  */
-export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
-	outbound: O;
-	inbound: I;
-	serviceDefaults?: QueueServiceDefaults;
-}) {
+export function registerQueues<O extends QueueMap, I extends QueueMap>(config: { outbound: O; inbound: I; serviceDefaults?: QueueServiceDefaults }) {
 	// Compile validators once at registration time
 	const outboundValidators: Record<string, QueuePayloadValidator> = {};
 	for (const [k, v] of Object.entries(config.outbound)) {
@@ -272,20 +270,15 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 	 */
 	class BoundServiceQueueStorage extends InternalQueueStorageService {
 		constructor(options: QueueStorageConfig) {
+			const resolvedLogging = options.logging !== undefined ? { logging: options.logging } : config.serviceDefaults?.logging !== undefined ? { logging: config.serviceDefaults.logging } : {};
+			const resolvedProvisionQueues =
+				options.provisionQueues !== undefined ? { provisionQueues: options.provisionQueues } : config.serviceDefaults?.provisionQueues !== undefined ? { provisionQueues: config.serviceDefaults.provisionQueues } : {};
 			const mergedOptions: QueueStorageConfig = {
 				...config.serviceDefaults,
 				provisionQueues: defaultProvisionQueues,
 				...options,
-				...(options.logging !== undefined
-					? { logging: options.logging }
-						: config.serviceDefaults?.logging !== undefined
-							? { logging: config.serviceDefaults.logging }
-							: {}),
-				...(options.provisionQueues !== undefined
-					? { provisionQueues: options.provisionQueues }
-					: config.serviceDefaults?.provisionQueues !== undefined
-						? { provisionQueues: config.serviceDefaults.provisionQueues }
-						: {}),
+				...resolvedLogging,
+				...resolvedProvisionQueues,
 			};
 			super(mergedOptions);
 			Object.assign(this, createQueueProducer(this, config.outbound, outboundValidators));

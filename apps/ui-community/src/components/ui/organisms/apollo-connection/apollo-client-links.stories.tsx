@@ -15,8 +15,8 @@ interface MockAuth {
 // Mock environment variables
 const mockEnv = {
 	VITE_COMMON_API_ENDPOINT: 'https://mock-functions.example.com',
-	VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: 'https://mock-authority.example.com',
-	VITE_APP_UI_COMMUNITY_B2C_CLIENTID: 'mock-id',
+	VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY: 'https://mock-authority.example.com',
+	VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID: 'mock-id',
 	PROD: false,
 };
 
@@ -166,8 +166,8 @@ export const BaseLink: StoryObj = {
 export const AuthHeaderFallbackStorage: StoryObj = {
 	render: () => {
 		const auth: MockAuth = { user: null, isAuthenticated: false };
-		const authority = mockEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY;
-		const client_id = mockEnv.VITE_APP_UI_COMMUNITY_B2C_CLIENTID;
+		const authority = mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY;
+		const client_id = mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID;
 		const storageKey = `oidc.user:${authority}:${client_id}`;
 
 		const mockToken = ['mock', 'token'].join('-');
@@ -188,8 +188,8 @@ export const AuthHeaderFallbackStorage: StoryObj = {
 export const AuthHeaderStorageParseError: StoryObj = {
 	render: () => {
 		const auth: MockAuth = { user: null, isAuthenticated: false };
-		const authority = mockEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY;
-		const client_id = mockEnv.VITE_APP_UI_COMMUNITY_B2C_CLIENTID;
+		const authority = mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY;
+		const client_id = mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID;
 		const storageKey = `oidc.user:${authority}:${client_id}`;
 
 		mockStorage.setItem(storageKey, 'invalid-json{');
@@ -317,8 +317,8 @@ export const ApolloConnectionIntegration: StoryObj = {
 	render: () => (
 		<MemoryRouter>
 			<AuthProvider
-				authority={mockEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY}
-				client_id={mockEnv.VITE_APP_UI_COMMUNITY_B2C_CLIENTID}
+				authority={mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY}
+				client_id={mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID}
 			>
 				<ApolloConnection>
 					<ApolloLinkTester />

@@ -20,6 +20,9 @@ This package owns the public router, server bootstrap helpers, multi-registratio
 - `createMockOAuth2Manager({ port, host?, baseUrl, trustProxy? }): MockOAuth2Manager`
 - `buildOidcRouter(issuerBaseUrl, config): Promise<express.Router>`
 - `debugLog(message, data?): void`
+- `discoverPortalConfigs(appsDir): PortalOidcConfig[]` — helper to locate UI app mock-oidc.json configs and resolve env values
+- `createFileUserStore(appDir): MockOAuth2UserStore` — simple filesystem-backed user store used by the app for interactive login/signup flows
+- `ensurePortInUrl(baseUrl, port): string` — utility to inject a port into a URL when omitted (preserves components)
 - `normalizeBaseUrl(url)`, `normalizeOrigin(url)`, `normalizeUrl(url)`, `SAFE_NAME_RE`
 - Public types from `src/types.ts`, especially `MockOAuth2PortalConfig`, `MockOAuth2ServerConfig`, and the async `MockOAuth2UserStore`
 
