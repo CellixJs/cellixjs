@@ -19,8 +19,6 @@ export type KnownWorktreeSettings = SettingsRecord & {
  * Environment shape used by worktree helpers.
  */
 export type WorktreeEnv = NodeJS.ProcessEnv & {
-	/** Explicit toggle for worktree transforms. */
-	CELLIX_WORKTREE?: string;
 	/** Raw worktree name used for hostname suffixes and port offsets. */
 	WORKTREE_NAME?: string;
 };
@@ -41,7 +39,7 @@ export interface WorktreeSettingsOptions {
 	env?: NodeJS.ProcessEnv;
 	/** Settings to merge over `env` before worktree transforms are applied. */
 	settings?: SettingsRecord;
-	/** Whether to apply worktree transforms. Defaults to `env.CELLIX_WORKTREE`, then auto mode. */
+	/** Whether to apply worktree transforms. Defaults to auto-detection from `WORKTREE_NAME`. */
 	worktree?: WorktreeMode;
 	/** Worktree name. Defaults to `env.WORKTREE_NAME`. */
 	worktreeName?: string;

@@ -17,9 +17,8 @@ type RunnerEnv = NodeJS.ProcessEnv & {
 
 export interface AzureFunctionsDevOptions extends EnvRunnerOptions {
 	/**
-	 * Whether to apply worktree transforms. Defaults to `env.CELLIX_WORKTREE`,
-	 * then auto mode. The api is the only app that toggles this: its plain `dev`
-	 * sets `CELLIX_WORKTREE=0` so settings sync without worktree scoping.
+	 * Whether to apply worktree transforms. Defaults to auto-detection from
+	 * `WORKTREE_NAME`.
 	 */
 	worktree?: WorktreeMode;
 	/** Worktree name. Defaults to `env.WORKTREE_NAME`. */

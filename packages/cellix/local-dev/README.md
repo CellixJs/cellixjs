@@ -99,10 +99,10 @@ explicit `worktreeName`) is present. Regular E2E and dev runs keep the base
 values.
 
 Worktree transforms are enabled when a worktree name is available, either through
-`worktreeName` or `WORKTREE_NAME`. Set `worktree: false` or
-`CELLIX_WORKTREE=0` for regular dev scripts that should ignore an ambient
-`WORKTREE_NAME`; set `worktree: true` or `CELLIX_WORKTREE=1` for explicit
-worktree scripts.
+`worktreeName` or `WORKTREE_NAME`. This lets regular and worktree package scripts
+share the same wrapper: the root `dev:worktree` command supplies `WORKTREE_NAME`,
+while regular `dev` does not. Advanced programmatic callers can pass
+`worktree: false` to ignore an ambient worktree name.
 
 ## Public API
 

@@ -160,7 +160,7 @@ overrides:
   postcss: 8.5.10
   protobufjs: 7.6.3
   ip-address: ^10.1.1
-  fast-uri: ^3.1.2
+  fast-uri: 4.0.1
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   '@babel/core': ^7.29.6
   js-yaml@4.1.1: 4.2.0
@@ -9126,8 +9126,8 @@ packages:
   fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
 
-  fast-uri@3.1.2:
-    resolution: {integrity: sha512-rVjf7ArG3LTk+FS6Yw81V1DLuZl1bRbNrev6Tmd/9RaroeeRRJhAt7jg/6YFxbvAQXUCavSoZhPPj6oOx+5KjQ==}
+  fast-uri@4.0.1:
+    resolution: {integrity: sha512-j0VntHrljgRKiWdbjL1xECG44OQu5sb7en4b8z2CcRvtDUEG5DAvkXlllrRhvbABR+m2mUiSgYBPvDj/PzB0dg==}
 
   fast-xml-builder@1.2.0:
     resolution: {integrity: sha512-00aAWieqff+ZJhsXA4g1g7M8k+7AYoMUUHF+/zFb5U6Uv/P0Vl4QZo84/IcufzYalLuEj9928bXN9PbbFzMF0Q==}
@@ -16046,7 +16046,7 @@ snapshots:
       '@cucumber/gherkin-utils': 11.0.0
       '@cucumber/html-formatter': 23.0.0(@cucumber/messages@32.2.0)
       '@cucumber/junit-xml-formatter': 0.13.3(@cucumber/messages@32.2.0)
-      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.2.0)
+      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.3.1)
       '@cucumber/messages': 32.2.0
       '@cucumber/pretty-formatter': 1.0.1(@cucumber/cucumber@12.8.1)(@cucumber/messages@32.2.0)
       '@cucumber/tag-expressions': 9.1.0
@@ -16082,7 +16082,7 @@ snapshots:
   '@cucumber/gherkin-streams@6.0.0(@cucumber/gherkin@38.0.0)(@cucumber/message-streams@4.1.1(@cucumber/messages@32.2.0))(@cucumber/messages@32.2.0)':
     dependencies:
       '@cucumber/gherkin': 38.0.0
-      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.2.0)
+      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.3.1)
       '@cucumber/messages': 32.2.0
       commander: 14.0.0
       source-map-support: 0.5.21
@@ -16131,9 +16131,9 @@ snapshots:
       luxon: 3.7.2
       xmlbuilder: 15.1.1
 
-  '@cucumber/message-streams@4.1.1(@cucumber/messages@32.2.0)':
+  '@cucumber/message-streams@4.1.1(@cucumber/messages@32.3.1)':
     dependencies:
-      '@cucumber/messages': 32.2.0
+      '@cucumber/messages': 32.3.1
       mime: 3.0.0
 
   '@cucumber/messages@26.0.1':
@@ -20217,7 +20217,7 @@ snapshots:
   ajv@8.18.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.2
+      fast-uri: 4.0.1
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -22064,7 +22064,7 @@ snapshots:
 
   fast-json-stable-stringify@2.1.0: {}
 
-  fast-uri@3.1.2: {}
+  fast-uri@4.0.1: {}
 
   fast-xml-builder@1.2.0:
     dependencies:

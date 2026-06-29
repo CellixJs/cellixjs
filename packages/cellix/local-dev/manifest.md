@@ -47,7 +47,7 @@ Root entrypoint exports:
 - App packages own local-development policy such as env-variable names, URL mappings, auth-provider routes, and which settings values are passed into the worktree transformer.
 - This package should expose only reusable mechanics that make those wrappers smaller and more consistent.
 - Worktree isolation is deterministic and should keep MongoDB ports, Azurite ports, hostname suffixing, URL-like env values, and JSON settings aligned across all participating apps.
-- Worktree transforms are explicit when `worktree` or `CELLIX_WORKTREE` is set; otherwise helpers fall back to applying transforms only when a worktree name is available.
+- Worktree transforms are auto-detected from `WORKTREE_NAME`; callers can still override that decision programmatically with `worktree` when needed.
 - Azure Functions dev runners may prepare `local.settings.json` before startup because the Functions host reads settings from its script root rather than the process environment alone.
 - Consumers that need the same Azure Functions values outside `func start` can resolve them without writing a file; regular mode remains unscoped unless a worktree name is explicitly available.
 - Hostname suffixing must sanitize raw worktree names before inserting them into `.localhost` domains, and repeated suffixing with the same worktree label must leave hostnames unchanged.

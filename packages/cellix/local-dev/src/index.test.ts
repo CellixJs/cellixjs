@@ -211,9 +211,10 @@ describe('@cellix/local-dev', () => {
 		});
 	});
 
-	it('does not apply worktree transforms when CELLIX_WORKTREE disables them', () => {
+	it('allows programmatic callers to disable worktree transforms explicitly', () => {
 		const env = new WorktreeSettings({
-			env: { CELLIX_WORKTREE: '0', WORKTREE_NAME: 'Jason/Feature 123' },
+			env: { WORKTREE_NAME: 'Jason/Feature 123' },
+			worktree: false,
 			settings: {
 				BASE_URL: 'https://mock-auth.ownercommunity.localhost:1355',
 				PORT: '50000',

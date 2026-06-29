@@ -37,7 +37,7 @@ export interface AzureFunctionsLocalSettingsOptions {
 	scriptRoot?: string;
 	/** Base environment. Defaults to `process.env`. */
 	env?: NodeJS.ProcessEnv;
-	/** Whether to apply worktree transforms. Defaults to `env.CELLIX_WORKTREE`, then auto mode. */
+	/** Whether to apply worktree transforms. Defaults to auto-detection from `WORKTREE_NAME`. */
 	worktree?: WorktreeMode;
 	/** Worktree name. Defaults to `env.WORKTREE_NAME`. */
 	worktreeName?: string;
