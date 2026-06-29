@@ -194,10 +194,7 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 		return this.queueServiceClient.getQueueClient(queue);
 	}
 
-	private resolveLogger(
-		loggerOrBlobStorage: IQueueMessageLogger | QueueMessageLogBlobStorage,
-		config?: QueueLoggingConfig,
-	): IQueueMessageLogger {
+	private resolveLogger(loggerOrBlobStorage: IQueueMessageLogger | QueueMessageLogBlobStorage, config?: QueueLoggingConfig): IQueueMessageLogger {
 		if ('logMessage' in loggerOrBlobStorage) {
 			return loggerOrBlobStorage;
 		}
