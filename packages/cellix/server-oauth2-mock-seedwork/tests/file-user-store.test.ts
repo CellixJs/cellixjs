@@ -136,6 +136,46 @@ describe('file user store oidcConfigName filtering', () => {
 		expect(await staffStore.findByUsername('shared@example.com')).toBeDefined();
 	});
 
+	it('applies oidcConfigName filtering across base and overlay files', async () => {
+		if (!tmp) throw new Error('tmp not created');
+		writeUsers(tmp, 'mock-oidc.users.json', [
+			{ username: 'base-alice', sub: 'sub-base-alice', oidcConfigName: 'config-a' },
+			{ username: 'base-bob', sub: 'sub-base-bob', oidcConfigName: 'config-b' },
+		]);
+		writeUsers(tmp, 'mock-oidc.users.local.json', [
+			{ username: 'overlay-charlie', sub: 'sub-overlay-charlie', oidcConfigName: 'config-a' },
+			// No oidcConfigName: visible to all scoped stores per documented behavior
+			{ username: 'overlay-dave', sub: 'sub-overlay-dave' },
+		]);
+
+		const store = createFileUserStore(tmp, 'config-a');
+		const users = await store.listUsers();
+		const usernames = users.map((u) => u.username).sort();
+
+		// base-alice (config-a) and overlay-charlie (config-a) match; overlay-dave (no oidcConfigName) is shared
+		expect(usernames).toEqual(['base-alice', 'overlay-charlie', 'overlay-dave'].sort());
+		// base-bob belongs to config-b and must not appear
+		expect(usernames).not.toContain('base-bob');
+	});
+
+	it('merges overlay and base users when no oidcConfigName filter is provided', async () => {
+		if (!tmp) throw new Error('tmp not created');
+		writeUsers(tmp, 'mock-oidc.users.json', [
+			{ username: 'base-alice', sub: 'sub-base-alice', oidcConfigName: 'config-a' },
+			{ username: 'base-bob', sub: 'sub-base-bob', oidcConfigName: 'config-b' },
+		]);
+		writeUsers(tmp, 'mock-oidc.users.local.json', [
+			{ username: 'overlay-charlie', sub: 'sub-overlay-charlie', oidcConfigName: 'config-a' },
+			{ username: 'overlay-dave', sub: 'sub-overlay-dave' },
+		]);
+
+		const store = createFileUserStore(tmp);
+		const users = await store.listUsers();
+		const usernames = users.map((u) => u.username).sort();
+
+		expect(usernames).toEqual(['base-alice', 'base-bob', 'overlay-charlie', 'overlay-dave'].sort());
+	});
+
 	it('skips user entry with non-string oidcConfigName and warns', async () => {
 		if (!tmp) throw new Error('tmp not created');
 		const warnSpy: unknown[] = [];
@@ -151,6 +191,15 @@ describe('file user store oidcConfigName filtering', () => {
 			expect(users).toHaveLength(1);
 			expect(users[0]?.username).toBe('good@example.com');
 			expect(warnSpy.length).toBeGreaterThan(0);
+			expect(
+				warnSpy.some((args) =>
+					(args as unknown[]).some(
+						(arg) =>
+							typeof arg === 'string' &&
+							arg.includes('"oidcConfigName" must be a string'),
+					),
+				),
+			).toBe(true);
 		} finally {
 			console.warn = origWarn;
 		}
