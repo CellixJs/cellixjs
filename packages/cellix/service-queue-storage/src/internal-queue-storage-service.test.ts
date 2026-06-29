@@ -66,10 +66,7 @@ describe('InternalQueueStorageService', () => {
 
 		await expect(svc.startUp()).resolves.toBe(svc);
 
-		expect(queueServiceClientConstructorMock).toHaveBeenCalledWith(
-			'https://test-account.queue.core.windows.net',
-			credential,
-		);
+		expect(queueServiceClientConstructorMock).toHaveBeenCalledWith('https://test-account.queue.core.windows.net', credential);
 		expect(defaultAzureCredentialMock).not.toHaveBeenCalled();
 	});
 

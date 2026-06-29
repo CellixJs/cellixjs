@@ -1,9 +1,46 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { debugLog, type MockOAuth2User, type MockOAuth2UserStore } from '@cellix/server-oauth2-mock-seedwork';
+import { debugLog } from './logger.ts';
+import type { MockOAuth2User, MockOAuth2UserStore } from './types.ts';
 
-export function createFileUserStore(appDir: string): MockOAuth2UserStore {
+/**
+ * Creates a file-backed {@link MockOAuth2UserStore} that reads committed users from
+ * `mock-oidc.users.json` and writes newly registered users to `mock-oidc.users.local.json`
+ * inside `appDir`.
+ *
+ * **File layout:**
+ * - `mock-oidc.users.json` — committed, read-only source of truth for baseline users.
+ * - `mock-oidc.users.local.json` — writable overlay for users added at runtime via `/signup`;
+ *   safe to add to `.gitignore` to keep dev credentials out of source control.
+ *
+ * **Behavior:**
+ * - Both files are merged on every read; overlay entries are appended after committed entries.
+ * - Duplicate usernames or `sub` values between committed and overlay cause the merge to throw.
+ * - Writes are serialized with an async mutex to prevent lost updates under concurrent signups.
+ * - File contents are cached by `mtime` to avoid redundant disk reads on the request path.
+ * - The overlay file is written with mode `0o600` (owner-readable only) to protect plaintext passwords.
+ * - On startup, the store eagerly preloads both files and logs the combined user count.
+ * - When `oidcConfigName` is provided, only users whose `oidcConfigName` matches (or is absent) are
+ *   returned. Users with a different `oidcConfigName` are invisible to this store instance.
+ *
+ * @param appDir - Absolute path to the application directory that owns the user store files
+ *   (typically the `ui-*` app directory, e.g. `/repo/apps/ui-community`).
+ * @param oidcConfigName - Optional OIDC config name (the `name` field from `mock-oidc.json`,
+ *   e.g. `"end-user"`). When provided, filters users to those whose `oidcConfigName` matches
+ *   this value or is absent. When omitted, all users from the store files are visible.
+ * @returns A {@link MockOAuth2UserStore} backed by the two JSON files in `appDir`.
+ *
+ * @example
+ * ```ts
+ * import { createFileUserStore } from '@cellix/server-oauth2-mock-seedwork';
+ *
+ * const store = createFileUserStore('/repo/apps/ui-community', 'end-user');
+ * const users = await store.listUsers();
+ * await store.addUser({ username: 'alice', sub: 'sub-alice', password: 'secret' });
+ * ```
+ */
+export function createFileUserStore(appDir: string, oidcConfigName?: string): MockOAuth2UserStore {
 	const committedPath = path.join(appDir, 'mock-oidc.users.json');
 	const localPath = path.join(appDir, 'mock-oidc.users.local.json');
 
@@ -103,6 +140,7 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 				sub?: unknown;
 				claims?: unknown;
 				password?: unknown;
+				oidcConfigName?: unknown;
 			};
 
 			const username = e.username;
@@ -144,11 +182,21 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 				password = e.password;
 			}
 
+			let userOidcConfigName: string | undefined;
+			if (e.oidcConfigName !== undefined) {
+				if (typeof e.oidcConfigName !== 'string') {
+					console.warn(`[server-oauth2-mock] Invalid user entry in ${filePath} for "${username}": "oidcConfigName" must be a string if present, skipping`);
+					continue;
+				}
+				userOidcConfigName = e.oidcConfigName;
+			}
+
 			const user: MockOAuth2User = {
 				username,
 				sub,
 				...(claims ? { claims } : {}),
 				...(password ? { password } : {}),
+				...(userOidcConfigName !== undefined ? { oidcConfigName: userOidcConfigName } : {}),
 			};
 
 			out.push(user);
@@ -184,7 +232,9 @@ export function createFileUserStore(appDir: string): MockOAuth2UserStore {
 			seenSubs.add(u.sub);
 			out.push(u);
 		}
-		return out;
+		if (oidcConfigName === undefined) return out;
+		// Filter to users that belong to this OIDC config or have no oidcConfigName (visible to all configs)
+		return out.filter((u) => u.oidcConfigName === undefined || u.oidcConfigName === oidcConfigName);
 	}
 
 	// persistOverlayUnsafe performs the actual write to disk and updates the cache.

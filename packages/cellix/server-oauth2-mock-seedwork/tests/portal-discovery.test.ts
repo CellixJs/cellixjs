@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { discoverPortalConfigs } from '../src/portal-discovery.ts';
+import { discoverPortalConfigs } from '../src/index.ts';
 
 function makeTempAppsDir() {
 	return fs.mkdtempSync(path.join(os.tmpdir(), 'server-oauth2-mock-tests-'));
@@ -56,10 +56,89 @@ describe('discoverPortalConfigs', () => {
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(2);
 		const names = portals.map((p) => p.name).sort((a, b) => a.localeCompare(b));
-		expect(names).toEqual(['a', 'b']);
+		expect(names).toEqual(['a-a', 'b-b']);
+		// configName should be the original config.name from mock-oidc.json
+		const pa = portals.find((p) => p.name === 'a-a');
+		const pb = portals.find((p) => p.name === 'b-b');
+		expect(pa?.configName).toBe('a');
+		expect(pb?.configName).toBe('b');
 	});
 
-	it('ignores mock-oidc.local.json and keeps base claims unchanged', () => {
+	it('supports multi-config mock-oidc.json arrays and resolves envs per element', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		// Single ui dir with multiple configs
+		writeJson(tmp, 'ui-community/mock-oidc.json', [
+			{
+				name: 'end-user',
+				envVars: { clientId: 'VITE_APP_COMMUNITY_END_CLIENTID', redirectUri: 'VITE_APP_COMMUNITY_END_REDIRECT' },
+				claims: { sub: 'end' },
+			},
+			{
+				name: 'staff-user',
+				envVars: { clientId: 'VITE_APP_COMMUNITY_STAFF_CLIENTID', redirectUri: 'VITE_APP_COMMUNITY_STAFF_REDIRECT' },
+				claims: { sub: 'staff' },
+			},
+		]);
+
+		// Provide env entries for both configs
+		writeEnv(
+			tmp,
+			'ui-community/.env',
+			'VITE_APP_COMMUNITY_END_CLIENTID=end-cid\nVITE_APP_COMMUNITY_END_REDIRECT=https://community/end/cb\nVITE_APP_COMMUNITY_STAFF_CLIENTID=staff-cid\nVITE_APP_COMMUNITY_STAFF_REDIRECT=https://community/staff/cb\n',
+		);
+
+		const portals = discoverPortalConfigs(tmp);
+		expect(portals.length).toBe(2);
+
+		// registration names: (dir minus ui-) + '-' + config.name
+		const regNames = portals.map((p) => p.name).sort();
+		expect(regNames).toEqual(['community-end-user', 'community-staff-user']);
+
+		const end = portals.find((p) => p.name === 'community-end-user');
+		const staff = portals.find((p) => p.name === 'community-staff-user');
+		expect(end).toBeDefined();
+		expect(staff).toBeDefined();
+		expect(end?.clientId).toBe('end-cid');
+		expect(end?.redirectUri).toBe('https://community/end/cb');
+		expect(staff?.clientId).toBe('staff-cid');
+		expect(staff?.redirectUri).toBe('https://community/staff/cb');
+		// configName is the original name from mock-oidc.json, not the computed registration name
+		expect(end?.configName).toBe('end-user');
+		expect(staff?.configName).toBe('staff-user');
+	});
+
+	it('handles partially invalid mock-oidc.json arrays and skips only invalid elements', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			writeJson(tmp, 'ui-community/mock-oidc.json', [
+				{
+					name: 'end-user-valid',
+					envVars: { clientId: 'VITE_APP_COMMUNITY_END_CLIENTID', redirectUri: 'VITE_APP_COMMUNITY_END_REDIRECT' },
+					claims: { sub: 'end' },
+				},
+				{
+					// missing envVars makes this entry invalid
+					name: 'end-user-invalid',
+					claims: { sub: 'invalid' },
+				},
+			]);
+			writeEnv(tmp, 'ui-community/.env', 'VITE_APP_COMMUNITY_END_CLIENTID=cid-end\nVITE_APP_COMMUNITY_END_REDIRECT=https://end/redirect\n');
+
+			const portals = discoverPortalConfigs(tmp);
+
+			expect(portals).toHaveLength(1);
+			expect(portals[0]?.name).toBe('community-end-user-valid');
+			expect(portals[0]?.clientId).toBe('cid-end');
+			expect(warnSpy).toHaveBeenCalled();
+		} finally {
+			warnSpy.mockRestore();
+		}
+	});
+
+	it('skips invalid mock-oidc.local.json and keeps base claims unchanged', () => {
 		if (!tmp) throw new Error('tmp not created');
 
 		writeJson(tmp, 'ui-x/mock-oidc.json', {
@@ -132,7 +211,7 @@ describe('discoverPortalConfigs', () => {
 
 		const portals = discoverPortalConfigs(tmp);
 		const names = portals.map((p) => p.name);
-		expect(names).toEqual(['a', 'b', 'c']);
+		expect(names).toEqual(['a-a', 'b-b', 'c-c']);
 	});
 
 	it('skips invalid mock-oidc.json (missing required fields) with a warning', () => {
@@ -152,12 +231,12 @@ describe('discoverPortalConfigs', () => {
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 		const portals = discoverPortalConfigs(tmp);
-		expect(portals.find((p) => p.name === 'good')).toBeDefined();
+		expect(portals.find((p) => p.name === 'good-good')).toBeDefined();
 		expect(portals.find((p) => p.name === 'bad')).toBeUndefined();
 		expect(warnSpy).toHaveBeenCalled();
 	});
 
-	it('skips portal when .env is missing with a warning', () => {
+	it('warns when .env is missing but still attempts to resolve env vars from process.env', () => {
 		if (!tmp) throw new Error('tmp not created');
 
 		writeJson(tmp, 'ui-missing-env/mock-oidc.json', {
@@ -167,9 +246,39 @@ describe('discoverPortalConfigs', () => {
 		});
 
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		// No .env file and no injected env — vars are unresolvable, portal is skipped
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals.length).toBe(0);
 		expect(warnSpy).toHaveBeenCalled();
+	});
+
+	it('resolves portal from injected env when no .env files exist', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-envonly/mock-oidc.json', {
+			name: 'envonly',
+			envVars: { clientId: 'VITE_APP_ENVONLY_CLIENTID', redirectUri: 'VITE_APP_ENVONLY_REDIRECT' },
+			claims: { sub: 'env-sub' },
+		});
+		// No .env or .env.local — all values come from options.env (e.g. container deployment)
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			const portals = discoverPortalConfigs(tmp, {
+				env: {
+					VITE_APP_ENVONLY_CLIENTID: 'injected-client-id',
+					VITE_APP_ENVONLY_REDIRECT: 'https://env-only/callback',
+				},
+			});
+			expect(portals).toHaveLength(1);
+			expect(portals[0]?.clientId).toBe('injected-client-id');
+			expect(portals[0]?.redirectUri).toBe('https://env-only/callback');
+			// A warning is emitted because no .env files exist, but the portal is NOT skipped
+			expect(warnSpy).toHaveBeenCalled();
+			expect(warnSpy.mock.calls.some((args) => String(args[0]).includes('No .env files found'))).toBe(true);
+		} finally {
+			warnSpy.mockRestore();
+		}
 	});
 
 	it('skips portal when env var is not present in .env with a warning', () => {
@@ -228,8 +337,9 @@ describe('discoverPortalConfigs', () => {
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals).toHaveLength(1);
-		expect(portals[0]?.name).toBe('valid');
-		expect(warnSpy).toHaveBeenCalledTimes(2);
+		expect(portals[0]?.dirName).toBe('ui-valid');
+		expect(warnSpy).toHaveBeenCalled();
+		expect(warnSpy.mock.calls.some((args) => args[0] && String(args[0]).includes('missing required fields'))).toBe(true);
 	});
 
 	it('silently skips ui-* dirs without mock-oidc.json', () => {
@@ -270,7 +380,7 @@ describe('discoverPortalConfigs', () => {
 		fs.writeFileSync(path.join(tmp, 'ui-envlocal', '.env.local'), 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=local-client-id\n');
 
 		const portals = discoverPortalConfigs(tmp);
-		const portal = portals.find((p) => p.name === 'envlocal-test');
+		const portal = portals.find((p) => p.dirName === 'ui-envlocal');
 		expect(portal).toBeDefined();
 		expect(portal?.clientId).toBe('local-client-id');
 	});
@@ -287,12 +397,42 @@ describe('discoverPortalConfigs', () => {
 		fs.writeFileSync(path.join(tmp, 'ui-localonly', '.env.local'), 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID=localonly-client-id\nVITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI=https://local/cb\n');
 
 		const portals = discoverPortalConfigs(tmp);
-		const portal = portals.find((p) => p.name === 'localonly-test');
+		const portal = portals.find((p) => p.dirName === 'ui-localonly');
 		expect(portal).toBeDefined();
 		expect(portal?.clientId).toBe('localonly-client-id');
 	});
 
-	it('skips portal and warns when reading .env throws', () => {
+	it('warns but does not skip portal when reading .env throws and options.env provides the vars', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-envthrow-recover/mock-oidc.json', {
+			name: 'envthrow-recover',
+			envVars: { clientId: 'VITE_APP_UI_COMMUNITY_B2C_CLIENTID', redirectUri: 'VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI' },
+			claims: { sub: '00000000-0000-4000-8000-000000000001' },
+		});
+		// Make .env a directory so fs.readFileSync throws
+		fs.mkdirSync(path.join(tmp, 'ui-envthrow-recover', '.env'));
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+		try {
+			const portals = discoverPortalConfigs(tmp, {
+				env: {
+					VITE_APP_UI_COMMUNITY_B2C_CLIENTID: 'injected-client-id',
+					VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI: 'https://injected/cb',
+				},
+			});
+			const portal = portals.find((p) => p.dirName === 'ui-envthrow-recover');
+			expect(portal).toBeDefined();
+			expect(portal?.clientId).toBe('injected-client-id');
+			expect(portal?.redirectUri).toBe('https://injected/cb');
+			expect(warnSpy).toHaveBeenCalled();
+		} finally {
+			warnSpy.mockRestore();
+		}
+	});
+
+	it('skips portal and warns when reading .env throws and no options.env resolves the vars', () => {
 		if (!tmp) throw new Error('tmp not created');
 
 		writeJson(tmp, 'ui-envthrow/mock-oidc.json', {
@@ -306,7 +446,7 @@ describe('discoverPortalConfigs', () => {
 
 		try {
 			const portals = discoverPortalConfigs(tmp);
-			const portal = portals.find((p) => p.name === 'envthrow-test');
+			const portal = portals.find((p) => p.dirName === 'ui-envthrow');
 			expect(portal).toBeUndefined();
 			expect(warnSpy).toHaveBeenCalled();
 		} finally {
@@ -357,5 +497,117 @@ describe('discoverPortalConfigs', () => {
 		const portal = portals.find((config) => config.dirName === 'ui-noclaims');
 		expect(portal).toBeDefined();
 		expect(portal?.claims).toBeUndefined();
+	});
+
+	it('skips duplicate computed registration names and warns, keeping the first', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		// Two different ui directories whose computed registrationName will collide:
+		// ui-community with config.name 'end-user' -> 'community-end-user'
+		// ui-community-end with config.name 'user' -> 'community-end-user'
+		writeJson(tmp, 'ui-community/mock-oidc.json', {
+			name: 'end-user',
+			envVars: { clientId: 'C_END_CID', redirectUri: 'C_END_RED' },
+			claims: { sub: 'one' },
+		});
+		writeEnv(tmp, 'ui-community/.env', 'C_END_CID=end-1\nC_END_RED=https://end/1\n');
+
+		writeJson(tmp, 'ui-community-end/mock-oidc.json', {
+			name: 'user',
+			envVars: { clientId: 'C_USER_CID', redirectUri: 'C_USER_RED' },
+			claims: { sub: 'two' },
+		});
+		writeEnv(tmp, 'ui-community-end/.env', 'C_USER_CID=end-2\nC_USER_RED=https://end/2\n');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			const portals = discoverPortalConfigs(tmp);
+			// Only the first (ui-community) should be kept
+			expect(portals.find((p) => p.name === 'community-end-user')).toBeDefined();
+			expect(portals.find((p) => p.dirName === 'ui-community-end')).toBeUndefined();
+			expect(warnSpy).toHaveBeenCalled();
+		} finally {
+			warnSpy.mockRestore();
+		}
+	});
+
+	it('skips configs whose computed registrationName fails SAFE_NAME_RE and warns', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		// Create a config.name that will produce an invalid registrationName (contains space)
+		writeJson(tmp, 'ui-badname/mock-oidc.json', {
+			name: 'bad name',
+			envVars: { clientId: 'BAD_CID', redirectUri: 'BAD_RED' },
+			claims: { sub: 'bad' },
+		});
+		writeEnv(tmp, 'ui-badname/.env', 'BAD_CID=cid-bad\nBAD_RED=https://bad/redirect\n');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			const portals = discoverPortalConfigs(tmp);
+			// Should be skipped
+			expect(portals.find((p) => p.dirName === 'ui-badname')).toBeUndefined();
+			expect(warnSpy).toHaveBeenCalled();
+			// Ensure the warning references "invalid computed registration name" or the bad name
+			const called = warnSpy.mock.calls.some((args) => args[0] && String(args[0]).includes('invalid computed registration name'));
+			expect(called).toBe(true);
+		} finally {
+			warnSpy.mockRestore();
+		}
+	});
+
+	it('sets configName to the original config.name, distinct from the computed registration name', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-portal/mock-oidc.json', [
+			{
+				name: 'end-user',
+				envVars: { clientId: 'VITE_APP_PORTAL_END_CLIENTID', redirectUri: 'VITE_APP_PORTAL_END_REDIRECT' },
+			},
+			{
+				name: 'staff-user',
+				envVars: { clientId: 'VITE_APP_PORTAL_STAFF_CLIENTID', redirectUri: 'VITE_APP_PORTAL_STAFF_REDIRECT' },
+			},
+		]);
+		writeEnv(
+			tmp,
+			'ui-portal/.env',
+			'VITE_APP_PORTAL_END_CLIENTID=end-cid\nVITE_APP_PORTAL_END_REDIRECT=https://portal/end/cb\nVITE_APP_PORTAL_STAFF_CLIENTID=staff-cid\nVITE_APP_PORTAL_STAFF_REDIRECT=https://portal/staff/cb\n',
+		);
+
+		const portals = discoverPortalConfigs(tmp);
+		expect(portals).toHaveLength(2);
+
+		const end = portals.find((p) => p.name === 'portal-end-user');
+		const staff = portals.find((p) => p.name === 'portal-staff-user');
+
+		// registration name includes the dir prefix; configName is just the original name
+		expect(end?.name).toBe('portal-end-user');
+		expect(end?.configName).toBe('end-user');
+		expect(staff?.name).toBe('portal-staff-user');
+		expect(staff?.configName).toBe('staff-user');
+	});
+
+	it('warns for non-conforming env var names but still resolves them', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-nonconform/mock-oidc.json', {
+			name: 'nc',
+			envVars: { clientId: 'CLIENT_NC', redirectUri: 'REDIR_NC' },
+			claims: { sub: 'nc' },
+		});
+		writeEnv(tmp, 'ui-nonconform/.env', 'CLIENT_NC=cid-nc\nREDIR_NC=https://nc/redirect\n');
+
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			const portals = discoverPortalConfigs(tmp);
+			expect(portals).toHaveLength(1);
+			expect(warnSpy).toHaveBeenCalled();
+			const p = portals[0];
+			expect(p?.clientId).toBe('cid-nc');
+			expect(p?.redirectUri).toBe('https://nc/redirect');
+		} finally {
+			warnSpy.mockRestore();
+		}
 	});
 });

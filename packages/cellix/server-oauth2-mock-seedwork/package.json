@@ -20,7 +20,8 @@
 	"dependencies": {
 		"express": "^4.22.2",
 		"express-rate-limit": "^8.5.1",
-		"jose": "^5.9.6"
+		"jose": "^5.9.6",
+		"dotenv": "^16.4.5"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
