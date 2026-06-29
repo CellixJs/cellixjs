@@ -33,7 +33,7 @@
 		"@types/node": "catalog:",
 		"playwright": "catalog:",
 		"rimraf": "^6.0.1",
-		"tsx": "^4.20.3",
+		"tsx": "catalog:",
 		"typescript": "catalog:"
 	}
 }

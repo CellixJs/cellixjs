@@ -57,6 +57,11 @@ describe('discoverPortalConfigs', () => {
 		expect(portals.length).toBe(2);
 		const names = portals.map((p) => p.name).sort((a, b) => a.localeCompare(b));
 		expect(names).toEqual(['a-a', 'b-b']);
+		// configName should be the original config.name from mock-oidc.json
+		const pa = portals.find((p) => p.name === 'a-a');
+		const pb = portals.find((p) => p.name === 'b-b');
+		expect(pa?.configName).toBe('a');
+		expect(pb?.configName).toBe('b');
 	});
 
 	it('supports multi-config mock-oidc.json arrays and resolves envs per element', () => {
@@ -98,6 +103,9 @@ describe('discoverPortalConfigs', () => {
 		expect(end?.redirectUri).toBe('https://community/end/cb');
 		expect(staff?.clientId).toBe('staff-cid');
 		expect(staff?.redirectUri).toBe('https://community/staff/cb');
+		// configName is the original name from mock-oidc.json, not the computed registration name
+		expect(end?.configName).toBe('end-user');
+		expect(staff?.configName).toBe('staff-user');
 	});
 
 	it('handles partially invalid mock-oidc.json arrays and skips only invalid elements', () => {
@@ -546,6 +554,34 @@ describe('discoverPortalConfigs', () => {
 		} finally {
 			warnSpy.mockRestore();
 		}
+	});
+
+	it('sets configName to the original config.name, distinct from the computed registration name', () => {
+		if (!tmp) throw new Error('tmp not created');
+
+		writeJson(tmp, 'ui-portal/mock-oidc.json', [
+			{
+				name: 'end-user',
+				envVars: { clientId: 'VITE_APP_PORTAL_END_CLIENTID', redirectUri: 'VITE_APP_PORTAL_END_REDIRECT' },
+			},
+			{
+				name: 'staff-user',
+				envVars: { clientId: 'VITE_APP_PORTAL_STAFF_CLIENTID', redirectUri: 'VITE_APP_PORTAL_STAFF_REDIRECT' },
+			},
+		]);
+		writeEnv(tmp, 'ui-portal/.env', 'VITE_APP_PORTAL_END_CLIENTID=end-cid\nVITE_APP_PORTAL_END_REDIRECT=https://portal/end/cb\nVITE_APP_PORTAL_STAFF_CLIENTID=staff-cid\nVITE_APP_PORTAL_STAFF_REDIRECT=https://portal/staff/cb\n');
+
+		const portals = discoverPortalConfigs(tmp);
+		expect(portals).toHaveLength(2);
+
+		const end = portals.find((p) => p.name === 'portal-end-user');
+		const staff = portals.find((p) => p.name === 'portal-staff-user');
+
+		// registration name includes the dir prefix; configName is just the original name
+		expect(end?.name).toBe('portal-end-user');
+		expect(end?.configName).toBe('end-user');
+		expect(staff?.name).toBe('portal-staff-user');
+		expect(staff?.configName).toBe('staff-user');
 	});
 
 	it('warns for non-conforming env var names but still resolves them', () => {

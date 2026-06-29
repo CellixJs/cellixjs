@@ -9,6 +9,7 @@ engineStrict: true
 catalog:
   '@apollo/server': 5.5.0
   '@azure/functions': 4.11.0
+  '@azure/storage-blob': 12.31.0
   '@cucumber/cucumber': 12.8.1
   '@cucumber/messages': 32.3.1
   '@cucumber/node': 0.4.0
@@ -35,13 +36,13 @@ catalog:
   react-dom: ^19.1.1
   '@ant-design/icons': ^6.0.2
   rimraf: 6.0.1
-  storybook: 10.4.2
+  storybook: ^10.4.2
   '@storybook/addon-a11y': ^10.4.2
   '@storybook/addon-docs': ^10.4.2
   '@storybook/addon-onboarding': ^10.4.2
   '@storybook/addon-vitest': ^10.4.2
-  '@storybook/react': ^10.4.2
   '@storybook/react-vite': ^10.4.2
+  '@storybook/react': ^10.4.2
   tsx: ^4.21.0
   typescript: 6.0.3
   "@typescript/native-preview": 7.0.0-dev.20260428.1
@@ -56,25 +57,7 @@ auditConfig:
     - GHSA-8v8x-cx79-35w7
     - GHSA-wpg9-53fq-2r8h
     - GHSA-q7rr-3cgh-j5r3
-    # uuid: override to uuid 14+ breaks azurite (see .snyk SNYK-JS-UUID-16133035)
-    - GHSA-w5hq-g745-h8pq
-    # @azure/identity: 3.x→4.x major bump required; transitive via azurite>tedious
-    - GHSA-m5vv-6r4h-3vj9
-    # @opentelemetry/core: 2.x upgrade blocked; see .snyk SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050
-    - GHSA-8988-4f7v-96qf
-    # @ai-sdk/provider-utils: transitive via docusaurus, not exploitable (see .snyk)
-    - GHSA-866g-f22w-33x8
-    # xml2js@0.4.23: 0.4→0.5 major bump would break azurite>@azure/ms-rest-js
-    - GHSA-776f-qx25-q3cc
-    # tough-cookie@2.5.x: 2.x→4.x major bump required; transitive via azurite>@azure/ms-rest-js
-    - GHSA-72xf-g2v4-qvf3
-    # js-yaml@3.x: 3→4 major bump required for old transitive consumers; 4.1.1 patched via override
-    - GHSA-h67p-54hq-rp68
-    # @babel/core: 7.x→8.0.0 major bump; no 7.29.1 release exists; low severity, dev tooling only
-    - GHSA-4x5r-pxfx-6jf8
-    # elliptic: 6.6.2 does not exist, 6.6.1 is latest; low severity, dev tooling only
-    - GHSA-848j-6mx2-7j84
-    - GHSA-869p-cjfg-cm3x  # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
+    - GHSA-869p-cjfg-cm3x # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -98,7 +81,6 @@ overrides:
   rollup: ^4.59.0
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
   'brace-expansion@1.1.12': 1.1.13
-  'brace-expansion@2.0.2': 2.0.3
   'brace-expansion@5.0.4': 5.0.6
   'brace-expansion@5.0.5': 5.0.6
   'diff@4.0.2': 4.0.4
@@ -131,15 +113,15 @@ overrides:
   postcss: 8.5.10
   protobufjs: 7.6.3
   ip-address: ^10.1.1
-  fast-uri: 4.0.1
+  fast-uri: ^4.0.1
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   '@babel/core': ^7.29.6
   'js-yaml@4.1.1': 4.2.0
-  'shell-quote@<1.8.4': 1.9.0
+  'shell-quote@<1.8.4': 1.8.4
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   '@opentelemetry/core@2.7.1': 2.8.0
   ws: 8.21.0
-  shell-quote: 1.9.0
+  shell-quote: 1.8.4
   '@grpc/grpc-js': '>=1.14.4'
   form-data: ^4.0.6
   'webpack-dev-server>http-proxy-middleware': 3.0.7
@@ -163,3 +145,6 @@ packageExtensions:
 
 patchedDependencies:
   '@azure/functions@4.11.0': patches/@azure__functions@4.11.0.patch
+
+minimumReleaseAgeExclude:
+  - fast-uri@3.1.3 || 4.0.1
