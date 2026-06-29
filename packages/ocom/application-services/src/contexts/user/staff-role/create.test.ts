@@ -4,7 +4,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { create, type StaffRoleCreateCommand, type StaffRoleCreateCommandPermissions } from './create.ts';
+import type { StaffRoleCommandPermissions } from './apply-permissions.ts';
+import { create, type StaffRoleCreateCommand } from './create.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,12 +13,49 @@ const feature = await loadFeature(path.resolve(__dirname, 'features/create.featu
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+type MockCommunityPermissions = {
+	canManageCommunities: boolean;
+	canManageStaffRolesAndPermissions: boolean;
+	canManageAllCommunities: boolean;
+	canDeleteCommunities: boolean;
+	canChangeCommunityOwner: boolean;
+	canReIndexSearchCollections: boolean;
+};
+
+type MockUserPermissions = {
+	canManageUsers: boolean;
+	canAssignStaffRoles: boolean;
+	canViewStaffUsers: boolean;
+};
+
+type MockStaffRolePermissions = {
+	canViewRoles: boolean;
+	canAddRole: boolean;
+	canEditRole: boolean;
+	canRemoveRole: boolean;
+};
+
+type MockFinancePermissions = {
+	canManageFinance: boolean;
+	canViewGLBatchSummaries: boolean;
+	canViewFinanceConfigs: boolean;
+	canCreateFinanceConfigs: boolean;
+};
+
+type MockTechAdminPermissions = {
+	canManageTechAdmin: boolean;
+	canViewDatabaseExplorer: boolean;
+	canViewBlobExplorer: boolean;
+	canViewQueueDashboard: boolean;
+	canSendQueueMessages: boolean;
+};
+
 type MockPermissions = {
-	communityPermissions: Record<string, boolean>;
-	userPermissions: Record<string, boolean>;
-	staffRolePermissions?: Record<string, boolean>;
-	financePermissions?: Record<string, boolean>;
-	techAdminPermissions?: Record<string, boolean>;
+	communityPermissions: MockCommunityPermissions;
+	userPermissions: MockUserPermissions;
+	staffRolePermissions?: MockStaffRolePermissions;
+	financePermissions?: MockFinancePermissions;
+	techAdminPermissions?: MockTechAdminPermissions;
 	propertyPermissions?: Record<string, boolean>;
 	servicePermissions?: Record<string, boolean>;
 	serviceTicketPermissions?: Record<string, boolean>;
@@ -37,7 +75,7 @@ interface MockStaffRoleInstance {
 }
 
 function makeMockStaffRoleInstance(roleName: string): MockStaffRoleInstance {
-	const communityPermissions: Record<string, boolean> = {
+	const communityPermissions: MockCommunityPermissions = {
 		canManageCommunities: false,
 		canManageStaffRolesAndPermissions: false,
 		canManageAllCommunities: false,
@@ -45,24 +83,24 @@ function makeMockStaffRoleInstance(roleName: string): MockStaffRoleInstance {
 		canChangeCommunityOwner: false,
 		canReIndexSearchCollections: false,
 	};
-	const userPermissions: Record<string, boolean> = {
+	const userPermissions: MockUserPermissions = {
 		canManageUsers: false,
 		canAssignStaffRoles: false,
 		canViewStaffUsers: false,
 	};
-	const staffRolePermissions: Record<string, boolean> = {
+	const staffRolePermissions: MockStaffRolePermissions = {
 		canViewRoles: false,
 		canAddRole: false,
 		canEditRole: false,
 		canRemoveRole: false,
 	};
-	const financePermissions: Record<string, boolean> = {
+	const financePermissions: MockFinancePermissions = {
 		canManageFinance: false,
 		canViewGLBatchSummaries: false,
 		canViewFinanceConfigs: false,
 		canCreateFinanceConfigs: false,
 	};
-	const techAdminPermissions: Record<string, boolean> = {
+	const techAdminPermissions: MockTechAdminPermissions = {
 		canManageTechAdmin: false,
 		canViewDatabaseExplorer: false,
 		canViewBlobExplorer: false,
@@ -123,7 +161,11 @@ function makeDataSources(overrides: {
 	const savedRole = explicitUndefinedSave ? undefined : (instance as unknown as Domain.Contexts.User.StaffRole.StaffRoleEntityReference);
 
 	const repo = {
-		getByRoleName: unexpectedError ? vi.fn().mockRejectedValue(unexpectedError) : existingRole ? vi.fn().mockResolvedValue(existingRole) : vi.fn().mockRejectedValue(new Error('not found')),
+		getByRoleName: unexpectedError
+			? vi.fn().mockRejectedValue(unexpectedError)
+			: existingRole
+				? vi.fn().mockResolvedValue(existingRole)
+				: vi.fn().mockRejectedValue(Object.assign(new Error('not found'), { name: 'NotFoundError' })),
 		getNewInstance: vi.fn().mockResolvedValue(instance),
 		save: vi.fn().mockResolvedValue(savedRole),
 	} as unknown as Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
@@ -220,7 +262,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			dataSources = makeDataSources({ newRoleInstance: roleInstance });
 			command = {
 				roleName: 'Admin Role',
-				permissions: { community: { canManageCommunities: true } } satisfies StaffRoleCreateCommandPermissions,
+				permissions: { community: { canManageCommunities: true } } satisfies StaffRoleCommandPermissions,
 			};
 		});
 
@@ -251,7 +293,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			dataSources = makeDataSources({ newRoleInstance: roleInstance });
 			command = {
 				roleName: 'Manager Role',
-				permissions: { user: { canManageUsers: true } } satisfies StaffRoleCreateCommandPermissions,
+				permissions: { user: { canManageUsers: true } } satisfies StaffRoleCommandPermissions,
 			};
 		});
 
@@ -467,7 +509,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('all community permissions should remain false', () => {
 			expect(thrownError).toBeUndefined();
 			const cp = roleInstance.permissions.communityPermissions;
-			for (const key of Object.keys(cp)) {
+			for (const key of Object.keys(cp) as (keyof MockCommunityPermissions)[]) {
 				expect(cp[key], key).toBe(false);
 			}
 		});
@@ -492,7 +534,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('all user permissions should remain false', () => {
 			expect(thrownError).toBeUndefined();
 			const up = roleInstance.permissions.userPermissions;
-			for (const key of Object.keys(up)) {
+			for (const key of Object.keys(up) as (keyof MockUserPermissions)[]) {
 				expect(up[key], key).toBe(false);
 			}
 		});

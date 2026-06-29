@@ -9,7 +9,7 @@
 			"!**/dist",
 			"!**/build",
 			"!**/deploy",
-            "!**/target",
+			"!**/target",
 			"!**/node_modules",
 			"!**/coverage",
 			"!**/.turbo",

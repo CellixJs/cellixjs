@@ -1,9 +1,8 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-
-import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
+import { Domain } from '@ocom/domain';
+import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
 
 export class CommunityConverter extends MongooseSeedwork.MongoTypeConverter<Community, CommunityDomainAdapter, Domain.Passport, Domain.Contexts.Community.Community.Community<CommunityDomainAdapter>> {
 	constructor() {

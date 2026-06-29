@@ -19,6 +19,7 @@
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
 		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
 		"test:watch": "vitest",
 		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"lint": "biome lint",
