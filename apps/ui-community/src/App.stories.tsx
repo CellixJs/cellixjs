@@ -9,8 +9,8 @@ import { client } from './components/ui/organisms/apollo-connection/apollo-clien
 // Mock environment variables
 const mockEnv = {
 	VITE_COMMON_API_ENDPOINT: 'https://mock-functions.example.com',
-	VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: 'https://mock-authority.example.com',
-	VITE_APP_UI_COMMUNITY_B2C_CLIENTID: 'mock-client-id',
+	VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY: 'https://mock-authority.example.com',
+	VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID: 'mock-client-id',
 };
 
 // Mock globalThis.sessionStorage and globalThis.localStorage
@@ -65,8 +65,8 @@ const meta = {
 	decorators: [
 		(Story) => (
 			<AuthProvider
-				authority={mockEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY}
-				client_id={mockEnv.VITE_APP_UI_COMMUNITY_B2C_CLIENTID}
+				authority={mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY}
+				client_id={mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID}
 				redirect_uri={globalThis.location.origin}
 				post_logout_redirect_uri={globalThis.location.origin}
 				userStore={mockStorage}

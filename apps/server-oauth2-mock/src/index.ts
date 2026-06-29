@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createMockOAuth2Manager, type MockOAuth2PortalConfig, normalizeBaseUrl } from '@cellix/server-oauth2-mock-seedwork';
-import { discoverPortalConfigs, type PortalOidcConfig } from './portal-discovery.ts';
+import { createFileUserStore, createMockOAuth2Manager, discoverPortalConfigs, ensurePortInUrl, type MockOAuth2PortalConfig, normalizeBaseUrl, type PortalOidcConfig } from '@cellix/server-oauth2-mock-seedwork';
 import { setupEnvironment } from './setup-environment.ts';
 
 setupEnvironment();
@@ -15,7 +14,6 @@ const port = Number.isFinite(rawPort) && rawPort > 0 ? rawPort : 1355;
 
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.
 // In local dev the portless proxy handles TLS termination and host mapping.
-import { ensurePortInUrl } from './utils.ts';
 
 let baseUrl = BASE_URL ?? `https://mock-auth.ownercommunity.localhost${port === 443 ? '' : `:${port}`}`;
 // If BASE_URL was supplied but omits a port, ensure non-standard ports (like 1355) are preserved
@@ -30,7 +28,6 @@ if (portals.length === 0) {
 
 try {
 	const manager = createMockOAuth2Manager({ port, host: '127.0.0.1', baseUrl: normalizeBaseUrl(baseUrl) });
-	const { createFileUserStore } = await import('./users.ts');
 
 	for (const portal of portals) {
 		const userStore = createFileUserStore(path.join(appsDir, portal.dirName));

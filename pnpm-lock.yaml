@@ -1041,6 +1041,9 @@ importers:
 
   packages/cellix/server-oauth2-mock-seedwork:
     dependencies:
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
       express:
         specifier: ^4.22.2
         version: 4.22.2
@@ -1280,6 +1283,9 @@ importers:
       '@ocom/context-spec':
         specifier: workspace:*
         version: link:../../ocom/context-spec
+      '@ocom/data-sources-mongoose-models':
+        specifier: workspace:*
+        version: link:../../ocom/data-sources-mongoose-models
       '@ocom/graphql':
         specifier: workspace:*
         version: link:../../ocom/graphql
