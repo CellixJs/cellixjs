@@ -19,6 +19,8 @@ catalog:
   '@serenity-js/cucumber': 3.43.0
   '@serenity-js/serenity-bdd': 3.43.0
   '@types/node': ^22.19.5
+  '@vitest/browser': 4.1.8
+  '@vitest/browser-playwright': 4.1.8
   '@vitest/coverage-istanbul': 4.1.8
   antd: 6.3.5
   archunit: ^2.1.63
@@ -45,8 +47,6 @@ catalog:
   "@typescript/native-preview": 7.0.0-dev.20260428.1
   vite: 8.0.16
   vitest: 4.1.8
-  '@vitest/browser': 4.1.8
-  '@vitest/browser-playwright': 4.1.8
   vite-plugin-node-polyfills: ^0.28.0
 
 auditConfig:
@@ -89,9 +89,9 @@ allowBuilds:
 overrides:
   '@vitest/browser': 4.1.8
   '@vitest/browser-playwright': 4.1.8
-  esbuild: 0.28.1
   happy-dom: 20.10.1
   axios: 1.16.0
+  esbuild: 'catalog:'
   follow-redirects: ^1.16.0
   vite: "catalog:"
   jiti: 2.6.1

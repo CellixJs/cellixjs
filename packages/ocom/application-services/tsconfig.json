@@ -6,5 +6,5 @@
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
 	"include": ["src/**/*.ts"],
-	"references": [{ "path": "../context-spec" }, { "path": "../domain" }, { "path": "../persistence" }]
+	"references": [{ "path": "../context-spec" }, { "path": "../domain" }, { "path": "../persistence" }, { "path": "../service-blob-storage" }, { "path": "../service-queue-storage" }]
 }

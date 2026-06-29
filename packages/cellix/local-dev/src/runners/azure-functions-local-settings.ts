@@ -54,6 +54,37 @@ export interface AzureFunctionsLocalSettingsOptions {
 }
 
 /**
+ * Resolves the mode-appropriate `Values` for the API's local settings,
+ * worktree-scoped the same way {@link AzureFunctionsLocalSettings.sync} scopes
+ * them before writing `local.settings.json`.
+ *
+ * Centralizes the worktree-conversion mechanics here so callers that need
+ * these values for something other than the Functions host's own
+ * `local.settings.json` (e.g. an E2E test process reading the API's mock
+ * service endpoints directly) get the same worktree-scoped values without
+ * reimplementing the conversion themselves.
+ *
+ * @param options - Same options accepted by {@link AzureFunctionsLocalSettings}.
+ * @returns The resolved values, converted only when a worktree is active.
+ *
+ * @example
+ * ```ts
+ * const values = resolveAzureFunctionsLocalSettingsValues({
+ *   env: { WORKTREE_NAME: 'feature-a' },
+ *   values: { DATABASE_URL: 'mongodb://127.0.0.1:50000/app' },
+ *   worktreeConversion: { mongoKeys: ['DATABASE_URL'] },
+ * });
+ * ```
+ */
+export function resolveAzureFunctionsLocalSettingsValues(options: AzureFunctionsLocalSettingsOptions = {}): SettingsRecord {
+	const env = options.env ?? process.env;
+	const worktreeName = resolveSettingsWorktreeName(options, env);
+	const values = buildModeValues(options, env);
+
+	return applyWorktreeConversion(values, worktreeName, options.worktreeConversion);
+}
+
+/**
  * Generates Azure Functions `local.settings.json` before `func start`.
  *
  * The flow is a flat three steps: load the mode's settings, convert the
@@ -71,15 +102,12 @@ export class AzureFunctionsLocalSettings {
 	 * Writes the worktree-scoped settings into the Functions script root.
 	 */
 	public sync(): void {
-		const env = this.options.env ?? process.env;
 		const targetPath = resolveTargetPath(this.options);
-		const worktreeName = resolveSettingsWorktreeName(this.options, env);
-		const values = buildModeValues(this.options, env);
-		const converted = applyWorktreeConversion(values, worktreeName, this.options.worktreeConversion);
+		const values = resolveAzureFunctionsLocalSettingsValues(this.options);
 
 		writeJsonFile(targetPath, {
 			IsEncrypted: false,
-			Values: converted,
+			Values: values,
 			ConnectionStrings: {},
 			...(this.options.host ? { Host: this.options.host } : {}),
 		});

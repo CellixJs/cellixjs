@@ -8,9 +8,10 @@ interface OcomEnvValues {
 	WORKTREE_NAME?: string;
 	VITE_APP_UI_COMMUNITY_BASE_URL?: string;
 	VITE_COMMON_API_ENDPOINT?: string;
-	VITE_APP_UI_COMMUNITY_B2C_AUTHORITY?: string;
+	VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY?: string;
 	VITE_APP_UI_STAFF_BASE_URL?: string;
-	VITE_APP_UI_STAFF_AAD_REDIRECT_URI?: string;
+	VITE_APP_UI_STAFF_STAFF_USER_AAD_AUTHORITY?: string;
+	VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI?: string;
 }
 
 function requiredHostname(url: string, key: string): string {
@@ -63,13 +64,19 @@ export function getOcomHostnames(options: OcomLocalDevOptions = {}): OcomHostnam
 	const worktreeName = env.WORKTREE_NAME;
 	const communityHostname = requiredHostnameFromSources('VITE_APP_UI_COMMUNITY_BASE_URL', env.VITE_APP_UI_COMMUNITY_BASE_URL, communityEnv.VITE_APP_UI_COMMUNITY_BASE_URL);
 	const apiHostname = requiredHostnameFromSources('VITE_COMMON_API_ENDPOINT', env.VITE_COMMON_API_ENDPOINT, communityEnv.VITE_COMMON_API_ENDPOINT);
-	const mockAuthHostname = requiredHostnameFromSources('VITE_APP_UI_COMMUNITY_B2C_AUTHORITY', env.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY, communityEnv.VITE_APP_UI_COMMUNITY_B2C_AUTHORITY);
+	const mockAuthHostname = requiredHostnameFromSources(
+		'VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY',
+		env.VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY,
+		communityEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY,
+		env.VITE_APP_UI_STAFF_STAFF_USER_AAD_AUTHORITY,
+		staffEnv.VITE_APP_UI_STAFF_STAFF_USER_AAD_AUTHORITY,
+	);
 	const staffHostname = requiredHostnameFromSources(
 		'VITE_APP_UI_STAFF_BASE_URL',
 		env.VITE_APP_UI_STAFF_BASE_URL,
 		staffEnv.VITE_APP_UI_STAFF_BASE_URL,
-		env.VITE_APP_UI_STAFF_AAD_REDIRECT_URI,
-		staffEnv.VITE_APP_UI_STAFF_AAD_REDIRECT_URI,
+		env.VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI,
+		staffEnv.VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI,
 	);
 
 	return {

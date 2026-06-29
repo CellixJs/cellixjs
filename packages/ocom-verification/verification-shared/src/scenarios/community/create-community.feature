@@ -7,17 +7,19 @@ Feature: Create Community
 	Background:
 		Given Alice is an authenticated community owner
 
-	Scenario: Create a community with basic details
-		When Alice creates a community with:
-			| name | Test Community |
-		Then the community should be created successfully
-		And the community name should be "Test Community"
+		Scenario: Create a community with basic details
+			When Alice creates a community with:
+				| name | Test Community |
+			Then the community should be created successfully
+			And the community name should be "Test Community"
+			And a community creation queue message should be recorded
 
-	Scenario: Create a community with a descriptive name
-		When Alice creates a community with:
-			| name | Portland Outdoor Enthusiasts |
-		Then the community should be created successfully
-		And the community name should be "Portland Outdoor Enthusiasts"
+		Scenario: Create a community with a descriptive name
+			When Alice creates a community with:
+				| name | Portland Outdoor Enthusiasts |
+			Then the community should be created successfully
+			And the community name should be "Portland Outdoor Enthusiasts"
+			And a community creation queue message should be recorded
 
 	@validation
 	Scenario: Cannot create community without required name

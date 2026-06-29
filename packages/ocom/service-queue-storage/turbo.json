@@ -1,0 +1,16 @@
+{
+	"extends": ["//"],
+	"tags": ["backend"],
+	"tasks": {
+		"gen": {
+			"cache": true,
+			"inputs": ["src/**/*.schema.json", "src/**/*.ts", "$TURBO_ROOT$/packages/cellix/service-queue-storage/bin/generate-queue-schema-types.mjs"],
+			"outputs": ["src/**/*.schema.generated.ts"]
+		},
+		"build": {
+			"dependsOn": ["gen"],
+			"inputs": ["$TURBO_EXTENDS$"],
+			"outputs": ["$TURBO_EXTENDS$"]
+		}
+	}
+}

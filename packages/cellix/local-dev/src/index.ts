@@ -15,6 +15,7 @@ export {
 	type ResolvedAzuriteOptions,
 	type RunnerOptions,
 	type RunnerSpawn,
+	resolveAzureFunctionsLocalSettingsValues,
 	type ViteDevOptions,
 	ViteDevRunner,
 } from './runners/index.ts';

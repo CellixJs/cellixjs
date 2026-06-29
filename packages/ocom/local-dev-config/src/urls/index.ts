@@ -25,10 +25,10 @@ export function buildOcomUrls(options: OcomLocalDevOptions = {}): OcomUrls {
 		uiStaffBaseUrl: buildPortlessUrl(hostnames.uiStaff),
 		uiStaffRedirectUrl: buildPortlessUrl(hostnames.uiStaff, '/auth-redirect'),
 		apiGraphqlUrl: buildPortlessUrl(hostnames.api, '/api/graphql'),
-		mockCommunityAuthorityUrl: buildPortlessUrl(hostnames.mockAuth, '/community'),
-		mockCommunityJwksUrl: buildPortlessUrl(hostnames.mockAuth, '/community/.well-known/jwks.json'),
-		mockStaffAuthorityUrl: buildPortlessUrl(hostnames.mockAuth, '/staff'),
-		mockStaffJwksUrl: buildPortlessUrl(hostnames.mockAuth, '/staff/.well-known/jwks.json'),
+		mockCommunityAuthorityUrl: buildPortlessUrl(hostnames.mockAuth, '/community-end-user'),
+		mockCommunityJwksUrl: buildPortlessUrl(hostnames.mockAuth, '/community-end-user/.well-known/jwks.json'),
+		mockStaffAuthorityUrl: buildPortlessUrl(hostnames.mockAuth, '/staff-staff-user'),
+		mockStaffJwksUrl: buildPortlessUrl(hostnames.mockAuth, '/staff-staff-user/.well-known/jwks.json'),
 		docsBaseUrl: buildPortlessUrl(hostnames.docs),
 	};
 }

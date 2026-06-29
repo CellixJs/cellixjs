@@ -82,6 +82,22 @@ new AzureFunctionsDevRunner({
 }).start();
 ```
 
+Code that consumes the same settings outside the Functions host can resolve
+them without writing `local.settings.json`:
+
+```js
+import { resolveAzureFunctionsLocalSettingsValues } from '@cellix/local-dev';
+
+const values = resolveAzureFunctionsLocalSettingsValues({
+	values: { DATABASE_URL: 'mongodb://127.0.0.1:50000/app' },
+	worktreeConversion: { mongoKeys: ['DATABASE_URL'] },
+});
+```
+
+The resolver applies worktree conversion only when `WORKTREE_NAME` (or an
+explicit `worktreeName`) is present. Regular E2E and dev runs keep the base
+values.
+
 Worktree transforms are enabled when a worktree name is available, either through
 `worktreeName` or `WORKTREE_NAME`. Set `worktree: false` or
 `CELLIX_WORKTREE=0` for regular dev scripts that should ignore an ambient
@@ -123,6 +139,7 @@ also published for consumers that want narrower imports:
 - `AzuriteDevRunner`
 - `WorktreeSettings`
 - `AzureFunctionsLocalSettings`
+- `resolveAzureFunctionsLocalSettingsValues`
 - `WorktreeMode`
 - `convertSettingsForWorktree`
 - `WorktreeConversionPlan`

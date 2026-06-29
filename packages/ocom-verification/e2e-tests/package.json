@@ -25,6 +25,9 @@
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {
+		"@cellix/local-dev": "workspace:*",
+		"@ocom/local-dev-config": "workspace:*",
+		"@ocom/service-queue-storage": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@ocom-verification/verification-shared": "workspace:*",
 		"@types/node": "catalog:",

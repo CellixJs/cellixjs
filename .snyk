@@ -101,6 +101,11 @@ ignore:
         reason: 'Transitive dependency in Docusaurus CSS optimization/build tooling; Snyk reports no fixed upgrade or patch available. Not exploitable at runtime because docs CSS is repository-controlled and processed at build time.'
         expires: '2026-09-18T00:00:00.000Z'
         created: '2026-06-08T00:00:00.000Z'
+  'SNYK-JS-SHELLQUOTE-17457810':
+    - '* > shell-quote@1.8.4':
+        reason: 'Transitive dependency in @docusaurus/core via webpack-dev-server > launch-editor; fixed in shell-quote@1.9.0 but no direct upgrade path available. Dev-time only; not exploitable in current usage.'
+        expires: '2026-12-31T00:00:00.000Z'
+        created: '2026-06-25T00:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295814':
     - '* > image-size':
         reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'

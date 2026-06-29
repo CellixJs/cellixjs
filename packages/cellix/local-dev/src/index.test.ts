@@ -18,6 +18,7 @@ import {
 	type RunnerSpawn,
 	readDotEnv,
 	replaceUrlPort,
+	resolveAzureFunctionsLocalSettingsValues,
 	resolveWorkspaceRoot,
 	sanitizeWorktreeHostnameLabel,
 	syncJsonFile,
@@ -409,6 +410,33 @@ describe('@cellix/local-dev', () => {
 			COSMOSDB_DBNAME: 'ocom',
 		});
 		expect(typedConverted.COSMOSDB_CONNECTION_STRING).toBe(`mongodb://127.0.0.1:${getMongoPort('Jason/Feature 123')}/ocom`);
+	});
+
+	it('resolves Azure Functions settings with worktree conversion only when a worktree is active', () => {
+		const options = {
+			values: {
+				COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
+				UNCHANGED: 'value',
+			},
+			worktreeConversion: {
+				mongoKeys: ['COSMOSDB_CONNECTION_STRING'],
+			},
+		};
+
+		const regular = resolveAzureFunctionsLocalSettingsValues({ ...options, env: {} });
+		const worktree = resolveAzureFunctionsLocalSettingsValues({
+			...options,
+			env: { WORKTREE_NAME: 'feature-a' },
+		});
+
+		expect(regular).toEqual({
+			COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
+			UNCHANGED: 'value',
+		});
+		expect(worktree).toEqual({
+			COSMOSDB_CONNECTION_STRING: `mongodb://127.0.0.1:${getMongoPort('feature-a')}/ocom`,
+			UNCHANGED: 'value',
+		});
 	});
 
 	it('generates Azure Functions local settings before starting func', () => {

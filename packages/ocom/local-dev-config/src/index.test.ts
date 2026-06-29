@@ -14,10 +14,17 @@ function createWorkspaceFixture(): string {
 		[
 			'VITE_APP_UI_COMMUNITY_BASE_URL=https://ownercommunity.localhost:1355',
 			'VITE_COMMON_API_ENDPOINT=https://data-access.ownercommunity.localhost:1355/api/graphql',
-			'VITE_APP_UI_COMMUNITY_B2C_AUTHORITY=https://mock-auth.ownercommunity.localhost:1355/community',
+			'VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY=https://mock-auth.ownercommunity.localhost:1355/community-end-user',
 		].join('\n'),
 	);
-	writeFileSync(path.join(workspaceRoot, 'apps', 'ui-staff', '.env'), 'VITE_APP_UI_STAFF_BASE_URL=https://staff.ownercommunity.localhost:1355\n');
+	writeFileSync(
+		path.join(workspaceRoot, 'apps', 'ui-staff', '.env'),
+		[
+			'VITE_APP_UI_STAFF_BASE_URL=https://staff.ownercommunity.localhost:1355',
+			'VITE_APP_UI_STAFF_STAFF_USER_AAD_AUTHORITY=https://mock-auth.ownercommunity.localhost:1355/staff-staff-user',
+			'VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI=https://staff.ownercommunity.localhost:1355/auth-redirect',
+		].join('\n'),
+	);
 
 	return workspaceRoot;
 }
@@ -49,10 +56,10 @@ describe('@ocom/local-dev-config', () => {
 			uiStaffBaseUrl: 'https://staff.ownercommunity.localhost:1355',
 			uiStaffRedirectUrl: 'https://staff.ownercommunity.localhost:1355/auth-redirect',
 			apiGraphqlUrl: 'https://data-access.ownercommunity.localhost:1355/api/graphql',
-			mockCommunityAuthorityUrl: 'https://mock-auth.ownercommunity.localhost:1355/community',
-			mockCommunityJwksUrl: 'https://mock-auth.ownercommunity.localhost:1355/community/.well-known/jwks.json',
-			mockStaffAuthorityUrl: 'https://mock-auth.ownercommunity.localhost:1355/staff',
-			mockStaffJwksUrl: 'https://mock-auth.ownercommunity.localhost:1355/staff/.well-known/jwks.json',
+			mockCommunityAuthorityUrl: 'https://mock-auth.ownercommunity.localhost:1355/community-end-user',
+			mockCommunityJwksUrl: 'https://mock-auth.ownercommunity.localhost:1355/community-end-user/.well-known/jwks.json',
+			mockStaffAuthorityUrl: 'https://mock-auth.ownercommunity.localhost:1355/staff-staff-user',
+			mockStaffJwksUrl: 'https://mock-auth.ownercommunity.localhost:1355/staff-staff-user/.well-known/jwks.json',
 			docsBaseUrl: 'https://docs.ownercommunity.localhost:1355',
 		});
 	});
@@ -65,7 +72,7 @@ describe('@ocom/local-dev-config', () => {
 				env: {
 					VITE_APP_UI_COMMUNITY_BASE_URL: 'https://community.override.localhost:1355',
 					VITE_COMMON_API_ENDPOINT: 'https://api.override.localhost:1355/api/graphql',
-					VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: 'https://auth.override.localhost:1355/community',
+					VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY: 'https://auth.override.localhost:1355/community-end-user',
 					VITE_APP_UI_STAFF_BASE_URL: 'https://staff.override.localhost:1355',
 				},
 				workspaceRoot,
@@ -88,7 +95,7 @@ describe('@ocom/local-dev-config', () => {
 					WORKTREE_NAME: 'Jason/Feature 123',
 					VITE_APP_UI_COMMUNITY_BASE_URL: 'https://ownercommunity.jason-feature-123.localhost:1355',
 					VITE_COMMON_API_ENDPOINT: 'https://data-access.ownercommunity.jason-feature-123.localhost:1355/api/graphql',
-					VITE_APP_UI_COMMUNITY_B2C_AUTHORITY: 'https://mock-auth.ownercommunity.jason-feature-123.localhost:1355/community',
+					VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY: 'https://mock-auth.ownercommunity.jason-feature-123.localhost:1355/community-end-user',
 					VITE_APP_UI_STAFF_BASE_URL: 'https://staff.ownercommunity.jason-feature-123.localhost:1355',
 				},
 				workspaceRoot,

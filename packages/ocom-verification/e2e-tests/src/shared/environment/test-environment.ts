@@ -2,6 +2,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveAzureFunctionsLocalSettingsValues } from '@cellix/local-dev';
+import { buildOcomApiLocalSettings } from '@ocom/local-dev-config';
 import { getPortlessPath } from './resolve-portless.ts';
 
 let proxyInitialized = false;
@@ -14,9 +16,9 @@ export function getHostnames(): Record<OcomPortlessHostKey | 'docs', string> {
 	const hostnames = resolvePortlessHostnames({
 		keys: {
 			api: 'VITE_COMMON_API_ENDPOINT',
-			mockAuth: 'VITE_APP_UI_COMMUNITY_B2C_AUTHORITY',
+			mockAuth: 'VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY',
 			uiCommunity: 'VITE_APP_UI_COMMUNITY_BASE_URL',
-			uiStaff: 'VITE_APP_UI_STAFF_AAD_REDIRECT_URI',
+			uiStaff: 'VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI',
 		},
 	});
 
@@ -29,9 +31,9 @@ export function getHostnames(): Record<OcomPortlessHostKey | 'docs', string> {
 const hostnames = getHostnames();
 
 export const mockOidcAudience = 'mock-client';
-export const mockOidcIssuer = buildUrl(hostnames.mockAuth, '/community');
+export const mockOidcIssuer = buildUrl(hostnames.mockAuth, '/community-end-user');
 export const mockOidcEndpoint = `${mockOidcIssuer}/.well-known/jwks.json`;
-export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/staff');
+export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/staff-staff-user');
 
 /**
  * Ensure the portless proxy is running for the PR's worktree-scoped hostnames.
@@ -78,6 +80,7 @@ function loadE2EEnvDefaults(): void {
 
 	const currentDir = dirname(fileURLToPath(import.meta.url));
 	const workspaceRoot = resolve(currentDir, '../../../../../..');
+	loadApiLocalSettings();
 	for (const filePath of [resolve(workspaceRoot, 'apps/ui-community/.env.e2e'), resolve(workspaceRoot, 'apps/ui-staff/.env.e2e')]) {
 		if (!existsSync(filePath)) continue;
 		for (const line of readFileSync(filePath, 'utf-8').split('\n')) {
@@ -88,6 +91,22 @@ function loadE2EEnvDefaults(): void {
 			const key = trimmed.slice(0, idx);
 			process.env[key] ??= trimmed.slice(idx + 1);
 		}
+	}
+}
+
+/**
+ * Loads `apps/api/local-settings.e2e.json` into `process.env`. The values
+ * are already worktree-scoped by `@cellix/local-dev` — the same conversion
+ * the API's own Functions host applies to `local.settings.json` — so code
+ * running directly in this cucumber-js process (e.g.
+ * `shared/support/queue-storage.ts`) sees this worktree's actual ports
+ * instead of the settings file's un-scoped base ports.
+ */
+function loadApiLocalSettings(): void {
+	const values = resolveAzureFunctionsLocalSettingsValues(buildOcomApiLocalSettings());
+
+	for (const [key, value] of Object.entries(values)) {
+		process.env[key] ??= String(value);
 	}
 }
 

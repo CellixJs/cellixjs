@@ -34,6 +34,14 @@
 			"project": ["src/**/*.ts"],
 			"ignore": ["**/mongo-connection.ts"]
 		},
+		"packages/cellix/service-queue-storage": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"packages/ocom/service-queue-storage": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.ts"]
+		},
 		"packages/cellix/ui-core/*": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.{ts,tsx}"]

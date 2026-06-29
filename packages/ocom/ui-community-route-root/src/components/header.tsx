@@ -16,10 +16,10 @@ export const Header: React.FC = () => {
 		}
 
 		// fall back to direct navigation if the OIDC helper is unavailable or fails
-		const redirectUri = (import.meta as { env?: { VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI?: string } }).env?.VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI;
+		const redirectUri = (import.meta as { env?: { VITE_APP_UI_COMMUNITY_END_USER_B2C_REDIRECT_URI?: string } }).env?.VITE_APP_UI_COMMUNITY_END_USER_B2C_REDIRECT_URI;
 
 		if (!redirectUri) {
-			console.error('Missing VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI; cannot perform fallback redirect');
+			console.error('Missing VITE_APP_UI_COMMUNITY_END_USER_B2C_REDIRECT_URI; cannot perform fallback redirect');
 			return;
 		}
 

@@ -38,7 +38,7 @@ Root entrypoint exports:
 - `isGracefulInterruptExit(signal, code)`, `forwardChildExit(child)`
 - `getWorktreePortOffset(worktreeName?)`, `getMongoPort(worktreeName?)`, `getAzuritePorts(worktreeName?)`, `buildAzuriteConnectionString(options)`
 - `ViteDevRunner`, `DocusaurusDevRunner`, `AzureFunctionsDevRunner`, `NodeDevRunner`, `AzuriteDevRunner`
-- `WorktreeSettings`, `AzureFunctionsLocalSettings`, `convertSettingsForWorktree`, `WorktreeConversionPlan`, `WorktreeMode`
+- `WorktreeSettings`, `AzureFunctionsLocalSettings`, `resolveAzureFunctionsLocalSettingsValues`, `convertSettingsForWorktree`, `WorktreeConversionPlan`, `WorktreeMode`
 - `runViteDev(options?)`, `runDocusaurusDev(options?)`, `runAzureFunctionsDev(options?)`, `runNodeDev(options?)`, `runAzuriteDev(options)`
 - `runTsxDev(options?)` remains as a deprecated compatibility alias for `runNodeDev(options?)`
 
@@ -49,6 +49,7 @@ Root entrypoint exports:
 - Worktree isolation is deterministic and should keep MongoDB ports, Azurite ports, hostname suffixing, URL-like env values, and JSON settings aligned across all participating apps.
 - Worktree transforms are explicit when `worktree` or `CELLIX_WORKTREE` is set; otherwise helpers fall back to applying transforms only when a worktree name is available.
 - Azure Functions dev runners may prepare `local.settings.json` before startup because the Functions host reads settings from its script root rather than the process environment alone.
+- Consumers that need the same Azure Functions values outside `func start` can resolve them without writing a file; regular mode remains unscoped unless a worktree name is explicitly available.
 - Hostname suffixing must sanitize raw worktree names before inserting them into `.localhost` domains, and repeated suffixing with the same worktree label must leave hostnames unchanged.
 
 ## Package boundaries
