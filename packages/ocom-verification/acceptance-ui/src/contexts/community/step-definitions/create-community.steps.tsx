@@ -16,11 +16,7 @@ Given('{word} is an authenticated community owner', async (actorName: string) =>
 	const actor = actorCalled(actorName);
 
 	const onSave = async (values: { name: string }): Promise<void> => {
-		await actor.attemptsTo(
-			notes<CommunityUiNotes>().set('formSubmitted', true),
-			notes<CommunityUiNotes>().set('communityName', values.name ?? ''),
-			notes<CommunityUiNotes>().set('communityCreationQueued', true),
-		);
+		await actor.attemptsTo(notes<CommunityUiNotes>().set('formSubmitted', true), notes<CommunityUiNotes>().set('communityName', values.name ?? ''), notes<CommunityUiNotes>().set('communityCreationQueued', true));
 	};
 
 	await actor.attemptsTo(

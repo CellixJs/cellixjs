@@ -1,5 +1,5 @@
 import { defineQueue } from '@cellix/service-queue-storage';
-import { schema as endUserUpdateSchema, type Schema as EndUserUpdatePayload } from './end-user-update.schema.generated.ts';
+import { type Schema as EndUserUpdatePayload, schema as endUserUpdateSchema } from './end-user-update.schema.generated.ts';
 
 export type { EndUserUpdatePayload };
 

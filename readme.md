@@ -231,6 +231,7 @@ CellixJS integrates [Agent Skills](https://agentskills.io) to provide AI coding 
 
 The managed skill set lives in [`.agents/skills/`](.agents/skills/) and is mirrored for Copilot discovery through symlinks in [`.github/skills/`](.github/skills/). Only skills relevant to normal work in this repo are committed.
 
+
 **Current managed skills:**
 - **madr-enforcement**: Enforces ADR-defined architectural standards across the codebase
 - **turborepo**: Guides monorepo task graph, caching, and pipeline work

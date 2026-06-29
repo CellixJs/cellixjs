@@ -4,8 +4,8 @@ import type { ApiContextSpec } from '@ocom/context-spec';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
-import type { EndUserUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
+import type { EndUserUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 

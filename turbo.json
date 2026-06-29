@@ -34,7 +34,7 @@
 		"test": {
 			"description": "Runs the default test suite for each package",
 			"dependsOn": ["^build", "@cellix/config-vitest#build"],
-			"inputs": ["$TURBO_DEFAULT$",  "**/*.test.ts", "**/*.stories.tsx", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"]
+			"inputs": ["$TURBO_DEFAULT$", "**/*.test.ts", "**/*.stories.tsx", "!coverage/**", "!target/**", "!dist/**", "!build/**", "!deploy/**"]
 		},
 		"test:arch": {
 			"description": "Runs architecture unit tests for each package",

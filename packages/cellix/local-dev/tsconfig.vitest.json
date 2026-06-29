@@ -1,0 +1,11 @@
+{
+	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
+	"compilerOptions": {
+		"rootDir": "../../..",
+		"paths": {
+			"@cellix/local-dev": ["./src/index.ts"],
+			"@cellix/local-dev/silent-runners": ["./src/silent-runners/index.ts"]
+		}
+	},
+	"include": ["src/**/*.ts"]
+}
