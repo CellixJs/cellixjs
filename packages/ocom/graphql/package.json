@@ -32,7 +32,7 @@
 		"@ocom/application-services": "workspace:*",
 		"@ocom/domain": "workspace:*",
 		"graphql": "catalog:",
-        "mongoose": "catalog:"
+		"mongoose": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/archunit-tests": "workspace:*",

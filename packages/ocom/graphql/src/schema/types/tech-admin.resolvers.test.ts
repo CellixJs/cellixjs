@@ -1,17 +1,9 @@
 import mongoose from 'mongoose';
 import { describe, beforeEach, expect, it, vi } from 'vitest';
-import {
-	type FieldNode,
-	type GraphQLObjectType,
-	type GraphQLResolveInfo,
-	type GraphQLSchema,
-	Kind,
-	type OperationDefinitionNode,
-} from 'graphql';
+import { type FieldNode, type GraphQLObjectType, type GraphQLResolveInfo, type GraphQLSchema, Kind, type OperationDefinitionNode } from 'graphql';
 
 import type { GraphContext } from '../context.ts';
 import techAdminResolvers from './tech-admin.resolvers.ts';
-
 
 type JwtOverride = {
 	sub?: string;
@@ -28,17 +20,13 @@ type MockStaffUser = {
 	};
 };
 
-type MockStaffUserService =
-	GraphContext['applicationServices']['User']['StaffUser'] & {
-		queryByExternalId: ReturnType<typeof vi.fn>;
-	};
+type MockStaffUserService = GraphContext['applicationServices']['User']['StaffUser'] & {
+	queryByExternalId: ReturnType<typeof vi.fn>;
+};
 
 type TestGraphContext = Omit<GraphContext, 'applicationServices'> & {
 	applicationServices: Omit<GraphContext['applicationServices'], 'User'> & {
-		User: Omit<
-			GraphContext['applicationServices']['User'],
-			'StaffUser'
-		> & {
+		User: Omit<GraphContext['applicationServices']['User'], 'StaffUser'> & {
 			StaffUser: MockStaffUserService;
 		};
 	};
@@ -71,12 +59,7 @@ function makeMockInfo(fieldName: string): GraphQLResolveInfo {
 	} as unknown as GraphQLResolveInfo;
 }
 
-function makeMockGraphContext(
-	options: {
-		jwt?: JwtOverride | null;
-		staffUser?: MockStaffUser;
-	} = {},
-): TestGraphContext {
+function makeMockGraphContext(options: { jwt?: JwtOverride | null; staffUser?: MockStaffUser } = {}): TestGraphContext {
 	const { jwt = {}, staffUser } = options;
 
 	return {
@@ -103,17 +86,7 @@ const Query = {
 	...(techAdminResolvers.Query ?? {}),
 } as Record<string, (...args: unknown[]) => unknown>;
 
-const callQuery = (
-	name: string,
-	context: GraphContext,
-	args: object = {},
-) =>
-	Query[name]?.(
-		{},
-		args,
-		context,
-		makeMockInfo(name),
-	) as Promise<unknown>;
+const callQuery = (name: string, context: GraphContext, args: object = {}) => Query[name]?.({}, args, context, makeMockInfo(name)) as Promise<unknown>;
 
 let mockCollections: { name: string }[];
 let mockDocuments: Record<string, unknown>[];
@@ -128,11 +101,7 @@ let collectionMock: ReturnType<typeof vi.fn>;
 beforeEach(() => {
 	vi.restoreAllMocks();
 
-	mockCollections = [
-		{ name: 'users' },
-		{ name: 'roles' },
-		{ name: 'system.profile' },
-	];
+	mockCollections = [{ name: 'users' }, { name: 'roles' }, { name: 'system.profile' }];
 
 	mockDocuments = [];
 
@@ -178,9 +147,7 @@ describe('techAdminDatabaseCollections', () => {
 			jwt: null,
 		});
 
-		await expect(
-			callQuery('techAdminDatabaseCollections', context),
-		).rejects.toThrow('Unauthorized');
+		await expect(callQuery('techAdminDatabaseCollections', context)).rejects.toThrow('Unauthorized');
 	});
 
 	it('throws Unauthorized when user cannot view or manage Tech Admin', async () => {
@@ -197,13 +164,9 @@ describe('techAdminDatabaseCollections', () => {
 			},
 		});
 
-		await expect(
-			callQuery('techAdminDatabaseCollections', context),
-		).rejects.toThrow('Unauthorized');
+		await expect(callQuery('techAdminDatabaseCollections', context)).rejects.toThrow('Unauthorized');
 
-		expect(
-			context.applicationServices.User.StaffUser.queryByExternalId,
-		).toHaveBeenCalledWith({
+		expect(context.applicationServices.User.StaffUser.queryByExternalId).toHaveBeenCalledWith({
 			externalId: 'user-123',
 		});
 	});
@@ -222,15 +185,9 @@ describe('techAdminDatabaseCollections', () => {
 			},
 		});
 
-		const result = await callQuery(
-			'techAdminDatabaseCollections',
-			context,
-		);
+		const result = await callQuery('techAdminDatabaseCollections', context);
 
-		expect(result).toEqual([
-			'roles',
-			'users',
-		]);
+		expect(result).toEqual(['roles', 'users']);
 	});
 
 	it('allows users with canManageTechAdmin permission', async () => {
@@ -247,25 +204,13 @@ describe('techAdminDatabaseCollections', () => {
 			},
 		});
 
-		const result = await callQuery(
-			'techAdminDatabaseCollections',
-			context,
-		);
+		const result = await callQuery('techAdminDatabaseCollections', context);
 
-		expect(result).toEqual([
-			'roles',
-			'users',
-		]);
+		expect(result).toEqual(['roles', 'users']);
 	});
 
 	it('filters out system collections', async () => {
-		mockCollections = [
-			{ name: 'users' },
-			{ name: 'roles' },
-			{ name: 'system.profile' },
-			{ name: 'system.indexes' },
-			{ name: 'orders' },
-		];
+		mockCollections = [{ name: 'users' }, { name: 'roles' }, { name: 'system.profile' }, { name: 'system.indexes' }, { name: 'orders' }];
 
 		vi.spyOn(mongoose, 'connection', 'get').mockReturnValue({
 			db: {
@@ -288,28 +233,16 @@ describe('techAdminDatabaseCollections', () => {
 			},
 		});
 
-		const result = await callQuery(
-			'techAdminDatabaseCollections',
-			context,
-		);
+		const result = await callQuery('techAdminDatabaseCollections', context);
 
-		expect(result).toEqual([
-			'orders',
-			'roles',
-			'users',
-		]);
+		expect(result).toEqual(['orders', 'roles', 'users']);
 
 		expect(result).not.toContain('system.profile');
 		expect(result).not.toContain('system.indexes');
 	});
 
 	it('returns collections sorted alphabetically', async () => {
-		mockCollections = [
-			{ name: 'zebra' },
-			{ name: 'apple' },
-			{ name: 'Monkey' },
-			{ name: 'banana' },
-		];
+		mockCollections = [{ name: 'zebra' }, { name: 'apple' }, { name: 'Monkey' }, { name: 'banana' }];
 
 		vi.spyOn(mongoose, 'connection', 'get').mockReturnValue({
 			db: {
@@ -332,17 +265,9 @@ describe('techAdminDatabaseCollections', () => {
 			},
 		});
 
-		const result = await callQuery(
-			'techAdminDatabaseCollections',
-			context,
-		);
+		const result = await callQuery('techAdminDatabaseCollections', context);
 
-		expect(result).toEqual([
-			'apple',
-			'banana',
-			'Monkey',
-			'zebra',
-		]);
+		expect(result).toEqual(['apple', 'banana', 'Monkey', 'zebra']);
 	});
 
 	it('throws when database connection is unavailable', async () => {
@@ -362,11 +287,7 @@ describe('techAdminDatabaseCollections', () => {
 			},
 		});
 
-		await expect(
-			callQuery('techAdminDatabaseCollections', context),
-		).rejects.toThrow(
-			'Database connection is not available',
-		);
+		await expect(callQuery('techAdminDatabaseCollections', context)).rejects.toThrow('Database connection is not available');
 	});
 
 	it('calls queryByExternalId with JWT subject', async () => {
@@ -385,312 +306,297 @@ describe('techAdminDatabaseCollections', () => {
 			},
 		});
 
-		await callQuery(
-			'techAdminDatabaseCollections',
-			context,
-		);
+		await callQuery('techAdminDatabaseCollections', context);
 
-		expect(
-			context.applicationServices.User.StaffUser.queryByExternalId,
-		).toHaveBeenCalledTimes(1);
+		expect(context.applicationServices.User.StaffUser.queryByExternalId).toHaveBeenCalledTimes(1);
 
-		expect(
-			context.applicationServices.User.StaffUser.queryByExternalId,
-		).toHaveBeenCalledWith({
+		expect(context.applicationServices.User.StaffUser.queryByExternalId).toHaveBeenCalledWith({
 			externalId: 'external-user-id',
 		});
 	});
-    it('throws Unauthorized when JWT is missing', async () => {
-	context = makeMockGraphContext({
-		jwt: null,
-	});
+	it('throws Unauthorized when JWT is missing', async () => {
+		context = makeMockGraphContext({
+			jwt: null,
+		});
 
-	await expect(
-		callQuery('techAdminDatabaseDocuments', context, {
-			collection: 'users',
-		}),
-	).rejects.toThrow('Unauthorized');
-});
-it('throws Unauthorized when user lacks permissions', async () => {
-	context = makeMockGraphContext({
-		staffUser: {},
-	});
-
-	await expect(
-		callQuery('techAdminDatabaseDocuments', context, {
-			collection: 'users',
-		}),
-	).rejects.toThrow('Unauthorized');
-});
-it('throws for invalid collection name', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
-					},
-				},
-			},
-		},
-	});
-
-	await expect(
-		callQuery('techAdminDatabaseDocuments', context, {
-			collection: '../users',
-		}),
-	).rejects.toThrow('Invalid collection name');
-});
-it('throws when collection does not exist', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
-					},
-				},
-			},
-		},
-	});
-
-	await expect(
-		callQuery('techAdminDatabaseDocuments', context, {
-			collection: 'unknown',
-		}),
-	).rejects.toThrow('Collection not found or not allowed');
-});
-it('throws for invalid filter JSON', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
-					},
-				},
-			},
-		},
-	});
-
-	await expect(
-		callQuery('techAdminDatabaseDocuments', context, {
-			collection: 'users',
-			filter: '{invalid}',
-		}),
-	).rejects.toThrow('Invalid filter JSON');
-});
-it('rejects $where operator', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
-					},
-				},
-			},
-		},
-	});
-
-	await expect(
-		callQuery('techAdminDatabaseDocuments', context, {
-			collection: 'users',
-			filter: JSON.stringify({
-				$where: 'this.age > 18',
+		await expect(
+			callQuery('techAdminDatabaseDocuments', context, {
+				collection: 'users',
 			}),
-		}),
-	).rejects.toThrow('Operator $where is not allowed in filter');
-});
-it('rejects unknown operators', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
-					},
-				},
-			},
-		},
+		).rejects.toThrow('Unauthorized');
 	});
+	it('throws Unauthorized when user lacks permissions', async () => {
+		context = makeMockGraphContext({
+			staffUser: {},
+		});
 
-	await expect(
-		callQuery('techAdminDatabaseDocuments', context, {
-			collection: 'users',
-			filter: JSON.stringify({
-				name: {
-					$foo: 'abc',
-				},
+		await expect(
+			callQuery('techAdminDatabaseDocuments', context, {
+				collection: 'users',
 			}),
-		}),
-	).rejects.toThrow('Unknown operator: $foo');
-});
-it('caps pageSize at 100', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
+		).rejects.toThrow('Unauthorized');
+	});
+	it('throws for invalid collection name', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
 					},
 				},
 			},
-		},
-	});
+		});
 
-	await callQuery('techAdminDatabaseDocuments', context, {
-		collection: 'users',
-		page: 1,
-		pageSize: 500,
+		await expect(
+			callQuery('techAdminDatabaseDocuments', context, {
+				collection: '../users',
+			}),
+		).rejects.toThrow('Invalid collection name');
 	});
-
-	expect(limitMock).toHaveBeenCalledWith(100);
-});
-it('uses page 1 when page is less than 1', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
+	it('throws when collection does not exist', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
 					},
 				},
 			},
-		},
-	});
+		});
 
-	await callQuery('techAdminDatabaseDocuments', context, {
-		collection: 'users',
-		page: -5,
-		pageSize: 20,
+		await expect(
+			callQuery('techAdminDatabaseDocuments', context, {
+				collection: 'unknown',
+			}),
+		).rejects.toThrow('Collection not found or not allowed');
 	});
-
-	expect(skipMock).toHaveBeenCalledWith(0);
-});
-it('calculates skip correctly', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
+	it('throws for invalid filter JSON', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
 					},
 				},
 			},
-		},
-	});
+		});
 
-	await callQuery('techAdminDatabaseDocuments', context, {
-		collection: 'users',
-		page: 3,
-		pageSize: 10,
+		await expect(
+			callQuery('techAdminDatabaseDocuments', context, {
+				collection: 'users',
+				filter: '{invalid}',
+			}),
+		).rejects.toThrow('Invalid filter JSON');
 	});
-
-	expect(skipMock).toHaveBeenCalledWith(20);
-});
-it('passes parsed filter to countDocuments', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
+	it('rejects $where operator', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
 					},
 				},
 			},
-		},
+		});
+
+		await expect(
+			callQuery('techAdminDatabaseDocuments', context, {
+				collection: 'users',
+				filter: JSON.stringify({
+					$where: 'this.age > 18',
+				}),
+			}),
+		).rejects.toThrow('Operator $where is not allowed in filter');
 	});
-
-	const filter = {
-		name: 'John',
-	};
-
-	await callQuery('techAdminDatabaseDocuments', context, {
-		collection: 'users',
-		filter: JSON.stringify(filter),
-	});
-
-	expect(countDocumentsMock).toHaveBeenCalledWith(filter);
-});
-it('passes parsed filter to find', async () => {
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
+	it('rejects unknown operators', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
 					},
 				},
 			},
-		},
+		});
+
+		await expect(
+			callQuery('techAdminDatabaseDocuments', context, {
+				collection: 'users',
+				filter: JSON.stringify({
+					name: {
+						$foo: 'abc',
+					},
+				}),
+			}),
+		).rejects.toThrow('Unknown operator: $foo');
 	});
-
-	const filter = {
-		email: 'abc@test.com',
-	};
-
-	await callQuery('techAdminDatabaseDocuments', context, {
-		collection: 'users',
-		filter: JSON.stringify(filter),
-	});
-
-	expect(findMock).toHaveBeenCalledWith(filter);
-});
-it('returns totalCount', async () => {
-	countDocumentsMock.mockResolvedValue(45);
-
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
+	it('caps pageSize at 100', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
 					},
 				},
 			},
-		},
-	});
+		});
 
-	const result = await callQuery(
-		'techAdminDatabaseDocuments',
-		context,
-		{
+		await callQuery('techAdminDatabaseDocuments', context, {
 			collection: 'users',
-		},
-	);
+			page: 1,
+			pageSize: 500,
+		});
 
-	expect(result).toMatchObject({
-		totalCount: 45,
+		expect(limitMock).toHaveBeenCalledWith(100);
 	});
-});
-it('returns empty documents when none found', async () => {
-	mockDocuments = [];
-	toArrayMock.mockResolvedValue(mockDocuments);
-
-	context = makeMockGraphContext({
-		staffUser: {
-			role: {
-				permissions: {
-					techAdminPermissions: {
-						canViewDatabaseDocuments: true,
+	it('uses page 1 when page is less than 1', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
 					},
 				},
 			},
-		},
-	});
+		});
 
-	const result = await callQuery(
-		'techAdminDatabaseDocuments',
-		context,
-		{
+		await callQuery('techAdminDatabaseDocuments', context, {
 			collection: 'users',
-		},
-	);
+			page: -5,
+			pageSize: 20,
+		});
 
-	expect(result).toEqual({
-		documents: [],
-		totalCount: 0,
+		expect(skipMock).toHaveBeenCalledWith(0);
 	});
-});
+	it('calculates skip correctly', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
+					},
+				},
+			},
+		});
+
+		await callQuery('techAdminDatabaseDocuments', context, {
+			collection: 'users',
+			page: 3,
+			pageSize: 10,
+		});
+
+		expect(skipMock).toHaveBeenCalledWith(20);
+	});
+	it('passes parsed filter to countDocuments', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
+					},
+				},
+			},
+		});
+
+		const filter = {
+			name: 'John',
+		};
+
+		await callQuery('techAdminDatabaseDocuments', context, {
+			collection: 'users',
+			filter: JSON.stringify(filter),
+		});
+
+		expect(countDocumentsMock).toHaveBeenCalledWith(filter);
+	});
+	it('passes parsed filter to find', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
+					},
+				},
+			},
+		});
+
+		const filter = {
+			email: 'abc@test.com',
+		};
+
+		await callQuery('techAdminDatabaseDocuments', context, {
+			collection: 'users',
+			filter: JSON.stringify(filter),
+		});
+
+		expect(findMock).toHaveBeenCalledWith(filter);
+	});
+	it('returns totalCount', async () => {
+		countDocumentsMock.mockResolvedValue(45);
+
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
+					},
+				},
+			},
+		});
+
+		const result = await callQuery('techAdminDatabaseDocuments', context, {
+			collection: 'users',
+		});
+
+		expect(result).toMatchObject({
+			totalCount: 45,
+		});
+	});
+	it('returns empty documents when none found', async () => {
+		mockDocuments = [];
+		toArrayMock.mockResolvedValue(mockDocuments);
+
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
+					},
+				},
+			},
+		});
+
+		const result = await callQuery('techAdminDatabaseDocuments', context, {
+			collection: 'users',
+		});
+
+		expect(result).toEqual({
+			documents: [],
+			totalCount: 0,
+		});
+	});
 });

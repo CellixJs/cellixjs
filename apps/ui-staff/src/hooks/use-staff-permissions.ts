@@ -92,11 +92,11 @@ export const useStaffPermissions = (): {
 	});
 
 	const rolePermissions = data?.currentStaffUserAndCreateIfNotExists?.role?.permissions;
-	const currentUser = data?.currentStaffUserAndCreateIfNotExists
-  
+	const currentUser = data?.currentStaffUserAndCreateIfNotExists;
+
 	// Treat a TechAdmin as an implicit manager of all sections
 	const isTechAdmin = rolePermissions?.techAdminPermissions?.canManageTechAdmin ?? false;
-  
+
 	const permissions: StaffPermissions | undefined = rolePermissions
 		? {
 				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
@@ -106,7 +106,7 @@ export const useStaffPermissions = (): {
 				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers || rolePermissions.userPermissions.canManageUsers || isTechAdmin,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
 				canManageTechAdmin: isTechAdmin,
-                canViewDatabaseDocuments: rolePermissions.techAdminPermissions.canViewDatabaseDocuments || isTechAdmin,
+				canViewDatabaseDocuments: rolePermissions.techAdminPermissions.canViewDatabaseDocuments || isTechAdmin,
 				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canAddRole: rolePermissions.staffRolePermissions.canAddRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canEditRole: rolePermissions.staffRolePermissions.canEditRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
@@ -119,12 +119,12 @@ export const useStaffPermissions = (): {
 		enterpriseAppRole: data?.currentStaffUserAndCreateIfNotExists?.role?.enterpriseAppRole,
 		user: currentUser
 			? {
-				id: currentUser.id,
-				displayName: currentUser.displayName,
-				firstName: currentUser.firstName,
-				lastName: currentUser.lastName,
-				email: currentUser.email,
-			}
+					id: currentUser.id,
+					displayName: currentUser.displayName,
+					firstName: currentUser.firstName,
+					lastName: currentUser.lastName,
+					email: currentUser.email,
+				}
 			: undefined,
 		loading,
 		error,

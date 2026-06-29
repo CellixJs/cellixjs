@@ -2,15 +2,15 @@ import mongoose from 'mongoose';
 import { GraphQLError, type GraphQLResolveInfo } from 'graphql';
 import type { Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
- 
+
 function unauthorizedError() {
-    return new GraphQLError('Unauthorized', { extensions: { code: 'UNAUTHENTICATED' } });
+	return new GraphQLError('Unauthorized', { extensions: { code: 'UNAUTHENTICATED' } });
 }
- 
+
 function userInputError(message: string) {
-    return new GraphQLError(message, { extensions: { code: 'BAD_USER_INPUT' } });
+	return new GraphQLError(message, { extensions: { code: 'BAD_USER_INPUT' } });
 }
- 
+
 function normalizeBsonValue(value: unknown): unknown {
 	if (value === null || value === undefined) return value;
 	if (Array.isArray(value)) return value.map(normalizeBsonValue);
@@ -31,20 +31,8 @@ function normalizeBsonValue(value: unknown): unknown {
 	}
 	return value;
 }
- 
-const ALLOWED_OPERATORS = new Set([
-    '$eq',
-    '$in',
-    '$gt',
-    '$gte',
-    '$lt',
-    '$lte',
-    '$exists',
-    '$regex',
-    '$and',
-    '$or',
-    '$not',
-]);
+
+const ALLOWED_OPERATORS = new Set(['$eq', '$in', '$gt', '$gte', '$lt', '$lte', '$exists', '$regex', '$and', '$or', '$not']);
 
 function validateOperatorKey(key: string): void {
 	if (!key.startsWith('$')) return;
@@ -139,14 +127,17 @@ async function enrichStaffUserRoles(collection: string, docs: Record<string, unk
 	if (collection !== 'users') return docs;
 	const roleIds = new Set<string>();
 	for (const doc of docs) {
-        // biome-ignore lint:useLiteralKeys
+		// biome-ignore lint:useLiteralKeys
 		const roleId = getObjectIdHex(doc['role']);
 		if (roleId) roleIds.add(roleId);
 	}
 	if (roleIds.size === 0) return docs;
 
 	const roleObjectIds = [...roleIds].map((id) => new mongoose.Types.ObjectId(id));
-	const roles = await db.collection('roles').find({ _id: { $in: roleObjectIds } }, { projection: { roleName: 1, enterpriseAppRole: 1 } }).toArray();
+	const roles = await db
+		.collection('roles')
+		.find({ _id: { $in: roleObjectIds } }, { projection: { roleName: 1, enterpriseAppRole: 1 } })
+		.toArray();
 	const roleMap = new Map(
 		roles.map((role) => [
 			String(role._id),
@@ -160,7 +151,7 @@ async function enrichStaffUserRoles(collection: string, docs: Record<string, unk
 	);
 
 	return docs.map((doc) => {
-        // biome-ignore lint:useLiteralKeys
+		// biome-ignore lint:useLiteralKeys
 		const roleId = getObjectIdHex(doc['role']);
 		if (!roleId) return doc;
 		const roleInfo = roleMap.get(roleId);
@@ -175,7 +166,7 @@ const techAdminResolvers: Resolvers = {
 			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
 			if (!jwt) {
 				throw unauthorizedError();
-                }
+			}
 
 			const staff = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
 
@@ -188,7 +179,10 @@ const techAdminResolvers: Resolvers = {
 			const db = mongoose.connection.db;
 			if (!db) throw new Error('Database connection is not available');
 			const cols = await db.listCollections().toArray();
-			return cols.map((c) => (c as { name: string }).name).filter((n) => !n.startsWith('system.')).sort(compareAlphabetically);
+			return cols
+				.map((c) => (c as { name: string }).name)
+				.filter((n) => !n.startsWith('system.'))
+				.sort(compareAlphabetically);
 		},
 
 		techAdminDatabaseDocuments: async (_parent: unknown, args, context: GraphContext, _info: GraphQLResolveInfo) => {
@@ -248,6 +242,5 @@ const techAdminResolvers: Resolvers = {
 		},
 	},
 };
- 
+
 export default techAdminResolvers;
- 

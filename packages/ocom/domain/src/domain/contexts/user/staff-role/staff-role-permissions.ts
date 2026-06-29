@@ -27,7 +27,7 @@ export interface StaffRolePermissionsEntityReference
 	extends Readonly<
 		Omit<
 			StaffRolePermissionsProps,
-		'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions' | 'financePermissions' | 'techAdminPermissions' | 'userPermissions' | 'staffRolePermissions'
+			'communityPermissions' | 'propertyPermissions' | 'serviceTicketPermissions' | 'servicePermissions' | 'violationTicketPermissions' | 'financePermissions' | 'techAdminPermissions' | 'userPermissions' | 'staffRolePermissions'
 		>
 	> {
 	readonly communityPermissions: StaffRoleCommunityPermissionsEntityReference;
