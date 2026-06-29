@@ -1,4 +1,5 @@
-import { Button, Input, Select, Space, Table, Typography } from 'antd';
+import { CopyOutlined, ExpandOutlined } from '@ant-design/icons';
+import { Button, Input, Modal, Select, Space, Table, Tooltip, Typography } from 'antd';
 import type { TableColumnsType } from 'antd';
 import type React from 'react';
 import { useState } from 'react';
@@ -39,13 +40,8 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 	onChangePage,
 	loading,
 }) => {
-	const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
-
-	const formatValueType = (value: unknown): string => {
-		if (value === null) return 'null';
-		if (Array.isArray(value)) return 'array';
-		return typeof value;
-	};
+	const [isJsonModalOpen, setIsJsonModalOpen] = useState<boolean>(false);
+	const [selectedJson, setSelectedJson] = useState<string>('');
 
 	const columns: TableColumnsType<DatabaseDocument> = [
 		{ title: 'ID', dataIndex: 'id', key: 'id' },
@@ -53,8 +49,7 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 			title: 'Preview',
 			dataIndex: 'json',
 			key: 'preview',
-			render: (json: string, record: DatabaseDocument) => {
-				if (expandedRowKeys.includes(record.id)) return null;
+			render: (json: string) => {
 				try {
 					const obj = JSON.parse(json);
 					return <pre style={{ whiteSpace: 'pre-wrap', maxHeight: 80, overflow: 'auto' }}>{JSON.stringify(obj, null, 2)}</pre>;
@@ -62,6 +57,43 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 					return <span>Invalid JSON</span>;
 				}
 			},
+		},
+		{
+			title: 'Actions',
+			key: 'actions',
+			render: (_value: unknown, record: DatabaseDocument) => (
+				<Space size="small">
+					<Tooltip title="View full JSON">
+						<Button
+							aria-label={`Open JSON modal for ${record.id}`}
+							icon={<ExpandOutlined />}
+							onClick={() => {
+								try {
+									setSelectedJson(JSON.stringify(JSON.parse(record.json), null, 2));
+								} catch (_e) {
+									setSelectedJson(record.json);
+								}
+								setIsJsonModalOpen(true);
+							}}
+							size="small"
+							type="text"
+						/>
+					</Tooltip>
+					<Tooltip title="Copy JSON">
+						<Button
+							aria-label={`Copy JSON for ${record.id}`}
+							icon={<CopyOutlined />}
+							onClick={() => {
+								if (typeof navigator !== 'undefined' && navigator.clipboard) {
+									void navigator.clipboard.writeText(record.json);
+								}
+							}}
+							size="small"
+							type="text"
+						/>
+					</Tooltip>
+				</Space>
+			),
 		},
 	];
 
@@ -105,45 +137,37 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({
 					onChange: onChangePage,
 					showSizeChanger: true,
 				}}
-				expandable={{
-					expandedRowRender: (record: DatabaseDocument) => {
-						try {
-							const obj = JSON.parse(record.json);
-							const fullJson = JSON.stringify(obj, null, 2);
-							const rows: { key: string; type: string; value: string }[] = [];
-							for (const [k, v] of Object.entries(obj)) {
-								rows.push({ key: k, type: formatValueType(v), value: JSON.stringify(v, null, 2) });
-							}
-							return (
-								<Space
-									direction="vertical"
-									style={{ width: '100%' }}
-									size="middle"
-								>
-									<div>
-										<Typography.Text strong={true}>Full JSON</Typography.Text>
-										<pre style={{ whiteSpace: 'pre-wrap', marginTop: 8 }}>{fullJson}</pre>
-									</div>
-									<Table
-										dataSource={rows}
-										columns={[
-											{ title: 'Field', dataIndex: 'key', key: 'key' },
-											{ title: 'Type', dataIndex: 'type', key: 'type' },
-											{ title: 'Value', dataIndex: 'value', key: 'value', render: (val: string) => <pre style={{ whiteSpace: 'pre-wrap' }}>{val}</pre> },
-										]}
-										rowKey="key"
-										pagination={false}
-									/>
-								</Space>
-							);
-						} catch (_e) {
-							return <div>Invalid JSON</div>;
-						}
-					},
-					expandedRowKeys,
-					onExpandedRowsChange: (keys) => { setExpandedRowKeys([...keys]); },
-				}}
 			/>
+			<Modal
+				cancelText="Close"
+				okText="Copy JSON"
+				okButtonProps={{ icon: <CopyOutlined /> }}
+				okType="primary"
+				onCancel={() => {
+					setIsJsonModalOpen(false);
+					setSelectedJson('');
+				}}
+				onOk={() => {
+					if (typeof navigator !== 'undefined' && navigator.clipboard) {
+						void navigator.clipboard.writeText(selectedJson);
+					}
+				}}
+				open={isJsonModalOpen}
+				style={{ top: 12 }}
+				title="Full JSON"
+				width="95vw"
+			>
+				<pre
+					style={{
+						whiteSpace: 'pre-wrap',
+						overflow: 'auto',
+						maxHeight: 'calc(100vh - 220px)',
+						margin: 0,
+					}}
+				>
+					{selectedJson}
+				</pre>
+			</Modal>
 		</Space>
 	);
 };
