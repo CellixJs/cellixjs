@@ -10,21 +10,27 @@ This server now runs a single HTTP server and exposes multiple named OIDC portal
 
 Each UI app should provide `apps/ui-*/mock-oidc.json` that maps into the UI app's `.env` variables. The schema uses `envVars` to reference the UI app's environment variable names. The server auto-discovers portals by scanning `apps/` for `ui-*` directories and reading `mock-oidc.json` in each.
 
-Example `mock-oidc.json`:
+Example `mock-oidc.json` (array form supports multiple login configs per portal):
 
 ```json
-{
-  "name": "community",
-  "envVars": {
-    "clientId": "VITE_APP_UI_COMMUNITY_B2C_CLIENTID",
-    "redirectUri": "VITE_APP_UI_COMMUNITY_B2C_REDIRECT_URI"
-  },
-  "claims": {
-    "sub": "00000000-0000-0000-0000-000000000001",
-    "email": "test@example.com"
+[
+  {
+    "name": "end-user",
+    "envVars": {
+      "clientId": "VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID",
+      "redirectUri": "VITE_APP_UI_COMMUNITY_END_USER_B2C_REDIRECT_URI"
+    },
+    "claims": {
+      "sub": "00000000-0000-0000-0000-000000000001",
+      "email": "test@example.com"
+    }
   }
-}
+]
 ```
+
+Notes:
+
+- When multiple configs are provided in an array, the discovery will register each element as a separate issuer. The server computes a registration name for each config by combining the portal directory name (without the `ui-` prefix) and the config `name`: `{portal-dir-name-without-ui-prefix}-{config-name}`. For example, `apps/ui-community` with an element named `end-user` will register as `community-end-user`.
 
 Notes about the schema and overrides:
 

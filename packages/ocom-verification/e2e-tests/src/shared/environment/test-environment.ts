@@ -14,9 +14,9 @@ export function getHostnames(): Record<OcomPortlessHostKey | 'docs', string> {
 	const hostnames = resolvePortlessHostnames({
 		keys: {
 			api: 'VITE_COMMON_API_ENDPOINT',
-			mockAuth: 'VITE_APP_UI_COMMUNITY_B2C_AUTHORITY',
+			mockAuth: 'VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY',
 			uiCommunity: 'VITE_APP_UI_COMMUNITY_BASE_URL',
-			uiStaff: 'VITE_APP_UI_STAFF_AAD_REDIRECT_URI',
+			uiStaff: 'VITE_APP_UI_STAFF_STAFF_USER_AAD_REDIRECT_URI',
 		},
 	});
 
@@ -29,9 +29,9 @@ export function getHostnames(): Record<OcomPortlessHostKey | 'docs', string> {
 const hostnames = getHostnames();
 
 export const mockOidcAudience = 'mock-client';
-export const mockOidcIssuer = buildUrl(hostnames.mockAuth, '/community');
+export const mockOidcIssuer = buildUrl(hostnames.mockAuth, '/community-end-user');
 export const mockOidcEndpoint = `${mockOidcIssuer}/.well-known/jwks.json`;
-export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/staff');
+export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/staff-staff-user');
 
 /**
  * Ensure the portless proxy is running for the PR's worktree-scoped hostnames.
@@ -64,6 +64,7 @@ function loadE2EEnvDefaults(): void {
 
 	const currentDir = dirname(fileURLToPath(import.meta.url));
 	const workspaceRoot = resolve(currentDir, '../../../../../..');
+	loadApiLocalSettings(resolve(workspaceRoot, 'apps/api/local-settings.e2e.json'));
 	for (const filePath of [resolve(workspaceRoot, 'apps/ui-community/.env.e2e'), resolve(workspaceRoot, 'apps/ui-staff/.env.e2e')]) {
 		if (!existsSync(filePath)) continue;
 		for (const line of readFileSync(filePath, 'utf-8').split('\n')) {
@@ -74,6 +75,18 @@ function loadE2EEnvDefaults(): void {
 			const key = trimmed.slice(0, idx);
 			process.env[key] ??= trimmed.slice(idx + 1);
 		}
+	}
+}
+
+function loadApiLocalSettings(filePath: string): void {
+	if (!existsSync(filePath)) return;
+
+	const parsed = JSON.parse(readFileSync(filePath, 'utf-8')) as {
+		Values?: Record<string, string | boolean | number>;
+	};
+
+	for (const [key, value] of Object.entries(parsed.Values ?? {})) {
+		process.env[key] ??= String(value);
 	}
 }
 

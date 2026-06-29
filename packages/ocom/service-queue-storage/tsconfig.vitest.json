@@ -1,0 +1,9 @@
+{
+	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
+	"compilerOptions": {
+		"paths": {
+			"@cellix/service-queue-storage": ["../../cellix/service-queue-storage/src/index.ts"],
+			"@ocom/service-queue-storage": ["./src/index.ts"]
+		}
+	}
+}

@@ -19,6 +19,8 @@
 		{ "path": "../../packages/ocom/persistence" },
 		{ "path": "../../packages/ocom/rest" },
 		{ "path": "../../packages/ocom/service-blob-storage" },
+		{ "path": "../../packages/ocom/service-queue-storage" },
+		{ "path": "../../packages/cellix/service-queue-storage" },
 		{ "path": "../../packages/ocom/service-mongoose" },
 		{ "path": "../../packages/ocom/service-otel" },
 		{ "path": "../../packages/ocom/service-token-validation" }

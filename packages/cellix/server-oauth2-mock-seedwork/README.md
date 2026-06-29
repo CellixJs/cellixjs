@@ -77,6 +77,12 @@ When a portal config includes `userStore`, the router exposes `/login` and `/sig
 
 This allows downstream implementations to use filesystem or database I/O on the request path while the router awaits the result.
 
+Utility helpers
+
+- `discoverPortalConfigs(appsDir)` — convenience utility that scans a monorepo `apps` directory for `ui-*` app mock-oidc.json entries and resolves their `.env` values. Useful for monorepo consumers that want to auto-register portals discovered across UI apps.
+- `createFileUserStore(appDir)` — a simple filesystem-backed `MockOAuth2UserStore` implementation intended for local development (moved from the example app into this seedwork package).
+- `ensurePortInUrl(baseUrl, port)` — a small helper that injects a non-default port into a base URL when omitted; preserves username, password, path, search, and hash components.
+
 ## Endpoint behavior
 
 - `GET /authorize?...` validates the redirect target and forwards OIDC query params into interactive login when a user store is configured
