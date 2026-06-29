@@ -1,33 +1,10 @@
-import { gql } from '@apollo/client';
 import { MockedProvider } from '@apollo/client/testing';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ReactElement } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { RequireRoleStaffUserCurrentDocument } from './generated.tsx';
 import { expect, within } from 'storybook/test';
 import { RequireRole, type RequireRoleProps } from './require-role.tsx';
-
-const REQUIRE_ROLE_STAFF_USER_CURRENT_QUERY = gql`
-	query RequireRoleStaffUserCurrent {
-		staffUserCurrent: currentStaffUserAndCreateIfNotExists {
-			role {
-				permissions {
-					communityPermissions {
-						canManageCommunities
-					}
-					userPermissions {
-						canManageUsers
-					}
-					financePermissions {
-						canManageFinance
-					}
-					techAdminPermissions {
-						canManageTechAdmin
-					}
-				}
-			}
-		}
-	}
-`;
 
 const protectedPermissions = {
 	communityPermissions: { canManageCommunities: false },
@@ -44,7 +21,7 @@ const deniedPermissions = {
 };
 
 const meta = {
-	title: 'Staff/RequireRole',
+	title: 'Components/Staff/Require Role',
 	component: RequireRole,
 	parameters: {
 		layout: 'fullscreen',
@@ -87,7 +64,7 @@ export const Authorized: Story = {
 				mocks={[
 					{
 						request: {
-							query: REQUIRE_ROLE_STAFF_USER_CURRENT_QUERY,
+							query: RequireRoleStaffUserCurrentDocument,
 						},
 						result: {
 							data: {
@@ -131,7 +108,7 @@ export const Unauthorized: Story = {
 				mocks={[
 					{
 						request: {
-							query: REQUIRE_ROLE_STAFF_USER_CURRENT_QUERY,
+							query: RequireRoleStaffUserCurrentDocument,
 						},
 						result: {
 							data: {

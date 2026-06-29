@@ -1,7 +1,7 @@
 import { Layout, theme } from 'antd';
 import type React from 'react';
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 
 /**
  * SubPageLayout - Extension point for staff section pages
@@ -54,12 +54,6 @@ export const SubPageLayout: React.FC<SubPageLayoutProps> = (props) => {
 				<Content style={{ margin: '24px 16px 0', minHeight: 'inherit' }}>
 					<div style={{ padding: 24, minHeight: '100%' }}>{props.children}</div>
 				</Content>
-				<Footer
-					className="flex items-center mx-auto"
-					style={{ height: '47px' }}
-				>
-					Staff Portal
-				</Footer>
 			</div>
 		</>
 	);

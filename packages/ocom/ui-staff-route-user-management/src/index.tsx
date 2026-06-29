@@ -6,10 +6,7 @@ import { SectionLayout } from './section-layout.tsx';
 export const Root: React.FC = () => {
 	return (
 		<Routes>
-			<Route
-				path="/*"
-				element={<SectionLayout />}
-			>
+			<Route element={<SectionLayout />}>
 				<Route
 					index
 					element={

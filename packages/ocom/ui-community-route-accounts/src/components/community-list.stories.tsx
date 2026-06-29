@@ -4,7 +4,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import { CommunityList, type CommunityListProps } from './community-list.tsx';
 
 const meta = {
-	title: 'Components/Accounts/CommunityList',
+	title: 'Components/Community/CommunityList',
 	component: CommunityList,
 	parameters: {
 		layout: 'padded',

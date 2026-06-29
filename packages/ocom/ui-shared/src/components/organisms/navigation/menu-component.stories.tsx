@@ -4,7 +4,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import { MenuComponent, type MenuComponentProps } from './menu-component.tsx';
 
 const meta = {
-	title: 'UI/Organisms/Navigation/MenuComponent/Display',
+	title: 'Components/Shared/Navigation/Menu Component',
 	component: MenuComponent,
 } satisfies Meta<typeof MenuComponent>;
 

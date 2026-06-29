@@ -16,7 +16,7 @@ const mockMember: AdminMembersDetailContainerMemberFieldsFragment = {
 };
 
 const meta: Meta<typeof MembersDetail> = {
-	title: 'Admin/Components/MembersDetail',
+	title: 'Components/Community/Members Detail',
 	component: MembersDetail,
 	parameters: {
 		layout: 'padded',

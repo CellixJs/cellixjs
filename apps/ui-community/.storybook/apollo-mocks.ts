@@ -3,6 +3,7 @@ import {
 	AccountsCommunityListContainerMembersForCurrentEndUserDocument,
 	AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument,
 } from '../../../packages/ocom/ui-community-route-accounts/src/generated';
+import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } from '../../../packages/ocom/ui-shared/src/generated.tsx';
 
 // Mock data for communities
 const mockCommunities = [
@@ -106,6 +107,17 @@ export const apolloMocks = [
 	{
 		request: {
 			query: AccountsUserInfoContainerCurrentEndUserAndCreateIfNotExistsDocument,
+		},
+		result: {
+			data: {
+				currentEndUserAndCreateIfNotExists: mockCurrentEndUser,
+			},
+		},
+	},
+	{
+		request: {
+			query: LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument,
+			variables: {},
 		},
 		result: {
 			data: {

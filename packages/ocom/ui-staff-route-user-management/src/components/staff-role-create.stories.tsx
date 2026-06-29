@@ -5,7 +5,7 @@ import { StaffRoleCreate } from './staff-role-create.tsx';
 const ALL_ENTERPRISE_APP_ROLES = ['Staff.TechAdmin', 'Staff.ServiceLineOwner', 'Staff.CaseManager', 'Staff.Finance'];
 
 const meta: Meta<typeof StaffRoleCreate> = {
-	title: 'UserManagement/Components/StaffRoleCreate',
+	title: 'Components/Staff/User Management/Staff Role Create',
 	component: StaffRoleCreate,
 	parameters: { layout: 'padded' },
 };

@@ -12,7 +12,11 @@ function getAbsolutePath(value: string) {
 	return dirname(require.resolve(join(value, 'package.json')));
 }
 const config: StorybookConfig = {
-	stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+	stories: [
+		'../src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		//'../../../packages/ocom/ui-shared/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../packages/ocom/ui-community-*/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+	],
 	addons: [
 		getAbsolutePath('@chromatic-com/storybook'),
 		getAbsolutePath('@storybook/addon-docs'),

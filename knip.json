@@ -132,6 +132,7 @@
 		"@cellix/graphql-codegen",
 		"@graphql-typed-document-node/core",
 		"@vitest/coverage-v8",
+		"@vitest/browser",
 		"ts-scope-trimmer-plugin",
 		"chrome-devtools-mcp"
 	],
