@@ -60,6 +60,12 @@ export interface PortalOidcConfig {
 	name: string;
 	/** The originating `ui-*` directory name (e.g. `ui-community`). */
 	dirName: string;
+	/**
+	 * The original config name from `mock-oidc.json` before the registration name is computed
+	 * (e.g. `end-user` from `{ "name": "end-user", ... }`).
+	 * Used to filter mock users by their `oidcConfigName` field.
+	 */
+	configName: string;
 	/** Resolved OAuth2 client identifier read from the app's `.env` or `process.env`. */
 	clientId: string;
 	/** Resolved OAuth2 redirect URI read from the app's `.env` or `process.env`. */
@@ -244,7 +250,7 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 		return null;
 	}
 
-	const base = { name: config.name, dirName: entryName, clientId, redirectUri };
+	const base = { name: config.name, dirName: entryName, configName: config.name, clientId, redirectUri };
 	if (config.claims !== undefined) return { ...base, claims: config.claims };
 	return base;
 }

@@ -18,6 +18,15 @@ export interface MockOAuth2User {
 	password?: string;
 	/** Arbitrary claims associated with this user (email, given_name, etc) */
 	claims?: Record<string, unknown>;
+	/**
+	 * Name of the OIDC config (from `mock-oidc.json`) that this user belongs to.
+	 * When set, the user is only visible to the matching OIDC config registration.
+	 * When absent, the user is visible to all OIDC config registrations for the portal.
+	 *
+	 * Matches the `name` field of the corresponding entry in `mock-oidc.json`
+	 * (e.g. `"end-user"` or `"staff-user"`), not the computed registration name.
+	 */
+	oidcConfigName?: string;
 }
 
 /**
