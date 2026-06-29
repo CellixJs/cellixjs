@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { Root } from './index';
 
 const meta = {
-	title: 'Pages/Staff/Tech Admin/Tech Admin',
+	title: 'Pages/Staff/Tech Admin/Placeholder',
 	component: Root,
 	parameters: {
 		layout: 'fullscreen',
@@ -15,9 +15,9 @@ const meta = {
 				value={{
 					name: 'Staff User',
 					permissions: {
-						canManageCommunities: false,
-						canManageUsers: false,
-						canManageFinance: false,
+						canManageCommunities: true,
+						canManageUsers: true,
+						canManageFinance: true,
 						canManageTechAdmin: true,
 					},
 				}}
