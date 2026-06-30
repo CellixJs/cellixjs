@@ -6,6 +6,7 @@ import type { ApiContextSpec } from '@ocom/context-spec';
 import { RegisterEventHandlers } from '@ocom/event-handler';
 import type { GraphContext } from '@ocom/graphql-handler';
 import { graphHandlerCreator } from '@ocom/graphql-handler';
+import { communityUpdateQueueHandlerCreator } from '@ocom/handler-queue-community-update';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
@@ -70,4 +71,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		graphHandlerCreator(infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer), appServicesFactory),
 	)
 	.registerAzureFunctionHttpHandler('rest', { route: '{communityId}/{role}/{memberId}/{*rest}' }, restHandlerCreator)
+	.registerAzureFunctionQueueHandler('community-update', { queueName: 'community-update', connection: 'AzureWebJobsStorage' }, (host, infra) =>
+		communityUpdateQueueHandlerCreator(host, infra.getInfrastructureService(ServiceQueueStorage)),
+	)
 	.startUp();

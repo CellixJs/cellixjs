@@ -1,4 +1,4 @@
-import { app, type HttpFunctionOptions, type HttpHandler } from '@azure/functions';
+import { app, type HttpFunctionOptions, type HttpHandler, type StorageQueueFunctionOptions, type StorageQueueHandler } from '@azure/functions';
 import type { ServiceBase } from '@cellix/api-services-spec';
 import api, { SpanStatusCode, type Tracer, trace } from '@opentelemetry/api';
 
@@ -104,6 +104,37 @@ interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unkn
 		handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
 	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
 	/**
+	 * Registers an Azure Function Azure Storage Queue trigger endpoint.
+	 *
+	 * @remarks
+	 * The `handlerCreator` is invoked per queue message and receives the application services host and infrastructure registry.
+	 * Use it to create a trigger-scoped handler that processes a single queue entry.
+	 * Registration is allowed in phases `'app-services'` and `'handlers'`.
+	 *
+	 * @typeParam T - The expected message payload type. Defaults to `unknown`.
+	 * @param name - Function name to bind in Azure Functions.
+	 * @param options - Azure Functions storage queue trigger options (excluding the handler).
+	 * @param handlerCreator - Factory that, given the app services host and infrastructure registry, returns a `StorageQueueHandler<T>`.
+	 * @returns The registry (for chaining).
+	 *
+	 * @throws Error - If called before application services are initialized.
+	 *
+	 * @example
+	 * ```ts
+	 * registerAzureFunctionQueueHandler('community-update', { queueName: 'community-update', connection: 'AzureWebJobsStorage' }, (host, infra) => {
+	 *   return async (queueEntry, ctx) => {
+	 *     const app = await host.forRequest();
+	 *     await app.Community.Community.updateSettings({ id: queueEntry.communityId });
+	 *   };
+	 * });
+	 * ```
+	 */
+	registerAzureFunctionQueueHandler<T = unknown>(
+		name: string,
+		options: Omit<StorageQueueFunctionOptions<T>, 'handler'>,
+		handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
+	/**
 	 * Finalizes configuration and starts the application.
 	 *
 	 * @remarks
@@ -146,6 +177,7 @@ type UninitializedServiceRegistry<ContextType = unknown, AppServices = unknown> 
 
 type RequestScopedHost<S, H = unknown> = {
 	forRequest(rawAuthHeader?: string, hints?: H): Promise<S>;
+	forSystem(): Promise<S>;
 };
 
 type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;
@@ -154,6 +186,12 @@ interface PendingHandler<AppServices> {
 	name: string;
 	options: Omit<HttpFunctionOptions, 'handler'>;
 	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler;
+}
+
+interface PendingQueueHandler<AppServices> {
+	name: string;
+	options: Omit<StorageQueueFunctionOptions<unknown>, 'handler'>;
+	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<unknown>;
 }
 
 type Phase = 'infrastructure' | 'context' | 'app-services' | 'handlers' | 'started';
@@ -187,6 +225,7 @@ export class Cellix<ContextType, AppServices = unknown>
 	 */
 	private readonly nameMap: Map<string, ServiceBase> = new Map();
 	private readonly pendingHandlers: Array<PendingHandler<AppServices>> = [];
+	private readonly pendingQueueHandlers: Array<PendingQueueHandler<AppServices>> = [];
 	private serviceInitializedInternal = false;
 	private phase: Phase = 'infrastructure';
 
@@ -281,6 +320,21 @@ export class Cellix<ContextType, AppServices = unknown>
 		return this;
 	}
 
+	public registerAzureFunctionQueueHandler<T = unknown>(
+		name: string,
+		options: Omit<StorageQueueFunctionOptions<T>, 'handler'>,
+		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
+		this.ensurePhase('app-services', 'handlers');
+		this.pendingQueueHandlers.push({
+			name,
+			options: options as Omit<StorageQueueFunctionOptions<unknown>, 'handler'>,
+			handlerCreator: handlerCreator as (appHost: RequestScopedHost<AppServices, unknown>, reg: InitializedServiceRegistry) => StorageQueueHandler<unknown>,
+		});
+		this.phase = 'handlers';
+		return this;
+	}
+
 	public startUp(): Promise<StartedApplication<ContextType>> {
 		this.ensurePhase('handlers', 'app-services');
 		if (!this.contextCreatorInternal) {
@@ -292,7 +346,7 @@ export class Cellix<ContextType, AppServices = unknown>
 	}
 
 	private setupLifecycle(): void {
-		// Register function handlers (deferred execution of creators)
+		// Register HTTP function handlers (deferred execution of creators)
 		for (const h of this.pendingHandlers) {
 			app.http(h.name, {
 				...h.options,
@@ -301,6 +355,19 @@ export class Cellix<ContextType, AppServices = unknown>
 						throw new Error('Application not started yet');
 					}
 					return h.handlerCreator(this.appServicesHostInternal, this)(request, context);
+				},
+			});
+		}
+
+		// Register Azure Storage Queue trigger handlers (deferred execution of creators)
+		for (const h of this.pendingQueueHandlers) {
+			app.storageQueue(h.name, {
+				...h.options,
+				handler: (queueEntry, context) => {
+					if (!this.appServicesHostInternal) {
+						throw new Error('Application not started yet');
+					}
+					return h.handlerCreator(this.appServicesHostInternal, this)(queueEntry, context);
 				},
 			});
 		}

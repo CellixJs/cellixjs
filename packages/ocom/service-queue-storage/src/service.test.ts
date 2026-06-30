@@ -15,7 +15,7 @@ describe('ServiceQueueStorage', () => {
 		};
 
 		expect(serviceWithOptions.options).toMatchObject({
-			provisionQueues: ['community-creation', 'end-user-update'],
+			provisionQueues: ['community-creation', 'end-user-update', 'community-update'],
 		});
 	}, 10000);
 });

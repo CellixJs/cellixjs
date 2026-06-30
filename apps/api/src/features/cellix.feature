@@ -124,3 +124,21 @@ Feature: Cellix Application Bootstrap
     Then it should record the exception in the span
     And it should rethrow the error
     And it should set span status to ERROR
+
+  Scenario: Registering an Azure Function Queue handler
+    Given a Cellix instance in app-services phase
+    When an Azure Function Queue handler is registered
+    Then it should store the queue handler configuration
+    And it should transition to handlers phase
+    And it should return the registry for chaining
+
+  Scenario: Registering queue handler in wrong phase
+    Given a Cellix instance in infrastructure phase
+    When registerAzureFunctionQueueHandler is called
+    Then it should throw an error for invalid phase
+
+  Scenario: Starting up the application with queue handlers
+    Given a Cellix instance with both HTTP and queue handlers configured
+    When startUp is called with queue handlers
+    Then it should register queue functions with app.storageQueue
+    And it should register HTTP functions with app.http

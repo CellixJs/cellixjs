@@ -1,0 +1,30 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "CommunityUpdatePayload",
+	"description": "Message for updating settings on an existing community",
+	"type": "object",
+	"properties": {
+		"communityId": {
+			"type": "string",
+			"description": "Identifier of the community to update (required for lookup)"
+		},
+		"name": {
+			"type": "string",
+			"description": "Updated community name"
+		},
+		"domain": {
+			"type": "string",
+			"description": "Updated community domain"
+		},
+		"whiteLabelDomain": {
+			"type": ["string", "null"],
+			"description": "Updated white label domain (null to clear)"
+		},
+		"handle": {
+			"type": ["string", "null"],
+			"description": "Updated community handle (null to clear)"
+		}
+	},
+	"required": ["communityId"],
+	"additionalProperties": false
+}

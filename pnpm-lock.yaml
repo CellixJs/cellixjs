@@ -304,6 +304,9 @@ importers:
       '@ocom/graphql-handler':
         specifier: workspace:*
         version: link:../../packages/ocom/graphql-handler
+      '@ocom/handler-queue-community-update':
+        specifier: workspace:*
+        version: link:../../packages/ocom/handler-queue-community-update
       '@ocom/persistence':
         specifier: workspace:*
         version: link:../../packages/ocom/persistence
@@ -1742,6 +1745,37 @@ importers:
       graphql:
         specifier: 'catalog:'
         version: 16.12.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.8(vitest@4.1.8)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/ocom/handler-queue-community-update:
+    dependencies:
+      '@azure/functions':
+        specifier: 'catalog:'
+        version: 4.11.0(patch_hash=69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645)
+      '@ocom/application-services':
+        specifier: workspace:*
+        version: link:../application-services
+      '@ocom/service-queue-storage':
+        specifier: workspace:*
+        version: link:../service-queue-storage
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -15966,7 +16000,7 @@ snapshots:
       '@cucumber/gherkin-utils': 11.0.0
       '@cucumber/html-formatter': 23.0.0(@cucumber/messages@32.2.0)
       '@cucumber/junit-xml-formatter': 0.13.3(@cucumber/messages@32.2.0)
-      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.2.0)
+      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.3.1)
       '@cucumber/messages': 32.2.0
       '@cucumber/pretty-formatter': 1.0.1(@cucumber/cucumber@12.8.1)(@cucumber/messages@32.2.0)
       '@cucumber/tag-expressions': 9.1.0
@@ -16002,7 +16036,7 @@ snapshots:
   '@cucumber/gherkin-streams@6.0.0(@cucumber/gherkin@38.0.0)(@cucumber/message-streams@4.1.1(@cucumber/messages@32.2.0))(@cucumber/messages@32.2.0)':
     dependencies:
       '@cucumber/gherkin': 38.0.0
-      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.2.0)
+      '@cucumber/message-streams': 4.1.1(@cucumber/messages@32.3.1)
       '@cucumber/messages': 32.2.0
       commander: 14.0.0
       source-map-support: 0.5.21
@@ -16051,9 +16085,9 @@ snapshots:
       luxon: 3.7.2
       xmlbuilder: 15.1.1
 
-  '@cucumber/message-streams@4.1.1(@cucumber/messages@32.2.0)':
+  '@cucumber/message-streams@4.1.1(@cucumber/messages@32.3.1)':
     dependencies:
-      '@cucumber/messages': 32.2.0
+      '@cucumber/messages': 32.3.1
       mime: 3.0.0
 
   '@cucumber/messages@26.0.1':
