@@ -75,7 +75,7 @@ function makeMockGraphContext(options: { jwt?: JwtOverride | null; staffUser?: M
 					: {
 							verifiedJwt: {
 								sub: 'user-123',
-								...jwt,
+								...jwt, 
 							},
 						},
 		},
@@ -169,6 +169,28 @@ describe('techAdminDatabaseCollections', () => {
 		expect(context.applicationServices.User.StaffUser.queryByExternalId).toHaveBeenCalledWith({
 			externalId: 'user-123',
 		});
+	});
+
+	it('throws Unauthorized for database collections and documents when user lacks permission', async () => {
+		context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: false,
+							canManageTechAdmin: false,
+						},
+					},
+				},
+			},
+		});
+
+		await expect(callQuery('techAdminDatabaseCollections', context)).rejects.toThrow('Unauthorized');
+		await expect(
+			callQuery('techAdminDatabaseDocuments', context, {
+				collection: 'users',
+			}),
+		).rejects.toThrow('Unauthorized');
 	});
 
 	it('allows users with canViewDatabaseDocuments permission', async () => {
