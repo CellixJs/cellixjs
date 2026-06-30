@@ -53,6 +53,7 @@ test('opens full JSON modal from action button', () => {
 
 	expect(screen.getByText('Full JSON')).toBeTruthy();
 	expect(screen.getByText(/"Alice"/)).toBeTruthy();
+	expect(screen.getByText('string')).toBeTruthy();
 });
 
 test('copies json when clipboard icon is clicked', () => {
