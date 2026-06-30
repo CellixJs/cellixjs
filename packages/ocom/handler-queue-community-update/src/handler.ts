@@ -1,6 +1,7 @@
 import type { StorageQueueHandler } from '@azure/functions';
 import type { ApplicationServicesFactory } from '@ocom/application-services';
-import type { CommunityUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
+import { CommunityNotFoundError } from '@ocom/application-services';
+import type { CommunityUpdatePayload, QueueStorageOperations, QueueTriggerMetadata } from '@ocom/service-queue-storage';
 
 /**
  * Creates an Azure Functions Storage Queue handler for processing community update messages.
@@ -33,7 +34,8 @@ export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: A
 		const popReceipt = context.triggerMetadata?.['popReceipt'] as string | undefined;
 		// biome-ignore lint/complexity/useLiteralKeys: triggerMetadata uses an index signature type that requires bracket access
 		const dequeueCount = context.triggerMetadata?.['dequeueCount'] as number | undefined;
-		const metadata = {
+		// exactOptionalPropertyTypes: omit keys whose values are undefined rather than passing explicit undefined
+		const metadata: QueueTriggerMetadata = {
 			id,
 			...(popReceipt === undefined ? {} : { popReceipt }),
 			...(dequeueCount === undefined ? {} : { dequeueCount }),
@@ -56,7 +58,7 @@ export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: A
 				...(handle === undefined ? {} : { handle }),
 			});
 		} catch (err) {
-			if (err instanceof Error && err.message.toLowerCase().includes('community not found')) {
+			if (err instanceof CommunityNotFoundError) {
 				context.error(`community-update: community not found: ${communityId}`);
 				return;
 			}

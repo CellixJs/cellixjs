@@ -11,7 +11,7 @@ import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
-import { ServiceQueueStorage } from '@ocom/service-queue-storage';
+import { ServiceQueueStorage, communityUpdateQueueName } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
@@ -71,7 +71,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		graphHandlerCreator(infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer), appServicesFactory),
 	)
 	.registerAzureFunctionHttpHandler('rest', { route: '{communityId}/{role}/{memberId}/{*rest}' }, restHandlerCreator)
-	.registerAzureFunctionQueueHandler('community-update', { queueName: 'community-update', connection: 'AzureWebJobsStorage' }, (host, infra) =>
+	.registerAzureFunctionQueueHandler(communityUpdateQueueName, { queueName: communityUpdateQueueName, connection: 'AzureWebJobsStorage' }, (host, infra) =>
 		communityUpdateQueueHandlerCreator(host, infra.getInfrastructureService(ServiceQueueStorage)),
 	)
 	.startUp();

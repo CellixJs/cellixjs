@@ -188,10 +188,10 @@ interface PendingHandler<AppServices> {
 	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler;
 }
 
-interface PendingQueueHandler<AppServices> {
+interface PendingQueueHandler<AppServices, T = unknown> {
 	name: string;
-	options: Omit<StorageQueueFunctionOptions<unknown>, 'handler'>;
-	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<unknown>;
+	options: Omit<StorageQueueFunctionOptions<T>, 'handler'>;
+	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>;
 }
 
 type Phase = 'infrastructure' | 'context' | 'app-services' | 'handlers' | 'started';
@@ -225,7 +225,8 @@ export class Cellix<ContextType, AppServices = unknown>
 	 */
 	private readonly nameMap: Map<string, ServiceBase> = new Map();
 	private readonly pendingHandlers: Array<PendingHandler<AppServices>> = [];
-	private readonly pendingQueueHandlers: Array<PendingQueueHandler<AppServices>> = [];
+	// biome-ignore lint/suspicious/noExplicitAny: each queue handler captures a distinct T; any allows heterogeneous handlers in one array without unsafe per-field casts
+	private readonly pendingQueueHandlers: Array<PendingQueueHandler<AppServices, any>> = [];
 	private serviceInitializedInternal = false;
 	private phase: Phase = 'infrastructure';
 
@@ -326,11 +327,7 @@ export class Cellix<ContextType, AppServices = unknown>
 		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>,
 	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
 		this.ensurePhase('app-services', 'handlers');
-		this.pendingQueueHandlers.push({
-			name,
-			options: options as Omit<StorageQueueFunctionOptions<unknown>, 'handler'>,
-			handlerCreator: handlerCreator as (appHost: RequestScopedHost<AppServices, unknown>, reg: InitializedServiceRegistry) => StorageQueueHandler<unknown>,
-		});
+		this.pendingQueueHandlers.push({ name, options, handlerCreator });
 		this.phase = 'handlers';
 		return this;
 	}

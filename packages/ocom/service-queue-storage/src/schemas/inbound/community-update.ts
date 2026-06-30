@@ -3,8 +3,10 @@ import { type Schema as CommunityUpdatePayload, schema as communityUpdateSchema 
 
 export type { CommunityUpdatePayload };
 
+export const communityUpdateQueueName = 'community-update' as const;
+
 export const communityUpdateQueue = defineQueue<CommunityUpdatePayload>()(({ $payload }) => ({
-	queueName: 'community-update',
+	queueName: communityUpdateQueueName,
 	schema: communityUpdateSchema,
 	loggingTags: {
 		domain: 'community',

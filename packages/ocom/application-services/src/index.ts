@@ -5,6 +5,7 @@ import { Service, type ServiceContextApplicationService } from './contexts/servi
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
+export { CommunityNotFoundError } from './contexts/community/index.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
