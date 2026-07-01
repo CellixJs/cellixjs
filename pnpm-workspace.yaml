@@ -80,9 +80,8 @@ overrides:
   jiti: 2.6.1
   rollup: ^4.59.0
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
-  'brace-expansion@1.1.12': 1.1.13
-  'brace-expansion@5.0.4': 5.0.6
-  'brace-expansion@5.0.5': 5.0.6
+  'brace-expansion@1': 2.1.1
+  'brace-expansion@5': 5.0.7
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
@@ -126,7 +125,7 @@ overrides:
   form-data: ^4.0.6
   'webpack-dev-server>http-proxy-middleware': 3.0.7
   joi: ^17.13.4
-  brace-expansion@2: 2.0.3
+  brace-expansion@2: 2.1.1
   dottie: 2.0.7
   http-proxy-middleware: 3.0.7
   immutable: 3.8.3

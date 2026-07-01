@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getAzuritePorts, getMongoPort } from '@ocom-verification/verification-shared/environment';
 import { getPortlessPath } from './resolve-portless.ts';
 
 let proxyInitialized = false;
@@ -75,6 +76,51 @@ function loadE2EEnvDefaults(): void {
 			const key = trimmed.slice(0, idx);
 			process.env[key] ??= trimmed.slice(idx + 1);
 		}
+	}
+
+	applyWorktreeServiceEnv();
+}
+
+/**
+ * Retarget the pinned service settings at the current worktree's ports and host.
+ *
+ * `local-settings.e2e.json` pins the default Azurite ports (10000–10002), the
+ * default Mongo port (50000), and the un-suffixed mock-auth host. In worktree
+ * mode the test servers instead bind the offset ports from
+ * {@link getAzuritePorts}/{@link getMongoPort} and register the
+ * `.${WORKTREE_NAME}.localhost` host. Because `test-environment.ts` seeds these
+ * values into `process.env`, the pinned defaults leak into the spawned Functions
+ * host (defeating the `??=` worktree overrides in `apps/api/start-dev.mjs`) and
+ * into the queue verification client — so the API blocks on Mongo/queue startup
+ * against the wrong ports and token validation hits the wrong host.
+ *
+ * No-op when `WORKTREE_NAME` is unset (offset 0, host unchanged).
+ */
+function applyWorktreeServiceEnv(): void {
+	const worktreeName = process.env['WORKTREE_NAME'];
+	if (!worktreeName) return;
+
+	const { blob, queue, table } = getAzuritePorts();
+	const azurite = process.env['AZURE_STORAGE_CONNECTION_STRING'];
+	if (azurite) {
+		const worktreeAzurite = azurite.replace('127.0.0.1:10000', `127.0.0.1:${blob}`).replace('127.0.0.1:10001', `127.0.0.1:${queue}`).replace('127.0.0.1:10002', `127.0.0.1:${table}`);
+		process.env['AZURE_STORAGE_CONNECTION_STRING'] = worktreeAzurite;
+		// `AzureWebJobsStorage` is pinned to `UseDevelopmentStorage=true` (default
+		// ports); replace it with the explicit worktree connection string so the
+		// Functions host targets the offset ports, matching start-dev.mjs.
+		process.env['AzureWebJobsStorage'] = worktreeAzurite;
+	}
+
+	const mongo = process.env['COSMOSDB_CONNECTION_STRING'];
+	if (mongo) {
+		process.env['COSMOSDB_CONNECTION_STRING'] = mongo.replace('127.0.0.1:50000', `127.0.0.1:${getMongoPort()}`);
+	}
+
+	// The mock-auth OIDC endpoints/issuers are pinned to the un-suffixed host;
+	// retarget them at the worktree host so JWKS fetches reach the running server.
+	for (const key of ['ACCOUNT_PORTAL_OIDC_ENDPOINT', 'ACCOUNT_PORTAL_OIDC_ISSUER', 'STAFF_PORTAL_OIDC_ENDPOINT', 'STAFF_PORTAL_OIDC_ISSUER']) {
+		const value = process.env[key];
+		if (value) process.env[key] = value.replace('.localhost', `.${worktreeName}.localhost`);
 	}
 }
 

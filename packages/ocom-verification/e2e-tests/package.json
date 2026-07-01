@@ -5,6 +5,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"test:e2e": "pnpm run portless:prune && pnpm run proxy:start && pnpm run test:e2e:run",
 		"test:e2e:ci": "pnpm run portless:prune && pnpm run proxy:start:ci && pnpm run test:e2e:run",
 		"test:e2e:run": "NODE_EXTRA_CA_CERTS=${HOME}/.portless/ca.pem LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js",
@@ -25,13 +26,16 @@
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@ocom/service-queue-storage": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
 		"@ocom-verification/verification-shared": "workspace:*",
 		"@types/node": "catalog:",
 		"playwright": "catalog:",
 		"rimraf": "^6.0.1",
 		"tsx": "^4.20.3",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

@@ -14,6 +14,7 @@
 		"start": "vite",
 		"preview": "vite preview",
 		"test": "vitest run --silent --reporter=dot",
+		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest"
 	},
@@ -38,6 +39,7 @@
 		"react-router-dom": "catalog:"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@types/react": "^19.1.8",

@@ -8,7 +8,7 @@
 			"outputs": ["src/**/*.schema.generated.ts"]
 		},
 		"build": {
-			"dependsOn": ["gen"],
+			"dependsOn": ["^build", "gen"],
 			"inputs": ["$TURBO_EXTENDS$"],
 			"outputs": ["$TURBO_EXTENDS$"]
 		}

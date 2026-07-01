@@ -5,6 +5,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"test:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' cucumber-js --format json:./reports/cucumber-report-api.json",
 		"test:acceptance:coverage": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 --allowExternal -- cucumber-js --format json:./reports/cucumber-report-api.json",
 		"test:coverage:acceptance": "LOG_LEVEL=warn NODE_OPTIONS='--import tsx/esm' c8 -- cucumber-js --format json:./reports/cucumber-report-api.json",
@@ -25,7 +26,9 @@
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
 		"@cellix/service-blob-storage": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
@@ -43,6 +46,7 @@
 		"c8": "^11.0.0",
 		"rimraf": "^6.0.1",
 		"tsx": "^4.20.3",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

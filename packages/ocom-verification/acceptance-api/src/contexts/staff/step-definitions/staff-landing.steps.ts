@@ -1,12 +1,11 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
+import type { StaffApiNotes } from '../notes/staff-notes.ts';
+import { StaffTargetRoute } from '../questions/staff-target-route.ts';
+import { OpenStaffLanding } from '../tasks/open-staff-landing.ts';
 
 type StaffBusinessRole = 'finance' | 'tech admin' | 'service line owner' | 'case manager';
-
-interface StaffApiNotes {
-	targetRoute: string;
-}
 
 const defaultRouteByRole: Record<StaffBusinessRole, string> = {
 	finance: '/staff/finance',
@@ -51,19 +50,19 @@ Given('{word} is an authenticated {string} staff user', async (actorName: string
 When('{word} enters the staff operations workspace', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	await actor.attemptsTo(notes<StaffApiNotes>().set('targetRoute', defaultRouteByRole[roleForActor(actorName)]));
+	await actor.attemptsTo(OpenStaffLanding(defaultRouteByRole[roleForActor(actorName)]));
 });
 
 When('{word} attempts to work in the finance workspace', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	await actor.attemptsTo(notes<StaffApiNotes>().set('targetRoute', resolveFinanceWorkspaceRoute(roleForActor(actorName))));
+	await actor.attemptsTo(OpenStaffLanding(resolveFinanceWorkspaceRoute(roleForActor(actorName))));
 });
 
 Then('{word} should be directed to {string}', async (actorName: string, expectedRoute: string) => {
 	const resolvedName = /^(she|he|they)$/i.test(actorName) ? lastActorName : actorName;
 	const actor = actorCalled(resolvedName);
-	const targetRoute = await actor.answer(notes<StaffApiNotes>().get('targetRoute'));
+	const targetRoute = await actor.answer(StaffTargetRoute());
 
 	if (targetRoute !== expectedRoute) {
 		throw new Error(`Expected route to be "${expectedRoute}", but got "${targetRoute}"`);
