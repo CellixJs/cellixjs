@@ -139,6 +139,7 @@ vi.mock('@ocom/rest', () => ({
 	restHandlerCreator: vi.fn(),
 }));
 vi.mock('@ocom/service-queue-storage', () => ({
+	communityUpdateQueueName: 'community-update',
 	ServiceQueueStorage: vi.fn(function MockServiceQueueStorage() {
 		const service = {
 			startUp: vi.fn(),
