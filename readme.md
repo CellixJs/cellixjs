@@ -146,6 +146,7 @@ pnpm run build
   ```
 
 
+
 Mock OIDC server
 
 The local mock OpenID Connect provider used for UI development is configured per-portal via JSON files placed in the UI app directories.
