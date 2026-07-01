@@ -4,12 +4,12 @@ import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import { LogInWithOAuth2 } from '../../../shared/abilities/oauth2-login.ts';
+import { clearKnownQueueMessages, waitForCommunityCreationQueueMessage } from '../../../shared/support/queue-storage.ts';
 import type { CommunityE2ENotes } from '../notes/community-notes.ts';
 import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityErrorMessage } from '../questions/community-error-message.ts';
 import { CommunityName } from '../questions/community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
-import { clearKnownQueueMessages, waitForCommunityCreationQueueMessage } from '../../../shared/support/queue-storage.ts';
 
 let lastActorName = actors.CommunityOwner.name;
 

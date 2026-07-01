@@ -2,23 +2,23 @@
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
 		"apps/api": {
-			"entry": ["src/index.ts", "start-*.mjs"],
-			"project": ["src/**/*.ts", "*.mjs"],
+			"entry": ["src/index.ts", "start-*.ts", "sync-local-settings.ts", "rolldown.config.ts"],
+			"project": ["src/**/*.ts", "*.ts"],
 			"ignoreDependencies": ["azurite"]
 		},
 		"apps/ui-community": {
-			"entry": ["src/main.tsx"],
+			"entry": ["src/main.tsx", "start-dev.ts"],
 			"project": ["src/**/*.{ts,tsx}"],
 			"ignore": ["**/apollo-client-links.tsx"]
 		},
 		"apps/ui-staff": {
-			"entry": ["src/main.tsx"],
+			"entry": ["src/main.tsx", "start-dev.ts"],
 			"project": ["src/**/*.{ts,tsx}"],
 			"ignore": []
 		},
 		"apps/docs": {
-			"entry": ["src/**/*.{ts,tsx,js,jsx}"],
-			"project": ["src/**/*.{ts,tsx,js,jsx}"]
+			"entry": ["src/**/*.{ts,tsx,js,jsx}", "start-dev.ts"],
+			"project": ["src/**/*.{ts,tsx,js,jsx}", "*.ts"]
 		},
 		"packages/cellix/*": {
 			"project": ["src/**/*.ts"],
@@ -82,7 +82,7 @@
 			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts", "src/shared/abilities/index.ts"],
 			"project": ["src/**/*.ts"],
 			"ignoreBinaries": ["report"],
-            "ignoreUnresolved": ["progress-bar"]
+			"ignoreUnresolved": ["progress-bar"]
 		},
 		"packages/ocom-verification/acceptance-ui": {
 			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts"],
@@ -93,30 +93,20 @@
 		"packages/ocom-verification/e2e-tests": {
 			"entry": ["cucumber.js", "src/world.ts", "src/contexts/**/step-definitions/**/*.steps.ts", "src/shared/environment/**/*.ts", "src/shared/abilities/**/*.ts"],
 			"project": ["src/**/*.ts"],
-            "ignoreUnresolved": ["progress-bar"]
+			"ignoreUnresolved": ["progress-bar"]
 		},
 		"apps/server-oauth2-mock": {
-			"entry": ["src/index.ts"],
-			"project": ["src/**/*.ts"],
-			"ignoreDependencies": ["tsx"]
+			"entry": ["src/index.ts", "start-dev.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"apps/server-mongodb-memory-mock": {
+			"entry": ["src/index.ts", "start-dev.ts"],
+			"project": ["src/**/*.ts", "*.ts"],
+			"ignoreDependencies": []
 		}
 	},
 	"ignoreWorkspaces": ["packages/cellix/config-typescript"],
-	"ignore": [
-		"build-pipeline/scripts/**",
-		"scripts/local-dev/**",
-		"**/fixtures/**",
-		"**/*.test.ts",
-		"**/*.spec.ts",
-		"**/*.stories.tsx",
-		"**/dist/**",
-		"**/coverage/**",
-		"**/__tests__/**",
-		"**/tests/**",
-		".agents/**",
-		".github/**",
-		"portless.config.cjs"
-	],
+	"ignore": ["build-pipeline/scripts/**", "**/fixtures/**", "**/*.test.ts", "**/*.spec.ts", "**/*.stories.tsx", "**/dist/**", "**/coverage/**", "**/__tests__/**", "**/tests/**", ".agents/**", ".github/**", "portless.config.cjs"],
 	"ignoreIssues": {
 		"codegen.yml": ["unlisted"]
 	},

@@ -107,16 +107,58 @@ ignore:
         expires: '2026-12-31T00:00:00.000Z'
         created: '2026-06-25T00:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295814':
+    - '* > image-size':
+        reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'
+        expires: '2026-09-11T00:00:00.000Z'
+        created: '2026-06-11T00:00:00.000Z'
     - '* > image-size@<=2.0.2':
         reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
         expires: '2026-07-11T00:00:00.000Z'
         created: '2026-06-11T10:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295816':
+    - '* > image-size':
+        reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'
+        expires: '2026-09-11T00:00:00.000Z'
+        created: '2026-06-11T00:00:00.000Z'
     - '* > image-size@<=2.0.2':
         reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
         expires: '2026-07-11T00:00:00.000Z'
         created: '2026-06-11T10:00:00.000Z'
+  'SNYK-JS-AZUREIDENTITY-7964589':
+    - '* > @azure/identity@3.4.2':
+        reason: 'Transitive dependency via azurite>tedious; upgrade to 4.x is a breaking major-version change incompatible with azurite. Not exploitable in dev-only local storage emulation context.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-XML2JS-5414874':
+    - '* > xml2js@0.4.23':
+        reason: 'Transitive dependency via azurite>@azure/ms-rest-js; 0.4→0.5 is a breaking major change incompatible with @azure/ms-rest-js. Not exploitable in dev-only local storage emulation context.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-TOUGHCOOKIE-5672873':
+    - '* > tough-cookie@2.5.5':
+        reason: 'Transitive dependency via azurite>@azure/ms-rest-js; 2.x→4.x is a breaking major change. Not exploitable in dev-only local storage emulation context.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-OPENTELEMETRYCORE-17000000':
+    - '* > @opentelemetry/core':
+        reason: 'OTEL core 2.8.0+ requires sdk-node upgrade which has TypeScript compilation errors. Tracked alongside SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050 for resolution in the planned OTEL 2.x migration.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-BABELCORE-17342497':
+    - '* > @babel/core@7.29.0':
+        reason: 'No 7.29.x fix release exists; next release is major v8.0.0 which is a breaking change for all transitive consumers. Low severity, dev tooling only.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-JOI-17317897':
+    - '* > joi':
+        reason: 'No upgrade or patch available per Snyk; overridden to 17.13.4 which fixes the pnpm advisory. Accepting residual Snyk finding until a patched release is published.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
   'SNYK-JS-JSYAML-17342520':
+    - '* > js-yaml@3.14.2':
+        reason: 'js-yaml 3.x→4.x is a breaking major change for all transitive consumers (gray-matter/Docusaurus chain). js-yaml@4.1.1 patched to 4.2.0 via pnpm override; 3.x path has no safe upgrade.'
+        expires: '2026-09-16T00:00:00.000Z'
+        created: '2026-06-16T00:00:00.000Z'
     - '* > js-yaml':
         reason: 'Transitive in Docusaurus build tooling (gray-matter pins js-yaml@3.x; fix is in 4.2.0, a major bump blocked by gray-matter). Build-time parsing of repository-controlled input only.'
         expires: '2026-09-18T00:00:00.000Z'
@@ -126,3 +168,8 @@ ignore:
         reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. Accepted temporarily while the existing OTEL 2.x migration is completed.'
         expires: '2026-07-18T00:00:00.000Z'
         created: '2026-06-18T00:00:00.000Z'
+  'SNYK-JS-BRACEEXPANSION-17706650':
+    - '* > brace-expansion@1.1.13':
+        reason: 'Transitive in Docusaurus serve-handler for local static docs serving. The fixed brace-expansion 5.x line requires minimatch 10, whose named-export API is incompatible with serve-handler 6.1.7.'
+        expires: '2026-09-30T00:00:00.000Z'
+        created: '2026-06-30T00:00:00.000Z'

@@ -9,7 +9,7 @@
 			"!**/dist",
 			"!**/build",
 			"!**/deploy",
-            "!**/target",
+			"!**/target",
 			"!**/node_modules",
 			"!**/coverage",
 			"!**/.turbo",
@@ -167,7 +167,7 @@
 		},
 		{ "includes": ["**/src/**/*.ts"], "javascript": { "globals": [] } },
 		{
-			"includes": ["build-pipeline/scripts/**/*.{c|m}js", "scripts/local-dev/**/*.mjs"],
+			"includes": ["build-pipeline/scripts/**/*.{c|m}js", "packages/cellix/local-dev/bin/**/*.mjs"],
 			"linter": { "rules": { "style": { "noCommonJs": "off" } } }
 		},
 		{
