@@ -1,7 +1,7 @@
 import { GraphQLError, type GraphQLResolveInfo } from 'graphql';
 import type { Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
-import { buildDatabaseDocumentsQueryCommand } from './tech-admin.command-mapper.ts';
+import { buildDatabaseDocumentsQueryCommand } from '@ocom/application-services';
 
 function unauthorizedError() {
 	return new GraphQLError('Unauthorized', { extensions: { code: 'UNAUTHENTICATED' } });

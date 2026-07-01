@@ -30,7 +30,7 @@ function validateFilterOperators(obj: unknown): void {
 	}
 }
 
-type DatabaseDocumentsQueryCommand = {
+export type DatabaseDocumentsQueryCommand = {
 	collection: string;
 	filter: Record<string, unknown>;
 	page: number;

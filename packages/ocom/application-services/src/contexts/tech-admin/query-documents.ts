@@ -92,12 +92,7 @@ async function enrichStaffUserRoles(collection: string, docs: Record<string, unk
 	});
 }
 
-type DatabaseDocumentsQueryCommand = {
-	collection: string;
-	filter: Record<string, unknown>;
-	page: number;
-	pageSize: number;
-};
+import type { DatabaseDocumentsQueryCommand } from './database-documents.command-mapper.ts';
 
 type DatabaseDocument = {
 	id: string;

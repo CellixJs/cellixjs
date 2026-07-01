@@ -6,6 +6,7 @@ import { User, type UserContextApplicationService } from './contexts/user/index.
 import { TechAdmin, type TechAdminApplicationService } from './contexts/tech-admin/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
+export { buildDatabaseDocumentsQueryCommand } from './contexts/tech-admin/index.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
