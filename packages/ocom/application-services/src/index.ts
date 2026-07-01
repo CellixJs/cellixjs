@@ -3,6 +3,7 @@ import { Domain } from '@ocom/domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
+import { TechAdmin, type TechAdminApplicationService } from './contexts/tech-admin/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
 
@@ -10,6 +11,7 @@ export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
 	Service: ServiceContextApplicationService;
 	User: UserContextApplicationService;
+	TechAdmin: TechAdminApplicationService;
 	get verifiedUser(): VerifiedUser | null;
 }
 
@@ -74,6 +76,7 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			Community: Community(dataSources, blobStorageService, queueStorageService),
 			Service: Service(dataSources),
 			User: User(dataSources),
+			TechAdmin: TechAdmin(),
 			get verifiedUser(): VerifiedUser | null {
 				return { ...tokenValidationResult, hints: hints };
 			},
