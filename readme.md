@@ -184,7 +184,7 @@ PORT and BASE_URL
 The mock auth server now runs as a single instance. Configure it using the following environment variables:
 
 - PORT — port the HTTP server listens on (default: 1355). For local development you may either use the portless HTTPS proxy with `PORT=443` (recommended for a production-like experience), or run services on the non-privileged port 1355 and include `:1355` in BASE_URL values to avoid TLS trust prompts.
-- BASE_URL — externally visible origin used as the OIDC issuer (in local development this is typically handled by the portless dev proxy). Example: `https://mock-auth.ownercommunity.localhost` (do not include `:443` when using the standard HTTPS port). When running on port 1355 include the explicit port: `https://mock-auth.ownercommunity.localhost:1355`.
+- BASE_URL — externally visible origin used as the OIDC issuer (in local development this is typically handled by the portless dev proxy). Example: `https://mock-auth.ownercommunity.localhost` (do not include `:443` when using the standard HTTPS port). When running on port 1355 include the explicit port: `https://mock-auth.ownercommunity.localhost:1355`. When running on port 1355 include the explicit port: `https://mock-auth.ownercommunity.localhost:1355`.
 
 
 See ADR-0028 — Portless Local Development (apps/docs/docs/decisions/0028-portless-local-development.md) for the canonical proxy start/stop commands.
@@ -313,6 +313,8 @@ FORCE_DEPLOY_DOCS=false
 
 ## Dependency Graph
 
+> **Note**: This is a high-level architectural dependency graph of the main packages in the CellixJS monorepo (updated May 2026). It focuses on core DDD layers, key services, adapters, and apps. Many UI route/feature packages (`@ocom/ui-*`) and verification packages (`@ocom-verification/*`) exist but are omitted for clarity (they primarily depend on shared layers). Mocks are shown standalone for local development.
+
 ```mermaid
 ---
 config:
@@ -322,10 +324,11 @@ flowchart BT
   %% Keep two top-level groups for clarity
   subgraph ocom
     direction TB
-    %% API and services
+    %% API and core adapters/services
     ocom_api["@apps/api"]
     ocom_api_graphql["@ocom/graphql"]
     ocom_api_rest["@ocom/rest"]
+    ocom_api_graphql_handler["@ocom/graphql-handler"]
     ocom_api_application_services["@ocom/application-services"]
     ocom_api_context_spec["@ocom/context-spec"]
     ocom_api_event_handler["@ocom/event-handler"]
@@ -333,16 +336,18 @@ flowchart BT
     ocom_api_persistence["@ocom/persistence"]
     ocom_api_ds_mongoose_models["@ocom/data-sources-mongoose-models"]
 
-    %% Infra services (OCom)
+    %% Infra / cross-cutting services
     ocom_service_mongoose["@ocom/service-mongoose"]
     ocom_service_blob_storage["@ocom/service-blob-storage"]
     ocom_service_otel["@ocom/service-otel"]
     ocom_service_token_validation["@ocom/service-token-validation"]
+    ocom_service_apollo_server["@ocom/service-apollo-server"]
 
-    %% Local dev + UI
+    %% Local dev mocks + UIs
     ocom_service_oauth2_mock_server["@ocom/service-oauth2-mock-server"]
     ocom_service_mongodb_memory_server["@ocom/service-mongodb-memory-server"]
     ocom_ui_community["@apps/ui-community"]
+    ocom_ui_staff["@apps/ui-staff"]
   end
 
   subgraph cellix
@@ -351,14 +356,15 @@ flowchart BT
     cellix_data_sources_mongoose["@cellix/mongoose-seedwork"]
     cellix_domain_seedwork["@cellix/domain-seedwork"]
     cellix_event_bus_seedwork_node["@cellix/event-bus-seedwork-node"]
+    cellix_graphql_core["@cellix/graphql-core"]
+    cellix_ui_core["@cellix/ui-core"]
   end
 
-  %% Dependencies (left -> right for cleaner routing)
-  %% Cellix base
+  %% Foundational dependencies (Cellix seedworks)
   cellix_data_sources_mongoose --> cellix_domain_seedwork
   cellix_data_sources_mongoose --> cellix_event_bus_seedwork_node
 
-  %% OCom -> Cellix
+  %% OCom depends on Cellix seedworks
   ocom_api_ds_mongoose_models --> cellix_data_sources_mongoose
   ocom_api_domain --> cellix_domain_seedwork
   ocom_api_domain --> cellix_event_bus_seedwork_node
@@ -370,8 +376,9 @@ flowchart BT
   ocom_service_blob_storage --> cellix_api_services_spec
   ocom_service_otel --> cellix_api_services_spec
   ocom_service_token_validation --> cellix_api_services_spec
+  ocom_service_apollo_server --> cellix_api_services_spec
 
-  %% OCom internal
+  %% OCom internal (typical DDD/adapter flow)
   ocom_api_persistence --> ocom_api_domain
   ocom_api_persistence --> ocom_api_ds_mongoose_models
   ocom_api_context_spec --> ocom_api_persistence
@@ -385,23 +392,28 @@ flowchart BT
   ocom_api_graphql --> ocom_api_context_spec
   ocom_api_rest --> ocom_api_application_services
   ocom_api_rest --> ocom_api_context_spec
+  ocom_api_graphql_handler --> ocom_api_application_services
+  ocom_api_graphql_handler --> ocom_api_context_spec
 
-  %% Composition
+  %% App composition (what @apps/api wires together)
   ocom_api --> cellix_api_services_spec
   ocom_api --> ocom_api_context_spec
   ocom_api --> ocom_api_application_services
   ocom_api --> ocom_api_graphql
-  ocom_api --> ocom_api_persistence
   ocom_api --> ocom_api_rest
+  ocom_api --> ocom_api_graphql_handler
+  ocom_api --> ocom_api_persistence
   ocom_api --> ocom_service_blob_storage
   ocom_api --> ocom_service_mongoose
   ocom_api --> ocom_service_otel
   ocom_api --> ocom_service_token_validation
+  ocom_api --> ocom_service_apollo_server
 
-  %% Keep these as standalone to avoid clutter
+  %% Standalone / local-dev (no arrows to keep diagram clean)
   ocom_service_oauth2_mock_server
   ocom_service_mongodb_memory_server
   ocom_ui_community
+  ocom_ui_staff
 ```
 
 ## Recipe History
@@ -416,7 +428,6 @@ npm init -w ./packages/api-graphql
 npm install @as-integrations/azure-functions @apollo/server graphql @azure/functions -w api-graphql
 
 npm init -w ./packages/api-event-handler
-
 npm init -w ./packages/api-services
 npm init -w ./packages/api-rest
 npm install @azure/functions -w api-rest
@@ -427,9 +438,7 @@ npm init -w ./packages/service-otel
 npm install @azure/monitor-opentelemetry -w service-otel
 
 npm init -w ./packages/api-persistence
-
 npm init -w ./packages/event-bus-seedwork-node
-
 npm install --save-dev @tsconfig/node20 @tsconfig/node-ts vitest @vitest/coverage-istanbul
 ```
 
