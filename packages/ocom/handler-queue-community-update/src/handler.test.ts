@@ -1,5 +1,6 @@
 import type { InvocationContext } from '@azure/functions';
 import type { ApplicationServices, ApplicationServicesFactory } from '@ocom/application-services';
+import { CommunityNotFoundError } from '@ocom/application-services';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { communityUpdateQueueHandlerCreator } from './handler.ts';
@@ -129,7 +130,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 		});
 
 		it('logs an error and returns (does not rethrow) when community is not found', async () => {
-			factory = makeMockApplicationServicesFactory(vi.fn().mockRejectedValue(new Error('Community not found')));
+			factory = makeMockApplicationServicesFactory(vi.fn().mockRejectedValue(new CommunityNotFoundError('missing-id')));
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
 			await expect(handler({ communityId: 'missing-id' }, context)).resolves.toBeUndefined();
