@@ -13,6 +13,9 @@ const currentDir = fileURLToPath(new URL('.', import.meta.url));
 export function registerLifecycleHooks(): void {
 	registerWorldLifecycleHooks<IWorld & CellixE2EWorld>({
 		scenarioTimeout: getTimeout('scenario'),
+		// The first Before cold-boots all servers + the browser, which exceeds the
+		// per-scenario budget on a cold machine; give it a dedicated boot timeout.
+		beforeTimeout: getTimeout('boot'),
 		before: async (world) => {
 			await world.init();
 		},

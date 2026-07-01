@@ -1,5 +1,10 @@
 version: v1.5.0
 ignore:
+  'SNYK-JS-BRACEEXPANSION-17706650':
+    - '* > serve-handler@6.1.7 > minimatch@3.1.5 > brace-expansion':
+        reason: 'ReDoS is fixed only in brace-expansion@5.0.7, whose CJS build uses a named export (exports.expand). Docusaurus'' serve-handler pins minimatch@3.1.5, which does `var expand = require(''brace-expansion'')` and calls it directly, so 5.0.7 throws "expand is not a function". minimatch 3.x cannot be upgraded (serve-handler needs its function-default API). Every other project in the repo is on the fixed brace-expansion@5.0.7 via overrides; this path is docs-only, build-time, over repository-controlled input, and not exploitable.'
+        expires: '2026-10-01T00:00:00.000Z'
+        created: '2026-07-01T00:00:00.000Z'
   'SNYK-JS-SIRV-12558119':
     - '* > sirv@2.0.4':
         reason: 'Transitive dependency in Docusaurus; not exploitable in static site serving context (dev-only asset handler)'
