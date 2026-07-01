@@ -31,7 +31,7 @@ export interface StaffRoleCommandFinancePermissions {
 
 export interface StaffRoleCommandTechAdminPermissions {
 	canManageTechAdmin?: boolean;
-	canViewDatabaseExplorer?: boolean;
+	canViewDatabaseDocuments?: boolean;
 	canViewBlobExplorer?: boolean;
 	canViewQueueDashboard?: boolean;
 	canSendQueueMessages?: boolean;
@@ -122,8 +122,8 @@ export const applyTechAdminPermissions = (staffRole: Domain.Contexts.User.StaffR
 	if (permissions.canManageTechAdmin !== undefined) {
 		techAdminPermissions.canManageTechAdmin = permissions.canManageTechAdmin;
 	}
-	if (permissions.canViewDatabaseExplorer !== undefined) {
-		techAdminPermissions.canViewDatabaseExplorer = permissions.canViewDatabaseExplorer;
+	if (permissions.canViewDatabaseDocuments !== undefined) {
+		techAdminPermissions.canViewDatabaseDocuments = permissions.canViewDatabaseDocuments;
 	}
 	if (permissions.canViewBlobExplorer !== undefined) {
 		techAdminPermissions.canViewBlobExplorer = permissions.canViewBlobExplorer;

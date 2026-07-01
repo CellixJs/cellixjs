@@ -78,7 +78,7 @@ export function createAuthorizingStaffRoleProps(): StaffRoleProps {
 			},
 			techAdminPermissions: {
 				canManageTechAdmin: false,
-				canViewDatabaseExplorer: false,
+				canViewDatabaseDocuments: false,
 				canViewBlobExplorer: false,
 				canViewQueueDashboard: false,
 				canSendQueueMessages: false,

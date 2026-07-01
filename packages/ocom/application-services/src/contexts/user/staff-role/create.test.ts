@@ -64,7 +64,7 @@ function makeMockStaffRoleInstance(roleName: string): MockStaffRoleInstance {
 	};
 	const techAdminPermissions: Record<string, boolean> = {
 		canManageTechAdmin: false,
-		canViewDatabaseExplorer: false,
+		canViewDatabaseDocuments: false,
 		canViewBlobExplorer: false,
 		canViewQueueDashboard: false,
 		canSendQueueMessages: false,

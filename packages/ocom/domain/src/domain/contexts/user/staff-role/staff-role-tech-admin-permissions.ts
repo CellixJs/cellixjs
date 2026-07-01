@@ -5,7 +5,7 @@ import type { UserVisa } from '../user.visa.ts';
 
 interface StaffRoleTechAdminPermissionsSpec {
 	canManageTechAdmin: boolean;
-	canViewDatabaseExplorer: boolean;
+	canViewDatabaseDocuments: boolean;
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
 	canSendQueueMessages: boolean;
@@ -36,12 +36,12 @@ export class StaffRoleTechAdminPermissions extends ValueObject<StaffRoleTechAdmi
 		this.props.canManageTechAdmin = value;
 	}
 
-	get canViewDatabaseExplorer(): boolean {
-		return this.props.canViewDatabaseExplorer;
+	get canViewDatabaseDocuments(): boolean {
+		return this.props.canViewDatabaseDocuments;
 	}
-	set canViewDatabaseExplorer(value: boolean) {
+	set canViewDatabaseDocuments(value: boolean) {
 		this.validateVisa();
-		this.props.canViewDatabaseExplorer = value;
+		this.props.canViewDatabaseDocuments = value;
 	}
 
 	get canViewBlobExplorer(): boolean {

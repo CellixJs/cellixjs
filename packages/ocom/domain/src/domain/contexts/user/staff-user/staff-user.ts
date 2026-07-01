@@ -6,8 +6,8 @@ import { StaffUserCreatedEvent, type StaffUserCreatedProps } from '../../../even
 import type { Passport } from '../../passport.ts';
 import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from '../staff-role/staff-role.ts';
 import type { UserVisa } from '../user.visa.ts';
-import * as ValueObjects from './staff-user.value-objects.ts';
 import { StaffUserActivityLog, type StaffUserActivityLogEntityReference, type StaffUserActivityLogProps } from './staff-user-activity-log.entity.ts';
+import * as ValueObjects from './staff-user.value-objects.ts';
 import * as ActivityLogValueObjects from './staff-user-activity-log.value-objects.ts';
 
 export interface StaffUserProps extends DomainEntityProps {

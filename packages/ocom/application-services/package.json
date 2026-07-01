@@ -29,7 +29,8 @@
 		"@ocom/domain": "workspace:*",
 		"@ocom/persistence": "workspace:*",
 		"@ocom/service-blob-storage": "workspace:*",
-		"@ocom/service-queue-storage": "workspace:*"
+		"@ocom/service-queue-storage": "workspace:*",
+		"mongoose": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/archunit-tests": "workspace:*",

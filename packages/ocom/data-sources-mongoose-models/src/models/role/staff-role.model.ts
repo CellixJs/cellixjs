@@ -57,7 +57,7 @@ export interface StaffRoleFinancePermissions {
 export interface StaffRoleTechAdminPermissions {
 	id?: ObjectId;
 	canManageTechAdmin: boolean;
-	canViewDatabaseExplorer: boolean;
+	canViewDatabaseDocuments: boolean;
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
 	canSendQueueMessages: boolean;
@@ -152,7 +152,7 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 			} as SchemaDefinition<StaffRoleFinancePermissions>,
 			techAdminPermissions: {
 				canManageTechAdmin: { type: Boolean, required: true, default: false },
-				canViewDatabaseExplorer: { type: Boolean, required: true, default: false },
+				canViewDatabaseDocuments: { type: Boolean, required: true, default: false },
 				canViewBlobExplorer: { type: Boolean, required: true, default: false },
 				canViewQueueDashboard: { type: Boolean, required: true, default: false },
 				canSendQueueMessages: { type: Boolean, required: true, default: false },

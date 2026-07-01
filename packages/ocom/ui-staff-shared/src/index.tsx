@@ -3,8 +3,8 @@ import { SectionLayout } from './section-layout.tsx';
 
 export { VerticalTabs } from '@ocom/ui-shared';
 export { RequireRole, type RequireRoleProps } from './require-role.tsx';
-export { SectionLayoutContainer } from './section-layout.container.tsx';
 export { SectionLayout, type SectionLayoutProps } from './section-layout.tsx';
+export { SectionLayoutContainer } from './section-layout.container.tsx';
 export { extractRoles, type StaffAppRole, StaffAppRoles, staffRouteRoles } from './staff-app-roles.ts';
 export { type StaffAuth, StaffAuthContext, StaffAuthProvider, StaffRouteShell, type StaffRouteShellProps } from './staff-route-shell.tsx';
 export { SubPageLayout } from './sub-page-layout.tsx';

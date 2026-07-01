@@ -80,9 +80,9 @@ overrides:
   jiti: 2.6.1
   rollup: ^4.59.0
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
-  'brace-expansion@1.1.12': 1.1.13
-  'brace-expansion@5.0.4': 5.0.6
-  'brace-expansion@5.0.5': 5.0.6
+  'brace-expansion@1.1.12': 5.0.7
+  'brace-expansion@5.0.4': 5.0.7
+  'brace-expansion@5.0.5': 5.0.7
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
@@ -121,7 +121,7 @@ overrides:
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   '@opentelemetry/core@2.7.1': 2.8.0
   ws: 8.21.0
-  shell-quote: 1.8.4
+  shell-quote: 1.9.0
   '@grpc/grpc-js': '>=1.14.4'
   form-data: ^4.0.6
   'webpack-dev-server>http-proxy-middleware': 3.0.7
