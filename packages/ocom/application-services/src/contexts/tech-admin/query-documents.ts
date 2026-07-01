@@ -92,19 +92,19 @@ async function enrichStaffUserRoles(collection: string, docs: Record<string, unk
 	});
 }
 
-export type DatabaseDocumentsQueryCommand = {
+type DatabaseDocumentsQueryCommand = {
 	collection: string;
 	filter: Record<string, unknown>;
 	page: number;
 	pageSize: number;
 };
 
-export type DatabaseDocument = {
+type DatabaseDocument = {
 	id: string;
 	json: string;
 };
 
-export type DatabaseDocumentPage = {
+type DatabaseDocumentPage = {
 	documents: DatabaseDocument[];
 	totalCount: number;
 };
