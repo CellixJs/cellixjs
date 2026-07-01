@@ -36,6 +36,7 @@
 		"@ocom/event-handler": "workspace:*",
 		"@ocom/graphql": "workspace:*",
 		"@ocom/graphql-handler": "workspace:*",
+		"@ocom/handler-queue-community-update": "workspace:*",
 		"@ocom/persistence": "workspace:*",
 		"@ocom/rest": "workspace:*",
 		"@ocom/service-apollo-server": "workspace:*",

@@ -8,6 +8,7 @@ import { type CommunityQueryByIdCommand, queryById } from './query-by-id.ts';
 import { type CommunityUpdateSettingsCommand, updateSettings } from './update-settings.ts';
 
 export type { CommunityUpdateSettingsCommand };
+export { CommunityNotFoundError } from './update-settings.ts';
 
 export interface CommunityApplicationService {
 	create: (command: CommunityCreateCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference>;

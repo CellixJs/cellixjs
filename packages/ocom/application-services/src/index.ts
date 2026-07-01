@@ -5,6 +5,7 @@ import { Service, type ServiceContextApplicationService } from './contexts/servi
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
+export { CommunityNotFoundError } from './contexts/community/index.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
@@ -36,7 +37,7 @@ export type PrincipalHints = {
 
 export interface AppServicesHost<S> {
 	forRequest(rawAuthHeader?: string, hints?: PrincipalHints): Promise<S>;
-	// forSystem: (opts?: unknown) => Promise<S>;
+	forSystem(): Promise<S>;
 	// forAzureFunction: (opts?: unknown) => Promise<S>;
 }
 
@@ -80,7 +81,22 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 		};
 	};
 
+	const forSystem = (): Promise<ApplicationServices> => {
+		const systemPassport = Domain.PassportFactory.forSystem({ canManageCommunitySettings: true, isSystemAccount: true });
+		const { dataSourcesFactory, blobStorageService, queueStorageService } = context;
+		const dataSources = dataSourcesFactory.withPassport(systemPassport);
+		return Promise.resolve({
+			Community: Community(dataSources, blobStorageService, queueStorageService),
+			Service: Service(dataSources),
+			User: User(dataSources),
+			get verifiedUser(): VerifiedUser | null {
+				return null;
+			},
+		});
+	};
+
 	return {
 		forRequest,
+		forSystem,
 	};
 };

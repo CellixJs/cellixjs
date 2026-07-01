@@ -5,6 +5,7 @@ const {
 	setContext,
 	initializeApplicationServices,
 	registerAzureFunctionHttpHandler,
+	registerAzureFunctionQueueHandler,
 	startUp,
 	initializeInfrastructureServices,
 	registerEventHandlers,
@@ -63,6 +64,7 @@ const {
 		setContext: vi.fn(),
 		initializeApplicationServices: vi.fn(),
 		registerAzureFunctionHttpHandler: vi.fn(),
+		registerAzureFunctionQueueHandler: vi.fn(),
 		startUp: vi.fn(),
 		initializeInfrastructureServices: vi.fn(),
 		registerEventHandlers: vi.fn(),
@@ -130,10 +132,14 @@ vi.mock('./service-config/queue-storage/index.ts', () => ({
 vi.mock('@ocom/graphql-handler', () => ({
 	graphHandlerCreator: vi.fn(),
 }));
+vi.mock('@ocom/handler-queue-community-update', () => ({
+	communityUpdateQueueHandlerCreator: vi.fn(),
+}));
 vi.mock('@ocom/rest', () => ({
 	restHandlerCreator: vi.fn(),
 }));
 vi.mock('@ocom/service-queue-storage', () => ({
+	communityUpdateQueueName: 'community-update',
 	ServiceQueueStorage: vi.fn(function MockServiceQueueStorage() {
 		const service = {
 			startUp: vi.fn(),
@@ -141,6 +147,7 @@ vi.mock('@ocom/service-queue-storage', () => ({
 			sendMessageToCommunityCreationQueue: vi.fn(),
 			receiveFromImportRequestsQueue: vi.fn(),
 			peekAtImportRequestsQueue: vi.fn(),
+			receiveFromCommunityUpdateQueue: vi.fn(),
 			enableLogging: vi.fn(),
 		};
 		service.enableLogging.mockReturnValue(service);
@@ -166,6 +173,12 @@ describe('apps/api bootstrap', () => {
 		});
 		registerAzureFunctionHttpHandler.mockReturnValue({
 			registerAzureFunctionHttpHandler,
+			registerAzureFunctionQueueHandler,
+			startUp,
+		});
+		registerAzureFunctionQueueHandler.mockReturnValue({
+			registerAzureFunctionHttpHandler,
+			registerAzureFunctionQueueHandler,
 			startUp,
 		});
 		initializeInfrastructureServices.mockReturnValue({

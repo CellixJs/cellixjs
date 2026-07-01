@@ -1,6 +1,13 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
+export class CommunityNotFoundError extends Error {
+	constructor(id: string) {
+		super(`Community not found for id: ${id}`);
+		this.name = 'CommunityNotFoundError';
+	}
+}
+
 export interface CommunityUpdateSettingsCommand {
 	id: string;
 	name?: string;
@@ -15,7 +22,7 @@ export const updateSettings = (dataSources: DataSources) => {
 		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(async (repo) => {
 			const community = await repo.get(command.id);
 			if (!community) {
-				throw new Error(`Community not found for id ${command.id}`);
+				throw new CommunityNotFoundError(command.id);
 			}
 
 			if (command.name !== undefined) {
@@ -34,7 +41,7 @@ export const updateSettings = (dataSources: DataSources) => {
 			communityToReturn = await repo.save(community);
 		});
 		if (!communityToReturn) {
-			throw new Error('community not found');
+			throw new CommunityNotFoundError(command.id);
 		}
 		return communityToReturn;
 	};
