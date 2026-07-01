@@ -3,8 +3,7 @@ import { getMongoPort, getWorktreePortOffset } from './ports.ts';
 import type { KnownWorktreeSettings, SettingsRecord, WorktreeSettingsOptions } from './types.ts';
 import { resolveWorktreeName } from './worktree-name.ts';
 
-const HTTP_URL_PATTERN = /https?:\/\/[^\s;'"<>]+/g;
-const MONGO_URL_PATTERN = /mongodb:\/\/[^\s;'"<>]+/g;
+const TRANSFORMABLE_URL_PATTERN = /^(?:https?:\/\/|mongodb:\/\/)[^\s]+$/;
 
 function isPlainRecord(value: unknown): value is SettingsRecord {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -43,8 +42,7 @@ function transformUrl(urlValue: string, worktreeName: string | undefined): strin
 }
 
 function transformStringValue(value: string, worktreeName: string | undefined): string {
-	const withHttpUrls = value.replace(HTTP_URL_PATTERN, (match) => transformUrl(match, worktreeName));
-	return withHttpUrls.replace(MONGO_URL_PATTERN, (match) => transformUrl(match, worktreeName));
+	return TRANSFORMABLE_URL_PATTERN.test(value) ? transformUrl(value, worktreeName) : value;
 }
 
 function transformValue(value: unknown, worktreeName: string | undefined): unknown {
@@ -71,14 +69,12 @@ function transformValue(value: unknown, worktreeName: string | undefined): unkno
  * worktree-specific ports, and `PORT` receives the generic worktree port offset.
  *
  * Unlike {@link convertSettingsForWorktree}, which only touches the keys an
- * explicit {@link WorktreeConversionPlan} names, this class scans every string
- * value (including nested objects/arrays) for an `http(s)://` or `mongodb://`
- * substring and rewrites it wherever found, regardless of key name. This is
- * intentional — it's meant for small, app-wrapper-owned `settings` records
- * (Vite/Node/Azure Functions dev env), not arbitrary free-text — but a
- * setting whose value happens to *contain* such a URL (e.g. a description or
- * log line) will be rewritten too. Prefer {@link convertSettingsForWorktree}
- * when the settings record may hold unrelated values you don't want touched.
+ * explicit {@link WorktreeConversionPlan} names, this class checks every string
+ * value (including nested objects/arrays). Only values that begin with a
+ * supported URL scheme and parse as a complete `http(s)://` or `mongodb://`
+ * URL are rewritten. URLs embedded in descriptions or log lines are left
+ * untouched. Prefer {@link convertSettingsForWorktree} when callers need
+ * explicit key-level policy.
  *
  * @example
  * ```ts

@@ -104,6 +104,11 @@ share the same wrapper: the root `dev:worktree` command supplies `WORKTREE_NAME`
 while regular `dev` does not. Advanced programmatic callers can pass
 `worktree: false` to ignore an ambient worktree name.
 
+`WorktreeSettings` transforms complete `http(s)://` and `mongodb://` string
+values, including complete URL values nested in objects or arrays. It leaves URLs
+embedded in descriptive text unchanged. Use `convertSettingsForWorktree` when
+the application needs explicit key-level conversion policy.
+
 ## Public API
 
 All exports are available from `@cellix/local-dev`. Folder-level subpaths are
