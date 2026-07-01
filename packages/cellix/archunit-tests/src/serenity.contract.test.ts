@@ -56,6 +56,35 @@ describe('Serenity convention public contract', () => {
 		expect(await checkSerenitySuiteConventions({ suiteRoot, requireManagedCleanup: true })).toStrictEqual([]);
 	});
 
+	it('accepts aliased framework imports and formatted lifecycle callbacks', async () => {
+		const suiteRoot = await suiteFixture();
+		await write(
+			suiteRoot,
+			'world.ts',
+			`import { registerManagedSerenityWorld as registerWorld } from '@cellix/serenity-framework/cucumber';
+import { SerenityCast as TestCast } from '@cellix/serenity-framework/serenity';
+export const TestWorld = registerWorld({ createCast: () => new TestCast({ useNotepad: true }) });
+export type TestWorld = InstanceType<typeof TestWorld>;
+registerLifecycleHooks();`,
+		);
+		await write(
+			suiteRoot,
+			'cucumber-lifecycle-hooks.ts',
+			`import { registerWorldLifecycleHooks as registerHooks } from '@cellix/serenity-framework/cucumber';
+import { getTimeout as timeoutFor } from '@cellix/serenity-framework/settings';
+registerHooks({
+  scenarioTimeout: timeoutFor('scenario'),
+  before: async world => world.init(),
+  after: async world => world.cleanup(),
+  afterAll: async () => {
+    await infrastructure.stopAll();
+  },
+});`,
+		);
+
+		expect(await checkSerenitySuiteConventions({ suiteRoot, requireManagedCleanup: true })).toStrictEqual([]);
+	});
+
 	it('reports missing context indexes and steps that contain behavior directly', async () => {
 		const suiteRoot = await suiteFixture();
 		await write(suiteRoot, 'step-definitions/index.ts', '');

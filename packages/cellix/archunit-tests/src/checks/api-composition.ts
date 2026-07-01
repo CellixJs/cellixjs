@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { callbackContainsCall, callbackReturnsObject, callPositions, findImportedBinding, parseTypeScript } from './typescript-source.js';
 
 export interface ApiCompositionConfig {
 	/** Path to the API composition root, normally `src/index.ts`. */
@@ -31,11 +32,14 @@ export async function checkApiComposition(config: ApiCompositionConfig): Promise
 	}
 
 	const violations: string[] = [];
-	if (!/import\s+\{[^}]*\bCellix\b[^}]*\}\s+from\s+['"][^'"]+['"]/.test(content)) {
+	const source = parseTypeScript(config.apiIndexPath, content);
+	const cellixBinding = findImportedBinding(source, 'Cellix');
+	if (!cellixBinding) {
 		violations.push(`[${config.apiIndexPath}] API composition root must import Cellix`);
 	}
 
-	const positions = requiredStages.map((stage) => ({ stage, position: content.indexOf(`.${stage}`) }));
+	const syntaxPositions = callPositions(source, requiredStages);
+	const positions = requiredStages.map((stage) => ({ stage, position: syntaxPositions.get(stage) ?? -1 }));
 	for (const { stage, position } of positions) {
 		if (position < 0) {
 			violations.push(`[${config.apiIndexPath}] API composition root must call ${stage}${stage === 'registerAzureFunction' ? '* for at least one handler' : ''}`);
@@ -51,24 +55,23 @@ export async function checkApiComposition(config: ApiCompositionConfig): Promise
 		}
 	}
 
-	if (!/initializeInfrastructureServices(?:<[^;]+?>)?\s*\(\s*\(?\s*\w+\s*\)?\s*=>[\s\S]*?registerInfrastructureService/.test(content)) {
+	if (!callbackContainsCall(source, 'initializeInfrastructureServices', 'registerInfrastructureService')) {
 		violations.push(`[${config.apiIndexPath}] initializeInfrastructureServices must register at least one infrastructure service`);
 	}
-	if (!/\.setContext\s*\(\s*\(?\s*\w+\s*\)?\s*=>[\s\S]*?return\s*\{/.test(content)) {
+	if (!callbackReturnsObject(source, 'setContext')) {
 		violations.push(`[${config.apiIndexPath}] setContext must build and return the runtime context`);
 	}
 
-	await checkCellixInfrastructureLifecycle(config.apiIndexPath, content, violations);
+	await checkCellixInfrastructureLifecycle(config.apiIndexPath, cellixBinding?.moduleName, violations);
 
 	return violations;
 }
 
-async function checkCellixInfrastructureLifecycle(apiIndexPath: string, apiIndex: string, violations: string[]): Promise<void> {
-	const cellixImport = apiIndex.match(/import\s+\{[^}]*\bCellix\b[^}]*\}\s+from\s+['"](\.\/[^'"]+)['"]/);
-	const importPath = cellixImport?.[1];
+async function checkCellixInfrastructureLifecycle(apiIndexPath: string, importPath: string | undefined, violations: string[]): Promise<void> {
 	if (!importPath) {
 		return;
 	}
+	if (!importPath.startsWith('.')) return;
 
 	const cellixPath = path.resolve(path.dirname(apiIndexPath), importPath);
 	let cellix: string;

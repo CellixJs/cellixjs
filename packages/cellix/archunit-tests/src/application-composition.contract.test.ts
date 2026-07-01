@@ -50,6 +50,33 @@ Cellix.initializeInfrastructureServices((registry) => registry.registerInfrastru
 		expect(await checkApiComposition({ apiIndexPath })).toStrictEqual([]);
 	});
 
+	it('accepts aliased API composition imports and multiline callbacks', async () => {
+		const apiIndexPath = await fixture(
+			'index.ts',
+			`import { Cellix as Application } from './cellix.ts';
+Application.initializeInfrastructureServices(
+  registry => registry.registerInfrastructureService(service),
+)
+  .setContext(registry => ({ registry }))
+  .initializeApplicationServices(context => build(context))
+  .registerAzureFunctionHttpHandler('graphql', {}, handler)
+  .startUp();`,
+		);
+		await writeFile(
+			path.join(path.dirname(apiIndexPath), 'cellix.ts'),
+			`export class Cellix {
+  private setupLifecycle() {
+    app.hook.appStart(async () => {
+      await this.startAllServicesWithTracing();
+      this.contextInternal = this.contextCreatorInternal(this);
+    });
+  }
+}`,
+		);
+
+		expect(await checkApiComposition({ apiIndexPath })).toStrictEqual([]);
+	});
+
 	it('reports omitted and out-of-order API startup stages', async () => {
 		const apiIndexPath = await fixture('index.ts', `import { Cellix } from './cellix.ts';\nCellix.startUp().setContext(() => ({}));`);
 
@@ -87,6 +114,26 @@ createRoot(root).render(<React.StrictMode><ThemeProvider><BrowserRouter><App /><
 		await writeFile(path.join(appRoot, 'App.tsx'), `import { Routes, Route } from 'react-router-dom';\nexport default () => <Routes><Route path="/" element={<Home />} /></Routes>;`);
 
 		expect(await checkUiAppComposition({ appRoot, requiredProviders: ['ThemeProvider', 'BrowserRouter'] })).toStrictEqual([]);
+	});
+
+	it('accepts aliased React Router components', async () => {
+		const appRoot = path.dirname(
+			await fixture(
+				'src/main.tsx',
+				`import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+const mount = document.getElementById('root');
+if (mount === null) throw new Error('missing root');
+createRoot(mount).render(<React.StrictMode><App /></React.StrictMode>);`,
+			),
+		);
+		await writeFile(
+			path.join(appRoot, 'App.tsx'),
+			`import { Routes as RouteSwitch, Route as RouteEntry } from 'react-router-dom';
+export default () => <RouteSwitch><RouteEntry path="/" element={<Home />} /></RouteSwitch>;`,
+		);
+
+		expect(await checkUiAppComposition({ appRoot })).toStrictEqual([]);
 	});
 
 	it('reports a UI entrypoint that skips root validation, providers, or routing', async () => {

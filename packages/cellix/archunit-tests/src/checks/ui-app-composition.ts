@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { containsCall, containsIfThrow, containsJsxTag, localImportName, parseTypeScript } from './typescript-source.js';
 
 export interface UiAppCompositionConfig {
 	/** Directory containing `main.tsx` and `App.tsx`. */
@@ -39,31 +40,36 @@ export async function checkUiAppComposition(config: UiAppCompositionConfig): Pro
 	const app = await readSource(appPath, violations);
 
 	if (main) {
-		if (!/createRoot\s*\(/.test(main)) {
+		const source = parseTypeScript(mainPath, main);
+		if (!containsCall(source, 'createRoot')) {
 			violations.push(`[${mainPath}] UI bootstrap must create a React root`);
 		}
 		if (!/getElementById\s*\(\s*['"]root['"]\s*\)/.test(main)) {
 			violations.push(`[${mainPath}] UI bootstrap must resolve the #root mount element`);
 		}
-		if (!/if\s*\(\s*!\s*\w+\s*\)[\s\S]*?throw\s+new\s+Error/.test(main)) {
+		if (!containsIfThrow(source)) {
 			violations.push(`[${mainPath}] UI bootstrap must guard against a missing root element`);
 		}
-		if (!/<React\.StrictMode\b/.test(main)) {
+		if (!containsJsxTag(source, 'React.StrictMode')) {
 			violations.push(`[${mainPath}] UI bootstrap must enable React.StrictMode`);
 		}
-		if (!/<App\s*\/>/.test(main)) {
+		if (!containsJsxTag(source, 'App')) {
 			violations.push(`[${mainPath}] UI bootstrap must render App`);
 		}
 		for (const provider of config.requiredProviders ?? []) {
-			const escapedProvider = provider.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-			if (!new RegExp(`<${escapedProvider}\\b`).test(main)) {
+			if (!containsJsxTag(source, provider)) {
 				violations.push(`[${mainPath}] UI bootstrap must compose ${provider}`);
 			}
 		}
 	}
 
-	if (app && (!/from\s+['"]react-router-dom['"]/.test(app) || !/<Routes\b/.test(app) || !/<Route\b/.test(app))) {
-		violations.push(`[${appPath}] App must compose routes with React Router Routes and Route`);
+	if (app) {
+		const source = parseTypeScript(appPath, app);
+		const routes = localImportName(source, 'react-router-dom', 'Routes');
+		const route = localImportName(source, 'react-router-dom', 'Route');
+		if (!routes || !route || !containsJsxTag(source, routes) || !containsJsxTag(source, route)) {
+			violations.push(`[${appPath}] App must compose routes with React Router Routes and Route`);
+		}
 	}
 
 	return violations;
