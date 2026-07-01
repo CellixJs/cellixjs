@@ -24,11 +24,17 @@ type MockStaffUserService = GraphContext['applicationServices']['User']['StaffUs
 	queryByExternalId: ReturnType<typeof vi.fn>;
 };
 
+type MockTechAdminService = {
+	ListCollections: ReturnType<typeof vi.fn>;
+	DatabaseDocuments: ReturnType<typeof vi.fn>;
+};
+
 type TestGraphContext = Omit<GraphContext, 'applicationServices'> & {
-	applicationServices: Omit<GraphContext['applicationServices'], 'User'> & {
+	applicationServices: Omit<GraphContext['applicationServices'], 'User' | 'TechAdmin'> & {
 		User: Omit<GraphContext['applicationServices']['User'], 'StaffUser'> & {
 			StaffUser: MockStaffUserService;
 		};
+		TechAdmin: MockTechAdminService;
 	};
 };
 
@@ -78,6 +84,30 @@ function makeMockGraphContext(options: { jwt?: JwtOverride | null; staffUser?: M
 								...jwt, 
 							},
 						},
+			TechAdmin: {
+				ListCollections: vi.fn().mockImplementation(async () => {
+					const { db } = mongoose.connection;
+					if (!db) throw new Error('Database connection is not available');
+					const cols = await db.listCollections().toArray();
+					return cols.map((c) => c.name).filter((n) => !n.startsWith('system.')).sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
+				}),
+				DatabaseDocuments: vi.fn().mockImplementation(async (command: { collection: string; filter: Record<string, unknown>; page: number; pageSize: number }) => {
+					const { db } = mongoose.connection;
+					if (!db) throw new Error('Database connection is not available');
+					const cols = await db.listCollections().toArray();
+					const available = cols.map((c) => c.name).filter((n) => !n.startsWith('system.'));
+					if (!available.includes(command.collection)) {
+						throw new Error('Collection not found or not allowed');
+					}
+					const coll = db.collection(command.collection);
+					const totalCount = await coll.countDocuments(command.filter);
+					const docs = await coll.find(command.filter).skip((command.page - 1) * command.pageSize).limit(command.pageSize).toArray();
+					return {
+						totalCount,
+						documents: docs.map((d) => ({ id: String((d as { _id?: unknown })._id), json: JSON.stringify(d) })),
+					};
+				}),
+			},
 		},
 	} as unknown as TestGraphContext;
 }
@@ -86,7 +116,7 @@ const Query = {
 	...(techAdminResolvers.Query ?? {}),
 } as Record<string, (...args: unknown[]) => unknown>;
 
-const callQuery = (name: string, context: GraphContext, args: object = {}) => Query[name]?.({}, args, context, makeMockInfo(name)) as Promise<unknown>;
+const callQuery = (name: string, context: TestGraphContext, args: object = {}) => Query[name]?.({}, args, context, makeMockInfo(name)) as Promise<unknown>;
 
 let mockCollections: { name: string }[];
 let mockDocuments: Record<string, unknown>[];
