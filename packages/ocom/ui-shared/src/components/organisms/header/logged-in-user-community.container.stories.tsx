@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LoggedInUserCommunityContainer, type LoggedInUserCommunityContainerProps } from './logged-in-user-community.container.tsx';
 
 const meta = {
@@ -17,17 +17,14 @@ export const Default: Story = {
 	args: {
 		autoLogin: false,
 	} satisfies LoggedInUserCommunityContainerProps,
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/123'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/community/:communityId"
-				element={<LoggedInUserCommunityContainer autoLogin={args.autoLogin} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/community/123']}>
+			<Routes>
+				<Route
+					path="/community/:communityId"
+					element={<LoggedInUserCommunityContainer autoLogin={args.autoLogin} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };

@@ -1,10 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { MemoryRouter } from 'react-router-dom';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { LoggedInUserCommunity, type LoggedInUserCommunityProps } from './logged-in-user-community.tsx';
 
 const meta = {
 	title: 'Components/Shared/Header/Logged In User Community',
 	component: LoggedInUserCommunity,
+	decorators: [
+		(Story) => (
+			<MemoryRouter>
+				<Story />
+			</MemoryRouter>
+		),
+	],
 	argTypes: {
 		handleLogout: { action: 'handleLogout' },
 	},

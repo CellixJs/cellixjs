@@ -1,10 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { MemoryRouter } from 'react-router-dom';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { LoggedInUser } from './index.tsx';
 
 const meta = {
 	title: 'Components/Shared/Logged In User',
 	component: LoggedInUser,
+	decorators: [
+		(Story) => (
+			<MemoryRouter>
+				<Story />
+			</MemoryRouter>
+		),
+	],
 	argTypes: {
 		onLoginClicked: { action: 'onLoginClicked' },
 		onSignupClicked: { action: 'onSignupClicked' },

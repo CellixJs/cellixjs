@@ -30,6 +30,7 @@
 		"@storybook/addon-a11y": "catalog:",
 		"@storybook/addon-docs": "catalog:",
 		"@storybook/addon-vitest": "catalog:",
+        "@storybook/react": "catalog:",
 		"@ocom-verification/archunit-tests": "workspace:*",
 		"@storybook/react-vite": "catalog:",
 		"@types/react": "^19.1.11",

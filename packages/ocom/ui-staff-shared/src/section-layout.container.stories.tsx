@@ -1,4 +1,3 @@
-import { MockedProvider } from '@apollo/client/testing';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ReactElement } from 'react';
@@ -55,38 +54,36 @@ export const WithDisplayName: Story = {
 	args: {
 		pageLayouts,
 	} satisfies { pageLayouts: PageLayoutProps[] },
-	decorators: [
-		(Story) => (
-			<MockedProvider
-				addTypename={false}
-				mocks={[
-					{
-						request: {
-							query: SectionLayoutHeaderCurrentStaffUserDocument,
-						},
-						result: {
-							data: {
-								currentStaffUserAndCreateIfNotExists: {
-									id: 'staff-user-1',
-									displayName: 'Jess',
-									firstName: 'Jess',
-									lastName: 'Example',
-									email: 'jess@example.com',
-								},
+	parameters: {
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: SectionLayoutHeaderCurrentStaffUserDocument,
+						variables: {},
+					},
+					result: {
+						data: {
+							currentStaffUserAndCreateIfNotExists: {
+								__typename: 'StaffUser',
+								id: 'staff-user-1',
+								displayName: 'Jess',
+								firstName: 'Jess',
+								lastName: 'Example',
+								email: 'jess@example.com',
 							},
 						},
 					},
-				]}
-			>
-				{renderContainer(<Story />)}
-			</MockedProvider>
-		),
-	],
+				},
+			],
+		},
+	},
+	decorators: [(Story) => renderContainer(<Story />)],
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
 		await expect(canvas.findByText('Jess')).resolves.toBeInTheDocument();
-		expect(canvas.getByText('Custom')).toBeInTheDocument();
+		expect(canvas.getByText('Communities')).toBeInTheDocument();
 	},
 };
 
@@ -94,27 +91,24 @@ export const FallsBackToAuthName: Story = {
 	args: {
 		pageLayouts,
 	} satisfies { pageLayouts: PageLayoutProps[] },
-	decorators: [
-		(Story) => (
-			<MockedProvider
-				addTypename={false}
-				mocks={[
-					{
-						request: {
-							query: SectionLayoutHeaderCurrentStaffUserDocument,
-						},
-						result: {
-							data: {
-								currentStaffUserAndCreateIfNotExists: {},
-							},
+	parameters: {
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: SectionLayoutHeaderCurrentStaffUserDocument,
+						variables: {},
+					},
+					result: {
+						data: {
+							currentStaffUserAndCreateIfNotExists: {},
 						},
 					},
-				]}
-			>
-				{renderContainer(<Story />)}
-			</MockedProvider>
-		),
-	],
+				},
+			],
+		},
+	},
+	decorators: [(Story) => renderContainer(<Story />)],
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 

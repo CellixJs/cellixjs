@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { MemoryRouter } from 'react-router-dom';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { LoggedInUserContainerEndUserFieldsFragment } from '../../../generated.tsx';
 import { LoggedInUserRoot, type LoggedInUserRootProps } from './logged-in-user-root.tsx';
@@ -6,6 +7,13 @@ import { LoggedInUserRoot, type LoggedInUserRootProps } from './logged-in-user-r
 const meta = {
 	title: 'Components/Shared/Header/Logged In User Root',
 	component: LoggedInUserRoot,
+	decorators: [
+		(Story) => (
+			<MemoryRouter>
+				<Story />
+			</MemoryRouter>
+		),
+	],
 	argTypes: {
 		handleLogout: { action: 'handleLogout' },
 	},

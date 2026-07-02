@@ -1,6 +1,6 @@
 import type { Operation } from '@apollo/client';
 import { describe, expect, it } from 'vitest';
-import { ApolloLinkToAddCustomHeader } from './apollo-client-links';
+import { ApolloLinkToAddCustomHeader } from './apollo-client-links.js';
 
 describe('ApolloLinkToAddCustomHeader', () => {
 	it('adds header to operation context without mutating previous headers', () => {
@@ -47,6 +47,6 @@ describe('ApolloLinkToAddCustomHeader', () => {
 		expect(ctx.headers).toBeTruthy();
 		const headers = ctx.headers as Record<string, unknown>;
 		expect(headers['x-community-id']).toBe('community-123');
-		expect(headers.existing).toBe('value');
+		expect(headers['existing']).toBe('value');
 	});
 });
