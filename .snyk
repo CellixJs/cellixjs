@@ -47,11 +47,6 @@ ignore:
         reason: 'Transitive dependency in @azure/functions; upgrade path has type errors'
         expires: '2026-07-28T00:00:00.000Z'
         created: '2026-01-15T11:04:00.000Z'
-  'SNYK-JS-YAUZL-15467445':
-    - '* > yauzl@<3.2.1':
-        reason: 'Transitive dependency in @mongodb-memory-server; not exploitable in current usage.'
-        expires: '2026-03-26T00:00:00.000Z'
-        created: '2026-03-12T12:35:00.000Z'
   'SNYK-JS-UUID-16133035':
     - '* > uuid@8.3.2':
         reason: 'Transitive dependency in Docusaurus and Azurite dev-only stacks; no compatible fix path available yet from upstream.'
@@ -71,11 +66,6 @@ ignore:
         reason: 'Mongoose 8.22.1 has TypeScript constraint errors in type definitions (types/inferrawdoctype.d.ts, types/inferschematype.d.ts) that break compilation. Patch attempts failed due to external library type incompatibilities. Risk is Low: requires control of query field names and values.'
         expires: '2026-11-07T00:00:00.000Z'
         created: '2026-05-07T09:00:00.000Z'
-  'SNYK-JS-BABELPLUGINTRANSFORMMODULESSYSTEMJS-16624576':
-    - '* > @babel/plugin-transform-modules-systemjs@7.28.5':
-        reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
-        expires: '2026-06-28T00:00:00.000Z'
-        created: '2026-05-11T10:00:00.000Z'
   'SNYK-JS-AI-16734889':
     - '@docusaurus/preset-classic@3.10.1 > * > ai@5.0.105':
         reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
@@ -101,11 +91,6 @@ ignore:
         reason: 'Transitive dependency in Docusaurus CSS optimization/build tooling; Snyk reports no fixed upgrade or patch available. Not exploitable at runtime because docs CSS is repository-controlled and processed at build time.'
         expires: '2026-09-18T00:00:00.000Z'
         created: '2026-06-08T00:00:00.000Z'
-  'SNYK-JS-SHELLQUOTE-17457810':
-    - '* > shell-quote@1.8.4':
-        reason: 'Transitive dependency in @docusaurus/core via webpack-dev-server > launch-editor; fixed in shell-quote@1.9.0 but no direct upgrade path available. Dev-time only; not exploitable in current usage.'
-        expires: '2026-12-31T00:00:00.000Z'
-        created: '2026-06-25T00:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295814':
     - '* > image-size@<=2.0.2':
         reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
