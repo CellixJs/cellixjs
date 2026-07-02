@@ -281,11 +281,13 @@ function runInheritedCommand(options: SilentCommandOptions): SilentCommandResult
 }
 
 function buildCommandOptions(step: CommandSequenceStep, options: CommandSequenceContext): SilentCommandOptions {
+	const maxBuffer = step.maxBuffer ?? options.maxBuffer;
+
 	return {
 		...(step.args ? { args: step.args } : {}),
 		...(options.cwd ? { cwd: options.cwd } : {}),
 		...(options.env ? { env: options.env } : {}),
-		...(step.maxBuffer !== undefined ? { maxBuffer: step.maxBuffer } : options.maxBuffer !== undefined ? { maxBuffer: options.maxBuffer } : {}),
+		...(maxBuffer !== undefined ? { maxBuffer } : {}),
 		...(options.spawn ? { spawn: options.spawn } : {}),
 		...(options.streams ? { streams: options.streams } : {}),
 		command: step.command,
