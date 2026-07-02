@@ -169,6 +169,7 @@ The local mock OpenID Connect provider used for UI development is configured per
 }
 ```
 
+
 The envVars values are environment variable names (from the UI app's `.env` file) that the server resolves to actual values at startup.
 
 Per-developer overrides
