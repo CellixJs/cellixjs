@@ -1,6 +1,7 @@
 import type { StorageQueueHandler } from '@azure/functions';
 import type { ApplicationServicesFactory } from '@ocom/application-services';
 import { CommunityNotFoundError } from '@ocom/application-services';
+import { communityUpdateQueueName } from '@ocom/service-queue-storage';
 import type { CommunityUpdatePayload, QueueStorageOperations, QueueTriggerMetadata } from '@ocom/service-queue-storage';
 
 /**
@@ -44,7 +45,7 @@ export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: A
 		try {
 			message = await queueService.receiveFromCommunityUpdateQueue(queueEntry, metadata);
 		} catch (err) {
-			context.error(`community-update: invalid message payload: ${err instanceof Error ? err.message : String(err)}`);
+			context.error(`${communityUpdateQueueName}: invalid message payload: ${err instanceof Error ? err.message : String(err)}`);
 			return;
 		}
 		const appServices = await applicationServicesFactory.forSystem();
@@ -59,7 +60,7 @@ export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: A
 			});
 		} catch (err) {
 			if (err instanceof CommunityNotFoundError) {
-				context.error(`community-update: community not found: ${communityId}`);
+				context.error(`${communityUpdateQueueName}: community not found: ${communityId}`);
 				return;
 			}
 			throw err;
