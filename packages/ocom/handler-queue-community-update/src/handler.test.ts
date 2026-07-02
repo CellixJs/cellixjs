@@ -125,7 +125,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
 			await expect(handler({ bad: 'payload' } as unknown as { communityId: string }, context)).resolves.toBeUndefined();
-			expect(context.error).toHaveBeenCalledWith(expect.stringContaining('invalid message payload'));
+			expect(context.error).toHaveBeenCalledWith(expect.stringContaining('invalid message payload'), expect.any(Error));
 			expect(factory.forSystem).not.toHaveBeenCalled();
 		});
 
@@ -134,7 +134,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
 			await expect(handler({ communityId: 'missing-id' }, context)).resolves.toBeUndefined();
-			expect(context.error).toHaveBeenCalledWith(expect.stringContaining('community not found'));
+			expect(context.error).toHaveBeenCalledWith(expect.stringContaining('community not found'), expect.any(CommunityNotFoundError));
 		});
 
 		it('rethrows errors from updateSettings that are not "community not found"', async () => {
