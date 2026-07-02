@@ -5,7 +5,7 @@
 	"type": "module",
 	"author": "CellixJs",
 	"license": "MIT",
-	"packageManager": "pnpm@11.0.8",
+	"packageManager": "pnpm@11.9.0",
 	"scripts": {
 		"antd": "antd",
 		"install:all": "pnpm i && pnpm run install:python",
