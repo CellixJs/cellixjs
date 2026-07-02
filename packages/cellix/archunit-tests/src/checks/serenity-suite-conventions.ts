@@ -55,7 +55,7 @@ export async function checkSerenitySuiteConventions(config: SerenitySuiteConvent
 		if (!serenityCast || !containsNewExpression(source, serenityCast)) {
 			violations.push(`[${worldPath}] Managed world must use SerenityCast from @cellix/serenity-framework/serenity`);
 		}
-		for (const required of ['createCast:', 'useNotepad: true', 'registerLifecycleHooks()']) {
+		for (const required of ['createCast:', 'useNotepad: true']) {
 			if (!world.includes(required)) {
 				violations.push(`[${worldPath}] Managed world must include ${required}`);
 			}

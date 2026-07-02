@@ -88,8 +88,32 @@ export function containsJsxTag(source: ts.SourceFile, tagName: string): boolean 
 	});
 }
 
-export function containsIfThrow(source: ts.SourceFile): boolean {
-	return someNode(source, (node) => ts.isIfStatement(node) && someNode(node.thenStatement, ts.isThrowStatement));
+/** Check whether a resolved DOM mount point is protected by an explicit guard. */
+export function containsMountPointGuard(source: ts.SourceFile, elementId: string): boolean {
+	const mountNames = new Set<string>();
+	someNode(source, (node) => {
+		if (!ts.isVariableDeclaration(node) || !ts.isIdentifier(node.name) || !node.initializer) return false;
+		if (isElementLookup(node.initializer, elementId) || (ts.isCallExpression(node.initializer) && node.initializer.arguments.some((argument) => isElementLookup(argument, elementId)))) {
+			mountNames.add(node.name.text);
+		}
+		return false;
+	});
+
+	return someNode(source, (node) => {
+		if (ts.isIfStatement(node) && referencesAnyIdentifier(node.expression, mountNames)) {
+			return someNode(node.thenStatement, (child) => ts.isThrowStatement(child) || ts.isCallExpression(child));
+		}
+		if (!ts.isCallExpression(node) || !/^(assert|ensure|guard|invariant|require|validate)/i.test(expressionName(node.expression) ?? '')) return false;
+		return node.arguments.some((argument) => referencesAnyIdentifier(argument, mountNames) || isElementLookup(argument, elementId));
+	});
+}
+
+function isElementLookup(node: ts.Node, elementId: string): boolean {
+	return ts.isCallExpression(node) && expressionName(node.expression) === 'getElementById' && node.arguments.some((argument) => ts.isStringLiteral(argument) && argument.text === elementId);
+}
+
+function referencesAnyIdentifier(node: ts.Node, names: ReadonlySet<string>): boolean {
+	return someNode(node, (child) => ts.isIdentifier(child) && names.has(child.text));
 }
 
 function expressionName(expression: ts.LeftHandSideExpression): string | undefined {

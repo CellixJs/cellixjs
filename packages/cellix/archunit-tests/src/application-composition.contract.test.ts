@@ -136,6 +136,38 @@ export default () => <RouteSwitch><RouteEntry path="/" element={<Home />} /></Ro
 		expect(await checkUiAppComposition({ appRoot })).toStrictEqual([]);
 	});
 
+	it('accepts an assertion helper that guards the mount point', async () => {
+		const appRoot = path.dirname(
+			await fixture(
+				'src/main.tsx',
+				`import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+const mount = document.getElementById('root');
+invariant(mount, 'missing root');
+createRoot(mount).render(<React.StrictMode><App /></React.StrictMode>);`,
+			),
+		);
+		await writeFile(path.join(appRoot, 'App.tsx'), `import { Routes, Route } from 'react-router-dom';\nexport default () => <Routes><Route path="/" element={<Home />} /></Routes>;`);
+
+		expect(await checkUiAppComposition({ appRoot })).toStrictEqual([]);
+	});
+
+	it('does not mistake an unrelated if and throw for mount-point validation', async () => {
+		const appRoot = path.dirname(
+			await fixture(
+				'src/main.tsx',
+				`import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+const mount = document.getElementById('root');
+if (configuration.invalid) throw new Error('invalid configuration');
+createRoot(mount).render(<React.StrictMode><App /></React.StrictMode>);`,
+			),
+		);
+		await writeFile(path.join(appRoot, 'App.tsx'), `import { Routes, Route } from 'react-router-dom';\nexport default () => <Routes><Route path="/" element={<Home />} /></Routes>;`);
+
+		expect(await checkUiAppComposition({ appRoot })).toContain(`[${path.join(appRoot, 'main.tsx')}] UI bootstrap must guard against a missing root element`);
+	});
+
 	it('reports a UI entrypoint that skips root validation, providers, or routing', async () => {
 		const appRoot = path.dirname(await fixture('src/main.tsx', `import { createRoot } from 'react-dom/client';\ncreateRoot(document.getElementById('root')).render(<App />);`));
 		await writeFile(path.join(appRoot, 'App.tsx'), 'export default () => <main />;');

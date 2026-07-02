@@ -22,7 +22,7 @@ async function suiteFixture(): Promise<string> {
 	await write(
 		suiteRoot,
 		'world.ts',
-		`import { registerManagedSerenityWorld } from '@cellix/serenity-framework/cucumber';\nimport { SerenityCast } from '@cellix/serenity-framework/serenity';\nimport { infrastructure } from './infrastructure.ts';\nexport const TestWorld = registerManagedSerenityWorld({ infrastructure, createCast: () => new SerenityCast({ useNotepad: true }) });\nexport type TestWorld = InstanceType<typeof TestWorld>;\nregisterLifecycleHooks();`,
+		`import { registerManagedSerenityWorld } from '@cellix/serenity-framework/cucumber';\nimport { SerenityCast } from '@cellix/serenity-framework/serenity';\nimport { infrastructure } from './infrastructure.ts';\nexport const TestWorld = registerManagedSerenityWorld({ infrastructure, createCast: () => new SerenityCast({ useNotepad: true }) });\nexport type TestWorld = InstanceType<typeof TestWorld>;`,
 	);
 	await write(
 		suiteRoot,
@@ -64,8 +64,7 @@ describe('Serenity convention public contract', () => {
 			`import { registerManagedSerenityWorld as registerWorld } from '@cellix/serenity-framework/cucumber';
 import { SerenityCast as TestCast } from '@cellix/serenity-framework/serenity';
 export const TestWorld = registerWorld({ createCast: () => new TestCast({ useNotepad: true }) });
-export type TestWorld = InstanceType<typeof TestWorld>;
-registerLifecycleHooks();`,
+export type TestWorld = InstanceType<typeof TestWorld>;`,
 		);
 		await write(
 			suiteRoot,

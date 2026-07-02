@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { containsCall, containsIfThrow, containsJsxTag, localImportName, parseTypeScript } from './typescript-source.js';
+import { containsCall, containsJsxTag, containsMountPointGuard, localImportName, parseTypeScript } from './typescript-source.js';
 
 export interface UiAppCompositionConfig {
 	/** Directory containing `main.tsx` and `App.tsx`. */
@@ -47,7 +47,7 @@ export async function checkUiAppComposition(config: UiAppCompositionConfig): Pro
 		if (!/getElementById\s*\(\s*['"]root['"]\s*\)/.test(main)) {
 			violations.push(`[${mainPath}] UI bootstrap must resolve the #root mount element`);
 		}
-		if (!containsIfThrow(source)) {
+		if (!containsMountPointGuard(source, 'root')) {
 			violations.push(`[${mainPath}] UI bootstrap must guard against a missing root element`);
 		}
 		if (!containsJsxTag(source, 'React.StrictMode')) {
