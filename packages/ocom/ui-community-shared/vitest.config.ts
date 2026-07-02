@@ -7,7 +7,7 @@ export default mergeConfig(
 	defineConfig(
 		createStorybookVitestConfig(dirname, {
 			additionalCoverageExclude: ['src/components/index.ts'],
-            storybookDirRelativeToPackage: '../../../apps/ui-community/.storybook'
+			storybookDirRelativeToPackage: '.storybook',
 		}),
 	),
 	defineConfig({
