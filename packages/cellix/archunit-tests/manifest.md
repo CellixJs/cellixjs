@@ -16,6 +16,7 @@ Each focused export module exposes configuration types, asynchronous checkers th
 
 - A checker reports violations without loading consumer runtime modules.
 - A suite helper lets each consumer own and run its architecture contract.
+- UI composition checks require configured providers to occur on the rendered component path to `App` and missing-root guards to terminate the invalid path.
 - Configuration makes project paths and providers explicit, while Serenity bounded contexts are discovered from the consumer's standard context directory instead of embedding OCom-specific names in reusable rules.
 
 ## Intended consumers

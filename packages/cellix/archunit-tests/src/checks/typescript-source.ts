@@ -50,7 +50,10 @@ export function callPositions(source: ts.SourceFile, names: readonly string[]): 
 		if (!ts.isCallExpression(node)) return false;
 		const name = expressionName(node.expression);
 		const matchedName = name && names.find((candidate) => name === candidate || (candidate === 'registerAzureFunction' && name.startsWith(candidate)));
-		if (matchedName && !positions.has(matchedName)) positions.set(matchedName, node.getStart(source));
+		if (matchedName && !positions.has(matchedName)) {
+			const positionNode = ts.isPropertyAccessExpression(node.expression) ? node.expression.name : node.expression;
+			positions.set(matchedName, positionNode.getStart(source));
+		}
 		return false;
 	});
 	return positions;
@@ -88,6 +91,41 @@ export function containsJsxTag(source: ts.SourceFile, tagName: string): boolean 
 	});
 }
 
+/** Check whether a JSX component is on a rendered path between the React root and App. */
+export function containsRenderedJsxWrapper(source: ts.SourceFile, wrapperName: string, childName = 'App'): boolean {
+	const root = '__render_root__';
+	const edges = new Map<string, Set<string>>();
+	const connect = (parent: string, child: string): void => {
+		const children = edges.get(parent) ?? new Set<string>();
+		children.add(child);
+		edges.set(parent, children);
+	};
+
+	someNode(source, (node) => {
+		const tag = jsxTagName(node, source);
+		if (!tag) return false;
+
+		const parentTag = nearestJsxParentTag(node, source);
+		if (parentTag) {
+			connect(parentTag, tag);
+		} else {
+			const component = enclosingComponentName(node.parent);
+			if (component) connect(component, tag);
+		}
+		return false;
+	});
+
+	someNode(source, (node) => {
+		if (!ts.isCallExpression(node) || expressionName(node.expression) !== 'render') return false;
+		for (const argument of node.arguments) {
+			for (const tag of topLevelJsxTags(argument, source)) connect(root, tag);
+		}
+		return false;
+	});
+
+	return isReachable(edges, root, wrapperName) && isReachable(edges, wrapperName, childName);
+}
+
 /** Check whether a resolved DOM mount point is protected by an explicit guard. */
 export function containsMountPointGuard(source: ts.SourceFile, elementId: string): boolean {
 	const mountNames = new Set<string>();
@@ -100,12 +138,67 @@ export function containsMountPointGuard(source: ts.SourceFile, elementId: string
 	});
 
 	return someNode(source, (node) => {
-		if (ts.isIfStatement(node) && referencesAnyIdentifier(node.expression, mountNames)) {
-			return someNode(node.thenStatement, (child) => ts.isThrowStatement(child) || ts.isCallExpression(child));
+		if (ts.isIfStatement(node) && checksMissingValue(node.expression, mountNames)) {
+			return someNode(node.thenStatement, (child) => ts.isThrowStatement(child) || ts.isReturnStatement(child));
 		}
 		if (!ts.isCallExpression(node) || !/^(assert|ensure|guard|invariant|require|validate)/i.test(expressionName(node.expression) ?? '')) return false;
 		return node.arguments.some((argument) => referencesAnyIdentifier(argument, mountNames) || isElementLookup(argument, elementId));
 	});
+}
+
+function checksMissingValue(node: ts.Expression, names: ReadonlySet<string>): boolean {
+	if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.ExclamationToken) {
+		return referencesAnyIdentifier(node.operand, names);
+	}
+	if (!ts.isBinaryExpression(node)) return false;
+	if (![ts.SyntaxKind.EqualsEqualsToken, ts.SyntaxKind.EqualsEqualsEqualsToken].includes(node.operatorToken.kind)) return false;
+	return (referencesAnyIdentifier(node.left, names) && isNullish(node.right)) || (isNullish(node.left) && referencesAnyIdentifier(node.right, names));
+}
+
+function isNullish(node: ts.Expression): boolean {
+	return node.kind === ts.SyntaxKind.NullKeyword || (ts.isIdentifier(node) && node.text === 'undefined');
+}
+
+function jsxTagName(node: ts.Node, source: ts.SourceFile): string | undefined {
+	if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) return node.tagName.getText(source);
+	return undefined;
+}
+
+function nearestJsxParentTag(node: ts.Node | undefined, source: ts.SourceFile): string | undefined {
+	for (let current = node?.parent; current; current = current.parent) {
+		if (ts.isJsxElement(current) && current.openingElement !== node) return current.openingElement.tagName.getText(source);
+		if (ts.isFunctionLike(current)) return undefined;
+	}
+	return undefined;
+}
+
+function enclosingComponentName(node: ts.Node | undefined): string | undefined {
+	for (let current = node; current; current = current.parent) {
+		if (ts.isFunctionDeclaration(current) && current.name) return current.name.text;
+		if ((ts.isArrowFunction(current) || ts.isFunctionExpression(current)) && ts.isVariableDeclaration(current.parent) && ts.isIdentifier(current.parent.name)) return current.parent.name.text;
+	}
+	return undefined;
+}
+
+function topLevelJsxTags(node: ts.Node, source: ts.SourceFile): string[] {
+	const tags: string[] = [];
+	const visit = (current: ts.Node): void => {
+		const tag = jsxTagName(current, source);
+		if (tag) {
+			tags.push(tag);
+			return;
+		}
+		current.forEachChild(visit);
+	};
+	visit(node);
+	return tags;
+}
+
+function isReachable(edges: ReadonlyMap<string, ReadonlySet<string>>, from: string, to: string, seen = new Set<string>()): boolean {
+	if (from === to) return true;
+	if (seen.has(from)) return false;
+	seen.add(from);
+	return [...(edges.get(from) ?? [])].some((child) => isReachable(edges, child, to, seen));
 }
 
 function isElementLookup(node: ts.Node, elementId: string): boolean {

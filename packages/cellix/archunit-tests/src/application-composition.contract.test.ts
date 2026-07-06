@@ -84,6 +84,24 @@ Application.initializeInfrastructureServices(
 		expect(violations).toEqual(expect.arrayContaining([expect.stringContaining('initializeInfrastructureServices'), expect.stringContaining('initializeApplicationServices'), expect.stringContaining('registerAzureFunction')]));
 	});
 
+	it('reports a complete API startup chain composed in reverse order', async () => {
+		const apiIndexPath = await fixture(
+			'index.ts',
+			`import { Cellix } from './cellix.ts';
+Cellix.startUp()
+  .registerAzureFunctionHttpHandler('graphql', {}, handler)
+  .initializeApplicationServices((context) => build(context))
+  .setContext(() => ({}))
+  .initializeInfrastructureServices((registry) => registry.registerInfrastructureService(service));`,
+		);
+		await writeFile(
+			path.join(path.dirname(apiIndexPath), 'cellix.ts'),
+			`export class Cellix { private setupLifecycle() { app.hook.appStart(async () => { await this.startAllServicesWithTracing(); this.contextInternal = this.contextCreatorInternal(this); }); } }`,
+		);
+
+		expect(await checkApiComposition({ apiIndexPath })).toEqual(expect.arrayContaining([expect.stringContaining('must be composed after')]));
+	});
+
 	it('reports a Cellix implementation that does not initialize infrastructure during app startup', async () => {
 		const apiIndexPath = await fixture(
 			'index.ts',
@@ -166,6 +184,38 @@ createRoot(mount).render(<React.StrictMode><App /></React.StrictMode>);`,
 		await writeFile(path.join(appRoot, 'App.tsx'), `import { Routes, Route } from 'react-router-dom';\nexport default () => <Routes><Route path="/" element={<Home />} /></Routes>;`);
 
 		expect(await checkUiAppComposition({ appRoot })).toContain(`[${path.join(appRoot, 'main.tsx')}] UI bootstrap must guard against a missing root element`);
+	});
+
+	it('does not mistake work performed when the mount point exists for a missing-root guard', async () => {
+		const appRoot = path.dirname(
+			await fixture(
+				'src/main.tsx',
+				`import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+const mount = document.getElementById('root');
+if (mount) console.info('mount found');
+createRoot(mount).render(<React.StrictMode><App /></React.StrictMode>);`,
+			),
+		);
+		await writeFile(path.join(appRoot, 'App.tsx'), `import { Routes, Route } from 'react-router-dom';\nexport default () => <Routes><Route path="/" element={<Home />} /></Routes>;`);
+
+		expect(await checkUiAppComposition({ appRoot })).toContain(`[${path.join(appRoot, 'main.tsx')}] UI bootstrap must guard against a missing root element`);
+	});
+
+	it('reports a required provider that does not wrap the rendered app', async () => {
+		const appRoot = path.dirname(
+			await fixture(
+				'src/main.tsx',
+				`import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+const mount = document.getElementById('root');
+if (!mount) throw new Error('missing root');
+createRoot(mount).render(<React.StrictMode><><App /><ThemeProvider /></></React.StrictMode>);`,
+			),
+		);
+		await writeFile(path.join(appRoot, 'App.tsx'), `import { Routes, Route } from 'react-router-dom';\nexport default () => <Routes><Route path="/" element={<Home />} /></Routes>;`);
+
+		expect(await checkUiAppComposition({ appRoot, requiredProviders: ['ThemeProvider'] })).toContain(`[${path.join(appRoot, 'main.tsx')}] UI bootstrap must compose ThemeProvider around App`);
 	});
 
 	it('reports a UI entrypoint that skips root validation, providers, or routing', async () => {

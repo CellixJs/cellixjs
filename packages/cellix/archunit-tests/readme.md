@@ -16,7 +16,7 @@ Current rules in this package include:
 - circular dependency checks across Cellix package source graphs
 - framework boundary checks, such as `ui-core` not depending on OCom UI code or app code
 - API startup composition through infrastructure, context, application services, handlers, and startup, including service initialization during Azure `appStart`
-- UI application bootstrap composition, including root validation, configured providers, and React Router
+- UI application bootstrap composition, including terminating missing-root validation, configured providers on the rendered path to `App`, and React Router
 - Serenity/Cucumber managed-world initialization, concrete finalized server infrastructure, lifecycle cleanup, context loaders, and Screenplay delegation
 
 ## Application Composition
@@ -29,7 +29,7 @@ import { describeApiCompositionTests } from '@cellix/archunit-tests/api';
 describeApiCompositionTests({ apiIndexPath: 'src/index.ts' });
 ```
 
-UI applications configure the providers their bootstrap is expected to compose:
+UI applications configure the providers their bootstrap is expected to compose around the rendered `App`. Providers may be nested through local wrapper components, but rendering one elsewhere does not satisfy the contract:
 
 ```typescript
 import { describeUiAppCompositionTests } from '@cellix/archunit-tests/ui-app';

@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { containsCall, containsJsxTag, containsMountPointGuard, localImportName, parseTypeScript } from './typescript-source.js';
+import { containsCall, containsJsxTag, containsMountPointGuard, containsRenderedJsxWrapper, localImportName, parseTypeScript } from './typescript-source.js';
 
 export interface UiAppCompositionConfig {
 	/** Directory containing `main.tsx` and `App.tsx`. */
@@ -57,8 +57,8 @@ export async function checkUiAppComposition(config: UiAppCompositionConfig): Pro
 			violations.push(`[${mainPath}] UI bootstrap must render App`);
 		}
 		for (const provider of config.requiredProviders ?? []) {
-			if (!containsJsxTag(source, provider)) {
-				violations.push(`[${mainPath}] UI bootstrap must compose ${provider}`);
+			if (!containsRenderedJsxWrapper(source, provider)) {
+				violations.push(`[${mainPath}] UI bootstrap must compose ${provider} around App`);
 			}
 		}
 	}
