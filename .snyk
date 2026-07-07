@@ -126,8 +126,3 @@ ignore:
         reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. Accepted temporarily while the existing OTEL 2.x migration is completed.'
         expires: '2026-07-18T00:00:00.000Z'
         created: '2026-06-18T00:00:00.000Z'
-  'SNYK-JS-BRACEEXPANSION-17706650':
-    - '* > minimatch@3.1.5 > brace-expansion':
-        reason: 'Transitive via Docusaurus tooling (serve-handler, rimraf>glob) pinned to minimatch@3, which requires the brace-expansion v1/v2 callable API; the fixed 5.0.7 exports a named function and is not drop-in. Overridden to 2.0.3 (latest compatible). ReDoS on build/dev-server glob patterns from repository-controlled input only.'
-        expires: '2026-08-07T00:00:00.000Z'
-        created: '2026-07-07T00:00:00.000Z'
