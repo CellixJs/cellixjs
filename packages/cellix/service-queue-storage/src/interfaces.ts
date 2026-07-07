@@ -259,7 +259,7 @@ export type PayloadFieldProxy<TPayload extends object, Prefix extends string = '
 };
 
 /** Union of all valid dotted field paths (including nested object paths) for a payload type. */
-export type PayloadFieldPath<TPayload, Prefix extends string = ''> = TPayload extends object
+type PayloadFieldPath<TPayload, Prefix extends string = ''> = TPayload extends object
 	? {
 			[K in Extract<keyof TPayload, string>]: NonNullable<TPayload[K]> extends PayloadLeafValue
 				? ConcatPath<Prefix, K>
