@@ -94,12 +94,12 @@ describe('communityUpdateQueueHandlerCreator', () => {
 			});
 		});
 
-		it('calls forSystem with no arguments (system queue trigger)', async () => {
+		it('calls forSystem scoped to only the community-settings permission it needs', async () => {
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
 			await handler({ communityId: 'community-abc' }, context);
 
-			expect(factory.forSystem).toHaveBeenCalledWith();
+			expect(factory.forSystem).toHaveBeenCalledWith({ canManageCommunitySettings: true });
 		});
 
 		it('defaults triggerMetadata id to empty string when not present', async () => {

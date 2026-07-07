@@ -91,7 +91,9 @@ cellix.registerAzureFunctionQueueHandler<MyQueuePayload>(
     };
     // Validate and decode via the registered queue service
     const message = await queueService.receiveFromMyQueue(queueEntry, metadata);
-    const appServices = await host.forRequest();
+    // Queue triggers have no request/auth context, so use forSystem() rather than forRequest().
+    // Pass only the specific permissions this operation needs (least privilege).
+    const appServices = await host.forSystem({ canManageMyResource: true });
     // Process message.payload ...
   }
 );

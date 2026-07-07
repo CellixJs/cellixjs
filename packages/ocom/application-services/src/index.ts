@@ -37,7 +37,14 @@ export type PrincipalHints = {
 
 export interface AppServicesHost<S> {
 	forRequest(rawAuthHeader?: string, hints?: PrincipalHints): Promise<S>;
-	forSystem(): Promise<S>;
+	/**
+	 * Builds a system-scoped application services instance, e.g. for background/queue-triggered work with no request context.
+	 *
+	 * @param permissions - The specific permissions this system-triggered operation needs. Callers should
+	 * request only the permissions required for their operation (least privilege) rather than relying on a
+	 * shared default permission set.
+	 */
+	forSystem(permissions?: Partial<Domain.PermissionsSpec>): Promise<S>;
 	// forAzureFunction: (opts?: unknown) => Promise<S>;
 }
 
@@ -81,8 +88,8 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 		};
 	};
 
-	const forSystem = (): Promise<ApplicationServices> => {
-		const systemPassport = Domain.PassportFactory.forSystem({ canManageCommunitySettings: true, isSystemAccount: true });
+	const forSystem = (permissions?: Partial<Domain.PermissionsSpec>): Promise<ApplicationServices> => {
+		const systemPassport = Domain.PassportFactory.forSystem({ isSystemAccount: true, ...permissions });
 		const { dataSourcesFactory, blobStorageService, queueStorageService } = context;
 		const dataSources = dataSourcesFactory.withPassport(systemPassport);
 		return Promise.resolve({

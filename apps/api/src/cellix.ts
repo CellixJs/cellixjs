@@ -175,9 +175,14 @@ interface InitializedServiceRegistry {
 
 type UninitializedServiceRegistry<ContextType = unknown, AppServices = unknown> = InfrastructureServiceRegistry<ContextType, AppServices>;
 
-type RequestScopedHost<S, H = unknown> = {
+type RequestScopedHost<S, H = unknown, P = unknown> = {
 	forRequest(rawAuthHeader?: string, hints?: H): Promise<S>;
-	forSystem(): Promise<S>;
+	/**
+	 * Builds a system-scoped application services instance, e.g. for background/queue-triggered work with
+	 * no request context. Callers should pass only the specific permissions their operation needs
+	 * (least privilege) rather than relying on an implicit default permission set.
+	 */
+	forSystem(permissions?: P): Promise<S>;
 };
 
 type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;

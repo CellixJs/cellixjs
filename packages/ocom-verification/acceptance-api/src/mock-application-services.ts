@@ -139,8 +139,8 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 		forRequest: (_rawAuthHeader, hints) => {
 			return mockApplicationServicesFactory.forRequest('Bearer test-token', hints);
 		},
-		forSystem: () => {
-			return mockApplicationServicesFactory.forSystem();
+		forSystem: (permissions) => {
+			return mockApplicationServicesFactory.forSystem(permissions);
 		},
 	};
 }

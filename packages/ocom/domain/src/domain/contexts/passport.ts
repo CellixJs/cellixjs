@@ -7,6 +7,8 @@ import type { PropertyPassport } from './property/property.passport.ts';
 import type { ServicePassport } from './service/service.passport.ts';
 import type { UserPassport } from './user/user.passport.ts';
 
+export type { PermissionsSpec };
+
 export interface Passport {
 	get case(): CasePassport;
 	get community(): CommunityPassport;

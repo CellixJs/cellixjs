@@ -48,7 +48,7 @@ export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: A
 			context.error(`${communityUpdateQueueName}: invalid message payload: ${err instanceof Error ? err.message : String(err)}`, err);
 			return;
 		}
-		const appServices = await applicationServicesFactory.forSystem();
+		const appServices = await applicationServicesFactory.forSystem({ canManageCommunitySettings: true });
 		const { communityId, name, domain, whiteLabelDomain, handle } = message.payload;
 		try {
 			await appServices.Community.Community.updateSettings({
