@@ -10,7 +10,7 @@ export const communityUpdateQueue = defineQueue<CommunityUpdatePayload>()(({ $pa
 	schema: communityUpdateSchema,
 	loggingTags: {
 		domain: 'community',
-		communityId: $payload.communityId,
+		communityId: $payload.eventPayload.communityId,
 	},
 	loggingMetadata: {
 		updateType: 'community-settings',

@@ -1,0 +1,15 @@
+{
+    "eventTimestamp": "2026-07-07T02:53:27.872Z",
+    "replayId": "replay-id-001",
+    "eventUuid": "x-event-id-001",
+    "apiName": "api-name-001",
+    "traceParent": "traceParent-001",
+    "traceState": "traceState-success",
+    "eventPayload": {
+        "communityId": "b00000000000000000000001",
+        "name": "Updated Community Name",
+        "domain": "updated-community-domain.com",
+        "whiteLabelDomain": "updated-white-label-domain.com",
+        "handle": "updated-community-handle"
+    }
+}

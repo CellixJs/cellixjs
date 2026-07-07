@@ -49,7 +49,7 @@ export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: A
 			return;
 		}
 		const appServices = await applicationServicesFactory.forSystem({ canManageCommunitySettings: true });
-		const { communityId, name, domain, whiteLabelDomain, handle } = message.payload;
+		const { communityId, name, domain, whiteLabelDomain, handle } = message.payload.eventPayload;
 		try {
 			await appServices.Community.Community.updateSettings({
 				id: communityId,

@@ -3,28 +3,63 @@
 	"title": "CommunityUpdatePayload",
 	"description": "Message for updating settings on an existing community",
 	"type": "object",
-	"properties": {
-		"communityId": {
+    	"properties": {
+		"eventTimestamp": {
 			"type": "string",
-			"description": "Identifier of the community to update (required for lookup)"
+			"pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9]Z$",
+			"examples": ["2023-03-21T02:53:27.872Z"],
+			"description": "Date-time value converted to UTC timezone, and represented in ISO format"
 		},
-		"name": {
+		"replayId": {
 			"type": "string",
-			"description": "Updated community name"
+			"examples": ["replay-id-001"]
 		},
-		"domain": {
+		"eventUuid": {
 			"type": "string",
-			"description": "Updated community domain"
+			"maxLength": 36,
+			"examples": ["x-event-id-001"],
+			"description": "unique event Id from the sender"
 		},
-		"whiteLabelDomain": {
-			"type": ["string", "null"],
-			"description": "Updated white label domain (null to clear)"
+		"apiName": {
+			"type": "string",
+			"examples": ["api-name-001"]
 		},
-		"handle": {
-			"type": ["string", "null"],
-			"description": "Updated community handle (null to clear)"
-		}
-	},
-	"required": ["communityId"],
-	"additionalProperties": false
+		"traceParent": {
+			"type": "string",
+			"examples": ["traceParent-001"]
+		},
+		"traceState": {
+			"type": "string",
+			"examples": ["traceState-success"]
+		},
+		"eventPayload": {
+			"type": "object",
+			"properties": {
+                "communityId": {
+                    "type": "string",
+                    "description": "Identifier of the community to update (required for lookup)"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Updated community name"
+                },
+                "domain": {
+                    "type": "string",
+                    "description": "Updated community domain"
+                },
+                "whiteLabelDomain": {
+                    "type": ["string", "null"],
+                    "description": "Updated white label domain (null to clear)"
+                },
+                "handle": {
+                    "type": ["string", "null"],
+                    "description": "Updated community handle (null to clear)"
+                }
+            },
+            "additionalProperties": false,
+            "required": ["communityId"]
+        }
+    },
+    "additionalProperties": false,
+	"required": ["eventTimestamp", "eventUuid", "apiName", "eventPayload"]
 }

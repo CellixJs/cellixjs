@@ -147,4 +147,55 @@ describe('$payload proxy', () => {
 		// @ts-expect-error nonexistentField is not part of the payload type
 		expect(invalidPayload.nonexistentField).toBeDefined();
 	});
+
+	it('builds a dotted path when chaining into a nested object field', () => {
+		const scopedPayload = payloadFields<{ eventPayload: { communityId: string; name?: string } }>();
+
+		expect(scopedPayload.eventPayload.communityId).toEqual({ payloadField: 'eventPayload.communityId' });
+		expect(scopedPayload.eventPayload.name).toEqual({ payloadField: 'eventPayload.name' });
+	});
+
+	it('resolves nested payload field references against a nested runtime payload', () => {
+		const scopedPayload = payloadFields<{ eventPayload: { communityId: string } }>();
+		const spec = {
+			domain: 'community',
+			communityId: scopedPayload.eventPayload.communityId,
+		};
+
+		const payload = { eventPayload: { communityId: 'community-abc' } };
+		const resolved = resolveLoggingFields(spec, payload);
+
+		expect(resolved).toEqual({
+			domain: 'community',
+			communityId: 'community-abc',
+		});
+	});
+
+	it('omits a nested payload field reference when an intermediate segment is missing', () => {
+		const scopedPayload = payloadFields<{ eventPayload: { communityId: string } }>();
+		const spec = {
+			communityId: scopedPayload.eventPayload.communityId,
+		};
+
+		const resolved = resolveLoggingFields(spec, { somethingElse: true });
+
+		expect(resolved).toBeUndefined();
+	});
+
+	it('omits a nested payload field reference when the leaf value is null', () => {
+		const scopedPayload = payloadFields<{ eventPayload: { whiteLabelDomain: string | null } }>();
+		const spec = {
+			whiteLabelDomain: scopedPayload.eventPayload.whiteLabelDomain,
+		};
+
+		const resolved = resolveLoggingFields(spec, { eventPayload: { whiteLabelDomain: null } });
+
+		expect(resolved).toBeUndefined();
+	});
+
+	it('rejects nested field names that do not exist on the payload type', () => {
+		const scopedPayload = payloadFields<{ eventPayload: { communityId: string } }>();
+		// @ts-expect-error nonexistentField does not exist on the nested eventPayload type
+		expect(scopedPayload.eventPayload.nonexistentField).toBeDefined();
+	});
 });

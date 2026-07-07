@@ -1,9 +1,21 @@
 import type { InvocationContext } from '@azure/functions';
 import type { ApplicationServices, ApplicationServicesFactory } from '@ocom/application-services';
 import { CommunityNotFoundError } from '@ocom/application-services';
-import type { QueueStorageOperations } from '@ocom/service-queue-storage';
+import type { CommunityUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { communityUpdateQueueHandlerCreator } from './handler.ts';
+
+function makeQueueEntry(overrides?: Partial<CommunityUpdatePayload['eventPayload']>): CommunityUpdatePayload {
+	return {
+		eventTimestamp: '2023-03-21T02:53:27.872Z',
+		eventUuid: 'x-event-id-001',
+		apiName: 'api-name-001',
+		eventPayload: {
+			communityId: 'community-abc',
+			...overrides,
+		},
+	};
+}
 
 function makeMockApplicationServicesFactory(updateSettings = vi.fn().mockResolvedValue(undefined)) {
 	const appServices = {
@@ -24,13 +36,12 @@ function makeMockQueueService(receiveResult?: object) {
 		receiveFromCommunityUpdateQueue: vi.fn().mockResolvedValue(
 			receiveResult ?? {
 				id: 'msg-1',
-				payload: {
-					communityId: 'community-abc',
+				payload: makeQueueEntry({
 					name: 'Test Community',
 					domain: 'test.example.com',
 					whiteLabelDomain: null,
 					handle: null,
-				},
+				}),
 			},
 		),
 	} as unknown as QueueStorageOperations;
@@ -69,7 +80,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 	describe('handler invocation', () => {
 		it('calls receiveFromCommunityUpdateQueue with payload and trigger metadata', async () => {
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
-			const queueEntry = { communityId: 'community-abc' };
+			const queueEntry = makeQueueEntry();
 
 			await handler(queueEntry, context);
 
@@ -83,7 +94,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 		it('calls updateSettings with the message payload fields', async () => {
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
-			await handler({ communityId: 'community-abc' }, context);
+			await handler(makeQueueEntry(), context);
 
 			expect(factory.updateSettings).toHaveBeenCalledWith({
 				id: 'community-abc',
@@ -97,7 +108,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 		it('calls forSystem scoped to only the community-settings permission it needs', async () => {
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
-			await handler({ communityId: 'community-abc' }, context);
+			await handler(makeQueueEntry(), context);
 
 			expect(factory.forSystem).toHaveBeenCalledWith({ canManageCommunitySettings: true });
 		});
@@ -109,7 +120,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 			} as unknown as InvocationContext;
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
-			await handler({ communityId: 'community-abc' }, ctx);
+			await handler(makeQueueEntry(), ctx);
 
 			expect(queueService.receiveFromCommunityUpdateQueue).toHaveBeenCalledWith(expect.anything(), {
 				id: '',
@@ -124,7 +135,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 			vi.mocked(queueService.receiveFromCommunityUpdateQueue).mockRejectedValue(new Error('JSON parse error'));
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
-			await expect(handler({ bad: 'payload' } as unknown as { communityId: string }, context)).resolves.toBeUndefined();
+			await expect(handler({ bad: 'payload' } as unknown as CommunityUpdatePayload, context)).resolves.toBeUndefined();
 			expect(context.error).toHaveBeenCalledWith(expect.stringContaining('invalid message payload'), expect.any(Error));
 			expect(factory.forSystem).not.toHaveBeenCalled();
 		});
@@ -133,7 +144,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 			factory = makeMockApplicationServicesFactory(vi.fn().mockRejectedValue(new CommunityNotFoundError('missing-id')));
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
-			await expect(handler({ communityId: 'missing-id' }, context)).resolves.toBeUndefined();
+			await expect(handler(makeQueueEntry({ communityId: 'missing-id' }), context)).resolves.toBeUndefined();
 			expect(context.error).toHaveBeenCalledWith(expect.stringContaining('community not found'), expect.any(CommunityNotFoundError));
 		});
 
@@ -141,7 +152,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 			factory = makeMockApplicationServicesFactory(vi.fn().mockRejectedValue(new Error('Database connection failed')));
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
-			await expect(handler({ communityId: 'community-abc' }, context)).rejects.toThrow('Database connection failed');
+			await expect(handler(makeQueueEntry(), context)).rejects.toThrow('Database connection failed');
 			expect(context.error).not.toHaveBeenCalled();
 		});
 
@@ -149,7 +160,7 @@ describe('communityUpdateQueueHandlerCreator', () => {
 			factory = makeMockApplicationServicesFactory(vi.fn().mockRejectedValue('unexpected string error'));
 			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
 
-			await expect(handler({ communityId: 'community-abc' }, context)).rejects.toBe('unexpected string error');
+			await expect(handler(makeQueueEntry(), context)).rejects.toBe('unexpected string error');
 		});
 	});
 });
