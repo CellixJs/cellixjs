@@ -30,12 +30,22 @@ export class PlaywrightElementHandle implements ElementHandle {
 		return this.locator.getAttribute(name);
 	}
 
-	inputValue(): Promise<string | null> {
-		return this.locator.inputValue();
+	async inputValue(): Promise<string | null> {
+		try {
+			return await this.locator.inputValue();
+		} catch {
+			// Match DomElementHandle: non-input elements yield null instead of throwing.
+			return null;
+		}
 	}
 
-	isChecked(): Promise<boolean> {
-		return this.locator.isChecked();
+	async isChecked(): Promise<boolean> {
+		try {
+			return await this.locator.isChecked();
+		} catch {
+			// Match DomElementHandle: non-checkbox elements yield false instead of throwing.
+			return false;
+		}
 	}
 
 	isVisible(): Promise<boolean> {
