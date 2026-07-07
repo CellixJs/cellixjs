@@ -355,34 +355,7 @@ stages:
       env:
         SNYK_TOKEN: $(SNYK_TOKEN)
 
-    # Cache Java JRE
-    - task: Cache@2
-      displayName: 'Java: Restore JRE Cache'
-      condition: and(succeeded(), eq(${{parameters.disableSonarCloudTasks}}, False))
-      inputs:
-        key: 'java | "$(Agent.OS)" | openjdk-17-jre-headless'
-        restoreKeys: |
-          java | "$(Agent.OS)"
-        path: '/usr/lib/jvm/java-17-openjdk-amd64'
-        cacheHitVar: JAVA_CACHE_HIT
 
-    # Install Java JRE if cache is missed
-    - task: Bash@3
-      displayName: 'Java: Install JRE if cache missed'
-      condition: and(ne(variables.JAVA_CACHE_HIT, 'true'), eq(${{parameters.disableSonarCloudTasks}}, False))
-      inputs:
-        targetType: 'inline'
-        script: |
-          set -euo pipefail
-          echo "Installing Java 17 JRE..."
-          sudo apt-get update
-          sudo apt-get install -y openjdk-17-jre-headless
-          java -version
-          echo "JAVA_HOME set to: $JAVA_HOME"
-          # Ensure JRE directory is cached
-          sudo chmod -R 755 /usr/lib/jvm/java-17-openjdk-amd64
-      env:
-        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
     # Cache SonarCloud scanner engine
     - task: Cache@2
@@ -412,11 +385,8 @@ stages:
           fi
           echo "SONAR_TOKEN PRESENT: True"
 
-          # Verify Java installation
-          echo "Verifying Java installation..."
-          java -version
-          echo "JAVA_HOME: $JAVA_HOME"
-          echo "SONAR_SCANNER_JAVA_PATH: $SONAR_SCANNER_JAVA_PATH"
+          # SonarScanner (>=4.0) auto-provisions its own JRE; no system java required.
+          echo "SonarScanner will auto-provision its JRE (if needed)."
           echo "SONAR_CACHE_HIT: $SONAR_CACHE_HIT"
 
           # Run SonarCloud analysis
@@ -456,9 +426,6 @@ stages:
         workingDirectory: ''
       env:
         SONAR_USER_HOME: /home/vsts/work/_temp/.sonar
-        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
-        SONAR_SCANNER_JAVA_PATH: /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-        SONAR_SCANNER_SKIP_JRE_PROVISIONING: true
         SONAR_TOKEN: $(SONAR_TOKEN)
 
     # SonarCloud: Break the build if it doesn't pass the Quality Gate
