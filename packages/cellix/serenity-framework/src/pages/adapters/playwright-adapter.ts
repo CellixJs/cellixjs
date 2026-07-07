@@ -30,6 +30,14 @@ export class PlaywrightElementHandle implements ElementHandle {
 		return this.locator.getAttribute(name);
 	}
 
+	inputValue(): Promise<string | null> {
+		return this.locator.inputValue();
+	}
+
+	isChecked(): Promise<boolean> {
+		return this.locator.isChecked();
+	}
+
 	isVisible(): Promise<boolean> {
 		return this.locator.isVisible();
 	}
@@ -81,7 +89,7 @@ export class PlaywrightPageAdapter implements PageAdapter {
 	}
 
 	locator(selector: string): ElementHandle {
-		return new PlaywrightElementHandle(this.page.locator(selector));
+		return new PlaywrightElementHandle(this.page.locator(selector).first());
 	}
 
 	async locatorAll(selector: string): Promise<ElementHandle[]> {

@@ -3,13 +3,26 @@
 		"username": "staff@ownercommunity.onmicrosoft.com",
 		"sub": "10000000-0000-4000-8000-000000000001",
 		"password": "password",
-        "oidcConfigName": "staff-user",
+		"oidcConfigName": "staff-user",
 		"claims": {
 			"email": "staff@ownercommunity.onmicrosoft.com",
 			"given_name": "Staff",
 			"family_name": "User",
 			"tid": "test-staff-tenant-id",
 			"roles": ["Staff.CaseManager"]
+		}
+	},
+	{
+		"username": "tech.admin@ownercommunity.onmicrosoft.com",
+		"sub": "10000000-0000-4000-8000-000000000002",
+		"password": "password",
+		"oidcConfigName": "staff-user",
+		"claims": {
+			"email": "tech.admin@ownercommunity.onmicrosoft.com",
+			"given_name": "Tech",
+			"family_name": "Admin",
+			"tid": "test-staff-tenant-id",
+			"roles": ["Staff.TechAdmin"]
 		}
 	}
 ]

@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getAzuritePorts, getMongoPort } from '@ocom-verification/verification-shared/environment';
 import { getPortlessPath } from './resolve-portless.ts';
 
 let proxyInitialized = false;
@@ -86,8 +87,59 @@ function loadApiLocalSettings(filePath: string): void {
 	};
 
 	for (const [key, value] of Object.entries(parsed.Values ?? {})) {
-		process.env[key] ??= String(value);
+		// The committed settings assume the default (non-worktree) local ports and
+		// hostnames. Patch worktree-scoped values before they land in process.env,
+		// because they leak into spawned app servers whose own worktree overrides
+		// use `??=` and therefore never win over inherited environment variables.
+		process.env[key] ??= patchWorktreeSetting(key, String(value));
 	}
+}
+
+function patchWorktreeSetting(key: string, value: string): string {
+	const worktreeName = process.env['WORKTREE_NAME'];
+	if (!worktreeName) return value;
+
+	switch (key) {
+		case 'COSMOSDB_CONNECTION_STRING':
+			return withPort(value, getMongoPort());
+		// Disable the Node.js inspector: its fixed port would collide with the
+		// primary worktree's API dev server (mirrors start-dev.mjs worktree mode).
+		case 'languageWorkers__node__arguments':
+			return '';
+		case 'AzureWebJobsStorage':
+		case 'AZURE_STORAGE_CONNECTION_STRING':
+			return worktreeAzuriteConnectionString();
+		case 'ACCOUNT_PORTAL_OIDC_ENDPOINT':
+		case 'ACCOUNT_PORTAL_OIDC_ISSUER':
+		case 'STAFF_PORTAL_OIDC_ENDPOINT':
+		case 'STAFF_PORTAL_OIDC_ISSUER': {
+			const url = new URL(value);
+			url.hostname = applyWorktreeSuffix(url.hostname, worktreeName);
+			return url.toString().replace(/\/$/, value.endsWith('/') ? '/' : '');
+		}
+		default:
+			return value;
+	}
+}
+
+function withPort(connectionString: string, port: number): string {
+	const url = new URL(connectionString);
+	url.port = String(port);
+	return url.toString();
+}
+
+function worktreeAzuriteConnectionString(): string {
+	const { blob, queue, table } = getAzuritePorts();
+	const account = 'devstoreaccount1';
+	const key = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==';
+	return [
+		'DefaultEndpointsProtocol=http',
+		`AccountName=${account}`,
+		`AccountKey=${key}`,
+		`BlobEndpoint=http://127.0.0.1:${blob}/${account}`,
+		`QueueEndpoint=http://127.0.0.1:${queue}/${account}`,
+		`TableEndpoint=http://127.0.0.1:${table}/${account}`,
+	].join(';');
 }
 
 interface ResolvePortlessHostnamesOptions<TKey extends string> {

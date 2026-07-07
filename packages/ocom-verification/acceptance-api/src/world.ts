@@ -16,7 +16,7 @@ export const CellixApiWorld = registerManagedSerenityWorld({
 	createCast: (state) =>
 		new SerenityCast({
 			useNotepad: true,
-			abilities: [() => createGraphQLClientAbility(graphqlUrl(state)), () => createCommunityAbility()],
+			abilities: [(actor) => createGraphQLClientAbility(graphqlUrl(state), actor.name), () => createCommunityAbility()],
 		}),
 });
 
