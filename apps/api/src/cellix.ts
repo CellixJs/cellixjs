@@ -354,7 +354,7 @@ export class Cellix<ContextType, AppServices = unknown>
 				...h.options,
 				handler: (request, context) => {
 					if (!this.appServicesHostInternal) {
-						throw new Error('Application not started yet');
+						throw new Error(`Application not started yet (function: ${h.name})`);
 					}
 					return h.handlerCreator(this.appServicesHostInternal, this)(request, context);
 				},
@@ -367,7 +367,7 @@ export class Cellix<ContextType, AppServices = unknown>
 				...h.options,
 				handler: (queueEntry, context) => {
 					if (!this.appServicesHostInternal) {
-						throw new Error('Application not started yet');
+						throw new Error(`Application not started yet (queue function: ${h.name})`);
 					}
 					return h.handlerCreator(this.appServicesHostInternal, this)(queueEntry, context);
 				},

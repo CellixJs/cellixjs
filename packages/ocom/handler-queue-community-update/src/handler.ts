@@ -10,22 +10,7 @@ import type { CommunityUpdatePayload, QueueStorageOperations, QueueTriggerMetada
  * @param applicationServicesFactory - Factory for building system-scoped application services
  * @param queueService - Queue storage operations for receiving and validating messages
  * @returns An Azure Functions StorageQueueHandler for the community-update queue
- *
- * @example
- * ```ts
- * import { communityUpdateQueueHandlerCreator } from '@ocom/handler-queue-community-update';
- *
- * Cellix
- *   .initializeInfrastructureServices(...)
- *   .setContext(...)
- *   .initializeApplicationServices(...)
- *   .registerAzureFunctionQueueHandler(
- *     'community-update',
- *     { queueName: 'community-update', connection: 'AzureWebJobsStorage' },
- *     (host, infra) => communityUpdateQueueHandlerCreator(host, infra.getInfrastructureService(ServiceQueueStorage)),
- *   )
- *   .startUp();
- * ```
+ *```
  */
 export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: ApplicationServicesFactory, queueService: QueueStorageOperations): StorageQueueHandler<CommunityUpdatePayload> => {
 	return async (queueEntry, context) => {
@@ -45,7 +30,7 @@ export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: A
 		try {
 			message = await queueService.receiveFromCommunityUpdateQueue(queueEntry, metadata);
 		} catch (err) {
-			context.error(`${communityUpdateQueueName}: invalid message payload: ${err instanceof Error ? err.message : String(err)}`, err);
+			context.error(`${communityUpdateQueueName}: invalid message payload (id=${id}, dequeueCount=${dequeueCount ?? 'unknown'}): ${err instanceof Error ? err.message : String(err)}`, err);
 			return;
 		}
 		const appServices = await applicationServicesFactory.forSystem({ canManageCommunitySettings: true });
@@ -60,7 +45,7 @@ export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: A
 			});
 		} catch (err) {
 			if (err instanceof CommunityNotFoundError) {
-				context.error(`${communityUpdateQueueName}: community not found: ${communityId}`, err);
+				context.error(`${communityUpdateQueueName}: community not found: ${communityId} (id=${id}, dequeueCount=${dequeueCount ?? 'unknown'})`, err);
 				return;
 			}
 			throw err;
