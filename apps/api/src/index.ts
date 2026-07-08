@@ -3,6 +3,7 @@ import './service-config/otel-starter.ts';
 import type { ApplicationServices } from '@ocom/application-services';
 import { buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
+import type { Domain } from '@ocom/domain';
 import { RegisterEventHandlers } from '@ocom/event-handler';
 import type { GraphContext } from '@ocom/graphql-handler';
 import { graphHandlerCreator } from '@ocom/graphql-handler';
@@ -23,7 +24,7 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
 const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
 
-Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
+Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices, Partial<Domain.PermissionsSpec>>((serviceRegistry) => {
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
 		.registerInfrastructureService(

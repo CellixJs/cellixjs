@@ -24,7 +24,7 @@ interface InfrastructureServiceRegistry<ContextType = unknown, AppServices = unk
 	registerInfrastructureService<T extends ServiceBase>(service: T, name?: string): InfrastructureServiceRegistry<ContextType, AppServices>;
 }
 
-interface ContextBuilder<ContextType = unknown, AppServices = unknown> {
+interface ContextBuilder<ContextType = unknown, AppServices = unknown, P = unknown> {
 	/**
 	 * Defines the infrastructure context available for the application.
 	 *
@@ -40,10 +40,10 @@ interface ContextBuilder<ContextType = unknown, AppServices = unknown> {
 	 *
 	 * @throws Error - If called outside the 'infrastructure' phase.
 	 */
-	setContext(contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType): ApplicationServicesInitializer<ContextType, AppServices>;
+	setContext(contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType): ApplicationServicesInitializer<ContextType, AppServices, P>;
 }
 
-interface ApplicationServicesInitializer<ContextType, AppServices = unknown> {
+interface ApplicationServicesInitializer<ContextType, AppServices = unknown, P = unknown> {
 	/**
 	 * Registers the factory that creates the request-scoped application services host.
 	 *
@@ -68,10 +68,10 @@ interface ApplicationServicesInitializer<ContextType, AppServices = unknown> {
 	 *   });
 	 * ```
 	 */
-	initializeApplicationServices(factory: (infrastructureContext: ContextType) => AppHost<AppServices>): AzureFunctionHandlerRegistry<ContextType, AppServices>;
+	initializeApplicationServices(factory: (infrastructureContext: ContextType) => AppHost<AppServices, P>): AzureFunctionHandlerRegistry<ContextType, AppServices, P>;
 }
 
-interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unknown> {
+interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unknown, P = unknown> {
 	/**
 	 * Registers an Azure Function HTTP endpoint.
 	 *
@@ -101,8 +101,8 @@ interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unkn
 	registerAzureFunctionHttpHandler(
 		name: string,
 		options: Omit<HttpFunctionOptions, 'handler'>,
-		handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
-	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
+		handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices, P>;
 	/**
 	 * Registers an Azure Function Azure Storage Queue trigger endpoint.
 	 *
@@ -132,8 +132,8 @@ interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unkn
 	registerAzureFunctionQueueHandler<T = unknown>(
 		name: string,
 		options: Omit<StorageQueueFunctionOptions<T>, 'handler'>,
-		handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>,
-	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
+		handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices, P>;
 	/**
 	 * Finalizes configuration and starts the application.
 	 *
@@ -185,18 +185,18 @@ type RequestScopedHost<S, H = unknown, P = unknown> = {
 	forSystem(permissions?: P): Promise<S>;
 };
 
-type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;
+type AppHost<AppServices, P = unknown> = RequestScopedHost<AppServices, unknown, P>;
 
-interface PendingHandler<AppServices> {
+interface PendingHandler<AppServices, P = unknown> {
 	name: string;
 	options: Omit<HttpFunctionOptions, 'handler'>;
-	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler;
+	handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler;
 }
 
-interface PendingQueueHandler<AppServices, T = unknown> {
+interface PendingQueueHandler<AppServices, T = unknown, P = unknown> {
 	name: string;
 	options: Omit<StorageQueueFunctionOptions<T>, 'handler'>;
-	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>;
+	handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>;
 }
 
 type Phase = 'infrastructure' | 'context' | 'app-services' | 'handlers' | 'started';
@@ -209,18 +209,18 @@ type Phase = 'infrastructure' | 'context' | 'app-services' | 'handlers' | 'start
  */
 type ServiceKey<T extends ServiceBase = ServiceBase> = { prototype: T };
 
-export class Cellix<ContextType, AppServices = unknown>
+export class Cellix<ContextType, AppServices = unknown, P = unknown>
 	implements
 		InfrastructureServiceRegistry<ContextType, AppServices>,
-		ContextBuilder<ContextType, AppServices>,
-		ApplicationServicesInitializer<ContextType, AppServices>,
-		AzureFunctionHandlerRegistry<ContextType, AppServices>,
+		ContextBuilder<ContextType, AppServices, P>,
+		ApplicationServicesInitializer<ContextType, AppServices, P>,
+		AzureFunctionHandlerRegistry<ContextType, AppServices, P>,
 		StartedApplication<ContextType>
 {
 	private contextInternal: ContextType | undefined;
-	private appServicesHostInternal: RequestScopedHost<AppServices, unknown> | undefined;
+	private appServicesHostInternal: RequestScopedHost<AppServices, unknown, P> | undefined;
 	private contextCreatorInternal: ((serviceRegistry: InitializedServiceRegistry) => ContextType) | undefined;
-	private appServicesHostBuilder: ((infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown>) | undefined;
+	private appServicesHostBuilder: ((infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown, P>) | undefined;
 	private readonly tracer: Tracer;
 	private readonly servicesInternal: Map<ServiceKey<ServiceBase>, ServiceBase> = new Map();
 	/**
@@ -229,9 +229,9 @@ export class Cellix<ContextType, AppServices = unknown>
 	 * different names.
 	 */
 	private readonly nameMap: Map<string, ServiceBase> = new Map();
-	private readonly pendingHandlers: Array<PendingHandler<AppServices>> = [];
+	private readonly pendingHandlers: Array<PendingHandler<AppServices, P>> = [];
 	// biome-ignore lint/suspicious/noExplicitAny: each queue handler captures a distinct T; any allows heterogeneous handlers in one array without unsafe per-field casts
-	private readonly pendingQueueHandlers: Array<PendingQueueHandler<AppServices, any>> = [];
+	private readonly pendingQueueHandlers: Array<PendingQueueHandler<AppServices, any, P>> = [];
 	private serviceInitializedInternal = false;
 	private phase: Phase = 'infrastructure';
 
@@ -271,8 +271,8 @@ export class Cellix<ContextType, AppServices = unknown>
 	 * .startUp();
 	 * ```
 	 */
-	public static initializeInfrastructureServices<ContextType, AppServices = unknown>(registerServices: (registry: UninitializedServiceRegistry<ContextType, AppServices>) => void): ContextBuilder<ContextType, AppServices> {
-		const instance = new Cellix<ContextType, AppServices>();
+	public static initializeInfrastructureServices<ContextType, AppServices = unknown, P = unknown>(registerServices: (registry: UninitializedServiceRegistry<ContextType, AppServices>) => void): ContextBuilder<ContextType, AppServices, P> {
+		const instance = new Cellix<ContextType, AppServices, P>();
 		registerServices(instance);
 		return instance;
 	}
@@ -298,14 +298,14 @@ export class Cellix<ContextType, AppServices = unknown>
 		return this;
 	}
 
-	public setContext(contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType): ApplicationServicesInitializer<ContextType, AppServices> {
+	public setContext(contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType): ApplicationServicesInitializer<ContextType, AppServices, P> {
 		this.ensurePhase('infrastructure');
 		this.contextCreatorInternal = contextCreator;
 		this.phase = 'context';
 		return this;
 	}
 
-	public initializeApplicationServices(factory: (infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown>): AzureFunctionHandlerRegistry<ContextType, AppServices> {
+	public initializeApplicationServices(factory: (infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown, P>): AzureFunctionHandlerRegistry<ContextType, AppServices, P> {
 		this.ensurePhase('context');
 		if (!this.contextCreatorInternal) {
 			throw new Error('Context creator must be set before initializing application services');
@@ -318,8 +318,8 @@ export class Cellix<ContextType, AppServices = unknown>
 	public registerAzureFunctionHttpHandler(
 		name: string,
 		options: Omit<HttpFunctionOptions, 'handler'>,
-		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
-	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
+		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown, P>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices, P> {
 		this.ensurePhase('app-services', 'handlers');
 		this.pendingHandlers.push({ name, options, handlerCreator });
 		this.phase = 'handlers';
@@ -329,8 +329,8 @@ export class Cellix<ContextType, AppServices = unknown>
 	public registerAzureFunctionQueueHandler<T = unknown>(
 		name: string,
 		options: Omit<StorageQueueFunctionOptions<T>, 'handler'>,
-		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>,
-	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
+		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown, P>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices, P> {
 		this.ensurePhase('app-services', 'handlers');
 		this.pendingQueueHandlers.push({ name, options, handlerCreator });
 		this.phase = 'handlers';
@@ -461,7 +461,7 @@ export class Cellix<ContextType, AppServices = unknown>
 		return this.contextInternal;
 	}
 
-	public get applicationServices(): RequestScopedHost<AppServices, unknown> {
+	public get applicationServices(): RequestScopedHost<AppServices, unknown, P> {
 		if (!this.appServicesHostInternal) {
 			throw new Error('Application services not initialized');
 		}

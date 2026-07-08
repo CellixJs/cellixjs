@@ -33,6 +33,7 @@
 		"@cellix/mongoose-seedwork": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
+		"@ocom/domain": "workspace:*",
 		"@ocom/event-handler": "workspace:*",
 		"@ocom/graphql": "workspace:*",
 		"@ocom/graphql-handler": "workspace:*",

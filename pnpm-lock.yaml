@@ -293,6 +293,9 @@ importers:
       '@ocom/context-spec':
         specifier: workspace:*
         version: link:../../packages/ocom/context-spec
+      '@ocom/domain':
+        specifier: workspace:*
+        version: link:../../packages/ocom/domain
       '@ocom/event-handler':
         specifier: workspace:*
         version: link:../../packages/ocom/event-handler
