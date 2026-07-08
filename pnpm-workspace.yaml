@@ -6,6 +6,11 @@ packages:
 
 engineStrict: true
 
+# Disable pnpm 11's auto-install on script runs. CI explicitly runs
+# `pnpm install --frozen-lockfile` before turbo tasks; concurrent auto-installs
+# from parallel turbo workers kill each other with SIGINT (#289).
+verifyDepsBeforeRun: false
+
 catalog:
   '@apollo/server': 5.5.0
   '@azure/functions': 4.11.0
