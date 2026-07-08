@@ -134,6 +134,8 @@ const staffAuthByRole: Record<StaffBusinessRole, StaffAuth> = {
 let uiRoles: MockStaffRole[] = [];
 let baselineRoleCount = 0;
 let currentAuthRole: StaffBusinessRole = 'tech admin';
+// When set, overrides the business-role auth with fine-grained permissions.
+let currentCustomAuth: StaffAuth | undefined;
 let lastMutation: { success: boolean; errorMessage?: string | null } | undefined;
 let currentPath = '/';
 let idCounter = 0;
@@ -161,6 +163,7 @@ export function resetStaffRoleUiState(businessRole: StaffBusinessRole): void {
 	lastMutation = undefined;
 	currentPath = '/';
 	currentAuthRole = businessRole;
+	currentCustomAuth = undefined;
 	for (const roleName of DEFAULT_STAFF_ROLE_NAMES) {
 		addRole(roleName, `Staff.${roleName.replace('Default ', '').replaceAll(' ', '')}`);
 	}
@@ -298,11 +301,11 @@ const formPageFor = (actor: Actor): StaffRoleFormPage => new StaffRoleFormPage(n
 // antd messages portal to document.body, outside the rendered container.
 const feedbackPage = (): StaffRoleFormPage => new StaffRoleFormPage(new DomPageAdapter(document.body));
 
-async function renderStaffRolesScreen(actorName: string): Promise<Actor> {
+async function renderStaffRolesScreen(actorName: string, initialEntries: string[] = ['/']): Promise<Actor> {
 	const actor = actorCalled(actorName);
 	await actor.attemptsTo(
 		Render.component(React.createElement(React.Fragment, null, React.createElement(LocationProbe), React.createElement(StaffRolesPage)), {
-			wrapper: wrapOcomComponent({ mocks: buildMocks(), initialEntries: ['/'], staffAuth: staffAuthByRole[currentAuthRole] }),
+			wrapper: wrapOcomComponent({ mocks: buildMocks(), initialEntries, staffAuth: currentCustomAuth ?? staffAuthByRole[currentAuthRole] }),
 		}),
 	);
 	await flushUi();
@@ -348,6 +351,21 @@ async function submitCreateForm(actorName: string, dataTable: DataTable): Promis
 	await flushUi();
 }
 
+const STAFF_ROLE_PERMISSION_FLAGS = ['canViewRoles', 'canAddRole', 'canEditRole', 'canRemoveRole'] as const;
+type StaffRolePermissionFlag = (typeof STAFF_ROLE_PERMISSION_FLAGS)[number];
+
+Given('{word} is an authenticated staff user with only the {string} role permission', (_actorName: string, permissionFlag: string) => {
+	if (!STAFF_ROLE_PERMISSION_FLAGS.includes(permissionFlag as StaffRolePermissionFlag)) {
+		throw new Error(`Unsupported staff role permission "${permissionFlag}". Expected one of: ${STAFF_ROLE_PERMISSION_FLAGS.join(', ')}`);
+	}
+	resetStaffRoleUiState('case manager');
+	currentCustomAuth = {
+		name: 'Scoped Staff',
+		enterpriseAppRole: 'Staff.CaseManager',
+		permissions: { [permissionFlag]: true },
+	};
+});
+
 Given('a staff role named {string} exists', (roleName: string) => {
 	if (!uiRoles.some((candidate) => candidate.roleName === roleName)) {
 		addRole(roleName, 'Staff.CaseManager');
@@ -380,6 +398,16 @@ When('{word} renames the staff role {string} to {string}', async (actorName: str
 
 When('{word} opens the staff roles screen', async (actorName: string) => {
 	const actor = await renderStaffRolesScreen(actorName);
+	await flushUi();
+	await actor.attemptsTo(notes<StaffUiNotes>().set('targetRoute', currentPath));
+});
+
+When('{word} opens the edit screen for the staff role {string}', async (actorName: string, roleName: string) => {
+	const role = uiRoles.find((candidate) => candidate.roleName === roleName);
+	if (!role) {
+		throw new Error(`Staff role "${roleName}" is not present in the mocked backend`);
+	}
+	const actor = await renderStaffRolesScreen(actorName, [`/edit/${role.id}`]);
 	await flushUi();
 	await actor.attemptsTo(notes<StaffUiNotes>().set('targetRoute', currentPath));
 });
@@ -449,6 +477,20 @@ Then('{word} should see a staff role validation error for {string}', async (_act
 		const text = (await formPage.firstValidationError.textContent()) ?? '';
 		return expectedPattern.test(text);
 	}, `Expected a validation error for "${fieldName}"`);
+});
+
+Then('{word} should not see an option to create a staff role', async (_actorName: string) => {
+	const listPage = listPageFor(actorInTheSpotlight());
+	if (await listPage.createRoleButton.isVisible()) {
+		throw new Error('Expected the create staff role action to be hidden, but it is visible');
+	}
+});
+
+Then('{word} should not see an option to edit a staff role', async (_actorName: string) => {
+	const listPage = listPageFor(actorInTheSpotlight());
+	if (await listPage.hasAnyEditAction()) {
+		throw new Error('Expected no edit action to be rendered for any staff role, but at least one is visible');
+	}
 });
 
 Then('no additional staff role should be created', () => {

@@ -95,3 +95,35 @@ Feature: Staff role management
 		Given Alice is an authenticated "case manager" staff user
 		When Alice opens the staff roles screen
 		Then Alice should be directed to "/unauthorized"
+
+	@ui-only
+	Scenario: Staff user with only the view-roles permission can see but not manage roles
+		Given Alice is an authenticated staff user with only the "canViewRoles" role permission
+		When Alice views the staff roles list
+		Then the staff roles list should include the default staff roles
+		And she should not see an option to create a staff role
+		And she should not see an option to edit a staff role
+
+	@ui-only
+	Scenario: Staff user with only the add-role permission can create a staff role
+		Given Alice is an authenticated staff user with only the "canAddRole" role permission
+		When Alice creates a staff role with:
+			| roleName          | Junior Auditor    |
+			| enterpriseAppRole | Staff.CaseManager |
+		Then the staff role should be created successfully
+		And the staff roles list should include "Junior Auditor"
+
+	@ui-only
+	Scenario: Staff user with only the edit-role permission can rename a staff role
+		Given Alice is an authenticated staff user with only the "canEditRole" role permission
+		And a staff role named "Legacy Coordinator" exists
+		When Alice renames the staff role "Legacy Coordinator" to "Modern Coordinator"
+		Then the staff role should be updated successfully
+		And the staff roles list should include "Modern Coordinator"
+
+	@ui-only
+	Scenario: Staff user without the edit-role permission cannot open the edit screen
+		Given Alice is an authenticated staff user with only the "canViewRoles" role permission
+		And a staff role named "Restricted Role" exists
+		When Alice opens the edit screen for the staff role "Restricted Role"
+		Then Alice should be directed to "/unauthorized"

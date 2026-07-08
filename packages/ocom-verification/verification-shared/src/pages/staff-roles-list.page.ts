@@ -37,6 +37,21 @@ export class StaffRolesListPage extends AdapterBackedPageObject {
 		return names.includes(roleName);
 	}
 
+	/** Whether any row-level Edit action is rendered in the roles table. */
+	async hasAnyEditAction(): Promise<boolean> {
+		const rows = await this.adapter.locatorAll('.ant-table-tbody tr.ant-table-row');
+		for (const row of rows) {
+			const buttons = await row.querySelectorAll('button, a');
+			for (const button of buttons) {
+				const label = await button.textContent();
+				if (label?.trim() === 'Edit') {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	/** Click the row-level Edit action for the given role. */
 	async clickEditForRole(roleName: string): Promise<void> {
 		const rows = await this.adapter.locatorAll('.ant-table-tbody tr.ant-table-row');
