@@ -1,4 +1,5 @@
 export type { QueueLoggingConfig, QueueTriggerMetadata } from '@cellix/service-queue-storage';
+export { extractQueueTriggerMetadata } from '@cellix/service-queue-storage';
 export type { QueueStorageOperations } from './queue-storage.contract.ts';
 export { ServiceQueueStorage } from './registry.ts';
 export type { CommunityUpdatePayload } from './schemas/inbound/community-update.ts';

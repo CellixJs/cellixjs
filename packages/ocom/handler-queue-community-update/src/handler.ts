@@ -1,8 +1,8 @@
 import type { StorageQueueHandler } from '@azure/functions';
 import type { ApplicationServicesFactory } from '@ocom/application-services';
 import { CommunityNotFoundError } from '@ocom/application-services';
-import { communityUpdateQueueName } from '@ocom/service-queue-storage';
-import type { CommunityUpdatePayload, QueueStorageOperations, QueueTriggerMetadata } from '@ocom/service-queue-storage';
+import type { CommunityUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
+import { communityUpdateQueueName, extractQueueTriggerMetadata } from '@ocom/service-queue-storage';
 
 /**
  * Creates an Azure Functions Storage Queue handler for processing community update messages.
@@ -14,18 +14,8 @@ import type { CommunityUpdatePayload, QueueStorageOperations, QueueTriggerMetada
  */
 export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: ApplicationServicesFactory, queueService: QueueStorageOperations): StorageQueueHandler<CommunityUpdatePayload> => {
 	return async (queueEntry, context) => {
-		// biome-ignore lint/complexity/useLiteralKeys: triggerMetadata uses an index signature type that requires bracket access
-		const id = (context.triggerMetadata?.['id'] as string) ?? '';
-		// biome-ignore lint/complexity/useLiteralKeys: triggerMetadata uses an index signature type that requires bracket access
-		const popReceipt = context.triggerMetadata?.['popReceipt'] as string | undefined;
-		// biome-ignore lint/complexity/useLiteralKeys: triggerMetadata uses an index signature type that requires bracket access
-		const dequeueCount = context.triggerMetadata?.['dequeueCount'] as number | undefined;
-		// exactOptionalPropertyTypes: omit keys whose values are undefined rather than passing explicit undefined
-		const metadata: QueueTriggerMetadata = {
-			id,
-			...(popReceipt === undefined ? {} : { popReceipt }),
-			...(dequeueCount === undefined ? {} : { dequeueCount }),
-		};
+		const metadata = extractQueueTriggerMetadata(context.triggerMetadata);
+		const { id, dequeueCount } = metadata;
 		let message: Awaited<ReturnType<typeof queueService.receiveFromCommunityUpdateQueue>>;
 		try {
 			message = await queueService.receiveFromCommunityUpdateQueue(queueEntry, metadata);
@@ -33,7 +23,13 @@ export const communityUpdateQueueHandlerCreator = (applicationServicesFactory: A
 			context.error(`${communityUpdateQueueName}: invalid message payload (id=${id}, dequeueCount=${dequeueCount ?? 'unknown'}): ${err instanceof Error ? err.message : String(err)}`, err);
 			return;
 		}
-		const appServices = await applicationServicesFactory.forSystem({ canManageCommunitySettings: true });
+		let appServices: Awaited<ReturnType<typeof applicationServicesFactory.forSystem>>;
+		try {
+			appServices = await applicationServicesFactory.forSystem({ canManageCommunitySettings: true });
+		} catch (err) {
+			context.error(`${communityUpdateQueueName}: failed to create application services (id=${id}, dequeueCount=${dequeueCount ?? 'unknown'}): ${err instanceof Error ? err.message : String(err)}`, err);
+			throw err;
+		}
 		const { communityId, name, domain, whiteLabelDomain, handle } = message.payload.eventPayload;
 		try {
 			await appServices.Community.Community.updateSettings({

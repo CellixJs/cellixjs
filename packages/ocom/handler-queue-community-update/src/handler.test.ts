@@ -162,5 +162,14 @@ describe('communityUpdateQueueHandlerCreator', () => {
 
 			await expect(handler(makeQueueEntry(), context)).rejects.toBe('unexpected string error');
 		});
+
+		it('logs an error and rethrows when forSystem throws', async () => {
+			factory.forSystem.mockRejectedValue(new Error('passport factory misconfigured'));
+			const handler = communityUpdateQueueHandlerCreator(factory as unknown as ApplicationServicesFactory, queueService);
+
+			await expect(handler(makeQueueEntry(), context)).rejects.toThrow('passport factory misconfigured');
+			expect(context.error).toHaveBeenCalledWith(expect.stringContaining('failed to create application services'), expect.any(Error));
+			expect(factory.updateSettings).not.toHaveBeenCalled();
+		});
 	});
 });

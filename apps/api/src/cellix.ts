@@ -1,4 +1,4 @@
-import { app, type HttpFunctionOptions, type HttpHandler, type StorageQueueFunctionOptions, type StorageQueueHandler } from '@azure/functions';
+import { app, type HttpFunctionOptions, type HttpHandler, type InvocationContext, type StorageQueueFunctionOptions, type StorageQueueHandler } from '@azure/functions';
 import type { ServiceBase } from '@cellix/api-services-spec';
 import api, { SpanStatusCode, type Tracer, trace } from '@opentelemetry/api';
 
@@ -271,7 +271,9 @@ export class Cellix<ContextType, AppServices = unknown, P = unknown>
 	 * .startUp();
 	 * ```
 	 */
-	public static initializeInfrastructureServices<ContextType, AppServices = unknown, P = unknown>(registerServices: (registry: UninitializedServiceRegistry<ContextType, AppServices>) => void): ContextBuilder<ContextType, AppServices, P> {
+	public static initializeInfrastructureServices<ContextType, AppServices = unknown, P = unknown>(
+		registerServices: (registry: UninitializedServiceRegistry<ContextType, AppServices>) => void,
+	): ContextBuilder<ContextType, AppServices, P> {
 		const instance = new Cellix<ContextType, AppServices, P>();
 		registerServices(instance);
 		return instance;
@@ -347,17 +349,36 @@ export class Cellix<ContextType, AppServices = unknown, P = unknown>
 		return Promise.resolve(this);
 	}
 
+	/**
+	 * Wraps a handler creator so its construction is deferred until the first invocation, at which
+	 * point the (by-then initialized) application services host is available. Shared by both HTTP
+	 * and Storage Queue handler registration in {@link setupLifecycle} so lifecycle checks (e.g.,
+	 * "has application services started?") stay consistent across handler kinds.
+	 *
+	 * @param kindLabel - Human-readable handler kind used in the "not started yet" error message.
+	 * @param name - The Azure Function name, used in the "not started yet" error message.
+	 * @param handlerCreator - Factory that produces the actual per-invocation handler function.
+	 * @returns A handler function with the same signature as the one `handlerCreator` produces.
+	 */
+	private deferHandlerCreation<Arg, R>(
+		kindLabel: string,
+		name: string,
+		handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => (arg: Arg, context: InvocationContext) => R,
+	): (arg: Arg, context: InvocationContext) => R {
+		return (arg: Arg, context: InvocationContext): R => {
+			if (!this.appServicesHostInternal) {
+				throw new Error(`Application not started yet (${kindLabel}: ${name})`);
+			}
+			return handlerCreator(this.appServicesHostInternal, this)(arg, context);
+		};
+	}
+
 	private setupLifecycle(): void {
 		// Register HTTP function handlers (deferred execution of creators)
 		for (const h of this.pendingHandlers) {
 			app.http(h.name, {
 				...h.options,
-				handler: (request, context) => {
-					if (!this.appServicesHostInternal) {
-						throw new Error(`Application not started yet (function: ${h.name})`);
-					}
-					return h.handlerCreator(this.appServicesHostInternal, this)(request, context);
-				},
+				handler: this.deferHandlerCreation('function', h.name, h.handlerCreator),
 			});
 		}
 
@@ -365,12 +386,7 @@ export class Cellix<ContextType, AppServices = unknown, P = unknown>
 		for (const h of this.pendingQueueHandlers) {
 			app.storageQueue(h.name, {
 				...h.options,
-				handler: (queueEntry, context) => {
-					if (!this.appServicesHostInternal) {
-						throw new Error(`Application not started yet (queue function: ${h.name})`);
-					}
-					return h.handlerCreator(this.appServicesHostInternal, this)(queueEntry, context);
-				},
+				handler: this.deferHandlerCreation('queue function', h.name, h.handlerCreator),
 			});
 		}
 
