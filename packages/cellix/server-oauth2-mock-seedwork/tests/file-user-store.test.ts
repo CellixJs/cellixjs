@@ -126,9 +126,7 @@ describe('file user store oidcConfigName filtering', () => {
 
 	it('users without oidcConfigName are visible to all scoped stores', async () => {
 		if (!tmp) throw new Error('tmp not created');
-		writeUsers(tmp, 'mock-oidc.users.json', [
-			{ username: 'shared@example.com', sub: 'sub-shared' },
-		]);
+		writeUsers(tmp, 'mock-oidc.users.json', [{ username: 'shared@example.com', sub: 'sub-shared' }]);
 		const endStore = createFileUserStore(tmp, 'end-user');
 		const staffStore = createFileUserStore(tmp, 'staff-user');
 
@@ -191,15 +189,7 @@ describe('file user store oidcConfigName filtering', () => {
 			expect(users).toHaveLength(1);
 			expect(users[0]?.username).toBe('good@example.com');
 			expect(warnSpy.length).toBeGreaterThan(0);
-			expect(
-				warnSpy.some((args) =>
-					(args as unknown[]).some(
-						(arg) =>
-							typeof arg === 'string' &&
-							arg.includes('"oidcConfigName" must be a string'),
-					),
-				),
-			).toBe(true);
+			expect(warnSpy.some((args) => (args as unknown[]).some((arg) => typeof arg === 'string' && arg.includes('"oidcConfigName" must be a string')))).toBe(true);
 		} finally {
 			console.warn = origWarn;
 		}

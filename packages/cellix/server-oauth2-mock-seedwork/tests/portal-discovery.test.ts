@@ -569,11 +569,7 @@ describe('discoverPortalConfigs', () => {
 				envVars: { clientId: 'VITE_APP_PORTAL_STAFF_CLIENTID', redirectUri: 'VITE_APP_PORTAL_STAFF_REDIRECT' },
 			},
 		]);
-		writeEnv(
-			tmp,
-			'ui-portal/.env',
-			'VITE_APP_PORTAL_END_CLIENTID=end-cid\nVITE_APP_PORTAL_END_REDIRECT=https://portal/end/cb\nVITE_APP_PORTAL_STAFF_CLIENTID=staff-cid\nVITE_APP_PORTAL_STAFF_REDIRECT=https://portal/staff/cb\n',
-		);
+		writeEnv(tmp, 'ui-portal/.env', 'VITE_APP_PORTAL_END_CLIENTID=end-cid\nVITE_APP_PORTAL_END_REDIRECT=https://portal/end/cb\nVITE_APP_PORTAL_STAFF_CLIENTID=staff-cid\nVITE_APP_PORTAL_STAFF_REDIRECT=https://portal/staff/cb\n');
 
 		const portals = discoverPortalConfigs(tmp);
 		expect(portals).toHaveLength(2);

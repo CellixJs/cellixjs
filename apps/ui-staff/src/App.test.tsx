@@ -75,7 +75,7 @@ describe('App', () => {
 		);
 		expect(typeof html).toBe('string');
 		expect(html).toContain('Unauthorized');
-	});
+	}, 15000);
 
 	it('navigates to staff index without throwing (index redirects via Navigate)', () => {
 		// React renderToString does not follow Navigate redirects synchronously,

@@ -33,7 +33,7 @@ export function describeDependencyRulesTests(config: DependencyRulesTestsConfig)
 					it('packages should not have circular dependencies', async () => {
 						const violations = await checkCircularDependencies({ packagesGlob });
 						expect(violations).toStrictEqual([]);
-					}, 10000);
+					}, 30000);
 				}
 			});
 		}

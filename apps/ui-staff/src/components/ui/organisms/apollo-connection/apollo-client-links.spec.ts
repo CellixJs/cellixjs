@@ -1,4 +1,5 @@
-import type { Operation } from '@apollo/client';
+import type { NextLink, Operation } from '@apollo/client';
+import { Observable } from '@apollo/client';
 import { describe, expect, it } from 'vitest';
 import { ApolloLinkToAddCustomHeader } from './apollo-client-links.js';
 
@@ -37,7 +38,11 @@ describe('ApolloLinkToAddCustomHeader', () => {
 		// seed previous headers to ensure merge happens
 		mockOp.setContext({ headers: { existing: 'value' } });
 
-		const forward = (() => ({ subscribe: () => ({}) })) as unknown as (op?: Operation) => { subscribe: () => unknown };
+		const forward: NextLink = () =>
+			new Observable((observer) => {
+				observer.next({ data: {} });
+				observer.complete();
+			});
 
 		// execute the link (cast to Operation only at the call-site)
 		link.request(mockOp as unknown as Operation, forward);
